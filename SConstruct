@@ -22,9 +22,12 @@ cPrincipal = env.Object('ifg/qt/principal.cpp')
 hMenuPrincipal = env.Moc('include/ifg/qt/menuprincipal.h')
 cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 
-# tabuleiro: qt moc e fonte
-hTabuleiro = env.Moc('include/ifg/qt/tabuleiro.h')
-cTabuleiro = env.Object('ifg/qt/tabuleiro.cpp')
+# visualizador3d: qt moc e fonte
+hVisualizador3d = env.Moc('include/ifg/qt/visualizador3d.h')
+cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
+
+# tabuleiro
+cTabuleiro = env.Object('ifg/gl/tabuleiro.cpp')
 
 # programa final
 env.Program(
@@ -34,7 +37,7 @@ env.Program(
 		# notificacoes
 		'ntf/notificacao.cpp',
 		# interface QT
-		hPrincipal, cPrincipal, hMenuPrincipal, cMenuPrincipal, hTabuleiro, cTabuleiro
+		hPrincipal, cPrincipal, hMenuPrincipal, cMenuPrincipal, hVisualizador3d, cVisualizador3d, cTabuleiro
 	]
 )
 

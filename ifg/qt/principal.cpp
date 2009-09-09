@@ -10,7 +10,7 @@
 
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
-#include "ifg/qt/tabuleiro.h"
+#include "ifg/qt/visualizador3d.h"
 #include "ntf/notificacao.h"
 
 using namespace ifg::qt;
@@ -56,7 +56,7 @@ void Principal::executa(){
 	setLayout(ql);
 
 	ql->setMenuBar(new MenuPrincipal(this));
-	ql->addWidget(new Tabuleiro(this));
+	ql->addWidget(new Visualizador3d(this));
 
 	// mostra a janela e entra no loop do QT
 	show();
