@@ -3,9 +3,10 @@
 
 #include <list>
 #include <qgl.h>
-#include <memory>
+#include <list>
 #include "ifg/gl/tabuleiro.h"
 #include "ifg/gl/parametrosdesenho.h"
+#include "ent/entidade.h"
 
 namespace ifg {
 namespace gl {
@@ -33,6 +34,10 @@ namespace qt {
 		/** funcao de desenho da janela. */
 		void paintGL();
 
+		// entidades
+
+		/** adiciona uma entidade ao sistema. A responsabilidade de destruicao eh do visualizador. */
+		void adicionaEntidade(ent::Entidade* entidade);
 
 		// funcoes sobrecarregadas mouse
 
@@ -40,12 +45,22 @@ namespace qt {
 		void mousePressEvent(QMouseEvent* event); 
 
 	private:
+		/** desenha os elementos da cena. */
+		void desenhaCena();
+
+	private:
 
 		/** parametros de desenho da cena. */
 		gl::ParametrosDesenho parametrosDesenho_;
 
-		/** entidade principal de desenho. */
-		gl::Tabuleiro tabuleiro_;
+		/** elementos da cena: terreno. */
+		ent::Tabuleiro tabuleiro_;
+
+		/** elementos da cena: ceu. */
+		gl::Ceu ceu_;
+
+		/** elementos da cena: entidades. */
+		std::list<ent::Entidade*> entidades_;
 
 		// ultimo X do mouse
 		int mouseUltimoX_;

@@ -7,9 +7,14 @@ using namespace ifg::qt;
 using namespace std;
 
 Visualizador3d::Visualizador3d(QWidget* pai) : 
-	QGLWidget(pai), mouseUltimoX_(0), theta_(0)  {}
+	QGLWidget(pai), mouseUltimoX_(0), theta_(0)  
+{}
 
-Visualizador3d::~Visualizador3d() {}
+Visualizador3d::~Visualizador3d() {
+	for (list<ent::Entidade*>::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+		delete *it;
+	}
+}
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
@@ -22,15 +27,23 @@ void Visualizador3d::resizeGL(int width, int height) {
 	glViewport(0, 0, (GLint)width, (GLint)height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+	// @todo usar frustum aqui
 	gluOrtho2D(-width/2, width/2, -height/2, height/2);
 }
 
 void Visualizador3d::paintGL() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glMatrixMode(GL_PROJECTION);
+	// @todo aplicar camera aqui
 	glRotatef(theta_, 0, 0, 1.0);
-	tabuleiro_.desenha(parametrosDesenho_);
 
+	desenhaCena();
+}
+
+// entidades
+
+void Visualizador3d::adicionaEntidade(ent::Entidade* entidade) {
+	entidades_.push_back(entidade);
 }
 
 // mouse
@@ -48,4 +61,24 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
 	mouseUltimoX_ = xEvento;
 	glDraw();	
 }
+
+// cena
+void Visualizador3d::desenhaCena() {
+	ceu_.desenha(parametrosDesenho_);
+	tabuleiro_.desenha(parametrosDesenho_);
+	for (list<ent::Entidade*>::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+		(*it)->desenha(parametrosDesenho_);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
 
