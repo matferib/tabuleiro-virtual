@@ -4,14 +4,9 @@
 #include <list>
 #include <qgl.h>
 #include <list>
-#include "ifg/gl/tabuleiro.h"
-#include "ifg/gl/parametrosdesenho.h"
-#include "ent/entidade.h"
+#include "ent/tabuleiro.h"
 
 namespace ifg {
-namespace gl {
-	class Tabuleiro;
-}
 namespace qt {
 
 	/** widget responsavel por desenhar a area 3D. 
@@ -51,19 +46,19 @@ namespace qt {
 	private:
 
 		/** parametros de desenho da cena. */
-		gl::ParametrosDesenho parametrosDesenho_;
+		ent::ParametrosDesenho parametrosDesenho_;
 
 		/** elementos da cena: terreno. */
 		ent::Tabuleiro tabuleiro_;
 
 		/** elementos da cena: ceu. */
-		gl::Ceu ceu_;
+		//gl::Ceu ceu_;
 
 		/** elementos da cena: entidades. */
 		std::list<ent::Entidade*> entidades_;
 
 		// ultimo X do mouse
-		int mouseUltimoX_;
+		int mouseUltimoY_;
 
 		// angulo de rotacao da camera
 		double theta_;

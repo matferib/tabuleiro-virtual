@@ -5,6 +5,8 @@
 
 namespace ent {
 
+	class DadosTabuleiro;
+
 	/** responsavel pelo terreno de jogo. */
 	class Tabuleiro : public Entidade {
 	public:
@@ -12,10 +14,15 @@ namespace ent {
 		* O identificador do tabuleiro sempre eh 0. 
 		*/
 		explicit Tabuleiro(int tamanho);
+		~Tabuleiro();
 
 		// implementacao da interface virtual 
-		void desenha(const ParametrosDesenho* pd);
-		void clicado(int x, int y);
+		void desenha(const ParametrosDesenho& pd);
+		bool clicado(int x, int y);
+
+	private:
+		/** dados do tabuleiro. */
+		DadosTabuleiro* dt_;
 	};
 }
 

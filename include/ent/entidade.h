@@ -12,10 +12,13 @@ namespace ent {
 	/** classe base para entidades. Deve implementar as interfaces de desenho e clique.
 	* Toda entidade devera possuir um identificador unico. 
 	*/
-	class Entidade : public ifg::gl::Desenhavel, public ifg::gl::Clicavel {
+	class Entidade {
 	protected:
-		explicit Entidade(int id);
+		explicit Entidade(int id) { id_ = id; }
+	public:
+		virtual ~Entidade(){}
 
+	public:
 		/** @return o identificador da entidade que deve ser unico. */
 		int id() const { return id_; }
 
