@@ -42,6 +42,10 @@ namespace qt {
 	private:
 		/** desenha os elementos da cena. */
 		void desenhaCena();
+		/** trata o clique do mouse (ja com Y convertido para opengl).
+		* @return true se algum objeto tratou o evento.
+		*/
+		bool trataClique(int x, int y);
 
 	private:
 
@@ -56,6 +60,9 @@ namespace qt {
 
 		/** elementos da cena: entidades. */
 		std::list<ent::Entidade*> entidades_;
+
+		// arrastando
+		bool arrastando_;
 
 		// ultimo X do mouse
 		int mouseUltimoY_;

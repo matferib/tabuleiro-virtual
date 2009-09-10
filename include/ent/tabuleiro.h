@@ -18,7 +18,8 @@ namespace ent {
 
 		// implementacao da interface virtual 
 		void desenha(const ParametrosDesenho& pd);
-		bool clicado(int x, int y);
+		void clique(int id);
+
 
 	private:
 		/** dados do tabuleiro. */

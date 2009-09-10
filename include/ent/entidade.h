@@ -22,8 +22,10 @@ namespace ent {
 		/** @return o identificador da entidade que deve ser unico. */
 		int id() const { return id_; }
 
-		/** @return true se o objeto foi clicado. */
-		virtual bool clicado(int x, int y) = 0;
+		/** trata o clique do objeto.
+		* @param id armazenado no buffer de selecao.
+		*/
+		virtual void clique(int id) = 0;
 
 		/** desenha o objeto, recebendo os parametros de desenho. */
 		virtual void desenha(const ParametrosDesenho& pd) = 0;
