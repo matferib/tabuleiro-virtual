@@ -26,8 +26,12 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 #hVisualizador3d = env.Moc('include/ifg/qt/visualizador3d.h')
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
-# tabuleiro
+# ent
+cEntidade = env.Object('ent/entidade.cpp')
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
+cParametrosDesenho = env.Object('ent/parametrosdesenho.cpp')
+cMovel = env.Object('ent/movel.cpp')
+
 
 # programa final
 env.Program(
@@ -37,7 +41,8 @@ env.Program(
 		# notificacoes
 		'ntf/notificacao.cpp',
 		# interface QT
-		hPrincipal, cPrincipal, hMenuPrincipal, cMenuPrincipal, cVisualizador3d, cTabuleiro
+		hPrincipal, cPrincipal, hMenuPrincipal, cMenuPrincipal, cVisualizador3d, 
+		cEntidade, cTabuleiro, cParametrosDesenho, cMovel
 	]
 )
 

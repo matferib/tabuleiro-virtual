@@ -8,7 +8,7 @@ namespace ent {
 	class DadosTabuleiro;
 
 	/** responsavel pelo terreno de jogo. */
-	class Tabuleiro : public Entidade {
+	class Tabuleiro {
 	public:
 		/** cria o tabuleiro com o tamanho de grid passado (tamanho x tamanho). 
 		* O identificador do tabuleiro sempre eh 0. 
@@ -16,10 +16,21 @@ namespace ent {
 		explicit Tabuleiro(int tamanho);
 		~Tabuleiro();
 
-		// implementacao da interface virtual 
-		void desenha(const ParametrosDesenho& pd);
-		void clique(int id);
+		/** seleciona um quadrado do tabuleiro. 
+		* @param id do quadrado no desenho.
+		*/
+		void selecionaQuadrado(int id);
 
+		/** adiciona a entidade ao quadrado passado.
+		* @param id do quadrado no desenho.
+		*/
+		void adicionaEntidade(Entidade* ent, int id);
+
+		/** desenha o tabuleiro apenas. */
+		void desenha(const ParametrosDesenho& pd);
+
+		/** desenha as entidades no tabuleiro. */
+		void desenhaEntidades(const ParametrosDesenho& pd);
 
 	private:
 		/** dados do tabuleiro. */

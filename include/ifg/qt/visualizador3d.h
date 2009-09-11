@@ -4,7 +4,10 @@
 #include <list>
 #include <qgl.h>
 #include <list>
-#include "ent/tabuleiro.h"
+
+namespace ent {
+	class Entidade;
+}
 
 namespace ifg {
 namespace qt {
@@ -26,13 +29,15 @@ namespace qt {
 		void initializeGL();
 		/** redimensionamento da janela. */
 		void resizeGL(int width, int height);
-		/** funcao de desenho da janela. */
+		/** funcao de desenho da janela. No visualizador, cada unidade representa 1m. */
 		void paintGL();
 
 		// entidades
 
-		/** adiciona uma entidade ao sistema. A responsabilidade de destruicao eh do visualizador. */
-		void adicionaEntidade(ent::Entidade* entidade);
+		/** adiciona uma entidade ao sistema. A responsabilidade de destruicao eh do visualizador.
+		* @param id do quadrado onde ela sera adicionada no tabuleiro.
+		*/
+		void adicionaEntidade(ent::Entidade* entidade, int id);
 
 		// funcoes sobrecarregadas mouse
 
@@ -48,27 +53,8 @@ namespace qt {
 		bool trataClique(int x, int y);
 
 	private:
-
-		/** parametros de desenho da cena. */
-		ent::ParametrosDesenho parametrosDesenho_;
-
-		/** elementos da cena: terreno. */
-		ent::Tabuleiro tabuleiro_;
-
-		/** elementos da cena: ceu. */
-		//gl::Ceu ceu_;
-
-		/** elementos da cena: entidades. */
-		std::list<ent::Entidade*> entidades_;
-
-		// arrastando
-		bool arrastando_;
-
-		// ultimo X do mouse
-		int mouseUltimoY_;
-
-		// angulo de rotacao da camera
-		double theta_;
+		class Dados;
+		Dados* dv3d_;
 	};
 
 }

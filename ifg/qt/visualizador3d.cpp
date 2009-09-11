@@ -1,22 +1,67 @@
+#include <stdexcept>
 #include <QMouseEvent>
 #include <GL/gl.h>
 #include <iostream>
 #include "ifg/qt/visualizador3d.h"
+#include "ent/parametrosdesenho.h"
+#include "ent/tabuleiro.h"
 
 using namespace ifg::qt;
 using namespace std;
 
-const double TAM_TABULEIRO = 64;  // tamanho do lado do tabuleiro em quadrados
+const double TAM_TABULEIRO = 20;  // tamanho do lado do tabuleiro em quadrados
 const double CAMPO_VERTICAL = 60; // camoo de visao vertical
 
+/** dados do visualizador 3d. */
+class Visualizador3d::Dados {
+public:
+	Dados() : tabuleiro_(TAM_TABULEIRO), mouseUltimoY_(0), theta_(0) {}
+	~Dados() {
+		for (list<ent::Entidade*>::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+			delete *it;
+		}
+	}
+
+	ent::Entidade* achaEntidade(int id) const {
+		Dados* dThis = const_cast<Dados*>(this);
+		for (
+			list<ent::Entidade*>::iterator it = dThis->entidades_.begin(); 
+			it != dThis->entidades_.end(); 
+			++it
+		) {
+			if ((*it)->id() == id) {
+				return *it;
+			}
+		}
+		throw logic_error("entidade nao encontrada");
+	}
+
+ 	/** parametros de desenho da cena. */
+ 	ent::ParametrosDesenho parametrosDesenho_;
+
+ 	/** elementos da cena: terreno. */
+ 	ent::Tabuleiro tabuleiro_;
+
+ 	/** elementos da cena: ceu. */
+ 	//gl::Ceu ceu_;
+
+ 	/** elementos da cena: entidades. */
+ 	std::list<ent::Entidade*> entidades_;
+
+ 	// arrastando
+ 	bool arrastando_;
+
+ 	// ultimo X do mouse
+ 	int mouseUltimoY_;
+
+ 	// angulo de rotacao da camera
+ 	double theta_;
+};
+
 Visualizador3d::Visualizador3d(QWidget* pai) : 
-	QGLWidget(pai), tabuleiro_(TAM_TABULEIRO), mouseUltimoY_(0), theta_(0)  
-{}
+	QGLWidget(pai), dv3d_(new Dados){}
 
 Visualizador3d::~Visualizador3d() {
-	for (list<ent::Entidade*>::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-		delete *it;
-	}
 }
 
 // reimplementacoes
@@ -31,7 +76,7 @@ void Visualizador3d::resizeGL(int width, int height) {
 	
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(CAMPO_VERTICAL, (double)width / height, 0.5, TAM_TABULEIRO*2);
+	gluPerspective(CAMPO_VERTICAL, (double)width / height, 0.5, TAM_TABULEIRO*4);
 }
 
 void Visualizador3d::paintGL() {
@@ -40,8 +85,9 @@ void Visualizador3d::paintGL() {
 
 // entidades
 
-void Visualizador3d::adicionaEntidade(ent::Entidade* entidade) {
-	entidades_.push_back(entidade);
+void Visualizador3d::adicionaEntidade(ent::Entidade* entidade, int id) {
+	dv3d_->entidades_.push_back(entidade);
+	dv3d_->tabuleiro_.adicionaEntidade(entidade, id);
 }
 
 // mouse
@@ -49,24 +95,24 @@ void Visualizador3d::adicionaEntidade(ent::Entidade* entidade) {
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
 	// verifica clique, Y deve ser invertido
 	if (trataClique(event->x(), (height() - event->y()))) {
-		arrastando_ = true;
+		dv3d_->arrastando_ = true;
 	}
 	else {
-		arrastando_ = false;
+		dv3d_->arrastando_ = false;
 		// roda a tela no eixo Z de acordo com o eixo X do movimento
-		mouseUltimoY_ = event->y();
+		dv3d_->mouseUltimoY_ = event->y();
 	}
 	event->accept();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-	if (arrastando_) {
+	if (dv3d_->arrastando_) {
 	}
 	else {
 		// roda a tela no eixo Z de acordo com o eixo Y do movimento
 		int yEvento = event->y();
-		theta_ -= (yEvento - mouseUltimoY_);
-		mouseUltimoY_ = yEvento;
+		dv3d_->theta_ -= (yEvento - dv3d_->mouseUltimoY_);
+		dv3d_->mouseUltimoY_ = yEvento;
 		glDraw();	
 	}
 	event->accept();
@@ -108,13 +154,31 @@ bool Visualizador3d::trataClique(int x, int y) {
 	GLuint numeroHits = glRenderMode(GL_RENDER);
 	cout << "numero de hits: " << (unsigned int)numeroHits << endl << endl;
 	GLuint* ptrHits = bufferHits;
+	GLuint id, posPilha;
 	for (GLuint i = 0; i < numeroHits; ++i) {
-		cout << "posicao pilha: " << (unsigned int)(*ptrHits) << endl;
-		// pula profundidade por agora
-		ptrHits += 3;
-		cout << "id: " << (unsigned int)(*ptrHits) << endl << endl;
-		tabuleiro_.clique(*ptrHits);
+		posPilha = *ptrHits;
+		cout << "posicao pilha: " << (unsigned int)(posPilha) << endl;
+		// pula ele mesmo, profundidade e ids anteriores na pilha
+		ptrHits += posPilha + 2;
+		id = *ptrHits;
+		cout << "id: " << (unsigned int)(id) << endl << endl;
 		++ptrHits;
+	}
+	if (posPilha == 1) {
+		// tabuleiro
+		ent::Entidade* movel = ent::novaEntidade(ent::TIPOENT_MOVEL);
+		try {
+			adicionaEntidade(movel, id);
+		}
+		catch (...) {
+			delete movel;
+		}
+		//dv3d_->tabuleiro_.selecionaQuadrado(id);
+	}
+	else {
+		// entidade
+		ent::Entidade* e = dv3d_->achaEntidade(id);
+		e->seleciona(true);
 	}
 	glMatrixMode(GL_MODELVIEW);
 
@@ -129,16 +193,17 @@ void Visualizador3d::desenhaCena() {
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	gluLookAt(
-		0, -50.0, 20.0 + theta_, // from
+		0, -TAM_TABULEIRO, 20.0 + dv3d_->theta_, // from
 		0, 0, 0,       // to
 		0, 0, 1.0      // up
 	);
 
 	//ceu_.desenha(parametrosDesenho_);
-	tabuleiro_.desenha(parametrosDesenho_);
-	for (list<ent::Entidade*>::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-		(*it)->desenha(parametrosDesenho_);
-	}
+	dv3d_->tabuleiro_.desenha(dv3d_->parametrosDesenho_);
+	// so pra diferenciar do tabueleiro
+	glPushName(0);
+	dv3d_->tabuleiro_.desenhaEntidades(dv3d_->parametrosDesenho_);
+	glPopName();
 }
 
 

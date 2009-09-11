@@ -3,13 +3,20 @@
 
 namespace ent {
 
+	class Entidade;
+
+	/** tipos de entidade que podem ser construidas. */
+	enum tipoent_t {
+		TIPOENT_MOVEL
+	};	
+
 	/** gera um identificador unico para a entidade. */
-	int geraId();
+	Entidade* novaEntidade(tipoent_t tipo);
 
 	/** parametros de desenho dos objetos. */
-	class ParametrosDesenho {};
+	class ParametrosDesenho;
 
-	/** classe base para entidades. Deve implementar as interfaces de desenho e clique.
+	/** classe base para entidades.
 	* Toda entidade devera possuir um identificador unico. 
 	*/
 	class Entidade {
@@ -22,16 +29,20 @@ namespace ent {
 		/** @return o identificador da entidade que deve ser unico. */
 		int id() const { return id_; }
 
-		/** trata o clique do objeto.
-		* @param id armazenado no buffer de selecao.
+		/** seleciona o objeto.
+		* @param valor da selecao.
 		*/
-		virtual void clique(int id) = 0;
+		void seleciona(bool valor) { selecionado_ = valor; }
+
+		/** @return true se o objeto estiver selecionado. */
+		bool selecionado() const { return selecionado_; }
 
 		/** desenha o objeto, recebendo os parametros de desenho. */
 		virtual void desenha(const ParametrosDesenho& pd) = 0;
 
 	private:
 		int id_;
+		bool selecionado_;
 	};
 
 }
