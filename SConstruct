@@ -8,7 +8,7 @@ env['QT_LIB'] = 'QtGui'
 env['QT_MOCHSUFFIX'] = '.cpp'
 env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 env['QT_LIBPATH'] = env['QTDIR'] + '/lib'
-env['QT_LIB'] = ['QtGui', 'QtOpenGL']
+env['QT_LIB'] = ['QtGui', 'QtOpenGL', 'glut']
 
 # c++
 env['CPPPATH'] += ['include']
@@ -27,7 +27,6 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
 # ent
-cEntidade = env.Object('ent/entidade.cpp')
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cParametrosDesenho = env.Object('ent/parametrosdesenho.cpp')
 cMovel = env.Object('ent/movel.cpp')
@@ -42,7 +41,7 @@ env.Program(
 		'ntf/notificacao.cpp',
 		# interface QT
 		hPrincipal, cPrincipal, hMenuPrincipal, cMenuPrincipal, cVisualizador3d, 
-		cEntidade, cTabuleiro, cParametrosDesenho, cMovel
+		cTabuleiro, cParametrosDesenho, cMovel
 	]
 )
 

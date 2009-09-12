@@ -5,8 +5,8 @@
 #include <qgl.h>
 #include <list>
 
-namespace ent {
-	class Entidade;
+namespace ntf {
+	class Notificacao;
 }
 
 namespace ifg {
@@ -32,25 +32,23 @@ namespace qt {
 		/** funcao de desenho da janela. No visualizador, cada unidade representa 1m. */
 		void paintGL();
 
-		// entidades
-
-		/** adiciona uma entidade ao sistema. A responsabilidade de destruicao eh do visualizador.
-		* @param id do quadrado onde ela sera adicionada no tabuleiro.
-		*/
-		void adicionaEntidade(ent::Entidade* entidade, int id);
+		// notificacao
+		void trataNotificacao(const ntf::Notificacao& notificacao);
 
 		// funcoes sobrecarregadas mouse
 
 		void mouseMoveEvent(QMouseEvent* event);
 		void mousePressEvent(QMouseEvent* event); 
+		void wheelEvent(QWheelEvent* event);
 
 	private:
 		/** desenha os elementos da cena. */
 		void desenhaCena();
+
 		/** trata o clique do mouse (ja com Y convertido para opengl).
 		* @return true se algum objeto tratou o evento.
 		*/
-		bool trataClique(int x, int y);
+		void trataClique(int x, int y);
 
 	private:
 		class Dados;

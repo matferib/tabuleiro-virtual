@@ -9,6 +9,7 @@ public:
 		memset(this, 0, sizeof(this));
 		corTabuleiroSelecionado_[0] = 1.0;
 		corObjetoNaoSelecionado_[1] = 1.0;
+		corObjetoSelecionado_[0]    = 1.0;
 	}
 	~Dados() {}
 

@@ -14,8 +14,10 @@ namespace ntf {
 namespace ifg {
 namespace qt {
 
-	/** declaracao antecipada de eventos. */
+	// fwd
 	class Evento;
+	class MenuPrincipal;
+	class Visualizador3d;
 
 	/** Interface grafica principal. Singleton, acessivel de todos os pontos.
 	* Todas as outras classes sao instanciadas direta ou indiretamente desta.
@@ -54,6 +56,10 @@ namespace qt {
 		static Principal* inst;
 		/** a aplicacao QT. */
 		QApplication* qAp;
+		/** barra de menu principal. */
+		MenuPrincipal* menuPrincipal_;
+		/** visualizador 3d da aplicacao. */
+		Visualizador3d* v3d_;
 	};
 
 } // namespace qt

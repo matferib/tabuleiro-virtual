@@ -18,8 +18,8 @@ namespace {
 	unsigned int numItems[] = { 4, 5, 1 }; // numero de items em cada menu, incluindo sep
 	enum menuitem_e { // items de cada menu 
 		MI_INICIAR, MI_CONECTAR, MI_SEP, MI_SAIR,
-		MI_ADICIONAR, MI_REMOVER, MI_SALVAR, MI_RESTAURAR,
-		MI_TABVIRT
+		MI_ADICIONAR = 0, MI_REMOVER, MI_SALVAR, MI_RESTAURAR,
+		MI_TABVIRT = 0
 	};
 };
 
@@ -29,11 +29,11 @@ MenuPrincipal::MenuPrincipal(QWidget* pai) : QMenuBar(pai){
 	// strs dos items de cada menu
 	const char* menuitemStrs[] = {
 		// jogo
-		"&Iniciar jogo mestre", "&Conectar no jogo mestre", NULL, "&Sair",
+		("&Iniciar jogo mestre"), ("&Conectar no jogo mestre"), NULL, ("&Sair"),
 		// jogadores
-		"&Adicionar", "&Remover", NULL, "&Salvar", "R&estaurar",
+		("&Adicionar"), ("&Remover"), NULL, ("&Salvar"), ("R&estaurar"),
 		// sobre
-		"&Tabuleiro virtual"
+		("&Tabuleiro virtual")
 	};
 	// inicio das strings para o menu corrente
 	unsigned int controleItemInicio = 0;
@@ -71,10 +71,20 @@ MenuPrincipal::MenuPrincipal(QWidget* pai) : QMenuBar(pai){
 		addMenu(menu);
 	}
 
-	modo(MM_INICIO);
+	modo(MM_COMECO);
 }
 
 MenuPrincipal::~MenuPrincipal(){
+}
+
+void MenuPrincipal::trataNotificacao(const ntf::Notificacao& notificacao) {
+	switch (notificacao.tipo()) {
+		case ntf::TN_INICIAR:
+			modo(MM_MESTRE);
+		break;
+		default:
+			;
+	}
 }
 
 void MenuPrincipal::modo(modomenu_e modo){
@@ -83,7 +93,7 @@ void MenuPrincipal::modo(modomenu_e modo){
 	menus[ME_SOBRE]->setEnabled(true);
 
 	switch (modo){
-	case MM_INICIO:
+	case MM_COMECO:
 		// habilita todos do jogo
 		for (
 			std::vector<QAction*>::iterator it = acoes[ME_JOGO].begin();
@@ -124,13 +134,21 @@ void MenuPrincipal::modo(modomenu_e modo){
 void MenuPrincipal::trataAcaoItem(QAction* acao){
 
 	//cout << (const char*)acao->text().toAscii() << endl;
+	ntf::Notificacao* nn = NULL;
 	if (acao == acoes[ME_JOGO][MI_INICIAR]) {
-
+		nn = new ntf::Notificacao(ntf::TN_INICIAR);
 	}
 	// ..
 	else if (acao == acoes[ME_JOGO][MI_SAIR]) {
-		ntf::Notificacao* nn = new ntf::Notificacao(ntf::TN_SAIR); 
-		Principal::instancia().trataNotificacao(nn);
+		nn = new ntf::Notificacao(ntf::TN_SAIR); 
+	}
+	else if (acao == acoes[ME_JOGADORES][MI_ADICIONAR]) {
+		// @todo abrir dialogo modal pedindo dados do jogador
+		nn = new ntf::Notificacao(ntf::TN_ADICIONAR_ENTIDADE); 
+	}
+	else if (acao == acoes[ME_JOGADORES][MI_REMOVER]) {
+		// @todo abrir dialogo modal pedindo dados do jogador
+		nn = new ntf::Notificacao(ntf::TN_REMOVER_ENTIDADE); 
 	}
 	// .. 
 	else if (acao == acoes[ME_SOBRE][MI_TABVIRT]) {
@@ -139,6 +157,7 @@ void MenuPrincipal::trataAcaoItem(QAction* acao){
 		qd->setModal(true);
 		QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
 		ql->addWidget(new QLabel(tr("Tabuleiro virtual versao 0.1")));
+		ql->addWidget(new QLabel(tr("Powered by QT and OpenGL")));
 		ql->addWidget(new QLabel(tr("Autor: Matheus Ribeiro <mfribeiro@gmail.com>")));
 		QPushButton* qpb = new QPushButton(tr("Fechar"));
 		connect(qpb, SIGNAL(released()), qd, SLOT(accept()));
@@ -146,6 +165,10 @@ void MenuPrincipal::trataAcaoItem(QAction* acao){
 		qd->setWindowTitle(tr("Sobre o tabuleiro virtual"));
 		qd->exec();
 		delete qd;
+	}
+
+	if (nn != NULL) {
+		Principal::instancia().trataNotificacao(nn);
 	}
 }
 

@@ -10,11 +10,15 @@
 #include <QMenu>
 #include <vector>
 
+namespace ntf {
+	class Notificacao;
+}
+
 namespace ifg {
 namespace qt {
 
 	/** os modos que o menu aceita. */	
-	enum modomenu_e { MM_INICIO, MM_MESTRE, MM_JOGADOR };
+	enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
 
 	/** A barra de menu principal contem os seguintes menus:
 	* <li> Jogo: Iniciar Mestre, Conectar no mestre, Sair
@@ -27,14 +31,17 @@ namespace qt {
 		MenuPrincipal(QWidget* pai);
 		~MenuPrincipal();
 
-		/** poe o menu no modo passado como argumento.
-		* @TODO o que cada modo habilita.
-		*/
-		void modo(modomenu_e modo);
+		/** trata notificacoes. */
+		void trataNotificacao(const ntf::Notificacao& notificacao);
 
 	private slots:
 		/** slot para tratar a acao QT de um item de menu localmente. */
 		void trataAcaoItem(QAction*);
+
+		/** poe o menu no modo passado como argumento.
+		* @TODO o que cada modo habilita.
+		*/
+		void modo(modomenu_e modo);
 
 	private:
 		// menus e acoes dos items

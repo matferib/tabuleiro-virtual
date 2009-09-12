@@ -12,6 +12,9 @@
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ntf/notificacao.h"
+#include "ent/tabuleiro.h"
+
+const double TAM_TABULEIRO = 20.0;  // tamanho do lado do tabuleiro em quadrados
 
 using namespace ifg::qt;
 
@@ -38,11 +41,9 @@ void Principal::destroiInstancia(){
 // OBJETOS //
 /////////////
 
-Principal::Principal(QApplication* qAp) : QWidget(NULL), qAp(qAp){
-}
+Principal::Principal(QApplication* qAp) : QWidget(NULL), qAp(qAp), menuPrincipal_(new MenuPrincipal(this)), v3d_(new Visualizador3d(this)) {}
 
-Principal::~Principal(){
-}
+Principal::~Principal(){}
 
 void Principal::executa(){
 
@@ -55,8 +56,9 @@ void Principal::executa(){
 	QLayout* ql = new QGridLayout;
 	setLayout(ql);
 
-	ql->setMenuBar(new MenuPrincipal(this));
-	ql->addWidget(new Visualizador3d(this));
+	ql->setMenuBar(menuPrincipal_);
+	ql->addWidget(v3d_);
+
 
 	// mostra a janela e entra no loop do QT
 	show();
@@ -64,9 +66,23 @@ void Principal::executa(){
 	qAp->exec();
 }
 
-void Principal::trataNotificacao(ntf::Notificacao* nn){
-	if (nn->tipo() == ntf::TN_SAIR) {
-		qAp->quit();
+void Principal::trataNotificacao(ntf::Notificacao* nn) {
+	switch (nn->tipo()) {
+		case ntf::TN_SAIR:
+			delete nn;
+			qAp->quit();
+		break;
+		case ntf::TN_INICIAR:
+			ent::Tabuleiro::cria(TAM_TABULEIRO);
+			v3d_->trataNotificacao(*nn);
+			menuPrincipal_->trataNotificacao(*nn);
+		break;
+		default:
+			v3d_->trataNotificacao(*nn);
+			menuPrincipal_->trataNotificacao(*nn);
+			if (ent::Tabuleiro::haInstancia()) {
+				ent::Tabuleiro::instancia().trataNotificacao(*nn);
+			}
 	}
 	delete nn;
 }

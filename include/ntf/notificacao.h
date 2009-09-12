@@ -8,7 +8,7 @@
 namespace ntf {
 	
 	/** enumeracao com todos os tipos de notificacoes. */
-	enum tipontf_e { TN_SAIR, TN_NUM };
+	enum tipontf_e { TN_SAIR, TN_INICIAR, TN_ADICIONAR_JOGADOR, TN_ADICIONAR_ENTIDADE, TN_REMOVER_ENTIDADE, TN_NUM };
 
 	/** classe base das notificacoes, com funcoes para serializacao e deserializacao. */
 	class Notificacao {

@@ -5,14 +5,6 @@ namespace ent {
 
 	class Entidade;
 
-	/** tipos de entidade que podem ser construidas. */
-	enum tipoent_t {
-		TIPOENT_MOVEL
-	};	
-
-	/** gera um identificador unico para a entidade. */
-	Entidade* novaEntidade(tipoent_t tipo);
-
 	/** parametros de desenho dos objetos. */
 	class ParametrosDesenho;
 
@@ -20,9 +12,8 @@ namespace ent {
 	* Toda entidade devera possuir um identificador unico. 
 	*/
 	class Entidade {
-	protected:
-		explicit Entidade(int id) { id_ = id; }
 	public:
+		explicit Entidade(int id) { id_ = id; }
 		virtual ~Entidade(){}
 
 	public:
