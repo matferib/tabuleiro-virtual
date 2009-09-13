@@ -39,12 +39,10 @@ namespace qt {
 
 		void mouseMoveEvent(QMouseEvent* event);
 		void mousePressEvent(QMouseEvent* event); 
+		void mouseReleaseEvent(QMouseEvent* event); 
 		void wheelEvent(QWheelEvent* event);
 
 	private:
-		/** desenha os elementos da cena. */
-		void desenhaCena();
-
 		/** trata o clique do mouse (ja com Y convertido para opengl).
 		* @return true se algum objeto tratou o evento.
 		*/

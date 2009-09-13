@@ -24,7 +24,6 @@ void Movel::desenha(const ParametrosDesenho& pd) {
 	glPushMatrix();
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(id());
-	glColor3dv(selecionado() ? pd.corObjetoSelecionado() : pd.corObjetoNaoSelecionado());
 	glLoadName(id());
 	glBegin(GL_TRIANGLE_FAN);
 	glVertex3d(0, 0, ALTURA);

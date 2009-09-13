@@ -23,17 +23,17 @@ namespace ent {
 		/** seleciona o objeto.
 		* @param valor da selecao.
 		*/
-		void seleciona(bool valor) { selecionado_ = valor; }
+		//void seleciona(bool valor) { selecionado_ = valor; }
 
 		/** @return true se o objeto estiver selecionado. */
-		bool selecionado() const { return selecionado_; }
+		//bool selecionado() const { return selecionado_; }
 
 		/** desenha o objeto, recebendo os parametros de desenho. */
 		virtual void desenha(const ParametrosDesenho& pd) = 0;
 
 	private:
 		int id_;
-		bool selecionado_;
+		//bool selecionado_;
 	};
 
 }

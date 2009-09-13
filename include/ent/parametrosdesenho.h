@@ -10,8 +10,8 @@ namespace ent {
 
 		double* corTabuleiroSelecionado() const;
 		double* corTabuleiroNaoSelecionado() const;
-		double* corObjetoSelecionado() const;
-		double* corObjetoNaoSelecionado() const;
+		double* corEntidadeSelecionada() const;
+		double* corEntidadeNaoSelecionada() const;
 
 	private:
 		class Dados;
