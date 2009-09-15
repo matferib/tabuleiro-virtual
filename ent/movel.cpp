@@ -24,12 +24,11 @@ void Movel::desenha(const ParametrosDesenho& pd) {
 	glPushMatrix();
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(id());
-	glLoadName(id());
 	glBegin(GL_TRIANGLE_FAN);
 	glVertex3d(0, 0, ALTURA);
 	double alfa = -M_PI / 2.0;
 	for (unsigned int i = 0; i < NUM_FACES + 2; ++i) {
-		glVertex3d(cos(alfa)*RAIO_CONE, sin(alfa)*RAIO_CONE, 0);
+		glVertex3d( cos(alfa) * RAIO_CONE, sin(alfa) * RAIO_CONE, 0);
 		alfa += (M_PI * 2.0 / NUM_FACES);
 	}
 	glEnd();

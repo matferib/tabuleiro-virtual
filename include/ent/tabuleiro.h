@@ -42,16 +42,6 @@ namespace ent {
 		/** @return tamanho do tabuleiro em Y. */
 		int tamanhoY() const;
 
-		/** seleciona um quadrado do tabuleiro. 
-		* @param idQuadrado id do quadrado no desenho.
-		*/
-		void selecionaQuadrado(int idQuadrado);
-
-		/** seleciona uma entidade no tabuleiro. 
-		* @param id da entidade no desenho.
-		*/
-		void selecionaEntidade(int id);
-
 		/** adiciona a entidade ao tabuleiro, no quadrado passado.
 		* @param tipoEntidade tipo da entidade.
 		* @param dc dados de criacao da entidade.
@@ -73,9 +63,18 @@ namespace ent {
 		/** trata a notificacao de inicio de jogo. */
 		void trataNotificacao(const ntf::Notificacao& notificacao);
 
+		/** le as coordenadas do objeto selecionado.
+		* @return true se houver selecao. Se nao houver, nao altera x e y.
+		*/
+		bool coordenadasSelecao(double &x, double& y);
+
 	private:
 		/** dados do tabuleiro. */
 		DadosTabuleiro* dt_;
+
+		// elimina copia
+		Tabuleiro(const Tabuleiro& t);
+		Tabuleiro& operator=(Tabuleiro&);
 	};
 }
 

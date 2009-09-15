@@ -26,12 +26,14 @@ namespace qt {
 	class Principal : public QWidget { 
 		Q_OBJECT
 	public:
-		/** retorna a instancia da classe principal. 
-		* Recebe os parametros de linha de comando apenas se necessario
-		* (primeira instancia). As chamadas seguintes podem utilizar os 
-		* parametros padroes.
+		/** cria e retorna a instancia da classe principal. 
+		* Recebe os parametros de linha de comando. 
+		* As chamadas seguintes devem chamar instancia().
 		*/
-		static Principal& instancia(int argc = 0, char** argv = NULL);
+		static Principal& criaInstancia(int& argc, char** argv);
+
+		/** @return a instancia unica. */
+		static Principal& instancia();
 		
 		/** destroi a instancia unica da janela principal.
 		* Chamado apos a execucao da janela.

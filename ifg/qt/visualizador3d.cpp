@@ -2,7 +2,6 @@
 #include <QMouseEvent>
 #include <cmath>
 #include <GL/gl.h>
-#include <GL/glut.h>
 #include "ifg/qt/visualizador3d.h"
 #include "ent/parametrosdesenho.h"
 #include "ent/tabuleiro.h"
@@ -143,8 +142,11 @@ private:
 
 		// volta pro modo de desenho e processa os hits
 		GLuint numeroHits = glRenderMode(GL_RENDER);
-		ent::Tabuleiro::instancia().trataClique(numeroHits, bufferHits);
 		glMatrixMode(GL_MODELVIEW);
+
+		ent::Tabuleiro& t = ent::Tabuleiro::instancia();
+		t.trataClique(numeroHits, bufferHits);
+		t.coordenadasSelecao(olhoX_, olhoY_);
 	}
 
 	void desenhaCena() {
@@ -225,10 +227,6 @@ Visualizador3d::~Visualizador3d() {
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
-	// cor da borracha
-	char* bla = (char*)"bla";
-	int argc = 1;
-	glutInit(&argc, &bla);
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 
 	// back face

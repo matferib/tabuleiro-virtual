@@ -189,11 +189,50 @@ namespace ent {
 			}
 		}
 
+		void trataNotificacao(const ntf::Notificacao& notificacao) {
+			switch (notificacao.tipo()) {
+				case ntf::TN_ADICIONAR_ENTIDADE:
+					estado_ = ETAB_ADICIONANDO_ENTIDADE;
+				break;
+				case ntf::TN_REMOVER_ENTIDADE:
+					estado_ = ETAB_REMOVENDO_ENTIDADE;
+				break;
+				default:
+					;
+			}
+		}
+
+
+		bool coordenadasSelecao(double &x, double& y) {
+			if ((quadradoSelecionado_ == -1) && (entidadeSelecionada_ == NULL)) {
+				return false;
+			}
+			else {
+				if (entidadeSelecionada_ == NULL) {
+					// retornar quadrado selecionado
+					coordenadasQuadradoSelecionado(x, y);
+				}
+				else {
+					// retornar entidade selecionada
+					coordenadasEntidadeSelecionada(x, y);
+				}
+				return true;
+			}
+		}
 	private:
+		void coordenadasQuadradoSelecionado(double& x, double& y) {
+			// @todo
+		}
+		void coordenadasEntidadeSelecionada(double& x, double& y) {
+			// @todo
+		}
+
+
+	private:
+
 		/** tamanho do tabuleiro (tamanho_ x tamanho_). */
 		int tamanho_;
 
-	public:
 		/** mapa geral de entidades, por id. */
 		MapaEntidades entidades_;
 
@@ -251,14 +290,6 @@ void Tabuleiro::desenha(const ParametrosDesenho& pd) {
 	dt_->desenha(pd);
 }
 
-void Tabuleiro::selecionaQuadrado(int idQuadrado) {
-	dt_->selecionaQuadrado(idQuadrado);
-}
-
-void Tabuleiro::selecionaEntidade(int id) {
-	dt_->selecionaEntidade(id);
-}
-
 void Tabuleiro::adicionaEntidade(tipoent_t tipoEntidade, DadosCriacao* dc, int idQuadrado) {
 	dt_->adicionaEntidade(tipoEntidade, dc, idQuadrado);
 }
@@ -272,16 +303,11 @@ void Tabuleiro::trataClique(unsigned int numeroHits, unsigned int* bufferHits) {
 }
 
 void Tabuleiro::trataNotificacao(const ntf::Notificacao& notificacao) {
-	switch (notificacao.tipo()) {
-		case ntf::TN_ADICIONAR_ENTIDADE:
-			dt_->estado_ = ETAB_ADICIONANDO_ENTIDADE;
-		break;
-		case ntf::TN_REMOVER_ENTIDADE:
-			dt_->estado_ = ETAB_REMOVENDO_ENTIDADE;
-		break;
-		default:
-			;
-	}
+	dt_->trataNotificacao(notificacao);
+}
+
+bool Tabuleiro::coordenadasSelecao(double &x, double& y) {
+	return dt_->coordenadasSelecao(x, y);
 }
 
 

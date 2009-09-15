@@ -7,7 +7,7 @@
 using namespace std;
 
 int main(int argc, char** argv){
-	ifg::qt::Principal& p = ifg::qt::Principal::instancia(argc, argv);
+	ifg::qt::Principal& p = ifg::qt::Principal::criaInstancia(argc, argv);
 	try {
 		p.executa();
 		ifg::qt::Principal::destroiInstancia();

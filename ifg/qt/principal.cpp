@@ -1,5 +1,6 @@
 /** @file ifg/Principal.cpp implementacao da classe principal. */
 
+#include <stdexcept>
 #include <stdlib.h>
 
 // QT
@@ -7,6 +8,7 @@
 #include <QDesktopWidget>
 #include <QMenuBar>
 #include <QLayout>
+#include <GL/glut.h>
 
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
@@ -17,6 +19,7 @@
 const double TAM_TABULEIRO = 20.0;  // tamanho do lado do tabuleiro em quadrados
 
 using namespace ifg::qt;
+using namespace std;
 
 ///////////////
 // ESTATICAS //
@@ -25,9 +28,17 @@ using namespace ifg::qt;
 /** variavel estatica: instancia unica da interface principal. */
 Principal* Principal::inst = NULL;
 
-Principal& Principal::instancia(int argc, char** argv){
+Principal& Principal::criaInstancia(int& argc, char** argv){
 	if (inst == NULL){
+		glutInit(&argc, argv);
 		inst = new Principal(new QApplication(argc, argv));
+	}
+	return *inst;
+}
+
+Principal& Principal::instancia(){
+	if (inst == NULL){
+		throw logic_error("instancia invalida");
 	}
 	return *inst;
 }
@@ -62,7 +73,6 @@ void Principal::executa(){
 
 	// mostra a janela e entra no loop do QT
 	show();
-	//QObject::connect(&janelaPrincipal, SIGNAL(clicked()), &app, SLOT(quit()));
 	qAp->exec();
 }
 
