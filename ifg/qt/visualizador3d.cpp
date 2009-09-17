@@ -10,28 +10,18 @@
 using namespace ifg::qt;
 using namespace std;
 
-const double CAMPO_VERTICAL = 60.0; // campo de visao vertical
-const double OLHO_ALTURA_INICIAL = 10.0;
-const double OLHO_RAIO_INICIAL = 20.0;
-const double OLHO_RAIO_MINIMO = 1.5;
-const double OLHO_RAIO_MAXIMO = 40.0;
-const double OLHO_ALTURA_MAXIMA = 15;
-const double OLHO_DELTA_MAXIMO = (OLHO_ALTURA_MAXIMA - OLHO_ALTURA_INICIAL);
-const double OLHO_ALTURA_MINIMA = 1.5;
-const double OLHO_DELTA_MINIMO = (OLHO_ALTURA_MINIMA - OLHO_ALTURA_INICIAL);
-const double SENSIBILIDADE_RODA = 0.01;
-const double SENSIBILIDADE_ROTACAO_X = 0.01;
-const double SENSIBILIDADE_ROTACAO_Y = 0.08;
-
 namespace {
-	enum modovis_t {
-		MODOVIS_COMECO,
-		MODOVIS_TABULEIRO,
-		MODOVIS_TABULEIRO_ROTACAO
-	};
-}
+	ent::botao_e mapeiaBotao(Qt::MouseButton botao) {
+		switch (botao) {
+			case Qt::LeftButton: return ent::BOTAO_ESQUERDO;
+			case Qt::RightButton: return ent::BOTAO_DIREITO;
+			case Qt::MidButton: return ent::BOTAO_MEIO;
+			default: return ent::BOTAO_NENHUM; 
+		}
 
-/** dados do visualizador 3d. */
+	}
+}
+/*
 class Visualizador3d::Dados {
 public:
 	Dados() : modoVis_(MODOVIS_COMECO), olhoX_(0), olhoY_(0), olhoDeltaAltura_(0), olhoRaio_(OLHO_RAIO_INICIAL) {}
@@ -104,7 +94,6 @@ public:
 				olhoRaio_ = OLHO_RAIO_MAXIMO;
 			}
 		}
-		event->accept();
 	}
 
 	
@@ -166,14 +155,12 @@ private:
 		glPopName();
 	}
 
-	/** chamada no inicio de uma rotacao (press mouse do meio). */
 	void trataInicioRotacao(QMouseEvent* event) {
 		rotacaoUltimoX_ = event->x();
 		rotacaoUltimoY_ = event->y();
 		modoVis_ = MODOVIS_TABULEIRO_ROTACAO;
 	}
 
-	/** trata o movimento de rotacao. */
 	void trataRotacao(QMouseEvent* event) {
 		int x = event->x();
 		int y = event->y();
@@ -218,36 +205,33 @@ private:
 	double olhoDeltaRotacao_;
 	double olhoRaio_;
 };
+*/
 
 Visualizador3d::Visualizador3d(QWidget* pai) : 
-	QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai), dv3d_(new Dados){}
+	QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai) {}
 
 Visualizador3d::~Visualizador3d() {
 }
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
-	glClearColor(1.0, 1.0, 1.0, 1.0);
-
-	// back face
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-
-	// zbuffer
-	glEnable(GL_DEPTH_TEST);
+	ent::Tabuleiro::inicializaGL();
 }
 
 void Visualizador3d::resizeGL(int width, int height) {
-	dv3d_->redimensionaJanela(width, height);
+	if (ent::Tabuleiro::haInstancia()) {
+		ent::Tabuleiro::instancia().trataRedimensionaJanela(width, height);
+	}
 }
 
 void Visualizador3d::paintGL() {
-	dv3d_->desenhaJanela();
+	if (ent::Tabuleiro::haInstancia()) {
+		ent::Tabuleiro::instancia().desenha();
+	}
 }
 
 // notificacao
 void Visualizador3d::trataNotificacao(const ntf::Notificacao& notificacao) {
-	dv3d_->trataNotificacao(notificacao);
 	switch (notificacao.tipo()) {
 		case ntf::TN_INICIAR:
 			// chama o resize pra iniciar a geometria e desenha a janela
@@ -262,25 +246,40 @@ void Visualizador3d::trataNotificacao(const ntf::Notificacao& notificacao) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-	int altura = height();
-	double aspecto = static_cast<double>(width()) / altura;
-	dv3d_->trataBotaoPressionado(event, altura, aspecto);
-	glDraw();
+	if (ent::Tabuleiro::haInstancia()) {
+		int altura = height();
+		double aspecto = static_cast<double>(width()) / altura;
+		ent::Tabuleiro::instancia().trataBotaoPressionado(
+			mapeiaBotao(event->button()), 
+			event->x(), altura - event->y(), aspecto
+		);
+		event->accept();
+		glDraw();
+	}
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-	dv3d_->trataBotaoLiberado(event);
-	glDraw();
+	if (ent::Tabuleiro::haInstancia()) {
+		ent::Tabuleiro::instancia().trataBotaoLiberado();
+		event->accept();
+		glDraw();
+	}
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-	dv3d_->trataMovimento(event);
-	glDraw();
+	if (ent::Tabuleiro::haInstancia()) {
+		ent::Tabuleiro::instancia().trataMovimento(event->x(), (height() - event->y()));
+		event->accept();
+		glDraw();
+	}
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-	dv3d_->trataRodela(event);
-	glDraw();
+	if (ent::Tabuleiro::haInstancia()) {
+		ent::Tabuleiro::instancia().trataRodela(event->delta());
+		event->accept();
+		glDraw();
+	}
 }
 
 

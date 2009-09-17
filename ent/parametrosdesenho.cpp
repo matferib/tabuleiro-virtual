@@ -6,7 +6,7 @@ using namespace ent;
 class ParametrosDesenho::Dados {
 public:
 	Dados() {
-		memset(this, 0, sizeof(this));
+		memset(this, 0, sizeof(*this));
 		corTabuleiroSelecionado_[0] = 1.0;
 		corEntidadeNaoSelecionada_[1] = 1.0; // verde
 		corEntidadeSelecionada_[0]    = 1.0; // vermelho

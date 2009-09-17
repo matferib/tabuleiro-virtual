@@ -13,27 +13,36 @@ namespace ent {
 	*/
 	class Entidade {
 	public:
-		explicit Entidade(int id) { id_ = id; }
-		virtual ~Entidade(){}
+		/** constroi a entidade com o identificador e coordenadas passadas. */
+		explicit Entidade(int id, double x, double y, double z);
+		virtual ~Entidade();
 
 	public:
 		/** @return o identificador da entidade que deve ser unico. */
-		int id() const { return id_; }
+		int id() const;
 
-		/** seleciona o objeto.
-		* @param valor da selecao.
-		*/
-		//void seleciona(bool valor) { selecionado_ = valor; }
+		/** move a entidade para o ponto especificado. */
+		void movePara(double x, double y, double z = 0);
 
-		/** @return true se o objeto estiver selecionado. */
-		//bool selecionado() const { return selecionado_; }
+		/** move a entidade pelo vetor de movimento. */
+		void move(double x, double y, double z = 0);
+
+		/** @return a coordenada (x). */
+		double x() const;
+		/** @return a coordenada (y). */
+		double y() const;
+		/** @return a coordenada (z). */
+		double z() const;
 
 		/** desenha o objeto, recebendo os parametros de desenho. */
 		virtual void desenha(const ParametrosDesenho& pd) = 0;
 
 	private:
+		/** identificador da entidade, deve ser unico. */
 		int id_;
-		//bool selecionado_;
+
+		/** coordenadas da entidade. */
+		double x_, y_, z_;
 	};
 
 }

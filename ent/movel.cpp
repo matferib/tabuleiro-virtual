@@ -17,7 +17,7 @@ public:
 
 };
 
-Movel::Movel(int id) : Entidade(id), dm_(new Dados) {}
+Movel::Movel(int id, double x, double y, double z) : Entidade(id, x, y, z), dm_(new Dados) {}
 Movel::~Movel() { delete dm_; }
 
 void Movel::desenha(const ParametrosDesenho& pd) {
