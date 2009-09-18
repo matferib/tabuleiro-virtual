@@ -79,7 +79,6 @@ void Principal::executa(){
 void Principal::trataNotificacao(ntf::Notificacao* nn) {
 	switch (nn->tipo()) {
 		case ntf::TN_SAIR:
-			delete nn;
 			qAp->quit();
 		break;
 		case ntf::TN_INICIAR:

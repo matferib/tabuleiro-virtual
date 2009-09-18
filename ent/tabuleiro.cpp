@@ -177,7 +177,7 @@ void Tabuleiro::trataBotaoLiberado() {
 }
 
 void Tabuleiro::trataBotaoPressionado(botao_e botao, int x, int y, double aspecto) {
-	if ((estado_ == ETAB_NORMAL) || (estado_ == ETAB_ADICIONANDO_ENTIDADE)) {
+	if ((estado_ == ETAB_NORMAL) || (estado_ == ETAB_ADICIONANDO_ENTIDADE) || (estado_ == ETAB_REMOVENDO_ENTIDADE)) {
 		// roda a tela no eixo Z de acordo com o eixo X do movimento
 		if (botao == BOTAO_MEIO) {
 			rotacaoUltimoX_ = x;
