@@ -1,0 +1,15 @@
+package ntf_new;
+
+message Notificacao {
+  enum Tipo {
+    TN_SAIR = 1; 
+    TN_INICIAR = 2;
+    TN_ADICIONAR_JOGADOR = 3;
+    TN_ADICIONAR_ENTIDADE = 4; 
+    TN_REMOVER_ENTIDADE = 5; 
+    TN_ENTIDADE_ADICIONADA = 6;
+    TN_ENTIDADE_REMOVIDA = 7;
+    TN_NUM = 8;
+  }
+  optional Tipo tipo = 1;
+}

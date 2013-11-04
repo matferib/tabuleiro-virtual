@@ -1,4 +1,4 @@
-env = Environment()
+env = Environment(toolpath=['tools'], tools=['default', 'protoc'])
 
 env['QTDIR'] = '/usr'
 env.Tool('qt')
@@ -10,10 +10,14 @@ env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include',
 env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
 env['QT_LIB'] = ['QtGui', 'QtOpenGL', 'QtCore', 'glut']
 
+# protobuffer.
+env['PROTOCOUTDIR'] = './'
+
 # c++
 env['CPPPATH'] += ['./']
-env['CXXFLAGS'] += ['-g', '-Wall']
-env['LIBS'] += ['GLU']
+env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
+env['LIBS'] += ['GLU', 'protobuf']
+
 
 # Principal: qt moc e fonte. Os mocs sao gerados automaticamente
 # se estiverem no mesmo diretorio do fonte.
@@ -31,6 +35,9 @@ cEntidade = env.Object('ent/entidade.cpp')
 cParametrosDesenho = env.Object('ent/parametrosdesenho.cpp')
 cMovel = env.Object('ent/movel.cpp')
 
+# Notificacoes.
+ntf = env.Object('ntf/notificacao.cpp')
+ntf_proto = env.Protoc('ntf/notificacao.proto')
 
 # programa final
 env.Program(
@@ -38,7 +45,7 @@ env.Program(
 	source = [
 		'main.cpp',
 		# notificacoes
-		'ntf/notificacao.cpp',
+		ntf, ntf_proto[1],
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
 		cTabuleiro, cEntidade, cParametrosDesenho, cMovel

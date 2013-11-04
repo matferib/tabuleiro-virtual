@@ -21,38 +21,40 @@ const double TAM_TABULEIRO = 20.0;  // tamanho do lado do tabuleiro em quadrados
 using namespace ifg::qt;
 using namespace std;
 
+namespace {
+/** variavel estatica: instancia unica da interface principal. */
+Principal* g_inst = NULL;
+}  // namespace
+
 ///////////////
 // ESTATICAS //
 ///////////////
 
-/** variavel estatica: instancia unica da interface principal. */
-Principal* Principal::inst = NULL;
-
 Principal* Principal::CriaInstancia(int& argc, char** argv){
-	if (inst == NULL){
+	if (g_inst == NULL){
 		glutInit(&argc, argv);
-		inst = new Principal(new QApplication(argc, argv));
+		g_inst = new Principal(new QApplication(argc, argv));
 	}
-	return inst;
+	return g_inst;
 }
 
 Principal* Principal::Instancia(){
-	if (inst == NULL){
+	if (g_inst == NULL){
 		throw logic_error("instancia invalida");
 	}
-	return inst;
+	return g_inst;
 }
 
 void Principal::DestroiInstancia(){
-	delete inst;
-	inst = NULL;
+	delete g_inst;
+	g_inst = NULL;
 }
 
 /////////////
 // OBJETOS //
 /////////////
 
-Principal::Principal(QApplication* qAp) : QWidget(NULL), qAp(qAp), menuPrincipal_(new MenuPrincipal(this)), v3d_(new Visualizador3d(this)) {}
+Principal::Principal(QApplication* qAp) : QWidget(NULL), qAp_(qAp), menuPrincipal_(new MenuPrincipal(this)), v3d_(new Visualizador3d(this)) {}
 
 Principal::~Principal(){}
 
@@ -60,8 +62,7 @@ void Principal::Executa(){
 
 	// maximiza janela
 	QDesktopWidget* qdw = QApplication::desktop();
-	QRect qr = qdw->screenGeometry();
-	setGeometry(qr);
+	setGeometry(qdw->screenGeometry());
 
 	// layout grid com o menu, barra de ferramentas e o tabuleiro
 	QLayout* ql = new QGridLayout;
@@ -73,24 +74,24 @@ void Principal::Executa(){
 
 	// mostra a janela e entra no loop do QT
 	show();
-	qAp->exec();
+	qAp_->exec();
 }
 
 void Principal::TrataNotificacao(ntf::Notificacao* nn) {
-	switch (nn->tipo()) {
+	switch (nn->Tipo()) {
 		case ntf::TN_SAIR:
-			qAp->quit();
+			qAp_->quit();
 		break;
 		case ntf::TN_INICIAR:
-			ent::Tabuleiro::cria(TAM_TABULEIRO);
-			v3d_->trataNotificacao(*nn);
-			menuPrincipal_->trataNotificacao(*nn);
+			ent::Tabuleiro::Cria(TAM_TABULEIRO);
+			v3d_->TrataNotificacao(*nn);
+			menuPrincipal_->TrataNotificacao(*nn);
 		break;
 		default:
-			v3d_->trataNotificacao(*nn);
-			menuPrincipal_->trataNotificacao(*nn);
-			if (ent::Tabuleiro::haInstancia()) {
-				ent::Tabuleiro::instancia().trataNotificacao(*nn);
+			v3d_->TrataNotificacao(*nn);
+			menuPrincipal_->TrataNotificacao(*nn);
+			if (ent::Tabuleiro::HaInstancia()) {
+				ent::Tabuleiro::Instancia().TrataNotificacao(*nn);
 			}
 	}
 	delete nn;

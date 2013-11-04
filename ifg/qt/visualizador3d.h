@@ -33,7 +33,7 @@ public:
 	void paintGL();
 
 	// notificacao
-	void trataNotificacao(const ntf::Notificacao& notificacao);
+	void TrataNotificacao(const ntf::Notificacao& notificacao);
 
 	// funcoes sobrecarregadas mouse
 

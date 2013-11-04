@@ -29,15 +29,15 @@ public:
 	virtual ~Notificacao();
 
 	/** retorna o tipo de notificacao. */
-	tipontf_e tipo() const { return _tipo; }
+	tipontf_e Tipo() const { return _tipo; }
 
 	/** serializa a notificacao para o stream de saida. */
-	virtual void serializa(std::ostream& stream) const;
+	virtual void Serializa(std::ostream& stream) const;
 
 	/** deserializa a notificacao, ja tendo lido o cabecalho.
 	* Utilizado pela factory.
 	*/
-	virtual void deserializa(std::istream& stream);
+	virtual void Deserializa(std::istream& stream);
 
 private:
 	/** tipo da notificacao. */
@@ -45,6 +45,7 @@ private:
 };
 
 /** uma notificacao que pode ser feita, refeita e desfeita. */
+#if 0
 class NotificacaoAcao : public Notificacao {
 	explicit NotificacaoAcao(tipontf_e tipo);
 	virtual ~NotificacaoAcao();
@@ -56,6 +57,7 @@ class NotificacaoAcao : public Notificacao {
 	/** desfaz a notificacao. */
 	virtual void desfaz() = 0;
 };
+#endif
 
 
 } // namespace ntf

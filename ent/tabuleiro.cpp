@@ -56,15 +56,15 @@ namespace {
 
 }
 
-bool Tabuleiro::haInstancia() {
+bool Tabuleiro::HaInstancia() {
 	return (instancia_ != NULL);
 }
 
-Tabuleiro& Tabuleiro::instancia() {
+Tabuleiro& Tabuleiro::Instancia() {
 	return *instancia_;
 }
 
-void Tabuleiro::cria(int tamanho) {
+void Tabuleiro::Cria(int tamanho) {
 	delete instancia_;
 	instancia_ = new Tabuleiro(tamanho);
 }
@@ -86,21 +86,21 @@ Tabuleiro::Tabuleiro(int tamanho) :
 Tabuleiro::~Tabuleiro() {
 }
 
-int Tabuleiro::tamanhoX() const { 
+int Tabuleiro::TamanhoX() const { 
 	return tamanho_; 
 }
 
-int Tabuleiro::tamanhoY() const { 
+int Tabuleiro::TamanhoY() const { 
 	return tamanho_; 
 }
 
-void Tabuleiro::desenha() {
-	desenhaCena();
+void Tabuleiro::Desenha() {
+	DesenhaCena();
 }
 
-void Tabuleiro::adicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado) {
+void Tabuleiro::AdicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado) {
 	double x, y, z;
-	coordenadaQuadrado(x, y, z, idQuadrado);
+	CoordenadaQuadrado(x, y, z, idQuadrado);
 	Entidade* entidade;
 	switch (tipoEntidade) {
 		case TIPOENT_MOVEL:
@@ -112,7 +112,7 @@ void Tabuleiro::adicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int i
 	entidades_.insert(make_pair(entidade->id(), entidade));
 }
 
-void Tabuleiro::removeEntidade(int id) {
+void Tabuleiro::RemoveEntidade(int id) {
 	MapaEntidades::iterator resFind = entidades_.find(id);
 	if (resFind == entidades_.end()) {
 		return;
@@ -125,8 +125,8 @@ void Tabuleiro::removeEntidade(int id) {
 	delete entidade;
 }
 
-void Tabuleiro::trataNotificacao(const ntf::Notificacao& notificacao) {
-	switch (notificacao.tipo()) {
+void Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
+	switch (notificacao.Tipo()) {
 		case ntf::TN_ADICIONAR_ENTIDADE:
 			estado_ = ETAB_ADICIONANDO_ENTIDADE;
 		break;
@@ -142,7 +142,7 @@ void Tabuleiro::trataNotificacao(const ntf::Notificacao& notificacao) {
 	}
 }
 
-void Tabuleiro::trataRodela(int delta) {
+void Tabuleiro::TrataRodela(int delta) {
 	// move o olho no eixo Z de acordo com o eixo Y do movimento
 	olhoRaio_ -= (delta * SENSIBILIDADE_RODA); 
 	if (olhoRaio_ < OLHO_RAIO_MINIMO) {
@@ -153,7 +153,7 @@ void Tabuleiro::trataRodela(int delta) {
 	}
 }
 
-void Tabuleiro::trataMovimento(int x, int y) {
+void Tabuleiro::TrataMovimento(int x, int y) {
 	if (estado_ == ETAB_ROTACAO) {
 		olhoDeltaRotacao_ -= (x - rotacaoUltimoX_) * SENSIBILIDADE_ROTACAO_X;
 		if (olhoDeltaRotacao_ >= 2*M_PI) {
@@ -176,11 +176,11 @@ void Tabuleiro::trataMovimento(int x, int y) {
 	}
 }
 
-void Tabuleiro::trataBotaoLiberado() {
+void Tabuleiro::TrataBotaoLiberado() {
 	estado_ = ETAB_NORMAL;
 }
 
-void Tabuleiro::trataBotaoPressionado(botao_e botao, int x, int y, double aspecto) {
+void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto) {
 	if ((estado_ == ETAB_NORMAL) || (estado_ == ETAB_ADICIONANDO_ENTIDADE) || (estado_ == ETAB_REMOVENDO_ENTIDADE)) {
 		// roda a tela no eixo Z de acordo com o eixo X do movimento
 		if (botao == BOTAO_MEIO) {
@@ -210,10 +210,10 @@ void Tabuleiro::trataBotaoPressionado(botao_e botao, int x, int y, double aspect
 			GLint viewport[4];
 			glGetIntegerv(GL_VIEWPORT, viewport);
 			gluPickMatrix(x, y, 1.0, 1.0, viewport);
-			gluPerspective(CAMPO_VERTICAL, aspecto, 0.5, ent::Tabuleiro::instancia().tamanhoX()*2);
+			gluPerspective(CAMPO_VERTICAL, aspecto, 0.5, ent::Tabuleiro::Instancia().TamanhoX()*2);
 
 			// desenha a cena
-			desenhaCena();
+			DesenhaCena();
 
 			// volta a projecao
 			glMatrixMode(GL_PROJECTION);
@@ -223,19 +223,19 @@ void Tabuleiro::trataBotaoPressionado(botao_e botao, int x, int y, double aspect
 			GLuint numeroHits = glRenderMode(GL_RENDER);
 			glMatrixMode(GL_MODELVIEW);
 
-			trataClique(numeroHits, bufferHits);
+			TrataClique(numeroHits, bufferHits);
 		}
 	}
 }
 
-void Tabuleiro::trataRedimensionaJanela(int largura, int altura) {
+void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
 	glViewport(0, 0, (GLint)largura, (GLint)altura);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(CAMPO_VERTICAL, (double)largura / altura, 0.5, tamanhoX()*2.0);
+	gluPerspective(CAMPO_VERTICAL, (double)largura / altura, 0.5, TamanhoX()*2.0);
 }
 
-void Tabuleiro::inicializaGL() {
+void Tabuleiro::InicializaGL() {
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 
 	// back face
@@ -249,7 +249,7 @@ void Tabuleiro::inicializaGL() {
 
 // privadas 
 
-void Tabuleiro::desenhaCena() {
+void Tabuleiro::DesenhaCena() {
 	glClear(GL_COLOR_BUFFER_BIT);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
@@ -269,12 +269,12 @@ void Tabuleiro::desenhaCena() {
 
 	// desenha tabuleiro de baixo pra cima
 	glPushMatrix();
-	double deltaX = -tamanhoX() * TAMANHO_GL;
-	double deltaY = -tamanhoY() * TAMANHO_GL;
+	double deltaX = -TamanhoX() * TAMANHO_GL;
+	double deltaY = -TamanhoY() * TAMANHO_GL;
 	glTranslated(deltaX / 2.0, deltaY / 2.0, 0);
 	int id = 0;
-	for (int y = 0; y < tamanhoY(); ++y) {
-		for (int x = 0; x < tamanhoX(); ++x) {
+	for (int y = 0; y < TamanhoY(); ++y) {
+		for (int x = 0; x < TamanhoX(); ++x) {
 			// desenha quadrado
 			glColor3dv(id == quadradoSelecionado_ ? 
 				parametrosDesenho_.corTabuleiroSelecionado() : parametrosDesenho_.corTabuleiroNaoSelecionado()
@@ -302,7 +302,7 @@ void Tabuleiro::desenhaCena() {
 	glPopName();
 }
 
-void Tabuleiro::trataClique(unsigned int numeroHits, unsigned int* bufferHits) {
+void Tabuleiro::TrataClique(unsigned int numeroHits, unsigned int* bufferHits) {
 	cout << "numero de hits: " << (unsigned int)numeroHits << endl << endl;
 	GLuint* ptrHits = bufferHits;
 	GLuint id = 0, posPilha = 0;
@@ -326,19 +326,19 @@ void Tabuleiro::trataClique(unsigned int numeroHits, unsigned int* bufferHits) {
 	if (posPilha == 1) {
 		// tabuleiro
 		if (estado_ == ETAB_NORMAL) {
-			selecionaQuadrado(id);
+			SelecionaQuadrado(id);
 		}
 		else if (estado_ == ETAB_ADICIONANDO_ENTIDADE) {
-			adicionaEntidade(TIPOENT_MOVEL, NULL, id);
+			AdicionaEntidade(TIPOENT_MOVEL, NULL, id);
 			estado_ = ETAB_NORMAL;
 		}
 	}
 	else if (posPilha > 1) {
 		if (estado_ == ETAB_NORMAL) {
-			selecionaEntidade(id);
+			SelecionaEntidade(id);
 		}
 		else if (estado_ == ETAB_REMOVENDO_ENTIDADE) {
-			removeEntidade(id);
+			RemoveEntidade(id);
 			estado_ = ETAB_NORMAL;
 		}
 	}
@@ -348,25 +348,25 @@ void Tabuleiro::trataClique(unsigned int numeroHits, unsigned int* bufferHits) {
 	}
 }
 
-void Tabuleiro::selecionaEntidade(int id) {
+void Tabuleiro::SelecionaEntidade(int id) {
 	cout << "selecionando entidade: " << id << endl;
 	Entidade* e = entidades_.find(id)->second;
 	entidadeSelecionada_ = e; 
 	quadradoSelecionado_ = -1;
 }
 
-void Tabuleiro::selecionaQuadrado(int idQuadrado) {
+void Tabuleiro::SelecionaQuadrado(int idQuadrado) {
 	quadradoSelecionado_ = idQuadrado; 
 	entidadeSelecionada_ = NULL;
 }
 
-void Tabuleiro::coordenadaQuadrado(double& x, double& y, double& z, int idQuadrado) {
-	int quadX = idQuadrado % tamanhoX();
-	int quadY = idQuadrado / tamanhoY();
+void Tabuleiro::CoordenadaQuadrado(double& x, double& y, double& z, int idQuadrado) {
+	int quadX = idQuadrado % TamanhoX();
+	int quadY = idQuadrado / TamanhoY();
 
 	// centro do quadrado
-	x = ((quadX * TAMANHO_GL) + TAMANHO_GL_2) - (tamanhoX() * TAMANHO_GL_2);
-	y = ((quadY * TAMANHO_GL) + TAMANHO_GL_2) - (tamanhoY() * TAMANHO_GL_2); 
+	x = ((quadX * TAMANHO_GL) + TAMANHO_GL_2) - (TamanhoX() * TAMANHO_GL_2);
+	y = ((quadY * TAMANHO_GL) + TAMANHO_GL_2) - (TamanhoY() * TAMANHO_GL_2); 
 	z = 0;
 }
 

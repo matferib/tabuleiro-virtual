@@ -27,26 +27,26 @@ enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
 */
 class MenuPrincipal : public QMenuBar {
 	Q_OBJECT
-public:
+ public:
 	MenuPrincipal(QWidget* pai);
 	~MenuPrincipal();
 
 	/** trata notificacoes. */
-	void trataNotificacao(const ntf::Notificacao& notificacao);
+	void TrataNotificacao(const ntf::Notificacao& notificacao);
 
-private slots:
+ private slots:
 	/** slot para tratar a acao QT de um item de menu localmente. */
-	void trataAcaoItem(QAction*);
+	void TrataAcaoItem(QAction*);
 
 	/** poe o menu no modo passado como argumento.
 	* @TODO o que cada modo habilita.
 	*/
-	void modo(modomenu_e modo);
+	void Modo(modomenu_e modo);
 
-private:
+ private:
 	// menus e acoes dos items
-	std::vector<QMenu*> menus;
-	std::vector< std::vector<QAction*> > acoes;
+	std::vector<QMenu*> menus_;
+	std::vector<std::vector<QAction*>> acoes_;
 };
 
 } // namespace qt

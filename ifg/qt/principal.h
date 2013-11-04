@@ -54,10 +54,8 @@ private:
 	~Principal();
 
 private:
-	/** instancia unica da janela. */
-	static Principal* inst;
 	/** a aplicacao QT. */
-	QApplication* qAp;
+	QApplication* qAp_;
 	/** barra de menu principal. */
 	MenuPrincipal* menuPrincipal_;
 	/** visualizador 3d da aplicacao. */

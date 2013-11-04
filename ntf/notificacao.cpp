@@ -32,7 +32,7 @@ Notificacao::Notificacao(tipontf_e tipo) : _tipo(tipo) {
 Notificacao::~Notificacao(){
 }
 
-void Notificacao::serializa(std::ostream& stream) const {
+void Notificacao::Serializa(std::ostream& stream) const {
 	uint8_t ts[4];
  	ts[0] = static_cast<uint8_t>(_tipo & 0xFF);
  	ts[1] = static_cast<uint8_t>((_tipo & 0xFF00) >> 8);
@@ -41,7 +41,7 @@ void Notificacao::serializa(std::ostream& stream) const {
 	stream.write((char*)ts, 4);
 }
 
-void Notificacao::deserializa(std::istream& stream) { 
+void Notificacao::Deserializa(std::istream& stream) { 
 	// nao faz nada, tipo ja deserializado
 }
 

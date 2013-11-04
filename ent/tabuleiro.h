@@ -48,74 +48,74 @@ private:
 	explicit Tabuleiro(int tamanho);
 public:
 	/** @return true se a instancia nao for NULL. */
-	static bool haInstancia();
+	static bool HaInstancia();
 
 	/** @return a instancia unica do tabuleiro. */
-	static Tabuleiro& instancia();
+	static Tabuleiro& Instancia();
 
 	/** destroi a instancia (se houver) e cria uma nova. */
-	static void cria(int tamanho);
+	static void Cria(int tamanho);
 
 	/** libera os recursos do tabuleiro, inclusive entidades. */
 	~Tabuleiro();
 
 	/** @return tamanho do tabuleiro em X. */
-	int tamanhoX() const;
+	int TamanhoX() const;
 
 	/** @return tamanho do tabuleiro em Y. */
-	int tamanhoY() const;
+	int TamanhoY() const;
 
 	/** adiciona a entidade ao tabuleiro, no quadrado passado.
 	* @param tipoEntidade tipo da entidade.
 	* @param dc dados de criacao da entidade.
 	* @param idQuadrado do quadrado no desenho.
 	*/
-	void adicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado);
+	void AdicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado);
 
 	/** remove entidade do tabuleiro, pelo id da entidade passado. 
 	* @param id da entidade.
 	*/
-	void removeEntidade(int id);
+	void RemoveEntidade(int id);
 
 	/** desenha o mundo. */
-	void desenha();
+	void Desenha();
 
 	/** trata a notificacao de inicio de jogo. */
-	void trataNotificacao(const ntf::Notificacao& notificacao);
+	void TrataNotificacao(const ntf::Notificacao& notificacao);
 
 	/** trata evento de rodela de mouse. */
-	void trataRodela(int delta);
+	void TrataRodela(int delta);
 
 	/** trata movimento do mouse (y ja em coordenadas opengl). */
-	void trataMovimento(int x, int y);
+	void TrataMovimento(int x, int y);
 
 	/** trata o botao do mouse liberado. */
-	void trataBotaoLiberado();
+	void TrataBotaoLiberado();
 
 	/** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl) e a razao de aspecto da janela. */
-	void trataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
+	void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
 
 	/** trata a redimensao da janela. */
-	void trataRedimensionaJanela(int largura, int altura);
+	void TrataRedimensionaJanela(int largura, int altura);
 
 	/** inicializa os parametros do openGL. */
-	static void inicializaGL();
+	static void InicializaGL();
 
 private:
 	/** funcao que desenha a cena independente do modo. */
-	void desenhaCena();
+	void DesenhaCena();
 
 	/** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
-	void trataClique(unsigned int numeroHits, unsigned int* bufferHits);
+	void TrataClique(unsigned int numeroHits, unsigned int* bufferHits);
 
 	/** seleciona a entidade pelo ID. */ 
-	void selecionaEntidade(int id);
+	void SelecionaEntidade(int id);
 
 	/** seleciona o quadrado pelo ID. */
-	void selecionaQuadrado(int idQuadrado);
+	void SelecionaQuadrado(int idQuadrado);
 
 	/** retorna as coordenadas do quadrado. */
-	void coordenadaQuadrado(double& x, double& y, double& z, int idQuadrado);
+	void CoordenadaQuadrado(double& x, double& y, double& z, int idQuadrado);
 
 private:
 	/** tamanho do tabuleiro (tamanho_ x tamanho_). */
