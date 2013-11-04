@@ -8,7 +8,16 @@
 namespace ntf {
 	
 	/** enumeracao com todos os tipos de notificacoes. */
-	enum tipontf_e { TN_SAIR, TN_INICIAR, TN_ADICIONAR_JOGADOR, TN_ADICIONAR_ENTIDADE, TN_REMOVER_ENTIDADE, TN_NUM };
+	enum tipontf_e { 
+		TN_SAIR, 
+		TN_INICIAR, 
+		TN_ADICIONAR_JOGADOR, 
+		TN_ADICIONAR_ENTIDADE, 
+		TN_REMOVER_ENTIDADE, 
+		TN_ENTIDADE_ADICIONADA,
+		TN_ENTIDADE_REMOVIDA,
+		TN_NUM 
+	};
 
 	/** classe base das notificacoes, com funcoes para serializacao e deserializacao. */
 	class Notificacao {
@@ -16,15 +25,12 @@ namespace ntf {
 		/** cria uma notificacao de um determinado tipo. */
 		explicit Notificacao(tipontf_e tipo);
 
-		/** factory de Notificacao: deserializa a partir de stream. */
-		//static Notificacao* nova(std::istream& stream);
-
-		/** retorna o tipo de notificacao. */
-		tipontf_e tipo() const { return _tipo; }
-
 		/** destrutor virtual de classe base. */
 		virtual ~Notificacao();
 	
+		/** retorna o tipo de notificacao. */
+		tipontf_e tipo() const { return _tipo; }
+
 		/** serializa a notificacao para o stream de saida. */
 		virtual void serializa(std::ostream& stream) const;
 
@@ -36,6 +42,19 @@ namespace ntf {
 	private:
 		/** tipo da notificacao. */
 		tipontf_e _tipo;
+	};
+
+	/** uma notificacao que pode ser feita, refeita e desfeita. */
+	class NotificacaoAcao : public Notificacao {
+		explicit NotificacaoAcao(tipontf_e tipo);
+		virtual ~NotificacaoAcao();
+
+		/** executa a notificacao. */
+		virtual void faz() = 0;
+		/** reexecuta a notificacao. */
+		virtual void refaz() = 0;
+		/** desfaz a notificacao. */
+		virtual void desfaz() = 0;
 	};
 
 

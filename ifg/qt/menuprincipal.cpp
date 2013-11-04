@@ -168,7 +168,7 @@ void MenuPrincipal::trataAcaoItem(QAction* acao){
 	}
 
 	if (nn != NULL) {
-		Principal::instancia().trataNotificacao(nn);
+		Principal::Instancia()->TrataNotificacao(nn);
 	}
 }
 

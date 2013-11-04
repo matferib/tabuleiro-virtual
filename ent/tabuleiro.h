@@ -32,7 +32,8 @@ namespace ent {
 		ETAB_NORMAL,
 		ETAB_ADICIONANDO_ENTIDADE,
 		ETAB_REMOVENDO_ENTIDADE,
-		ETAB_ROTACAO
+		ETAB_ROTACAO,
+		ETAB_ANIMACAO
 	};
 
 	typedef std::map<int, Entidade*> MapaEntidades;

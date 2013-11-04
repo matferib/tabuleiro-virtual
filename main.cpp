@@ -7,10 +7,10 @@
 using namespace std;
 
 int main(int argc, char** argv){
-	ifg::qt::Principal& p = ifg::qt::Principal::criaInstancia(argc, argv);
+	ifg::qt::Principal* p = ifg::qt::Principal::CriaInstancia(argc, argv);
 	try {
-		p.executa();
-		ifg::qt::Principal::destroiInstancia();
+		p->Executa();
+		ifg::qt::Principal::DestroiInstancia();
 	}
 	catch (exception& e) {
 		cerr << e.what() << endl;

@@ -104,7 +104,7 @@ void Tabuleiro::adicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int i
 	Entidade* entidade;
 	switch (tipoEntidade) {
 		case TIPOENT_MOVEL:
-			entidade = new Movel(proximoId_++, x, y, z);
+			entidade = new Movel(proximoId_++, 0, x, y, z);
 			break;
 		default:
 			throw logic_error("tipo invalido de entidade");
@@ -130,8 +130,12 @@ void Tabuleiro::trataNotificacao(const ntf::Notificacao& notificacao) {
 		case ntf::TN_ADICIONAR_ENTIDADE:
 			estado_ = ETAB_ADICIONANDO_ENTIDADE;
 		break;
+		case ntf::TN_ENTIDADE_ADICIONADA:
+		break;
 		case ntf::TN_REMOVER_ENTIDADE:
 			estado_ = ETAB_REMOVENDO_ENTIDADE;
+		break;
+		case ntf::TN_ENTIDADE_REMOVIDA:
 		break;
 		default:
 			;
@@ -225,7 +229,6 @@ void Tabuleiro::trataBotaoPressionado(botao_e botao, int x, int y, double aspect
 }
 
 void Tabuleiro::trataRedimensionaJanela(int largura, int altura) {
-	// projecao ortogonal
 	glViewport(0, 0, (GLint)largura, (GLint)altura);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -264,7 +267,7 @@ void Tabuleiro::desenhaCena() {
 
 	//ceu_.desenha(parametrosDesenho_);
 
-	// desenha tabuleir de baixo pra cima
+	// desenha tabuleiro de baixo pra cima
 	glPushMatrix();
 	double deltaX = -tamanhoX() * TAMANHO_GL;
 	double deltaY = -tamanhoY() * TAMANHO_GL;
@@ -286,20 +289,17 @@ void Tabuleiro::desenhaCena() {
 	}
 	glPopMatrix();
 
-	// desenha as entidades
+	// desenha as entidades no segundo lugar da pilha
+	glPushName(0);
 	for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-		glPushMatrix();
 		Entidade* entidade = it->second;
-		glTranslated(entidade->x(), entidade->y(), entidade->z());
-		glPushName(entidade->id());
 		glColor3dv(
 			entidadeSelecionada_ == entidade ? 
 			parametrosDesenho_.corEntidadeSelecionada() : parametrosDesenho_.corEntidadeNaoSelecionada()
 		);
 		entidade->desenha(parametrosDesenho_);
-		glPopName();
-		glPopMatrix();
 	}
+	glPopName();
 }
 
 void Tabuleiro::trataClique(unsigned int numeroHits, unsigned int* bufferHits) {
@@ -322,6 +322,7 @@ void Tabuleiro::trataClique(unsigned int numeroHits, unsigned int* bufferHits) {
 			cout << "pulando objeto mais longe..." << endl;
 		}
 	}
+
 	if (posPilha == 1) {
 		// tabuleiro
 		if (estado_ == ETAB_NORMAL) {

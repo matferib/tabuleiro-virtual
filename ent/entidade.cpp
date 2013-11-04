@@ -5,7 +5,7 @@
 using namespace ent;
 using namespace std;
 
-Entidade::Entidade(int id, double x, double y, double z) : id_(id) {
+Entidade::Entidade(int id, int pontosVida, double x, double y, double z) : id_(id), maximoPontosVida_(pontosVida), pontosVida_(pontosVida) {
 	movePara(x, y, z);
 }
 
@@ -19,6 +19,17 @@ void Entidade::movePara(double x, double y, double z) {
 
 void Entidade::move(double x, double y, double z) { 
 	x_ += x; y_+= y; z_ += z; 
+}
+
+int Entidade::pontosVida() const {
+	return pontosVida_;
+}
+
+void Entidade::danoCura(int pontosVida) {
+	pontosVida_ += pontosVida;
+	if (pontosVida_ > maximoPontosVida_) {
+		pontosVida_ = maximoPontosVida_;
+	}
 }
 
 double Entidade::x() const { 

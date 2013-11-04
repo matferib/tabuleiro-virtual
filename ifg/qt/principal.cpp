@@ -28,22 +28,22 @@ using namespace std;
 /** variavel estatica: instancia unica da interface principal. */
 Principal* Principal::inst = NULL;
 
-Principal& Principal::criaInstancia(int& argc, char** argv){
+Principal* Principal::CriaInstancia(int& argc, char** argv){
 	if (inst == NULL){
 		glutInit(&argc, argv);
 		inst = new Principal(new QApplication(argc, argv));
 	}
-	return *inst;
+	return inst;
 }
 
-Principal& Principal::instancia(){
+Principal* Principal::Instancia(){
 	if (inst == NULL){
 		throw logic_error("instancia invalida");
 	}
-	return *inst;
+	return inst;
 }
 
-void Principal::destroiInstancia(){
+void Principal::DestroiInstancia(){
 	delete inst;
 	inst = NULL;
 }
@@ -56,7 +56,7 @@ Principal::Principal(QApplication* qAp) : QWidget(NULL), qAp(qAp), menuPrincipal
 
 Principal::~Principal(){}
 
-void Principal::executa(){
+void Principal::Executa(){
 
 	// maximiza janela
 	QDesktopWidget* qdw = QApplication::desktop();
@@ -76,7 +76,7 @@ void Principal::executa(){
 	qAp->exec();
 }
 
-void Principal::trataNotificacao(ntf::Notificacao* nn) {
+void Principal::TrataNotificacao(ntf::Notificacao* nn) {
 	switch (nn->tipo()) {
 		case ntf::TN_SAIR:
 			qAp->quit();
