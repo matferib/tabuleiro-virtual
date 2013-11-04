@@ -44,7 +44,7 @@ env.Program(
 	target = 'tabvirt',
 	source = [
 		'main.cpp',
-		# notificacoes
+		# notificacoes. A gambs do ntf_proto[1] foi a unica forma que consegui para fazer funcionar o protoc builder.
 		ntf_proto[1],
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
