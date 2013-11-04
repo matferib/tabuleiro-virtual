@@ -5,18 +5,18 @@
 
 namespace ent {
 
-	/** qualquer entidade movel. Representada por um cone. */
-	class Movel : public Entidade {
-	public:
-		Movel(int id, int pontosVida, double x, double y, double z);
-		~Movel();
+/** qualquer entidade movel. Representada por um cone. */
+class Movel : public Entidade {
+public:
+	Movel(int id, int pontosVida, double x, double y, double z);
+	~Movel();
 
-		virtual void desenha(const ParametrosDesenho& pd);
+	virtual void desenha(const ParametrosDesenho& pd);
 
-	private:
-		class Dados;
-		Dados* dm_;
-	};
+private:
+	class Dados;
+	Dados* dm_;
+};
 
 }
 
