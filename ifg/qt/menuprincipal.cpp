@@ -8,7 +8,7 @@
 
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/principal.h"
-#include "ntf/notificacao.h"
+#include "ntf/notificacao.pb.h"
 
 using namespace ifg::qt;
 
@@ -82,7 +82,7 @@ MenuPrincipal::~MenuPrincipal(){
 }
 
 void MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
-	switch (notificacao.Tipo()) {
+	switch (notificacao.tipo()) {
 		case ntf::TN_INICIAR:
 			Modo(MM_MESTRE);
 		break;
@@ -140,19 +140,23 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
 	//cout << (const char*)acao->text().toAscii() << endl;
 	ntf::Notificacao* nn = NULL;
 	if (acao == acoes_[ME_JOGO][MI_INICIAR]) {
-		nn = new ntf::Notificacao(ntf::TN_INICIAR);
+		nn = new ntf::Notificacao;
+    nn->set_tipo(ntf::TN_INICIAR);
 	}
 	// ..
 	else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
-		nn = new ntf::Notificacao(ntf::TN_SAIR); 
+		nn = new ntf::Notificacao; 
+    nn->set_tipo(ntf::TN_SAIR);
 	}
 	else if (acao == acoes_[ME_JOGADORES][MI_ADICIONAR]) {
 		// @todo abrir dialogo modal pedindo dados do jogador
-		nn = new ntf::Notificacao(ntf::TN_ADICIONAR_ENTIDADE); 
+		nn = new ntf::Notificacao; 
+    nn->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
 	}
 	else if (acao == acoes_[ME_JOGADORES][MI_REMOVER]) {
 		// @todo abrir dialogo modal pedindo dados do jogador
-		nn = new ntf::Notificacao(ntf::TN_REMOVER_ENTIDADE); 
+		nn = new ntf::Notificacao; 
+    nn->set_tipo(ntf::TN_REMOVER_ENTIDADE);
 	}
 	// .. 
 	else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {

@@ -36,7 +36,7 @@ cParametrosDesenho = env.Object('ent/parametrosdesenho.cpp')
 cMovel = env.Object('ent/movel.cpp')
 
 # Notificacoes.
-ntf = env.Object('ntf/notificacao.cpp')
+#ntf = env.Object('ntf/notificacao.cpp')
 ntf_proto = env.Protoc('ntf/notificacao.proto')
 
 # programa final
@@ -45,7 +45,7 @@ env.Program(
 	source = [
 		'main.cpp',
 		# notificacoes
-		ntf, ntf_proto[1],
+		ntf_proto[1],
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
 		cTabuleiro, cEntidade, cParametrosDesenho, cMovel

@@ -13,7 +13,7 @@
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/visualizador3d.h"
-#include "ntf/notificacao.h"
+#include "ntf/notificacao.pb.h"
 #include "ent/tabuleiro.h"
 
 const double TAM_TABULEIRO = 20.0;  // tamanho do lado do tabuleiro em quadrados
@@ -78,7 +78,7 @@ void Principal::Executa(){
 }
 
 void Principal::TrataNotificacao(ntf::Notificacao* nn) {
-	switch (nn->Tipo()) {
+	switch (nn->tipo()) {
 		case ntf::TN_SAIR:
 			qAp_->quit();
 		break;

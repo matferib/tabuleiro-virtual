@@ -11,8 +11,8 @@
 #include <vector>
 
 namespace ntf {
-	class Notificacao;
-}
+class Notificacao;
+}  // namespace ntf
 
 namespace ifg {
 namespace qt {

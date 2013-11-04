@@ -5,7 +5,7 @@
 #include "ifg/qt/visualizador3d.h"
 #include "ent/parametrosdesenho.h"
 #include "ent/tabuleiro.h"
-#include "ntf/notificacao.h"
+#include "ntf/notificacao.pb.h"
 
 using namespace ifg::qt;
 using namespace std;
@@ -232,7 +232,7 @@ void Visualizador3d::paintGL() {
 
 // notificacao
 void Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
-	switch (notificacao.Tipo()) {
+	switch (notificacao.tipo()) {
 		case ntf::TN_INICIAR:
 			// chama o resize pra iniciar a geometria e desenha a janela
 			resizeGL(width(), height());

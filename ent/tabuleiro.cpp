@@ -8,7 +8,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/parametrosdesenho.h"
 #include "ent/movel.h"
-#include "ntf/notificacao.h"
+#include "ntf/notificacao.pb.h"
 
 using namespace ent;
 using namespace std;
@@ -126,7 +126,7 @@ void Tabuleiro::RemoveEntidade(int id) {
 }
 
 void Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
-	switch (notificacao.Tipo()) {
+	switch (notificacao.tipo()) {
 		case ntf::TN_ADICIONAR_ENTIDADE:
 			estado_ = ETAB_ADICIONANDO_ENTIDADE;
 		break;
