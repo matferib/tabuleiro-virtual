@@ -6,12 +6,13 @@ env.Tool('qt')
 # qt
 env['QT_LIB'] = 'QtGui'
 env['QT_MOCHSUFFIX'] = '.cpp'
-env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
+env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
 env['QT_LIB'] = ['QtGui', 'QtOpenGL', 'QtCore', 'glut']
 
 # protobuffer.
 env['PROTOCOUTDIR'] = './'
+env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
 env['CPPPATH'] += ['./']
@@ -36,16 +37,19 @@ cParametrosDesenho = env.Object('ent/parametrosdesenho.cpp')
 cMovel = env.Object('ent/movel.cpp')
 
 # Notificacoes.
-#ntf = env.Object('ntf/notificacao.cpp')
-ntf_proto = env.Protoc('ntf/notificacao.proto')
+ntf = env.Object('ntf/notificacao.cpp')
+ntf_proto = env.Protoc(
+  target = [],
+  source = ['ntf/notificacao.proto'],
+)
 
 # programa final
 env.Program(
 	target = 'tabvirt',
 	source = [
-		'main.cpp',
-		# notificacoes. A gambs do ntf_proto[1] foi a unica forma que consegui para fazer funcionar o protoc builder.
-		ntf_proto[1],
+		'main.cpp', 
+		# notificacoes.
+		ntf_proto[0], ntf, 
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
 		cTabuleiro, cEntidade, cParametrosDesenho, cMovel
