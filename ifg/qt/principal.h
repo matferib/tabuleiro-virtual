@@ -2,14 +2,10 @@
 #define PRINCIPAL_H
 
 #include <QApplication>
-#include <QWidget> 
+#include <QWidget>
+#include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
-
-// declaracao antecipada das notificacoes.
-namespace ntf {
-	class Notificacao;
-}
 
 namespace ifg {
 namespace qt {
@@ -19,45 +15,39 @@ class Evento;
 class MenuPrincipal;
 class Visualizador3d;
 
-/** Interface grafica principal. Singleton, acessivel de todos os pontos.
-* Todas as outras classes sao instanciadas direta ou indiretamente desta.
-* Responsavel pelo controle de eventos e tambem pela aplicacao QT. 
-*/
-class Principal : public QWidget { 
+/** Interface grafica principal. Responsável por manipular a centra de eventos. */
+class Principal : public QWidget, ntf::Receptor { 
 	Q_OBJECT
-public:
-	/** cria e retorna a instancia da classe principal. 
-	* Recebe os parametros de linha de comando. 
-	* As chamadas seguintes devem chamar instancia().
-	*/
-	static Principal* CriaInstancia(int& argc, char** argv);
-
-	/** @return a instancia unica. */
-	static Principal* Instancia();
-	
-	/** destroi a instancia unica da janela principal.
-	* Chamado apos a execucao da janela.
-	*/
-	static void DestroiInstancia();
+ public:
+  /** Realiza a inicializacao de algumas bibliotecas necessarias para o qt e opengl antes de
+  * instanciar o objeto. 
+  */
+  static Principal* Cria(int& argc, char** argv, ntf::CentralNotificacoes* central);
+	~Principal();
 
 	/** executa a classe principal ate que o evento de finalizacao seja executado.
 	* Inicia a janela e o menu e aguarda eventos.
 	*/
 	void Executa();
 
-	/** ponto de entrada para todas as notificacoes geradas no sistema. */
-	void TrataNotificacao(ntf::Notificacao*);
+  /** Interface ntf::Receptor. */
+  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
-private:
-	// o construtor e o destrutor nao fazem nada
-	Principal(QApplication* qAp);
-	~Principal();
+ private slots:
+  /** Trata o evento de temporização. */
+  void Temporizador();
 
-private:
+ private:
+	Principal(ntf::CentralNotificacoes* central, QApplication* q_app);
+
+  /** central de notificacoes da interface. */
+  ntf::CentralNotificacoes* central_;
 	/** a aplicacao QT. */
-	QApplication* qAp_;
+	QApplication* q_app_;
+  /** Temporizador. */
+  QTimer* q_timer_;
 	/** barra de menu principal. */
-	MenuPrincipal* menuPrincipal_;
+	MenuPrincipal* menu_principal_;
 	/** visualizador 3d da aplicacao. */
 	Visualizador3d* v3d_;
 };

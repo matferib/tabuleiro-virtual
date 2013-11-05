@@ -4,9 +4,10 @@
 #include <map>
 #include <vector>
 #include "ent/parametrosdesenho.h"
+#include "ntf/notificacao.h"
 
 namespace ntf {
-	class Notificacao;
+  class Notificacao;
 }
 
 namespace ent {
@@ -17,145 +18,148 @@ class DadosCriacao;
 
 /** tipos de entidade que podem ser criadas pelo tabuleiro. */
 enum tipoent_e {
-	TIPOENT_MOVEL
+  TIPOENT_MOVEL
 };
 
 /** botoes do mouse. */
 enum botao_e {
-	BOTAO_NENHUM,
-	BOTAO_ESQUERDO,
-	BOTAO_DIREITO,
-	BOTAO_MEIO
+  BOTAO_NENHUM,
+  BOTAO_ESQUERDO,
+  BOTAO_DIREITO,
+  BOTAO_MEIO
 };
 
 enum etab_t {
-	ETAB_NORMAL,
-	ETAB_ADICIONANDO_ENTIDADE,
-	ETAB_REMOVENDO_ENTIDADE,
-	ETAB_ROTACAO,
-	ETAB_ANIMACAO
+  ETAB_NORMAL,
+  ETAB_ADICIONANDO_ENTIDADE,
+  ETAB_REMOVENDO_ENTIDADE,
+  ETAB_ROTACAO,
+  ETAB_ANIMACAO
 };
 
 typedef std::map<int, Entidade*> MapaEntidades;
 typedef std::vector<Entidade*> VetorEntidades;
 
 /** singleton responsavel por tudo que eh do jogo. */
-class Tabuleiro {
-private:
-	/** cria o tabuleiro com o tamanho de grid passado (tamanho x tamanho). 
-	* O identificador do tabuleiro sempre eh 0. 
-	*/
-	explicit Tabuleiro(int tamanho);
-public:
-	/** @return true se a instancia nao for NULL. */
-	static bool HaInstancia();
+class Tabuleiro : public ntf::Receptor {
+ private:
+  /** cria o tabuleiro com o tamanho de grid passado (tamanho x tamanho). 
+  * O identificador do tabuleiro sempre eh 0. 
+  */
+  Tabuleiro(int tamanho, ntf::CentralNotificacoes* central);
 
-	/** @return a instancia unica do tabuleiro. */
-	static Tabuleiro& Instancia();
+ public:
+  /** @return true se a instancia nao for NULL. */
+  static bool HaInstancia();
 
-	/** destroi a instancia (se houver) e cria uma nova. */
-	static void Cria(int tamanho);
+  /** @return a instancia unica do tabuleiro. */
+  static Tabuleiro& Instancia();
 
-	/** libera os recursos do tabuleiro, inclusive entidades. */
-	~Tabuleiro();
+  /** destroi a instancia (se houver) e cria uma nova. */
+  static void Cria(int tamanho, ntf::CentralNotificacoes* central);
 
-	/** @return tamanho do tabuleiro em X. */
-	int TamanhoX() const;
+  /** libera os recursos do tabuleiro, inclusive entidades. */
+  virtual ~Tabuleiro();
 
-	/** @return tamanho do tabuleiro em Y. */
-	int TamanhoY() const;
+  /** @return tamanho do tabuleiro em X. */
+  int TamanhoX() const;
 
-	/** adiciona a entidade ao tabuleiro, no quadrado passado.
-	* @param tipoEntidade tipo da entidade.
-	* @param dc dados de criacao da entidade.
-	* @param idQuadrado do quadrado no desenho.
-	*/
-	void AdicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado);
+  /** @return tamanho do tabuleiro em Y. */
+  int TamanhoY() const;
 
-	/** remove entidade do tabuleiro, pelo id da entidade passado. 
-	* @param id da entidade.
-	*/
-	void RemoveEntidade(int id);
+  /** adiciona a entidade ao tabuleiro, no quadrado passado.
+  * @param tipoEntidade tipo da entidade.
+  * @param dc dados de criacao da entidade.
+  * @param idQuadrado do quadrado no desenho.
+  */
+  void AdicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado);
 
-	/** desenha o mundo. */
-	void Desenha();
+  /** remove entidade do tabuleiro, pelo id da entidade passado. 
+  * @param id da entidade.
+  */
+  void RemoveEntidade(int id);
 
-	/** trata a notificacao de inicio de jogo. */
-	void TrataNotificacao(const ntf::Notificacao& notificacao);
+  /** desenha o mundo. */
+  void Desenha();
 
-	/** trata evento de rodela de mouse. */
-	void TrataRodela(int delta);
+  /** Interface receptor. */
+  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
-	/** trata movimento do mouse (y ja em coordenadas opengl). */
-	void TrataMovimento(int x, int y);
+  /** trata evento de rodela de mouse. */
+  void TrataRodela(int delta);
 
-	/** trata o botao do mouse liberado. */
-	void TrataBotaoLiberado();
+  /** trata movimento do mouse (y ja em coordenadas opengl). */
+  void TrataMovimento(int x, int y);
 
-	/** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl) e a razao de aspecto da janela. */
-	void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
+  /** trata o botao do mouse liberado. */
+  void TrataBotaoLiberado();
 
-	/** trata a redimensao da janela. */
-	void TrataRedimensionaJanela(int largura, int altura);
+  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl) e a razao de aspecto da janela. */
+  void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
 
-	/** inicializa os parametros do openGL. */
-	static void InicializaGL();
+  /** trata a redimensao da janela. */
+  void TrataRedimensionaJanela(int largura, int altura);
 
-private:
-	/** funcao que desenha a cena independente do modo. */
-	void DesenhaCena();
-
-	/** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
-	void TrataClique(unsigned int numeroHits, unsigned int* bufferHits);
-
-	/** seleciona a entidade pelo ID. */ 
-	void SelecionaEntidade(int id);
-
-	/** seleciona o quadrado pelo ID. */
-	void SelecionaQuadrado(int idQuadrado);
-
-	/** retorna as coordenadas do quadrado. */
-	void CoordenadaQuadrado(double& x, double& y, double& z, int idQuadrado);
+  /** inicializa os parametros do openGL. */
+  static void InicializaGL();
 
 private:
-	/** tamanho do tabuleiro (tamanho_ x tamanho_). */
-	int tamanho_;
+  /** funcao que desenha a cena independente do modo. */
+  void DesenhaCena();
 
-	/** mapa geral de entidades, por id. */
-	MapaEntidades entidades_;
+  /** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
+  void TrataClique(unsigned int numeroHits, unsigned int* bufferHits);
 
-	/** a entidade selecionada. */
-	Entidade* entidadeSelecionada_;
+  /** seleciona a entidade pelo ID. */ 
+  void SelecionaEntidade(int id);
 
-	/** quadrado selecionado (pelo id de desenho). */
-	int quadradoSelecionado_;
+  /** seleciona o quadrado pelo ID. */
+  void SelecionaQuadrado(int idQuadrado);
 
-	/** estado do tabuleiro. */
-	etab_t estado_;
+  /** retorna as coordenadas do quadrado. */
+  void CoordenadaQuadrado(double& x, double& y, double& z, int idQuadrado);
 
-	/** proximo id de entidades. */
-	unsigned int proximoId_;
+private:
+  /** tamanho do tabuleiro (tamanho_ x tamanho_). */
+  int tamanho_;
 
-	/** parametros de desenho da cena. */
-	ent::ParametrosDesenho parametrosDesenho_;
+  /** mapa geral de entidades, por id. */
+  MapaEntidades entidades_;
 
-	/** dados (X) para calculo de rotacao de mouse. */
-	int rotacaoUltimoX_; 
-	/** dados (Y) para calculo de rotacao de mouse. */
-	int rotacaoUltimoY_; 
+  /** a entidade selecionada. */
+  Entidade* entidadeSelecionada_;
 
-	// para onde o olho olha
-	double olhoX_;
-	double olhoY_;
-	double olhoZ_;
-	// de onde o olho olha
-	double olhoDeltaRotacao_;
-	double olhoAltura_;
-	double olhoRaio_;
+  /** quadrado selecionado (pelo id de desenho). */
+  int quadradoSelecionado_;
 
-	// elimina copia
-	Tabuleiro(const Tabuleiro& t);
-	Tabuleiro& operator=(Tabuleiro&);
+  /** estado do tabuleiro. */
+  etab_t estado_;
+
+  /** proximo id de entidades. */
+  unsigned int proximoId_;
+
+  /** parametros de desenho da cena. */
+  ent::ParametrosDesenho parametrosDesenho_;
+
+  /** dados (X) para calculo de rotacao de mouse. */
+  int rotacaoUltimoX_; 
+  /** dados (Y) para calculo de rotacao de mouse. */
+  int rotacaoUltimoY_; 
+
+  // para onde o olho olha
+  double olhoX_;
+  double olhoY_;
+  double olhoZ_;
+  // de onde o olho olha
+  double olhoDeltaRotacao_;
+  double olhoAltura_;
+  double olhoRaio_;
+
+  ntf::CentralNotificacoes* central_;
+
+  // elimina copia
+  Tabuleiro(const Tabuleiro& t);
+  Tabuleiro& operator=(Tabuleiro&);
 };
 
 }

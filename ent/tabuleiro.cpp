@@ -64,22 +64,23 @@ Tabuleiro& Tabuleiro::Instancia() {
 	return *instancia_;
 }
 
-void Tabuleiro::Cria(int tamanho) {
+void Tabuleiro::Cria(int tamanho, ntf::CentralNotificacoes* central) {
 	delete instancia_;
-	instancia_ = new Tabuleiro(tamanho);
+	instancia_ = new Tabuleiro(tamanho, central);
 }
 
-Tabuleiro::Tabuleiro(int tamanho) : 
-	tamanho_(tamanho), 
-	entidadeSelecionada_(NULL), 
-	quadradoSelecionado_(-1), 
-	estado_(ETAB_NORMAL), proximoId_(0),
-	olhoX_(0), olhoY_(0), olhoZ_(0), olhoDeltaRotacao_(0), olhoAltura_(OLHO_ALTURA_INICIAL), olhoRaio_(OLHO_RAIO_INICIAL)
-{
+Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) : 
+  	tamanho_(tamanho), 
+	  entidadeSelecionada_(NULL), 
+	  quadradoSelecionado_(-1), 
+	  estado_(ETAB_NORMAL), proximoId_(0),
+	  olhoX_(0), olhoY_(0), olhoZ_(0), olhoDeltaRotacao_(0), olhoAltura_(OLHO_ALTURA_INICIAL), olhoRaio_(OLHO_RAIO_INICIAL),
+    central_(central) {
 	if (instancia_ != NULL) {
 		throw logic_error("tabuleiro ja existe");
 	}
 	instancia_ = this;
+  central_->RegistraReceptor(this);
 }
 
 
@@ -125,20 +126,20 @@ void Tabuleiro::RemoveEntidade(int id) {
 	delete entidade;
 }
 
-void Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
+bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
 	switch (notificacao.tipo()) {
 		case ntf::TN_ADICIONAR_ENTIDADE:
 			estado_ = ETAB_ADICIONANDO_ENTIDADE;
-		break;
+      return true;
 		case ntf::TN_ENTIDADE_ADICIONADA:
-		break;
+      return true;
 		case ntf::TN_REMOVER_ENTIDADE:
 			estado_ = ETAB_REMOVENDO_ENTIDADE;
-		break;
+      return true;
 		case ntf::TN_ENTIDADE_REMOVIDA:
-		break;
+      return true;
 		default:
-			;
+			return false;
 	}
 }
 

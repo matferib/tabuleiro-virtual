@@ -1,16 +1,18 @@
 /** @file main.cpp o inicio de tudo. Responsavel por instanciar a interface grafica principal. */
 
-#include <stdexcept>
 #include <iostream>
+#include <memory>
+#include <stdexcept>
 #include "ifg/qt/principal.h"
+#include "ntf/notificacao.h"
 
 using namespace std;
 
 int main(int argc, char** argv){
-	ifg::qt::Principal* p = ifg::qt::Principal::CriaInstancia(argc, argv);
+  ntf::CentralNotificacoes central;
+  std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &central));
 	try {
 		p->Executa();
-		ifg::qt::Principal::DestroiInstancia();
 	}
 	catch (exception& e) {
 		cerr << e.what() << endl;
