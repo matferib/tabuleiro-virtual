@@ -13,7 +13,8 @@ namespace ntf {
 namespace ifg {
 namespace qt {
 
-/** widget responsavel por desenhar a area 3D. 
+/** Widget responsavel por desenhar a area 3D. Recebe eventos de redimensionamento, 
+* mouse e repassa ao contexto 3D.  
 */
 class Visualizador3d : public QGLWidget, ntf::Receptor {
 public:
@@ -28,7 +29,7 @@ public:
   virtual void initializeGL() override;
   /** redimensionamento da janela. */
   virtual void resizeGL(int width, int height) override;
-  /** funcao de desenho da janela. No visualizador, cada unidade representa 1m. */
+  /** funcao de desenho da janela. */
   virtual void paintGL() override;
 
   // funcoes sobrecarregadas mouse
@@ -39,12 +40,6 @@ public:
 
   // Interface ntf::Receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
-
-private:
-  /** trata o clique do mouse (ja com Y convertido para opengl).
-  * @return true se algum objeto tratou o evento.
-  */
-  void trataClique(int x, int y);
 
 private:
   ntf::CentralNotificacoes* central_;

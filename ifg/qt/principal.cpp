@@ -69,6 +69,7 @@ void Principal::Executa() {
 }
 
 void Principal::Temporizador() {
+  // Realiza a notificação de todos.
   central_->Notifica();
 }
 
