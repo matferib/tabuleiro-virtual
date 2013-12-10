@@ -38,7 +38,8 @@ Principal* Principal::Cria(int& argc, char** argv, ntf::CentralNotificacoes* cen
 
 Principal::Principal(ntf::CentralNotificacoes* central, QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
-      menu_principal_(new MenuPrincipal(central, this)), v3d_(new Visualizador3d(central, this)) {
+      tabuleiro_(TAM_TABULEIRO, central), menu_principal_(new MenuPrincipal(central, this)), 
+      v3d_(new Visualizador3d(central, &tabuleiro_, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));
 }
@@ -79,7 +80,6 @@ bool Principal::TrataNotificacao(const ntf::Notificacao& notificacao) {
 			q_app_->quit();
       return true;
 		case ntf::TN_INICIAR: {
-			ent::Tabuleiro::Cria(TAM_TABULEIRO, central_);
       auto* notificacao_iniciado = new ntf::Notificacao;
       notificacao_iniciado->set_tipo(ntf::TN_INICIADO);
       central_->AdicionaNotificacao(notificacao_iniciado);

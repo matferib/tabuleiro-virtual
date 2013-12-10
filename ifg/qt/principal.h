@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QWidget>
+#include "ent/tabuleiro.h"
 #include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
@@ -46,6 +47,8 @@ class Principal : public QWidget, ntf::Receptor {
 	QApplication* q_app_;
   /** Temporizador. */
   QTimer* q_timer_;
+  /** O mundo virtual. */
+  ent::Tabuleiro tabuleiro_;
 	/** barra de menu principal. */
 	MenuPrincipal* menu_principal_;
 	/** visualizador 3d da aplicacao. */

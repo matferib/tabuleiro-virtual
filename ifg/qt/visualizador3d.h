@@ -7,8 +7,12 @@
 #include "ntf/notificacao.h"
 
 namespace ntf {
-  class Notificacao;
-}
+class Notificacao;
+}  // namespace ntf
+
+namespace ent {
+class Tabuleiro;
+}  // namespace ent
 
 namespace ifg {
 namespace qt {
@@ -18,8 +22,10 @@ namespace qt {
 */
 class Visualizador3d : public QGLWidget, ntf::Receptor {
 public:
-  /** constroi a widget do tabuleiro recebendo a widget pai. */
-  explicit Visualizador3d(ntf::CentralNotificacoes* central, QWidget* pai);
+  /** constroi a widget do tabuleiro recebendo a widget pai.
+  * Nao se torna dono de nada.
+  */
+  explicit Visualizador3d(ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
 
   /** destroi as entidades do tabuleiro e libera os recursos. */
   virtual ~Visualizador3d();
@@ -29,7 +35,7 @@ public:
   virtual void initializeGL() override;
   /** redimensionamento da janela. */
   virtual void resizeGL(int width, int height) override;
-  /** funcao de desenho da janela. */
+  /** funcao de desenho da janela. Aqui comeca o desenho 3d. */
   virtual void paintGL() override;
 
   // funcoes sobrecarregadas mouse
@@ -41,8 +47,9 @@ public:
   // Interface ntf::Receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
-private:
+ private:
   ntf::CentralNotificacoes* central_;
+  ent::Tabuleiro* tabuleiro_;
 };
 
 }  // namespace qt

@@ -3,7 +3,6 @@
 #include <cmath>
 #include <GL/gl.h>
 #include "ifg/qt/visualizador3d.h"
-#include "ent/parametrosdesenho.h"
 #include "ent/tabuleiro.h"
 #include "ntf/notificacao.pb.h"
 
@@ -12,7 +11,7 @@ using namespace std;
 
 namespace {
 
-ent::botao_e mapeiaBotao(Qt::MouseButton botao) {
+ent::botao_e MapeiaBotao(Qt::MouseButton botao) {
   switch (botao) {
     case Qt::LeftButton: return ent::BOTAO_ESQUERDO;
     case Qt::RightButton: return ent::BOTAO_DIREITO;
@@ -23,8 +22,8 @@ ent::botao_e mapeiaBotao(Qt::MouseButton botao) {
 
 }  // namespace
 
-Visualizador3d::Visualizador3d(ntf::CentralNotificacoes* central, QWidget* pai) : 
-    QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai), central_(central) {
+Visualizador3d::Visualizador3d(ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) : 
+    QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai), central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
 }
 
@@ -37,15 +36,11 @@ void Visualizador3d::initializeGL() {
 }
 
 void Visualizador3d::resizeGL(int width, int height) {
-  if (ent::Tabuleiro::HaInstancia()) {
-    ent::Tabuleiro::Instancia().TrataRedimensionaJanela(width, height);
-  }
+  tabuleiro_->TrataRedimensionaJanela(width, height);
 }
 
 void Visualizador3d::paintGL() {
-  if (ent::Tabuleiro::HaInstancia()) {
-    ent::Tabuleiro::Instancia().Desenha();
-  }
+  tabuleiro_->Desenha();
 }
 
 // notificacao
@@ -56,6 +51,10 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       resizeGL(width(), height());
       glDraw();
       return true;
+    case ntf::TN_ENTIDADE_ADICIONADA:
+    case ntf::TN_ENTIDADE_REMOVIDA:
+      glDraw();
+      return true;
     default:
       return false;
   }
@@ -64,40 +63,31 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  if (ent::Tabuleiro::HaInstancia()) {
-    int altura = height();
-    double aspecto = static_cast<double>(width()) / altura;
-    ent::Tabuleiro::Instancia().TrataBotaoPressionado(
-      mapeiaBotao(event->button()), 
-      event->x(), altura - event->y(), aspecto
-    );
-    event->accept();
-    glDraw();
-  }
+  int altura = height();
+  double aspecto = static_cast<double>(width()) / altura;
+  tabuleiro_->TrataBotaoPressionado(
+    MapeiaBotao(event->button()), 
+    event->x(), altura - event->y(), aspecto);
+  event->accept();
+  glDraw();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  if (ent::Tabuleiro::HaInstancia()) {
-    ent::Tabuleiro::Instancia().TrataBotaoLiberado();
-    event->accept();
-    glDraw();
-  }
+  tabuleiro_->TrataBotaoLiberado();
+  event->accept();
+  glDraw();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  if (ent::Tabuleiro::HaInstancia()) {
-    ent::Tabuleiro::Instancia().TrataMovimento(event->x(), (height() - event->y()));
-    event->accept();
-    glDraw();
-  }
+  tabuleiro_->TrataMovimento(event->x(), (height() - event->y()));
+  event->accept();
+  glDraw();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  if (ent::Tabuleiro::HaInstancia()) {
-    ent::Tabuleiro::Instancia().TrataRodela(event->delta());
-    event->accept();
-    glDraw();
-  }
+  tabuleiro_->TrataRodela(event->delta());
+  event->accept();
+  glDraw();
 }
 
 

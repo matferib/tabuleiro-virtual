@@ -33,7 +33,6 @@ cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
-cParametrosDesenho = env.Object('ent/parametrosdesenho.cpp')
 cMovel = env.Object('ent/movel.cpp')
 
 # Notificacoes.
@@ -52,7 +51,7 @@ env.Program(
 		ntf_proto[0], ntf, 
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
-		cTabuleiro, cEntidade, cParametrosDesenho, cMovel
+		cTabuleiro, cEntidade, cMovel
 	]
 )
 

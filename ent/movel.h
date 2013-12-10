@@ -11,7 +11,7 @@ public:
 	Movel(int id, int pontosVida, double x, double y, double z);
 	~Movel();
 
-	virtual void desenha(const ParametrosDesenho& pd);
+	virtual void Desenha() override;
 
 private:
 	class Dados;

@@ -5,39 +5,40 @@
 using namespace ent;
 using namespace std;
 
-Entidade::Entidade(int id, int pontosVida, double x, double y, double z) : id_(id), maximoPontosVida_(pontosVida), pontosVida_(pontosVida) {
-	movePara(x, y, z);
+Entidade::Entidade(int id, int pontos_vida, double x, double y, double z) 
+    : id_(id), maximo_pontos_vida_(pontos_vida), pontos_vida_(pontos_vida) {
+	MovePara(x, y, z);
 }
 
 Entidade::~Entidade() {}
 
-int Entidade::id() const { return id_; }
+int Entidade::Id() const { return id_; }
 
-void Entidade::movePara(double x, double y, double z) { 
+void Entidade::MovePara(double x, double y, double z) { 
 	x_= x; y_ = y; z_ = z; 
 }
 
-void Entidade::move(double x, double y, double z) { 
+void Entidade::Move(double x, double y, double z) { 
 	x_ += x; y_+= y; z_ += z; 
 }
 
-int Entidade::pontosVida() const {
-	return pontosVida_;
+int Entidade::PontosVida() const {
+	return pontos_vida_;
 }
 
-void Entidade::danoCura(int pontosVida) {
-	pontosVida_ += pontosVida;
-	if (pontosVida_ > maximoPontosVida_) {
-		pontosVida_ = maximoPontosVida_;
+void Entidade::DanoCura(int pontos_vida) {
+	pontos_vida_ += pontos_vida;
+	if (pontos_vida_ > maximo_pontos_vida_) {
+		pontos_vida_ = maximo_pontos_vida_;
 	}
 }
 
-double Entidade::x() const { 
+double Entidade::X() const { 
 	return x_; 
 }
-double Entidade::y() const { 
+double Entidade::Y() const { 
 	return y_; 
 }
-double Entidade::z() const { 
+double Entidade::Z() const { 
 	return z_; 
 }

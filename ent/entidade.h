@@ -5,9 +5,6 @@ namespace ent {
 
 class Entidade;
 
-/** parametros de desenho dos objetos. */
-class ParametrosDesenho;
-
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico. 
 */
@@ -19,41 +16,41 @@ public:
 
 public:
 	/** @return o identificador da entidade que deve ser unico. */
-	int id() const;
+	int Id() const;
 
 	/** move a entidade para o ponto especificado. */
-	void movePara(double x, double y, double z = 0);
+	void MovePara(double x, double y, double z = 0);
 
 	/** move a entidade pelo vetor de movimento. */
-	void move(double x, double y, double z = 0);
+	void Move(double x, double y, double z = 0);
 
 	/** @return o HP da unidade. */
-	int pontosVida() const;
+	int PontosVida() const;
 
 	/** aplica dano ou cura na entidade. Dano eh negativo, cura eh positivo. */
-	void danoCura(int pontosVida);
+	void DanoCura(int pontosVida);
 
 	/** @return a coordenada (x). */
-	double x() const;
+	double X() const;
 
 	/** @return a coordenada (y). */
-	double y() const;
+	double Y() const;
 
 	/** @return a coordenada (z). */
-	double z() const;
+	double Z() const;
 	
 	/** desenha o objeto, recebendo os parametros de desenho. */
-	virtual void desenha(const ParametrosDesenho& pd) = 0;
+	virtual void Desenha() = 0;
 
 private:
 	/** identificador da entidade, deve ser unico. */
 	int id_;
 
 	/** maximo de pontos de vida. */
-	int maximoPontosVida_;
+	int maximo_pontos_vida_;
 
 	/** pontos de vida corrente da unidade. */
-	int pontosVida_;
+	int pontos_vida_;
 
 	/** coordenadas da entidade. */
 	double x_, y_, z_;

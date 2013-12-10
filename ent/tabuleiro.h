@@ -3,7 +3,6 @@
 
 #include <map>
 #include <vector>
-#include "ent/parametrosdesenho.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -29,34 +28,26 @@ enum botao_e {
   BOTAO_MEIO
 };
 
+/** Estados possiveis do tabuleiro. */
 enum etab_t {
-  ETAB_NORMAL,
-  ETAB_ADICIONANDO_ENTIDADE,
-  ETAB_REMOVENDO_ENTIDADE,
+  ETAB_OCIOSO,
   ETAB_ROTACAO,
-  ETAB_ANIMACAO
+  ETAB_ENT_PRESSIONADA,
+  ETAB_ENT_SELECIONADA,
+  ETAB_QUAD_PRESSIONADO,
+  ETAB_QUAD_SELECIONADO,
 };
 
 typedef std::map<int, Entidade*> MapaEntidades;
 typedef std::vector<Entidade*> VetorEntidades;
 
-/** singleton responsavel por tudo que eh do jogo. */
+/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X Y como base e Z como altura (positivo). */
 class Tabuleiro : public ntf::Receptor {
- private:
+ public:
   /** cria o tabuleiro com o tamanho de grid passado (tamanho x tamanho). 
   * O identificador do tabuleiro sempre eh 0. 
   */
   Tabuleiro(int tamanho, ntf::CentralNotificacoes* central);
-
- public:
-  /** @return true se a instancia nao for NULL. */
-  static bool HaInstancia();
-
-  /** @return a instancia unica do tabuleiro. */
-  static Tabuleiro& Instancia();
-
-  /** destroi a instancia (se houver) e cria uma nova. */
-  static void Cria(int tamanho, ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -68,11 +59,11 @@ class Tabuleiro : public ntf::Receptor {
   int TamanhoY() const;
 
   /** adiciona a entidade ao tabuleiro, no quadrado passado.
-  * @param tipoEntidade tipo da entidade.
+  * @param tipo_entidade tipo da entidade.
   * @param dc dados de criacao da entidade.
-  * @param idQuadrado do quadrado no desenho.
+  * @param id_quadrado do quadrado no desenho.
   */
-  void AdicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int idQuadrado);
+  int AdicionaEntidade(tipoent_e tipo_entidade, DadosCriacao* dc, int id_quadrado);
 
   /** remove entidade do tabuleiro, pelo id da entidade passado. 
   * @param id da entidade.
@@ -103,23 +94,34 @@ class Tabuleiro : public ntf::Receptor {
   /** inicializa os parametros do openGL. */
   static void InicializaGL();
 
-private:
-  /** funcao que desenha a cena independente do modo. */
+ private:
+  /** funcao que desenha a cena independente do modo.
+  */
   void DesenhaCena();
 
+  /** Encontra os hits de um clique em objetos. */
+  void EncontraHits(int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits);
+
   /** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
-  void TrataClique(unsigned int numeroHits, unsigned int* bufferHits);
+  void TrataClique(unsigned int numero_hits, unsigned int* buffer_hits);
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(int id);
 
   /** seleciona o quadrado pelo ID. */
-  void SelecionaQuadrado(int idQuadrado);
+  void SelecionaQuadrado(int id_quadrado);
 
   /** retorna as coordenadas do quadrado. */
-  void CoordenadaQuadrado(double& x, double& y, double& z, int idQuadrado);
+  void CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z);
 
-private:
+ private:
+  /** Parametros gerais de desenho. */
+  struct ParametrosDesenho {
+    bool desenha_entidades;
+    bool iluminacao;
+    bool desenha_luz;
+  } parametros_desenho_;
+
   /** tamanho do tabuleiro (tamanho_ x tamanho_). */
   int tamanho_;
 
@@ -127,33 +129,32 @@ private:
   MapaEntidades entidades_;
 
   /** a entidade selecionada. */
-  Entidade* entidadeSelecionada_;
+  Entidade* entidade_selecionada_;
 
   /** quadrado selecionado (pelo id de desenho). */
-  int quadradoSelecionado_;
+  int quadrado_selecionado_;
 
   /** estado do tabuleiro. */
   etab_t estado_;
+  /** usado para restaurar o estado apos rotacao. */
+  etab_t estado_anterior_rotacao_;
 
   /** proximo id de entidades. */
-  unsigned int proximoId_;
-
-  /** parametros de desenho da cena. */
-  ent::ParametrosDesenho parametrosDesenho_;
+  unsigned int proximo_id_;
 
   /** dados (X) para calculo de rotacao de mouse. */
-  int rotacaoUltimoX_; 
+  int rotacao_ultimo_x_; 
   /** dados (Y) para calculo de rotacao de mouse. */
-  int rotacaoUltimoY_; 
+  int rotacao_ultimo_y_; 
 
-  // para onde o olho olha
-  double olhoX_;
-  double olhoY_;
-  double olhoZ_;
-  // de onde o olho olha
-  double olhoDeltaRotacao_;
-  double olhoAltura_;
-  double olhoRaio_;
+  // Para onde o olho olha.
+  double olho_x_;
+  double olho_y_;
+  double olho_z_;
+  // De onde o olho olha.
+  double olho_delta_rotacao_;
+  double olho_altura_;
+  double olho_raio_;
 
   ntf::CentralNotificacoes* central_;
 

@@ -9,9 +9,15 @@ enum Tipo {
   TN_REMOVER_ENTIDADE = 6; 
   TN_ENTIDADE_ADICIONADA = 7;
   TN_ENTIDADE_REMOVIDA = 8;
-  TN_NUM = 9;
+  TN_NOTIFICACAO_3D = 9;
+  TN_NUM = 10;
+}
+
+// Coisas 3D.
+message Notificacao3D {
 }
 
 message Notificacao {
   optional Tipo tipo = 1;
+  optional Notificacao3D n3d = 2;
 }
