@@ -17,7 +17,7 @@ env['PROTOCPYTHONOUTDIR'] = None
 # c++
 env['CPPPATH'] += ['./']
 env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
-env['LIBS'] += ['GLU', 'protobuf']
+env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
 
 
 # Principal: qt moc e fonte. Os mocs sao gerados automaticamente
@@ -35,8 +35,11 @@ cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
 cMovel = env.Object('ent/movel.cpp')
 
+# net
+cNet = env.Object('net/servidor.cpp')
+
 # Notificacoes.
-ntf = env.Object('ntf/notificacao.cpp')
+cNtf = env.Object('ntf/notificacao.cpp')
 ntf_proto = env.Protoc(
   target = [],
   source = ['ntf/notificacao.proto'],
@@ -46,9 +49,11 @@ ntf_proto = env.Protoc(
 env.Program(
 	target = 'tabvirt',
 	source = [
-		'main.cpp', 
+		'main.cpp',
+    # net.
+    cNet,
 		# notificacoes.
-		ntf_proto[0], ntf, 
+		ntf_proto[0], cNtf, 
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
 		cTabuleiro, cEntidade, cMovel
