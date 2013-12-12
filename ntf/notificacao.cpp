@@ -16,11 +16,21 @@ void CentralNotificacoes::RegistraReceptor(Receptor* receptor) {
   receptores_.push_back(receptor);
 }
 
+void CentralNotificacoes::RegistraReceptorRemoto(Receptor* receptor) {
+  receptores_remotos_.push_back(receptor);
+}
+
 void CentralNotificacoes::DesregistraReceptor(const Receptor* receptor) {
   for (auto it = receptores_.begin(); it != receptores_.end(); ++it) {
     if (*it == receptor) {
       receptores_.erase(it);
-      return;
+      break;
+    }
+  }
+  for (auto it = receptores_remotos_.begin(); it != receptores_remotos_.end(); ++it) {
+    if (*it == receptor) {
+      receptores_.erase(it);
+      break;
     }
   }
 }
@@ -39,8 +49,16 @@ void CentralNotificacoes::Notifica() {
   copia_notificacoes.swap(notificacoes_);
   for (auto* n : copia_notificacoes) {
     std::cout << "Despachando: " << n->ShortDebugString() << std::endl;
-    for (auto* r : receptores_) {
-      r->TrataNotificacao(*n);
+    if (n->local()) {
+      for (auto* r : receptores_) {
+        r->TrataNotificacao(*n);
+      }
+    }
+    if (n->remota()) {
+      for (auto* r : receptores_remotos_) {
+        // TODO talvez tenhamos que tirar o bit remoto aqui.
+        r->TrataNotificacao(*n);
+      }
     }
     delete n;
   }

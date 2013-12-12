@@ -24,9 +24,11 @@ class CentralNotificacoes {
   /** Adiciona uma notificacao a central, que sera a dona dela. */
   void AdicionaNotificacao(Notificacao* notificacao);
 
-  /** Registra um receptor com a central, que nao sera dono dele. 
-  */
+  /** Registra um receptor com a central, que nao sera dono dele. */
   void RegistraReceptor(Receptor* receptor);
+
+  /** Registra um receptor remoto com a central, que nao sera dono dele. */
+  void RegistraReceptorRemoto(Receptor* receptor);
 
   /** Tira um receptor do registro. */
   void DesregistraReceptor(const Receptor* receptor);
@@ -37,6 +39,7 @@ class CentralNotificacoes {
  private:
   std::vector<Notificacao*> notificacoes_;
   std::vector<Receptor*> receptores_;
+  std::vector<Receptor*> receptores_remotos_;
 };
 	
 

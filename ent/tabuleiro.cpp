@@ -247,9 +247,14 @@ void Tabuleiro::TrataBotaoLiberado() {
     case ETAB_ROTACAO:
       estado_ = estado_anterior_rotacao_;
       return;
-    case ETAB_ENT_PRESSIONADA:
+    case ETAB_ENT_PRESSIONADA: {
+      auto* n = new ntf::Notificacao;
+      n->set_local(false);
+      n->set_remota(true);
+      central_->AdicionaNotificacao(n);
       estado_ = ETAB_ENT_SELECIONADA;
       return;
+    }
     case ETAB_QUAD_PRESSIONADO:
       estado_ = ETAB_QUAD_SELECIONADO;
       return;

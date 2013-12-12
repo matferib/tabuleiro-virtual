@@ -13,11 +13,10 @@ enum Tipo {
   TN_NUM = 10;
 }
 
-// Coisas 3D.
-message Notificacao3D {
-}
-
 message Notificacao {
   optional Tipo tipo = 1;
-  optional Notificacao3D n3d = 2;
+  // Processar localmente.
+  optional bool local = 2 [default=true];
+  // Processar remotamente.
+  optional bool remota = 3 [default=false];
 }
