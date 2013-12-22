@@ -71,6 +71,9 @@ void Principal::Executa() {
 
 void Principal::Temporizador() {
   // Realiza a notificação de todos.
+  auto* notificacao = new ntf::Notificacao;
+  notificacao->set_tipo(ntf::TN_TEMPORIZADOR);
+  central_->AdicionaNotificacao(notificacao);
   central_->Notifica();
 }
 

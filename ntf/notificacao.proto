@@ -10,7 +10,9 @@ enum Tipo {
   TN_ENTIDADE_ADICIONADA = 7;
   TN_ENTIDADE_REMOVIDA = 8;
   TN_NOTIFICACAO_3D = 9;
-  TN_NUM = 10;
+  TN_TEMPORIZADOR = 10;
+  TN_ERRO = 11;
+  TN_NUM = 11;
 }
 
 message Notificacao {

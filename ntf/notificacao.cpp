@@ -39,7 +39,7 @@ void CentralNotificacoes::DesregistraReceptor(const Receptor* receptor) {
 #include <iostream>
 
 void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
-  std::cout << "Despachando: " << notificacao->ShortDebugString() << std::endl;
+  //std::cout << "Adicionando: " << notificacao->ShortDebugString() << std::endl;
   notificacoes_.push_back(notificacao);
 }
 
@@ -48,7 +48,7 @@ void CentralNotificacoes::Notifica() {
   std::vector<Notificacao*> copia_notificacoes;
   copia_notificacoes.swap(notificacoes_);
   for (auto* n : copia_notificacoes) {
-    std::cout << "Despachando: " << n->ShortDebugString() << std::endl;
+    //std::cout << "Despachando: " << n->ShortDebugString() << std::endl;
     if (n->local()) {
       for (auto* r : receptores_) {
         r->TrataNotificacao(*n);

@@ -4,12 +4,14 @@
 #include <memory>
 #include <stdexcept>
 #include "ifg/qt/principal.h"
+#include "net/servidor.h"
 #include "ntf/notificacao.h"
 
 using namespace std;
 
 int main(int argc, char** argv){
   ntf::CentralNotificacoes central;
+  net::Servidor servidor(&central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &central));
 	try {
 		p->Executa();
