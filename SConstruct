@@ -36,7 +36,8 @@ cEntidade = env.Object('ent/entidade.cpp')
 cMovel = env.Object('ent/movel.cpp')
 
 # net
-cNet = env.Object('net/servidor.cpp')
+cServidor = env.Object('net/servidor.cpp')
+cCliente = env.Object('net/cliente.cpp')
 
 # Notificacoes.
 cNtf = env.Object('ntf/notificacao.cpp')
@@ -51,7 +52,7 @@ env.Program(
 	source = [
 		'main.cpp',
     # net.
-    cNet,
+    cServidor, cCliente,
 		# notificacoes.
 		ntf_proto[0], cNtf, 
 		# interface QT

@@ -7,7 +7,7 @@ namespace net {
 
 class Servidor : public ntf::Receptor {
  public:
-  Servidor(ntf::CentralNotificacoes* central);
+  explicit Servidor(ntf::CentralNotificacoes* central);
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
