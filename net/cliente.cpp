@@ -10,9 +10,14 @@ namespace net {
 Cliente::Cliente(ntf::CentralNotificacoes* central) {
   central->RegistraReceptor(this);
   central_ = central;
+  // tamanho maximo da mensagem: 1MB.
+  buffer_.resize(1 * 1024 * 1024);
 }
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
+  if () {
+  } else {
+  }
   return false;
 }
 

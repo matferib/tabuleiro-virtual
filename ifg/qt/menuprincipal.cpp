@@ -138,24 +138,22 @@ void MenuPrincipal::Modo(modomenu_e modo){
 //#include <iostream>
 //using namespace std;
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
-
   //cout << (const char*)acao->text().toAscii() << endl;
   ntf::Notificacao* notificacao = nullptr;
   if (acao == acoes_[ME_JOGO][MI_INICIAR]) {
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_INICIAR);
-  }
-  // ..
-  else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
+  } else if (acao == acoes_[ME_JOGO][MI_CONECTAR]) {
+    notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_CONECTAR);
+  } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_SAIR);
-  }
-  else if (acao == acoes_[ME_JOGADORES][MI_ADICIONAR]) {
+  } else if (acao == acoes_[ME_JOGADORES][MI_ADICIONAR]) {
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-  }
-  else if (acao == acoes_[ME_JOGADORES][MI_REMOVER]) {
+  } else if (acao == acoes_[ME_JOGADORES][MI_REMOVER]) {
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);

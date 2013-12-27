@@ -3,8 +3,6 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
-using boost::asio::ip::tcp;
-
 namespace net {
 
 Servidor::Servidor(ntf::CentralNotificacoes* central) {
@@ -36,7 +34,8 @@ bool Servidor::Ligado() const {
 void Servidor::Liga() {
   try {
     cliente_.reset(new boost::asio::ip::tcp::socket(servico_io_));
-    aceitador_.reset(new boost::asio::ip::tcp::acceptor(servico_io_, tcp::endpoint(tcp::v4(), 11223)));
+    aceitador_.reset(new boost::asio::ip::tcp::acceptor(
+        servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 11223)));
     EsperaCliente();
   } catch(std::exception& e) {
     // TODO fazer o tipo de erro e tratar notificacao em algum lugar.

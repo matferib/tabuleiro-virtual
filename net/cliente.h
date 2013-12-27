@@ -18,6 +18,9 @@ class Cliente : public ntf::Receptor {
   void Desconecta();
 
   ntf::CentralNotificacoes* central_;
+  boost::asio::io_service servico_io_;
+  std::vector<boost::asio::ip::tcp::socket*> clientes_;
+  std::vector<char> buffer_;
 };
 
 }  // namespace net
