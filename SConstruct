@@ -16,9 +16,11 @@ env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
 env['CPPPATH'] += ['./']
-env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
+env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++0x']
 env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
 
+# Local configuration.
+env.SConscript('local.SConscript', exports = 'env')
 
 # Principal: qt moc e fonte. Os mocs sao gerados automaticamente
 # se estiverem no mesmo diretorio do fonte.
