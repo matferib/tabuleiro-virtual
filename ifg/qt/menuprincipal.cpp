@@ -155,11 +155,11 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     le->setPlaceholderText(tr("IP:porta ou nome do servidor")); 
     ql->addWidget(le);
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    //connect(bb, SIGNAL(accepted()), qd, SLOT(accept()));
-    LambdaConnect(bb, SIGNAL(accepted()), [] {
-      //notificacao = new ntf::Notificacao;
-      //notificacao.set_tipo(ntf::TN_CONECTAR);
-      //qd->accept();
+    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, le] {
+      notificacao = new ntf::Notificacao;
+      notificacao->set_tipo(ntf::TN_CONECTAR);
+      notificacao->set_endereco(le->text().toStdString());
+      qd->accept();
     });
     connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
     ql->addWidget(bb);

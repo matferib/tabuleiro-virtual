@@ -18,8 +18,9 @@ Q_OBJECT
   std::function<void()> function_;
 };
 
+// Esta é a função que deve ser usada no lugar do connect.
 template <class T>
-bool LambdaConnect(
+bool lambda_connect(
     QObject *sender,
     const char *signal,
     const T &reciever,

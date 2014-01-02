@@ -5,16 +5,17 @@ enum Tipo {
   TN_INICIAR = 2;
   TN_INICIADO = 3;
   TN_CONECTAR = 4;
-  TN_CONECTADO = 5;
-  TN_ADICIONAR_JOGADOR = 6;
-  TN_ADICIONAR_ENTIDADE = 7; 
-  TN_REMOVER_ENTIDADE = 8; 
-  TN_ENTIDADE_ADICIONADA = 9;
-  TN_ENTIDADE_REMOVIDA = 10;
-  TN_NOTIFICACAO_3D = 11;
-  TN_TEMPORIZADOR = 12;
-  TN_ERRO = 13;
-  TN_NUM = 14;
+  TN_RESPOSTA_CONEXAO = 5;
+  TN_DESCONECTADO = 6;
+  TN_ADICIONAR_JOGADOR = 7;
+  TN_ADICIONAR_ENTIDADE = 8; 
+  TN_REMOVER_ENTIDADE = 9; 
+  TN_ENTIDADE_ADICIONADA = 10;
+  TN_ENTIDADE_REMOVIDA = 11;
+  TN_NOTIFICACAO_3D = 12;
+  TN_TEMPORIZADOR = 13;
+  TN_ERRO = 14;
+  TN_NUM = 15;
 }
 
 message Notificacao {
@@ -23,4 +24,8 @@ message Notificacao {
   optional bool local = 2 [default=true];
   // Processar remotamente.
   optional bool remota = 3 [default=false];
+  // Usado para varios tipos de respostas. Vazio quando nao ha erro.
+  optional string erro = 4;
+  // URL do servidor para conexao.
+  optional string endereco = 5;
 }

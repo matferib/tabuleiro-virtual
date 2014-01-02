@@ -17,6 +17,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (Ligado()) {
       servico_io_.poll_one();
     }
+    return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
     Liga();
     return true;

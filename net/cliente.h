@@ -1,5 +1,6 @@
 #include <boost/asio.hpp>
 #include <memory>
+#include <string>
 #include <vector>
 #include "ntf/notificacao.h"
 
@@ -12,14 +13,21 @@ class Cliente : public ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
  private:
-  // 
-  void Conecta();
-  //
+  // Conecta o cliente ao servidor localizado em endereco, formato: <host:porta>.
+  void Conecta(const std::string& endereco_str);
+
+  // Desconecta o cliente.
   void Desconecta();
+
+  // Recebe dados da conexao continuamente.
+  void RecebeDados(); 
+
+  // Envia dados pela conexao continuamente.
+  void EnviaDados();
 
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service servico_io_;
-  std::vector<boost::asio::ip::tcp::socket*> clientes_;
+  boost::asio::ip::tcp::socket socket_;
   std::vector<char> buffer_;
 };
 

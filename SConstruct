@@ -16,7 +16,7 @@ env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
 env['CPPPATH'] += ['./']
-env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++0x']
+env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
 env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
 
 # Configuracoes locais.
