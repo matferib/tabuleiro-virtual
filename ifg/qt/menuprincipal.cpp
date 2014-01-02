@@ -3,11 +3,13 @@
 #include <QMenu>
 #include <QDialog>
 #include <QBoxLayout>
+#include <QDialogButtonBox>
 #include <QLabel>
 #include <QPushButton>
 
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/principal.h"
+//#include "ifg/qt/util.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
@@ -144,8 +146,19 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_INICIAR);
   } else if (acao == acoes_[ME_JOGO][MI_CONECTAR]) {
-    notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_CONECTAR);
+    // mostra a caixa de dialogo da conexao. 
+    QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
+    qd->setModal(true);
+    QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
+    ql->addWidget(new QLabel(tr("Endereço Servidor")));
+    auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    connect(bb, SIGNAL(accepted()), qd, SLOT(accept()));
+    connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
+    ql->addWidget(bb);
+    qd->setWindowTitle(tr("Endereço do Servidor"));
+    qd->exec();
+    delete qd;
+
   } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_SAIR);
@@ -164,7 +177,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
     qd->setModal(true);
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-    ql->addWidget(new QLabel(tr("Tabuleiro virtual versao 0.1")));
+    ql->addWidget(new QLabel(tr("Tabuleiro virtual versão 0.1")));
     ql->addWidget(new QLabel(tr("Powered by QT and OpenGL")));
     ql->addWidget(new QLabel(tr("Autor: Matheus Ribeiro <mfribeiro@gmail.com>")));
     QPushButton* qpb = new QPushButton(tr("Fechar"));

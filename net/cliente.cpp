@@ -15,7 +15,7 @@ Cliente::Cliente(ntf::CentralNotificacoes* central) {
 }
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
-  if () {
+  if (notificacao.tipo() == ntf::TN_CONECTAR) {
   } else {
   }
   return false;

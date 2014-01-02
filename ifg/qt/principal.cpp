@@ -7,8 +7,9 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMenuBar>
-#include <QTimer>
 #include <QLayout>
+#include <QTextCodec>
+#include <QTimer>
 
 // Glut.
 #include <GL/glut.h>
@@ -33,6 +34,7 @@ using namespace std;
 Principal* Principal::Cria(int& argc, char** argv, ntf::CentralNotificacoes* central) {
 	glutInit(&argc, argv);
   auto* q_app = new QApplication(argc, argv);
+  QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
   return new Principal(central, q_app);
 }
 
