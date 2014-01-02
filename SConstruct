@@ -19,8 +19,11 @@ env['CPPPATH'] += ['./']
 env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++0x']
 env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
 
-# Local configuration.
+# Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
+
+# Permite lambdas no QT.
+cUtil = env.Object('ifg/qt/util.cpp')
 
 # Principal: qt moc e fonte. Os mocs sao gerados automaticamente
 # se estiverem no mesmo diretorio do fonte.
@@ -59,7 +62,7 @@ env.Program(
 		ntf_proto[0], cNtf, 
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
-		cTabuleiro, cEntidade, cMovel
+		cTabuleiro, cEntidade, cMovel, cUtil
 	]
 )
 

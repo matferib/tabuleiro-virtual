@@ -5,11 +5,12 @@
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QLineEdit>
 #include <QPushButton>
 
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/principal.h"
-//#include "ifg/qt/util.h"
+#include "ifg/qt/util.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
@@ -150,15 +151,21 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
     qd->setModal(true);
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-    ql->addWidget(new QLabel(tr("Endereço Servidor")));
+    auto* le = new QLineEdit();
+    le->setPlaceholderText(tr("IP:porta ou nome do servidor")); 
+    ql->addWidget(le);
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    connect(bb, SIGNAL(accepted()), qd, SLOT(accept()));
+    //connect(bb, SIGNAL(accepted()), qd, SLOT(accept()));
+    LambdaConnect(bb, SIGNAL(accepted()), [] {
+      //notificacao = new ntf::Notificacao;
+      //notificacao.set_tipo(ntf::TN_CONECTAR);
+      //qd->accept();
+    });
     connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
     ql->addWidget(bb);
     qd->setWindowTitle(tr("Endereço do Servidor"));
     qd->exec();
     delete qd;
-
   } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_SAIR);
