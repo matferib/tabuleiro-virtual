@@ -1,19 +1,20 @@
-#include <assert.h>
-#include <vector>
+#include <algorithm>
+#include <cassert>
+#include <cmath>
 #include <map>
 #include <stdexcept>
-#include <cmath>
+#include <vector>
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include <iostream>
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
 using namespace ent;
-using namespace std;
 
 namespace {
 /** campo de visao vertical em graus. */
@@ -116,7 +117,7 @@ int Tabuleiro::AdicionaEntidade(int id_quadrado) {
   double x, y, z;
   CoordenadaQuadrado(id_quadrado, &x, &y, &z);
   auto* entidade = new Entidade(proximo_id_++, 0, x, y, z);
-  entidades_.insert(make_pair(entidade->Id(), entidade));
+  entidades_.insert(std::make_pair(entidade->Id(), entidade));
   return entidade->Id();
 }
 
@@ -398,23 +399,23 @@ void Tabuleiro::EncontraHits(int x, int y, double aspecto, unsigned int* numero_
 }
 
 void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits) {
-  cout << "numero de hits: " << (unsigned int)numero_hits << endl << endl;
+  VLOG(1) << "numero de hits: " << (unsigned int)numero_hits;
   GLuint* ptr_hits = buffer_hits;
   GLuint id = 0, pos_pilha = 0;
   GLuint menor_z = 0xFFFFFFFF;
   for (GLuint i = 0; i < numero_hits; ++i) {
     if (*(ptr_hits + 1) < menor_z) {
       pos_pilha = *ptr_hits;
-      cout << "posicao pilha: " << (unsigned int)(pos_pilha) << endl;
+      VLOG(1) << "posicao pilha: " << (unsigned int)(pos_pilha);
       menor_z = *(ptr_hits+1); 
       // pula ele mesmo, profundidade e ids anteriores na pilha
       ptr_hits += (pos_pilha + 2);
       id = *ptr_hits;
-      cout << "id: " << (unsigned int)(id) << endl << endl;
+      VLOG(1) << "id: " << (unsigned int)(id);
       ++ptr_hits;
     }
     else {
-      cout << "pulando objeto mais longe..." << endl;
+      VLOG(1) << "pulando objeto mais longe...";
     }
   }
 
@@ -426,7 +427,7 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
     // Entidade.
     SelecionaEntidade(id);
     estado_ = ETAB_ENT_PRESSIONADA;
-    cout << "Entidade x: " << entidade_selecionada_->X() << ", y: " << entidade_selecionada_->Y() << endl;
+    VLOG(1) << "Entidade x: " << entidade_selecionada_->X() << ", y: " << entidade_selecionada_->Y();
   } else {
     entidade_selecionada_ = NULL;
     quadrado_selecionado_ = -1; 
@@ -435,7 +436,7 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
 }
 
 void Tabuleiro::SelecionaEntidade(int id) {
-  cout << "selecionando entidade: " << id << endl;
+  VLOG(1) << "selecionando entidade: ";
   Entidade* e = entidades_.find(id)->second;
   entidade_selecionada_ = e; 
   quadrado_selecionado_ = -1;

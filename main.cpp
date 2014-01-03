@@ -7,10 +7,12 @@
 #include "net/cliente.h"
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
+#include "log/log.h"
 
 using namespace std;
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
+  meulog::Inicializa(argv[0]);
   ntf::CentralNotificacoes central;
   net::Servidor servidor(&central);
   net::Cliente cliente(&central);
@@ -19,7 +21,7 @@ int main(int argc, char** argv){
 		p->Executa();
 	}
 	catch (exception& e) {
-		cerr << e.what() << endl;
+    std::cerr << e.what() << std::endl;
 		return 1;
 	}
 	return 0;

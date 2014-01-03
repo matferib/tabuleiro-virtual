@@ -1,5 +1,6 @@
 /** @file not/Notificacao.cpp implementacao das funcoes basicas de notificacao. */
 
+#include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
@@ -38,11 +39,8 @@ void CentralNotificacoes::DesregistraReceptorRemoto(const ReceptorRemoto* recept
   }
 }
 
-#include <iosfwd>
-#include <iostream>
-
 void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
-  //std::cout << "Adicionando: " << notificacao->ShortDebugString() << std::endl;
+  VLOG(1) << "Adicionando: " << notificacao->ShortDebugString();
   notificacoes_.push_back(notificacao);
 }
 
@@ -52,7 +50,7 @@ void CentralNotificacoes::Notifica() {
   copia_notificacoes.swap(notificacoes_);
   for (auto* n : copia_notificacoes) {
     if (n->tipo() != ntf::TN_TEMPORIZADOR) {
-      std::cout << "Despachando: " << n->ShortDebugString() << std::endl;
+      LOG(INFO) << "Despachando: " << n->ShortDebugString();
     }
     if (n->local()) {
       for (auto* r : receptores_) {

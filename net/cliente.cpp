@@ -5,12 +5,10 @@
 #include <vector>
 #include <string>
 
+#include "log/log.h"
 #include "net/cliente.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
-
-#include <iosfwd>
-#include <iostream>
 
 using boost::asio::ip::tcp;
 
@@ -103,7 +101,7 @@ void Cliente::RecebeDados() {
         central_->AdicionaNotificacao(notificacao);
       } else {
         // TODO adicionar alguma coisa aqui.
-        std::cout << "Erro recebendo mensagem" << std::endl;
+        LOG(ERROR) << "Erro recebendo mensagem";
         delete notificacao;
       }
       RecebeDados();

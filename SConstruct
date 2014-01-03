@@ -16,7 +16,7 @@ env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
 env['CPPPATH'] += ['./']
-#env['CPPDEFINES'] = ['BOOST_ASIO_ENABLE_HANDLER_TRACKING']
+env['CPPDEFINES'] = {'USAR_GLOG': 0}
 env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
 env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
 

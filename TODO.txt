@@ -1,7 +1,2 @@
-- Sistema de notificacoes centralizado.
-- Receptores de notificacoes independentes.
-- Tabuleiro deve ser criado pela interface principal.
-- Definir onde fica a logica de desenho (no ent ou no qt).
 - Adicionar opcao de reiniciar o tabuleiro.
-- Biblioteca de LOG.
-- Arrumar o movimento impreciso.
+- Arrumar LOG quando nao houver glog.

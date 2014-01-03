@@ -147,8 +147,6 @@ void MenuPrincipal::Modo(modomenu_e modo){
   }
 }
 
-//#include <iostream>
-//using namespace std;
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
   //cout << (const char*)acao->text().toAscii() << endl;
   ntf::Notificacao* notificacao = nullptr;
