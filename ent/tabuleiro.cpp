@@ -7,8 +7,9 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <iostream>
+#include "ent/entidade.h"
 #include "ent/tabuleiro.h"
-#include "ent/movel.h"
+#include "ent/tabuleiro.pb.h"
 #include "ntf/notificacao.pb.h"
 
 using namespace ent;
@@ -111,17 +112,10 @@ void Tabuleiro::Desenha() {
   DesenhaCena();
 }
 
-int Tabuleiro::AdicionaEntidade(tipoent_e tipoEntidade, DadosCriacao* dc, int id_quadrado) {
+int Tabuleiro::AdicionaEntidade(int id_quadrado) {
   double x, y, z;
   CoordenadaQuadrado(id_quadrado, &x, &y, &z);
-  Entidade* entidade;
-  switch (tipoEntidade) {
-    case TIPOENT_MOVEL:
-      entidade = new Movel(proximo_id_++, 0, x, y, z);
-      break;
-    default:
-      throw logic_error("tipo invalido de entidade");
-  }
+  auto* entidade = new Entidade(proximo_id_++, 0, x, y, z);
   entidades_.insert(make_pair(entidade->Id(), entidade));
   return entidade->Id();
 }
@@ -144,7 +138,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ADICIONAR_ENTIDADE:
       if (estado_ == ETAB_QUAD_SELECIONADO) {
         // Adiciona entidade.
-        SelecionaEntidade(AdicionaEntidade(TIPOENT_MOVEL, NULL, quadrado_selecionado_));
+        SelecionaEntidade(AdicionaEntidade(quadrado_selecionado_));
         estado_ = ETAB_ENT_SELECIONADA;
         ntf::Notificacao* n = new ntf::Notificacao;
         n->set_tipo(ntf::TN_ENTIDADE_ADICIONADA);
@@ -160,6 +154,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         n->set_tipo(ntf::TN_ENTIDADE_REMOVIDA);
         central_->AdicionaNotificacao(n);
       }
+      return true;
+    case ntf::TN_CLIENTE_PENDENTE:
+      central_->AdicionaNotificacao(CriaNotificacaoTabuleiro());
+      return true;
+    case ntf::TN_TABULEIRO:
+      RecebeNotificacaoTabuleiro(notificacao);
       return true;
     default:
       return false;
@@ -456,11 +456,28 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   *z = 0;
 }
 
+ntf::Notificacao* Tabuleiro::CriaNotificacaoTabuleiro() const {
+  auto* notificacao = new ntf::Notificacao;
+  notificacao->set_local(false);
+  notificacao->set_remota(true);
+  notificacao->set_tipo(ntf::TN_TABULEIRO);
+  auto* t = notificacao->mutable_tabuleiro();
+  for (const auto& id_ent : entidades_) {
+    t->add_entidade()->CopyFrom(id_ent.second->Proto());
+  }
+  return notificacao;
+}
 
 
-
-
-
-
+void Tabuleiro::RecebeNotificacaoTabuleiro(const ntf::Notificacao& notificacao) {
+  for (const auto& ep : entidades_) {
+    delete ep.second;
+  }
+  entidades_.clear();
+  for (const auto& ep : notificacao.tabuleiro().entidade()) {
+    auto* e = new Entidade(ep);
+    entidades_.insert({ e->Id(), e });
+  }
+}
 
 

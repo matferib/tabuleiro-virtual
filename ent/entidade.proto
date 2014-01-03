@@ -1,0 +1,8 @@
+package ent;
+
+message EntidadeProto {
+  optional int32 id = 1;
+  optional float x = 2;
+  optional float y = 3;
+  optional float z = 4;
+}

@@ -25,9 +25,12 @@ class Cliente : public ntf::Receptor {
   // Envia dados pela conexao continuamente.
   void EnviaDados();
 
+  // Retorna se o cliente esta conectado ou nao.
+  bool Ligado() const;
+
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service servico_io_;
-  boost::asio::ip::tcp::socket socket_;
+  std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
   std::vector<char> buffer_;
 };
 

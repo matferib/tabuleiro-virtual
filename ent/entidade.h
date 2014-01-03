@@ -1,6 +1,8 @@
 #ifndef ENT_ENTIDADE_H
 #define ENT_ENTIDADE_H
 
+#include "ent/entidade.pb.h"
+
 namespace ent {
 
 class Entidade;
@@ -11,7 +13,8 @@ class Entidade;
 class Entidade {
 public:
 	/** constroi a entidade com o identificador, pontos de vida e coordenadas passadas. */
-	explicit Entidade(int id, int pontosVida, double x, double y, double z);
+	Entidade(int id, int pontosVida, double x, double y, double z);
+  explicit Entidade(const EntidadeProto& proto);
 	virtual ~Entidade();
 
 public:
@@ -39,21 +42,14 @@ public:
 	/** @return a coordenada (z). */
 	double Z() const;
 	
-	/** desenha o objeto, recebendo os parametros de desenho. */
-	virtual void Desenha() = 0;
+	/** desenha o objeto. */
+	virtual void Desenha();
 
-private:
-	/** identificador da entidade, deve ser unico. */
-	int id_;
+  /** Retorna o proto da entidade. */
+  const EntidadeProto& Proto() const;
 
-	/** maximo de pontos de vida. */
-	int maximo_pontos_vida_;
-
-	/** pontos de vida corrente da unidade. */
-	int pontos_vida_;
-
-	/** coordenadas da entidade. */
-	double x_, y_, z_;
+ private:
+  EntidadeProto proto_;
 };
 
 }

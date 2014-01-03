@@ -1,0 +1,8 @@
+import "ent/entidade.proto";
+
+package ent;
+
+// Mensagem enviada para os clientes de um jogo.
+message TabuleiroProto {
+  repeated EntidadeProto entidade = 1;
+}

@@ -16,6 +16,13 @@ class Receptor {
   virtual bool TrataNotificacao(const Notificacao& notificacao) = 0;
 };
 
+/** Identico ao receptor, mas bom para diferenciar. */
+class ReceptorRemoto {
+ public:
+  /** @return false se não tratar a notificação. */
+  virtual bool TrataNotificacaoRemota(const Notificacao& notificacao) = 0;
+};
+
 class CentralNotificacoes {
  public:
   CentralNotificacoes();
@@ -28,10 +35,13 @@ class CentralNotificacoes {
   void RegistraReceptor(Receptor* receptor);
 
   /** Registra um receptor remoto com a central, que nao sera dono dele. */
-  void RegistraReceptorRemoto(Receptor* receptor);
+  void RegistraReceptorRemoto(ReceptorRemoto* receptor);
 
   /** Tira um receptor do registro. */
   void DesregistraReceptor(const Receptor* receptor);
+
+  /** Tira um receptor remoto do registro. */
+  void DesregistraReceptorRemoto(const ReceptorRemoto* receptor);
 
   /** Notifica todos os receptores registrados das notificacoes adicionadas. */
   void Notifica();
@@ -39,7 +49,7 @@ class CentralNotificacoes {
  private:
   std::vector<Notificacao*> notificacoes_;
   std::vector<Receptor*> receptores_;
-  std::vector<Receptor*> receptores_remotos_;
+  std::vector<ReceptorRemoto*> receptores_remotos_;
 };
 	
 

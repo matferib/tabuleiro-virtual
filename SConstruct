@@ -16,6 +16,7 @@ env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
 env['CPPPATH'] += ['./']
+#env['CPPDEFINES'] = ['BOOST_ASIO_ENABLE_HANDLER_TRACKING']
 env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
 env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
 
@@ -38,7 +39,10 @@ cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
-cMovel = env.Object('ent/movel.cpp')
+ent_proto = env.Protoc(
+  target = [],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto'],
+)
 
 # net
 cServidor = env.Object('net/servidor.cpp')
@@ -62,7 +66,8 @@ env.Program(
 		ntf_proto[0], cNtf, 
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, 
-		cTabuleiro, cEntidade, cMovel, cUtil
+    # ent.
+		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade, cUtil
 	]
 )
 

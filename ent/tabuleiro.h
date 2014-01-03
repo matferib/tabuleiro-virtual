@@ -39,7 +39,6 @@ enum etab_t {
 };
 
 typedef std::map<int, Entidade*> MapaEntidades;
-typedef std::vector<Entidade*> VetorEntidades;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X Y como base e Z como altura (positivo). */
 class Tabuleiro : public ntf::Receptor {
@@ -59,11 +58,9 @@ class Tabuleiro : public ntf::Receptor {
   int TamanhoY() const;
 
   /** adiciona a entidade ao tabuleiro, no quadrado passado.
-  * @param tipo_entidade tipo da entidade.
-  * @param dc dados de criacao da entidade.
   * @param id_quadrado do quadrado no desenho.
   */
-  int AdicionaEntidade(tipoent_e tipo_entidade, DadosCriacao* dc, int id_quadrado);
+  int AdicionaEntidade(int id_quadrado);
 
   /** remove entidade do tabuleiro, pelo id da entidade passado. 
   * @param id da entidade.
@@ -113,6 +110,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** retorna as coordenadas do quadrado. */
   void CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z);
+
+  // Retorna uma notificacao do tipo TN_TABULEIRO preenchida.
+  ntf::Notificacao* CriaNotificacaoTabuleiro() const;
+  void RecebeNotificacaoTabuleiro(const ntf::Notificacao& notificacao);
 
  private:
   /** Parametros gerais de desenho. */

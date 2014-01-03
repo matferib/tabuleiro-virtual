@@ -7,6 +7,7 @@ namespace net {
 
 Servidor::Servidor(ntf::CentralNotificacoes* central) {
   central->RegistraReceptor(this);
+  central->RegistraReceptorRemoto(this);
   central_ = central;
   // tamanho maximo da mensagem: 1MB.
   buffer_.resize(1 * 1024 * 1024);
@@ -24,7 +25,18 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
   } else if (notificacao.tipo() == ntf::TN_SAIR) {
     Desliga();
     return true;
+  } else if (notificacao.tipo() == ntf::TN_TABULEIRO) {
+    for (auto* c : clientes_pendentes_) {
+      EnviaDadosCliente(c, notificacao.SerializeAsString());
+      RecebeDadosCliente(c);
+      clientes_.push_back(c);
+    }
+    clientes_pendentes_.clear();
   }
+  return false;
+}
+
+bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   return false;
 }
 
@@ -53,6 +65,9 @@ void Servidor::Desliga() {
     for (auto* c : clientes_) {
       delete c;
     }
+    for (auto* c : clientes_pendentes_) {
+      delete c;
+    }
   }
 }
 
@@ -60,9 +75,11 @@ void Servidor::EsperaCliente() {
   aceitador_->async_accept(*cliente_, [this](boost::system::error_code ec) {
     if (!ec) {
       std::cout << "Recebendo cliente..." << std::endl;
-      RecebeDadosCliente(cliente_.get());
-      clientes_.push_back(cliente_.release());
+      clientes_pendentes_.push_back(cliente_.release());
       cliente_.reset(new boost::asio::ip::tcp::socket(servico_io_));
+      auto* notificacao = new ntf::Notificacao;
+      notificacao->set_tipo(ntf::TN_CLIENTE_PENDENTE);
+      central_->AdicionaNotificacao(notificacao);
       EsperaCliente();
     } else {
       std::cout << "Recebendo erro..." << ec.message() << std::endl;
@@ -70,21 +87,27 @@ void Servidor::EsperaCliente() {
   });
 }
 
+void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
+  buffer_.assign(dados.begin(), dados.end());
+  cliente->send(boost::asio::buffer(buffer_));
+}
+
 void Servidor::RecebeDadosCliente(boost::asio::ip::tcp::socket* cliente) {
   cliente->async_receive(
       boost::asio::buffer(buffer_),  
       [this, cliente](boost::system::error_code ec, std::size_t bytes_transferred) {
-    if (!ec) {
-    std::string str(buffer_.begin(), buffer_.begin() + bytes_transferred);
-      std::cout << "Recebi: " << str;
-      RecebeDadosCliente(cliente);
-    } else {
-      // remove o cliente.
-      std::cout << "Removendo cliente: " << ec.message() << std::endl;
-      clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
-      delete cliente;
-    }
-  });
+        if (!ec) {
+          std::string str(buffer_.begin(), buffer_.begin() + bytes_transferred);
+          std::cout << "Recebi: " << str;
+          RecebeDadosCliente(cliente);
+        } else {
+          // remove o cliente.
+          std::cout << "Removendo cliente: " << ec.message() << std::endl;
+          clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
+          delete cliente;
+        }
+      }
+  );
 }
 
 }  // namespace net

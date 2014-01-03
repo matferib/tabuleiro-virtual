@@ -16,7 +16,7 @@ using boost::asio::ip::tcp;
 
 namespace net {
 
-Cliente::Cliente(ntf::CentralNotificacoes* central) : socket_(servico_io_) {
+Cliente::Cliente(ntf::CentralNotificacoes* central) {
   central->RegistraReceptor(this);
   central_ = central;
   // tamanho maximo da mensagem: 1MB.
@@ -25,7 +25,6 @@ Cliente::Cliente(ntf::CentralNotificacoes* central) : socket_(servico_io_) {
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
-    // tODO
     if (Ligado()) {
       servico_io_.poll_one();
     }
@@ -44,6 +43,8 @@ void Cliente::Conecta(const std::string& endereco_str) {
   if (endereco_porta.size() == 0) {
     // Endereco padrao.
     endereco_porta.push_back("localhost");
+  } else if (endereco_porta[0].empty()) {
+    endereco_porta[0] = "localhost";
   }
   if (endereco_porta.size() == 1) {
     // Porta padrao.
@@ -51,19 +52,15 @@ void Cliente::Conecta(const std::string& endereco_str) {
   }
   //assert(endereco_porta.size() >= 2, "Endereco porta invalido");
   try {
+    socket_.reset(new boost::asio::ip::tcp::socket(servico_io_));
     auto endereco_resolvido = resolver.resolve({endereco_porta[0], endereco_porta[1]});
-    boost::asio::async_connect(
-        socket_, endereco_resolvido, [this](boost::system::error_code ec, tcp::resolver::iterator) {
-      if (ec) {
-        throw std::logic_error("Falha de conexao");
-      }
-      // Handler de leitura.
-      RecebeDados();
-
-      auto* notificacao = new ntf::Notificacao;
-      notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
-      central_->AdicionaNotificacao(notificacao);
-    });
+    //std::cout << "TESTE" << std::endl;
+    boost::asio::connect(*socket_, endereco_resolvido);
+    // Handler de leitura.
+    RecebeDados();
+    auto* notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
+    central_->AdicionaNotificacao(notificacao);
   } catch (std::exception& e) {
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
@@ -73,16 +70,24 @@ void Cliente::Conecta(const std::string& endereco_str) {
 }
 
 void Cliente::Desconecta() {
-  socket_.close();
+  if (!Ligado()) {
+    return;
+  }
+  socket_->close();
+  socket_.reset();
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
   std::cout << "Desconectando..." << std::endl;
 }
 
+bool Cliente::Ligado() const {
+  return socket_ == nullptr;
+}
+
 void Cliente::RecebeDados() {
   boost::asio::async_read(
-    socket_,
+    *socket_,
     boost::asio::buffer(buffer_),
     [this](boost::system::error_code ec, std::size_t quantidade) {
       if (ec) {
@@ -92,6 +97,9 @@ void Cliente::RecebeDados() {
       // Recebe mensagem.
       auto* notificacao = new ntf::Notificacao;
       if (notificacao->ParseFromString(std::string(buffer_.begin(), buffer_.end()))) {
+        // Inverte os bits de remota e local.
+        notificacao->set_local(true);
+        notificacao->set_remota(false);
         central_->AdicionaNotificacao(notificacao);
       } else {
         // TODO adicionar alguma coisa aqui.

@@ -1,3 +1,5 @@
+import "ent/tabuleiro.proto";
+
 package ntf;
 
 enum Tipo {
@@ -5,27 +7,31 @@ enum Tipo {
   TN_INICIAR = 2;
   TN_INICIADO = 3;
   TN_CONECTAR = 4;
-  TN_RESPOSTA_CONEXAO = 5;
-  TN_DESCONECTADO = 6;
-  TN_ADICIONAR_JOGADOR = 7;
-  TN_ADICIONAR_ENTIDADE = 8; 
-  TN_REMOVER_ENTIDADE = 9; 
-  TN_ENTIDADE_ADICIONADA = 10;
-  TN_ENTIDADE_REMOVIDA = 11;
-  TN_NOTIFICACAO_3D = 12;
-  TN_TEMPORIZADOR = 13;
-  TN_ERRO = 14;
-  TN_NUM = 15;
+  TN_CLIENTE_PENDENTE = 5;
+  TN_RESPOSTA_CONEXAO = 6;
+  TN_DESCONECTADO = 7;
+  TN_ADICIONAR_JOGADOR = 8;
+  TN_ADICIONAR_ENTIDADE = 9; 
+  TN_REMOVER_ENTIDADE = 10; 
+  TN_ENTIDADE_ADICIONADA = 11;
+  TN_ENTIDADE_REMOVIDA = 12;
+  TN_NOTIFICACAO_3D = 13;
+  TN_TEMPORIZADOR = 14;
+  TN_ERRO = 15;
+  TN_TABULEIRO = 16;
 }
 
+// Por padrao, toda notificacao eh processada localmente e nao remotamente.
 message Notificacao {
   optional Tipo tipo = 1;
   // Processar localmente.
   optional bool local = 2 [default=true];
   // Processar remotamente.
   optional bool remota = 3 [default=false];
-  // Usado para varios tipos de respostas. Vazio quando nao ha erro.
+  // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
   // URL do servidor para conexao.
   optional string endereco = 5;
+  // Tabuleiro de jogo.
+  optional ent.TabuleiroProto tabuleiro = 6;
 }

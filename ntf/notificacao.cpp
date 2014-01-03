@@ -16,7 +16,7 @@ void CentralNotificacoes::RegistraReceptor(Receptor* receptor) {
   receptores_.push_back(receptor);
 }
 
-void CentralNotificacoes::RegistraReceptorRemoto(Receptor* receptor) {
+void CentralNotificacoes::RegistraReceptorRemoto(ReceptorRemoto* receptor) {
   receptores_remotos_.push_back(receptor);
 }
 
@@ -27,9 +27,12 @@ void CentralNotificacoes::DesregistraReceptor(const Receptor* receptor) {
       break;
     }
   }
+}
+
+void CentralNotificacoes::DesregistraReceptorRemoto(const ReceptorRemoto* receptor) {
   for (auto it = receptores_remotos_.begin(); it != receptores_remotos_.end(); ++it) {
     if (*it == receptor) {
-      receptores_.erase(it);
+      receptores_remotos_.erase(it);
       break;
     }
   }
@@ -48,7 +51,9 @@ void CentralNotificacoes::Notifica() {
   std::vector<Notificacao*> copia_notificacoes;
   copia_notificacoes.swap(notificacoes_);
   for (auto* n : copia_notificacoes) {
-    //std::cout << "Despachando: " << n->ShortDebugString() << std::endl;
+    if (n->tipo() != ntf::TN_TEMPORIZADOR) {
+      std::cout << "Despachando: " << n->ShortDebugString() << std::endl;
+    }
     if (n->local()) {
       for (auto* r : receptores_) {
         r->TrataNotificacao(*n);
@@ -56,8 +61,7 @@ void CentralNotificacoes::Notifica() {
     }
     if (n->remota()) {
       for (auto* r : receptores_remotos_) {
-        // TODO talvez tenhamos que tirar o bit remoto aqui.
-        r->TrataNotificacao(*n);
+        r->TrataNotificacaoRemota(*n);
       }
     }
     delete n;

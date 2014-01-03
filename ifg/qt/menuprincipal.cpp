@@ -1,11 +1,11 @@
 /** @file ifg/qt/MenuPrincipal.cpp implementacao do menu principal. */
 
-#include <QMenu>
-#include <QDialog>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 
 #include "ifg/qt/menuprincipal.h"
@@ -90,6 +90,15 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_INICIADO:
       Modo(MM_MESTRE);
+      return true;
+    case ntf::TN_RESPOSTA_CONEXAO:
+      if (notificacao.has_erro()) {
+        // Mostra dialogo com mensagem de erro.
+        QMessageBox::information(
+            qobject_cast<QWidget*>(parent()), tr("Erro de Conexão"), tr(notificacao.erro().c_str()));
+      } else {
+        Modo(MM_JOGADOR);
+      }
       return true;
     default:
       return false;
@@ -181,18 +190,12 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   // .. 
   else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {
     // mostra a caixa de dialogo da versao
-    QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
-    qd->setModal(true);
-    QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-    ql->addWidget(new QLabel(tr("Tabuleiro virtual versão 0.1")));
-    ql->addWidget(new QLabel(tr("Powered by QT and OpenGL")));
-    ql->addWidget(new QLabel(tr("Autor: Matheus Ribeiro <mfribeiro@gmail.com>")));
-    QPushButton* qpb = new QPushButton(tr("Fechar"));
-    connect(qpb, SIGNAL(released()), qd, SLOT(accept()));
-    ql->addWidget(qpb);
-    qd->setWindowTitle(tr("Sobre o tabuleiro virtual"));
-    qd->exec();
-    delete qd;
+    QMessageBox::about(
+        qobject_cast<QWidget*>(parent()),
+        tr("Sobre o tabuleiro virtual"), 
+        tr("Tabuleiro virtual versão 0.1\n"
+           "Powered by QT and OpenGL\n"
+           "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
   }
 
   if (notificacao != nullptr) {
