@@ -1,4 +1,6 @@
 #include <algorithm>
+
+#include "log/log.h"
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -74,7 +76,7 @@ void Servidor::Desliga() {
 void Servidor::EsperaCliente() {
   aceitador_->async_accept(*cliente_, [this](boost::system::error_code ec) {
     if (!ec) {
-      std::cout << "Recebendo cliente..." << std::endl;
+      LOG(INFO) << "Recebendo cliente...";
       clientes_pendentes_.push_back(cliente_.release());
       cliente_.reset(new boost::asio::ip::tcp::socket(servico_io_));
       auto* notificacao = new ntf::Notificacao;
@@ -82,7 +84,7 @@ void Servidor::EsperaCliente() {
       central_->AdicionaNotificacao(notificacao);
       EsperaCliente();
     } else {
-      std::cout << "Recebendo erro..." << ec.message() << std::endl;
+      LOG(ERROR) << "Recebendo erro..." << ec.message();
     }
   });
 }

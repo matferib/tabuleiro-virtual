@@ -12,7 +12,8 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-  meulog::Inicializa(argv[0]);
+  meulog::Inicializa(&argc, &argv);
+  LOG(INFO) << "Iniciando programa: LOG LIGADO";
   ntf::CentralNotificacoes central;
   net::Servidor servidor(&central);
   net::Cliente cliente(&central);

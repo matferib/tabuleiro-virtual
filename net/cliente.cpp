@@ -52,7 +52,6 @@ void Cliente::Conecta(const std::string& endereco_str) {
   try {
     socket_.reset(new boost::asio::ip::tcp::socket(servico_io_));
     auto endereco_resolvido = resolver.resolve({endereco_porta[0], endereco_porta[1]});
-    //std::cout << "TESTE" << std::endl;
     boost::asio::connect(*socket_, endereco_resolvido);
     // Handler de leitura.
     RecebeDados();
@@ -60,6 +59,7 @@ void Cliente::Conecta(const std::string& endereco_str) {
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
     central_->AdicionaNotificacao(notificacao);
   } catch (std::exception& e) {
+    socket_.reset();
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
     notificacao->set_erro(e.what());
@@ -84,11 +84,14 @@ bool Cliente::Ligado() const {
 }
 
 void Cliente::RecebeDados() {
+  LOG(INFO) << "TESTE RECEBE DADOS";
   boost::asio::async_read(
     *socket_,
     boost::asio::buffer(buffer_),
     [this](boost::system::error_code ec, std::size_t quantidade) {
+      LOG(INFO) << "TESTE FUNCAO ASSINCRONA";
       if (ec) {
+        LOG(ERROR) << "Erro recebendo dados: " << ec.message();
         Desconecta();
         return;
       }
