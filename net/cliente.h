@@ -8,7 +8,8 @@ namespace net {
 
 class Cliente : public ntf::Receptor {
  public:
-  explicit Cliente(ntf::CentralNotificacoes* central);
+  // Nao possui os parametros.
+  explicit Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
@@ -29,7 +30,7 @@ class Cliente : public ntf::Receptor {
   bool Ligado() const;
 
   ntf::CentralNotificacoes* central_;
-  boost::asio::io_service servico_io_;
+  boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
   std::vector<char> buffer_;
 };

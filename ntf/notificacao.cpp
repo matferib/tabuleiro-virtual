@@ -49,15 +49,16 @@ void CentralNotificacoes::Notifica() {
   std::vector<Notificacao*> copia_notificacoes;
   copia_notificacoes.swap(notificacoes_);
   for (auto* n : copia_notificacoes) {
-    if (n->tipo() != ntf::TN_TEMPORIZADOR) {
-      LOG(INFO) << "Despachando: " << n->ShortDebugString();
-    }
     if (n->local()) {
+      if (n->tipo() != ntf::TN_TEMPORIZADOR) {
+        LOG(INFO) << "Despachando local: " << n->ShortDebugString();
+      }
       for (auto* r : receptores_) {
         r->TrataNotificacao(*n);
       }
     }
     if (n->remota()) {
+      LOG(INFO) << "Despachando remota: " << n->ShortDebugString();
       for (auto* r : receptores_remotos_) {
         r->TrataNotificacaoRemota(*n);
       }

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+
+#include <boost/asio.hpp>
 #include "ifg/qt/principal.h"
 #include "net/cliente.h"
 #include "net/servidor.h"
@@ -14,9 +16,10 @@ using namespace std;
 int main(int argc, char** argv) {
   meulog::Inicializa(&argc, &argv);
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
+  boost::asio::io_service servico_io;
   ntf::CentralNotificacoes central;
-  net::Servidor servidor(&central);
-  net::Cliente cliente(&central);
+  net::Servidor servidor(&servico_io, &central);
+  net::Cliente cliente(&servico_io, &central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &central));
 	try {
 		p->Executa();

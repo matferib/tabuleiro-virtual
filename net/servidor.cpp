@@ -7,7 +7,8 @@
 
 namespace net {
 
-Servidor::Servidor(ntf::CentralNotificacoes* central) {
+Servidor::Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central) {
+  servico_io_ = servico_io;
   central->RegistraReceptor(this);
   central->RegistraReceptorRemoto(this);
   central_ = central;
@@ -18,7 +19,7 @@ Servidor::Servidor(ntf::CentralNotificacoes* central) {
 bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
     if (Ligado()) {
-      servico_io_.poll_one();
+      servico_io_->poll_one();
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
@@ -27,19 +28,29 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
   } else if (notificacao.tipo() == ntf::TN_SAIR) {
     Desliga();
     return true;
-  } else if (notificacao.tipo() == ntf::TN_TABULEIRO) {
-    for (auto* c : clientes_pendentes_) {
-      EnviaDadosCliente(c, notificacao.SerializeAsString());
-      RecebeDadosCliente(c);
-      clientes_.push_back(c);
-    }
-    clientes_pendentes_.clear();
   }
   return false;
 }
 
 bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
-  return false;
+  const std::string ns = notificacao.SerializeAsString();
+  if (notificacao.tipo() == ntf::TN_DESERIALIZAR_TABULEIRO) {
+    // Envia o tabuleiro a todos os clientes pendentes.
+    for (auto* c : clientes_pendentes_) {
+      LOG(INFO) << "Enviando tabuleiro para cliente pendente";
+      EnviaDadosCliente(c, ns);
+      RecebeDadosCliente(c);
+      clientes_.push_back(c);
+    }
+    clientes_pendentes_.clear();
+  } else {
+    for (auto* c : clientes_) {
+      LOG(INFO) << "Enviando notificacao para cliente";
+      EnviaDadosCliente(c, ns);
+    }
+  }
+
+  return true;
 }
 
 bool Servidor::Ligado() const {
@@ -48,9 +59,9 @@ bool Servidor::Ligado() const {
 
 void Servidor::Liga() {
   try {
-    cliente_.reset(new boost::asio::ip::tcp::socket(servico_io_));
+    cliente_.reset(new boost::asio::ip::tcp::socket(*servico_io_));
     aceitador_.reset(new boost::asio::ip::tcp::acceptor(
-        servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 11223)));
+        *servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 11223)));
     EsperaCliente();
   } catch(std::exception& e) {
     // TODO fazer o tipo de erro e tratar notificacao em algum lugar.
@@ -62,7 +73,6 @@ void Servidor::Liga() {
 
 void Servidor::Desliga() {
   if (Ligado()) {
-    servico_io_.stop();
     aceitador_.reset();
     for (auto* c : clientes_) {
       delete c;
@@ -78,9 +88,9 @@ void Servidor::EsperaCliente() {
     if (!ec) {
       LOG(INFO) << "Recebendo cliente...";
       clientes_pendentes_.push_back(cliente_.release());
-      cliente_.reset(new boost::asio::ip::tcp::socket(servico_io_));
+      cliente_.reset(new boost::asio::ip::tcp::socket(*servico_io_));
       auto* notificacao = new ntf::Notificacao;
-      notificacao->set_tipo(ntf::TN_CLIENTE_PENDENTE);
+      notificacao->set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
       central_->AdicionaNotificacao(notificacao);
       EsperaCliente();
     } else {
@@ -90,25 +100,29 @@ void Servidor::EsperaCliente() {
 }
 
 void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
-  buffer_.assign(dados.begin(), dados.end());
-  cliente->send(boost::asio::buffer(buffer_));
+  size_t bytes_enviados = cliente->send(boost::asio::buffer(dados.c_str(), dados.size()));
+  if (bytes_enviados != dados.size()) {
+    LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
+  } else {
+    LOG(INFO) << "Enviei " << dados.size() << " bytes pro cliente.";
+  }
 }
 
 void Servidor::RecebeDadosCliente(boost::asio::ip::tcp::socket* cliente) {
   cliente->async_receive(
-      boost::asio::buffer(buffer_),  
-      [this, cliente](boost::system::error_code ec, std::size_t bytes_transferred) {
-        if (!ec) {
-          std::string str(buffer_.begin(), buffer_.begin() + bytes_transferred);
-          std::cout << "Recebi: " << str;
-          RecebeDadosCliente(cliente);
-        } else {
-          // remove o cliente.
-          std::cout << "Removendo cliente: " << ec.message() << std::endl;
-          clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
-          delete cliente;
-        }
+    boost::asio::buffer(buffer_),  
+    [this, cliente](boost::system::error_code ec, std::size_t bytes_transferred) {
+      if (!ec) {
+        std::string str(buffer_.begin(), buffer_.begin() + bytes_transferred);
+        LOG(INFO) << "Recebi: " << str;
+        RecebeDadosCliente(cliente);
+      } else {
+        // remove o cliente.
+        LOG(INFO) << "Removendo cliente: " << ec.message();
+        clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
+        delete cliente;
       }
+    }
   );
 }
 

@@ -87,9 +87,10 @@ void DesenhaLuz() {
 
 Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) : 
     tamanho_(tamanho), 
+    id_cliente_(0),
     entidade_selecionada_(NULL), 
     quadrado_selecionado_(-1), 
-    estado_(ETAB_OCIOSO), proximo_id_(0),
+    estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
     olho_x_(0), olho_y_(0), olho_z_(0), olho_delta_rotacao_(0), olho_altura_(OLHO_ALTURA_INICIAL), olho_raio_(OLHO_RAIO_INICIAL),
     central_(central) {
   parametros_desenho_.desenha_entidades = true;
@@ -114,9 +115,18 @@ void Tabuleiro::Desenha() {
 }
 
 int Tabuleiro::AdicionaEntidade(int id_quadrado) {
+  if (proximo_id_entidade_ >= (1 << 29)) {
+    LOG(FATAL) << "Limite de entidades alcançado.";
+  }
   double x, y, z;
   CoordenadaQuadrado(id_quadrado, &x, &y, &z);
-  auto* entidade = new Entidade(proximo_id_++, 0, x, y, z);
+  auto* entidade = new Entidade(id_cliente_, proximo_id_entidade_++, 0, x, y, z);
+  entidades_.insert(std::make_pair(entidade->Id(), entidade));
+  return entidade->Id();
+}
+
+int Tabuleiro::AdicionaEntidade(const EntidadeProto& proto) {
+  auto* entidade = new Entidade(proto);
   entidades_.insert(std::make_pair(entidade->Id(), entidade));
   return entidade->Id();
 }
@@ -136,16 +146,30 @@ void Tabuleiro::RemoveEntidade(int id) {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
-    case ntf::TN_ADICIONAR_ENTIDADE:
-      if (estado_ == ETAB_QUAD_SELECIONADO) {
-        // Adiciona entidade.
-        SelecionaEntidade(AdicionaEntidade(quadrado_selecionado_));
+    case ntf::TN_ADICIONAR_ENTIDADE: {
+      if (!notificacao.has_entidade()) {
+        // Mensagem local.
+        if (estado_ != ETAB_QUAD_SELECIONADO) {
+          return true;
+        }
+        int id_entidade = AdicionaEntidade(quadrado_selecionado_);
+        SelecionaEntidade(id_entidade);
         estado_ = ETAB_ENT_SELECIONADA;
         ntf::Notificacao* n = new ntf::Notificacao;
-        n->set_tipo(ntf::TN_ENTIDADE_ADICIONADA);
+        n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+        n->set_local(false);
+        n->set_remota(true);
+        n->mutable_entidade()->CopyFrom(entidades_.find(id_entidade)->second->Proto());
         central_->AdicionaNotificacao(n);
+      } else {
+        // Mensagem veio de fora.
+        AdicionaEntidade(notificacao.entidade());
       }
+      ntf::Notificacao* n = new ntf::Notificacao;
+      n->set_tipo(ntf::TN_ENTIDADE_ADICIONADA);
+      central_->AdicionaNotificacao(n);
       return true;
+    }
     case ntf::TN_REMOVER_ENTIDADE:
       if (estado_ == ETAB_ENT_SELECIONADA) {
         // Remover entidade.
@@ -156,11 +180,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         central_->AdicionaNotificacao(n);
       }
       return true;
-    case ntf::TN_CLIENTE_PENDENTE:
-      central_->AdicionaNotificacao(CriaNotificacaoTabuleiro());
+    case ntf::TN_SERIALIZAR_TABULEIRO:
+      central_->AdicionaNotificacao(SerializaTabuleiro());
       return true;
-    case ntf::TN_TABULEIRO:
-      RecebeNotificacaoTabuleiro(notificacao);
+    case ntf::TN_DESERIALIZAR_TABULEIRO:
+      DeserializaTabuleiro(notificacao);
       return true;
     default:
       return false;
@@ -457,12 +481,17 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   *z = 0;
 }
 
-ntf::Notificacao* Tabuleiro::CriaNotificacaoTabuleiro() const {
+ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
+  if (proximo_id_cliente_ > 16) {
+    LOG(FATAL) << "Limite de clientes alcançado.";
+    return nullptr;
+  }
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_local(false);
   notificacao->set_remota(true);
-  notificacao->set_tipo(ntf::TN_TABULEIRO);
+  notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
   auto* t = notificacao->mutable_tabuleiro();
+  t->set_id_cliente(proximo_id_cliente_++);
   for (const auto& id_ent : entidades_) {
     t->add_entidade()->CopyFrom(id_ent.second->Proto());
   }
@@ -470,12 +499,13 @@ ntf::Notificacao* Tabuleiro::CriaNotificacaoTabuleiro() const {
 }
 
 
-void Tabuleiro::RecebeNotificacaoTabuleiro(const ntf::Notificacao& notificacao) {
-  for (const auto& ep : entidades_) {
-    delete ep.second;
+void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
+  if (!entidades_.empty()) {
+    LOG(ERROR) << "Essa mensagem so deveria chegar para clientes novos!!";
   }
-  entidades_.clear();
-  for (const auto& ep : notificacao.tabuleiro().entidade()) {
+  const auto& tabuleiro = notificacao.tabuleiro();
+  id_cliente_ = tabuleiro.id_cliente();
+  for (const auto& ep : tabuleiro.entidade()) {
     auto* e = new Entidade(ep);
     entidades_.insert({ e->Id(), e });
   }

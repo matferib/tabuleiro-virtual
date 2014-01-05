@@ -12,6 +12,7 @@ namespace ntf {
 namespace ent {
 
 class Entidade;
+class EntidadeProto;
 class DadosTabuleiro;
 class DadosCriacao;
 
@@ -62,6 +63,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   int AdicionaEntidade(int id_quadrado);
 
+  /** Adiciona uma entidade a partir do proto. */
+  int AdicionaEntidade(const EntidadeProto& proto);
+
   /** remove entidade do tabuleiro, pelo id da entidade passado. 
   * @param id da entidade.
   */
@@ -111,9 +115,11 @@ class Tabuleiro : public ntf::Receptor {
   /** retorna as coordenadas do quadrado. */
   void CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z);
 
-  // Retorna uma notificacao do tipo TN_TABULEIRO preenchida.
-  ntf::Notificacao* CriaNotificacaoTabuleiro() const;
-  void RecebeNotificacaoTabuleiro(const ntf::Notificacao& notificacao);
+  /** Retorna uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida. */
+  ntf::Notificacao* SerializaTabuleiro();
+
+  /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
+  void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
 
  private:
   /** Parametros gerais de desenho. */
@@ -125,6 +131,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** tamanho do tabuleiro (tamanho_ x tamanho_). */
   int tamanho_;
+
+  /** Cada cliente possui um identificador diferente. */
+  int id_cliente_;
 
   /** mapa geral de entidades, por id. */
   MapaEntidades entidades_;
@@ -141,7 +150,10 @@ class Tabuleiro : public ntf::Receptor {
   etab_t estado_anterior_rotacao_;
 
   /** proximo id de entidades. */
-  unsigned int proximo_id_;
+  unsigned int proximo_id_entidade_;
+
+  /** proximo id de cliente. */
+  unsigned int proximo_id_cliente_;
 
   /** dados (X) para calculo de rotacao de mouse. */
   int rotacao_ultimo_x_; 

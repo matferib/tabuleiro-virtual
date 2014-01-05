@@ -1,3 +1,4 @@
+import "ent/entidade.proto";
 import "ent/tabuleiro.proto";
 
 package ntf;
@@ -7,7 +8,7 @@ enum Tipo {
   TN_INICIAR = 2;
   TN_INICIADO = 3;
   TN_CONECTAR = 4;
-  TN_CLIENTE_PENDENTE = 5;
+  TN_ERRO = 5;
   TN_RESPOSTA_CONEXAO = 6;
   TN_DESCONECTADO = 7;
   TN_ADICIONAR_JOGADOR = 8;
@@ -17,8 +18,8 @@ enum Tipo {
   TN_ENTIDADE_REMOVIDA = 12;
   TN_NOTIFICACAO_3D = 13;
   TN_TEMPORIZADOR = 14;
-  TN_ERRO = 15;
-  TN_TABULEIRO = 16;
+  TN_SERIALIZAR_TABULEIRO = 15;
+  TN_DESERIALIZAR_TABULEIRO = 16;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
@@ -34,4 +35,6 @@ message Notificacao {
   optional string endereco = 5;
   // Tabuleiro de jogo.
   optional ent.TabuleiroProto tabuleiro = 6;
+  // Entidade.
+  optional ent.EntidadeProto entidade = 7;
 }

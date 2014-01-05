@@ -7,7 +7,8 @@ namespace net {
 
 class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
-  explicit Servidor(ntf::CentralNotificacoes* central);
+  // Nao possui os parametros.
+  Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
   virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
@@ -30,7 +31,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   void EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados);
 
   ntf::CentralNotificacoes* central_;
-  boost::asio::io_service servico_io_;
+  boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
   std::unique_ptr<boost::asio::ip::tcp::socket> cliente_;
   std::vector<boost::asio::ip::tcp::socket*> clientes_pendentes_;

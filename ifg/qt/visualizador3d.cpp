@@ -50,14 +50,12 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       glDraw();
-      return true;
-    case ntf::TN_ENTIDADE_ADICIONADA:
-    case ntf::TN_ENTIDADE_REMOVIDA:
-      glDraw();
-      return true;
-    default:
-      return false;
+      break;
+    default: ;
   }
+  // Sempre redesenha para evitar qualquer problema de atualizacao.
+  glDraw();
+  return true;
 }
 
 // mouse

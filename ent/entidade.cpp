@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
+#include "log/log.h"
 
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
@@ -14,11 +15,17 @@ const double RAIO_ESFERA = 0.3;
 using namespace ent;
 using namespace std;
 
-Entidade::Entidade(int id, int pontos_vida, double x, double y, double z) { 
+Entidade::Entidade(int id_criador, int id_local, int pontos_vida, double x, double y, double z) { 
+  if (id_criador > (1 << 4)) {
+    LOG(FATAL) << "Id criador invalido: " << id_criador;
+  }
+  if (id_local >= (1 << 29)) {
+    LOG(FATAL) << "Id entidade invalido: " << id_local;
+  }
+  proto_.set_id((id_criador << 28) | id_local);
   proto_.set_x(x);
   proto_.set_y(y);
   proto_.set_z(z);
-  proto_.set_id(id);
 }
 
 Entidade::Entidade(const EntidadeProto& proto) { 
