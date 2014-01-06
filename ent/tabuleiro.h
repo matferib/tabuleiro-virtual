@@ -88,7 +88,9 @@ class Tabuleiro : public ntf::Receptor {
   /** trata o botao do mouse liberado. */
   void TrataBotaoLiberado();
 
-  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl) e a razao de aspecto da janela. */
+  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl) e
+  * a razao de aspecto da janela.
+  */
   void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
 
   /** trata a redimensao da janela. */

@@ -27,11 +27,11 @@ public:
 	/** Move a entidade para o ponto especificado. */
 	void MovePara(double x, double y, double z = 0);
 
-  /** Move a entidade para a posição do proto. */
-  void MovePara(const EntidadeProto& proto);
+  /** Atribui um destino a entidade. */
+  void Destino(const EntidadeProto& proto);
 
-	/** move a entidade pelo vetor de movimento. */
-	void Move(double x, double y, double z = 0);
+	/** Atualiza a posição da entidade em direção a seu destino. */
+	void Atualiza();
 
 	/** @return o HP da unidade. */
 	int PontosVida() const;

@@ -1,8 +1,16 @@
 package ent;
 
-message EntidadeProto {
-  optional uint32 id = 2;
+message Posicao {
   optional float x = 3;
   optional float y = 4;
   optional float z = 5;
+}
+
+message EntidadeProto {
+  // Identificador global da entidade.
+  optional uint32 id = 1;
+  // Posicao atual da entidade.
+  optional Posicao pos = 2;
+  // Destino da entidade.
+  optional Posicao destino = 3;
 }

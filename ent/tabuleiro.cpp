@@ -198,6 +198,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       return true;
     }
+    case ntf::TN_TEMPORIZADOR: {
+      for (auto& id_ent : entidades_) {
+        id_ent.second->Atualiza();
+      }
+      return true;
+    }
     case ntf::TN_SERIALIZAR_TABULEIRO:
       central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
       return true;
@@ -211,7 +217,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         LOG(ERROR) << "Entidade invalida: " << e.ShortDebugString();
         return true;
       }
-      it->second->MovePara(e);
+      it->second->Destino(e);
       return true;
     }
     default:
@@ -305,9 +311,10 @@ void Tabuleiro::TrataBotaoLiberado() {
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
       e->set_id(entidade_selecionada_->Id());
-      e->set_x(entidade_selecionada_->X());
-      e->set_y(entidade_selecionada_->Y());
-      e->set_z(entidade_selecionada_->Z());
+      auto* p = e->mutable_destino();
+      p->set_x(entidade_selecionada_->X());
+      p->set_y(entidade_selecionada_->Y());
+      p->set_z(entidade_selecionada_->Z());
       central_->AdicionaNotificacaoRemota(n);
       estado_ = ETAB_ENT_SELECIONADA;
       return;
