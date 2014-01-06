@@ -61,6 +61,7 @@ class Tabuleiro : public ntf::Receptor {
   /** adiciona a entidade ao tabuleiro, no quadrado passado.
   * @param id_quadrado do quadrado no desenho.
   * @return id da entidade adicionada.
+  * @throw logic_error se o limite de entidades for alcançado.
   */
   unsigned int AdicionaEntidade(int id_quadrado);
 

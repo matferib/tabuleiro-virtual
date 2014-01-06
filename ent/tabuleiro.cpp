@@ -116,7 +116,7 @@ void Tabuleiro::Desenha() {
 
 unsigned int Tabuleiro::AdicionaEntidade(int id_quadrado) {
   if (proximo_id_entidade_ >= (1 << 29)) {
-    LOG(FATAL) << "Limite de entidades alcançado.";
+    throw std::logic_error("Limite de entidades alcançado.");
   }
   double x, y, z;
   CoordenadaQuadrado(id_quadrado, &x, &y, &z);
@@ -152,13 +152,17 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return true;
         }
-        unsigned int id_entidade = AdicionaEntidade(quadrado_selecionado_);
-        SelecionaEntidade(id_entidade);
-        estado_ = ETAB_ENT_SELECIONADA;
-        ntf::Notificacao* n = new ntf::Notificacao;
-        n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-        n->mutable_entidade()->CopyFrom(entidades_.find(id_entidade)->second->Proto());
-        central_->AdicionaNotificacaoRemota(n);
+        try {
+          unsigned int id_entidade = AdicionaEntidade(quadrado_selecionado_);
+          SelecionaEntidade(id_entidade);
+          estado_ = ETAB_ENT_SELECIONADA;
+          ntf::Notificacao* n = new ntf::Notificacao;
+          n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+          n->mutable_entidade()->CopyFrom(entidades_.find(id_entidade)->second->Proto());
+          central_->AdicionaNotificacaoRemota(n);
+        } catch (const std::logic_error& e) {
+          LOG(ERROR) << "Limite de entidades alcançado.";
+        }
       } else {
         // Mensagem veio de fora.
         AdicionaEntidade(notificacao.entidade());
@@ -494,12 +498,12 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
 }
 
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
-  if (proximo_id_cliente_ > 16) {
-    LOG(FATAL) << "Limite de clientes alcançado.";
-    return nullptr;
-  }
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+  if (proximo_id_cliente_ >= 16) {
+    notificacao->set_erro("Limite de clientes alcançado.");
+    return notificacao;
+  }
   auto* t = notificacao->mutable_tabuleiro();
   t->set_id_cliente(proximo_id_cliente_++);
   for (const auto& id_ent : entidades_) {
@@ -511,6 +515,14 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (!entidades_.empty()) {
     LOG(ERROR) << "Essa mensagem so deveria chegar para clientes novos!!";
+    return;
+  }
+  if (notificacao.has_erro()) {
+    LOG(ERROR) << "Erro ao deserializar tabuleiro: " << notificacao.erro();
+    auto* n = new ntf::Notificacao;
+    n->set_tipo(ntf::TN_DESCONECTAR);
+    central_->AdicionaNotificacao(n);
+    return;
   }
   const auto& tabuleiro = notificacao.tabuleiro();
   id_cliente_ = tabuleiro.id_cliente();

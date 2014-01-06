@@ -31,6 +31,9 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
     Conecta(notificacao.endereco());
     return true;
+  } else if (notificacao.tipo() == ntf::TN_DESCONECTAR) {
+    Desconecta();
+    return true;
   }
   return false;
 }
