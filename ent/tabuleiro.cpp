@@ -172,16 +172,32 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       return true;
     }
-    case ntf::TN_REMOVER_ENTIDADE:
-      if (estado_ == ETAB_ENT_SELECIONADA) {
-        // Remover entidade.
-        RemoveEntidade(entidade_selecionada_->Id());
+    case ntf::TN_REMOVER_ENTIDADE: {
+      if (notificacao.entidade().has_id()) {
+        // Comando vindo de fora.
+        unsigned int id_remocao = notificacao.entidade().id();
+        unsigned int id_selecionado = entidade_selecionada_->Id();
+        if (id_remocao == id_selecionado) {
+          estado_ = ETAB_OCIOSO;
+        }
+        RemoveEntidade(id_remocao);
+      } else if (estado_ == ETAB_ENT_SELECIONADA) {
+        // Remover entidade local.
+        unsigned int id = entidade_selecionada_->Id();
+        RemoveEntidade(id);
         estado_ = ETAB_OCIOSO;
-        ntf::Notificacao* n = new ntf::Notificacao;
-        n->set_tipo(ntf::TN_ENTIDADE_REMOVIDA);
-        central_->AdicionaNotificacao(n);
+        auto* n = new ntf::Notificacao;
+        n->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+        n->mutable_entidade()->set_id(id);
+        central_->AdicionaNotificacaoRemota(n);
+      } else {
+        return false;
       }
+      ntf::Notificacao* n = new ntf::Notificacao;
+      n->set_tipo(ntf::TN_ENTIDADE_REMOVIDA);
+      central_->AdicionaNotificacao(n);
       return true;
+    }
     case ntf::TN_SERIALIZAR_TABULEIRO:
       central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
       return true;
