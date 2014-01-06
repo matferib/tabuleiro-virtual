@@ -1,16 +1,41 @@
 package ent;
 
+enum TipoEntidade {
+  TE_ENTIDADE = 0;
+  TE_LUZ = 1;
+}
+
 message Posicao {
   optional float x = 3;
   optional float y = 4;
   optional float z = 5;
 }
 
+message Cor {
+  optional double red = 1;
+  optional double green = 2;
+  optional double blue = 3;
+  optional double alpha = 4 [default=1.0];
+}
+
+message Iluminacao {
+  optional Cor cor = 1;
+  optional double raio = 2;
+}
+
 message EntidadeProto {
-  // Identificador global da entidade.
-  optional uint32 id = 1;
+  // Tipo da entidade (TipoEntidade).
+  optional int32 tipo = 1;
+  // Identificador global da entidade composto pelo id_criador << 28 | id_local. 
+  // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
+  // um GLuint para permitir realização da operação de picking no 3d.
+  optional uint32 id = 2;
   // Posicao atual da entidade.
-  optional Posicao pos = 2;
+  optional Posicao pos = 3;
   // Destino da entidade.
-  optional Posicao destino = 3;
+  optional Posicao destino = 4;
+  // Cor da entidade.
+  optional Cor cor = 5;
+  // Iluminação da entidade.
+  optional Iluminacao luz = 6;
 }

@@ -19,13 +19,13 @@ using namespace ifg::qt;
 // enumeracao com os menus e seus items
 namespace {
 
-enum menu_e { ME_JOGO, ME_JOGADORES, ME_SOBRE, ME_NUM }; // menus da barra
+enum menu_e { ME_JOGO, ME_ENTIDADES, ME_SOBRE, ME_NUM }; // menus da barra
 
 unsigned int numItems[] = { 4, 5, 1 }; // numero de items em cada menu, incluindo sep
 
 enum menuitem_e { // items de cada menu 
   MI_INICIAR, MI_CONECTAR, MI_SEP, MI_SAIR,
-  MI_ADICIONAR = 0, MI_REMOVER, MI_SALVAR, MI_RESTAURAR,
+  MI_ADICIONAR = 0, MI_ADICIONAR_LUZ, MI_REMOVER, MI_SALVAR, MI_RESTAURAR,
   MI_TABVIRT = 0
 };
 
@@ -39,7 +39,7 @@ MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai) : 
     // jogo
     ("&Iniciar jogo mestre"), ("&Conectar no jogo mestre"), NULL, ("&Sair"),
     // jogadores
-    ("&Adicionar"), ("&Remover"), NULL, ("&Salvar"), ("R&estaurar"),
+    ("&Adicionar"), ("Adicionar &Luz"), ("&Remover"), NULL, ("&Salvar"), ("R&estaurar"),
     // sobre
     ("&Tabuleiro virtual")
   };
@@ -124,7 +124,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
       }
     }
     // desabilita jogadores
-    menus_[ME_JOGADORES]->setEnabled(false);
+    menus_[ME_ENTIDADES]->setEnabled(false);
     break;
   case MM_MESTRE:
   case MM_JOGADOR:
@@ -142,7 +142,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
     acoes_[ME_JOGO][MI_SAIR]->setEnabled(true);
 
     // Jogadores habilitado so no modo mestre
-    menus_[ME_JOGADORES]->setEnabled(modo == MM_MESTRE ? true : false);
+    menus_[ME_ENTIDADES]->setEnabled(modo == MM_MESTRE ? true : false);
     break;
   }
 }
@@ -176,11 +176,14 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_SAIR);
-  } else if (acao == acoes_[ME_JOGADORES][MI_ADICIONAR]) {
+  } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR]) {
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-  } else if (acao == acoes_[ME_JOGADORES][MI_REMOVER]) {
+  } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR_LUZ]) {
+    notificacao = new ntf::Notificacao; 
+    notificacao->set_tipo(ntf::TN_ADICIONAR_LUZ);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);

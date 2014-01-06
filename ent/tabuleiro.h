@@ -58,15 +58,10 @@ class Tabuleiro : public ntf::Receptor {
   /** @return tamanho do tabuleiro em Y. */
   int TamanhoY() const;
 
-  /** adiciona a entidade ao tabuleiro, no quadrado passado.
-  * @param id_quadrado do quadrado no desenho.
-  * @return id da entidade adicionada.
+  /** adiciona a entidade ao tabuleiro, através de uma notificação.
   * @throw logic_error se o limite de entidades for alcançado.
   */
-  unsigned int AdicionaEntidade(int id_quadrado);
-
-  /** Adiciona uma entidade a partir do proto. */
-  unsigned int AdicionaEntidade(const EntidadeProto& proto);
+  void AdicionaEntidade(const ntf::Notificacao& notificacao);
 
   /** remove entidade do tabuleiro, pelo id da entidade passado. 
   * @param id da entidade.

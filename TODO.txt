@@ -1,2 +1,6 @@
+- Entidades com gravuras.
+- Tabuleiro com gravuras.
 - Adicionar opcao de reiniciar o tabuleiro.
-- Movimento suave das peças remotas.
+- Adicionar mais dados a entidades (por exemplo, tamanho, cor e iluminação).
+- Adicionar mais opcoes ao tabuleiro (por exemplo, iluminacao, cor etc).
+- Tooltip.

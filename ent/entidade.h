@@ -7,24 +7,20 @@ namespace ent {
 
 class Entidade;
 
+/** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
+Entidade* NovaEntidade(int tipo);
+
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico. 
 */
 class Entidade {
-public:
-  /** Identificador é composto pelo id_criador << 28 | id_local. Portanto, o maximo de jogadores é 16. 
-  * É importante que o identificador da entidade caiba em um GLuint para permitir realização da operação
-  * de picking no 3d.
-  */
-	Entidade(int id_criador, int id_local, int pontosVida, double x, double y, double z);
-
+ public:
   /** Construtor para entidades criadas remotamente. */
-  explicit Entidade(const EntidadeProto& proto);
+  void Inicializa(const EntidadeProto& proto);
 
   /** Destroi a entidade. */
 	virtual ~Entidade();
 
-public:
 	/** @return o identificador da entidade que deve ser unico globalmente. */
 	unsigned int Id() const;
 
@@ -58,8 +54,22 @@ public:
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
 
+ protected:
+  friend Entidade* NovaEntidade(int tipo);
+  Entidade();
+
  private:
   EntidadeProto proto_;
+};
+
+/** Uma entidade de luz. */
+class Luz : public Entidade {
+ public:
+	virtual void Desenha();
+
+ protected:
+  friend Entidade* NovaEntidade(int);
+  Luz();
 };
 
 }

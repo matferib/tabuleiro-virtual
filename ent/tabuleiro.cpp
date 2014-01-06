@@ -49,7 +49,7 @@ const double EXPESSURA_LINHA = 0.1;
 const double TAMANHO_GL_2 = (TAMANHO_GL / 2.0);
 
 /** Altera a cor correnta para cor. */
-void Cor(GLfloat* cor) {
+void MudaCor(GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor3fv(cor);
 }
@@ -59,7 +59,7 @@ void DesenhaQuadrado(GLuint id, bool selecionado) {
   // desenha o quadrado negro embaixo.
   glLoadName(id);
   GLfloat preto[] = { 0, 0, 0, 1.0 };
-  Cor(preto);
+  MudaCor(preto);
   glRectf(0, 0, TAMANHO_GL, TAMANHO_GL);
 
   // Habilita a função pra acabar com zfight.
@@ -67,10 +67,10 @@ void DesenhaQuadrado(GLuint id, bool selecionado) {
   glPolygonOffset(-0.1f, -0.1f);
   if (selecionado) {
     GLfloat cinza[] = { 0.5, 0.5, 0.5, 1.0 };
-    Cor(cinza);
+    MudaCor(cinza);
   } else {
     GLfloat cinza_claro[] = { 0.8, 0.8, 0.8, 1.0 };
-    Cor(cinza_claro);
+    MudaCor(cinza_claro);
   }
   glRectf(0, 0, TAMANHO_GL - EXPESSURA_LINHA, TAMANHO_GL - EXPESSURA_LINHA);
   // Restaura os offset de zfight.
@@ -114,21 +114,50 @@ void Tabuleiro::Desenha() {
   DesenhaCena();
 }
 
-unsigned int Tabuleiro::AdicionaEntidade(int id_quadrado) {
-  if (proximo_id_entidade_ >= (1 << 29)) {
-    throw std::logic_error("Limite de entidades alcançado.");
-  }
-  double x, y, z;
-  CoordenadaQuadrado(id_quadrado, &x, &y, &z);
-  auto* entidade = new Entidade(id_cliente_, proximo_id_entidade_++, 0, x, y, z);
-  entidades_.insert(std::make_pair(entidade->Id(), entidade));
-  return entidade->Id();
+namespace {
+const EntidadeProto GeraEntidadeProto(
+    int id_cliente, int id_entidade, double x, double y, double z) {
+  EntidadeProto ep;
+  ep.set_id((id_cliente << 28) | id_entidade);
+  auto* pos = ep.mutable_pos();
+  pos->set_x(x);
+  pos->set_y(y);
+  pos->set_z(z);
+  return ep;
 }
+}  // namespace
 
-unsigned int Tabuleiro::AdicionaEntidade(const EntidadeProto& proto) {
-  auto* entidade = new Entidade(proto);
-  entidades_.insert(std::make_pair(entidade->Id(), entidade));
-  return entidade->Id();
+void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
+  if (!notificacao.has_entidade()) {
+    // Mensagem local.
+    if (estado_ != ETAB_QUAD_SELECIONADO) {
+      return;
+    }
+    if (proximo_id_entidade_ >= (1 << 29)) {
+      throw std::logic_error("Limite de entidades alcançado.");
+    }
+    double x, y, z;
+    CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
+    auto* entidade =
+      NovaEntidade(notificacao.tipo() == ntf::TN_ADICIONAR_ENTIDADE ? TE_ENTIDADE : TE_LUZ);
+    entidade->Inicializa(GeraEntidadeProto(id_cliente_, proximo_id_entidade_++, x, y, z));
+    entidades_.insert(std::make_pair(entidade->Id(), entidade));
+    SelecionaEntidade(entidade->Id());
+    estado_ = ETAB_ENT_SELECIONADA;
+    // Envia a entidade para os outros.
+    auto* n = new ntf::Notificacao;
+    n->set_tipo(notificacao.tipo());
+    n->mutable_entidade()->CopyFrom(entidades_.find(entidade->Id())->second->Proto());
+    central_->AdicionaNotificacaoRemota(n);
+  } else {
+    // Mensagem veio de fora.
+    auto* entidade = NovaEntidade(notificacao.entidade().tipo());
+    entidade->Inicializa(notificacao.entidade());
+    entidades_.insert(std::make_pair(entidade->Id(), entidade));
+  }
+  ntf::Notificacao* n = new ntf::Notificacao;
+  n->set_tipo(ntf::TN_ENTIDADE_ADICIONADA);
+  central_->AdicionaNotificacao(n);
 }
 
 void Tabuleiro::RemoveEntidade(unsigned int id) {
@@ -146,30 +175,13 @@ void Tabuleiro::RemoveEntidade(unsigned int id) {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
-    case ntf::TN_ADICIONAR_ENTIDADE: {
-      if (!notificacao.has_entidade()) {
-        // Mensagem local.
-        if (estado_ != ETAB_QUAD_SELECIONADO) {
-          return true;
-        }
-        try {
-          unsigned int id_entidade = AdicionaEntidade(quadrado_selecionado_);
-          SelecionaEntidade(id_entidade);
-          estado_ = ETAB_ENT_SELECIONADA;
-          ntf::Notificacao* n = new ntf::Notificacao;
-          n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-          n->mutable_entidade()->CopyFrom(entidades_.find(id_entidade)->second->Proto());
-          central_->AdicionaNotificacaoRemota(n);
-        } catch (const std::logic_error& e) {
-          LOG(ERROR) << "Limite de entidades alcançado.";
-        }
-      } else {
-        // Mensagem veio de fora.
-        AdicionaEntidade(notificacao.entidade());
+    case ntf::TN_ADICIONAR_ENTIDADE:
+    case ntf::TN_ADICIONAR_LUZ: {
+      try {
+        AdicionaEntidade(notificacao);
+      } catch (const std::logic_error& e) {
+        LOG(ERROR) << "Limite de entidades alcançado.";
       }
-      ntf::Notificacao* n = new ntf::Notificacao;
-      n->set_tipo(ntf::TN_ENTIDADE_ADICIONADA);
-      central_->AdicionaNotificacao(n);
       return true;
     }
     case ntf::TN_REMOVER_ENTIDADE: {
@@ -276,8 +288,9 @@ void Tabuleiro::TrataMovimento(int x, int y) {
     GLdouble nx, ny, nz;
     GLfloat win_z;
     glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
-    //cout << "WX: " << x << ", WY: " << y << ", WZ: " << win_z 
-    //     << ", viewport: " << viewport[0] << " " << viewport[1] << " " << viewport[2] << " " << viewport[3] << endl;
+    //LOG(INFO) << "WX: " << x << ", WY: " << y << ", WZ: " << win_z 
+    //          << ", viewport: " << viewport[0] << " " << viewport[1] << " " 
+    //          << viewport[2] << " " << viewport[3] << endl;
     if (!gluUnProject(x, y, win_z, modelview, projection, viewport, &nx, &ny, &nz)) {
       return;
     }
@@ -370,8 +383,8 @@ void Tabuleiro::DesenhaCena() {
 
   //ceu_.desenha(parametros_desenho_);
 
-  // Iluminação junto ao olho. O quarto componente indica que a luz é posicional. Se for 0, a luz é direcional e os componentes
-  // indicam sua direção.
+  // Objeto de luz. O quarto componente indica que a luz é posicional.
+  // Se for 0, a luz é direcional e os componentes indicam sua direção.
   GLfloat pos_luz[] = { 0.0f, 0.0f, 1.0f, 1.0f };
   if (parametros_desenho_.desenha_luz) {
     glDisable(GL_LIGHTING);
@@ -383,10 +396,10 @@ void Tabuleiro::DesenhaCena() {
       glEnable(GL_LIGHTING);
     }
   }
-  glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
-  glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1);
   //GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
   if (parametros_desenho_.iluminacao) {
+    glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1);
     glEnable(GL_LIGHT0);
   }
 
@@ -423,7 +436,7 @@ void Tabuleiro::DesenhaCena() {
     Entidade* entidade = it->second;
     GLfloat vermelho[] = { 1.0, 0, 0, 1.0 };
     GLfloat verde[] = { 0, 1.0, 0, 1.0 };
-    Cor(entidade_selecionada_ == entidade ? verde : vermelho); 
+    MudaCor(entidade_selecionada_ == entidade ? verde : vermelho); 
     entidade->Desenha();
   }
   glPopName();
@@ -550,7 +563,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   const auto& tabuleiro = notificacao.tabuleiro();
   id_cliente_ = tabuleiro.id_cliente();
   for (const auto& ep : tabuleiro.entidade()) {
-    auto* e = new Entidade(ep);
+    auto* e = NovaEntidade(ep.tipo());
+    e->Inicializa(ep);
     entidades_.insert({ e->Id(), e });
   }
 }
