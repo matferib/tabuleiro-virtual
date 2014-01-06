@@ -157,10 +157,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         estado_ = ETAB_ENT_SELECIONADA;
         ntf::Notificacao* n = new ntf::Notificacao;
         n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-        n->set_local(false);
-        n->set_remota(true);
         n->mutable_entidade()->CopyFrom(entidades_.find(id_entidade)->second->Proto());
-        central_->AdicionaNotificacao(n);
+        central_->AdicionaNotificacaoRemota(n);
       } else {
         // Mensagem veio de fora.
         AdicionaEntidade(notificacao.entidade());
@@ -181,11 +179,21 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     case ntf::TN_SERIALIZAR_TABULEIRO:
-      central_->AdicionaNotificacao(SerializaTabuleiro());
+      central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
       return true;
     case ntf::TN_DESERIALIZAR_TABULEIRO:
       DeserializaTabuleiro(notificacao);
       return true;
+    case ntf::TN_MOVER_ENTIDADE: {
+      const auto& e = notificacao.entidade();
+      auto it = entidades_.find(e.id());
+      if (it == entidades_.end()) {
+        LOG(ERROR) << "Entidade invalida: " << e.ShortDebugString();
+        return true;
+      }
+      it->second->MovePara(e);
+      return true;
+    }
     default:
       return false;
   }
@@ -274,9 +282,13 @@ void Tabuleiro::TrataBotaoLiberado() {
       return;
     case ETAB_ENT_PRESSIONADA: {
       auto* n = new ntf::Notificacao;
-      n->set_local(false);
-      n->set_remota(true);
-      central_->AdicionaNotificacao(n);
+      n->set_tipo(ntf::TN_MOVER_ENTIDADE);
+      auto* e = n->mutable_entidade();
+      e->set_id(entidade_selecionada_->Id());
+      e->set_x(entidade_selecionada_->X());
+      e->set_y(entidade_selecionada_->Y());
+      e->set_z(entidade_selecionada_->Z());
+      central_->AdicionaNotificacaoRemota(n);
       estado_ = ETAB_ENT_SELECIONADA;
       return;
     }
@@ -487,8 +499,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     return nullptr;
   }
   auto* notificacao = new ntf::Notificacao;
-  notificacao->set_local(false);
-  notificacao->set_remota(true);
   notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
   auto* t = notificacao->mutable_tabuleiro();
   t->set_id_cliente(proximo_id_cliente_++);

@@ -20,15 +20,16 @@ enum Tipo {
   TN_TEMPORIZADOR = 14;
   TN_SERIALIZAR_TABULEIRO = 15;
   TN_DESERIALIZAR_TABULEIRO = 16;
+  TN_MOVER_ENTIDADE = 17;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
 message Notificacao {
   optional Tipo tipo = 1;
   // Processar localmente.
-  optional bool local = 2 [default=true];
+  //optional bool local = 2 [default=true];
   // Processar remotamente.
-  optional bool remota = 3 [default=false];
+  //optional bool remota = 3 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
   // URL do servidor para conexao.

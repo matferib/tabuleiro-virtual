@@ -42,6 +42,10 @@ void Entidade::MovePara(double x, double y, double z) {
   proto_.set_z(z);
 }
 
+void Entidade::MovePara(const EntidadeProto& proto) { 
+  MovePara(proto.x(), proto.y(), proto.z());
+}
+
 void Entidade::Move(double x, double y, double z) { 
   proto_.set_x(proto_.x() + x);
   proto_.set_y(proto_.y() + y);

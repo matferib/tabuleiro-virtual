@@ -35,6 +35,19 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
+bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
+  EnviaDados(notificacao.SerializeAsString());
+  return true;
+}
+
+void Cliente::EnviaDados(const std::string& dados) {
+  size_t bytes_enviados = socket_->send(boost::asio::buffer(dados.c_str(), dados.size()));
+  if (bytes_enviados != dados.size()) {
+    LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
+  } else {
+    LOG(INFO) << "Enviei " << dados.size() << " bytes pro servidor.";
+  }
+}
 void Cliente::Conecta(const std::string& endereco_str) {
   std::vector<std::string> endereco_porta;
   boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
@@ -57,6 +70,7 @@ void Cliente::Conecta(const std::string& endereco_str) {
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
     central_->AdicionaNotificacao(notificacao);
+    central_->RegistraReceptorRemoto(this);
     RecebeDados();
     LOG(INFO) << "Conexão bem sucedida";
   } catch (std::exception& e) {
@@ -78,6 +92,7 @@ void Cliente::Desconecta() {
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
+  central_->DesregistraReceptorRemoto(this);
   std::cout << "Desconectando..." << std::endl;
 }
 
@@ -98,13 +113,10 @@ void Cliente::RecebeDados() {
       // Recebe mensagem.
       auto* notificacao = new ntf::Notificacao;
       if (notificacao->ParseFromString(std::string(buffer_.begin(), buffer_.begin() + bytes_recebidos))) {
-        // Inverte os bits de remota e local.
-        notificacao->set_local(true);
-        notificacao->set_remota(false);
         central_->AdicionaNotificacao(notificacao);
       } else {
         // TODO adicionar alguma coisa aqui.
-        LOG(ERROR) << "Erro recebendo mensagem";
+        LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor.";
         delete notificacao;
       }
       RecebeDados();

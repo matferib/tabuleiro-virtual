@@ -21,8 +21,11 @@ public:
 	/** @return o identificador da entidade que deve ser unico globalmente. */
 	int Id() const;
 
-	/** move a entidade para o ponto especificado. */
+	/** Move a entidade para o ponto especificado. */
 	void MovePara(double x, double y, double z = 0);
+
+  /** Move a entidade para a posição do proto. */
+  void MovePara(const EntidadeProto& proto);
 
 	/** move a entidade pelo vetor de movimento. */
 	void Move(double x, double y, double z = 0);

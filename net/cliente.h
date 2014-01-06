@@ -6,12 +6,13 @@
 
 namespace net {
 
-class Cliente : public ntf::Receptor {
+class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
   // Nao possui os parametros.
   explicit Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+  virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
 
  private:
   // Conecta o cliente ao servidor localizado em endereco, formato: <host:porta>.
@@ -24,7 +25,7 @@ class Cliente : public ntf::Receptor {
   void RecebeDados(); 
 
   // Envia dados pela conexao continuamente.
-  void EnviaDados();
+  void EnviaDados(const std::string& dados);
 
   // Retorna se o cliente esta conectado ou nao.
   bool Ligado() const;

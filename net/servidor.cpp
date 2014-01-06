@@ -9,9 +9,8 @@ namespace net {
 
 Servidor::Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central) {
   servico_io_ = servico_io;
-  central->RegistraReceptor(this);
-  central->RegistraReceptorRemoto(this);
   central_ = central;
+  central_->RegistraReceptor(this);
   // tamanho maximo da mensagem: 1MB.
   buffer_.resize(1 * 1024 * 1024);
 }
@@ -45,7 +44,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
     clientes_pendentes_.clear();
   } else {
     for (auto* c : clientes_) {
-      LOG(INFO) << "Enviando notificacao para cliente";
+      VLOG(1) << "Enviando notificacao para cliente";
       EnviaDadosCliente(c, ns);
     }
   }
@@ -62,6 +61,7 @@ void Servidor::Liga() {
     cliente_.reset(new boost::asio::ip::tcp::socket(*servico_io_));
     aceitador_.reset(new boost::asio::ip::tcp::acceptor(
         *servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 11223)));
+    central_->RegistraReceptorRemoto(this);
     EsperaCliente();
   } catch(std::exception& e) {
     // TODO fazer o tipo de erro e tratar notificacao em algum lugar.
@@ -72,14 +72,17 @@ void Servidor::Liga() {
 }
 
 void Servidor::Desliga() {
-  if (Ligado()) {
-    aceitador_.reset();
-    for (auto* c : clientes_) {
-      delete c;
-    }
-    for (auto* c : clientes_pendentes_) {
-      delete c;
-    }
+  if (!Ligado()) {
+    LOG(ERROR) << "Servidor ja está desligado.";
+    return;
+  }
+  central_->DesregistraReceptorRemoto(this);
+  aceitador_.reset();
+  for (auto* c : clientes_) {
+    delete c;
+  }
+  for (auto* c : clientes_pendentes_) {
+    delete c;
   }
 }
 
@@ -114,7 +117,24 @@ void Servidor::RecebeDadosCliente(boost::asio::ip::tcp::socket* cliente) {
     [this, cliente](boost::system::error_code ec, std::size_t bytes_transferred) {
       if (!ec) {
         std::string str(buffer_.begin(), buffer_.begin() + bytes_transferred);
-        LOG(INFO) << "Recebi: " << str;
+        VLOG(1) << "Recebi dados de um cliente: " << str;
+        auto* n = new ntf::Notificacao;
+        if (n->ParseFromString(str)) {
+          // Envia a notificacao para os outros clientes.
+          for (auto* c : clientes_) {
+            if (c == cliente) {
+              // Nao envia para o cliente original.
+              continue;
+            }
+            EnviaDadosCliente(c, str);
+          }
+          // Processa localmente.
+          central_->AdicionaNotificacao(n);
+        } else {
+          // TODO adicionar alguma coisa aqui.
+          LOG(ERROR) << "Erro ParseFromString recebendo dados do cliente.";
+          delete n;
+        }
         RecebeDadosCliente(cliente);
       } else {
         // remove o cliente.

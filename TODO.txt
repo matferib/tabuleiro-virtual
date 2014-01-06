@@ -1,1 +1,3 @@
 - Adicionar opcao de reiniciar o tabuleiro.
+- Tratar os limites de numero de jogadores e objetos direito (fazer int64?)
+- Tratar movimentos remotamente.

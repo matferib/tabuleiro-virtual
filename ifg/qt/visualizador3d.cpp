@@ -46,6 +46,8 @@ void Visualizador3d::paintGL() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_TEMPORIZADOR:
+      return false;
     case ntf::TN_INICIADO:
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
