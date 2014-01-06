@@ -114,7 +114,7 @@ void Tabuleiro::Desenha() {
   DesenhaCena();
 }
 
-int Tabuleiro::AdicionaEntidade(int id_quadrado) {
+unsigned int Tabuleiro::AdicionaEntidade(int id_quadrado) {
   if (proximo_id_entidade_ >= (1 << 29)) {
     LOG(FATAL) << "Limite de entidades alcançado.";
   }
@@ -125,13 +125,13 @@ int Tabuleiro::AdicionaEntidade(int id_quadrado) {
   return entidade->Id();
 }
 
-int Tabuleiro::AdicionaEntidade(const EntidadeProto& proto) {
+unsigned int Tabuleiro::AdicionaEntidade(const EntidadeProto& proto) {
   auto* entidade = new Entidade(proto);
   entidades_.insert(std::make_pair(entidade->Id(), entidade));
   return entidade->Id();
 }
 
-void Tabuleiro::RemoveEntidade(int id) {
+void Tabuleiro::RemoveEntidade(unsigned int id) {
   MapaEntidades::iterator res_find = entidades_.find(id);
   if (res_find == entidades_.end()) {
     return;
@@ -152,7 +152,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return true;
         }
-        int id_entidade = AdicionaEntidade(quadrado_selecionado_);
+        unsigned int id_entidade = AdicionaEntidade(quadrado_selecionado_);
         SelecionaEntidade(id_entidade);
         estado_ = ETAB_ENT_SELECIONADA;
         ntf::Notificacao* n = new ntf::Notificacao;
@@ -471,7 +471,7 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
   }
 }
 
-void Tabuleiro::SelecionaEntidade(int id) {
+void Tabuleiro::SelecionaEntidade(unsigned int id) {
   VLOG(1) << "selecionando entidade: ";
   Entidade* e = entidades_.find(id)->second;
   entidade_selecionada_ = e; 
@@ -507,7 +507,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   }
   return notificacao;
 }
-
 
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (!entidades_.empty()) {

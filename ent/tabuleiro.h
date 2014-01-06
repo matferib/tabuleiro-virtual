@@ -39,7 +39,7 @@ enum etab_t {
   ETAB_QUAD_SELECIONADO,
 };
 
-typedef std::map<int, Entidade*> MapaEntidades;
+typedef std::map<unsigned int, Entidade*> MapaEntidades;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X Y como base e Z como altura (positivo). */
 class Tabuleiro : public ntf::Receptor {
@@ -60,16 +60,17 @@ class Tabuleiro : public ntf::Receptor {
 
   /** adiciona a entidade ao tabuleiro, no quadrado passado.
   * @param id_quadrado do quadrado no desenho.
+  * @return id da entidade adicionada.
   */
-  int AdicionaEntidade(int id_quadrado);
+  unsigned int AdicionaEntidade(int id_quadrado);
 
   /** Adiciona uma entidade a partir do proto. */
-  int AdicionaEntidade(const EntidadeProto& proto);
+  unsigned int AdicionaEntidade(const EntidadeProto& proto);
 
   /** remove entidade do tabuleiro, pelo id da entidade passado. 
   * @param id da entidade.
   */
-  void RemoveEntidade(int id);
+  void RemoveEntidade(unsigned int id);
 
   /** desenha o mundo. */
   void Desenha();
@@ -107,7 +108,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataClique(unsigned int numero_hits, unsigned int* buffer_hits);
 
   /** seleciona a entidade pelo ID. */ 
-  void SelecionaEntidade(int id);
+  void SelecionaEntidade(unsigned int id);
 
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
@@ -149,11 +150,11 @@ class Tabuleiro : public ntf::Receptor {
   /** usado para restaurar o estado apos rotacao. */
   etab_t estado_anterior_rotacao_;
 
-  /** proximo id de entidades. */
-  unsigned int proximo_id_entidade_;
+  /** proximo id local de entidades. */
+  int proximo_id_entidade_;
 
   /** proximo id de cliente. */
-  unsigned int proximo_id_cliente_;
+  int proximo_id_cliente_;
 
   /** dados (X) para calculo de rotacao de mouse. */
   int rotacao_ultimo_x_; 

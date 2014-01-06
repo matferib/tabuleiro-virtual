@@ -34,7 +34,7 @@ Entidade::Entidade(const EntidadeProto& proto) {
 
 Entidade::~Entidade() {}
 
-int Entidade::Id() const { return proto_.id(); }
+unsigned int Entidade::Id() const { return proto_.id(); }
 
 void Entidade::MovePara(double x, double y, double z) { 
   proto_.set_x(x);

@@ -12,14 +12,17 @@ class Entidade;
 */
 class Entidade {
 public:
-  // Identificador é composto pelo id_criador << 28 | id_local. Portanto, o maximo de jogadores é 16.
+  /** Identificador é composto pelo id_criador << 28 | id_local. Portanto, o maximo de jogadores é 16. 
+  * É importante que o identificador da entidade caiba em um GLuint para permitir realização da operação
+  * de picking no 3d.
+  */
 	Entidade(int id_criador, int id_local, int pontosVida, double x, double y, double z);
   explicit Entidade(const EntidadeProto& proto);
 	virtual ~Entidade();
 
 public:
 	/** @return o identificador da entidade que deve ser unico globalmente. */
-	int Id() const;
+	unsigned int Id() const;
 
 	/** Move a entidade para o ponto especificado. */
 	void MovePara(double x, double y, double z = 0);
