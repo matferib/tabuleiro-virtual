@@ -17,20 +17,24 @@ public:
   * de picking no 3d.
   */
 	Entidade(int id_criador, int id_local, int pontosVida, double x, double y, double z);
+
+  /** Construtor para entidades criadas remotamente. */
   explicit Entidade(const EntidadeProto& proto);
+
+  /** Destroi a entidade. */
 	virtual ~Entidade();
 
 public:
 	/** @return o identificador da entidade que deve ser unico globalmente. */
 	unsigned int Id() const;
 
-	/** Move a entidade para o ponto especificado. */
+	/** Move a entidade para o ponto especificado. Limpa destino. */
 	void MovePara(double x, double y, double z = 0);
 
   /** Atribui um destino a entidade. */
   void Destino(const EntidadeProto& proto);
 
-	/** Atualiza a posição da entidade em direção a seu destino. */
+	/** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
 	void Atualiza();
 
 	/** @return o HP da unidade. */
