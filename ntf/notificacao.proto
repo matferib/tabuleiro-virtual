@@ -21,6 +21,7 @@ enum Tipo {
   TN_SERIALIZAR_TABULEIRO = 17;
   TN_DESERIALIZAR_TABULEIRO = 18;
   TN_MOVER_ENTIDADE = 19;
+  TN_ABRIR_DIALOGO_ENTIDADE = 20;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.

@@ -21,7 +21,7 @@ namespace qt {
 * mouse e repassa ao contexto 3D.  
 */
 class Visualizador3d : public QGLWidget, ntf::Receptor {
-public:
+ public:
   /** constroi a widget do tabuleiro recebendo a widget pai.
   * Nao se torna dono de nada.
   */
@@ -39,10 +39,11 @@ public:
   virtual void paintGL() override;
 
   // funcoes sobrecarregadas mouse
-  void mouseMoveEvent(QMouseEvent* event);
-  void mousePressEvent(QMouseEvent* event); 
-  void mouseReleaseEvent(QMouseEvent* event); 
-  void wheelEvent(QWheelEvent* event);
+  void mouseMoveEvent(QMouseEvent* event) override;
+  void mousePressEvent(QMouseEvent* event) override; 
+  void mouseReleaseEvent(QMouseEvent* event) override; 
+  void mouseDoubleClickEvent(QMouseEvent* event) override;
+  void wheelEvent(QWheelEvent* event) override;
 
   // Interface ntf::Receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;

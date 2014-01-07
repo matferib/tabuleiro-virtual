@@ -38,6 +38,8 @@ message EntidadeProto {
   optional Cor cor = 5;
   // Iluminação da entidade.
   optional Iluminacao luz = 6;
+  // Textura.
+  optional string textura = 7;
 }
 
 // Alguns estados são mantidos nesta variável.

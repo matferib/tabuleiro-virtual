@@ -82,6 +82,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
 
+  /** Trata o click duplo, recebendo x, y (coordenadas opengl) e a razão de aspecto da janela. */
+  void TrataDuploClick(botao_e botao, int x, int y, double aspecto);
+
   /** trata a redimensao da janela. */
   void TrataRedimensionaJanela(int largura, int altura);
 
@@ -98,6 +101,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
   void TrataClique(unsigned int numero_hits, unsigned int* buffer_hits);
+
+  /** Trata o clique duplo, recebendo o numero de hits e o buffer de hits do opengl. */
+  void TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_hits);
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);

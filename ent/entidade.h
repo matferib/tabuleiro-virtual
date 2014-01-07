@@ -72,7 +72,7 @@ class Luz : public Entidade {
   Luz();
 };
 
-}
+}  // namespace ent
 
 #endif
 

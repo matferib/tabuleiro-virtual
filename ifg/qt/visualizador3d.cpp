@@ -1,7 +1,11 @@
 #include <stdexcept>
+#include <QBoxLayout>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QMouseEvent>
 #include <cmath>
 #include <GL/gl.h>
+#include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ent/tabuleiro.h"
 #include "ntf/notificacao.pb.h"
@@ -51,6 +55,21 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       resizeGL(width(), height());
       glDraw();
       break;
+    case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
+      QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
+      qd->setModal(true);
+      QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
+      auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+      lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd] {
+          qd->accept();
+      });
+      connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
+      ql->addWidget(bb);
+      qd->setWindowTitle(tr("Dados da Entidade"));
+      qd->exec();
+      delete qd;
+      break;
+    }
     default: ;
   }
   // Sempre redesenha para evitar qualquer problema de atualizacao.
@@ -76,6 +95,15 @@ void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
   glDraw();
 }
 
+void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
+  int altura = height();
+  double aspecto = static_cast<double>(width()) / altura;
+  tabuleiro_->TrataDuploClick(
+    MapeiaBotao(event->button()), 
+    event->x(), altura - event->y(), aspecto);
+  event->accept();
+}
+
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   tabuleiro_->TrataMovimento(event->x(), (height() - event->y()));
   event->accept();
@@ -87,7 +115,6 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
   event->accept();
   glDraw();
 }
-
 
 
 

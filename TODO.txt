@@ -1,3 +1,5 @@
+- Menu com caracteristicas da entidade.
+- Tirar o evento de movimento ao liberar botao sem movimento.
 - Entidades com gravuras.
 - Tabuleiro com gravuras.
 - Adicionar opcao de reiniciar o tabuleiro.

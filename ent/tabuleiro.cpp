@@ -291,6 +291,16 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspect
   }
 }
 
+void Tabuleiro::TrataDuploClick(botao_e botao, int x, int y, double aspecto) {
+  if (botao == BOTAO_ESQUERDO) {
+    // informacao dos hits. TODO ver esse limite aqui.
+    GLuint buffer_hits[100] = {0};
+    GLuint numero_hits = 0;
+    EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
+    TrataDuploClique(numero_hits, buffer_hits);
+  }
+}
+
 void Tabuleiro::TrataBotaoLiberado() {
   switch (estado_) {
     case ETAB_ROTACAO:
@@ -431,27 +441,37 @@ void Tabuleiro::EncontraHits(
   glMatrixMode(GL_MODELVIEW);
 }
 
-void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits) {
+namespace {
+
+void BuscaHitMaisProximo(
+    unsigned int numero_hits, unsigned int* buffer_hits, GLuint* id, GLuint* pos_pilha) {
   VLOG(1) << "numero de hits: " << (unsigned int)numero_hits;
   GLuint* ptr_hits = buffer_hits;
-  GLuint id = 0, pos_pilha = 0;
+  *id = 0;
+  *pos_pilha = 0;
   GLuint menor_z = 0xFFFFFFFF;
+  // Busca o hit mais proximo.
   for (GLuint i = 0; i < numero_hits; ++i) {
     if (*(ptr_hits + 1) < menor_z) {
-      pos_pilha = *ptr_hits;
-      VLOG(1) << "posicao pilha: " << (unsigned int)(pos_pilha);
+      *pos_pilha = *ptr_hits;
+      VLOG(1) << "posicao pilha: " << (unsigned int)(*pos_pilha);
       menor_z = *(ptr_hits+1); 
       // pula ele mesmo, profundidade e ids anteriores na pilha
-      ptr_hits += (pos_pilha + 2);
-      id = *ptr_hits;
-      VLOG(1) << "id: " << (unsigned int)(id);
+      ptr_hits += (*pos_pilha + 2);
+      *id = *ptr_hits;
+      VLOG(1) << "id: " << (unsigned int)(*id);
       ++ptr_hits;
-    }
-    else {
+    } else {
       VLOG(1) << "pulando objeto mais longe...";
     }
   }
+}
 
+}  // namespace
+
+void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits) {
+  GLuint id = 0, pos_pilha = 0;
+  BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro.
     SelecionaQuadrado(id);
@@ -468,9 +488,31 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
   }
 }
 
+void Tabuleiro::TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_hits) {
+  GLuint id = 0, pos_pilha = 0;
+  BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
+  if (pos_pilha == 1) {
+    // Tabuleiro.
+  } else if (pos_pilha > 1) {
+    // Entidade.
+    SelecionaEntidade(id);
+    estado_ = ETAB_ENT_SELECIONADA;
+    auto* n = new ntf::Notificacao;
+    n->set_tipo(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+    n->mutable_entidade()->CopyFrom(entidade_selecionada_->Proto());
+    central_->AdicionaNotificacao(n);
+  } else {
+    ;
+  }
+}
+
 void Tabuleiro::SelecionaEntidade(unsigned int id) {
   VLOG(1) << "selecionando entidade: ";
-  Entidade* e = entidades_.find(id)->second;
+  auto it = entidades_.find(id);
+  if (it == entidades_.end()) {
+    throw std::logic_error("Entidade inválida");
+  }
+  Entidade* e = it->second;
   entidade_selecionada_ = e; 
   quadrado_selecionado_ = -1;
 }
