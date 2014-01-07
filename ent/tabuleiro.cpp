@@ -77,10 +77,15 @@ void DesenhaQuadrado(GLuint id, bool selecionado) {
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
-// Desenha uma bola amarela.
-void DesenhaLuz() {
-  glColor3ub(255, 255, 0);
-	glutSolidSphere(0.3, 3, 3);
+// Gera um EntidadeProto com os valores passados.
+const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x, double y, double z) {
+  EntidadeProto ep;
+  ep.set_id((id_cliente << 28) | id_entidade);
+  auto* pos = ep.mutable_pos();
+  pos->set_x(x);
+  pos->set_y(y);
+  pos->set_z(z);
+  return ep;
 }
 
 }  // namespace.
@@ -91,11 +96,9 @@ Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) :
     entidade_selecionada_(NULL), 
     quadrado_selecionado_(-1), 
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
-    olho_x_(0), olho_y_(0), olho_z_(0), olho_delta_rotacao_(0), olho_altura_(OLHO_ALTURA_INICIAL), olho_raio_(OLHO_RAIO_INICIAL),
+    olho_x_(0), olho_y_(0), olho_z_(0), olho_delta_rotacao_(0),
+    olho_altura_(OLHO_ALTURA_INICIAL), olho_raio_(OLHO_RAIO_INICIAL),
     central_(central) {
-  parametros_desenho_.desenha_entidades = true;
-  parametros_desenho_.iluminacao = true;
-  parametros_desenho_.desenha_luz = true;
   central_->RegistraReceptor(this);
 }
 
@@ -111,21 +114,9 @@ int Tabuleiro::TamanhoY() const {
 }
 
 void Tabuleiro::Desenha() {
+  parametros_desenho_.Clear();
   DesenhaCena();
 }
-
-namespace {
-const EntidadeProto GeraEntidadeProto(
-    int id_cliente, int id_entidade, double x, double y, double z) {
-  EntidadeProto ep;
-  ep.set_id((id_cliente << 28) | id_entidade);
-  auto* pos = ep.mutable_pos();
-  pos->set_x(x);
-  pos->set_y(y);
-  pos->set_z(z);
-  return ep;
-}
-}  // namespace
 
 void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
   if (!notificacao.has_entidade()) {
@@ -155,59 +146,49 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     entidade->Inicializa(notificacao.entidade());
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
   }
-  ntf::Notificacao* n = new ntf::Notificacao;
-  n->set_tipo(ntf::TN_ENTIDADE_ADICIONADA);
-  central_->AdicionaNotificacao(n);
 }
 
-void Tabuleiro::RemoveEntidade(unsigned int id) {
-  MapaEntidades::iterator res_find = entidades_.find(id);
+void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
+  unsigned int id_remocao = 0;
+  if (notificacao.entidade().has_id()) {
+    // Comando vindo de fora.
+    id_remocao = notificacao.entidade().id();
+  } else if (estado_ == ETAB_ENT_SELECIONADA) {
+    // Remover entidade selecionada local.
+    id_remocao = entidade_selecionada_->Id();
+    // Envia para os clientes.
+    auto* n = new ntf::Notificacao;
+    n->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    n->mutable_entidade()->set_id(id_remocao);
+    central_->AdicionaNotificacaoRemota(n);
+  } else {
+    return;
+  }
+  MapaEntidades::iterator res_find = entidades_.find(id_remocao);
   if (res_find == entidades_.end()) {
     return;
   }
-  entidades_.erase(res_find);
   Entidade* entidade = res_find->second;
   if (entidade_selecionada_ == entidade) {
+    estado_ = ETAB_OCIOSO;
     entidade_selecionada_ = NULL;
   }
   delete entidade;
+  entidades_.erase(res_find);
 }
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_ADICIONAR_ENTIDADE:
-    case ntf::TN_ADICIONAR_LUZ: {
+    case ntf::TN_ADICIONAR_LUZ:
       try {
         AdicionaEntidade(notificacao);
       } catch (const std::logic_error& e) {
         LOG(ERROR) << "Limite de entidades alcançado.";
       }
       return true;
-    }
     case ntf::TN_REMOVER_ENTIDADE: {
-      if (notificacao.entidade().has_id()) {
-        // Comando vindo de fora.
-        unsigned int id_remocao = notificacao.entidade().id();
-        unsigned int id_selecionado = entidade_selecionada_->Id();
-        if (id_remocao == id_selecionado) {
-          estado_ = ETAB_OCIOSO;
-        }
-        RemoveEntidade(id_remocao);
-      } else if (estado_ == ETAB_ENT_SELECIONADA) {
-        // Remover entidade local.
-        unsigned int id = entidade_selecionada_->Id();
-        RemoveEntidade(id);
-        estado_ = ETAB_OCIOSO;
-        auto* n = new ntf::Notificacao;
-        n->set_tipo(ntf::TN_REMOVER_ENTIDADE);
-        n->mutable_entidade()->set_id(id);
-        central_->AdicionaNotificacaoRemota(n);
-      } else {
-        return false;
-      }
-      ntf::Notificacao* n = new ntf::Notificacao;
-      n->set_tipo(ntf::TN_ENTIDADE_REMOVIDA);
-      central_->AdicionaNotificacao(n);
+      RemoveEntidade(notificacao);
       return true;
     }
     case ntf::TN_TEMPORIZADOR: {
@@ -273,13 +254,9 @@ void Tabuleiro::TrataMovimento(int x, int y) {
   } else if (estado_ == ETAB_ENT_PRESSIONADA) {
     // Realiza o movimento da entidade.
     // Transforma x e y em 3D, baseado no nivel do solo.
-    bool desenha_entidades = parametros_desenho_.desenha_entidades;
-    bool desenha_luz = parametros_desenho_.desenha_luz;
-    parametros_desenho_.desenha_entidades = false;
-    parametros_desenho_.desenha_luz = false;
+    parametros_desenho_.set_desenha_entidades(false);
+    parametros_desenho_.set_iluminacao(false);
     DesenhaCena();  // Sem as entidades pra pegar nivel solo.
-    parametros_desenho_.desenha_entidades = desenha_entidades;
-    parametros_desenho_.desenha_luz = desenha_luz;
     GLdouble modelview[16], projection[16];
     GLint viewport[4];
     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
@@ -363,9 +340,7 @@ void Tabuleiro::InicializaGL() {
   glEnable(GL_LIGHTING);
 }
 
-
 // privadas 
-
 void Tabuleiro::DesenhaCena() {
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -382,30 +357,6 @@ void Tabuleiro::DesenhaCena() {
     0, 0, 1.0);
 
   //ceu_.desenha(parametros_desenho_);
-
-  // Objeto de luz. O quarto componente indica que a luz é posicional.
-  // Se for 0, a luz é direcional e os componentes indicam sua direção.
-  GLfloat pos_luz[] = { 0.0f, 0.0f, 1.0f, 1.0f };
-  if (parametros_desenho_.desenha_luz) {
-    glDisable(GL_LIGHTING);
-    glPushMatrix();
-    glTranslated(pos_luz[0], pos_luz[1], pos_luz[2]);
-    DesenhaLuz();
-    glPopMatrix();
-    if (parametros_desenho_.iluminacao) {
-      glEnable(GL_LIGHTING);
-    }
-  }
-  //GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
-  if (parametros_desenho_.iluminacao) {
-    glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
-    glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 0.1);
-    glEnable(GL_LIGHT0);
-  }
-
-  //GLfloat ambient[] = { 1.0, 1.0, 1.0, 1.0 };
-  //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
-
   // desenha tabuleiro de baixo pra cima
   glPushMatrix();
   double deltaX = -TamanhoX() * TAMANHO_GL;
@@ -425,9 +376,12 @@ void Tabuleiro::DesenhaCena() {
     glTranslated(deltaX, TAMANHO_GL, 0);
   }
   glPopMatrix();
-  if (!parametros_desenho_.desenha_entidades) {
+  if (!parametros_desenho_.desenha_entidades()) {
     return;
   }
+
+  //GLfloat ambient[] = { 1.0, 1.0, 1.0, 1.0 };
+  //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
   // desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
@@ -437,15 +391,17 @@ void Tabuleiro::DesenhaCena() {
     GLfloat vermelho[] = { 1.0, 0, 0, 1.0 };
     GLfloat verde[] = { 0, 1.0, 0, 1.0 };
     MudaCor(entidade_selecionada_ == entidade ? verde : vermelho); 
-    entidade->Desenha();
+    entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
+
 }
 
 // Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
 // ou entao aqui http://gpwiki.org/index.php/OpenGL:Tutorials:Picking
 // basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador de quem o acertou
-void Tabuleiro::EncontraHits(int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits) {
+void Tabuleiro::EncontraHits(
+    int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits) {
   // inicia o buffer de picking (selecao)
   glSelectBuffer(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
@@ -463,6 +419,7 @@ void Tabuleiro::EncontraHits(int x, int y, double aspecto, unsigned int* numero_
   gluPerspective(CAMPO_VERTICAL, aspecto, 0.5, 500.0);
 
   // desenha a cena
+  parametros_desenho_.set_iluminacao(false);
   DesenhaCena();
 
   // volta a projecao
@@ -550,7 +507,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
 
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (!entidades_.empty()) {
-    LOG(ERROR) << "Essa mensagem so deveria chegar para clientes novos!!";
+    LOG(ERROR) << "Tabuleiro não está vazio!";
     return;
   }
   if (notificacao.has_erro()) {

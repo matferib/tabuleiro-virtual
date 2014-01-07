@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include "ent/entidade.pb.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -12,14 +13,6 @@ namespace ntf {
 namespace ent {
 
 class Entidade;
-class EntidadeProto;
-class DadosTabuleiro;
-class DadosCriacao;
-
-/** tipos de entidade que podem ser criadas pelo tabuleiro. */
-enum tipoent_e {
-  TIPOENT_MOVEL
-};
 
 /** botoes do mouse. */
 enum botao_e {
@@ -41,7 +34,9 @@ enum etab_t {
 
 typedef std::map<unsigned int, Entidade*> MapaEntidades;
 
-/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X Y como base e Z como altura (positivo). */
+/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X Y como base e
+* Z como altura (positivo pro alto).
+*/
 class Tabuleiro : public ntf::Receptor {
  public:
   /** cria o tabuleiro com o tamanho de grid passado (tamanho x tamanho). 
@@ -63,10 +58,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void AdicionaEntidade(const ntf::Notificacao& notificacao);
 
-  /** remove entidade do tabuleiro, pelo id da entidade passado. 
-  * @param id da entidade.
+  /** remove entidade do tabuleiro, pelo id da entidade passada ou a selecionada. 
   */
-  void RemoveEntidade(unsigned int id);
+  void RemoveEntidade(const ntf::Notificacao& notificacao);
 
   /** desenha o mundo. */
   void Desenha();
@@ -121,12 +115,7 @@ class Tabuleiro : public ntf::Receptor {
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
 
  private:
-  /** Parametros gerais de desenho. */
-  struct ParametrosDesenho {
-    bool desenha_entidades;
-    bool iluminacao;
-    bool desenha_luz;
-  } parametros_desenho_;
+  ParametrosDesenho parametros_desenho_;
 
   /** tamanho do tabuleiro (tamanho_ x tamanho_). */
   int tamanho_;

@@ -12,15 +12,15 @@ message Posicao {
 }
 
 message Cor {
-  optional double red = 1;
-  optional double green = 2;
-  optional double blue = 3;
-  optional double alpha = 4 [default=1.0];
+  optional float red = 1;
+  optional float green = 2;
+  optional float blue = 3;
+  optional float alpha = 4 [default=1.0];
 }
 
 message Iluminacao {
   optional Cor cor = 1;
-  optional double raio = 2;
+  optional float raio = 2;
 }
 
 message EntidadeProto {
@@ -39,3 +39,17 @@ message EntidadeProto {
   // Iluminação da entidade.
   optional Iluminacao luz = 6;
 }
+
+// Alguns estados são mantidos nesta variável.
+message ParametrosDesenho {
+  // Verdadeiro quando se esta desenhando a entidade selecionada.
+  optional bool entidade_selecionada = 1 [default=false];
+  // Verdadeiro quando se quer desenhar as luzes.
+  optional bool iluminacao = 2 [default=true];
+  // Verdadeiro quando se quer desenhar as entidades.
+  optional bool desenha_entidades = 3 [default=true]; 
+  // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
+  optional int32 luz_corrente = 4 [default=1];
+}
+
+

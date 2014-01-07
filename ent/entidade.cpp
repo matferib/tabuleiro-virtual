@@ -30,10 +30,15 @@ Entidade* NovaEntidade(int tipo) {
 }
 
 // Entidade
-Entidade::Entidade() {}
+Entidade::Entidade() {
+  proto_.set_tipo(TE_ENTIDADE);
+}
 
 void Entidade::Inicializa(const EntidadeProto& proto) { 
+  // mantem o tipo.
+  int tipo = proto_.tipo();
   proto_.CopyFrom(proto);
+  proto_.set_tipo(tipo);
 }
 
 Entidade::~Entidade() {}
@@ -96,7 +101,7 @@ double Entidade::Z() const {
 	return proto_.pos().z(); 
 }
 
-void Entidade::Desenha() {
+void Entidade::Desenha(ParametrosDesenho* pd) {
 	glPushMatrix();
 
 	glTranslated(X(), Y(), Z());
@@ -116,12 +121,31 @@ const EntidadeProto& Entidade::Proto() const {
 
 // LUZ
 
-Luz::Luz() {}
+Luz::Luz() {
+  proto_.set_tipo(TE_LUZ);
+}
 
-void Luz::Desenha() {
+void Luz::Desenha(ParametrosDesenho* pd) {
 	glPushMatrix();
 
 	glTranslated(X(), Y(), Z());
+
+  // Objeto de luz. O quarto componente indica que a luz é posicional.
+  // Se for 0, a luz é direcional e os componentes indicam sua direção.
+  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA), 1.0f };
+  GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
+  if (pd->iluminacao()) {
+    int id_luz = pd->luz_corrente();
+    if (id_luz == 0 || id_luz >= 8) {
+      LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
+    } else {
+      glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
+      glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
+      glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0);
+      glEnable(GL_LIGHT0 + id_luz);
+      pd->set_luz_corrente(id_luz + 1);
+    }
+  }
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(Id());

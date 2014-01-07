@@ -48,8 +48,8 @@ class Entidade {
 	/** @return a coordenada (z). */
 	double Z() const;
 	
-	/** desenha o objeto. */
-	virtual void Desenha();
+	/** desenha o objeto. Pode alterar os parametros de desenho. */
+	virtual void Desenha(ParametrosDesenho* pd);
 
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
@@ -58,14 +58,14 @@ class Entidade {
   friend Entidade* NovaEntidade(int tipo);
   Entidade();
 
- private:
+ protected:
   EntidadeProto proto_;
 };
 
 /** Uma entidade de luz. */
 class Luz : public Entidade {
  public:
-	virtual void Desenha();
+	virtual void Desenha(ParametrosDesenho* pd) override;
 
  protected:
   friend Entidade* NovaEntidade(int);
