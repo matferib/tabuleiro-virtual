@@ -8,7 +8,7 @@ namespace ent {
 class Entidade;
 
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
-Entidade* NovaEntidade(int tipo);
+Entidade* NovaEntidade(TipoEntidade tipo);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico. 
@@ -61,11 +61,13 @@ class Entidade {
   const EntidadeProto& Proto() const;
 
  protected:
-  friend Entidade* NovaEntidade(int tipo);
+  friend Entidade* NovaEntidade(TipoEntidade);
   Entidade();
 
  protected:
   EntidadeProto proto_;
+  // Como esse estado é local e não precisa ser salvo, fica aqui.
+  double rotacao_disco_selecao_;
 };
 
 /** Uma entidade de luz. */
@@ -75,7 +77,7 @@ class Luz : public Entidade {
 	virtual void DesenhaLuz(ParametrosDesenho* pd) override;
 
  protected:
-  friend Entidade* NovaEntidade(int);
+  friend Entidade* NovaEntidade(TipoEntidade);
   Luz();
 };
 

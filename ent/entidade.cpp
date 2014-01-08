@@ -26,13 +26,14 @@ void MudaCor(const ent::Cor& cor) {
 namespace ent {
 
 // Factory.
-Entidade* NovaEntidade(int tipo) {
+Entidade* NovaEntidade(TipoEntidade tipo) {
   switch (tipo) {
     case TE_ENTIDADE:
       return new Entidade;
     case TE_LUZ:
       return new Luz;
     default:
+      LOG(ERROR) << "Tipo de entidade inválido: " << tipo;
       return nullptr;
   }
 }
@@ -40,11 +41,12 @@ Entidade* NovaEntidade(int tipo) {
 // Entidade
 Entidade::Entidade() {
   proto_.set_tipo(TE_ENTIDADE);
+  rotacao_disco_selecao_ = 0;
 }
 
 void Entidade::Inicializa(const EntidadeProto& proto) { 
   // mantem o tipo.
-  int tipo = proto_.tipo();
+  TipoEntidade tipo = proto_.tipo();
   proto_.CopyFrom(proto);
   proto_.set_tipo(tipo);
 }
@@ -53,7 +55,7 @@ void Entidade::Atualiza(const EntidadeProto& proto) {
   // mantem o tipo.
   ent::EntidadeProto copia_proto(proto_);
   proto_.CopyFrom(proto);
-  proto_.set_tipo(copia_proto.id());
+  proto_.set_id(copia_proto.id());
   proto_.mutable_pos()->Swap(copia_proto.mutable_pos());
   if (copia_proto.has_destino()) {
     proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
@@ -61,23 +63,9 @@ void Entidade::Atualiza(const EntidadeProto& proto) {
   LOG(INFO) << "Proto: " << proto_.ShortDebugString();
 }
 
-Entidade::~Entidade() {}
-
-unsigned int Entidade::Id() const { return proto_.id(); }
-
-void Entidade::MovePara(double x, double y, double z) { 
-  auto* p = proto_.mutable_pos();
-  p->set_x(x);
-  p->set_y(y);
-  p->set_z(z);
-  proto_.clear_destino();
-}
-
-void Entidade::Destino(const EntidadeProto& proto) { 
-  proto_.mutable_destino()->CopyFrom(proto.destino());
-}
-
 void Entidade::Atualiza() {
+  rotacao_disco_selecao_ = fmod(rotacao_disco_selecao_ + 1.0, 360.0);
+
   if (!proto_.has_destino()) {
     return;
   }
@@ -102,6 +90,23 @@ void Entidade::Atualiza() {
   if (chegou) {
     proto_.clear_destino();
   }
+}
+
+
+Entidade::~Entidade() {}
+
+unsigned int Entidade::Id() const { return proto_.id(); }
+
+void Entidade::MovePara(double x, double y, double z) { 
+  auto* p = proto_.mutable_pos();
+  p->set_x(x);
+  p->set_y(y);
+  p->set_z(z);
+  proto_.clear_destino();
+}
+
+void Entidade::Destino(const EntidadeProto& proto) { 
+  proto_.mutable_destino()->CopyFrom(proto.destino());
 }
 
 int Entidade::PontosVida() const {
@@ -130,8 +135,26 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
   MudaCor(proto_.cor());
 	glLoadName(Id());
   glutSolidCone(RAIO_CONE, ALTURA, NUM_FACES, NUM_LINHAS);
+  glPushMatrix();
 	glTranslated(0, 0, ALTURA);
 	glutSolidSphere(RAIO_ESFERA, NUM_FACES, NUM_FACES);
+  glPopMatrix();
+
+  if (pd->entidade_selecionada()) {
+    glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
+    glNormal3f(0, 0, 1.0f);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(-0.2f, -0.2f);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0.0, 0.0, 0.0);
+    float raio_disco = RAIO_CONE * 1.5f;
+    for (int i = 0; i <= 6; ++i) {
+      float angulo = i * M_PI / 3.0f;
+      glVertex3f(cosf(angulo) * raio_disco, sinf(angulo) * raio_disco, 0.0f);
+    }
+    glEnd();
+    glDisable(GL_POLYGON_OFFSET_FILL);
+  }
 	
 	glPopMatrix();
 }

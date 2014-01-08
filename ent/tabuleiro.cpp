@@ -443,7 +443,7 @@ void Tabuleiro::DesenhaCena() {
   glPushName(0);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
-    GLfloat vermelho[] = { 1.0, 0, 0, 1.0 };
+    parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
     entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
@@ -503,7 +503,10 @@ void Tabuleiro::TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_
   GLuint id = 0, pos_pilha = 0;
   BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
   if (pos_pilha == 1) {
-    // Tabuleiro.
+    // Tabuleiro: cria uma entidade nova.
+    ntf::Notificacao notificacao;
+    notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    AdicionaEntidade(notificacao);
   } else if (pos_pilha > 1) {
     // Entidade.
     SelecionaEntidade(id);
