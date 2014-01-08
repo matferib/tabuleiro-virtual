@@ -5,9 +5,11 @@
 #include <QMouseEvent>
 #include <cmath>
 #include <GL/gl.h>
+#include "ent/tabuleiro.h"
 #include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
-#include "ent/tabuleiro.h"
+#include "ifg/qt/ui/entidade.h"
+#include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
 using namespace ifg::qt;
@@ -27,7 +29,8 @@ ent::botao_e MapeiaBotao(Qt::MouseButton botao) {
 }  // namespace
 
 Visualizador3d::Visualizador3d(ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) : 
-    QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai), central_(central), tabuleiro_(tabuleiro) {
+    QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
+    central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
 }
 
@@ -47,6 +50,42 @@ void Visualizador3d::paintGL() {
   tabuleiro_->Desenha();
 }
 
+namespace {
+
+/** Abre um diálogo editável com as características da entidade. */ 
+ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWidget* pai) {
+  auto* proto = new ent::EntidadeProto(notificacao.entidade());
+  ifg::qt::Ui::DialogoEntidade gerador;
+  auto* dialogo = new QDialog(pai);
+  gerador.setupUi(dialogo);
+  QString id_str;
+  gerador.campo_id->setText(id_str.setNum(proto->id()));
+  gerador.checkbox_cor->setCheckState(proto->has_cor() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_luz->setCheckState(proto->has_luz() ? Qt::Checked : Qt::Unchecked);
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &proto] {
+    if (gerador.checkbox_cor->checkState() == Qt::Checked) {
+      proto->mutable_cor();
+    } else {
+      proto->clear_cor();
+    }
+    if (gerador.checkbox_luz->checkState() == Qt::Checked) {
+      proto->mutable_luz();
+    } else {
+      proto->clear_luz();
+    }
+    dialogo->accept();
+  });
+  lambda_connect(gerador.botoes, SIGNAL(rejected()), [&notificacao, &proto] {
+      delete proto;
+      proto = nullptr;
+  });
+  dialogo->exec();
+  delete dialogo;
+  return proto;
+}
+
+}  // namespace
+
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
@@ -56,18 +95,15 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       glDraw();
       break;
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
-      QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
-      qd->setModal(true);
-      QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-      auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-      lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd] {
-          qd->accept();
-      });
-      connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
-      ql->addWidget(bb);
-      qd->setWindowTitle(tr("Dados da Entidade"));
-      qd->exec();
-      delete qd;
+      auto* entidade = AbreDialogoEntidade(notificacao, this);
+      if (entidade == nullptr) {
+        VLOG(1) << "Alterações descartadas";
+        break;
+      }
+      auto* n = new ntf::Notificacao;
+      n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+      n->mutable_entidade()->Swap(entidade);
+      central_->AdicionaNotificacao(n);
       break;
     }
     default: ;

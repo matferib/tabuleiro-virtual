@@ -15,8 +15,14 @@ Entidade* NovaEntidade(int tipo);
 */
 class Entidade {
  public:
-  /** Construtor para entidades criadas remotamente. */
+  /** Inicializa a entidade, recebendo seu proto diretamente. */
   void Inicializa(const EntidadeProto& proto);
+
+  /** Atualiza a entidade, usando so alguns campos de proto. */
+  void Atualiza(const EntidadeProto& proto);
+
+	/** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
+	void Atualiza();
 
   /** Destroi a entidade. */
 	virtual ~Entidade();
@@ -29,9 +35,6 @@ class Entidade {
 
   /** Atribui um destino a entidade. */
   void Destino(const EntidadeProto& proto);
-
-	/** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
-	void Atualiza();
 
 	/** @return o HP da unidade. */
 	int PontosVida() const;
@@ -48,6 +51,9 @@ class Entidade {
 	/** @return a coordenada (z). */
 	double Z() const;
 	
+  /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
+	virtual void DesenhaLuz(ParametrosDesenho* pd);
+
 	/** desenha o objeto. Pode alterar os parametros de desenho. */
 	virtual void Desenha(ParametrosDesenho* pd);
 
@@ -66,6 +72,7 @@ class Entidade {
 class Luz : public Entidade {
  public:
 	virtual void Desenha(ParametrosDesenho* pd) override;
+	virtual void DesenhaLuz(ParametrosDesenho* pd) override;
 
  protected:
   friend Entidade* NovaEntidade(int);

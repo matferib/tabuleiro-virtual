@@ -107,6 +107,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
+  void DeselecionaEntidade();
 
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
@@ -119,6 +120,14 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
+
+  /** @return a entidade por id, ou nullptr se nao encontrá-la. */
+  Entidade* BuscaEntidade(unsigned int id);
+
+  /** Remove uma entidade pelo id.
+  * @return true se a entidade removida for a selecionada. 
+  */
+  bool RemoveEntidade(unsigned int id);
 
  private:
   ParametrosDesenho parametros_desenho_;

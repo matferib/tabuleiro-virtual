@@ -88,6 +88,35 @@ const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x,
   return ep;
 }
 
+// Busca o hit mais próximo em buffer_hits. Cada posicao do buffer são 3 inteiros:
+// - 0: pos_pilha de nomes;
+// - 1: componente Z do hits.
+// - 2: id do hit.
+void BuscaHitMaisProximo(
+    unsigned int numero_hits, GLuint* buffer_hits, GLuint* id, GLuint* pos_pilha) {
+  VLOG(1) << "numero de hits: " << (unsigned int)numero_hits;
+  GLuint* ptr_hits = buffer_hits;
+  *id = 0;
+  *pos_pilha = 0;
+  GLuint menor_z = 0xFFFFFFFF;
+  // Busca o hit mais proximo.
+  for (GLuint i = 0; i < numero_hits; ++i) {
+    if (*(ptr_hits + 1) < menor_z) {
+      *pos_pilha = *ptr_hits;
+      VLOG(1) << "posicao pilha: " << (unsigned int)(*pos_pilha);
+      menor_z = *(ptr_hits+1); 
+      // pula ele mesmo, profundidade e ids anteriores na pilha
+      ptr_hits += (*pos_pilha + 2);
+      *id = *ptr_hits;
+      VLOG(1) << "id: " << (unsigned int)(*id);
+      ++ptr_hits;
+    } else {
+      VLOG(1) << "pulando objeto mais longe...";
+    }
+  }
+}
+
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) : 
@@ -134,11 +163,10 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     entidade->Inicializa(GeraEntidadeProto(id_cliente_, proximo_id_entidade_++, x, y, z));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
-    estado_ = ETAB_ENT_SELECIONADA;
     // Envia a entidade para os outros.
     auto* n = new ntf::Notificacao;
     n->set_tipo(notificacao.tipo());
-    n->mutable_entidade()->CopyFrom(entidades_.find(entidade->Id())->second->Proto());
+    n->mutable_entidade()->CopyFrom(entidade->Proto());
     central_->AdicionaNotificacaoRemota(n);
   } else {
     // Mensagem veio de fora.
@@ -164,17 +192,9 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
   } else {
     return;
   }
-  MapaEntidades::iterator res_find = entidades_.find(id_remocao);
-  if (res_find == entidades_.end()) {
-    return;
+  if (RemoveEntidade(id_remocao)) {
+    DeselecionaEntidade();
   }
-  Entidade* entidade = res_find->second;
-  if (entidade_selecionada_ == entidade) {
-    estado_ = ETAB_OCIOSO;
-    entidade_selecionada_ = NULL;
-  }
-  delete entidade;
-  entidades_.erase(res_find);
 }
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -204,13 +224,24 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DeserializaTabuleiro(notificacao);
       return true;
     case ntf::TN_MOVER_ENTIDADE: {
-      const auto& e = notificacao.entidade();
-      auto it = entidades_.find(e.id());
-      if (it == entidades_.end()) {
-        LOG(ERROR) << "Entidade invalida: " << e.ShortDebugString();
+      const auto& proto = notificacao.entidade();
+      auto* entidade = BuscaEntidade(proto.id());
+      if (entidade == nullptr) {
+        LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
         return true;
       }
-      it->second->Destino(e);
+      entidade->Destino(proto);
+      return true;
+    }
+    case ntf::TN_ATUALIZAR_ENTIDADE: {
+      const auto& proto = notificacao.entidade();
+      auto* entidade = BuscaEntidade(proto.id());
+      if (entidade == nullptr) {
+        LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
+        return true;
+      }
+      entidade->Atualiza(proto);
+      central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
       return true;
     }
     default:
@@ -316,7 +347,6 @@ void Tabuleiro::TrataBotaoLiberado() {
       p->set_y(entidade_selecionada_->Y());
       p->set_z(entidade_selecionada_->Z());
       central_->AdicionaNotificacaoRemota(n);
-      estado_ = ETAB_ENT_SELECIONADA;
       return;
     }
     case ETAB_QUAD_PRESSIONADO:
@@ -325,7 +355,6 @@ void Tabuleiro::TrataBotaoLiberado() {
     default:
       ;
   }
-  estado_ = ETAB_OCIOSO;
 }
 
 
@@ -354,6 +383,9 @@ void Tabuleiro::InicializaGL() {
 void Tabuleiro::DesenhaCena() {
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
+  for (int i = 1; i < 8; ++i) {
+    glDisable(GL_LIGHT0 + i);
+  }
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   gluLookAt(
@@ -365,6 +397,13 @@ void Tabuleiro::DesenhaCena() {
     olho_x_, olho_y_, olho_z_,
     // up
     0, 0, 1.0);
+
+  // Posiciona as luzes.
+  if (parametros_desenho_.iluminacao()) {
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      it->second->DesenhaLuz(&parametros_desenho_);
+    }
+  }
 
   //ceu_.desenha(parametros_desenho_);
   // desenha tabuleiro de baixo pra cima
@@ -404,12 +443,12 @@ void Tabuleiro::DesenhaCena() {
     entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
-
 }
 
 // Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
 // ou entao aqui http://gpwiki.org/index.php/OpenGL:Tutorials:Picking
-// basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador de quem o acertou
+// basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a 
+// profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(
     int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits) {
   // inicia o buffer de picking (selecao)
@@ -441,50 +480,18 @@ void Tabuleiro::EncontraHits(
   glMatrixMode(GL_MODELVIEW);
 }
 
-namespace {
-
-void BuscaHitMaisProximo(
-    unsigned int numero_hits, unsigned int* buffer_hits, GLuint* id, GLuint* pos_pilha) {
-  VLOG(1) << "numero de hits: " << (unsigned int)numero_hits;
-  GLuint* ptr_hits = buffer_hits;
-  *id = 0;
-  *pos_pilha = 0;
-  GLuint menor_z = 0xFFFFFFFF;
-  // Busca o hit mais proximo.
-  for (GLuint i = 0; i < numero_hits; ++i) {
-    if (*(ptr_hits + 1) < menor_z) {
-      *pos_pilha = *ptr_hits;
-      VLOG(1) << "posicao pilha: " << (unsigned int)(*pos_pilha);
-      menor_z = *(ptr_hits+1); 
-      // pula ele mesmo, profundidade e ids anteriores na pilha
-      ptr_hits += (*pos_pilha + 2);
-      *id = *ptr_hits;
-      VLOG(1) << "id: " << (unsigned int)(*id);
-      ++ptr_hits;
-    } else {
-      VLOG(1) << "pulando objeto mais longe...";
-    }
-  }
-}
-
-}  // namespace
-
 void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits) {
   GLuint id = 0, pos_pilha = 0;
   BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro.
     SelecionaQuadrado(id);
-    estado_ = ETAB_QUAD_PRESSIONADO; 
   } else if (pos_pilha > 1) {
     // Entidade.
     SelecionaEntidade(id);
     estado_ = ETAB_ENT_PRESSIONADA;
-    VLOG(1) << "Entidade x: " << entidade_selecionada_->X() << ", y: " << entidade_selecionada_->Y();
   } else {
-    entidade_selecionada_ = NULL;
-    quadrado_selecionado_ = -1; 
-    estado_ = ETAB_OCIOSO;
+    DeselecionaEntidade();
   }
 }
 
@@ -496,7 +503,6 @@ void Tabuleiro::TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_
   } else if (pos_pilha > 1) {
     // Entidade.
     SelecionaEntidade(id);
-    estado_ = ETAB_ENT_SELECIONADA;
     auto* n = new ntf::Notificacao;
     n->set_tipo(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
     n->mutable_entidade()->CopyFrom(entidade_selecionada_->Proto());
@@ -508,18 +514,25 @@ void Tabuleiro::TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_
 
 void Tabuleiro::SelecionaEntidade(unsigned int id) {
   VLOG(1) << "selecionando entidade: ";
-  auto it = entidades_.find(id);
-  if (it == entidades_.end()) {
+  auto* entidade = BuscaEntidade(id);
+  if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  Entidade* e = it->second;
-  entidade_selecionada_ = e; 
+  entidade_selecionada_ = entidade; 
   quadrado_selecionado_ = -1;
+  estado_ = ETAB_ENT_SELECIONADA;
+}
+
+void Tabuleiro::DeselecionaEntidade() {
+  entidade_selecionada_ = nullptr; 
+  quadrado_selecionado_ = -1;
+  estado_ = ETAB_OCIOSO;
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   quadrado_selecionado_ = id_quadrado; 
-  entidade_selecionada_ = NULL;
+  entidade_selecionada_ = nullptr;
+  estado_ = ETAB_QUAD_PRESSIONADO; 
 }
 
 void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z) {
@@ -566,6 +579,23 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     e->Inicializa(ep);
     entidades_.insert({ e->Id(), e });
   }
+}
+
+Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
+  auto it = entidades_.find(id);
+  return (it != entidades_.end()) ? it->second : nullptr;
+}
+
+bool Tabuleiro::RemoveEntidade(unsigned int id) {
+  MapaEntidades::iterator res_find = entidades_.find(id);
+  if (res_find == entidades_.end()) {
+    return false;
+  }
+  Entidade* entidade = res_find->second;
+  entidades_.erase(res_find);
+  delete entidade;
+  // Retorna so o endereco, apenas para verificacao.
+  return entidade == entidade_selecionada_;
 }
 
 

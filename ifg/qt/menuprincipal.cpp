@@ -19,61 +19,64 @@ using namespace ifg::qt;
 // enumeracao com os menus e seus items
 namespace {
 
-enum menu_e { ME_JOGO, ME_ENTIDADES, ME_SOBRE, ME_NUM }; // menus da barra
-
-unsigned int numItems[] = { 4, 5, 1 }; // numero de items em cada menu, incluindo sep
+enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE, ME_NUM }; // menus da barra
 
 enum menuitem_e { // items de cada menu 
-  MI_INICIAR, MI_CONECTAR, MI_SEP, MI_SAIR,
-  MI_ADICIONAR = 0, MI_ADICIONAR_LUZ, MI_REMOVER, MI_SALVAR, MI_RESTAURAR,
-  MI_TABVIRT = 0
+  MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
+  MI_ILUMINACAO = 0, MI_SALVAR, MI_RESTAURAR,
+  MI_ADICIONAR = 0, MI_ADICIONAR_LUZ, MI_REMOVER,
+  MI_TABVIRT = 0,
+  MI_SEP = 0
+};
+
+const char* g_fim = "FIM";
+
+// Strs de cada menu.
+const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Sobre" };
+
+// Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
+const char* g_menuitem_strs[] = {
+  // jogo
+  "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
+  // Tabuleiro.
+  "&Iluminação", nullptr, "&Salvar", "R&estaurar", g_fim,
+  // Entidades. 
+  "&Adicionar", "Adicionar &Luz", "&Remover", g_fim,
+  // Sobre
+  "&Tabuleiro virtual", g_fim,
 };
 
 }  // namespace
 
-MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai) : QMenuBar(pai), central_(central) {
-  // strs de cada menu
-  const char* menuStrs[] = { "&Jogo", "J&ogadores", "&Sobre" };
-  // strs dos items de cada menu
-  const char* menuitemStrs[] = {
-    // jogo
-    ("&Iniciar jogo mestre"), ("&Conectar no jogo mestre"), NULL, ("&Sair"),
-    // jogadores
-    ("&Adicionar"), ("Adicionar &Luz"), ("&Remover"), NULL, ("&Salvar"), ("R&estaurar"),
-    // sobre
-    ("&Tabuleiro virtual")
-  };
+MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai)
+    : QMenuBar(pai), central_(central) {
   // inicio das strings para o menu corrente
-  unsigned int controleItemInicio = 0;
+  unsigned int controle_item = 0;
   for (
-    unsigned int controleMenu = ME_JOGO; 
-    controleMenu < ME_NUM; 
-    ++controleMenu
+    unsigned int controle_menu = ME_JOGO; 
+    controle_menu < ME_NUM; 
+    ++controle_menu
   ) {
-    QMenu* menu = new QMenu(tr(menuStrs[controleMenu]), this);
+    QMenu* menu = new QMenu(tr(g_menu_strs[controle_menu]), this);
     menus_.push_back(menu);
     // para cada item no menu, cria os items (acoes)
     acoes_.push_back(std::vector<QAction*>());
-    for (
-      unsigned int controleItem = 0; 
-      controleItem < numItems[controleMenu]; 
-      ++controleItem
-    ) {
-      const char* menuItemStr = menuitemStrs[controleItemInicio + controleItem];
-      if (menuItemStr != NULL) {
+    const char* menuitem_str = nullptr;
+    while ((menuitem_str = g_menuitem_strs[controle_item]) != g_fim) {
+      if (menuitem_str != nullptr) {
         // menuitem nao NULL, adiciona normalmente da lista de menuitems
         // incrementando para o proximo no final
-        QAction* acao = new QAction(tr(menuItemStr), menu);
-        acoes_[controleMenu].push_back(acao);
+        auto* acao = new QAction(tr(menuitem_str), menu);
+        acoes_[controle_menu].push_back(acao);
         menu->addAction(acao);
-      }
-      else {
+      } else {
         // menuitem NULL, adiciona separador e a acao NULL para manter contador
-        acoes_[controleMenu].push_back(NULL);
+        //acoes_[controle_menu].push_back(nullptr);
         menu->addSeparator();
       }
+      ++controle_item;
     }
-    controleItemInicio += numItems[controleMenu];
+    ++controle_item;  // pula o FIM.
     // adiciona os menus ao menu principal
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoItem(QAction*)));
     addMenu(menu);

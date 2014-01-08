@@ -41,6 +41,18 @@ void Entidade::Inicializa(const EntidadeProto& proto) {
   proto_.set_tipo(tipo);
 }
 
+void Entidade::Atualiza(const EntidadeProto& proto) { 
+  // mantem o tipo.
+  ent::EntidadeProto copia_proto(proto_);
+  proto_.CopyFrom(proto);
+  proto_.set_tipo(copia_proto.id());
+  proto_.mutable_pos()->Swap(copia_proto.mutable_pos());
+  if (copia_proto.has_destino()) {
+    proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
+  }
+  LOG(INFO) << "Proto: " << proto_.ShortDebugString();
+}
+
 Entidade::~Entidade() {}
 
 unsigned int Entidade::Id() const { return proto_.id(); }
@@ -115,6 +127,30 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 	glPopMatrix();
 }
 
+void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
+  if (!pd->iluminacao() || !proto_.has_luz()) {
+    return;
+  }
+
+  // Objeto de luz. O quarto componente indica que a luz é posicional.
+  // Se for 0, a luz é direcional e os componentes indicam sua direção.
+  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA), 1.0f };
+  GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
+  glPushMatrix();
+  glTranslated(X(), Y(), Z());
+  int id_luz = pd->luz_corrente();
+  if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
+    LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
+  } else {
+    glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
+    glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
+    glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0);
+    glEnable(GL_LIGHT0 + id_luz);
+    pd->set_luz_corrente(id_luz + 1);
+  }
+  glPopMatrix();
+}
+
 const EntidadeProto& Entidade::Proto() const {
   return proto_;
 }
@@ -125,9 +161,8 @@ Luz::Luz() {
   proto_.set_tipo(TE_LUZ);
 }
 
-void Luz::Desenha(ParametrosDesenho* pd) {
+void Luz::DesenhaLuz(ParametrosDesenho* pd) {
 	glPushMatrix();
-
 	glTranslated(X(), Y(), Z());
 
   // Objeto de luz. O quarto componente indica que a luz é posicional.
@@ -136,7 +171,7 @@ void Luz::Desenha(ParametrosDesenho* pd) {
   GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
   if (pd->iluminacao()) {
     int id_luz = pd->luz_corrente();
-    if (id_luz == 0 || id_luz >= 8) {
+    if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
       LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
     } else {
       glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
@@ -146,6 +181,13 @@ void Luz::Desenha(ParametrosDesenho* pd) {
       pd->set_luz_corrente(id_luz + 1);
     }
   }
+	glPopMatrix();
+}
+
+void Luz::Desenha(ParametrosDesenho* pd) {
+	glPushMatrix();
+
+	glTranslated(X(), Y(), Z());
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(Id());

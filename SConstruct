@@ -65,9 +65,9 @@ env.Program(
 		# notificacoes.
 		ntf_proto[0], cNtf, 
 		# interface QT
-		cPrincipal, cMenuPrincipal, cVisualizador3d, 
+		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # ent.
-		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade, cUtil
+		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade
 	]
 )
 

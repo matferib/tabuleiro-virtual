@@ -12,15 +12,16 @@ message Posicao {
 }
 
 message Cor {
-  optional float red = 1;
-  optional float green = 2;
-  optional float blue = 3;
+  optional float red = 1 [default=1.0];
+  optional float green = 2 [default=1.0];
+  optional float blue = 3 [default=1.0];
   optional float alpha = 4 [default=1.0];
 }
 
 message Iluminacao {
   optional Cor cor = 1;
   optional float raio = 2;
+  optional float atenuacao = 3;
 }
 
 message EntidadeProto {
@@ -52,6 +53,8 @@ message ParametrosDesenho {
   optional bool desenha_entidades = 3 [default=true]; 
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
   optional int32 luz_corrente = 4 [default=1];
+  // OpenGL permite até 8 luzes simultaneas.
+  optional int32 max_num_luzes = 5 [default=8];
 }
 
 
