@@ -1,8 +1,7 @@
-- Menu com caracteristicas da entidade.
-- Tirar o evento de movimento ao liberar botao sem movimento.
+- Adicionar mais dados a entidades (por exemplo, tamanho).
 - Entidades com gravuras.
 - Tabuleiro com gravuras.
+- Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
-- Adicionar mais dados a entidades (por exemplo, tamanho, cor e iluminação).
 - Adicionar mais opcoes ao tabuleiro (por exemplo, iluminacao, cor etc).
 - Tooltip.
