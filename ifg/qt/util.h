@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+class QColor;
+
 // O objetivo desta classe eh permitir a utilizacao de lambdas nas funcoes de conexao do QT.
 // Fonte: http://blog.codef00.com/2011/03/27/combining-qts-signals-and-slots-with-c0x-lamdas/
 

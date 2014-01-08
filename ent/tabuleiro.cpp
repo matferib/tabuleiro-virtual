@@ -77,6 +77,7 @@ void DesenhaQuadrado(GLuint id, bool selecionado) {
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
+// TODO: mover para entidade.
 // Gera um EntidadeProto com os valores passados.
 const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x, double y, double z) {
   EntidadeProto ep;
@@ -85,6 +86,11 @@ const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x,
   pos->set_x(x);
   pos->set_y(y);
   pos->set_z(z);
+  // Verde.
+  auto* cor = ep.mutable_cor();
+  cor->set_r(0);
+  cor->set_g(1.0);
+  cor->set_b(0);
   return ep;
 }
 
@@ -438,8 +444,6 @@ void Tabuleiro::DesenhaCena() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     GLfloat vermelho[] = { 1.0, 0, 0, 1.0 };
-    GLfloat verde[] = { 0, 1.0, 0, 1.0 };
-    MudaCor(entidade_selecionada_ == entidade ? verde : vermelho); 
     entidade->Desenha(&parametros_desenho_);
   }
   glPopName();

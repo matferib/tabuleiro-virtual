@@ -14,6 +14,9 @@
   <property name="windowTitle">
    <string>Propriedades da Entidade</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -30,27 +33,27 @@
     <enum>Qt::Horizontal</enum>
    </property>
    <property name="standardButtons">
-    <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+    <set>QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>100</x>
      <y>10</y>
-     <width>371</width>
+     <width>181</width>
      <height>41</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
+    <item alignment="Qt::AlignRight">
      <widget class="QLabel" name="label">
       <property name="text">
        <string>Id</string>
       </property>
      </widget>
     </item>
-    <item>
+    <item alignment="Qt::AlignLeft">
      <widget class="QLineEdit" name="campo_id">
       <property name="readOnly">
        <bool>true</bool>
@@ -64,20 +67,23 @@
     <rect>
      <x>20</x>
      <y>50</y>
-     <width>371</width>
+     <width>361</width>
      <height>41</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
      <widget class="QCheckBox" name="checkbox_cor">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="text">
        <string>Cor</string>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="botao_cor">
       <property name="text">
        <string>Escolher Cor</string>
       </property>
@@ -90,7 +96,7 @@
     <rect>
      <x>20</x>
      <y>90</y>
-     <width>371</width>
+     <width>361</width>
      <height>41</height>
     </rect>
    </property>
@@ -103,7 +109,10 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pushButton_2">
+     <widget class="QPushButton" name="botao_luz">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="text">
        <string>Escolher Cor</string>
       </property>

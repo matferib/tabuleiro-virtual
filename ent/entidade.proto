@@ -12,10 +12,10 @@ message Posicao {
 }
 
 message Cor {
-  optional float red = 1 [default=1.0];
-  optional float green = 2 [default=1.0];
-  optional float blue = 3 [default=1.0];
-  optional float alpha = 4 [default=1.0];
+  optional float r = 1 [default=1.0];
+  optional float g = 2 [default=1.0];
+  optional float b = 3 [default=1.0];
+  optional float a = 4 [default=1.0];
 }
 
 message Iluminacao {

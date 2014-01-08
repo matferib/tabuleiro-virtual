@@ -13,6 +13,14 @@ const double ALTURA = 1.5;
 const double RAIO_CONE = 0.5;
 const double RAIO_ESFERA = 0.3;
 const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo por chamada de atualizacao.
+
+/** Altera a cor corrente para cor. */
+void MudaCor(const ent::Cor& cor) {
+  GLfloat cor_gl[] = { cor.r(), cor.g(), cor.b(), cor.a() };
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor_gl);
+  glColor3fv(cor_gl);
+}
+
 }  // namespace
 
 namespace ent {
@@ -119,6 +127,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 	glTranslated(X(), Y(), Z());
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  MudaCor(proto_.cor());
 	glLoadName(Id());
   glutSolidCone(RAIO_CONE, ALTURA, NUM_FACES, NUM_LINHAS);
 	glTranslated(0, 0, ALTURA);
@@ -135,7 +144,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   // Objeto de luz. O quarto componente indica que a luz é posicional.
   // Se for 0, a luz é direcional e os componentes indicam sua direção.
   GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA), 1.0f };
-  GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
+  const ent::Cor& cor = proto_.luz().cor();
+  GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
   glPushMatrix();
   glTranslated(X(), Y(), Z());
   int id_luz = pd->luz_corrente();
