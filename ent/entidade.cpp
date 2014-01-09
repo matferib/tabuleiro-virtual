@@ -6,13 +6,15 @@
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
+namespace ent {
+
 namespace {
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
 const double ALTURA = 1.5;
-const double RAIO_CONE = 0.5;
+const double RAIO_CONE = 0.75;
 const double RAIO_ESFERA = 0.3;
-const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo por chamada de atualizacao.
+const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
 /** Altera a cor corrente para cor. */
 void MudaCor(const ent::Cor& cor) {
@@ -21,9 +23,23 @@ void MudaCor(const ent::Cor& cor) {
   glColor3fv(cor_gl);
 }
 
+// Multiplicador de dimensão por tamanho de entidade.
+float CalculaMultiplicador(TamanhoEntidade tamanho) {
+  switch (tamanho) {
+    case ent::TM_MINUSCULO: return 0.4f;
+    case ent::TM_DIMINUTO: return 0.5f;
+    case ent::TM_MIUDO: return 0.6f;
+    case ent::TM_PEQUENO: return 0.7f;
+    case ent::TM_MEDIO: return 1.0f;
+    case ent::TM_GRANDE: return 2.0f;
+    case ent::TM_ENORME: return 3.0f;
+    case ent::TM_IMENSO: return 4.0f;
+    case ent::TM_COLOSSAL: return 5.0f;
+  }
+  LOG(ERROR) << "Tamanho inválido: " << tamanho;
+  return 1.0f;
+}
 }  // namespace
-
-namespace ent {
 
 // Factory.
 Entidade* NovaEntidade(TipoEntidade tipo) {
@@ -134,10 +150,12 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   MudaCor(proto_.cor());
 	glLoadName(Id());
-  glutSolidCone(RAIO_CONE, ALTURA, NUM_FACES, NUM_LINHAS);
+  float multiplicador = CalculaMultiplicador(proto_.tamanho());
+  // Aplica uma pequena diminuição para não ocupar o quadrado todo.
+  glutSolidCone(RAIO_CONE * multiplicador - 0.2f, ALTURA * multiplicador, NUM_FACES, NUM_LINHAS);
   glPushMatrix();
-	glTranslated(0, 0, ALTURA);
-	glutSolidSphere(RAIO_ESFERA, NUM_FACES, NUM_FACES);
+	glTranslated(0, 0, ALTURA * multiplicador);
+	glutSolidSphere(RAIO_ESFERA * multiplicador, NUM_FACES, NUM_FACES);
   glPopMatrix();
 
   if (pd->entidade_selecionada()) {
@@ -147,7 +165,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glPolygonOffset(-0.2f, -0.2f);
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0, 0.0, 0.0);
-    float raio_disco = RAIO_CONE * 1.5f;
+    float raio_disco = RAIO_CONE * multiplicador * 1.2f;
     for (int i = 0; i <= 6; ++i) {
       float angulo = i * M_PI / 3.0f;
       glVertex3f(cosf(angulo) * raio_disco, sinf(angulo) * raio_disco, 0.0f);
@@ -166,7 +184,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
   // Objeto de luz. O quarto componente indica que a luz é posicional.
   // Se for 0, a luz é direcional e os componentes indicam sua direção.
-  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA), 1.0f };
+  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA * CalculaMultiplicador(proto_.tamanho())), 1.0f };
   const ent::Cor& cor = proto_.luz().cor();
   GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
   glPushMatrix();
@@ -200,7 +218,7 @@ void Luz::DesenhaLuz(ParametrosDesenho* pd) {
 
   // Objeto de luz. O quarto componente indica que a luz é posicional.
   // Se for 0, a luz é direcional e os componentes indicam sua direção.
-  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA), 1.0f };
+  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA * CalculaMultiplicador(proto_.tamanho())), 1.0f };
   GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
   if (pd->iluminacao()) {
     int id_luz = pd->luz_corrente();
@@ -209,7 +227,9 @@ void Luz::DesenhaLuz(ParametrosDesenho* pd) {
     } else {
       glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
       glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-      glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0);
+      glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0f);
+      //glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, 1.0f);
+      glLightf(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.04f);
       glEnable(GL_LIGHT0 + id_luz);
       pd->set_luz_corrente(id_luz + 1);
     }

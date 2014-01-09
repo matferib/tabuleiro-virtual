@@ -103,14 +103,39 @@ const QString CorParaEstilo(const ent::Cor& cor) {
   return CorParaEstilo(ProtoParaCor(cor));
 }
 
+// Converte um tamanho em string.
+const QString TamanhoParaTexto(int tamanho) {
+  string str;
+  switch (tamanho) {
+    case ent::TM_MINUSCULO: return QObject::tr("(minúsculo)");
+    case ent::TM_DIMINUTO: return QObject::tr("(diminuto)");
+    case ent::TM_MIUDO: return QObject::tr("(miudo)");
+    case ent::TM_PEQUENO: return QObject::tr("(pequeno)");
+    case ent::TM_MEDIO: return QObject::tr("(médio)");
+    case ent::TM_GRANDE: return QObject::tr("(grande)");
+    case ent::TM_ENORME: return QObject::tr("(enorme)");
+    case ent::TM_IMENSO: return QObject::tr("(imenso)");
+    case ent::TM_COLOSSAL: return QObject::tr("(colossal)");
+  }
+  LOG(ERROR) << "Tamanho inválido: " << tamanho;
+  return QObject::tr("desconhecido");
+}
+
 /** Abre um diálogo editável com as características da entidade. */ 
 ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWidget* pai) {
   auto* proto = new ent::EntidadeProto(notificacao.entidade());
   ifg::qt::Ui::DialogoEntidade gerador;
   auto* dialogo = new QDialog(pai);
   gerador.setupUi(dialogo);
+  // ID.
   QString id_str;
   gerador.campo_id->setText(id_str.setNum(proto->id()));
+  // Tamanho.
+  gerador.slider_tamanho->setSliderPosition(proto->tamanho());
+  gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
+  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador] () {
+    gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
+  });
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(proto->cor());
@@ -151,6 +176,7 @@ ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWi
   });
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &proto, &ent_cor, &luz_cor] {
+    proto->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     if (gerador.checkbox_cor->checkState() == Qt::Checked) {
       proto->mutable_cor()->Swap(ent_cor.mutable_cor());
     } else {
