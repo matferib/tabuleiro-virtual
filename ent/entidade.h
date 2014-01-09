@@ -70,17 +70,6 @@ class Entidade {
   double rotacao_disco_selecao_;
 };
 
-/** Uma entidade de luz. */
-class Luz : public Entidade {
- public:
-	virtual void Desenha(ParametrosDesenho* pd) override;
-	virtual void DesenhaLuz(ParametrosDesenho* pd) override;
-
- protected:
-  friend Entidade* NovaEntidade(TipoEntidade);
-  Luz();
-};
-
 }  // namespace ent
 
 #endif

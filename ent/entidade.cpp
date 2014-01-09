@@ -6,8 +6,6 @@
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
-namespace ent {
-
 namespace {
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
@@ -46,8 +44,6 @@ Entidade* NovaEntidade(TipoEntidade tipo) {
   switch (tipo) {
     case TE_ENTIDADE:
       return new Entidade;
-    case TE_LUZ:
-      return new Luz;
     default:
       LOG(ERROR) << "Tipo de entidade inválido: " << tipo;
       return nullptr;
@@ -107,7 +103,6 @@ void Entidade::Atualiza() {
     proto_.clear_destino();
   }
 }
-
 
 Entidade::~Entidade() {}
 
@@ -196,6 +191,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
     glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
     glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0);
+    glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.05);
+    glLightf(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.05);
     glEnable(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }
@@ -204,50 +201,6 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
 const EntidadeProto& Entidade::Proto() const {
   return proto_;
-}
-
-// LUZ
-
-Luz::Luz() {
-  proto_.set_tipo(TE_LUZ);
-}
-
-void Luz::DesenhaLuz(ParametrosDesenho* pd) {
-	glPushMatrix();
-	glTranslated(X(), Y(), Z());
-
-  // Objeto de luz. O quarto componente indica que a luz é posicional.
-  // Se for 0, a luz é direcional e os componentes indicam sua direção.
-  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA * CalculaMultiplicador(proto_.tamanho())), 1.0f };
-  GLfloat cor_luz[] = { 1.0, 1.0, 1.0, 1.0 };
-  if (pd->iluminacao()) {
-    int id_luz = pd->luz_corrente();
-    if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
-      LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
-    } else {
-      glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
-      glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-      glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0f);
-      //glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, 1.0f);
-      glLightf(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.04f);
-      glEnable(GL_LIGHT0 + id_luz);
-      pd->set_luz_corrente(id_luz + 1);
-    }
-  }
-	glPopMatrix();
-}
-
-void Luz::Desenha(ParametrosDesenho* pd) {
-	glPushMatrix();
-
-	glTranslated(X(), Y(), Z());
-
-	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-	glLoadName(Id());
-	glTranslated(0, 0, ALTURA);
-	glutSolidSphere(RAIO_ESFERA, NUM_FACES, NUM_FACES);
-	
-	glPopMatrix();
 }
 
 }  // namespace ent

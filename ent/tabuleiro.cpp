@@ -164,8 +164,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     }
     double x, y, z;
     CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-    auto* entidade =
-      NovaEntidade(notificacao.tipo() == ntf::TN_ADICIONAR_ENTIDADE ? TE_ENTIDADE : TE_LUZ);
+    auto* entidade = NovaEntidade(TE_ENTIDADE);
     entidade->Inicializa(GeraEntidadeProto(id_cliente_, proximo_id_entidade_++, x, y, z));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
@@ -206,7 +205,6 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_ADICIONAR_ENTIDADE:
-    case ntf::TN_ADICIONAR_LUZ:
       try {
         AdicionaEntidade(notificacao);
       } catch (const std::logic_error& e) {

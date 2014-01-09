@@ -2,7 +2,6 @@ package ent;
 
 enum TipoEntidade {
   TE_ENTIDADE = 0;
-  TE_LUZ = 1;
 }
 
 enum TamanhoEntidade {

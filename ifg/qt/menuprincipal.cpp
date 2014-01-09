@@ -24,7 +24,7 @@ enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE, ME_NUM }; // menus 
 enum menuitem_e { // items de cada menu 
   MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
   MI_ILUMINACAO = 0, MI_SALVAR, MI_RESTAURAR,
-  MI_ADICIONAR = 0, MI_ADICIONAR_LUZ, MI_REMOVER,
+  MI_ADICIONAR = 0, MI_REMOVER,
   MI_TABVIRT = 0,
   MI_SEP = 0
 };
@@ -41,7 +41,7 @@ const char* g_menuitem_strs[] = {
   // Tabuleiro.
   "&Iluminação", nullptr, "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
-  "&Adicionar", "Adicionar &Luz", "&Remover", g_fim,
+  "&Adicionar", "&Remover", g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
@@ -183,9 +183,6 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-  } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR_LUZ]) {
-    notificacao = new ntf::Notificacao; 
-    notificacao->set_tipo(ntf::TN_ADICIONAR_LUZ);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 

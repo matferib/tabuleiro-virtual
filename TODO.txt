@@ -1,6 +1,7 @@
 - Adicionar mais dados a entidades (por exemplo, tamanho).
 - Entidades com gravuras.
 - Tabuleiro com gravuras.
+- Opções de salvar e restaurar.
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
 - Adicionar mais opcoes ao tabuleiro (por exemplo, iluminacao, cor etc).
