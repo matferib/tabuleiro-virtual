@@ -165,6 +165,8 @@ ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWi
     }
     dialogo->accept();
   });
+  // TODO: Ao aplicar as mudanças refresca e nao fecha.
+
   // Cancelar.
   lambda_connect(gerador.botoes, SIGNAL(rejected()), [&notificacao, &proto] {
       delete proto;
@@ -315,7 +317,7 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  tabuleiro_->TrataMovimento(event->x(), (height() - event->y()));
+  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()));
   event->accept();
   glDraw();
 }

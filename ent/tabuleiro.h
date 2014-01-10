@@ -27,6 +27,7 @@ enum botao_e {
 enum etab_t {
   ETAB_OCIOSO,
   ETAB_ROTACAO,
+  ETAB_DESLIZANDO,
   ETAB_ENT_PRESSIONADA,
   ETAB_ENT_SELECIONADA,
   ETAB_QUAD_PRESSIONADO,
@@ -71,7 +72,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRodela(int delta);
 
   /** trata movimento do mouse (y ja em coordenadas opengl). */
-  void TrataMovimento(int x, int y);
+  void TrataMovimento(botao_e botao, int x, int y);
 
   /** trata o botao do mouse liberado. */
   void TrataBotaoLiberado();
@@ -107,7 +108,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o clique duplo, recebendo o numero de hits e o buffer de hits do opengl. */
   void TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits);
   /** Trata o duplo clique com botao direito. */
-  void TrataDuploCliqueDireito(unsigned int numero_hits, unsigned int* buffer_hits);
+  void TrataDuploCliqueDireito(int x, int y);
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
@@ -165,9 +166,9 @@ class Tabuleiro : public ntf::Receptor {
   /** proximo id de cliente. */
   int proximo_id_cliente_;
 
-  /** dados (X) para calculo de rotacao de mouse. */
+  /** dados (X) para calculo de mouse. */
   int ultimo_x_; 
-  /** dados (Y) para calculo de rotacao de mouse. */
+  /** dados (Y) para calculo de mouse. */
   int ultimo_y_; 
 
   // Para onde o olho olha.

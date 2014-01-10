@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'entidadeNh9171.ui'
+** Form generated from reading UI file 'entidadez25115.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created: Fri Jan 10 19:20:23 2014
+**      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ENTIDADENH9171_H
-#define ENTIDADENH9171_H
+#ifndef ENTIDADEZ25115_H
+#define ENTIDADEZ25115_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -60,9 +60,9 @@ public:
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(30, 220, 341, 32));
+        botoes->setGeometry(QRect(100, 220, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
-        botoes->setStandardButtons(QDialogButtonBox::Apply|QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
+        botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(100, 10, 181, 41));
@@ -196,4 +196,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ENTIDADENH9171_H
+#endif // ENTIDADEZ25115_H

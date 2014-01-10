@@ -124,6 +124,37 @@ void BuscaHitMaisProximo(
   }
 }
 
+/** Encontra as coordenadas x3d y3d z3d da posição x y do mouse no ultimo buffer desenhado. 
+* @return false se falhar.
+*/ 
+bool MousePara3d(int x, int y, 
+                 GLdouble* modelview, GLdouble *projection, GLint* viewport,
+                 GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
+  float profundidade;
+  glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &profundidade);
+  if (profundidade == 1.0f) {
+    // Valor muito longe, provavelmente fora do tabuleiro.
+    return false;
+  }
+  if (!gluUnProject(x, y, profundidade,
+                    modelview, projection, viewport, 
+                    x3d, y3d, z3d)) {
+    LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
+    return false;
+  }
+  return true;
+}
+
+/** Igual a anterior, mas le as matrizes. */
+bool MousePara3d(int x, int y, 
+                 GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
+  GLdouble modelview[16], projection[16];
+  GLint viewport[4];
+  glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+  glGetDoublev(GL_PROJECTION_MATRIX, projection);
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  return MousePara3d(x, y, modelview, projection, viewport, x3d, y3d, z3d);
+}
 
 }  // namespace.
 
@@ -344,8 +375,7 @@ void Tabuleiro::TrataRodela(int delta) {
   olho_.set_raio(olho_raio);
 }
 
-// Coordenadas em OpenGL (origem canto inferior esquerdo).
-void Tabuleiro::TrataMovimento(int x, int y) {
+void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
     float olho_rotacao = olho_.rotacao();
@@ -375,23 +405,12 @@ void Tabuleiro::TrataMovimento(int x, int y) {
     parametros_desenho_.set_desenha_entidades(false);
     parametros_desenho_.set_iluminacao(false);
     DesenhaCena();  // Sem as entidades pra pegar nivel solo.
-    GLdouble modelview[16], projection[16];
-    GLint viewport[4];
-    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-    glGetDoublev(GL_PROJECTION_MATRIX, projection);
-    glGetIntegerv(GL_VIEWPORT, viewport);
     GLdouble nx, ny, nz;
-    GLfloat win_z;
-    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
-    //LOG(INFO) << "WX: " << x << ", WY: " << y << ", WZ: " << win_z 
-    //          << ", viewport: " << viewport[0] << " " << viewport[1] << " " 
-    //          << viewport[2] << " " << viewport[3] << endl;
-    if (!gluUnProject(x, y, win_z, modelview, projection, viewport, &nx, &ny, &nz)) {
+    if (!MousePara3d(x, y, &nx, &ny, &nz)) {
       return;
     }
-    //cout << "3x: " << nx << ", 3y: " << ny << ", 3z: " << nz << endl; 
     entidade_selecionada_->MovePara(nx, ny, 0);
-  } else if (estado_ == ETAB_QUAD_PRESSIONADO) {
+  } else if (estado_ == ETAB_DESLIZANDO) {
     // Realiza o movimento do olho.
     // Transforma x e y em 3D, baseado no nivel do solo.
     parametros_desenho_.set_desenha_entidades(false);
@@ -403,21 +422,22 @@ void Tabuleiro::TrataMovimento(int x, int y) {
     glGetDoublev(GL_PROJECTION_MATRIX, projection);
     glGetIntegerv(GL_VIEWPORT, viewport);
     GLdouble nx, ny, nz;
-    GLfloat win_z;
-    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
-    if (!gluUnProject(x, y, win_z, modelview, projection, viewport, &nx, &ny, &nz)) {
+    if (!MousePara3d(x, y, modelview, projection, viewport, &nx, &ny, &nz)) {
       return;
     }
+    // Le o (x,y) do ultimo mouse no mundo 3d.
     GLdouble ox, oy, oz;
-    glReadPixels(ultimo_x_, ultimo_y_, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
-    if (!gluUnProject(ultimo_x_, ultimo_y_, win_z, modelview, projection, viewport, &ox, &oy, &oz)) {
+    if (!MousePara3d(ultimo_x_, ultimo_y_, modelview, projection, viewport, &ox, &oy, &oz)) {
       return;
     }
     float delta_x = nx - ox;
     float delta_y = ny - oy;
+    float delta_z = nz - oz;
     auto* p = olho_.mutable_alvo();
     p->set_x(p->x() - delta_x);
     p->set_y(p->y() - delta_y);
+    p->set_z(p->z() - delta_z);
+    olho_.clear_destino();
 
     ultimo_x_ = x;
     ultimo_y_ = y;
@@ -430,6 +450,9 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspect
   if (botao == BOTAO_MEIO) {
     estado_anterior_rotacao_ = estado_;
     estado_ = ETAB_ROTACAO;
+  } else if (botao == BOTAO_DIREITO) {
+    estado_anterior_rotacao_ = estado_;
+    estado_ = ETAB_DESLIZANDO;
   } else if (botao == BOTAO_ESQUERDO) {
     // informacao dos hits. TODO ver esse limite aqui.
     GLuint buffer_hits[100] = {0};
@@ -440,20 +463,21 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspect
 }
 
 void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y, double aspecto) {
-  // informacao dos hits. TODO ver esse limite aqui.
-  GLuint buffer_hits[100] = {0};
-  GLuint numero_hits = 0;
-  EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
   if (botao == BOTAO_ESQUERDO) {
+    // informacao dos hits. TODO ver esse limite aqui.
+    GLuint buffer_hits[100] = {0};
+    GLuint numero_hits = 0;
+    EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
     TrataDuploCliqueEsquerdo(numero_hits, buffer_hits);
   } else if (botao == BOTAO_DIREITO) {
-    TrataDuploCliqueDireito(numero_hits, buffer_hits);
+    TrataDuploCliqueDireito(x, y);
   }
 }
 
 void Tabuleiro::TrataBotaoLiberado() {
   switch (estado_) {
     case ETAB_ROTACAO:
+    case ETAB_DESLIZANDO:
       estado_ = estado_anterior_rotacao_;
       return;
     case ETAB_ENT_PRESSIONADA: {
@@ -677,18 +701,18 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int*
   }
 }
 
-void Tabuleiro::TrataDuploCliqueDireito(unsigned int numero_hits, unsigned int* buffer_hits) {
-  GLuint id = 0, pos_pilha = 0;
-  BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
-  if (pos_pilha == 1) {
-    // Tabuleiro.
-  } else if (pos_pilha > 1) {
-    // Entidade.
-    const Entidade* e = BuscaEntidade(id);
-    olho_.mutable_destino()->CopyFrom(e->Proto().pos());
-  } else {
-    ;
+void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
+  parametros_desenho_.set_desenha_entidades(false);
+  parametros_desenho_.set_iluminacao(false);
+  DesenhaCena();
+  GLdouble x3d, y3d, z3d;
+  if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
+    return;
   }
+  auto* p = olho_.mutable_destino();
+  p->set_x(x3d);
+  p->set_y(y3d);
+  p->set_z(z3d);
 }
 
 void Tabuleiro::SelecionaEntidade(unsigned int id) {
