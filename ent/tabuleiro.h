@@ -35,8 +35,8 @@ enum etab_t {
 
 typedef std::map<unsigned int, Entidade*> MapaEntidades;
 
-/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X Y como base e
-* Z como altura (positivo pro alto).
+/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste, 
+* Y para o norte e Z para alto.
 */
 class Tabuleiro : public ntf::Receptor {
  public:

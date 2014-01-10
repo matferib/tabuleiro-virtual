@@ -132,14 +132,18 @@ Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) :
     entidade_selecionada_(NULL), 
     quadrado_selecionado_(-1), 
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
-    olho_x_(0), olho_y_(0), olho_z_(0), olho_delta_rotacao_(0),
+    // Olho sempre comeca olhando do sul (-pi/2).
+    olho_x_(0), olho_y_(0), olho_z_(0), olho_delta_rotacao_(-M_PI / 2.0f),
     olho_altura_(OLHO_ALTURA_INICIAL), olho_raio_(OLHO_RAIO_INICIAL),
     central_(central) {
   central_->RegistraReceptor(this);
-  // Iluminacao ambiente inicial.
-  luz_.mutable_cor()->set_r(0.2f);
-  luz_.mutable_cor()->set_g(0.2f);
-  luz_.mutable_cor()->set_b(0.2f);
+  // Iluminacao inicial.
+  luz_.mutable_cor()->set_r(0.4f);
+  luz_.mutable_cor()->set_g(0.4f);
+  luz_.mutable_cor()->set_b(0.4f);
+  // Vinda de 45 graus leste. 
+  luz_.set_posicao(0.0f);
+  luz_.set_inclinacao(45.0f);
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -468,10 +472,17 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
-    // Iluminação ambiente.
-    float radianos = luz_.direcao() * M_PI / 180.0f;
-    GLfloat pos_luz[] = { 0.0, cosf(radianos), sinf(radianos), 0.0f };
+    // Iluminação distante.
+    glPushMatrix();
+    // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
+    GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
+    // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
+    glRotatef(luz_.posicao(), 0.0f, 0.0f, 1.0f);
+    glRotatef(luz_.inclinacao(), 0.0f, -1.0f, 0.0f);
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+    glPopMatrix();
+
+    // A cor da luz difusa. TODO: ambiente?
     GLfloat cor_luz[] = { luz_.cor().r(), luz_.cor().g(), luz_.cor().b(), luz_.cor().a() };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     glEnable(GL_LIGHT0);
