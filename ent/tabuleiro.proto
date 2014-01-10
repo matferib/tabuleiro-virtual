@@ -5,7 +5,7 @@ package ent;
 message IluminacaoDirecional {
   // Cor da luz ambiente.
   optional Cor cor = 1;
-  // Direcao da luz ambiente. 90 significa luz a pino.
+  // Direcao da luz ambiente. 0 significa nascente, 90 significa luz a pino, 180 poente, 270 subsolo.
   optional float inclinacao = 2 [default=90.0];
   // Posicao do eixo do sol (0 = norte, 90 = leste, 180 = sul, 270 = oeste).
   optional float posicao = 3 [default=0.0];

@@ -196,14 +196,14 @@ ent::IluminacaoDirecional* AbreDialogoIluminacao(const ntf::Notificacao& notific
     cor_proto.CopyFrom(CorParaProto(cor));
   });
 
-  // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica a direita.
-  gerador.dial_inclinacao->setSliderPosition(luz_proto.inclinacao() + 90.0f);
   // Posicao na rosa dos ventos. No slider, o zero fica pra baixo enquanto no proto ele fica para direita.
   gerador.dial_posicao->setSliderPosition(luz_proto.posicao() + 90.0f);
+  // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
+  gerador.dial_inclinacao->setSliderPosition(luz_proto.inclinacao() + 90.0f);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &cor_proto, proto_retornado] {
-    proto_retornado->set_inclinacao(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->set_posicao(gerador.dial_posicao->sliderPosition() - 90.0f);
+    proto_retornado->set_inclinacao(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_cor()->Swap(&cor_proto);
     dialogo->accept();
   });

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
-    <height>343</height>
+    <width>456</width>
+    <height>354</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="botoes">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>290</y>
+     <x>60</x>
+     <y>300</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -45,7 +45,7 @@
   <widget class="QDial" name="dial_inclinacao">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>60</x>
      <y>120</y>
      <width>121</width>
      <height>121</height>
@@ -61,10 +61,10 @@
     <number>360</number>
    </property>
    <property name="value">
-    <number>180</number>
+    <number>135</number>
    </property>
    <property name="sliderPosition">
-    <number>180</number>
+    <number>135</number>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -73,10 +73,13 @@
     <bool>true</bool>
    </property>
    <property name="invertedControls">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="wrapping">
     <bool>true</bool>
+   </property>
+   <property name="notchTarget">
+    <double>30.000000000000000</double>
    </property>
    <property name="notchesVisible">
     <bool>true</bool>
@@ -85,7 +88,7 @@
   <widget class="QDial" name="dial_posicao">
    <property name="geometry">
     <rect>
-     <x>260</x>
+     <x>290</x>
      <y>120</y>
      <width>121</width>
      <height>121</height>
@@ -101,10 +104,10 @@
     <number>360</number>
    </property>
    <property name="value">
-    <number>180</number>
+    <number>0</number>
    </property>
    <property name="sliderPosition">
-    <number>180</number>
+    <number>0</number>
    </property>
    <property name="orientation">
     <enum>Qt::Horizontal</enum>
@@ -113,7 +116,7 @@
     <bool>true</bool>
    </property>
    <property name="invertedControls">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="wrapping">
     <bool>true</bool>
@@ -125,23 +128,10 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>60</x>
-     <y>100</y>
-     <width>66</width>
-     <height>17</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Inclinação</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>330</x>
      <y>240</y>
      <width>41</width>
      <height>21</height>
@@ -163,7 +153,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>300</x>
+     <x>330</x>
      <y>100</y>
      <width>41</width>
      <height>21</height>
@@ -185,7 +175,7 @@
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>240</x>
+     <x>270</x>
      <y>160</y>
      <width>20</width>
      <height>41</height>
@@ -207,7 +197,7 @@
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>380</x>
+     <x>410</x>
      <y>160</y>
      <width>20</width>
      <height>41</height>
@@ -224,6 +214,82 @@
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>180</x>
+     <y>170</y>
+     <width>64</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string>Nascente</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>50</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string>Poente</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_8">
+   <property name="geometry">
+    <rect>
+     <x>90</x>
+     <y>240</y>
+     <width>78</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string>Abaixo solo</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>100</y>
+     <width>43</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="text">
+    <string>A pino</string>
    </property>
   </widget>
  </widget>
