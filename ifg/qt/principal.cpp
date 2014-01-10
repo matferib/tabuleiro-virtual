@@ -21,7 +21,6 @@
 #include "ntf/notificacao.pb.h"
 #include "ent/tabuleiro.h"
 
-const double TAM_TABULEIRO = 20.0;  // tamanho do lado do tabuleiro em quadrados
 const int INTERVALO_NOTIFICACAO_MS = 10;
 
 using namespace ifg::qt;
@@ -40,7 +39,7 @@ Principal* Principal::Cria(int& argc, char** argv, ntf::CentralNotificacoes* cen
 
 Principal::Principal(ntf::CentralNotificacoes* central, QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
-      tabuleiro_(TAM_TABULEIRO, central), menu_principal_(new MenuPrincipal(central, this)), 
+      tabuleiro_(central), menu_principal_(new MenuPrincipal(central, this)), 
       v3d_(new Visualizador3d(central, &tabuleiro_, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));

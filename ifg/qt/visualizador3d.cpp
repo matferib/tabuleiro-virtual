@@ -308,7 +308,7 @@ void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   int altura = height();
   double aspecto = static_cast<double>(width()) / altura;
-  tabuleiro_->TrataDuploClick(
+  tabuleiro_->TrataDuploClique(
     MapeiaBotao(event->button()), 
     event->x(), altura - event->y(), aspecto);
   event->accept();

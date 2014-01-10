@@ -1,7 +1,7 @@
+- Posição do olho na entidade selecionada.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).
 - Entidades com gravuras.
 - Tabuleiro com gravuras.
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
-- Adicionar mais opcoes ao tabuleiro (por exemplo, iluminacao, cor etc).
 - Tooltip.

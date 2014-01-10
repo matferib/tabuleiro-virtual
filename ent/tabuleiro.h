@@ -36,14 +36,12 @@ enum etab_t {
 typedef std::map<unsigned int, Entidade*> MapaEntidades;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste, 
-* Y para o norte e Z para alto.
+* Y para o norte e Z para alto. Cada unidade corresponde a um metro, portanto os quadrados 
+* sao de tamanho 1,5m.
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  /** cria o tabuleiro com o tamanho de grid passado (tamanho x tamanho). 
-  * O identificador do tabuleiro sempre eh 0. 
-  */
-  Tabuleiro(int tamanho, ntf::CentralNotificacoes* central);
+  explicit Tabuleiro(ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -84,7 +82,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
 
   /** Trata o click duplo, recebendo x, y (coordenadas opengl) e a razão de aspecto da janela. */
-  void TrataDuploClick(botao_e botao, int x, int y, double aspecto);
+  void TrataDuploClique(botao_e botao, int x, int y, double aspecto);
 
   /** trata a redimensao da janela. */
   void TrataRedimensionaJanela(int largura, int altura);
@@ -97,6 +95,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void DesenhaCena();
 
+  /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
+  void AtualizaOlho();
+
   /** Encontra os hits de um clique em objetos. */
   void EncontraHits(int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits);
 
@@ -104,7 +105,9 @@ class Tabuleiro : public ntf::Receptor {
   void TrataClique(unsigned int numero_hits, unsigned int* buffer_hits);
 
   /** Trata o clique duplo, recebendo o numero de hits e o buffer de hits do opengl. */
-  void TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_hits);
+  void TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits);
+  /** Trata o duplo clique com botao direito. */
+  void TrataDuploCliqueDireito(unsigned int numero_hits, unsigned int* buffer_hits);
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
@@ -134,11 +137,10 @@ class Tabuleiro : public ntf::Receptor {
   bool RemoveEntidade(unsigned int id);
 
  private:
+  // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
-  IluminacaoDirecional luz_;
-
-  /** tamanho do tabuleiro (tamanho_ x tamanho_). */
-  int tamanho_;
+  // Parametros do tabuleiro (sem entidades).
+  TabuleiroProto proto_;
 
   /** Cada cliente possui um identificador diferente. */
   int id_cliente_;
@@ -164,18 +166,12 @@ class Tabuleiro : public ntf::Receptor {
   int proximo_id_cliente_;
 
   /** dados (X) para calculo de rotacao de mouse. */
-  int rotacao_ultimo_x_; 
+  int ultimo_x_; 
   /** dados (Y) para calculo de rotacao de mouse. */
-  int rotacao_ultimo_y_; 
+  int ultimo_y_; 
 
   // Para onde o olho olha.
-  double olho_x_;
-  double olho_y_;
-  double olho_z_;
-  // De onde o olho olha.
-  double olho_delta_rotacao_;
-  double olho_altura_;
-  double olho_raio_;
+  Olho olho_;
 
   ntf::CentralNotificacoes* central_;
 

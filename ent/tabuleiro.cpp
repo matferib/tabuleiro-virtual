@@ -48,7 +48,8 @@ const double TAMANHO_GL = 1.5;
 const double EXPESSURA_LINHA = 0.1;
 /** tamanho do lado do quadrado / 2. */
 const double TAMANHO_GL_2 = (TAMANHO_GL / 2.0);
-
+/** velocidade do olho. */
+const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
@@ -126,35 +127,40 @@ void BuscaHitMaisProximo(
 
 }  // namespace.
 
-Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) : 
-    tamanho_(tamanho), 
+Tabuleiro::Tabuleiro(ntf::CentralNotificacoes* central) : 
     id_cliente_(0),
     entidade_selecionada_(NULL), 
     quadrado_selecionado_(-1), 
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
-    // Olho sempre comeca olhando do sul (-pi/2).
-    olho_x_(0), olho_y_(0), olho_z_(0), olho_delta_rotacao_(-M_PI / 2.0f),
-    olho_altura_(OLHO_ALTURA_INICIAL), olho_raio_(OLHO_RAIO_INICIAL),
     central_(central) {
   central_->RegistraReceptor(this);
   // Iluminacao inicial.
-  luz_.mutable_cor()->set_r(0.4f);
-  luz_.mutable_cor()->set_g(0.4f);
-  luz_.mutable_cor()->set_b(0.4f);
+  proto_.mutable_luz()->mutable_cor()->set_r(0.4f);
+  proto_.mutable_luz()->mutable_cor()->set_g(0.4f);
+  proto_.mutable_luz()->mutable_cor()->set_b(0.4f);
   // Vinda de 45 graus leste. 
-  luz_.set_posicao(0.0f);
-  luz_.set_inclinacao(45.0f);
+  proto_.mutable_luz()->set_posicao(0.0f);
+  proto_.mutable_luz()->set_inclinacao(45.0f);
+  // Olho.
+  auto* pos = olho_.mutable_alvo();
+  pos->set_x(0.0f);
+  pos->set_y(0.0f);
+  pos->set_z(0.0f);
+  // Olho sempre comeca olhando do sul (-pi/2).
+  olho_.set_rotacao(-M_PI / 2.0f);
+  olho_.set_altura(OLHO_ALTURA_INICIAL);
+  olho_.set_raio(OLHO_RAIO_INICIAL);
 }
 
 Tabuleiro::~Tabuleiro() {
 }
 
 int Tabuleiro::TamanhoX() const { 
-  return tamanho_; 
+  return proto_.tamanho(); 
 }
 
 int Tabuleiro::TamanhoY() const { 
-  return tamanho_; 
+  return proto_.tamanho(); 
 }
 
 void Tabuleiro::Desenha() {
@@ -225,6 +231,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_TEMPORIZADOR: {
+      AtualizaOlho();
       for (auto& id_ent : entidades_) {
         id_ent.second->Atualiza();
       }
@@ -311,7 +318,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ATUALIZAR_ILUMINACAO: {
-      luz_.CopyFrom(notificacao.tabuleiro().luz());
+      proto_.mutable_luz()->CopyFrom(notificacao.tabuleiro().luz());
       if (notificacao.has_endereco()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         n_remota->clear_endereco();
@@ -326,37 +333,42 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 void Tabuleiro::TrataRodela(int delta) {
   // move o olho no eixo Z de acordo com o eixo Y do movimento
-  olho_raio_ -= (delta * SENSIBILIDADE_RODA); 
-  if (olho_raio_ < OLHO_RAIO_MINIMO) {
-    olho_raio_ = OLHO_RAIO_MINIMO;
+  float olho_raio = olho_.raio();
+  olho_raio -= (delta * SENSIBILIDADE_RODA); 
+  if (olho_raio < OLHO_RAIO_MINIMO) {
+    olho_raio = OLHO_RAIO_MINIMO;
   }
-  else if (olho_raio_ > OLHO_RAIO_MAXIMO) {
-    olho_raio_ = OLHO_RAIO_MAXIMO;
+  else if (olho_raio > OLHO_RAIO_MAXIMO) {
+    olho_raio = OLHO_RAIO_MAXIMO;
   }
+  olho_.set_raio(olho_raio);
 }
 
 // Coordenadas em OpenGL (origem canto inferior esquerdo).
 void Tabuleiro::TrataMovimento(int x, int y) {
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
-    olho_delta_rotacao_ -= (x - rotacao_ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
-    if (olho_delta_rotacao_ >= 2*M_PI) {
-      olho_delta_rotacao_ -= 2*M_PI;
+    float olho_rotacao = olho_.rotacao();
+    olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
+    if (olho_rotacao >= 2 * M_PI) {
+      olho_rotacao -= 2 * M_PI;
+    } else if (olho_rotacao <= - 2 * M_PI) {
+      olho_rotacao += 2 * M_PI;
     }
-    else if (olho_delta_rotacao_ <= -2*M_PI) {
-      olho_delta_rotacao_ += 2*M_PI;
-    }
+    olho_.set_rotacao(olho_rotacao);
     // move o olho no eixo Z de acordo com o eixo Y do movimento
-    olho_altura_ -= (y - rotacao_ultimo_y_) * SENSIBILIDADE_ROTACAO_Y; 
-    if (olho_altura_ < OLHO_ALTURA_MINIMA) {
-      olho_altura_ = OLHO_ALTURA_MINIMA;
+    float olho_altura = olho_.altura();
+    olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y; 
+    if (olho_altura < OLHO_ALTURA_MINIMA) {
+      olho_altura = OLHO_ALTURA_MINIMA;
     }
-    else if (olho_altura_ > OLHO_ALTURA_MAXIMA) {
-      olho_altura_ = OLHO_ALTURA_MAXIMA;
+    else if (olho_altura > OLHO_ALTURA_MAXIMA) {
+      olho_altura = OLHO_ALTURA_MAXIMA;
     }
+    olho_.set_altura(olho_altura);
 
-    rotacao_ultimo_x_ = x;
-    rotacao_ultimo_y_ = y;
+    ultimo_x_ = x;
+    ultimo_y_ = y;
   } else if (estado_ == ETAB_ENT_PRESSIONADA) {
     // Realiza o movimento da entidade.
     // Transforma x e y em 3D, baseado no nivel do solo.
@@ -379,13 +391,43 @@ void Tabuleiro::TrataMovimento(int x, int y) {
     }
     //cout << "3x: " << nx << ", 3y: " << ny << ", 3z: " << nz << endl; 
     entidade_selecionada_->MovePara(nx, ny, 0);
+  } else if (estado_ == ETAB_QUAD_PRESSIONADO) {
+    // Realiza o movimento do olho.
+    // Transforma x e y em 3D, baseado no nivel do solo.
+    parametros_desenho_.set_desenha_entidades(false);
+    parametros_desenho_.set_iluminacao(false);
+    DesenhaCena();  // Sem as entidades pra pegar nivel solo.
+    GLdouble modelview[16], projection[16];
+    GLint viewport[4];
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+    GLdouble nx, ny, nz;
+    GLfloat win_z;
+    glReadPixels(x, y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
+    if (!gluUnProject(x, y, win_z, modelview, projection, viewport, &nx, &ny, &nz)) {
+      return;
+    }
+    GLdouble ox, oy, oz;
+    glReadPixels(ultimo_x_, ultimo_y_, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &win_z);
+    if (!gluUnProject(ultimo_x_, ultimo_y_, win_z, modelview, projection, viewport, &ox, &oy, &oz)) {
+      return;
+    }
+    float delta_x = nx - ox;
+    float delta_y = ny - oy;
+    auto* p = olho_.mutable_alvo();
+    p->set_x(p->x() - delta_x);
+    p->set_y(p->y() - delta_y);
+
+    ultimo_x_ = x;
+    ultimo_y_ = y;
   }
 }
 
 void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
   if (botao == BOTAO_MEIO) {
-    rotacao_ultimo_x_ = x;
-    rotacao_ultimo_y_ = y;
     estado_anterior_rotacao_ = estado_;
     estado_ = ETAB_ROTACAO;
   } else if (botao == BOTAO_ESQUERDO) {
@@ -397,13 +439,15 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspect
   }
 }
 
-void Tabuleiro::TrataDuploClick(botao_e botao, int x, int y, double aspecto) {
+void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y, double aspecto) {
+  // informacao dos hits. TODO ver esse limite aqui.
+  GLuint buffer_hits[100] = {0};
+  GLuint numero_hits = 0;
+  EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
   if (botao == BOTAO_ESQUERDO) {
-    // informacao dos hits. TODO ver esse limite aqui.
-    GLuint buffer_hits[100] = {0};
-    GLuint numero_hits = 0;
-    EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
-    TrataDuploClique(numero_hits, buffer_hits);
+    TrataDuploCliqueEsquerdo(numero_hits, buffer_hits);
+  } else if (botao == BOTAO_DIREITO) {
+    TrataDuploCliqueDireito(numero_hits, buffer_hits);
   }
 }
 
@@ -460,13 +504,14 @@ void Tabuleiro::DesenhaCena() {
   }
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
+  const Posicao& alvo = olho_.alvo();
   gluLookAt(
-    // from
-    olho_x_ + cos(olho_delta_rotacao_) * olho_raio_, 
-    olho_y_ + sin(olho_delta_rotacao_) * olho_raio_, 
-    olho_altura_,
-    // to
-    olho_x_, olho_y_, olho_z_,
+    // from.
+    alvo.x() + cos(olho_.rotacao()) * olho_.raio(), 
+    alvo.y() + sin(olho_.rotacao()) * olho_.raio(), 
+    alvo.z() + olho_.altura(),
+    // to.
+    alvo.x(), alvo.y(), alvo.z(),
     // up
     0, 0, 1.0);
 
@@ -477,13 +522,16 @@ void Tabuleiro::DesenhaCena() {
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    glRotatef(luz_.posicao(), 0.0f, 0.0f, 1.0f);
-    glRotatef(luz_.inclinacao(), 0.0f, -1.0f, 0.0f);
+    glRotatef(proto_.luz().posicao(), 0.0f, 0.0f, 1.0f);
+    glRotatef(proto_.luz().inclinacao(), 0.0f, -1.0f, 0.0f);
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
     glPopMatrix();
 
     // A cor da luz difusa. TODO: ambiente?
-    GLfloat cor_luz[] = { luz_.cor().r(), luz_.cor().g(), luz_.cor().b(), luz_.cor().a() };
+    GLfloat cor_luz[] = { proto_.luz().cor().r(),
+                          proto_.luz().cor().g(),
+                          proto_.luz().cor().b(),
+                          proto_.luz().cor().a() };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     glEnable(GL_LIGHT0);
 
@@ -531,6 +579,32 @@ void Tabuleiro::DesenhaCena() {
     entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
+}
+
+void Tabuleiro::AtualizaOlho() {
+  if (!olho_.has_destino()) {
+    return;
+  }
+  auto* po = olho_.mutable_alvo();
+  double origem[] = { po->x(), po->y(), po->z() };
+  const auto& pd = olho_.destino();
+  double destino[] = { pd.x(), pd.y(), pd.z() };
+  bool chegou = true;
+  for (int i = 0; i < 3; ++i) {
+    double delta = (origem[i] > destino[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
+    if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO) {
+      origem[i] += delta;
+      chegou = false;
+    } else {
+      origem[i] = destino[i];
+    }
+  }
+  po->set_x(origem[0]);
+  po->set_y(origem[1]);
+  po->set_z(origem[2]);
+  if (chegou) {
+    olho_.clear_destino();
+  }
 }
 
 // Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
@@ -583,7 +657,7 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
   }
 }
 
-void Tabuleiro::TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_hits) {
+void Tabuleiro::TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits) {
   GLuint id = 0, pos_pilha = 0;
   BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
   if (pos_pilha == 1) {
@@ -598,6 +672,20 @@ void Tabuleiro::TrataDuploClique(unsigned int numero_hits, unsigned int* buffer_
     n->set_tipo(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
     n->mutable_entidade()->CopyFrom(entidade_selecionada_->Proto());
     central_->AdicionaNotificacao(n);
+  } else {
+    ;
+  }
+}
+
+void Tabuleiro::TrataDuploCliqueDireito(unsigned int numero_hits, unsigned int* buffer_hits) {
+  GLuint id = 0, pos_pilha = 0;
+  BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
+  if (pos_pilha == 1) {
+    // Tabuleiro.
+  } else if (pos_pilha > 1) {
+    // Entidade.
+    const Entidade* e = BuscaEntidade(id);
+    olho_.mutable_destino()->CopyFrom(e->Proto().pos());
   } else {
     ;
   }
@@ -639,7 +727,7 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
 ntf::Notificacao* Tabuleiro::SerializaIluminacaoTabuleiro() {
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ILUMINACAO);
-  notificacao->mutable_tabuleiro()->mutable_luz()->CopyFrom(luz_);
+  notificacao->mutable_tabuleiro()->mutable_luz()->CopyFrom(proto_.luz());
   return notificacao;
 }
 
@@ -651,11 +739,11 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     return notificacao;
   }
   auto* t = notificacao->mutable_tabuleiro();
+  t->CopyFrom(proto_);
   t->set_id_cliente(proximo_id_cliente_++);
   for (const auto& id_ent : entidades_) {
     t->add_entidade()->CopyFrom(id_ent.second->Proto());
   }
-  t->mutable_luz()->CopyFrom(luz_);
   return notificacao;
 }
 
@@ -672,6 +760,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     return;
   }
   const auto& tabuleiro = notificacao.tabuleiro();
+  proto_.CopyFrom(tabuleiro);
   id_cliente_ = tabuleiro.id_cliente();
   for (const auto& ep : tabuleiro.entidade()) {
     auto* e = NovaEntidade(ep.tipo());
