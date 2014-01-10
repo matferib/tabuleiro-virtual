@@ -196,10 +196,11 @@ ent::IluminacaoDirecional* AbreDialogoIluminacao(const ntf::Notificacao& notific
     cor_proto.CopyFrom(CorParaProto(cor));
   });
 
-  // Direcao.
-
+  // Direcao: o zero do slider fica para baixo enquanto no proto ele fica a direita.
+  gerador.dial_direcao->setSliderPosition(luz_proto.direcao() + 90.0f);
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &cor_proto, proto_retornado] {
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &cor_proto, proto_retornado] {
+    proto_retornado->set_direcao(gerador.dial_direcao->sliderPosition() - 90.0f);
     proto_retornado->mutable_cor()->Swap(&cor_proto);
     dialogo->accept();
   });

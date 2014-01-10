@@ -136,6 +136,10 @@ Tabuleiro::Tabuleiro(int tamanho, ntf::CentralNotificacoes* central) :
     olho_altura_(OLHO_ALTURA_INICIAL), olho_raio_(OLHO_RAIO_INICIAL),
     central_(central) {
   central_->RegistraReceptor(this);
+  // Iluminacao ambiente inicial.
+  luz_.mutable_cor()->set_r(0.2f);
+  luz_.mutable_cor()->set_g(0.2f);
+  luz_.mutable_cor()->set_b(0.2f);
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -465,9 +469,10 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
     // Iluminação ambiente.
-    //GLfloat pos_luz[] = { 0, 0, 0, 0.0f };
-    //glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
-    GLfloat cor_luz[] = {luz_.cor().r(), luz_.cor().g(), luz_.cor().b(), luz_.cor().a()};
+    float radianos = luz_.direcao() * M_PI / 180.0f;
+    GLfloat pos_luz[] = { 0.0, cosf(radianos), sinf(radianos), 0.0f };
+    glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+    GLfloat cor_luz[] = { luz_.cor().r(), luz_.cor().g(), luz_.cor().b(), luz_.cor().a() };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     glEnable(GL_LIGHT0);
 
