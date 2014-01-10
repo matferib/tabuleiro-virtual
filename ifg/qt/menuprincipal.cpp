@@ -2,6 +2,7 @@
 
 #include <QBoxLayout>
 #include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
@@ -11,6 +12,7 @@
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/util.h"
+#include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
@@ -18,16 +20,6 @@ using namespace ifg::qt;
 
 // enumeracao com os menus e seus items
 namespace {
-
-enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE, ME_NUM }; // menus da barra
-
-enum menuitem_e { // items de cada menu 
-  MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
-  MI_ILUMINACAO = 0, MI_SALVAR, MI_RESTAURAR,
-  MI_ADICIONAR = 0, MI_REMOVER,
-  MI_TABVIRT = 0,
-  MI_SEP = 0
-};
 
 const char* g_fim = "FIM";
 
@@ -71,7 +63,6 @@ MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai)
         menu->addAction(acao);
       } else {
         // menuitem NULL, adiciona separador e a acao NULL para manter contador
-        //acoes_[controle_menu].push_back(nullptr);
         menu->addSeparator();
       }
       ++controle_item;
@@ -108,44 +99,33 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
   }
 }
 
-void MenuPrincipal::Modo(modomenu_e modo){
-  // jogo e sobre sempre habilitados
-  menus_[ME_JOGO]->setEnabled(true);
-  menus_[ME_SOBRE]->setEnabled(true);
+void MenuPrincipal::EstadoMenu(bool estado, menu_e menu) {
+  for (QAction* acao : acoes_[menu]) {
+    if (acao != NULL){
+      acao->setEnabled(estado);
+    }
+  }
+  menus_[estado]->setEnabled(estado);
+}
 
+void MenuPrincipal::EstadoItemMenu(bool estado, menu_e menu, const std::vector<menuitem_e>& items) {
+  for (menuitem_e item : items) {
+    QAction* acao = acoes_[menu][item];
+    acao->setEnabled(estado);
+  }
+}
+
+void MenuPrincipal::Modo(modomenu_e modo){
   switch (modo){
   case MM_COMECO:
-    // habilita todos do jogo
-    for (
-      std::vector<QAction*>::iterator it = acoes_[ME_JOGO].begin();
-      it != acoes_[ME_JOGO].end();
-      ++it
-    ) {
-      QAction* acao = *it;
-      if (acao != NULL){
-        acao->setEnabled(true);
-      }
+    for (menu_e menu : { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE }) {
+      EstadoMenu(true, menu);
     }
-    // desabilita jogadores
-    menus_[ME_ENTIDADES]->setEnabled(false);
     break;
   case MM_MESTRE:
   case MM_JOGADOR:
-    // desabilita tudo menos sair no jogo
-    for (
-      std::vector<QAction*>::iterator it = acoes_[ME_JOGO].begin();
-      it != acoes_[ME_JOGO].end();
-      ++it
-    ) {
-      QAction* acao = *it;
-      if (acao != NULL) {
-        acao->setEnabled(false);
-      }
-    }
-    acoes_[ME_JOGO][MI_SAIR]->setEnabled(true);
-
-    // Jogadores habilitado so no modo mestre
-    menus_[ME_ENTIDADES]->setEnabled(modo == MM_MESTRE ? true : false);
+    EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
+    EstadoItemMenu(false, ME_TABULEIRO, { MI_SALVAR, MI_RESTAURAR });
     break;
   }
 }
@@ -187,6 +167,30 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
+    // Abre dialogo de arquivo.
+    QString file_str = QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent()),
+                                                    tr("Salvar tabuleiro"));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de salvar cancelada.";
+      return;
+    }
+    notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
+    notificacao->set_endereco(file_str.toStdString());
+  } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR]) {
+    QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+                                                    tr("Abrir tabuleiro"));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de restaurar cancelada.";
+      return;
+    }
+    notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+    notificacao->set_endereco(file_str.toStdString());
+  } else if (acao == acoes_[ME_TABULEIRO][MI_ILUMINACAO]) {
+    notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ILUMINACAO);
   }
   // .. 
   else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {

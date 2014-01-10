@@ -6,6 +6,7 @@
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
+namespace ent {
 namespace {
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
@@ -179,7 +180,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
   // Objeto de luz. O quarto componente indica que a luz é posicional.
   // Se for 0, a luz é direcional e os componentes indicam sua direção.
-  GLfloat pos_luz[] = { 0, 0, static_cast<GLfloat>(ALTURA * CalculaMultiplicador(proto_.tamanho())), 1.0f };
+  GLfloat pos_luz[] = {
+      0, 0, static_cast<GLfloat>(ALTURA * CalculaMultiplicador(proto_.tamanho())), 1.0f };
   const ent::Cor& cor = proto_.luz().cor();
   GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
   glPushMatrix();
@@ -190,9 +192,9 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   } else {
     glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
     glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-    glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 1.0);
-    glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.05);
-    glLightf(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.05);
+    glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f);
+    //glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.53f);
+    glLightf(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
     glEnable(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }

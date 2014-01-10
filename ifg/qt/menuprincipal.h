@@ -14,9 +14,6 @@
 namespace ifg {
 namespace qt {
 
-/** os modos que o menu aceita. */  
-enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
-
 /** A barra de menu principal contem os seguintes menus:
 * <li> Jogo: Iniciar Mestre, Conectar no mestre, Sair
 * <li> Jogadores: Salvar, Restaurar, Adicionar, Remover 
@@ -31,6 +28,20 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   /** Interface ntf::Receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
+ private:
+  /** Menus da barra de menu. */
+  enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE, ME_NUM };
+  /** Os items de cada menu. */
+  enum menuitem_e { // items de cada menu 
+    MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
+    MI_ILUMINACAO = 0, MI_SALVAR, MI_RESTAURAR,
+    MI_ADICIONAR = 0, MI_REMOVER,
+    MI_TABVIRT = 0,
+    MI_SEP = 0
+  };
+  /** os modos (estados) do menu aceita. */  
+  enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
+
  private slots:
   /** slot para tratar a acao QT de um item de menu localmente. */
   void TrataAcaoItem(QAction*);
@@ -41,6 +52,11 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   void Modo(modomenu_e modo);
 
  private:
+  /** Habilita/desabilita menus (e os items). */
+  void EstadoMenu(bool estado, menu_e menu);
+  /** Habilita/desabilita items de menu. */
+  void EstadoItemMenu(bool estado, menu_e menu, const std::vector<menuitem_e>& items);
+
   // menus e acoes dos items
   std::vector<QMenu*> menus_;
   std::vector<std::vector<QAction*>> acoes_;

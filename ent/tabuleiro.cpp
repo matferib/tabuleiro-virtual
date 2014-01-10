@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <fstream>
 #include <map>
 #include <stdexcept>
 #include <vector>
@@ -221,12 +222,53 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
-    case ntf::TN_SERIALIZAR_TABULEIRO:
-      central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
+    case ntf::TN_SERIALIZAR_TABULEIRO: {
+      auto* nt_tabuleiro = SerializaTabuleiro();
+      if (notificacao.has_endereco()) {
+        std::string nt_tabuleiro_str = nt_tabuleiro->SerializeAsString();
+        // Salvar no endereco.
+        std::ofstream arquivo(notificacao.endereco());
+        arquivo.write(nt_tabuleiro_str.c_str(), nt_tabuleiro_str.size());
+        if (!arquivo) {
+          // TODO enviar uma mensagem de erro direto aqui na UI.
+          LOG(ERROR) << "Erro escrevendo arquivo";
+        }
+        arquivo.close();
+        delete nt_tabuleiro;
+      } else {
+        // Enviar remotamente.
+        central_->AdicionaNotificacaoRemota(nt_tabuleiro);
+      }
       return true;
-    case ntf::TN_DESERIALIZAR_TABULEIRO:
-      DeserializaTabuleiro(notificacao);
+    }
+    case ntf::TN_DESERIALIZAR_TABULEIRO: {
+      if (notificacao.has_endereco()) {
+        // Deserializar de arquivo.
+        std::ifstream arquivo(notificacao.endereco());
+        if (!arquivo) {
+          // TODO enviar uma mensagem de erro direto aqui na UI.
+          LOG(ERROR) << "Erro lendo arquivo";
+          return true;
+        }
+        arquivo.seekg(0, std::ifstream::end);
+        std::ifstream::pos_type tamanho = arquivo.tellg();
+        arquivo.seekg(0, std::ifstream::beg);
+        std::vector<char> buffer(tamanho);
+        arquivo.read(&buffer[0], tamanho);
+        arquivo.close();
+        ntf::Notificacao nt_tabuleiro;
+        if (!nt_tabuleiro.ParseFromString(std::string(buffer.begin(), buffer.end()))) {
+          // TODO enviar uma mensagem de erro direto aqui na UI.
+          LOG(ERROR) << "Erro restaurando notificacao do arquivo";
+          return true;
+        }
+        DeserializaTabuleiro(nt_tabuleiro);
+      } else {
+        // Deserializar da rede.
+        DeserializaTabuleiro(notificacao);
+      }
       return true;
+    }
     case ntf::TN_MOVER_ENTIDADE: {
       const auto& proto = notificacao.entidade();
       auto* entidade = BuscaEntidade(proto.id());
@@ -245,7 +287,28 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       entidade->Atualiza(proto);
-      central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+      if (notificacao.has_endereco()) {
+        auto* n_remota = new ntf::Notificacao(notificacao);
+        n_remota->clear_endereco();
+        central_->AdicionaNotificacaoRemota(n_remota);
+      }
+      return true;
+    }
+    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO: {
+      if (notificacao.has_tabuleiro()) {
+        // Notificacao ja foi criada, deixa pra ifg fazer o resto.
+        return false;
+      }
+      central_->AdicionaNotificacao(SerializaIluminacaoTabuleiro());
+      return true;
+    }
+    case ntf::TN_ATUALIZAR_ILUMINACAO: {
+      luz_.CopyFrom(notificacao.tabuleiro().luz());
+      if (notificacao.has_endereco()) {
+        auto* n_remota = new ntf::Notificacao(notificacao);
+        n_remota->clear_endereco();
+        central_->AdicionaNotificacaoRemota(n_remota);
+      }
       return true;
     }
     default:
@@ -378,9 +441,6 @@ void Tabuleiro::InicializaGL() {
 
   // zbuffer
   glEnable(GL_DEPTH_TEST);
-
-  // Iluminação.
-  glEnable(GL_LIGHTING);
 }
 
 // privadas 
@@ -402,11 +462,21 @@ void Tabuleiro::DesenhaCena() {
     // up
     0, 0, 1.0);
 
-  // Posiciona as luzes.
   if (parametros_desenho_.iluminacao()) {
+    glEnable(GL_LIGHTING);
+    // Iluminação ambiente.
+    //GLfloat pos_luz[] = { 0, 0, 0, 0.0f };
+    //glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+    GLfloat cor_luz[] = {luz_.cor().r(), luz_.cor().g(), luz_.cor().b(), luz_.cor().a()};
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
+    glEnable(GL_LIGHT0);
+
+    // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       it->second->DesenhaLuz(&parametros_desenho_);
     }
+  } else {
+    glDisable(GL_LIGHTING);
   }
 
   //ceu_.desenha(parametros_desenho_);
@@ -550,6 +620,13 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   *z = 0;
 }
 
+ntf::Notificacao* Tabuleiro::SerializaIluminacaoTabuleiro() {
+  auto* notificacao = new ntf::Notificacao;
+  notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ILUMINACAO);
+  notificacao->mutable_tabuleiro()->mutable_luz()->CopyFrom(luz_);
+  return notificacao;
+}
+
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
@@ -562,6 +639,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   for (const auto& id_ent : entidades_) {
     t->add_entidade()->CopyFrom(id_ent.second->Proto());
   }
+  t->mutable_luz()->CopyFrom(luz_);
   return notificacao;
 }
 

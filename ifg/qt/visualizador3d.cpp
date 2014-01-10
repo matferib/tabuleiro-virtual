@@ -13,6 +13,7 @@
 #include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ifg/qt/ui/entidade.h"
+#include "ifg/qt/ui/iluminacao.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
@@ -30,33 +31,7 @@ ent::botao_e MapeiaBotao(Qt::MouseButton botao) {
   }
 }
 
-}  // namespace
-
-Visualizador3d::Visualizador3d(
-    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) 
-    :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
-       central_(central), tabuleiro_(tabuleiro) {
-  central_->RegistraReceptor(this);
-}
-
-Visualizador3d::~Visualizador3d() {
-}
-
-// reimplementacoes
-void Visualizador3d::initializeGL() {
-  ent::Tabuleiro::InicializaGL();
-}
-
-void Visualizador3d::resizeGL(int width, int height) {
-  tabuleiro_->TrataRedimensionaJanela(width, height);
-}
-
-void Visualizador3d::paintGL() {
-  tabuleiro_->Desenha();
-}
-
-namespace {
-
+// Converte uma cor de float [0..1.0] para inteiro [0.255].
 int ConverteCor(float cor_float) {
   int cor = static_cast<int>(255.0f * cor_float);
   if (cor < 0) {
@@ -69,6 +44,7 @@ int ConverteCor(float cor_float) {
   return cor;
 }
 
+// Converte uma cor de inteiro [0.255] para float [0..1.0].
 float ConverteCor(int cor_int) {
   return cor_int / 255.0;
 }
@@ -199,7 +175,68 @@ ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWi
   return proto;
 }
 
+/** Abre um diálogo editável com as características de iluminacao do tabuleiro. */ 
+ent::IluminacaoDirecional* AbreDialogoIluminacao(const ntf::Notificacao& notificacao, QWidget* pai) {
+  auto* proto_retornado = new ent::IluminacaoDirecional;
+  ifg::qt::Ui::DialogoIluminacao gerador;
+  auto* dialogo = new QDialog(pai);
+  gerador.setupUi(dialogo);
+  const auto& luz_proto = notificacao.tabuleiro().luz();
+
+  // Cor.
+  ent::Cor cor_proto(luz_proto.cor());
+  gerador.botao_cor->setStyleSheet(CorParaEstilo(cor_proto));
+  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &cor_proto] {
+    QColor cor =
+        QColorDialog::getColor(ProtoParaCor(cor_proto), dialogo, QObject::tr("Cor da luz ambiente"));
+    if (!cor.isValid()) {
+      return;
+    }
+    gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
+    cor_proto.CopyFrom(CorParaProto(cor));
+  });
+
+  // Direcao.
+
+  // Ao aceitar o diálogo, aplica as mudancas.
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &cor_proto, proto_retornado] {
+    proto_retornado->mutable_cor()->Swap(&cor_proto);
+    dialogo->accept();
+  });
+  // Cancelar.
+  lambda_connect(gerador.botoes, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
+      delete proto_retornado;
+      proto_retornado = nullptr;
+  });
+  dialogo->exec();
+  delete dialogo;
+  return proto_retornado;
+}
+
 }  // namespace
+
+Visualizador3d::Visualizador3d(
+    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) 
+    :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
+       central_(central), tabuleiro_(tabuleiro) {
+  central_->RegistraReceptor(this);
+}
+
+Visualizador3d::~Visualizador3d() {
+}
+
+// reimplementacoes
+void Visualizador3d::initializeGL() {
+  ent::Tabuleiro::InicializaGL();
+}
+
+void Visualizador3d::resizeGL(int width, int height) {
+  tabuleiro_->TrataRedimensionaJanela(width, height);
+}
+
+void Visualizador3d::paintGL() {
+  tabuleiro_->Desenha();
+}
 
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -216,8 +253,26 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         break;
       }
       auto* n = new ntf::Notificacao;
+      n->set_endereco("local");  // apenas para processar localmente.
       n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
       n->mutable_entidade()->Swap(entidade);
+      central_->AdicionaNotificacao(n);
+      break;
+    }
+    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO: {
+      if (!notificacao.has_tabuleiro()) {
+        // O tabuleiro criara a mensagem completa.
+        return false;
+      }
+      auto* luz = AbreDialogoIluminacao(notificacao, this);
+      if (luz == nullptr) {
+        VLOG(1) << "Alterações de iluminação descartadas";
+        break;
+      }
+      auto* n = new ntf::Notificacao;
+      n->set_endereco("local");  // apenas para processar localmente.
+      n->set_tipo(ntf::TN_ATUALIZAR_ILUMINACAO);
+      n->mutable_tabuleiro()->mutable_luz()->Swap(luz);
       central_->AdicionaNotificacao(n);
       break;
     }

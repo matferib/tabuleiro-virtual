@@ -16,12 +16,14 @@ enum Tipo {
   TN_ADICIONAR_ENTIDADE = 10; 
   TN_REMOVER_ENTIDADE = 12; 
   TN_ATUALIZAR_ENTIDADE = 13;
+  TN_ATUALIZAR_ILUMINACAO = 14;
   TN_NOTIFICACAO_3D = 15;
   TN_TEMPORIZADOR = 16;
   TN_SERIALIZAR_TABULEIRO = 17;
   TN_DESERIALIZAR_TABULEIRO = 18;
   TN_MOVER_ENTIDADE = 19;
   TN_ABRIR_DIALOGO_ENTIDADE = 20;
+  TN_ABRIR_DIALOGO_ILUMINACAO = 21;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
@@ -33,7 +35,7 @@ message Notificacao {
   //optional bool remota = 3 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
-  // URL do servidor para conexao.
+  // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
   optional string endereco = 5;
   // Tabuleiro de jogo.
   optional ent.TabuleiroProto tabuleiro = 6;

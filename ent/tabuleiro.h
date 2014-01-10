@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include "ent/entidade.pb.h"
+#include "ent/tabuleiro.pb.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -115,8 +116,11 @@ class Tabuleiro : public ntf::Receptor {
   /** retorna as coordenadas do quadrado. */
   void CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z);
 
-  /** Retorna uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida. */
+  /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida. */
   ntf::Notificacao* SerializaTabuleiro();
+
+  /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO preenchida. */
+  ntf::Notificacao* SerializaIluminacaoTabuleiro();
 
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
@@ -131,6 +135,7 @@ class Tabuleiro : public ntf::Receptor {
 
  private:
   ParametrosDesenho parametros_desenho_;
+  IluminacaoDirecional luz_;
 
   /** tamanho do tabuleiro (tamanho_ x tamanho_). */
   int tamanho_;

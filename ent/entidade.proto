@@ -29,7 +29,7 @@ message Cor {
   optional float a = 4 [default=1.0];
 }
 
-message Iluminacao {
+message IluminacaoPontual {
   optional Cor cor = 1;
   optional float raio = 2;
   optional float atenuacao = 3;
@@ -50,7 +50,7 @@ message EntidadeProto {
   // Cor da entidade.
   optional Cor cor = 6;
   // Iluminação da entidade.
-  optional Iluminacao luz = 7;
+  optional IluminacaoPontual luz = 7;
   // Textura.
   optional string textura = 8;
 }
