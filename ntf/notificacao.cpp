@@ -4,7 +4,13 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
-using namespace ntf;
+namespace ntf {
+
+Notificacao* NovaNotificacao(ntf::Tipo tipo) {
+  auto* n = new ntf::Notificacao;
+  n->set_tipo(tipo);
+  return n;
+}
 
 CentralNotificacoes::CentralNotificacoes() {}
 CentralNotificacoes::~CentralNotificacoes() {
@@ -75,3 +81,5 @@ void CentralNotificacoes::Notifica() {
     delete n;
   }
 }
+
+}  // namespace ntf

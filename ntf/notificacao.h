@@ -2,12 +2,13 @@
 #define NOTIFICACAO_H
 
 #include <vector>
+#include "ntf/notificacao.pb.h"
 
 /** @file include/ifg/ntf/Notificacao.h declaracao da interface de notificacao. */
 
 namespace ntf {
 
-class Notificacao;
+Notificacao* NovaNotificacao(ntf::Tipo tipo);
 
 /** Interface para receber notificações. */
 class Receptor {

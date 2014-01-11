@@ -1,4 +1,4 @@
-env = Environment(toolpath=['tools'], tools=['default', 'protoc'])
+env = Environment(toolpath=['tools', '/opt/gcc-4.8.2'], tools=['default', 'protoc'])
 
 env['QTDIR'] = '/usr'
 env.Tool('qt')
@@ -39,6 +39,7 @@ cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
+cTexturas = env.Object('ent/texturas.cpp')
 ent_proto = env.Protoc(
   target = [],
   source = ['ent/entidade.proto', 'ent/tabuleiro.proto'],
@@ -67,7 +68,7 @@ env.Program(
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # ent.
-		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade
+		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade, cTexturas
 	]
 )
 

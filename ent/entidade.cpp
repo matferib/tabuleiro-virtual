@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "log/log.h"
@@ -11,8 +12,6 @@ namespace {
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
 const double ALTURA = 1.5;
-const double RAIO_CONE = 0.75;
-const double RAIO_ESFERA = 0.3;
 const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
 /** Altera a cor corrente para cor. */
@@ -20,6 +19,21 @@ void MudaCor(const ent::Cor& cor) {
   GLfloat cor_gl[] = { cor.r(), cor.g(), cor.b(), cor.a() };
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor_gl);
   glColor3fv(cor_gl);
+}
+
+/** Desenha um disco com um determinado numero de faces. */
+void DesenhaDisco(GLfloat raio, int num_faces) {
+  glNormal3f(0, 0, 1.0f);
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(-0.2f, -0.2f);
+  glBegin(GL_TRIANGLE_FAN);
+  glVertex3f(0.0, 0.0, 0.0);
+  for (int i = 0; i <= num_faces; ++i) {
+    float angulo = i * 2 * M_PI / num_faces;
+    glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
+  }
+  glEnd();
+  glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 // Multiplicador de dimensão por tamanho de entidade.
@@ -144,30 +158,30 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 	glTranslated(X(), Y(), Z());
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  MudaCor(proto_.cor());
 	glLoadName(Id());
+  MudaCor(proto_.cor());
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
+  glScalef(multiplicador, multiplicador, multiplicador);
   // Aplica uma pequena diminuição para não ocupar o quadrado todo.
-  glutSolidCone(RAIO_CONE * multiplicador - 0.2f, ALTURA * multiplicador, NUM_FACES, NUM_LINHAS);
-  glPushMatrix();
-	glTranslated(0, 0, ALTURA * multiplicador);
-	glutSolidSphere(RAIO_ESFERA * multiplicador, NUM_FACES, NUM_FACES);
-  glPopMatrix();
+  if (proto_.has_textura()) {
+    // Constroi a moldura e aplica a textura.
+    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 12);
+    glPushMatrix();
+    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2);
+    glScalef(0.1f, 1.0f, 1.0f);
+    glutSolidCube(TAMANHO_LADO_QUADRADO);
+    glPopMatrix();
+  } else {
+    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
+    glPushMatrix();
+	  glTranslated(0, 0, ALTURA);
+	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
+    glPopMatrix();
+  }
 
   if (pd->entidade_selecionada()) {
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
-    glNormal3f(0, 0, 1.0f);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-0.2f, -0.2f);
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0, 0.0, 0.0);
-    float raio_disco = RAIO_CONE * multiplicador * 1.2f;
-    for (int i = 0; i <= 6; ++i) {
-      float angulo = i * M_PI / 3.0f;
-      glVertex3f(cosf(angulo) * raio_disco, sinf(angulo) * raio_disco, 0.0f);
-    }
-    glEnd();
-    glDisable(GL_POLYGON_OFFSET_FILL);
+    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
   }
 	
 	glPopMatrix();

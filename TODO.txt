@@ -1,4 +1,3 @@
-- Posição do olho na entidade selecionada.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).
 - Entidades com gravuras.
 - Tabuleiro com gravuras.

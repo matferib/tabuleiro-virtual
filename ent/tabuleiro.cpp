@@ -9,6 +9,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
@@ -42,12 +43,8 @@ const double SENSIBILIDADE_ROTACAO_X = 0.01;
 /** sensibilidade da altura do olho. */
 const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 
-/** tamanho do lado do quadrado no 3D. */
-const double TAMANHO_GL = 1.5;
 /** expessura da linha do tabuleiro. */
 const double EXPESSURA_LINHA = 0.1;
-/** tamanho do lado do quadrado / 2. */
-const double TAMANHO_GL_2 = (TAMANHO_GL / 2.0);
 /** velocidade do olho. */
 const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 /** Altera a cor correnta para cor. */
@@ -62,7 +59,7 @@ void DesenhaQuadrado(GLuint id, bool selecionado) {
   glLoadName(id);
   GLfloat preto[] = { 0, 0, 0, 1.0 };
   MudaCor(preto);
-  glRectf(0, 0, TAMANHO_GL, TAMANHO_GL);
+  glRectf(0, 0, TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO);
 
   // Habilita a função pra acabar com zfight.
   glEnable(GL_POLYGON_OFFSET_FILL);
@@ -74,7 +71,7 @@ void DesenhaQuadrado(GLuint id, bool selecionado) {
     GLfloat cinza_claro[] = { 0.8, 0.8, 0.8, 1.0 };
     MudaCor(cinza_claro);
   }
-  glRectf(0, 0, TAMANHO_GL - EXPESSURA_LINHA, TAMANHO_GL - EXPESSURA_LINHA);
+  glRectf(0, 0, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA);
   // Restaura os offset de zfight.
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
@@ -215,8 +212,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
     // Envia a entidade para os outros.
-    auto* n = new ntf::Notificacao;
-    n->set_tipo(notificacao.tipo());
+    auto* n = ntf::NovaNotificacao(notificacao.tipo());
     n->mutable_entidade()->CopyFrom(entidade->Proto());
     central_->AdicionaNotificacaoRemota(n);
   } else {
@@ -236,8 +232,7 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
     // Remover entidade selecionada local.
     id_remocao = entidade_selecionada_->Id();
     // Envia para os clientes.
-    auto* n = new ntf::Notificacao;
-    n->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
     n->mutable_entidade()->set_id(id_remocao);
     central_->AdicionaNotificacaoRemota(n);
   } else {
@@ -474,13 +469,16 @@ void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y, double aspecto) {
   }
 }
 
-void Tabuleiro::TrataBotaoLiberado() {
+void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
   switch (estado_) {
     case ETAB_ROTACAO:
     case ETAB_DESLIZANDO:
       estado_ = estado_anterior_rotacao_;
       return;
     case ETAB_ENT_PRESSIONADA: {
+      if (botao != BOTAO_ESQUERDO) {
+        return;
+      }
       auto* n = new ntf::Notificacao;
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
@@ -570,8 +568,8 @@ void Tabuleiro::DesenhaCena() {
   //ceu_.desenha(parametros_desenho_);
   // desenha tabuleiro de baixo pra cima
   glPushMatrix();
-  double deltaX = -TamanhoX() * TAMANHO_GL;
-  double deltaY = -TamanhoY() * TAMANHO_GL;
+  double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
+  double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   glNormal3f(0, 0, 1.0f);
   glTranslated(deltaX / 2.0, deltaY / 2.0, 0);
   int id = 0;
@@ -580,11 +578,11 @@ void Tabuleiro::DesenhaCena() {
       // desenha quadrado
       DesenhaQuadrado(id, id == quadrado_selecionado_);
       // anda 1 quadrado direita
-      glTranslated(TAMANHO_GL, 0, 0);
+      glTranslated(TAMANHO_LADO_QUADRADO, 0, 0);
       ++id;
     }
     // volta tudo esquerda e sobe 1 quadrado
-    glTranslated(deltaX, TAMANHO_GL, 0);
+    glTranslated(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
   glPopMatrix();
   if (!parametros_desenho_.desenha_entidades()) {
@@ -743,8 +741,10 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   int quad_y = id_quadrado / TamanhoY();
 
   // centro do quadrado
-  *x = ((quad_x * TAMANHO_GL) + TAMANHO_GL_2) - (TamanhoX() * TAMANHO_GL_2);
-  *y = ((quad_y * TAMANHO_GL) + TAMANHO_GL_2) - (TamanhoY() * TAMANHO_GL_2); 
+  *x = ((quad_x * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
+       (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
+  *y = ((quad_y * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
+       (TamanhoY() * TAMANHO_LADO_QUADRADO_2); 
   *z = 0;
 }
 

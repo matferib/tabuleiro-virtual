@@ -11,6 +11,8 @@ class Notificacao;
 }  // namespace ntf
 
 namespace ent {
+class EntidadeProto;
+class IluminacaoDirecional;
 class Tabuleiro;
 }  // namespace ent
 
@@ -49,6 +51,9 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
  private:
+  ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
+  ent::IluminacaoDirecional* AbreDialogoIluminacao(const ntf::Notificacao& notificacao);
+
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
 };

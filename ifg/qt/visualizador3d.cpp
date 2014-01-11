@@ -97,11 +97,118 @@ const QString TamanhoParaTexto(int tamanho) {
   return QObject::tr("desconhecido");
 }
 
-/** Abre um diálogo editável com as características da entidade. */ 
-ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWidget* pai) {
+}  // namespace
+
+Visualizador3d::Visualizador3d(
+    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) 
+    :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
+       central_(central), tabuleiro_(tabuleiro) {
+  central_->RegistraReceptor(this);
+}
+
+Visualizador3d::~Visualizador3d() {
+}
+
+// reimplementacoes
+void Visualizador3d::initializeGL() {
+  ent::Tabuleiro::InicializaGL();
+}
+
+void Visualizador3d::resizeGL(int width, int height) {
+  tabuleiro_->TrataRedimensionaJanela(width, height);
+}
+
+void Visualizador3d::paintGL() {
+  tabuleiro_->Desenha();
+}
+
+// notificacao
+bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
+  switch (notificacao.tipo()) {
+    case ntf::TN_INICIADO:
+      // chama o resize pra iniciar a geometria e desenha a janela
+      resizeGL(width(), height());
+      glDraw();
+      break;
+    case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
+      auto* entidade = AbreDialogoEntidade(notificacao);
+      if (entidade == nullptr) {
+        VLOG(1) << "Alterações descartadas";
+        break;
+      }
+      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
+      n->set_endereco("local");  // apenas para processar localmente.
+      n->mutable_entidade()->Swap(entidade);
+      central_->AdicionaNotificacao(n);
+      break;
+    }
+    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO: {
+      if (!notificacao.has_tabuleiro()) {
+        // O tabuleiro criara a mensagem completa.
+        return false;
+      }
+      auto* luz = AbreDialogoIluminacao(notificacao);
+      if (luz == nullptr) {
+        VLOG(1) << "Alterações de iluminação descartadas";
+        break;
+      }
+      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ILUMINACAO);
+      n->set_endereco("local");  // apenas para processar localmente.
+      n->mutable_tabuleiro()->mutable_luz()->Swap(luz);
+      central_->AdicionaNotificacao(n);
+      break;
+    }
+    default: ;
+  }
+  // Sempre redesenha para evitar qualquer problema de atualizacao.
+  glDraw();
+  return true;
+}
+
+// mouse
+
+void Visualizador3d::mousePressEvent(QMouseEvent* event) {
+  int altura = height();
+  double aspecto = static_cast<double>(width()) / altura;
+  tabuleiro_->TrataBotaoPressionado(
+    MapeiaBotao(event->button()), 
+    event->x(), altura - event->y(), aspecto);
+  event->accept();
+  glDraw();
+}
+
+void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
+  tabuleiro_->TrataBotaoLiberado(MapeiaBotao(event->button()));
+  event->accept();
+  glDraw();
+}
+
+void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
+  int altura = height();
+  double aspecto = static_cast<double>(width()) / altura;
+  tabuleiro_->TrataDuploClique(
+    MapeiaBotao(event->button()), 
+    event->x(), altura - event->y(), aspecto);
+  event->accept();
+}
+
+void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
+  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()));
+  event->accept();
+  glDraw();
+}
+
+void Visualizador3d::wheelEvent(QWheelEvent* event) {
+  tabuleiro_->TrataRodela(event->delta());
+  event->accept();
+  glDraw();
+}
+
+ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
+    const ntf::Notificacao& notificacao) {
   auto* proto = new ent::EntidadeProto(notificacao.entidade());
   ifg::qt::Ui::DialogoEntidade gerador;
-  auto* dialogo = new QDialog(pai);
+  auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
   // ID.
   QString id_str;
@@ -150,8 +257,15 @@ ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWi
     gerador.botao_luz->setStyleSheet(CorParaEstilo(cor));
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   });
+  // Textura do objeto.
+  if (proto->has_textura()) {
+    gerador.checkbox_textura->setCheckState(Qt::Checked);
+  } else {
+    gerador.checkbox_textura->setCheckState(Qt::Unchecked);
+  }
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &proto, &ent_cor, &luz_cor] {
+  lambda_connect(gerador.botoes, SIGNAL(accepted()),
+                 [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
     proto->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     if (gerador.checkbox_cor->checkState() == Qt::Checked) {
       proto->mutable_cor()->Swap(ent_cor.mutable_cor());
@@ -162,6 +276,27 @@ ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWi
       proto->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
     } else {
       proto->clear_luz();
+    }
+    if (gerador.checkbox_textura->checkState() == Qt::Checked) {
+      // Envia uma notificacao para liberar a textura corrente.
+      if (proto->has_textura()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
+        n->set_endereco(proto->textura());
+        central_->AdicionaNotificacao(n);
+      }
+      // Envia outra para carregar a textura nova.
+      proto->set_textura("");
+      auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+      n->set_endereco(proto->textura());
+      central_->AdicionaNotificacao(n);
+    } else {
+      if (proto->has_textura()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
+        n->set_endereco(proto->textura());
+        central_->AdicionaNotificacao(n);
+      }
+      // Envia uma notificacao para liberar a textura corrente.
+      proto->clear_textura();
     }
     dialogo->accept();
   });
@@ -178,10 +313,11 @@ ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao, QWi
 }
 
 /** Abre um diálogo editável com as características de iluminacao do tabuleiro. */ 
-ent::IluminacaoDirecional* AbreDialogoIluminacao(const ntf::Notificacao& notificacao, QWidget* pai) {
+ent::IluminacaoDirecional* Visualizador3d::AbreDialogoIluminacao(
+    const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::IluminacaoDirecional;
   ifg::qt::Ui::DialogoIluminacao gerador;
-  auto* dialogo = new QDialog(pai);
+  auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
   const auto& luz_proto = notificacao.tabuleiro().luz();
 
@@ -217,115 +353,6 @@ ent::IluminacaoDirecional* AbreDialogoIluminacao(const ntf::Notificacao& notific
   dialogo->exec();
   delete dialogo;
   return proto_retornado;
-}
-
-}  // namespace
-
-Visualizador3d::Visualizador3d(
-    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) 
-    :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
-       central_(central), tabuleiro_(tabuleiro) {
-  central_->RegistraReceptor(this);
-}
-
-Visualizador3d::~Visualizador3d() {
-}
-
-// reimplementacoes
-void Visualizador3d::initializeGL() {
-  ent::Tabuleiro::InicializaGL();
-}
-
-void Visualizador3d::resizeGL(int width, int height) {
-  tabuleiro_->TrataRedimensionaJanela(width, height);
-}
-
-void Visualizador3d::paintGL() {
-  tabuleiro_->Desenha();
-}
-
-// notificacao
-bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
-  switch (notificacao.tipo()) {
-    case ntf::TN_INICIADO:
-      // chama o resize pra iniciar a geometria e desenha a janela
-      resizeGL(width(), height());
-      glDraw();
-      break;
-    case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
-      auto* entidade = AbreDialogoEntidade(notificacao, this);
-      if (entidade == nullptr) {
-        VLOG(1) << "Alterações descartadas";
-        break;
-      }
-      auto* n = new ntf::Notificacao;
-      n->set_endereco("local");  // apenas para processar localmente.
-      n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-      n->mutable_entidade()->Swap(entidade);
-      central_->AdicionaNotificacao(n);
-      break;
-    }
-    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO: {
-      if (!notificacao.has_tabuleiro()) {
-        // O tabuleiro criara a mensagem completa.
-        return false;
-      }
-      auto* luz = AbreDialogoIluminacao(notificacao, this);
-      if (luz == nullptr) {
-        VLOG(1) << "Alterações de iluminação descartadas";
-        break;
-      }
-      auto* n = new ntf::Notificacao;
-      n->set_endereco("local");  // apenas para processar localmente.
-      n->set_tipo(ntf::TN_ATUALIZAR_ILUMINACAO);
-      n->mutable_tabuleiro()->mutable_luz()->Swap(luz);
-      central_->AdicionaNotificacao(n);
-      break;
-    }
-    default: ;
-  }
-  // Sempre redesenha para evitar qualquer problema de atualizacao.
-  glDraw();
-  return true;
-}
-
-// mouse
-
-void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  int altura = height();
-  double aspecto = static_cast<double>(width()) / altura;
-  tabuleiro_->TrataBotaoPressionado(
-    MapeiaBotao(event->button()), 
-    event->x(), altura - event->y(), aspecto);
-  event->accept();
-  glDraw();
-}
-
-void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  tabuleiro_->TrataBotaoLiberado();
-  event->accept();
-  glDraw();
-}
-
-void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
-  int altura = height();
-  double aspecto = static_cast<double>(width()) / altura;
-  tabuleiro_->TrataDuploClique(
-    MapeiaBotao(event->button()), 
-    event->x(), altura - event->y(), aspecto);
-  event->accept();
-}
-
-void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()));
-  event->accept();
-  glDraw();
-}
-
-void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  tabuleiro_->TrataRodela(event->delta());
-  event->accept();
-  glDraw();
 }
 
 

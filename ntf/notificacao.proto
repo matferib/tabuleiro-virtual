@@ -24,6 +24,8 @@ enum Tipo {
   TN_MOVER_ENTIDADE = 19;
   TN_ABRIR_DIALOGO_ENTIDADE = 20;
   TN_ABRIR_DIALOGO_ILUMINACAO = 21;
+  TN_CARREGAR_TEXTURA = 22;
+  TN_LIBERAR_TEXTURA = 23;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
