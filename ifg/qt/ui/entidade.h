@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'entidadeE25115.ui'
+** Form generated from reading UI file 'entidaded25115.ui'
 **
-** Created: Fri Jan 10 19:52:46 2014
+** Created: Sat Jan 11 18:15:47 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ENTIDADEE25115_H
-#define ENTIDADEE25115_H
+#ifndef ENTIDADED25115_H
+#define ENTIDADED25115_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -52,7 +52,7 @@ public:
     QSlider *slider_tamanho;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_6;
-    QCheckBox *checkbox_textura;
+    QLineEdit *linha_textura;
     QPushButton *botao_textura;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
@@ -173,12 +173,11 @@ public:
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
-        checkbox_textura = new QCheckBox(horizontalLayoutWidget_5);
-        checkbox_textura->setObjectName(QString::fromUtf8("checkbox_textura"));
-        checkbox_textura->setEnabled(true);
-        checkbox_textura->setLayoutDirection(Qt::RightToLeft);
+        linha_textura = new QLineEdit(horizontalLayoutWidget_5);
+        linha_textura->setObjectName(QString::fromUtf8("linha_textura"));
+        linha_textura->setReadOnly(false);
 
-        horizontalLayout_6->addWidget(checkbox_textura);
+        horizontalLayout_6->addWidget(linha_textura);
 
         botao_textura = new QPushButton(horizontalLayoutWidget_5);
         botao_textura->setObjectName(QString::fromUtf8("botao_textura"));
@@ -203,10 +202,7 @@ public:
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        checkbox_textura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Habilitar textura", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_textura->setText(QString());
+        linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoEntidade", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
@@ -223,4 +219,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ENTIDADEE25115_H
+#endif // ENTIDADED25115_H

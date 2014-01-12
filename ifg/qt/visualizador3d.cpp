@@ -1,10 +1,12 @@
-#include <stdexcept>
 #include <cmath>
+#include <stdexcept>
+#include <string>
 
 #include <QBoxLayout>
 #include <QColorDialog>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QFileDialog>
 #include <QMouseEvent>
 #include <QString>
 #include <GL/gl.h>
@@ -258,11 +260,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   });
   // Textura do objeto.
-  if (proto->has_textura()) {
-    gerador.checkbox_textura->setCheckState(Qt::Checked);
-  } else {
-    gerador.checkbox_textura->setCheckState(Qt::Unchecked);
-  }
+  gerador.linha_textura->setText(proto->textura().c_str());
+  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
+      [this, dialogo, &gerador, &luz_cor ] () {
+    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de leitura de textura cancelada.";
+      return;
+    }
+    gerador.linha_textura->setText(file_str);
+  });
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
                  [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
@@ -277,7 +284,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     } else {
       proto->clear_luz();
     }
-    if (gerador.checkbox_textura->checkState() == Qt::Checked) {
+    if (!gerador.linha_textura->text().isEmpty()) {
       // Envia uma notificacao para liberar a textura corrente.
       if (proto->has_textura()) {
         auto* n = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
@@ -285,7 +292,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
         central_->AdicionaNotificacao(n);
       }
       // Envia outra para carregar a textura nova.
-      proto->set_textura("");
+      proto->set_textura(gerador.linha_textura->text().toStdString());
       auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
       n->set_endereco(proto->textura());
       central_->AdicionaNotificacao(n);

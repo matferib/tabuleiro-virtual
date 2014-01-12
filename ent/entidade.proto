@@ -62,11 +62,13 @@ message ParametrosDesenho {
   // Verdadeiro quando se quer desenhar as luzes.
   optional bool iluminacao = 3 [default=true];
   // Verdadeiro quando se quer desenhar as entidades.
-  optional bool desenha_entidades = 4 [default=true]; 
+  optional bool desenha_entidades = 4 [default=true];
+  // Verdadeiro para desenhar texturas.
+  optional bool desenha_texturas = 5 [default=true];
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
-  optional int32 luz_corrente = 5 [default=1];
+  optional int32 luz_corrente = 6 [default=1];
   // OpenGL permite até 8 luzes simultaneas.
-  optional int32 max_num_luzes = 6 [default=8];
+  optional int32 max_num_luzes = 7 [default=8];
 }
 
 

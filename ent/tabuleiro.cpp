@@ -155,11 +155,12 @@ bool MousePara3d(int x, int y,
 
 }  // namespace.
 
-Tabuleiro::Tabuleiro(ntf::CentralNotificacoes* central) : 
+Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) : 
     id_cliente_(0),
     entidade_selecionada_(NULL), 
     quadrado_selecionado_(-1), 
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
+    texturas_(texturas),
     central_(central) {
   central_->RegistraReceptor(this);
   // Iluminacao inicial.
@@ -207,7 +208,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     }
     double x, y, z;
     CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-    auto* entidade = NovaEntidade(TE_ENTIDADE);
+    auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_);
     entidade->Inicializa(GeraEntidadeProto(id_cliente_, proximo_id_entidade_++, x, y, z));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
@@ -217,7 +218,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacaoRemota(n);
   } else {
     // Mensagem veio de fora.
-    auto* entidade = NovaEntidade(notificacao.entidade().tipo());
+    auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_);
     entidade->Inicializa(notificacao.entidade());
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
   }
@@ -787,7 +788,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   proto_.CopyFrom(tabuleiro);
   id_cliente_ = tabuleiro.id_cliente();
   for (const auto& ep : tabuleiro.entidade()) {
-    auto* e = NovaEntidade(ep.tipo());
+    auto* e = NovaEntidade(ep.tipo(), texturas_);
     e->Inicializa(ep);
     entidades_.insert({ e->Id(), e });
   }

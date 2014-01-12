@@ -4,11 +4,15 @@
 
 namespace ent {
 
-struct Texturas::InfoTextura {
-  InfoTextura() : contador(1), textura(nullptr) {}
-  ~InfoTextura() { /*delete textura;*/ }
+struct Texturas::InfoTexturaInterna {
+  InfoTexturaInterna() : contador(1) {
+    info
+  }
+  ~InfoTexturaInterna() {
+    delete [](char*)info.dados;
+  }
   int contador;
-  void* textura;
+  InfoTextura info;
 };
 
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
@@ -31,15 +35,15 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
-const void* Texturas::Textura(const std::string& id) const {
-  const InfoTextura* info = Info(id);
-  if (info == nullptr) {
+const InfoTextura* Texturas::Textura(const std::string& id) const {
+  const InfoTexturaInterna* info_interna = InfoInterna(id);
+  if (info_interna == nullptr) {
     return nullptr;
   }
-  return info->textura;
+  return &info_interna.info;
 }
 
-Texturas::InfoTextura* Texturas::Info(const std::string& id) {
+Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id) {
   auto it = texturas_.find(id);
   if (it == texturas_.end()) {
     return nullptr;
@@ -47,7 +51,7 @@ Texturas::InfoTextura* Texturas::Info(const std::string& id) {
   return it->second;
 }
 
-const Texturas::InfoTextura* Texturas::Info(const std::string& id) const {
+const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id) const {
   auto it = texturas_.find(id);
   if (it == texturas_.end()) {
     return nullptr;
@@ -56,28 +60,29 @@ const Texturas::InfoTextura* Texturas::Info(const std::string& id) const {
 }
 
 void Texturas::CarregaTextura(const std::string& id) {
-  auto* info = Info(id);
-  if (info == nullptr) {
-    VLOG(1) << "Textura criada:" << id;
-    info = new InfoTextura;
-    texturas_.insert(make_pair(id, info));
+  auto* info_interna = InfoInterna(id);
+  if (info_interna == nullptr) {
+
+    info_interna = new InfoTexturaInterna;
+    texturas_.insert(make_pair(id, info_interna));
+    VLOG(1) << "Textura criada: " << id;
   } else {
-    ++info->contador;
-    VLOG(1) << "Textura '" << id << " incrementada para " << info->contador;
+    ++info_interna->contador;
+    VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;
   }
 }
 
 void Texturas::DescarregaTextura(const std::string& id) {
-  auto* info = Info(id);
-  if (info == nullptr) {
+  auto* info_interna = InfoInterna(id);
+  if (info_interna == nullptr) {
     LOG(WARNING) << "Textura nao existente: " << id;
   } else {
-    if (--info->contador == 0) {
+    if (--info_interna->contador == 0) {
       VLOG(1) << "Textura liberada: " << id;
-      delete info;
+      delete info_interna;
       texturas_.erase(id);
     } else {
-      VLOG(1) << "Textura '" << id << " decrementada para " << info->contador;
+      VLOG(1) << "Textura '" << id << "' decrementada para " << info_interna->contador;
     }
   }
 }

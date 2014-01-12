@@ -207,18 +207,12 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_6">
     <item>
-     <widget class="QCheckBox" name="checkbox_textura">
-      <property name="enabled">
-       <bool>true</bool>
+     <widget class="QLineEdit" name="linha_textura">
+      <property name="readOnly">
+       <bool>false</bool>
       </property>
-      <property name="toolTip">
-       <string>Habilitar textura</string>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::RightToLeft</enum>
-      </property>
-      <property name="text">
-       <string/>
+      <property name="placeholderText">
+       <string>Caminho para textura ou vazio</string>
       </property>
      </widget>
     </item>

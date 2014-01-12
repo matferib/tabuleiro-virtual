@@ -5,6 +5,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
+#include "ent/texturas.h"
 #include "log/log.h"
 
 namespace ent {
@@ -12,16 +13,21 @@ namespace {
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
 const double ALTURA = 1.5;
-const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
+// deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
+const double VELOCIDADE_POR_EIXO = 0.1;
 
-/** Altera a cor corrente para cor. */
-void MudaCor(const ent::Cor& cor) {
-  GLfloat cor_gl[] = { cor.r(), cor.g(), cor.b(), cor.a() };
+void MudaCor(float r, float g, float b, float a) {
+  GLfloat cor_gl[] = { r, g, b, a };
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor_gl);
   glColor3fv(cor_gl);
 }
 
-/** Desenha um disco com um determinado numero de faces. */
+/** Altera a cor corrente para cor. */
+void MudaCor(const ent::Cor& cor) {
+  MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
+}
+
+/** Desenha um disco no eixo x-y, com um determinado numero de faces. */
 void DesenhaDisco(GLfloat raio, int num_faces) {
   glNormal3f(0, 0, 1.0f);
   glEnable(GL_POLYGON_OFFSET_FILL);
@@ -55,10 +61,10 @@ float CalculaMultiplicador(TamanhoEntidade tamanho) {
 }  // namespace
 
 // Factory.
-Entidade* NovaEntidade(TipoEntidade tipo) {
+Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas) {
   switch (tipo) {
     case TE_ENTIDADE:
-      return new Entidade;
+      return new Entidade(texturas);
     default:
       LOG(ERROR) << "Tipo de entidade inválido: " << tipo;
       return nullptr;
@@ -66,9 +72,10 @@ Entidade* NovaEntidade(TipoEntidade tipo) {
 }
 
 // Entidade
-Entidade::Entidade() {
+Entidade::Entidade(Texturas* texturas) {
   proto_.set_tipo(TE_ENTIDADE);
   rotacao_disco_selecao_ = 0;
+  texturas_ = texturas;
 }
 
 void Entidade::Inicializa(const EntidadeProto& proto) { 
@@ -154,7 +161,6 @@ double Entidade::Z() const {
 
 void Entidade::Desenha(ParametrosDesenho* pd) {
 	glPushMatrix();
-
 	glTranslated(X(), Y(), Z());
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
@@ -165,12 +171,47 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
   // Aplica uma pequena diminuição para não ocupar o quadrado todo.
   if (proto_.has_textura()) {
     // Constroi a moldura e aplica a textura.
-    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 12);
+    // tijolo da base (altura TAMANHO_LADO_QUADRADO / 10).
     glPushMatrix();
-    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2);
-    glScalef(0.1f, 1.0f, 1.0f);
+    glScalef(0.8f, 0.8f, 0.1f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
+    // Moldura da textura: achatado em Y.
+    glPushMatrix();
+    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0f));
+    glScalef(1.0f, 0.1f, 1.0f);
+    glutSolidCube(TAMANHO_LADO_QUADRADO);
+    glPopMatrix();
+    // desenha a tela onde a textura será desenhada face para o sul.
+    const InfoTextura* info = texturas_->Textura(proto_.textura());
+    if (info != nullptr && pd->desenha_texturas()) {
+      glEnable(GL_TEXTURE_2D);
+      glTexImage2D(GL_TEXTURE_2D,
+                   0, GL_RGBA,
+                   info->largura, info->altura,
+                   0, GL_RGBA, GL_UNSIGNED_BYTE,
+                   info->dados);
+      glNormal3f(0.0f, -1.0f, 0.0f);
+      glPushMatrix();
+      glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
+      MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
+      glBegin(GL_QUADS);
+      glTexCoord2f(0.0f, 0.0f);
+      glVertex3f(
+          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
+      glTexCoord2f(1.0f, 0.0f);
+      glVertex3f(
+          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(
+          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(
+          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0);
+      glEnd();
+      glPopMatrix();
+      glDisable(GL_TEXTURE_2D);
+    }
   } else {
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glPushMatrix();
@@ -180,6 +221,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
   }
 
   if (pd->entidade_selecionada()) {
+    MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
   }

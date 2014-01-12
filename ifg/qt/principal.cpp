@@ -30,16 +30,19 @@ using namespace std;
 // OBJETOS //
 /////////////
 
-Principal* Principal::Cria(int& argc, char** argv, ntf::CentralNotificacoes* central) {
+Principal* Principal::Cria(int& argc, char** argv,
+                           ent::Texturas* texturas, ntf::CentralNotificacoes* central) {
 	glutInit(&argc, argv);
   auto* q_app = new QApplication(argc, argv);
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-  return new Principal(central, q_app);
+  return new Principal(texturas, central, q_app);
 }
 
-Principal::Principal(ntf::CentralNotificacoes* central, QApplication* q_app)
+Principal::Principal(ent::Texturas* texturas,
+                     ntf::CentralNotificacoes* central,
+                     QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
-      tabuleiro_(central), menu_principal_(new MenuPrincipal(central, this)), 
+      tabuleiro_(texturas, central), menu_principal_(new MenuPrincipal(central, this)), 
       v3d_(new Visualizador3d(central, &tabuleiro_, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));

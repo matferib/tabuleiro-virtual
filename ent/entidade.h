@@ -6,9 +6,10 @@
 namespace ent {
 
 class Entidade;
+class Texturas;
 
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
-Entidade* NovaEntidade(TipoEntidade tipo);
+Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico. 
@@ -61,13 +62,14 @@ class Entidade {
   const EntidadeProto& Proto() const;
 
  protected:
-  friend Entidade* NovaEntidade(TipoEntidade);
-  Entidade();
+  friend Entidade* NovaEntidade(TipoEntidade, Texturas*);
+  Entidade(Texturas* texturas);
 
  protected:
   EntidadeProto proto_;
   // Como esse estado é local e não precisa ser salvo, fica aqui.
   double rotacao_disco_selecao_;
+  Texturas* texturas_;
 };
 
 }  // namespace ent

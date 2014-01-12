@@ -49,12 +49,12 @@ void CentralNotificacoes::DesregistraReceptorRemoto(const ReceptorRemoto* recept
 }
 
 void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
-  VLOG(1) << "Adicionando: " << notificacao->ShortDebugString();
+  VLOG(2) << "Adicionando: " << notificacao->ShortDebugString();
   notificacoes_.push_back(notificacao);
 }
 
 void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
-  VLOG(1) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
+  VLOG(2) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
   notificacoes_remotas_.push_back(notificacao);
 }
 
@@ -64,7 +64,7 @@ void CentralNotificacoes::Notifica() {
   copia_notificacoes.swap(notificacoes_);
   for (auto* n : copia_notificacoes) {
     if (n->tipo() != ntf::TN_TEMPORIZADOR) {
-      LOG(INFO) << "Despachando local: " << n->ShortDebugString();
+      VLOG(1) << "Despachando local: " << n->ShortDebugString();
     }
     for (auto* r : receptores_) {
       r->TrataNotificacao(*n);
@@ -74,7 +74,7 @@ void CentralNotificacoes::Notifica() {
   copia_notificacoes.clear();
   copia_notificacoes.swap(notificacoes_remotas_);
   for (auto* n : copia_notificacoes) {
-    LOG(INFO) << "Despachando remota: " << n->ShortDebugString();
+    VLOG(1) << "Despachando remota: " << n->ShortDebugString();
     for (auto* r : receptores_remotos_) {
       r->TrataNotificacaoRemota(*n);
     }

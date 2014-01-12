@@ -14,6 +14,7 @@ namespace ntf {
 namespace ent {
 
 class Entidade;
+class Texturas;
 
 /** botoes do mouse. */
 enum botao_e {
@@ -42,7 +43,7 @@ typedef std::map<unsigned int, Entidade*> MapaEntidades;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(ntf::CentralNotificacoes* central);
+  explicit Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -174,6 +175,7 @@ class Tabuleiro : public ntf::Receptor {
   // Para onde o olho olha.
   Olho olho_;
 
+  Texturas* texturas_;
   ntf::CentralNotificacoes* central_;
 
   // elimina copia
