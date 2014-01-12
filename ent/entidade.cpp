@@ -178,41 +178,43 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // Moldura da textura: achatado em Y.
-    /*
     glPushMatrix();
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0f));
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
-    */
     // desenha a tela onde a textura será desenhada face para o sul.
     const InfoTextura* info = texturas_->Textura(proto_.textura());
-    if (info != nullptr && pd->desenha_texturas()) {
-      glEnable(GL_TEXTURE_2D);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-      glTexImage2D(GL_TEXTURE_2D,
-                   0, GL_RGBA,
-                   info->largura, info->altura,
-                   0, GL_RGB, GL_UNSIGNED_BYTE,
-                   info->dados);
+    if (info != nullptr) {
+      if (pd->desenha_texturas()) {
+        glEnable(GL_TEXTURE_2D);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0, GL_RGBA,
+                     info->largura, info->altura,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     info->dados);
+      }
       glNormal3f(0.0f, -1.0f, 0.0f);
       glPushMatrix();
       glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
       MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
       glBegin(GL_QUADS);
       glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(
-          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
-      glTexCoord2f(1.0f, 0.0f);
+      // OpenGL espera a imagem vinda de baixo,esquerda para cima,direita. Como o carregador
+      // carrega invertido, fazemos o desenho de cabeca para baixo.
       glVertex3f(
           TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
-      glTexCoord2f(1.0f, 1.0f);
+      glTexCoord2f(1.0f, 0.0f);
       glVertex3f(
           -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(
+          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
       glTexCoord2f(0.0f, 1.0f);
       glVertex3f(
-          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0);
+          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
       glEnd();
       glPopMatrix();
       glDisable(GL_TEXTURE_2D);

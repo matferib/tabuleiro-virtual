@@ -1,3 +1,7 @@
+- Identificar texturas apenas pelo nome de arquivo e ler sempre de um diretorio fixo.
+- Carregar textura ao deserializar entidade.
+- Textura de tabuleiro.
+- Ver normais do cubo;
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).
 - Entidades com gravuras.
 - Tabuleiro com gravuras.

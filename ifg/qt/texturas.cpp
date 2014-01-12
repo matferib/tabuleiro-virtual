@@ -79,7 +79,8 @@ void Texturas::CarregaTextura(const std::string& id) {
     info_interna->info.dados =  imagem.constBits();
     texturas_.insert(make_pair(id, info_interna));
     VLOG(1) << "Textura criada: " << id
-            << "', " << info_interna->info.largura << "x" << info_interna->info.altura; 
+            << "', " << info_interna->info.largura << "x" << info_interna->info.altura
+            << ", bpp: " << imagem.depth();
   } else {
     ++info_interna->contador;
     VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;
