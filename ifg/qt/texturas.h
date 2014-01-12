@@ -1,20 +1,15 @@
-#ifndef ENT_TEXTURAS_H
-#define ENT_TEXTURAS_H
+#ifndef IFG_QT_TEXTURAS_H
+#define IFG_QT_TEXTURAS_H
 
 #include <unordered_map>
+#include "ent/entidade.h"
 #include "ntf/notificacao.h"
 
-namespace ent {
-
-/** Dados de renderizacao para texturas. O formato é sempre RGBA. */ 
-struct InfoTextura {
-  int altura;
-  int largura;
-  void* dados;
-};
+namespace ifg {
+namespace qt {
 
 /** Gerencia carregamento de texturas atraves de notificacoes. */
-class Texturas : public ntf::Receptor {
+class Texturas : public ent::Texturas, public ntf::Receptor {
  public:
   Texturas(ntf::CentralNotificacoes* central);
   ~Texturas();
@@ -23,7 +18,7 @@ class Texturas : public ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
   /** Retorna uma textura. */
-  const InfoTextura* Textura(const std::string& id) const;
+  virtual const ent::InfoTextura* Textura(const std::string& id) const override;
 
  private:
   struct InfoTexturaInterna;
@@ -41,6 +36,7 @@ class Texturas : public ntf::Receptor {
   std::unordered_map<std::string, InfoTexturaInterna*> texturas_;
 };
 
-}  // namespace ent
+}  // namespace qt 
+}  // namespace ifg
 
 #endif

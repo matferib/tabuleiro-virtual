@@ -400,6 +400,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     // Transforma x e y em 3D, baseado no nivel do solo.
     parametros_desenho_.set_desenha_entidades(false);
     parametros_desenho_.set_iluminacao(false);
+    parametros_desenho_.set_desenha_texturas(false);
     DesenhaCena();  // Sem as entidades pra pegar nivel solo.
     GLdouble nx, ny, nz;
     if (!MousePara3d(x, y, &nx, &ny, &nz)) {
@@ -411,6 +412,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     // Transforma x e y em 3D, baseado no nivel do solo.
     parametros_desenho_.set_desenha_entidades(false);
     parametros_desenho_.set_iluminacao(false);
+    parametros_desenho_.set_desenha_texturas(false);
     DesenhaCena();  // Sem as entidades pra pegar nivel solo.
     GLdouble modelview[16], projection[16];
     GLint viewport[4];
@@ -489,6 +491,7 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       p->set_y(entidade_selecionada_->Y());
       p->set_z(entidade_selecionada_->Z());
       central_->AdicionaNotificacaoRemota(n);
+      estado_ = ETAB_ENT_SELECIONADA;
       return;
     }
     case ETAB_QUAD_PRESSIONADO:
@@ -654,6 +657,7 @@ void Tabuleiro::EncontraHits(
 
   // desenha a cena
   parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
   DesenhaCena();
 
   // volta a projecao
@@ -703,6 +707,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int*
 void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   parametros_desenho_.set_desenha_entidades(false);
   parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
   DesenhaCena();
   GLdouble x3d, y3d, z3d;
   if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {

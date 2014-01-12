@@ -5,11 +5,12 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
-#include "ent/texturas.h"
+#include "ifg/qt/texturas.h"
 #include "log/log.h"
 
 namespace ent {
 namespace {
+
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
 const double ALTURA = 1.5;
@@ -177,19 +178,23 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // Moldura da textura: achatado em Y.
+    /*
     glPushMatrix();
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0f));
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
+    */
     // desenha a tela onde a textura será desenhada face para o sul.
     const InfoTextura* info = texturas_->Textura(proto_.textura());
     if (info != nullptr && pd->desenha_texturas()) {
       glEnable(GL_TEXTURE_2D);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
       glTexImage2D(GL_TEXTURE_2D,
                    0, GL_RGBA,
                    info->largura, info->altura,
-                   0, GL_RGBA, GL_UNSIGNED_BYTE,
+                   0, GL_RGB, GL_UNSIGNED_BYTE,
                    info->dados);
       glNormal3f(0.0f, -1.0f, 0.0f);
       glPushMatrix();

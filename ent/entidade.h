@@ -6,7 +6,19 @@
 namespace ent {
 
 class Entidade;
-class Texturas;
+
+/** Dados de renderizacao para texturas. O formato é sempre RGBA. */ 
+struct InfoTextura {
+  int altura;
+  int largura;
+  const void* dados;
+};
+
+/** Interface de texturas para entidades. */
+class Texturas {
+ public:
+  virtual const InfoTextura* Textura(const std::string& id) const = 0;
+};
 
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas);

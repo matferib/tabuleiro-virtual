@@ -4,7 +4,7 @@
 #include <QApplication>
 #include <QWidget>
 #include "ent/tabuleiro.h"
-#include "ent/texturas.h"
+#include "ifg/qt/texturas.h"
 #include "ntf/notificacao.h"
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
@@ -25,7 +25,7 @@ class Principal : public QWidget, ntf::Receptor {
   * instanciar o objeto. 
   */
   static Principal* Cria(int& argc, char** argv,
-                         ent::Texturas* texturas,
+                         Texturas* texturas,
                          ntf::CentralNotificacoes* central);
 	~Principal();
 
@@ -42,7 +42,7 @@ class Principal : public QWidget, ntf::Receptor {
   void Temporizador();
 
  private:
-	Principal(ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
+	Principal(Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;

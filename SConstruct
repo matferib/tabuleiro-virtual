@@ -36,10 +36,12 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 # visualizador3d: qt moc e fonte
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
+# Implementacao das texturas.
+cTexturas = env.Object('ifg/qt/texturas.cpp')
+
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
-cTexturas = env.Object('ent/texturas.cpp')
 ent_proto = env.Protoc(
   target = [],
   source = ['ent/entidade.proto', 'ent/tabuleiro.proto'],
@@ -66,9 +68,9 @@ env.Program(
 		# notificacoes.
 		ntf_proto[0], cNtf, 
 		# interface QT
-		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
+		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
     # ent.
-		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade, cTexturas
+		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade
 	]
 )
 

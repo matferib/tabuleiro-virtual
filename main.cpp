@@ -5,8 +5,8 @@
 #include <stdexcept>
 
 #include <boost/asio.hpp>
-#include "ent/texturas.h"
 #include "ifg/qt/principal.h"
+#include "ifg/qt/texturas.h"
 #include "net/cliente.h"
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
   ntf::CentralNotificacoes central;
   net::Servidor servidor(&servico_io, &central);
   net::Cliente cliente(&servico_io, &central);
-  ent::Texturas texturas(&central);
+  ifg::qt::Texturas texturas(&central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &texturas, &central));
 	try {
 		p->Executa();

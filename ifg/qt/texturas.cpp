@@ -1,18 +1,22 @@
-#include "ent/texturas.h"
+#include <QImageReader>
+#include <QImage>
+
+#include "ent/entidade.h"
+#include "ifg/qt/texturas.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
-namespace ent {
+namespace ifg {
+namespace qt {
 
 struct Texturas::InfoTexturaInterna {
   InfoTexturaInterna() : contador(1) {
-    info
   }
   ~InfoTexturaInterna() {
-    delete [](char*)info.dados;
   }
+  QImage qimage;
   int contador;
-  InfoTextura info;
+  ent::InfoTextura info;
 };
 
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
@@ -35,12 +39,12 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
-const InfoTextura* Texturas::Textura(const std::string& id) const {
+const ent::InfoTextura* Texturas::Textura(const std::string& id) const {
   const InfoTexturaInterna* info_interna = InfoInterna(id);
   if (info_interna == nullptr) {
     return nullptr;
   }
-  return &info_interna.info;
+  return &info_interna->info;
 }
 
 Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id) {
@@ -62,10 +66,20 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
 void Texturas::CarregaTextura(const std::string& id) {
   auto* info_interna = InfoInterna(id);
   if (info_interna == nullptr) {
-
+    QImageReader leitor_imagem(id.c_str());
+    QImage imagem = leitor_imagem.read();
+    if (imagem.isNull()) {
+      LOG(ERROR) << "Textura inválida: " << id;
+      return;
+    }
     info_interna = new InfoTexturaInterna;
+    info_interna->qimage = imagem;
+    info_interna->info.altura = imagem.height();
+    info_interna->info.largura = imagem.width();
+    info_interna->info.dados =  imagem.constBits();
     texturas_.insert(make_pair(id, info_interna));
-    VLOG(1) << "Textura criada: " << id;
+    VLOG(1) << "Textura criada: " << id
+            << "', " << info_interna->info.largura << "x" << info_interna->info.altura; 
   } else {
     ++info_interna->contador;
     VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;
@@ -87,4 +101,5 @@ void Texturas::DescarregaTextura(const std::string& id) {
   }
 }
 
-}  // namespace ent
+}  // namespace qt 
+}  // namespace ifg 
