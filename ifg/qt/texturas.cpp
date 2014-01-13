@@ -1,7 +1,10 @@
+#include <QDir>
+#include <QFileInfo>
 #include <QImageReader>
 #include <QImage>
 
 #include "ent/entidade.h"
+#include "ifg/qt/constantes.h"
 #include "ifg/qt/texturas.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
@@ -66,7 +69,8 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
 void Texturas::CarregaTextura(const std::string& id) {
   auto* info_interna = InfoInterna(id);
   if (info_interna == nullptr) {
-    QImageReader leitor_imagem(id.c_str());
+    QFileInfo arquivo(QDir(DIR_TEXTURAS), id.c_str());
+    QImageReader leitor_imagem(arquivo.absoluteFilePath());
     QImage imagem = leitor_imagem.read();
     if (imagem.isNull()) {
       LOG(ERROR) << "Textura inválida: " << id;

@@ -7,11 +7,13 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFileDialog>
+#include <QFileInfo>
 #include <QMouseEvent>
 #include <QString>
 #include <GL/gl.h>
 
 #include "ent/tabuleiro.h"
+#include "ifg/qt/constantes.h"
 #include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ifg/qt/ui/entidade.h"
@@ -263,12 +265,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   gerador.linha_textura->setText(proto->textura().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
       [this, dialogo, &gerador, &luz_cor ] () {
-    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"));
+    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de leitura de textura cancelada.";
       return;
     }
-    gerador.linha_textura->setText(file_str);
+    QFileInfo info(file_str);
+    gerador.linha_textura->setText(info.fileName());
   });
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()),
