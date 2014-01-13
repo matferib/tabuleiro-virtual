@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'iluminacaou25115.ui'
+** Form generated from reading UI file 'iluminacaoQ10049.ui'
 **
-** Created: Fri Jan 10 01:05:31 2014
+** Created: Mon Jan 13 00:30:39 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ILUMINACAOU25115_H
-#define ILUMINACAOU25115_H
+#ifndef ILUMINACAOQ10049_H
+#define ILUMINACAOQ10049_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -17,9 +17,12 @@
 #include <QtGui/QDial>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
+#include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QWidget>
 
 namespace ifg {
 namespace qt {
@@ -39,15 +42,20 @@ public:
     QLabel *label_7;
     QLabel *label_8;
     QLabel *label_9;
+    QWidget *horizontalLayoutWidget;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label;
+    QLineEdit *linha_textura;
+    QPushButton *botao_textura;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
         if (ifg__qt__DialogoIluminacao->objectName().isEmpty())
             ifg__qt__DialogoIluminacao->setObjectName(QString::fromUtf8("ifg__qt__DialogoIluminacao"));
-        ifg__qt__DialogoIluminacao->resize(456, 354);
+        ifg__qt__DialogoIluminacao->resize(456, 446);
         botoes = new QDialogButtonBox(ifg__qt__DialogoIluminacao);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(60, 300, 341, 32));
+        botoes->setGeometry(QRect(70, 390, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         botao_cor = new QPushButton(ifg__qt__DialogoIluminacao);
@@ -129,6 +137,27 @@ public:
         label_9->setGeometry(QRect(100, 100, 43, 17));
         sizePolicy1.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
         label_9->setSizePolicy(sizePolicy1);
+        horizontalLayoutWidget = new QWidget(ifg__qt__DialogoIluminacao);
+        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
+        horizontalLayoutWidget->setGeometry(QRect(30, 290, 391, 80));
+        horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        label = new QLabel(horizontalLayoutWidget);
+        label->setObjectName(QString::fromUtf8("label"));
+
+        horizontalLayout->addWidget(label);
+
+        linha_textura = new QLineEdit(horizontalLayoutWidget);
+        linha_textura->setObjectName(QString::fromUtf8("linha_textura"));
+
+        horizontalLayout->addWidget(linha_textura);
+
+        botao_textura = new QPushButton(horizontalLayoutWidget);
+        botao_textura->setObjectName(QString::fromUtf8("botao_textura"));
+
+        horizontalLayout->addWidget(botao_textura);
+
 
         retranslateUi(ifg__qt__DialogoIluminacao);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoIluminacao, SLOT(accept()));
@@ -155,6 +184,8 @@ public:
         label_7->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Poente", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Fundo", 0, QApplication::UnicodeUTF8));
+        botao_textura->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -170,4 +201,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ILUMINACAOU25115_H
+#endif // ILUMINACAOQ10049_H

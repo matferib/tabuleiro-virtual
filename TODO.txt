@@ -1,5 +1,5 @@
+- Corrigir cor e orientacao das texturas.
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.
-- Textura de tabuleiro.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).
 - Entidades com gravuras.
 - Tabuleiro com gravuras.

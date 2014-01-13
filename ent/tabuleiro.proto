@@ -31,6 +31,8 @@ message TabuleiroProto {
   optional int32 id_cliente = 1;
   // Iluminacao do tabuleiro.
   optional IluminacaoDirecional luz = 3;
+  // Textura do tabuleiro.
+  optional string textura = 5;
   // Tamanho do tabuleiro em quadrados (tamanho x tamanho).
   optional uint32 tamanho = 4 [default=20];
   // Entidades do tabuleiro.

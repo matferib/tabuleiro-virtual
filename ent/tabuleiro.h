@@ -14,6 +14,7 @@ namespace ntf {
 namespace ent {
 
 class Entidade;
+class InfoTextura;
 class Texturas;
 
 /** botoes do mouse. */
@@ -125,10 +126,13 @@ class Tabuleiro : public ntf::Receptor {
   ntf::Notificacao* SerializaTabuleiro();
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO preenchida. */
-  ntf::Notificacao* SerializaIluminacaoTabuleiro();
+  ntf::Notificacao* SerializaIluminacaoTextura() const;
 
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
+
+  /** Deserializa apenas a parte de iluminacao e textura do tabuleiro. */
+  void DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_proto);
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
@@ -137,6 +141,12 @@ class Tabuleiro : public ntf::Receptor {
   * @return true se a entidade removida for a selecionada. 
   */
   bool RemoveEntidade(unsigned int id);
+
+  /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
+  void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
+
+  /** Desenha um quadrado do tabuleiro. */
+  void DesenhaQuadrado(unsigned int id, int linha, int coluna, bool selecionado, const InfoTextura* info);
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

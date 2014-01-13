@@ -16,8 +16,8 @@
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
-using namespace ent;
 
+namespace ent {
 namespace {
 /** campo de visao vertical em graus. */
 const double CAMPO_VERTICAL = 60.0;
@@ -47,33 +47,11 @@ const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 const double EXPESSURA_LINHA = 0.1;
 /** velocidade do olho. */
 const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
+
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor3fv(cor);
-}
-
-/** desenha o quadrado, embaixo preto, acima cinza com pequeno offset para evitar z fight. */
-void DesenhaQuadrado(GLuint id, bool selecionado) {
-  // desenha o quadrado negro embaixo.
-  glLoadName(id);
-  GLfloat preto[] = { 0, 0, 0, 1.0 };
-  MudaCor(preto);
-  glRectf(0, 0, TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO);
-
-  // Habilita a função pra acabar com zfight.
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.1f, -0.1f);
-  if (selecionado) {
-    GLfloat cinza[] = { 0.5, 0.5, 0.5, 1.0 };
-    MudaCor(cinza);
-  } else {
-    GLfloat cinza_claro[] = { 0.8, 0.8, 0.8, 1.0 };
-    MudaCor(cinza_claro);
-  }
-  glRectf(0, 0, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA);
-  // Restaura os offset de zfight.
-  glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 // TODO: mover para entidade.
@@ -182,6 +160,12 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
 }
 
 Tabuleiro::~Tabuleiro() {
+  if (proto_.has_textura()) {
+    VLOG(1) << "Liberando textura: " << proto_.textura();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
+    nl->set_endereco(proto_.textura());
+    central_->AdicionaNotificacao(nl);
+  }
 }
 
 int Tabuleiro::TamanhoX() const { 
@@ -342,11 +326,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
         return false;
       }
-      central_->AdicionaNotificacao(SerializaIluminacaoTabuleiro());
+      central_->AdicionaNotificacao(SerializaIluminacaoTextura());
       return true;
     }
-    case ntf::TN_ATUALIZAR_ILUMINACAO: {
-      proto_.mutable_luz()->CopyFrom(notificacao.tabuleiro().luz());
+    case ntf::TN_ATUALIZAR_TABULEIRO: {
+      DeserializaIluminacaoTextura(notificacao.tabuleiro());
       if (notificacao.has_endereco()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         n_remota->clear_endereco();
@@ -571,7 +555,19 @@ void Tabuleiro::DesenhaCena() {
   }
 
   //ceu_.desenha(parametros_desenho_);
-  // desenha tabuleiro de baixo pra cima
+  // desenha tabuleiro do sul para o norte.
+  const InfoTextura* info = parametros_desenho_.desenha_texturas() && proto_.has_textura() ?
+      texturas_->Textura(proto_.textura()) : nullptr;
+  if (info != nullptr) {
+    glEnable(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D,
+                 0, GL_RGBA,
+                 info->largura, info->altura,
+                 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 info->dados);
+  }
   glPushMatrix();
   double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
@@ -581,7 +577,7 @@ void Tabuleiro::DesenhaCena() {
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado
-      DesenhaQuadrado(id, id == quadrado_selecionado_);
+      DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, info);
       // anda 1 quadrado direita
       glTranslated(TAMANHO_LADO_QUADRADO, 0, 0);
       ++id;
@@ -590,6 +586,7 @@ void Tabuleiro::DesenhaCena() {
     glTranslated(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
   glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
   if (!parametros_desenho_.desenha_entidades()) {
     return;
   }
@@ -755,11 +752,19 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   *z = 0;
 }
 
-ntf::Notificacao* Tabuleiro::SerializaIluminacaoTabuleiro() {
+ntf::Notificacao* Tabuleiro::SerializaIluminacaoTextura() const {
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ILUMINACAO);
   notificacao->mutable_tabuleiro()->mutable_luz()->CopyFrom(proto_.luz());
+  if (proto_.has_textura()) {
+    notificacao->mutable_tabuleiro()->set_textura(proto_.textura());
+  }
   return notificacao;
+}
+
+void Tabuleiro::DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_proto) {
+  proto_.mutable_luz()->CopyFrom(novo_proto.luz());
+  AtualizaTexturas(novo_proto);
 }
 
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
@@ -791,6 +796,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     return;
   }
   const auto& tabuleiro = notificacao.tabuleiro();
+  AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
   id_cliente_ = tabuleiro.id_cliente();
   for (const auto& ep : tabuleiro.entidade()) {
@@ -817,5 +823,75 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   return entidade == entidade_selecionada_;
 }
 
+void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
+  VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+  // Libera textura anterior se houver e for diferente da corrente.
+  if (proto_.has_textura() && proto_.textura() != novo_proto.textura()) {
+    VLOG(1) << "Liberando textura: " << proto_.textura();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
+    nl->set_endereco(proto_.textura());
+    central_->AdicionaNotificacao(nl);
+  }
+  // Carrega textura se houver e for diferente da antiga.
+  if (novo_proto.has_textura() && novo_proto.textura() != proto_.textura()) {
+    VLOG(1) << "Carregando textura: " << proto_.textura();
+    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    nc->set_endereco(novo_proto.textura());
+    central_->AdicionaNotificacao(nc);
+  }
+
+  if (novo_proto.has_textura()) {
+    proto_.set_textura(novo_proto.textura());
+  } else {
+    proto_.clear_textura();
+  }
+}
+
+void Tabuleiro::DesenhaQuadrado(
+    unsigned int id, int linha, int coluna, bool selecionado, const InfoTextura* info) {
+  glLoadName(id);
+  if (info == nullptr) {
+    // desenha o quadrado negro embaixo.
+    GLfloat preto[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    MudaCor(preto);
+    glRectf(0.0f, 0.0f, TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO);
+
+    // Habilita a função pra acabar com zfight.
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(-0.1f, -0.1f);
+    if (selecionado) {
+      GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+      MudaCor(cinza);
+    } else {
+      GLfloat cinza_claro[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+      MudaCor(cinza_claro);
+    }
+    glRectf(0.0f, 0.0f, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA);
+    // Restaura os offset de zfight.
+    glDisable(GL_POLYGON_OFFSET_FILL);
+  } else {
+    float tamanho_texel_h = 1.0f / TamanhoX();
+    float tamanho_texel_v = 1.0f / TamanhoY();
+    // desenha o quadrado branco.
+    GLfloat branco[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    MudaCor(branco);
+    glPushMatrix();
+    glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
+    glBegin(GL_QUADS);
+    // OpenGL espera a imagem vinda de baixo,esquerda para cima,direita. Como o carregador
+    // carrega invertido, fazemos o desenho de cabeca para baixo.
+    glTexCoord2f(coluna * tamanho_texel_h, (TamanhoY() - linha) * tamanho_texel_v);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glTexCoord2f((coluna + 1) * tamanho_texel_h, (TamanhoY() - linha) * tamanho_texel_v);
+    glVertex3f(TAMANHO_LADO_QUADRADO, 0.0f, 0.0f);
+    glTexCoord2f((coluna + 1) * tamanho_texel_h, (TamanhoY() - 1 - linha) * tamanho_texel_v);
+    glVertex3f(TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO, 0.0f);
+    glTexCoord2f(coluna * tamanho_texel_h, (TamanhoY() - 1 - linha) * tamanho_texel_v);
+    glVertex3f(0.0f, TAMANHO_LADO_QUADRADO, 0.0f);
+    glEnd();
+    glPopMatrix();
+  }
+}
 
 
+}  // namespace ent

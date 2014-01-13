@@ -32,7 +32,7 @@ const char* g_menuitem_strs[] = {
   // jogo
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
-  "&Iluminação", nullptr, "&Salvar", "R&estaurar", g_fim,
+  "&Iluminação e Textura", nullptr, "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
   "&Adicionar", "&Remover", g_fim,
   // Sobre

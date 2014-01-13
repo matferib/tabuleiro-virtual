@@ -151,14 +151,14 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // O tabuleiro criara a mensagem completa.
         return false;
       }
-      auto* luz = AbreDialogoIluminacao(notificacao);
-      if (luz == nullptr) {
+      auto* tabuleiro = AbreDialogoTabuleiro(notificacao);
+      if (tabuleiro == nullptr) {
         VLOG(1) << "Alterações de iluminação descartadas";
         break;
       }
-      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ILUMINACAO);
+      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
       n->set_endereco("local");  // apenas para processar localmente.
-      n->mutable_tabuleiro()->mutable_luz()->Swap(luz);
+      n->mutable_tabuleiro()->Swap(tabuleiro);
       central_->AdicionaNotificacao(n);
       break;
     }
@@ -307,17 +307,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
 }
 
 
-/** Abre um diálogo editável com as características de iluminacao do tabuleiro. */ 
-ent::IluminacaoDirecional* Visualizador3d::AbreDialogoIluminacao(
+/** Abre um diálogo editável com as características de iluminacao e textura do tabuleiro. */ 
+ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     const ntf::Notificacao& notificacao) {
-  auto* proto_retornado = new ent::IluminacaoDirecional;
+  auto* proto_retornado = new ent::TabuleiroProto;
   ifg::qt::Ui::DialogoIluminacao gerador;
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
-  const auto& luz_proto = notificacao.tabuleiro().luz();
+  const auto& tab_proto = notificacao.tabuleiro();
 
   // Cor.
-  ent::Cor cor_proto(luz_proto.cor());
+  ent::Cor cor_proto(tab_proto.luz().cor());
   gerador.botao_cor->setStyleSheet(CorParaEstilo(cor_proto));
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &cor_proto] {
     QColor cor =
@@ -330,14 +330,32 @@ ent::IluminacaoDirecional* Visualizador3d::AbreDialogoIluminacao(
   });
 
   // Posicao na rosa dos ventos. No slider, o zero fica pra baixo enquanto no proto ele fica para direita.
-  gerador.dial_posicao->setSliderPosition(luz_proto.posicao() + 90.0f);
+  gerador.dial_posicao->setSliderPosition(tab_proto.luz().posicao() + 90.0f);
   // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
-  gerador.dial_inclinacao->setSliderPosition(luz_proto.inclinacao() + 90.0f);
+  gerador.dial_inclinacao->setSliderPosition(tab_proto.luz().inclinacao() + 90.0f);
+  // Textura do tabuleiro.
+  gerador.linha_textura->setText(tab_proto.textura().c_str());
+  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
+      [this, dialogo, &gerador ] () {
+    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de leitura de textura cancelada.";
+      return;
+    }
+    QFileInfo info(file_str);
+    gerador.linha_textura->setText(info.fileName());
+  });
+
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &cor_proto, proto_retornado] {
-    proto_retornado->set_posicao(gerador.dial_posicao->sliderPosition() - 90.0f);
-    proto_retornado->set_inclinacao(gerador.dial_inclinacao->sliderPosition() - 90.0f);
-    proto_retornado->mutable_cor()->Swap(&cor_proto);
+    proto_retornado->mutable_luz()->set_posicao(gerador.dial_posicao->sliderPosition() - 90.0f);
+    proto_retornado->mutable_luz()->set_inclinacao(gerador.dial_inclinacao->sliderPosition() - 90.0f);
+    proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
+    if (!gerador.linha_textura->text().isEmpty()) {
+      proto_retornado->set_textura(gerador.linha_textura->text().toStdString());
+    } else {
+      proto_retornado->clear_textura();
+    }
     dialogo->accept();
   });
   // Cancelar.

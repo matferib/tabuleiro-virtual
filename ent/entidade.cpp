@@ -114,6 +114,11 @@ void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
     nc->set_endereco(novo_proto.textura());
     central_->AdicionaNotificacao(nc);
   }
+  if (novo_proto.has_textura()) {
+    proto_.set_textura(novo_proto.textura());
+  } else {
+    proto_.clear_textura();
+  }
 }
 
 void Entidade::Atualiza(const EntidadeProto& novo_proto) { 
