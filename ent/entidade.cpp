@@ -62,10 +62,10 @@ float CalculaMultiplicador(TamanhoEntidade tamanho) {
 }  // namespace
 
 // Factory.
-Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas) {
+Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central) {
   switch (tipo) {
     case TE_ENTIDADE:
-      return new Entidade(texturas);
+      return new Entidade(texturas, central);
     default:
       LOG(ERROR) << "Tipo de entidade inválido: " << tipo;
       return nullptr;
@@ -73,23 +73,55 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas) {
 }
 
 // Entidade
-Entidade::Entidade(Texturas* texturas) {
+Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
   proto_.set_tipo(TE_ENTIDADE);
   rotacao_disco_selecao_ = 0;
   texturas_ = texturas;
+  central_ = central;
 }
 
-void Entidade::Inicializa(const EntidadeProto& proto) { 
+Entidade::~Entidade() {
+  if (proto_.has_textura()) {
+    VLOG(1) << "Liberando textura: " << proto_.textura();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
+    nl->set_endereco(proto_.textura());
+    central_->AdicionaNotificacao(nl);
+  }
+}
+
+void Entidade::Inicializa(const EntidadeProto& novo_proto) { 
+  // Atualiza texturas antes de tudo.
+  AtualizaTexturas(novo_proto);
   // mantem o tipo.
   TipoEntidade tipo = proto_.tipo();
-  proto_.CopyFrom(proto);
+  proto_.CopyFrom(novo_proto);
   proto_.set_tipo(tipo);
 }
 
-void Entidade::Atualiza(const EntidadeProto& proto) { 
+void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) { 
+  VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+  // Libera textura anterior se houver e for diferente da corrente.
+  if (proto_.has_textura() && proto_.textura() != novo_proto.textura()) {
+    VLOG(1) << "Liberando textura: " << proto_.textura();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
+    nl->set_endereco(proto_.textura());
+    central_->AdicionaNotificacao(nl);
+  }
+  // Carrega textura se houver e for diferente da antiga.
+  if (novo_proto.has_textura() && novo_proto.textura() != proto_.textura()) {
+    VLOG(1) << "Carregando textura: " << proto_.textura();
+    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    nc->set_endereco(novo_proto.textura());
+    central_->AdicionaNotificacao(nc);
+  }
+}
+
+void Entidade::Atualiza(const EntidadeProto& novo_proto) { 
+  AtualizaTexturas(novo_proto);
+
   // mantem o tipo.
   ent::EntidadeProto copia_proto(proto_);
-  proto_.CopyFrom(proto);
+  proto_.CopyFrom(novo_proto);
   proto_.set_id(copia_proto.id());
   proto_.mutable_pos()->Swap(copia_proto.mutable_pos());
   if (copia_proto.has_destino()) {
@@ -126,8 +158,6 @@ void Entidade::Atualiza() {
     proto_.clear_destino();
   }
 }
-
-Entidade::~Entidade() {}
 
 unsigned int Entidade::Id() const { return proto_.id(); }
 
@@ -166,6 +196,8 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(Id());
+  // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
+  glEnable(GL_NORMALIZE);
   MudaCor(proto_.cor());
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
@@ -234,6 +266,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
   }
 	
 	glPopMatrix();
+  glDisable(GL_NORMALIZE);
 }
 
 void Entidade::DesenhaLuz(ParametrosDesenho* pd) {

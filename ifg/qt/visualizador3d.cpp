@@ -285,24 +285,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto->clear_luz();
     }
     if (!gerador.linha_textura->text().isEmpty()) {
-      // Envia uma notificacao para liberar a textura corrente.
-      if (proto->has_textura()) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
-        n->set_endereco(proto->textura());
-        central_->AdicionaNotificacao(n);
-      }
-      // Envia outra para carregar a textura nova.
       proto->set_textura(gerador.linha_textura->text().toStdString());
-      auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-      n->set_endereco(proto->textura());
-      central_->AdicionaNotificacao(n);
     } else {
-      if (proto->has_textura()) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
-        n->set_endereco(proto->textura());
-        central_->AdicionaNotificacao(n);
-      }
-      // Envia uma notificacao para liberar a textura corrente.
       proto->clear_textura();
     }
     dialogo->accept();
@@ -318,6 +302,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   delete dialogo;
   return proto;
 }
+
 
 /** Abre um diálogo editável com as características de iluminacao do tabuleiro. */ 
 ent::IluminacaoDirecional* Visualizador3d::AbreDialogoIluminacao(

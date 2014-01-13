@@ -208,7 +208,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     }
     double x, y, z;
     CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-    auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_);
+    auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
     entidade->Inicializa(GeraEntidadeProto(id_cliente_, proximo_id_entidade_++, x, y, z));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
@@ -218,7 +218,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacaoRemota(n);
   } else {
     // Mensagem veio de fora.
-    auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_);
+    auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
     entidade->Inicializa(notificacao.entidade());
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
   }
@@ -237,6 +237,7 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
     n->mutable_entidade()->set_id(id_remocao);
     central_->AdicionaNotificacaoRemota(n);
   } else {
+    VLOG(1) << "Remocao de entidade sem seleção";
     return;
   }
   if (RemoveEntidade(id_remocao)) {
@@ -793,7 +794,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   proto_.CopyFrom(tabuleiro);
   id_cliente_ = tabuleiro.id_cliente();
   for (const auto& ep : tabuleiro.entidade()) {
-    auto* e = NovaEntidade(ep.tipo(), texturas_);
+    auto* e = NovaEntidade(ep.tipo(), texturas_, central_);
     e->Inicializa(ep);
     entidades_.insert({ e->Id(), e });
   }
@@ -812,8 +813,9 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   Entidade* entidade = res_find->second;
   entidades_.erase(res_find);
   delete entidade;
-  // Retorna so o endereco, apenas para verificacao.
+  // Retorna apenas para verificacao.
   return entidade == entidade_selecionada_;
 }
+
 
 

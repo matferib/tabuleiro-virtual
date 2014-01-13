@@ -3,6 +3,9 @@
 
 #include "ent/entidade.pb.h"
 
+namespace ntf {
+class CentralNotificacoes;
+}  // namespace ntf
 namespace ent {
 
 class Entidade;
@@ -21,7 +24,7 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
-Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas);
+Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico. 
@@ -31,8 +34,8 @@ class Entidade {
   /** Inicializa a entidade, recebendo seu proto diretamente. */
   void Inicializa(const EntidadeProto& proto);
 
-  /** Atualiza a entidade, usando so alguns campos de proto. */
-  void Atualiza(const EntidadeProto& proto);
+  /** Atualiza a entidade usando apenas alguns campos do proto passado. */
+  void Atualiza(const EntidadeProto& novo_proto);
 
 	/** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
 	void Atualiza();
@@ -73,15 +76,20 @@ class Entidade {
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
 
- protected:
-  friend Entidade* NovaEntidade(TipoEntidade, Texturas*);
-  Entidade(Texturas* texturas);
+ private:
+  friend Entidade* NovaEntidade(TipoEntidade, Texturas*, ntf::CentralNotificacoes*);
+  Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);
 
- protected:
+  /** Realiza as chamadas de notificacao para as texturas. */
+  void AtualizaTexturas(const ent::EntidadeProto& novo_proto);
+
+ private:
   EntidadeProto proto_;
   // Como esse estado é local e não precisa ser salvo, fica aqui.
   double rotacao_disco_selecao_;
   Texturas* texturas_;
+  // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.
+  ntf::CentralNotificacoes* central_;
 };
 
 }  // namespace ent
