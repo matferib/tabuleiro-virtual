@@ -1,6 +1,4 @@
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.
-- Identificar texturas apenas pelo nome de arquivo e ler sempre de um diretorio fixo.
-- Carregar textura ao deserializar entidade.
 - Textura de tabuleiro.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).
 - Entidades com gravuras.

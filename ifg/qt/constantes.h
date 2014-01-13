@@ -2,7 +2,7 @@
 #define IFG_QT_CONSTANTES_H
 
 #define DIR_TEXTURAS "texturas"
-#define DIR_TABULEIRO "tabuleiros_salvos"
+#define DIR_TABULEIROS "tabuleiros_salvos"
 #define FILTRO_IMAGENS "Imagens (*.png *.gif *.jpg *.bmp)"
 
 #endif

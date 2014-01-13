@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
+#include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/util.h"
@@ -169,8 +170,10 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
     // Abre dialogo de arquivo.
-    QString file_str = QFileDialog::getSaveFileName(qobject_cast<QWidget*>(parent()),
-                                                    tr("Salvar tabuleiro"));
+    QString file_str = QFileDialog::getSaveFileName(
+        qobject_cast<QWidget*>(parent()),
+        tr("Salvar tabuleiro"),
+        tr(DIR_TABULEIROS));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de salvar cancelada.";
       return;
@@ -180,7 +183,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
-                                                    tr("Abrir tabuleiro"));
+                                                    tr("Abrir tabuleiro"),
+                                                    DIR_TABULEIROS);
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de restaurar cancelada.";
       return;
