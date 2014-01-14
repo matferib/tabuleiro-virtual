@@ -505,6 +505,10 @@ void Tabuleiro::InicializaGL() {
 
   // zbuffer
   glEnable(GL_DEPTH_TEST);
+
+  // Mapeamento de texels em amostragem para cima e para baixo.
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 // privadas 
@@ -561,12 +565,10 @@ void Tabuleiro::DesenhaCena() {
       texturas_->Textura(proto_.textura()) : nullptr;
   if (info != nullptr) {
     glEnable(GL_TEXTURE_2D);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D,
                  0, GL_RGBA,
                  info->largura, info->altura,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 0, info->formato, info->tipo,
                  info->dados);
   }
   glPushMatrix();
@@ -870,15 +872,15 @@ void Tabuleiro::DesenhaQuadrado(
     MudaCor(branco);
     glPushMatrix();
     glBegin(GL_QUADS);
-    // OpenGL espera a imagem vinda de baixo,esquerda para cima,direita. Como o carregador
-    // carrega invertido, fazemos o desenho de cabeca para baixo.
-    glTexCoord2f(coluna * tamanho_texel_h, (TamanhoY() - linha) * tamanho_texel_v);
+    // O quadrado eh desenhado EB, DB, DC, EC. A textura tem o eixo Y invertido.
+    float tamanho_y_linha = TamanhoY() - linha;
+    glTexCoord2f(coluna * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v);
     glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f((coluna + 1) * tamanho_texel_h, (TamanhoY() - linha) * tamanho_texel_v);
+    glTexCoord2f((coluna + 1) * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v);
     glVertex3f(TAMANHO_LADO_QUADRADO, 0.0f, 0.0f);
-    glTexCoord2f((coluna + 1) * tamanho_texel_h, (TamanhoY() - 1 - linha) * tamanho_texel_v);
+    glTexCoord2f((coluna + 1) * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v);
     glVertex3f(TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO, 0.0f);
-    glTexCoord2f(coluna * tamanho_texel_h, (TamanhoY() - 1 - linha) * tamanho_texel_v);
+    glTexCoord2f(coluna * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v);
     glVertex3f(0.0f, TAMANHO_LADO_QUADRADO, 0.0f);
     glEnd();
     glPopMatrix();

@@ -1,9 +1,7 @@
+- Arrumar o picking.
 - Comandos de teclado.
-- Corrigir cor e orientacao das texturas.
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).
-- Entidades com gravuras.
-- Tabuleiro com gravuras.
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
 - Tooltip.
