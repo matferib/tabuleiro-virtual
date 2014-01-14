@@ -1,4 +1,4 @@
-env = Environment(toolpath=['tools', '/opt/gcc-4.8.2'], tools=['default', 'protoc'])
+env = Environment(toolpath=['tools'], tools=['default', 'protoc'])
 
 env['QTDIR'] = '/usr'
 env.Tool('qt')
@@ -73,7 +73,3 @@ env.Program(
 		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade
 	]
 )
-
-
-
-

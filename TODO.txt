@@ -1,4 +1,5 @@
-- Arrumar o picking.
+- Arrumar o picking (a grade esta sem nome).
+- Iluminacao ambiente.
 - Comandos de teclado.
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).

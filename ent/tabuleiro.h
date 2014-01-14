@@ -1,7 +1,8 @@
 #ifndef ENT_TABULEIRO_H
 #define ENT_TABULEIRO_H
 
-#include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
@@ -36,7 +37,8 @@ enum etab_t {
   ETAB_QUAD_SELECIONADO,
 };
 
-typedef std::map<unsigned int, Entidade*> MapaEntidades;
+typedef std::unordered_map<unsigned int, Entidade*> MapaEntidades;
+typedef std::unordered_set<unsigned int> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste, 
 * Y para o norte e Z para alto. Cada unidade corresponde a um metro, portanto os quadrados 
@@ -74,7 +76,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRodela(int delta);
 
   /** trata movimento do mouse (y ja em coordenadas opengl). */
-  void TrataMovimento(botao_e botao, int x, int y);
+  void TrataMovimento(botao_e botao, int x, int y, double aspecto);
 
   /** trata o botao do mouse liberado. */
   void TrataBotaoLiberado(botao_e botao);
@@ -138,15 +140,22 @@ class Tabuleiro : public ntf::Receptor {
   Entidade* BuscaEntidade(unsigned int id);
 
   /** Remove uma entidade pelo id.
-  * @return true se a entidade removida for a selecionada. 
+  * @return true se a entidade removida for a selecionada.
   */
   bool RemoveEntidade(unsigned int id);
+
+  /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
+  int GeraIdEntidade(int id_cliente);
+
+  /** @return um id unico de cliente. Lanca excecao se chegar ao limite de clientes. */
+  int GeraIdCliente();
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
 
   /** Desenha um quadrado do tabuleiro. */
   void DesenhaQuadrado(unsigned int id, int linha, int coluna, bool selecionado, const InfoTextura* info);
+
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
 
@@ -161,6 +170,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** mapa geral de entidades, por id. */
   MapaEntidades entidades_;
+  /** um set com os id de clientes usados. */
+  MapaClientes clientes_;
 
   /** a entidade selecionada. */
   Entidade* entidade_selecionada_;
@@ -180,9 +191,9 @@ class Tabuleiro : public ntf::Receptor {
   int proximo_id_cliente_;
 
   /** dados (X) para calculo de mouse. */
-  int ultimo_x_; 
+  int ultimo_x_;
   /** dados (Y) para calculo de mouse. */
-  int ultimo_y_; 
+  int ultimo_y_;
 
   // Para onde o olho olha.
   Olho olho_;

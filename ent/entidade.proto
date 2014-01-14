@@ -38,10 +38,11 @@ message IluminacaoPontual {
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   optional TipoEntidade tipo = 1;
-  // Identificador global da entidade composto pelo id_criador << 28 | id_local. 
+  // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
   // um GLuint para permitir realização da operação de picking no 3d.
   optional uint32 id = 2;
+  // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Posicao atual da entidade.
   optional Posicao pos = 4;
@@ -65,10 +66,10 @@ message ParametrosDesenho {
   optional bool desenha_entidades = 4 [default=true];
   // Verdadeiro para desenhar texturas.
   optional bool desenha_texturas = 5 [default=true];
+  // Desenha a grade do tabuleiro.
+  optional bool desenha_grade = 6 [default=true];
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
-  optional int32 luz_corrente = 6 [default=1];
+  optional int32 luz_corrente = 7 [default=1];
   // OpenGL permite até 8 luzes simultaneas.
-  optional int32 max_num_luzes = 7 [default=8];
+  optional int32 max_num_luzes = 8 [default=8];
 }
-
-

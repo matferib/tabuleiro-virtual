@@ -72,38 +72,55 @@ const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x,
   return ep;
 }
 
-// Busca o hit mais próximo em buffer_hits. Cada posicao do buffer são 3 inteiros:
-// - 0: pos_pilha de nomes;
-// - 1: componente Z do hits.
-// - 2: id do hit.
+// Busca o hit mais próximo em buffer_hits. Cada posicao do buffer (hit record):
+// - 0: pos_pilha de nomes (numero de nomes empilhados);
+// - 1: profundidade minima.
+// - 2: profundidade maxima.
+// - 3: nomes empilhados (1 para cada pos pilha).
+// Dado o hit mais proximo, retorna o identificador, a posicao da pilha e a
+// profundidade do objeto (normalizado 0..1.0).
 void BuscaHitMaisProximo(
-    unsigned int numero_hits, GLuint* buffer_hits, GLuint* id, GLuint* pos_pilha) {
-  VLOG(1) << "numero de hits: " << (unsigned int)numero_hits;
+    GLuint* buffer_hits, unsigned int num_hits, GLuint* id, GLuint* pos_pilha, float* profundidade = nullptr) {
+  VLOG(1) << "numero de hits no buffer de picking: " << num_hits;
   GLuint* ptr_hits = buffer_hits;
-  *id = 0;
-  *pos_pilha = 0;
+  // valores do hit mais proximo.
   GLuint menor_z = 0xFFFFFFFF;
+  GLuint pos_pilha_menor = 0;
+  GLuint id_menor = 0;
   // Busca o hit mais proximo.
-  for (GLuint i = 0; i < numero_hits; ++i) {
-    if (*(ptr_hits + 1) < menor_z) {
-      *pos_pilha = *ptr_hits;
-      VLOG(1) << "posicao pilha: " << (unsigned int)(*pos_pilha);
-      menor_z = *(ptr_hits+1); 
-      // pula ele mesmo, profundidade e ids anteriores na pilha
-      ptr_hits += (*pos_pilha + 2);
-      *id = *ptr_hits;
-      VLOG(1) << "id: " << (unsigned int)(*id);
-      ++ptr_hits;
+  for (GLuint i = 0; i < num_hits; ++i) {
+    GLuint pos_pilha_corrente = *ptr_hits;
+    GLuint z_corrente = *(ptr_hits + 1);
+    // A posicao da pilha minimo eh 1.
+    GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
+    ptr_hits += (3 + (pos_pilha_corrente));
+    if (z_corrente < menor_z) {
+      VLOG(1) << "pos_pilha_corrente: " << pos_pilha_corrente
+              << ", z_corrente: " << z_corrente
+              << ", id_corrente: " << id_corrente;
+      menor_z = z_corrente;
+      pos_pilha_menor = pos_pilha_corrente;
+      id_menor = id_corrente;
     } else {
       VLOG(1) << "pulando objeto mais longe...";
     }
   }
+  *pos_pilha = pos_pilha_menor;
+  *id = id_menor;
+  // Normaliza profundidade.
+  float menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
+  if (profundidade != nullptr) {
+    *profundidade = menor_profundidade;
+  }
+  VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
+          << ", pos_pilha: " << pos_pilha_menor
+          << ", id: " << id_menor;
 }
 
-/** Encontra as coordenadas x3d y3d z3d da posição x y do mouse no ultimo buffer desenhado. 
+/** Encontra as coordenadas x3d y3d z3d da posição x y do mouse no ultimo buffer desenhado.
 * @return false se falhar.
-*/ 
-bool MousePara3d(int x, int y, 
+*/
+bool MousePara3d(int x, int y,
                  GLdouble* modelview, GLdouble *projection, GLint* viewport,
                  GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
   float profundidade;
@@ -113,7 +130,7 @@ bool MousePara3d(int x, int y,
     return false;
   }
   if (!gluUnProject(x, y, profundidade,
-                    modelview, projection, viewport, 
+                    modelview, projection, viewport,
                     x3d, y3d, z3d)) {
     LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
     return false;
@@ -122,7 +139,7 @@ bool MousePara3d(int x, int y,
 }
 
 /** Igual a anterior, mas le as matrizes. */
-bool MousePara3d(int x, int y, 
+bool MousePara3d(int x, int y,
                  GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
   GLdouble modelview[16], projection[16];
   GLint viewport[4];
@@ -134,10 +151,10 @@ bool MousePara3d(int x, int y,
 
 }  // namespace.
 
-Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) : 
+Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     id_cliente_(0),
-    entidade_selecionada_(NULL), 
-    quadrado_selecionado_(-1), 
+    entidade_selecionada_(NULL),
+    quadrado_selecionado_(-1),
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
     texturas_(texturas),
     central_(central) {
@@ -146,7 +163,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   proto_.mutable_luz()->mutable_cor()->set_r(0.4f);
   proto_.mutable_luz()->mutable_cor()->set_g(0.4f);
   proto_.mutable_luz()->mutable_cor()->set_b(0.4f);
-  // Vinda de 45 graus leste. 
+  // Vinda de 45 graus leste.
   proto_.mutable_luz()->set_posicao(0.0f);
   proto_.mutable_luz()->set_inclinacao(45.0f);
   // Olho.
@@ -188,13 +205,11 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     if (estado_ != ETAB_QUAD_SELECIONADO) {
       return;
     }
-    if (proximo_id_entidade_ >= (1 << 29)) {
-      throw std::logic_error("Limite de entidades alcançado.");
-    }
+    int id_entidade = GeraIdEntidade(id_cliente_);
     double x, y, z;
     CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
     auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-    entidade->Inicializa(GeraEntidadeProto(id_cliente_, proximo_id_entidade_++, x, y, z));
+    entidade->Inicializa(GeraEntidadeProto(id_cliente_, id_entidade, x, y, z));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
     // Envia a entidade para os outros.
@@ -236,7 +251,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       try {
         AdicionaEntidade(notificacao);
       } catch (const std::logic_error& e) {
-        LOG(ERROR) << "Limite de entidades alcançado.";
+        LOG(ERROR) << "Limite de entidades alcançado: " << e.what();
       }
       return true;
     case ntf::TN_REMOVER_ENTIDADE: {
@@ -347,7 +362,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
 void Tabuleiro::TrataRodela(int delta) {
   // move o olho no eixo Z de acordo com o eixo Y do movimento
   float olho_raio = olho_.raio();
-  olho_raio -= (delta * SENSIBILIDADE_RODA); 
+  olho_raio -= (delta * SENSIBILIDADE_RODA);
   if (olho_raio < OLHO_RAIO_MINIMO) {
     olho_raio = OLHO_RAIO_MINIMO;
   }
@@ -357,7 +372,7 @@ void Tabuleiro::TrataRodela(int delta) {
   olho_.set_raio(olho_raio);
 }
 
-void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
+void Tabuleiro::TrataMovimento(botao_e botao, int x, int y, double aspecto) {
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
     float olho_rotacao = olho_.rotacao();
@@ -370,7 +385,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     olho_.set_rotacao(olho_rotacao);
     // move o olho no eixo Z de acordo com o eixo Y do movimento
     float olho_altura = olho_.altura();
-    olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y; 
+    olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
     if (olho_altura < OLHO_ALTURA_MINIMA) {
       olho_altura = OLHO_ALTURA_MINIMA;
     }
@@ -394,6 +409,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     }
     entidade_selecionada_->MovePara(nx, ny, 0);
   } else if (estado_ == ETAB_DESLIZANDO) {
+#if 1
     // Realiza o movimento do olho.
     // Transforma x e y em 3D, baseado no nivel do solo.
     parametros_desenho_.set_desenha_entidades(false);
@@ -422,6 +438,30 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     p->set_y(p->y() - delta_y);
     p->set_z(p->z() - delta_z);
     olho_.clear_destino();
+#else
+    // Faz picking do tabuleiro.
+    GLuint not_used;
+    parametros_desenho_.set_desenha_entidades(false);
+    GLuint buffer_hits_antes[100] = {0};
+    GLuint numero_hits_antes = 0;
+    EncontraHits(ultimo_x_, ultimo_y_, aspecto, &numero_hits, buffer_hits);
+    float profundidade_antes;
+    BuscaHitMaisProximo(buffer_hits_antes, numero_hits_antes, &not_used, &not_used, &profundidade_antes);
+    GLdouble ox, oy, oz;
+    if (!MousePara3d(ultimo_x_, ultimo_y_, modelview, projection, viewport, &ox, &oy, &oz)) {
+      return;
+    }
+
+    GLuint buffer_hits_depois[100] = {0};
+    GLuint numero_hits_depois = 0;
+    EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
+    TrataMovimentoDeslize(buffer_hits_depois, numero_hits_depois, &not_used, &not_used, &profundidade_depois);
+    GLdouble nx, ny, nz;
+    if (!MousePara3d(x, y, modelview, projection, viewport, &nx, &ny, &nz)) {
+      return;
+    }
+
+#endif
 
     ultimo_x_ = x;
     ultimo_y_ = y;
@@ -497,8 +537,6 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
 }
 
 void Tabuleiro::InicializaGL() {
-  glClearColor(1.0, 1.0, 1.0, 1.0);
-
   // back face
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -513,6 +551,7 @@ void Tabuleiro::InicializaGL() {
 
 // privadas 
 void Tabuleiro::DesenhaCena() {
+  glClearColor(proto_.luz().cor().r(), proto_.luz().cor().g(), proto_.luz().cor().b(), proto_.luz().cor().a());
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
@@ -523,8 +562,8 @@ void Tabuleiro::DesenhaCena() {
   const Posicao& alvo = olho_.alvo();
   gluLookAt(
     // from.
-    alvo.x() + cos(olho_.rotacao()) * olho_.raio(), 
-    alvo.y() + sin(olho_.rotacao()) * olho_.raio(), 
+    alvo.x() + cos(olho_.rotacao()) * olho_.raio(),
+    alvo.y() + sin(olho_.rotacao()) * olho_.raio(),
     alvo.z() + olho_.altura(),
     // to.
     alvo.x(), alvo.y(), alvo.z(),
@@ -533,6 +572,10 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
+
+    GLfloat ambient[] = { 0, 0, 0, 1.0 };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
+
     // Iluminação distante.
     glPushMatrix();
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
@@ -590,13 +633,12 @@ void Tabuleiro::DesenhaCena() {
   }
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
-  DesenhaGrade();
+  if (parametros_desenho_.desenha_grade()) {
+    DesenhaGrade();
+  }
   if (!parametros_desenho_.desenha_entidades()) {
     return;
   }
-
-  //GLfloat ambient[] = { 1.0, 1.0, 1.0, 1.0 };
-  //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
   // desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
@@ -637,7 +679,7 @@ void Tabuleiro::AtualizaOlho() {
 
 // Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
 // ou entao aqui http://gpwiki.org/index.php/OpenGL:Tutorials:Picking
-// basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a 
+// basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(
     int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits) {
@@ -646,7 +688,7 @@ void Tabuleiro::EncontraHits(
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   glRenderMode(GL_SELECT);
   glInitNames();
-  glPushName(0); // inicia a pilha de nomes com 0 para sempre haver um nome
+  glPushName(0); // inicia a pilha de nomes com 0 para sempre haver um nome.
 
   // a matriz de pick afeta a projecao, entao vamos salva-la antes de modifica-la
   glMatrixMode(GL_PROJECTION);
@@ -660,6 +702,7 @@ void Tabuleiro::EncontraHits(
   // desenha a cena
   parametros_desenho_.set_iluminacao(false);
   parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
   DesenhaCena();
 
   // volta a projecao
@@ -673,7 +716,7 @@ void Tabuleiro::EncontraHits(
 
 void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits) {
   GLuint id = 0, pos_pilha = 0;
-  BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
+  BuscaHitMaisProximo(buffer_hits, numero_hits, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro.
     SelecionaQuadrado(id);
@@ -688,7 +731,7 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits) {
   GLuint id = 0, pos_pilha = 0;
-  BuscaHitMaisProximo(numero_hits, buffer_hits, &id, &pos_pilha);
+  BuscaHitMaisProximo(buffer_hits, numero_hits, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro: cria uma entidade nova.
     ntf::Notificacao notificacao;
@@ -773,18 +816,18 @@ void Tabuleiro::DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_pro
 
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   auto* notificacao = new ntf::Notificacao;
-  notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-  if (proximo_id_cliente_ >= 16) {
-    notificacao->set_erro("Limite de clientes alcançado.");
+  try {
+    auto* t = notificacao->mutable_tabuleiro();
+    t->set_id_cliente(GeraIdCliente());
+    t->CopyFrom(proto_);
+    for (const auto& id_ent : entidades_) {
+      t->add_entidade()->CopyFrom(id_ent.second->Proto());
+    }
+    return notificacao;
+  } catch (const std::logic_error& error) {
+    notificacao->set_erro(error.what());
     return notificacao;
   }
-  auto* t = notificacao->mutable_tabuleiro();
-  t->CopyFrom(proto_);
-  t->set_id_cliente(proximo_id_cliente_++);
-  for (const auto& id_ent : entidades_) {
-    t->add_entidade()->CopyFrom(id_ent.second->Proto());
-  }
-  return notificacao;
 }
 
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
@@ -806,7 +849,9 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   for (const auto& ep : tabuleiro.entidade()) {
     auto* e = NovaEntidade(ep.tipo(), texturas_, central_);
     e->Inicializa(ep);
-    entidades_.insert({ e->Id(), e });
+    if (!entidades_.insert({ e->Id(), e }).second) {
+      LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
+    }
   }
 }
 
@@ -825,6 +870,33 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   delete entidade;
   // Retorna apenas para verificacao.
   return entidade == entidade_selecionada_;
+}
+
+int Tabuleiro::GeraIdEntidade(int id_cliente) {
+  const int max_id_entidade = (1 << 28);
+  int count = max_id_entidade;
+  while (count-- > 0) {
+    int id = (id_cliente << 28) | proximo_id_entidade_;
+    proximo_id_entidade_ = ((proximo_id_entidade_ + 1) % max_id_entidade) + 1;
+    auto it = entidades_.find(id);
+    if (it == entidades_.end()) {
+      return id;
+    }
+  }
+  throw std::logic_error("Limite de entidades alcancado para cliente.");
+}
+
+int Tabuleiro::GeraIdCliente() {
+  const int max_id_cliente = 15;
+  int count = max_id_cliente;
+  while (count-- > 0) {
+    auto it = clientes_.find(proximo_id_cliente_);
+    proximo_id_cliente_ = ((proximo_id_cliente_ + 1) % max_id_cliente) + 1;
+    if (it == clientes_.end()) {
+      return *it;
+    }
+  }
+  throw std::logic_error("Limite de clientes alcancado.");
 }
 
 void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {

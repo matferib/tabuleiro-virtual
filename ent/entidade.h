@@ -10,7 +10,7 @@ namespace ent {
 
 class Entidade;
 
-/** Dados de renderizacao para texturas. O formato é sempre RGBA. */ 
+/** Dados de renderizacao para texturas. O formato é sempre RGBA. */
 struct InfoTextura {
   int altura;
   int largura;
@@ -29,7 +29,7 @@ class Texturas {
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
 
 /** classe base para entidades.
-* Toda entidade devera possuir um identificador unico. 
+* Toda entidade devera possuir um identificador unico.
 */
 class Entidade {
  public:
@@ -39,41 +39,41 @@ class Entidade {
   /** Atualiza a entidade usando apenas alguns campos do proto passado. */
   void Atualiza(const EntidadeProto& novo_proto);
 
-	/** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
-	void Atualiza();
+  /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
+  void Atualiza();
 
   /** Destroi a entidade. */
-	virtual ~Entidade();
+  virtual ~Entidade();
 
-	/** @return o identificador da entidade que deve ser unico globalmente. */
-	unsigned int Id() const;
+  /** @return o identificador da entidade que deve ser unico globalmente. */
+  unsigned int Id() const;
 
-	/** Move a entidade para o ponto especificado. Limpa destino. */
-	void MovePara(double x, double y, double z = 0);
+  /** Move a entidade para o ponto especificado. Limpa destino. */
+  void MovePara(double x, double y, double z = 0);
 
   /** Atribui um destino a entidade. */
   void Destino(const EntidadeProto& proto);
 
-	/** @return o HP da unidade. */
-	int PontosVida() const;
+  /** @return o HP da unidade. */
+  int PontosVida() const;
 
-	/** aplica dano ou cura na entidade. Dano eh negativo, cura eh positivo. */
-	void DanoCura(int pontosVida);
+  /** aplica dano ou cura na entidade. Dano eh negativo, cura eh positivo. */
+  void DanoCura(int pontosVida);
 
-	/** @return a coordenada (x). */
-	double X() const;
+  /** @return a coordenada (x). */
+  double X() const;
 
-	/** @return a coordenada (y). */
-	double Y() const;
+  /** @return a coordenada (y). */
+  double Y() const;
 
-	/** @return a coordenada (z). */
-	double Z() const;
-	
+  /** @return a coordenada (z). */
+  double Z() const;
+
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
-	virtual void DesenhaLuz(ParametrosDesenho* pd);
+  virtual void DesenhaLuz(ParametrosDesenho* pd);
 
-	/** desenha o objeto. Pode alterar os parametros de desenho. */
-	virtual void Desenha(ParametrosDesenho* pd);
+  /** desenha o objeto. Pode alterar os parametros de desenho. */
+  virtual void Desenha(ParametrosDesenho* pd);
 
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
@@ -97,4 +97,3 @@ class Entidade {
 }  // namespace ent
 
 #endif
-

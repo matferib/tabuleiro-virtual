@@ -197,7 +197,8 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()));
+  double aspecto = static_cast<double>(width()) / height();
+  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()), aspecto);
   event->accept();
   glDraw();
 }
@@ -365,18 +366,3 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   delete dialogo;
   return proto_retornado;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

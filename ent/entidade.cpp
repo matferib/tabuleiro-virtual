@@ -268,8 +268,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
   }
-	
-	glPopMatrix();
+  glPopMatrix();
   glDisable(GL_NORMALIZE);
 }
 
