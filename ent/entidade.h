@@ -14,6 +14,8 @@ class Entidade;
 struct InfoTextura {
   int altura;
   int largura;
+  int formato;  // GLenum: ver glTexImage.
+  int tipo;  // ditto.
   const void* dados;
 };
 

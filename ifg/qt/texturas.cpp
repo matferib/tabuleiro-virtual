@@ -2,6 +2,7 @@
 #include <QFileInfo>
 #include <QImageReader>
 #include <QImage>
+#include <GL/gl.h>
 
 #include "ent/entidade.h"
 #include "ifg/qt/constantes.h"
@@ -11,6 +12,31 @@
 
 namespace ifg {
 namespace qt {
+namespace {
+
+int FormatoImagem(const QImage& imagem) {
+  switch (imagem.format()) {
+    // ffRRGGBB: retorna invertido para inverter no tipo ja que nao tem um GL_ARGB.
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
+      return GL_BGRA;
+    default:
+      return GL_BGRA;
+  }
+}
+
+int TipoImagem(const QImage& imagem) {
+  switch (imagem.format()) {
+    // O formato foi BGRA que invertido da ARGB.
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32:
+      return GL_UNSIGNED_INT_8_8_8_8_REV;
+    default:
+      return GL_UNSIGNED_INT_8_8_8_8_REV;
+  }
+}
+
+}  // namespace
 
 struct Texturas::InfoTexturaInterna {
   InfoTexturaInterna() : contador(1) {
@@ -81,10 +107,12 @@ void Texturas::CarregaTextura(const std::string& id) {
     info_interna->info.altura = imagem.height();
     info_interna->info.largura = imagem.width();
     info_interna->info.dados =  imagem.constBits();
+    info_interna->info.formato = FormatoImagem(imagem);
+    info_interna->info.tipo = TipoImagem(imagem);
     texturas_.insert(make_pair(id, info_interna));
     VLOG(1) << "Textura criada: " << id
             << "', " << info_interna->info.largura << "x" << info_interna->info.altura
-            << ", bpp: " << imagem.depth();
+            << ", bpp: " << imagem.depth() << ", format: " << (int)imagem.format();
   } else {
     ++info_interna->contador;
     VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;

@@ -292,7 +292,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     } else {
       proto->clear_textura();
     }
-    dialogo->accept();
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
