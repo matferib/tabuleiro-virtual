@@ -274,7 +274,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     gerador.linha_textura->setText(info.fileName());
   });
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(gerador.botoes, SIGNAL(accepted()),
+  lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
     proto->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     if (gerador.checkbox_cor->checkState() == Qt::Checked) {
@@ -297,7 +297,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
   // Cancelar.
-  lambda_connect(gerador.botoes, SIGNAL(rejected()), [&notificacao, &proto] {
+  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto] {
       delete proto;
       proto = nullptr;
   });
@@ -347,7 +347,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   });
 
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(gerador.botoes, SIGNAL(accepted()), [dialogo, &gerador, &cor_proto, proto_retornado] {
+  lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, &cor_proto, proto_retornado] {
     proto_retornado->mutable_luz()->set_posicao(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->set_inclinacao(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
@@ -356,12 +356,11 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     } else {
       proto_retornado->clear_textura();
     }
-    dialogo->accept();
   });
   // Cancelar.
-  lambda_connect(gerador.botoes, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
-      delete proto_retornado;
-      proto_retornado = nullptr;
+  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
+    delete proto_retornado;
+    proto_retornado = nullptr;
   });
   dialogo->exec();
   delete dialogo;

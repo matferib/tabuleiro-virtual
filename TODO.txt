@@ -1,3 +1,4 @@
+- Comandos de teclado.
 - Corrigir cor e orientacao das texturas.
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.
 - Adicionar mais dados a entidades (exemplo: visibilidade para jogadores).

@@ -44,9 +44,10 @@ const double SENSIBILIDADE_ROTACAO_X = 0.01;
 const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 
 /** expessura da linha do tabuleiro. */
-const double EXPESSURA_LINHA = 0.1;
+const float EXPESSURA_LINHA = 0.2f;
+const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
-const double VELOCIDADE_POR_EIXO = 0.1;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
+const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
@@ -587,6 +588,7 @@ void Tabuleiro::DesenhaCena() {
   }
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
+  DesenhaGrade();
   if (!parametros_desenho_.desenha_entidades()) {
     return;
   }
@@ -852,13 +854,6 @@ void Tabuleiro::DesenhaQuadrado(
   glLoadName(id);
   if (info == nullptr) {
     // desenha o quadrado negro embaixo.
-    GLfloat preto[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    MudaCor(preto);
-    glRectf(0.0f, 0.0f, TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO);
-
-    // Habilita a função pra acabar com zfight.
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-0.1f, -0.1f);
     if (selecionado) {
       GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };
       MudaCor(cinza);
@@ -866,9 +861,7 @@ void Tabuleiro::DesenhaQuadrado(
       GLfloat cinza_claro[] = { 0.8f, 0.8f, 0.8f, 1.0f };
       MudaCor(cinza_claro);
     }
-    glRectf(0.0f, 0.0f, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA, TAMANHO_LADO_QUADRADO - EXPESSURA_LINHA);
-    // Restaura os offset de zfight.
-    glDisable(GL_POLYGON_OFFSET_FILL);
+    glRectf(0.0f, 0.0f, TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO);
   } else {
     float tamanho_texel_h = 1.0f / TamanhoX();
     float tamanho_texel_v = 1.0f / TamanhoY();
@@ -876,7 +869,6 @@ void Tabuleiro::DesenhaQuadrado(
     GLfloat branco[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     MudaCor(branco);
     glPushMatrix();
-    glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
     glBegin(GL_QUADS);
     // OpenGL espera a imagem vinda de baixo,esquerda para cima,direita. Como o carregador
     // carrega invertido, fazemos o desenho de cabeca para baixo.
@@ -891,6 +883,30 @@ void Tabuleiro::DesenhaQuadrado(
     glEnd();
     glPopMatrix();
   }
+}
+
+void Tabuleiro::DesenhaGrade() {
+  GLfloat preto[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  MudaCor(preto);
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(-0.1f, -0.1f);
+
+  // Linhas verticais (S-N).
+  const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
+  const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
+  const int x_2 = TamanhoX()  / 2;
+  const int y_2 = TamanhoX() / 2;
+  for (int i = -x_2; i <= x_2; ++i) {
+    float x = i * TAMANHO_LADO_QUADRADO;
+    glRectf(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);
+  }
+  // Linhas horizontais (W-E).
+  for (int i = -y_2; i <= y_2; ++i) {
+    float y = i * TAMANHO_LADO_QUADRADO;
+    glRectf(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
+  }
+
+  glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 

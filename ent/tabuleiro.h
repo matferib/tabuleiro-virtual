@@ -49,10 +49,10 @@ class Tabuleiro : public ntf::Receptor {
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
 
-  /** @return tamanho do tabuleiro em X. */
+  /** @return numero de quadrados no eixo E-W. */
   int TamanhoX() const;
 
-  /** @return tamanho do tabuleiro em Y. */
+  /** @return numero de quadrados no eixo N-S. */
   int TamanhoY() const;
 
   /** adiciona a entidade ao tabuleiro, através de uma notificação.
@@ -147,6 +147,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha um quadrado do tabuleiro. */
   void DesenhaQuadrado(unsigned int id, int linha, int coluna, bool selecionado, const InfoTextura* info);
+  /** Desenha a grade do tabuleiro. */
+  void DesenhaGrade();
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

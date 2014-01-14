@@ -230,7 +230,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
         glTexImage2D(GL_TEXTURE_2D,
                      0, GL_RGBA,
                      info->largura, info->altura,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     0, GL_BGRA, GL_UNSIGNED_BYTE,
                      info->dados);
       }
       glNormal3f(0.0f, -1.0f, 0.0f);
@@ -238,20 +238,20 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
       glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
       MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
       glBegin(GL_QUADS);
-      glTexCoord2f(0.0f, 0.0f);
       // OpenGL espera a imagem vinda de baixo,esquerda para cima,direita. Como o carregador
       // carrega invertido, fazemos o desenho de cabeca para baixo.
-      glVertex3f(
-          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(
-          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
-      glTexCoord2f(1.0f, 1.0f);
+      glTexCoord2f(0.0f, 0.0f);
       glVertex3f(
           -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
-      glTexCoord2f(0.0f, 1.0f);
+      glTexCoord2f(1.0f, 0.0f);
       glVertex3f(
           TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
+      glTexCoord2f(1.0f, 1.0f);
+      glVertex3f(
+          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
+      glTexCoord2f(0.0f, 1.0f);
+      glVertex3f(
+          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
       glEnd();
       glPopMatrix();
       glDisable(GL_TEXTURE_2D);
