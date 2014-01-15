@@ -68,8 +68,10 @@ message ParametrosDesenho {
   optional bool desenha_texturas = 5 [default=true];
   // Desenha a grade do tabuleiro.
   optional bool desenha_grade = 6 [default=true];
+  // Desenha o indicador de FPS.
+  optional bool desenha_fps = 7 [default=false];
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
-  optional int32 luz_corrente = 7 [default=1];
+  optional int32 luz_corrente = 8 [default=1];
   // OpenGL permite até 8 luzes simultaneas.
-  optional int32 max_num_luzes = 8 [default=8];
+  optional int32 max_num_luzes = 9 [default=8];
 }

@@ -18,7 +18,7 @@ env['PROTOCPYTHONOUTDIR'] = None
 env['CPPPATH'] += ['./']
 env['CPPDEFINES'] = {'USAR_GLOG': 0}
 env['CXXFLAGS'] += ['-g', '-Wall', '-std=c++11']
-env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'pthread']
+env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')

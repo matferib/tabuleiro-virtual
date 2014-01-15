@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/timer/timer.hpp>
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -49,17 +50,23 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
-/** @return a razao de aspecto do viewport. */
-double Aspecto() {
-  GLint dados[4];  // xo, yo, largura, altura.
-  glGetIntegerv(GL_VIEWPORT, dados);
-  return static_cast<double>(dados[2]) / static_cast<double>(dados[3]);
-}
+// Cores.
+GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor3fv(cor);
+}
+
+/** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
+void DesenhaStringTempo(const std::string& tempo) {
+  int x = 13;
+  for (const char c : tempo) {
+    glRasterPos2i(8, x);
+    x += 14;
+    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
+  }
 }
 
 // TODO: mover para entidade.
@@ -105,6 +112,8 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   olho_.set_rotacao(-M_PI / 2.0f);
   olho_.set_altura(OLHO_ALTURA_INICIAL);
   olho_.set_raio(OLHO_RAIO_INICIAL);
+  // Valores iniciais.
+  largura_ = altura_ = 0;
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -116,15 +125,18 @@ Tabuleiro::~Tabuleiro() {
   }
 }
 
-int Tabuleiro::TamanhoX() const { 
-  return proto_.tamanho(); 
+int Tabuleiro::TamanhoX() const {
+  return proto_.tamanho();
 }
 
-int Tabuleiro::TamanhoY() const { 
-  return proto_.tamanho(); 
+int Tabuleiro::TamanhoY() const {
+  return proto_.tamanho();
 }
 
 void Tabuleiro::Desenha() {
+  // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
+  // desenha a cena padrao, entao ela restaura os parametros para seus valores
+  // default.
   parametros_desenho_.Clear();
   DesenhaCena();
 }
@@ -424,10 +436,10 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
 
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
+  LOG(INFO) << "VIEWPORT";
   glViewport(0, 0, (GLint)largura, (GLint)altura);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(CAMPO_VERTICAL, (double)largura / altura, 0.5, 500.0);
+  largura_ = largura;
+  altura_ = altura;
 }
 
 void Tabuleiro::InicializaGL() {
@@ -435,23 +447,29 @@ void Tabuleiro::InicializaGL() {
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 
-  // zbuffer
-  glEnable(GL_DEPTH_TEST);
-
   // Mapeamento de texels em amostragem para cima e para baixo.
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
-// privadas 
+// privadas
 void Tabuleiro::DesenhaCena() {
+  boost::timer::cpu_timer timer;
+  if (parametros_desenho_.desenha_fps()) {
+    timer.start();
+  }
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+  glMatrixMode(GL_MODELVIEW);
+
+  glEnable(GL_DEPTH_TEST);
   glClearColor(proto_.luz().cor().r(), proto_.luz().cor().g(), proto_.luz().cor().b(), proto_.luz().cor().a());
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
     glDisable(GL_LIGHT0 + i);
   }
-  glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   const Posicao& alvo = olho_.alvo();
   gluLookAt(
@@ -543,6 +561,22 @@ void Tabuleiro::DesenhaCena() {
     entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
+
+  if (parametros_desenho_.desenha_fps()) {
+    glFlush();
+    timer.stop();
+    std::string tempo_str = timer.format(boost::timer::default_places, "%u");
+    LOG(INFO) << "Tempo: " << tempo_str;
+    // Modo 2d.
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, largura_, altura_, 0, 0, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    MudaCor(BRANCO);
+    DesenhaStringTempo(tempo_str);
+  }
 }
 
 void Tabuleiro::AtualizaOlho() {
@@ -587,9 +621,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   glMatrixMode(GL_PROJECTION);
   glPushMatrix();
   glLoadIdentity();
-  GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
-  gluPickMatrix(x, y, 1.0, 1.0, viewport);
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
   // desenha a cena
@@ -910,8 +941,7 @@ void Tabuleiro::DesenhaQuadrado(
     float tamanho_texel_h = 1.0f / TamanhoX();
     float tamanho_texel_v = 1.0f / TamanhoY();
     // desenha o quadrado branco.
-    GLfloat branco[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    MudaCor(branco);
+    MudaCor(BRANCO);
     glPushMatrix();
     glBegin(GL_QUADS);
     // O quadrado eh desenhado EB, DB, DC, EC. A textura tem o eixo Y invertido.

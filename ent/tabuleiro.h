@@ -173,6 +173,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
 
+  /** Retorna a razao de aspecto do viewport. */
+  double Aspecto() const { return static_cast<double>(largura_) / altura_; }
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -208,6 +211,10 @@ class Tabuleiro : public ntf::Receptor {
   int ultimo_x_;
   /** dados (Y) para calculo de mouse. */
   int ultimo_y_;
+
+  /** Dimensoes do viewport. */
+  int largura_;
+  int altura_;
 
   // Para onde o olho olha.
   Olho olho_;
