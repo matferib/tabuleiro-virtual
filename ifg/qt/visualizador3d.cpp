@@ -8,6 +8,7 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QMouseEvent>
 #include <QString>
 #include <GL/gl.h>
@@ -31,7 +32,7 @@ ent::botao_e MapeiaBotao(Qt::MouseButton botao) {
     case Qt::LeftButton: return ent::BOTAO_ESQUERDO;
     case Qt::RightButton: return ent::BOTAO_DIREITO;
     case Qt::MidButton: return ent::BOTAO_MEIO;
-    default: return ent::BOTAO_NENHUM; 
+    default: return ent::BOTAO_NENHUM;
   }
 }
 
@@ -55,7 +56,7 @@ float ConverteCor(int cor_int) {
 
 // Converte do formato ent::Proto para cor do QT.
 const QColor ProtoParaCor(const ent::Cor& cor) {
-  return QColor(ConverteCor(cor.r()), 
+  return QColor(ConverteCor(cor.r()),
                 ConverteCor(cor.g()),
                 ConverteCor(cor.b()),
                 ConverteCor(cor.a()));
@@ -161,6 +162,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       n->mutable_tabuleiro()->Swap(tabuleiro);
       central_->AdicionaNotificacao(n);
       break;
+    }
+    case ntf::TN_ERRO: {
+      QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
     }
     default: ;
   }

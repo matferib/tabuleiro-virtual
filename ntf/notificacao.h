@@ -57,7 +57,6 @@ class CentralNotificacoes {
   std::vector<Receptor*> receptores_;
   std::vector<ReceptorRemoto*> receptores_remotos_;
 };
-	
 
 } // namespace ntf
 
