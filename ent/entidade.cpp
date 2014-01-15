@@ -174,6 +174,14 @@ void Entidade::MovePara(double x, double y, double z) {
   proto_.clear_destino();
 }
 
+void Entidade::MoveDelta(double dx, double dy, double dz) { 
+  auto* p = proto_.mutable_pos();
+  p->set_x(p->x() + dx);
+  p->set_y(p->y() + dy);
+  p->set_z(p->z() + dz);
+  proto_.clear_destino();
+}
+
 void Entidade::Destino(const EntidadeProto& proto) { 
   proto_.mutable_destino()->CopyFrom(proto.destino());
 }

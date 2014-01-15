@@ -1,4 +1,4 @@
-- Arrumar o picking (a grade esta sem nome).
+- Arrumar o movimento quando clica sobre um objeto cuja parte esta fora do tabuleiro.
 - Iluminacao ambiente.
 - Comandos de teclado.
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.

@@ -172,11 +172,8 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  int altura = height();
-  double aspecto = static_cast<double>(width()) / altura;
   tabuleiro_->TrataBotaoPressionado(
-    MapeiaBotao(event->button()), 
-    event->x(), altura - event->y(), aspecto);
+      MapeiaBotao(event->button()), event->x(), height() - event->y());
   event->accept();
   glDraw();
 }
@@ -188,17 +185,13 @@ void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
-  int altura = height();
-  double aspecto = static_cast<double>(width()) / altura;
   tabuleiro_->TrataDuploClique(
-    MapeiaBotao(event->button()), 
-    event->x(), altura - event->y(), aspecto);
+      MapeiaBotao(event->button()), event->x(), height() - event->y());
   event->accept();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  double aspecto = static_cast<double>(width()) / height();
-  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()), aspecto);
+  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()));
   event->accept();
   glDraw();
 }

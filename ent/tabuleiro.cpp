@@ -49,6 +49,13 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
+/** @return a razao de aspecto do viewport. */
+double Aspecto() {
+  GLint dados[4];  // xo, yo, largura, altura.
+  glGetIntegerv(GL_VIEWPORT, dados);
+  return static_cast<double>(dados[2]) / static_cast<double>(dados[3]);
+}
+
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
@@ -70,66 +77,6 @@ const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x,
   cor->set_g(1.0);
   cor->set_b(0);
   return ep;
-}
-
-// Busca o hit mais próximo em buffer_hits. Cada posicao do buffer (hit record):
-// - 0: pos_pilha de nomes (numero de nomes empilhados);
-// - 1: profundidade minima.
-// - 2: profundidade maxima.
-// - 3: nomes empilhados (1 para cada pos pilha).
-// Dado o hit mais proximo, retorna o identificador, a posicao da pilha e a
-// profundidade do objeto (normalizado 0..1.0).
-void BuscaHitMaisProximoX(
-    GLuint* buffer_hits, unsigned int num_hits, GLuint* id, GLuint* pos_pilha, float* profundidade = nullptr) {
-  VLOG(1) << "numero de hits no buffer de picking: " << num_hits;
-  GLuint* ptr_hits = buffer_hits;
-  // valores do hit mais proximo.
-  GLuint menor_z = 0xFFFFFFFF;
-  GLuint pos_pilha_menor = 0;
-  GLuint id_menor = 0;
-  // Busca o hit mais proximo.
-  for (GLuint i = 0; i < num_hits; ++i) {
-    GLuint pos_pilha_corrente = *ptr_hits;
-    GLuint z_corrente = *(ptr_hits + 1);
-    // A posicao da pilha minimo eh 1.
-    GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
-    ptr_hits += (3 + (pos_pilha_corrente));
-    if (z_corrente < menor_z) {
-      VLOG(1) << "pos_pilha_corrente: " << pos_pilha_corrente
-              << ", z_corrente: " << z_corrente
-              << ", id_corrente: " << id_corrente;
-      menor_z = z_corrente;
-      pos_pilha_menor = pos_pilha_corrente;
-      id_menor = id_corrente;
-    } else {
-      VLOG(1) << "pulando objeto mais longe...";
-    }
-  }
-  *pos_pilha = pos_pilha_menor;
-  *id = id_menor;
-  // Normaliza profundidade.
-  float menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
-  if (profundidade != nullptr) {
-    *profundidade = menor_profundidade;
-  }
-  VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
-          << ", pos_pilha: " << pos_pilha_menor
-          << ", id: " << id_menor;
-}
-
-/** Encontra as coordenadas x3d y3d z3d da posição x y do mouse no ultimo buffer desenhado.
-* @return false se falhar.
-*/
-bool MousePara3dX(int x, int y, float profundidade,
-                 GLdouble* modelview, GLdouble *projection, GLint* viewport,
-                 GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
-  if (!gluUnProject(x, y, profundidade,
-                    modelview, projection, viewport,
-                    x3d, y3d, z3d)) {
-    LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
-    return false;
-  }
-  return true;
 }
 
 }  // namespace.
@@ -162,7 +109,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
 
 Tabuleiro::~Tabuleiro() {
   if (proto_.has_textura()) {
-    VLOG(1) << "Liberando textura: " << proto_.textura();
+    VLOG(2) << "Liberando textura: " << proto_.textura();
     auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
     nl->set_endereco(proto_.textura());
     central_->AdicionaNotificacao(nl);
@@ -355,7 +302,7 @@ void Tabuleiro::TrataRodela(int delta) {
   olho_.set_raio(olho_raio);
 }
 
-void Tabuleiro::TrataMovimento(botao_e botao, int x, int y, double aspecto) {
+void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
     float olho_rotacao = olho_.rotacao();
@@ -385,21 +332,27 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y, double aspecto) {
     parametros_desenho_.set_desenha_entidades(false);
     parametros_desenho_.set_iluminacao(false);
     parametros_desenho_.set_desenha_texturas(false);
-    GLdouble nx, ny, nz;
-    if (!MousePara3d(x, y, aspecto, &nx, &ny, &nz)) {
+    GLdouble ox, oy, oz;
+    if (!MousePara3d(ultimo_x_, ultimo_y_, &ox, &oy, &oz)) {
       return;
     }
-    entidade_selecionada_->MovePara(nx, ny, 0);
+    GLdouble nx, ny, nz;
+    if (!MousePara3d(x, y, &nx, &ny, &nz)) {
+      return;
+    }
+    entidade_selecionada_->MoveDelta(nx - ox, ny - oy, nz - oz);
+
+    ultimo_x_ = x;
+    ultimo_y_ = y;
   } else if (estado_ == ETAB_DESLIZANDO) {
     // Faz picking do tabuleiro sem entidades.
     parametros_desenho_.set_desenha_entidades(false);
-
     GLdouble ox, oy, oz;
-    if (!MousePara3d(ultimo_x_, ultimo_y_, aspecto, &ox, &oy, &oz)) {
+    if (!MousePara3d(ultimo_x_, ultimo_y_, &ox, &oy, &oz)) {
       return;
     }
     GLdouble nx, ny, nz;
-    if (!MousePara3d(x, y, aspecto, &nx, &ny, &nz)) {
+    if (!MousePara3d(x, y, &nx, &ny, &nz)) {
       return;
     }
 
@@ -417,7 +370,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y, double aspecto) {
   }
 }
 
-void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto) {
+void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
   ultimo_x_ = x;
   ultimo_y_ = y;
   if (botao == BOTAO_MEIO) {
@@ -427,23 +380,15 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y, double aspect
     estado_anterior_rotacao_ = estado_;
     estado_ = ETAB_DESLIZANDO;
   } else if (botao == BOTAO_ESQUERDO) {
-    // informacao dos hits. TODO ver esse limite aqui.
-    GLuint buffer_hits[100] = {0};
-    GLuint numero_hits = 0;
-    EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
-    TrataClique(numero_hits, buffer_hits);
+    TrataCliqueEsquerdo(x, y);
   }
 }
 
-void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y, double aspecto) {
+void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y) {
   if (botao == BOTAO_ESQUERDO) {
-    // informacao dos hits. TODO ver esse limite aqui.
-    GLuint buffer_hits[100] = {0};
-    GLuint numero_hits = 0;
-    EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
-    TrataDuploCliqueEsquerdo(numero_hits, buffer_hits);
+    TrataDuploCliqueEsquerdo(x, y);
   } else if (botao == BOTAO_DIREITO) {
-    TrataDuploCliqueDireito(x, y, aspecto);
+    TrataDuploCliqueDireito(x, y);
   }
 }
 
@@ -630,8 +575,7 @@ void Tabuleiro::AtualizaOlho() {
 // ou entao aqui http://gpwiki.org/index.php/OpenGL:Tutorials:Picking
 // basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
 // profundidade de quem o acertou.
-void Tabuleiro::EncontraHits(
-    int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits) {
+void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
   // inicia o buffer de picking (selecao)
   glSelectBuffer(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
@@ -646,7 +590,7 @@ void Tabuleiro::EncontraHits(
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
   gluPickMatrix(x, y, 1.0, 1.0, viewport);
-  gluPerspective(CAMPO_VERTICAL, aspecto, 0.5, 500.0);
+  gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
   // desenha a cena
   parametros_desenho_.set_iluminacao(false);
@@ -664,29 +608,75 @@ void Tabuleiro::EncontraHits(
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
-    int x, int y, double aspecto, unsigned int* id, unsigned int* pos_pilha, float* profundidade) {
+    int x, int y, unsigned int* id, unsigned int* pos_pilha, float* profundidade) {
   GLuint buffer_hits[100] = {0};
   GLuint numero_hits = 0;
-  EncontraHits(x, y, aspecto, &numero_hits, buffer_hits);
-  BuscaHitMaisProximoX(buffer_hits, numero_hits, id, pos_pilha, profundidade);
+  EncontraHits(x, y, &numero_hits, buffer_hits);
+
+  // Busca o hit mais próximo em buffer_hits. Cada posicao do buffer (hit record):
+  // - 0: pos_pilha de nomes (numero de nomes empilhados);
+  // - 1: profundidade minima.
+  // - 2: profundidade maxima.
+  // - 3: nomes empilhados (1 para cada pos pilha).
+  // Dado o hit mais proximo, retorna o identificador, a posicao da pilha e a
+  // profundidade do objeto (normalizado 0..1.0).
+  VLOG(1) << "numero de hits no buffer de picking: " << numero_hits;
+  GLuint* ptr_hits = buffer_hits;
+  // valores do hit mais proximo.
+  GLuint menor_z = 0xFFFFFFFF;
+  GLuint pos_pilha_menor = 0;
+  GLuint id_menor = 0;
+  // Busca o hit mais proximo.
+  for (GLuint i = 0; i < numero_hits; ++i) {
+    GLuint pos_pilha_corrente = *ptr_hits;
+    GLuint z_corrente = *(ptr_hits + 1);
+    // A posicao da pilha minimo eh 1.
+    GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
+    ptr_hits += (3 + (pos_pilha_corrente));
+    if (z_corrente < menor_z) {
+      VLOG(2) << "pos_pilha_corrente: " << pos_pilha_corrente
+              << ", z_corrente: " << z_corrente
+              << ", id_corrente: " << id_corrente;
+      menor_z = z_corrente;
+      pos_pilha_menor = pos_pilha_corrente;
+      id_menor = id_corrente;
+    } else {
+      VLOG(2) << "pulando objeto mais longe...";
+    }
+  }
+  *pos_pilha = pos_pilha_menor;
+  *id = id_menor;
+  // Normaliza profundidade.
+  float menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
+  if (profundidade != nullptr) {
+    *profundidade = menor_profundidade;
+  }
+  VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
+          << ", pos_pilha: " << pos_pilha_menor
+          << ", id: " << id_menor;
 }
 
-bool Tabuleiro::MousePara3d(int x, int y, double aspecto, double* x3d, double* y3d, double* z3d) {
+bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d) {
   GLuint not_used;
   float profundidade;
-  BuscaHitMaisProximo(
-      x, y, aspecto, &not_used, &not_used, &profundidade_antes);
+  BuscaHitMaisProximo(x, y, &not_used, &not_used, &profundidade);
   GLdouble modelview[16], projection[16];
   GLint viewport[4];
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
   glGetDoublev(GL_PROJECTION_MATRIX, projection);
   glGetIntegerv(GL_VIEWPORT, viewport);
-  return MousePara3dX(x, y, profundidade, modelview, projection, viewport, x3d, y3d, z3d);
+  if (!gluUnProject(x, y, profundidade,
+                    modelview, projection, viewport,
+                    x3d, y3d, z3d)) {
+    LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
+    return false;
+  }
+  return true;
 }
 
-void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits) {
-  GLuint id = 0, pos_pilha = 0;
-  BuscaHitMaisProximoX(buffer_hits, numero_hits, &id, &pos_pilha);
+void Tabuleiro::TrataCliqueEsquerdo(int x, int y) {
+  unsigned int id, pos_pilha;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro.
     LOG(INFO) << "Picking no tabuleiro.";
@@ -700,11 +690,13 @@ void Tabuleiro::TrataClique(unsigned int numero_hits, unsigned int* buffer_hits)
     LOG(INFO) << "Picking lugar nenhum.";
     DeselecionaEntidade();
   }
+  ultimo_x_ = x;
+  ultimo_y_ = y;
 }
 
-void Tabuleiro::TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits) {
-  GLuint id = 0, pos_pilha = 0;
-  BuscaHitMaisProximoX(buffer_hits, numero_hits, &id, &pos_pilha);
+void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
+  unsigned int id, pos_pilha;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro: cria uma entidade nova.
     ntf::Notificacao notificacao;
@@ -722,12 +714,12 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int*
   }
 }
 
-void Tabuleiro::TrataDuploCliqueDireito(int x, int y, double aspecto) {
+void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   parametros_desenho_.set_desenha_entidades(false);
   parametros_desenho_.set_iluminacao(false);
   parametros_desenho_.set_desenha_texturas(false);
   GLdouble x3d, y3d, z3d;
-  if (!MousePara3d(x, y, aspecto, &x3d, &y3d, &z3d)) {
+  if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
     return;
   }
   auto* p = olho_.mutable_destino();
@@ -875,14 +867,14 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_.has_textura() && proto_.textura() != novo_proto.textura()) {
-    VLOG(1) << "Liberando textura: " << proto_.textura();
+    VLOG(2) << "Liberando textura: " << proto_.textura();
     auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
     nl->set_endereco(proto_.textura());
     central_->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_textura() && novo_proto.textura() != proto_.textura()) {
-    VLOG(1) << "Carregando textura: " << proto_.textura();
+    VLOG(2) << "Carregando textura: " << proto_.textura();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->set_endereco(novo_proto.textura());
     central_->AdicionaNotificacao(nc);

@@ -51,6 +51,9 @@ class Entidade {
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(double x, double y, double z = 0);
 
+  /** Move a entidade uma quantidade em cada eixo. Limpa destino. */
+  void MoveDelta(double dx, double dy, double dz);
+
   /** Atribui um destino a entidade. */
   void Destino(const EntidadeProto& proto);
 

@@ -76,18 +76,17 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRodela(int delta);
 
   /** trata movimento do mouse (y ja em coordenadas opengl). */
-  void TrataMovimento(botao_e botao, int x, int y, double aspecto);
+  void TrataMovimento(botao_e botao, int x, int y);
 
   /** trata o botao do mouse liberado. */
   void TrataBotaoLiberado(botao_e botao);
 
-  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl) e
-  * a razao de aspecto da janela.
+  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl).
   */
-  void TrataBotaoPressionado(botao_e botao, int x, int y, double aspecto);
+  void TrataBotaoPressionado(botao_e botao, int x, int y);
 
-  /** Trata o click duplo, recebendo x, y (coordenadas opengl) e a razão de aspecto da janela. */
-  void TrataDuploClique(botao_e botao, int x, int y, double aspecto);
+  /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
+  void TrataDuploClique(botao_e botao, int x, int y);
 
   /** trata a redimensao da janela. */
   void TrataRedimensionaJanela(int largura, int altura);
@@ -103,26 +102,34 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
   void AtualizaOlho();
 
-  /** Encontra os hits de um clique em objetos. */
-  void EncontraHits(int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits);
+  /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
+  * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
+  * desta funcao.
+  */
+  void EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits);
 
   /** Busca informacoes sobre o hit mais proximo de uma coordenada de mouse X Y (openGL). */
   void BuscaHitMaisProximo(
-      int x, int y, double aspecto, unsigned int* id, unsigned int* pos_pilha, float* profundidade = nullptr);
+      int x, int y, unsigned int* id, unsigned int* pos_pilha, float* profundidade = nullptr);
 
-  /** Dada uma coordenada de mouse (x, y) a uma profundidade, retorna o valor (x, y, z) 3d. */
-  bool MousePara3d(int x, int y, double aspecto, double* x3d, double* y3d, double* z3d);
+  /** Dada uma coordenada de mouse (x, y) retorna o valor (x, y, z) 3d do objeto projetado mais proximo.
+  * Efetivamente chama BuscaHitMaisProximo para obter a profundidade entao faz a projecao para aquele ponto.
+  */
+  bool MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d);
 
-  /** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
-  void TrataClique(unsigned int numero_hits, unsigned int* buffer_hits);
+  /** trata o clique do botao esquerdo. */
+  void TrataCliqueEsquerdo(int x, int y);
 
-  /** Trata o clique duplo, recebendo o numero de hits e o buffer de hits do opengl. */
-  void TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits);
+  /** Trata o clique duplo do botao esquerdo. */
+  void TrataDuploCliqueEsquerdo(int x, int y);
+
   /** Trata o duplo clique com botao direito. */
-  void TrataDuploCliqueDireito(int x, int y, double aspecto);
+  void TrataDuploCliqueDireito(int x, int y);
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
+
+  /** deseleciona a entidade selecionada. */
   void DeselecionaEntidade();
 
   /** seleciona o quadrado pelo ID. */
