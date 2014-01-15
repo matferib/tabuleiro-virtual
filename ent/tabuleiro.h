@@ -106,13 +106,20 @@ class Tabuleiro : public ntf::Receptor {
   /** Encontra os hits de um clique em objetos. */
   void EncontraHits(int x, int y, double aspecto, unsigned int* numero_hits, unsigned int* buffer_hits);
 
+  /** Busca informacoes sobre o hit mais proximo de uma coordenada de mouse X Y (openGL). */
+  void BuscaHitMaisProximo(
+      int x, int y, double aspecto, unsigned int* id, unsigned int* pos_pilha, float* profundidade = nullptr);
+
+  /** Dada uma coordenada de mouse (x, y) a uma profundidade, retorna o valor (x, y, z) 3d. */
+  bool MousePara3d(int x, int y, double aspecto, double* x3d, double* y3d, double* z3d);
+
   /** trata o clique, recebendo o numero de hits e o buffer de hits do opengl. */
   void TrataClique(unsigned int numero_hits, unsigned int* buffer_hits);
 
   /** Trata o clique duplo, recebendo o numero de hits e o buffer de hits do opengl. */
   void TrataDuploCliqueEsquerdo(unsigned int numero_hits, unsigned int* buffer_hits);
   /** Trata o duplo clique com botao direito. */
-  void TrataDuploCliqueDireito(int x, int y);
+  void TrataDuploCliqueDireito(int x, int y, double aspecto);
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
