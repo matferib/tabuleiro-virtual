@@ -660,6 +660,9 @@ bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d)
   GLuint not_used;
   float profundidade;
   BuscaHitMaisProximo(x, y, &not_used, &not_used, &profundidade);
+  if (profundidade == 1.0f) {
+    return false;
+  }
   GLdouble modelview[16], projection[16];
   GLint viewport[4];
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
@@ -781,6 +784,7 @@ void Tabuleiro::DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_pro
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   auto* notificacao = new ntf::Notificacao;
   try {
+    notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
     t->set_id_cliente(GeraIdCliente());
     t->CopyFrom(proto_);
@@ -789,6 +793,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     }
     return notificacao;
   } catch (const std::logic_error& error) {
+    notificacao->set_tipo(ntf::TN_ERRO);
     notificacao->set_erro(error.what());
     return notificacao;
   }
@@ -854,10 +859,11 @@ int Tabuleiro::GeraIdCliente() {
   const int max_id_cliente = 15;
   int count = max_id_cliente;
   while (count-- > 0) {
-    auto it = clientes_.find(proximo_id_cliente_);
+    int id_cliente = proximo_id_cliente_;
+    auto it = clientes_.find(id_cliente);
     proximo_id_cliente_ = ((proximo_id_cliente_ + 1) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
-      return *it;
+      return id_cliente;
     }
   }
   throw std::logic_error("Limite de clientes alcancado.");

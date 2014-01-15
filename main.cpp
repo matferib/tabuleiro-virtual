@@ -23,12 +23,12 @@ int main(int argc, char** argv) {
   net::Cliente cliente(&servico_io, &central);
   ifg::qt::Texturas texturas(&central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &texturas, &central));
-	try {
-		p->Executa();
-	}
-	catch (exception& e) {
+  try {
+    p->Executa();
+  }
+  catch (exception& e) {
     std::cerr << e.what() << std::endl;
-		return 1;
-	}
-	return 0;
+    return 1;
+  }
+  return 0;
 }

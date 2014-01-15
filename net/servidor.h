@@ -9,6 +9,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
   // Nao possui os parametros.
   Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
+  virtual ~Servidor();
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
   virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;

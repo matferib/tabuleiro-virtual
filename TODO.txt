@@ -1,3 +1,6 @@
+- Adicionar unit tests.
+- Arrumar mensagem de erro (tratar na UI).
+- Selecao de porta pelo servidor.
 - Arrumar o movimento quando clica sobre um objeto cuja parte esta fora do tabuleiro.
 - Iluminacao ambiente.
 - Comandos de teclado.
