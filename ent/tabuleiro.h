@@ -174,7 +174,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaGrade();
 
   /** Retorna a razao de aspecto do viewport. */
-  double Aspecto() const { return static_cast<double>(largura_) / altura_; }
+  double Aspecto() const;
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

@@ -136,8 +136,11 @@ int Tabuleiro::TamanhoY() const {
 void Tabuleiro::Desenha() {
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
-  // default.
+  // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
   DesenhaCena();
 }
 
@@ -455,12 +458,11 @@ void Tabuleiro::InicializaGL() {
 // privadas
 void Tabuleiro::DesenhaCena() {
   boost::timer::cpu_timer timer;
+  parametros_desenho_.set_desenha_fps(true);
   if (parametros_desenho_.desenha_fps()) {
     timer.start();
   }
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+
   glMatrixMode(GL_MODELVIEW);
 
   glEnable(GL_DEPTH_TEST);
@@ -566,7 +568,7 @@ void Tabuleiro::DesenhaCena() {
     glFlush();
     timer.stop();
     std::string tempo_str = timer.format(boost::timer::default_places, "%u");
-    LOG(INFO) << "Tempo: " << tempo_str;
+    //LOG(INFO) << "Tempo: " << tempo_str;
     // Modo 2d.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -617,10 +619,11 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   glInitNames();
   glPushName(0); // inicia a pilha de nomes com 0 para sempre haver um nome.
 
-  // a matriz de pick afeta a projecao, entao vamos salva-la antes de modifica-la
   glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
   glLoadIdentity();
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  gluPickMatrix(x, y, 1.0, 1.0, viewport);
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
   // desenha a cena
@@ -629,13 +632,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_grade(false);
   DesenhaCena();
 
-  // volta a projecao
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-
-  // volta pro modo de desenho e processa os hits
+  // Volta pro modo de desenho, retornando quanto pegou no SELECT.
   *numero_hits = glRenderMode(GL_RENDER);
-  glMatrixMode(GL_MODELVIEW);
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
@@ -983,5 +981,17 @@ void Tabuleiro::DesenhaGrade() {
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
+double Tabuleiro::Aspecto() const {
+  GLint dados[4];  // xo, yo, largura, altura.
+  glGetIntegerv(GL_VIEWPORT, dados);
+  if (dados[2] != largura_) {
+    LOG(ERROR) << "Largura errada: " << largura_ << " vs " << dados[2];
+  }
+  if (dados[3] != altura_) {
+    LOG(ERROR) << "Altura errada: " << altura_ << " vs " << dados[3];
+  }
+
+  return static_cast<double>(dados[2]) / static_cast<double>(dados[3]);
+}
 
 }  // namespace ent
