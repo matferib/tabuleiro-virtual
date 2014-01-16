@@ -582,9 +582,9 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_fps()) {
     glFlush();
+    //usleep(500000);  // testa o timer.
     timer.stop();
-    std::string tempo_str = timer.format(boost::timer::default_places, "%u");
-    //LOG(INFO) << "Tempo: " << tempo_str;
+    std::string tempo_str = timer.format(boost::timer::default_places, "%w");
     // Modo 2d.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -640,6 +640,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   glMatrixMode(GL_PROJECTION);
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
+  glLoadIdentity();
   gluPickMatrix(x, y, 1.0, 1.0, viewport);
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
@@ -647,6 +648,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_iluminacao(false);
   parametros_desenho_.set_desenha_texturas(false);
   parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_fps(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.

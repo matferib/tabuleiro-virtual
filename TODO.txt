@@ -1,4 +1,3 @@
-- Indicador de FPS.
 - Aura.
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.
