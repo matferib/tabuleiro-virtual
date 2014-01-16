@@ -34,7 +34,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   /** Os items de cada menu. */
   enum menuitem_e { // items de cada menu 
     MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
-    MI_ILUMINACAO = 0, MI_SALVAR, MI_RESTAURAR,
+    MI_OPCOES = 0, MI_ILUMINACAO, MI_SALVAR, MI_RESTAURAR,
     MI_ADICIONAR = 0, MI_REMOVER,
     MI_TABVIRT = 0,
     MI_SEP = 0

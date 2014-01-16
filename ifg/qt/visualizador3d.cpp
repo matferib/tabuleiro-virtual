@@ -19,6 +19,7 @@
 #include "ifg/qt/visualizador3d.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/ui/iluminacao.h"
+#include "ifg/qt/ui/opcoes.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
@@ -147,7 +148,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
-    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO: {
+    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA: {
       if (!notificacao.has_tabuleiro()) {
         // O tabuleiro criara a mensagem completa.
         return false;
@@ -163,6 +164,22 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+    case ntf::TN_ABRIR_DIALOGO_OPCOES: {
+      if (!notificacao.has_opcoes()) {
+        // O tabuleiro criara a mensagem completa.
+        return false;
+      }
+      auto* opcoes = AbreDialogoOpcoes(notificacao);
+      if (opcoes == nullptr) {
+        VLOG(1) << "Alterações de opcoes descartadas";
+        break;
+      }
+      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
+      n->mutable_opcoes()->Swap(opcoes);
+      central_->AdicionaNotificacao(n);
+      break;
+    }
+
     case ntf::TN_ERRO: {
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
     }
@@ -353,6 +370,30 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     } else {
       proto_retornado->clear_textura();
     }
+  });
+  // Cancelar.
+  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
+    delete proto_retornado;
+    proto_retornado = nullptr;
+  });
+  dialogo->exec();
+  delete dialogo;
+  return proto_retornado;
+}
+
+ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
+    const ntf::Notificacao& notificacao) {
+  auto* proto_retornado = new ent::OpcoesProto;
+  ifg::qt::Ui::DialogoOpcoes gerador;
+  auto* dialogo = new QDialog(this);
+  gerador.setupUi(dialogo);
+  const auto& opcoes_proto = notificacao.opcoes();
+
+  // fps.
+  gerador.checkbox_mostrar_fps->setCheckState(opcoes_proto.mostrar_fps() ? Qt::Checked : Qt::Unchecked);
+  // Ao aceitar o diálogo, aplica as mudancas.
+  lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, proto_retornado] {
+      proto_retornado->set_mostrar_fps(gerador.checkbox_mostrar_fps->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

@@ -141,14 +141,20 @@ class Tabuleiro : public ntf::Receptor {
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida. */
   ntf::Notificacao* SerializaTabuleiro();
 
-  /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO preenchida. */
+  /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaIluminacaoTextura() const;
+
+  /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
+  ntf::Notificacao* SerializaOpcoes() const;
 
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
 
   /** Deserializa apenas a parte de iluminacao e textura do tabuleiro. */
   void DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_proto);
+
+  /** Deserializa as opcoes. */
+  void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
@@ -181,6 +187,8 @@ class Tabuleiro : public ntf::Receptor {
   ParametrosDesenho parametros_desenho_;
   // Parametros do tabuleiro (sem entidades).
   TabuleiroProto proto_;
+  // Opcoes do usuario.
+  OpcoesProto opcoes_;
 
   /** Cada cliente possui um identificador diferente. */
   int id_cliente_;

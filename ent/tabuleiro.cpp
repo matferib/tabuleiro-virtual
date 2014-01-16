@@ -52,6 +52,7 @@ const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) 
 
 // Cores.
 GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat PRETO[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
@@ -61,10 +62,12 @@ void MudaCor(GLfloat* cor) {
 
 /** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
 void DesenhaStringTempo(const std::string& tempo) {
-  int x = 13;
+  MudaCor(PRETO);
+  glRectf(0.0f, 0.0f, tempo.size() * 8 + 2, 15);
+
+  MudaCor(BRANCO);
+  glRasterPos2i(1, 1);
   for (const char c : tempo) {
-    glRasterPos2i(8, x);
-    x += 14;
     glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
   }
 }
@@ -141,6 +144,8 @@ void Tabuleiro::Desenha() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+  // Aplica opcoes do jogador.
+  parametros_desenho_.set_desenha_fps(opcoes_.mostrar_fps());
   DesenhaCena();
 }
 
@@ -257,6 +262,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_ATUALIZAR_OPCOES: {
+      DeserializaOpcoes(notificacao.opcoes());
+      return true;
+    }
     case ntf::TN_MOVER_ENTIDADE: {
       const auto& proto = notificacao.entidade();
       auto* entidade = BuscaEntidade(proto.id());
@@ -282,12 +291,20 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
-    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO: {
+    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA: {
       if (notificacao.has_tabuleiro()) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
         return false;
       }
       central_->AdicionaNotificacao(SerializaIluminacaoTextura());
+      return true;
+    }
+    case ntf::TN_ABRIR_DIALOGO_OPCOES: {
+      if (notificacao.has_opcoes()) {
+        // Notificacao ja foi criada, deixa pra ifg fazer o resto.
+        return false;
+      }
+      central_->AdicionaNotificacao(SerializaOpcoes());
       return true;
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
@@ -458,7 +475,6 @@ void Tabuleiro::InicializaGL() {
 // privadas
 void Tabuleiro::DesenhaCena() {
   boost::timer::cpu_timer timer;
-  parametros_desenho_.set_desenha_fps(true);
   if (parametros_desenho_.desenha_fps()) {
     timer.start();
   }
@@ -572,11 +588,13 @@ void Tabuleiro::DesenhaCena() {
     // Modo 2d.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, largura_, altura_, 0, 0, 1);
+    // Eixo com origem embaixo esquerda.
+    glOrtho(0, largura_, 0, altura_, 0, 1);
     glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
-    MudaCor(BRANCO);
+    glTranslatef(0.0, altura_ - 15.0f, 0.0f);
     DesenhaStringTempo(tempo_str);
   }
 }
@@ -620,7 +638,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   glPushName(0); // inicia a pilha de nomes com 0 para sempre haver um nome.
 
   glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);
   gluPickMatrix(x, y, 1.0, 1.0, viewport);
@@ -711,15 +728,15 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y) {
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
   if (pos_pilha == 1) {
     // Tabuleiro.
-    LOG(INFO) << "Picking no tabuleiro.";
+    VLOG(1) << "Picking no tabuleiro.";
     SelecionaQuadrado(id);
   } else if (pos_pilha > 1) {
     // Entidade.
-    LOG(INFO) << "Picking entidade.";
+    VLOG(1) << "Picking entidade.";
     SelecionaEntidade(id);
     estado_ = ETAB_ENT_PRESSIONADA;
   } else {
-    LOG(INFO) << "Picking lugar nenhum.";
+    VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidade();
   }
   ultimo_x_ = x;
@@ -796,12 +813,17 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
 }
 
 ntf::Notificacao* Tabuleiro::SerializaIluminacaoTextura() const {
-  auto* notificacao = new ntf::Notificacao;
-  notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ILUMINACAO);
+  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA);
   notificacao->mutable_tabuleiro()->mutable_luz()->CopyFrom(proto_.luz());
   if (proto_.has_textura()) {
     notificacao->mutable_tabuleiro()->set_textura(proto_.textura());
   }
+  return notificacao;
+}
+
+ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
+  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
+  notificacao->mutable_opcoes()->CopyFrom(opcoes_);
   return notificacao;
 }
 
@@ -851,6 +873,10 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
   }
+}
+
+void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
+  opcoes_.CopyFrom(novo_proto);
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -958,8 +984,7 @@ void Tabuleiro::DesenhaQuadrado(
 }
 
 void Tabuleiro::DesenhaGrade() {
-  GLfloat preto[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  MudaCor(preto);
+  MudaCor(PRETO);
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(-0.1f, -0.1f);
 

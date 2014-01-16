@@ -51,8 +51,10 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
  private:
+  // Dialogos.
   ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
+  ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
 
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;

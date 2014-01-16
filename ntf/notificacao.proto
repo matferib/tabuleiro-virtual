@@ -23,9 +23,11 @@ enum Tipo {
   TN_DESERIALIZAR_TABULEIRO = 18;
   TN_MOVER_ENTIDADE = 19;
   TN_ABRIR_DIALOGO_ENTIDADE = 20;
-  TN_ABRIR_DIALOGO_ILUMINACAO = 21;
-  TN_CARREGAR_TEXTURA = 22;
-  TN_LIBERAR_TEXTURA = 23;
+  TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA = 21;
+  TN_ABRIR_DIALOGO_OPCOES = 22;
+  TN_ATUALIZAR_OPCOES = 23;
+  TN_CARREGAR_TEXTURA = 24;
+  TN_LIBERAR_TEXTURA = 25;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
@@ -42,4 +44,6 @@ message Notificacao {
   optional ent.TabuleiroProto tabuleiro = 6;
   // Entidade.
   optional ent.EntidadeProto entidade = 7;
+  // Opcoes.
+  optional ent.OpcoesProto opcoes = 8;
 }
