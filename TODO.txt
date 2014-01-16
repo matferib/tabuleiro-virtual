@@ -1,4 +1,5 @@
-- Aura.
+- Finalizar Aura.
+- Objetos voadores.
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.
 - Arrumar o movimento quando clica sobre um objeto cuja parte esta fora do tabuleiro.

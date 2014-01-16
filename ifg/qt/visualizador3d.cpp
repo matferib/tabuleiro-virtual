@@ -242,18 +242,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(proto->cor());
   gerador.botao_cor->setStyleSheet(CorParaEstilo(proto->cor()));
-  if (proto->has_cor()) {
-    gerador.checkbox_cor->setCheckState(Qt::Checked);
-  } else {
-    gerador.checkbox_cor->setCheckState(Qt::Unchecked);
-  }
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &ent_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
     if (!cor.isValid()) {
       return;
     }
-    gerador.checkbox_cor->setCheckState(Qt::Checked);
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
@@ -288,15 +282,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     QFileInfo info(file_str);
     gerador.linha_textura->setText(info.fileName());
   });
+  // Aura.
+  gerador.checkbox_aura->setCheckState(proto->has_aura() ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
     proto->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
-    if (gerador.checkbox_cor->checkState() == Qt::Checked) {
-      proto->mutable_cor()->Swap(ent_cor.mutable_cor());
-    } else {
-      proto->clear_cor();
-    }
+    proto->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
     } else {
@@ -306,6 +298,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto->set_textura(gerador.linha_textura->text().toStdString());
     } else {
       proto->clear_textura();
+    }
+    if (gerador.checkbox_aura->checkState() == Qt::Checked) {
+      proto->set_aura(4);  // TODO
+    } else {
+      proto->clear_aura();
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.

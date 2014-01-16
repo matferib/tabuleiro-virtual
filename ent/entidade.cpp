@@ -271,6 +271,12 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glPopMatrix();
   }
 
+  if (pd->desenha_aura() && proto_.has_aura()) {
+    const auto& cor = proto_.cor();
+    MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
+    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
+  }
+
   if (pd->entidade_selecionada()) {
     MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);

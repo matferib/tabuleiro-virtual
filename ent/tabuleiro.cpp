@@ -362,8 +362,6 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     // Realiza o movimento da entidade.
     // Transforma x e y em 3D, baseado no nivel do solo.
     parametros_desenho_.set_desenha_entidades(false);
-    parametros_desenho_.set_iluminacao(false);
-    parametros_desenho_.set_desenha_texturas(false);
     GLdouble ox, oy, oz;
     if (!MousePara3d(ultimo_x_, ultimo_y_, &ox, &oy, &oz)) {
       return;
@@ -463,6 +461,9 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
 }
 
 void Tabuleiro::InicializaGL() {
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+
   // back face
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
@@ -644,11 +645,12 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gluPickMatrix(x, y, 1.0, 1.0, viewport);
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
-  // desenha a cena
+  // desenha a cena sem firulas.
   parametros_desenho_.set_iluminacao(false);
   parametros_desenho_.set_desenha_texturas(false);
   parametros_desenho_.set_desenha_grade(false);
   parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_desenha_aura(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -767,8 +769,6 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
 
 void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   parametros_desenho_.set_desenha_entidades(false);
-  parametros_desenho_.set_iluminacao(false);
-  parametros_desenho_.set_desenha_texturas(false);
   GLdouble x3d, y3d, z3d;
   if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
     return;

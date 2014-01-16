@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'entidaded25115.ui'
+** Form generated from reading UI file 'entidadeP10049.ui'
 **
-** Created: Sat Jan 11 18:15:47 2014
+** Created: Thu Jan 16 01:11:12 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ENTIDADED25115_H
-#define ENTIDADED25115_H
+#ifndef ENTIDADEP10049_H
+#define ENTIDADEP10049_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -38,7 +38,7 @@ public:
     QLineEdit *campo_id;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
-    QCheckBox *checkbox_cor;
+    QHBoxLayout *horizontalLayout_7;
     QPushButton *botao_cor;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
@@ -54,17 +54,21 @@ public:
     QHBoxLayout *horizontalLayout_6;
     QLineEdit *linha_textura;
     QPushButton *botao_textura;
+    QWidget *horizontalLayoutWidget_7;
+    QHBoxLayout *horizontalLayout_8;
+    QHBoxLayout *horizontalLayout_9;
+    QCheckBox *checkbox_aura;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(461, 312);
+        ifg__qt__DialogoEntidade->resize(461, 392);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(100, 260, 341, 32));
+        botoes->setGeometry(QRect(100, 330, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -86,16 +90,14 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 100, 361, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 140, 361, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
-        checkbox_cor = new QCheckBox(horizontalLayoutWidget_2);
-        checkbox_cor->setObjectName(QString::fromUtf8("checkbox_cor"));
-        checkbox_cor->setEnabled(true);
-        checkbox_cor->setLayoutDirection(Qt::RightToLeft);
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
 
-        horizontalLayout_2->addWidget(checkbox_cor);
+        horizontalLayout_2->addLayout(horizontalLayout_7);
 
         botao_cor = new QPushButton(horizontalLayoutWidget_2);
         botao_cor->setObjectName(QString::fromUtf8("botao_cor"));
@@ -104,7 +106,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(20, 140, 361, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(20, 180, 361, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -169,7 +171,7 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(20, 180, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(20, 220, 361, 41));
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
@@ -184,6 +186,22 @@ public:
 
         horizontalLayout_6->addWidget(botao_textura);
 
+        horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
+        horizontalLayoutWidget_7->setGeometry(QRect(20, 100, 361, 41));
+        horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_7);
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_9 = new QHBoxLayout();
+        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        checkbox_aura = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_aura->setObjectName(QString::fromUtf8("checkbox_aura"));
+
+        horizontalLayout_9->addWidget(checkbox_aura);
+
+
+        horizontalLayout_8->addLayout(horizontalLayout_9);
+
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
@@ -196,14 +214,14 @@ public:
     {
         ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
-        checkbox_cor->setText(QString());
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
         checkbox_luz->setText(QString());
-        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
+        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor Luz", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
         linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoEntidade", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
+        checkbox_aura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -219,4 +237,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ENTIDADED25115_H
+#endif // ENTIDADEP10049_H
