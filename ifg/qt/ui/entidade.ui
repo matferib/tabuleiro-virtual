@@ -100,7 +100,7 @@
        <enum>Qt::RightToLeft</enum>
       </property>
       <property name="text">
-       <string/>
+       <string>Possui Luz</string>
       </property>
      </widget>
     </item>
@@ -110,7 +110,7 @@
        <string notr="true"/>
       </property>
       <property name="text">
-       <string>Escolher Cor Luz</string>
+       <string>Escolher Cor da Luz</string>
       </property>
      </widget>
     </item>
@@ -227,6 +227,13 @@
    <layout class="QHBoxLayout" name="horizontalLayout_8">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_9">
+      <item>
+       <widget class="QCheckBox" name="checkbox_voadora">
+        <property name="text">
+         <string>Voadora</string>
+        </property>
+       </widget>
+      </item>
       <item>
        <widget class="QCheckBox" name="checkbox_aura">
         <property name="text">

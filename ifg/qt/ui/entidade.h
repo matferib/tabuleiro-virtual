@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'entidadeP10049.ui'
+** Form generated from reading UI file 'entidadef10049.ui'
 **
-** Created: Thu Jan 16 01:11:12 2014
+** Created: Fri Jan 17 01:46:04 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ENTIDADEP10049_H
-#define ENTIDADEP10049_H
+#ifndef ENTIDADEF10049_H
+#define ENTIDADEF10049_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -57,6 +57,7 @@ public:
     QWidget *horizontalLayoutWidget_7;
     QHBoxLayout *horizontalLayout_8;
     QHBoxLayout *horizontalLayout_9;
+    QCheckBox *checkbox_voadora;
     QCheckBox *checkbox_aura;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
@@ -194,6 +195,11 @@ public:
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_9 = new QHBoxLayout();
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        checkbox_voadora = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_voadora->setObjectName(QString::fromUtf8("checkbox_voadora"));
+
+        horizontalLayout_9->addWidget(checkbox_voadora);
+
         checkbox_aura = new QCheckBox(horizontalLayoutWidget_7);
         checkbox_aura->setObjectName(QString::fromUtf8("checkbox_aura"));
 
@@ -215,12 +221,13 @@ public:
         ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
-        checkbox_luz->setText(QString());
-        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor Luz", 0, QApplication::UnicodeUTF8));
+        checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Possui Luz", 0, QApplication::UnicodeUTF8));
+        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
         linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoEntidade", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
+        checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", 0, QApplication::UnicodeUTF8));
         checkbox_aura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
@@ -237,4 +244,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ENTIDADEP10049_H
+#endif // ENTIDADEF10049_H

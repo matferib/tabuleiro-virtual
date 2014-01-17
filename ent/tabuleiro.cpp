@@ -117,6 +117,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   olho_.set_raio(OLHO_RAIO_INICIAL);
   // Valores iniciais.
   largura_ = altura_ = 0;
+  ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -359,21 +360,18 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     ultimo_x_ = x;
     ultimo_y_ = y;
   } else if (estado_ == ETAB_ENT_PRESSIONADA) {
-    // Realiza o movimento da entidade.
-    // Transforma x e y em 3D, baseado no nivel do solo.
+    // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
+    parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
     parametros_desenho_.set_desenha_entidades(false);
-    GLdouble ox, oy, oz;
-    if (!MousePara3d(ultimo_x_, ultimo_y_, &ox, &oy, &oz)) {
-      return;
-    }
     GLdouble nx, ny, nz;
     if (!MousePara3d(x, y, &nx, &ny, &nz)) {
       return;
     }
-    entidade_selecionada_->MoveDelta(nx - ox, ny - oy, nz - oz);
-
+    entidade_selecionada_->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
     ultimo_x_ = x;
     ultimo_y_ = y;
+    ultimo_x_3d_ = nx;
+    ultimo_y_3d_ = ny;
   } else if (estado_ == ETAB_DESLIZANDO) {
     // Faz picking do tabuleiro sem entidades.
     parametros_desenho_.set_desenha_entidades(false);
@@ -480,15 +478,18 @@ void Tabuleiro::DesenhaCena() {
     timer.start();
   }
 
-  glMatrixMode(GL_MODELVIEW);
 
   glEnable(GL_DEPTH_TEST);
   glClearColor(proto_.luz().cor().r(), proto_.luz().cor().g(), proto_.luz().cor().b(), proto_.luz().cor().a());
-  glClear(GL_COLOR_BUFFER_BIT);
+  //boost::timer::auto_cpu_timer o1("o1: %w\n");
+  if (parametros_desenho_.limpa_fundo()) {
+    glClear(GL_COLOR_BUFFER_BIT);
+  }
   glClear(GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
     glDisable(GL_LIGHT0 + i);
   }
+  glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   const Posicao& alvo = olho_.alvo();
   gluLookAt(
@@ -534,6 +535,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   //ceu_.desenha(parametros_desenho_);
+
   // desenha tabuleiro do sul para o norte.
   const InfoTextura* info = parametros_desenho_.desenha_texturas() && proto_.has_textura() ?
       texturas_->Textura(proto_.textura()) : nullptr;
@@ -545,11 +547,14 @@ void Tabuleiro::DesenhaCena() {
                  0, info->formato, info->tipo,
                  info->dados);
   }
+
   glPushMatrix();
   double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   glNormal3f(0, 0, 1.0f);
-  glTranslated(deltaX / 2.0, deltaY / 2.0, 0);
+  glTranslated(deltaX / 2.0,
+               deltaY / 2.0,
+               parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   int id = 0;
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
@@ -564,6 +569,8 @@ void Tabuleiro::DesenhaCena() {
   }
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
+
+  //boost::timer::auto_cpu_timer o3("o3: %w\n");
   if (parametros_desenho_.desenha_grade()) {
     DesenhaGrade();
   }
@@ -651,6 +658,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_grade(false);
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_transparencias(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -713,6 +722,10 @@ bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d)
   if (profundidade == 1.0f) {
     return false;
   }
+  return MousePara3d(x, y, profundidade, x3d, y3d, z3d);
+}
+
+bool Tabuleiro::MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d) {
   GLdouble modelview[16], projection[16];
   GLint viewport[4];
   glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
@@ -729,13 +742,19 @@ bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d)
 
 void Tabuleiro::TrataCliqueEsquerdo(int x, int y) {
   unsigned int id, pos_pilha;
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha);
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == 1) {
     // Tabuleiro.
     VLOG(1) << "Picking no tabuleiro.";
     SelecionaQuadrado(id);
   } else if (pos_pilha > 1) {
     // Entidade.
+    double x3d, y3d, z3d;
+    MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d);
+    ultimo_x_3d_ = x3d;
+    ultimo_y_3d_ = y3d;
+    ultimo_z_3d_ = z3d;
     VLOG(1) << "Picking entidade.";
     SelecionaEntidade(id);
     estado_ = ETAB_ENT_PRESSIONADA;
@@ -841,6 +860,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     auto* t = notificacao->mutable_tabuleiro();
     t->set_id_cliente(GeraIdCliente());
     t->CopyFrom(proto_);
+    t->clear_entidade();  // As entidades vem do mapa de entidades.
     for (const auto& id_ent : entidades_) {
       t->add_entidade()->CopyFrom(id_ent.second->Proto());
     }
@@ -875,6 +895,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
   }
+  proto_.clear_entidade();
 }
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
@@ -1009,16 +1030,7 @@ void Tabuleiro::DesenhaGrade() {
 }
 
 double Tabuleiro::Aspecto() const {
-  GLint dados[4];  // xo, yo, largura, altura.
-  glGetIntegerv(GL_VIEWPORT, dados);
-  if (dados[2] != largura_) {
-    LOG(ERROR) << "Largura errada: " << largura_ << " vs " << dados[2];
-  }
-  if (dados[3] != altura_) {
-    LOG(ERROR) << "Altura errada: " << altura_ << " vs " << dados[3];
-  }
-
-  return static_cast<double>(dados[2]) / static_cast<double>(dados[3]);
+  return static_cast<double>(largura_) / static_cast<double>(altura_);
 }
 
 }  // namespace ent

@@ -74,8 +74,15 @@ message ParametrosDesenho {
   optional bool desenha_aura = 7 [default=true];
   // Desenha o indicador de FPS.
   optional bool desenha_fps = 8 [default=false];
+  // Operacao de limpeza eh cara, alguns modos nao precisam dela.
+  optional bool limpa_fundo = 9 [default=true];
+  // Usar transparencia.
+  optional bool transparencias = 10 [default=true];
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
-  optional int32 luz_corrente = 9 [default=1];
+  optional int32 luz_corrente = 11 [default=1];
   // OpenGL permite até 8 luzes simultaneas.
-  optional int32 max_num_luzes = 10 [default=8];
+  optional int32 max_num_luzes = 12 [default=8];
+  // Usado para fazer sliding: a gente cria um plano na altura do click inicial para fazer o movimento
+  // paralelo ao plano XY.
+  optional float offset_terreno = 13 [default=0];
 }

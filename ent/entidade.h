@@ -88,10 +88,16 @@ class Entidade {
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const ent::EntidadeProto& novo_proto);
 
+  /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
+  float DeltaVoo() const;
+
  private:
   EntidadeProto proto_;
   // Como esse estado é local e não precisa ser salvo, fica aqui.
   double rotacao_disco_selecao_;
+  // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
+  double angulo_disco_voo_;
+
   Texturas* texturas_;
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.
   ntf::CentralNotificacoes* central_;

@@ -76,6 +76,7 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotifi
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
   proto_.set_tipo(TE_ENTIDADE);
   rotacao_disco_selecao_ = 0;
+  angulo_disco_voo_ = 0;
   texturas_ = texturas;
   central_ = central;
 }
@@ -132,11 +133,17 @@ void Entidade::Atualiza(const EntidadeProto& novo_proto) {
   if (copia_proto.has_destino()) {
     proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
   }
-  LOG(INFO) << "Proto: " << proto_.ShortDebugString();
+  proto_.mutable_pos()->set_z(novo_proto.pos().z());
+  VLOG(1) << "Proto: " << proto_.ShortDebugString();
 }
 
 void Entidade::Atualiza() {
   rotacao_disco_selecao_ = fmod(rotacao_disco_selecao_ + 1.0, 360.0);
+  if (Z() > 0) {
+    angulo_disco_voo_ = fmod(angulo_disco_voo_ + 0.01, 2 * M_PI);
+  } else {
+    angulo_disco_voo_ = 0.0f;
+  }
 
   if (!proto_.has_destino()) {
     return;
@@ -203,9 +210,13 @@ double Entidade::Z() const {
 	return proto_.pos().z(); 
 }
 
+float Entidade::DeltaVoo() const {
+  return angulo_disco_voo_ > 0 ? sinf(angulo_disco_voo_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
+}
+
 void Entidade::Desenha(ParametrosDesenho* pd) {
 	glPushMatrix();
-	glTranslated(X(), Y(), Z());
+	glTranslated(X(), Y(), Z() + DeltaVoo());
 
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(Id());
@@ -277,13 +288,18 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
   }
 
+  glPopMatrix();
+  glDisable(GL_NORMALIZE);
   if (pd->entidade_selecionada()) {
+    glPushMatrix();
+	  glTranslated(X(), Y(), 0.0f);
+    glScalef(multiplicador, multiplicador, multiplicador);
+    // Volta pro chao.
     MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
+    glPopMatrix();
   }
-  glPopMatrix();
-  glDisable(GL_NORMALIZE);
 }
 
 void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
@@ -298,7 +314,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   const ent::Cor& cor = proto_.luz().cor();
   GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
   glPushMatrix();
-  glTranslated(X(), Y(), Z());
+  glTranslated(X(), Y(), Z() + DeltaVoo());
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
     LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;

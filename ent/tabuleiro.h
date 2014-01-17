@@ -116,6 +116,8 @@ class Tabuleiro : public ntf::Receptor {
   * Efetivamente chama BuscaHitMaisProximo para obter a profundidade entao faz a projecao para aquele ponto.
   */
   bool MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d);
+  /** Igual acima, mas com profundidade, so faz a transformada inversa. */
+  bool MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d);
 
   /** trata o clique do botao esquerdo. */
   void TrataCliqueEsquerdo(int x, int y);
@@ -219,6 +221,10 @@ class Tabuleiro : public ntf::Receptor {
   int ultimo_x_;
   /** dados (Y) para calculo de mouse. */
   int ultimo_y_;
+  /** coordenadas 3d do ultimo click. */
+  float ultimo_x_3d_;
+  float ultimo_y_3d_;
+  float ultimo_z_3d_;
 
   /** Dimensoes do viewport. */
   int largura_;

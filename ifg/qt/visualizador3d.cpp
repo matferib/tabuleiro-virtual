@@ -284,6 +284,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   });
   // Aura.
   gerador.checkbox_aura->setCheckState(proto->has_aura() ? Qt::Checked : Qt::Unchecked);
+  // Altura.
+  gerador.checkbox_voadora->setCheckState(proto->pos().z() > 0 ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
@@ -303,6 +305,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto->set_aura(4);  // TODO
     } else {
       proto->clear_aura();
+    }
+    if (gerador.checkbox_voadora->checkState() == Qt::Checked) {
+      proto->mutable_pos()->set_z(1.5f);  // TODO
+    } else {
+      proto->mutable_pos()->set_z(0.0f);
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
