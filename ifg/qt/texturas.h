@@ -18,7 +18,7 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
   /** Retorna uma textura. */
-  virtual const ent::InfoTextura* Textura(const std::string& id) const override;
+  virtual unsigned int Textura(const std::string& id) const override;
 
  private:
   struct InfoTexturaInterna;
@@ -30,7 +30,12 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   void CarregaTextura(const std::string& id);
   /** Descarrega uma textura ou desreferencia uma textura. */
   void DescarregaTextura(const std::string& id);
+  /** Gera um identificador unico de textura.
+  * @return -1 se alcancar o limite de texturas.
+  */
+  int GeraIdTextura();
 
+ private:
   // Nao possui.
   ntf::CentralNotificacoes* central_;
   std::unordered_map<std::string, InfoTexturaInterna*> texturas_;

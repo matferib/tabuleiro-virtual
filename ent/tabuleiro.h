@@ -181,7 +181,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
 
   /** Desenha um quadrado do tabuleiro. */
-  void DesenhaQuadrado(unsigned int id, int linha, int coluna, bool selecionado, const InfoTextura* info);
+  void DesenhaQuadrado(unsigned int id, int linha, int coluna, bool selecionado, bool usar_textura);
 
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();

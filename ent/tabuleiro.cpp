@@ -532,15 +532,12 @@ void Tabuleiro::DesenhaCena() {
   //ceu_.desenha(parametros_desenho_);
 
   // desenha tabuleiro do sul para o norte.
-  const InfoTextura* info = parametros_desenho_.desenha_texturas() && proto_.has_textura() ?
-      texturas_->Textura(proto_.textura()) : nullptr;
-  if (info != nullptr) {
+  GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_textura() ?
+      texturas_->Textura(proto_.textura()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
     glEnable(GL_TEXTURE_2D);
-    glTexImage2D(GL_TEXTURE_2D,
-                 0, GL_RGBA,
-                 info->largura, info->altura,
-                 0, info->formato, info->tipo,
-                 info->dados);
+    glBindTexture(GL_TEXTURE_2D, id_textura);
+    LOG(INFO) << "binding: " << id_textura;
   }
 
   glPushMatrix();
@@ -554,7 +551,7 @@ void Tabuleiro::DesenhaCena() {
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado
-      DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, info);
+      DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, id_textura != GL_INVALID_VALUE);
       // anda 1 quadrado direita
       glTranslated(TAMANHO_LADO_QUADRADO, 0, 0);
       ++id;
@@ -965,7 +962,7 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_textura() && novo_proto.textura() != proto_.textura()) {
-    VLOG(2) << "Carregando textura: " << proto_.textura();
+    VLOG(2) << "Carregando textura: " << novo_proto.textura();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->set_endereco(novo_proto.textura());
     central_->AdicionaNotificacao(nc);
@@ -979,9 +976,9 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::DesenhaQuadrado(
-    unsigned int id, int linha, int coluna, bool selecionado, const InfoTextura* info) {
+    unsigned int id, int linha, int coluna, bool selecionado, bool usar_textura) {
   glLoadName(id);
-  if (info == nullptr) {
+  if (!usar_textura) {
     // desenha o quadrado negro embaixo.
     if (selecionado) {
       GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };

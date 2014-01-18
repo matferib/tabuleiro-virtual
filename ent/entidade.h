@@ -10,19 +10,11 @@ namespace ent {
 
 class Entidade;
 
-/** Dados de renderizacao para texturas. O formato é sempre RGBA. */
-struct InfoTextura {
-  int altura;
-  int largura;
-  int formato;  // GLenum: ver glTexImage.
-  int tipo;  // ditto.
-  const void* dados;
-};
-
 /** Interface de texturas para entidades. */
 class Texturas {
  public:
-  virtual const InfoTextura* Textura(const std::string& id) const = 0;
+  /** Retorna o id da textura ou GL_INVALID_VALUE. */
+  virtual unsigned int Textura(const std::string& id) const = 0;
 };
 
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */

@@ -240,16 +240,12 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // desenha a tela onde a textura será desenhada face para o sul.
-    const InfoTextura* info = texturas_->Textura(proto_.textura());
-    if (info != nullptr) {
-      if (pd->desenha_texturas()) {
-        glEnable(GL_TEXTURE_2D);
-        glTexImage2D(GL_TEXTURE_2D,
-                     0, GL_RGBA,
-                     info->largura, info->altura,
-                     0, info->formato, info->tipo,
-                     info->dados);
-      }
+    GLuint id_textura = pd->desenha_texturas() && proto_.has_textura() ?
+        texturas_->Textura(proto_.textura()) : GL_INVALID_VALUE;
+    if (id_textura != GL_INVALID_VALUE) {
+      glEnable(GL_TEXTURE_2D);
+      glBindTexture(GL_TEXTURE_2D, id_textura);
+      
       glNormal3f(0.0f, -1.0f, 0.0f);
       glPushMatrix();
       glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);

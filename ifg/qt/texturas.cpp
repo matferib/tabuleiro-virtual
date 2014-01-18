@@ -3,6 +3,7 @@
 #include <QImageReader>
 #include <QImage>
 #include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "ent/entidade.h"
 #include "ifg/qt/constantes.h"
@@ -39,13 +40,50 @@ int TipoImagem(const QImage& imagem) {
 }  // namespace
 
 struct Texturas::InfoTexturaInterna {
-  InfoTexturaInterna() : contador(1) {
+  InfoTexturaInterna(QImage imagem) : contador(1) {
+    glGenTextures(1, &id);
+    if (id == GL_INVALID_VALUE) {
+      LOG(ERROR) << "Erro gerando nome para textura";
+      return;
+    }
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, id);
+    auto e = glGetError();
+    if (e) {
+      LOG(ERROR) << "Erro bound: " << gluErrorString(e);
+    }
+
+    glTexImage2D(GL_TEXTURE_2D,
+                 0, GL_RGBA,
+                 imagem.height(), imagem.width(),
+                 0, FormatoImagem(imagem), TipoImagem(imagem),
+                 imagem.constBits());
+    e = glGetError();
+    if (e) {
+      LOG(ERROR) << "Erro tex image: " << gluErrorString(e);
+    }
+
+    glBindTexture(GL_TEXTURE_2D, id);
+    if (e) {
+      LOG(ERROR) << "Erro bound2: " << gluErrorString(e);
+    }
+
+    qimage = imagem;
+    VLOG(1) << "Textura criada: '" << id
+            << "', " << imagem.width() << "x" << imagem.height()
+            << ", bpp: " << imagem.depth() << ", format: " << FormatoImagem(imagem);
+    glDisable(GL_TEXTURE_2D);
   }
   ~InfoTexturaInterna() {
+    if (id == GL_INVALID_VALUE) {
+      return;
+    }
+    GLuint tex_name = id;
+    glDeleteTextures(1, &tex_name);
   }
   QImage qimage;
   int contador;
-  ent::InfoTextura info;
+  GLuint id;
 };
 
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
@@ -68,12 +106,12 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
-const ent::InfoTextura* Texturas::Textura(const std::string& id) const {
+unsigned int Texturas::Textura(const std::string& id) const {
   const InfoTexturaInterna* info_interna = InfoInterna(id);
   if (info_interna == nullptr) {
-    return nullptr;
+    return GL_INVALID_VALUE;
   }
-  return &info_interna->info;
+  return info_interna->id;
 }
 
 Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id) {
@@ -102,17 +140,8 @@ void Texturas::CarregaTextura(const std::string& id) {
       LOG(ERROR) << "Textura inválida: " << id;
       return;
     }
-    info_interna = new InfoTexturaInterna;
-    info_interna->qimage = imagem;
-    info_interna->info.altura = imagem.height();
-    info_interna->info.largura = imagem.width();
-    info_interna->info.dados =  imagem.constBits();
-    info_interna->info.formato = FormatoImagem(imagem);
-    info_interna->info.tipo = TipoImagem(imagem);
+    info_interna = new InfoTexturaInterna(imagem);
     texturas_.insert(make_pair(id, info_interna));
-    VLOG(1) << "Textura criada: " << id
-            << "', " << info_interna->info.largura << "x" << info_interna->info.altura
-            << ", bpp: " << imagem.depth() << ", format: " << (int)imagem.format();
   } else {
     ++info_interna->contador;
     VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;
