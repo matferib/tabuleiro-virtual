@@ -460,10 +460,6 @@ void Tabuleiro::InicializaGL() {
   // back face
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
-
-  // Mapeamento de texels em amostragem para cima e para baixo.
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 }
 
 // privadas
@@ -537,7 +533,7 @@ void Tabuleiro::DesenhaCena() {
   if (id_textura != GL_INVALID_VALUE) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, id_textura);
-    LOG(INFO) << "binding: " << id_textura;
+    //LOG(INFO) << "binding: " << id_textura;
   }
 
   glPushMatrix();

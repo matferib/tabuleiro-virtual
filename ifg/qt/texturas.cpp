@@ -40,34 +40,22 @@ int TipoImagem(const QImage& imagem) {
 }  // namespace
 
 struct Texturas::InfoTexturaInterna {
-  InfoTexturaInterna(QImage imagem) : contador(1) {
+  InfoTexturaInterna(const QImage& imagem) : contador(1) {
     glGenTextures(1, &id);
     if (id == GL_INVALID_VALUE) {
       LOG(ERROR) << "Erro gerando nome para textura";
       return;
     }
-    glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, id);
-    auto e = glGetError();
-    if (e) {
-      LOG(ERROR) << "Erro bound: " << gluErrorString(e);
-    }
-
+    // Mapeamento de texels em amostragem para cima e para baixo.
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Carrega a textura.
     glTexImage2D(GL_TEXTURE_2D,
                  0, GL_RGBA,
                  imagem.height(), imagem.width(),
                  0, FormatoImagem(imagem), TipoImagem(imagem),
                  imagem.constBits());
-    e = glGetError();
-    if (e) {
-      LOG(ERROR) << "Erro tex image: " << gluErrorString(e);
-    }
-
-    glBindTexture(GL_TEXTURE_2D, id);
-    if (e) {
-      LOG(ERROR) << "Erro bound2: " << gluErrorString(e);
-    }
-
     qimage = imagem;
     VLOG(1) << "Textura criada: '" << id
             << "', " << imagem.width() << "x" << imagem.height()
@@ -140,8 +128,7 @@ void Texturas::CarregaTextura(const std::string& id) {
       LOG(ERROR) << "Textura inválida: " << id;
       return;
     }
-    info_interna = new InfoTexturaInterna(imagem);
-    texturas_.insert(make_pair(id, info_interna));
+    texturas_.insert(make_pair(id, new InfoTexturaInterna(imagem)));
   } else {
     ++info_interna->contador;
     VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;
