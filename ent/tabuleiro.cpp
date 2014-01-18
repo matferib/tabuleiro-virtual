@@ -375,26 +375,22 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
   } else if (estado_ == ETAB_DESLIZANDO) {
     // Faz picking do tabuleiro sem entidades.
     parametros_desenho_.set_desenha_entidades(false);
-    GLdouble ox, oy, oz;
-    if (!MousePara3d(ultimo_x_, ultimo_y_, &ox, &oy, &oz)) {
-      return;
-    }
     GLdouble nx, ny, nz;
     if (!MousePara3d(x, y, &nx, &ny, &nz)) {
       return;
     }
 
-    float delta_x = nx - ox;
-    float delta_y = ny - oy;
-    float delta_z = nz - oz;
+    float delta_x = nx - ultimo_x_3d_;
+    float delta_y = ny - ultimo_y_3d_;
     auto* p = olho_.mutable_alvo();
     p->set_x(p->x() - delta_x);
     p->set_y(p->y() - delta_y);
-    p->set_z(p->z() - delta_z);
     olho_.clear_destino();
 
     ultimo_x_ = x;
     ultimo_y_ = y;
+    // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
+    // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
   }
 }
 
@@ -405,8 +401,7 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
     estado_anterior_rotacao_ = estado_;
     estado_ = ETAB_ROTACAO;
   } else if (botao == BOTAO_DIREITO) {
-    estado_anterior_rotacao_ = estado_;
-    estado_ = ETAB_DESLIZANDO;
+    TrataCliqueDireito(x, y);
   } else if (botao == BOTAO_ESQUERDO) {
     TrataCliqueEsquerdo(x, y);
   }
@@ -762,6 +757,18 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y) {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidade();
   }
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+}
+
+void Tabuleiro::TrataCliqueDireito(int x, int y) {
+  estado_anterior_rotacao_ = estado_;
+  double x3d, y3d, z3d;
+  parametros_desenho_.set_desenha_entidades(false);
+  MousePara3d(x, y, &x3d, &y3d, &z3d);
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
+  estado_ = ETAB_DESLIZANDO;
   ultimo_x_ = x;
   ultimo_y_ = y;
 }
