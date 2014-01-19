@@ -9,6 +9,7 @@ class CentralNotificacoes;
 namespace ent {
 
 class Entidade;
+class IluminacaoDirecional;
 
 /** Interface de texturas para entidades. */
 class Texturas {
@@ -68,7 +69,7 @@ class Entidade {
   virtual void DesenhaLuz(ParametrosDesenho* pd);
 
   /** desenha o objeto. Pode alterar os parametros de desenho. */
-  virtual void Desenha(ParametrosDesenho* pd);
+  virtual void Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz);
 
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
@@ -82,6 +83,12 @@ class Entidade {
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   float DeltaVoo() const;
+
+  /** desenha apenas o objeto, sem alterar cor nem matriz. */
+  void DesenhaObjeto(ParametrosDesenho* pd);
+
+  /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */ 
+  void DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz);
 
  private:
   EntidadeProto proto_;

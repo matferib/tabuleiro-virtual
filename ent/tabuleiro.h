@@ -9,8 +9,8 @@
 #include "ntf/notificacao.h"
 
 namespace ntf {
-  class Notificacao;
-}
+class Notificacao;
+}  // namespace ntf
 
 namespace ent {
 

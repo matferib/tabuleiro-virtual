@@ -572,7 +572,7 @@ void Tabuleiro::DesenhaCena() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
-    entidade->Desenha(&parametros_desenho_);
+    entidade->Desenha(&parametros_desenho_, proto_.luz());
   }
   glPopName();
 
@@ -646,6 +646,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_grade(false);
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   DesenhaCena();
@@ -1009,7 +1010,7 @@ void Tabuleiro::DesenhaQuadrado(
 void Tabuleiro::DesenhaGrade() {
   MudaCor(PRETO);
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.1f, -0.1f);
+  glPolygonOffset(-0.01f, -0.01f);
 
   // Linhas verticais (S-N).
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;

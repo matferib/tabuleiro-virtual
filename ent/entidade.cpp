@@ -5,6 +5,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
+#include "ent/tabuleiro.pb.h"
 #include "ifg/qt/texturas.h"
 #include "log/log.h"
 
@@ -32,7 +33,7 @@ void MudaCor(const ent::Cor& cor) {
 void DesenhaDisco(GLfloat raio, int num_faces) {
   glNormal3f(0, 0, 1.0f);
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.2f, -0.2f);
+  glPolygonOffset(-0.015f, -0.015f);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
   for (int i = 0; i <= num_faces; ++i) {
@@ -214,18 +215,50 @@ float Entidade::DeltaVoo() const {
   return angulo_disco_voo_ > 0 ? sinf(angulo_disco_voo_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::Desenha(ParametrosDesenho* pd) {
-	glPushMatrix();
-	glTranslated(X(), Y(), Z() + DeltaVoo());
-
+void Entidade::Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(Id());
+  MudaCor(proto_.cor());
+
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
-  MudaCor(proto_.cor());
+	glPushMatrix();  // Original.
+	glTranslated(X(), Y(), 0.0f);
+	glPushMatrix();  // nivel solo na posicao XY.
+	glTranslated(0.0f, 0.0f, Z() + DeltaVoo());
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
-  // Aplica uma pequena diminuição para não ocupar o quadrado todo.
+  DesenhaObjeto(pd);
+
+  if (pd->desenha_aura() && proto_.has_aura()) {
+    const auto& cor = proto_.cor();
+    MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
+    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
+  }
+
+  // Desenha a parte de solo: disco de selecao e sombra.
+  glPopMatrix();  // Nivel solo posicao XY.
+  glScalef(multiplicador, multiplicador, multiplicador);
+
+  // So desenha sombras se luz vier de cima e se houver um minimo de inclinacao.
+  if (pd->desenha_sombras() && luz.inclinacao() > 5.0 && luz.inclinacao() < 180.0f) {
+    DesenhaSombra(pd, luz);
+  }
+
+  if (pd->entidade_selecionada()) {
+    glPushMatrix();
+    // Volta pro chao.
+    MudaCor(proto_.cor());
+    glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
+    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
+    glPopMatrix();
+  }
+  
+  glDisable(GL_NORMALIZE);
+  glPopMatrix();  // Original.
+}
+
+void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
   if (proto_.has_textura()) {
     // Constroi a moldura e aplica a textura.
     // tijolo da base (altura TAMANHO_LADO_QUADRADO / 10).
@@ -277,25 +310,6 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
     glPopMatrix();
   }
-
-  if (pd->desenha_aura() && proto_.has_aura()) {
-    const auto& cor = proto_.cor();
-    MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
-    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
-  }
-
-  glPopMatrix();
-  glDisable(GL_NORMALIZE);
-  if (pd->entidade_selecionada()) {
-    glPushMatrix();
-	  glTranslated(X(), Y(), 0.0f);
-    glScalef(multiplicador, multiplicador, multiplicador);
-    // Volta pro chao.
-    MudaCor(proto_.cor());
-    glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
-    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
-    glPopMatrix();
-  }
 }
 
 void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
@@ -324,6 +338,35 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     pd->set_luz_corrente(id_luz + 1);
   }
   glPopMatrix();
+}
+
+void Entidade::DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
+  const float kAnguloInclinacao = luz.inclinacao() * GRAUS_PARA_RAD;
+  const float kAnguloPosicao = luz.posicao() * GRAUS_PARA_RAD;
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  // TODO Alpha deve ser baseado na inclinacao.
+  glPushMatrix();
+  // TODO Limitar o shearing.
+  float fator_shear = luz.inclinacao() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
+  float alpha = sinf(kAnguloInclinacao);
+  MudaCor(0.0f, 0.0f, 0.0f, 0.7 * alpha);
+  // Matriz eh column major, ou seja, esta invertida.
+  // A ideia eh adicionar ao x a altura * fator de shear.
+  GLfloat matriz_shear[] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    fator_shear * -cosf(kAnguloPosicao), fator_shear * -sinf(kAnguloPosicao), 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  };
+  glMultMatrixf(matriz_shear);
+  glTranslated(0, 0, Z() + DeltaVoo());
+  glPolygonOffset(-0.02f, -0.02f);
+  bool desenha_texturas = pd->desenha_texturas();
+  pd->set_desenha_texturas(false);
+  DesenhaObjeto(pd);
+  pd->set_desenha_texturas(desenha_texturas);
+  glPopMatrix();
+  glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 const EntidadeProto& Entidade::Proto() const {
