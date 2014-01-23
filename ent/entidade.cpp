@@ -341,6 +341,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
+  //glEnable(GL_STENCIL_TEST);
+  //glStencilFunc(GL_NEVER, 0x1, 0x1);
   const float kAnguloInclinacao = luz.inclinacao() * GRAUS_PARA_RAD;
   const float kAnguloPosicao = luz.posicao() * GRAUS_PARA_RAD;
   glEnable(GL_POLYGON_OFFSET_FILL);
@@ -367,6 +369,7 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& 
   pd->set_desenha_texturas(desenha_texturas);
   glPopMatrix();
   glDisable(GL_POLYGON_OFFSET_FILL);
+  //glDisable(GL_STENCIL_TEST);
 }
 
 const EntidadeProto& Entidade::Proto() const {
