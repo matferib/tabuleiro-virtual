@@ -104,8 +104,8 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   proto_.mutable_luz()->mutable_cor()->set_g(0.4f);
   proto_.mutable_luz()->mutable_cor()->set_b(0.4f);
   // Vinda de 45 graus leste.
-  proto_.mutable_luz()->set_posicao(0.0f);
-  proto_.mutable_luz()->set_inclinacao(45.0f);
+  proto_.mutable_luz()->set_posicao_graus(0.0f);
+  proto_.mutable_luz()->set_inclinacao_graus(45.0f);
   // Olho.
   auto* pos = olho_.mutable_alvo();
   pos->set_x(0.0f);
@@ -496,23 +496,33 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
 
-    GLfloat ambient[] = { 0, 0, 0, 1.0 };
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambient);
 
-    // Iluminação distante.
+    float seno_inclinacao = sinf(proto_.luz().inclinacao_graus() * GRAUS_PARA_RAD);
+    // A luz ambiente pode ser no máximo 0.3 da luz total.
+    const float kMaxAmbiente = 0.3f;
+    float fator_luz = seno_inclinacao > 0 ? seno_inclinacao * kMaxAmbiente : 0.0f;
+    GLfloat cor_luz_ambiente[] = { proto_.luz().cor().r() * fator_luz,
+                                   proto_.luz().cor().g() * fator_luz,
+                                   proto_.luz().cor().b() * fator_luz,
+                                   proto_.luz().cor().a()};
+
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
+
+    // Iluminação distante direcional.
     glPushMatrix();
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    glRotatef(proto_.luz().posicao(), 0.0f, 0.0f, 1.0f);
-    glRotatef(proto_.luz().inclinacao(), 0.0f, -1.0f, 0.0f);
+    glRotatef(proto_.luz().posicao_graus(), 0.0f, 0.0f, 1.0f);
+    glRotatef(proto_.luz().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
     glPopMatrix();
 
-    // A cor da luz difusa. TODO: ambiente?
-    GLfloat cor_luz[] = { proto_.luz().cor().r(),
-                          proto_.luz().cor().g(),
-                          proto_.luz().cor().b(),
+    // A cor da luz difusa.
+    const float kMaxDirecional = 1.0f - kMaxAmbiente;
+    GLfloat cor_luz[] = { proto_.luz().cor().r() * kMaxDirecional,
+                          proto_.luz().cor().g() * kMaxDirecional,
+                          proto_.luz().cor().b() * kMaxDirecional,
                           proto_.luz().cor().a() };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     glEnable(GL_LIGHT0);
@@ -1010,7 +1020,7 @@ void Tabuleiro::DesenhaQuadrado(
 void Tabuleiro::DesenhaGrade() {
   MudaCor(PRETO);
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.01f, -0.01f);
+  glPolygonOffset(-0.04f, -0.04f);
 
   // Linhas verticais (S-N).
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;

@@ -241,7 +241,7 @@ void Entidade::Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
   glScalef(multiplicador, multiplicador, multiplicador);
 
   // So desenha sombras se luz vier de cima e se houver um minimo de inclinacao.
-  if (pd->desenha_sombras() && luz.inclinacao() > 5.0 && luz.inclinacao() < 180.0f) {
+  if (pd->desenha_sombras() && luz.inclinacao_graus() > 5.0 && luz.inclinacao_graus() < 180.0f) {
     DesenhaSombra(pd, luz);
   }
 
@@ -343,13 +343,14 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
   //glEnable(GL_STENCIL_TEST);
   //glStencilFunc(GL_NEVER, 0x1, 0x1);
-  const float kAnguloInclinacao = luz.inclinacao() * GRAUS_PARA_RAD;
-  const float kAnguloPosicao = luz.posicao() * GRAUS_PARA_RAD;
+  // TODO calcular isso so uma vez.
+  const float kAnguloInclinacao = luz.inclinacao_graus() * GRAUS_PARA_RAD;
+  const float kAnguloPosicao = luz.posicao_graus() * GRAUS_PARA_RAD;
   glEnable(GL_POLYGON_OFFSET_FILL);
   // TODO Alpha deve ser baseado na inclinacao.
   glPushMatrix();
   // TODO Limitar o shearing.
-  float fator_shear = luz.inclinacao() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
+  float fator_shear = luz.inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
   float alpha = sinf(kAnguloInclinacao);
   MudaCor(0.0f, 0.0f, 0.0f, 0.7 * alpha);
   // Matriz eh column major, ou seja, esta invertida.

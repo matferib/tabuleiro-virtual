@@ -242,7 +242,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(proto->cor());
   gerador.botao_cor->setStyleSheet(CorParaEstilo(proto->cor()));
-  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &ent_cor] {
+  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
     if (!cor.isValid()) {
@@ -260,7 +260,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   } else {
     gerador.checkbox_luz->setCheckState(Qt::Unchecked);
   }
-  lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [dialogo, &gerador, &luz_cor] {
+  lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(luz_cor.cor()), dialogo, QObject::tr("Cor da luz"));
     if (!cor.isValid()) {
@@ -337,7 +337,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   // Cor.
   ent::Cor cor_proto(tab_proto.luz().cor());
   gerador.botao_cor->setStyleSheet(CorParaEstilo(cor_proto));
-  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [dialogo, &gerador, &cor_proto] {
+  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &cor_proto] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(cor_proto), dialogo, QObject::tr("Cor da luz ambiente"));
     if (!cor.isValid()) {
@@ -348,9 +348,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   });
 
   // Posicao na rosa dos ventos. No slider, o zero fica pra baixo enquanto no proto ele fica para direita.
-  gerador.dial_posicao->setSliderPosition(tab_proto.luz().posicao() + 90.0f);
+  gerador.dial_posicao->setSliderPosition(tab_proto.luz().posicao_graus() + 90.0f);
   // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
-  gerador.dial_inclinacao->setSliderPosition(tab_proto.luz().inclinacao() + 90.0f);
+  gerador.dial_inclinacao->setSliderPosition(tab_proto.luz().inclinacao_graus() + 90.0f);
   // Textura do tabuleiro.
   gerador.linha_textura->setText(tab_proto.textura().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
@@ -365,9 +365,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   });
 
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, &cor_proto, proto_retornado] {
-    proto_retornado->mutable_luz()->set_posicao(gerador.dial_posicao->sliderPosition() - 90.0f);
-    proto_retornado->mutable_luz()->set_inclinacao(gerador.dial_inclinacao->sliderPosition() - 90.0f);
+  lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, &cor_proto, proto_retornado] {
+    proto_retornado->mutable_luz()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
+    proto_retornado->mutable_luz()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
     if (!gerador.linha_textura->text().isEmpty()) {
       proto_retornado->set_textura(gerador.linha_textura->text().toStdString());
