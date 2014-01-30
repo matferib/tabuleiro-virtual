@@ -71,6 +71,14 @@ class Entidade {
   /** desenha o objeto. Pode alterar os parametros de desenho. */
   virtual void Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz);
 
+  /** Auxiliar para montar a matriz de desenho do objeto. 
+  * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
+  */
+  void MontaMatriz(bool usar_delta_voo) const;
+
+  /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */ 
+  void DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz);
+
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
 
@@ -86,9 +94,6 @@ class Entidade {
 
   /** desenha apenas o objeto, sem alterar cor nem matriz. */
   void DesenhaObjeto(ParametrosDesenho* pd);
-
-  /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */ 
-  void DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz);
 
  private:
   EntidadeProto proto_;

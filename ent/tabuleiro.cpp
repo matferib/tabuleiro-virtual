@@ -586,6 +586,50 @@ void Tabuleiro::DesenhaCena() {
   }
   glPopName();
 
+  // Sombras.
+  if (parametros_desenho_.desenha_sombras() &&
+      proto_.luz().inclinacao_graus() > 5.0 &&
+      proto_.luz().inclinacao_graus() < 180.0f) {
+#if 0
+    // TODO calcular isso so uma vez.
+    const float kAnguloInclinacao = luz.inclinacao_graus() * GRAUS_PARA_RAD;
+    const float kAnguloPosicao = luz.posicao_graus() * GRAUS_PARA_RAD;
+    // TODO Alpha deve ser baseado na inclinacao.
+    glPushMatrix();
+    // TODO Limitar o shearing.
+    float fator_shear = luz.inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
+    float alpha = sinf(kAnguloInclinacao);
+    // Matriz eh column major, ou seja, esta invertida.
+    // A ideia eh adicionar ao x a altura * fator de shear.
+    GLfloat matriz_shear[] = {
+      1.0f, 0.0f, 0.0f, 0.0f,
+      0.0f, 1.0f, 0.0f, 0.0f,
+      fator_shear * -cosf(kAnguloPosicao), fator_shear * -sinf(kAnguloPosicao), 0.0f, 0.0f,
+      0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
+    glPushMatrix();
+    glEnable(GL_STENCIL_TEST);
+    glStencilFunc(GL_NEVER, 0x1, 0x1);
+    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
+    glStencilMask(0xFF);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      Entidade* entidade = it->second;
+      entidade->DesenhaSombra(&parametros_desenho_, proto_.luz());
+    }
+    glStencilMask(0x00);
+    glStencilFunc(GL_EQUAL, 0x1, 0x1);
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      Entidade* entidade = it->second;
+      entidade->DesenhaSombra(&parametros_desenho_, proto_.luz());
+    }
+
+    glDisable(GL_STENCIL_TEST);
+    glPopMatrix();
+#endif
+  }
+
   if (parametros_desenho_.desenha_fps()) {
     glFlush();
     //usleep(500000);  // testa o timer.
