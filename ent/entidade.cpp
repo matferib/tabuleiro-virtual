@@ -32,8 +32,6 @@ void MudaCor(const ent::Cor& cor) {
 /** Desenha um disco no eixo x-y, com um determinado numero de faces. */
 void DesenhaDisco(GLfloat raio, int num_faces) {
   glNormal3f(0, 0, 1.0f);
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.015f, -0.015f);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
   for (int i = 0; i <= num_faces; ++i) {
@@ -41,7 +39,6 @@ void DesenhaDisco(GLfloat raio, int num_faces) {
     glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
   }
   glEnd();
-  glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 // Multiplicador de dimensão por tamanho de entidade.
@@ -216,7 +213,6 @@ float Entidade::DeltaVoo() const {
 }
 
 void Entidade::MontaMatriz(bool usar_delta_voo) const {
-	glPushMatrix();  // Original.
 	glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
@@ -229,6 +225,7 @@ void Entidade::Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
 
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
+	glPushMatrix();  // Original.
   MontaMatriz(true);
   DesenhaObjeto(pd);
 
@@ -242,6 +239,7 @@ void Entidade::Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
   glPopMatrix();
   if (pd->entidade_selecionada()) {
     // Volta pro chao.
+	  glPushMatrix();
     MontaMatriz(false);
     MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
@@ -334,23 +332,16 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   glPopMatrix();
 }
 
-void Entidade::DesenhaSombra(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
-  return;
-#if 0
+void Entidade::DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear) {
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPushMatrix();
-  float alpha = sinf(pd->luz().inclinacao() * GRAUS_PARA_RAD);
-  MudaCor(0.0f, 0.0f, 0.0f, 0.7 * alpha);
+  glPopMatrix();
+  MontaMatriz(false  /* solo */);
   glMultMatrixf(matriz_shear);
   glTranslated(0, 0, Z() + DeltaVoo());
   glPolygonOffset(-0.02f, -0.02f);
-  bool desenha_texturas = pd->desenha_texturas();
-  pd->set_desenha_texturas(false);
   DesenhaObjeto(pd);
-  pd->set_desenha_texturas(desenha_texturas);
   glPopMatrix();
   glDisable(GL_POLYGON_OFFSET_FILL);
-#endif
 }
 
 const EntidadeProto& Entidade::Proto() const {

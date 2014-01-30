@@ -63,7 +63,7 @@ void MudaCor(GLfloat* cor) {
 /** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
 void DesenhaStringTempo(const std::string& tempo) {
   MudaCor(PRETO);
-  glRectf(0.0f, 0.0f, tempo.size() * 8 + 2, 15);
+  glRectf(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
 
   MudaCor(BRANCO);
   glRasterPos2i(1, 1);
@@ -554,6 +554,10 @@ void Tabuleiro::DesenhaCena() {
                deltaY / 2.0,
                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   int id = 0;
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  // Desenha o chao mais pro fundo.
+  // TODO transofrmar offsets em constantes.
+  glPolygonOffset(0.04f, 0.04f);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado
@@ -565,12 +569,17 @@ void Tabuleiro::DesenhaCena() {
     // volta tudo esquerda e sobe 1 quadrado
     glTranslated(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
+  glDisable(GL_POLYGON_OFFSET_FILL);
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
 
   //boost::timer::auto_cpu_timer o3("o3: %w\n");
   if (parametros_desenho_.desenha_grade()) {
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    // TODO transofrmar offsets em constantes.
+    glPolygonOffset(-0.04f, -0.04f);
     DesenhaGrade();
+    glDisable(GL_POLYGON_OFFSET_FILL);
   }
   if (!parametros_desenho_.desenha_entidades()) {
     return;
@@ -590,15 +599,12 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_sombras() &&
       proto_.luz().inclinacao_graus() > 5.0 &&
       proto_.luz().inclinacao_graus() < 180.0f) {
-#if 0
     // TODO calcular isso so uma vez.
-    const float kAnguloInclinacao = luz.inclinacao_graus() * GRAUS_PARA_RAD;
-    const float kAnguloPosicao = luz.posicao_graus() * GRAUS_PARA_RAD;
+    const float kAnguloInclinacao = proto_.luz().inclinacao_graus() * GRAUS_PARA_RAD;
+    const float kAnguloPosicao = proto_.luz().posicao_graus() * GRAUS_PARA_RAD;
     // TODO Alpha deve ser baseado na inclinacao.
-    glPushMatrix();
     // TODO Limitar o shearing.
-    float fator_shear = luz.inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
-    float alpha = sinf(kAnguloInclinacao);
+    float fator_shear = proto_.luz().inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
     // Matriz eh column major, ou seja, esta invertida.
     // A ideia eh adicionar ao x a altura * fator de shear.
     GLfloat matriz_shear[] = {
@@ -608,26 +614,42 @@ void Tabuleiro::DesenhaCena() {
       0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    glPushMatrix();
+    // Habilita o stencil para desenhar apenas uma vez as sombras.
     glEnable(GL_STENCIL_TEST);
-    glStencilFunc(GL_NEVER, 0x1, 0x1);
-    glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);
-    glStencilMask(0xFF);
-    glClear(GL_STENCIL_BUFFER_BIT);
+    glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
+    glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Funcao de teste sempre retornara true e referencia 0xFF & 0xFF = 0xFF.
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar (sempre) no stencil e no depth, escrevera referencia (0xFF).
+    bool desenha_texturas = parametros_desenho_.desenha_texturas();
+    parametros_desenho_.set_desenha_texturas(false);
+    glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      entidade->DesenhaSombra(&parametros_desenho_, proto_.luz());
+      entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
-    glStencilMask(0x00);
-    glStencilFunc(GL_EQUAL, 0x1, 0x1);
-    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second;
-      entidade->DesenhaSombra(&parametros_desenho_, proto_.luz());
-    }
+    // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
+    glColorMask(true, true, true, true);
+    glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
+    // Desenha uma chapa preta na tela toda, preenchera so os buracos do stencil.
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    // Eixo com origem embaixo esquerda.
+    glOrtho(0, largura_, 0, altura_, 0, 1);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, sinf(kAnguloInclinacao) };
+    MudaCor(cor_sombra);
+    glRectf(0.0f, 0.0f, largura_, altura_);
 
-    glDisable(GL_STENCIL_TEST);
     glPopMatrix();
-#endif
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+
+    parametros_desenho_.set_desenha_texturas(desenha_texturas);
+    glDisable(GL_STENCIL_TEST);
   }
 
   if (parametros_desenho_.desenha_fps()) {
@@ -1063,9 +1085,6 @@ void Tabuleiro::DesenhaQuadrado(
 
 void Tabuleiro::DesenhaGrade() {
   MudaCor(PRETO);
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.04f, -0.04f);
-
   // Linhas verticais (S-N).
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
   const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
@@ -1080,8 +1099,6 @@ void Tabuleiro::DesenhaGrade() {
     float y = i * TAMANHO_LADO_QUADRADO;
     glRectf(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
   }
-
-  glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 double Tabuleiro::Aspecto() const {
