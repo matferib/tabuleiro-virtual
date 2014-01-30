@@ -334,7 +334,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear) {
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPopMatrix();
+  glPushMatrix();
   MontaMatriz(false  /* solo */);
   glMultMatrixf(matriz_shear);
   glTranslated(0, 0, Z() + DeltaVoo());
