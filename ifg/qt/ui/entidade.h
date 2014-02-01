@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'entidadef10049.ui'
+** Form generated from reading UI file 'entidade.ui'
 **
-** Created: Fri Jan 17 01:46:04 2014
-**      by: Qt User Interface Compiler version 4.8.1
+** Created
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ENTIDADEF10049_H
-#define ENTIDADEF10049_H
+#ifndef ENTIDADE_H
+#define ENTIDADE_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -244,4 +244,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ENTIDADEF10049_H
+#endif // ENTIDADE_H

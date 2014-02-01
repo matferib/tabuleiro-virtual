@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'opcoesV10049.ui'
+** Form generated from reading UI file 'opcoes.ui'
 **
-** Created: Thu Jan 16 00:38:38 2014
-**      by: Qt User Interface Compiler version 4.8.1
+** Created
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef OPCOESV10049_H
-#define OPCOESV10049_H
+#ifndef OPCOES_H
+#define OPCOES_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -68,4 +68,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // OPCOESV10049_H
+#endif // OPCOES_H

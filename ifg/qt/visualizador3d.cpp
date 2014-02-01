@@ -148,7 +148,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
-    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA: {
+    case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
       if (!notificacao.has_tabuleiro()) {
         // O tabuleiro criara a mensagem completa.
         return false;
@@ -325,7 +325,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
 }
 
 
-/** Abre um diálogo editável com as características de iluminacao e textura do tabuleiro. */ 
+/** Abre um diálogo editável com as propriedades do tabuleiro. */ 
 ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
@@ -364,8 +364,12 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     gerador.linha_textura->setText(info.fileName());
   });
 
+  // Tamanho.
+  gerador.linha_largura->setText(QString::number(tab_proto.largura()));
+  gerador.linha_altura->setText(QString::number(tab_proto.altura()));
+
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, &cor_proto, proto_retornado] {
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), [this, dialogo, &gerador, &cor_proto, proto_retornado] {
     proto_retornado->mutable_luz()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
@@ -374,6 +378,18 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     } else {
       proto_retornado->clear_textura();
     }
+    bool ok = true;
+    int largura = gerador.linha_largura->text().toInt(&ok);
+    if (!ok) {
+      return;
+    }
+    int altura = gerador.linha_altura->text().toInt(&ok);
+    if (!ok) {
+      return;
+    }
+    proto_retornado->set_largura(largura);
+    proto_retornado->set_altura(altura);
+    dialogo->accept();
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

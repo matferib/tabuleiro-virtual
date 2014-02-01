@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>456</width>
-    <height>446</height>
+    <height>578</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>390</y>
+     <y>510</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -39,7 +39,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Escolher Cor</string>
+    <string>Cor da Luz</string>
    </property>
   </widget>
   <widget class="QDial" name="dial_inclinacao">
@@ -321,25 +321,49 @@
     </item>
    </layout>
   </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>370</y>
+     <width>391</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QLabel" name="label_11">
+      <property name="text">
+       <string>Tamanho</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="linha_largura">
+      <property name="toolTip">
+       <string>largura</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_10">
+      <property name="text">
+       <string>x</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="linha_altura">
+      <property name="toolTip">
+       <string>altura</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>botoes</sender>
-   <signal>accepted()</signal>
-   <receiver>ifg::qt::DialogoIluminacao</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>botoes</sender>
    <signal>rejected()</signal>

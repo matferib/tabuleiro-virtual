@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'iluminacaoQ10049.ui'
+** Form generated from reading UI file 'iluminacao.ui'
 **
-** Created: Mon Jan 13 00:30:39 2014
-**      by: Qt User Interface Compiler version 4.8.1
+** Created
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef ILUMINACAOQ10049_H
-#define ILUMINACAOQ10049_H
+#ifndef UI_ILUMINACAO_H
+#define UI_ILUMINACAO_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -47,15 +47,21 @@ public:
     QLabel *label;
     QLineEdit *linha_textura;
     QPushButton *botao_textura;
+    QWidget *horizontalLayoutWidget_2;
+    QHBoxLayout *horizontalLayout_2;
+    QLabel *label_11;
+    QLineEdit *linha_largura;
+    QLabel *label_10;
+    QLineEdit *linha_altura;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
         if (ifg__qt__DialogoIluminacao->objectName().isEmpty())
             ifg__qt__DialogoIluminacao->setObjectName(QString::fromUtf8("ifg__qt__DialogoIluminacao"));
-        ifg__qt__DialogoIluminacao->resize(456, 446);
+        ifg__qt__DialogoIluminacao->resize(456, 578);
         botoes = new QDialogButtonBox(ifg__qt__DialogoIluminacao);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(70, 390, 341, 32));
+        botoes->setGeometry(QRect(70, 510, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         botao_cor = new QPushButton(ifg__qt__DialogoIluminacao);
@@ -158,6 +164,32 @@ public:
 
         horizontalLayout->addWidget(botao_textura);
 
+        horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoIluminacao);
+        horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
+        horizontalLayoutWidget_2->setGeometry(QRect(30, 370, 391, 80));
+        horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
+        label_11 = new QLabel(horizontalLayoutWidget_2);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+
+        horizontalLayout_2->addWidget(label_11);
+
+        linha_largura = new QLineEdit(horizontalLayoutWidget_2);
+        linha_largura->setObjectName(QString::fromUtf8("linha_largura"));
+
+        horizontalLayout_2->addWidget(linha_largura);
+
+        label_10 = new QLabel(horizontalLayoutWidget_2);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        horizontalLayout_2->addWidget(label_10);
+
+        linha_altura = new QLineEdit(horizontalLayoutWidget_2);
+        linha_altura->setObjectName(QString::fromUtf8("linha_altura"));
+
+        horizontalLayout_2->addWidget(linha_altura);
+
 
         retranslateUi(ifg__qt__DialogoIluminacao);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoIluminacao, SLOT(accept()));
@@ -169,7 +201,7 @@ public:
     void retranslateUi(QDialog *ifg__qt__DialogoIluminacao)
     {
         ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Ilumina\303\247\303\243o Ambiente", 0, QApplication::UnicodeUTF8));
-        botao_cor->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher Cor", 0, QApplication::UnicodeUTF8));
+        botao_cor->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         dial_inclinacao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Inclina\303\247\303\243o da Luz", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -186,6 +218,14 @@ public:
         label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Fundo", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher", 0, QApplication::UnicodeUTF8));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Tamanho", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_largura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "largura", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_10->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "x", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_altura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "altura", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };
@@ -201,4 +241,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // ILUMINACAOQ10049_H
+#endif // UI_ILUMINACAO_H

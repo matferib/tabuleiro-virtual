@@ -149,7 +149,7 @@ class Tabuleiro : public ntf::Receptor {
   ntf::Notificacao* SerializaTabuleiro();
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
-  ntf::Notificacao* SerializaIluminacaoTextura() const;
+  ntf::Notificacao* SerializaPropriedades() const;
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
   ntf::Notificacao* SerializaOpcoes() const;
@@ -157,8 +157,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
 
-  /** Deserializa apenas a parte de iluminacao e textura do tabuleiro. */
-  void DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_proto);
+  /** Deserializa apenas a parte de propriedades. */
+  void DeserializaPropriedades(const ent::TabuleiroProto& novo_proto);
 
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);

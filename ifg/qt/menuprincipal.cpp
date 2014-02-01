@@ -32,7 +32,7 @@ const char* g_menuitem_strs[] = {
   // jogo
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
-  "&Opções", "&Iluminação e Textura", nullptr, "&Salvar", "R&estaurar", g_fim,
+  "&Opções", "&Propriedades", nullptr, "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
   "&Adicionar", "&Remover", g_fim,
   // Sobre
@@ -192,9 +192,9 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     notificacao->set_endereco(file_str.toStdString());
-  } else if (acao == acoes_[ME_TABULEIRO][MI_ILUMINACAO]) {
+  } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
     notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA);
+    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_OPCOES);

@@ -130,11 +130,11 @@ Tabuleiro::~Tabuleiro() {
 }
 
 int Tabuleiro::TamanhoX() const {
-  return proto_.tamanho();
+  return proto_.largura();
 }
 
 int Tabuleiro::TamanhoY() const {
-  return proto_.tamanho();
+  return proto_.altura();
 }
 
 void Tabuleiro::Desenha() {
@@ -292,12 +292,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
-    case ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA: {
+    case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
       if (notificacao.has_tabuleiro()) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
         return false;
       }
-      central_->AdicionaNotificacao(SerializaIluminacaoTextura());
+      central_->AdicionaNotificacao(SerializaPropriedades());
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_OPCOES: {
@@ -309,7 +309,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
-      DeserializaIluminacaoTextura(notificacao.tabuleiro());
+      DeserializaPropriedades(notificacao.tabuleiro());
       if (notificacao.has_endereco()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         n_remota->clear_endereco();
@@ -910,12 +910,15 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   *z = 0;
 }
 
-ntf::Notificacao* Tabuleiro::SerializaIluminacaoTextura() const {
-  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA);
-  notificacao->mutable_tabuleiro()->mutable_luz()->CopyFrom(proto_.luz());
+ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
+  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
+  auto* tabuleiro = notificacao->mutable_tabuleiro();
+  tabuleiro->mutable_luz()->CopyFrom(proto_.luz());
   if (proto_.has_textura()) {
-    notificacao->mutable_tabuleiro()->set_textura(proto_.textura());
+    tabuleiro->set_textura(proto_.textura());
   }
+  tabuleiro->set_largura(proto_.largura());
+  tabuleiro->set_altura(proto_.altura());
   return notificacao;
 }
 
@@ -925,8 +928,10 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
   return notificacao;
 }
 
-void Tabuleiro::DeserializaIluminacaoTextura(const ent::TabuleiroProto& novo_proto) {
+void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   proto_.mutable_luz()->CopyFrom(novo_proto.luz());
+  proto_.set_largura(novo_proto.largura());
+  proto_.set_altura(novo_proto.altura());
   AtualizaTexturas(novo_proto);
 }
 
