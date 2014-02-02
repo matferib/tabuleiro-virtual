@@ -56,6 +56,8 @@ message EntidadeProto {
   optional string textura = 8;
   // Aura em quadrados.
   optional int32 aura = 9;
+  // Visibilidade para os jogadores.
+  optional bool visivel = 10 [default=true];
 }
 
 // Alguns estados são mantidos nesta variável.

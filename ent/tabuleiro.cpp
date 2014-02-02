@@ -97,7 +97,8 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     quadrado_selecionado_(-1),
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
     texturas_(texturas),
-    central_(central) {
+    central_(central),
+    modo_mestre_(true) {
   central_->RegistraReceptor(this);
   // Iluminacao inicial.
   proto_.mutable_luz()->mutable_cor()->set_r(0.4f);
@@ -198,6 +199,11 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_RESPOSTA_CONEXAO:
+      if (!notificacao.has_erro()) {
+        ModoJogador();
+      }
+      return true;
     case ntf::TN_ADICIONAR_ENTIDADE:
       try {
         AdicionaEntidade(notificacao);
@@ -529,7 +535,10 @@ void Tabuleiro::DesenhaCena() {
 
     // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      it->second->DesenhaLuz(&parametros_desenho_);
+      auto* e = it->second;
+      if (e->Proto().visivel()) {
+        e->DesenhaLuz(&parametros_desenho_);
+      }
     }
   } else {
     glDisable(GL_LIGHTING);
@@ -591,7 +600,9 @@ void Tabuleiro::DesenhaCena() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
-    entidade->Desenha(&parametros_desenho_, proto_.luz());
+    if (entidade->VisivelParaJogador()) {
+      entidade->Desenha(&parametros_desenho_, proto_.luz());
+    }
   }
   glPopName();
 
@@ -1094,7 +1105,7 @@ void Tabuleiro::DesenhaGrade() {
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
   const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
   const int x_2 = TamanhoX()  / 2;
-  const int y_2 = TamanhoX() / 2;
+  const int y_2 = TamanhoY() / 2;
   for (int i = -x_2; i <= x_2; ++i) {
     float x = i * TAMANHO_LADO_QUADRADO;
     glRectf(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);

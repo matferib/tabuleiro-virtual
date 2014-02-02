@@ -75,14 +75,14 @@ void Cliente::Conecta(const std::string& endereco_str) {
     central_->AdicionaNotificacao(notificacao);
     central_->RegistraReceptorRemoto(this);
     RecebeDados();
-    LOG(INFO) << "Conexão bem sucedida";
+    VLOG(1) << "Conexão bem sucedida";
   } catch (std::exception& e) {
     socket_.reset();
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
     notificacao->set_erro(e.what());
     central_->AdicionaNotificacao(notificacao);
-    LOG(INFO) << "Falha de conexão";
+    VLOG(1) << "Falha de conexão";
   }
 }
 

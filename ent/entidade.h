@@ -82,6 +82,9 @@ class Entidade {
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
 
+  /** Retorna se a entidade eh visivel para jogadores. */
+  bool VisivelParaJogador() const;
+
  private:
   friend Entidade* NovaEntidade(TipoEntidade, Texturas*, ntf::CentralNotificacoes*);
   Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);

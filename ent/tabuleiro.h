@@ -189,6 +189,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
 
+  /** Poe o tabuleiro no modo jogador. */
+  void ModoJogador() { modo_mestre_ = false; }
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -240,6 +243,7 @@ class Tabuleiro : public ntf::Receptor {
 
   Texturas* texturas_;
   ntf::CentralNotificacoes* central_;
+  bool modo_mestre_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

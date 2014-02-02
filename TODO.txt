@@ -1,9 +1,9 @@
-- Carregar textura apenas uma vez e usa-la com glTexBind ou mudando a active texture.
-- Computar tempos de picking.
+- Adicionar hitpoints as entidades.
+- Gerar acoes de jogadores (magic missile, fireball etc).
+- Fazer o dialogo de propriedades dar uma mensagem de erro se o valor do campo de tamanho for invalido
 - Finalizar Aura.
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.
-- Arrumar o movimento quando clica sobre um objeto cuja parte esta fora do tabuleiro.
 - Iluminacao ambiente.
 - Comandos de teclado.
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.

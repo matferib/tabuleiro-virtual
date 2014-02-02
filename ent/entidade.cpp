@@ -348,4 +348,8 @@ const EntidadeProto& Entidade::Proto() const {
   return proto_;
 }
 
+bool Entidade::VisivelParaJogador() const {
+  return proto_.visivel();
+}
+
 }  // namespace ent
