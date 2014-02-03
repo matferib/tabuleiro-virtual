@@ -8,13 +8,17 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QImage>
+#include <QImageReader>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QString>
+
 #include <GL/gl.h>
 
 #include "ent/tabuleiro.h"
 #include "ifg/qt/constantes.h"
+#include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ifg/qt/ui/entidade.h"
@@ -103,10 +107,24 @@ const QString TamanhoParaTexto(int tamanho) {
   return QObject::tr("desconhecido");
 }
 
+// Carrega os dados de uma textura local pro proto 'info_textura'.
+void PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
+  QImageReader leitor_imagem(info_arquivo.absoluteFilePath());
+  QImage imagem = leitor_imagem.read();
+  if (imagem.isNull()) {
+    LOG(ERROR) << "Textura inválida: " << info_textura->id();
+    return;
+  }
+  info_textura->set_altura(imagem.height());
+  info_textura->set_largura(imagem.width());
+  info_textura->set_bits((const char*)imagem.bits());
+  info_textura->set_formato(imagem.format());
+}
+
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai) 
+    ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
@@ -284,8 +302,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       VLOG(1) << "Operação de leitura de textura cancelada.";
       return;
     }
-    QFileInfo info(file_str);
-    gerador.linha_textura->setText(info.fileName());
+    gerador.linha_textura->setText(file_str);
   });
   // Aura.
   gerador.checkbox_aura->setCheckState(proto->has_aura() ? Qt::Checked : Qt::Unchecked);
@@ -303,7 +320,14 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto->clear_luz();
     }
     if (!gerador.linha_textura->text().isEmpty()) {
-      proto->mutable_info_textura()->set_id(gerador.linha_textura->text().toStdString());
+      QFileInfo info(gerador.linha_textura->text());
+      proto->mutable_info_textura()->set_id(info.fileName().toStdString());
+      // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
+      // mesmo nome isso vai falhar.
+      if (info.dir().dirName() != DIR_TEXTURAS) {
+        // Enviar a textura toda.
+        PreencheProtoTextura(info, proto->mutable_info_textura());
+      }
     } else {
       proto->clear_info_textura();
     }
@@ -331,7 +355,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
 }
 
 
-/** Abre um diálogo editável com as propriedades do tabuleiro. */ 
+/** Abre um diálogo editável com as propriedades do tabuleiro. */
 ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
@@ -366,8 +390,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       VLOG(1) << "Operação de leitura de textura cancelada.";
       return;
     }
-    QFileInfo info(file_str);
-    gerador.linha_textura->setText(info.fileName());
+    gerador.linha_textura->setText(file_str);
   });
 
   // Tamanho.
@@ -382,7 +405,14 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     proto_retornado->mutable_luz()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
     if (!gerador.linha_textura->text().isEmpty()) {
-      proto_retornado->mutable_info_textura()->set_id(gerador.linha_textura->text().toStdString());
+      QFileInfo info(gerador.linha_textura->text());
+      proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
+      // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
+      // mesmo nome isso vai falhar.
+      if (info.dir().dirName() != DIR_TEXTURAS) {
+        // Enviar a textura toda.
+        PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+      }
     } else {
       proto_retornado->clear_info_textura();
     }
