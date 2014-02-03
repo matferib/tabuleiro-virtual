@@ -122,7 +122,7 @@ void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const st
 
 void Servidor::RecebeDadosCliente(boost::asio::ip::tcp::socket* cliente) {
   cliente->async_receive(
-    boost::asio::buffer(buffer_),  
+    boost::asio::buffer(buffer_),
     [this, cliente](boost::system::error_code ec, std::size_t bytes_transferred) {
       if (!ec) {
         std::string str(buffer_.begin(), buffer_.begin() + bytes_transferred);

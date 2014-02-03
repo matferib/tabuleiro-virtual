@@ -84,10 +84,10 @@ Texturas::~Texturas() {}
 bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_CARREGAR_TEXTURA:
-      CarregaTextura(notificacao.endereco());
+      CarregaTextura(notificacao.info_textura());
       return true;
-    case ntf::TN_LIBERAR_TEXTURA:
-      DescarregaTextura(notificacao.endereco());
+    case ntf::TN_DESCARREGAR_TEXTURA:
+      DescarregaTextura(notificacao.info_textura());
       return true;
     default: ;
   }
@@ -118,37 +118,37 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
   return it->second;
 }
 
-void Texturas::CarregaTextura(const std::string& id) {
-  auto* info_interna = InfoInterna(id);
+void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
+  auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
-    QFileInfo arquivo(QDir(DIR_TEXTURAS), id.c_str());
+    QFileInfo arquivo(QDir(DIR_TEXTURAS), info_textura.id().c_str());
     QImageReader leitor_imagem(arquivo.absoluteFilePath());
     QImage imagem = leitor_imagem.read();
     if (imagem.isNull()) {
-      LOG(ERROR) << "Textura inválida: " << id;
+      LOG(ERROR) << "Textura inválida: " << info_textura.id();
       return;
     }
-    texturas_.insert(make_pair(id, new InfoTexturaInterna(imagem)));
+    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
   } else {
     ++info_interna->contador;
-    VLOG(1) << "Textura '" << id << "' incrementada para " << info_interna->contador;
+    VLOG(1) << "Textura '" << info_textura.id() << "' incrementada para " << info_interna->contador;
   }
 }
 
-void Texturas::DescarregaTextura(const std::string& id) {
-  auto* info_interna = InfoInterna(id);
+void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
+  auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
-    LOG(WARNING) << "Textura nao existente: " << id;
+    LOG(WARNING) << "Textura nao existente: " << info_textura.id();
   } else {
     if (--info_interna->contador == 0) {
-      VLOG(1) << "Textura liberada: " << id;
+      VLOG(1) << "Textura liberada: " << info_textura.id();
       delete info_interna;
-      texturas_.erase(id);
+      texturas_.erase(info_textura.id());
     } else {
-      VLOG(1) << "Textura '" << id << "' decrementada para " << info_interna->contador;
+      VLOG(1) << "Textura '" << info_textura.id() << "' decrementada para " << info_interna->contador;
     }
   }
 }
 
 }  // namespace qt 
-}  // namespace ifg 
+}  // namespace ifg

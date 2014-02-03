@@ -276,7 +276,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   });
   // Textura do objeto.
-  gerador.linha_textura->setText(proto->textura().c_str());
+  gerador.linha_textura->setText(proto->info_textura().id().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
       [this, dialogo, &gerador, &luz_cor ] () {
     QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
@@ -303,9 +303,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto->clear_luz();
     }
     if (!gerador.linha_textura->text().isEmpty()) {
-      proto->set_textura(gerador.linha_textura->text().toStdString());
+      proto->mutable_info_textura()->set_id(gerador.linha_textura->text().toStdString());
     } else {
-      proto->clear_textura();
+      proto->clear_info_textura();
     }
     if (gerador.checkbox_aura->checkState() == Qt::Checked) {
       proto->set_aura(4);  // TODO
@@ -358,7 +358,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
   gerador.dial_inclinacao->setSliderPosition(tab_proto.luz().inclinacao_graus() + 90.0f);
   // Textura do tabuleiro.
-  gerador.linha_textura->setText(tab_proto.textura().c_str());
+  gerador.linha_textura->setText(tab_proto.info_textura().id().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
       [this, dialogo, &gerador ] () {
     QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
@@ -382,9 +382,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     proto_retornado->mutable_luz()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
     if (!gerador.linha_textura->text().isEmpty()) {
-      proto_retornado->set_textura(gerador.linha_textura->text().toStdString());
+      proto_retornado->mutable_info_textura()->set_id(gerador.linha_textura->text().toStdString());
     } else {
-      proto_retornado->clear_textura();
+      proto_retornado->clear_info_textura();
     }
     bool ok = true;
     int largura = gerador.linha_largura->text().toInt(&ok);

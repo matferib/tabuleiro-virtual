@@ -38,7 +38,7 @@ message TabuleiroProto {
   // Iluminacao do tabuleiro.
   optional IluminacaoDirecional luz = 3;
   // Textura do tabuleiro.
-  optional string textura = 5;
+  optional InfoTextura info_textura = 5;
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
   optional uint32 altura = 6 [default=20];

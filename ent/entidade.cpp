@@ -80,15 +80,15 @@ Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
 }
 
 Entidade::~Entidade() {
-  if (proto_.has_textura()) {
-    VLOG(1) << "Liberando textura: " << proto_.textura();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
-    nl->set_endereco(proto_.textura());
+  if (proto_.has_info_textura()) {
+    VLOG(1) << "Liberando textura: " << proto_.info_textura().id();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+    nl->mutable_info_textura()->set_id(proto_.info_textura().id());
     central_->AdicionaNotificacao(nl);
   }
 }
 
-void Entidade::Inicializa(const EntidadeProto& novo_proto) { 
+void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Atualiza texturas antes de tudo.
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
@@ -97,30 +97,30 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   proto_.set_tipo(tipo);
 }
 
-void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) { 
+void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (proto_.has_textura() && proto_.textura() != novo_proto.textura()) {
-    VLOG(1) << "Liberando textura: " << proto_.textura();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_LIBERAR_TEXTURA);
-    nl->set_endereco(proto_.textura());
+  if (proto_.has_info_textura() && proto_.info_textura().id() != novo_proto.info_textura().id()) {
+    VLOG(1) << "Liberando textura: " << proto_.info_textura().id();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
+    nl->mutable_info_textura()->set_id(proto_.info_textura().id());
     central_->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
-  if (novo_proto.has_textura() && novo_proto.textura() != proto_.textura()) {
-    VLOG(1) << "Carregando textura: " << proto_.textura();
+  if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_.info_textura().id()) {
+    VLOG(1) << "Carregando textura: " << proto_.info_textura().id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->set_endereco(novo_proto.textura());
+    nc->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
     central_->AdicionaNotificacao(nc);
   }
-  if (novo_proto.has_textura()) {
-    proto_.set_textura(novo_proto.textura());
+  if (novo_proto.has_info_textura()) {
+    proto_.mutable_info_textura()->CopyFrom(novo_proto.info_textura());
   } else {
-    proto_.clear_textura();
+    proto_.clear_info_textura();
   }
 }
 
-void Entidade::Atualiza(const EntidadeProto& novo_proto) { 
+void Entidade::Atualiza(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
 
   // mantem o tipo.
@@ -223,13 +223,13 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     // Sera desenhado translucido para o mestre.
     return;
   }
-	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-	glLoadName(Id());
+  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  glLoadName(Id());
   MudaCor(proto_.cor());
 
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
-	glPushMatrix();  // Original.
+  glPushMatrix();  // Original.
   MontaMatriz(true);
   DesenhaObjeto(pd);
 
@@ -249,7 +249,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
-  if (proto_.has_textura()) {
+  if (proto_.has_info_textura()) {
     // Constroi a moldura e aplica a textura.
     // tijolo da base (altura TAMANHO_LADO_QUADRADO / 10).
     glPushMatrix();
@@ -263,12 +263,12 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // desenha a tela onde a textura será desenhada face para o sul.
-    GLuint id_textura = pd->desenha_texturas() && proto_.has_textura() ?
-        texturas_->Textura(proto_.textura()) : GL_INVALID_VALUE;
+    GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
+        texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
     if (id_textura != GL_INVALID_VALUE) {
       glEnable(GL_TEXTURE_2D);
       glBindTexture(GL_TEXTURE_2D, id_textura);
-      
+
       glNormal3f(0.0f, -1.0f, 0.0f);
       glPushMatrix();
       glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
@@ -339,8 +339,8 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
     // Um pouco diferente, pois so desenha se for visivel.
     return;
   }
-	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-	glLoadName(Id());
+  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  glLoadName(Id());
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * pd->alpha_translucidos());
 

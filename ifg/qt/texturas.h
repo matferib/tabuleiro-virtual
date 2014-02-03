@@ -26,10 +26,13 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Auxiliar para retornar informacao de textura. @return nullptr se nao houver. */
   InfoTexturaInterna* InfoInterna(const std::string& id);
   const InfoTexturaInterna* InfoInterna(const std::string& id) const;
-  /** Realiza o carregamento da textura ou referenciamento de uma textura. */
-  void CarregaTextura(const std::string& id);
-  /** Descarrega uma textura ou desreferencia uma textura. */
-  void DescarregaTextura(const std::string& id);
+
+  /** Realiza o carregamento da textura ou referenciamento de uma textura ou referencia . */
+  void CarregaTextura(const ent::InfoTextura& info);
+
+  /** Descarrega ou dereferencia uma textura. */
+  void DescarregaTextura(const ent::InfoTextura& info);
+
   /** Gera um identificador unico de textura.
   * @return -1 se alcancar o limite de texturas.
   */
