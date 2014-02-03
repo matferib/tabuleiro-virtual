@@ -59,6 +59,7 @@ public:
     QHBoxLayout *horizontalLayout_9;
     QCheckBox *checkbox_voadora;
     QCheckBox *checkbox_aura;
+    QCheckBox *checkbox_visibilidade;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -205,6 +206,11 @@ public:
 
         horizontalLayout_9->addWidget(checkbox_aura);
 
+        checkbox_visibilidade = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
+
+        horizontalLayout_9->addWidget(checkbox_visibilidade);
+
 
         horizontalLayout_8->addLayout(horizontalLayout_9);
 
@@ -229,6 +235,7 @@ public:
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
         checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", 0, QApplication::UnicodeUTF8));
         checkbox_aura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura", 0, QApplication::UnicodeUTF8));
+        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

@@ -66,24 +66,22 @@ class Entidade {
   double Z() const;
 
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
-  virtual void DesenhaLuz(ParametrosDesenho* pd);
+  void DesenhaLuz(ParametrosDesenho* pd);
 
-  /** desenha o objeto. Pode alterar os parametros de desenho. */
-  virtual void Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz);
+  /** desenha o objeto de forma solida. Pode alterar os parametros de desenho. */
+  void Desenha(ParametrosDesenho* pd);
 
-  /** Auxiliar para montar a matriz de desenho do objeto.
-  * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
-  */
-  void MontaMatriz(bool usar_delta_voo) const;
+  /** Desenha a unidade de forma translucida. */
+  void DesenhaTranslucido(ParametrosDesenho* pd);
+
+  /** Desenha aura da entidade. */
+  void DesenhaAura(ParametrosDesenho* pd);
 
   /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */ 
   void DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear);
 
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
-
-  /** Retorna se a entidade eh visivel para jogadores. */
-  bool VisivelParaJogador() const;
 
  private:
   friend Entidade* NovaEntidade(TipoEntidade, Texturas*, ntf::CentralNotificacoes*);
@@ -97,6 +95,11 @@ class Entidade {
 
   /** desenha apenas o objeto, sem alterar cor nem matriz. */
   void DesenhaObjeto(ParametrosDesenho* pd);
+
+  /** Auxiliar para montar a matriz de desenho do objeto.
+  * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
+  */
+  void MontaMatriz(bool usar_delta_voo) const;
 
  private:
   EntidadeProto proto_;

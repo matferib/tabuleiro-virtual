@@ -56,7 +56,7 @@ message EntidadeProto {
   optional string textura = 8;
   // Aura em quadrados.
   optional int32 aura = 9;
-  // Visibilidade para os jogadores.
+  // Visibilidade. Apenas o dono pode ver.
   optional bool visivel = 10 [default=true];
 }
 
@@ -89,4 +89,8 @@ message ParametrosDesenho {
   optional bool transparencias = 12 [default=true];
   // Desenhar sombras.
   optional bool desenha_sombras = 13 [default=true];
+  // Modo de desenho.
+  optional bool modo_mestre = 14 [default=true];
+  // Alpha para translucidos.
+  optional float alpha_translucidos = 15 [default=0.5];
 }

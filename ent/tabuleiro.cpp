@@ -54,6 +54,11 @@ const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) 
 GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat PRETO[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 
+/** Retorna o quadrado da distancia de um ponto a outro. */
+double DistanciaQuadrado(const Posicao& p1, const Posicao& p2) {
+  return pow(p1.x() - p2.x(), 2) + pow(p1.y() - p2.y(), 2) + pow(p1.z() - p2.z(), 2);
+}
+
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
@@ -74,8 +79,9 @@ void DesenhaStringTempo(const std::string& tempo) {
 
 // TODO: mover para entidade.
 // Gera um EntidadeProto com os valores passados.
-const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, double x, double y, double z) {
+const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, bool visivel, double x, double y, double z) {
   EntidadeProto ep;
+  ep.set_visivel(visivel);
   ep.set_id((id_cliente << 28) | id_entidade);
   auto* pos = ep.mutable_pos();
   pos->set_x(x);
@@ -113,7 +119,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   pos->set_y(0.0f);
   pos->set_z(0.0f);
   // Olho sempre comeca olhando do sul (-pi/2).
-  olho_.set_rotacao(-M_PI / 2.0f);
+  olho_.set_rotacao_rad(-M_PI / 2.0f);
   olho_.set_altura(OLHO_ALTURA_INICIAL);
   olho_.set_raio(OLHO_RAIO_INICIAL);
   // Valores iniciais.
@@ -143,6 +149,7 @@ void Tabuleiro::Desenha() {
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
+  parametros_desenho_.set_modo_mestre(modo_mestre_);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
@@ -161,7 +168,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     double x, y, z;
     CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
     auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-    entidade->Inicializa(GeraEntidadeProto(id_cliente_, id_entidade, x, y, z));
+    entidade->Inicializa(GeraEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, x, y, z));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
     // Envia a entidade para os outros.
@@ -344,14 +351,14 @@ void Tabuleiro::TrataRodela(int delta) {
 void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
-    float olho_rotacao = olho_.rotacao();
+    float olho_rotacao = olho_.rotacao_rad();
     olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
     if (olho_rotacao >= 2 * M_PI) {
       olho_rotacao -= 2 * M_PI;
     } else if (olho_rotacao <= - 2 * M_PI) {
       olho_rotacao += 2 * M_PI;
     }
-    olho_.set_rotacao(olho_rotacao);
+    olho_.set_rotacao_rad(olho_rotacao);
     // move o olho no eixo Z de acordo com o eixo Y do movimento
     float olho_altura = olho_.altura();
     olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
@@ -461,7 +468,7 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
 
 void Tabuleiro::InicializaGL() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
+  glDisable(GL_BLEND);
 
   // back face
   glEnable(GL_CULL_FACE);
@@ -491,8 +498,8 @@ void Tabuleiro::DesenhaCena() {
   const Posicao& alvo = olho_.alvo();
   gluLookAt(
     // from.
-    alvo.x() + cos(olho_.rotacao()) * olho_.raio(),
-    alvo.y() + sin(olho_.rotacao()) * olho_.raio(),
+    alvo.x() + cos(olho_.rotacao_rad()) * olho_.raio(),
+    alvo.y() + sin(olho_.rotacao_rad()) * olho_.raio(),
     alvo.z() + olho_.altura(),
     // to.
     alvo.x(), alvo.y(), alvo.z(),
@@ -536,9 +543,7 @@ void Tabuleiro::DesenhaCena() {
     // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       auto* e = it->second;
-      if (e->Proto().visivel()) {
-        e->DesenhaLuz(&parametros_desenho_);
-      }
+      e->DesenhaLuz(&parametros_desenho_);
     }
   } else {
     glDisable(GL_LIGHTING);
@@ -600,12 +605,11 @@ void Tabuleiro::DesenhaCena() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
-    if (entidade->VisivelParaJogador()) {
-      entidade->Desenha(&parametros_desenho_, proto_.luz());
-    }
+    entidade->Desenha(&parametros_desenho_, proto_.luz());
   }
   glPopName();
 
+  glEnable(GL_BLEND);
   // Sombras.
   if (parametros_desenho_.desenha_sombras() &&
       proto_.luz().inclinacao_graus() > 5.0 &&
@@ -652,7 +656,9 @@ void Tabuleiro::DesenhaCena() {
     glLoadIdentity();
     GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, sinf(kAnguloInclinacao) };
     MudaCor(cor_sombra);
+    glDisable(GL_DEPTH_TEST);
     glRectf(0.0f, 0.0f, largura_, altura_);
+    glEnable(GL_DEPTH_TEST);
 
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
@@ -661,6 +667,46 @@ void Tabuleiro::DesenhaCena() {
 
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
     glDisable(GL_STENCIL_TEST);
+  }
+
+  // Transparencias: deve ser desenhado do mais longe pro mais perto.
+  if (parametros_desenho_.transparencias()) {
+    std::vector<Entidade*> entidades_ordenadas;
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      Entidade* entidade = it->second;
+      entidades_ordenadas.push_back(entidade);
+    }
+    // TODO da pra salvar a posicao do olho em uma variavel a cada movimentacao de camera.
+    Posicao pos_olho;
+    pos_olho.set_x(olho_.alvo().x() + cosf(olho_.rotacao_rad()) * olho_.raio());
+    pos_olho.set_y(olho_.alvo().y() + sinf(olho_.rotacao_rad()) * olho_.raio());
+    pos_olho.set_z(olho_.altura());
+    std::sort(entidades_ordenadas.begin(), entidades_ordenadas.end(), [this, &pos_olho](Entidade* ee, Entidade* ed) -> bool {
+      double de = DistanciaQuadrado(ee->Proto().pos(), pos_olho);
+      double dd = DistanciaQuadrado(ed->Proto().pos(), pos_olho);
+      return de > dd;
+    });
+    parametros_desenho_.set_alpha_translucidos(0.5);
+    glPushName(0);
+    for (auto* entidade : entidades_ordenadas) {
+      parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+      entidade->DesenhaTranslucido(&parametros_desenho_);
+    }
+    glPopName();
+    parametros_desenho_.clear_alpha_translucidos();
+    if (parametros_desenho_.desenha_aura()) {
+      for (auto* entidade : entidades_ordenadas) {
+        entidade->DesenhaAura(&parametros_desenho_);
+      }
+    }
+    glDisable(GL_BLEND);
+  } else {
+    // Desenha os translucidos de forma solida para picking.
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      Entidade* entidade = it->second;
+      parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+      entidade->DesenhaTranslucido(&parametros_desenho_);
+    }
   }
 
   if (parametros_desenho_.desenha_fps()) {
@@ -865,8 +911,8 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   } else if (pos_pilha > 1) {
     // Entidade.
     SelecionaEntidade(id);
-    auto* n = new ntf::Notificacao;
-    n->set_tipo(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+    auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+    n->set_modo_mestre(modo_mestre_);
     n->mutable_entidade()->CopyFrom(entidade_selecionada_->Proto());
     central_->AdicionaNotificacao(n);
   } else {

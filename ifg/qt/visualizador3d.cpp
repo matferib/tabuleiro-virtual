@@ -232,6 +232,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   // ID.
   QString id_str;
   gerador.campo_id->setText(id_str.setNum(proto->id()));
+  // TODO So habilita para mestre.
+  gerador.checkbox_visibilidade->setCheckState(proto->visivel() ? Qt::Checked : Qt::Unchecked);
+  if (!notificacao.modo_mestre()) {
+    gerador.checkbox_visibilidade->setEnabled(false);
+  }
   // Tamanho.
   gerador.slider_tamanho->setSliderPosition(proto->tamanho());
   gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
@@ -291,6 +296,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
                  [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
     proto->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto->mutable_cor()->Swap(ent_cor.mutable_cor());
+    proto->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
     } else {
@@ -366,7 +372,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
+  gerador.linha_largura->setInputMask("009"); // Permite tamanho ate 999, minimo de 1 digito.
   gerador.linha_altura->setText(QString::number(tab_proto.altura()));
+  gerador.linha_altura->setInputMask("009"); // Permite tamanho ate 999, minimo de 1 digito.
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()), [this, dialogo, &gerador, &cor_proto, proto_retornado] {

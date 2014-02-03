@@ -218,7 +218,11 @@ void Entidade::MontaMatriz(bool usar_delta_voo) const {
   glScalef(multiplicador, multiplicador, multiplicador);
 }
 
-void Entidade::Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
+void Entidade::Desenha(ParametrosDesenho* pd) {
+  if (!proto_.visivel()) {
+    // Sera desenhado translucido para o mestre.
+    return;
+  }
 	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
 	glLoadName(Id());
   MudaCor(proto_.cor());
@@ -228,12 +232,6 @@ void Entidade::Desenha(ParametrosDesenho* pd, const IluminacaoDirecional& luz) {
 	glPushMatrix();  // Original.
   MontaMatriz(true);
   DesenhaObjeto(pd);
-
-  if (pd->desenha_aura() && proto_.has_aura()) {
-    const auto& cor = proto_.cor();
-    MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
-    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
-  }
 
   // Desenha a parte de solo: disco de selecao e sombra.
   glPopMatrix();
@@ -274,7 +272,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
       glNormal3f(0.0f, -1.0f, 0.0f);
       glPushMatrix();
       glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
-      MudaCor(1.0f, 1.0f, 1.0f, 1.0f);
+      MudaCor(1.0f, 1.0f, 1.0f, pd->has_alpha_translucidos() ? pd->alpha_translucidos() : 1.0f);
       glBegin(GL_QUADS);
       // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
       // imagem com origem em cima esquerda. Entao a gente mapeia a textura com o eixo vertical invertido.
@@ -308,20 +306,24 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   if (!pd->iluminacao() || !proto_.has_luz()) {
     return;
   }
+  if (!proto_.visivel() && !pd->modo_mestre()) {
+    return;
+  }
 
-  // Objeto de luz. O quarto componente indica que a luz é posicional.
-  // Se for 0, a luz é direcional e os componentes indicam sua direção.
-  GLfloat pos_luz[] = {
-      0, 0, static_cast<GLfloat>(ALTURA * CalculaMultiplicador(proto_.tamanho())), 1.0f };
-  const ent::Cor& cor = proto_.luz().cor();
-  GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
   glPushMatrix();
-  glTranslated(X(), Y(), Z() + DeltaVoo());
+  MontaMatriz(true  /*usar_delta_voo*/);
+  // Um pouco acima do objeto.
+  glTranslated(0, 0, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
     LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
   } else {
+    // Objeto de luz. O quarto componente indica que a luz é posicional.
+    // Se for 0, a luz é direcional e os componentes indicam sua direção.
+    GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
     glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
+    const ent::Cor& cor = proto_.luz().cor();
+    GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
     glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
     glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f);
     //glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.53f);
@@ -332,7 +334,44 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   glPopMatrix();
 }
 
+void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
+  if (proto_.visivel() || !pd->modo_mestre()) {
+    // Um pouco diferente, pois so desenha se for visivel.
+    return;
+  }
+	// desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+	glLoadName(Id());
+  const auto& cor = proto_.cor();
+  MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * pd->alpha_translucidos());
+
+  // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
+  glEnable(GL_NORMALIZE);
+	glPushMatrix();  // Original.
+  MontaMatriz(true);
+  DesenhaObjeto(pd);
+  glDisable(GL_NORMALIZE);
+  glPopMatrix();
+}
+
+void Entidade::DesenhaAura(ParametrosDesenho* pd) {
+  if (!proto_.visivel() && !pd->modo_mestre()) {
+    return;
+  }
+  if (!pd->desenha_aura() || !proto_.has_aura()) {
+    return;
+  }
+  glPushMatrix();
+  MontaMatriz(true  /*delta_voo*/);
+  const auto& cor = proto_.cor();
+  MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
+  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
+  glPopMatrix();
+}
+
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear) {
+  if (!proto_.visivel() && !pd->modo_mestre()) {
+    return;
+  }
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPushMatrix();
   MontaMatriz(false  /* solo */);
@@ -346,10 +385,6 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear) {
 
 const EntidadeProto& Entidade::Proto() const {
   return proto_;
-}
-
-bool Entidade::VisivelParaJogador() const {
-  return proto_.visivel();
 }
 
 }  // namespace ent

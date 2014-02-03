@@ -46,4 +46,6 @@ message Notificacao {
   optional ent.EntidadeProto entidade = 7;
   // Opcoes.
   optional ent.OpcoesProto opcoes = 8;
+  // Indica se o jogo esta em modo mestre ou nao.
+  optional bool modo_mestre = 9;
 }

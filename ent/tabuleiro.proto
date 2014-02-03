@@ -21,7 +21,7 @@ message IluminacaoDirecional {
 message Olho {
   optional Posicao alvo = 1;
   optional Posicao destino = 2;
-  optional float rotacao = 3;  // radianos.
+  optional float rotacao_rad = 3;  // radianos.
   optional float altura = 4;
   optional float raio = 5;
 }

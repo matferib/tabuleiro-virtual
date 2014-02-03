@@ -241,6 +241,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkbox_visibilidade">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Visível</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
