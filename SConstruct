@@ -9,6 +9,8 @@ env['QT_MOCHSUFFIX'] = '.cpp'
 env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
 env['QT_LIB'] = ['QtGui', 'QtOpenGL', 'QtCore', 'glut']
+env['FRAMEWORKPATH'] = ['/usr/local/lib/']
+env['FRAMEWORKS'] = ['QtOpenGL', 'QtGui', 'QtCore', 'OpenGL', 'GLUT']
 
 # protobuffer.
 env['PROTOCOUTDIR'] = './'

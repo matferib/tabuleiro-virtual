@@ -605,7 +605,7 @@ void Tabuleiro::DesenhaCena() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
-    entidade->Desenha(&parametros_desenho_, proto_.luz());
+    entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
 
