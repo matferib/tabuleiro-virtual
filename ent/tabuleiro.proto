@@ -1,0 +1,47 @@
+import "ent/entidade.proto";
+
+package ent;
+
+message IluminacaoDirecional {
+  // Cor da luz ambiente.
+  optional Cor cor = 1;
+  // Angulos em graus.
+  // Direcao da luz ambiente. 0 significa nascente, 90 significa luz a pino, 180 poente, 270 subsolo.
+  optional float inclinacao_graus = 2 [default=90.0];
+  // Posicao do eixo do sol (0 = norte, 90 = leste, 180 = sul, 270 = oeste).
+  optional float posicao_graus = 3 [default=0.0];
+}
+
+// O sistema de visualizacao funciona com dois pontos:
+// - Origem: de onde o olho olha.
+// - Alvo: para onde o olho olha.
+// Aqui a gente usa um sistema circular ao redor do alvo, a uma distancia horizontal de raio,
+// de uma determinada altura e rotacao.
+// A posicao do destino eh para onde o olho se desloca conforme selecao de entidades ou quadrados.
+message Olho {
+  optional Posicao alvo = 1;
+  optional Posicao destino = 2;
+  optional float rotacao_rad = 3;  // radianos.
+  optional float altura = 4;
+  optional float raio = 5;
+}
+
+// Opcoes pessoais.
+message OpcoesProto {
+  optional bool mostrar_fps = 1 [default=false];
+}
+
+// Mensagem enviada para os clientes de um jogo.
+message TabuleiroProto {
+  // Identificador do cliente.
+  optional int32 id_cliente = 1;
+  // Iluminacao do tabuleiro.
+  optional IluminacaoDirecional luz = 3;
+  // Textura do tabuleiro.
+  optional InfoTextura info_textura = 5;
+  // Tamanho do tabuleiro em quadrados.
+  optional uint32 largura = 4 [default=20];
+  optional uint32 altura = 6 [default=20];
+  // Entidades do tabuleiro.
+  repeated EntidadeProto entidade = 2;
+}
