@@ -13,8 +13,10 @@
 
 namespace ifg {
 namespace qt {
+
 namespace {
 
+/** Retorna o formato OpenGL de uma imagem, por exemplo: GL_BGRA. */
 int FormatoImagem(const QImage& imagem) {
   switch (imagem.format()) {
     // ffRRGGBB: retorna invertido para inverter no tipo ja que nao tem um GL_ARGB.
@@ -26,6 +28,7 @@ int FormatoImagem(const QImage& imagem) {
   }
 }
 
+/** Retorna o tipo OpenGL de uma imagem, por exemplo: GL_UNSIGNED_INT_8_8_8_8_REV. */
 int TipoImagem(const QImage& imagem) {
   switch (imagem.format()) {
     // O formato foi BGRA que invertido da ARGB.
@@ -121,14 +124,28 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
 void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
-    QFileInfo arquivo(QDir(DIR_TEXTURAS), info_textura.id().c_str());
-    QImageReader leitor_imagem(arquivo.absoluteFilePath());
-    QImage imagem = leitor_imagem.read();
-    if (imagem.isNull()) {
-      LOG(ERROR) << "Textura inválida: " << info_textura.id();
-      return;
+    if (info_textura.has_bits()) {
+      // A textura contem a propria informacao.
+      QImage imagem((uchar*)info_textura.bits().c_str(),
+                    info_textura.largura(),
+                    info_textura.altura(),
+                    static_cast<QImage::Format>(info_textura.formato()));
+      if (imagem.isNull()) {
+        LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString();
+        return;
+      }
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
+    } else {
+      // Textura local.
+      QFileInfo arquivo(QDir(DIR_TEXTURAS), info_textura.id().c_str());
+      QImageReader leitor_imagem(arquivo.absoluteFilePath());
+      QImage imagem = leitor_imagem.read();
+      if (imagem.isNull()) {
+        LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString();
+        return;
+      }
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
     }
-    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
   } else {
     ++info_interna->contador;
     VLOG(1) << "Textura '" << info_textura.id() << "' incrementada para " << info_interna->contador;
@@ -150,5 +167,5 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   }
 }
 
-}  // namespace qt 
+}  // namespace qt
 }  // namespace ifg

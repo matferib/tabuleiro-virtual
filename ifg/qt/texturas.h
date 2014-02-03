@@ -5,6 +5,8 @@
 #include "ent/entidade.h"
 #include "ntf/notificacao.h"
 
+class QImage;
+
 namespace ifg {
 namespace qt {
 
@@ -44,7 +46,7 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   std::unordered_map<std::string, InfoTexturaInterna*> texturas_;
 };
 
-}  // namespace qt 
+}  // namespace qt
 }  // namespace ifg
 
 #endif
