@@ -11,7 +11,11 @@
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QString>
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 
 #include "ent/tabuleiro.h"
 #include "ifg/qt/constantes.h"

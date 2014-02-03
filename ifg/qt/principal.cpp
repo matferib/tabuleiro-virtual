@@ -12,7 +12,11 @@
 #include <QTimer>
 
 // Glut.
+#if __APPLE__
+#include <GLUT/glut.h>
+#else
 #include <GL/glut.h>
+#endif
 
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"

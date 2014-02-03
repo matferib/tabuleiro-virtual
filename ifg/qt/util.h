@@ -1,6 +1,7 @@
 #ifndef IFG_QT_UTIL_H
 #define IFG_QT_UTIL_H
 
+#include <functional>
 #include <QObject>
 
 class QColor;
