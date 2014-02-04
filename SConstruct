@@ -50,9 +50,9 @@ ent_proto = env.Protoc(
 )
 
 # net
-cServidor = env.Object('net/servidor.cpp')
-cCliente = env.Object('net/cliente.cpp')
-cUtil = env.Object('net/util.cpp')
+cNetServidor = env.Object('net/servidor.cpp')
+cNetCliente = env.Object('net/cliente.cpp')
+cNetUtil = env.Object('net/util.cpp')
 
 # Notificacoes.
 cNtf = env.Object('ntf/notificacao.cpp')
@@ -67,7 +67,7 @@ env.Program(
 	source = [
 		'main.cpp',
     # net.
-    cServidor, cCliente, cUtil,
+    cNetServidor, cNetCliente, cNetUtil,
 		# notificacoes.
 		ntf_proto[0], cNtf, 
 		# interface QT

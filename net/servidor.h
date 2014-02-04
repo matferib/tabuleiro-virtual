@@ -15,6 +15,14 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
 
  private:
+  struct Cliente {
+    Cliente(boost::asio::ip::tcp::socket* socket) : socket(socket), a_receber_(0) {}
+    Cliente() : Cliente(nullptr) {}
+    std::unique_ptr<boost::asio::ip::tcp::socket> socket;
+    std::string buffer_notificacao;
+    int a_receber_;
+  };
+
   // Liga o servidor e chama EsperaCliente.
   void Liga();
   // Desliga o servidor.
@@ -27,16 +35,16 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   // Para cada cliente, chama RecebeDadosCliente e Nao bloca.
   void EsperaCliente();
   // Chama a funcao de recepcao de dados de forma assincrona para o cliente.
-  void RecebeDadosCliente(boost::asio::ip::tcp::socket* cliente);
+  void RecebeDadosCliente(Cliente* cliente);
   // Envia dados para o cliente.
   void EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados);
 
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
-  std::unique_ptr<boost::asio::ip::tcp::socket> cliente_;
-  std::vector<boost::asio::ip::tcp::socket*> clientes_pendentes_;
-  std::vector<boost::asio::ip::tcp::socket*> clientes_;
+  std::unique_ptr<Cliente> cliente_;
+  std::vector<Cliente*> clientes_pendentes_;
+  std::vector<Cliente*> clientes_;
   std::vector<char> buffer_;
 };
 
