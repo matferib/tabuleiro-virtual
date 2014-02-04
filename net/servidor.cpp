@@ -102,8 +102,7 @@ void Servidor::EsperaCliente() {
       VLOG(1) << "Recebendo cliente...";
       clientes_pendentes_.push_back(cliente_.release());
       cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
-      auto* notificacao = new ntf::Notificacao;
-      notificacao->set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
+      auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
       central_->AdicionaNotificacao(notificacao);
       EsperaCliente();
     } else {
@@ -113,9 +112,10 @@ void Servidor::EsperaCliente() {
 }
 
 void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
-  size_t bytes_enviados = cliente->send(boost::asio::buffer(CodificaDados(dados)));
-  if (bytes_enviados != dados.size()) {
-    LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
+  std::vector<char> dados_codificados(CodificaDados(dados));
+  size_t bytes_enviados = cliente->send(boost::asio::buffer(dados_codificados));
+  if (bytes_enviados != dados_codificados.size() ) {
+    LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados;
   } else {
     VLOG(2) << "Enviei " << dados.size() << " bytes pro cliente.";
   }
@@ -131,7 +131,8 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
         delete cliente;
       }
-      auto buffer_it = buffer_.begin();
+      auto buffer_inicio = buffer_.begin();
+      auto buffer_fim = buffer_inicio + bytes_recebidos;
       do {
         if (cliente->a_receber_ == 0) {
           if (bytes_recebidos < 4) {
@@ -141,12 +142,12 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
             return;
           }
           cliente->a_receber_ = DecodificaTamanho(buffer_);
-          buffer_it += 4;
+          buffer_inicio += 4;
         }
         VLOG(2) << "Recebi " << bytes_recebidos << " dados de um cliente";
-        if (buffer_.end() - buffer_it > cliente_->a_receber_) {
+        if (buffer_fim - buffer_inicio >= cliente_->a_receber_) {
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
-          cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_it, buffer_it + cliente->a_receber_);
+          cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_inicio + cliente->a_receber_);
           // Decodifica mensagem e poe na central.
           auto* notificacao = new ntf::Notificacao;
           if (!notificacao->ParseFromString(cliente->buffer_notificacao)) {
@@ -167,14 +168,14 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           // Processa localmente.
           central_->AdicionaNotificacao(notificacao);
           cliente->buffer_notificacao.clear();
-          buffer_it += cliente->a_receber_;
+          buffer_inicio += cliente->a_receber_;
         } else {
           // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
           // e sai.
-          cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_it, buffer_.end());
-          buffer_it = buffer_.end();
+          cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_fim);
+          buffer_inicio = buffer_fim;
         }
-      } while (buffer_it != buffer_.end());
+      } while (buffer_inicio != buffer_fim);
       RecebeDadosCliente(cliente);
     }
   );
