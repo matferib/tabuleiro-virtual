@@ -7,6 +7,7 @@
 
 #include "log/log.h"
 #include "net/cliente.h"
+#include "net/util.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
@@ -45,23 +46,6 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
 bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   EnviaDados(notificacao.SerializeAsString());
   return true;
-}
-
-// Codifica os dados, colocando tamanho na frente. O tamanho eh codificado de
-// forma LSB first.
-const std::vector<char> CodificaDados(const std::string& dados) {
-  size_t tam_dados = dados.size();
-  std::vector<char> ret(4);
-  ret[0] = static_cast<char>(tam_dados & 0xFF);
-  ret[1] = static_cast<char>((tam_dados & 0xFF00) >> 8);
-  ret[2] = static_cast<char>((tam_dados & 0xFF0000) >> 16);
-  ret[3] = static_cast<char>((tam_dados & 0xFF000000) >> 24);
-  ret.insert(ret.end(), dados.begin(), dados.end());
-  return ret;
-}
-
-int DecodificaTamanho(const std::vector<char>& buffer) {
-  return buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
 }
 
 void Cliente::EnviaDados(const std::string& dados) {
