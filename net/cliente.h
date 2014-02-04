@@ -22,7 +22,7 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   void Desconecta();
 
   // Recebe dados da conexao continuamente.
-  void RecebeDados(); 
+  void RecebeDados();
 
   // Envia dados pela conexao continuamente.
   void EnviaDados(const std::string& dados);
@@ -33,7 +33,9 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
-  std::vector<char> buffer_;
+  int a_receber_;  // bytes a receber.
+  std::vector<char> buffer_;  // Buffer de recepcao.
+  std::string buffer_notificacao_;  // Armazena o objeto lido.
 };
 
 }  // namespace net

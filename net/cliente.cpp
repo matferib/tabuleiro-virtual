@@ -18,8 +18,12 @@ Cliente::Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* 
   servico_io_ = servico_io;
   central_ = central;
   central_->RegistraReceptor(this);
+  // TODO fazer alguma verificacao disso.
   // tamanho maximo da mensagem: 1MB.
   buffer_.resize(1 * 1024 * 1024);
+  // Tamanho maximo da notificacao: 10MB.
+  buffer_notificacao_.reserve(10 * 1024 * 1024);
+  a_receber_ = 0;
 }
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -43,8 +47,25 @@ bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   return true;
 }
 
+// Codifica os dados, colocando tamanho na frente. O tamanho eh codificado de
+// forma LSB first.
+const std::vector<char> CodificaDados(const std::string& dados) {
+  size_t tam_dados = dados.size();
+  std::vector<char> ret(4);
+  ret[0] = static_cast<char>(tam_dados & 0xFF);
+  ret[1] = static_cast<char>((tam_dados & 0xFF00) >> 8);
+  ret[2] = static_cast<char>((tam_dados & 0xFF0000) >> 16);
+  ret[3] = static_cast<char>((tam_dados & 0xFF000000) >> 24);
+  ret.insert(ret.end(), dados.begin(), dados.end());
+  return ret;
+}
+
+int DecodificaTamanho(const std::vector<char>& buffer) {
+  return buffer[0] | (buffer[1] << 8) | (buffer[2] << 16) | (buffer[3] << 24);
+}
+
 void Cliente::EnviaDados(const std::string& dados) {
-  size_t bytes_enviados = socket_->send(boost::asio::buffer(dados.c_str(), dados.size()));
+  size_t bytes_enviados = socket_->send(boost::asio::buffer(CodificaDados(dados)));
   if (bytes_enviados != dados.size()) {
     LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
   } else {
@@ -113,15 +134,38 @@ void Cliente::RecebeDados() {
         Desconecta();
         return;
       }
-      // Recebe mensagem.
-      auto* notificacao = new ntf::Notificacao;
-      if (notificacao->ParseFromString(std::string(buffer_.begin(), buffer_.begin() + bytes_recebidos))) {
-        central_->AdicionaNotificacao(notificacao);
-      } else {
-        // TODO adicionar alguma coisa aqui.
-        LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor.";
-        delete notificacao;
-      }
+      auto buffer_it = buffer_.begin();
+      do {
+        if (a_receber_ == 0) {
+          if (bytes_recebidos < 4) {
+            LOG(ERROR) << "Erro recebendo tamanho de dados do servidor, bytes recebidos: " << bytes_recebidos;
+            Desconecta();
+            return;
+          }
+          a_receber_ = DecodificaTamanho(buffer_);
+          buffer_it += 4;
+        }
+        if (buffer_.end() - buffer_it > a_receber_) {
+          // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
+          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_it, buffer_it + a_receber_);
+          // Decodifica mensagem e poe na central.
+          auto* notificacao = new ntf::Notificacao;
+          if (!notificacao->ParseFromString(buffer_notificacao_)) {
+            LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor.";
+            delete notificacao;
+            Desconecta();
+            return;
+          }
+          central_->AdicionaNotificacao(notificacao);
+          buffer_notificacao_.clear();
+          buffer_it += a_receber_;
+        } else {
+          // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
+          // e sai.
+          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_it, buffer_.end());
+          buffer_it = buffer_.end();
+        }
+      } while (buffer_it != buffer_.end());
       RecebeDados();
     }
   );
