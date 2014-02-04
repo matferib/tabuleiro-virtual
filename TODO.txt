@@ -1,0 +1,14 @@
+- Texturas nao locais.
+- Versao MAC.
+- Versao Windows.
+- Adicionar hitpoints as entidades.
+- Gerar acoes de jogadores (magic missile, fireball etc).
+- Tamanho variavel de aura. 
+- Adicionar unit tests.
+- Selecao de porta pelo servidor.
+- Comandos de teclado.
+- Remover o abuso do endereco usando campo: nao_repassar na notificacao.
+- Adicionar mais dados a entidades (exemplo: hit points).
+- Tirar o evento de movimento ao liberar botao sem movimento.
+- Adicionar opcao de reiniciar o tabuleiro.
+- Tooltip.
