@@ -412,6 +412,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       if (info.dir().dirName() != DIR_TEXTURAS) {
         // Enviar a textura toda.
         PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+        VLOG(1) << "Preenchendo textura local.";
       }
     } else {
       proto_retornado->clear_info_textura();

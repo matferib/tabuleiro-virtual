@@ -125,18 +125,19 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
     if (info_textura.has_bits()) {
-      // A textura contem a propria informacao.
-      QImage imagem((uchar*)info_textura.bits().c_str(),
-                    info_textura.largura(),
+      VLOG(1) << "Carregando textura local.";
+      QImage imagem(info_textura.largura(),
                     info_textura.altura(),
                     static_cast<QImage::Format>(info_textura.formato()));
+      memcpy(imagem.bits(), info_textura.bits().c_str(), info_textura.bits().size());
+      //if (!imagem.loadFromData((const uchar*)info_textura.bits().c_str(), info_textura.bits().size())) {
       if (imagem.isNull()) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString();
         return;
       }
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
     } else {
-      // Textura local.
+      VLOG(1) << "Carregando textura comum.";
       QFileInfo arquivo(QDir(DIR_TEXTURAS), info_textura.id().c_str());
       QImageReader leitor_imagem(arquivo.absoluteFilePath());
       QImage imagem = leitor_imagem.read();
