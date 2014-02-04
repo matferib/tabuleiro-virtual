@@ -2,6 +2,7 @@
 
 #include "log/log.h"
 #include "net/servidor.h"
+#include "net/util.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
