@@ -69,7 +69,7 @@ env.Program(
     # net.
     cNetServidor, cNetCliente, cNetUtil,
 		# notificacoes.
-		ntf_proto[0], cNtf, 
+		ntf_proto[0], cNtf,
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
     # ent.

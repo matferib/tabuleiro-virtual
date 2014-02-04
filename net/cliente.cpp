@@ -109,7 +109,7 @@ bool Cliente::Ligado() const {
 }
 
 void Cliente::RecebeDados() {
-  LOG(INFO) << "Cliente::RecebeDados";
+  VLOG(2) << "Cliente::RecebeDados";
   socket_->async_receive(
     boost::asio::buffer(buffer_),
     [this](boost::system::error_code ec, std::size_t bytes_recebidos) {
@@ -118,7 +118,8 @@ void Cliente::RecebeDados() {
         Desconecta();
         return;
       }
-      auto buffer_it = buffer_.begin();
+      auto buffer_inicio = buffer_.begin();
+      auto buffer_fim = buffer_inicio + bytes_recebidos;
       do {
         if (a_receber_ == 0) {
           if (bytes_recebidos < 4) {
@@ -127,29 +128,37 @@ void Cliente::RecebeDados() {
             return;
           }
           a_receber_ = DecodificaTamanho(buffer_);
-          buffer_it += 4;
+          buffer_inicio += 4;
+          VLOG(2) << "Recebendo notificacao tamanho a receber: " << a_receber_ << ", total: " << bytes_recebidos;
+        } else {
+          VLOG(2) << "Continuando recepcao de notificao tamanho: " << a_receber_ << ", total: " << bytes_recebidos;
         }
-        if (buffer_.end() - buffer_it > a_receber_) {
+        if (buffer_fim - buffer_inicio >= a_receber_) {
+          VLOG(2) << "Recebendo notificacao completa";
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
-          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_it, buffer_it + a_receber_);
+          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_inicio, buffer_inicio + a_receber_);
           // Decodifica mensagem e poe na central.
           auto* notificacao = new ntf::Notificacao;
           if (!notificacao->ParseFromString(buffer_notificacao_)) {
-            LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor.";
+            LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " << buffer_notificacao_.size();
             delete notificacao;
             Desconecta();
             return;
           }
           central_->AdicionaNotificacao(notificacao);
           buffer_notificacao_.clear();
-          buffer_it += a_receber_;
+          buffer_inicio += a_receber_;
+          a_receber_ = 0;
         } else {
+          VLOG(2) << "Recebendo notificacao parcial";
           // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
           // e sai.
-          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_it, buffer_.end());
-          buffer_it = buffer_.end();
+          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_inicio, buffer_fim);
+          a_receber_ -= (buffer_fim - buffer_inicio);
+          buffer_inicio = buffer_fim;
         }
-      } while (buffer_it != buffer_.end());
+      } while (buffer_inicio != buffer_fim);
+      VLOG(2) << "Tudo recebido";
       RecebeDados();
     }
   );
