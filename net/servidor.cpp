@@ -121,6 +121,11 @@ void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const st
   }
 }
 
+void Servidor::DesconectaCliente(Cliente* cliente) {
+  clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
+  delete cliente;
+}
+
 void Servidor::RecebeDadosCliente(Cliente* cliente) {
   cliente->socket->async_receive(
     boost::asio::buffer(buffer_),
@@ -136,9 +141,8 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       do {
         if (cliente->a_receber_ == 0) {
           if (bytes_recebidos < 4) {
-            LOG(ERROR) << "Erro ParseFromString recebendo dados de um cliente, msg menor que tamanho.";
-            clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
-            delete cliente;
+            LOG(ERROR) << "Erro recebendo dados de um cliente, msg menor que tamanho.";
+            DesconectaCliente(cliente);
             return;
           }
           cliente->a_receber_ = DecodificaTamanho(buffer_);
@@ -149,12 +153,10 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
           cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_inicio + cliente->a_receber_);
           // Decodifica mensagem e poe na central.
-          auto* notificacao = new ntf::Notificacao;
+          std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
           if (!notificacao->ParseFromString(cliente->buffer_notificacao)) {
             LOG(ERROR) << "Erro ParseFromString recebendo dados de um cliente.";
-            delete notificacao;
-            clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
-            delete cliente;
+            DesconectaCliente(cliente);
             return;
           }
           // Envia a notificacao para os outros clientes.
@@ -166,16 +168,20 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
             EnviaDadosCliente(c->socket.get(), cliente->buffer_notificacao);
           }
           // Processa localmente.
-          central_->AdicionaNotificacao(notificacao);
+          central_->AdicionaNotificacao(notificacao.release());
           cliente->buffer_notificacao.clear();
           buffer_inicio += cliente->a_receber_;
+          cliente->a_receber_ = 0;
         } else {
+          VLOG(2) << "Recebendo notificacao parcial";
           // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
           // e sai.
           cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_fim);
+          cliente->a_receber_ -= (buffer_fim - buffer_inicio);
           buffer_inicio = buffer_fim;
         }
       } while (buffer_inicio != buffer_fim);
+      VLOG(2) << "Tudo recebido";
       RecebeDadosCliente(cliente);
     }
   );

@@ -38,6 +38,8 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   void RecebeDadosCliente(Cliente* cliente);
   // Envia dados para o cliente.
   void EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados);
+  // Desconecta um cliente do servidor, efetivamente destruindo sua estrutura e deletando o ponteiro.
+  void DesconectaCliente(Cliente* cliente);
 
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service* servico_io_;

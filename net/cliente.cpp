@@ -49,11 +49,12 @@ bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
 }
 
 void Cliente::EnviaDados(const std::string& dados) {
-  size_t bytes_enviados = socket_->send(boost::asio::buffer(CodificaDados(dados)));
-  if (bytes_enviados != dados.size()) {
+  auto dados_codificados(CodificaDados(dados));
+  size_t bytes_enviados = socket_->send(boost::asio::buffer(dados_codificados));
+  if (bytes_enviados != dados_codificados.size()) {
     LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
   } else {
-    LOG(INFO) << "Enviei " << dados.size() << " bytes pro servidor.";
+    VLOG(1) << "Enviei " << dados.size() << " bytes pro servidor.";
   }
 }
 void Cliente::Conecta(const std::string& endereco_str) {
