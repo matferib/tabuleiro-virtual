@@ -133,8 +133,8 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       if (ec) {
         // remove o cliente.
         VLOG(1) << "Removendo cliente: " << ec.message();
-        clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
-        delete cliente;
+        DesconectaCliente(cliente);
+        return;
       }
       auto buffer_inicio = buffer_.begin();
       auto buffer_fim = buffer_inicio + bytes_recebidos;

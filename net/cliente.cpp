@@ -98,8 +98,7 @@ void Cliente::Desconecta() {
   }
   socket_->close();
   socket_.reset();
-  auto* notificacao = new ntf::Notificacao;
-  notificacao->set_tipo(ntf::TN_DESCONECTADO);
+  auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
   central_->DesregistraReceptorRemoto(this);
   std::cout << "Desconectando..." << std::endl;
