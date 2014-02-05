@@ -117,7 +117,7 @@ void PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_
   }
   info_textura->set_altura(imagem.height());
   info_textura->set_largura(imagem.width());
-  info_textura->set_bits((const char*)imagem.bits());
+  info_textura->set_bits(imagem.constBits(), imagem.byteCount());
   info_textura->set_formato(imagem.format());
 }
 
