@@ -261,7 +261,8 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
     float dx = X() - pd->pos_olho().x();
     float dy = Y() - pd->pos_olho().y();
     float r = sqrt(pow(dx, 2) + pow(dy, 2));
-    float angulo = asin(dy / r) * RAD_PARA_GRAUS;
+    float angulo = (acos(dx / r) * RAD_PARA_GRAUS) - 90.0f;
+    LOG(INFO) << "Angulo: " << angulo << "exy: (" << X() << "," << Y() << "), oxy: (" << pd->pos_olho().x() << "," << pd->pos_olho().y() << ")";
     glRotated(angulo, 0, 0, 1.0);
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
