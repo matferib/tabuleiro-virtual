@@ -125,7 +125,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
   cliente->socket->async_receive(
     boost::asio::buffer(buffer_),
     [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
-      if (!ec) {
+      if (ec) {
         // remove o cliente.
         VLOG(1) << "Removendo cliente: " << ec.message();
         clientes_.erase(std::find(clientes_.begin(), clientes_.end(), cliente));
