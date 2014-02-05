@@ -505,6 +505,10 @@ void Tabuleiro::DesenhaCena() {
     alvo.x(), alvo.y(), alvo.z(),
     // up
     0, 0, 1.0);
+  Posicao* pos_olho = parametros_desenho_.mutable_pos_olho();;
+  pos_olho->set_x(olho_.alvo().x() + cosf(olho_.rotacao_rad()) * olho_.raio());
+  pos_olho->set_y(olho_.alvo().y() + sinf(olho_.rotacao_rad()) * olho_.raio());
+  pos_olho->set_z(olho_.altura());
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
@@ -677,13 +681,9 @@ void Tabuleiro::DesenhaCena() {
       entidades_ordenadas.push_back(entidade);
     }
     // TODO da pra salvar a posicao do olho em uma variavel a cada movimentacao de camera.
-    Posicao pos_olho;
-    pos_olho.set_x(olho_.alvo().x() + cosf(olho_.rotacao_rad()) * olho_.raio());
-    pos_olho.set_y(olho_.alvo().y() + sinf(olho_.rotacao_rad()) * olho_.raio());
-    pos_olho.set_z(olho_.altura());
-    std::sort(entidades_ordenadas.begin(), entidades_ordenadas.end(), [this, &pos_olho](Entidade* ee, Entidade* ed) -> bool {
-      double de = DistanciaQuadrado(ee->Proto().pos(), pos_olho);
-      double dd = DistanciaQuadrado(ed->Proto().pos(), pos_olho);
+    std::sort(entidades_ordenadas.begin(), entidades_ordenadas.end(), [this, pos_olho](Entidade* ee, Entidade* ed) -> bool {
+      double de = DistanciaQuadrado(ee->Proto().pos(), *pos_olho);
+      double dd = DistanciaQuadrado(ed->Proto().pos(), *pos_olho);
       return de > dd;
     });
     parametros_desenho_.set_alpha_translucidos(0.5);
@@ -940,21 +940,21 @@ void Tabuleiro::SelecionaEntidade(unsigned int id) {
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  entidade_selecionada_ = entidade; 
+  entidade_selecionada_ = entidade;
   quadrado_selecionado_ = -1;
   estado_ = ETAB_ENT_SELECIONADA;
 }
 
 void Tabuleiro::DeselecionaEntidade() {
-  entidade_selecionada_ = nullptr; 
+  entidade_selecionada_ = nullptr;
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
-  quadrado_selecionado_ = id_quadrado; 
+  quadrado_selecionado_ = id_quadrado;
   entidade_selecionada_ = nullptr;
-  estado_ = ETAB_QUAD_PRESSIONADO; 
+  estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
 void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z) {
@@ -965,7 +965,7 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
   *x = ((quad_x * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
        (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
   *y = ((quad_y * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
-       (TamanhoY() * TAMANHO_LADO_QUADRADO_2); 
+       (TamanhoY() * TAMANHO_LADO_QUADRADO_2);
   *z = 0;
 }
 

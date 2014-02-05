@@ -171,7 +171,7 @@ void Entidade::Atualiza() {
 
 unsigned int Entidade::Id() const { return proto_.id(); }
 
-void Entidade::MovePara(double x, double y, double z) { 
+void Entidade::MovePara(double x, double y, double z) {
   auto* p = proto_.mutable_pos();
   p->set_x(x);
   p->set_y(y);
@@ -179,7 +179,7 @@ void Entidade::MovePara(double x, double y, double z) {
   proto_.clear_destino();
 }
 
-void Entidade::MoveDelta(double dx, double dy, double dz) { 
+void Entidade::MoveDelta(double dx, double dy, double dz) {
   auto* p = proto_.mutable_pos();
   p->set_x(p->x() + dx);
   p->set_y(p->y() + dy);
@@ -187,33 +187,33 @@ void Entidade::MoveDelta(double dx, double dy, double dz) {
   proto_.clear_destino();
 }
 
-void Entidade::Destino(const EntidadeProto& proto) { 
+void Entidade::Destino(const EntidadeProto& proto) {
   proto_.mutable_destino()->CopyFrom(proto.destino());
 }
 
 int Entidade::PontosVida() const {
-	return 0;
+  return 0;
 }
 
 void Entidade::DanoCura(int pontos_vida) {
 }
 
-double Entidade::X() const { 
-	return proto_.pos().x(); 
+double Entidade::X() const {
+  return proto_.pos().x();
 }
-double Entidade::Y() const { 
-	return proto_.pos().y(); 
+double Entidade::Y() const {
+  return proto_.pos().y();
 }
-double Entidade::Z() const { 
-	return proto_.pos().z(); 
+double Entidade::Z() const {
+  return proto_.pos().z();
 }
 
 float Entidade::DeltaVoo() const {
   return angulo_disco_voo_ > 0 ? sinf(angulo_disco_voo_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::MontaMatriz(bool usar_delta_voo) const {
-	glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd) const {
+  glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
 }
@@ -230,21 +230,20 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
   glPushMatrix();  // Original.
-  MontaMatriz(true);
+  MontaMatriz(true, *pd);
   DesenhaObjeto(pd);
 
   // Desenha a parte de solo: disco de selecao e sombra.
   glPopMatrix();
   if (pd->entidade_selecionada()) {
     // Volta pro chao.
-	  glPushMatrix();
-    MontaMatriz(false);
+    glPushMatrix();
+    MontaMatriz(false, *pd);
     MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
     glPopMatrix();
   }
-  
   glDisable(GL_NORMALIZE);
 }
 
@@ -259,10 +258,16 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
     // Moldura da textura: achatado em Y.
     glPushMatrix();
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0f));
+    float dx = X() - pd->pos_olho().x();
+    float dy = Y() - pd->pos_olho().y();
+    float r = sqrt(pow(dx, 2) + pow(dy, 2));
+    float angulo = asin(dy / r) * RAD_PARA_GRAUS;
+    glRotated(angulo, 0, 0, 1.0);
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // desenha a tela onde a textura será desenhada face para o sul.
+#if 0
     GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
         texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
     if (id_textura != GL_INVALID_VALUE) {
@@ -293,6 +298,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
       glPopMatrix();
       glDisable(GL_TEXTURE_2D);
     }
+#endif
   } else {
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glPushMatrix();
@@ -311,7 +317,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   glPushMatrix();
-  MontaMatriz(true  /*usar_delta_voo*/);
+  MontaMatriz(true  /*usar_delta_voo*/, *pd);
   // Um pouco acima do objeto.
   glTranslated(0, 0, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
@@ -347,7 +353,7 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
 	glPushMatrix();  // Original.
-  MontaMatriz(true);
+  MontaMatriz(true, *pd);
   DesenhaObjeto(pd);
   glDisable(GL_NORMALIZE);
   glPopMatrix();
@@ -361,7 +367,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
     return;
   }
   glPushMatrix();
-  MontaMatriz(true  /*delta_voo*/);
+  MontaMatriz(true  /*delta_voo*/, *pd);
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
   glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
@@ -374,7 +380,7 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear) {
   }
   glEnable(GL_POLYGON_OFFSET_FILL);
   glPushMatrix();
-  MontaMatriz(false  /* solo */);
+  MontaMatriz(false  /* solo */, *pd);
   glMultMatrixf(matriz_shear);
   glTranslated(0, 0, Z() + DeltaVoo());
   glPolygonOffset(-0.02f, -0.02f);

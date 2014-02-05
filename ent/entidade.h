@@ -77,7 +77,7 @@ class Entidade {
   /** Desenha aura da entidade. */
   void DesenhaAura(ParametrosDesenho* pd);
 
-  /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */ 
+  /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */
   void DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear);
 
   /** Retorna o proto da entidade. */
@@ -99,7 +99,7 @@ class Entidade {
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   */
-  void MontaMatriz(bool usar_delta_voo) const;
+  void MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd) const;
 
  private:
   EntidadeProto proto_;
