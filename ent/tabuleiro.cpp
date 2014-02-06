@@ -682,30 +682,23 @@ void Tabuleiro::DesenhaCena() {
 
   // Transparencias: deve ser desenhado do mais longe pro mais perto.
   if (parametros_desenho_.transparencias()) {
-    std::vector<Entidade*> entidades_ordenadas;
-    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second;
-      entidades_ordenadas.push_back(entidade);
-    }
-    // TODO da pra salvar a posicao do olho em uma variavel a cada movimentacao de camera.
-    std::sort(entidades_ordenadas.begin(), entidades_ordenadas.end(), [this, pos_olho](Entidade* ee, Entidade* ed) -> bool {
-      double de = DistanciaQuadrado(ee->Proto().pos(), *pos_olho);
-      double dd = DistanciaQuadrado(ed->Proto().pos(), *pos_olho);
-      return de > dd;
-    });
+    glDepthMask(false);
     parametros_desenho_.set_alpha_translucidos(0.5);
     glPushName(0);
-    for (auto* entidade : entidades_ordenadas) {
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      Entidade* entidade = it->second;
       parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
     glPopName();
     parametros_desenho_.clear_alpha_translucidos();
     if (parametros_desenho_.desenha_aura()) {
-      for (auto* entidade : entidades_ordenadas) {
+      for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+        Entidade* entidade = it->second;
         entidade->DesenhaAura(&parametros_desenho_);
       }
     }
+    glDepthMask(true);
     glDisable(GL_BLEND);
   } else {
     // Desenha os translucidos de forma solida para picking.
