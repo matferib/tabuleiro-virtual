@@ -1,7 +1,12 @@
 #include <cmath>
 #include <stdexcept>
+#if __APPLE__
+#include <OpenGL/gl.h>
+#include <GLUT/glut.h>
+#else
 #include <GL/gl.h>
 #include <GL/glut.h>
+#endif
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
