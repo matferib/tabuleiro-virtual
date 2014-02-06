@@ -4,7 +4,6 @@ env['QTDIR'] = '/usr'
 env.Tool('qt')
 
 # qt
-env['QT_LIB'] = 'QtGui'
 env['QT_MOCHSUFFIX'] = '.cpp'
 env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
