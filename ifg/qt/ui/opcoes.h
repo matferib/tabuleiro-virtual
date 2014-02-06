@@ -27,6 +27,7 @@ class Ui_DialogoOpcoes
 public:
     QDialogButtonBox *buttonBox;
     QCheckBox *checkbox_mostrar_fps;
+    QCheckBox *checkbox_texturas_sempre_de_frente;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
@@ -41,6 +42,9 @@ public:
         checkbox_mostrar_fps = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_mostrar_fps->setObjectName(QString::fromUtf8("checkbox_mostrar_fps"));
         checkbox_mostrar_fps->setGeometry(QRect(10, 20, 271, 22));
+        checkbox_texturas_sempre_de_frente = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_texturas_sempre_de_frente->setObjectName(QString::fromUtf8("checkbox_texturas_sempre_de_frente"));
+        checkbox_texturas_sempre_de_frente->setGeometry(QRect(10, 50, 321, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -53,6 +57,7 @@ public:
     {
         ifg__qt__DialogoOpcoes->setWindowTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "Dialog", 0, QApplication::UnicodeUTF8));
         checkbox_mostrar_fps->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mostrar Tempo de Desenho da cena", 0, QApplication::UnicodeUTF8));
+        checkbox_texturas_sempre_de_frente->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Texturas de Entidades Sempre de frente para c\303\242mera", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

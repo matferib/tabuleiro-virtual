@@ -257,31 +257,40 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
     // Constroi a moldura e aplica a textura.
     // tijolo da base (altura TAMANHO_LADO_QUADRADO / 10).
     glPushMatrix();
-    glScalef(0.8f, 0.8f, 0.1f);
+    glScalef(0.8f, 0.8f, (TAMANHO_LADO_QUADRADO / 10.0f));
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // Moldura da textura: achatado em Y.
     glPushMatrix();
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0f));
-    float dx = X() - pd->pos_olho().x();
-    float dy = Y() - pd->pos_olho().y();
-    float r = sqrt(pow(dx, 2) + pow(dy, 2));
-    float angulo = (acos(dx / r) * RAD_PARA_GRAUS) - 90.0f;
-    LOG(INFO) << "Angulo: " << angulo << "exy: (" << X() << "," << Y() << "), oxy: (" << pd->pos_olho().x() << "," << pd->pos_olho().y() << ")";
-    glRotated(angulo, 0, 0, 1.0);
+    double angulo = 0;
+    if (pd->texturas_sempre_de_frente()) {
+      double dx = X() - pd->pos_olho().x();
+      double dy = Y() - pd->pos_olho().y();
+      double r = sqrt(pow(dx, 2) + pow(dy, 2));
+      angulo = (acos(dx / r) * RAD_PARA_GRAUS);
+      if (dy < 0) {
+        // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
+        // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
+        angulo = -angulo;
+      }
+      glRotated(angulo - 90.0f, 0, 0, 1.0);
+    }
+    glPushMatrix();
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
     // desenha a tela onde a textura será desenhada face para o sul.
-#if 0
     GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
         texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
     if (id_textura != GL_INVALID_VALUE) {
       glEnable(GL_TEXTURE_2D);
       glBindTexture(GL_TEXTURE_2D, id_textura);
-
       glNormal3f(0.0f, -1.0f, 0.0f);
       glPushMatrix();
+      if (pd->texturas_sempre_de_frente()) {
+        glRotated(angulo - 90.0f, 0, 0, 1.0);
+      }
       glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
       MudaCor(1.0f, 1.0f, 1.0f, pd->has_alpha_translucidos() ? pd->alpha_translucidos() : 1.0f);
       glBegin(GL_QUADS);
@@ -304,7 +313,6 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
       glPopMatrix();
       glDisable(GL_TEXTURE_2D);
     }
-#endif
   } else {
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glPushMatrix();

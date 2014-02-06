@@ -42,6 +42,19 @@
     <string>Mostrar Tempo de Desenho da cena</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkbox_texturas_sempre_de_frente">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>50</y>
+     <width>321</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Texturas de Entidades Sempre de frente para câmera</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

@@ -453,9 +453,13 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
 
   // fps.
   gerador.checkbox_mostrar_fps->setCheckState(opcoes_proto.mostrar_fps() ? Qt::Checked : Qt::Unchecked);
+  // Texturas de frente.
+  gerador.checkbox_texturas_sempre_de_frente->setCheckState(opcoes_proto.texturas_sempre_de_frente() ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, proto_retornado] {
-      proto_retornado->set_mostrar_fps(gerador.checkbox_mostrar_fps->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_mostrar_fps(gerador.checkbox_mostrar_fps->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_texturas_sempre_de_frente(
+        gerador.checkbox_texturas_sempre_de_frente->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

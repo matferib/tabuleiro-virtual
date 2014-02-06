@@ -208,6 +208,7 @@ public:
 
         checkbox_visibilidade = new QCheckBox(horizontalLayoutWidget_7);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
+        checkbox_visibilidade->setEnabled(true);
 
         horizontalLayout_9->addWidget(checkbox_visibilidade);
 
