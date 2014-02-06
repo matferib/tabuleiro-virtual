@@ -107,7 +107,7 @@ message ParametrosDesenho {
   // Alpha para translucidos.
   optional float alpha_translucidos = 15 [default=0.5];
   // Caso verdadeiro, a textura sempre ficara de frente para a camera.
-  optional bool textura_sempre_de_frente = 16 [default=true];
+  optional bool texturas_sempre_de_frente = 16 [default=true];
   // Posicao do olho.
   optional Posicao pos_olho = 17;
 }

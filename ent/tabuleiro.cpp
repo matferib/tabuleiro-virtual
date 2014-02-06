@@ -161,6 +161,7 @@ void Tabuleiro::Desenha() {
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_fps(opcoes_.mostrar_fps());
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   DesenhaCena();
 }
 
