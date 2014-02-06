@@ -680,7 +680,9 @@ void Tabuleiro::DesenhaCena() {
     glDisable(GL_STENCIL_TEST);
   }
 
-  // Transparencias: deve ser desenhado do mais longe pro mais perto.
+  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam o buffer
+  // de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro, a ordem nao importa.
+  // Ainda assim, o z buffer eh necessario para comparar o objeto transparentes com nao transparentes.
   if (parametros_desenho_.transparencias()) {
     glDepthMask(false);
     parametros_desenho_.set_alpha_translucidos(0.5);
