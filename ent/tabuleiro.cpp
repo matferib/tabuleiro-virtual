@@ -917,6 +917,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     SelecionaEntidade(id);
     auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
     n->set_modo_mestre(modo_mestre_);
+    n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
     n->mutable_entidade()->CopyFrom(entidade_selecionada_->Proto());
     central_->AdicionaNotificacao(n);
   } else {
@@ -974,6 +975,7 @@ void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double
 ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
+  tabuleiro->set_id_cliente(id_cliente_);
   tabuleiro->mutable_luz()->CopyFrom(proto_.luz());
   if (proto_.has_info_textura()) {
     tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());

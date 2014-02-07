@@ -63,7 +63,7 @@ bool Servidor::Ligado() const {
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
-    cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
+    proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
     aceitador_.reset(new boost::asio::ip::tcp::acceptor(
         *servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), 11223)));
     central_->RegistraReceptorRemoto(this);
@@ -97,11 +97,11 @@ void Servidor::Desliga() {
 }
 
 void Servidor::EsperaCliente() {
-  aceitador_->async_accept(*cliente_->socket.get(), [this](boost::system::error_code ec) {
+  aceitador_->async_accept(*proximo_cliente_->socket.get(), [this](boost::system::error_code ec) {
     if (!ec) {
       VLOG(1) << "Recebendo cliente...";
-      clientes_pendentes_.push_back(cliente_.release());
-      cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
+      clientes_pendentes_.push_back(proximo_cliente_.release());
+      proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
       auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
       central_->AdicionaNotificacao(notificacao);
       EsperaCliente();
@@ -136,6 +136,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         DesconectaCliente(cliente);
         return;
       }
+      VLOG(2) << "Recebi " << bytes_recebidos << " dados de um cliente";
       auto buffer_inicio = buffer_.begin();
       auto buffer_fim = buffer_inicio + bytes_recebidos;
       do {
@@ -147,9 +148,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           }
           cliente->a_receber_ = DecodificaTamanho(buffer_);
           buffer_inicio += 4;
+          VLOG(2) << "A receber: " << cliente->a_receber_;
         }
-        VLOG(2) << "Recebi " << bytes_recebidos << " dados de um cliente";
-        if (buffer_fim - buffer_inicio >= cliente_->a_receber_) {
+        VLOG(2) << "fim - inicio: " << (buffer_fim - buffer_inicio);
+        if ((buffer_fim - buffer_inicio) >= cliente->a_receber_) {
+          VLOG(2) << "Recebendo notificacao inteira";
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
           cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_inicio + cliente->a_receber_);
           // Decodifica mensagem e poe na central.
