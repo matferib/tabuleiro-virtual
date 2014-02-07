@@ -141,7 +141,8 @@ void Cliente::RecebeDados() {
           // Decodifica mensagem e poe na central.
           auto* notificacao = new ntf::Notificacao;
           if (!notificacao->ParseFromString(buffer_notificacao_)) {
-            LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " << buffer_notificacao_.size();
+            LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: "
+                       << buffer_notificacao_.size();
             delete notificacao;
             Desconecta();
             return;

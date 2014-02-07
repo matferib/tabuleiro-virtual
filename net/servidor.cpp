@@ -151,7 +151,6 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           buffer_inicio += 4;
           VLOG(2) << "A receber: " << cliente->a_receber_;
         }
-        VLOG(2) << "fim - inicio: " << (buffer_fim - buffer_inicio);
         if ((buffer_fim - buffer_inicio) >= cliente->a_receber_) {
           VLOG(2) << "Recebendo notificacao inteira";
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
