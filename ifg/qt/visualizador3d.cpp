@@ -84,7 +84,7 @@ const ent::Cor CorParaProto(const QColor& qcor) {
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
   QString estilo = estilo_fmt.arg(cor.red()).arg(cor.green()).arg(cor.blue());
-  VLOG(1) << "Retornando estilo: " << estilo.toStdString();
+  VLOG(3) << "Retornando estilo: " << estilo.toStdString();
   return estilo;
 }
 
@@ -246,28 +246,28 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     const ntf::Notificacao& notificacao) {
-  auto* proto = new ent::EntidadeProto(notificacao.entidade());
+  auto* proto_retornado = new ent::EntidadeProto(notificacao.entidade());
   ifg::qt::Ui::DialogoEntidade gerador;
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
   // ID.
   QString id_str;
-  gerador.campo_id->setText(id_str.setNum(proto->id()));
+  gerador.campo_id->setText(id_str.setNum(proto_retornado->id()));
   // TODO So habilita para mestre.
-  gerador.checkbox_visibilidade->setCheckState(proto->visivel() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_visibilidade->setCheckState(proto_retornado->visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
     gerador.checkbox_visibilidade->setEnabled(false);
   }
   // Tamanho.
-  gerador.slider_tamanho->setSliderPosition(proto->tamanho());
+  gerador.slider_tamanho->setSliderPosition(proto_retornado->tamanho());
   gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
   lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador] () {
     gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
   });
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
-  ent_cor.mutable_cor()->CopyFrom(proto->cor());
-  gerador.botao_cor->setStyleSheet(CorParaEstilo(proto->cor()));
+  ent_cor.mutable_cor()->CopyFrom(proto_retornado->cor());
+  gerador.botao_cor->setStyleSheet(CorParaEstilo(proto_retornado->cor()));
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
@@ -279,9 +279,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   });
   // Cor da luz.
   ent::EntidadeProto luz_cor;
-  luz_cor.mutable_cor()->CopyFrom(proto->luz().cor());
-  gerador.botao_luz->setStyleSheet(CorParaEstilo(proto->luz().cor()));
-  if (proto->has_luz()) {
+  luz_cor.mutable_cor()->CopyFrom(proto_retornado->luz().cor());
+  gerador.botao_luz->setStyleSheet(CorParaEstilo(proto_retornado->luz().cor()));
+  if (proto_retornado->has_luz()) {
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   } else {
     gerador.checkbox_luz->setCheckState(Qt::Unchecked);
@@ -297,7 +297,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   });
   // Textura do objeto.
-  gerador.linha_textura->setText(proto->info_textura().id().c_str());
+  gerador.linha_textura->setText(proto_retornado->info_textura().id().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
       [this, dialogo, &gerador, &luz_cor ] () {
     QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
@@ -308,53 +308,60 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     gerador.linha_textura->setText(file_str);
   });
   // Aura.
-  gerador.checkbox_aura->setCheckState(proto->has_aura() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_aura->setCheckState(proto_retornado->has_aura() ? Qt::Checked : Qt::Unchecked);
   // Altura.
-  gerador.checkbox_voadora->setCheckState(proto->pos().z() > 0 ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_voadora->setCheckState(proto_retornado->pos().z() > 0 ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
-                 [this, dialogo, &gerador, &proto, &ent_cor, &luz_cor] () {
-    proto->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
-    proto->mutable_cor()->Swap(ent_cor.mutable_cor());
-    proto->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+                 [this, notificacao, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
+    proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
+    proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
-      proto->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
+      proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
     } else {
-      proto->clear_luz();
+      proto_retornado->clear_luz();
     }
     if (!gerador.linha_textura->text().isEmpty()) {
       QFileInfo info(gerador.linha_textura->text());
-      proto->mutable_info_textura()->set_id(info.fileName().toStdString());
       // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
       // mesmo nome isso vai falhar.
       if (info.dir().dirName() != DIR_TEXTURAS) {
+        QString id = QString::number(notificacao.tabuleiro().id_cliente());
+        id.append(":");
+        id.append(info.fileName());
+        proto_retornado->mutable_info_textura()->set_id(id.toStdString());
+        VLOG(1) << "Preenchendo textura local: " << id.toStdString();
+        // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
-        PreencheProtoTextura(info, proto->mutable_info_textura());
+        PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+      } else {
+        proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
     } else {
-      proto->clear_info_textura();
+      proto_retornado->clear_info_textura();
     }
     if (gerador.checkbox_aura->checkState() == Qt::Checked) {
-      proto->set_aura(4);  // TODO
+      proto_retornado->set_aura(4);  // TODO
     } else {
-      proto->clear_aura();
+      proto_retornado->clear_aura();
     }
     if (gerador.checkbox_voadora->checkState() == Qt::Checked) {
-      proto->mutable_pos()->set_z(1.5f);  // TODO
+      proto_retornado->mutable_pos()->set_z(1.5f);  // TODO
     } else {
-      proto->mutable_pos()->set_z(0.0f);
+      proto_retornado->mutable_pos()->set_z(0.0f);
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
   // Cancelar.
-  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto] {
-      delete proto;
-      proto = nullptr;
+  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
+      delete proto_retornado;
+      proto_retornado = nullptr;
   });
   dialogo->exec();
   delete dialogo;
-  return proto;
+  return proto_retornado;
 }
 
 
@@ -403,7 +410,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   gerador.linha_altura->setInputMask("009"); // Permite tamanho ate 999, minimo de 1 digito.
 
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(gerador.botoes, SIGNAL(accepted()), [this, dialogo, &gerador, &cor_proto, proto_retornado] {
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), 
+                 [this, tab_proto, dialogo, &gerador, &cor_proto, proto_retornado] {
     proto_retornado->mutable_luz()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
@@ -413,9 +421,16 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
       // mesmo nome isso vai falhar.
       if (info.dir().dirName() != DIR_TEXTURAS) {
+        QString id = QString::number(tab_proto.id_cliente());
+        id.append(":");
+        id.append(info.fileName());
+        proto_retornado->mutable_info_textura()->set_id(id.toStdString());
+        VLOG(1) << "Preenchendo textura local: " << id.toStdString();
+        // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
         PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
-        VLOG(1) << "Preenchendo textura local.";
+      } else {
+        proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
     } else {
       proto_retornado->clear_info_textura();
