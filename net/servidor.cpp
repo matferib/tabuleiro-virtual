@@ -113,9 +113,10 @@ void Servidor::EsperaCliente() {
 
 void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
   std::vector<char> dados_codificados(CodificaDados(dados));
-  size_t bytes_enviados = cliente->send(boost::asio::buffer(dados_codificados));
-  if (bytes_enviados != dados_codificados.size() ) {
-    LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados;
+  //size_t bytes_enviados = cliente->send(boost::asio::buffer(dados_codificados));
+  size_t bytes_enviados = boost::asio::write(*cliente, boost::asio::buffer(dados_codificados));
+  if (bytes_enviados != dados_codificados.size()) {
+    LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados << " de " << dados_codificados.size();
   } else {
     VLOG(2) << "Enviei " << dados.size() << " bytes pro cliente.";
   }
