@@ -50,7 +50,8 @@ bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
 
 void Cliente::EnviaDados(const std::string& dados) {
   auto dados_codificados(CodificaDados(dados));
-  size_t bytes_enviados = socket_->send(boost::asio::buffer(dados_codificados));
+  // Tem que usar write ao inves de send pra mandar tudo.
+  size_t bytes_enviados = boost::asio::write(*socket_, boost::asio::buffer(dados_codificados));
   if (bytes_enviados != dados_codificados.size()) {
     LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
   } else {
