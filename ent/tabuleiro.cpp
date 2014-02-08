@@ -1,5 +1,7 @@
 #include <algorithm>
+#if !WIN32
 #include <boost/timer/timer.hpp>
+#endif
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -484,15 +486,16 @@ void Tabuleiro::InicializaGL() {
 
 // privadas
 void Tabuleiro::DesenhaCena() {
+#if !WIN32
   boost::timer::cpu_timer timer;
   if (parametros_desenho_.desenha_fps()) {
     timer.start();
   }
+#endif
 
 
   glEnable(GL_DEPTH_TEST);
   glClearColor(proto_.luz().cor().r(), proto_.luz().cor().g(), proto_.luz().cor().b(), proto_.luz().cor().a());
-  //boost::timer::auto_cpu_timer o1("o1: %w\n");
   if (parametros_desenho_.limpa_fundo()) {
     glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -598,7 +601,6 @@ void Tabuleiro::DesenhaCena() {
   glPopMatrix();
   glDisable(GL_TEXTURE_2D);
 
-  //boost::timer::auto_cpu_timer o3("o3: %w\n");
   if (parametros_desenho_.desenha_grade()) {
     glEnable(GL_POLYGON_OFFSET_FILL);
     // TODO transofrmar offsets em constantes.
@@ -715,9 +717,12 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_fps()) {
     glFlush();
-    //usleep(500000);  // testa o timer.
+#if WIN32
+    std::string tempo_str = "NAO_IMPL";
+#else
     timer.stop();
     std::string tempo_str = timer.format(boost::timer::default_places, "%w");
+#endif
     // Modo 2d.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
