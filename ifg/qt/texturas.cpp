@@ -7,9 +7,12 @@
 #include <OpenGL/glu.h>
 #else
 #include <GL/gl.h>
+#if WIN32
+#include <GL/glext.h>
+#else
 #include <GL/glu.h>
 #endif
-
+#endif
 #include "ent/entidade.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/texturas.h"
