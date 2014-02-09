@@ -147,6 +147,7 @@ void Cliente::RecebeDados() {
             Desconecta();
             return;
           }
+          notificacao->set_local(false);
           central_->AdicionaNotificacao(notificacao);
           buffer_notificacao_.clear();
           buffer_inicio += a_receber_;

@@ -319,9 +319,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       entidade->Atualiza(proto);
-      if (notificacao.has_endereco()) {
+      if (notificacao.local()) {
+        // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando infinitamente.
         auto* n_remota = new ntf::Notificacao(notificacao);
-        n_remota->clear_endereco();
         central_->AdicionaNotificacaoRemota(n_remota);
       }
       return true;
@@ -344,9 +344,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
       DeserializaPropriedades(notificacao.tabuleiro());
-      if (notificacao.has_endereco()) {
+      if (notificacao.local()) {
+        // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando infinitamente.
         auto* n_remota = new ntf::Notificacao(notificacao);
-        n_remota->clear_endereco();
         central_->AdicionaNotificacaoRemota(n_remota);
       }
       return true;

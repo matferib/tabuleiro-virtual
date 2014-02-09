@@ -50,4 +50,6 @@ message Notificacao {
   optional ent.InfoTextura info_textura = 9;
   // Indica se o jogo esta em modo mestre ou nao.
   optional bool modo_mestre = 10;
+  // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
+  optional bool local = 11 [default=true];
 }

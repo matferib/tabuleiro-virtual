@@ -171,6 +171,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
             EnviaDadosCliente(c->socket.get(), cliente->buffer_notificacao);
           }
           // Processa localmente.
+          notificacao->set_local(false);
           central_->AdicionaNotificacao(notificacao.release());
           cliente->buffer_notificacao.clear();
           buffer_inicio += cliente->a_receber_;
