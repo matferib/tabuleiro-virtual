@@ -1,7 +1,5 @@
 #include <algorithm>
-#if !WIN32
 #include <boost/timer/timer.hpp>
-#endif
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -486,12 +484,10 @@ void Tabuleiro::InicializaGL() {
 
 // privadas
 void Tabuleiro::DesenhaCena() {
-#if !WIN32
   boost::timer::cpu_timer timer;
   if (parametros_desenho_.desenha_fps()) {
     timer.start();
   }
-#endif
 
 
   glEnable(GL_DEPTH_TEST);
@@ -717,12 +713,8 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_fps()) {
     glFlush();
-#if WIN32
-    std::string tempo_str = "NAO_IMPL";
-#else
     timer.stop();
     std::string tempo_str = timer.format(boost::timer::default_places, "%w");
-#endif
     // Modo 2d.
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
