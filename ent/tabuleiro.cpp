@@ -342,6 +342,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   }
 }
 
+void Tabuleiro::TrataTeclaPressionada(int tecla) {
+  switch (tecla) {
+    default:
+      ;
+  }
+}
+
 void Tabuleiro::TrataRodela(int delta) {
   // move o olho no eixo Z de acordo com o eixo Y do movimento
   float olho_raio = olho_.raio();

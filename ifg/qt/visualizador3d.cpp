@@ -50,7 +50,12 @@ ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
 }
 
 int MapeiaTecla(const QKeyEvent& evento) {
-  return evento.key();
+  switch (evento.key()) {
+    case Qt::Key_Delete:
+      return evento.key();
+    default:
+      return -1;
+  }
 }
 
 // Converte uma cor de float [0..1.0] para inteiro [0.255].
@@ -140,6 +145,7 @@ Visualizador3d::Visualizador3d(
     :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
+  setFocusPolicy(Qt::StrongFocus);
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -222,9 +228,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  event->ignore();
-  //int tecla = event->key();
-  //tabuleiro_->TrataTeclaPressionada(MapeiaTecla(event->key()));
+  switch (event->key()) {
+    case Qt::Key_Delete:
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
+      return;
+    default:
+      event->ignore();
+  }
 }
 
 // mouse

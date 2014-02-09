@@ -26,6 +26,11 @@ enum botao_e {
   BOTAO_MEIO
 };
 
+/** teclas reconhecidas. Mesmo valor do QT para simplificar. */
+enum tecla_e {
+  TECLA_DEL = 0x01000007,
+};
+
 /** Estados possiveis do tabuleiro. */
 enum etab_t {
   ETAB_OCIOSO,
@@ -71,6 +76,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+
+  /** Trata teclado. */
+  void TrataTeclaPressionada(int tecla);
 
   /** trata evento de rodela de mouse. */
   void TrataRodela(int delta);
