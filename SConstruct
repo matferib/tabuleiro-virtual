@@ -46,7 +46,7 @@ elif sistema == 'apple':
 else:
   env['CPPPATH'] += ['./']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
-  env['CXXFLAGS'] = ['-Wall', '-O2', '-std=c++11']
+  env['CXXFLAGS'] = ['-Wall', '-g', '-std=c++11']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
 # Configuracoes locais.

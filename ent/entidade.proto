@@ -55,6 +55,8 @@ message EntidadeProto {
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
   // um GLuint para permitir realização da operação de picking no 3d.
   optional uint32 id = 2;
+  // Pontos de vida da entidade.
+  optional int32 pontos_vida = 11;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Posicao atual da entidade.

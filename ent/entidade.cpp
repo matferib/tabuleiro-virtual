@@ -197,7 +197,7 @@ void Entidade::Destino(const EntidadeProto& proto) {
 }
 
 int Entidade::PontosVida() const {
-  return 0;
+  return proto_.pontos_vida();
 }
 
 void Entidade::DanoCura(int pontos_vida) {
@@ -381,7 +381,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
     return;
   }
   glPushMatrix();
-  glTranslated(X(), Y(), DeltaVoo());
+  glTranslated(X(), Y(), Z() + DeltaVoo());
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
   float ent_quadrados = CalculaMultiplicador(proto_.tamanho());
