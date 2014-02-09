@@ -1,5 +1,4 @@
 - Adicionar modelo corrente a ser adicionado.
-- Adicionar mais dados a entidades (exemplo: hit points).
 - Gerar acoes de jogadores (magic missile, fireball etc).
 - Remover o abuso do endereco usando campo: nao_repassar na notificacao.
 - Adicionar unit tests.
@@ -7,4 +6,5 @@
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
 - Tooltip.
+- Arrumar tempo de desenho de cena.
 - Undo e redo.

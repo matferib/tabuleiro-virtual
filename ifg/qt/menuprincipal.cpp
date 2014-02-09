@@ -1,5 +1,6 @@
 /** @file ifg/qt/MenuPrincipal.cpp implementacao do menu principal. */
 
+#include <QActionGroup>
 #include <QBoxLayout>
 #include <QDialogButtonBox>
 #include <QFileDialog>
@@ -8,6 +9,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QVariant>
+#include <google/protobuf/text_format.h>
 
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"
@@ -17,7 +20,8 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
-using namespace ifg::qt;
+namespace ifg {
+namespace qt {
 
 // enumeracao com os menus e seus items
 namespace {
@@ -34,15 +38,28 @@ const char* g_menuitem_strs[] = {
   // Tabuleiro.
   "&Opções", "&Propriedades", nullptr, "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
-  "&Adicionar", "&Remover", g_fim,
+  "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
+
+// Cria um proto de entidade a partir da string texto.
+ent::EntidadeProto* CriaProto(const std::string& str = "") {
+  auto* ent = new ent::EntidadeProto;
+  if (!google::protobuf::TextFormat::ParseFromString(str, ent)) {
+    LOG(ERROR) << "Falha no parser de modelo, str: " << str;
+  }
+  return ent;
+}
 
 }  // namespace
 
 MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai)
     : QMenuBar(pai), central_(central) {
+  mapa_modelos_.insert(std::make_pair("&Padrão", std::unique_ptr<ent::EntidadeProto>(CriaProto())));
+  mapa_modelos_.insert(std::make_pair("Teste", std::unique_ptr<ent::EntidadeProto>(CriaProto("pontos_vida: 5"))));
+  modelo_selecionado_ = mapa_modelos_.find("&Padrão")->second.get();
+
   // inicio das strings para o menu corrente
   unsigned int controle_item = 0;
   for (
@@ -56,15 +73,30 @@ MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai)
     acoes_.push_back(std::vector<QAction*>());
     const char* menuitem_str = nullptr;
     while ((menuitem_str = g_menuitem_strs[controle_item]) != g_fim) {
-      if (menuitem_str != nullptr) {
+      if (menuitem_str == nullptr) {
+        menu->addSeparator();
+      } else if (std::string(menuitem_str) == "&Selecionar modelo") {
+        // Esse menu tem tratamento especial. TODO ler de um arquivo os modelos.
+        auto* grupo = new QActionGroup(this); 
+        grupo->setExclusive(true);
+        auto* menu_modelos = menu->addMenu(tr(menuitem_str));
+        for (const auto& modelo_it : mapa_modelos_) {
+          auto* sub_acao = new QAction(tr(modelo_it.first.c_str()), menu);
+          sub_acao->setCheckable(true);
+          sub_acao->setData(QVariant::fromValue((void*)modelo_it.second.get()));
+          grupo->addAction(sub_acao);
+          menu_modelos->addAction(sub_acao);
+          if (modelo_it.first == "&Padrão") {
+            sub_acao->setChecked(true);
+          }
+        }
+        connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
+      } else {
         // menuitem nao NULL, adiciona normalmente da lista de menuitems
         // incrementando para o proximo no final
         auto* acao = new QAction(tr(menuitem_str), menu);
         acoes_[controle_menu].push_back(acao);
         menu->addAction(acao);
-      } else {
-        // menuitem NULL, adiciona separador e a acao NULL para manter contador
-        menu->addSeparator();
       }
       ++controle_item;
     }
@@ -131,6 +163,10 @@ void MenuPrincipal::Modo(modomenu_e modo){
   }
 }
 
+void MenuPrincipal::TrataAcaoModelo(QAction* acao){
+  modelo_selecionado_ = reinterpret_cast<const ent::EntidadeProto*>(acao->data().value<void*>());
+}
+
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
   //cout << (const char*)acao->text().toAscii() << endl;
   ntf::Notificacao* notificacao = nullptr;
@@ -160,12 +196,13 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_SAIR);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_PROPRIEDADES_ENTIDADE]) {
+    // TODO
   } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR]) {
-    // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    notificacao->mutable_entidade()->CopyFrom(*modelo_selecionado_);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
-    // @todo abrir dialogo modal pedindo dados do jogador
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
@@ -206,7 +243,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"), 
         tr("Tabuleiro virtual versão 0.1\n"
-           "Powered by QT and OpenGL\n"
+           "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
   }
 
@@ -215,7 +252,5 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   }
 }
 
-
-
-
-
+}  // namespace ifg
+}  // namespace qt

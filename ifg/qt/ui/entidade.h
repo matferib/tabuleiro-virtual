@@ -23,6 +23,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QSlider>
+#include <QtGui/QSpinBox>
 #include <QtGui/QWidget>
 
 namespace ifg {
@@ -62,7 +63,12 @@ public:
     QCheckBox *checkbox_visibilidade;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_4;
-    QLineEdit *linha_aura;
+    QSpinBox *spin_aura;
+    QWidget *horizontalLayoutWidget_8;
+    QHBoxLayout *horizontalLayout_11;
+    QHBoxLayout *horizontalLayout_12;
+    QLabel *label_5;
+    QSpinBox *spin_pontos_vida;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -95,7 +101,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 140, 361, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 180, 361, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -122,7 +128,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(20, 180, 361, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(20, 220, 361, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -187,7 +193,7 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(20, 220, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(20, 260, 361, 41));
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
@@ -204,7 +210,7 @@ public:
 
         horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
-        horizontalLayoutWidget_7->setGeometry(QRect(20, 100, 361, 41));
+        horizontalLayoutWidget_7->setGeometry(QRect(20, 140, 361, 41));
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_7);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
@@ -225,25 +231,46 @@ public:
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
         label_4 = new QLabel(horizontalLayoutWidget_7);
         label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_10->addWidget(label_4);
 
-        linha_aura = new QLineEdit(horizontalLayoutWidget_7);
-        linha_aura->setObjectName(QString::fromUtf8("linha_aura"));
-        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy4.setHorizontalStretch(0);
-        sizePolicy4.setVerticalStretch(0);
-        sizePolicy4.setHeightForWidth(linha_aura->sizePolicy().hasHeightForWidth());
-        linha_aura->setSizePolicy(sizePolicy4);
-        linha_aura->setInputMask(QString::fromUtf8("009; "));
+        spin_aura = new QSpinBox(horizontalLayoutWidget_7);
+        spin_aura->setObjectName(QString::fromUtf8("spin_aura"));
 
-        horizontalLayout_10->addWidget(linha_aura);
+        horizontalLayout_10->addWidget(spin_aura);
 
 
         horizontalLayout_9->addLayout(horizontalLayout_10);
 
 
         horizontalLayout_8->addLayout(horizontalLayout_9);
+
+        horizontalLayoutWidget_8 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
+        horizontalLayoutWidget_8->setGeometry(QRect(20, 100, 361, 41));
+        horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
+        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
+        horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_12 = new QHBoxLayout();
+        horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
+        label_5 = new QLabel(horizontalLayoutWidget_8);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+        sizePolicy.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
+        label_5->setSizePolicy(sizePolicy);
+        label_5->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_12->addWidget(label_5);
+
+        spin_pontos_vida = new QSpinBox(horizontalLayoutWidget_8);
+        spin_pontos_vida->setObjectName(QString::fromUtf8("spin_pontos_vida"));
+        spin_pontos_vida->setMinimum(-100);
+        spin_pontos_vida->setMaximum(999);
+
+        horizontalLayout_12->addWidget(spin_pontos_vida);
+
+
+        horizontalLayout_11->addLayout(horizontalLayout_12);
 
 
         retranslateUi(ifg__qt__DialogoEntidade);
@@ -268,9 +295,7 @@ public:
         checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        linha_aura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da aura, em quadrados.", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
+        label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

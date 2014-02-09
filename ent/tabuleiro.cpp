@@ -84,8 +84,10 @@ void DesenhaStringTempo(const std::string& tempo) {
 }
 
 // TODO: mover para entidade.
-// Gera um EntidadeProto com os valores passados.
-const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, bool visivel, double x, double y, double z) {
+// Gera um EntidadeProto com os valores passados. Alguns valores podem vir de proto_aux (TODO definir quais).
+const EntidadeProto GeraEntidadeProto(
+    int id_cliente, int id_entidade, bool visivel, double x, double y, double z,
+    const EntidadeProto* proto_aux = nullptr) {
   EntidadeProto ep;
   ep.set_visivel(visivel);
   ep.set_id((id_cliente << 28) | id_entidade);
@@ -98,6 +100,9 @@ const EntidadeProto GeraEntidadeProto(int id_cliente, int id_entidade, bool visi
   cor->set_r(0);
   cor->set_g(1.0);
   cor->set_b(0);
+  if (proto_aux != nullptr) {
+    ep.set_pontos_vida(proto_aux->pontos_vida());
+  }
   return ep;
 }
 
@@ -166,7 +171,8 @@ void Tabuleiro::Desenha() {
 }
 
 void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
-  if (!notificacao.has_entidade()) {
+  // TODO esse hack ta horroroso pra identificar se eh local ou nao.
+  if (!notificacao.has_entidade() || !notificacao.entidade().has_pos()) {
     // Mensagem local.
     if (estado_ != ETAB_QUAD_SELECIONADO) {
       return;
@@ -175,7 +181,9 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
     double x, y, z;
     CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
     auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-    entidade->Inicializa(GeraEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, x, y, z));
+    entidade->Inicializa(GeraEntidadeProto(
+        id_cliente_, id_entidade, !modo_mestre_, x, y, z,
+        notificacao.has_entidade() ? &notificacao.entidade() : nullptr));
     entidades_.insert(std::make_pair(entidade->Id(), entidade));
     SelecionaEntidade(entidade->Id());
     // Envia a entidade para os outros.

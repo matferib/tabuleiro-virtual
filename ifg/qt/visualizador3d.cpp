@@ -334,8 +334,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     }
     gerador.linha_textura->setText(file_str);
   });
+  // Pontos de vida.
+  gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   // Aura.
-  gerador.linha_aura->setText(QString::number(entidade.aura()));
+  gerador.spin_aura->setValue(entidade.aura());
   // Altura.
   gerador.checkbox_voadora->setCheckState(entidade.pos().z() > 0 ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
@@ -376,7 +378,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     } else {
       proto_retornado->clear_info_textura();
     }
-    uint aura = gerador.linha_aura->text().toUInt();
+    proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
+    int aura = gerador.spin_aura->value();
     if (aura > 0) {
       proto_retornado->set_aura(aura);
     } else {

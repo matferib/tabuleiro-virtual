@@ -8,7 +8,9 @@
 
 #include <QMenuBar>
 #include <QMenu>
+#include <memory>
 #include <vector>
+#include <unordered_map>
 #include "ntf/notificacao.h"
 
 namespace ifg {
@@ -35,7 +37,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   enum menuitem_e { // items de cada menu 
     MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
     MI_OPCOES = 0, MI_PROPRIEDADES, MI_SALVAR, MI_RESTAURAR,
-    MI_ADICIONAR = 0, MI_REMOVER,
+    MI_PROPRIEDADES_ENTIDADE = 0, MI_ADICIONAR, MI_REMOVER,
     MI_TABVIRT = 0,
     MI_SEP = 0
   };
@@ -45,6 +47,8 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
  private slots:
   /** slot para tratar a acao QT de um item de menu localmente. */
   void TrataAcaoItem(QAction*);
+  /** slot para tratar acoes de modelos de entidade. */
+  void TrataAcaoModelo(QAction*);
 
   /** poe o menu no modo passado como argumento.
   * @TODO o que cada modo habilita.
@@ -60,6 +64,8 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   // menus e acoes dos items
   std::vector<QMenu*> menus_;
   std::vector<std::vector<QAction*>> acoes_;
+  const ent::EntidadeProto* modelo_selecionado_;
+  std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>> mapa_modelos_;
 
   ntf::CentralNotificacoes* central_;
 };
