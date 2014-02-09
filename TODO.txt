@@ -1,6 +1,6 @@
+- Separar iluminacao ambiente e iluminacao direcional.
 - Adicionar modelo corrente a ser adicionado.
 - Gerar acoes de jogadores (magic missile, fireball etc).
-- Remover o abuso do endereco usando campo: nao_repassar na notificacao.
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.
 - Tirar o evento de movimento ao liberar botao sem movimento.

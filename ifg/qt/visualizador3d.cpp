@@ -179,7 +179,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         break;
       }
       auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);
-      n->set_endereco("local");  // apenas para processar localmente.
       n->mutable_entidade()->Swap(entidade);
       central_->AdicionaNotificacao(n);
       break;
@@ -195,7 +194,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         break;
       }
       auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_TABULEIRO);
-      n->set_endereco("local");  // apenas para processar localmente.
       n->mutable_tabuleiro()->Swap(tabuleiro);
       central_->AdicionaNotificacao(n);
       break;
