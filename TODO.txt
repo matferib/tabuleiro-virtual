@@ -1,6 +1,6 @@
-- Indicacao de unidade entre jogadores (como apontar para uma unidade).
+- Estado de entidades criadas deve ficar no tabuleiro.
+- Indicacao de entidade entre jogadores (como apontar para uma unidade).
 - Separar iluminacao ambiente e iluminacao direcional.
-- Adicionar modelo corrente a ser adicionado.
 - Gerar acoes de jogadores (magic missile, fireball etc).
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.

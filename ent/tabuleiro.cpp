@@ -6,6 +6,7 @@
 #include <map>
 #include <stdexcept>
 #include <vector>
+#include <google/protobuf/text_format.h>
 
 #if __APPLE__
 #include <OpenGL/gl.h>
@@ -106,6 +107,15 @@ const EntidadeProto GeraEntidadeProto(
   return ep;
 }
 
+// Cria um proto de entidade a partir da string texto.
+ent::EntidadeProto* CriaProto(const std::string& str = "") {
+  auto* ent = new ent::EntidadeProto;
+  if (!google::protobuf::TextFormat::ParseFromString(str, ent)) {
+    LOG(ERROR) << "Falha no parser de modelo, str: " << str;
+  }
+  return ent;
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
@@ -136,6 +146,10 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   // Valores iniciais.
   largura_ = altura_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
+  // Modelos.
+  mapa_modelos_.insert(std::make_pair("&Padrão", std::unique_ptr<ent::EntidadeProto>(CriaProto())));
+  mapa_modelos_.insert(std::make_pair("Teste", std::unique_ptr<ent::EntidadeProto>(CriaProto("pontos_vida: 5"))));
+  modelo_selecionado_ = mapa_modelos_.find("&Padrão")->second.get();
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -172,9 +186,7 @@ void Tabuleiro::Desenha() {
 
 void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
   try {
-    // TODO esse hack ta horroroso pra identificar se eh local ou nao.
-    if (!notificacao.has_entidade() || !notificacao.entidade().has_pos()) {
-      // Mensagem local.
+    if (notificacao.local()) {
       if (estado_ != ETAB_QUAD_SELECIONADO) {
         return;
       }
@@ -184,7 +196,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
       auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
       entidade->Inicializa(GeraEntidadeProto(
             id_cliente_, id_entidade, !modo_mestre_, x, y, z,
-            notificacao.has_entidade() ? &notificacao.entidade() : nullptr));
+            modelo_selecionado_));
       entidades_.insert(std::make_pair(entidade->Id(), entidade));
       SelecionaEntidade(entidade->Id());
       // Envia a entidade para os outros.
@@ -501,6 +513,15 @@ void Tabuleiro::InicializaGL() {
   // back face
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
+}
+
+void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
+  auto it = mapa_modelos_.find(id_modelo);
+  if (it == mapa_modelos_.end()) {
+    LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
+    return;
+  }
+  modelo_selecionado_ = it->second.get();
 }
 
 // privadas
