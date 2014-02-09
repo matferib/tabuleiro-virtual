@@ -1,21 +1,19 @@
 import os
 env = Environment(ENV=os.environ, toolpath=['tools'], tools=['protoc'])
 
-sistema = 'win32'
+sistema='linux'
 print 'Usando sistema: ' + sistema
 
+env.Tool('qt')
 if sistema == 'win32':
   env.Tool('mingw')
-  env['QTDIR'] = 'c:/Qt/4.8.5/'
 else:
-  env.Tool('g++')
-  env['QTDIR'] = '/usr'
-env.Tool('qt')
+  env.Tool('default')
 
 # qt
 env['QT_MOCHSUFFIX'] = '.cpp'
-env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 if sistema == 'win32':
+  env['QTDIR'] = 'c:/Qt/4.8.5/'
   env['QT_LIBPATH'] = 'win32/lib'
   env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore']
 elif sistema == 'apple':
@@ -23,8 +21,10 @@ elif sistema == 'apple':
   env['FRAMEWORKS'] = ['QtOpenGL', 'QtGui', 'QtCore', 'OpenGL', 'GLUT']
   env['QT_LIB'] = []
 else:
+  env['QTDIR'] = '/usr'
   env['QT_LIBPATH'] = env['QTDIR'] + '/lib64'
   env['QT_LIB'] = ['QtGui', 'QtOpenGL', 'QtCore']
+  env['QT_CPPPATH'] = [env['QTDIR'] + '/include/QtGui', env['QTDIR'] + '/include/QtCore', env['QTDIR'] + '/include', env['QTDIR'] + '/include/QtOpenGL']
 
 # protobuffer.
 env['PROTOCOUTDIR'] = './'
@@ -46,7 +46,7 @@ elif sistema == 'apple':
 else:
   env['CPPPATH'] += ['./']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
-  env['CXXFLAGS'] += ['-Wall', '-O2', '-std=c++11']
+  env['CXXFLAGS'] = ['-Wall', '-O2', '-std=c++11']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
 # Configuracoes locais.

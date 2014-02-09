@@ -51,7 +51,7 @@ int TipoImagem(const QImage& imagem) {
 }  // namespace
 
 struct Texturas::InfoTexturaInterna {
-  InfoTexturaInterna(const QImage& imagem) : contador(1) {
+  InfoTexturaInterna(const std::string& id_mapa, const QImage& imagem) : contador(1) {
     glGenTextures(1, &id);
     if (id == GL_INVALID_VALUE) {
       LOG(ERROR) << "Erro gerando nome para textura";
@@ -68,7 +68,7 @@ struct Texturas::InfoTexturaInterna {
                  0, FormatoImagem(imagem), TipoImagem(imagem),
                  imagem.constBits());
     qimage = imagem;
-    VLOG(1) << "Textura criada: '" << id
+    VLOG(1) << "Textura criada: id: '" << id_mapa << "', id OpenGL: '" << id
             << "', " << imagem.width() << "x" << imagem.height()
             << ", bpp: " << imagem.depth() << ", format: " << FormatoImagem(imagem);
     glDisable(GL_TEXTURE_2D);
@@ -143,7 +143,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString();
         return;
       }
-      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), imagem)));
     } else {
       VLOG(1) << "Carregando textura comum.";
       QFileInfo arquivo(QDir(DIR_TEXTURAS), info_textura.id().c_str());
@@ -153,7 +153,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString();
         return;
       }
-      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(imagem)));
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), imagem)));
     }
   } else {
     ++info_interna->contador;
