@@ -13,6 +13,10 @@
 #include <unordered_map>
 #include "ntf/notificacao.h"
 
+namespace ent {
+class Tabuleiro;
+}  // namespace ent
+
 namespace ifg {
 namespace qt {
 
@@ -24,7 +28,7 @@ namespace qt {
 class MenuPrincipal : public QMenuBar, ntf::Receptor {
   Q_OBJECT
  public:
-  MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai);
+  MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai);
   ~MenuPrincipal();
 
   /** Interface ntf::Receptor. */
@@ -61,11 +65,11 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   /** Habilita/desabilita items de menu. */
   void EstadoItemMenu(bool estado, menu_e menu, const std::vector<menuitem_e>& items);
 
+  // Tabuleiro de jogo, para modelos.
+  ent::Tabuleiro* tabuleiro_;
   // menus e acoes dos items
   std::vector<QMenu*> menus_;
   std::vector<std::vector<QAction*>> acoes_;
-  const ent::EntidadeProto* modelo_selecionado_;
-  std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>> mapa_modelos_;
 
   ntf::CentralNotificacoes* central_;
 };

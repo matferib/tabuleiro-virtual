@@ -54,12 +54,8 @@ ent::EntidadeProto* CriaProto(const std::string& str = "") {
 
 }  // namespace
 
-MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai)
-    : QMenuBar(pai), central_(central) {
-  mapa_modelos_.insert(std::make_pair("&Padrão", std::unique_ptr<ent::EntidadeProto>(CriaProto())));
-  mapa_modelos_.insert(std::make_pair("Teste", std::unique_ptr<ent::EntidadeProto>(CriaProto("pontos_vida: 5"))));
-  modelo_selecionado_ = mapa_modelos_.find("&Padrão")->second.get();
-
+MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
+    : QMenuBar(pai), tabuleiro_(tabuleiro), central_(central) {
   // inicio das strings para o menu corrente
   unsigned int controle_item = 0;
   for (
@@ -80,13 +76,13 @@ MenuPrincipal::MenuPrincipal(ntf::CentralNotificacoes* central, QWidget* pai)
         auto* grupo = new QActionGroup(this); 
         grupo->setExclusive(true);
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
-        for (const auto& modelo_it : mapa_modelos_) {
+        for (const auto& modelo_it : tabuleiro_->MapaModelos()) {
           auto* sub_acao = new QAction(tr(modelo_it.first.c_str()), menu);
           sub_acao->setCheckable(true);
-          sub_acao->setData(QVariant::fromValue((void*)modelo_it.second.get()));
+          sub_acao->setData(QVariant::fromValue(QString(modelo_it.first.c_str())));
           grupo->addAction(sub_acao);
           menu_modelos->addAction(sub_acao);
-          if (modelo_it.first == "&Padrão") {
+          if (modelo_it.second.get() == tabuleiro->ModeloSelecionado()) {
             sub_acao->setChecked(true);
           }
         }
@@ -164,7 +160,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
 }
 
 void MenuPrincipal::TrataAcaoModelo(QAction* acao){
-  modelo_selecionado_ = reinterpret_cast<const ent::EntidadeProto*>(acao->data().value<void*>());
+  tabuleiro_->SelecionaModeloEntidade(acao->data().toString().toStdString());
 }
 
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
@@ -201,7 +197,6 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-    notificacao->mutable_entidade()->CopyFrom(*modelo_selecionado_);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);

@@ -1,6 +1,7 @@
 #ifndef ENT_TABULEIRO_H
 #define ENT_TABULEIRO_H
 
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -102,6 +103,15 @@ class Tabuleiro : public ntf::Receptor {
   /** inicializa os parametros do openGL. */
   static void InicializaGL();
 
+  /** Seleciona o modelo de entidade através do identificador. */
+  void SelecionaModeloEntidade(const std::string& id_modelo);
+
+  /** Acesso ao modelo de entidade selecionado. */
+  const ent::EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
+
+  /** Acesso ao mapa de modelos. */
+  const std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>>& MapaModelos() const { return mapa_modelos_; }
+
  private:
   /** funcao que desenha a cena independente do modo.
   */
@@ -200,6 +210,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Poe o tabuleiro no modo jogador. */
   void ModoJogador() { modo_mestre_ = false; }
 
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -248,6 +259,10 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
+
+  /** O modelo selecionado para inserção de entidades. */
+  const ent::EntidadeProto* modelo_selecionado_;
+  std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>> mapa_modelos_;
 
   Texturas* texturas_;
   ntf::CentralNotificacoes* central_;
