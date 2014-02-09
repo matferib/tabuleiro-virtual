@@ -39,6 +39,7 @@ public:
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
     QHBoxLayout *horizontalLayout_7;
+    QLabel *label_3;
     QPushButton *botao_cor;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
@@ -58,8 +59,10 @@ public:
     QHBoxLayout *horizontalLayout_8;
     QHBoxLayout *horizontalLayout_9;
     QCheckBox *checkbox_voadora;
-    QCheckBox *checkbox_aura;
     QCheckBox *checkbox_visibilidade;
+    QHBoxLayout *horizontalLayout_10;
+    QLabel *label_4;
+    QLineEdit *linha_aura;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -98,6 +101,17 @@ public:
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_7 = new QHBoxLayout();
         horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        label_3 = new QLabel(horizontalLayoutWidget_2);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
+        label_3->setSizePolicy(sizePolicy);
+        label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_7->addWidget(label_3);
+
 
         horizontalLayout_2->addLayout(horizontalLayout_7);
 
@@ -134,22 +148,22 @@ public:
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         label_2 = new QLabel(horizontalLayoutWidget_4);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        QSizePolicy sizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy1);
         label_2->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_5->addWidget(label_2);
 
         label_tamanho = new QLabel(horizontalLayoutWidget_4);
         label_tamanho->setObjectName(QString::fromUtf8("label_tamanho"));
-        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(label_tamanho->sizePolicy().hasHeightForWidth());
-        label_tamanho->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(label_tamanho->sizePolicy().hasHeightForWidth());
+        label_tamanho->setSizePolicy(sizePolicy2);
         label_tamanho->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_5->addWidget(label_tamanho);
@@ -159,11 +173,11 @@ public:
 
         slider_tamanho = new QSlider(horizontalLayoutWidget_4);
         slider_tamanho->setObjectName(QString::fromUtf8("slider_tamanho"));
-        QSizePolicy sizePolicy2(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(slider_tamanho->sizePolicy().hasHeightForWidth());
-        slider_tamanho->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(slider_tamanho->sizePolicy().hasHeightForWidth());
+        slider_tamanho->setSizePolicy(sizePolicy3);
         slider_tamanho->setMaximum(8);
         slider_tamanho->setPageStep(2);
         slider_tamanho->setSliderPosition(4);
@@ -201,16 +215,32 @@ public:
 
         horizontalLayout_9->addWidget(checkbox_voadora);
 
-        checkbox_aura = new QCheckBox(horizontalLayoutWidget_7);
-        checkbox_aura->setObjectName(QString::fromUtf8("checkbox_aura"));
-
-        horizontalLayout_9->addWidget(checkbox_aura);
-
         checkbox_visibilidade = new QCheckBox(horizontalLayoutWidget_7);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
         checkbox_visibilidade->setEnabled(true);
 
         horizontalLayout_9->addWidget(checkbox_visibilidade);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
+        label_4 = new QLabel(horizontalLayoutWidget_7);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+
+        horizontalLayout_10->addWidget(label_4);
+
+        linha_aura = new QLineEdit(horizontalLayoutWidget_7);
+        linha_aura->setObjectName(QString::fromUtf8("linha_aura"));
+        QSizePolicy sizePolicy4(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(linha_aura->sizePolicy().hasHeightForWidth());
+        linha_aura->setSizePolicy(sizePolicy4);
+        linha_aura->setInputMask(QString::fromUtf8("009; "));
+
+        horizontalLayout_10->addWidget(linha_aura);
+
+
+        horizontalLayout_9->addLayout(horizontalLayout_10);
 
 
         horizontalLayout_8->addLayout(horizontalLayout_9);
@@ -227,6 +257,7 @@ public:
     {
         ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", 0, QApplication::UnicodeUTF8));
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
         checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Possui Luz", 0, QApplication::UnicodeUTF8));
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
@@ -235,8 +266,11 @@ public:
         linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoEntidade", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
         checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", 0, QApplication::UnicodeUTF8));
-        checkbox_aura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_aura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da aura, em quadrados.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

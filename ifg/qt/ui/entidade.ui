@@ -73,7 +73,24 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout_7"/>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="label_3">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Cor:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QPushButton" name="botao_cor">
@@ -235,13 +252,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkbox_aura">
-        <property name="text">
-         <string>Aura</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="checkbox_visibilidade">
         <property name="enabled">
          <bool>true</bool>
@@ -250,6 +260,33 @@
          <string>Visível</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_10">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Aura:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="linha_aura">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="toolTip">
+           <string>Tamanho da aura, em quadrados.</string>
+          </property>
+          <property name="inputMask">
+           <string notr="true">009; </string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
