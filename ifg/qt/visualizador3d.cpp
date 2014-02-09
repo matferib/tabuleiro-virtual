@@ -35,13 +35,22 @@ using namespace std;
 
 namespace {
 
-ent::botao_e MapeiaBotao(Qt::MouseButton botao) {
-  switch (botao) {
-    case Qt::LeftButton: return ent::BOTAO_ESQUERDO;
+ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
+  switch (evento.button()) {
+    case Qt::LeftButton: {
+      // Com shift pressionado, trata como botao do meio.
+      return evento.modifiers() == Qt::ShiftModifier ?
+        ent::BOTAO_MEIO :
+        ent::BOTAO_ESQUERDO;
+    }
     case Qt::RightButton: return ent::BOTAO_DIREITO;
     case Qt::MidButton: return ent::BOTAO_MEIO;
     default: return ent::BOTAO_NENHUM;
   }
+}
+
+int MapeiaTecla(const QKeyEvent& evento) {
+  return evento.key();
 }
 
 // Converte uma cor de float [0..1.0] para inteiro [0.255].
@@ -211,29 +220,36 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return true;
 }
 
+// teclado.
+void Visualizador3d::keyPressEvent(QKeyEvent* event) {
+  event->ignore();
+  //int tecla = event->key();
+  //tabuleiro_->TrataTeclaPressionada(MapeiaTecla(event->key()));
+}
+
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   tabuleiro_->TrataBotaoPressionado(
-      MapeiaBotao(event->button()), event->x(), height() - event->y());
+      MapeiaBotao(*event), event->x(), height() - event->y());
   event->accept();
   glDraw();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  tabuleiro_->TrataBotaoLiberado(MapeiaBotao(event->button()));
+  tabuleiro_->TrataBotaoLiberado(MapeiaBotao(*event));
   event->accept();
   glDraw();
 }
 
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
   tabuleiro_->TrataDuploClique(
-      MapeiaBotao(event->button()), event->x(), height() - event->y());
+      MapeiaBotao(*event), event->x(), height() - event->y());
   event->accept();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  tabuleiro_->TrataMovimento(MapeiaBotao(event->button()), event->x(), (height() - event->y()));
+  tabuleiro_->TrataMovimento(MapeiaBotao(*event), event->x(), (height() - event->y()));
   event->accept();
   glDraw();
 }
