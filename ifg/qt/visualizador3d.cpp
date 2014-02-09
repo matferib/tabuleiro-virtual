@@ -335,7 +335,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     gerador.linha_textura->setText(file_str);
   });
   // Aura.
-  gerador.checkbox_aura->setCheckState(entidade.has_aura() ? Qt::Checked : Qt::Unchecked);
+  gerador.linha_aura->setText(QString::number(entidade.aura()));
   // Altura.
   gerador.checkbox_voadora->setCheckState(entidade.pos().z() > 0 ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
@@ -376,8 +376,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     } else {
       proto_retornado->clear_info_textura();
     }
-    if (gerador.checkbox_aura->checkState() == Qt::Checked) {
-      proto_retornado->set_aura(4);  // TODO
+    uint aura = gerador.linha_aura->text().toUInt();
+    if (aura > 0) {
+      proto_retornado->set_aura(aura);
     } else {
       proto_retornado->clear_aura();
     }
@@ -440,9 +441,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
-  gerador.linha_largura->setInputMask("009"); // Permite tamanho ate 999, minimo de 1 digito.
   gerador.linha_altura->setText(QString::number(tab_proto.altura()));
-  gerador.linha_altura->setInputMask("009"); // Permite tamanho ate 999, minimo de 1 digito.
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(gerador.botoes, SIGNAL(accepted()), 

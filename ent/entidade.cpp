@@ -377,14 +377,21 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
-  if (!pd->desenha_aura() || !proto_.has_aura()) {
+  if (!pd->desenha_aura() || !proto_.has_aura() || proto_.aura() == 0) {
     return;
   }
   glPushMatrix();
-  MontaMatriz(true  /*delta_voo*/, *pd);
+  glTranslated(X(), Y(), DeltaVoo());
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
-  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 * proto_.aura(), NUM_FACES, NUM_FACES);
+  float ent_quadrados = CalculaMultiplicador(proto_.tamanho());
+  if (ent_quadrados < 1.0f) {
+    ent_quadrados = 1.0f;
+  }
+  // A aura estende alem do tamanho da entidade.
+  glutSolidSphere(
+      TAMANHO_LADO_QUADRADO_2 * ent_quadrados + TAMANHO_LADO_QUADRADO * proto_.aura(),
+      NUM_FACES, NUM_FACES);
   glPopMatrix();
 }
 
