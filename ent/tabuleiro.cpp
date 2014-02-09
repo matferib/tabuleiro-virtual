@@ -950,7 +950,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
 }
 
 void Tabuleiro::SelecionaEntidade(unsigned int id) {
-  VLOG(1) << "selecionando entidade: ";
+  VLOG(1) << "Selecionando entidade: " << id;
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
