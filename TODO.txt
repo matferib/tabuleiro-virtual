@@ -12,3 +12,4 @@
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
 - Tooltip.
+- Undo e redo.
