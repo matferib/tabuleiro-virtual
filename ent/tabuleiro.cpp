@@ -171,30 +171,36 @@ void Tabuleiro::Desenha() {
 }
 
 void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
-  // TODO esse hack ta horroroso pra identificar se eh local ou nao.
-  if (!notificacao.has_entidade() || !notificacao.entidade().has_pos()) {
-    // Mensagem local.
-    if (estado_ != ETAB_QUAD_SELECIONADO) {
-      return;
+  try {
+    // TODO esse hack ta horroroso pra identificar se eh local ou nao.
+    if (!notificacao.has_entidade() || !notificacao.entidade().has_pos()) {
+      // Mensagem local.
+      if (estado_ != ETAB_QUAD_SELECIONADO) {
+        return;
+      }
+      int id_entidade = GeraIdEntidade(id_cliente_);
+      double x, y, z;
+      CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
+      auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
+      entidade->Inicializa(GeraEntidadeProto(
+            id_cliente_, id_entidade, !modo_mestre_, x, y, z,
+            notificacao.has_entidade() ? &notificacao.entidade() : nullptr));
+      entidades_.insert(std::make_pair(entidade->Id(), entidade));
+      SelecionaEntidade(entidade->Id());
+      // Envia a entidade para os outros.
+      auto* n = ntf::NovaNotificacao(notificacao.tipo());
+      n->mutable_entidade()->CopyFrom(entidade->Proto());
+      central_->AdicionaNotificacaoRemota(n);
+    } else {
+      // Mensagem veio de fora.
+      auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
+      entidade->Inicializa(notificacao.entidade());
+      entidades_.insert(std::make_pair(entidade->Id(), entidade));
     }
-    int id_entidade = GeraIdEntidade(id_cliente_);
-    double x, y, z;
-    CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-    auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-    entidade->Inicializa(GeraEntidadeProto(
-        id_cliente_, id_entidade, !modo_mestre_, x, y, z,
-        notificacao.has_entidade() ? &notificacao.entidade() : nullptr));
-    entidades_.insert(std::make_pair(entidade->Id(), entidade));
-    SelecionaEntidade(entidade->Id());
-    // Envia a entidade para os outros.
-    auto* n = ntf::NovaNotificacao(notificacao.tipo());
-    n->mutable_entidade()->CopyFrom(entidade->Proto());
-    central_->AdicionaNotificacaoRemota(n);
-  } else {
-    // Mensagem veio de fora.
-    auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
-    entidade->Inicializa(notificacao.entidade());
-    entidades_.insert(std::make_pair(entidade->Id(), entidade));
+  } catch (const std::logic_error& erro) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro(erro.what());
+    central_->AdicionaNotificacao(n);
   }
 }
 
@@ -1081,7 +1087,7 @@ int Tabuleiro::GeraIdEntidade(int id_cliente) {
   int count = max_id_entidade;
   while (count-- > 0) {
     int id = (id_cliente << 28) | proximo_id_entidade_;
-    proximo_id_entidade_ = ((proximo_id_entidade_ + 1) % max_id_entidade) + 1;
+    proximo_id_entidade_ = ((proximo_id_entidade_ + 1) % max_id_entidade);
     auto it = entidades_.find(id);
     if (it == entidades_.end()) {
       return id;
@@ -1096,7 +1102,8 @@ int Tabuleiro::GeraIdCliente() {
   while (count-- > 0) {
     int id_cliente = proximo_id_cliente_;
     auto it = clientes_.find(id_cliente);
-    proximo_id_cliente_ = ((proximo_id_cliente_ + 1) % max_id_cliente) + 1;
+    // O id zero esta sempre reservado para o mestre.
+    proximo_id_cliente_ = ((proximo_id_cliente_) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
       return id_cliente;
     }
