@@ -453,26 +453,29 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     proto_retornado->mutable_luz()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz()->mutable_cor()->Swap(&cor_proto);
-    if (!gerador.linha_textura->text().isEmpty()) {
+    if (gerador.linha_textura->text().toStdString() == tab_proto.info_textura().id()) {
+      // Textura igual a anterior.
+      VLOG(2) << "Textura igual a anterior.";
+      proto_retornado->mutable_info_textura()->set_id(tab_proto.info_textura().id());
+    } else {
+      VLOG(2) << "Textura diferente da anterior.";
       QFileInfo info(gerador.linha_textura->text());
-      proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
       // mesmo nome isso vai falhar.
       if (info.dir().dirName() != DIR_TEXTURAS) {
+        VLOG(2) << "Textura local, recarregando.";
         QString id = QString::number(tab_proto.id_cliente());
         id.append(":");
         id.append(info.fileName());
         proto_retornado->mutable_info_textura()->set_id(id.toStdString());
-        VLOG(1) << "Preenchendo textura local: " << id.toStdString();
         // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
         PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
       } else {
         proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
-    } else {
-      proto_retornado->clear_info_textura();
     }
+    VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
 
     bool ok = true;
     int largura = gerador.linha_largura->text().toInt(&ok);
