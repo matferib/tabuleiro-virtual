@@ -1,5 +1,3 @@
-- Estado de entidades criadas deve ficar no tabuleiro.
-- Indicacao de entidade entre jogadores (como apontar para uma unidade).
 - Separar iluminacao ambiente e iluminacao direcional.
 - Gerar acoes de jogadores (magic missile, fireball etc).
 - Adicionar unit tests.

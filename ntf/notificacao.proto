@@ -28,6 +28,7 @@ enum Tipo {
   TN_ATUALIZAR_OPCOES = 23;
   TN_CARREGAR_TEXTURA = 24;
   TN_DESCARREGAR_TEXTURA = 25;
+  TN_ADICIONAR_SINALIZACAO = 26;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.

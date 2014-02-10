@@ -57,6 +57,11 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
+const double SEN_60 = sin(M_PI / 3.0);
+const double SEN_30 = sin(M_PI / 6.0);
+const double COS_60 = cos(M_PI / 3.0);
+const double COS_30 = cos(M_PI / 6.0);
+
 // Cores.
 GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat PRETO[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -82,6 +87,29 @@ void DesenhaStringTempo(const std::string& tempo) {
   for (const char c : tempo) {
     glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
   }
+}
+
+/** Desenha um sinalizador na posicao passada. */
+void DesenhaSinalizacao(Sinalizador* sinalizador) {
+  glPushMatrix();
+  glTranslated(sinalizador->pos.x(), sinalizador->pos.y(), sinalizador->pos.z());
+  glScaled(sinalizador->estado, sinalizador->estado, 0.0f);
+  glBegin(GL_TRIANGLES);
+  // Primeiro triangulo.
+  glVertex2d(COS_30 * 0.3, SEN_30 * 0.2);
+  glVertex2i(1, 0);
+  glVertex2d(COS_60, SEN_60);
+  // Segundo triangulo.
+  glVertex2d(-COS_30 * 0.3, SEN_30 * 0.2);
+  glVertex2d(-COS_60, SEN_60);
+  glVertex2i(-1, 0);
+  // Terceiro triangulo.
+  glVertex2d(0.0, -0.2);
+  glVertex2d(-COS_60, -SEN_60);
+  glVertex2d(COS_60, -SEN_60);
+  glEnd();
+  glPopMatrix();
+  sinalizador->estado -= 0.05f;
 }
 
 // TODO: mover para entidade.
@@ -251,6 +279,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         LOG(ERROR) << "Limite de entidades alcançado: " << e.what();
       }
       return true;
+    case ntf::TN_ADICIONAR_SINALIZACAO: {
+      Sinalizador s;
+      s.pos.CopyFrom(notificacao.entidade().pos());
+      s.estado = TAMANHO_LADO_QUADRADO * 2.0f;
+      sinalizadores_.push_back(s);
+      return true;
+    }
     case ntf::TN_REMOVER_ENTIDADE: {
       RemoveEntidade(notificacao);
       return true;
@@ -460,6 +495,35 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
   }
 }
 
+void Tabuleiro::TrataBotaoSinalizacaoPressionado(botao_e botao, int x, int y) {
+  unsigned int id, pos_pilha;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  ent::Posicao pos;
+  if (pos_pilha == 1) {
+    // Tabuleiro.
+    double x, y, z;
+    CoordenadaQuadrado(id, &x, &y, &z);
+    pos.set_x(x);
+    pos.set_y(y);
+    pos.set_z(z);
+  } else if (pos_pilha > 1) {
+    // Entidade.
+    ent::Entidade* e = entidades_.find(id)->second;
+    pos.set_x(e->X());
+    pos.set_y(e->Y());
+    pos.set_z(e->Z());
+  } else {
+    VLOG(1) << "Picking lugar nenhum.";
+    return;
+  }
+  auto* n_local = ntf::NovaNotificacao(ntf::TN_ADICIONAR_SINALIZACAO);
+  n_local->mutable_entidade()->mutable_pos()->Swap(&pos);
+  auto* n_remota = new ntf::Notificacao(*n_local);
+  central_->AdicionaNotificacaoRemota(n_local);
+  central_->AdicionaNotificacao(n_remota);
+}
+
 void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y) {
   if (botao == BOTAO_ESQUERDO) {
     TrataDuploCliqueEsquerdo(x, y);
@@ -531,7 +595,6 @@ void Tabuleiro::DesenhaCena() {
     timer.start();
   }
 
-
   glEnable(GL_DEPTH_TEST);
   glClearColor(proto_.luz().cor().r(), proto_.luz().cor().g(), proto_.luz().cor().b(), proto_.luz().cor().a());
   if (parametros_desenho_.limpa_fundo()) {
@@ -560,7 +623,6 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
-
 
     float seno_inclinacao = sinf(proto_.luz().inclinacao_graus() * GRAUS_PARA_RAD);
     // A luz ambiente pode ser no máximo 0.3 da luz total.
@@ -641,7 +703,7 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_grade()) {
     glEnable(GL_POLYGON_OFFSET_FILL);
-    // TODO transofrmar offsets em constantes.
+    // TODO transformar offsets em constantes.
     glPolygonOffset(-0.04f, -0.04f);
     DesenhaGrade();
     glDisable(GL_POLYGON_OFFSET_FILL);
@@ -659,6 +721,23 @@ void Tabuleiro::DesenhaCena() {
     entidade->Desenha(&parametros_desenho_);
   }
   glPopName();
+
+  if (parametros_desenho_.desenha_sinalizacoes()) {
+    MudaCor(BRANCO);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(-0.06f, -0.06f);
+    for (auto& s : sinalizadores_) {
+      DesenhaSinalizacao(&s);
+    }
+    glDisable(GL_POLYGON_OFFSET_FILL);
+    // Remove sinalizacoes finalizadas.
+    auto primeiro_removido = std::remove_if(sinalizadores_.begin(), sinalizadores_.end(), 
+        [this](const Sinalizador& s) {
+      return s.estado < 0;
+    });
+    sinalizadores_.erase(primeiro_removido, sinalizadores_.end());
+    VLOG(2) << "Numero de sinalizadores: " << sinalizadores_.size();
+  }
 
   glEnable(GL_BLEND);
   // Sombras.
@@ -825,6 +904,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_desenha_sinalizacoes(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.

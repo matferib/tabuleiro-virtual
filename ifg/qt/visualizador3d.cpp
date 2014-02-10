@@ -238,10 +238,16 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  tabuleiro_->TrataBotaoPressionado(
-      MapeiaBotao(*event), event->x(), height() - event->y());
-  event->accept();
+  if (event->modifiers() == Qt::ControlModifier) {
+    // Control indica sinalizacao.
+    tabuleiro_->TrataBotaoSinalizacaoPressionado(
+        MapeiaBotao(*event), event->x(), height() - event->y());
+  } else {
+    tabuleiro_->TrataBotaoPressionado(
+        MapeiaBotao(*event), event->x(), height() - event->y());
+  }
   glDraw();
+  event->accept();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
