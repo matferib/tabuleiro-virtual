@@ -37,7 +37,8 @@ message TabuleiroProto {
   // Identificador do cliente.
   optional int32 id_cliente = 1;
   // Iluminacao do tabuleiro.
-  optional IluminacaoDirecional luz = 3;
+  optional IluminacaoDirecional luz_direcional = 3;
+  optional Cor luz_ambiente = 7;
   // Textura do tabuleiro.
   optional InfoTextura info_textura = 5;
   // Tamanho do tabuleiro em quadrados.

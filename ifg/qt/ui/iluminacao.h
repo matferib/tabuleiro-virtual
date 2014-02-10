@@ -7,8 +7,8 @@
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UI_ILUMINACAO_H
-#define UI_ILUMINACAO_H
+#ifndef ILUMINACAO_H
+#define ILUMINACAO_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -17,6 +17,7 @@
 #include <QtGui/QDial>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QGroupBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
@@ -31,17 +32,6 @@ class Ui_DialogoIluminacao
 {
 public:
     QDialogButtonBox *botoes;
-    QPushButton *botao_cor;
-    QDial *dial_inclinacao;
-    QDial *dial_posicao;
-    QLabel *label_3;
-    QLabel *label_4;
-    QLabel *label_5;
-    QLabel *label_6;
-    QLabel *label_2;
-    QLabel *label_7;
-    QLabel *label_8;
-    QLabel *label_9;
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
     QLabel *label;
@@ -53,6 +43,19 @@ public:
     QLineEdit *linha_largura;
     QLabel *label_10;
     QLineEdit *linha_altura;
+    QPushButton *botao_cor_ambiente;
+    QGroupBox *groupBox;
+    QPushButton *botao_cor_direcional;
+    QDial *dial_inclinacao;
+    QLabel *label_3;
+    QDial *dial_posicao;
+    QLabel *label_4;
+    QLabel *label_5;
+    QLabel *label_6;
+    QLabel *label_7;
+    QLabel *label_9;
+    QLabel *label_8;
+    QLabel *label_2;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
@@ -64,88 +67,9 @@ public:
         botoes->setGeometry(QRect(70, 510, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-        botao_cor = new QPushButton(ifg__qt__DialogoIluminacao);
-        botao_cor->setObjectName(QString::fromUtf8("botao_cor"));
-        botao_cor->setGeometry(QRect(140, 30, 176, 27));
-        dial_inclinacao = new QDial(ifg__qt__DialogoIluminacao);
-        dial_inclinacao->setObjectName(QString::fromUtf8("dial_inclinacao"));
-        dial_inclinacao->setGeometry(QRect(60, 120, 121, 121));
-        dial_inclinacao->setMinimum(0);
-        dial_inclinacao->setMaximum(360);
-        dial_inclinacao->setValue(135);
-        dial_inclinacao->setSliderPosition(135);
-        dial_inclinacao->setOrientation(Qt::Horizontal);
-        dial_inclinacao->setInvertedAppearance(true);
-        dial_inclinacao->setInvertedControls(true);
-        dial_inclinacao->setWrapping(true);
-        dial_inclinacao->setNotchTarget(30);
-        dial_inclinacao->setNotchesVisible(true);
-        dial_posicao = new QDial(ifg__qt__DialogoIluminacao);
-        dial_posicao->setObjectName(QString::fromUtf8("dial_posicao"));
-        dial_posicao->setGeometry(QRect(290, 120, 121, 121));
-        dial_posicao->setMinimum(0);
-        dial_posicao->setMaximum(360);
-        dial_posicao->setValue(0);
-        dial_posicao->setSliderPosition(0);
-        dial_posicao->setOrientation(Qt::Horizontal);
-        dial_posicao->setInvertedAppearance(true);
-        dial_posicao->setInvertedControls(true);
-        dial_posicao->setWrapping(true);
-        dial_posicao->setNotchTarget(45);
-        dial_posicao->setNotchesVisible(true);
-        label_3 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(330, 240, 41, 21));
-        QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
-        label_3->setSizePolicy(sizePolicy);
-        label_3->setAlignment(Qt::AlignCenter);
-        label_4 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-        label_4->setGeometry(QRect(330, 100, 41, 21));
-        sizePolicy.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
-        label_4->setSizePolicy(sizePolicy);
-        label_4->setAlignment(Qt::AlignCenter);
-        label_5 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_5->setObjectName(QString::fromUtf8("label_5"));
-        label_5->setGeometry(QRect(270, 160, 20, 41));
-        sizePolicy.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
-        label_5->setSizePolicy(sizePolicy);
-        label_5->setAlignment(Qt::AlignCenter);
-        label_6 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_6->setObjectName(QString::fromUtf8("label_6"));
-        label_6->setGeometry(QRect(410, 160, 20, 41));
-        sizePolicy.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
-        label_6->setSizePolicy(sizePolicy);
-        label_6->setAlignment(Qt::AlignCenter);
-        label_2 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(180, 170, 64, 17));
-        QSizePolicy sizePolicy1(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy1);
-        label_7 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_7->setObjectName(QString::fromUtf8("label_7"));
-        label_7->setGeometry(QRect(20, 170, 50, 17));
-        sizePolicy1.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
-        label_7->setSizePolicy(sizePolicy1);
-        label_8 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_8->setObjectName(QString::fromUtf8("label_8"));
-        label_8->setGeometry(QRect(90, 240, 78, 17));
-        sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
-        label_8->setSizePolicy(sizePolicy1);
-        label_9 = new QLabel(ifg__qt__DialogoIluminacao);
-        label_9->setObjectName(QString::fromUtf8("label_9"));
-        label_9->setGeometry(QRect(100, 100, 43, 17));
-        sizePolicy1.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
-        label_9->setSizePolicy(sizePolicy1);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(30, 290, 391, 80));
+        horizontalLayoutWidget->setGeometry(QRect(20, 310, 391, 80));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -166,33 +90,146 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(30, 370, 391, 80));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 390, 263, 80));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
         label_11 = new QLabel(horizontalLayoutWidget_2);
         label_11->setObjectName(QString::fromUtf8("label_11"));
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy);
+        label_11->setIndent(-1);
 
         horizontalLayout_2->addWidget(label_11);
 
         linha_largura = new QLineEdit(horizontalLayoutWidget_2);
         linha_largura->setObjectName(QString::fromUtf8("linha_largura"));
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(linha_largura->sizePolicy().hasHeightForWidth());
+        linha_largura->setSizePolicy(sizePolicy1);
+        linha_largura->setInputMask(QString::fromUtf8("099; "));
 
         horizontalLayout_2->addWidget(linha_largura);
 
         label_10 = new QLabel(horizontalLayoutWidget_2);
         label_10->setObjectName(QString::fromUtf8("label_10"));
+        sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
+        label_10->setSizePolicy(sizePolicy1);
 
         horizontalLayout_2->addWidget(label_10);
 
         linha_altura = new QLineEdit(horizontalLayoutWidget_2);
         linha_altura->setObjectName(QString::fromUtf8("linha_altura"));
+        sizePolicy1.setHeightForWidth(linha_altura->sizePolicy().hasHeightForWidth());
+        linha_altura->setSizePolicy(sizePolicy1);
+        linha_altura->setInputMask(QString::fromUtf8("099; "));
 
         horizontalLayout_2->addWidget(linha_altura);
 
+        botao_cor_ambiente = new QPushButton(ifg__qt__DialogoIluminacao);
+        botao_cor_ambiente->setObjectName(QString::fromUtf8("botao_cor_ambiente"));
+        botao_cor_ambiente->setGeometry(QRect(130, 20, 176, 27));
+        groupBox = new QGroupBox(ifg__qt__DialogoIluminacao);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setGeometry(QRect(20, 70, 421, 221));
+        botao_cor_direcional = new QPushButton(groupBox);
+        botao_cor_direcional->setObjectName(QString::fromUtf8("botao_cor_direcional"));
+        botao_cor_direcional->setGeometry(QRect(110, 20, 176, 27));
+        dial_inclinacao = new QDial(groupBox);
+        dial_inclinacao->setObjectName(QString::fromUtf8("dial_inclinacao"));
+        dial_inclinacao->setGeometry(QRect(30, 70, 121, 121));
+        dial_inclinacao->setMinimum(0);
+        dial_inclinacao->setMaximum(360);
+        dial_inclinacao->setValue(135);
+        dial_inclinacao->setSliderPosition(135);
+        dial_inclinacao->setOrientation(Qt::Horizontal);
+        dial_inclinacao->setInvertedAppearance(true);
+        dial_inclinacao->setInvertedControls(true);
+        dial_inclinacao->setWrapping(true);
+        dial_inclinacao->setNotchTarget(30);
+        dial_inclinacao->setNotchesVisible(true);
+        label_3 = new QLabel(groupBox);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setGeometry(QRect(290, 190, 41, 21));
+        QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(label_3->sizePolicy().hasHeightForWidth());
+        label_3->setSizePolicy(sizePolicy2);
+        label_3->setAlignment(Qt::AlignCenter);
+        dial_posicao = new QDial(groupBox);
+        dial_posicao->setObjectName(QString::fromUtf8("dial_posicao"));
+        dial_posicao->setGeometry(QRect(250, 70, 121, 121));
+        dial_posicao->setMinimum(0);
+        dial_posicao->setMaximum(360);
+        dial_posicao->setValue(0);
+        dial_posicao->setSliderPosition(0);
+        dial_posicao->setOrientation(Qt::Horizontal);
+        dial_posicao->setInvertedAppearance(true);
+        dial_posicao->setInvertedControls(true);
+        dial_posicao->setWrapping(true);
+        dial_posicao->setNotchTarget(45);
+        dial_posicao->setNotchesVisible(true);
+        label_4 = new QLabel(groupBox);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setGeometry(QRect(290, 50, 41, 21));
+        sizePolicy2.setHeightForWidth(label_4->sizePolicy().hasHeightForWidth());
+        label_4->setSizePolicy(sizePolicy2);
+        label_4->setAlignment(Qt::AlignCenter);
+        label_5 = new QLabel(groupBox);
+        label_5->setObjectName(QString::fromUtf8("label_5"));
+        label_5->setGeometry(QRect(230, 110, 20, 41));
+        sizePolicy2.setHeightForWidth(label_5->sizePolicy().hasHeightForWidth());
+        label_5->setSizePolicy(sizePolicy2);
+        label_5->setAlignment(Qt::AlignCenter);
+        label_6 = new QLabel(groupBox);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+        label_6->setGeometry(QRect(370, 110, 20, 41));
+        sizePolicy2.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
+        label_6->setSizePolicy(sizePolicy2);
+        label_6->setAlignment(Qt::AlignCenter);
+        label_7 = new QLabel(groupBox);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+        label_7->setGeometry(QRect(0, 120, 50, 17));
+        QSizePolicy sizePolicy3(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
+        label_7->setSizePolicy(sizePolicy3);
+        label_9 = new QLabel(groupBox);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+        label_9->setGeometry(QRect(70, 50, 43, 17));
+        sizePolicy3.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
+        label_9->setSizePolicy(sizePolicy3);
+        label_8 = new QLabel(groupBox);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+        label_8->setGeometry(QRect(60, 200, 78, 17));
+        sizePolicy3.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy3);
+        label_2 = new QLabel(groupBox);
+        label_2->setObjectName(QString::fromUtf8("label_2"));
+        label_2->setGeometry(QRect(160, 120, 64, 17));
+        sizePolicy3.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy3);
+        botao_cor_direcional->raise();
+        dial_inclinacao->raise();
+        dial_posicao->raise();
+        label_3->raise();
+        dial_posicao->raise();
+        label_4->raise();
+        label_5->raise();
+        label_6->raise();
+        label_7->raise();
+        label_9->raise();
+        label_8->raise();
+        label_2->raise();
 
         retranslateUi(ifg__qt__DialogoIluminacao);
-        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoIluminacao, SLOT(accept()));
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoIluminacao, SLOT(reject()));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoIluminacao);
@@ -201,21 +238,6 @@ public:
     void retranslateUi(QDialog *ifg__qt__DialogoIluminacao)
     {
         ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Ilumina\303\247\303\243o Ambiente", 0, QApplication::UnicodeUTF8));
-        botao_cor->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        dial_inclinacao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Inclina\303\247\303\243o da Luz", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        dial_posicao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Posi\303\247\303\243o da fonte de luz", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_3->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "S", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N", 0, QApplication::UnicodeUTF8));
-        label_5->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "W", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "E", 0, QApplication::UnicodeUTF8));
-        label_2->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Nascente", 0, QApplication::UnicodeUTF8));
-        label_7->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Poente", 0, QApplication::UnicodeUTF8));
-        label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", 0, QApplication::UnicodeUTF8));
-        label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Fundo", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Tamanho", 0, QApplication::UnicodeUTF8));
@@ -226,6 +248,23 @@ public:
 #ifndef QT_NO_TOOLTIP
         linha_altura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "altura", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        botao_cor_ambiente->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz  Ambiente", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Luz Direcional", 0, QApplication::UnicodeUTF8));
+        botao_cor_direcional->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz Direcional", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        dial_inclinacao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Inclina\303\247\303\243o da Luz", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_3->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "S", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        dial_posicao->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Posi\303\247\303\243o da fonte de luz", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_4->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N", 0, QApplication::UnicodeUTF8));
+        label_5->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "W", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "E", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Poente", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Nascente", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
@@ -241,4 +280,4 @@ namespace Ui {
 } // namespace qt
 } // namespace ifg
 
-#endif // UI_ILUMINACAO_H
+#endif // ILUMINACAO_H
