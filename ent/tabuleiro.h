@@ -43,6 +43,11 @@ enum etab_t {
   ETAB_QUAD_SELECIONADO,
 };
 
+struct Sinalizador {
+  ent::Posicao pos;
+  double estado;
+};
+
 typedef std::unordered_map<unsigned int, Entidade*> MapaEntidades;
 typedef std::unordered_set<unsigned int> MapaClientes;
 
@@ -90,9 +95,11 @@ class Tabuleiro : public ntf::Receptor {
   /** trata o botao do mouse liberado. */
   void TrataBotaoLiberado(botao_e botao);
 
-  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl).
-  */
+  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl). */
   void TrataBotaoPressionado(botao_e botao, int x, int y);
+
+  /** trata o botao pressionado em modo de sinalizacao, recebendo x, y (ja em coordenadas opengl). */
+  void TrataBotaoSinalizacaoPressionado(botao_e botao, int x, int y);
 
   /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
   void TrataDuploClique(botao_e botao, int x, int y);
@@ -210,7 +217,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Poe o tabuleiro no modo jogador. */
   void ModoJogador() { modo_mestre_ = false; }
 
-
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -224,6 +230,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** mapa geral de entidades, por id. */
   MapaEntidades entidades_;
+
+  /** Sinalizadores sao sinais enviados de um jogador para outros, efeito apenas de sinalizacao. */
+  std::vector<Sinalizador> sinalizadores_;
+
   /** um set com os id de clientes usados. */
   MapaClientes clientes_;
 
