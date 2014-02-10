@@ -1,4 +1,3 @@
-- Separar iluminacao ambiente e iluminacao direcional.
 - Gerar acoes de jogadores (magic missile, fireball etc).
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.

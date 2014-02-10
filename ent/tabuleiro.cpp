@@ -155,13 +155,17 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     central_(central),
     modo_mestre_(true) {
   central_->RegistraReceptor(this);
-  // Iluminacao inicial.
-  proto_.mutable_luz()->mutable_cor()->set_r(0.4f);
-  proto_.mutable_luz()->mutable_cor()->set_g(0.4f);
-  proto_.mutable_luz()->mutable_cor()->set_b(0.4f);
+  // Iluminacao ambiente inicial.
+  proto_.mutable_luz_ambiente()->set_r(0.2f);
+  proto_.mutable_luz_ambiente()->set_g(0.2f);
+  proto_.mutable_luz_ambiente()->set_b(0.2f);
+  // Iluminacao direcional inicial.
+  proto_.mutable_luz_direcional()->mutable_cor()->set_r(0.2f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_g(0.2f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_b(0.2f);
   // Vinda de 45 graus leste.
-  proto_.mutable_luz()->set_posicao_graus(0.0f);
-  proto_.mutable_luz()->set_inclinacao_graus(45.0f);
+  proto_.mutable_luz_direcional()->set_posicao_graus(0.0f);
+  proto_.mutable_luz_direcional()->set_inclinacao_graus(45.0f);
   // Olho.
   auto* pos = olho_.mutable_alvo();
   pos->set_x(0.0f);
@@ -596,7 +600,10 @@ void Tabuleiro::DesenhaCena() {
   }
 
   glEnable(GL_DEPTH_TEST);
-  glClearColor(proto_.luz().cor().r(), proto_.luz().cor().g(), proto_.luz().cor().b(), proto_.luz().cor().a());
+  glClearColor(proto_.luz_ambiente().r(), 
+               proto_.luz_ambiente().g(),
+               proto_.luz_ambiente().b(),
+               proto_.luz_ambiente().a());
   if (parametros_desenho_.limpa_fundo()) {
     glClear(GL_COLOR_BUFFER_BIT);
   }
@@ -624,15 +631,10 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
 
-    float seno_inclinacao = sinf(proto_.luz().inclinacao_graus() * GRAUS_PARA_RAD);
-    // A luz ambiente pode ser no máximo 0.3 da luz total.
-    const float kMaxAmbiente = 0.3f;
-    float fator_luz = seno_inclinacao > 0 ? seno_inclinacao * kMaxAmbiente : 0.0f;
-    GLfloat cor_luz_ambiente[] = { proto_.luz().cor().r() * fator_luz,
-                                   proto_.luz().cor().g() * fator_luz,
-                                   proto_.luz().cor().b() * fator_luz,
-                                   proto_.luz().cor().a()};
-
+    GLfloat cor_luz_ambiente[] = { proto_.luz_ambiente().r(),
+                                   proto_.luz_ambiente().g(),
+                                   proto_.luz_ambiente().b(),
+                                   proto_.luz_ambiente().a()};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
 
     // Iluminação distante direcional.
@@ -640,17 +642,16 @@ void Tabuleiro::DesenhaCena() {
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    glRotatef(proto_.luz().posicao_graus(), 0.0f, 0.0f, 1.0f);
-    glRotatef(proto_.luz().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    glRotatef(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+    glRotatef(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
     glPopMatrix();
 
     // A cor da luz difusa.
-    const float kMaxDirecional = 1.0f - kMaxAmbiente;
-    GLfloat cor_luz[] = { proto_.luz().cor().r() * kMaxDirecional,
-                          proto_.luz().cor().g() * kMaxDirecional,
-                          proto_.luz().cor().b() * kMaxDirecional,
-                          proto_.luz().cor().a() };
+    GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
+                          proto_.luz_direcional().cor().g(),
+                          proto_.luz_direcional().cor().b(),
+                          proto_.luz_direcional().cor().a() };
     glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     glEnable(GL_LIGHT0);
 
@@ -742,14 +743,14 @@ void Tabuleiro::DesenhaCena() {
   glEnable(GL_BLEND);
   // Sombras.
   if (parametros_desenho_.desenha_sombras() &&
-      proto_.luz().inclinacao_graus() > 5.0 &&
-      proto_.luz().inclinacao_graus() < 180.0f) {
+      proto_.luz_direcional().inclinacao_graus() > 5.0 &&
+      proto_.luz_direcional().inclinacao_graus() < 180.0f) {
     // TODO calcular isso so uma vez.
-    const float kAnguloInclinacao = proto_.luz().inclinacao_graus() * GRAUS_PARA_RAD;
-    const float kAnguloPosicao = proto_.luz().posicao_graus() * GRAUS_PARA_RAD;
+    const float kAnguloInclinacao = proto_.luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
+    const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
     // TODO Alpha deve ser baseado na inclinacao.
     // TODO Limitar o shearing.
-    float fator_shear = proto_.luz().inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
+    float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
     // Matriz eh column major, ou seja, esta invertida.
     // A ideia eh adicionar ao x a altura * fator de shear.
     GLfloat matriz_shear[] = {
@@ -1095,7 +1096,8 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cliente(id_cliente_);
-  tabuleiro->mutable_luz()->CopyFrom(proto_.luz());
+  tabuleiro->mutable_luz_ambiente()->CopyFrom(proto_.luz_ambiente());
+  tabuleiro->mutable_luz_direcional()->CopyFrom(proto_.luz_direcional());
   if (proto_.has_info_textura()) {
     tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());
   }
@@ -1111,7 +1113,8 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
 }
 
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
-  proto_.mutable_luz()->CopyFrom(novo_proto.luz());
+  proto_.mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
+  proto_.mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_.set_largura(novo_proto.largura());
   proto_.set_altura(novo_proto.altura());
   AtualizaTexturas(novo_proto);
