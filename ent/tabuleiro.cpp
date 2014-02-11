@@ -18,6 +18,8 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #endif
+#include "ent/acoes.h"
+#include "ent/acoes.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
@@ -58,11 +60,6 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
-const double SEN_60 = sin(M_PI / 3.0);
-const double SEN_30 = sin(M_PI / 6.0);
-const double COS_60 = cos(M_PI / 3.0);
-const double COS_30 = cos(M_PI / 6.0);
-
 // Cores.
 GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat PRETO[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -88,38 +85,6 @@ void DesenhaStringTempo(const std::string& tempo) {
   for (const char c : tempo) {
     glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
   }
-}
-
-/** Desenha um sinalizador na posicao passada. */
-void DesenhaSinalizacao(Sinalizador* sinalizador) {
-  glPushMatrix();
-  glTranslated(sinalizador->pos.x(), sinalizador->pos.y(), sinalizador->pos.z());
-  glScaled(sinalizador->estado, sinalizador->estado, 0.0f);
-  glBegin(GL_TRIANGLES);
-  // Primeiro triangulo.
-  glVertex2d(COS_30 * 0.3, SEN_30 * 0.2);
-  glVertex2i(1, 0);
-  glVertex2d(COS_60, SEN_60);
-  // Segundo triangulo.
-  glVertex2d(-COS_30 * 0.3, SEN_30 * 0.2);
-  glVertex2d(-COS_60, SEN_60);
-  glVertex2i(-1, 0);
-  // Terceiro triangulo.
-  glVertex2d(0.0, -0.2);
-  glVertex2d(-COS_60, -SEN_60);
-  glVertex2d(COS_60, -SEN_60);
-  glEnd();
-  glPopMatrix();
-  sinalizador->estado -= 0.05f;
-}
-
-// Cria um proto de entidade a partir da string texto.
-ent::EntidadeProto* CriaProto(const std::string& str = "") {
-  auto* ent = new ent::EntidadeProto;
-  if (!google::protobuf::TextFormat::ParseFromString(str, ent)) {
-    LOG(ERROR) << "Falha no parser de modelo, str: " << str;
-  }
-  return ent;
 }
 
 /** Le um arquivo proto serializado de forma binaria. */
@@ -170,8 +135,9 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   largura_ = altura_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
   // Modelos.
-  mapa_modelos_.insert(std::make_pair("&Padrão", std::unique_ptr<ent::EntidadeProto>(CriaProto())));
-  modelo_selecionado_ = mapa_modelos_.find("&Padrão")->second.get();
+  auto* modelo_padrao = new EntidadeProto;  // padrao eh vazio.
+  mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<ent::EntidadeProto>(modelo_padrao)));
+  modelo_selecionado_ = modelo_padrao;
   Modelos modelos;
   std::string arq_modelos(std::string(DIR_DADOS) + "/" + ARQUIVO_MODELOS);
   if (!LeArquivoAsciiProto(arq_modelos, &modelos)) {
@@ -179,8 +145,22 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   } else {
     for (const auto& m : modelos.modelo()) {
       mapa_modelos_.insert(std::make_pair(
-            m.id(), 
-            std::unique_ptr<ent::EntidadeProto>(new ent::EntidadeProto(m.entidade()))));
+            m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
+    }
+  }
+  // Acoes.
+  auto* acao_padrao = new AcaoProto;
+  acao_padrao->set_id(ACAO_SINALIZACAO);
+  mapa_acoes_.insert(std::make_pair(ACAO_SINALIZACAO, std::unique_ptr<AcaoProto>(acao_padrao)));
+  acao_selecionada_ = acao_padrao;
+  Acoes acoes;
+  std::string arq_acoes(std::string(DIR_DADOS) + "/" + ARQUIVO_ACOES);
+  if (!LeArquivoAsciiProto(arq_acoes, &acoes)) {
+    LOG(ERROR) << "Falha ao importar acoes do arquivo '" << arq_acoes << "'";
+  } else {
+    for (const auto& a : acoes.acao()) {
+      mapa_acoes_.insert(std::make_pair(
+            a.id(), std::unique_ptr<AcaoProto>(new AcaoProto(a))));
     }
   }
 }
@@ -284,11 +264,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         LOG(ERROR) << "Limite de entidades alcançado: " << e.what();
       }
       return true;
-    case ntf::TN_ADICIONAR_SINALIZACAO: {
-      Sinalizador s;
-      s.pos.CopyFrom(notificacao.entidade().pos());
-      s.estado = TAMANHO_LADO_QUADRADO * 2.0f;
-      sinalizadores_.push_back(s);
+    case ntf::TN_ADICIONAR_ACAO: {
+      acoes_.push_back(std::unique_ptr<Acao>(NovaAcao(notificacao.acao())));
       return true;
     }
     case ntf::TN_REMOVER_ENTIDADE: {
@@ -494,30 +471,48 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
   }
 }
 
-void Tabuleiro::TrataBotaoSinalizacaoPressionado(botao_e botao, int x, int y) {
+void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
+  AcaoProto acao_proto;
+  if (botao == BOTAO_ESQUERDO) {
+    // usa acao padrao.
+    VLOG(2) << "Acao padrao";
+    acao_proto.CopyFrom(*acao_selecionada_);
+  } else {
+    // Usa acoes.
+    VLOG(2) << "Acao sinalizacao";
+    auto it = mapa_acoes_.find(ACAO_SINALIZACAO);
+    if (it == mapa_acoes_.end()) {
+      LOG(ERROR) << "Ação de sinalização inválida: " << ACAO_SINALIZACAO;
+      return;
+    }
+    acao_proto.CopyFrom(*it->second.get()); 
+  }
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  ent::Posicao pos;
+  auto* pos = acao_proto.mutable_pos();
   if (pos_pilha == 1) {
+    VLOG(1) << "Acao no tabuleiro: " << id;
     // Tabuleiro.
     double x, y, z;
     CoordenadaQuadrado(id, &x, &y, &z);
-    pos.set_x(x);
-    pos.set_y(y);
-    pos.set_z(z);
+    pos->set_x(x);
+    pos->set_y(y);
+    pos->set_z(z);
   } else if (pos_pilha > 1) {
+    VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
-    ent::Entidade* e = entidades_.find(id)->second;
-    pos.set_x(e->X());
-    pos.set_y(e->Y());
-    pos.set_z(e->Z());
+    acao_proto.set_id_entidade(id);
+    auto* e = entidades_.find(id)->second;
+    pos->set_x(e->X());
+    pos->set_y(e->Y());
+    pos->set_z(e->Z());
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     return;
   }
-  auto* n_local = ntf::NovaNotificacao(ntf::TN_ADICIONAR_SINALIZACAO);
-  n_local->mutable_entidade()->mutable_pos()->Swap(&pos);
+  auto* n_local = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  n_local->mutable_acao()->Swap(&acao_proto);
   auto* n_remota = new ntf::Notificacao(*n_local);
   central_->AdicionaNotificacaoRemota(n_local);
   central_->AdicionaNotificacao(n_remota);
@@ -585,6 +580,15 @@ void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
     return;
   }
   modelo_selecionado_ = it->second.get();
+}
+
+void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
+  auto it = mapa_acoes_.find(id_acao);
+  if (it == mapa_acoes_.end()) {
+    LOG(ERROR) << "Id de acao inválido: " << id_acao;
+    return;
+  }
+  acao_selecionada_ = it->second.get();
 }
 
 // privadas
@@ -718,24 +722,18 @@ void Tabuleiro::DesenhaCena() {
   }
   glPopName();
 
-  if (parametros_desenho_.desenha_sinalizacoes()) {
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glEnable(GL_NORMALIZE);
-    glNormal3f(0, 0, 1.0f);
-    MudaCor(BRANCO);
-    glPolygonOffset(-0.06f, -0.06f);
-    for (auto& s : sinalizadores_) {
-      DesenhaSinalizacao(&s);
+  if (parametros_desenho_.desenha_acoes()) {
+    for (auto& a : acoes_) {
+      VLOG(3) << "Desenhando acao";
+      a->Desenha(&parametros_desenho_);
     }
-    glDisable(GL_NORMALIZE);
-    glDisable(GL_POLYGON_OFFSET_FILL);
     // Remove sinalizacoes finalizadas.
-    auto primeiro_removido = std::remove_if(sinalizadores_.begin(), sinalizadores_.end(), 
-        [this](const Sinalizador& s) {
-      return s.estado < 0;
+    auto primeiro_removido = std::remove_if(acoes_.begin(), acoes_.end(), 
+        [this](const std::unique_ptr<Acao>& a) {
+      return a->Finalizada();
     });
-    sinalizadores_.erase(primeiro_removido, sinalizadores_.end());
-    VLOG(2) << "Numero de sinalizadores: " << sinalizadores_.size();
+    acoes_.erase(primeiro_removido, acoes_.end());
+    VLOG(2) << "Numero de acoes ativas: " << acoes_.size();
   }
 
   glEnable(GL_BLEND);
@@ -903,7 +901,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
-  parametros_desenho_.set_desenha_sinalizacoes(false);
+  parametros_desenho_.set_desenha_acoes(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.

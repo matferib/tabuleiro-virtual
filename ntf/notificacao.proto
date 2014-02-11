@@ -1,3 +1,4 @@
+import "ent/acoes.proto";
 import "ent/entidade.proto";
 import "ent/tabuleiro.proto";
 
@@ -28,7 +29,7 @@ enum Tipo {
   TN_ATUALIZAR_OPCOES = 23;
   TN_CARREGAR_TEXTURA = 24;
   TN_DESCARREGAR_TEXTURA = 25;
-  TN_ADICIONAR_SINALIZACAO = 26;
+  TN_ADICIONAR_ACAO = 26;
 }
 
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
@@ -45,6 +46,8 @@ message Notificacao {
   optional ent.TabuleiroProto tabuleiro = 6;
   // Entidade.
   optional ent.EntidadeProto entidade = 7;
+  // Acoes.
+  optional ent.AcaoProto acao = 12;
   // Opcoes.
   optional ent.OpcoesProto opcoes = 8;
   // Informacao sobre textura para carregamento e descarregamento.

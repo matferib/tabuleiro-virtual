@@ -53,6 +53,8 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   void TrataAcaoItem(QAction*);
   /** slot para tratar acoes de modelos de entidade. */
   void TrataAcaoModelo(QAction*);
+  /** slot para tratar acoes de acoes de jogadores. */
+  void TrataAcaoAcoes(QAction*);
 
   /** poe o menu no modo passado como argumento.
   * @TODO o que cada modo habilita.

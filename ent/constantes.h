@@ -17,5 +17,9 @@
 
 #define DIR_DADOS "dados" 
 #define ARQUIVO_MODELOS "modelos.asciiproto"
+#define ARQUIVO_ACOES "acoes.asciiproto"
+
+// Identificador da acao de sinalizacao.
+#define ACAO_SINALIZACAO "Sinalização"
 
 #endif

@@ -239,8 +239,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   if (event->modifiers() == Qt::ControlModifier) {
-    // Control indica sinalizacao.
-    tabuleiro_->TrataBotaoSinalizacaoPressionado(
+    tabuleiro_->TrataBotaoAcaoPressionado(
         MapeiaBotao(*event), event->x(), height() - event->y());
   } else {
     tabuleiro_->TrataBotaoPressionado(

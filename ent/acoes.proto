@@ -1,0 +1,17 @@
+// Tudo relacionado as acoes que os jogadores podem realizar.
+import "ent/entidade.proto";
+
+package ent;
+
+message AcaoProto {
+  // Identificador da acao.
+  optional string id = 1;
+  // Adicionar coisas da acao aqui.
+  optional Posicao pos = 2;
+  optional uint32 id_entidade = 3;
+}
+
+// O arquivo de acoes é serializado desta forma.
+message Acoes {
+  repeated AcaoProto acao = 1;
+}

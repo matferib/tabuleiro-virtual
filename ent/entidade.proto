@@ -113,6 +113,6 @@ message ParametrosDesenho {
   optional bool texturas_sempre_de_frente = 16 [default=true];
   // Posicao do olho.
   optional Posicao pos_olho = 17;
-  // Desenhar sinalizadores.
-  optional bool desenha_sinalizacoes = 18 [default=true];
+  // Desenhar acoes de jogadores.
+  optional bool desenha_acoes = 18 [default=true];
 }
