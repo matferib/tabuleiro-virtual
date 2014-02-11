@@ -21,5 +21,7 @@
 
 // Identificador da acao de sinalizacao.
 #define ACAO_SINALIZACAO "Sinalização"
+// As acoes de baixo devem bater com as do arquivo de acoes.
+#define ACAO_MISSIL_MAGICO "Míssil Mágico"
 
 #endif

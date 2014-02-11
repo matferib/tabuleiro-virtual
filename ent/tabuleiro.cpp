@@ -265,7 +265,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      acoes_.push_back(std::unique_ptr<Acao>(NovaAcao(notificacao.acao())));
+      auto* acao = NovaAcao(notificacao.acao());
+      if (acao == nullptr) {
+        LOG(ERROR) << "Ação inválida na notificacao: " << notificacao.ShortDebugString();
+        return true;
+      }
+      acoes_.push_back(std::unique_ptr<Acao>(acao));
       return true;
     }
     case ntf::TN_REMOVER_ENTIDADE: {
@@ -276,6 +281,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaOlho();
       for (auto& id_ent : entidades_) {
         id_ent.second->Atualiza();
+      }
+      for (auto& a : acoes_) {
+        a->Atualiza();
       }
       return true;
     }

@@ -3,7 +3,7 @@ acao {
   id: 'Bola de Fogo'
 }
 acao {
-  id: 'Mísseis Mágicos' 
+  id: 'Míssil Mágico' 
 }
 acao {
   id: 'Relâmpago' 

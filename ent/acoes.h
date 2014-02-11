@@ -15,6 +15,9 @@ class Acao {
   Acao(const AcaoProto& acao_proto) : acao_proto_(acao_proto) {}
   virtual ~Acao() {}
 
+  // Atualiza a acao.
+  virtual void Atualiza() = 0;
+
   // Desenha a acao.
   virtual void Desenha(ParametrosDesenho* pd) = 0;
 
