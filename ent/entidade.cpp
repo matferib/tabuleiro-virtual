@@ -75,6 +75,25 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotifi
   }
 }
 
+void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, double x, double y, double z,
+                           EntidadeProto* proto_aux) {
+  proto_aux->set_visivel(visivel);
+  proto_aux->set_id((id_cliente << 28) | id_entidade);
+  auto* pos = proto_aux->mutable_pos();
+  pos->set_x(x);
+  pos->set_y(y);
+  pos->set_z(z);
+  // Verde.
+  auto* cor = proto_aux->mutable_cor();
+  cor->set_r(0);
+  cor->set_g(1.0);
+  cor->set_b(0);
+  if (proto_aux != nullptr) {
+    proto_aux->set_pontos_vida(proto_aux->pontos_vida());
+  }
+}
+
+
 // Entidade
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
   proto_.set_tipo(TE_ENTIDADE);

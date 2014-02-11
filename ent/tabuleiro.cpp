@@ -113,29 +113,6 @@ void DesenhaSinalizacao(Sinalizador* sinalizador) {
   sinalizador->estado -= 0.05f;
 }
 
-// TODO: mover para entidade.
-// Gera um EntidadeProto com os valores passados. Alguns valores podem vir de proto_aux (TODO definir quais).
-const EntidadeProto GeraEntidadeProto(
-    int id_cliente, int id_entidade, bool visivel, double x, double y, double z,
-    const EntidadeProto* proto_aux = nullptr) {
-  EntidadeProto ep;
-  ep.set_visivel(visivel);
-  ep.set_id((id_cliente << 28) | id_entidade);
-  auto* pos = ep.mutable_pos();
-  pos->set_x(x);
-  pos->set_y(y);
-  pos->set_z(z);
-  // Verde.
-  auto* cor = ep.mutable_cor();
-  cor->set_r(0);
-  cor->set_g(1.0);
-  cor->set_b(0);
-  if (proto_aux != nullptr) {
-    ep.set_pontos_vida(proto_aux->pontos_vida());
-  }
-  return ep;
-}
-
 // Cria um proto de entidade a partir da string texto.
 ent::EntidadeProto* CriaProto(const std::string& str = "") {
   auto* ent = new ent::EntidadeProto;
@@ -193,10 +170,19 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   largura_ = altura_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
   // Modelos.
-  std::ifstream arquivo(std::string(DIR_DADOS) + "/" + ARQUIVO_MODELOS);
   mapa_modelos_.insert(std::make_pair("&Padrão", std::unique_ptr<ent::EntidadeProto>(CriaProto())));
-  mapa_modelos_.insert(std::make_pair("Teste", std::unique_ptr<ent::EntidadeProto>(CriaProto("pontos_vida: 5"))));
   modelo_selecionado_ = mapa_modelos_.find("&Padrão")->second.get();
+  Modelos modelos;
+  std::string arq_modelos(std::string(DIR_DADOS) + "/" + ARQUIVO_MODELOS);
+  if (!LeArquivoAsciiProto(arq_modelos, &modelos)) {
+    LOG(ERROR) << "Falha ao importar modelos do arquivo '" << arq_modelos << "'";
+  } else {
+    for (const auto& m : modelos.modelo()) {
+      mapa_modelos_.insert(std::make_pair(
+            m.id(), 
+            std::unique_ptr<ent::EntidadeProto>(new ent::EntidadeProto(m.entidade()))));
+    }
+  }
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -241,9 +227,9 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
       double x, y, z;
       CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
       auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-      entidade->Inicializa(GeraEntidadeProto(
-            id_cliente_, id_entidade, !modo_mestre_, x, y, z,
-            modelo_selecionado_));
+      EntidadeProto modelo(*modelo_selecionado_);
+      PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, x, y, z, &modelo);
+      entidade->Inicializa(modelo);
       entidades_.insert(std::make_pair(entidade->Id(), entidade));
       SelecionaEntidade(entidade->Id());
       // Envia a entidade para os outros.
