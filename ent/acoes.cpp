@@ -24,6 +24,7 @@ const double COS_30 = cos(M_PI / 6.0);
 
 // TODO mudar para constantes.
 GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat AZUL[] = { 0.0f, 0.0f, 1.0f, 1.0f };
 
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
@@ -31,6 +32,7 @@ void MudaCor(GLfloat* cor) {
   glColor3fv(cor);
 }
 
+// Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
  public:
   AcaoSinalizacao(const AcaoProto& acao_proto) : Acao(acao_proto), estado_(TAMANHO_LADO_QUADRADO * 2.0f) {}
@@ -61,10 +63,13 @@ class AcaoSinalizacao : public Acao {
     glVertex2d(COS_60, -SEN_60);
     glEnd();
     glPopMatrix();
-    estado_ -= 0.05f;
 
     glDisable(GL_NORMALIZE);
     glDisable(GL_POLYGON_OFFSET_FILL);
+  }
+
+  void Atualiza() {
+    estado_ -= 0.05f;
   }
 
   bool Finalizada() const override {
@@ -75,12 +80,43 @@ class AcaoSinalizacao : public Acao {
   double estado_;
 };
 
+// Uma acao de missil magico vai da origem ate o alvo de forma meio aleatoria.
+class AcaoMissilMagico : public Acao {
+ public:
+  AcaoMissilMagico(const AcaoProto& acao_proto) : Acao(acao_proto) {}
+
+  void Desenha(ParametrosDesenho* pd) override {
+    MudaCor(AZUL);
+
+    const Posicao& pos = acao_proto_.pos();
+    glPushMatrix();
+    glTranslated(pos.x(), pos.y(), pos.z());
+
+    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 / 4, 5, 5);
+
+    glPopMatrix();
+  }
+
+  void Atualiza() {
+    // TODO ir na direcao do alvo.
+  }
+
+  bool Finalizada() const override {
+    // TODO
+    return false;
+  }
+
+ private:
+};
+
 }  // namespace
 
 Acao* NovaAcao(const AcaoProto& acao_proto) {
   const std::string& id_acao = acao_proto.id();
   if (id_acao == ACAO_SINALIZACAO) {
     return new AcaoSinalizacao(acao_proto);
+  } else if (id_acao == ACAO_MISSIL_MAGICO) {
+    return new AcaoMissilMagico(acao_proto);
   }
   return nullptr;
 }
