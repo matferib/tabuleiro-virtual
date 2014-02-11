@@ -6,6 +6,7 @@
 #include <map>
 #include <stdexcept>
 #include <vector>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
 
 #if __APPLE__
@@ -144,6 +145,19 @@ ent::EntidadeProto* CriaProto(const std::string& str = "") {
   return ent;
 }
 
+/** Le um arquivo proto serializado de forma binaria. */
+bool LeArquivoProto(const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
+  std::ifstream arquivo(nome_arquivo,  std::ios_base::in | std::ios_base::binary);
+  return mensagem->ParseFromIstream(&arquivo);
+}
+
+/** Le um arquivo proto serializado de forma texto (arquivos de configuracao). */
+bool LeArquivoAsciiProto(const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
+  std::ifstream arquivo(nome_arquivo);
+  google::protobuf::io::IstreamInputStream zis(&arquivo);
+  return google::protobuf::TextFormat::Parse(&zis, mensagem);
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
@@ -179,6 +193,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   largura_ = altura_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
   // Modelos.
+  std::ifstream arquivo(std::string(DIR_DADOS) + "/" + ARQUIVO_MODELOS);
   mapa_modelos_.insert(std::make_pair("&Padrão", std::unique_ptr<ent::EntidadeProto>(CriaProto())));
   mapa_modelos_.insert(std::make_pair("Teste", std::unique_ptr<ent::EntidadeProto>(CriaProto("pontos_vida: 5"))));
   modelo_selecionado_ = mapa_modelos_.find("&Padrão")->second.get();
@@ -329,14 +344,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           LOG(ERROR) << "Erro lendo arquivo";
           return true;
         }
-        arquivo.seekg(0, std::ifstream::end);
-        std::ifstream::pos_type tamanho = arquivo.tellg();
-        arquivo.seekg(0, std::ifstream::beg);
-        std::vector<char> buffer(tamanho);
-        arquivo.read(&buffer[0], tamanho);
-        arquivo.close();
         ntf::Notificacao nt_tabuleiro;
-        if (!nt_tabuleiro.ParseFromString(std::string(buffer.begin(), buffer.end()))) {
+        if (!LeArquivoProto(notificacao.endereco(), &nt_tabuleiro)) {
           // TODO enviar uma mensagem de erro direto aqui na UI.
           LOG(ERROR) << "Erro restaurando notificacao do arquivo";
           return true;
@@ -724,12 +733,15 @@ void Tabuleiro::DesenhaCena() {
   glPopName();
 
   if (parametros_desenho_.desenha_sinalizacoes()) {
-    MudaCor(BRANCO);
     glEnable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_NORMALIZE);
+    glNormal3f(0, 0, 1.0f);
+    MudaCor(BRANCO);
     glPolygonOffset(-0.06f, -0.06f);
     for (auto& s : sinalizadores_) {
       DesenhaSinalizacao(&s);
     }
+    glDisable(GL_NORMALIZE);
     glDisable(GL_POLYGON_OFFSET_FILL);
     // Remove sinalizacoes finalizadas.
     auto primeiro_removido = std::remove_if(sinalizadores_.begin(), sinalizadores_.end(), 

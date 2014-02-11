@@ -36,14 +36,14 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
 
  private:
   /** Menus da barra de menu. */
-  enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE, ME_NUM };
+  enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_ACOES, ME_SOBRE, ME_NUM };
   /** Os items de cada menu. */
   enum menuitem_e { // items de cada menu 
-    MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,
-    MI_OPCOES = 0, MI_PROPRIEDADES, MI_SALVAR, MI_RESTAURAR,
-    MI_PROPRIEDADES_ENTIDADE = 0, MI_ADICIONAR, MI_REMOVER,
-    MI_TABVIRT = 0,
-    MI_SEP = 0
+    MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,  // ME_JOGO
+    MI_OPCOES = 0, MI_PROPRIEDADES, MI_SALVAR, MI_RESTAURAR,  // ME_TABULEIRO
+    MI_PROPRIEDADES_ENTIDADE = 0, MI_ADICIONAR, MI_REMOVER,  // ME_ENTIDADES
+    // ME_ACOES eh vazio. 
+    MI_TABVIRT = 0,  // ME_SOBRE
   };
   /** os modos (estados) do menu aceita. */  
   enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
