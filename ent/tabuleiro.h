@@ -132,6 +132,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }
 
+  /** @return a entidade por id, ou nullptr se nao encontrá-la. */
+  Entidade* BuscaEntidade(unsigned int id);
+
  private:
   /** funcao que desenha a cena independente do modo.
   */
@@ -200,9 +203,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
-
-  /** @return a entidade por id, ou nullptr se nao encontrá-la. */
-  Entidade* BuscaEntidade(unsigned int id);
 
   /** Remove uma entidade pelo id.
   * @return true se a entidade removida for a selecionada.

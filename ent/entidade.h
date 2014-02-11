@@ -71,6 +71,9 @@ class Entidade {
   /** @return a coordenada (z). */
   double Z() const;
 
+  /** @return a posicao das acoes da entidade. */
+  const Posicao PosicaoAcao() const;
+
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
   void DesenhaLuz(ParametrosDesenho* pd);
 
