@@ -74,7 +74,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       if (menuitem_str == nullptr) {
         menu->addSeparator();
       } else if (std::string(menuitem_str) == "&Selecionar modelo") {
-        // Esse menu tem tratamento especial. TODO ler de um arquivo os modelos.
+        // Esse sub menu tem tratamento especial.
         auto* grupo = new QActionGroup(this); 
         grupo->setExclusive(true);
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
@@ -100,6 +100,20 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
     }
     ++controle_item;  // pula o FIM.
     if (controle_menu == ME_ACOES) {
+      // Esse menu tem tratamento especial.
+      auto* grupo = new QActionGroup(this); 
+      grupo->setExclusive(true);
+      for (const auto& acao_it : tabuleiro_->MapaAcoes()) {
+        auto* acao = new QAction(tr(acao_it.first.c_str()), menu);
+        acao->setCheckable(true);
+        acao->setData(QVariant::fromValue(QString(acao_it.first.c_str())));
+        grupo->addAction(acao);
+        menu->addAction(acao);
+        if (acao_it.second.get() == tabuleiro->AcaoSelecionada()) {
+          acao->setChecked(true);
+        }
+      }
+      connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoAcoes(QAction*)));
     }
     // adiciona os menus ao menu principal
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoItem(QAction*)));
@@ -165,6 +179,10 @@ void MenuPrincipal::Modo(modomenu_e modo){
 
 void MenuPrincipal::TrataAcaoModelo(QAction* acao){
   tabuleiro_->SelecionaModeloEntidade(acao->data().toString().toStdString());
+}
+
+void MenuPrincipal::TrataAcaoAcoes(QAction* acao){
+  tabuleiro_->SelecionaAcao(acao->data().toString().toStdString());
 }
 
 void MenuPrincipal::TrataAcaoItem(QAction* acao){

@@ -73,9 +73,10 @@ cTexturas = env.Object('ifg/qt/texturas.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
+cAcoes = env.Object('ent/acoes.cpp')
 ent_proto = env.Protoc(
   target = [],
-  source = ['ent/entidade.proto', 'ent/tabuleiro.proto'],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto'],
 )
 
 # net
@@ -101,7 +102,7 @@ env.Program(
 		ntf_proto[0], cNtf,
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
-    # ent.
-		ent_proto[0], ent_proto[2], cTabuleiro, cEntidade
+    # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
+		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes,
 	]
 )

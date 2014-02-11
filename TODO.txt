@@ -1,5 +1,5 @@
 - Gerar acoes de jogadores (magic missile, fireball etc).
-- Adicionar modelos diversos (arquivo de configuracao).
+- Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
 - Adicionar unit tests.

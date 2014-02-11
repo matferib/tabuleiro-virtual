@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
 #include "ntf/notificacao.h"
@@ -15,6 +16,7 @@ class Notificacao;
 
 namespace ent {
 
+class Acao;
 class Entidade;
 class InfoTextura;
 class Texturas;
@@ -98,8 +100,10 @@ class Tabuleiro : public ntf::Receptor {
   /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl). */
   void TrataBotaoPressionado(botao_e botao, int x, int y);
 
-  /** trata o botao pressionado em modo de sinalizacao, recebendo x, y (ja em coordenadas opengl). */
-  void TrataBotaoSinalizacaoPressionado(botao_e botao, int x, int y);
+  /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl). 
+  * Acao com botao esquerdo respeita a selecao de padrao, botao direito usa sinalizacao.
+  */
+  void TrataBotaoAcaoPressionado(botao_e botao, int x, int y);
 
   /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
   void TrataDuploClique(botao_e botao, int x, int y);
@@ -114,10 +118,19 @@ class Tabuleiro : public ntf::Receptor {
   void SelecionaModeloEntidade(const std::string& id_modelo);
 
   /** Acesso ao modelo de entidade selecionado. */
-  const ent::EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
+  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
 
   /** Acesso ao mapa de modelos. */
-  const std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>>& MapaModelos() const { return mapa_modelos_; }
+  const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const { return mapa_modelos_; }
+
+  /** Seleciona o modelo de entidade através do identificador. */
+  void SelecionaAcao(const std::string& id_acao);
+
+  /** Acesso ao modelo de entidade selecionado. */
+  const AcaoProto* AcaoSelecionada() const { return acao_selecionada_; }
+
+  /** Acesso ao mapa de modelos. */
+  const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }
 
  private:
   /** funcao que desenha a cena independente do modo.
@@ -231,8 +244,8 @@ class Tabuleiro : public ntf::Receptor {
   /** mapa geral de entidades, por id. */
   MapaEntidades entidades_;
 
-  /** Sinalizadores sao sinais enviados de um jogador para outros, efeito apenas de sinalizacao. */
-  std::vector<Sinalizador> sinalizadores_;
+  /** Acoes de jogadores no tabuleiro. */
+  std::vector<std::unique_ptr<Acao>> acoes_;
 
   /** um set com os id de clientes usados. */
   MapaClientes clientes_;
@@ -270,13 +283,13 @@ class Tabuleiro : public ntf::Receptor {
   // Para onde o olho olha.
   Olho olho_;
 
-  /** Ação selecionada (por id). */
-  int acao_selecionada_;
-  std::unordered_map<std::string, int> mapa_acoes_;
-
   /** O modelo selecionado para inserção de entidades. */
   const ent::EntidadeProto* modelo_selecionado_;
-  std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>> mapa_modelos_;
+  std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
+
+  /** Ação selecionada (por id). */
+  const AcaoProto* acao_selecionada_;
+  std::unordered_map<std::string, std::unique_ptr<AcaoProto>> mapa_acoes_;
 
   Texturas* texturas_;
   ntf::CentralNotificacoes* central_;
