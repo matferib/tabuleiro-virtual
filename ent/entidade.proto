@@ -38,6 +38,7 @@ message IluminacaoPontual {
 message InfoTextura {
   // Identificador da textura. Normalmente o nome do arquivo.
   optional string id = 1;
+  // Os campos abaixo so sao usados para texturas nao globais.
   // Largura em pixels.
   optional int32 largura = 2;
   // Altura em pixels.

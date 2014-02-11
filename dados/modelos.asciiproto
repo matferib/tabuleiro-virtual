@@ -1,0 +1,9 @@
+# Este arquivo é uma representação texto do proto ent::Modelos. 
+modelo {
+  id: "&Orc"
+  entidade: { pontos_vida: 5 info_textura { id: 'orc.png'} }
+}
+modelo {
+  id: "&Troll"
+  entidade: { pontos_vida: 63 tamanho: TM_GRANDE info_textura { id: 'troll.png'} }
+}
