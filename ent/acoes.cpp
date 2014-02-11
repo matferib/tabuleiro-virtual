@@ -1,3 +1,5 @@
+#include <cmath>
+
 #if __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -87,18 +89,33 @@ class AcaoSinalizacao : public Acao {
 class AcaoMissilMagico : public Acao {
  public:
   AcaoMissilMagico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
-    finalizada_ = false;
+    contador_frames_ = 0;
+    dx_ = dy_ = dz_ = 0;
+    velocidade_ = 0;
+    estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
       VLOG(1) << "Finalizando missil magico, precisa de entidade origem.";
-      finalizada_ = true;
+      estagio_ = FIM;
       return;
     }
     pos_ = entidade_origem->PosicaoAcao();
+    delta_alvo_ = 0;
+  }
+
+  void Atualiza() override {
+    if (estagio_ == INICIAL) {
+      AtualizaInicial();
+    } else if (estagio_ == ATINGIU_ALVO) {
+      AtualizaAlvo();
+    } else {
+      return;
+    }
   }
 
   void Desenha(ParametrosDesenho* pd) override {
-    if (finalizada_) {
+    if (estagio_ != INICIAL) {
+      // TODO desenhar impacto.
       return;
     }
 
@@ -117,43 +134,92 @@ class AcaoMissilMagico : public Acao {
     glPopAttrib();
   }
 
-  void Atualiza() override {
-    if (finalizada_) {
-      return;
-    }
+  bool Finalizada() const override {
+    return estagio_ == FIM;
+  }
+
+ private:
+  void AtualizaInicial() {
+    // Atualiza destino a cada 50ms.
     Entidade* entidade_destino = nullptr;
     if (!acao_proto_.has_id_entidade_destino() ||
         (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
       VLOG(1) << "Finalizando missil magico, destino não existe.";
-      finalizada_ = true;
+      estagio_ = FIM;
       return;
     }
     const auto& pos_destino = entidade_destino->PosicaoAcao();
-    double dx = pos_destino.x() - pos_.x();
-    double dy = pos_destino.y() - pos_.y();
-    double dz = pos_destino.z() - pos_.z();
-    VLOG(2) << "Acao pos: " << pos_.ShortDebugString() 
-            << ", pos_destino: " << pos_destino.ShortDebugString()
-            << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
-    if (fabs(dx) < TAMANHO_LADO_QUADRADO_10 &&
-        fabs(dy) < TAMANHO_LADO_QUADRADO_10 &&
-        fabs(dz) < TAMANHO_LADO_QUADRADO_10) {
-      VLOG(1) << "Finalizando missil magico, chegou ao destino.";
-      finalizada_ = true;
+    if (--contador_frames_ <= 0) {
+      // Recalcula vetor.
+      contador_frames_ = 5;
+      // TODO adicionar um componente erratico.
+      dx_ = pos_destino.x() - pos_.x();
+      dy_ = pos_destino.y() - pos_.y();
+      dz_ = pos_destino.z() - pos_.z();
+      double tamanho = sqrt(dx_ * dx_ + dy_ * dy_ + dz_ * dz_);
+      // Normalizacao e velocidade crescendo quadraticamente (inicio lento depois acelera).
+      const double vel_tam = velocidade_ * velocidade_ / tamanho;
+      dx_ *= vel_tam;
+      dy_ *= vel_tam;
+      dz_ *= vel_tam;
+      velocidade_ += 0.02f;
+    }
+
+    double xa = pos_.x();
+    double ya = pos_.y();
+    double za = pos_.z();
+    pos_.set_x(ArrumaSePassou(xa, pos_.x() + dx_, pos_destino.x()));
+    pos_.set_y(ArrumaSePassou(ya, pos_.y() + dy_, pos_destino.y()));
+    pos_.set_z(ArrumaSePassou(za, pos_.z() + dz_, pos_destino.z()));
+
+    if (pos_.x() == pos_destino.x() &&
+        pos_.y() == pos_destino.y() &&
+        pos_.z() == pos_destino.z()) {
+      VLOG(1) << "Missil magico atingiu alvo.";
+      estagio_ = ATINGIU_ALVO;
       return;
     }
-    pos_.set_x(pos_.x() + dx / 20.0);
-    pos_.set_y(pos_.y() + dy / 20.0);
-    pos_.set_z(pos_.z() + dz / 20.0);
   }
 
-  bool Finalizada() const override {
-    return finalizada_;
+  void AtualizaAlvo() {
+    Entidade* entidade_destino = nullptr;
+    if (!acao_proto_.has_id_entidade_destino() ||
+        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
+      VLOG(1) << "Finalizando missil magico, destino não existe.";
+      estagio_ = FIM;
+      return;
+    }
+    // Move o alvo na direcao do impacto e volta.
+    if (delta_alvo_ >= M_PI) {
+      estagio_ = FIM;
+    }
+    double cos_delta_alvo = cosf(delta_alvo_) * TAMANHO_LADO_QUADRADO_2;
+    double dx_alvo = dx_ * cos_delta_alvo;
+    double dy_alvo = dy_ * cos_delta_alvo;
+    double dz_alvo = dz_ * cos_delta_alvo;
+    entidade_destino->MoveDelta(dx_alvo, dy_alvo, dz_alvo);
+    delta_alvo_ += 0.5; 
   }
 
- private:
-  bool finalizada_;
-  double distancia_;
+  // Verifica se a coordenada passou do ponto de destino.
+  static bool Passou(double antes, double depois, double destino) {
+    return (antes < destino) ? depois > destino : depois < destino;
+  }
+
+  // Retorna depois se a coordenada nao passou de destino, caso contrario retorna destino.
+  static double ArrumaSePassou(double antes, double depois, double destino) {
+    return Passou(antes, depois, destino) ? destino : depois;
+  }
+
+  int contador_frames_;
+  enum estagio_e {
+    INICIAL = 0,
+    ATINGIU_ALVO,
+    FIM
+  } estagio_;
+  double velocidade_;
+  double dx_, dy_, dz_;
+  double delta_alvo_;
   Posicao pos_;
 };
 
