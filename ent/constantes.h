@@ -15,4 +15,7 @@
 #define RAD_PARA_GRAUS (180.0f / M_PI)
 #define GRAUS_PARA_RAD (M_PI / 180.0f)
 
+#define DIR_DADOS "dados" 
+#define ARQUIVO_MODELOS "modelos.asciiproto"
+
 #endif

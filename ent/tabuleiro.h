@@ -270,6 +270,10 @@ class Tabuleiro : public ntf::Receptor {
   // Para onde o olho olha.
   Olho olho_;
 
+  /** Ação selecionada (por id). */
+  int acao_selecionada_;
+  std::unordered_map<std::string, int> mapa_acoes_;
+
   /** O modelo selecionado para inserção de entidades. */
   const ent::EntidadeProto* modelo_selecionado_;
   std::unordered_map<std::string, std::unique_ptr<ent::EntidadeProto>> mapa_modelos_;

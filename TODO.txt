@@ -1,4 +1,7 @@
 - Gerar acoes de jogadores (magic missile, fireball etc).
+- Adicionar modelos diversos (arquivo de configuracao).
+- Adicionar texturas globais.
+- Instalador windows, rpm linux e ??? MAC.
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.
 - Tirar o evento de movimento ao liberar botao sem movimento.
@@ -6,3 +9,4 @@
 - Tooltip.
 - Arrumar tempo de desenho de cena.
 - Undo e redo.
+- Performance para tabuleiro grande.

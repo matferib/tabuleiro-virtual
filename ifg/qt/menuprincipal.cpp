@@ -29,7 +29,7 @@ namespace {
 const char* g_fim = "FIM";
 
 // Strs de cada menu.
-const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Sobre" };
+const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Ações", "&Sobre" };
 
 // Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
 const char* g_menuitem_strs[] = {
@@ -39,6 +39,8 @@ const char* g_menuitem_strs[] = {
   "&Opções", "&Propriedades", nullptr, "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
+  // Acoes.
+  g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
@@ -97,6 +99,8 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       ++controle_item;
     }
     ++controle_item;  // pula o FIM.
+    if (controle_menu == ME_ACOES) {
+    }
     // adiciona os menus ao menu principal
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoItem(QAction*)));
     addMenu(menu);
@@ -147,7 +151,7 @@ void MenuPrincipal::EstadoItemMenu(bool estado, menu_e menu, const std::vector<m
 void MenuPrincipal::Modo(modomenu_e modo){
   switch (modo){
   case MM_COMECO:
-    for (menu_e menu : { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_SOBRE }) {
+    for (menu_e menu : { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_ACOES, ME_SOBRE }) {
       EstadoMenu(true, menu);
     }
     break;
