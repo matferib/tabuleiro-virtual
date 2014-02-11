@@ -135,7 +135,8 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   largura_ = altura_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
   // Modelos.
-  auto* modelo_padrao = new EntidadeProto;  // padrao eh vazio.
+  auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
+  modelo_padrao->mutable_cor()->set_g(1.0f);
   mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<ent::EntidadeProto>(modelo_padrao)));
   modelo_selecionado_ = modelo_padrao;
   Modelos modelos;
@@ -265,7 +266,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      auto* acao = NovaAcao(notificacao.acao());
+      auto* acao = NovaAcao(notificacao.acao(), this);
       if (acao == nullptr) {
         LOG(ERROR) << "Ação inválida na notificacao: " << notificacao.ShortDebugString();
         return true;
@@ -498,7 +499,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  auto* pos = acao_proto.mutable_pos();
+  auto* pos = acao_proto.mutable_pos_destino();
   if (pos_pilha == 1) {
     VLOG(1) << "Acao no tabuleiro: " << id;
     // Tabuleiro.
@@ -510,7 +511,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   } else if (pos_pilha > 1) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
-    acao_proto.set_id_entidade(id);
+    acao_proto.set_id_entidade_destino(id);
     auto* e = entidades_.find(id)->second;
     pos->set_x(e->X());
     pos->set_y(e->Y());
@@ -519,6 +520,10 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
     VLOG(1) << "Picking lugar nenhum.";
     return;
   }
+  if (entidade_selecionada_ != nullptr) {
+    acao_proto.set_id_entidade_origem(entidade_selecionada_->Id());
+  }
+  VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
   auto* n_local = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   n_local->mutable_acao()->Swap(&acao_proto);
   auto* n_remota = new ntf::Notificacao(*n_local);
@@ -653,8 +658,7 @@ void Tabuleiro::DesenhaCena() {
     glRotatef(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
     glPopMatrix();
-
-    // A cor da luz difusa.
+    // A cor da luz direcional.
     GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
                           proto_.luz_direcional().cor().g(),
                           proto_.luz_direcional().cor().b(),
@@ -732,7 +736,7 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_acoes()) {
     for (auto& a : acoes_) {
-      VLOG(3) << "Desenhando acao";
+      VLOG(4) << "Desenhando acao";
       a->Desenha(&parametros_desenho_);
     }
     // Remove sinalizacoes finalizadas.
@@ -741,7 +745,7 @@ void Tabuleiro::DesenhaCena() {
       return a->Finalizada();
     });
     acoes_.erase(primeiro_removido, acoes_.end());
-    VLOG(2) << "Numero de acoes ativas: " << acoes_.size();
+    VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
   }
 
   glEnable(GL_BLEND);
@@ -929,7 +933,7 @@ void Tabuleiro::BuscaHitMaisProximo(
   // - 3: nomes empilhados (1 para cada pos pilha).
   // Dado o hit mais proximo, retorna o identificador, a posicao da pilha e a
   // profundidade do objeto (normalizado 0..1.0).
-  VLOG(1) << "numero de hits no buffer de picking: " << numero_hits;
+  VLOG(4) << "numero de hits no buffer de picking: " << numero_hits;
   GLuint* ptr_hits = buffer_hits;
   // valores do hit mais proximo.
   GLuint menor_z = 0xFFFFFFFF;
@@ -943,14 +947,14 @@ void Tabuleiro::BuscaHitMaisProximo(
     GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
     ptr_hits += (3 + (pos_pilha_corrente));
     if (z_corrente < menor_z) {
-      VLOG(2) << "pos_pilha_corrente: " << pos_pilha_corrente
+      VLOG(4) << "pos_pilha_corrente: " << pos_pilha_corrente
               << ", z_corrente: " << z_corrente
               << ", id_corrente: " << id_corrente;
       menor_z = z_corrente;
       pos_pilha_menor = pos_pilha_corrente;
       id_menor = id_corrente;
     } else {
-      VLOG(2) << "pulando objeto mais longe...";
+      VLOG(4) << "pulando objeto mais longe...";
     }
   }
   *pos_pilha = pos_pilha_menor;
@@ -960,7 +964,7 @@ void Tabuleiro::BuscaHitMaisProximo(
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
   }
-  VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
+  VLOG(3) << "Retornando menor profundidade: " << menor_profundidade
           << ", pos_pilha: " << pos_pilha_menor
           << ", id: " << id_menor;
 }

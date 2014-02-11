@@ -256,6 +256,13 @@ void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
+  if (event->modifiers() != 0) {
+    // Com modificadores chama o mouse press duas vezes.
+    auto* event2 = new QMouseEvent(*event);
+    mousePressEvent(event);
+    mousePressEvent(event2);
+    return;
+  }
   tabuleiro_->TrataDuploClique(
       MapeiaBotao(*event), event->x(), height() - event->y());
   event->accept();

@@ -2,7 +2,6 @@
 #define ENT_ACOES_H
 
 #include "ent/acoes.pb.h"
-#include "ent/entidade.pb.h"
 
 namespace ntf {
 class CentralNotificacoes;
@@ -10,9 +9,11 @@ class CentralNotificacoes;
 
 namespace ent {
 
+class Tabuleiro;
+
 class Acao {
  public:
-  Acao(const AcaoProto& acao_proto) : acao_proto_(acao_proto) {}
+  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {}
   virtual ~Acao() {}
 
   // Atualiza a acao.
@@ -26,10 +27,11 @@ class Acao {
 
  protected:
   AcaoProto acao_proto_;
+  Tabuleiro* tabuleiro_;
 };
 
-// Adiciona uma acao a ser realizada.
-Acao* NovaAcao(const AcaoProto& acao_proto); 
+// Cria uma nova acao no tabuleiro.
+Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro); 
 
 }  // namespace ent
 

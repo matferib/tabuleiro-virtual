@@ -23,9 +23,9 @@ message Posicao {
 }
 
 message Cor {
-  optional float r = 1 [default=1.0];
-  optional float g = 2 [default=1.0];
-  optional float b = 3 [default=1.0];
+  optional float r = 1 [default=0.0];
+  optional float g = 2 [default=0.0];
+  optional float b = 3 [default=0.0];
   optional float a = 4 [default=1.0];
 }
 
