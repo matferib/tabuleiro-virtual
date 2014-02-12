@@ -230,6 +230,9 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Z:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VOO);
       return;
+    case Qt::Key_D:
+      // TODO dano.
+      return;
     default:
       event->ignore();
   }

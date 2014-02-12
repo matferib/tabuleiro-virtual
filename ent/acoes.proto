@@ -9,7 +9,9 @@ message AcaoProto {
   // Adicionar coisas da acao aqui.
   optional uint32 id_entidade_origem = 2;
   optional uint32 id_entidade_destino = 3;
-  optional Posicao pos_destino = 4;
+  // Posicao do clique no tabuleiro, para quem usar.
+  optional Posicao pos_quadrado = 4;
+  optional Posicao pos_tabuleiro = 5;
 }
 
 // O arquivo de acoes é serializado desta forma.

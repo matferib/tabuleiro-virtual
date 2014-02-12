@@ -1,4 +1,6 @@
-- Gerar acoes de jogadores (magic missile, fireball etc).
+- Dano com teclado.
+- Mudar cursor quando control estiver pressionado.
+- Gerar acoes de jogadores (fireball etc).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.

@@ -30,6 +30,7 @@ const double COS_30 = cos(M_PI / 6.0);
 // TODO mudar para constantes.
 GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 GLfloat AZUL[] = { 0.0f, 0.0f, 1.0f, 1.0f };
+GLfloat AMARELO[] = { 1.0f, 1.0f, 0.0f, 1.0f };
 
 /** Altera a cor correnta para cor. */
 void MudaCor(GLfloat* cor) {
@@ -40,16 +41,23 @@ void MudaCor(GLfloat* cor) {
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
  public:
-  AcaoSinalizacao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), estado_(TAMANHO_LADO_QUADRADO * 2.0f) {}
+  AcaoSinalizacao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), estado_(TAMANHO_LADO_QUADRADO * 2.0f) {
+    if (!acao_proto_.has_pos_tabuleiro()) {
+      estado_ = -1.0f;
+    }
+  }
 
   void Desenha(ParametrosDesenho* pd) override {
+    if (Finalizada()) {
+      return;
+    }
     glEnable(GL_POLYGON_OFFSET_FILL);
     glEnable(GL_NORMALIZE);
     glNormal3f(0, 0, 1.0f);
     MudaCor(BRANCO);
     glPolygonOffset(-0.06f, -0.06f);
 
-    const Posicao& pos = acao_proto_.pos_destino();
+    const Posicao& pos = acao_proto_.pos_tabuleiro();
     glPushMatrix();
     glTranslated(pos.x(), pos.y(), pos.z());
     glScaled(estado_, estado_, 0.0f);
@@ -83,6 +91,34 @@ class AcaoSinalizacao : public Acao {
 
  private:
   double estado_;
+};
+
+class AcaoBolaDeFogo : public Acao {
+ public:
+  AcaoBolaDeFogo(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), raio_(0) {}
+
+  void Desenha(ParametrosDesenho* pd) override {
+    glPushAttrib(GL_LIGHTING_BIT);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
+    MudaCor(AMARELO);
+    glPushMatrix();
+    const Posicao& pos = acao_proto_.pos_tabuleiro();
+    glTranslated(pos.x(), pos.y(), pos.z());
+    glutSolidSphere(raio_, 10, 10);
+    glPopMatrix();
+    glPopAttrib();
+  }
+
+  void Atualiza() {
+    raio_ += 0.2;
+  }
+
+  bool Finalizada() const override {
+    return raio_ > TAMANHO_LADO_QUADRADO * 4;
+  }
+
+ private:
+  double raio_;
 };
 
 // Uma acao de missil magico vai da origem ate o alvo de forma meio aleatoria.
@@ -231,6 +267,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
     return new AcaoSinalizacao(acao_proto);
   } else if (id_acao == ACAO_MISSIL_MAGICO) {
     return new AcaoMissilMagico(acao_proto, tabuleiro);
+  } else if (id_acao == ACAO_BOLA_DE_FOGO) {
+    return new AcaoBolaDeFogo(acao_proto);
   }
   return nullptr;
 }

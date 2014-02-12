@@ -25,5 +25,6 @@
 #define ACAO_SINALIZACAO "Sinalização"
 // As acoes de baixo devem bater com as do arquivo de acoes.
 #define ACAO_MISSIL_MAGICO "Míssil Mágico"
+#define ACAO_BOLA_DE_FOGO "Bola de Fogo"
 
 #endif

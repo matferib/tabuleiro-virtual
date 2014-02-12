@@ -1,9 +1,18 @@
 # Este arquivo eh uma representacao texto do proto ent::Acoes.
 acao {
+  id: 'Ataque Corpo a Corpo'
+}
+acao {
+  id: 'Ataque a Distância'
+}
+acao {
   id: 'Bola de Fogo'
 }
 acao {
   id: 'Míssil Mágico' 
+}
+acao {
+  id: 'Raio' 
 }
 acao {
   id: 'Relâmpago' 
