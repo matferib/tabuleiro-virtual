@@ -32,7 +32,8 @@ int FormatoImagem(const QImage& imagem) {
     case QImage::Format_ARGB32:
       return GL_BGRA;
     default:
-      return GL_BGRA;
+      LOG(WARNING) << "Formato nao reconhecido: '" << imagem.format() << "'";
+      return -1;
   }
 }
 
@@ -44,7 +45,7 @@ int TipoImagem(const QImage& imagem) {
     case QImage::Format_ARGB32:
       return GL_UNSIGNED_INT_8_8_8_8_REV;
     default:
-      return GL_UNSIGNED_INT_8_8_8_8_REV;
+      return -1;
   }
 }
 
@@ -137,6 +138,9 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
       QImage imagem(info_textura.largura(),
                     info_textura.altura(),
                     static_cast<QImage::Format>(info_textura.formato()));
+      if (FormatoImagem(imagem) == -1) {
+        return;
+      }
       memcpy(imagem.bits(), info_textura.bits().c_str(), info_textura.bits().size());
       //if (!imagem.loadFromData((const uchar*)info_textura.bits().c_str(), info_textura.bits().size())) {
       if (imagem.isNull()) {
@@ -149,6 +153,9 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
       QFileInfo arquivo(QDir(DIR_TEXTURAS), info_textura.id().c_str());
       QImageReader leitor_imagem(arquivo.absoluteFilePath());
       QImage imagem = leitor_imagem.read();
+      if (FormatoImagem(imagem) == -1) {
+        return;
+      }
       if (imagem.isNull()) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString();
         return;

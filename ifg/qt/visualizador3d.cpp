@@ -317,8 +317,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   });
   // Cor da luz.
   ent::EntidadeProto luz_cor;
-  luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
-  gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
+  if (entidade.has_luz()) {
+    luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
+    gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
+  } else {
+    ent::Cor branco;
+    branco.set_r(1.0f);
+    branco.set_g(1.0f);
+    branco.set_b(1.0f);
+    luz_cor.mutable_cor()->CopyFrom(branco);
+    gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
+  }
   if (entidade.has_luz()) {
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   } else {

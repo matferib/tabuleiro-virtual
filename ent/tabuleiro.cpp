@@ -571,7 +571,6 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
 
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
-  LOG(INFO) << "VIEWPORT";
   glViewport(0, 0, (GLint)largura, (GLint)altura);
   largura_ = largura;
   altura_ = altura;
