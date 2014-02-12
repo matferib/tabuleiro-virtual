@@ -531,28 +531,35 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   }
   unsigned int id, pos_pilha;
   float profundidade;
+  // Primeiro, entidades.
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  auto* pos = acao_proto.mutable_pos_destino();
-  if (pos_pilha == 1) {
-    VLOG(1) << "Acao no tabuleiro: " << id;
-    // Tabuleiro.
-    double x, y, z;
-    CoordenadaQuadrado(id, &x, &y, &z);
-    pos->set_x(x);
-    pos->set_y(y);
-    pos->set_z(z);
-  } else if (pos_pilha > 1) {
+  if (pos_pilha > 1) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
     acao_proto.set_id_entidade_destino(id);
-    auto* e = entidades_.find(id)->second;
-    pos->set_x(e->X());
-    pos->set_y(e->Y());
-    pos->set_z(e->Z());
-  } else {
-    VLOG(1) << "Picking lugar nenhum.";
-    return;
   }
+  // Depois tabuleiro.
+  parametros_desenho_.set_desenha_entidades(false);
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+   if (pos_pilha == 1) {
+    VLOG(1) << "Acao no tabuleiro: " << id;
+    // Tabuleiro, posicao do quadrado clicado.
+    double x, y, z;
+    CoordenadaQuadrado(id, &x, &y, &z);
+    auto* pos_quadrado = acao_proto.mutable_pos_quadrado();
+    pos_quadrado->set_x(x);
+    pos_quadrado->set_y(y);
+    pos_quadrado->set_z(z);
+    // Posicao exata do clique.
+    double x3d, y3d, z3d;
+    if (MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d)) {
+      auto* pos_tabuleiro = acao_proto.mutable_pos_tabuleiro();
+      pos_tabuleiro->set_x(x3d);
+      pos_tabuleiro->set_y(y3d);
+      pos_tabuleiro->set_z(z3d);
+    }
+  }
+
   if (entidade_selecionada_ != nullptr) {
     acao_proto.set_id_entidade_origem(entidade_selecionada_->Id());
   }
@@ -673,7 +680,6 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
-
     GLfloat cor_luz_ambiente[] = { proto_.luz_ambiente().r(),
                                    proto_.luz_ambiente().g(),
                                    proto_.luz_ambiente().b(),
