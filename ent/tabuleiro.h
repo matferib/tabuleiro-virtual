@@ -85,8 +85,11 @@ class Tabuleiro : public ntf::Receptor {
     BIT_ILUMINACAO = 2,
     BIT_VOO = 4,
   };
-  /** Atualiza algum campo booleano da entidade, invertendo-o. O valor eh uma mascara de OUs de bit_e. */
-  void AtualizaBitsEntidade(int bit);
+  /** Atualiza algum campo booleano da entidade selecionada, invertendo-o. O valor eh uma mascara de OUs de bit_e. */
+  void AtualizaBitsEntidade(int bits);
+
+  /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
+  void AtualizaPontosVidaEntidade(int delta_pontos_vida);
 
   /** desenha o mundo. */
   void Desenha();

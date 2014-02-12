@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 
 #if __APPLE__
@@ -21,22 +22,6 @@
 namespace ent {
 
 namespace {
-
-const double SEN_60 = sin(M_PI / 3.0);
-const double SEN_30 = sin(M_PI / 6.0);
-const double COS_60 = cos(M_PI / 3.0);
-const double COS_30 = cos(M_PI / 6.0);
-
-// TODO mudar para constantes.
-GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-GLfloat AZUL[] = { 0.0f, 0.0f, 1.0f, 1.0f };
-GLfloat AMARELO[] = { 1.0f, 1.0f, 0.0f, 1.0f };
-
-/** Altera a cor correnta para cor. */
-void MudaCor(GLfloat* cor) {
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor3fv(cor);
-}
 
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
@@ -91,6 +76,82 @@ class AcaoSinalizacao : public Acao {
 
  private:
   double estado_;
+};
+
+// Sobe um numero verde ou vermelho de acordo com o dano causado.
+// TODO: centralizar o texto
+// TODO fonte maior?
+class AcaoDeltaPontosVida : public Acao {
+ public:
+  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+    Entidade* entidade_destino = nullptr;
+    if (!acao_proto_.has_id_entidade_destino() || 
+        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
+      contador_atualizacoes_ = MAX_ATUALIZACOES;
+      VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
+      return;
+    }
+    pos_ = entidade_destino->PosicaoAcao();
+    contador_atualizacoes_ = 0;
+    // Monta a string de delta.
+    int delta = abs(acao_proto_.delta_pontos_vida());
+    if (delta == 0) {
+      contador_atualizacoes_ = MAX_ATUALIZACOES;
+      VLOG(1) << "Finalizando delta_pontos_vida, precisa de um delta.";
+      return;
+    }
+    if (delta > 10000) {
+      contador_atualizacoes_ = MAX_ATUALIZACOES;
+      VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
+      return;
+    }
+    while (delta != 0) {
+      int d = delta % 10;
+      string_delta_.insert(string_delta_.end(), static_cast<char>(d + '0'));
+      delta /= 10;
+    }
+    std::reverse(string_delta_.begin(), string_delta_.end());
+    VLOG(2) << "String delta: " << string_delta_;
+  }
+
+  void Desenha(ParametrosDesenho* pd) override {
+    if (Finalizada()) {
+      return;
+    }
+    glPushAttrib(GL_LIGHTING_BIT);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
+    glPushMatrix();
+    MudaCor(acao_proto_.delta_pontos_vida() > 0 ? VERDE : VERMELHO);
+    DesenhaStringTempo(string_delta_);
+    glPopMatrix();
+    glPopAttrib();
+  }
+
+  void Atualiza() {
+    pos_.set_z(pos_.z() + 0.02f);
+    ++contador_atualizacoes_;
+    if (contador_atualizacoes_ == MAX_ATUALIZACOES) {
+      VLOG(1) << "Finalizando delta_pontos_vida, MAX_ATUALIZACOES alcancado.";
+    }
+  }
+
+  bool Finalizada() const override {
+    return contador_atualizacoes_ >= MAX_ATUALIZACOES;  // 3s.
+  }
+
+ private:
+  void DesenhaStringTempo(const std::string& tempo) {
+    glRasterPos3f(pos_.x(), pos_.y(), pos_.z());
+    for (const char c : tempo) {
+      glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
+    }
+  }
+
+  const int MAX_ATUALIZACOES = 100;
+
+  std::string string_delta_;
+  Posicao pos_;
+  int contador_atualizacoes_;
 };
 
 class AcaoBolaDeFogo : public Acao {
@@ -269,7 +330,10 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
     return new AcaoMissilMagico(acao_proto, tabuleiro);
   } else if (id_acao == ACAO_BOLA_DE_FOGO) {
     return new AcaoBolaDeFogo(acao_proto);
+  } else if (id_acao == ACAO_DELTA_PONTOS_VIDA) {
+    return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
   }
+  LOG(ERROR) << "Acao invalida: " << id_acao;
   return nullptr;
 }
 

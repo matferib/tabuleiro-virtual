@@ -30,10 +30,13 @@
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
-using namespace ifg::qt;
 using namespace std;
 
+namespace ifg {
+namespace qt {
 namespace {
+
+const int MAX_TEMPORIZADOR = 100;  // 1s.
 
 ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
   switch (evento.button()) {
@@ -135,6 +138,7 @@ Visualizador3d::Visualizador3d(
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
        central_(central), tabuleiro_(tabuleiro) {
+  temporizador_ = 0;
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
 }
@@ -158,6 +162,14 @@ void Visualizador3d::paintGL() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_TEMPORIZADOR:
+      if (temporizador_ > 0) {
+        if (--temporizador_ == 0) {
+          TrataAcaoTemporizada();
+          teclas_.clear();
+        }
+      }
+      break;
     case ntf::TN_INICIADO:
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
@@ -204,7 +216,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
-
     case ntf::TN_ERRO: {
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
     }
@@ -217,6 +228,26 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
+  if (temporizador_ > 0) {
+    switch (event->key()) {
+      case Qt::Key_Escape:
+        // Cancela temporizacao.
+        temporizador_ = 0;
+        teclas_.clear();
+        break;
+      case Qt::Key_Enter:
+      case Qt::Key_Return:
+        // Finaliza temporizacao.
+        TrataAcaoTemporizada();
+        temporizador_ = 0;
+        teclas_.clear();
+        break;
+      default:
+        temporizador_ = MAX_TEMPORIZADOR;
+        teclas_.push_back(event->key());
+    }
+    return;
+  }
   switch (event->key()) {
     case Qt::Key_Delete:
       tabuleiro_->RemoveEntidade(ntf::Notificacao());
@@ -230,8 +261,11 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Z:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VOO);
       return;
+    case Qt::Key_C:
     case Qt::Key_D:
-      // TODO dano.
+      // Entra em modo de temporizacao.
+      teclas_.push_back(event->key());
+      temporizador_ = MAX_TEMPORIZADOR;
       return;
     default:
       event->ignore();
@@ -546,7 +580,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // fps.
   gerador.checkbox_mostrar_fps->setCheckState(opcoes_proto.mostrar_fps() ? Qt::Checked : Qt::Unchecked);
   // Texturas de frente.
-  gerador.checkbox_texturas_sempre_de_frente->setCheckState(opcoes_proto.texturas_sempre_de_frente() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_texturas_sempre_de_frente->setCheckState(
+      opcoes_proto.texturas_sempre_de_frente() ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, proto_retornado] {
     proto_retornado->set_mostrar_fps(gerador.checkbox_mostrar_fps->checkState() == Qt::Checked ? true : false);
@@ -562,3 +597,35 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   delete dialogo;
   return proto_retornado;
 }
+
+void Visualizador3d::TrataAcaoTemporizada() {
+  // Busca primeira tecla.
+  if (teclas_.empty()) {
+    LOG(ERROR) << "Temporizador sem teclas";
+    return;
+  }
+  int primeira_tecla = *teclas_.begin();
+  switch (primeira_tecla) {
+    case Qt::Key_C:
+    case Qt::Key_D: {
+      int delta = 0;
+      int multiplicador = 1;
+      for (auto it = teclas_.rbegin(); it < teclas_.rend() - 1; ++it) {
+        if (*it < Qt::Key_0 || *it > Qt::Key_9) {
+          LOG(WARNING) << "Tecla inválida para delta pontos de vida";
+          continue;
+        }
+        delta += (*it - Qt::Key_0) * multiplicador;
+        multiplicador *= 10;
+      }
+      VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
+      tabuleiro_->AtualizaPontosVidaEntidade(primeira_tecla == Qt::Key_C ? delta : -delta);
+      break;
+    }
+    default:
+      VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
+  }
+}
+
+}  // namespace qt
+}  // namespace ifg

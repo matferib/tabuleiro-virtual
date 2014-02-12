@@ -56,7 +56,12 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
+  void TrataAcaoTemporizada();
 
+  // Temporizador para teclas em sequencia.
+  int temporizador_;
+  // As teclas pressionadas ate o temporizador estourar ou enter ser pressionado.
+  std::vector<int> teclas_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
 };
