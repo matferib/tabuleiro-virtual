@@ -54,6 +54,10 @@ void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
 }
 
 void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
+  if (receptores_remotos_.empty()) {
+    delete notificacao;
+    return;
+  }
   VLOG(2) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
   notificacoes_remotas_.push_back(notificacao);
 }
