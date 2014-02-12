@@ -12,6 +12,8 @@ message AcaoProto {
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_quadrado = 4;
   optional Posicao pos_tabuleiro = 5;
+  // Para acao de delta_pontos_vida.
+  optional int32 delta_pontos_vida = 6;
 }
 
 // O arquivo de acoes é serializado desta forma.

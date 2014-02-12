@@ -60,19 +60,9 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
-// Cores.
-GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-GLfloat PRETO[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-
 /** Retorna o quadrado da distancia de um ponto a outro. */
 double DistanciaQuadrado(const Posicao& p1, const Posicao& p2) {
   return pow(p1.x() - p2.x(), 2) + pow(p1.y() - p2.y(), 2) + pow(p1.z() - p2.z(), 2);
-}
-
-/** Altera a cor correnta para cor. */
-void MudaCor(GLfloat* cor) {
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor3fv(cor);
 }
 
 /** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
@@ -284,6 +274,29 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
   TrataNotificacao(n);
 }
 
+void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
+  if (estado_ != ETAB_ENT_SELECIONADA) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  auto proto = entidade_selecionada_->Proto();
+  proto.set_pontos_vida(proto.pontos_vida() + delta_pontos_vida);
+  proto.set_id(entidade_selecionada_->Id());
+  // Atualizacao.
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+  n.mutable_entidade()->Swap(&proto);
+  TrataNotificacao(n);
+  // Acao.
+  ntf::Notificacao na;
+  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na.mutable_acao();
+  a->set_id(ACAO_DELTA_PONTOS_VIDA);
+  a->set_id_entidade_destino(entidade_selecionada_->Id());
+  a->set_delta_pontos_vida(delta_pontos_vida);
+  TrataNotificacao(na);
+}
+
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_RESPOSTA_CONEXAO:
@@ -301,10 +314,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ADICIONAR_ACAO: {
       auto* acao = NovaAcao(notificacao.acao(), this);
       if (acao == nullptr) {
-        LOG(ERROR) << "Ação inválida na notificacao: " << notificacao.ShortDebugString();
         return true;
       }
       acoes_.push_back(std::unique_ptr<Acao>(acao));
+      if (notificacao.local()) {
+        auto* n_remota = new ntf::Notificacao(notificacao);
+        central_->AdicionaNotificacaoRemota(n_remota);
+      }
       return true;
     }
     case ntf::TN_REMOVER_ENTIDADE: {
@@ -564,11 +580,9 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
     acao_proto.set_id_entidade_origem(entidade_selecionada_->Id());
   }
   VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
-  auto* n_local = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
-  n_local->mutable_acao()->Swap(&acao_proto);
-  auto* n_remota = new ntf::Notificacao(*n_local);
-  central_->AdicionaNotificacaoRemota(n_local);
-  central_->AdicionaNotificacao(n_remota);
+  auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  n->mutable_acao()->Swap(&acao_proto);
+  central_->AdicionaNotificacao(n);
 }
 
 void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y) {

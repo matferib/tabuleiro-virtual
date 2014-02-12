@@ -1,6 +1,12 @@
 #ifndef ENT_CONSTANTES_H
 #define ENT_CONSTANTES_H
 
+#if __APPLE__
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
 /** Constantes comuns ao tabuleiro e entidades. */
 
 /** tamanho do lado do quadrado no 3D. */
@@ -24,7 +30,26 @@
 // Identificador da acao de sinalizacao.
 #define ACAO_SINALIZACAO "Sinalização"
 // As acoes de baixo devem bater com as do arquivo de acoes.
+#define ACAO_DELTA_PONTOS_VIDA "Delta Pontos Vida"
 #define ACAO_MISSIL_MAGICO "Míssil Mágico"
 #define ACAO_BOLA_DE_FOGO "Bola de Fogo"
 
-#endif
+namespace ent {
+
+extern const double SEN_60;
+extern const double SEN_30;
+extern const double COS_60;
+extern const double COS_30;
+extern const GLfloat PRETO[];
+extern const GLfloat BRANCO[];
+extern const GLfloat VERMELHO[];
+extern const GLfloat VERDE[];
+extern const GLfloat AZUL[];
+extern const GLfloat AMARELO[];
+
+/** Altera a cor correnta para cor. */
+void MudaCor(const GLfloat* cor);
+
+}  // namespace ent
+
+#endif  // ENT_CONSTANTES_H
