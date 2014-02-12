@@ -3,17 +3,28 @@ import "ent/entidade.proto";
 
 package ent;
 
+enum TipoAcao {
+  ACAO_PROJETIL = 1;
+  ACAO_DISPERSAO = 2;
+  ACAO_RAIO = 3;
+  ACAO_SINALIZACAO = 4;
+  ACAO_DELTA_PONTOS_VIDA = 5;
+}
+
 message AcaoProto {
   // Identificador da acao.
   optional string id = 1;
+  optional TipoAcao tipo = 2;
+  optional int32 raio = 3;  // Em quadrados.
+  optional Cor cor = 4;
   // Adicionar coisas da acao aqui.
-  optional uint32 id_entidade_origem = 2;
-  optional uint32 id_entidade_destino = 3;
+  optional uint32 id_entidade_origem = 10;
+  optional uint32 id_entidade_destino = 11;
   // Posicao do clique no tabuleiro, para quem usar.
-  optional Posicao pos_quadrado = 4;
-  optional Posicao pos_tabuleiro = 5;
+  optional Posicao pos_quadrado = 12;
+  optional Posicao pos_tabuleiro = 13;
   // Para acao de delta_pontos_vida.
-  optional int32 delta_pontos_vida = 6;
+  optional int32 delta_pontos_vida = 14;
 }
 
 // O arquivo de acoes é serializado desta forma.

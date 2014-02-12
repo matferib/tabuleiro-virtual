@@ -7,13 +7,21 @@ acao {
 }
 acao {
   id: 'Bola de Fogo'
+  tipo: ACAO_DISPERSAO
+  cor { r: 1.0 g: 1.0 b: 0 }
+  raio: 4  # quadrados.
 }
 acao {
   id: 'Míssil Mágico' 
+  tipo: ACAO_PROJETIL
 }
 acao {
-  id: 'Raio' 
+  id: 'Raio'
 }
 acao {
   id: 'Relâmpago' 
+}
+acao {
+  id: 'Sinalização'
+  tipo: ACAO_SINALIZACAO 
 }
