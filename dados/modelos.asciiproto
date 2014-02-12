@@ -1,7 +1,7 @@
 # Este arquivo é uma representação texto do proto ent::Modelos. 
 modelo {
   id: 'Aarakocra'
-  entidade { pontos_vida: 4 info_textura { id: 'aarakocra2.png'} cor { r: 1.0 } }
+  entidade { pontos_vida: 4 info_textura { id: 'aarakocra.jpg'} cor { r: 1.0 } }
 }
 modelo {
   id: 'Orc'
