@@ -232,7 +232,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
 
 void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
   unsigned int id_remocao = 0;
-  if (notificacao.entidade().has_id()) {
+  if (!notificacao.local()) {
     // Comando vindo de fora.
     id_remocao = notificacao.entidade().id();
   } else if (estado_ == ETAB_ENT_SELECIONADA) {
@@ -249,6 +249,39 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
   if (RemoveEntidade(id_remocao)) {
     DeselecionaEntidade();
   }
+}
+
+void Tabuleiro::AtualizaBitsEntidade(int bits) {
+  if (estado_ != ETAB_ENT_SELECIONADA) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  EntidadeProto proto = entidade_selecionada_->Proto();
+  if ((bits & BIT_VISIBILIDADE) > 0) {
+    proto.set_visivel(!proto.visivel());
+  }
+  if ((bits & BIT_ILUMINACAO) > 0) {
+    if (proto.has_luz()) {
+      proto.clear_luz();
+    } else {
+      auto* luz = proto.mutable_luz()->mutable_cor();
+      luz->set_r(1.0f);
+      luz->set_g(1.0f);
+      luz->set_b(1.0f);
+    }
+  }
+  if ((bits & BIT_VOO) > 0) {
+    if (proto.pos().z() > 0) {
+      proto.mutable_pos()->set_z(0.0f);
+    } else {
+      proto.mutable_pos()->set_z(1.5f);  // TODO.
+    }
+  }
+  proto.set_id(entidade_selecionada_->Id());
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+  n.mutable_entidade()->Swap(&proto);
+  TrataNotificacao(n);
 }
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -350,7 +383,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
         return true;
       }
-      entidade->Atualiza(proto);
+      entidade->AtualizaProto(proto);
       if (notificacao.local()) {
         // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando infinitamente.
         auto* n_remota = new ntf::Notificacao(notificacao);
@@ -568,7 +601,6 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       ;
   }
 }
-
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   glViewport(0, 0, (GLint)largura, (GLint)altura);

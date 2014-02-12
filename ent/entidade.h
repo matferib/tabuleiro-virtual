@@ -36,7 +36,7 @@ class Entidade {
   void Inicializa(const EntidadeProto& proto);
 
   /** Atualiza a entidade usando apenas alguns campos do proto passado. */
-  void Atualiza(const EntidadeProto& novo_proto);
+  void AtualizaProto(const EntidadeProto& novo_proto);
 
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
   void Atualiza();

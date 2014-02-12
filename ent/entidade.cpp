@@ -136,7 +136,7 @@ void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
   }
 }
 
-void Entidade::Atualiza(const EntidadeProto& novo_proto) {
+void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
 
   // mantem o tipo.

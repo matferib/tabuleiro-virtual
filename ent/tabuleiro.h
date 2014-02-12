@@ -75,9 +75,18 @@ class Tabuleiro : public ntf::Receptor {
   */
   void AdicionaEntidade(const ntf::Notificacao& notificacao);
 
-  /** remove entidade do tabuleiro, pelo id da entidade passada ou a selecionada. 
+  /** remove entidade do tabuleiro, pelo id da entidade passada ou a selecionada se nao houver id de entidade. 
   */
   void RemoveEntidade(const ntf::Notificacao& notificacao);
+
+  /** Inverte o bit da entidade. */
+  enum bit_e {
+    BIT_VISIBILIDADE = 1,
+    BIT_ILUMINACAO = 2,
+    BIT_VOO = 4,
+  };
+  /** Atualiza algum campo booleano da entidade, invertendo-o. O valor eh uma mascara de OUs de bit_e. */
+  void AtualizaBitsEntidade(int bit);
 
   /** desenha o mundo. */
   void Desenha();
