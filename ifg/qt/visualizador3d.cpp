@@ -49,15 +49,6 @@ ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
   }
 }
 
-int MapeiaTecla(const QKeyEvent& evento) {
-  switch (evento.key()) {
-    case Qt::Key_Delete:
-      return evento.key();
-    default:
-      return -1;
-  }
-}
-
 // Converte uma cor de float [0..1.0] para inteiro [0.255].
 int ConverteCor(float cor_float) {
   int cor = static_cast<int>(255.0f * cor_float);
@@ -228,7 +219,16 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
   switch (event->key()) {
     case Qt::Key_Delete:
-      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
+      tabuleiro_->RemoveEntidade(ntf::Notificacao());
+      return;
+    case Qt::Key_V:
+      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VISIBILIDADE);
+      return;
+    case Qt::Key_L:
+      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_ILUMINACAO);
+      return;
+    case Qt::Key_Z:
+      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VOO);
       return;
     default:
       event->ignore();
