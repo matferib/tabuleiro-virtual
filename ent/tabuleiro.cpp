@@ -140,18 +140,18 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     }
   }
   // Acoes.
-  auto* acao_padrao = new AcaoProto;
-  acao_padrao->set_id(ACAO_SINALIZACAO);
-  mapa_acoes_.insert(std::make_pair(ACAO_SINALIZACAO, std::unique_ptr<AcaoProto>(acao_padrao)));
-  acao_selecionada_ = acao_padrao;
+  acao_selecionada_ = nullptr;
   Acoes acoes;
   std::string arq_acoes(std::string(DIR_DADOS) + "/" + ARQUIVO_ACOES);
   if (!LeArquivoAsciiProto(arq_acoes, &acoes)) {
     LOG(ERROR) << "Falha ao importar acoes do arquivo '" << arq_acoes << "'";
   } else {
     for (const auto& a : acoes.acao()) {
-      mapa_acoes_.insert(std::make_pair(
-            a.id(), std::unique_ptr<AcaoProto>(new AcaoProto(a))));
+      auto* nova_acao = new AcaoProto(a);
+      if (acao_selecionada_ == nullptr) {
+        acao_selecionada_ = nova_acao;
+      }
+      mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
     }
   }
 }
@@ -291,7 +291,7 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
-  a->set_id(ACAO_DELTA_PONTOS_VIDA);
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
   a->set_id_entidade_destino(entidade_selecionada_->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
   TrataNotificacao(na);
@@ -538,12 +538,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   } else {
     // Usa acoes.
     VLOG(2) << "Acao sinalizacao";
-    auto it = mapa_acoes_.find(ACAO_SINALIZACAO);
-    if (it == mapa_acoes_.end()) {
-      LOG(ERROR) << "Ação de sinalização inválida: " << ACAO_SINALIZACAO;
-      return;
-    }
-    acao_proto.CopyFrom(*it->second.get()); 
+    acao_proto.set_tipo(ACAO_SINALIZACAO); 
   }
   unsigned int id, pos_pilha;
   float profundidade;

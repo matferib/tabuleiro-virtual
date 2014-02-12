@@ -27,13 +27,6 @@
 #define ARQUIVO_MODELOS "modelos.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
 
-// Identificador da acao de sinalizacao.
-#define ACAO_SINALIZACAO "Sinalização"
-// As acoes de baixo devem bater com as do arquivo de acoes.
-#define ACAO_DELTA_PONTOS_VIDA "Delta Pontos Vida"
-#define ACAO_MISSIL_MAGICO "Míssil Mágico"
-#define ACAO_BOLA_DE_FOGO "Bola de Fogo"
-
 namespace ent {
 
 extern const double SEN_60;
@@ -47,7 +40,7 @@ extern const GLfloat VERDE[];
 extern const GLfloat AZUL[];
 extern const GLfloat AMARELO[];
 
-/** Altera a cor correnta para cor. */
+/** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const GLfloat* cor);
 
 }  // namespace ent

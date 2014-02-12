@@ -154,14 +154,26 @@ class AcaoDeltaPontosVida : public Acao {
   int contador_atualizacoes_;
 };
 
-class AcaoBolaDeFogo : public Acao {
+// Acao de dispersao, estilo bola de fogo.
+class AcaoDispersao : public Acao {
  public:
-  AcaoBolaDeFogo(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), raio_(0) {}
+  AcaoDispersao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), raio_(0) {
+    raio_maximo_ = acao_proto_.has_raio() ? acao_proto_.raio() * TAMANHO_LADO_QUADRADO : 4 * TAMANHO_LADO_QUADRADO;
+  }
 
   void Desenha(ParametrosDesenho* pd) override {
+    if (Finalizada()) {
+      return;
+    }
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
-    MudaCor(AMARELO);
+    GLfloat cor[3] = { AMARELO[0], AMARELO[1], AMARELO[2]  };
+    if (acao_proto_.has_cor()) {
+      cor[0] = acao_proto_.cor().r();
+      cor[1] = acao_proto_.cor().g();
+      cor[2] = acao_proto_.cor().b();
+    }
+    MudaCor(cor);
     glPushMatrix();
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     glTranslated(pos.x(), pos.y(), pos.z());
@@ -175,17 +187,18 @@ class AcaoBolaDeFogo : public Acao {
   }
 
   bool Finalizada() const override {
-    return raio_ > TAMANHO_LADO_QUADRADO * 4;
+    return raio_ > raio_maximo_;
   }
 
  private:
+  double raio_maximo_;
   double raio_;
 };
 
-// Uma acao de missil magico vai da origem ate o alvo de forma meio aleatoria.
-class AcaoMissilMagico : public Acao {
+// Uma acao de projetil, tipo flecha ou missil magico.
+class AcaoProjetil : public Acao {
  public:
-  AcaoMissilMagico(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     contador_frames_ = 0;
     dx_ = dy_ = dz_ = 0;
     velocidade_ = 0;
@@ -323,18 +336,19 @@ class AcaoMissilMagico : public Acao {
 }  // namespace
 
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
-  const std::string& id_acao = acao_proto.id();
-  if (id_acao == ACAO_SINALIZACAO) {
-    return new AcaoSinalizacao(acao_proto);
-  } else if (id_acao == ACAO_MISSIL_MAGICO) {
-    return new AcaoMissilMagico(acao_proto, tabuleiro);
-  } else if (id_acao == ACAO_BOLA_DE_FOGO) {
-    return new AcaoBolaDeFogo(acao_proto);
-  } else if (id_acao == ACAO_DELTA_PONTOS_VIDA) {
-    return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
+  switch (acao_proto.tipo()) {
+    case ACAO_SINALIZACAO:
+      return new AcaoSinalizacao(acao_proto);
+    case ACAO_PROJETIL:
+      return new AcaoProjetil(acao_proto, tabuleiro);
+    case ACAO_DISPERSAO:
+      return new AcaoDispersao(acao_proto);
+    case ACAO_DELTA_PONTOS_VIDA:
+      return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
+    default:
+      LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
+      return nullptr;
   }
-  LOG(ERROR) << "Acao invalida: " << id_acao;
-  return nullptr;
 }
 
 }  // namespace ent
