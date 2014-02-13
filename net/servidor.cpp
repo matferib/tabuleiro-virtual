@@ -147,7 +147,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
             DesconectaCliente(cliente);
             return;
           }
-          cliente->a_receber_ = DecodificaTamanho(buffer_);
+          cliente->a_receber_ = DecodificaTamanho(buffer_inicio);
           buffer_inicio += 4;
           VLOG(2) << "A receber: " << cliente->a_receber_;
         }

@@ -8,7 +8,7 @@ namespace net {
 
 const std::vector<char> CodificaDados(const std::string& dados);
 
-unsigned int DecodificaTamanho(const std::vector<char>& buffer);
+unsigned int DecodificaTamanho(const std::vector<char>::iterator& buffer);
 
 }  // namespace net
 
