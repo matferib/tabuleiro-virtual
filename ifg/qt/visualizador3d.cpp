@@ -36,7 +36,8 @@ namespace ifg {
 namespace qt {
 namespace {
 
-const int MAX_TEMPORIZADOR = 100;  // 1s.
+const int MAX_TEMPORIZADOR_TECLADO = 100;  // 1s.
+const int MAX_TEMPORIZADOR_MOUSE = 100;  // 1s.
 
 ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
   switch (evento.button()) {
@@ -142,6 +143,8 @@ Visualizador3d::Visualizador3d(
   temporizador_teclado_ = 0;
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
+  setMouseTracking(true);
+  EstadoOcioso();
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -164,11 +167,21 @@ void Visualizador3d::paintGL() {
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_TEMPORIZADOR:
-      if (temporizador_teclado_ > 0) {
-        if (--temporizador_teclado_ == 0) {
-          TrataAcaoTemporizada();
-          teclas_.clear();
+      if (estado_ == ESTADO_OCIOSO && underMouse()) {
+        estado_ = ESTADO_TEMPORIZANDO_MOUSE;
+        break;
+      } else if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
+        if (--temporizador_mouse_ == 0) {
+          TrataAcaoTemporizadaMouse();
+          EstadoOcioso();
         }
+        break;
+      } else if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
+        if (--temporizador_teclado_ == 0) {
+          TrataAcaoTemporizadaTeclado();
+          EstadoOcioso();
+        }
+        break;
       }
       break;
     case ntf::TN_INICIADO:
@@ -229,24 +242,19 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  if (temporizador_teclado_ > 0) {
+  if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
     switch (event->key()) {
       case Qt::Key_Escape:
-        // Cancela temporizacao.
-        temporizador_teclado_ = 0;
-        teclas_.clear();
         break;
       case Qt::Key_Enter:
       case Qt::Key_Return:
         // Finaliza temporizacao.
-        TrataAcaoTemporizada();
-        temporizador_teclado_ = 0;
-        teclas_.clear();
+        TrataAcaoTemporizadaTeclado();
         break;
       default:
-        temporizador_teclado_ = MAX_TEMPORIZADOR;
-        teclas_.push_back(event->key());
+        ;
     }
+    EstadoOcioso();
     return;
   }
   switch (event->key()) {
@@ -266,7 +274,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_D:
       // Entra em modo de temporizacao.
       teclas_.push_back(event->key());
-      temporizador_teclado_ = MAX_TEMPORIZADOR;
+      temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
       return;
     default:
       event->ignore();
@@ -276,6 +284,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
+  estado_ = ESTADO_CARREGANDO_COM_CLIQUE;
   if (event->modifiers() == Qt::ControlModifier) {
     tabuleiro_->TrataBotaoAcaoPressionado(
         MapeiaBotao(*event), event->x(), height() - event->y());
@@ -288,6 +297,7 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
+  EstadoOcioso();
   tabuleiro_->TrataBotaoLiberado(MapeiaBotao(*event));
   event->accept();
   glDraw();
@@ -307,6 +317,13 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
+  ultimo_x_ = event->x();
+  ultimo_y_ = height() - event->y();
+  if (estado_ == ESTADO_OCIOSO) {
+    event->accept();
+    return;
+  }
+  temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
   tabuleiro_->TrataMovimento(MapeiaBotao(*event), event->x(), (height() - event->y()));
   event->accept();
   glDraw();
@@ -597,7 +614,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   return proto_retornado;
 }
 
-void Visualizador3d::TrataAcaoTemporizada() {
+void Visualizador3d::TrataAcaoTemporizadaTeclado() {
   // Busca primeira tecla.
   if (teclas_.empty()) {
     LOG(ERROR) << "Temporizador sem teclas";
@@ -624,6 +641,18 @@ void Visualizador3d::TrataAcaoTemporizada() {
     default:
       VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
   }
+}
+
+void Visualizador3d::TrataAcaoTemporizadaMouse() {
+  tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
+}
+
+void Visualizador3d::EstadoOcioso() {
+  teclas_.clear();
+  temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
+  temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
+  estado_ = ESTADO_OCIOSO;
+  tabuleiro_->TrataMovimento(ent::BOTAO_NENHUM, 0, 0);
 }
 
 }  // namespace qt

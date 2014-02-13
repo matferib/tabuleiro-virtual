@@ -85,7 +85,9 @@ class Tabuleiro : public ntf::Receptor {
     BIT_ILUMINACAO = 2,
     BIT_VOO = 4,
   };
-  /** Atualiza algum campo booleano da entidade selecionada, invertendo-o. O valor eh uma mascara de OUs de bit_e. */
+  /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
+  * O valor eh uma mascara de OUs de bit_e.
+  */
   void AtualizaBitsEntidade(int bits);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
@@ -120,6 +122,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
   void TrataDuploClique(botao_e botao, int x, int y);
 
+  /** Trata o evento de mouse parado em um determinado local (coordenadas opengl). */
+  void TrataMouseParadoEm(int x, int y);
+
   /** trata a redimensao da janela. */
   void TrataRedimensionaJanela(int largura, int altura);
 
@@ -133,7 +138,9 @@ class Tabuleiro : public ntf::Receptor {
   const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
 
   /** Acesso ao mapa de modelos. */
-  const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const { return mapa_modelos_; }
+  const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const {
+    return mapa_modelos_;
+  }
 
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaAcao(const std::string& id_acao);
@@ -264,6 +271,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** a entidade selecionada. */
   Entidade* entidade_selecionada_;
+  /** Entidade detalhada: mouse parado sobre ela. */
+  unsigned int id_entidade_detalhada_;
 
   /** quadrado selecionado (pelo id de desenho). */
   int quadrado_selecionado_;

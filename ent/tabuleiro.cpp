@@ -29,6 +29,7 @@
 
 
 namespace ent {
+
 namespace {
 /** campo de visao vertical em graus. */
 const double CAMPO_VERTICAL = 60.0;
@@ -95,6 +96,7 @@ bool LeArquivoAsciiProto(const std::string& nome_arquivo, google::protobuf::Mess
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     id_cliente_(0),
     entidade_selecionada_(NULL),
+    id_entidade_detalhada_(0xFFFFFFFF),
     quadrado_selecionado_(-1),
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
     texturas_(texturas),
@@ -455,6 +457,7 @@ void Tabuleiro::TrataRodela(int delta) {
 }
 
 void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
+  id_entidade_detalhada_ = 0xFFFFFFFF;
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
     float olho_rotacao = olho_.rotacao_rad();
@@ -615,6 +618,17 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
   }
 }
 
+void Tabuleiro::TrataMouseParadoEm(int x, int y) {
+  unsigned int id;
+  unsigned int pos_pilha;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha);
+  if (pos_pilha <= 1) {
+    // Mouse no tabuleiro.
+    return;
+  }
+  id_entidade_detalhada_ = id;
+}
+
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   glViewport(0, 0, (GLint)largura, (GLint)altura);
   largura_ = largura;
@@ -770,14 +784,12 @@ void Tabuleiro::DesenhaCena() {
   // desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
   glPushName(0);
-  // TODO
-  //parametros_desenho_.set_desenha_barra_vida(true);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+    parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
     entidade->Desenha(&parametros_desenho_);
   }
-  // TODO
   parametros_desenho_.set_desenha_barra_vida(false);
   glPopName();
 
