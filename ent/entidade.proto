@@ -76,6 +76,8 @@ message EntidadeProto {
   optional int32 aura = 9;
   // Visibilidade. Apenas o dono pode ver.
   optional bool visivel = 10 [default=true];
+  // Verdadeiro se a entidade for voadora.
+  optional bool voadora = 13 [default=false];
 }
 
 // Alguns estados são mantidos nesta variável.
