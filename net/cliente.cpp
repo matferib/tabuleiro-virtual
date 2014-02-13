@@ -128,7 +128,7 @@ void Cliente::RecebeDados() {
             Desconecta();
             return;
           }
-          a_receber_ = DecodificaTamanho(buffer_);
+          a_receber_ = DecodificaTamanho(buffer_inicio);
           buffer_inicio += 4;
           VLOG(2) << "Recebendo notificacao tamanho a receber: " << a_receber_ << ", total: " << bytes_recebidos;
         } else {

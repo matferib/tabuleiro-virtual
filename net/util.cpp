@@ -13,8 +13,8 @@ const std::vector<char> CodificaDados(const std::string& dados) {
   return ret;
 }
 
-unsigned int DecodificaTamanho(const std::vector<char>& buffer) {
-  const auto& ubuffer = reinterpret_cast<const std::vector<unsigned char>&>(buffer);;
+unsigned int DecodificaTamanho(const std::vector<char>::iterator& buffer) {
+  const auto& ubuffer = reinterpret_cast<const std::vector<unsigned char>::iterator&>(buffer);
   return ubuffer[0] | (ubuffer[1] << 8) | (ubuffer[2] << 16) | (ubuffer[3] << 24);
 }
 

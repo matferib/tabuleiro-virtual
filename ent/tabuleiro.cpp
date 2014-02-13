@@ -319,6 +319,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       acoes_.push_back(std::unique_ptr<Acao>(acao));
       if (notificacao.local()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
+        LOG(ERROR) << "acao_remota: " << n_remota->ShortDebugString();
         central_->AdicionaNotificacaoRemota(n_remota);
       }
       return true;
