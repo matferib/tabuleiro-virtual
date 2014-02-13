@@ -144,7 +144,7 @@ Visualizador3d::Visualizador3d(
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
-  EstadoOcioso();
+  MudaEstado(ESTADO_OCIOSO);
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -168,18 +168,17 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_TEMPORIZADOR:
       if (estado_ == ESTADO_OCIOSO && underMouse()) {
-        estado_ = ESTADO_TEMPORIZANDO_MOUSE;
+        MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
         break;
       } else if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
         if (--temporizador_mouse_ == 0) {
           TrataAcaoTemporizadaMouse();
-          EstadoOcioso();
         }
         break;
       } else if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
         if (--temporizador_teclado_ == 0) {
           TrataAcaoTemporizadaTeclado();
-          EstadoOcioso();
+          MudaEstado(ESTADO_OCIOSO);
         }
         break;
       }
@@ -252,9 +251,11 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
         TrataAcaoTemporizadaTeclado();
         break;
       default:
-        ;
+        // Nao muda estado.
+        teclas_.push_back(event->key());
+        return;
     }
-    EstadoOcioso();
+    MudaEstado(ESTADO_OCIOSO);
     return;
   }
   switch (event->key()) {
@@ -274,7 +275,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_D:
       // Entra em modo de temporizacao.
       teclas_.push_back(event->key());
-      temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
+      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       return;
     default:
       event->ignore();
@@ -284,7 +285,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  estado_ = ESTADO_CARREGANDO_COM_CLIQUE;
+  MudaEstado(ESTADO_CARREGANDO_COM_CLIQUE);
   if (event->modifiers() == Qt::ControlModifier) {
     tabuleiro_->TrataBotaoAcaoPressionado(
         MapeiaBotao(*event), event->x(), height() - event->y());
@@ -297,7 +298,7 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  EstadoOcioso();
+  MudaEstado(ESTADO_OCIOSO);
   tabuleiro_->TrataBotaoLiberado(MapeiaBotao(*event));
   event->accept();
   glDraw();
@@ -321,6 +322,11 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   ultimo_y_ = height() - event->y();
   if (estado_ == ESTADO_OCIOSO) {
     event->accept();
+    return;
+  } if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
+    MudaEstado(ESTADO_OCIOSO);
+    event->accept();
+    tabuleiro_->TrataMovimento();
     return;
   }
   temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
@@ -644,15 +650,20 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
 }
 
 void Visualizador3d::TrataAcaoTemporizadaMouse() {
+  VLOG(1) << "Tratando acao temporizada de mouse em: " << ultimo_x_ << ", " << ultimo_y_;
   tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
 }
 
-void Visualizador3d::EstadoOcioso() {
-  teclas_.clear();
-  temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
-  temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-  estado_ = ESTADO_OCIOSO;
-  tabuleiro_->TrataMovimento(ent::BOTAO_NENHUM, 0, 0);
+void Visualizador3d::MudaEstado(estado_e novo_estado) {
+  if (novo_estado == ESTADO_OCIOSO) {
+    teclas_.clear();
+    temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
+    temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
+  } else if (estado_ != ESTADO_OCIOSO) {
+    LOG(ERROR) << "Transicao invalida de estado " << estado_ << " para " << novo_estado;
+  }
+  VLOG(2) << "Mudando para estado: " << novo_estado;
+  estado_ = novo_estado;
 }
 
 }  // namespace qt

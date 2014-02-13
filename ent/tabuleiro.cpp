@@ -456,8 +456,11 @@ void Tabuleiro::TrataRodela(int delta) {
   olho_.set_raio(olho_raio);
 }
 
-void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
+void Tabuleiro::TrataMovimento() {
   id_entidade_detalhada_ = 0xFFFFFFFF;
+}
+
+void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
   if (estado_ == ETAB_ROTACAO) {
     // Realiza a rotacao da tela.
     float olho_rotacao = olho_.rotacao_rad();

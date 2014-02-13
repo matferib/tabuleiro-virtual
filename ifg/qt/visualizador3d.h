@@ -52,16 +52,6 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
  private:
-  // Dialogos.
-  ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
-  ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
-  ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
-  void TrataAcaoTemporizadaTeclado();
-  void TrataAcaoTemporizadaMouse();
-  // Retorna o estado para ESTADO_OCIOSO.
-  void EstadoOcioso();
-
- private:
   // Assumindo uma maquina de estados bem simples, que vai do ESTADO_OCIOSO pros outros e volta.
   enum estado_e {
     ESTADO_OCIOSO,
@@ -69,6 +59,17 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
     ESTADO_TEMPORIZANDO_MOUSE,
     ESTADO_CARREGANDO_COM_CLIQUE,
   };
+
+  // Dialogos.
+  ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
+  ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
+  ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
+  void TrataAcaoTemporizadaTeclado();
+  void TrataAcaoTemporizadaMouse();
+  // Retorna o estado para ESTADO_OCIOSO.
+  void MudaEstado(estado_e estado);
+
+ private:
   estado_e estado_;
   // Ultimas coordenadas do mouse (em OpenGL).
   int ultimo_x_;
