@@ -54,10 +54,9 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
  private:
   // Assumindo uma maquina de estados bem simples, que vai do ESTADO_OCIOSO pros outros e volta.
   enum estado_e {
-    ESTADO_OCIOSO,
     ESTADO_TEMPORIZANDO_TECLADO,
     ESTADO_TEMPORIZANDO_MOUSE,
-    ESTADO_CARREGANDO_COM_CLIQUE,
+    ESTADO_OUTRO,
   };
 
   // Dialogos.
