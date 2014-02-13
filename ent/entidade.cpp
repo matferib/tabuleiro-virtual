@@ -19,9 +19,15 @@ namespace {
 
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
-const double ALTURA = 1.5;
+const double ALTURA = TAMANHO_LADO_QUADRADO;
+const double ALTURA_VOO = ALTURA;
 // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 const double VELOCIDADE_POR_EIXO = 0.1;
+
+// Placeholder para retornar a altura do chao em determinado ponto do tabuleiro.
+float ZChao(float x3d, float y3d) {
+  return 0;
+}
 
 void MudaCor(float r, float g, float b, float a) {
   GLfloat cor_gl[] = { r, g, b, a };
@@ -158,17 +164,28 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 }
 
 void Entidade::Atualiza() {
+  auto* po = proto_.mutable_pos();
   rotacao_disco_selecao_ = fmod(rotacao_disco_selecao_ + 1.0, 360.0);
-  if (Z() > 0) {
+  float z_chao = ZChao(X(), Y());
+  if (proto_.voadora()) {
+    if (Z() < z_chao + ALTURA_VOO) {
+      po->set_z(po->z() + 0.03f);
+    }
     angulo_disco_voo_ = fmod(angulo_disco_voo_ + 0.01, 2 * M_PI);
   } else {
+    if (Z() > z_chao) {
+      po->set_z(po->z() - 0.03f);
+    }
     angulo_disco_voo_ = 0.0f;
+  }
+  // Nunca fica abaixo do solo.
+  if (Z() < z_chao) {
+    po->set_z(z_chao);
   }
 
   if (!proto_.has_destino()) {
     return;
   }
-  auto* po = proto_.mutable_pos();
   double origens[] = { po->x(), po->y(), po->z() };
   const auto& pd = proto_.destino();
   double destinos[] = { pd.x(), pd.y(), pd.z() };

@@ -261,11 +261,7 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
     }
   }
   if ((bits & BIT_VOO) > 0) {
-    if (proto.pos().z() > 0) {
-      proto.mutable_pos()->set_z(0.0f);
-    } else {
-      proto.mutable_pos()->set_z(1.5f);  // TODO.
-    }
+    proto.set_voadora(!proto.voadora());
   }
   proto.set_id(entidade_selecionada_->Id());
   ntf::Notificacao n;

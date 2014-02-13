@@ -397,8 +397,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   // Aura.
   gerador.spin_aura->setValue(entidade.aura());
-  // Altura.
-  gerador.checkbox_voadora->setCheckState(entidade.pos().z() > 0 ? Qt::Checked : Qt::Unchecked);
+  // Voo.
+  gerador.checkbox_voadora->setCheckState(entidade.voadora() ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
@@ -445,11 +445,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     } else {
       proto_retornado->clear_aura();
     }
-    if (gerador.checkbox_voadora->checkState() == Qt::Checked) {
-      proto_retornado->mutable_pos()->set_z(1.5f);  // TODO
-    } else {
-      proto_retornado->mutable_pos()->set_z(0.0f);
-    }
+    proto_retornado->set_voadora(gerador.checkbox_voadora->checkState() == Qt::Checked);
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
