@@ -36,11 +36,14 @@ class AcaoSinalizacao : public Acao {
     if (Finalizada()) {
       return;
     }
+    glPushAttrib(GL_LIGHTING_BIT);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
+
     glEnable(GL_POLYGON_OFFSET_FILL);
     glEnable(GL_NORMALIZE);
     glNormal3f(0, 0, 1.0f);
     MudaCor(BRANCO);
-    glPolygonOffset(-0.06f, -0.06f);
+    glPolygonOffset(-0.08f, -0.08f);
 
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     glPushMatrix();
@@ -64,6 +67,7 @@ class AcaoSinalizacao : public Acao {
 
     glDisable(GL_NORMALIZE);
     glDisable(GL_POLYGON_OFFSET_FILL);
+    glPopAttrib();
   }
 
   void Atualiza() {

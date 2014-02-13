@@ -393,6 +393,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   });
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
+  gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   // Aura.
   gerador.spin_aura->setValue(entidade.aura());
   // Altura.
@@ -436,6 +437,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto_retornado->clear_info_textura();
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
+    proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     int aura = gerador.spin_aura->value();
     if (aura > 0) {
       proto_retornado->set_aura(aura);
