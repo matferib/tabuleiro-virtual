@@ -774,11 +774,15 @@ void Tabuleiro::DesenhaCena() {
   // desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
   glPushName(0);
+  // TODO
+  //parametros_desenho_.set_desenha_barra_vida(true);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
     parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
     entidade->Desenha(&parametros_desenho_);
   }
+  // TODO
+  parametros_desenho_.set_desenha_barra_vida(false);
   glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
