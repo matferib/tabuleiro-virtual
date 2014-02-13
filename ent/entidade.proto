@@ -58,6 +58,8 @@ message EntidadeProto {
   optional uint32 id = 2;
   // Pontos de vida da entidade.
   optional int32 pontos_vida = 11;
+  // Maximo de pontos de vida da entidade.
+  optional int32 max_pontos_vida = 12;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Posicao atual da entidade.

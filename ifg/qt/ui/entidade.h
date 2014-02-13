@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created: Thu Feb 13 00:44:14 2014
+**      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -69,6 +69,8 @@ public:
     QHBoxLayout *horizontalLayout_12;
     QLabel *label_5;
     QSpinBox *spin_pontos_vida;
+    QLabel *label_6;
+    QSpinBox *spin_max_pontos_vida;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -269,6 +271,21 @@ public:
 
         horizontalLayout_12->addWidget(spin_pontos_vida);
 
+        label_6 = new QLabel(horizontalLayoutWidget_8);
+        label_6->setObjectName(QString::fromUtf8("label_6"));
+        sizePolicy.setHeightForWidth(label_6->sizePolicy().hasHeightForWidth());
+        label_6->setSizePolicy(sizePolicy);
+        label_6->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_12->addWidget(label_6);
+
+        spin_max_pontos_vida = new QSpinBox(horizontalLayoutWidget_8);
+        spin_max_pontos_vida->setObjectName(QString::fromUtf8("spin_max_pontos_vida"));
+        spin_max_pontos_vida->setMinimum(-100);
+        spin_max_pontos_vida->setMaximum(999);
+
+        horizontalLayout_12->addWidget(spin_max_pontos_vida);
+
 
         horizontalLayout_11->addLayout(horizontalLayout_12);
 
@@ -296,6 +313,7 @@ public:
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

@@ -110,6 +110,9 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // mantem o tipo.
   TipoEntidade tipo = proto_.tipo();
   proto_.CopyFrom(novo_proto);
+  if (!proto_.has_pontos_vida() || proto_.pontos_vida() > proto_.max_pontos_vida()) {
+    proto_.set_pontos_vida(proto_.max_pontos_vida());
+  }
   proto_.set_tipo(tipo);
 }
 
@@ -142,6 +145,9 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   // mantem o tipo.
   ent::EntidadeProto copia_proto(proto_);
   proto_.CopyFrom(novo_proto);
+  if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
+    proto_.set_pontos_vida(proto_.max_pontos_vida());
+  }
   proto_.set_id(copia_proto.id());
   proto_.mutable_pos()->Swap(copia_proto.mutable_pos());
   if (copia_proto.has_destino()) {
