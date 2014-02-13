@@ -793,6 +793,7 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
     entidade->Desenha(&parametros_desenho_);
   }
+  parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
   glPopName();
 
@@ -815,11 +816,8 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_sombras() &&
       proto_.luz_direcional().inclinacao_graus() > 5.0 &&
       proto_.luz_direcional().inclinacao_graus() < 180.0f) {
-    // TODO calcular isso so uma vez.
     const float kAnguloInclinacao = proto_.luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
     const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
-    // TODO Alpha deve ser baseado na inclinacao.
-    // TODO Limitar o shearing.
     float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
     // Matriz eh column major, ou seja, esta invertida.
     // A ideia eh adicionar ao x a altura * fator de shear.
@@ -840,8 +838,11 @@ void Tabuleiro::DesenhaCena() {
     glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
+      parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
       entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
+    parametros_desenho_.set_entidade_selecionada(false);
+
     // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
     glColorMask(true, true, true, true);
     glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
@@ -880,8 +881,12 @@ void Tabuleiro::DesenhaCena() {
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
       parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+      parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
+    parametros_desenho_.set_entidade_selecionada(false);
+    parametros_desenho_.set_desenha_barra_vida(false);
+
     glPopName();
     parametros_desenho_.clear_alpha_translucidos();
     if (parametros_desenho_.desenha_aura()) {
@@ -901,6 +906,8 @@ void Tabuleiro::DesenhaCena() {
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
     glPopName();
+    parametros_desenho_.set_entidade_selecionada(false);
+    parametros_desenho_.set_desenha_barra_vida(false);
   }
 
   if (parametros_desenho_.desenha_fps()) {

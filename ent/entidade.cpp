@@ -258,8 +258,14 @@ float Entidade::DeltaVoo() const {
   return angulo_disco_voo_ > 0 ? sinf(angulo_disco_voo_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd) const {
-  glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd, const float* matriz_shear) const {
+  if (matriz_shear == nullptr) {
+    glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+  } else {
+    glTranslated(X(), Y(), 0);
+    glMultMatrixf(matriz_shear);
+    glTranslated(0, 0, usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+  }
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
 }
@@ -270,18 +276,27 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     return;
   }
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  glLoadName(Id());
   MudaCor(proto_.cor());
+  DesenhaObjetoComDecoracoes(pd);
+}
 
+void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
+  if (proto_.visivel() || !pd->modo_mestre()) {
+    // Um pouco diferente, pois so desenha se for visivel.
+    return;
+  }
+  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  const auto& cor = proto_.cor();
+  MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * pd->alpha_translucidos());
+  DesenhaObjetoComDecoracoes(pd);
+}
+
+void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
+  glLoadName(Id());
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
-  glPushMatrix();  // Original.
-  MontaMatriz(true, *pd);
   DesenhaObjeto(pd);
-
-  // Desenha a parte de solo: disco de selecao e sombra.
-  glPopMatrix();
-  if (pd->entidade_selecionada()) {
+  if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
     MontaMatriz(false, *pd);
@@ -319,17 +334,24 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
   glDisable(GL_NORMALIZE);
 }
 
-void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
+void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
   if (proto_.has_info_textura()) {
-    // Constroi a moldura e aplica a textura.
-    // tijolo da base (altura TAMANHO_LADO_QUADRADO / 10).
-    glPushMatrix();
-    glScalef(0.8f, 0.8f, (TAMANHO_LADO_QUADRADO / 10.0f));
-    glutSolidCube(TAMANHO_LADO_QUADRADO);
-    glPopMatrix();
+    // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
+    {
+      glPushMatrix();
+      MontaMatriz(false, *pd, matriz_shear);
+      glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
+      glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+      if (pd->entidade_selecionada()) {
+        glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
+      }
+      glutSolidCube(TAMANHO_LADO_QUADRADO);
+      glPopMatrix();
+    }
     // Moldura da textura: achatado em Y.
     glPushMatrix();
-    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0f));
+    MontaMatriz(true, *pd, matriz_shear);
+    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0));
     double angulo = 0;
     if (pd->texturas_sempre_de_frente()) {
       double dx = X() - pd->pos_olho().x();
@@ -351,14 +373,12 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
     GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
         texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
     if (id_textura != GL_INVALID_VALUE) {
+      if (matriz_shear != nullptr) {
+        glMultMatrixf(matriz_shear);
+      }
       glEnable(GL_TEXTURE_2D);
       glBindTexture(GL_TEXTURE_2D, id_textura);
       glNormal3f(0.0f, -1.0f, 0.0f);
-      glPushMatrix();
-      if (pd->texturas_sempre_de_frente()) {
-        glRotated(angulo - 90.0f, 0, 0, 1.0);
-      }
-      glTranslated(0, 0, TAMANHO_LADO_QUADRADO / 10.0f);
       MudaCor(1.0f, 1.0f, 1.0f, pd->has_alpha_translucidos() ? pd->alpha_translucidos() : 1.0f);
       glBegin(GL_QUADS);
       // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
@@ -366,23 +386,24 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
       // O quadrado eh desenhado EB, DB, DC, EC. A textura eh aplicada: EC, DC, DB, EB.
       glTexCoord2f(0.0f, 1.0f);
       glVertex3f(
-          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
+          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
       glTexCoord2f(1.0f, 1.0f);
       glVertex3f(
-          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, 0.0f);
+          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
       glTexCoord2f(1.0f, 0.0f);
       glVertex3f(
-          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
+          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
       glTexCoord2f(0.0f, 0.0f);
       glVertex3f(
-          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.1f, TAMANHO_LADO_QUADRADO);
+          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
       glEnd();
-      glPopMatrix();
       glDisable(GL_TEXTURE_2D);
     }
+    glPopMatrix();
   } else {
-    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glPushMatrix();
+    MontaMatriz(true, *pd, matriz_shear);
+    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
 	  glTranslated(0, 0, ALTURA);
 	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
     glPopMatrix();
@@ -421,25 +442,6 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   glPopMatrix();
 }
 
-void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
-  if (proto_.visivel() || !pd->modo_mestre()) {
-    // Um pouco diferente, pois so desenha se for visivel.
-    return;
-  }
-  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  glLoadName(Id());
-  const auto& cor = proto_.cor();
-  MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * pd->alpha_translucidos());
-
-  // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
-  glEnable(GL_NORMALIZE);
-	glPushMatrix();  // Original.
-  MontaMatriz(true, *pd);
-  DesenhaObjeto(pd);
-  glDisable(GL_NORMALIZE);
-  glPopMatrix();
-}
-
 void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
@@ -462,18 +464,13 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   glPopMatrix();
 }
 
-void Entidade::DesenhaSombra(ParametrosDesenho* pd, float* matriz_shear) {
+void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPushMatrix();
-  MontaMatriz(false  /* solo */, *pd);
-  glMultMatrixf(matriz_shear);
-  glTranslated(0, 0, Z() + DeltaVoo());
   glPolygonOffset(-0.02f, -0.02f);
-  DesenhaObjeto(pd);
-  glPopMatrix();
+  DesenhaObjeto(pd, matriz_shear);
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
