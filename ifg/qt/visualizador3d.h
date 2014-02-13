@@ -56,8 +56,23 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
-  void TrataAcaoTemporizada();
+  void TrataAcaoTemporizadaTeclado();
+  void TrataAcaoTemporizadaMouse();
+  // Retorna o estado para ESTADO_OCIOSO.
+  void EstadoOcioso();
 
+ private:
+  // Assumindo uma maquina de estados bem simples, que vai do ESTADO_OCIOSO pros outros e volta.
+  enum estado_e {
+    ESTADO_OCIOSO,
+    ESTADO_TEMPORIZANDO_TECLADO,
+    ESTADO_TEMPORIZANDO_MOUSE,
+    ESTADO_CARREGANDO_COM_CLIQUE,
+  };
+  estado_e estado_;
+  // Ultimas coordenadas do mouse (em OpenGL).
+  int ultimo_x_;
+  int ultimo_y_;
   // Temporizador para teclas em sequencia.
   int temporizador_teclado_;
   int temporizador_mouse_;
