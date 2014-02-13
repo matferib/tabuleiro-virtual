@@ -138,7 +138,8 @@ Visualizador3d::Visualizador3d(
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
        central_(central), tabuleiro_(tabuleiro) {
-  temporizador_ = 0;
+  temporizador_mouse_ = 0;
+  temporizador_teclado_ = 0;
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
 }
@@ -163,8 +164,8 @@ void Visualizador3d::paintGL() {
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_TEMPORIZADOR:
-      if (temporizador_ > 0) {
-        if (--temporizador_ == 0) {
+      if (temporizador_teclado_ > 0) {
+        if (--temporizador_teclado_ == 0) {
           TrataAcaoTemporizada();
           teclas_.clear();
         }
@@ -228,22 +229,22 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  if (temporizador_ > 0) {
+  if (temporizador_teclado_ > 0) {
     switch (event->key()) {
       case Qt::Key_Escape:
         // Cancela temporizacao.
-        temporizador_ = 0;
+        temporizador_teclado_ = 0;
         teclas_.clear();
         break;
       case Qt::Key_Enter:
       case Qt::Key_Return:
         // Finaliza temporizacao.
         TrataAcaoTemporizada();
-        temporizador_ = 0;
+        temporizador_teclado_ = 0;
         teclas_.clear();
         break;
       default:
-        temporizador_ = MAX_TEMPORIZADOR;
+        temporizador_teclado_ = MAX_TEMPORIZADOR;
         teclas_.push_back(event->key());
     }
     return;
@@ -265,7 +266,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_D:
       // Entra em modo de temporizacao.
       teclas_.push_back(event->key());
-      temporizador_ = MAX_TEMPORIZADOR;
+      temporizador_teclado_ = MAX_TEMPORIZADOR;
       return;
     default:
       event->ignore();

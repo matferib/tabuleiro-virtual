@@ -59,7 +59,8 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   void TrataAcaoTemporizada();
 
   // Temporizador para teclas em sequencia.
-  int temporizador_;
+  int temporizador_teclado_;
+  int temporizador_mouse_;
   // As teclas pressionadas ate o temporizador estourar ou enter ser pressionado.
   std::vector<int> teclas_;
   ntf::CentralNotificacoes* central_;

@@ -273,6 +273,32 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
     glPopMatrix();
   }
+  // Desenha a barra de vida.
+  if (pd->desenha_barra_vida()) {
+    glPushAttrib(GL_LIGHTING_BIT);
+    // Luz no olho apontando para a barra.
+    const Posicao& pos_olho = pd->pos_olho();
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, BRANCO);
+    const auto& pos = proto_.pos();
+    GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
+    glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+
+    glPushMatrix();
+    MontaMatriz(true, *pd);
+    glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
+    glPushMatrix();
+    glScalef(0.8, 0.8, 3.0f);
+    MudaCor(VERMELHO);
+    glutSolidCube(TAMANHO_LADO_QUADRADO_10);
+    glPopMatrix();
+    if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
+      glScalef(1.0f, 1.0f, (static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida()) * 3.0f);
+      MudaCor(VERDE);
+      glutSolidCube(TAMANHO_LADO_QUADRADO_10);
+    }
+    glPopMatrix();
+    glPopAttrib();
+  }
   glDisable(GL_NORMALIZE);
 }
 

@@ -117,4 +117,6 @@ message ParametrosDesenho {
   optional Posicao pos_olho = 17;
   // Desenhar acoes de jogadores.
   optional bool desenha_acoes = 18 [default=true];
+  // Se verdadeiro, desenha a barra de vida da entidade.
+  optional bool desenha_barra_vida = 19 [default=false];
 }

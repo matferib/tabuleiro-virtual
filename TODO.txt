@@ -1,6 +1,7 @@
-- Dano com teclado.
+- Selecao de multiplas unidades.
+- Barra de HP.
 - Mudar cursor quando control estiver pressionado.
-- Gerar acoes de jogadores (fireball etc).
+- Gerar acoes de jogadores (espadada flechada etc).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
