@@ -284,7 +284,12 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
     return;
   }
   auto proto = entidade_selecionada_->Proto();
-  proto.set_pontos_vida(proto.pontos_vida() + delta_pontos_vida);
+  int pontos_vida = proto.pontos_vida();
+  if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
+    entidade_selecionada_->MataEntidade();
+    proto = entidade_selecionada_->Proto();
+  }
+  proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
   proto.set_id(entidade_selecionada_->Id());
   // Atualizacao.
   ntf::Notificacao n;
@@ -297,6 +302,35 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
   a->set_id_entidade_destino(entidade_selecionada_->Id());
+  a->set_delta_pontos_vida(delta_pontos_vida);
+  TrataNotificacao(na);
+}
+
+void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_pontos_vida) {
+  auto* entidade = BuscaEntidade(id_entidade);
+  if (entidade == nullptr) {
+    LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
+    return;
+  }
+  auto proto = entidade->Proto();
+  int pontos_vida = proto.pontos_vida();
+  if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
+    entidade->MataEntidade();
+    proto = entidade->Proto();
+  }
+  proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
+  proto.set_id(entidade->Id());
+  // Atualizacao.
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+  n.mutable_entidade()->Swap(&proto);
+  TrataNotificacao(n);
+  // Acao.
+  ntf::Notificacao na;
+  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na.mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  a->set_id_entidade_destino(entidade->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
   TrataNotificacao(na);
 }
@@ -323,6 +357,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       acoes_.push_back(std::unique_ptr<Acao>(acao));
       if (notificacao.local()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
+        n_remota->mutable_acao()->clear_afeta_pontos_vida();
         central_->AdicionaNotificacaoRemota(n_remota);
       }
       return true;
@@ -537,7 +572,7 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
   }
 }
 
-void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
+void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta_pontos_vida) {
   AcaoProto acao_proto;
   if (botao == BOTAO_ESQUERDO) {
     // usa acao padrao.
@@ -582,6 +617,11 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   if (entidade_selecionada_ != nullptr) {
     acao_proto.set_id_entidade_origem(entidade_selecionada_->Id());
   }
+  if (delta_pontos_vida != 0 && acao_proto.has_id_entidade_destino()) {
+    acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+    acao_proto.set_afeta_pontos_vida(true);
+  }
+
   VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
   auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   n->mutable_acao()->Swap(&acao_proto);
@@ -803,16 +843,23 @@ void Tabuleiro::DesenhaCena() {
   glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
-    for (auto& a : acoes_) {
+    std::vector<std::unique_ptr<Acao>> copia_acoes;
+    copia_acoes.swap(acoes_);
+    for (auto& a : copia_acoes) {
       VLOG(4) << "Desenhando acao";
       a->Desenha(&parametros_desenho_);
+      if (a->Finalizada()) {
+        const auto& ap = a->Proto();
+        if (ap.has_delta_pontos_vida() &&
+            ap.tipo() != ACAO_DELTA_PONTOS_VIDA &&
+            ap.has_id_entidade_destino() &&
+            ap.afeta_pontos_vida()) {
+          AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
+        }
+      } else {
+        acoes_.push_back(std::unique_ptr<Acao>(a.release()));
+      }
     }
-    // Remove sinalizacoes finalizadas.
-    auto primeiro_removido = std::remove_if(acoes_.begin(), acoes_.end(), 
-        [this](const std::unique_ptr<Acao>& a) {
-      return a->Finalizada();
-    });
-    acoes_.erase(primeiro_removido, acoes_.end());
     VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
   }
 

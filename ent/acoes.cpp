@@ -32,10 +32,7 @@ class AcaoSinalizacao : public Acao {
     }
   }
 
-  void Desenha(ParametrosDesenho* pd) override {
-    if (Finalizada()) {
-      return;
-    }
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
 
@@ -118,10 +115,7 @@ class AcaoDeltaPontosVida : public Acao {
     VLOG(2) << "String delta: " << string_delta_;
   }
 
-  void Desenha(ParametrosDesenho* pd) override {
-    if (Finalizada()) {
-      return;
-    }
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
     glPushMatrix();
@@ -165,10 +159,7 @@ class AcaoDispersao : public Acao {
     raio_maximo_ = acao_proto_.has_raio() ? acao_proto_.raio() * TAMANHO_LADO_QUADRADO : 4 * TAMANHO_LADO_QUADRADO;
   }
 
-  void Desenha(ParametrosDesenho* pd) override {
-    if (Finalizada()) {
-      return;
-    }
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
     GLfloat cor[3] = { AMARELO[0], AMARELO[1], AMARELO[2]  };
@@ -227,12 +218,8 @@ class AcaoProjetil : public Acao {
     }
   }
 
-  void Desenha(ParametrosDesenho* pd) override {
-    if (estagio_ != INICIAL) {
-      // TODO desenhar impacto.
-      return;
-    }
-
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+    // TODO desenha impacto.
     glPushAttrib(GL_LIGHTING_BIT);
     // Luz da camera apontando para a bola.
     const Posicao& pos_olho = pd->pos_olho();
