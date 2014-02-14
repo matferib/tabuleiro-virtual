@@ -37,8 +37,8 @@ namespace qt {
 namespace {
 
 // Temporizadores * 10ms.
-const int MAX_TEMPORIZADOR_TECLADO = 30;
-const int MAX_TEMPORIZADOR_MOUSE = 20;
+const int MAX_TEMPORIZADOR_TECLADO = 300;
+const int MAX_TEMPORIZADOR_MOUSE = 100;
 
 ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
   switch (evento.button()) {
