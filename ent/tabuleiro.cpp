@@ -95,7 +95,6 @@ bool LeArquivoAsciiProto(const std::string& nome_arquivo, google::protobuf::Mess
 
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     id_cliente_(0),
-    entidade_selecionada_(NULL),
     id_entidade_detalhada_(0xFFFFFFFF),
     quadrado_selecionado_(-1),
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
@@ -229,7 +228,7 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
     id_remocao = notificacao.entidade().id();
   } else if (estado_ == ETAB_ENT_SELECIONADA) {
     // Remover entidade selecionada local.
-    id_remocao = entidade_selecionada_->Id();
+    id_remocao = EntidadeSelecionada()->Id();
     // Envia para os clientes.
     auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
     n->mutable_entidade()->set_id(id_remocao);
@@ -248,7 +247,8 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
-  EntidadeProto proto = entidade_selecionada_->Proto();
+  auto* entidade_selecionada = EntidadeSelecionada();
+  EntidadeProto proto = entidade_selecionada->Proto();
   if ((bits & BIT_VISIBILIDADE) > 0) {
     proto.set_visivel(!proto.visivel());
   }
@@ -271,7 +271,7 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
   if ((bits & BIT_MORTA)) {
     proto.set_morta(!proto.morta());
   }
-  proto.set_id(entidade_selecionada_->Id());
+  proto.set_id(entidade_selecionada->Id());
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   n.mutable_entidade()->Swap(&proto);
@@ -283,14 +283,15 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
-  auto proto = entidade_selecionada_->Proto();
+  auto* entidade_selecionada = EntidadeSelecionada();
+  auto proto = entidade_selecionada->Proto();
   int pontos_vida = proto.pontos_vida();
   if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
-    entidade_selecionada_->MataEntidade();
-    proto = entidade_selecionada_->Proto();
+    entidade_selecionada->MataEntidade();
+    proto = entidade_selecionada->Proto();
   }
   proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
-  proto.set_id(entidade_selecionada_->Id());
+  proto.set_id(entidade_selecionada->Id());
   // Atualizacao.
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
@@ -301,7 +302,7 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->set_id_entidade_destino(entidade_selecionada_->Id());
+  a->set_id_entidade_destino(entidade_selecionada->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
   TrataNotificacao(na);
 }
@@ -532,7 +533,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     if (!MousePara3d(x, y, &nx, &ny, &nz)) {
       return;
     }
-    entidade_selecionada_->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+    EntidadeSelecionada()->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
     ultimo_x_ = x;
     ultimo_y_ = y;
     ultimo_x_3d_ = nx;
@@ -614,8 +615,9 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta
     }
   }
 
-  if (entidade_selecionada_ != nullptr) {
-    acao_proto.set_id_entidade_origem(entidade_selecionada_->Id());
+  auto* entidade_selecionada = EntidadeSelecionada();
+  if (entidade_selecionada != nullptr) {
+    acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
   }
   if (delta_pontos_vida != 0 && acao_proto.has_id_entidade_destino()) {
     acao_proto.set_delta_pontos_vida(delta_pontos_vida);
@@ -649,11 +651,12 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       auto* n = new ntf::Notificacao;
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
-      e->set_id(entidade_selecionada_->Id());
+      auto* entidade_selecionada = EntidadeSelecionada();
+      e->set_id(entidade_selecionada->Id());
       auto* p = e->mutable_destino();
-      p->set_x(entidade_selecionada_->X());
-      p->set_y(entidade_selecionada_->Y());
-      p->set_z(entidade_selecionada_->Z());
+      p->set_x(entidade_selecionada->X());
+      p->set_y(entidade_selecionada->Y());
+      p->set_z(entidade_selecionada->Z());
       central_->AdicionaNotificacaoRemota(n);
       estado_ = ETAB_ENT_SELECIONADA;
       return;
@@ -834,7 +837,8 @@ void Tabuleiro::DesenhaCena() {
   glPushName(0);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
-    parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+    parametros_desenho_.set_entidade_selecionada(
+        id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
     parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
     entidade->Desenha(&parametros_desenho_);
   }
@@ -890,7 +894,8 @@ void Tabuleiro::DesenhaCena() {
     glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+      parametros_desenho_.set_entidade_selecionada(
+          id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
       entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
     parametros_desenho_.set_entidade_selecionada(false);
@@ -932,7 +937,8 @@ void Tabuleiro::DesenhaCena() {
     glPushName(0);
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+      parametros_desenho_.set_entidade_selecionada(
+          id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
       parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
@@ -954,7 +960,8 @@ void Tabuleiro::DesenhaCena() {
     glPushName(0);
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      parametros_desenho_.set_entidade_selecionada(entidade == entidade_selecionada_);
+      parametros_desenho_.set_entidade_selecionada(
+          id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
     glPopName();
@@ -1167,7 +1174,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
     n->set_modo_mestre(modo_mestre_);
     n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
-    n->mutable_entidade()->CopyFrom(entidade_selecionada_->Proto());
+    n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
     central_->AdicionaNotificacao(n);
   } else {
     ;
@@ -1192,20 +1199,21 @@ void Tabuleiro::SelecionaEntidade(unsigned int id) {
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  entidade_selecionada_ = entidade;
+  id_entidades_selecionadas_.clear();
+  id_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
   estado_ = ETAB_ENT_SELECIONADA;
 }
 
 void Tabuleiro::DeselecionaEntidade() {
-  entidade_selecionada_ = nullptr;
+  id_entidades_selecionadas_.clear();
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   quadrado_selecionado_ = id_quadrado;
-  entidade_selecionada_ = nullptr;
+  id_entidades_selecionadas_.clear();
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
@@ -1312,7 +1320,7 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   entidades_.erase(res_find);
   delete entidade;
   // Retorna apenas para verificacao.
-  return entidade == entidade_selecionada_;
+  return id_entidades_selecionadas_.find(id) != id_entidades_selecionadas_.end();
 }
 
 int Tabuleiro::GeraIdEntidade(int id_cliente) {
@@ -1423,6 +1431,18 @@ void Tabuleiro::DesenhaGrade() {
 
 double Tabuleiro::Aspecto() const {
   return static_cast<double>(largura_) / static_cast<double>(altura_);
+}
+
+Entidade* Tabuleiro::EntidadeSelecionada() {
+  if (id_entidades_selecionadas_.size() != 1) {
+    return nullptr;
+  }
+  unsigned int id = *id_entidades_selecionadas_.begin();
+  auto it = entidades_.find(id);
+  if (it == entidades_.end()) {
+    return nullptr;
+  }
+  return it->second;
 }
 
 }  // namespace ent

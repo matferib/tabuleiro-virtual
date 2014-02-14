@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <set>
 #include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
@@ -257,6 +258,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Poe o tabuleiro no modo jogador. */
   void ModoJogador() { modo_mestre_ = false; }
 
+  /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
+  Entidade* EntidadeSelecionada();
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -277,8 +281,9 @@ class Tabuleiro : public ntf::Receptor {
   /** um set com os id de clientes usados. */
   MapaClientes clientes_;
 
-  /** a entidade selecionada. */
-  Entidade* entidade_selecionada_;
+  /** as entidades selecionada. */
+  std::set<unsigned int> id_entidades_selecionadas_;
+
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
 

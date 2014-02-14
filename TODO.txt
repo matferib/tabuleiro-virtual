@@ -1,5 +1,5 @@
 - Selecao de multiplas unidades.
-- Barra de HP.
+- Adicionar FIFO de dano com display a direita para acoes.
 - Mudar cursor quando control estiver pressionado.
 - Gerar acoes de jogadores (espadada flechada etc).
 - Adicionar modelos diversos.
