@@ -81,9 +81,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Inverte o bit da entidade. */
   enum bit_e {
-    BIT_VISIBILIDADE = 1,
-    BIT_ILUMINACAO = 2,
-    BIT_VOO = 4,
+    BIT_VISIBILIDADE     = 0x1,
+    BIT_ILUMINACAO       = 0x2,
+    BIT_VOO              = 0x4,
+    BIT_MORTA            = 0x8,
+    BIT_CAIDA            = 0x10,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e.

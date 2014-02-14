@@ -265,6 +265,12 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
   if ((bits & BIT_VOO) > 0) {
     proto.set_voadora(!proto.voadora());
   }
+  if ((bits & BIT_CAIDA)) {
+    proto.set_caida(!proto.caida());
+  }
+  if ((bits & BIT_MORTA)) {
+    proto.set_morta(!proto.morta());
+  }
   proto.set_id(entidade_selecionada_->Id());
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
@@ -641,7 +647,7 @@ void Tabuleiro::InicializaGL() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_BLEND);
 
-  // back face
+  // Nao desenha as costas dos poligonos.
   glEnable(GL_CULL_FACE);
   glCullFace(GL_BACK);
 }
