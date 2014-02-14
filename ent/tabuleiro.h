@@ -4,6 +4,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include <list>
 #include <vector>
 #include <set>
 #include "ent/acoes.pb.h"
@@ -99,6 +100,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza os pontos de vida de uma entidade. */
   void AtualizaPontosVidaEntidade(unsigned int id, int delta_pontos_vida);
 
+  /** Poe pv no final da lista de pontos de vida acumuladors. */
+  void AcumulaPontosVida(int pv);
+  /** Limpa a lista de pontos de vida. */
+  void LimpaListaPontosVida();
+
   /** desenha o mundo. */
   void Desenha();
 
@@ -128,7 +134,7 @@ class Tabuleiro : public ntf::Receptor {
   * Acao com botao esquerdo respeita a selecao de padrao, botao direito usa sinalizacao.
   * Algumas acoes podem causar um delta de pontos de vida no alvo, indicado por delta_pontos_vida.
   */
-  void TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta_pontos_vida = 0);
+  void TrataBotaoAcaoPressionado(botao_e botao, int x, int y);
 
   /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
   void TrataDuploClique(botao_e botao, int x, int y);
@@ -259,6 +265,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
 
+  /** Desenha a lista de pontos de vida a direita. */
+  void DesenhaListaPontosVida();
+
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
 
@@ -337,6 +346,7 @@ class Tabuleiro : public ntf::Receptor {
   Texturas* texturas_;
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
+  std::list<int> lista_pontos_vida_;  // Usado para as acoes.
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
