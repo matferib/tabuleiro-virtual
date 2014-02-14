@@ -23,6 +23,9 @@ const double ALTURA = TAMANHO_LADO_QUADRADO;
 const double ALTURA_VOO = ALTURA;
 // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 const double VELOCIDADE_POR_EIXO = 0.1;
+// Tamanho da barra de vida.
+const double TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
+const double TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 
 // Placeholder para retornar a altura do chao em determinado ponto do tabuleiro.
 float ZChao(float x3d, float y3d) {
@@ -319,14 +322,19 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
     MontaMatriz(true, *pd);
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
     glPushMatrix();
-    glScalef(0.8, 0.8, 3.0f);
+    glScalef(0.2, 0.2, 1.0f);
     MudaCor(VERMELHO);
-    glutSolidCube(TAMANHO_LADO_QUADRADO_10);
+    glutSolidCube(TAMANHO_BARRA_VIDA);
     glPopMatrix();
     if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
-      glScalef(1.0f, 1.0f, (static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida()) * 3.0f);
+      float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
+      float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
+      float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
+      LOG(INFO) << "TODO porcentagem: " << porcentagem << ", tamanho barra: " << tamanho_barra << ", delta: " << delta;
+      glTranslatef(0, 0, delta);
+      glScalef(0.3f, 0.3f, porcentagem);
       MudaCor(VERDE);
-      glutSolidCube(TAMANHO_LADO_QUADRADO_10);
+      glutSolidCube(TAMANHO_BARRA_VIDA);
     }
     glPopMatrix();
     glPopAttrib();
