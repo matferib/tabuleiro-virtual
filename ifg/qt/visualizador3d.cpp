@@ -37,7 +37,7 @@ namespace qt {
 namespace {
 
 const int MAX_TEMPORIZADOR_TECLADO = 100;  // 1s.
-const int MAX_TEMPORIZADOR_MOUSE = 100;  // 1s.
+const int MAX_TEMPORIZADOR_MOUSE = 300;  // 3s.
 
 ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
   switch (evento.button()) {
@@ -270,6 +270,9 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Z:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VOO);
       return;
+    case Qt::Key_Q:
+      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_CAIDA);
+      return;
     case Qt::Key_C:
     case Qt::Key_D:
       // Entra em modo de temporizacao.
@@ -385,11 +388,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     luz_cor.mutable_cor()->CopyFrom(branco);
     gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
   }
-  if (entidade.has_luz()) {
-    gerador.checkbox_luz->setCheckState(Qt::Checked);
-  } else {
-    gerador.checkbox_luz->setCheckState(Qt::Unchecked);
-  }
+  gerador.checkbox_luz->setCheckState(entidade.has_luz() ? Qt::Checked : Qt::Unchecked);
   lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(luz_cor.cor()), dialogo, QObject::tr("Cor da luz"));
@@ -418,6 +417,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   gerador.spin_aura->setValue(entidade.aura());
   // Voo.
   gerador.checkbox_voadora->setCheckState(entidade.voadora() ? Qt::Checked : Qt::Unchecked);
+  // Caida.
+  gerador.checkbox_caida->setCheckState(entidade.caida() ? Qt::Checked : Qt::Unchecked);
+  // Morta.
+  gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
@@ -465,6 +468,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
       proto_retornado->clear_aura();
     }
     proto_retornado->set_voadora(gerador.checkbox_voadora->checkState() == Qt::Checked);
+    proto_retornado->set_caida(gerador.checkbox_caida->checkState() == Qt::Checked);
+    proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

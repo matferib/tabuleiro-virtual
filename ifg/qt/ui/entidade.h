@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created: Thu Feb 13 00:44:14 2014
-**      by: Qt User Interface Compiler version 4.8.1
+** Created
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -61,6 +61,8 @@ public:
     QHBoxLayout *horizontalLayout_9;
     QCheckBox *checkbox_voadora;
     QCheckBox *checkbox_visibilidade;
+    QCheckBox *checkbox_caida;
+    QCheckBox *checkbox_morta;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_4;
     QSpinBox *spin_aura;
@@ -229,6 +231,16 @@ public:
 
         horizontalLayout_9->addWidget(checkbox_visibilidade);
 
+        checkbox_caida = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_caida->setObjectName(QString::fromUtf8("checkbox_caida"));
+
+        horizontalLayout_9->addWidget(checkbox_caida);
+
+        checkbox_morta = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_morta->setObjectName(QString::fromUtf8("checkbox_morta"));
+
+        horizontalLayout_9->addWidget(checkbox_morta);
+
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
         label_4 = new QLabel(horizontalLayoutWidget_7);
@@ -311,6 +323,8 @@ public:
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
         checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
+        checkbox_caida->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ca\303\255da", 0, QApplication::UnicodeUTF8));
+        checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", 0, QApplication::UnicodeUTF8));

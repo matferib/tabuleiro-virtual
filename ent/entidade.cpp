@@ -98,8 +98,9 @@ void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, double
 // Entidade
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
   proto_.set_tipo(TE_ENTIDADE);
-  rotacao_disco_selecao_ = 0;
-  angulo_disco_voo_ = 0;
+  rotacao_disco_selecao_graus_ = 0;
+  angulo_disco_voo_rad_ = 0;
+  angulo_disco_queda_graus_ = 0;
   texturas_ = texturas;
   central_ = central;
 }
@@ -168,18 +169,27 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
 void Entidade::Atualiza() {
   auto* po = proto_.mutable_pos();
-  rotacao_disco_selecao_ = fmod(rotacao_disco_selecao_ + 1.0, 360.0);
+  rotacao_disco_selecao_graus_ = fmod(rotacao_disco_selecao_graus_ + 1.0, 360.0);
   float z_chao = ZChao(X(), Y());
   if (proto_.voadora()) {
     if (Z() < z_chao + ALTURA_VOO) {
       po->set_z(po->z() + 0.03f);
     }
-    angulo_disco_voo_ = fmod(angulo_disco_voo_ + 0.01, 2 * M_PI);
+    angulo_disco_voo_rad_ = fmod(angulo_disco_voo_rad_ + 0.01, 2 * M_PI);
   } else {
     if (Z() > z_chao) {
       po->set_z(po->z() - 0.03f);
     }
-    angulo_disco_voo_ = 0.0f;
+    angulo_disco_voo_rad_ = 0.0f;
+  }
+  if (proto_.caida()) {
+    if (angulo_disco_queda_graus_ < 90.0f) {
+      angulo_disco_queda_graus_ += 1.0f;
+    }
+  } else {
+    if (angulo_disco_queda_graus_ > 0) {
+      angulo_disco_queda_graus_ -= 1.0f;
+    }
   }
   // Nunca fica abaixo do solo.
   if (Z() < z_chao) {
@@ -258,7 +268,7 @@ const Posicao Entidade::PosicaoAcao() const {
 }
 
 float Entidade::DeltaVoo() const {
-  return angulo_disco_voo_ > 0 ? sinf(angulo_disco_voo_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
+  return angulo_disco_voo_rad_ > 0 ? sinf(angulo_disco_voo_rad_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
 void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd, const float* matriz_shear) const {
@@ -268,6 +278,9 @@ void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd, con
     glTranslated(X(), Y(), 0);
     glMultMatrixf(matriz_shear);
     glTranslated(0, 0, usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+  }
+  if (angulo_disco_queda_graus_ > 0) {
+    glRotatef(-angulo_disco_queda_graus_, 1.0, 0, 0);
   }
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
@@ -304,7 +317,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
     glPushMatrix();
     MontaMatriz(false, *pd);
     MudaCor(proto_.cor());
-    glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
+    glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
     glPopMatrix();
   }
@@ -330,7 +343,6 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
       float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
       float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
-      LOG(INFO) << "TODO porcentagem: " << porcentagem << ", tamanho barra: " << tamanho_barra << ", delta: " << delta;
       glTranslatef(0, 0, delta);
       glScalef(0.3f, 0.3f, porcentagem);
       MudaCor(VERDE);
@@ -351,7 +363,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
       glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
       glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
       if (pd->entidade_selecionada()) {
-        glRotatef(rotacao_disco_selecao_, 0, 0, 1.0f);
+        glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
       }
       glutSolidCube(TAMANHO_LADO_QUADRADO);
       glPopMatrix();
@@ -361,7 +373,8 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     MontaMatriz(true, *pd, matriz_shear);
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0));
     double angulo = 0;
-    if (pd->texturas_sempre_de_frente()) {
+    // So desenha a textura de frente pra entidades nao caidas.
+    if (pd->texturas_sempre_de_frente() && !proto_.caida()) {
       double dx = X() - pd->pos_olho().x();
       double dy = Y() - pd->pos_olho().y();
       double r = sqrt(pow(dx, 2) + pow(dy, 2));

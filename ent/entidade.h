@@ -116,9 +116,11 @@ class Entidade {
  private:
   EntidadeProto proto_;
   // Como esse estado é local e não precisa ser salvo, fica aqui.
-  double rotacao_disco_selecao_;
+  double rotacao_disco_selecao_graus_;
   // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
-  double angulo_disco_voo_;
+  double angulo_disco_voo_rad_;
+  // Entidades em queda caem progressivamente ate 90 graus.
+  double angulo_disco_queda_graus_;
 
   Texturas* texturas_;
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.

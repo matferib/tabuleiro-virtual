@@ -78,6 +78,10 @@ message EntidadeProto {
   optional bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.
   optional bool voadora = 13 [default=false];
+  // Entidade esta morta.
+  optional bool caida = 14 [default=false];
+  // Entidade esta caida.
+  optional bool morta = 15 [default=false];
 }
 
 // Alguns estados são mantidos nesta variável.
