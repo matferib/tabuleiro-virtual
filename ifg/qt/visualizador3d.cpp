@@ -305,13 +305,15 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   auto estado_anterior = estado_;
   MudaEstado(ESTADO_OUTRO);
-  if (event->modifiers() == Qt::ControlModifier) {
+  if (event->modifiers() == Qt::AltModifier) {
     int delta_pontos_vida = 0;
     if (estado_anterior == ESTADO_TEMPORIZANDO_TECLADO) {
       delta_pontos_vida = CalculaDano(teclas_);
     }
     tabuleiro_->TrataBotaoAcaoPressionado(
         MapeiaBotao(*event), event->x(), height() - event->y(), delta_pontos_vida);
+  } else if (event->modifiers() == Qt::ControlModifier) {
+    tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
   } else {
     tabuleiro_->TrataBotaoPressionado(
         MapeiaBotao(*event), event->x(), height() - event->y());

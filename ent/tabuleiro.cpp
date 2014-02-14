@@ -573,6 +573,12 @@ void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
   }
 }
 
+void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+  TrataCliqueEsquerdo(x, y, true  /*alternar selecao*/);
+}
+
 void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta_pontos_vida) {
   AcaoProto acao_proto;
   if (botao == BOTAO_ESQUERDO) {
@@ -837,8 +843,7 @@ void Tabuleiro::DesenhaCena() {
   glPushName(0);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second;
-    parametros_desenho_.set_entidade_selecionada(
-        id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
+    parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
     entidade->Desenha(&parametros_desenho_);
   }
@@ -894,8 +899,7 @@ void Tabuleiro::DesenhaCena() {
     glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      parametros_desenho_.set_entidade_selecionada(
-          id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
+      parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
       entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
     parametros_desenho_.set_entidade_selecionada(false);
@@ -937,8 +941,7 @@ void Tabuleiro::DesenhaCena() {
     glPushName(0);
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      parametros_desenho_.set_entidade_selecionada(
-          id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
+      parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
       parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
@@ -960,8 +963,7 @@ void Tabuleiro::DesenhaCena() {
     glPushName(0);
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second;
-      parametros_desenho_.set_entidade_selecionada(
-          id_entidades_selecionadas_.find(entidade->Id()) != id_entidades_selecionadas_.end());
+      parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
     glPopName();
@@ -1122,7 +1124,7 @@ bool Tabuleiro::MousePara3d(int x, int y, float profundidade, double* x3d, doubl
   return true;
 }
 
-void Tabuleiro::TrataCliqueEsquerdo(int x, int y) {
+void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
@@ -1138,8 +1140,12 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y) {
     ultimo_y_3d_ = y3d;
     ultimo_z_3d_ = z3d;
     VLOG(1) << "Picking entidade.";
-    SelecionaEntidade(id);
-    estado_ = ETAB_ENT_PRESSIONADA;
+    if (alterna_selecao) {
+      AlternaSelecaoEntidade(id);
+    } else {
+      SelecionaEntidade(id);
+      estado_ = ETAB_ENT_PRESSIONADA;
+    }
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidade();
@@ -1199,21 +1205,48 @@ void Tabuleiro::SelecionaEntidade(unsigned int id) {
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  id_entidades_selecionadas_.clear();
-  id_entidades_selecionadas_.insert(entidade->Id());
+  ids_entidades_selecionadas_.clear();
+  ids_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
   estado_ = ETAB_ENT_SELECIONADA;
 }
 
+void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
+  VLOG(1) << "Selecionando entidade: " << id;
+  auto* entidade = BuscaEntidade(id);
+  if (entidade == nullptr) {
+    throw std::logic_error("Entidade inválida");
+  }
+
+  if (EntidadeEstaSelecionada(id)) {
+    ids_entidades_selecionadas_.erase(id);
+  } else {
+    ids_entidades_selecionadas_.insert(id);
+  }
+  // Alterna o estado.
+  if (ids_entidades_selecionadas_.empty()) {
+    estado_ = ETAB_OCIOSO;
+  } else if (ids_entidades_selecionadas_.size() == 1) {
+    estado_ = ETAB_ENT_SELECIONADA;
+  } else {
+    estado_ = ETAB_ENTS_SELECIONADAS;
+  }
+  quadrado_selecionado_ = -1;
+}
+
+bool Tabuleiro::EntidadeEstaSelecionada(unsigned int id) {
+  return ids_entidades_selecionadas_.find(id) != ids_entidades_selecionadas_.end();
+}
+
 void Tabuleiro::DeselecionaEntidade() {
-  id_entidades_selecionadas_.clear();
+  ids_entidades_selecionadas_.clear();
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   quadrado_selecionado_ = id_quadrado;
-  id_entidades_selecionadas_.clear();
+  ids_entidades_selecionadas_.clear();
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
@@ -1320,7 +1353,7 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   entidades_.erase(res_find);
   delete entidade;
   // Retorna apenas para verificacao.
-  return id_entidades_selecionadas_.find(id) != id_entidades_selecionadas_.end();
+  return EntidadeEstaSelecionada(id);
 }
 
 int Tabuleiro::GeraIdEntidade(int id_cliente) {
@@ -1434,10 +1467,10 @@ double Tabuleiro::Aspecto() const {
 }
 
 Entidade* Tabuleiro::EntidadeSelecionada() {
-  if (id_entidades_selecionadas_.size() != 1) {
+  if (ids_entidades_selecionadas_.size() != 1) {
     return nullptr;
   }
-  unsigned int id = *id_entidades_selecionadas_.begin();
+  unsigned int id = *ids_entidades_selecionadas_.begin();
   auto it = entidades_.find(id);
   if (it == entidades_.end()) {
     return nullptr;
