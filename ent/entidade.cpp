@@ -247,17 +247,23 @@ int Entidade::PontosVida() const {
   return proto_.pontos_vida();
 }
 
-void Entidade::DanoCura(int pontos_vida) {
-}
-
 double Entidade::X() const {
   return proto_.pos().x();
 }
+
 double Entidade::Y() const {
   return proto_.pos().y();
 }
+
 double Entidade::Z() const {
   return proto_.pos().z();
+}
+
+void Entidade::MataEntidade() {
+  proto_.set_morta(true);
+  proto_.set_caida(true);
+  proto_.set_voadora(false);
+  proto_.set_aura(0);
 }
 
 const Posicao Entidade::PosicaoAcao() const {

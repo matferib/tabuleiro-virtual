@@ -36,7 +36,7 @@ namespace ifg {
 namespace qt {
 namespace {
 
-const int MAX_TEMPORIZADOR_TECLADO = 100;  // 1s.
+const int MAX_TEMPORIZADOR_TECLADO = 300;  // 3s.
 const int MAX_TEMPORIZADOR_MOUSE = 300;  // 3s.
 
 ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
@@ -131,6 +131,22 @@ void PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_
   info_textura->set_largura(imagem.width());
   info_textura->set_bits(imagem.constBits(), imagem.byteCount());
   info_textura->set_formato(imagem.format());
+}
+
+// Calcula o dano acumulado no vetor de teclas, ignorando a primeira tecla (que eh o tipo do dano).
+int CalculaDano(const std::vector<int>& teclas) {
+  int delta = 0;
+  int multiplicador = 1;
+  for (auto it = teclas.rbegin(); it < teclas.rend() - 1; ++it) {
+    if (*it < Qt::Key_0 || *it > Qt::Key_9) {
+      LOG(WARNING) << "Tecla inválida para delta pontos de vida";
+      continue;
+    }
+    delta += (*it - Qt::Key_0) * multiplicador;
+    multiplicador *= 10;
+  }
+  VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
+  return teclas[0] == Qt::Key_D ? -delta : delta;
 }
 
 }  // namespace
@@ -287,10 +303,15 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
+  auto estado_anterior = estado_;
   MudaEstado(ESTADO_OUTRO);
   if (event->modifiers() == Qt::ControlModifier) {
+    int delta_pontos_vida = 0;
+    if (estado_anterior == ESTADO_TEMPORIZANDO_TECLADO) {
+      delta_pontos_vida = CalculaDano(teclas_);
+    }
     tabuleiro_->TrataBotaoAcaoPressionado(
-        MapeiaBotao(*event), event->x(), height() - event->y());
+        MapeiaBotao(*event), event->x(), height() - event->y(), delta_pontos_vida);
   } else {
     tabuleiro_->TrataBotaoPressionado(
         MapeiaBotao(*event), event->x(), height() - event->y());
@@ -631,18 +652,7 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
   switch (primeira_tecla) {
     case Qt::Key_C:
     case Qt::Key_D: {
-      int delta = 0;
-      int multiplicador = 1;
-      for (auto it = teclas_.rbegin(); it < teclas_.rend() - 1; ++it) {
-        if (*it < Qt::Key_0 || *it > Qt::Key_9) {
-          LOG(WARNING) << "Tecla inválida para delta pontos de vida";
-          continue;
-        }
-        delta += (*it - Qt::Key_0) * multiplicador;
-        multiplicador *= 10;
-      }
-      VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
-      tabuleiro_->AtualizaPontosVidaEntidade(primeira_tecla == Qt::Key_C ? delta : -delta);
+      tabuleiro_->AtualizaPontosVidaEntidade(CalculaDano(teclas_));
       break;
     }
     default:

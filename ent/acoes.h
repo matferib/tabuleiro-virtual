@@ -13,19 +13,37 @@ class Tabuleiro;
 
 class Acao {
  public:
-  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {}
+  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {
+  }
   virtual ~Acao() {}
 
   // Atualiza a acao.
   virtual void Atualiza() = 0;
 
   // Desenha a acao.
-  virtual void Desenha(ParametrosDesenho* pd) = 0;
+  void Desenha(ParametrosDesenho* pd) {
+    if (Finalizada()) {
+      return;
+    }
+    DesenhaSeNaoFinalizada(pd);
+  }
+  void DesenhaTranslucido(ParametrosDesenho* pd) {
+    if (Finalizada()) {
+      return;
+    }
+    DesenhaTranslucidoSeNaoFinalizada(pd);
+  }
 
   // Indica que a acao ja terminou e pode ser descartada.
   virtual bool Finalizada() const = 0;
 
+  const AcaoProto& Proto() const { return acao_proto_; }
+
  protected:
+  virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) {}
+  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) {} 
+
+
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_;
 };

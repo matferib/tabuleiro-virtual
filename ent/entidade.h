@@ -59,9 +59,6 @@ class Entidade {
   /** @return o HP da unidade. */
   int PontosVida() const;
 
-  /** aplica dano ou cura na entidade. Dano eh negativo, cura eh positivo. */
-  void DanoCura(int pontosVida);
-
   /** @return a coordenada (x). */
   double X() const;
 
@@ -70,6 +67,9 @@ class Entidade {
 
   /** @return a coordenada (z). */
   double Z() const;
+
+  /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
+  void MataEntidade();
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;

@@ -94,6 +94,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
   void AtualizaPontosVidaEntidade(int delta_pontos_vida);
+  /** Atualiza os pontos de vida de uma entidade. */
+  void AtualizaPontosVidaEntidade(unsigned int id, int delta_pontos_vida);
 
   /** desenha o mundo. */
   void Desenha();
@@ -121,8 +123,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl). 
   * Acao com botao esquerdo respeita a selecao de padrao, botao direito usa sinalizacao.
+  * Algumas acoes podem causar um delta de pontos de vida no alvo, indicado por delta_pontos_vida.
   */
-  void TrataBotaoAcaoPressionado(botao_e botao, int x, int y);
+  void TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta_pontos_vida = 0);
 
   /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
   void TrataDuploClique(botao_e botao, int x, int y);
