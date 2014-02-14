@@ -226,13 +226,13 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
   if (!notificacao.local()) {
     // Comando vindo de fora.
     id_remocao = notificacao.entidade().id();
-  } else if (estado_ == ETAB_ENT_SELECIONADA) {
-    // Remover entidade selecionada local.
-    id_remocao = EntidadeSelecionada()->Id();
-    // Envia para os clientes.
-    auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
-    n->mutable_entidade()->set_id(id_remocao);
-    central_->AdicionaNotificacaoRemota(n);
+  } else if ((estado_ == ETAB_ENT_SELECIONADA) || estado_ == ETAB_ENTS_SELECIONADAS) {
+    for (unsigned int id_remocao : ids_entidades_selecionadas_) {
+      // Envia para os clientes.
+      auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
+      n->mutable_entidade()->set_id(id_remocao);
+      central_->AdicionaNotificacaoRemota(n);
+    }
   } else {
     VLOG(1) << "Remocao de entidade sem seleção";
     return;
@@ -243,68 +243,72 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
 }
 
 void Tabuleiro::AtualizaBitsEntidade(int bits) {
-  if (estado_ != ETAB_ENT_SELECIONADA) {
+  if (estado_ != ETAB_ENT_SELECIONADA && estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
-  auto* entidade_selecionada = EntidadeSelecionada();
-  EntidadeProto proto = entidade_selecionada->Proto();
-  if ((bits & BIT_VISIBILIDADE) > 0) {
-    proto.set_visivel(!proto.visivel());
-  }
-  if ((bits & BIT_ILUMINACAO) > 0) {
-    if (proto.has_luz()) {
-      proto.clear_luz();
-    } else {
-      auto* luz = proto.mutable_luz()->mutable_cor();
-      luz->set_r(1.0f);
-      luz->set_g(1.0f);
-      luz->set_b(1.0f);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    EntidadeProto proto = entidade_selecionada->Proto();
+    if ((bits & BIT_VISIBILIDADE) > 0) {
+      proto.set_visivel(!proto.visivel());
     }
+    if ((bits & BIT_ILUMINACAO) > 0) {
+      if (proto.has_luz()) {
+        proto.clear_luz();
+      } else {
+        auto* luz = proto.mutable_luz()->mutable_cor();
+        luz->set_r(1.0f);
+        luz->set_g(1.0f);
+        luz->set_b(1.0f);
+      }
+    }
+    if ((bits & BIT_VOO) > 0) {
+      proto.set_voadora(!proto.voadora());
+    }
+    if ((bits & BIT_CAIDA)) {
+      proto.set_caida(!proto.caida());
+    }
+    if ((bits & BIT_MORTA)) {
+      proto.set_morta(!proto.morta());
+    }
+    proto.set_id(id);
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    n.mutable_entidade()->Swap(&proto);
+    TrataNotificacao(n);
   }
-  if ((bits & BIT_VOO) > 0) {
-    proto.set_voadora(!proto.voadora());
-  }
-  if ((bits & BIT_CAIDA)) {
-    proto.set_caida(!proto.caida());
-  }
-  if ((bits & BIT_MORTA)) {
-    proto.set_morta(!proto.morta());
-  }
-  proto.set_id(entidade_selecionada->Id());
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-  n.mutable_entidade()->Swap(&proto);
-  TrataNotificacao(n);
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
-  if (estado_ != ETAB_ENT_SELECIONADA) {
+  if (estado_ != ETAB_ENT_SELECIONADA && estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
-  auto* entidade_selecionada = EntidadeSelecionada();
-  auto proto = entidade_selecionada->Proto();
-  int pontos_vida = proto.pontos_vida();
-  if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
-    entidade_selecionada->MataEntidade();
-    proto = entidade_selecionada->Proto();
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    auto proto = entidade_selecionada->Proto();
+    int pontos_vida = proto.pontos_vida();
+    if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
+      entidade_selecionada->MataEntidade();
+      proto = entidade_selecionada->Proto();
+    }
+    proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
+    proto.set_id(entidade_selecionada->Id());
+    // Atualizacao.
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    n.mutable_entidade()->Swap(&proto);
+    TrataNotificacao(n);
+    // Acao.
+    ntf::Notificacao na;
+    na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* a = na.mutable_acao();
+    a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    a->set_id_entidade_destino(entidade_selecionada->Id());
+    a->set_delta_pontos_vida(delta_pontos_vida);
+    TrataNotificacao(na);
   }
-  proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
-  proto.set_id(entidade_selecionada->Id());
-  // Atualizacao.
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-  n.mutable_entidade()->Swap(&proto);
-  TrataNotificacao(n);
-  // Acao.
-  ntf::Notificacao na;
-  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
-  auto* a = na.mutable_acao();
-  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->set_id_entidade_destino(entidade_selecionada->Id());
-  a->set_delta_pontos_vida(delta_pontos_vida);
-  TrataNotificacao(na);
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_pontos_vida) {
