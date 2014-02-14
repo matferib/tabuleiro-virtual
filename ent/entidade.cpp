@@ -332,7 +332,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
     glPushAttrib(GL_LIGHTING_BIT);
     // Luz no olho apontando para a barra.
     const Posicao& pos_olho = pd->pos_olho();
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, BRANCO);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
     const auto& pos = proto_.pos();
     GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
@@ -342,7 +342,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
     glPushMatrix();
     glScalef(0.2, 0.2, 1.0f);
-    MudaCor(VERMELHO);
+    MudaCor(COR_VERMELHA);
     glutSolidCube(TAMANHO_BARRA_VIDA);
     glPopMatrix();
     if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
@@ -351,7 +351,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
       glTranslatef(0, 0, delta);
       glScalef(0.3f, 0.3f, porcentagem);
-      MudaCor(VERDE);
+      MudaCor(COR_VERDE);
       glutSolidCube(TAMANHO_BARRA_VIDA);
     }
     glPopMatrix();

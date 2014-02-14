@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <boost/timer/timer.hpp>
 #include <cassert>
+#include <cstdio>
 #include <cmath>
 #include <fstream>
 #include <map>
@@ -66,16 +67,22 @@ double DistanciaQuadrado(const Posicao& p1, const Posicao& p2) {
   return pow(p1.x() - p2.x(), 2) + pow(p1.y() - p2.y(), 2) + pow(p1.z() - p2.z(), 2);
 }
 
-/** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
-void DesenhaStringTempo(const std::string& tempo) {
-  MudaCor(PRETO);
-  glRectf(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
 
-  MudaCor(BRANCO);
+/** Desenha apenas a string. */
+void DesenhaString(const std::string& s) {
   glRasterPos2i(1, 1);
-  for (const char c : tempo) {
+  for (const char c : s) {
     glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
   }
+}
+
+/** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
+void DesenhaStringTempo(const std::string& tempo) {
+  MudaCor(COR_PRETA);
+  glRectf(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
+
+  MudaCor(COR_BRANCA);
+  DesenhaString(tempo);
 }
 
 /** Le um arquivo proto serializado de forma binaria. */
@@ -340,6 +347,18 @@ void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_p
   TrataNotificacao(na);
 }
 
+void Tabuleiro::AcumulaPontosVida(int pv) {
+  if (pv >= 1000 || pv <= -1000 || pv == 0) {
+    LOG(ERROR) << "Ignorando pv: " << pv;
+    return;
+  }
+  lista_pontos_vida_.emplace_back(pv);
+}
+
+void Tabuleiro::LimpaListaPontosVida() {
+  lista_pontos_vida_.clear();
+}
+
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_RESPOSTA_CONEXAO:
@@ -583,7 +602,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   TrataCliqueEsquerdo(x, y, true  /*alternar selecao*/);
 }
 
-void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta_pontos_vida) {
+void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   AcaoProto acao_proto;
   if (botao == BOTAO_ESQUERDO) {
     // usa acao padrao.
@@ -629,7 +648,9 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y, int delta
   if (entidade_selecionada != nullptr) {
     acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
   }
-  if (delta_pontos_vida != 0 && acao_proto.has_id_entidade_destino()) {
+  if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
+    int delta_pontos_vida = lista_pontos_vida_.front();
+    lista_pontos_vida_.pop_front();
     acao_proto.set_delta_pontos_vida(delta_pontos_vida);
     acao_proto.set_afeta_pontos_vida(true);
   }
@@ -801,7 +822,6 @@ void Tabuleiro::DesenhaCena() {
   if (id_textura != GL_INVALID_VALUE) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, id_textura);
-    //LOG(INFO) << "binding: " << id_textura;
   }
 
   glPushMatrix();
@@ -814,7 +834,7 @@ void Tabuleiro::DesenhaCena() {
   int id = 0;
   glEnable(GL_POLYGON_OFFSET_FILL);
   // Desenha o chao mais pro fundo.
-  // TODO transofrmar offsets em constantes.
+  // TODO transformar offsets em constantes.
   glPolygonOffset(0.04f, 0.04f);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
@@ -975,6 +995,10 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_barra_vida(false);
   }
 
+  if (parametros_desenho_.desenha_lista_pontos_vida()) {
+    DesenhaListaPontosVida();
+  }
+
   if (parametros_desenho_.desenha_fps()) {
     glFlush();
     timer.stop();
@@ -1048,6 +1072,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_acoes(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -1430,7 +1455,7 @@ void Tabuleiro::DesenhaQuadrado(
     float tamanho_texel_h = 1.0f / TamanhoX();
     float tamanho_texel_v = 1.0f / TamanhoY();
     // desenha o quadrado branco.
-    MudaCor(BRANCO);
+    MudaCor(COR_BRANCA);
     glPushMatrix();
     glBegin(GL_QUADS);
     // O quadrado eh desenhado EB, DB, DC, EC. A textura tem o eixo Y invertido.
@@ -1449,7 +1474,7 @@ void Tabuleiro::DesenhaQuadrado(
 }
 
 void Tabuleiro::DesenhaGrade() {
-  MudaCor(PRETO);
+  MudaCor(COR_PRETA);
   // Linhas verticais (S-N).
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
   const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
@@ -1464,6 +1489,41 @@ void Tabuleiro::DesenhaGrade() {
     float y = i * TAMANHO_LADO_QUADRADO;
     glRectf(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
   }
+}
+
+void Tabuleiro::DesenhaListaPontosVida() {
+  if (lista_pontos_vida_.empty()) {
+    return;
+  }
+  // Modo 2d: eixo com origem embaixo esquerda.
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  glOrtho(0, largura_, 0, altura_, 0, 1);
+
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_LIGHTING);
+  std::string titulo("Lista PV");
+  glTranslatef(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
+  MudaCor(COR_BRANCA);
+  DesenhaString(titulo);
+  glTranslatef((titulo.size() - 3) * 8, 0.0f, 0.0f);
+  for (int pv : lista_pontos_vida_) {
+    MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+    char str[4];
+    snprintf(str, 4, "%d", abs(pv));
+    glTranslatef(0.0f, -15.0f, 0.0f);
+    DesenhaString(str);
+  }
+  glPopMatrix();
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+
 }
 
 double Tabuleiro::Aspecto() const {

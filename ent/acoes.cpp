@@ -34,12 +34,12 @@ class AcaoSinalizacao : public Acao {
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     glEnable(GL_NORMALIZE);
     glNormal3f(0, 0, 1.0f);
-    MudaCor(BRANCO);
+    MudaCor(COR_BRANCA);
     glPolygonOffset(-0.08f, -0.08f);
 
     const Posicao& pos = acao_proto_.pos_tabuleiro();
@@ -117,9 +117,9 @@ class AcaoDeltaPontosVida : public Acao {
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
     glPushMatrix();
-    MudaCor(acao_proto_.delta_pontos_vida() > 0 ? VERDE : VERMELHO);
+    MudaCor(acao_proto_.delta_pontos_vida() > 0 ? COR_VERDE : COR_VERMELHA);
     DesenhaStringTempo(string_delta_);
     glPopMatrix();
     glPopAttrib();
@@ -161,8 +161,8 @@ class AcaoDispersao : public Acao {
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, BRANCO);
-    GLfloat cor[3] = { AMARELO[0], AMARELO[1], AMARELO[2]  };
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
+    GLfloat cor[3] = { COR_AMARELA[0], COR_AMARELA[1], COR_AMARELA[2]  };
     if (acao_proto_.has_cor()) {
       cor[0] = acao_proto_.cor().r();
       cor[1] = acao_proto_.cor().g();
@@ -223,11 +223,11 @@ class AcaoProjetil : public Acao {
     glPushAttrib(GL_LIGHTING_BIT);
     // Luz da camera apontando para a bola.
     const Posicao& pos_olho = pd->pos_olho();
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, BRANCO);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
     GLfloat pos_luz[] = { pos_olho.x() - pos_.x(), pos_olho.y() - pos_.y(), pos_olho.z() - pos_.z(), 0.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
 
-    MudaCor(AZUL);
+    MudaCor(COR_AZUL);
     glPushMatrix();
     glTranslated(pos_.x(), pos_.y(), pos_.z());
     glutSolidSphere(TAMANHO_LADO_QUADRADO_2 / 4, 5, 5);

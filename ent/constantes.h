@@ -33,12 +33,12 @@ extern const double SEN_60;
 extern const double SEN_30;
 extern const double COS_60;
 extern const double COS_30;
-extern const GLfloat PRETO[];
-extern const GLfloat BRANCO[];
-extern const GLfloat VERMELHO[];
-extern const GLfloat VERDE[];
-extern const GLfloat AZUL[];
-extern const GLfloat AMARELO[];
+extern const GLfloat COR_PRETA[];
+extern const GLfloat COR_BRANCA[];
+extern const GLfloat COR_VERMELHA[];
+extern const GLfloat COR_VERDE[];
+extern const GLfloat COR_AZUL[];
+extern const GLfloat COR_AMARELA[];
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const GLfloat* cor);

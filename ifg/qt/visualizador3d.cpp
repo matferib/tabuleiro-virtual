@@ -36,8 +36,9 @@ namespace ifg {
 namespace qt {
 namespace {
 
-const int MAX_TEMPORIZADOR_TECLADO = 300;  // 3s.
-const int MAX_TEMPORIZADOR_MOUSE = 300;  // 3s.
+// Temporizadores * 10ms.
+const int MAX_TEMPORIZADOR_TECLADO = 30;
+const int MAX_TEMPORIZADOR_MOUSE = 20;
 
 ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
   switch (evento.button()) {
@@ -133,11 +134,12 @@ void PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_
   info_textura->set_formato(imagem.format());
 }
 
-// Calcula o dano acumulado no vetor de teclas, ignorando a primeira tecla (que eh o tipo do dano).
-int CalculaDano(const std::vector<int>& teclas) {
+// Calcula o dano acumulado no vetor de teclas, usando a primeira tecla para o tipo do dano.
+int CalculaDano(const std::vector<int>::const_reverse_iterator& inicio_teclas,
+                const std::vector<int>::const_reverse_iterator& fim_teclas) {
   int delta = 0;
   int multiplicador = 1;
-  for (auto it = teclas.rbegin(); it < teclas.rend() - 1; ++it) {
+  for (auto it = inicio_teclas; it < fim_teclas - 1; ++it) {
     if (*it < Qt::Key_0 || *it > Qt::Key_9) {
       LOG(WARNING) << "Tecla inválida para delta pontos de vida";
       continue;
@@ -146,7 +148,11 @@ int CalculaDano(const std::vector<int>& teclas) {
     multiplicador *= 10;
   }
   VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
-  return teclas[0] == Qt::Key_D ? -delta : delta;
+  return *(fim_teclas - 1) == Qt::Key_D ? -delta : delta;
+}
+
+int CalculaDano(const std::vector<int>& teclas) {
+  return CalculaDano(teclas.rbegin(), teclas.rend());
 }
 
 }  // namespace
@@ -289,6 +295,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Q:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_CAIDA);
       return;
+    case Qt::Key_A:
     case Qt::Key_C:
     case Qt::Key_D:
       // Entra em modo de temporizacao.
@@ -303,15 +310,10 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  auto estado_anterior = estado_;
   MudaEstado(ESTADO_OUTRO);
   if (event->modifiers() == Qt::AltModifier) {
-    int delta_pontos_vida = 0;
-    if (estado_anterior == ESTADO_TEMPORIZANDO_TECLADO) {
-      delta_pontos_vida = CalculaDano(teclas_);
-    }
     tabuleiro_->TrataBotaoAcaoPressionado(
-        MapeiaBotao(*event), event->x(), height() - event->y(), delta_pontos_vida);
+        MapeiaBotao(*event), event->x(), height() - event->y());
   } else if (event->modifiers() == Qt::ControlModifier) {
     tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
   } else {
@@ -652,6 +654,17 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
   }
   int primeira_tecla = *teclas_.begin();
   switch (primeira_tecla) {
+    case Qt::Key_A: {
+      if (teclas_.size() == 1) {
+        return;
+      }
+      if (teclas_[1] == Qt::Key_Delete) {
+        tabuleiro_->LimpaListaPontosVida();
+      } else {
+        tabuleiro_->AcumulaPontosVida(CalculaDano(teclas_.rbegin(), teclas_.rend() - 1));
+      }
+      break;
+    }
     case Qt::Key_C:
     case Qt::Key_D: {
       tabuleiro_->AtualizaPontosVidaEntidade(CalculaDano(teclas_));

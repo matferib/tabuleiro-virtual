@@ -10,12 +10,12 @@ const double SEN_30 = sin(M_PI / 6.0);
 const double COS_60 = cos(M_PI / 3.0);
 const double COS_30 = cos(M_PI / 6.0);
 
-const GLfloat BRANCO[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-const GLfloat PRETO[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-const GLfloat VERMELHO[] = { 1.0f, 0.0f, 0.0f, 1.0f };
-const GLfloat VERDE[] = { 0.0f, 1.0f, 0.0f, 1.0f };
-const GLfloat AZUL[] = { 0.0f, 0.0f, 1.0f, 1.0f };
-const GLfloat AMARELO[] = { 1.0f, 1.0f, 0.0f, 1.0f };
+const GLfloat COR_BRANCA[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
+const GLfloat COR_PRETA[]    = { 0.0f, 0.0f, 0.0f, 1.0f };
+const GLfloat COR_VERMELHA[] = { 1.0f, 0.0f, 0.0f, 1.0f };
+const GLfloat COR_VERDE[]    = { 0.0f, 1.0f, 0.0f, 1.0f };
+const GLfloat COR_AZUL[]     = { 0.0f, 0.0f, 1.0f, 1.0f };
+const GLfloat COR_AMARELA[]  = { 1.0f, 1.0f, 0.0f, 1.0f };
 
 void MudaCor(const GLfloat* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
