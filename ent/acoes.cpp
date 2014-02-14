@@ -23,6 +23,26 @@ namespace ent {
 
 namespace {
 
+void MudaCorProto(const Cor& cor) {
+  const GLfloat corgl[3] = { cor.r(), cor.g(), cor.b() };
+  MudaCor(corgl);
+}
+
+// Geometria deve ser do tipo GeometriaAcao. O tamanho sera unitario na unidade da geometria (ou seja, raio para esfera,
+// lado para cubo).
+void DesenhaGeometriaAcao(int geometria) {
+  switch (geometria) {
+    case ACAO_GEO_ESFERA:
+      glutSolidSphere(1.0f, 10, 10);
+      return;
+    case ACAO_GEO_CUBO:
+      glutSolidCube(1.0f);
+      return;
+    default:
+      return;
+  }
+}
+
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
  public:
@@ -155,24 +175,20 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), raio_(0) {
-    raio_maximo_ = acao_proto_.has_raio() ? acao_proto_.raio() * TAMANHO_LADO_QUADRADO : 4 * TAMANHO_LADO_QUADRADO;
+  AcaoDispersao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr) {
+    raio_ = 0;
+    raio_maximo_ = acao_proto_.raio_area() * TAMANHO_LADO_QUADRADO;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
-    GLfloat cor[3] = { COR_AMARELA[0], COR_AMARELA[1], COR_AMARELA[2]  };
-    if (acao_proto_.has_cor()) {
-      cor[0] = acao_proto_.cor().r();
-      cor[1] = acao_proto_.cor().g();
-      cor[2] = acao_proto_.cor().b();
-    }
-    MudaCor(cor);
+    MudaCorProto(acao_proto_.cor());
     glPushMatrix();
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     glTranslated(pos.x(), pos.y(), pos.z());
-    glutSolidSphere(raio_, 10, 10);
+    glScalef(raio_, raio_, raio_);
+    DesenhaGeometriaAcao(acao_proto_.geometria());
     glPopMatrix();
     glPopAttrib();
   }
@@ -227,10 +243,11 @@ class AcaoProjetil : public Acao {
     GLfloat pos_luz[] = { pos_olho.x() - pos_.x(), pos_olho.y() - pos_.y(), pos_olho.z() - pos_.z(), 0.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
 
-    MudaCor(COR_AZUL);
+    MudaCorProto(acao_proto_.cor());
     glPushMatrix();
     glTranslated(pos_.x(), pos_.y(), pos_.z());
-    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 / 4, 5, 5);
+    glScalef(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
+    DesenhaGeometriaAcao(acao_proto_.has_geometria() ? acao_proto_.geometria() : ACAO_GEO_ESFERA);
     glPopMatrix();
     glPopAttrib();
   }

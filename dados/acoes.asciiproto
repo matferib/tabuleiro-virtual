@@ -4,16 +4,24 @@ acao {
 }
 acao {
   id: 'Ataque a Distância'
+  tipo: ACAO_PROJETIL
+  geometria: ACAO_GEO_CUBO
+  escala { x: 1.0f y: 0.2 z: 0.2 }
+  cor { r: 0.0 g: 0.0 b: 0.0 }
 }
 acao {
   id: 'Bola de Fogo'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
-  raio: 4  # quadrados.
+  raio_area: 4  # quadrados.
+  geometria: ACAO_GEO_ESFERA
 }
 acao {
   id: 'Míssil Mágico' 
   tipo: ACAO_PROJETIL
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.2 y: 0.2 z: 0.2 }
+  cor { r: 0.0 g: 0.0 b: 1.0 }
 }
 acao {
   id: 'Raio'

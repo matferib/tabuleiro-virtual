@@ -11,11 +11,24 @@ enum TipoAcao {
   ACAO_DELTA_PONTOS_VIDA = 5;
 }
 
+enum GeometriaAcao {
+  ACAO_GEO_ESFERA = 1;
+  ACAO_GEO_CUBO = 2;
+}
+
+// A escala nos tres eixos.
+message Escala {
+  optional float x = 1 [default=1.0];
+  optional float y = 2 [default=1.0];
+  optional float z = 3 [default=1.0];
+}
+
 message AcaoProto {
   // Identificador da acao.
   optional string id = 1;
   optional TipoAcao tipo = 2;
-  optional int32 raio = 3;  // Em quadrados.
+  optional int32 raio_area = 3;  // quadrados.
+  optional Escala escala = 17;
   optional Cor cor = 4;
   // Adicionar coisas da acao aqui.
   optional uint32 id_entidade_origem = 10;
@@ -26,6 +39,8 @@ message AcaoProto {
   // Para acao afetando pontos de vida.
   optional int32 delta_pontos_vida = 14;  // cosmetico apenas.
   optional bool afeta_pontos_vida = 15 [default=false];  // Se verdadeiro, a entidade sofre o dano de verdade.
+  // O tipo de objeto para algumas acoes especificas.
+  optional GeometriaAcao geometria = 16;
 }
 
 // O arquivo de acoes é serializado desta forma.

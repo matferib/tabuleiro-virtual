@@ -1,7 +1,6 @@
-- Gerar uma notificacao agrupando outras.
-- Adicionar FIFO de dano com display a direita para acoes.
-- Mudar cursor quando control estiver pressionado.
 - Gerar acoes de jogadores (espadada flechada etc).
+- Gerar uma notificacao agrupando outras.
+- Mudar cursor quando control estiver pressionado.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
