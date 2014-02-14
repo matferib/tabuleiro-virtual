@@ -42,6 +42,7 @@ enum etab_t {
   ETAB_DESLIZANDO,
   ETAB_ENT_PRESSIONADA,
   ETAB_ENT_SELECIONADA,
+  ETAB_ENTS_SELECIONADAS,
   ETAB_QUAD_PRESSIONADO,
   ETAB_QUAD_SELECIONADO,
 };
@@ -121,6 +122,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl). */
   void TrataBotaoPressionado(botao_e botao, int x, int y);
+  void TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y);
 
   /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl). 
   * Acao com botao esquerdo respeita a selecao de padrao, botao direito usa sinalizacao.
@@ -190,8 +192,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Dada uma profundidade, faz a projecao inversa (2d para 3d). */
   bool MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d);
 
-  /** trata o clique do botao esquerdo, preparando para movimento de arrastar entidades. */
-  void TrataCliqueEsquerdo(int x, int y);
+  /** trata o clique do botao esquerdo, preparando para movimento de arrastar entidades.
+  * Seleciona a entidade o clique for nela. Se alterna_selecao for true, alterna o estado de selecao da entidade.
+  */
+  void TrataCliqueEsquerdo(int x, int y, bool alterna_selecao = false);
 
   /** trata o click do botao direito, preparando para movimento de deslizamento. */
   void TrataCliqueDireito(int x, int y);
@@ -204,6 +208,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
+
+  /** Alterna a selecao da entidade. */
+  void AlternaSelecaoEntidade(unsigned int id);
 
   /** deseleciona a entidade selecionada. */
   void DeselecionaEntidade();
@@ -260,6 +267,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
+  /** Retorna se uma entidade esta selecionada. */
+  bool EntidadeEstaSelecionada(unsigned int id);
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
@@ -282,7 +291,7 @@ class Tabuleiro : public ntf::Receptor {
   MapaClientes clientes_;
 
   /** as entidades selecionada. */
-  std::set<unsigned int> id_entidades_selecionadas_;
+  std::set<unsigned int> ids_entidades_selecionadas_;
 
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
