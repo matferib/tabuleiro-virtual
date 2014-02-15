@@ -33,6 +33,9 @@ acao {
 }
 acao {
   id: 'Raio'
+  tipo: ACAO_RAIO
+  cor { r: 1.0 g: 0 b: 0 }
+  duracao: 100
 }
 acao {
   id: 'Relâmpago' 

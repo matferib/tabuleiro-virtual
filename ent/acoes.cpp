@@ -44,9 +44,12 @@ void DesenhaGeometriaAcao(int geometria) {
 }
 
 // Retorna o angulo de rotacao do vetor.
-double VetorParaRotacaoGraus(double x, double y) {
+double VetorParaRotacaoGraus(double x, double y, double* tamanho = nullptr) {
   double tam = sqrt(x * x + y * y);
   double angulo = acos(x / tam) * RAD_PARA_GRAUS;
+  if (tamanho != nullptr) {
+    *tamanho = tam;
+  }
   return (y >= 0 ? angulo : -angulo);
 }
 
@@ -368,6 +371,73 @@ class AcaoProjetil : public Acao {
   Posicao pos_;
 };
 
+// Acao de raio.
+class AcaoRaio : public Acao {
+ public:
+  AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+    duracao_ = acao_proto.duracao();
+    if (!acao_proto_.has_id_entidade_origem()) {
+      duracao_ = 0;
+      LOG(ERROR) << "Acao raio requer id origem.";
+      return;
+    }
+    if (!acao_proto_.has_id_entidade_destino()) {
+      duracao_ = 0;
+      LOG(ERROR) << "Acao raio requer id destino.";
+      return;
+    }
+    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+      duracao_ = 0;
+      LOG(ERROR) << "Acao raio requer origem e destino diferentes.";
+      return;
+    }
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+    auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+    if (eo == nullptr || ed == nullptr) {
+      VLOG(1) << "Terminando acao por origem ou destino nao existe mais.";
+      duracao_ = 0;
+      return;
+    }
+    const Posicao& pos_o = eo->PosicaoAcao();
+    const Posicao& pos_d = ed->PosicaoAcao();
+    MudaCorProto(acao_proto_.cor());
+    glPushAttrib(GL_LIGHTING_BIT | GL_POLYGON_BIT);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_LIGHTING);
+    double dx = pos_d.x() - pos_o.x();
+    double dy = pos_d.y() - pos_o.y();
+    double dz = pos_d.z() - pos_o.z();
+    double tam;
+    glTranslatef(pos_o.x(), pos_o.y(), pos_o.z());
+    glRotatef(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
+    glBegin(GL_POLYGON);
+    glVertex3f(0.0f, 0.2, 0.0f);
+    glVertex3f(tam, 0.0f, dz);
+    glVertex3f(0.0f, -0.2, 0.0f);
+    glEnd();
+    glPopAttrib();
+  }
+
+  void Atualiza() {
+    if (duracao_ > 0) {
+      --duracao_;
+    } 
+    if (duracao_ == 0) {
+      VLOG(1) << "Finalizando raio, duracao acabou";
+    }
+  }
+
+  bool Finalizada() const override {
+    return duracao_ == 0;
+  }
+
+ private:
+  unsigned int duracao_;
+};
+
 }  // namespace
 
 // Acao.
@@ -375,6 +445,7 @@ void Acao::Desenha(ParametrosDesenho* pd) {
   if (Finalizada()) {
     return;
   }
+  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   DesenhaSeNaoFinalizada(pd);
   glPopMatrix();
@@ -384,6 +455,7 @@ void Acao::DesenhaTranslucido(ParametrosDesenho* pd) {
   if (Finalizada()) {
     return;
   }
+  glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   DesenhaTranslucidoSeNaoFinalizada(pd);
   glPopMatrix();
@@ -417,6 +489,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
       return new AcaoDispersao(acao_proto);
     case ACAO_DELTA_PONTOS_VIDA:
       return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
+    case ACAO_RAIO:
+      return new AcaoRaio(acao_proto, tabuleiro);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;
