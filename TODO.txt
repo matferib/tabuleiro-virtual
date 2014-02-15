@@ -1,4 +1,3 @@
-- Arrumar bug da posicao (considerar queda).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.

@@ -19,8 +19,8 @@ namespace {
 
 const unsigned int NUM_FACES = 10;
 const unsigned int NUM_LINHAS = 1;
-const double ALTURA = TAMANHO_LADO_QUADRADO;
-const double ALTURA_VOO = ALTURA;
+const float ALTURA = TAMANHO_LADO_QUADRADO;
+const float ALTURA_VOO = ALTURA;
 // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 const double VELOCIDADE_POR_EIXO = 0.1;
 // Tamanho da barra de vida.
@@ -71,6 +71,23 @@ float CalculaMultiplicador(TamanhoEntidade tamanho) {
   LOG(ERROR) << "Tamanho inválido: " << tamanho;
   return 1.0f;
 }
+
+// Multiplica a matriz openGL matriz pelo vetor. A matriz OpenGL tem formato col x linha (column major), portanto,
+// ao inves de multiplicar matriz (4x4) pelo vetor (4x1), fazemos a inversao: vetor (1x4) pela matriz (4x4).
+void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor) {
+  GLfloat res[4];
+  for (int i = 0; i < 4; ++i) {
+    res[i] = vetor[0] * matriz[i] + 
+             vetor[1] * matriz[i + 4] + 
+             vetor[2] * matriz[i + 8] + 
+             vetor[3] * matriz[i + 12]; 
+  }
+  vetor[0] = res[0];
+  vetor[1] = res[1];
+  vetor[2] = res[2];
+  vetor[3] = res[3];
+}
+
 }  // namespace
 
 // Factory.
@@ -267,9 +284,25 @@ void Entidade::MataEntidade() {
 }
 
 const Posicao Entidade::PosicaoAcao() const {
-  double m = CalculaMultiplicador(proto_.tamanho());
-  Posicao pos(proto_.pos());
-  pos.set_z(pos.z() + DeltaVoo() + m * ALTURA);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  MontaMatriz(true, nullptr);
+  glTranslatef(0.0f, 0.0f, ALTURA);
+  GLfloat matriz[16];
+  glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
+  LOG(INFO) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
+  LOG(INFO) << "Matriz: " << matriz[4] << " " << matriz[5] << " " << matriz[6] << " " << matriz[7];
+  LOG(INFO) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
+  LOG(INFO) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
+  GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  MultiplicaMatrizVetor(matriz, ponto);
+  LOG(INFO) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
+  Posicao pos;
+  pos.set_x(ponto[0]);
+  pos.set_y(ponto[1]);
+  pos.set_z(ponto[2]);
+  glPopMatrix();
   return pos;
 }
 
@@ -277,7 +310,7 @@ float Entidade::DeltaVoo() const {
   return angulo_disco_voo_rad_ > 0 ? sinf(angulo_disco_voo_rad_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho& pd, const float* matriz_shear) const {
+void Entidade::MontaMatriz(bool usar_delta_voo, const float* matriz_shear) const {
   if (matriz_shear == nullptr) {
     glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
   } else {
@@ -321,7 +354,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
-    MontaMatriz(false, *pd);
+    MontaMatriz(false);
     MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
@@ -338,7 +371,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
 
     glPushMatrix();
-    MontaMatriz(true, *pd);
+    MontaMatriz(true);
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
     glPushMatrix();
     glScalef(0.2, 0.2, 1.0f);
@@ -365,7 +398,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
     {
       glPushMatrix();
-      MontaMatriz(false, *pd, matriz_shear);
+      MontaMatriz(false, matriz_shear);
       glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
       glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
       if (pd->entidade_selecionada()) {
@@ -376,7 +409,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     }
     // Moldura da textura: achatado em Y.
     glPushMatrix();
-    MontaMatriz(true, *pd, matriz_shear);
+    MontaMatriz(true, matriz_shear);
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0));
     double angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
@@ -429,7 +462,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     glPopMatrix();
   } else {
     glPushMatrix();
-    MontaMatriz(true, *pd, matriz_shear);
+    MontaMatriz(true, matriz_shear);
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
 	  glTranslated(0, 0, ALTURA);
 	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
@@ -446,7 +479,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   glPushMatrix();
-  MontaMatriz(true  /*usar_delta_voo*/, *pd);
+  MontaMatriz(true  /*usar_delta_voo*/);
   // Um pouco acima do objeto.
   glTranslated(0, 0, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
