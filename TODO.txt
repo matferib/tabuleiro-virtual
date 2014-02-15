@@ -1,9 +1,10 @@
-- Gerar acoes de jogadores (espadada flechada etc).
-- Gerar uma notificacao agrupando outras.
-- Mudar cursor quando control estiver pressionado.
+- Arrumar bug da posicao (considerar queda).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Gerar acoes de jogadores (espadada flechada etc).
+- Gerar uma notificacao agrupando outras.
+- Mudar cursor quando control estiver pressionado.
 - Adicionar unit tests.
 - Selecao de porta pelo servidor.
 - Tirar o evento de movimento ao liberar botao sem movimento.

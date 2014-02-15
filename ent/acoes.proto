@@ -64,6 +64,7 @@ message AcaoProto {
   // O tipo de objeto para algumas acoes especificas.
   optional GeometriaAcao geometria = 16;
   optional Velocidade velocidade = 19;
+  optional uint32 duracao = 20;  // Duracao * 10ms.
 }
 
 // O arquivo de acoes é serializado desta forma.
