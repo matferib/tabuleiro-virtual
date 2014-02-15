@@ -43,6 +43,13 @@ void DesenhaGeometriaAcao(int geometria) {
   }
 }
 
+// Retorna o angulo de rotacao do vetor.
+double VetorParaRotacaoGraus(double x, double y) {
+  double tam = sqrt(x * x + y * y);
+  double angulo = acos(x / tam) * RAD_PARA_GRAUS;
+  return (y >= 0 ? angulo : -angulo);
+}
+
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
  public:
@@ -210,18 +217,23 @@ class AcaoDispersao : public Acao {
 class AcaoProjetil : public Acao {
  public:
   AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
-    contador_frames_ = 0;
     dx_ = dy_ = dz_ = 0;
-    velocidade_ = 0;
+    velocidade_ = acao_proto_.velocidade().inicial();
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
-      VLOG(1) << "Finalizando missil magico, precisa de entidade origem.";
+      VLOG(1) << "Finalizando projetil, precisa de entidade origem.";
+      estagio_ = FIM;
+      return;
+    }
+    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+      VLOG(1) << "Finalizando projetil, entidade origem == destino.";
       estagio_ = FIM;
       return;
     }
     pos_ = entidade_origem->PosicaoAcao();
     delta_alvo_ = 0;
+    dx_total_ = dy_total_ = dz_total_ = 0;
   }
 
   void Atualiza() override {
@@ -235,6 +247,9 @@ class AcaoProjetil : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+    if (estagio_ == ATINGIU_ALVO) {
+      return;
+    }
     // TODO desenha impacto.
     glPushAttrib(GL_LIGHTING_BIT);
     // Luz da camera apontando para a bola.
@@ -246,6 +261,8 @@ class AcaoProjetil : public Acao {
     MudaCorProto(acao_proto_.cor());
     glPushMatrix();
     glTranslated(pos_.x(), pos_.y(), pos_.z());
+    // Roda pro vetor de direcao.
+    glRotatef(VetorParaRotacaoGraus(dx_, dy_), 0, 0, 1.0f);
     glScalef(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
     DesenhaGeometriaAcao(acao_proto_.has_geometria() ? acao_proto_.geometria() : ACAO_GEO_ESFERA);
     glPopMatrix();
@@ -262,38 +279,41 @@ class AcaoProjetil : public Acao {
     Entidade* entidade_destino = nullptr;
     if (!acao_proto_.has_id_entidade_destino() ||
         (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
-      VLOG(1) << "Finalizando missil magico, destino não existe.";
+      VLOG(1) << "Finalizando projetil, destino não existe.";
       estagio_ = FIM;
       return;
     }
     const auto& pos_destino = entidade_destino->PosicaoAcao();
-    if (--contador_frames_ <= 0) {
-      // Recalcula vetor.
-      contador_frames_ = 5;
-      // TODO adicionar um componente erratico.
-      dx_ = pos_destino.x() - pos_.x();
-      dy_ = pos_destino.y() - pos_.y();
-      dz_ = pos_destino.z() - pos_.z();
-      double tamanho = sqrt(dx_ * dx_ + dy_ * dy_ + dz_ * dz_);
-      // Normalizacao e velocidade crescendo quadraticamente (inicio lento depois acelera).
-      const double vel_tam = velocidade_ * velocidade_ / tamanho;
-      dx_ *= vel_tam;
-      dy_ *= vel_tam;
-      dz_ *= vel_tam;
-      velocidade_ += 0.02f;
+    // Recalcula vetor.
+    // TODO adicionar um componente erratico.
+    dx_ = pos_destino.x() - pos_.x();
+    dy_ = pos_destino.y() - pos_.y();
+    dz_ = pos_destino.z() - pos_.z();
+    double tamanho = sqrt(dx_ * dx_ + dy_ * dy_ + dz_ * dz_);
+    if (tamanho == 0) {
+      VLOG(1) << "Projetil atingiu alvo.";
+      estagio_ = ATINGIU_ALVO;
+      return;
     }
+    AtualizaVelocidade();
+    const double vel_tam = velocidade_ / tamanho;
+    dx_ *= vel_tam;
+    dy_ *= vel_tam;
+    dz_ *= vel_tam;
+    VLOG(4) << "vel_tam: " << vel_tam << ", vel: " << velocidade_ << ", tamanho: " << tamanho 
+            << ", dx: " << dx_ << ", dy: " << dy_ << ", dz: " << dz_;
 
     double xa = pos_.x();
     double ya = pos_.y();
     double za = pos_.z();
-    pos_.set_x(ArrumaSePassou(xa, pos_.x() + dx_, pos_destino.x()));
-    pos_.set_y(ArrumaSePassou(ya, pos_.y() + dy_, pos_destino.y()));
-    pos_.set_z(ArrumaSePassou(za, pos_.z() + dz_, pos_destino.z()));
+    pos_.set_x(ArrumaSePassou(xa, xa + dx_, pos_destino.x()));
+    pos_.set_y(ArrumaSePassou(ya, ya + dy_, pos_destino.y()));
+    pos_.set_z(ArrumaSePassou(za, za + dz_, pos_destino.z()));
 
     if (pos_.x() == pos_destino.x() &&
         pos_.y() == pos_destino.y() &&
         pos_.z() == pos_destino.z()) {
-      VLOG(1) << "Missil magico atingiu alvo.";
+      VLOG(1) << "Projetil atingiu alvo.";
       estagio_ = ATINGIU_ALVO;
       return;
     }
@@ -303,18 +323,24 @@ class AcaoProjetil : public Acao {
     Entidade* entidade_destino = nullptr;
     if (!acao_proto_.has_id_entidade_destino() ||
         (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
-      VLOG(1) << "Finalizando missil magico, destino não existe.";
+      VLOG(1) << "Finalizando projetil, destino não existe.";
       estagio_ = FIM;
       return;
     }
     // Move o alvo na direcao do impacto e volta.
     if (delta_alvo_ >= M_PI) {
+      // Tira o residuo.
+      entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
       estagio_ = FIM;
+      return;
     }
     double cos_delta_alvo = cosf(delta_alvo_) * TAMANHO_LADO_QUADRADO_2;
     double dx_alvo = dx_ * cos_delta_alvo;
     double dy_alvo = dy_ * cos_delta_alvo;
     double dz_alvo = dz_ * cos_delta_alvo;
+    dx_total_ += dx_alvo;
+    dy_total_ += dy_alvo;
+    dz_total_ += dz_alvo;
     entidade_destino->MoveDelta(dx_alvo, dy_alvo, dz_alvo);
     delta_alvo_ += 0.5; 
   }
@@ -329,19 +355,57 @@ class AcaoProjetil : public Acao {
     return Passou(antes, depois, destino) ? destino : depois;
   }
 
-  int contador_frames_;
   enum estagio_e {
     INICIAL = 0,
     ATINGIU_ALVO,
     FIM
   } estagio_;
-  double velocidade_;
+  double delta_tempo_;
   double dx_, dy_, dz_;
   double delta_alvo_;
+  // Para controle de quanto o alvo se moveu.
+  double dx_total_, dy_total_, dz_total_;
   Posicao pos_;
 };
 
 }  // namespace
+
+// Acao.
+void Acao::Desenha(ParametrosDesenho* pd) {
+  if (Finalizada()) {
+    return;
+  }
+  glPushMatrix();
+  DesenhaSeNaoFinalizada(pd);
+  glPopMatrix();
+}
+
+void Acao::DesenhaTranslucido(ParametrosDesenho* pd) {
+  if (Finalizada()) {
+    return;
+  }
+  glPushMatrix();
+  DesenhaTranslucidoSeNaoFinalizada(pd);
+  glPopMatrix();
+}
+
+void Acao::AtualizaVelocidade() {
+  ++delta_tempo_;
+  int tipo_aceleracao = acao_proto_.velocidade().tipo_aceleracao();
+  switch (tipo_aceleracao) {
+    case ACAO_ACEL_ZERO:
+      return;
+    case ACAO_ACEL_CONSTANTE:
+      velocidade_ += acao_proto_.velocidade().delta_velocidade();
+      return;
+    case ACAO_ACEL_QUADRATICA:
+      velocidade_ += acao_proto_.velocidade().delta_velocidade() * (pow(delta_tempo_, 2) - pow(delta_tempo_ - 1, 2) );
+      return;
+    default:
+      LOG(WARNING) << "Tipo de aceleracao invalida.";
+      return;
+  }
+}
 
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
   switch (acao_proto.tipo()) {

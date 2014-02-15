@@ -6,8 +6,12 @@ acao {
   id: 'Ataque a Distância'
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_CUBO
-  escala { x: 1.0f y: 0.2 z: 0.2 }
+  escala { x: 1.0f y: 0.05 z: 0.05 }
   cor { r: 0.0 g: 0.0 b: 0.0 }
+  velocidade {
+    inicial: 0.6
+    tipo_aceleracao: ACAO_ACEL_ZERO
+  }
 }
 acao {
   id: 'Bola de Fogo'
@@ -22,6 +26,10 @@ acao {
   geometria: ACAO_GEO_ESFERA
   escala { x: 0.2 y: 0.2 z: 0.2 }
   cor { r: 0.0 g: 0.0 b: 1.0 }
+  velocidade {
+    tipo_aceleracao: ACAO_ACEL_QUADRATICA
+    delta_velocidade: 0.000008
+  }
 }
 acao {
   id: 'Raio'
