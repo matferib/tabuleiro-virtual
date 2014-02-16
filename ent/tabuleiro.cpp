@@ -228,27 +228,6 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
   }
 }
 
-void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
-  unsigned int id_remocao = 0;
-  if (!notificacao.local()) {
-    // Comando vindo de fora.
-    id_remocao = notificacao.entidade().id();
-  } else if ((estado_ == ETAB_ENT_SELECIONADA) || estado_ == ETAB_ENTS_SELECIONADAS) {
-    for (unsigned int id_remocao : ids_entidades_selecionadas_) {
-      // Envia para os clientes.
-      auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
-      n->mutable_entidade()->set_id(id_remocao);
-      central_->AdicionaNotificacaoRemota(n);
-    }
-  } else {
-    VLOG(1) << "Remocao de entidade sem seleção";
-    return;
-  }
-  if (RemoveEntidade(id_remocao)) {
-    DeselecionaEntidade();
-  }
-}
-
 void Tabuleiro::AtualizaBitsEntidade(int bits) {
   if (estado_ != ETAB_ENT_SELECIONADA && estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
@@ -1159,7 +1138,7 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == 1) {
     // Tabuleiro.
-    VLOG(1) << "Picking no tabuleiro.";
+    VLOG(1) << "Picking no tabuleiro id quadrado: " << id;
     SelecionaQuadrado(id);
   } else if (pos_pilha > 1) {
     // Entidade.
@@ -1168,7 +1147,7 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
     ultimo_x_3d_ = x3d;
     ultimo_y_3d_ = y3d;
     ultimo_z_3d_ = z3d;
-    VLOG(1) << "Picking entidade.";
+    VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
       AlternaSelecaoEntidade(id);
     } else {
@@ -1177,7 +1156,7 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
     }
   } else {
     VLOG(1) << "Picking lugar nenhum.";
-    DeselecionaEntidade();
+    DeselecionaEntidades();
   }
   ultimo_x_ = x;
   ultimo_y_ = y;
@@ -1267,10 +1246,19 @@ bool Tabuleiro::EntidadeEstaSelecionada(unsigned int id) {
   return ids_entidades_selecionadas_.find(id) != ids_entidades_selecionadas_.end();
 }
 
-void Tabuleiro::DeselecionaEntidade() {
+void Tabuleiro::DeselecionaEntidades() {
   ids_entidades_selecionadas_.clear();
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
+}
+
+void Tabuleiro::DeselecionaEntidade(unsigned int id) {
+  ids_entidades_selecionadas_.erase(id);
+  if (!ids_entidades_selecionadas_.empty()) {
+    estado_ = ETAB_OCIOSO;
+  } else if (ids_entidades_selecionadas_.size() == 1) {
+    estado_ = ETAB_ENT_SELECIONADA;
+  }
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
@@ -1281,7 +1269,8 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
 
 void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z) {
   int quad_x = id_quadrado % TamanhoX();
-  int quad_y = id_quadrado / TamanhoY();
+  int quad_y = id_quadrado / TamanhoX();
+  LOG(INFO) << "id_quadrado: " << id_quadrado << ", quad_x: " << quad_x << ", quad_y: " << quad_y;
 
   // centro do quadrado
   *x = ((quad_x * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
@@ -1383,6 +1372,27 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   delete entidade;
   // Retorna apenas para verificacao.
   return EntidadeEstaSelecionada(id);
+}
+
+void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
+  if (!notificacao.local()) {
+    // Comando vindo de fora.
+    unsigned int id = notificacao.entidade().id();
+    RemoveEntidade(id);
+    DeselecionaEntidade(id);
+  } else if ((estado_ == ETAB_ENT_SELECIONADA) || estado_ == ETAB_ENTS_SELECIONADAS) {
+    for (unsigned int id_remocao : ids_entidades_selecionadas_) {
+      RemoveEntidade(id_remocao);
+      // Envia para os clientes.
+      auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
+      n->mutable_entidade()->set_id(id_remocao);
+      central_->AdicionaNotificacaoRemota(n);
+    }
+    DeselecionaEntidades();
+  } else {
+    VLOG(1) << "Remocao de entidade sem seleção";
+    return;
+  }
 }
 
 int Tabuleiro::GeraIdEntidade(int id_cliente) {
