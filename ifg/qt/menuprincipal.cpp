@@ -170,6 +170,8 @@ void MenuPrincipal::Modo(modomenu_e modo){
     }
     break;
   case MM_MESTRE:
+    EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
+    break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
     EstadoItemMenu(false, ME_TABULEIRO, { MI_SALVAR, MI_RESTAURAR });
