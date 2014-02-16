@@ -1,3 +1,4 @@
+- Arrumar id do quadrado com tabuleiros x != y.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.

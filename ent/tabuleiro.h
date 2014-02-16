@@ -218,8 +218,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna a selecao da entidade. */
   void AlternaSelecaoEntidade(unsigned int id);
 
-  /** deseleciona a entidade selecionada. */
-  void DeselecionaEntidade();
+  /** deseleciona todas as entidades selecionadas. */
+  void DeselecionaEntidades();
+
+  /** Deseleciona a entidade, se estiver selecionada. */
+  void DeselecionaEntidade(unsigned int id);
 
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
