@@ -157,7 +157,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   } else {
     for (const auto& a : acoes.acao()) {
       auto* nova_acao = new AcaoProto(a);
-      if (acao_selecionada_ == nullptr) {
+      if (nova_acao->tipo() == ACAO_SINALIZACAO) {
         acao_selecionada_ = nova_acao;
       }
       mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
