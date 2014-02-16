@@ -1325,7 +1325,7 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
 void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z) {
   int quad_x = id_quadrado % TamanhoX();
   int quad_y = id_quadrado / TamanhoX();
-  LOG(INFO) << "id_quadrado: " << id_quadrado << ", quad_x: " << quad_x << ", quad_y: " << quad_y;
+  VLOG(2) << "id_quadrado: " << id_quadrado << ", quad_x: " << quad_x << ", quad_y: " << quad_y;
 
   // centro do quadrado
   *x = ((quad_x * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
