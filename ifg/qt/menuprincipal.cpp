@@ -217,7 +217,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_SAIR);
   } else if (acao == acoes_[ME_ENTIDADES][MI_PROPRIEDADES_ENTIDADE]) {
-    // TODO
+    notificacao = new ntf::Notificacao; 
+    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);

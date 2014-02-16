@@ -208,6 +208,9 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       glDraw();
       break;
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
+      if (!notificacao.has_entidade()) {
+        return false;
+      }
       auto* entidade = AbreDialogoEntidade(notificacao);
       if (entidade == nullptr) {
         VLOG(1) << "Alterações descartadas";

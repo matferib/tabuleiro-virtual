@@ -489,6 +489,22 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(SerializaOpcoes());
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
+      if (notificacao.has_entidade()) {
+        return false;
+      }
+      if (estado_ != ETAB_ENT_SELECIONADA) {
+        auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+        ne->set_erro("É necessário selecionar uma entidade.");
+        central_->AdicionaNotificacao(ne);
+        return true;
+      }
+      auto* n = new ntf::Notificacao(notificacao);
+      central_->AdicionaNotificacao(n);
+      n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
+      n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
+      return true;
+    }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
       DeserializaPropriedades(notificacao.tabuleiro());
       if (notificacao.local()) {
