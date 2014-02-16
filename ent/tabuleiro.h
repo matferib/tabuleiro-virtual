@@ -6,7 +6,6 @@
 #include <unordered_set>
 #include <list>
 #include <vector>
-#include <set>
 #include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
@@ -171,6 +170,12 @@ class Tabuleiro : public ntf::Receptor {
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
 
+  /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
+  void CopiarEntidadesSelecionadas();
+
+  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. */
+  void ColarEntidadesSelecionadas();
+
  private:
   /** funcao que desenha a cena independente do modo.
   */
@@ -303,7 +308,7 @@ class Tabuleiro : public ntf::Receptor {
   MapaClientes clientes_;
 
   /** as entidades selecionada. */
-  std::set<unsigned int> ids_entidades_selecionadas_;
+  std::unordered_set<unsigned int> ids_entidades_selecionadas_;
 
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
@@ -350,6 +355,7 @@ class Tabuleiro : public ntf::Receptor {
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
+  std::vector<EntidadeProto> entidades_copiadas_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

@@ -284,7 +284,11 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       tabuleiro_->RemoveEntidade(ntf::Notificacao());
       return;
     case Qt::Key_V:
-      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VISIBILIDADE);
+      if (event->modifiers() == Qt::ControlModifier) {
+        tabuleiro_->ColarEntidadesSelecionadas();
+      } else {
+        tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VISIBILIDADE);
+      }
       return;
     case Qt::Key_L:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_ILUMINACAO);
@@ -297,6 +301,14 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       return;
     case Qt::Key_A:
     case Qt::Key_C:
+      if (event->modifiers() == Qt::ControlModifier) {
+        tabuleiro_->CopiarEntidadesSelecionadas();
+      } else {
+        MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
+        teclas_.push_back(event->key());
+        return;
+      }
+      break;
     case Qt::Key_D:
       // Entra em modo de temporizacao.
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
@@ -666,10 +678,9 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
       break;
     }
     case Qt::Key_C:
-    case Qt::Key_D: {
+    case Qt::Key_D:
       tabuleiro_->AtualizaPontosVidaEntidade(CalculaDano(teclas_));
       break;
-    }
     default:
       VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
   }

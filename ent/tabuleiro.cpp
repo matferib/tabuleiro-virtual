@@ -199,22 +199,37 @@ void Tabuleiro::Desenha() {
 void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
-      if (estado_ != ETAB_QUAD_SELECIONADO) {
-        return;
+      if (!notificacao.has_entidade()) {
+        if (estado_ != ETAB_QUAD_SELECIONADO) {
+          return;
+        }
+        // Notificacao sem entidade: gera uma atraves do modelo selecionado no quadrado selecionado.
+        int id_entidade = GeraIdEntidade(id_cliente_);
+        double x, y, z;
+        CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
+        auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
+        EntidadeProto modelo(*modelo_selecionado_);
+        PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, x, y, z, &modelo);
+        entidade->Inicializa(modelo);
+        entidades_.insert(std::make_pair(entidade->Id(), entidade));
+        SelecionaEntidade(entidade->Id());
+        // Envia a entidade para os outros.
+        auto* n = ntf::NovaNotificacao(notificacao.tipo());
+        n->mutable_entidade()->CopyFrom(entidade->Proto());
+        central_->AdicionaNotificacaoRemota(n);
+      } else {
+        // Gera entidade a partir do proto recebido.
+        int id_entidade = GeraIdEntidade(id_cliente_);
+        auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
+        EntidadeProto modelo(notificacao.entidade());
+        PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, modelo.pos().x(), modelo.pos().y(), modelo.pos().z(), &modelo);
+        entidade->Inicializa(modelo);
+        entidades_.insert(std::make_pair(entidade->Id(), entidade));
+        // Envia a entidade para os outros.
+        auto* n = ntf::NovaNotificacao(notificacao.tipo());
+        n->mutable_entidade()->CopyFrom(entidade->Proto());
+        central_->AdicionaNotificacaoRemota(n);
       }
-      int id_entidade = GeraIdEntidade(id_cliente_);
-      double x, y, z;
-      CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-      auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-      EntidadeProto modelo(*modelo_selecionado_);
-      PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, x, y, z, &modelo);
-      entidade->Inicializa(modelo);
-      entidades_.insert(std::make_pair(entidade->Id(), entidade));
-      SelecionaEntidade(entidade->Id());
-      // Envia a entidade para os outros.
-      auto* n = ntf::NovaNotificacao(notificacao.tipo());
-      n->mutable_entidade()->CopyFrom(entidade->Proto());
-      central_->AdicionaNotificacaoRemota(n);
     } else {
       // Mensagem veio de fora.
       auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
@@ -1360,6 +1375,24 @@ void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
   auto it = entidades_.find(id);
   return (it != entidades_.end()) ? it->second : nullptr;
+}
+
+void Tabuleiro::CopiarEntidadesSelecionadas() {
+  entidades_copiadas_.clear();
+  for (const unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade = BuscaEntidade(id);
+    if (entidade != nullptr) {
+      entidades_copiadas_.push_back(entidade->Proto());
+    }
+  }
+}
+
+void Tabuleiro::ColarEntidadesSelecionadas() {
+  for (const auto& ep : entidades_copiadas_) {
+    auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
+    n->mutable_entidade()->CopyFrom(ep);
+    central_->AdicionaNotificacao(n);
+  }
 }
 
 bool Tabuleiro::RemoveEntidade(unsigned int id) {
