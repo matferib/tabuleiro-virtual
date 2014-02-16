@@ -281,11 +281,11 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
   }
   switch (event->key()) {
     case Qt::Key_Delete:
-      tabuleiro_->RemoveEntidade(ntf::Notificacao());
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
       return;
     case Qt::Key_V:
       if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->ColarEntidadesSelecionadas();
+        tabuleiro_->ColaEntidadesSelecionadas();
       } else {
         tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VISIBILIDADE);
       }
@@ -302,7 +302,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_A:
     case Qt::Key_C:
       if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->CopiarEntidadesSelecionadas();
+        tabuleiro_->CopiaEntidadesSelecionadas();
       } else {
         MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
         teclas_.push_back(event->key());
@@ -351,8 +351,7 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     mousePressEvent(event2);
     return;
   }
-  tabuleiro_->TrataDuploClique(
-      MapeiaBotao(*event), event->x(), height() - event->y());
+  tabuleiro_->TrataDuploClique(MapeiaBotao(*event), event->x(), height() - event->y());
   event->accept();
 }
 

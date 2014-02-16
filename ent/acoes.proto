@@ -58,8 +58,9 @@ message AcaoProto {
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_quadrado = 12;
   optional Posicao pos_tabuleiro = 13;
-  // Para acao afetando pontos de vida.
+  // Usado para indicar o delta de pontos de vida da unidade afetada. Ver afeta_pontos_vida.
   optional int32 delta_pontos_vida = 14;  // cosmetico apenas.
+  // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
   optional bool afeta_pontos_vida = 15 [default=false];  // Se verdadeiro, a entidade sofre o dano de verdade.
   // O tipo de objeto para algumas acoes especificas.
   optional GeometriaAcao geometria = 16;

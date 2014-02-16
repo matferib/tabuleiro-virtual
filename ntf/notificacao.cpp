@@ -49,7 +49,10 @@ void CentralNotificacoes::DesregistraReceptorRemoto(const ReceptorRemoto* recept
 }
 
 void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
-  VLOG(2) << "Adicionando: " << notificacao->ShortDebugString();
+  VLOG(3) << "Adicionando: " << notificacao->ShortDebugString();
+  if (notificacao->tipo() == TN_GRUPO_NOTIFICACOES) {
+    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes da central.";
+  }
   notificacoes_.push_back(notificacao);
 }
 
@@ -58,7 +61,10 @@ void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
     delete notificacao;
     return;
   }
-  VLOG(2) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
+  VLOG(3) << "Adicionando notificacao remota: " << notificacao->ShortDebugString();
+  if (notificacao->tipo() == TN_GRUPO_NOTIFICACOES) {
+    LOG(ERROR) << "Nao se deve adicionar GRUPO a notificacoes da central.";
+  }
   notificacoes_remotas_.push_back(notificacao);
 }
 
@@ -69,6 +75,8 @@ void CentralNotificacoes::Notifica() {
   for (auto* n : copia_notificacoes) {
     if (n->tipo() != ntf::TN_TEMPORIZADOR) {
       VLOG(1) << "Despachando local: " << n->ShortDebugString();
+    } else {
+      VLOG(2) << "Despachando local: " << n->ShortDebugString();
     }
     for (auto* r : receptores_) {
       r->TrataNotificacao(*n);

@@ -171,10 +171,10 @@ class Tabuleiro : public ntf::Receptor {
   Entidade* BuscaEntidade(unsigned int id);
 
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
-  void CopiarEntidadesSelecionadas();
+  void CopiaEntidadesSelecionadas();
 
   /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. */
-  void ColarEntidadesSelecionadas();
+  void ColaEntidadesSelecionadas();
 
  private:
   /** funcao que desenha a cena independente do modo.
@@ -219,6 +219,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
+
+  /** seleciona as entidades em ids_adicionados_. */
+  void SelecionaEntidadesAdicionadas();
 
   /** Alterna a selecao da entidade. */
   void AlternaSelecaoEntidade(unsigned int id);
@@ -356,6 +359,10 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_mestre_;
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
   std::vector<EntidadeProto> entidades_copiadas_;
+
+  // Para processamento de grupos de notificacoes. 
+  bool processando_grupo_;
+  std::vector<unsigned int> ids_adicionados_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

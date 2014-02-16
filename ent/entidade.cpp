@@ -101,14 +101,9 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotifi
   }
 }
 
-void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, double x, double y, double z,
-                           EntidadeProto* proto_aux) {
-  proto_aux->set_id((id_cliente << 28) | id_entidade);
-  proto_aux->set_visivel(visivel);
-  auto* pos = proto_aux->mutable_pos();
-  pos->set_x(x);
-  pos->set_y(y);
-  pos->set_z(z);
+void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, EntidadeProto* modelo) {
+  modelo->set_id((id_cliente << 28) | id_entidade);
+  modelo->set_visivel(visivel);
 }
 
 

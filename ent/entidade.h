@@ -21,11 +21,8 @@ class Texturas {
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
 
-/** Preenche os campos de proto_aux de acordo com os valores passados. Os parametros passados nao vem de modelos,
-* enquanto proto_aux vem dos modelos.
-*/
-void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, double x, double y, double z,
-                           EntidadeProto* proto_aux);
+/** Preenche os campos de proto_aux de acordo com os valores passados. Os parametros passados nao vem do modelo. */
+void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, EntidadeProto* modelo);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.

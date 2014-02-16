@@ -107,7 +107,8 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
     texturas_(texturas),
     central_(central),
-    modo_mestre_(true) {
+    modo_mestre_(true),
+    processando_grupo_(false) {
   central_->RegistraReceptor(this);
   // Iluminacao ambiente inicial.
   proto_.mutable_luz_ambiente()->set_r(0.2f);
@@ -199,37 +200,32 @@ void Tabuleiro::Desenha() {
 void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
+      std::unique_ptr<Entidade> entidade_up(NovaEntidade(TE_ENTIDADE, texturas_, central_));
+      EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_);
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return;
         }
-        // Notificacao sem entidade: gera uma atraves do modelo selecionado no quadrado selecionado.
-        int id_entidade = GeraIdEntidade(id_cliente_);
+        // Notificacao sem entidade: posicao do quadrado selecionado.
         double x, y, z;
         CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-        auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-        EntidadeProto modelo(*modelo_selecionado_);
-        PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, x, y, z, &modelo);
-        entidade->Inicializa(modelo);
-        entidades_.insert(std::make_pair(entidade->Id(), entidade));
-        SelecionaEntidade(entidade->Id());
-        // Envia a entidade para os outros.
-        auto* n = ntf::NovaNotificacao(notificacao.tipo());
-        n->mutable_entidade()->CopyFrom(entidade->Proto());
-        central_->AdicionaNotificacaoRemota(n);
-      } else {
-        // Gera entidade a partir do proto recebido.
-        int id_entidade = GeraIdEntidade(id_cliente_);
-        auto* entidade = NovaEntidade(TE_ENTIDADE, texturas_, central_);
-        EntidadeProto modelo(notificacao.entidade());
-        PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, modelo.pos().x(), modelo.pos().y(), modelo.pos().z(), &modelo);
-        entidade->Inicializa(modelo);
-        entidades_.insert(std::make_pair(entidade->Id(), entidade));
-        // Envia a entidade para os outros.
-        auto* n = ntf::NovaNotificacao(notificacao.tipo());
-        n->mutable_entidade()->CopyFrom(entidade->Proto());
-        central_->AdicionaNotificacaoRemota(n);
+        modelo.mutable_pos()->set_x(x);
+        modelo.mutable_pos()->set_y(y);
+        modelo.mutable_pos()->set_z(z);
       }
+      int id_entidade = GeraIdEntidade(id_cliente_);
+      if (processando_grupo_) {
+        ids_adicionados_.push_back(id_entidade);
+      }
+      auto* entidade = entidade_up.get();
+      PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, &modelo);
+      entidade->Inicializa(modelo);
+      entidades_.insert(std::make_pair(entidade->Id(), entidade_up.release()));
+      SelecionaEntidade(entidade->Id());
+      // Envia a entidade para os outros.
+      auto* n = ntf::NovaNotificacao(notificacao.tipo());
+      n->mutable_entidade()->CopyFrom(entidade->Proto());
+      central_->AdicionaNotificacaoRemota(n);
     } else {
       // Mensagem veio de fora.
       auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
@@ -248,6 +244,8 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
     EntidadeProto proto = entidade_selecionada->Proto();
@@ -274,11 +272,11 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
       proto.set_morta(!proto.morta());
     }
     proto.set_id(id);
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-    n.mutable_entidade()->Swap(&proto);
-    TrataNotificacao(n);
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    n->mutable_entidade()->Swap(&proto);
   }
+  TrataNotificacao(grupo_notificacoes);
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
@@ -286,6 +284,8 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
     auto proto = entidade_selecionada->Proto();
@@ -297,19 +297,18 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
     proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
     proto.set_id(entidade_selecionada->Id());
     // Atualizacao.
-    ntf::Notificacao n;
-    n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-    n.mutable_entidade()->Swap(&proto);
-    TrataNotificacao(n);
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    n->mutable_entidade()->Swap(&proto);
     // Acao.
-    ntf::Notificacao na;
-    na.set_tipo(ntf::TN_ADICIONAR_ACAO);
-    auto* a = na.mutable_acao();
+    auto* na = grupo_notificacoes.add_notificacao();
+    na->set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* a = na->mutable_acao();
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
     a->set_id_entidade_destino(entidade_selecionada->Id());
     a->set_delta_pontos_vida(delta_pontos_vida);
-    TrataNotificacao(na);
   }
+  TrataNotificacao(grupo_notificacoes);
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_pontos_vida) {
@@ -327,18 +326,16 @@ void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_p
   proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
   proto.set_id(entidade->Id());
   // Atualizacao.
-  ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-  n.mutable_entidade()->Swap(&proto);
-  TrataNotificacao(n);
+  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);;
+  n->mutable_entidade()->Swap(&proto);
+  central_->AdicionaNotificacao(n);
   // Acao.
-  ntf::Notificacao na;
-  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
-  auto* a = na.mutable_acao();
+  auto* na = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
   a->set_id_entidade_destino(entidade->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
-  TrataNotificacao(na);
+  central_->AdicionaNotificacao(na);
 }
 
 void Tabuleiro::AcumulaPontosVida(int pv) {
@@ -355,6 +352,15 @@ void Tabuleiro::LimpaListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_GRUPO_NOTIFICACOES:
+      // Nunca deve vir da central.
+      processando_grupo_ = true;
+      ids_adicionados_.clear();
+      for (const auto& n : notificacao.notificacao()) {
+        TrataNotificacao(n);
+      }
+      processando_grupo_ = false;
+      return true;
     case ntf::TN_RESPOSTA_CONEXAO:
       if (!notificacao.has_erro()) {
         ModoJogador();
@@ -402,8 +408,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         std::ofstream arquivo(notificacao.endereco());
         arquivo.write(nt_tabuleiro_str.c_str(), nt_tabuleiro_str.size());
         if (!arquivo) {
-          // TODO enviar uma mensagem de erro direto aqui na UI.
-          LOG(ERROR) << "Erro escrevendo arquivo";
+          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+          ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
+          central_->AdicionaNotificacao(ne);
         }
         arquivo.close();
         delete nt_tabuleiro;
@@ -418,14 +425,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Deserializar de arquivo.
         std::ifstream arquivo(notificacao.endereco());
         if (!arquivo) {
-          // TODO enviar uma mensagem de erro direto aqui na UI.
-          LOG(ERROR) << "Erro lendo arquivo";
+          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+          ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
+          central_->AdicionaNotificacao(ne);
           return true;
         }
         ntf::Notificacao nt_tabuleiro;
         if (!LeArquivoProto(notificacao.endereco(), &nt_tabuleiro)) {
-          // TODO enviar uma mensagem de erro direto aqui na UI.
-          LOG(ERROR) << "Erro restaurando notificacao do arquivo";
+          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+          ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
+          central_->AdicionaNotificacao(ne);
           return true;
         }
         DeserializaTabuleiro(nt_tabuleiro);
@@ -878,7 +887,6 @@ void Tabuleiro::DesenhaCena() {
       if (a->Finalizada()) {
         const auto& ap = a->Proto();
         if (ap.has_delta_pontos_vida() &&
-            ap.tipo() != ACAO_DELTA_PONTOS_VIDA &&
             ap.has_id_entidade_destino() &&
             ap.afeta_pontos_vida()) {
           AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
@@ -1224,14 +1232,30 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
 
 void Tabuleiro::SelecionaEntidade(unsigned int id) {
   VLOG(1) << "Selecionando entidade: " << id;
+  ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  ids_entidades_selecionadas_.clear();
   ids_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
   estado_ = ETAB_ENT_SELECIONADA;
+}
+
+void Tabuleiro::SelecionaEntidadesAdicionadas() {
+  if (ids_adicionados_.empty()) {
+    VLOG(1) << "Nada a selecionar.";
+    return;
+  }
+  if (ids_adicionados_.size() == 1) {
+    SelecionaEntidade(ids_adicionados_[0]);
+    return;
+  }
+  VLOG(1) << "Selecionando entidades";
+  ids_entidades_selecionadas_.clear();
+  ids_entidades_selecionadas_.insert(ids_adicionados_.begin(), ids_adicionados_.end());
+  quadrado_selecionado_ = -1;
+  estado_ = ETAB_ENTS_SELECIONADAS;
 }
 
 void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
@@ -1377,7 +1401,7 @@ Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
   return (it != entidades_.end()) ? it->second : nullptr;
 }
 
-void Tabuleiro::CopiarEntidadesSelecionadas() {
+void Tabuleiro::CopiaEntidadesSelecionadas() {
   entidades_copiadas_.clear();
   for (const unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade = BuscaEntidade(id);
@@ -1387,12 +1411,16 @@ void Tabuleiro::CopiarEntidadesSelecionadas() {
   }
 }
 
-void Tabuleiro::ColarEntidadesSelecionadas() {
+void Tabuleiro::ColaEntidadesSelecionadas() {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto& ep : entidades_copiadas_) {
-    auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     n->mutable_entidade()->CopyFrom(ep);
-    central_->AdicionaNotificacao(n);
   }
+  TrataNotificacao(grupo_notificacoes);
+  SelecionaEntidadesAdicionadas();
 }
 
 bool Tabuleiro::RemoveEntidade(unsigned int id) {
@@ -1413,7 +1441,7 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
     unsigned int id = notificacao.entidade().id();
     RemoveEntidade(id);
     DeselecionaEntidade(id);
-  } else if ((estado_ == ETAB_ENT_SELECIONADA) || estado_ == ETAB_ENTS_SELECIONADAS) {
+  } else {
     for (unsigned int id_remocao : ids_entidades_selecionadas_) {
       RemoveEntidade(id_remocao);
       // Envia para os clientes.
@@ -1422,9 +1450,6 @@ void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacaoRemota(n);
     }
     DeselecionaEntidades();
-  } else {
-    VLOG(1) << "Remocao de entidade sem seleção";
-    return;
   }
 }
 
