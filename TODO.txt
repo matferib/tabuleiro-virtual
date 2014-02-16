@@ -1,5 +1,4 @@
 - Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.
-- Arrumar menus.
 - Gerar acoes de jogadores (espadada flechada etc).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
