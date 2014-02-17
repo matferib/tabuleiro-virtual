@@ -1,10 +1,15 @@
-- Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.
-- Gerar acoes de jogadores (espadada flechada etc).
+Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+
+Versao 2.0
+- Adicionar mais detalhes as entidades (Ataque, CA, Saves).
+- Adicionar unit tests (comecar pelos simples).
+- Sons.
+- Versao IPAD e Android.
+- Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.
 - Mudar cursor quando control estiver pressionado.
-- Adicionar unit tests.
 - Selecao de porta pelo servidor.
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Adicionar opcao de reiniciar o tabuleiro.
