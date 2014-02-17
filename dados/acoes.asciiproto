@@ -1,6 +1,6 @@
 # Este arquivo eh uma representacao texto do proto ent::Acoes.
 acao {
-  id: 'Ataque Corpo a Corpo (Cortante)'
+  id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
 }
 acao {
