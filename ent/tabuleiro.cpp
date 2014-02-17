@@ -1078,7 +1078,7 @@ void Tabuleiro::DesenhaCena() {
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-0.04f, -0.04f);
+    glPolygonOffset(-0.06f, -0.06f);
     GLfloat azul_alfa[4] = { 0, 0, 1.0f, 0.5f };
     MudaCorAlfa(azul_alfa);
     glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
