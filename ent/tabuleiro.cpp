@@ -350,6 +350,10 @@ void Tabuleiro::LimpaListaPontosVida() {
   lista_pontos_vida_.clear();
 }
 
+void Tabuleiro::LimpaUltimoListaPontosVida() {
+  lista_pontos_vida_.pop_back();
+}
+
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_GRUPO_NOTIFICACOES:
