@@ -103,6 +103,8 @@ class Tabuleiro : public ntf::Receptor {
   void AcumulaPontosVida(int pv);
   /** Limpa a lista de pontos de vida. */
   void LimpaListaPontosVida();
+  /** Limpa a ultima entrada da lista de pontos de vida. */
+  void LimpaUltimoListaPontosVida();
 
   /** desenha o mundo. */
   void Desenha();

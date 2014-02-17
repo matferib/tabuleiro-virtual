@@ -253,6 +253,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ERRO: {
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
+      break;
     }
     default: ;
   }
@@ -674,6 +675,8 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
       }
       if (teclas_[1] == Qt::Key_Delete) {
         tabuleiro_->LimpaListaPontosVida();
+      } else if (teclas_[1] == Qt::Key_Backspace) {
+        tabuleiro_->LimpaUltimoListaPontosVida();
       } else {
         tabuleiro_->AcumulaPontosVida(CalculaDano(teclas_.rbegin(), teclas_.rend() - 1));
       }
