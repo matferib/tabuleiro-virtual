@@ -1,4 +1,5 @@
 Versao 1.0
+- Arrumar os glPolygonOffset (usar fator 0 e deixar so unidade).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
