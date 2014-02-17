@@ -348,17 +348,17 @@ class AcaoRaio : public Acao {
     duracao_ = acao_proto.duracao();
     if (!acao_proto_.has_id_entidade_origem()) {
       duracao_ = 0;
-      LOG(ERROR) << "Acao raio requer id origem.";
+      VLOG(1) << "Acao raio requer id origem.";
       return;
     }
     if (!acao_proto_.has_id_entidade_destino()) {
       duracao_ = 0;
-      LOG(ERROR) << "Acao raio requer id destino.";
+      VLOG(1) << "Acao raio requer id destino.";
       return;
     }
     if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
       duracao_ = 0;
-      LOG(ERROR) << "Acao raio requer origem e destino diferentes.";
+      VLOG(1) << "Acao raio requer origem e destino diferentes.";
       return;
     }
   }
@@ -414,17 +414,17 @@ class AcaoCorpoCorpo : public Acao {
   AcaoCorpoCorpo(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     rotacao_graus_ = 0.0f;
     if (!acao_proto_.has_id_entidade_origem()) {
-      LOG(ERROR) << "Acao corpo a corpo requer id origem.";
+      VLOG(1) << "Acao corpo a corpo requer id origem.";
       finalizado_ = true;
       return;
     }
     if (!acao_proto_.has_id_entidade_destino()) {
-      LOG(ERROR) << "Acao corpo a corpo requer id destino.";
+      VLOG(1) << "Acao corpo a corpo requer id destino.";
       finalizado_ = true;
       return;
     }
     if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
-      LOG(ERROR) << "Acao corpo a corpo requer origem e destino diferentes.";
+      VLOG(1) << "Acao corpo a corpo requer origem e destino diferentes.";
       finalizado_ = true;
       return;
     }
@@ -505,7 +505,7 @@ class AcaoFeiticoToque : public Acao {
  public:
   AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     if (!acao_proto_.has_id_entidade_origem() || !acao_proto_.has_id_entidade_destino()) {
-      LOG(ERROR) << "Acao de feitico de toque requer origem e destino";
+      VLOG(1) << "Acao de feitico de toque requer origem e destino";
       terminado_ = true;
       return;
     }

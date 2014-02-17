@@ -2,9 +2,7 @@ Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
-- Acao de feitico de toque.
-- Acao de raio permitir tabuleiro.
-- Ordenar acoes e modelos.
+- Acao de raio permitir alvo no tabuleiro.
 
 Versao 2.0
 - Outros bits de status (dormindo, paralizado).

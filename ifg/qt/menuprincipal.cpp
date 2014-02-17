@@ -78,13 +78,23 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         auto* grupo = new QActionGroup(this); 
         grupo->setExclusive(true);
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
+        std::vector<std::pair<std::string, const ent::EntidadeProto*>> modelos_ordenados;
         for (const auto& modelo_it : tabuleiro_->MapaModelos()) {
+          auto par = std::make_pair(modelo_it.first, modelo_it.second.get());
+          modelos_ordenados.push_back(par);
+        }
+        std::sort(modelos_ordenados.begin(), modelos_ordenados.end(),
+                  [] (const std::pair<std::string, const ent::EntidadeProto*>& esq,
+                      const std::pair<std::string, const ent::EntidadeProto*>& dir) {
+            return esq.first < dir.first;
+        });
+        for (const auto& modelo_it : modelos_ordenados) {
           auto* sub_acao = new QAction(tr(modelo_it.first.c_str()), menu);
           sub_acao->setCheckable(true);
           sub_acao->setData(QVariant::fromValue(QString(modelo_it.first.c_str())));
           grupo->addAction(sub_acao);
           menu_modelos->addAction(sub_acao);
-          if (modelo_it.second.get() == tabuleiro->ModeloSelecionado()) {
+          if (modelo_it.second == tabuleiro->ModeloSelecionado()) {
             sub_acao->setChecked(true);
           }
         }
@@ -103,13 +113,22 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       // Esse menu tem tratamento especial.
       auto* grupo = new QActionGroup(this); 
       grupo->setExclusive(true);
+      std::vector<std::pair<std::string, const ent::AcaoProto*>> acoes_ordenadas;
       for (const auto& acao_it : tabuleiro_->MapaAcoes()) {
+        auto par = std::make_pair(acao_it.first, acao_it.second.get());
+        acoes_ordenadas.push_back(par);
+      }
+      std::sort(acoes_ordenadas.begin(), acoes_ordenadas.end(), [] (const std::pair<std::string, const ent::AcaoProto*>& esq,
+                                                                    const std::pair<std::string, const ent::AcaoProto*>& dir) {
+        return esq.first < dir.first;
+      });
+      for (const auto& acao_it : acoes_ordenadas) {
         auto* acao = new QAction(tr(acao_it.first.c_str()), menu);
         acao->setCheckable(true);
         acao->setData(QVariant::fromValue(QString(acao_it.first.c_str())));
         grupo->addAction(acao);
         menu->addAction(acao);
-        if (acao_it.second.get() == tabuleiro->AcaoSelecionada()) {
+        if (acao_it.second == tabuleiro->AcaoSelecionada()) {
           acao->setChecked(true);
         }
       }
