@@ -45,7 +45,7 @@ elif sistema == 'apple':
                      '/usr/local/lib/QtCore.framework/Headers']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
   env['CXXFLAGS'] += ['-Wall', '-O2', '-std=c++11']
-  env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
+  env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'pthread']
 else:
   env['CPPPATH'] += ['./']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
