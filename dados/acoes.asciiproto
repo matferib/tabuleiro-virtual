@@ -1,6 +1,7 @@
 # Este arquivo eh uma representacao texto do proto ent::Acoes.
 acao {
-  id: 'Ataque Corpo a Corpo'
+  id: 'Ataque Corpo a Corpo (Cortante)'
+  tipo: ACAO_CORPO_A_CORPO
 }
 acao {
   id: 'Ataque a Distância'
@@ -39,6 +40,9 @@ acao {
 }
 acao {
   id: 'Relâmpago' 
+  tipo: ACAO_RAIO
+  cor { r: 0.0 g: 0 b: 1.0 }
+  duracao: 100
 }
 acao {
   id: 'Sinalização'

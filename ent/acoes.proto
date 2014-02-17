@@ -9,6 +9,7 @@ enum TipoAcao {
   ACAO_RAIO = 3;
   ACAO_SINALIZACAO = 4;
   ACAO_DELTA_PONTOS_VIDA = 5;
+  ACAO_CORPO_A_CORPO = 6;
 }
 
 enum GeometriaAcao {
@@ -44,16 +45,21 @@ message Velocidade {
 }
 
 message AcaoProto {
-  // Identificador da acao.
+  // Identificador da acao, para menus.
   optional string id = 1;
+  // Tipo da acao.
   optional TipoAcao tipo = 2;
+  // Raio da acao (para dispersao).
   optional int32 raio_area = 3;  // quadrados.
   // Aplicada antes da escala.
   optional Translacao translacao = 17; 
+  // Escala sobre a geometria.
   optional Escala escala = 18;
+  // Cor da acao.
   optional Cor cor = 4;
-  // Adicionar coisas da acao aqui.
+  // Identificador do causador da acao.
   optional uint32 id_entidade_origem = 10;
+  // Identificador do alvo da acao.
   optional uint32 id_entidade_destino = 11;
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_quadrado = 12;

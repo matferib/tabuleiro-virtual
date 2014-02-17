@@ -17,6 +17,9 @@ class Acao {
       : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {
     delta_tempo_ = 0;
     velocidade_ = acao_proto.velocidade().inicial();
+    dx_ = dy_ = dz_ = 0;
+    dx_total_ = dy_total_ = dz_total_ = 0;
+    disco_alvo_rad_ = 0;
   }
   virtual ~Acao() {}
 
@@ -36,13 +39,22 @@ class Acao {
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) {} 
 
+  // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
   void AtualizaVelocidade();
+  // Pode ser chamado para atualizar o alvo de uma acao. Retorna false quando terminar.
+  bool AtualizaAlvo();
 
  protected:
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_;
   double delta_tempo_;
   double velocidade_;
+  // Diferenca entre posicao da acao da origem e do destino.
+  double dx_, dy_, dz_;
+  // O alvo se move em uma senoide de 0 ate PI (usando cosseno, vai e volta).
+  double disco_alvo_rad_;
+  // Para controle de quanto o alvo se moveu.
+  double dx_total_, dy_total_, dz_total_;
 };
 
 // Cria uma nova acao no tabuleiro.
