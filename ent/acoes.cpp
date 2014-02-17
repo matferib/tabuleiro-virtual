@@ -44,7 +44,7 @@ void DesenhaGeometriaAcao(int geometria) {
 }
 
 // Retorna o angulo de rotacao do vetor.
-double VetorParaRotacaoGraus(double x, double y, double* tamanho = nullptr) {
+double VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr) {
   double tam = sqrt(x * x + y * y);
   double angulo = acos(x / tam) * RAD_PARA_GRAUS;
   if (tamanho != nullptr) {
@@ -220,7 +220,6 @@ class AcaoDispersao : public Acao {
 class AcaoProjetil : public Acao {
  public:
   AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
-    dx_ = dy_ = dz_ = 0;
     velocidade_ = acao_proto_.velocidade().inicial();
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
@@ -235,15 +234,16 @@ class AcaoProjetil : public Acao {
       return;
     }
     pos_ = entidade_origem->PosicaoAcao();
-    delta_alvo_ = 0;
-    dx_total_ = dy_total_ = dz_total_ = 0;
   }
 
   void Atualiza() override {
     if (estagio_ == INICIAL) {
       AtualizaInicial();
     } else if (estagio_ == ATINGIU_ALVO) {
-      AtualizaAlvo();
+      if (!AtualizaAlvo()) {
+        VLOG(1) << "Terminando acao projetil, alvo atualizado.";
+        estagio_ = FIM;
+      }
     } else {
       return;
     }
@@ -322,31 +322,6 @@ class AcaoProjetil : public Acao {
     }
   }
 
-  void AtualizaAlvo() {
-    Entidade* entidade_destino = nullptr;
-    if (!acao_proto_.has_id_entidade_destino() ||
-        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
-      VLOG(1) << "Finalizando projetil, destino não existe.";
-      estagio_ = FIM;
-      return;
-    }
-    // Move o alvo na direcao do impacto e volta.
-    if (delta_alvo_ >= M_PI) {
-      // Tira o residuo.
-      entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
-      estagio_ = FIM;
-      return;
-    }
-    double cos_delta_alvo = cosf(delta_alvo_) * TAMANHO_LADO_QUADRADO_2;
-    double dx_alvo = dx_ * cos_delta_alvo;
-    double dy_alvo = dy_ * cos_delta_alvo;
-    double dz_alvo = dz_ * cos_delta_alvo;
-    dx_total_ += dx_alvo;
-    dy_total_ += dy_alvo;
-    dz_total_ += dz_alvo;
-    entidade_destino->MoveDelta(dx_alvo, dy_alvo, dz_alvo);
-    delta_alvo_ += 0.5; 
-  }
 
   // Verifica se a coordenada passou do ponto de destino.
   static bool Passou(double antes, double depois, double destino) {
@@ -364,10 +339,6 @@ class AcaoProjetil : public Acao {
     FIM
   } estagio_;
   double delta_tempo_;
-  double dx_, dy_, dz_;
-  double delta_alvo_;
-  // Para controle de quanto o alvo se moveu.
-  double dx_total_, dy_total_, dz_total_;
   Posicao pos_;
 };
 
@@ -410,7 +381,7 @@ class AcaoRaio : public Acao {
     double dx = pos_d.x() - pos_o.x();
     double dy = pos_d.y() - pos_o.y();
     double dz = pos_d.z() - pos_o.z();
-    double tam;
+    float tam;
     glTranslatef(pos_o.x(), pos_o.y(), pos_o.z());
     glRotatef(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
     glBegin(GL_POLYGON);
@@ -436,6 +407,98 @@ class AcaoRaio : public Acao {
 
  private:
   unsigned int duracao_;
+};
+
+// Acao ACAO_CORPO_A_CORPO.
+class AcaoCorpoCorpo : public Acao {
+ public:
+  AcaoCorpoCorpo(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+    rotacao_graus_ = 0.0f;
+    if (!acao_proto_.has_id_entidade_origem()) {
+      LOG(ERROR) << "Acao corpo a corpo requer id origem.";
+      finalizado_ = true;
+      return;
+    }
+    if (!acao_proto_.has_id_entidade_destino()) {
+      LOG(ERROR) << "Acao corpo a corpo requer id destino.";
+      finalizado_ = true;
+      return;
+    }
+    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+      LOG(ERROR) << "Acao corpo a corpo requer origem e destino diferentes.";
+      finalizado_ = true;
+      return;
+    }
+    AtualizaDeltas();
+    finalizado_ = false;
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+    auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    if (eo == nullptr) {
+      VLOG(1) << "Terminando acao corpo a corpo: origem nao existe mais.";
+      rotacao_graus_ = 181.0f;
+      return;
+    }
+    const Posicao& pos_o = eo->PosicaoAcao();
+    MudaCorProto(acao_proto_.cor());
+    glPushAttrib(GL_POLYGON_BIT);
+    glDisable(GL_CULL_FACE);
+    glTranslatef(pos_o.x(), pos_o.y(), pos_o.z());
+    glRotatef(direcao_graus_, 0.0f,  0.0f, 1.0f);
+    glRotatef(rotacao_graus_, 0.0f, 1.0f, 0.0f);
+    glBegin(GL_POLYGON);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.2f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, distancia_);
+    glEnd();
+    glPopAttrib();
+  }
+
+  void Atualiza() {
+    // TODO desenhar o impacto.
+    // Os parametros iniciais sao mantidos, so a rotacao do corte eh alterada.
+    if (rotacao_graus_ < 180.0f) {
+      rotacao_graus_ += 10.0f;
+    }
+    bool terminou_alvo = false;
+    if (rotacao_graus_ >= 90.0) {
+      terminou_alvo = !AtualizaAlvo();
+    }
+    if (rotacao_graus_ >= 180.0f && terminou_alvo) {
+      VLOG(1) << "Finalizando corpo a corpo";
+      finalizado_ = true;
+    }
+  }
+
+  bool Finalizada() const override {
+    return finalizado_; 
+  }
+
+ private:
+  // Atualiza a direcao.
+  void AtualizaDeltas() {
+    auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+    if (eo == nullptr || ed == nullptr) {
+      VLOG(1) << "Terminando acao corpo a corpo: origem ou destino nao existe mais.";
+      rotacao_graus_ = 181.0f;
+      return;
+    }
+    const Posicao& pos_o = eo->PosicaoAcao();
+    const Posicao& pos_d = ed->PosicaoAcao();
+    dx_ = pos_d.x() - pos_o.x();
+    dy_ = pos_d.y() - pos_o.y();
+    dz_ = pos_d.z() - pos_o.z();
+    direcao_graus_ = VetorParaRotacaoGraus(dx_, dy_, &distancia_);
+    dx_ /= distancia_;
+    dy_ /= distancia_;
+    dz_ /= distancia_;
+  }
+  float distancia_;
+  float direcao_graus_;
+  float rotacao_graus_;
+  bool finalizado_;
 };
 
 }  // namespace
@@ -479,6 +542,32 @@ void Acao::AtualizaVelocidade() {
   }
 }
 
+bool Acao::AtualizaAlvo() {
+  Entidade* entidade_destino = nullptr;
+  if (!acao_proto_.has_id_entidade_destino() ||
+      (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
+    VLOG(1) << "Finalizando alvo, destino não existe.";
+    return false;
+  }
+  // Move o alvo na direcao do impacto e volta.
+  if (disco_alvo_rad_ >= M_PI) {
+    VLOG(1) << "Finalizando alvo, arco terminou.";
+    entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
+    dx_total_ = dy_total_ = dz_total_ = 0; 
+    return false;
+  }
+  double cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO_2;
+  double dx_alvo = dx_ * cos_delta_alvo;
+  double dy_alvo = dy_ * cos_delta_alvo;
+  double dz_alvo = dz_ * cos_delta_alvo;
+  dx_total_ += dx_alvo;
+  dy_total_ += dy_alvo;
+  dz_total_ += dz_alvo;
+  entidade_destino->MoveDelta(dx_alvo, dy_alvo, dz_alvo);
+  disco_alvo_rad_ += 0.5; 
+  return true;
+}
+
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
   switch (acao_proto.tipo()) {
     case ACAO_SINALIZACAO:
@@ -491,6 +580,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
       return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
     case ACAO_RAIO:
       return new AcaoRaio(acao_proto, tabuleiro);
+    case ACAO_CORPO_A_CORPO:
+      return new AcaoCorpoCorpo(acao_proto, tabuleiro);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;
