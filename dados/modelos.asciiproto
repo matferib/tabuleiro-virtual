@@ -4,8 +4,20 @@ modelo {
   entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.png'} cor { r: 1.0 } }
 }
 modelo {
+  id: 'Aranha Armadeira'
+  entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
+}
+modelo {
+  id: 'Carniçal'
+  entidade { max_pontos_vida: 13 info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } } 
+}
+modelo {
   id: 'Goblin'
   entidade { max_pontos_vida: 5 tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
+}
+modelo {
+  id: 'Homem-Rato'
+  entidade { max_pontos_vida: 12 info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
 }
 modelo {
   id: 'Orc'
@@ -18,4 +30,12 @@ modelo {
 modelo {
   id: 'Uivante'
   entidade: { max_pontos_vida: 39 tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+}
+modelo {
+  id: 'Zumbi (humano)'
+  entidade: { max_pontos_vida: 16 info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+}
+modelo {
+  id: 'Zumbi (kobold)'
+  entidade: { max_pontos_vida: 16 tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
 }
