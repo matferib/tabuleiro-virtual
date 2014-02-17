@@ -2,8 +2,14 @@ Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Acao de feitico de toque.
+- Acao de raio permitir tabuleiro.
+- Ordenar acoes e modelos.
 
 Versao 2.0
+- Outros bits de status (dormindo, paralizado).
+- Outros tipos de efeito das acoes nas entidades (tremer).
+- Outros tipos de acoes (perfurante, concussao).
 - Adicionar mais detalhes as entidades (Ataque, CA, Saves).
 - Adicionar unit tests (comecar pelos simples).
 - Sons.

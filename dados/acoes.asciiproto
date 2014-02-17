@@ -22,6 +22,14 @@ acao {
   geometria: ACAO_GEO_ESFERA
 }
 acao {
+  id: 'Feitiço de Toque'
+  tipo: ACAO_FEITICO_TOQUE
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.0 g: 0.0  b: 1.0 }
+}
+acao {
   id: 'Míssil Mágico' 
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_ESFERA
