@@ -286,13 +286,13 @@ const Posicao Entidade::PosicaoAcao() const {
   glTranslatef(0.0f, 0.0f, ALTURA);
   GLfloat matriz[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
-  LOG(INFO) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
-  LOG(INFO) << "Matriz: " << matriz[4] << " " << matriz[5] << " " << matriz[6] << " " << matriz[7];
-  LOG(INFO) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
-  LOG(INFO) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
+  VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
+  VLOG(2) << "Matriz: " << matriz[4] << " " << matriz[5] << " " << matriz[6] << " " << matriz[7];
+  VLOG(2) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
+  VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   MultiplicaMatrizVetor(matriz, ponto);
-  LOG(INFO) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
+  VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
   Posicao pos;
   pos.set_x(ponto[0]);
   pos.set_y(ponto[1]);
@@ -475,8 +475,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
   glPushMatrix();
   MontaMatriz(true  /*usar_delta_voo*/);
-  // Um pouco acima do objeto.
-  glTranslated(0, 0, ALTURA + TAMANHO_LADO_QUADRADO_2);
+  // Um pouco acima do objeto e ao sul do objeto.
+  glTranslated(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
     LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;

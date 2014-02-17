@@ -1,7 +1,11 @@
 # Este arquivo é uma representação texto do proto ent::Modelos. 
 modelo {
   id: 'Aarakocra'
-  entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.jpg'} cor { r: 1.0 } }
+  entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.png'} cor { r: 1.0 } }
+}
+modelo {
+  id: 'Goblin'
+  entidade { max_pontos_vida: 5 tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
 }
 modelo {
   id: 'Orc'
@@ -11,4 +15,7 @@ modelo {
   id: 'Troll'
   entidade { max_pontos_vida: 63 tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
 }
-
+modelo {
+  id: 'Uivante'
+  entidade: { max_pontos_vida: 39 tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+}

@@ -10,6 +10,7 @@ enum TipoAcao {
   ACAO_SINALIZACAO = 4;
   ACAO_DELTA_PONTOS_VIDA = 5;
   ACAO_CORPO_A_CORPO = 6;
+  ACAO_FEITICO_TOQUE = 7;
 }
 
 enum GeometriaAcao {

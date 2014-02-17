@@ -32,13 +32,12 @@ void MudaCorProto(const Cor& cor) {
 // lado para cubo).
 void DesenhaGeometriaAcao(int geometria) {
   switch (geometria) {
-    case ACAO_GEO_ESFERA:
-      glutSolidSphere(1.0f, 10, 10);
-      return;
     case ACAO_GEO_CUBO:
       glutSolidCube(1.0f);
       return;
+    case ACAO_GEO_ESFERA:
     default:
+      glutSolidSphere(1.0f, 10, 10);
       return;
   }
 }
@@ -501,6 +500,63 @@ class AcaoCorpoCorpo : public Acao {
   bool finalizado_;
 };
 
+// Acao de feitico de toque.
+class AcaoFeiticoToque : public Acao {
+ public:
+  AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+    if (!acao_proto_.has_id_entidade_origem() || !acao_proto_.has_id_entidade_destino()) {
+      LOG(ERROR) << "Acao de feitico de toque requer origem e destino";
+      terminado_ = true;
+      return;
+    }
+    terminado_ = false;
+    desenhando_origem_ = true;
+    raio_ = 1.0f;
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+    auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino());
+    if (e == nullptr) {
+      VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
+      terminado_ = true;
+      return;
+    }
+    const Posicao& pos = e->PosicaoAcao();
+    MudaCorProto(acao_proto_.cor());
+    glPushAttrib(GL_LIGHTING_BIT);
+    glDisable(GL_LIGHTING);
+    glTranslatef(pos.x() + acao_proto_.translacao().x(),
+                 pos.y() + acao_proto_.translacao().y(),
+                 pos.z() + acao_proto_.translacao().z());
+    glScalef(acao_proto_.escala().x() * raio_, acao_proto_.escala().y() * raio_, acao_proto_.escala().z() * raio_);
+    DesenhaGeometriaAcao(acao_proto_.geometria());
+    glPopAttrib();
+  }
+
+  void Atualiza() {
+    if (desenhando_origem_) {
+      raio_ -= 0.02;
+      if (raio_ <= 0) {
+        desenhando_origem_ = false;
+      }
+    } else {
+      raio_ += 0.02;
+      if (raio_ >= 1.0f) {
+        terminado_ = true;
+      }
+    }
+  }
+
+  bool Finalizada() const override {
+    return terminado_;
+  }
+
+ private:
+  bool desenhando_origem_;
+  float raio_;
+  bool terminado_;
+};
+
 }  // namespace
 
 // Acao.
@@ -582,6 +638,8 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
       return new AcaoRaio(acao_proto, tabuleiro);
     case ACAO_CORPO_A_CORPO:
       return new AcaoCorpoCorpo(acao_proto, tabuleiro);
+    case ACAO_FEITICO_TOQUE:
+      return new AcaoFeiticoToque(acao_proto, tabuleiro);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;
