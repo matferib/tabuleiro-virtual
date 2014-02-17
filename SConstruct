@@ -39,7 +39,10 @@ if sistema == 'win32':
   env['LIBPATH'] += [ 'win32/lib' ]
   env['LINKFLAGS'] += ['-Wl,--subsystem,windows'] 
 elif sistema == 'apple':
-  env['CPPPATH'] += ['./']
+  env['CPPPATH'] += ['./', 
+                     '/usr/local/lib/QtGui.framework/Headers',
+                     '/usr/local/lib/QtOpenGL.framework/Headers',
+                     '/usr/local/lib/QtCore.framework/Headers']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
   env['CXXFLAGS'] += ['-Wall', '-O2', '-std=c++11']
   env['LIBS'] += ['GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
