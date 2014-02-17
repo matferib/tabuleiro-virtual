@@ -351,12 +351,12 @@ class AcaoRaio : public Acao {
       VLOG(1) << "Acao raio requer id origem.";
       return;
     }
-    if (!acao_proto_.has_id_entidade_destino()) {
+    if (!acao_proto_.has_id_entidade_destino() && !acao_proto_.has_pos_tabuleiro()) {
       duracao_ = 0;
-      VLOG(1) << "Acao raio requer id destino.";
+      VLOG(1) << "Acao raio requer id destino ou posicao destino.";
       return;
     }
-    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+    if (acao_proto_.has_id_entidade_destino() && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
       duracao_ = 0;
       VLOG(1) << "Acao raio requer origem e destino diferentes.";
       return;
@@ -365,14 +365,25 @@ class AcaoRaio : public Acao {
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
-    auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
-    if (eo == nullptr || ed == nullptr) {
-      VLOG(1) << "Terminando acao por origem ou destino nao existe mais.";
+    if (eo == nullptr) {
+      VLOG(1) << "Terminando acao pois origem nao existe mais.";
       duracao_ = 0;
       return;
     }
     const Posicao& pos_o = eo->PosicaoAcao();
-    const Posicao& pos_d = ed->PosicaoAcao();
+    Posicao pos_d = acao_proto_.pos_tabuleiro();
+    if (acao_proto_.has_id_entidade_destino()) {
+      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+      if (ed == nullptr) {
+        VLOG(1) << "Terminando acao pois destino nao existe mais.";
+        duracao_ = 0;
+        return;
+      }
+      pos_d = ed->PosicaoAcao();
+    } else {
+      // Poe na mesma altura da origem.
+      pos_d.set_z(pos_o.z());
+    }
     MudaCorProto(acao_proto_.cor());
     glPushAttrib(GL_LIGHTING_BIT | GL_POLYGON_BIT);
     glDisable(GL_CULL_FACE);
