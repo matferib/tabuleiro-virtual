@@ -12,6 +12,22 @@ modelo {
   entidade { max_pontos_vida: 13 info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } } 
 }
 modelo {
+  id: 'Humano Bruxo'
+  entidade { max_pontos_vida: 3 info_textura { id: 'warlock.png'} cor { r: 0.698 g: 0.463 b: 0.275 } }
+}
+modelo {
+  id: 'Humano Clérigo'
+  entidade { max_pontos_vida: 4 info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Guerreiro'
+  entidade { max_pontos_vida: 5 info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Paladino'
+  entidade { max_pontos_vida: 5 info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
   id: 'Goblin'
   entidade { max_pontos_vida: 5 tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
 }
