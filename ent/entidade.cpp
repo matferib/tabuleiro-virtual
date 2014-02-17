@@ -314,6 +314,7 @@ void Entidade::MontaMatriz(bool usar_delta_voo, const float* matriz_shear) const
     glTranslated(0, 0, usar_delta_voo ? Z() + DeltaVoo() : 0.0);
   }
   if (angulo_disco_queda_graus_ > 0) {
+    //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
     glRotatef(-angulo_disco_queda_graus_, 1.0, 0, 0);
   }
   float multiplicador = CalculaMultiplicador(proto_.tamanho());
