@@ -22,4 +22,9 @@ void MudaCor(const GLfloat* cor) {
   glColor3fv(cor);
 }
 
+void MudaCorAlfa(const GLfloat* cor) {
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
+  glColor4fv(cor);
+}
+
 }  // namespace ent

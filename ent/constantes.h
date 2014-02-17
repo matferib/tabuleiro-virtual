@@ -42,6 +42,8 @@ extern const GLfloat COR_AMARELA[];
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const GLfloat* cor);
+/** Considera alpha. */
+void MudaCorAlfa(const GLfloat* cor);
 
 }  // namespace ent
 

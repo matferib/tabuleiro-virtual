@@ -45,6 +45,7 @@ enum etab_t {
   ETAB_ENTS_SELECIONADAS,
   ETAB_QUAD_PRESSIONADO,
   ETAB_QUAD_SELECIONADO,
+  ETAB_SELECIONANDO_ENTIDADES,
 };
 
 struct Sinalizador {
@@ -221,6 +222,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** seleciona a entidade pelo ID. */ 
   void SelecionaEntidade(unsigned int id);
+  void SelecionaEntidades(const std::vector<unsigned int>& ids);
 
   /** seleciona as entidades em ids_adicionados_. */
   void SelecionaEntidadesAdicionadas();
@@ -336,10 +338,14 @@ class Tabuleiro : public ntf::Receptor {
   int ultimo_x_;
   /** dados (Y) para calculo de mouse. */
   int ultimo_y_;
-  /** coordenadas 3d do ultimo click. */
+  /** coordenadas 3d da ultima acao. */
   float ultimo_x_3d_;
   float ultimo_y_3d_;
   float ultimo_z_3d_;
+  /** coordenadas 3d do inicio da acao. */
+  float primeiro_x_3d_;
+  float primeiro_y_3d_;
+  float primeiro_z_3d_;
 
   /** Dimensoes do viewport. */
   int largura_;
