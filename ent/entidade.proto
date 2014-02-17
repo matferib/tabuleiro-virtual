@@ -127,4 +127,6 @@ message ParametrosDesenho {
   optional bool desenha_barra_vida = 19 [default=false];
   // Se verdadeiro, desenha a lista de pontos de vida.
   optional bool desenha_lista_pontos_vida = 20 [default=true];
+  // Se verdadeiro, desenha o quadrado de selecao.
+  optional bool desenha_quadrado_selecao = 21 [default=true];
 }

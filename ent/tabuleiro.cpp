@@ -6,6 +6,7 @@
 #include <fstream>
 #include <map>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
@@ -32,6 +33,7 @@
 namespace ent {
 
 namespace {
+
 /** campo de visao vertical em graus. */
 const double CAMPO_VERTICAL = 60.0;
 
@@ -98,6 +100,29 @@ bool LeArquivoAsciiProto(const std::string& nome_arquivo, google::protobuf::Mess
   return google::protobuf::TextFormat::Parse(&zis, mensagem);
 }
 
+/** Retorna true se o ponto (x,y) estiver dentro do quadrado qx1, qy1, qx2, qy2. */
+bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, float qy2) {
+  float xesq = qx1;
+  float xdir = qx2;
+  if (xesq > xdir) {
+    std::swap(xesq, xdir);
+  }
+  float ybaixo = qy1;
+  float yalto = qy2;
+  if (ybaixo > yalto) {
+    std::swap(ybaixo, yalto);
+  }
+  if (x < xesq || x > xdir) {
+    VLOG(2) << "xesq: " << xesq << ", x: " << x << ", xdir: " << xdir;
+    return false;
+  }
+  if (y < ybaixo || y > yalto) {
+    VLOG(2) << "ybaixo: " << ybaixo << ", y: " << y << ", yalto: " << yalto;
+    return false;
+  }
+  return true;
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
@@ -133,6 +158,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
   // Valores iniciais.
   largura_ = altura_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
+  primeiro_x_3d_ = primeiro_y_3d_ = primeiro_z_3d_ = 0;
   // Modelos.
   auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
   modelo_padrao->mutable_cor()->set_g(1.0f);
@@ -603,6 +629,25 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     ultimo_y_ = y;
     // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
     // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
+  } else if ((estado_ == ETAB_QUAD_PRESSIONADO) || (estado_ == ETAB_SELECIONANDO_ENTIDADES)) {
+    quadrado_selecionado_ = -1;
+    double x3d, y3d, z3d;
+    parametros_desenho_.set_desenha_entidades(false);
+    MousePara3d(x, y, &x3d, &y3d, &z3d);
+    ultimo_x_3d_ = x3d;
+    ultimo_y_3d_ = y3d;
+    ultimo_z_3d_ = z3d;
+    // Encontra as entidades cujos centros estao dentro dos limites da selecao.
+    std::vector<unsigned int> es;
+    for (const auto& eit : entidades_) {
+      ids_entidades_selecionadas_.clear();
+      const Entidade& e = *eit.second;
+      if (PontoDentroQuadrado(e.X(), e.Y(), primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_)) {
+        es.push_back(e.Id());
+      }
+    }
+    SelecionaEntidades(es);
+    estado_ = ETAB_SELECIONANDO_ENTIDADES;
   }
 }
 
@@ -713,6 +758,16 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       p->set_z(entidade_selecionada->Z());
       central_->AdicionaNotificacaoRemota(n);
       estado_ = ETAB_ENT_SELECIONADA;
+      return;
+    }
+    case ETAB_SELECIONANDO_ENTIDADES: {
+      if (ids_entidades_selecionadas_.empty()) {
+        DeselecionaEntidades();
+      } else if (ids_entidades_selecionadas_.empty() == 1) {
+        estado_ = ETAB_ENT_SELECIONADA;
+      } else {
+        estado_ = ETAB_ENTS_SELECIONADAS;
+      }
       return;
     }
     case ETAB_QUAD_PRESSIONADO:
@@ -1017,6 +1072,20 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_barra_vida(false);
   }
 
+  if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
+    glDepthMask(false);
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
+    glDisable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glPolygonOffset(-0.04f, -0.04f);
+    GLfloat azul_alfa[4] = { 0, 0, 1.0f, 0.5f };
+    MudaCorAlfa(azul_alfa);
+    glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
+    glPopAttrib();
+    glDepthMask(true);
+  }
+
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
   }
@@ -1095,6 +1164,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_acoes(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -1179,17 +1249,20 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  double x3d, y3d, z3d;
+  MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d);
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
+  ultimo_z_3d_ = z3d;
+  primeiro_x_3d_ = x3d;
+  primeiro_y_3d_ = y3d;
+  primeiro_z_3d_ = z3d;
   if (pos_pilha == 1) {
     // Tabuleiro.
     VLOG(1) << "Picking no tabuleiro id quadrado: " << id;
     SelecionaQuadrado(id);
   } else if (pos_pilha > 1) {
     // Entidade.
-    double x3d, y3d, z3d;
-    MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d);
-    ultimo_x_3d_ = x3d;
-    ultimo_y_3d_ = y3d;
-    ultimo_z_3d_ = z3d;
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
       AlternaSelecaoEntidade(id);
@@ -1262,20 +1335,24 @@ void Tabuleiro::SelecionaEntidade(unsigned int id) {
   estado_ = ETAB_ENT_SELECIONADA;
 }
 
-void Tabuleiro::SelecionaEntidadesAdicionadas() {
-  if (ids_adicionados_.empty()) {
+void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
+  if (ids.empty()) {
     VLOG(1) << "Nada a selecionar.";
     return;
   }
-  if (ids_adicionados_.size() == 1) {
-    SelecionaEntidade(ids_adicionados_[0]);
+  if (ids.size() == 1) {
+    SelecionaEntidade(ids[0]);
     return;
   }
   VLOG(1) << "Selecionando entidades";
   ids_entidades_selecionadas_.clear();
-  ids_entidades_selecionadas_.insert(ids_adicionados_.begin(), ids_adicionados_.end());
+  ids_entidades_selecionadas_.insert(ids.begin(), ids.end());
   quadrado_selecionado_ = -1;
   estado_ = ETAB_ENTS_SELECIONADAS;
+}
+
+void Tabuleiro::SelecionaEntidadesAdicionadas() {
+  SelecionaEntidades(ids_adicionados_);
 }
 
 void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
