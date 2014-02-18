@@ -937,7 +937,7 @@ void Tabuleiro::DesenhaCena() {
   glEnable(GL_POLYGON_OFFSET_FILL);
   // Desenha o chao mais pro fundo.
   // TODO transformar offsets em constantes.
-  glPolygonOffset(0.04f, 0.04f);
+  glPolygonOffset(2.0f, 20.0f);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado
@@ -954,11 +954,9 @@ void Tabuleiro::DesenhaCena() {
   glDisable(GL_TEXTURE_2D);
 
   if (parametros_desenho_.desenha_grade()) {
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    // TODO transformar offsets em constantes.
-    glPolygonOffset(-0.04f, -0.04f);
+    glDisable(GL_DEPTH_TEST);
     DesenhaGrade();
-    glDisable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_DEPTH_TEST);
   }
   if (!parametros_desenho_.desenha_entidades()) {
     return;
@@ -1102,7 +1100,7 @@ void Tabuleiro::DesenhaCena() {
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-0.06f, -0.06f);
+    glPolygonOffset(-1.0, -20.0f);
     GLfloat azul_alfa[4] = { 0, 0, 1.0f, 0.5f };
     MudaCorAlfa(azul_alfa);
     glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);

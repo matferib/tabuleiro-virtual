@@ -2,11 +2,9 @@ Versao 1.0
 - Iluminacao separada para o mestre.
 - Nao rodar disco base ao arrastar.
 - rastro de movimento ao arrastar.
-- Arrumar os glPolygonOffset (usar fator 0 e deixar so unidade).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
-- ZFight na barra.
 - Barra de vida iluminada.
 
 Versao 2.0
