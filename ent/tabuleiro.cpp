@@ -71,7 +71,6 @@ bool AndouQuadrado(const Posicao& p1, const Posicao& p2) {
          fabs(p1.y() - p2.y()) >= TAMANHO_LADO_QUADRADO;
 }
 
-
 /** Desenha apenas a string. */
 void DesenhaString(const std::string& s) {
   glRasterPos2i(1, 1);
@@ -1818,7 +1817,6 @@ void Tabuleiro::DesenhaListaPontosVida() {
   glMatrixMode(GL_PROJECTION);
   glPopMatrix();
   glMatrixMode(GL_MODELVIEW);
-
 }
 
 double Tabuleiro::Aspecto() const {
