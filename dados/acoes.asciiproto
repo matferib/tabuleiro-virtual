@@ -7,7 +7,7 @@ acao {
   id: 'Ataque a Distância'
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_CUBO
-  escala { x: 1.0f y: 0.05 z: 0.05 }
+  escala { x: 1.0 y: 0.05 z: 0.05 }
   cor { r: 0.0 g: 0.0 b: 0.0 }
   velocidade {
     inicial: 0.6
