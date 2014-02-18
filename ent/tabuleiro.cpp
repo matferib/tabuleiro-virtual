@@ -127,42 +127,15 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
 
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
     id_cliente_(0),
-    id_entidade_detalhada_(0xFFFFFFFF),
-    quadrado_selecionado_(-1),
-    estado_(ETAB_OCIOSO), proximo_id_entidade_(0), proximo_id_cliente_(1),
+    proximo_id_cliente_(1),
     texturas_(texturas),
     central_(central),
-    modo_mestre_(true),
-    processando_grupo_(false) {
+    modo_mestre_(true) {
   central_->RegistraReceptor(this);
-  // Iluminacao ambiente inicial.
-  proto_.mutable_luz_ambiente()->set_r(0.2f);
-  proto_.mutable_luz_ambiente()->set_g(0.2f);
-  proto_.mutable_luz_ambiente()->set_b(0.2f);
-  // Iluminacao direcional inicial.
-  proto_.mutable_luz_direcional()->mutable_cor()->set_r(0.2f);
-  proto_.mutable_luz_direcional()->mutable_cor()->set_g(0.2f);
-  proto_.mutable_luz_direcional()->mutable_cor()->set_b(0.2f);
-  // Vinda de 45 graus leste.
-  proto_.mutable_luz_direcional()->set_posicao_graus(0.0f);
-  proto_.mutable_luz_direcional()->set_inclinacao_graus(45.0f);
-  // Olho.
-  auto* pos = olho_.mutable_alvo();
-  pos->set_x(0.0f);
-  pos->set_y(0.0f);
-  pos->set_z(0.0f);
-  // Olho sempre comeca olhando do sul (-pi/2).
-  olho_.set_rotacao_rad(-M_PI / 2.0f);
-  olho_.set_altura(OLHO_ALTURA_INICIAL);
-  olho_.set_raio(OLHO_RAIO_INICIAL);
-  // Valores iniciais.
-  largura_ = altura_ = 0;
-  ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
-  primeiro_x_3d_ = primeiro_y_3d_ = primeiro_z_3d_ = 0;
   // Modelos.
   auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
   modelo_padrao->mutable_cor()->set_g(1.0f);
-  mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<ent::EntidadeProto>(modelo_padrao)));
+  mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<EntidadeProto>(modelo_padrao)));
   modelo_selecionado_ = modelo_padrao;
   Modelos modelos;
   std::string arq_modelos(std::string(DIR_DADOS) + "/" + ARQUIVO_MODELOS);
@@ -189,6 +162,7 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
       mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
     }
   }
+  EstadoInicial();
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -198,6 +172,45 @@ Tabuleiro::~Tabuleiro() {
     nl->mutable_info_textura()->set_id(proto_.info_textura().id());
     central_->AdicionaNotificacao(nl);
   }
+}
+
+void Tabuleiro::EstadoInicial() {
+  // Proto do tabuleiro.
+  proto_.Clear();
+  // Iluminacao ambiente inicial.
+  proto_.mutable_luz_ambiente()->set_r(0.2f);
+  proto_.mutable_luz_ambiente()->set_g(0.2f);
+  proto_.mutable_luz_ambiente()->set_b(0.2f);
+  // Iluminacao direcional inicial.
+  proto_.mutable_luz_direcional()->mutable_cor()->set_r(0.2f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_g(0.2f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_b(0.2f);
+  // Vinda de 45 graus leste.
+  proto_.mutable_luz_direcional()->set_posicao_graus(0.0f);
+  proto_.mutable_luz_direcional()->set_inclinacao_graus(45.0f);
+  // Olho.
+  auto* pos = olho_.mutable_alvo();
+  pos->set_x(0.0f);
+  pos->set_y(0.0f);
+  pos->set_z(0.0f);
+  // Olho sempre comeca olhando do sul (-pi/2).
+  olho_.set_rotacao_rad(-M_PI / 2.0f);
+  olho_.set_altura(OLHO_ALTURA_INICIAL);
+  olho_.set_raio(OLHO_RAIO_INICIAL);
+  // Valores iniciais.
+  largura_ = altura_ = 0;
+  ultimo_x_ = ultimo_y_ = 0;
+  ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
+  primeiro_x_3d_ = primeiro_y_3d_ = primeiro_z_3d_ = 0;
+  // Mapa de entidades e acoes vazios.
+  entidades_.clear();
+  acoes_.clear();
+  // Outras variaveis.
+  id_entidade_detalhada_ = 0xFFFFFFFF;
+  quadrado_selecionado_ = -1;
+  estado_ = ETAB_OCIOSO;
+  proximo_id_entidade_ = 0;
+  processando_grupo_ = false;
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -246,7 +259,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
       auto* entidade = entidade_up.get();
       PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, &modelo);
       entidade->Inicializa(modelo);
-      entidades_.insert(std::make_pair(entidade->Id(), entidade_up.release()));
+      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade_up.release())));
       SelecionaEntidade(entidade->Id());
       // Envia a entidade para os outros.
       auto* n = ntf::NovaNotificacao(notificacao.tipo());
@@ -256,7 +269,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
       // Mensagem veio de fora.
       auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
       entidade->Inicializa(notificacao.entidade());
-      entidades_.insert(std::make_pair(entidade->Id(), entidade));
+      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -431,7 +444,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
-      auto* nt_tabuleiro = SerializaTabuleiro();
+      std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
       if (notificacao.has_endereco()) {
         std::string nt_tabuleiro_str = nt_tabuleiro->SerializeAsString();
         // Salvar no endereco.
@@ -443,10 +456,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           central_->AdicionaNotificacao(ne);
         }
         arquivo.close();
-        delete nt_tabuleiro;
       } else {
         // Enviar remotamente.
-        central_->AdicionaNotificacaoRemota(nt_tabuleiro);
+        central_->AdicionaNotificacaoRemota(nt_tabuleiro.release());
       }
       return true;
     }
@@ -885,7 +897,7 @@ void Tabuleiro::DesenhaCena() {
 
     // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      auto* e = it->second;
+      auto* e = it->second.get();
       e->DesenhaLuz(&parametros_desenho_);
     }
   } else {
@@ -944,7 +956,7 @@ void Tabuleiro::DesenhaCena() {
   // na hora do picking.
   glPushName(0);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    Entidade* entidade = it->second;
+    Entidade* entidade = it->second.get();
     parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
     entidade->Desenha(&parametros_desenho_);
@@ -999,7 +1011,7 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_texturas(false);
     glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second;
+      Entidade* entidade = it->second.get();
       parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
       entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
@@ -1041,7 +1053,7 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_alpha_translucidos(0.5);
     glPushName(0);
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second;
+      Entidade* entidade = it->second.get();
       parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
       parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
       entidade->DesenhaTranslucido(&parametros_desenho_);
@@ -1053,7 +1065,7 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.clear_alpha_translucidos();
     if (parametros_desenho_.desenha_aura()) {
       for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-        Entidade* entidade = it->second;
+        Entidade* entidade = it->second.get();
         entidade->DesenhaAura(&parametros_desenho_);
       }
     }
@@ -1063,7 +1075,7 @@ void Tabuleiro::DesenhaCena() {
     // Desenha os translucidos de forma solida para picking.
     glPushName(0);
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second;
+      Entidade* entidade = it->second.get();
       parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
       entidade->DesenhaTranslucido(&parametros_desenho_);
     }
@@ -1482,7 +1494,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   for (const auto& ep : tabuleiro.entidade()) {
     auto* e = NovaEntidade(ep.tipo(), texturas_, central_);
     e->Inicializa(ep);
-    if (!entidades_.insert({ e->Id(), e }).second) {
+    if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
   }
@@ -1495,7 +1507,7 @@ void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
   auto it = entidades_.find(id);
-  return (it != entidades_.end()) ? it->second : nullptr;
+  return (it != entidades_.end()) ? it->second.get() : nullptr;
 }
 
 void Tabuleiro::CopiaEntidadesSelecionadas() {
@@ -1525,10 +1537,7 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   if (res_find == entidades_.end()) {
     return false;
   }
-  Entidade* entidade = res_find->second;
   entidades_.erase(res_find);
-  delete entidade;
-  // Retorna apenas para verificacao.
   return EntidadeEstaSelecionada(id);
 }
 
@@ -1704,7 +1713,7 @@ Entidade* Tabuleiro::EntidadeSelecionada() {
   if (it == entidades_.end()) {
     return nullptr;
   }
-  return it->second;
+  return it->second.get();
 }
 
 }  // namespace ent
