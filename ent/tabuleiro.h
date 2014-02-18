@@ -53,7 +53,7 @@ struct Sinalizador {
   double estado;
 };
 
-typedef std::unordered_map<unsigned int, Entidade*> MapaEntidades;
+typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
 typedef std::unordered_set<unsigned int> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste, 
@@ -180,8 +180,10 @@ class Tabuleiro : public ntf::Receptor {
   void ColaEntidadesSelecionadas();
 
  private:
-  /** funcao que desenha a cena independente do modo.
-  */
+  /** Poe o tabuleiro nas condicoes iniciais. */
+  void EstadoInicial();
+
+  /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
