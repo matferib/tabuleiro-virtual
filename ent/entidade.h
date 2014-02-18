@@ -89,6 +89,11 @@ class Entidade {
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const;
 
+  /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
+  * 1.0f para entidades medias.
+  */
+  float MultiplicadorTamanho() const;
+
  private:
   friend Entidade* NovaEntidade(TipoEntidade, Texturas*, ntf::CentralNotificacoes*);
   Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);

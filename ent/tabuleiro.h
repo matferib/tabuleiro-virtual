@@ -189,6 +189,15 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
+  /** funcao para desenha os rastros de movimento. */
+  void DesenhaRastros();
+
+  /** liga modo de desenho de stencil. */
+  void LigaStencil();
+
+  /** desenha a cor na tela toda e limpa stencil. */
+  void DesenhaStencil(const float* cor);
+
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
   void AtualizaOlho();
 
@@ -388,6 +397,9 @@ class Tabuleiro : public ntf::Receptor {
   // Para processamento de grupos de notificacoes. 
   bool processando_grupo_;
   std::vector<unsigned int> ids_adicionados_;
+
+  // Para rastros de movimentos das unidades.
+  std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_; 
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

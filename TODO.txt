@@ -1,10 +1,10 @@
 Versao 1.0
 - Iluminacao separada para o mestre.
 - Nao rodar disco base ao arrastar.
-- Rastro de movimento ao arrastar.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Movimento com teclado.
 
 Versao 2.0
 - Dano em acoes de area.
