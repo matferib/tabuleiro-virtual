@@ -40,7 +40,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   /** Os items de cada menu. */
   enum menuitem_e { // items de cada menu 
     MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,  // ME_JOGO
-    MI_OPCOES = 0, MI_PROPRIEDADES, MI_SALVAR, MI_RESTAURAR,  // ME_TABULEIRO
+    MI_OPCOES = 0, MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_RESTAURAR,  // ME_TABULEIRO
     MI_PROPRIEDADES_ENTIDADE = 0, MI_ADICIONAR, MI_REMOVER,  // ME_ENTIDADES
     // ME_ACOES eh vazio. 
     MI_TABVIRT = 0,  // ME_SOBRE
