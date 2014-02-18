@@ -225,12 +225,29 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o duplo clique com botao direito. */
   void TrataDuploCliqueDireito(int x, int y);
 
-  /** seleciona a entidade pelo ID. */ 
+  /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
+  Entidade* EntidadeSelecionada();
+
+  /** Retorna se uma entidade esta selecionada. */
+  bool EntidadeEstaSelecionada(unsigned int id);
+
+  /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
+  * ETAB_ENT_SELECIONADA.
+  */ 
   void SelecionaEntidade(unsigned int id);
+
+  /** Seleciona as entidades passadas por id, deselecionando outras e colocando o tabuleiro
+  * no estado ETAB_ENTS_SELECIONADAS.
+  */
   void SelecionaEntidades(const std::vector<unsigned int>& ids);
 
   /** seleciona as entidades em ids_adicionados_. */
-  void SelecionaEntidadesAdicionadas();
+  void SelecionaEntidadesAdicionadas() { SelecionaEntidades(ids_adicionados_); }
+
+  /** Adiciona entidades as entidades selecionadas. O estado final depende do tamanho dos ids e do 
+  * numero de entidades selecionadas corrente.
+  */
+  void AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids);
 
   /** Alterna a selecao da entidade. */
   void AlternaSelecaoEntidade(unsigned int id);
@@ -293,11 +310,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Poe o tabuleiro no modo jogador. */
   void ModoJogador() { modo_mestre_ = false; }
-
-  /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
-  Entidade* EntidadeSelecionada();
-  /** Retorna se uma entidade esta selecionada. */
-  bool EntidadeEstaSelecionada(unsigned int id);
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
