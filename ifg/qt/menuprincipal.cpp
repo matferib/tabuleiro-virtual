@@ -36,7 +36,7 @@ const char* g_menuitem_strs[] = {
   // jogo
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
-  "&Opções", "&Propriedades", nullptr, "&Salvar", "R&estaurar", g_fim,
+  "&Opções", "&Propriedades", nullptr, "&Reiniciar", "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.
@@ -244,6 +244,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
     // Abre dialogo de arquivo.
     QString file_str = QFileDialog::getSaveFileName(

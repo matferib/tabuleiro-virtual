@@ -166,6 +166,10 @@ Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
 }
 
 Tabuleiro::~Tabuleiro() {
+  LiberaTextura();
+}
+
+void Tabuleiro::LiberaTextura() {
   if (proto_.has_info_textura()) {
     VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
@@ -176,6 +180,7 @@ Tabuleiro::~Tabuleiro() {
 
 void Tabuleiro::EstadoInicial() {
   // Proto do tabuleiro.
+  LiberaTextura();
   proto_.Clear();
   // Iluminacao ambiente inicial.
   proto_.mutable_luz_ambiente()->set_r(0.2f);
@@ -198,7 +203,6 @@ void Tabuleiro::EstadoInicial() {
   olho_.set_altura(OLHO_ALTURA_INICIAL);
   olho_.set_raio(OLHO_RAIO_INICIAL);
   // Valores iniciais.
-  largura_ = altura_ = 0;
   ultimo_x_ = ultimo_y_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
   primeiro_x_3d_ = primeiro_y_3d_ = primeiro_z_3d_ = 0;
@@ -440,6 +444,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       for (auto& a : acoes_) {
         a->Atualiza();
+      }
+      return true;
+    }
+    case ntf::TN_REINICIAR_TABULEIRO: {
+      EstadoInicial();
+      // Repassa aos clientes.
+      if (notificacao.local()) {
+        central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO));
       }
       return true;
     }
@@ -1479,18 +1491,22 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (!entidades_.empty()) {
     LOG(ERROR) << "Tabuleiro não está vazio!";
     return;
-  }
+  } 
   if (notificacao.has_erro()) {
-    LOG(ERROR) << "Erro ao deserializar tabuleiro: " << notificacao.erro();
-    auto* n = new ntf::Notificacao;
-    n->set_tipo(ntf::TN_DESCONECTAR);
+    auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+    ne->set_erro(std::string("Erro ao deserializar tabuleiro: ") + notificacao.erro());
+    central_->AdicionaNotificacao(ne);
+    auto* n = ntf::NovaNotificacao(ntf::TN_DESCONECTAR);
     central_->AdicionaNotificacao(n);
     return;
   }
   const auto& tabuleiro = notificacao.tabuleiro();
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
-  id_cliente_ = tabuleiro.id_cliente();
+  if (id_cliente_ == 0) {
+    // So usa o id novo se nao tiver.
+    id_cliente_ = tabuleiro.id_cliente();
+  }
   for (const auto& ep : tabuleiro.entidade()) {
     auto* e = NovaEntidade(ep.tipo(), texturas_, central_);
     e->Inicializa(ep);

@@ -183,6 +183,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Poe o tabuleiro nas condicoes iniciais. */
   void EstadoInicial();
 
+  /** Libera a textura do tabuleiro, se houver. */
+  void LiberaTextura();
+
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
