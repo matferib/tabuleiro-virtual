@@ -629,7 +629,13 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     if (!MousePara3d(x, y, &nx, &ny, &nz)) {
       return;
     }
-    EntidadeSelecionada()->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* e = BuscaEntidade(id);
+      if (e == nullptr) {
+        continue;
+      }
+      e->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+    }
     ultimo_x_ = x;
     ultimo_y_ = y;
     ultimo_x_3d_ = nx;
@@ -771,6 +777,7 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       if (botao != BOTAO_ESQUERDO) {
         return;
       }
+      for () {
       auto* n = new ntf::Notificacao;
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
@@ -781,7 +788,8 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       p->set_y(entidade_selecionada->Y());
       p->set_z(entidade_selecionada->Z());
       central_->AdicionaNotificacaoRemota(n);
-      estado_ = ETAB_ENT_SELECIONADA;
+      }
+      estado_ = ids_entidades_selecionadas_.size() > 0 ? ETAB_ENTS_SELECIONADAS : ETAB_ENT_SELECIONADA;
       return;
     }
     case ETAB_SELECIONANDO_ENTIDADES: {
@@ -1289,7 +1297,11 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
     if (alterna_selecao) {
       AlternaSelecaoEntidade(id);
     } else {
-      SelecionaEntidade(id);
+      if (!EntidadeEstaSelecionada(id)) {
+        // Se nao estava selecionada, so ela.
+        SelecionaEntidade(id);
+      }
+      // Se nao, pode mover mais.
       estado_ = ETAB_ENT_PRESSIONADA;
     }
   } else {
@@ -1373,8 +1385,8 @@ void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
   estado_ = ETAB_ENTS_SELECIONADAS;
 }
 
-void Tabuleiro::SelecionaEntidadesAdicionadas() {
-  SelecionaEntidades(ids_adicionados_);
+void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids) {
+  ids_entidades_selecionadas_.insert(ids.begin(), ids.end());
 }
 
 void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
