@@ -129,4 +129,6 @@ message ParametrosDesenho {
   optional bool desenha_lista_pontos_vida = 20 [default=true];
   // Se verdadeiro, desenha o quadrado de selecao.
   optional bool desenha_quadrado_selecao = 21 [default=true];
+  // Se verdadeiro, desenha o rastro de movimento das unidades ao se moverem.
+  optional bool desenha_rastro_movimento = 22 [default=true];
 }

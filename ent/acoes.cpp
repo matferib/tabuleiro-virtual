@@ -15,6 +15,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
+#include "ent/util.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
@@ -40,16 +41,6 @@ void DesenhaGeometriaAcao(int geometria) {
       glutSolidSphere(1.0f, 10, 10);
       return;
   }
-}
-
-// Retorna o angulo de rotacao do vetor.
-double VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr) {
-  double tam = sqrt(x * x + y * y);
-  double angulo = acos(x / tam) * RAD_PARA_GRAUS;
-  if (tamanho != nullptr) {
-    *tamanho = tam;
-  }
-  return (y >= 0 ? angulo : -angulo);
 }
 
 // Ação mais básica: uma sinalizacao no tabuleiro.

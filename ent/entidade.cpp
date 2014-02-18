@@ -11,6 +11,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/util.h"
 #include "ifg/qt/texturas.h"
 #include "log/log.h"
 
@@ -41,21 +42,6 @@ void MudaCor(float r, float g, float b, float a) {
 /** Altera a cor corrente para cor. */
 void MudaCor(const ent::Cor& cor) {
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
-}
-
-/** Desenha um disco no eixo x-y, com um determinado numero de faces. */
-void DesenhaDisco(GLfloat raio, int num_faces) {
-  //glEnable(GL_POLYGON_OFFSET_FILL);
-  //glPolygonOffset(1.0f, 0.0f);
-  glNormal3f(0, 0, 1.0f);
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex3f(0.0, 0.0, 0.0);
-  for (int i = 0; i <= num_faces; ++i) {
-    float angulo = i * 2 * M_PI / num_faces;
-    glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
-  }
-  glEnd();
-  //glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 // Multiplicador de dimensão por tamanho de entidade.
@@ -320,7 +306,7 @@ void Entidade::MontaMatriz(bool usar_delta_voo, const float* matriz_shear) const
     //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
     glRotatef(-angulo_disco_queda_graus_, 1.0, 0, 0);
   }
-  float multiplicador = CalculaMultiplicador(proto_.tamanho());
+  float multiplicador = MultiplicadorTamanho();
   glScalef(multiplicador, multiplicador, multiplicador);
 }
 
@@ -519,7 +505,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   glTranslated(X(), Y(), Z() + DeltaVoo());
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
-  float ent_quadrados = CalculaMultiplicador(proto_.tamanho());
+  float ent_quadrados = MultiplicadorTamanho();
   if (ent_quadrados < 1.0f) {
     ent_quadrados = 1.0f;
   }
@@ -542,6 +528,11 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
 
 const EntidadeProto& Entidade::Proto() const {
   return proto_;
+}
+
+
+float Entidade::MultiplicadorTamanho() const {
+  return CalculaMultiplicador(proto_.tamanho());
 }
 
 }  // namespace ent

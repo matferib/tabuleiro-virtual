@@ -26,6 +26,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/util.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
@@ -65,8 +66,9 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
 /** Retorna o quadrado da distancia de um ponto a outro. */
-double DistanciaQuadrado(const Posicao& p1, const Posicao& p2) {
-  return pow(p1.x() - p2.x(), 2) + pow(p1.y() - p2.y(), 2) + pow(p1.z() - p2.z(), 2);
+bool AndouQuadrado(const Posicao& p1, const Posicao& p2) {
+  return fabs(p1.x() - p2.x()) >= TAMANHO_LADO_QUADRADO ||
+         fabs(p1.y() - p2.y()) >= TAMANHO_LADO_QUADRADO;
 }
 
 
@@ -82,7 +84,6 @@ void DesenhaString(const std::string& s) {
 void DesenhaStringTempo(const std::string& tempo) {
   MudaCor(COR_PRETA);
   glRectf(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
-
   MudaCor(COR_BRANCA);
   DesenhaString(tempo);
 }
@@ -121,6 +122,39 @@ bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, floa
     return false;
   }
   return true;
+}
+
+// Retorna o quadrado da distancia horizontal entre pos1 e pos2.
+float DistanciaHorizontalQuadrado(const Posicao& pos1, const Posicao& pos2) {
+  float distancia = powf(pos1.x() - pos2.x(), 2) + powf(pos1.y() - pos2.y(), 2);
+  VLOG(4) << "Distancia: " << distancia;
+  return distancia;
+}
+
+// Desenha uma linha 3d passando pelos pontos. Desenha um circulo de largura 'largura / 2' em cada ponto.
+void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura) {
+  if (pontos.empty()) {
+    return;
+  }
+  for (auto it = pontos.begin(); it != pontos.end() - 1;) {
+    const auto& ponto = *it;
+    glPushMatrix();
+    glTranslatef(ponto.x(), ponto.y(), ponto.z());
+    // Disco do ponto corrente.
+    DesenhaDisco(largura / 2.0f, 12);
+    // Reta ate proximo ponto.
+    const auto& proximo_ponto = *(++it);
+    float tam;
+    float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
+    glRotatef(graus, 0.0f, 0.0f, 1.0f);
+    glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
+    glPopMatrix();
+  }
+  const auto& ponto = pontos.back();
+  glPushMatrix();
+  glTranslatef(ponto.x(), ponto.y(), ponto.z());
+  DesenhaDisco(largura / 2.0f, 12);
+  glPopMatrix();
 }
 
 }  // namespace.
@@ -635,6 +669,14 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
         continue;
       }
       e->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+      Posicao pos;
+      pos.set_x(e->X());
+      pos.set_y(e->Y());
+      pos.set_z(e->Z());
+      auto& vp = rastros_movimento_[id];
+      if (AndouQuadrado(pos, vp.back())) {
+        vp.push_back(pos);
+      }
     }
     ultimo_x_ = x;
     ultimo_y_ = y;
@@ -789,6 +831,7 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
         central_->AdicionaNotificacaoRemota(n);
       }
       estado_ = ids_entidades_selecionadas_.size() > 0 ? ETAB_ENTS_SELECIONADAS : ETAB_ENT_SELECIONADA;
+      rastros_movimento_.clear();
       return;
     }
     case ETAB_SELECIONANDO_ENTIDADES: {
@@ -937,8 +980,8 @@ void Tabuleiro::DesenhaCena() {
   double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   glNormal3f(0, 0, 1.0f);
-  glTranslated(deltaX / 2.0,
-               deltaY / 2.0,
+  glTranslatef(deltaX / 2.0f,
+               deltaY / 2.0f,
                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   int id = 0;
   glEnable(GL_POLYGON_OFFSET_FILL);
@@ -950,11 +993,11 @@ void Tabuleiro::DesenhaCena() {
       // desenha quadrado
       DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, id_textura != GL_INVALID_VALUE);
       // anda 1 quadrado direita
-      glTranslated(TAMANHO_LADO_QUADRADO, 0, 0);
+      glTranslatef(TAMANHO_LADO_QUADRADO, 0, 0);
       ++id;
     }
     // volta tudo esquerda e sobe 1 quadrado
-    glTranslated(deltaX, TAMANHO_LADO_QUADRADO, 0);
+    glTranslatef(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
   glDisable(GL_POLYGON_OFFSET_FILL);
   glPopMatrix();
@@ -1002,14 +1045,14 @@ void Tabuleiro::DesenhaCena() {
     VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
   }
 
-  glEnable(GL_BLEND);
   // Sombras.
   if (parametros_desenho_.desenha_sombras() &&
       proto_.luz_direcional().inclinacao_graus() > 5.0 &&
       proto_.luz_direcional().inclinacao_graus() < 180.0f) {
     const float kAnguloInclinacao = proto_.luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
     const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
-    float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ? 0.0f : 1.0f / tanf(kAnguloInclinacao);
+    float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ?
+        0.0f : 1.0f / tanf(kAnguloInclinacao);
     // Matriz eh column major, ou seja, esta invertida.
     // A ideia eh adicionar ao x a altura * fator de shear.
     GLfloat matriz_shear[] = {
@@ -1020,10 +1063,7 @@ void Tabuleiro::DesenhaCena() {
     };
 
     // Habilita o stencil para desenhar apenas uma vez as sombras.
-    glEnable(GL_STENCIL_TEST);
-    glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
-    glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Funcao de teste sempre retornara true e referencia 0xFF & 0xFF = 0xFF.
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar (sempre) no stencil e no depth, escrevera referencia (0xFF).
+    LigaStencil();
     bool desenha_texturas = parametros_desenho_.desenha_texturas();
     parametros_desenho_.set_desenha_texturas(false);
     glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
@@ -1033,39 +1073,19 @@ void Tabuleiro::DesenhaCena() {
       entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
     parametros_desenho_.set_entidade_selecionada(false);
+    parametros_desenho_.set_desenha_texturas(desenha_texturas);
 
     // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-    glColorMask(true, true, true, true);
-    glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
-    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
-    // Desenha uma chapa preta na tela toda, preenchera so os buracos do stencil.
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    // Eixo com origem embaixo esquerda.
-    glOrtho(0, largura_, 0, altura_, 0, 1);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
     GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, sinf(kAnguloInclinacao) };
-    MudaCor(cor_sombra);
-    glDisable(GL_DEPTH_TEST);
-    glRectf(0.0f, 0.0f, largura_, altura_);
-    glEnable(GL_DEPTH_TEST);
-
-    glPopMatrix();
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-
-    parametros_desenho_.set_desenha_texturas(desenha_texturas);
-    glDisable(GL_STENCIL_TEST);
+    DesenhaStencil(cor_sombra);
   }
 
-  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam o buffer
-  // de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro, a ordem nao importa.
-  // Ainda assim, o z buffer eh necessario para comparar o objeto transparentes com nao transparentes.
+  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam 
+  // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
+  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes 
+  // a outros nao transparentes.
   if (parametros_desenho_.transparencias()) {
+    glEnable(GL_BLEND);
     glDepthMask(false);
     parametros_desenho_.set_alpha_translucidos(0.5);
     glPushName(0);
@@ -1101,6 +1121,12 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_barra_vida(false);
   }
 
+  if (parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
+    LigaStencil();
+    DesenhaRastros();
+    DesenhaStencil(COR_AZUL_ALFA);
+  }
+
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     glDepthMask(false);
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
@@ -1108,8 +1134,7 @@ void Tabuleiro::DesenhaCena() {
     glEnable(GL_BLEND);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glPolygonOffset(-1.0, -20.0f);
-    GLfloat azul_alfa[4] = { 0, 0, 1.0f, 0.5f };
-    MudaCorAlfa(azul_alfa);
+    MudaCorAlfa(COR_AZUL_ALFA);
     glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
     glPopAttrib();
     glDepthMask(true);
@@ -1132,9 +1157,68 @@ void Tabuleiro::DesenhaCena() {
     glLoadIdentity();
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
-    glTranslatef(0.0, altura_ - 15.0f, 0.0f);
+    glTranslated(0.0, altura_ - 15.0f, 0.0f);
     DesenhaStringTempo(tempo_str);
   }
+}
+
+void Tabuleiro::DesenhaRastros() {
+  glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
+  glDepthMask(false);
+  glEnable(GL_BLEND);
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glPolygonOffset(-2.0, -30.0f);
+  MudaCorAlfa(COR_AZUL_ALFA);
+  for (const auto& it : rastros_movimento_) {
+    auto* e = BuscaEntidade(it.first);
+    if (e == nullptr) {
+      continue;
+    }
+    // Copia vetor de pontos e adiciona posicao corrente da entidade.
+    auto pontos = it.second;
+    Posicao pos;
+    pos.set_x(e->X());
+    pos.set_y(e->Y());
+    pos.set_z(e->Z());
+    pontos.push_back(pos);
+    DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO);
+  }
+  glPopAttrib();
+}
+
+void Tabuleiro::LigaStencil() {
+  glPushAttrib(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_BLEND);
+  glEnable(GL_STENCIL_TEST);  // Habilita stencil.
+  glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
+  glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
+}
+
+void Tabuleiro::DesenhaStencil(const float* cor) {
+  // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
+  glColorMask(true, true, true, true);
+  glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
+  // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  // Eixo com origem embaixo esquerda.
+  glOrtho(0, largura_, 0, altura_, 0, 1);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  MudaCorAlfa(cor);
+  glDisable(GL_DEPTH_TEST);
+  glRectf(0.0f, 0.0f, largura_, altura_);
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  // Restaura atributos antes do stencil.
+  glPopAttrib();
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void Tabuleiro::AtualizaOlho() {
@@ -1194,6 +1278,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_acoes(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -1301,6 +1386,17 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
         SelecionaEntidade(id);
       }
       // Se nao, pode mover mais.
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        auto* e = BuscaEntidade(id);
+        if (e == nullptr) {
+          continue;
+        }
+        Posicao pos;
+        pos.set_x(e->X());
+        pos.set_y(e->Y());
+        pos.set_z(e->Z());
+        rastros_movimento_[id].push_back(pos);
+      }
       estado_ = ETAB_ENT_PRESSIONADA;
     }
   } else {
