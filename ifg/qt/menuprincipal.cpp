@@ -171,7 +171,7 @@ void MenuPrincipal::EstadoMenu(bool estado, menu_e menu) {
       acao->setEnabled(estado);
     }
   }
-  menus_[estado]->setEnabled(estado);
+  menus_[menu]->setEnabled(estado);
 }
 
 void MenuPrincipal::EstadoItemMenu(bool estado, menu_e menu, const std::vector<menuitem_e>& items) {
@@ -193,7 +193,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
     break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
-    EstadoItemMenu(false, ME_TABULEIRO, { MI_SALVAR, MI_RESTAURAR });
+    EstadoMenu(false, ME_TABULEIRO);
     break;
   }
 }
