@@ -777,17 +777,16 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       if (botao != BOTAO_ESQUERDO) {
         return;
       }
-      for () {
-      auto* n = new ntf::Notificacao;
-      n->set_tipo(ntf::TN_MOVER_ENTIDADE);
-      auto* e = n->mutable_entidade();
-      auto* entidade_selecionada = EntidadeSelecionada();
-      e->set_id(entidade_selecionada->Id());
-      auto* p = e->mutable_destino();
-      p->set_x(entidade_selecionada->X());
-      p->set_y(entidade_selecionada->Y());
-      p->set_z(entidade_selecionada->Z());
-      central_->AdicionaNotificacaoRemota(n);
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+        auto* e = n->mutable_entidade();
+        e->set_id(id);
+        auto* entidade_selecionada = BuscaEntidade(id);
+        auto* p = e->mutable_destino();
+        p->set_x(entidade_selecionada->X());
+        p->set_y(entidade_selecionada->Y());
+        p->set_z(entidade_selecionada->Z());
+        central_->AdicionaNotificacaoRemota(n);
       }
       estado_ = ids_entidades_selecionadas_.size() > 0 ? ETAB_ENTS_SELECIONADAS : ETAB_ENT_SELECIONADA;
       return;
