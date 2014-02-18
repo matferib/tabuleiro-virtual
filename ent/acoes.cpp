@@ -69,7 +69,7 @@ class AcaoSinalizacao : public Acao {
     glEnable(GL_NORMALIZE);
     glNormal3f(0, 0, 1.0f);
     MudaCor(COR_BRANCA);
-    glPolygonOffset(-0.08f, -0.08f);
+    glPolygonOffset(-3.0, -30.0f);
 
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     glPushMatrix();

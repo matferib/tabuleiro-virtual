@@ -45,6 +45,8 @@ void MudaCor(const ent::Cor& cor) {
 
 /** Desenha um disco no eixo x-y, com um determinado numero de faces. */
 void DesenhaDisco(GLfloat raio, int num_faces) {
+  //glEnable(GL_POLYGON_OFFSET_FILL);
+  //glPolygonOffset(1.0f, 0.0f);
   glNormal3f(0, 0, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
@@ -53,6 +55,7 @@ void DesenhaDisco(GLfloat raio, int num_faces) {
     glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
   }
   glEnd();
+  //glDisable(GL_POLYGON_OFFSET_FILL);
 }
 
 // Multiplicador de dimensão por tamanho de entidade.
@@ -358,7 +361,7 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   }
   // Desenha a barra de vida.
   if (pd->desenha_barra_vida()) {
-    glPushAttrib(GL_LIGHTING_BIT);
+    glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT);
     // Luz no olho apontando para a barra.
     const Posicao& pos_olho = pd->pos_olho();
     glLightfv(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
@@ -380,6 +383,8 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
       glTranslatef(0, 0, delta);
       glScalef(0.3f, 0.3f, porcentagem);
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(0, -25.0);
       MudaCor(COR_VERDE);
       glutSolidCube(TAMANHO_BARRA_VIDA);
     }
@@ -525,7 +530,7 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
     return;
   }
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-0.02f, -0.02f);
+  glPolygonOffset(-1.0f, -10.0f);
   DesenhaObjeto(pd, matriz_shear);
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
