@@ -200,6 +200,11 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao para desenha os rastros de movimento. */
   void DesenhaRastros();
 
+  /** Desenha as entidades nao translucidas. */
+  void DesenhaEntidades();
+  void DesenhaEntidadesTranslucidas();
+  void DesenhaAuras();
+
   /** liga modo de desenho de stencil. */
   void LigaStencil();
 

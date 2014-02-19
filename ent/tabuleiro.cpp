@@ -1038,14 +1038,7 @@ void Tabuleiro::DesenhaCena() {
   // desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
   glPushName(0);
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    Entidade* entidade = it->second.get();
-    parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
-    parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
-    entidade->Desenha(&parametros_desenho_);
-  }
-  parametros_desenho_.set_entidade_selecionada(false);
-  parametros_desenho_.set_desenha_barra_vida(false);
+  DesenhaEntidades();
   glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
@@ -1092,7 +1085,8 @@ void Tabuleiro::DesenhaCena() {
     glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second.get();
-      parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
+      parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
+                                                   EntidadeEstaSelecionada(entidade->Id()));
       entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
     }
     parametros_desenho_.set_entidade_selecionada(false);
@@ -1111,37 +1105,16 @@ void Tabuleiro::DesenhaCena() {
     glEnable(GL_BLEND);
     glDepthMask(false);
     parametros_desenho_.set_alpha_translucidos(0.5);
-    glPushName(0);
-    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second.get();
-      parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
-      parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
-      entidade->DesenhaTranslucido(&parametros_desenho_);
-    }
-    parametros_desenho_.set_entidade_selecionada(false);
-    parametros_desenho_.set_desenha_barra_vida(false);
-
-    glPopName();
+    DesenhaEntidadesTranslucidas();
     parametros_desenho_.clear_alpha_translucidos();
-    if (parametros_desenho_.desenha_aura()) {
-      for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-        Entidade* entidade = it->second.get();
-        entidade->DesenhaAura(&parametros_desenho_);
-      }
-    }
+    DesenhaAuras();
     glDepthMask(true);
     glDisable(GL_BLEND);
   } else {
     // Desenha os translucidos de forma solida para picking.
     glPushName(0);
-    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second.get();
-      parametros_desenho_.set_entidade_selecionada(EntidadeEstaSelecionada(entidade->Id()));
-      entidade->DesenhaTranslucido(&parametros_desenho_);
-    }
+    DesenhaEntidadesTranslucidas();
     glPopName();
-    parametros_desenho_.set_entidade_selecionada(false);
-    parametros_desenho_.set_desenha_barra_vida(false);
   }
 
   if (parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
@@ -1185,6 +1158,32 @@ void Tabuleiro::DesenhaCena() {
   }
 }
 
+void Tabuleiro::DesenhaEntidades() {
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    Entidade* entidade = it->second.get();
+    // Nao roda disco se estiver arrastando.
+    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
+                                                 EntidadeEstaSelecionada(entidade->Id()));
+    parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
+    entidade->Desenha(&parametros_desenho_);
+  }
+  parametros_desenho_.set_entidade_selecionada(false);
+  parametros_desenho_.set_desenha_barra_vida(false);
+  parametros_desenho_.set_desenha_barra_vida(false);
+}
+
+
+void Tabuleiro::DesenhaEntidadesTranslucidas() {
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    Entidade* entidade = it->second.get();
+    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
+                                                 EntidadeEstaSelecionada(entidade->Id()));
+    parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
+    entidade->DesenhaTranslucido(&parametros_desenho_);
+  }
+  parametros_desenho_.set_entidade_selecionada(false);
+}
+
 void Tabuleiro::DesenhaRastros() {
   glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
   glDepthMask(false);
@@ -1204,9 +1203,19 @@ void Tabuleiro::DesenhaRastros() {
     pos.set_y(e->Y());
     pos.set_z(e->Z());
     pontos.push_back(pos);
-    DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO);
+    // Rastro pouco menor que quadrado.
+    DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO * 0.8);
   }
   glPopAttrib();
+}
+
+void Tabuleiro::DesenhaAuras() {
+  if (parametros_desenho_.desenha_aura()) {
+    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+      Entidade* entidade = it->second.get();
+      entidade->DesenhaAura(&parametros_desenho_);
+    }
+  }
 }
 
 void Tabuleiro::LigaStencil() {
