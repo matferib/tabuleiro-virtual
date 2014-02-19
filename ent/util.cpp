@@ -5,6 +5,7 @@
 #include <GL/gl.h>
 #endif
 #include "ent/constantes.h"
+#include "ent/entidade.pb.h"
 #include "ent/util.h"
 
 namespace ent {
@@ -37,6 +38,12 @@ void DesenhaDisco(GLfloat raio, int num_faces) {
     glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
   }
   glEnd();
+}
+
+void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {
+  pos_res->set_x(pos2.x() - pos1.x());
+  pos_res->set_y(pos2.y() - pos1.y());
+  pos_res->set_z(pos2.z()-  pos1.z());
 }
 
 }  // namespace ent
