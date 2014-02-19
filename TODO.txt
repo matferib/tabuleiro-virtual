@@ -3,7 +3,7 @@ Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
-- Atraso nas acoes encadeadas.
+- Atraso so para alguns tipos de acoes?
 
 Versao 2.0
 - Botao de aplicar mudancas nos dialogos.
