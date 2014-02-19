@@ -33,17 +33,6 @@ float ZChao(float x3d, float y3d) {
   return 0;
 }
 
-void MudaCor(float r, float g, float b, float a) {
-  GLfloat cor_gl[] = { r, g, b, a };
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor_gl);
-  glColor3fv(cor_gl);
-}
-
-/** Altera a cor corrente para cor. */
-void MudaCor(const ent::Cor& cor) {
-  MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
-}
-
 // Multiplicador de dimensão por tamanho de entidade.
 float CalculaMultiplicador(TamanhoEntidade tamanho) {
   switch (tamanho) {
@@ -75,6 +64,16 @@ void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor) {
   vetor[1] = res[1];
   vetor[2] = res[2];
   vetor[3] = res[3];
+}
+
+// Escurece os fatores, exceto alfa.
+const Cor EscureceCor(const Cor& cor) {
+  Cor cret;
+  cret.set_r(cor.r() * 0.5);
+  cret.set_g(cor.g() * 0.5);
+  cret.set_b(cor.b() * 0.5);
+  cret.set_a(cor.a());
+  return cret;
 }
 
 }  // namespace
@@ -316,7 +315,7 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     return;
   }
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  MudaCor(proto_.cor());
+  MudaCor(proto_.morta() ? EscureceCor(proto_.cor()) : proto_.cor());
   DesenhaObjetoComDecoracoes(pd);
 }
 
@@ -326,8 +325,9 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
     return;
   }
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  const auto& cor = proto_.cor();
-  MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * pd->alpha_translucidos());
+  auto cor = proto_.cor();
+  cor.set_a(cor.a() * pd->alpha_translucidos());
+  MudaCor(proto_.morta() ? EscureceCor(cor) : cor);
   DesenhaObjetoComDecoracoes(pd);
 }
 
@@ -386,19 +386,29 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
-  if (proto_.has_info_textura()) {
-    // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-    {
-      glPushMatrix();
-      MontaMatriz(false, matriz_shear);
-      glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
-      glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
-      if (pd->entidade_selecionada()) {
-        glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
-      }
-      glutSolidCube(TAMANHO_LADO_QUADRADO);
-      glPopMatrix();
+  if (!proto_.has_info_textura()) {
+    glPushMatrix();
+    MontaMatriz(true, matriz_shear);
+    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
+	  glTranslated(0, 0, ALTURA);
+	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
+    glPopMatrix();
+    return;
+  }
+
+  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
+  {
+    glPushMatrix();
+    MontaMatriz(false, matriz_shear);
+    glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
+    glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+    if (pd->entidade_selecionada()) {
+      glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
     }
+    glutSolidCube(TAMANHO_LADO_QUADRADO);
+    glPopMatrix();
+  }
+  {
     // Moldura da textura: achatado em Y.
     glPushMatrix();
     MontaMatriz(true, matriz_shear);
@@ -421,45 +431,44 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
-    // desenha a tela onde a textura será desenhada face para o sul.
-    GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
-        texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
-    if (id_textura != GL_INVALID_VALUE) {
-      if (matriz_shear != nullptr) {
-        glMultMatrixf(matriz_shear);
-      }
-      glEnable(GL_TEXTURE_2D);
-      glBindTexture(GL_TEXTURE_2D, id_textura);
-      glNormal3f(0.0f, -1.0f, 0.0f);
-      MudaCor(1.0f, 1.0f, 1.0f, pd->has_alpha_translucidos() ? pd->alpha_translucidos() : 1.0f);
-      glBegin(GL_QUADS);
-      // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
-      // imagem com origem em cima esquerda. Entao a gente mapeia a textura com o eixo vertical invertido.
-      // O quadrado eh desenhado EB, DB, DC, EC. A textura eh aplicada: EC, DC, DB, EB.
-      glTexCoord2f(0.0f, 1.0f);
-      glVertex3f(
-          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
-      glTexCoord2f(1.0f, 1.0f);
-      glVertex3f(
-          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
-      glTexCoord2f(1.0f, 0.0f);
-      glVertex3f(
-          TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
-      glTexCoord2f(0.0f, 0.0f);
-      glVertex3f(
-          -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
-      glEnd();
-      glDisable(GL_TEXTURE_2D);
-    }
-    glPopMatrix();
-  } else {
-    glPushMatrix();
-    MontaMatriz(true, matriz_shear);
-    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-	  glTranslated(0, 0, ALTURA);
-	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
-    glPopMatrix();
   }
+
+  // desenha a tela onde a textura será desenhada face para o sul.
+  GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
+      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
+    if (matriz_shear != nullptr) {
+      glMultMatrixf(matriz_shear);
+    }
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, id_textura);
+    glNormal3f(0.0f, -1.0f, 0.0f);
+    Cor c;
+    c.set_r(1.0f);
+    c.set_g(1.0f);
+    c.set_b(1.0f);
+    c.set_a(pd->has_alpha_translucidos() ? pd->alpha_translucidos() : 1.0f);
+    MudaCor(proto_.morta() ? EscureceCor(c) : c);
+    glBegin(GL_QUADS);
+    // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
+    // imagem com origem em cima esquerda. Entao a gente mapeia a textura com o eixo vertical invertido.
+    // O quadrado eh desenhado EB, DB, DC, EC. A textura eh aplicada: EC, DC, DB, EB.
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex3f(
+        -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex3f(
+        TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex3f(
+        TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex3f(
+        -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+  }
+  glPopMatrix();
 }
 
 void Entidade::DesenhaLuz(ParametrosDesenho* pd) {

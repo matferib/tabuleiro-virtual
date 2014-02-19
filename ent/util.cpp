@@ -20,6 +20,15 @@ void MudaCorAlfa(const float* cor) {
   glColor4fv(cor);
 }
 
+void MudaCor(float r, float g, float b, float a) {
+  const GLfloat cor_gl[] = { r, g, b, a };
+  MudaCorAlfa(cor_gl);
+}
+
+void MudaCor(const ent::Cor& cor) {
+  MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
+}
+
 float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   float tam = sqrt(x * x + y * y);
   float angulo = acosf(x / tam) * RAD_PARA_GRAUS;

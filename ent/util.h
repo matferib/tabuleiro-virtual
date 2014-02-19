@@ -4,6 +4,7 @@
 // Funcoes uteis de ent.
 namespace ent {
 
+class Cor;
 class Posicao;
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
@@ -11,6 +12,10 @@ void MudaCor(const float* cor);
 
 /** Considera alpha. */
 void MudaCorAlfa(const float* cor);
+
+/** Outra forma de mudar a cor. */
+void MudaCor(float r, float g, float b, float a);
+void MudaCor(const Cor& cor);
 
 /** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
