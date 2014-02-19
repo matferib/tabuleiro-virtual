@@ -30,6 +30,7 @@ message Olho {
 message OpcoesProto {
   optional bool mostrar_fps = 1 [default=false];
   optional bool texturas_sempre_de_frente = 2 [default=true];
+  optional bool iluminacao_mestre_igual_jogadores = 3 [default=true];
 }
 
 // Mensagem enviada para os clientes de um jogo.

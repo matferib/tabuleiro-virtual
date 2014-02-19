@@ -47,12 +47,25 @@
     <rect>
      <x>10</x>
      <y>50</y>
-     <width>321</width>
+     <width>381</width>
      <height>22</height>
     </rect>
    </property>
    <property name="text">
     <string>Texturas de Entidades Sempre de frente para câmera</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkbox_iluminacao_mestre">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>80</y>
+     <width>381</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Iluminação do mestre igual à dos jogadores</string>
    </property>
   </widget>
  </widget>
