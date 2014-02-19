@@ -668,18 +668,26 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
       return;
     }
     for (unsigned int id : ids_entidades_selecionadas_) {
-      auto* e = BuscaEntidade(id);
-      if (e == nullptr) {
+      auto* entidade_selecionada = BuscaEntidade(id);
+      if (entidade_selecionada == nullptr) {
         continue;
       }
-      e->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+      entidade_selecionada->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
       Posicao pos;
-      pos.set_x(e->X());
-      pos.set_y(e->Y());
-      pos.set_z(e->Z());
+      pos.set_x(entidade_selecionada->X());
+      pos.set_y(entidade_selecionada->Y());
+      pos.set_z(entidade_selecionada->Z());
       auto& vp = rastros_movimento_[id];
       if (AndouQuadrado(pos, vp.back())) {
         vp.push_back(pos);
+        auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+        auto* e = n->mutable_entidade();
+        e->set_id(id);
+        auto* p = e->mutable_destino();
+        p->set_x(entidade_selecionada->X());
+        p->set_y(entidade_selecionada->Y());
+        p->set_z(entidade_selecionada->Z());
+        central_->AdicionaNotificacaoRemota(n);
       }
     }
     ultimo_x_ = x;
@@ -1402,14 +1410,14 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
       }
       // Se nao, pode mover mais.
       for (unsigned int id : ids_entidades_selecionadas_) {
-        auto* e = BuscaEntidade(id);
-        if (e == nullptr) {
+        auto* entidade_selecionada = BuscaEntidade(id);
+        if (entidade_selecionada == nullptr) {
           continue;
         }
         Posicao pos;
-        pos.set_x(e->X());
-        pos.set_y(e->Y());
-        pos.set_z(e->Z());
+        pos.set_x(entidade_selecionada->X());
+        pos.set_y(entidade_selecionada->Y());
+        pos.set_z(entidade_selecionada->Z());
         rastros_movimento_[id].push_back(pos);
       }
       estado_ = ETAB_ENT_PRESSIONADA;
