@@ -682,7 +682,7 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
       Posicao pos;
       pos.set_x(entidade_selecionada->X());
       pos.set_y(entidade_selecionada->Y());
-      pos.set_z(entidade_selecionada->Z());
+      pos.set_z(ZChao(pos.x(), pos.y()));
       auto& vp = rastros_movimento_[id];
       int andou = AndouQuadrado(pos, vp.back());
       if (andou != 0) {
@@ -1212,7 +1212,7 @@ void Tabuleiro::DesenhaRastros() {
     Posicao pos;
     pos.set_x(e->X());
     pos.set_y(e->Y());
-    pos.set_z(e->Z());
+    pos.set_z(ZChao(pos.x(), pos.y()));
     pontos.push_back(pos);
     // Rastro pouco menor que quadrado.
     DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO * 0.8);
@@ -1437,7 +1437,7 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
         Posicao pos;
         pos.set_x(entidade_selecionada->X());
         pos.set_y(entidade_selecionada->Y());
-        pos.set_z(entidade_selecionada->Z());
+        pos.set_z(ZChao(pos.x(), pos.y()));
         rastros_movimento_[id].push_back(pos);
       }
       estado_ = ETAB_ENT_PRESSIONADA;

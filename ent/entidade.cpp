@@ -28,11 +28,6 @@ const double VELOCIDADE_POR_EIXO = 0.1;
 const double TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
 const double TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 
-// Placeholder para retornar a altura do chao em determinado ponto do tabuleiro.
-float ZChao(float x3d, float y3d) {
-  return 0;
-}
-
 // Multiplicador de dimensão por tamanho de entidade.
 float CalculaMultiplicador(TamanhoEntidade tamanho) {
   switch (tamanho) {

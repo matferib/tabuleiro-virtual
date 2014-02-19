@@ -20,6 +20,11 @@ void MudaCor(const Cor& cor);
 /** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 
+// Placeholder para retornar a altura do chao em determinado ponto do tabuleiro.
+inline float ZChao(float x3d, float y3d) {
+  return 0;
+}
+
 /** Desenha um disco no eixo x-y, com um determinado numero de faces. */
 void DesenhaDisco(GLfloat raio, int num_faces);
 
