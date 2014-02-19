@@ -20,11 +20,17 @@ class Acao {
     dx_ = dy_ = dz_ = 0;
     dx_total_ = dy_total_ = dz_total_ = 0;
     disco_alvo_rad_ = 0;
+    contador_atraso_ = acao_proto_.atraso();
   }
   virtual ~Acao() {}
 
-  // Atualiza a acao.
-  virtual void Atualiza() = 0;
+  void Atualiza() {
+    if (contador_atraso_ > 0) {
+      --contador_atraso_;
+      return;
+    }
+    AtualizaAposAtraso();
+  }
 
   // Desenha a acao.
   void Desenha(ParametrosDesenho* pd);
@@ -38,6 +44,7 @@ class Acao {
  protected:
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) {} 
+  virtual void AtualizaAposAtraso() = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
   void AtualizaVelocidade();
@@ -47,6 +54,7 @@ class Acao {
  protected:
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_;
+  int contador_atraso_;
   double delta_tempo_;
   double velocidade_;
   // Diferenca entre posicao da acao da origem e do destino.

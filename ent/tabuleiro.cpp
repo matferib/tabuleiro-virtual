@@ -421,7 +421,7 @@ void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_p
 }
 
 void Tabuleiro::AcumulaPontosVida(int pv) {
-  if (pv >= 1000 || pv <= -1000 || pv == 0) {
+  if (pv >= 1000 || pv <= -1000) {
     LOG(ERROR) << "Ignorando pv: " << pv;
     return;
   }
@@ -778,7 +778,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   } else {
     // Usa acoes.
     VLOG(2) << "Acao sinalizacao";
-    acao_proto.set_tipo(ACAO_SINALIZACAO); 
+    acao_proto.set_tipo(ACAO_SINALIZACAO);
   }
   unsigned int id, pos_pilha;
   float profundidade;
@@ -811,21 +811,39 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
     }
   }
 
-  auto* entidade_selecionada = EntidadeSelecionada();
-  if (entidade_selecionada != nullptr) {
-    acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
+  if (estado_ == ETAB_OCIOSO) {
+    if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
+      int delta_pontos_vida = lista_pontos_vida_.front();
+      lista_pontos_vida_.pop_front();
+      acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+      acao_proto.set_afeta_pontos_vida(true);
+    }
+    VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
+    auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+    n->mutable_acao()->Swap(&acao_proto);
+    central_->AdicionaNotificacao(n);
+  } else {
+    unsigned int atraso = 0;
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade_selecionada = BuscaEntidade(id);
+      if (entidade_selecionada == nullptr) {
+        continue;
+      }
+      acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
+      acao_proto.set_atraso(atraso);
+      if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
+        int delta_pontos_vida = lista_pontos_vida_.front();
+        lista_pontos_vida_.pop_front();
+        acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+        acao_proto.set_afeta_pontos_vida(true);
+      }
+      VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
+      auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+      n->mutable_acao()->CopyFrom(acao_proto);
+      central_->AdicionaNotificacao(n);
+      atraso += 50;
+    }
   }
-  if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
-    int delta_pontos_vida = lista_pontos_vida_.front();
-    lista_pontos_vida_.pop_front();
-    acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-    acao_proto.set_afeta_pontos_vida(true);
-  }
-
-  VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
-  auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
-  n->mutable_acao()->Swap(&acao_proto);
-  central_->AdicionaNotificacao(n);
 }
 
 void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y) {

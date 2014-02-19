@@ -87,7 +87,7 @@ class AcaoSinalizacao : public Acao {
     glPopAttrib();
   }
 
-  void Atualiza() {
+  void AtualizaAposAtraso() {
     estado_ -= 0.05f;
   }
 
@@ -106,7 +106,7 @@ class AcaoDeltaPontosVida : public Acao {
  public:
   AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     Entidade* entidade_destino = nullptr;
-    if (!acao_proto_.has_id_entidade_destino() || 
+    if (!acao_proto_.has_id_entidade_destino() ||
         (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
       contador_atualizacoes_ = MAX_ATUALIZACOES;
       VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
@@ -116,7 +116,7 @@ class AcaoDeltaPontosVida : public Acao {
     contador_atualizacoes_ = 0;
     // Monta a string de delta.
     int delta = abs(acao_proto_.delta_pontos_vida());
-    if (delta == 0) {
+    if (!acao_proto_.has_delta_pontos_vida()) {
       contador_atualizacoes_ = MAX_ATUALIZACOES;
       VLOG(1) << "Finalizando delta_pontos_vida, precisa de um delta.";
       return;
@@ -126,10 +126,14 @@ class AcaoDeltaPontosVida : public Acao {
       VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
       return;
     }
-    while (delta != 0) {
-      int d = delta % 10;
-      string_delta_.insert(string_delta_.end(), static_cast<char>(d + '0'));
-      delta /= 10;
+    if (delta == 0) {
+      string_delta_ = "X";
+    } else {
+      while (delta != 0) {
+        int d = delta % 10;
+        string_delta_.insert(string_delta_.end(), static_cast<char>(d + '0'));
+        delta /= 10;
+      }
     }
     std::reverse(string_delta_.begin(), string_delta_.end());
     VLOG(2) << "String delta: " << string_delta_;
@@ -139,13 +143,19 @@ class AcaoDeltaPontosVida : public Acao {
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
     glPushMatrix();
-    MudaCor(acao_proto_.delta_pontos_vida() > 0 ? COR_VERDE : COR_VERMELHA);
-    DesenhaStringTempo(string_delta_);
+    if (acao_proto_.delta_pontos_vida() > 0) {
+      MudaCor(COR_VERDE);
+    } else if (acao_proto_.delta_pontos_vida() == 0) {
+      MudaCor(COR_BRANCA);
+    } else {
+      MudaCor(COR_VERMELHA);
+    }
+    DesenhaStringDelta();
     glPopMatrix();
     glPopAttrib();
   }
 
-  void Atualiza() {
+  void AtualizaAposAtraso() {
     pos_.set_z(pos_.z() + 0.02f);
     ++contador_atualizacoes_;
     if (contador_atualizacoes_ == MAX_ATUALIZACOES) {
@@ -158,9 +168,9 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
  private:
-  void DesenhaStringTempo(const std::string& tempo) {
+  void DesenhaStringDelta() {
     glRasterPos3f(pos_.x(), pos_.y(), pos_.z());
-    for (const char c : tempo) {
+    for (const char c : string_delta_) {
       glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
     }
   }
@@ -193,7 +203,7 @@ class AcaoDispersao : public Acao {
     glPopAttrib();
   }
 
-  void Atualiza() {
+  void AtualizaAposAtraso() {
     raio_ += 0.2;
   }
 
@@ -226,7 +236,7 @@ class AcaoProjetil : public Acao {
     pos_ = entidade_origem->PosicaoAcao();
   }
 
-  void Atualiza() override {
+  void AtualizaAposAtraso() override {
     if (estagio_ == INICIAL) {
       AtualizaInicial();
     } else if (estagio_ == ATINGIU_ALVO) {
@@ -393,10 +403,10 @@ class AcaoRaio : public Acao {
     glPopAttrib();
   }
 
-  void Atualiza() {
+  void AtualizaAposAtraso() {
     if (duracao_ > 0) {
       --duracao_;
-    } 
+    }
     if (duracao_ == 0) {
       VLOG(1) << "Finalizando raio, duracao acabou";
     }
@@ -456,7 +466,7 @@ class AcaoCorpoCorpo : public Acao {
     glPopAttrib();
   }
 
-  void Atualiza() {
+  void AtualizaAposAtraso() {
     // TODO desenhar o impacto.
     // Os parametros iniciais sao mantidos, so a rotacao do corte eh alterada.
     if (rotacao_graus_ < 180.0f) {
@@ -473,7 +483,7 @@ class AcaoCorpoCorpo : public Acao {
   }
 
   bool Finalizada() const override {
-    return finalizado_; 
+    return finalizado_;
   }
 
  private:
@@ -535,7 +545,7 @@ class AcaoFeiticoToque : public Acao {
     glPopAttrib();
   }
 
-  void Atualiza() {
+  void AtualizaAposAtraso() {
     if (desenhando_origem_) {
       raio_ -= 0.02;
       if (raio_ <= 0) {
