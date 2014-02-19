@@ -274,6 +274,11 @@ class Tabuleiro : public ntf::Receptor {
   */
   void AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids);
 
+  /** Se a entidade estiver selecionada, verifica se ela pode continuar (por exemplo, apos atualizacao do bit
+  * de selecao para jogador.
+  */
+  void AtualizaSelecaoEntidade(unsigned int id);
+
   /** Alterna a selecao da entidade. */
   void AlternaSelecaoEntidade(unsigned int id);
 
