@@ -369,6 +369,8 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
     if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
       entidade_selecionada->MataEntidade();
       proto = entidade_selecionada->Proto();
+    } else if (pontos_vida < 0 && pontos_vida + delta_pontos_vida >= 0) {
+      proto.set_morta(false);
     }
     proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
     proto.set_id(entidade_selecionada->Id());
