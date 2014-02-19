@@ -133,6 +133,4 @@ message ParametrosDesenho {
   optional bool desenha_quadrado_selecao = 21 [default=true];
   // Se verdadeiro, desenha o rastro de movimento das unidades ao se moverem.
   optional bool desenha_rastro_movimento = 22 [default=true];
-  // Se false, nao desenha entidade nao selecionavel para jogador.
-  optional bool desenha_selecionavel_para_jogador = 23 [default=true];
 }
