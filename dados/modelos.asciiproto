@@ -24,6 +24,10 @@ modelo {
   entidade { max_pontos_vida: 5 info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
+  id: 'Humano Ladino'
+  entidade { max_pontos_vida: 3 info_textura { id: 'rogue.png'} cor { r: 0.698 g: 0.463 b: 0.275 } }
+}
+modelo {
   id: 'Humano Paladino'
   entidade { max_pontos_vida: 5 info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
