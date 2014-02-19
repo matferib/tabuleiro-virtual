@@ -65,10 +65,14 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
-/** Retorna o quadrado da distancia de um ponto a outro. */
-bool AndouQuadrado(const Posicao& p1, const Posicao& p2) {
-  return fabs(p1.x() - p2.x()) >= TAMANHO_LADO_QUADRADO ||
-         fabs(p1.y() - p2.y()) >= TAMANHO_LADO_QUADRADO;
+// Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
+int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
+  float dx = fabs(p1.x() - p2.x());
+  float dy = fabs(p1.y() - p2.y());
+  if (dx >= TAMANHO_LADO_QUADRADO && dy >= TAMANHO_LADO_QUADRADO) return 3;
+  if (dx >= TAMANHO_LADO_QUADRADO) return 1;
+  if (dy >= TAMANHO_LADO_QUADRADO) return 2;
+  return 0;
 }
 
 /** Desenha apenas a string. */
@@ -678,15 +682,20 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
       pos.set_y(entidade_selecionada->Y());
       pos.set_z(entidade_selecionada->Z());
       auto& vp = rastros_movimento_[id];
-      if (AndouQuadrado(pos, vp.back())) {
+      int andou = AndouQuadrado(pos, vp.back());
+      if (andou != 0) {
+        if (andou == 1) {
+          // eixo X mantem, eixo y volta.
+          pos.set_y(vp.back().y());
+        } else if (andou == 2) {
+          // eixo y
+          pos.set_x(vp.back().x());
+        }
         vp.push_back(pos);
         auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
         auto* e = n->mutable_entidade();
         e->set_id(id);
-        auto* p = e->mutable_destino();
-        p->set_x(entidade_selecionada->X());
-        p->set_y(entidade_selecionada->Y());
-        p->set_z(entidade_selecionada->Z());
+        e->mutable_destino()->CopyFrom(pos);
         central_->AdicionaNotificacaoRemota(n);
       }
     }

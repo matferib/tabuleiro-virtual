@@ -82,6 +82,8 @@ message EntidadeProto {
   optional bool caida = 14 [default=false];
   // Entidade esta caida.
   optional bool morta = 15 [default=false];
+  // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
+  optional bool selecionavel_para_jogador = 16 [default=true];
 }
 
 // Alguns estados são mantidos nesta variável.
