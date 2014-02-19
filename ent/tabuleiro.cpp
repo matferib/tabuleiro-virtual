@@ -543,6 +543,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       entidade->Destino(proto);
+      if (notificacao.local()) {
+        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+      }
       return true;
     }
     case ntf::TN_ATUALIZAR_ENTIDADE: {
@@ -554,9 +557,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       entidade->AtualizaProto(proto);
       if (notificacao.local()) {
-        // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando infinitamente.
-        auto* n_remota = new ntf::Notificacao(notificacao);
-        central_->AdicionaNotificacaoRemota(n_remota);
+        // So repassa a notificacao pros clientes se a origem dela for local,
+        // para evitar ficar enviando infinitamente.
+        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
       }
       return true;
     }
@@ -930,10 +933,11 @@ void Tabuleiro::DesenhaCena() {
     alvo.x(), alvo.y(), alvo.z(),
     // up
     0, 0, 1.0);
-  Posicao* pos_olho = parametros_desenho_.mutable_pos_olho();;
+  Posicao* pos_olho = olho_.mutable_pos();;
   pos_olho->set_x(olho_.alvo().x() + cosf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_y(olho_.alvo().y() + sinf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_z(olho_.altura());
+  parametros_desenho_.mutable_pos_olho()->CopyFrom(*pos_olho);
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);
@@ -1660,6 +1664,62 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
   }
   TrataNotificacao(grupo_notificacoes);
   SelecionaEntidadesAdicionadas();
+}
+
+void Tabuleiro::MovimentaEntidadesSelecionadas(bool vertical, int valor) {
+  Posicao vetor_camera;
+  ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
+  // angulo da camera em relacao ao eixo X.
+  float rotacao_graus = VetorParaRotacaoGraus(vetor_camera.x(), vetor_camera.y());
+  float dx;
+  float dy;
+  if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
+    // Camera apontando para x positivo.
+    if (vertical) {
+      dx = TAMANHO_LADO_QUADRADO * valor;
+    } else {
+      dy = TAMANHO_LADO_QUADRADO * -valor;
+    }
+  } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
+    // Camera apontando para y positivo.
+    if (vertical) {
+      dy = TAMANHO_LADO_QUADRADO * valor;
+    } else {
+      dx = TAMANHO_LADO_QUADRADO * valor;
+    }
+  } else if (rotacao_graus > 135 || rotacao_graus < -135) {
+    // Camera apontando para x negativo.
+    if (vertical) {
+      dx = TAMANHO_LADO_QUADRADO * -valor;
+    } else {
+      dy = TAMANHO_LADO_QUADRADO * valor;
+    }
+  } else {
+    // Camera apontando para y negativo.
+    if (vertical) {
+      dy = TAMANHO_LADO_QUADRADO * -valor;
+    } else {
+      dx = TAMANHO_LADO_QUADRADO * -valor;
+    }
+  }
+  // TODO direito com eventos.
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
+      continue;
+    }
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_MOVER_ENTIDADE);
+    auto* e = n->mutable_entidade();
+    e->set_id(id);
+    auto* p = e->mutable_destino();
+    p->set_x(entidade_selecionada->X() + dx);
+    p->set_y(entidade_selecionada->Y() + dy);
+    p->set_z(entidade_selecionada->Z());
+  }
+  TrataNotificacao(grupo_notificacoes);
 }
 
 bool Tabuleiro::RemoveEntidade(unsigned int id) {

@@ -24,6 +24,7 @@ message Olho {
   optional float rotacao_rad = 3;  // radianos.
   optional float altura = 4;
   optional float raio = 5;
+  optional Posicao pos = 6;  // Posicao do olho, computada dos valores acima.
 }
 
 // Opcoes pessoais.

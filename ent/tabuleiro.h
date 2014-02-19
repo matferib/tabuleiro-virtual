@@ -182,6 +182,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. */
   void ColaEntidadesSelecionadas();
 
+  /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
+  * deve ser 1 ou -1.
+  */
+  void MovimentaEntidadesSelecionadas(bool vertical, int valor);
+
  private:
   /** Poe o tabuleiro nas condicoes iniciais. */
   void EstadoInicial();

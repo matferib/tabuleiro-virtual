@@ -1,11 +1,12 @@
 Versao 1.0
-- Movimento com teclado.
+- Enviar movimento no meio do drag.
 - Nao rodar disco base ao arrastar.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
 
 Versao 2.0
+- Movimento com teclado, acumular teclas ou deltas.
 - Shader.
 - Dano em acoes de area.
 - Luz na camera?

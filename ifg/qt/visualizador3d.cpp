@@ -287,6 +287,18 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Delete:
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
       return;
+    case Qt::Key_Up:
+      tabuleiro_->MovimentaEntidadesSelecionadas(true, 1);
+      return;
+    case Qt::Key_Down:
+      tabuleiro_->MovimentaEntidadesSelecionadas(true, -1);
+      return;
+    case Qt::Key_Left:
+      tabuleiro_->MovimentaEntidadesSelecionadas(false, -1);
+      return;
+    case Qt::Key_Right:
+      tabuleiro_->MovimentaEntidadesSelecionadas(false, 1);
+      return;
     case Qt::Key_V:
       if (event->modifiers() == Qt::ControlModifier) {
         tabuleiro_->ColaEntidadesSelecionadas();
