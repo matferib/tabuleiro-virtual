@@ -1,6 +1,4 @@
 Versao 1.0
-- Enviar movimento no meio do drag.
-- Nao rodar disco base ao arrastar.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
