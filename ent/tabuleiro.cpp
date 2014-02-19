@@ -1671,8 +1671,8 @@ void Tabuleiro::MovimentaEntidadesSelecionadas(bool vertical, int valor) {
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
   // angulo da camera em relacao ao eixo X.
   float rotacao_graus = VetorParaRotacaoGraus(vetor_camera.x(), vetor_camera.y());
-  float dx;
-  float dy;
+  float dx = 0;
+  float dy = 0;
   if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
     // Camera apontando para x positivo.
     if (vertical) {
@@ -1705,11 +1705,13 @@ void Tabuleiro::MovimentaEntidadesSelecionadas(bool vertical, int valor) {
   // TODO direito com eventos.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  VLOG(1) << "Movendo entidades selecionadas dx: " << dx << ", dy: " << dy;
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
     }
+    VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy;
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_MOVER_ENTIDADE);
     auto* e = n->mutable_entidade();
