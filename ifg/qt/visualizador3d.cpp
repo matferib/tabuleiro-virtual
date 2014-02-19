@@ -406,10 +406,15 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   // ID.
   QString id_str;
   gerador.campo_id->setText(id_str.setNum(entidade.id()));
-  // TODO So habilita para mestre.
+  // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
     gerador.checkbox_visibilidade->setEnabled(false);
+  }
+  // Selecionavel para jogadores.
+  gerador.checkbox_selecionavel->setCheckState(entidade.selecionavel_para_jogador() ? Qt::Checked : Qt::Unchecked);
+  if (!notificacao.modo_mestre()) {
+    gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Tamanho.
   gerador.slider_tamanho->setSliderPosition(entidade.tamanho());
@@ -481,7 +486,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
-    proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
     } else {
@@ -525,6 +529,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     proto_retornado->set_voadora(gerador.checkbox_voadora->checkState() == Qt::Checked);
     proto_retornado->set_caida(gerador.checkbox_caida->checkState() == Qt::Checked);
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
+    proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

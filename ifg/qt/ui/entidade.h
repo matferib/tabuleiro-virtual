@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created: Wed Feb 19 00:10:29 2014
-**      by: Qt User Interface Compiler version 4.8.1
+** Created
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -58,14 +58,9 @@ public:
     QPushButton *botao_textura;
     QWidget *horizontalLayoutWidget_7;
     QHBoxLayout *horizontalLayout_8;
-    QHBoxLayout *horizontalLayout_9;
+    QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_voadora;
     QCheckBox *checkbox_visibilidade;
-    QCheckBox *checkbox_caida;
-    QCheckBox *checkbox_morta;
-    QHBoxLayout *horizontalLayout_10;
-    QLabel *label_4;
-    QSpinBox *spin_aura;
     QWidget *horizontalLayoutWidget_8;
     QHBoxLayout *horizontalLayout_11;
     QHBoxLayout *horizontalLayout_12;
@@ -73,17 +68,24 @@ public:
     QSpinBox *spin_pontos_vida;
     QLabel *label_6;
     QSpinBox *spin_max_pontos_vida;
+    QWidget *widget;
+    QHBoxLayout *horizontalLayout_9;
+    QCheckBox *checkbox_caida;
+    QCheckBox *checkbox_morta;
+    QHBoxLayout *horizontalLayout_10;
+    QLabel *label_4;
+    QSpinBox *spin_aura;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(461, 392);
+        ifg__qt__DialogoEntidade->resize(411, 408);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(100, 330, 341, 32));
+        botoes->setGeometry(QRect(30, 360, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -105,7 +107,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 180, 361, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 220, 361, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -132,7 +134,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(20, 220, 361, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(20, 260, 361, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -197,7 +199,7 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(20, 260, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(20, 300, 361, 41));
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
@@ -218,47 +220,21 @@ public:
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_7);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
-        horizontalLayout_9 = new QHBoxLayout();
-        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        checkbox_selecionavel = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
+
+        horizontalLayout_8->addWidget(checkbox_selecionavel);
+
         checkbox_voadora = new QCheckBox(horizontalLayoutWidget_7);
         checkbox_voadora->setObjectName(QString::fromUtf8("checkbox_voadora"));
 
-        horizontalLayout_9->addWidget(checkbox_voadora);
+        horizontalLayout_8->addWidget(checkbox_voadora);
 
         checkbox_visibilidade = new QCheckBox(horizontalLayoutWidget_7);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
         checkbox_visibilidade->setEnabled(true);
 
-        horizontalLayout_9->addWidget(checkbox_visibilidade);
-
-        checkbox_caida = new QCheckBox(horizontalLayoutWidget_7);
-        checkbox_caida->setObjectName(QString::fromUtf8("checkbox_caida"));
-
-        horizontalLayout_9->addWidget(checkbox_caida);
-
-        checkbox_morta = new QCheckBox(horizontalLayoutWidget_7);
-        checkbox_morta->setObjectName(QString::fromUtf8("checkbox_morta"));
-
-        horizontalLayout_9->addWidget(checkbox_morta);
-
-        horizontalLayout_10 = new QHBoxLayout();
-        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
-        label_4 = new QLabel(horizontalLayoutWidget_7);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-        label_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_10->addWidget(label_4);
-
-        spin_aura = new QSpinBox(horizontalLayoutWidget_7);
-        spin_aura->setObjectName(QString::fromUtf8("spin_aura"));
-
-        horizontalLayout_10->addWidget(spin_aura);
-
-
-        horizontalLayout_9->addLayout(horizontalLayout_10);
-
-
-        horizontalLayout_8->addLayout(horizontalLayout_9);
+        horizontalLayout_8->addWidget(checkbox_visibilidade);
 
         horizontalLayoutWidget_8 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
@@ -301,6 +277,38 @@ public:
 
         horizontalLayout_11->addLayout(horizontalLayout_12);
 
+        widget = new QWidget(ifg__qt__DialogoEntidade);
+        widget->setObjectName(QString::fromUtf8("widget"));
+        widget->setGeometry(QRect(20, 180, 361, 39));
+        horizontalLayout_9 = new QHBoxLayout(widget);
+        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
+        checkbox_caida = new QCheckBox(widget);
+        checkbox_caida->setObjectName(QString::fromUtf8("checkbox_caida"));
+
+        horizontalLayout_9->addWidget(checkbox_caida);
+
+        checkbox_morta = new QCheckBox(widget);
+        checkbox_morta->setObjectName(QString::fromUtf8("checkbox_morta"));
+
+        horizontalLayout_9->addWidget(checkbox_morta);
+
+        horizontalLayout_10 = new QHBoxLayout();
+        horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
+        label_4 = new QLabel(widget);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_10->addWidget(label_4);
+
+        spin_aura = new QSpinBox(widget);
+        spin_aura->setObjectName(QString::fromUtf8("spin_aura"));
+
+        horizontalLayout_10->addWidget(spin_aura);
+
+
+        horizontalLayout_9->addLayout(horizontalLayout_10);
+
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
@@ -321,13 +329,14 @@ public:
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
         linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoEntidade", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
+        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
         checkbox_voadora->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Voadora", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
+        label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
+        label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", 0, QApplication::UnicodeUTF8));
         checkbox_caida->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ca\303\255da", 0, QApplication::UnicodeUTF8));
         checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
-        label_5->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
-        label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

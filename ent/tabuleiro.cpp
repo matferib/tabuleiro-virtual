@@ -562,6 +562,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       entidade->AtualizaProto(proto);
+      if (EntidadeEstaSelecionada(entidade->Id())) {
+        AlternaSelecaoEntidade(entidade->Id());
+      }
       if (notificacao.local()) {
         // So repassa a notificacao pros clientes se a origem dela for local,
         // para evitar ficar enviando infinitamente.
@@ -597,6 +600,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto* n = new ntf::Notificacao(notificacao);
       central_->AdicionaNotificacao(n);
+      n->set_modo_mestre(modo_mestre_);
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
       n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
       return true;
@@ -1174,9 +1178,6 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       LOG(ERROR) << "Entidade nao existe.";
       continue;
     }
-    if (!parametros_desenho_.desenha_selecionavel_para_jogador() && !entidade->SelecionavelParaJogador()) {
-      continue;
-    }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
@@ -1473,12 +1474,13 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     AdicionaEntidade(notificacao);
   } else if (pos_pilha > 1) {
     // Entidade.
-    SelecionaEntidade(id);
-    auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
-    n->set_modo_mestre(modo_mestre_);
-    n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
-    n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
-    central_->AdicionaNotificacao(n);
+    if (SelecionaEntidade(id)) {
+      auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+      n->set_modo_mestre(modo_mestre_);
+      n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
+      n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
+      central_->AdicionaNotificacao(n);
+    }
   } else {
     ;
   }
@@ -1496,21 +1498,26 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   p->set_z(z3d);
 }
 
-void Tabuleiro::SelecionaEntidade(unsigned int id) {
+bool Tabuleiro::SelecionaEntidade(unsigned int id) {
   VLOG(1) << "Selecionando entidade: " << id;
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
+  if (!modo_mestre_ && !entidade->SelecionavelParaJogador()) {
+    DeselecionaEntidades();
+    return false;
+  }
   ids_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
   estado_ = ETAB_ENT_SELECIONADA;
+  return true;
 }
 
 void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
   if (ids.empty()) {
-    VLOG(1) << "Nada a selecionar.";
+    DeselecionaEntidades();
     return;
   }
   if (ids.size() == 1) {
@@ -1519,13 +1526,18 @@ void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
   }
   VLOG(1) << "Selecionando entidades";
   ids_entidades_selecionadas_.clear();
-  ids_entidades_selecionadas_.insert(ids.begin(), ids.end());
-  quadrado_selecionado_ = -1;
-  estado_ = ETAB_ENTS_SELECIONADAS;
+  AdicionaEntidadesSelecionadas(ids);
 }
 
 void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids) {
-  ids_entidades_selecionadas_.insert(ids.begin(), ids.end());
+  for (unsigned int id : ids) {
+    auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr || (!modo_mestre_ && !entidade->SelecionavelParaJogador())) {
+      continue;
+    }
+    ids_entidades_selecionadas_.insert(id);
+  }
+  MudaEstadoAposSelecao();
 }
 
 void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
@@ -1537,9 +1549,13 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 
   if (EntidadeEstaSelecionada(id)) {
     ids_entidades_selecionadas_.erase(id);
+    MudaEstadoAposSelecao();
   } else {
-    ids_entidades_selecionadas_.insert(id);
+    AdicionaEntidadesSelecionadas({id});
   }
+}
+
+void Tabuleiro::MudaEstadoAposSelecao() {
   // Alterna o estado.
   if (ids_entidades_selecionadas_.empty()) {
     estado_ = ETAB_OCIOSO;

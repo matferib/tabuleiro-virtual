@@ -256,9 +256,10 @@ class Tabuleiro : public ntf::Receptor {
   bool EntidadeEstaSelecionada(unsigned int id);
 
   /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
-  * ETAB_ENT_SELECIONADA.
+  * ETAB_ENT_SELECIONADA em case de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso
+  * o tabuleiro fica ocioso e retorna false.
   */ 
-  void SelecionaEntidade(unsigned int id);
+  bool SelecionaEntidade(unsigned int id);
 
   /** Seleciona as entidades passadas por id, deselecionando outras e colocando o tabuleiro
   * no estado ETAB_ENTS_SELECIONADAS.
@@ -281,6 +282,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Deseleciona a entidade, se estiver selecionada. */
   void DeselecionaEntidade(unsigned int id);
+
+  /** Poe o tabuleiro no estado ETAB_OCIOSO ETAB_ENT_SELECIONADA ou ETAB_ENTS_SELECIONADAS de acordo
+  * com o numero de entidades selecionadas.
+  */
+  void MudaEstadoAposSelecao();
 
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
