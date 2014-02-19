@@ -7,7 +7,7 @@ Versao 1.0
 
 Versao 2.0
 - Botao de aplicar mudancas nos dialogos.
-- Movimento com teclado, acumular teclas ou deltas.
+- No movimento com teclado, acumular teclas ou deltas.
 - Shader.
 - Dano em acoes de area.
 - Luz na camera?
@@ -22,7 +22,7 @@ Versao 2.0
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
 - Tirar o evento de movimento ao liberar botao sem movimento.
-- Tooltip.
+- Tooltip com mais informacao.
 - Arrumar tempo de desenho de cena.
 - Undo e redo.
 - Performance para tabuleiro grande.
