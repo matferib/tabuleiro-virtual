@@ -294,6 +294,9 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
         tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VISIBILIDADE);
       }
       return;
+    case Qt::Key_I:
+      tabuleiro_->TrataBotaoAlternarIluminacaoMestre();
+      return;
     case Qt::Key_L:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_ILUMINACAO);
       return;
@@ -645,11 +648,17 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // Texturas de frente.
   gerador.checkbox_texturas_sempre_de_frente->setCheckState(
       opcoes_proto.texturas_sempre_de_frente() ? Qt::Checked : Qt::Unchecked);
+  // Iluminacao mestre.
+  gerador.checkbox_iluminacao_mestre->setCheckState(
+      opcoes_proto.iluminacao_mestre_igual_jogadores() ? Qt::Checked : Qt::Unchecked);
+
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, proto_retornado] {
     proto_retornado->set_mostrar_fps(gerador.checkbox_mostrar_fps->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_texturas_sempre_de_frente(
         gerador.checkbox_texturas_sempre_de_frente->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_iluminacao_mestre_igual_jogadores(
+        gerador.checkbox_iluminacao_mestre->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

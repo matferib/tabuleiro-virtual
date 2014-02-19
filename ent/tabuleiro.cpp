@@ -741,6 +741,10 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   TrataCliqueEsquerdo(x, y, true  /*alternar selecao*/);
 }
 
+void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
+  opcoes_.set_iluminacao_mestre_igual_jogadores(!opcoes_.iluminacao_mestre_igual_jogadores());
+}
+
 void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
   AcaoProto acao_proto;
   if (botao == BOTAO_ESQUERDO) {
@@ -937,6 +941,12 @@ void Tabuleiro::DesenhaCena() {
                                    proto_.luz_ambiente().g(),
                                    proto_.luz_ambiente().b(),
                                    proto_.luz_ambiente().a()};
+    if (modo_mestre_ && !opcoes_.iluminacao_mestre_igual_jogadores()) {
+      // Adiciona luz pro mestre ver melhor.
+      cor_luz_ambiente[0] = std::max(0.4f, cor_luz_ambiente[0]);
+      cor_luz_ambiente[1] = std::max(0.4f, cor_luz_ambiente[1]);
+      cor_luz_ambiente[2] = std::max(0.4f, cor_luz_ambiente[2]);
+    }
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
 
     // Iluminação distante direcional.

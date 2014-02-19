@@ -132,6 +132,9 @@ class Tabuleiro : public ntf::Receptor {
   void TrataBotaoPressionado(botao_e botao, int x, int y);
   void TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y);
 
+  /** altera o estado da opcao de iluminacao do mestre igual a dos jogadores. */
+  void TrataBotaoAlternarIluminacaoMestre();
+
   /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl). 
   * Acao com botao esquerdo respeita a selecao de padrao, botao direito usa sinalizacao.
   * Algumas acoes podem causar um delta de pontos de vida no alvo, indicado por delta_pontos_vida.

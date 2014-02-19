@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'opcoes.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created: Tue Feb 18 21:04:35 2014
+**      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -28,6 +28,7 @@ public:
     QDialogButtonBox *buttonBox;
     QCheckBox *checkbox_mostrar_fps;
     QCheckBox *checkbox_texturas_sempre_de_frente;
+    QCheckBox *checkbox_iluminacao_mestre;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
@@ -44,7 +45,10 @@ public:
         checkbox_mostrar_fps->setGeometry(QRect(10, 20, 271, 22));
         checkbox_texturas_sempre_de_frente = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_texturas_sempre_de_frente->setObjectName(QString::fromUtf8("checkbox_texturas_sempre_de_frente"));
-        checkbox_texturas_sempre_de_frente->setGeometry(QRect(10, 50, 321, 22));
+        checkbox_texturas_sempre_de_frente->setGeometry(QRect(10, 50, 381, 22));
+        checkbox_iluminacao_mestre = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_iluminacao_mestre->setObjectName(QString::fromUtf8("checkbox_iluminacao_mestre"));
+        checkbox_iluminacao_mestre->setGeometry(QRect(10, 80, 381, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -58,6 +62,7 @@ public:
         ifg__qt__DialogoOpcoes->setWindowTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "Dialog", 0, QApplication::UnicodeUTF8));
         checkbox_mostrar_fps->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mostrar Tempo de Desenho da cena", 0, QApplication::UnicodeUTF8));
         checkbox_texturas_sempre_de_frente->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Texturas de Entidades Sempre de frente para c\303\242mera", 0, QApplication::UnicodeUTF8));
+        checkbox_iluminacao_mestre->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o do mestre igual \303\240 dos jogadores", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
