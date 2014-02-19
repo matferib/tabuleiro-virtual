@@ -1,9 +1,13 @@
 Versao 1.0
+- Selecao de objetos mestre / jogador.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Objetos tipo features.
+- Definir tabuleiro pelo tamanho da textura (usar 10 pixels = 1 quadrado).
 
 Versao 2.0
+- Botao de aplicar mudancas nos dialogos.
 - Movimento com teclado, acumular teclas ou deltas.
 - Shader.
 - Dano em acoes de area.
