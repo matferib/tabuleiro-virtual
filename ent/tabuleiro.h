@@ -201,6 +201,9 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao para desenha os rastros de movimento. */
   void DesenhaRastros();
 
+  /** Desenha as sombras dos objetos. */
+  void DesenhaSombras();
+
   /** Desenha as entidades nao translucidas. */
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades();

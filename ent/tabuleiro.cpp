@@ -1076,41 +1076,15 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_sombras() &&
       proto_.luz_direcional().inclinacao_graus() > 5.0 &&
       proto_.luz_direcional().inclinacao_graus() < 180.0f) {
-    const float kAnguloInclinacao = proto_.luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
-    const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
-    float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ?
-        0.0f : 1.0f / tanf(kAnguloInclinacao);
-    // Matriz eh column major, ou seja, esta invertida.
-    // A ideia eh adicionar ao x a altura * fator de shear.
-    GLfloat matriz_shear[] = {
-      1.0f, 0.0f, 0.0f, 0.0f,
-      0.0f, 1.0f, 0.0f, 0.0f,
-      fator_shear * -cosf(kAnguloPosicao), fator_shear * -sinf(kAnguloPosicao), 0.0f, 0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f,
-    };
-
-    // Habilita o stencil para desenhar apenas uma vez as sombras.
-    LigaStencil();
     bool desenha_texturas = parametros_desenho_.desenha_texturas();
     parametros_desenho_.set_desenha_texturas(false);
-    glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
-    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      Entidade* entidade = it->second.get();
-      parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
-                                                   EntidadeEstaSelecionada(entidade->Id()));
-      entidade->DesenhaSombra(&parametros_desenho_, matriz_shear);
-    }
-    parametros_desenho_.set_entidade_selecionada(false);
+    DesenhaSombras();
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
-
-    // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-    GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, sinf(kAnguloInclinacao) };
-    DesenhaStencil(cor_sombra);
   }
 
-  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam 
+  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
-  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes 
+  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
   // a outros nao transparentes.
   if (parametros_desenho_.transparencias()) {
     glEnable(GL_BLEND);
@@ -1227,6 +1201,27 @@ void Tabuleiro::DesenhaAuras() {
       entidade->DesenhaAura(&parametros_desenho_);
     }
   }
+}
+
+void Tabuleiro::DesenhaSombras() {
+  const float kAnguloInclinacao = proto_.luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
+  const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
+  float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ?
+      0.0f : 1.0f / tanf(kAnguloInclinacao);
+  // Matriz eh column major, ou seja, esta invertida.
+  // A ideia eh adicionar ao x a altura * fator de shear.
+  GLfloat matriz_shear[] = {
+    1.0f, 0.0f, 0.0f, 0.0f,
+    0.0f, 1.0f, 0.0f, 0.0f,
+    fator_shear * -cosf(kAnguloPosicao), fator_shear * -sinf(kAnguloPosicao), 0.0f, 0.0f,
+    0.0f, 0.0f, 0.0f, 1.0f,
+  };
+  // Habilita o stencil para desenhar apenas uma vez as sombras.
+  LigaStencil();
+  DesenhaEntidadesBase(std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear));
+  // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
+  GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, std::min(0.5f, sinf(kAnguloInclinacao)) };
+  DesenhaStencil(cor_sombra);
 }
 
 void Tabuleiro::LigaStencil() {
