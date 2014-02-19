@@ -34,7 +34,7 @@
     <rect>
      <x>20</x>
      <y>310</y>
-     <width>391</width>
+     <width>411</width>
      <height>80</height>
     </rect>
    </property>
@@ -63,7 +63,7 @@
     <rect>
      <x>20</x>
      <y>390</y>
-     <width>263</width>
+     <width>411</width>
      <height>80</height>
     </rect>
    </property>
@@ -71,7 +71,7 @@
     <item>
      <widget class="QLabel" name="label_11">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -129,6 +129,16 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_tamanho_automatico">
+      <property name="toolTip">
+       <string>Se marcado, o tamanho do tabuleiro será computado a partir do tamanho da textura.</string>
+      </property>
+      <property name="text">
+       <string>Automático</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QPushButton" name="botao_cor_ambiente">
@@ -172,7 +182,7 @@
    <widget class="QDial" name="dial_inclinacao">
     <property name="geometry">
      <rect>
-      <x>30</x>
+      <x>40</x>
       <y>70</y>
       <width>121</width>
       <height>121</height>
@@ -215,7 +225,7 @@
    <widget class="QLabel" name="label_3">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>300</x>
       <y>190</y>
       <width>41</width>
       <height>21</height>
@@ -237,7 +247,7 @@
    <widget class="QDial" name="dial_posicao">
     <property name="geometry">
      <rect>
-      <x>250</x>
+      <x>260</x>
       <y>70</y>
       <width>121</width>
       <height>121</height>
@@ -280,7 +290,7 @@
    <widget class="QLabel" name="label_4">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>300</x>
       <y>50</y>
       <width>41</width>
       <height>21</height>
@@ -302,7 +312,7 @@
    <widget class="QLabel" name="label_5">
     <property name="geometry">
      <rect>
-      <x>230</x>
+      <x>240</x>
       <y>110</y>
       <width>20</width>
       <height>41</height>
@@ -324,7 +334,7 @@
    <widget class="QLabel" name="label_6">
     <property name="geometry">
      <rect>
-      <x>370</x>
+      <x>380</x>
       <y>110</y>
       <width>20</width>
       <height>41</height>
@@ -346,7 +356,7 @@
    <widget class="QLabel" name="label_7">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>10</x>
       <y>120</y>
       <width>50</width>
       <height>17</height>
@@ -365,7 +375,7 @@
    <widget class="QLabel" name="label_9">
     <property name="geometry">
      <rect>
-      <x>70</x>
+      <x>80</x>
       <y>50</y>
       <width>43</width>
       <height>17</height>
@@ -384,7 +394,7 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>70</x>
       <y>200</y>
       <width>78</width>
       <height>17</height>
@@ -403,7 +413,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>170</x>
       <y>120</y>
       <width>64</width>
       <height>17</height>
@@ -419,18 +429,6 @@
      <string>Nascente</string>
     </property>
    </widget>
-   <zorder>botao_cor_direcional</zorder>
-   <zorder>dial_inclinacao</zorder>
-   <zorder>dial_posicao</zorder>
-   <zorder>label_3</zorder>
-   <zorder>dial_posicao</zorder>
-   <zorder>label_4</zorder>
-   <zorder>label_5</zorder>
-   <zorder>label_6</zorder>
-   <zorder>label_7</zorder>
-   <zorder>label_9</zorder>
-   <zorder>label_8</zorder>
-   <zorder>label_2</zorder>
   </widget>
  </widget>
  <resources/>

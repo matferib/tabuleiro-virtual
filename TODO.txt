@@ -1,6 +1,5 @@
 Versao 1.0
 - Objetos tipo features.
-- Definir tabuleiro pelo tamanho da textura (usar 10 pixels = 1 quadrado).
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
