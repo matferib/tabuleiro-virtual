@@ -298,7 +298,7 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
         ids_adicionados_.push_back(id_entidade);
       }
       auto* entidade = entidade_up.get();
-      PreencheEntidadeProto(id_cliente_, id_entidade, !modo_mestre_, &modelo);
+      PreencheEntidadeProto(id_cliente_, id_entidade, modo_mestre_, &modelo);
       entidade->Inicializa(modelo);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade_up.release())));
       SelecionaEntidade(entidade->Id());
@@ -1167,30 +1167,33 @@ void Tabuleiro::DesenhaCena() {
   }
 }
 
-void Tabuleiro::DesenhaEntidades() {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
+    if (entidade == nullptr) {
+      LOG(ERROR) << "Entidade nao existe.";
+      continue;
+    }
+    if (!parametros_desenho_.desenha_selecionavel_para_jogador() && !entidade->SelecionavelParaJogador()) {
+      continue;
+    }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
-    entidade->Desenha(&parametros_desenho_);
+    f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
-  parametros_desenho_.set_desenha_barra_vida(false);
+}
+
+void Tabuleiro::DesenhaEntidades() {
+  DesenhaEntidadesBase(&Entidade::Desenha);
 }
 
 
 void Tabuleiro::DesenhaEntidadesTranslucidas() {
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    Entidade* entidade = it->second.get();
-    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
-                                                 EntidadeEstaSelecionada(entidade->Id()));
-    parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
-    entidade->DesenhaTranslucido(&parametros_desenho_);
-  }
-  parametros_desenho_.set_entidade_selecionada(false);
+  DesenhaEntidadesBase(&Entidade::DesenhaTranslucido);
 }
 
 void Tabuleiro::DesenhaRastros() {

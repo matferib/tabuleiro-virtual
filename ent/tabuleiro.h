@@ -1,6 +1,7 @@
 #ifndef ENT_TABULEIRO_H
 #define ENT_TABULEIRO_H
 
+#include <functional>
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
@@ -201,6 +202,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaRastros();
 
   /** Desenha as entidades nao translucidas. */
+  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades();
   void DesenhaEntidadesTranslucidas();
   void DesenhaAuras();

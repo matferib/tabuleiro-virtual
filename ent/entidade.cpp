@@ -89,9 +89,10 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotifi
   }
 }
 
-void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, EntidadeProto* modelo) {
+void PreencheEntidadeProto(int id_cliente, int id_entidade, bool modo_mestre, EntidadeProto* modelo) {
   modelo->set_id((id_cliente << 28) | id_entidade);
-  modelo->set_visivel(visivel);
+  modelo->set_visivel(!modo_mestre);
+  modelo->set_selecionavel_para_jogador(!modo_mestre);
 }
 
 
@@ -533,10 +534,6 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
   glPolygonOffset(-1.0f, -10.0f);
   DesenhaObjeto(pd, matriz_shear);
   glDisable(GL_POLYGON_OFFSET_FILL);
-}
-
-const EntidadeProto& Entidade::Proto() const {
-  return proto_;
 }
 
 
