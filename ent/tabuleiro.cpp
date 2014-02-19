@@ -562,9 +562,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       entidade->AtualizaProto(proto);
-      if (EntidadeEstaSelecionada(entidade->Id())) {
-        AlternaSelecaoEntidade(entidade->Id());
-      }
+      AtualizaSelecaoEntidade(entidade->Id());
       if (notificacao.local()) {
         // So repassa a notificacao pros clientes se a origem dela for local,
         // para evitar ficar enviando infinitamente.
@@ -1536,6 +1534,17 @@ void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& i
       continue;
     }
     ids_entidades_selecionadas_.insert(id);
+  }
+  MudaEstadoAposSelecao();
+}
+
+void Tabuleiro::AtualizaSelecaoEntidade(unsigned int id) {
+  if (!EntidadeEstaSelecionada(id)) {
+    return;
+  }
+  auto* e = BuscaEntidade(id);
+  if (e == nullptr || (!modo_mestre_ && !e->SelecionavelParaJogador())) {
+    ids_entidades_selecionadas_.erase(id);
   }
   MudaEstadoAposSelecao();
 }
