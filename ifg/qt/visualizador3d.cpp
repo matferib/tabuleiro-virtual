@@ -121,17 +121,33 @@ const QString TamanhoParaTexto(int tamanho) {
 }
 
 // Carrega os dados de uma textura local pro proto 'info_textura'.
-void PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
+bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
   QImageReader leitor_imagem(info_arquivo.absoluteFilePath());
   QImage imagem = leitor_imagem.read();
   if (imagem.isNull()) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
-    return;
+    return false;
   }
   info_textura->set_altura(imagem.height());
   info_textura->set_largura(imagem.width());
   info_textura->set_bits(imagem.constBits(), imagem.byteCount());
   info_textura->set_formato(imagem.format());
+  return true;
+}
+
+// Retorna o caminho para o id de textura.
+const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id) {
+  // Encontra o caminho para o arquivo.
+  auto pos = id.find("0:");  // pode assumir id zero, ja que so o mestre pode criar.
+  QFileInfo fileinfo;
+  if (pos == std::string::npos) {
+    // Caminho relativo ao DIR_TEXTURAS
+    fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS), QString::fromStdString(id));
+  } else {
+    fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS_LOCAIS), QString::fromStdString(id.substr(pos)));
+  }
+  LOG(INFO) << "Caminho para texturas: " << fileinfo.fileName().toStdString();
+  return fileinfo;
 }
 
 // Calcula o dano acumulado no vetor de teclas, usando a primeira tecla para o tipo do dano.
@@ -598,9 +614,19 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
   gerador.linha_altura->setText(QString::number(tab_proto.altura()));
+  lambda_connect(gerador.checkbox_tamanho_automatico, SIGNAL(stateChanged(int)), [this, &gerador] () {
+    int novo_estado = gerador.checkbox_tamanho_automatico->checkState();
+    // Deve ter textura.
+    if (novo_estado == Qt::Checked && gerador.linha_textura->text().isEmpty()) {
+      gerador.checkbox_tamanho_automatico->setCheckState(Qt::Unchecked);
+      return;
+    }
+    gerador.linha_largura->setEnabled(novo_estado != Qt::Checked);
+    gerador.linha_altura->setEnabled(novo_estado != Qt::Checked);
+  });
 
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(gerador.botoes, SIGNAL(accepted()), 
+  lambda_connect(gerador.botoes, SIGNAL(accepted()),
                  [this, tab_proto, dialogo, &gerador, &cor_ambiente_proto, &cor_direcional_proto, proto_retornado] {
     proto_retornado->mutable_luz_direcional()->set_posicao_graus(gerador.dial_posicao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz_direcional()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
@@ -617,9 +643,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       // mesmo nome isso vai falhar.
       if (info.dir().dirName() != DIR_TEXTURAS) {
         VLOG(2) << "Textura local, recarregando.";
-        QString id = QString::number(tab_proto.id_cliente());
-        id.append(":");
-        id.append(info.fileName());
+        QString id = QString::number(tab_proto.id_cliente()).append(":").append(info.fileName());
         proto_retornado->mutable_info_textura()->set_id(id.toStdString());
         // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
@@ -629,18 +653,27 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       }
     }
     VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
-
-    bool ok = true;
-    int largura = gerador.linha_largura->text().toInt(&ok);
-    if (!ok) {
-      return;
+    if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
+      // Busca tamanho da textura.
+      ent::InfoTextura textura = proto_retornado->info_textura();
+      if (!textura.has_altura() || !textura.has_largura()) {
+        PreencheProtoTextura(IdTexturaParaCaminhoArquivo(textura.id()), &textura);
+      }
+      proto_retornado->set_largura(textura.largura() / 8);
+      proto_retornado->set_altura(textura.altura() / 8);
+    } else {
+      bool ok = true;
+      int largura = gerador.linha_largura->text().toInt(&ok);
+      if (!ok) {
+        return;
+      }
+      int altura = gerador.linha_altura->text().toInt(&ok);
+      if (!ok) {
+        return;
+      }
+      proto_retornado->set_largura(largura);
+      proto_retornado->set_altura(altura);
     }
-    int altura = gerador.linha_altura->text().toInt(&ok);
-    if (!ok) {
-      return;
-    }
-    proto_retornado->set_largura(largura);
-    proto_retornado->set_altura(altura);
     dialogo->accept();
   });
   // Cancelar.
