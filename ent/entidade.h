@@ -21,8 +21,10 @@ class Texturas {
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
 
-/** Preenche os campos de proto_aux de acordo com os valores passados. Os parametros passados nao vem do modelo. */
-void PreencheEntidadeProto(int id_cliente, int id_entidade, bool visivel, EntidadeProto* modelo);
+/** Preenche os campos de proto_aux de acordo com os valores passados. Os parametros passados nao vem do modelo.
+* O modo mestre serve para atribuir valor a visibilidade e selecao por jogadores.
+*/
+void PreencheEntidadeProto(int id_cliente, int id_entidade, bool modo_mestre, EntidadeProto* modelo);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -87,7 +89,10 @@ class Entidade {
   void DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear);
 
   /** Retorna o proto da entidade. */
-  const EntidadeProto& Proto() const;
+  const EntidadeProto& Proto() const { return proto_; }
+
+  /** Retorna se a entidade eh selecionavel para jogador. */
+  bool SelecionavelParaJogador() const { return proto_.selecionavel_para_jogador(); }
 
   /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
   * 1.0f para entidades medias.
