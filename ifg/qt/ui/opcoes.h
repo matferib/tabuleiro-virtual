@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'opcoes.ui'
 **
-** Created: Tue Feb 18 22:38:57 2014
+** Created: Wed Feb 19 00:10:29 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
