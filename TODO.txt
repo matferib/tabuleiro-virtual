@@ -4,6 +4,7 @@ Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Acao cone.
 
 Versao 2.0
 - Botao de aplicar mudancas nos dialogos.

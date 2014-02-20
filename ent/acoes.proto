@@ -72,8 +72,14 @@ message AcaoProto {
   // O tipo de objeto para algumas acoes especificas.
   optional GeometriaAcao geometria = 16;
   optional Velocidade velocidade = 19;
-  optional uint32 duracao = 20;  // Duracao * 10ms.
-  optional uint32 atraso = 21;  // Atraso para comecar a acao * 10ms.
+  // Duracao * 10ms.
+  optional uint32 duracao = 20;
+  // Atraso para comecar a acao * 10ms.
+  optional uint32 atraso = 21;
+  // Acao tem efeito de area. Isso implica que se houver varias entidades selecionadas, o efeito se aplicara
+  // a elas (ao inves de cada entidade fazer uma acao).
+  optional bool efeito_area = 22 [default=false];
+
 }
 
 // O arquivo de acoes é serializado desta forma.

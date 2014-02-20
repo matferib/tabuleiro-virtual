@@ -838,26 +838,35 @@ void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
     n->mutable_acao()->Swap(&acao_proto);
     central_->AdicionaNotificacao(n);
-  } else {
-    unsigned int atraso = 0;
-    for (unsigned int id : ids_entidades_selecionadas_) {
-      auto* entidade_selecionada = BuscaEntidade(id);
-      if (entidade_selecionada == nullptr) {
-        continue;
-      }
-      acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
-      acao_proto.set_atraso(atraso);
-      if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
-        int delta_pontos_vida = lista_pontos_vida_.front();
-        lista_pontos_vida_.pop_front();
-        acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-        acao_proto.set_afeta_pontos_vida(true);
-      }
+  } else if (estado_ == ETAB_ENTS_SELECIONADAS) {
+    if (acao_proto.efeito_area()) {
+      // Uma acao.
       VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
       auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
       n->mutable_acao()->CopyFrom(acao_proto);
       central_->AdicionaNotificacao(n);
-      atraso += 50;
+    } else {
+      // Uma acao por entidade selecionada.
+      unsigned int atraso = 0;
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        auto* entidade_selecionada = BuscaEntidade(id);
+        if (entidade_selecionada == nullptr) {
+          continue;
+        }
+        acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
+        acao_proto.set_atraso(atraso);
+        if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
+          int delta_pontos_vida = lista_pontos_vida_.front();
+          lista_pontos_vida_.pop_front();
+          acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+          acao_proto.set_afeta_pontos_vida(true);
+        }
+        VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
+        auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+        n->mutable_acao()->CopyFrom(acao_proto);
+        central_->AdicionaNotificacao(n);
+        atraso += 50;
+      }
     }
   }
 }
