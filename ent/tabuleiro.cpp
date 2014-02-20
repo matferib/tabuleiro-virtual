@@ -323,7 +323,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       {
         // Para desfazer.
         ntf::Notificacao n_desfazer(notificacao);
-        n_desfazer.mutable_entidade()->set_id(entidade->Id());
+        n_desfazer.mutable_entidade()->CopyFrom(modelo);
         AdicionaNotificacaoListaEventos(n_desfazer);
       }
       // Envia a entidade para os outros.
@@ -1918,6 +1918,22 @@ void Tabuleiro::TrataComandoDesfazer() {
   }
   processando_desfazer_ = false;
   VLOG(1) << "Notificacao desfeita, tamanho lista: " << lista_eventos_.size();
+}
+
+void Tabuleiro::TrataComandoRefazer() {
+  if (lista_eventos_.empty()) {
+    VLOG(1) << "Lista de eventos vazia.";
+    return;
+  }
+  if (evento_corrente_ == lista_eventos_.end()) {
+    VLOG(1) << "Não há ações para refazer.";
+    return;
+  }
+  processando_desfazer_ = true;
+  const ntf::Notificacao& n_original = *evento_corrente_;
+  TrataNotificacao(n_original);
+  processando_desfazer_ = false;
+  ++evento_corrente_;
 }
 
 void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {

@@ -1,5 +1,4 @@
 Versao 1.0
-- Refazer para acoes desfeitas.
 - Atraso so para alguns tipos de acoes?
 - Objetos tipo features.
 - Adicionar modelos diversos.

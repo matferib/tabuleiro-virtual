@@ -208,7 +208,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataComandoDesfazer();
 
   /** refaz a ultima acao desfeita. */
-  //void TrataComandoRefazer();
+  void TrataComandoRefazer();
 
  private:
   /** Poe o tabuleiro nas condicoes iniciais. */

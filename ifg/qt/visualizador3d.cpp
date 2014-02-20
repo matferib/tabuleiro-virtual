@@ -328,6 +328,12 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_L:
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_ILUMINACAO);
       return;
+    case Qt::Key_Y:
+      if (event->modifiers() == Qt::ControlModifier) {
+        tabuleiro_->TrataComandoRefazer();
+        return;
+      }
+      return;
     case Qt::Key_Z:
       if (event->modifiers() == Qt::ControlModifier) {
         tabuleiro_->TrataComandoDesfazer();
