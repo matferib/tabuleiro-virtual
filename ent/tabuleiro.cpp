@@ -314,6 +314,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       } else {
         if (BuscaEntidade(modelo.id()) != nullptr) {
           // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
+          // Isso tem potencial de erro caso o mestre remova entidade de jogadores.
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
