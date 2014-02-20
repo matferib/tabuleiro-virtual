@@ -74,14 +74,26 @@ class Tabuleiro : public ntf::Receptor {
   /** @return numero de quadrados no eixo N-S. */
   int TamanhoY() const;
 
-  /** adiciona a entidade ao tabuleiro, através de uma notificação.
+  /** adiciona a entidade ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
+  * for local.
   * @throw logic_error se o limite de entidades for alcançado.
   */
-  void AdicionaEntidade(const ntf::Notificacao& notificacao);
+  void AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** remove entidade do tabuleiro, pelo id da entidade passada ou a selecionada se nao houver id de entidade. 
+  /** Trata a remocao de entidades do tabuleiro, pelo id da entidade passada ou a selecionada se nao houver
+  * id de entidade. Se a notificacao for local, envia notificacao aos clientes.
   */
-  void RemoveEntidade(const ntf::Notificacao& notificacao);
+  void RemoveEntidadeNotificando(const ntf::Notificacao& notificacao);
+  /** Remove a entidade id e notifica. */
+  void RemoveEntidadeNotificando(unsigned int id_remocao);
+
+  /** Remove uma entidade pelo id. Nao notifica.
+  * @return true se foi removida com sucesso.
+  */
+  bool RemoveEntidade(unsigned int id);
+
+  /** Move uma entidade notificando clientes. */
+  void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Inverte o bit da entidade. */
   enum bit_e {
@@ -184,9 +196,20 @@ class Tabuleiro : public ntf::Receptor {
   void ColaEntidadesSelecionadas();
 
   /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
-  * deve ser 1 ou -1.
+  * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.
   */
-  void MovimentaEntidadesSelecionadas(bool vertical, int valor);
+  void TrataMovimentoEntidadesSelecionadas(bool vertical, int valor);
+
+  /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
+  * maximo, tira a cabeca.
+  */
+  void AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao);
+
+  /** Desfaz a ultima acao local. */
+  void TrataComandoDesfazer();
+
+  /** refaz a ultima acao desfeita. */
+  //void TrataComandoRefazer();
 
  private:
   /** Poe o tabuleiro nas condicoes iniciais. */
@@ -320,11 +343,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
 
-  /** Remove uma entidade pelo id.
-  * @return true se a entidade removida for a selecionada.
-  */
-  bool RemoveEntidade(unsigned int id);
-
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
   int GeraIdEntidade(int id_cliente);
 
@@ -429,6 +447,10 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para rastros de movimentos das unidades.
   std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_; 
+
+  // Para desfazer e refazer. A lista tem tamanho maximo.
+  bool processando_desfazer_;
+  std::list<ntf::Notificacao> lista_eventos_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

@@ -84,12 +84,9 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotifi
   }
 }
 
-void PreencheEntidadeProto(int id_cliente, int id_entidade, bool modo_mestre, EntidadeProto* modelo) {
+void PreencheIdEntidadeProto(int id_cliente, int id_entidade, EntidadeProto* modelo) {
   modelo->set_id((id_cliente << 28) | id_entidade);
-  modelo->set_visivel(!modo_mestre);
-  modelo->set_selecionavel_para_jogador(!modo_mestre);
 }
-
 
 // Entidade
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
@@ -235,8 +232,8 @@ void Entidade::MoveDelta(double dx, double dy, double dz) {
   proto_.clear_destino();
 }
 
-void Entidade::Destino(const EntidadeProto& proto) {
-  proto_.mutable_destino()->CopyFrom(proto.destino());
+void Entidade::Destino(const Posicao& pos) {
+  proto_.mutable_destino()->CopyFrom(pos);
 }
 
 int Entidade::PontosVida() const {

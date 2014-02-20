@@ -21,10 +21,8 @@ class Texturas {
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
 
-/** Preenche os campos de proto_aux de acordo com os valores passados. Os parametros passados nao vem do modelo.
-* O modo mestre serve para atribuir valor a visibilidade e selecao por jogadores.
-*/
-void PreencheEntidadeProto(int id_cliente, int id_entidade, bool modo_mestre, EntidadeProto* modelo);
+/* Preenche o id do modelo com id do cliente e da entidade. */
+void PreencheIdEntidadeProto(int id_cliente, int id_entidade, EntidadeProto* modelo);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -48,12 +46,13 @@ class Entidade {
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(double x, double y, double z = 0);
+  void MovePara(const Posicao& proto);
 
   /** Move a entidade uma quantidade em cada eixo. Limpa destino. */
   void MoveDelta(double dx, double dy, double dz);
 
-  /** Atribui um destino a entidade. */
-  void Destino(const EntidadeProto& proto);
+  /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
+  void Destino(const Posicao& pos);
 
   /** @return o HP da unidade. */
   int PontosVida() const;
