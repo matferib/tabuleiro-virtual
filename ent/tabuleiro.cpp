@@ -343,7 +343,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
 }
 
 void Tabuleiro::AtualizaBitsEntidade(int bits) {
-  if (estado_ != ETAB_ENT_SELECIONADA && estado_ != ETAB_ENTS_SELECIONADAS) {
+  if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
@@ -383,7 +383,7 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
-  if (estado_ != ETAB_ENT_SELECIONADA && estado_ != ETAB_ENTS_SELECIONADAS) {
+  if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
@@ -600,9 +600,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.has_entidade()) {
         return false;
       }
-      if (estado_ != ETAB_ENT_SELECIONADA) {
+      if (estado_ != ETAB_ENTS_SELECIONADAS || ids_entidades_selecionadas_.size() > 1) {
         auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-        ne->set_erro("É necessário selecionar uma entidade.");
+        ne->set_erro("Deve haver uma entidade (e apenas uma) selecionada.");
         central_->AdicionaNotificacao(ne);
         return true;
       }
@@ -616,7 +616,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ATUALIZAR_TABULEIRO: {
       DeserializaPropriedades(notificacao.tabuleiro());
       if (notificacao.local()) {
-        // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando infinitamente.
+        // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando
+        // infinitamente.
         auto* n_remota = new ntf::Notificacao(notificacao);
         central_->AdicionaNotificacaoRemota(n_remota);
       }
@@ -908,15 +909,13 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
         pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
       }
       AdicionaNotificacaoListaEventos(g_desfazer);
-      estado_ = ids_entidades_selecionadas_.size() > 0 ? ETAB_ENTS_SELECIONADAS : ETAB_ENT_SELECIONADA;
+      estado_ = ETAB_ENTS_SELECIONADAS;
       rastros_movimento_.clear();
       return;
     }
     case ETAB_SELECIONANDO_ENTIDADES: {
       if (ids_entidades_selecionadas_.empty()) {
         DeselecionaEntidades();
-      } else if (ids_entidades_selecionadas_.empty() == 1) {
-        estado_ = ETAB_ENT_SELECIONADA;
       } else {
         estado_ = ETAB_ENTS_SELECIONADAS;
       }
@@ -1555,7 +1554,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id) {
   }
   ids_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
-  estado_ = ETAB_ENT_SELECIONADA;
+  estado_ = ETAB_ENTS_SELECIONADAS;
   return true;
 }
 
@@ -1614,8 +1613,6 @@ void Tabuleiro::MudaEstadoAposSelecao() {
   // Alterna o estado.
   if (ids_entidades_selecionadas_.empty()) {
     estado_ = ETAB_OCIOSO;
-  } else if (ids_entidades_selecionadas_.size() == 1) {
-    estado_ = ETAB_ENT_SELECIONADA;
   } else {
     estado_ = ETAB_ENTS_SELECIONADAS;
   }
@@ -1636,8 +1633,6 @@ void Tabuleiro::DeselecionaEntidade(unsigned int id) {
   ids_entidades_selecionadas_.erase(id);
   if (!ids_entidades_selecionadas_.empty()) {
     estado_ = ETAB_OCIOSO;
-  } else if (ids_entidades_selecionadas_.size() == 1) {
-    estado_ = ETAB_ENT_SELECIONADA;
   }
 }
 

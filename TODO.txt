@@ -1,5 +1,5 @@
 Versao 1.0
-- Remover estado ENT_ETAB_SELECIONADO (deixar so plural).
+- Refazer para acoes desfeitas.
 - Arrumar selecao fora do tabuleiro.
 - Objetos tipo features.
 - Adicionar modelos diversos.
