@@ -36,7 +36,8 @@ const char* g_menuitem_strs[] = {
   // jogo
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
-  "&Opções", "&Propriedades", nullptr, "&Reiniciar", "&Salvar", "R&estaurar", g_fim,
+  "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
+      "&Reiniciar", "&Salvar", "R&estaurar", g_fim,
   // Entidades. 
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.
@@ -118,8 +119,9 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         auto par = std::make_pair(acao_it.first, acao_it.second.get());
         acoes_ordenadas.push_back(par);
       }
-      std::sort(acoes_ordenadas.begin(), acoes_ordenadas.end(), [] (const std::pair<std::string, const ent::AcaoProto*>& esq,
-                                                                    const std::pair<std::string, const ent::AcaoProto*>& dir) {
+      std::sort(acoes_ordenadas.begin(), acoes_ordenadas.end(), [] (
+          const std::pair<std::string, const ent::AcaoProto*>& esq,
+          const std::pair<std::string, const ent::AcaoProto*>& dir) {
         return esq.first < dir.first;
       });
       for (const auto& acao_it : acoes_ordenadas) {
@@ -244,6 +246,10 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = new ntf::Notificacao; 
     notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
+    tabuleiro_->TrataComandoDesfazer();
+  } else if (acao == acoes_[ME_TABULEIRO][MI_REFAZER]) {
+    tabuleiro_->TrataComandoRefazer();
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
