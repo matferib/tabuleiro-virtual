@@ -257,6 +257,7 @@ void Tabuleiro::EstadoInicial() {
   processando_grupo_ = false;
   // Lista de eventos.
   lista_eventos_.clear();
+  evento_corrente_ = lista_eventos_.end();
   processando_desfazer_ = false;
 }
 
@@ -1836,7 +1837,12 @@ void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notifica
     VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer";
     return;
   }
+  if (evento_corrente_ != lista_eventos_.end()) {
+    // Remove tudo do corrente para a frente.
+    lista_eventos_.erase(evento_corrente_, lista_eventos_.end());
+  }
   lista_eventos_.emplace_back(notificacao);
+  evento_corrente_ = lista_eventos_.end();
   if (lista_eventos_.size() > TAMANHO_MAXIMO_LISTA) {
     VLOG(1) << "Limite de notificacoes da lista de desfazer atingigo, removendo cabeca";
     lista_eventos_.pop_front();
@@ -1897,8 +1903,13 @@ void Tabuleiro::TrataComandoDesfazer() {
     VLOG(1) << "Lista de eventos vazia.";
     return;
   }
+  if (evento_corrente_ == lista_eventos_.begin()) {
+    VLOG(1) << "Lista de eventos vazia.";
+    return;
+  }
+  --evento_corrente_;
   processando_desfazer_ = true;
-  const ntf::Notificacao& n_original = lista_eventos_.back();
+  const ntf::Notificacao& n_original = *evento_corrente_;
   ntf::Notificacao n_inversa = InverteNotificacao(n_original);
   if (n_inversa.tipo() != ntf::TN_ERRO) {
     TrataNotificacao(n_inversa);
@@ -1906,7 +1917,6 @@ void Tabuleiro::TrataComandoDesfazer() {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
   }
   processando_desfazer_ = false;
-  lista_eventos_.pop_back();
   VLOG(1) << "Notificacao desfeita, tamanho lista: " << lista_eventos_.size();
 }
 
