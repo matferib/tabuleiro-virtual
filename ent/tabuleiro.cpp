@@ -65,6 +65,9 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 
+/** tamanho maximo da lista de eventos para desfazer. */
+const unsigned int TAMANHO_MAXIMO_LISTA = 10;
+
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -252,6 +255,9 @@ void Tabuleiro::EstadoInicial() {
   estado_ = ETAB_OCIOSO;
   proximo_id_entidade_ = 0;
   processando_grupo_ = false;
+  // Lista de eventos.
+  lista_eventos_.clear();
+  processando_desfazer_ = false;
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -277,7 +283,7 @@ void Tabuleiro::Desenha() {
   DesenhaCena();
 }
 
-void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
+void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
       std::unique_ptr<Entidade> entidade_up(NovaEntidade(TE_ENTIDADE, texturas_, central_));
@@ -298,10 +304,27 @@ void Tabuleiro::AdicionaEntidade(const ntf::Notificacao& notificacao) {
         ids_adicionados_.push_back(id_entidade);
       }
       auto* entidade = entidade_up.get();
-      PreencheEntidadeProto(id_cliente_, id_entidade, modo_mestre_, &modelo);
+      // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
+      // se a entidade eh visivel e selecionavel para os jogadores.
+      if (!processando_desfazer_) {
+        modelo.set_visivel(!modo_mestre_);
+        modelo.set_selecionavel_para_jogador(!modo_mestre_);
+        PreencheIdEntidadeProto(id_cliente_, id_entidade, &modelo);
+      } else {
+        if (BuscaEntidade(modelo.id()) != nullptr) {
+          // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
+          throw std::logic_error("Id da entidade já está sendo usado.");
+        }
+      }
       entidade->Inicializa(modelo);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade_up.release())));
       SelecionaEntidade(entidade->Id());
+      {
+        // Para desfazer.
+        ntf::Notificacao n_desfazer(notificacao);
+        n_desfazer.mutable_entidade()->set_id(entidade->Id());
+        AdicionaNotificacaoListaEventos(n_desfazer);
+      }
       // Envia a entidade para os outros.
       auto* n = ntf::NovaNotificacao(notificacao.tipo());
       n->mutable_entidade()->CopyFrom(entidade->Proto());
@@ -453,11 +476,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     case ntf::TN_ADICIONAR_ENTIDADE:
-      try {
-        AdicionaEntidade(notificacao);
-      } catch (const std::logic_error& e) {
-        LOG(ERROR) << "Limite de entidades alcançado: " << e.what();
-      }
+      AdicionaEntidadeNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
       auto* acao = NovaAcao(notificacao.acao(), this);
@@ -473,7 +492,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_REMOVER_ENTIDADE: {
-      RemoveEntidade(notificacao);
+      RemoveEntidadeNotificando(notificacao);
       return true;
     }
     case ntf::TN_TEMPORIZADOR: {
@@ -542,16 +561,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_MOVER_ENTIDADE: {
-      const auto& proto = notificacao.entidade();
-      auto* entidade = BuscaEntidade(proto.id());
-      if (entidade == nullptr) {
-        LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
-        return true;
-      }
-      entidade->Destino(proto);
-      if (notificacao.local()) {
-        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
-      }
+      MoveEntidadeNotificando(notificacao);
       return true;
     }
     case ntf::TN_ATUALIZAR_ENTIDADE: {
@@ -864,17 +874,40 @@ void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
       if (botao != BOTAO_ESQUERDO) {
         return;
       }
+      // Para desfazer.
+      ntf::Notificacao g_desfazer;
+      g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      Posicao vetor_delta;
+      vetor_delta.set_x(ultimo_x_3d_ - primeiro_x_3d_);
+      vetor_delta.set_y(ultimo_y_3d_ - primeiro_y_3d_);
+      vetor_delta.set_z(ultimo_z_3d_ - primeiro_z_3d_);
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
         auto* e = n->mutable_entidade();
         e->set_id(id);
         auto* entidade_selecionada = BuscaEntidade(id);
-        auto* p = e->mutable_destino();
-        p->set_x(entidade_selecionada->X());
-        p->set_y(entidade_selecionada->Y());
-        p->set_z(entidade_selecionada->Z());
+        if (entidade_selecionada == nullptr) {
+          continue;
+        }
+        auto* destino = e->mutable_destino();
+        destino->set_x(entidade_selecionada->X());
+        destino->set_y(entidade_selecionada->Y());
+        destino->set_z(entidade_selecionada->Z());
         central_->AdicionaNotificacaoRemota(n);
+        // Para desfazer.
+        auto* n_desfazer = g_desfazer.add_notificacao();
+        n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
+        n_desfazer->mutable_entidade()->set_id(id);
+        auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
+        pos_final->set_x(entidade_selecionada->X());
+        pos_final->set_y(entidade_selecionada->Y());
+        pos_final->set_z(entidade_selecionada->Z());
+        auto* pos_original = n_desfazer->mutable_entidade()->mutable_pos();
+        pos_original->set_x(entidade_selecionada->X() - vetor_delta.x());
+        pos_original->set_y(entidade_selecionada->Y() - vetor_delta.y());
+        pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
       }
+      AdicionaNotificacaoListaEventos(g_desfazer);
       estado_ = ids_entidades_selecionadas_.size() > 0 ? ETAB_ENTS_SELECIONADAS : ETAB_ENT_SELECIONADA;
       rastros_movimento_.clear();
       return;
@@ -1482,7 +1515,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     // Tabuleiro: cria uma entidade nova.
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-    AdicionaEntidade(notificacao);
+    TrataNotificacao(notificacao);
   } else if (pos_pilha > 1) {
     // Entidade.
     if (SelecionaEntidade(id)) {
@@ -1735,7 +1768,7 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
   SelecionaEntidadesAdicionadas();
 }
 
-void Tabuleiro::MovimentaEntidadesSelecionadas(bool vertical, int valor) {
+void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
   Posicao vetor_camera;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
   // angulo da camera em relacao ao eixo X.
@@ -1789,8 +1822,162 @@ void Tabuleiro::MovimentaEntidadesSelecionadas(bool vertical, int valor) {
     p->set_x(entidade_selecionada->X() + dx);
     p->set_y(entidade_selecionada->Y() + dy);
     p->set_z(entidade_selecionada->Z());
+    // Para desfazer.
+    p = e->mutable_pos();
+    p->set_x(entidade_selecionada->X());
+    p->set_y(entidade_selecionada->Y());
+    p->set_z(entidade_selecionada->Z());
   }
   TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
+  if (processando_grupo_ || processando_desfazer_) {
+    VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer";
+    return;
+  }
+  lista_eventos_.emplace_back(notificacao);
+  if (lista_eventos_.size() > TAMANHO_MAXIMO_LISTA) {
+    VLOG(1) << "Limite de notificacoes da lista de desfazer atingigo, removendo cabeca";
+    lista_eventos_.pop_front();
+  }
+  VLOG(1) << "Adicionando notificacao a lista de desfazer, tamanho: " << lista_eventos_.size()
+          << ", notificacao: " << notificacao.ShortDebugString();
+}
+
+namespace {
+// Controi a notificacao inversa para comando de desfazer.
+const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
+  ntf::Notificacao n_inversa;
+  n_inversa.set_tipo(ntf::TN_ERRO);
+  switch (n_original.tipo()) {
+    // Tipos de notificacao que podem ser desfeitas.
+    case ntf::TN_GRUPO_NOTIFICACOES:
+      n_inversa.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      for (const auto& n : n_original.notificacao()) {
+        n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
+      }
+      break;
+    case ntf::TN_ADICIONAR_ENTIDADE:
+      if (!n_original.entidade().has_id()) {
+        LOG(ERROR) << "Impossivel inverter TN_ADICIONAR_ENTIDADE sem id da entidade.";
+        break;
+      }
+      VLOG(1) << "Invertendo TN_ADICIONAR_ENTIDADE";
+      n_inversa.set_tipo(ntf::TN_REMOVER_ENTIDADE);
+      n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
+      break;
+    case ntf::TN_REMOVER_ENTIDADE:
+      if (!n_original.has_entidade()) {
+        LOG(ERROR) << "Impossivel inverter ntf::TN_REMOVER_ENTIDADE sem proto da entidade";
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n_inversa.mutable_entidade()->CopyFrom(n_original.entidade());
+      break;
+    case ntf::TN_MOVER_ENTIDADE:
+      if (!n_original.entidade().has_pos() || !n_original.entidade().has_id()) {
+        LOG(ERROR) << "Impossivel inverter ntf::TN_MOVER_ENTIDADE sem a posicao original ou ID.";
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_MOVER_ENTIDADE);
+      // Usa o destino.
+      n_inversa.mutable_entidade()->mutable_destino()->CopyFrom(n_original.entidade().pos());
+      n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
+      break;
+    default:
+      break;
+  }
+  return n_inversa;
+}
+}
+
+void Tabuleiro::TrataComandoDesfazer() {
+  if (lista_eventos_.empty()) {
+    VLOG(1) << "Lista de eventos vazia.";
+    return;
+  }
+  processando_desfazer_ = true;
+  const ntf::Notificacao& n_original = lista_eventos_.back();
+  ntf::Notificacao n_inversa = InverteNotificacao(n_original);
+  if (n_inversa.tipo() != ntf::TN_ERRO) {
+    TrataNotificacao(n_inversa);
+  } else {
+    LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
+  }
+  processando_desfazer_ = false;
+  lista_eventos_.pop_back();
+  VLOG(1) << "Notificacao desfeita, tamanho lista: " << lista_eventos_.size();
+}
+
+void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
+  const auto& proto = notificacao.entidade();
+  auto* entidade = BuscaEntidade(proto.id());
+  if (entidade == nullptr) {
+    LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
+    return;
+  }
+  entidade->Destino(proto.destino());
+  if (notificacao.local()) {
+    central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+    // Para desfazer: salva a posicao original e destino.
+    ntf::Notificacao n_desfazer;
+    n_desfazer.set_tipo(ntf::TN_MOVER_ENTIDADE);
+    n_desfazer.mutable_entidade()->set_id(entidade->Id());
+    n_desfazer.mutable_entidade()->mutable_pos()->CopyFrom(entidade->Proto().pos());
+    n_desfazer.mutable_entidade()->mutable_destino()->CopyFrom(proto.pos());
+    AdicionaNotificacaoListaEventos(n_desfazer);
+  }
+}
+
+void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
+  auto* entidade = BuscaEntidade(id_remocao);
+  if (entidade == nullptr) {
+    return;
+  }
+  {
+    // Para desfazer.
+    ntf::Notificacao n_desfazer;
+    n_desfazer.set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    n_desfazer.mutable_entidade()->CopyFrom(entidade->Proto());
+    AdicionaNotificacaoListaEventos(n_desfazer);
+  }
+  RemoveEntidade(id_remocao);
+  // Envia para os clientes.
+  auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
+  n->mutable_entidade()->set_id(id_remocao);
+  central_->AdicionaNotificacaoRemota(n);
+  DeselecionaEntidade(id_remocao);
+}
+
+void Tabuleiro::RemoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
+  if (notificacao.local()) {
+    if (notificacao.entidade().has_id()) {
+      RemoveEntidadeNotificando(notificacao.entidade().id());
+    } else {
+      ntf::Notificacao grupo_notificacoes;
+      grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      for (unsigned int id_remocao : ids_entidades_selecionadas_) {
+        auto* entidade = BuscaEntidade(id_remocao);
+        if (entidade == nullptr) {
+          continue;
+        }
+        auto* n = grupo_notificacoes.add_notificacao();
+        n->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+        // Para desfazer.
+        n->mutable_entidade()->CopyFrom(entidade->Proto());
+      }
+      TrataNotificacao(grupo_notificacoes);
+      AdicionaNotificacaoListaEventos(grupo_notificacoes);
+    }
+  } else {
+    // Comando vindo de fora.
+    unsigned int id = notificacao.entidade().id();
+    RemoveEntidade(id);
+    DeselecionaEntidade(id);
+  }
 }
 
 bool Tabuleiro::RemoveEntidade(unsigned int id) {
@@ -1799,25 +1986,7 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
     return false;
   }
   entidades_.erase(res_find);
-  return EntidadeEstaSelecionada(id);
-}
-
-void Tabuleiro::RemoveEntidade(const ntf::Notificacao& notificacao) {
-  if (!notificacao.local()) {
-    // Comando vindo de fora.
-    unsigned int id = notificacao.entidade().id();
-    RemoveEntidade(id);
-    DeselecionaEntidade(id);
-  } else {
-    for (unsigned int id_remocao : ids_entidades_selecionadas_) {
-      RemoveEntidade(id_remocao);
-      // Envia para os clientes.
-      auto* n = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
-      n->mutable_entidade()->set_id(id_remocao);
-      central_->AdicionaNotificacaoRemota(n);
-    }
-    DeselecionaEntidades();
-  }
+  return true;
 }
 
 int Tabuleiro::GeraIdEntidade(int id_cliente) {

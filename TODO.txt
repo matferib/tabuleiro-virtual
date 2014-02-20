@@ -1,4 +1,6 @@
 Versao 1.0
+- Remover estado ENT_ETAB_SELECIONADO (deixar so plural).
+- Arrumar selecao fora do tabuleiro.
 - Objetos tipo features.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
@@ -24,5 +26,5 @@ Versao 2.0
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Tooltip com mais informacao.
 - Arrumar tempo de desenho de cena.
-- Undo e redo.
+- Undo e redo para outros tipos de acoes.
 - Performance para tabuleiro grande.

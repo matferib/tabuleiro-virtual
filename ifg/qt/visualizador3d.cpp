@@ -304,16 +304,16 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
       return;
     case Qt::Key_Up:
-      tabuleiro_->MovimentaEntidadesSelecionadas(true, 1);
+      tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1);
       return;
     case Qt::Key_Down:
-      tabuleiro_->MovimentaEntidadesSelecionadas(true, -1);
+      tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1);
       return;
     case Qt::Key_Left:
-      tabuleiro_->MovimentaEntidadesSelecionadas(false, -1);
+      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1);
       return;
     case Qt::Key_Right:
-      tabuleiro_->MovimentaEntidadesSelecionadas(false, 1);
+      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1);
       return;
     case Qt::Key_V:
       if (event->modifiers() == Qt::ControlModifier) {
@@ -329,6 +329,10 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_ILUMINACAO);
       return;
     case Qt::Key_Z:
+      if (event->modifiers() == Qt::ControlModifier) {
+        tabuleiro_->TrataComandoDesfazer();
+        return;
+      }
       tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VOO);
       return;
     case Qt::Key_Q:
