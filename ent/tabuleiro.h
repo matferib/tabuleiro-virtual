@@ -450,6 +450,7 @@ class Tabuleiro : public ntf::Receptor {
   // Para desfazer e refazer. A lista tem tamanho maximo.
   bool processando_desfazer_;
   std::list<ntf::Notificacao> lista_eventos_;
+  std::list<ntf::Notificacao>::iterator evento_corrente_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
