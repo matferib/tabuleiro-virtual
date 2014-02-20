@@ -739,7 +739,10 @@ void Tabuleiro::TrataMovimento(botao_e botao, int x, int y) {
     quadrado_selecionado_ = -1;
     double x3d, y3d, z3d;
     parametros_desenho_.set_desenha_entidades(false);
-    MousePara3d(x, y, &x3d, &y3d, &z3d);
+    if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
+      // Mouse fora do tabuleiro.
+      return;
+    }
     ultimo_x_3d_ = x3d;
     ultimo_y_3d_ = y3d;
     ultimo_z_3d_ = z3d;
