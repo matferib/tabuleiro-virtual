@@ -573,6 +573,9 @@ class AcaoFeiticoToque : public Acao {
 
 // Acao.
 void Acao::Desenha(ParametrosDesenho* pd) {
+  if (contador_atraso_ > 0) {
+    return;
+  }
   if (Finalizada()) {
     return;
   }
@@ -602,7 +605,8 @@ void Acao::AtualizaVelocidade() {
       velocidade_ += acao_proto_.velocidade().delta_velocidade();
       return;
     case ACAO_ACEL_QUADRATICA:
-      velocidade_ += acao_proto_.velocidade().delta_velocidade() * (pow(delta_tempo_, 2) - pow(delta_tempo_ - 1, 2) );
+      velocidade_ += acao_proto_.velocidade().delta_velocidade() *
+                     (pow(delta_tempo_, 2) - pow(delta_tempo_ - 1, 2));
       return;
     default:
       LOG(WARNING) << "Tipo de aceleracao invalida.";
