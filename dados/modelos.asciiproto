@@ -12,6 +12,10 @@ modelo {
   entidade { max_pontos_vida: 13 info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
 modelo {
+  id: 'Enxame (centopéias)'
+  entidade { max_pontos_vida: 31 achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+}
+modelo {
   id: 'Manto Negro'
   entidade { max_pontos_vida: 6 tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
 }

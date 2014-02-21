@@ -25,8 +25,9 @@ const float ALTURA_VOO = ALTURA;
 // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 const double VELOCIDADE_POR_EIXO = 0.1;
 // Tamanho da barra de vida.
-const double TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
-const double TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
+const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
+const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
+const float ALTURA_TIJOLO_BASE = TAMANHO_LADO_QUADRADO_10;
 
 // Multiplicador de dimensão por tamanho de entidade.
 float CalculaMultiplicador(TamanhoEntidade tamanho) {
@@ -50,10 +51,10 @@ float CalculaMultiplicador(TamanhoEntidade tamanho) {
 void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor) {
   GLfloat res[4];
   for (int i = 0; i < 4; ++i) {
-    res[i] = vetor[0] * matriz[i] + 
-             vetor[1] * matriz[i + 4] + 
-             vetor[2] * matriz[i + 8] + 
-             vetor[3] * matriz[i + 12]; 
+    res[i] = vetor[0] * matriz[i] +
+             vetor[1] * matriz[i + 4] +
+             vetor[2] * matriz[i + 8] +
+             vetor[3] * matriz[i + 12];
   }
   vetor[0] = res[0];
   vetor[1] = res[1];
@@ -216,20 +217,16 @@ void Entidade::Atualiza() {
 
 unsigned int Entidade::Id() const { return proto_.id(); }
 
-void Entidade::MovePara(double x, double y, double z) {
+void Entidade::MovePara(float x, float y, float z) {
   auto* p = proto_.mutable_pos();
   p->set_x(x);
   p->set_y(y);
-  p->set_z(z);
+  p->set_z(std::min(ZChao(x, y), z));
   proto_.clear_destino();
 }
 
-void Entidade::MoveDelta(double dx, double dy, double dz) {
-  auto* p = proto_.mutable_pos();
-  p->set_x(p->x() + dx);
-  p->set_y(p->y() + dy);
-  p->set_z(p->z() + dz);
-  proto_.clear_destino();
+void Entidade::MoveDelta(float dx, float dy, float dz) {
+  MovePara(X() + dx, Y() + dy, Z() + dz);
 }
 
 void Entidade::Destino(const Posicao& pos) {
@@ -264,7 +261,9 @@ const Posicao Entidade::PosicaoAcao() const {
   glPushMatrix();
   glLoadIdentity();
   MontaMatriz(true, nullptr);
-  glTranslatef(0.0f, 0.0f, ALTURA);
+  if (!proto_.achatado()) {
+    glTranslatef(0.0f, 0.0f, ALTURA);
+  }
   GLfloat matriz[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
   VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
@@ -289,12 +288,20 @@ float Entidade::DeltaVoo() const {
 void Entidade::MontaMatriz(bool usar_delta_voo, const float* matriz_shear) const {
   if (matriz_shear == nullptr) {
     glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+    if (proto_.achatado() && !proto_.has_info_textura()) {
+      glScalef(1.0f, 1.0f, 0.1f);
+    }
   } else {
     glTranslated(X(), Y(), 0);
     glMultMatrixf(matriz_shear);
     glTranslated(0, 0, usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+    if (proto_.achatado() && !proto_.has_info_textura()) {
+      glScalef(1.0f, 1.0f, 0.1f);
+    }
   }
-  if (angulo_disco_queda_graus_ > 0) {
+  // So roda entidades nao achatadas.
+  if (angulo_disco_queda_graus_ > 0 && !proto_.achatado()) {
+    // Descomentar essa linha para ajustar a posicao da entidade.
     //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
     glRotatef(-angulo_disco_queda_graus_, 1.0, 0, 0);
   }
@@ -329,6 +336,11 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
   DesenhaObjeto(pd);
+  DesenhaDecoracoes(pd);
+  glDisable(GL_NORMALIZE);
+}
+
+void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
@@ -375,7 +387,6 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
     glPopMatrix();
     glPopAttrib();
   }
-  glDisable(GL_NORMALIZE);
 }
 
 void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
@@ -401,11 +412,20 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
   }
-  {
-    // Moldura da textura: achatado em Y.
-    glPushMatrix();
-    MontaMatriz(true, matriz_shear);
-    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + (TAMANHO_LADO_QUADRADO / 10.0));
+
+  glPushMatrix();
+  MontaMatriz(true, matriz_shear);
+  // Tijolo da moldura.
+  if (proto_.achatado()) {
+    glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
+    if (pd->entidade_selecionada()) {
+      glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
+    }
+    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+    glScalef(0.8f, 1.0f, 0.8f);
+  } else {
+    // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
+    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
     double angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
     if (pd->texturas_sempre_de_frente() && !proto_.caida()) {
@@ -426,13 +446,10 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
     glPopMatrix();
   }
 
-  // desenha a tela onde a textura será desenhada face para o sul.
+  // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
   GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
-  if (id_textura != GL_INVALID_VALUE) {
-    if (matriz_shear != nullptr) {
-      glMultMatrixf(matriz_shear);
-    }
+  if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, id_textura);
     glNormal3f(0.0f, -1.0f, 0.0f);

@@ -1106,6 +1106,17 @@ void Tabuleiro::DesenhaCena() {
     DesenhaGrade();
     glEnable(GL_DEPTH_TEST);
   }
+
+  // Algumas verificacoes.
+  GLint depth;
+  glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
+  if (depth > 2) {
+    LOG(ERROR) << "Pilha MODELVIEW com vazamento";
+  }
+  glGetIntegerv(GL_PROJECTION_STACK_DEPTH, &depth);
+  if (depth > 2) {
+    LOG(ERROR) << "Pilha PROJECTION com vazamento";
+  }
   if (!parametros_desenho_.desenha_entidades()) {
     return;
   }

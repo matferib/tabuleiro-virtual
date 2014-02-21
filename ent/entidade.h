@@ -45,11 +45,11 @@ class Entidade {
   unsigned int Id() const;
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
-  void MovePara(double x, double y, double z = 0);
+  void MovePara(float x, float y, float z = 0);
   void MovePara(const Posicao& proto);
 
   /** Move a entidade uma quantidade em cada eixo. Limpa destino. */
-  void MoveDelta(double dx, double dy, double dz);
+  void MoveDelta(float dx, float dy, float dz);
 
   /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
   void Destino(const Posicao& pos);
@@ -113,6 +113,9 @@ class Entidade {
 
   /** desenha apenas o objeto, sem alterar cor nem matriz. */
   void DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear = nullptr);
+
+  /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao. */
+  void DesenhaDecoracoes(ParametrosDesenho* pd);
 
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.

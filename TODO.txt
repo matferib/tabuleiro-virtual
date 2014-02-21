@@ -1,4 +1,6 @@
 Versao 1.0
+- Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
+- Tirar desenho de cone ta so complicando codigo.
 - Atraso so para alguns tipos de acoes?
 - Objetos tipo features.
 - Adicionar modelos diversos.
