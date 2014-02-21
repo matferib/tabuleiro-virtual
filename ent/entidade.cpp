@@ -157,7 +157,6 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (copia_proto.has_destino()) {
     proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
   }
-  proto_.mutable_pos()->set_z(novo_proto.pos().z());
   VLOG(1) << "Proto: " << proto_.ShortDebugString();
 }
 
@@ -254,6 +253,18 @@ void Entidade::MataEntidade() {
   proto_.set_caida(true);
   proto_.set_voadora(false);
   proto_.set_aura(0);
+}
+
+void Entidade::AtualizaPontosVidaProto(int delta_pontos_vida, EntidadeProto* proto) {
+  if (proto->pontos_vida() >= 0 && proto->pontos_vida() + delta_pontos_vida < 0) {
+    proto->set_morta(true);
+    proto->set_caida(true);
+    proto->set_voadora(false);
+    proto->set_aura(0);
+  } else if (proto->pontos_vida() < 0 && proto->pontos_vida() + delta_pontos_vida >= 0) {
+    proto->set_morta(false);
+  }
+  proto->set_pontos_vida(proto->pontos_vida() + delta_pontos_vida);
 }
 
 const Posicao Entidade::PosicaoAcao() const {
