@@ -144,6 +144,7 @@ void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
 }
 
 void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
+  VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
 
   // mantem o tipo.
@@ -157,7 +158,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (copia_proto.has_destino()) {
     proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
   }
-  VLOG(1) << "Proto: " << proto_.ShortDebugString();
+  VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
 void Entidade::Atualiza() {
@@ -217,11 +218,13 @@ void Entidade::Atualiza() {
 unsigned int Entidade::Id() const { return proto_.id(); }
 
 void Entidade::MovePara(float x, float y, float z) {
+  VLOG(1) << "Entidade antes de mover: " << proto_.pos().ShortDebugString();
   auto* p = proto_.mutable_pos();
   p->set_x(x);
   p->set_y(y);
-  p->set_z(std::min(ZChao(x, y), z));
+  p->set_z(std::max(ZChao(x, y), z));
   proto_.clear_destino();
+  VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }
 
 void Entidade::MoveDelta(float dx, float dy, float dz) {

@@ -32,7 +32,7 @@ class Entidade {
   /** Inicializa a entidade, recebendo seu proto diretamente. */
   void Inicializa(const EntidadeProto& proto);
 
-  /** Atualiza a entidade usando apenas alguns campos do proto passado. */
+  /** Atualiza a entidade usando apenas alguns campos do proto passado. Nao atualiza posicao. */
   void AtualizaProto(const EntidadeProto& novo_proto);
 
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
