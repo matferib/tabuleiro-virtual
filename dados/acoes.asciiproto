@@ -23,6 +23,22 @@ acao {
   efeito_area: true
 }
 acao {
+  id: 'Cone de Gelo'
+  tipo: ACAO_DISPERSAO
+  cor: { r: 0.3 b: 1.0 g: 0.3 }
+  distancia: 12  # quadrados
+  geometria: ACAO_GEO_CONE
+  efeito_area: true
+}
+acao {
+  id: 'Mãos Flamejantes'
+  tipo: ACAO_DISPERSAO
+  cor { r: 0.7 g: 0.7 b: 0 }
+  distancia: 3  # quadrados
+  geometria: ACAO_GEO_CONE
+  efeito_area: true
+}
+acao {
   id: 'Feitiço de Toque'
   tipo: ACAO_FEITICO_TOQUE
   geometria: ACAO_GEO_ESFERA
@@ -31,7 +47,7 @@ acao {
   cor { r: 0.0 g: 0.0  b: 1.0 }
 }
 acao {
-  id: 'Míssil Mágico' 
+  id: 'Míssil Mágico'
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_ESFERA
   escala { x: 0.2 y: 0.2 z: 0.2 }
@@ -48,7 +64,7 @@ acao {
   duracao: 100
 }
 acao {
-  id: 'Relâmpago' 
+  id: 'Relâmpago'
   tipo: ACAO_RAIO
   cor { r: 0.0 g: 0 b: 1.0 }
   duracao: 100
@@ -56,5 +72,5 @@ acao {
 }
 acao {
   id: 'Sinalização'
-  tipo: ACAO_SINALIZACAO 
+  tipo: ACAO_SINALIZACAO
 }
