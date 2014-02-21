@@ -43,7 +43,7 @@ class Acao {
 
  protected:
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) {}
-  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) {} 
+  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) {}
   virtual void AtualizaAposAtraso() = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
@@ -68,7 +68,7 @@ class Acao {
 };
 
 // Cria uma nova acao no tabuleiro.
-Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro); 
+Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro);
 
 }  // namespace ent
 

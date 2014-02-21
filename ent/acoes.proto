@@ -16,6 +16,7 @@ enum TipoAcao {
 enum GeometriaAcao {
   ACAO_GEO_ESFERA = 1;
   ACAO_GEO_CUBO = 2;
+  ACAO_GEO_CONE = 3;
 }
 
 enum TipoAceleracao {
@@ -52,8 +53,10 @@ message AcaoProto {
   optional TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
   optional int32 raio_area = 3;  // quadrados.
+  // Distancia da acao (para dispersao de cone).
+  optional int32 distancia = 5;  // quadrados.
   // Aplicada antes da escala.
-  optional Translacao translacao = 17; 
+  optional Translacao translacao = 17;
   // Escala sobre a geometria.
   optional Escala escala = 18;
   // Cor da acao.

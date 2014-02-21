@@ -36,6 +36,9 @@ void DesenhaGeometriaAcao(int geometria) {
     case ACAO_GEO_CUBO:
       glutSolidCube(1.0f);
       return;
+    case ACAO_GEO_CONE:
+      glutSolidCone(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
+      return;
     case ACAO_GEO_ESFERA:
     default:
       glutSolidSphere(1.0f, 10, 10);
@@ -185,9 +188,10 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr) {
-    raio_ = 0;
-    raio_maximo_ = acao_proto_.raio_area() * TAMANHO_LADO_QUADRADO;
+  AcaoDispersao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+    efeito_ = 0;
+    efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
+        acao_proto_.distancia() : acao_proto_.raio_area());
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
@@ -195,25 +199,49 @@ class AcaoDispersao : public Acao {
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
     MudaCorProto(acao_proto_.cor());
     glPushMatrix();
-    const Posicao& pos = acao_proto_.pos_tabuleiro();
-    glTranslated(pos.x(), pos.y(), pos.z());
-    glScalef(raio_, raio_, raio_);
+    const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
+    if (acao_proto_.geometria() == ACAO_GEO_CONE) {
+      Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+      if (entidade_origem == nullptr) {
+        return;
+      }
+      // Posicao da acao eh a ponta do cone. Computa tudo considerando nivel do solo, depois faz translacao pro nivel da acao.
+      Posicao pos_acao = entidade_origem->PosicaoAcao();
+      float z_acao = pos_acao.z();
+      pos_acao.set_z(pos_tabuleiro.z());
+      // Vetor de direcao aponta da base do cone para a ponta, onde ocorre a acao. Entao normaliza e o deixa do tamanho da acao.
+      Posicao vetor_direcao;
+      ComputaDiferencaVetor(pos_acao, pos_tabuleiro, &vetor_direcao);
+      ComputaVetorNormalizado(&vetor_direcao);
+      ComputaMultiplicacaoEscalar(efeito_, vetor_direcao, &vetor_direcao);
+      // Faz a translacao pra base do cone que eh a posicao da acao + o inverso do vetor de direcao.
+      glTranslatef(pos_acao.x() - vetor_direcao.x(), pos_acao.y() - vetor_direcao.y(), pos_tabuleiro.z() + z_acao);
+      // Deixa o eixo X na direcao da base para a ponta (acao). Depois deita o cone, fazendo a ponta apontar para o eixo X+.
+      glRotatef(VetorParaRotacaoGraus(vetor_direcao.x(), vetor_direcao.y()), 0.0f, 0.0f, 1.0f);
+      glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+      // Escala o cone para o tamanho correto (vetor de direcao). Apesar de tecnicamente ser um cone, o efeito visual eh melhor
+      // achatando-se o cone na vertical. Apos a ultima rotacao, o eixo X esta apontando para baixo.
+      glScalef(efeito_ * 0.2f, efeito_, efeito_);
+    } else {
+      glTranslatef(pos_tabuleiro.x(), pos_tabuleiro.y(), pos_tabuleiro.z());
+      glScalef(efeito_, efeito_, efeito_);
+    }
     DesenhaGeometriaAcao(acao_proto_.geometria());
     glPopMatrix();
     glPopAttrib();
   }
 
   void AtualizaAposAtraso() {
-    raio_ += 0.2;
+    efeito_ += 0.2;
   }
 
   bool Finalizada() const override {
-    return raio_ > raio_maximo_;
+    return efeito_ > efeito_maximo_;
   }
 
  private:
-  double raio_maximo_;
-  double raio_;
+  float efeito_maximo_;
+  float efeito_;
 };
 
 // Uma acao de projetil, tipo flecha ou missil magico.
@@ -651,7 +679,7 @@ Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
     case ACAO_PROJETIL:
       return new AcaoProjetil(acao_proto, tabuleiro);
     case ACAO_DISPERSAO:
-      return new AcaoDispersao(acao_proto);
+      return new AcaoDispersao(acao_proto, tabuleiro);
     case ACAO_DELTA_PONTOS_VIDA:
       return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
     case ACAO_RAIO:

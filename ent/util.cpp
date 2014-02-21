@@ -55,4 +55,26 @@ void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* po
   pos_res->set_z(pos2.z()-  pos1.z());
 }
 
+void ComputaSomaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {
+  pos_res->set_x(pos2.x() + pos1.x());
+  pos_res->set_y(pos2.y() + pos1.y());
+  pos_res->set_z(pos2.z() + pos1.z());
+}
+
+void ComputaMultiplicacaoEscalar(float escala, const Posicao& pos, Posicao* pos_res) {
+  pos_res->set_x(pos.x() * escala);
+  pos_res->set_y(pos.y() * escala);
+  pos_res->set_z(pos.z() * escala);
+}
+
+void ComputaVetorNormalizado(Posicao* pos) {
+  float x = pos->x();
+  float y = pos->y();
+  float z = pos->z();
+  float tam = sqrt(x * x + y * y + z * z);
+  pos->set_x(x / tam);
+  pos->set_y(y / tam);
+  pos->set_z(z / tam);
+}
+
 }  // namespace ent

@@ -66,6 +66,9 @@ class Entidade {
   /** @return a coordenada (z). */
   double Z() const;
 
+  /** Retorna as coordenadas do objeto como posicao. */
+  const Posicao& Pos() const { return proto_.pos(); }
+
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();
 

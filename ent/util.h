@@ -31,6 +31,15 @@ void DesenhaDisco(GLfloat raio, int num_faces);
 /** Computa pos2 - pos1 em pos_res. */
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res);
 
+/** Computa pos2 + pos1 em pos_res. */
+void ComputaSomaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res);
+
+/** Computa pos_res = escala * pos. */
+void ComputaMultiplicacaoEscalar(float escala, const Posicao& pos, Posicao* pos_res);
+
+/** Computa o vetor normalizado. */
+void ComputaVetorNormalizado(Posicao* pos);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
