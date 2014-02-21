@@ -754,7 +754,7 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
     }
     case Qt::Key_C:
     case Qt::Key_D:
-      tabuleiro_->AtualizaPontosVidaEntidade(CalculaDano(teclas_));
+      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidade(CalculaDano(teclas_));
       break;
     default:
       VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;

@@ -388,24 +388,23 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
+void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidade(int delta_pontos_vida) {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
   }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  // Para desfazer.
+  ntf::Notificacao g_desfazer;
+  g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
-    auto proto = entidade_selecionada->Proto();
-    int pontos_vida = proto.pontos_vida();
-    if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
-      entidade_selecionada->MataEntidade();
-      proto = entidade_selecionada->Proto();
-    } else if (pontos_vida < 0 && pontos_vida + delta_pontos_vida >= 0) {
-      proto.set_morta(false);
+    if (entidade_selecionada == nullptr) {
+      continue;
     }
-    proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
+    auto proto = entidade_selecionada->Proto();
+    Entidade::AtualizaPontosVidaProto(delta_pontos_vida, &proto);
     proto.set_id(entidade_selecionada->Id());
     // Atualizacao.
     auto* n = grupo_notificacoes.add_notificacao();
@@ -418,8 +417,16 @@ void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
     a->set_id_entidade_destino(entidade_selecionada->Id());
     a->set_delta_pontos_vida(delta_pontos_vida);
+    // Para desfazer
+    {
+      auto* n_desfazer = g_desfazer.add_notificacao();
+      n_desfazer->CopyFrom(*n);
+      n_desfazer->mutable_tabuleiro()->add_entidade()->CopyFrom(entidade_selecionada->Proto());
+    }
   }
   TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_pontos_vida) {
@@ -429,24 +436,22 @@ void Tabuleiro::AtualizaPontosVidaEntidade(unsigned int id_entidade, int delta_p
     return;
   }
   auto proto = entidade->Proto();
-  int pontos_vida = proto.pontos_vida();
-  if (pontos_vida >= 0 && pontos_vida + delta_pontos_vida < 0) {
-    entidade->MataEntidade();
-    proto = entidade->Proto();
-  }
-  proto.set_pontos_vida(pontos_vida + delta_pontos_vida);
+  Entidade::AtualizaPontosVidaProto(delta_pontos_vida, &proto);
   proto.set_id(entidade->Id());
   // Atualizacao.
-  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_ENTIDADE);;
-  n->mutable_entidade()->Swap(&proto);
-  central_->AdicionaNotificacao(n);
-  // Acao.
-  auto* na = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
-  auto* a = na->mutable_acao();
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+  n.mutable_entidade()->Swap(&proto);
+  TrataNotificacao(n);
+  // Acao de pontos de vida sem efeito.
+  ntf::Notificacao na;
+  na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+  auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
   a->set_id_entidade_destino(entidade->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
-  central_->AdicionaNotificacao(na);
+  a->set_afeta_pontos_vida(false);
+  TrataNotificacao(na);
 }
 
 void Tabuleiro::AcumulaPontosVida(int pv) {
@@ -987,7 +992,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   glEnable(GL_DEPTH_TEST);
-  glClearColor(proto_.luz_ambiente().r(), 
+  glClearColor(proto_.luz_ambiente().r(),
                proto_.luz_ambiente().g(),
                proto_.luz_ambiente().b(),
                proto_.luz_ambiente().a());
@@ -1847,7 +1852,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
   if (processando_grupo_ || processando_desfazer_) {
-    VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer";
+    VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer pois (processando_grupo_ || processando_desfazer_) == true";
     return;
   }
   if (evento_corrente_ != lista_eventos_.end()) {

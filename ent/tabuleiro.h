@@ -111,7 +111,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaBitsEntidade(int bits);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
-  void AtualizaPontosVidaEntidade(int delta_pontos_vida);
+  void TrataAcaoAtualizarPontosVidaEntidade(int delta_pontos_vida);
   /** Atualiza os pontos de vida de uma entidade. */
   void AtualizaPontosVidaEntidade(unsigned int id, int delta_pontos_vida);
 
