@@ -49,6 +49,8 @@ class Acao {
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
   void AtualizaVelocidade();
   // Pode ser chamado para atualizar o alvo de uma acao. Retorna false quando terminar.
+  // Utiliza os parametros dx_, dy_ e dz_ para calcular o deslocamento do alvo num movimento senoide
+  // usando disco_alvo_rad_ para manter o estado.
   bool AtualizaAlvo();
 
  protected:

@@ -62,6 +62,8 @@ message EntidadeProto {
   optional int32 max_pontos_vida = 12;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
+  // Se verdadeiro, objeto sera desenhado de forma achatada.
+  optional bool achatado = 17 [default=false];
   // Posicao atual da entidade.
   optional Posicao pos = 4;
   // Destino da entidade.

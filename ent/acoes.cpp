@@ -303,7 +303,7 @@ class AcaoProjetil : public Acao {
     dx_ *= vel_tam;
     dy_ *= vel_tam;
     dz_ *= vel_tam;
-    VLOG(4) << "vel_tam: " << vel_tam << ", vel: " << velocidade_ << ", tamanho: " << tamanho 
+    VLOG(4) << "vel_tam: " << vel_tam << ", vel: " << velocidade_ << ", tamanho: " << tamanho
             << ", dx: " << dx_ << ", dy: " << dy_ << ", dz: " << dz_;
 
     double xa = pos_.x();
@@ -448,7 +448,7 @@ class AcaoCorpoCorpo : public Acao {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
       VLOG(1) << "Terminando acao corpo a corpo: origem nao existe mais.";
-      rotacao_graus_ = 181.0f;
+      finalizado_ = true;
       return;
     }
     const Posicao& pos_o = eo->PosicaoAcao();
@@ -502,9 +502,10 @@ class AcaoCorpoCorpo : public Acao {
     dy_ = pos_d.y() - pos_o.y();
     dz_ = pos_d.z() - pos_o.z();
     direcao_graus_ = VetorParaRotacaoGraus(dx_, dy_, &distancia_);
-    dx_ /= distancia_;
-    dy_ /= distancia_;
-    dz_ /= distancia_;
+    // O fator 8 é só para atenuar o delta do impacto, já que o d* aqui sao usados apenas para atualizar o alvo.
+    dx_ /= distancia_ * 8;
+    dy_ /= distancia_ * 8;
+    dz_ /= distancia_ * 8;
   }
   float distancia_;
   float direcao_graus_;
@@ -625,18 +626,21 @@ bool Acao::AtualizaAlvo() {
   if (disco_alvo_rad_ >= M_PI) {
     VLOG(1) << "Finalizando alvo, arco terminou.";
     entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
-    dx_total_ = dy_total_ = dz_total_ = 0; 
+    dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
   double cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO_2;
-  double dx_alvo = dx_ * cos_delta_alvo;
-  double dy_alvo = dy_ * cos_delta_alvo;
-  double dz_alvo = dz_ * cos_delta_alvo;
-  dx_total_ += dx_alvo;
-  dy_total_ += dy_alvo;
-  dz_total_ += dz_alvo;
+  float dx_alvo = dx_ * cos_delta_alvo;
+  float dy_alvo = dy_ * cos_delta_alvo;
+  float dz_alvo = dz_ * cos_delta_alvo;
+  float x_antes = entidade_destino->X();
+  float y_antes = entidade_destino->Y();
+  float z_antes = entidade_destino->Z();
   entidade_destino->MoveDelta(dx_alvo, dy_alvo, dz_alvo);
-  disco_alvo_rad_ += 0.5; 
+  dx_total_ += entidade_destino->X() - x_antes;
+  dy_total_ += entidade_destino->Y() - y_antes;
+  dz_total_ += entidade_destino->Z() - z_antes;
+  disco_alvo_rad_ += 0.5;
   return true;
 }
 
