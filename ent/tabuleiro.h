@@ -94,6 +94,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Move uma entidade notificando clientes. */
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
+  /** Atualiza uma entidade, notificando clientes. */
+  void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
+
   /** Inverte o bit da entidade. */
   enum bit_e {
     BIT_VISIBILIDADE     = 0x1,
