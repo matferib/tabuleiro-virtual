@@ -352,8 +352,11 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
     EntidadeProto proto = entidade_selecionada->Proto();
+    // Para desfazer.
+    n->mutable_tabuleiro()->add_entidade()->CopyFrom(proto);
     if ((bits & BIT_VISIBILIDADE) > 0) {
       proto.set_visivel(!proto.visivel());
     }
@@ -377,11 +380,12 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
       proto.set_morta(!proto.morta());
     }
     proto.set_id(id);
-    auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
     n->mutable_entidade()->Swap(&proto);
   }
   TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidade(int delta_pontos_vida) {
@@ -567,19 +571,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ATUALIZAR_ENTIDADE: {
-      const auto& proto = notificacao.entidade();
-      auto* entidade = BuscaEntidade(proto.id());
-      if (entidade == nullptr) {
-        LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
-        return true;
-      }
-      entidade->AtualizaProto(proto);
-      AtualizaSelecaoEntidade(entidade->Id());
-      if (notificacao.local()) {
-        // So repassa a notificacao pros clientes se a origem dela for local,
-        // para evitar ficar enviando infinitamente.
-        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
-      }
+      AtualizaEntidadeNotificando(notificacao);
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
@@ -1912,6 +1904,14 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       n_inversa.mutable_entidade()->mutable_destino()->CopyFrom(n_original.entidade().pos());
       n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
       break;
+    case ntf::TN_ATUALIZAR_ENTIDADE:
+      if (n_original.tabuleiro().entidade_size() == 0 || !n_original.has_entidade()) {
+        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_ENTIDADE sem o proto novo e o proto anterior";
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+      n_inversa.mutable_entidade()->CopyFrom(n_original.tabuleiro().entidade(0));
+      break;
     default:
       break;
   }
@@ -2032,6 +2032,28 @@ bool Tabuleiro::RemoveEntidade(unsigned int id) {
   }
   entidades_.erase(res_find);
   return true;
+}
+
+void Tabuleiro::AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao) {
+  const auto& proto = notificacao.entidade();
+  auto* entidade = BuscaEntidade(proto.id());
+  if (entidade == nullptr) {
+    LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
+    return;
+  }
+  // Para desfazer.
+  auto proto_antes = entidade->Proto();
+  entidade->AtualizaProto(proto);
+  AtualizaSelecaoEntidade(entidade->Id());
+  if (notificacao.local()) {
+    // So repassa a notificacao pros clientes se a origem dela for local,
+    // para evitar ficar enviando infinitamente.
+    central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+    // Para desfazer.
+    ntf::Notificacao n_desfazer(notificacao);
+    n_desfazer.mutable_tabuleiro()->add_entidade()->Swap(&proto_antes);
+    AdicionaNotificacaoListaEventos(n_desfazer);
+  }
 }
 
 int Tabuleiro::GeraIdEntidade(int id_cliente) {
