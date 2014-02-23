@@ -759,23 +759,8 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   }
 }
 
-void Tabuleiro::TrataBotaoPressionado(botao_e botao, int x, int y) {
-  ultimo_x_ = x;
-  ultimo_y_ = y;
-  if (botao == BOTAO_MEIO) {
-    estado_anterior_rotacao_ = estado_;
-    estado_ = ETAB_ROTACAO;
-  } else if (botao == BOTAO_DIREITO) {
-    TrataCliqueDireito(x, y);
-  } else if (botao == BOTAO_ESQUERDO) {
-    TrataCliqueEsquerdo(x, y);
-  }
-}
-
 void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
-  ultimo_x_ = x;
-  ultimo_y_ = y;
-  TrataCliqueEsquerdo(x, y, true  /*alternar selecao*/);
+  TrataBotaoEsquerdoPressionado(x, y, true  /*alternar selecao*/);
 }
 
 void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
@@ -868,16 +853,13 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   }
 }
 
-void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
+void Tabuleiro::TrataBotaoLiberado() {
   switch (estado_) {
     case ETAB_ROTACAO:
     case ETAB_DESLIZANDO:
       estado_ = estado_anterior_rotacao_;
       return;
     case ETAB_ENT_PRESSIONADA: {
-      if (botao != BOTAO_ESQUERDO) {
-        return;
-      }
       // Para desfazer.
       ntf::Notificacao g_desfazer;
       g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -1461,7 +1443,10 @@ bool Tabuleiro::MousePara3d(int x, int y, float profundidade, double* x3d, doubl
   return true;
 }
 
-void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
+void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
@@ -1509,7 +1494,10 @@ void Tabuleiro::TrataCliqueEsquerdo(int x, int y, bool alterna_selecao) {
   ultimo_y_ = y;
 }
 
-void Tabuleiro::TrataCliqueDireito(int x, int y) {
+void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+
   estado_anterior_rotacao_ = estado_;
   double x3d, y3d, z3d;
   parametros_desenho_.set_desenha_entidades(false);
@@ -1519,6 +1507,13 @@ void Tabuleiro::TrataCliqueDireito(int x, int y) {
   estado_ = ETAB_DESLIZANDO;
   ultimo_x_ = x;
   ultimo_y_ = y;
+}
+
+void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+  estado_anterior_rotacao_ = estado_;
+  estado_ = ETAB_ROTACAO;
 }
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {

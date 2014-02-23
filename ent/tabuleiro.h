@@ -141,10 +141,20 @@ class Tabuleiro : public ntf::Receptor {
   void TrataMovimentoMouse();
 
   /** trata o botao do mouse liberado. */
-  void TrataBotaoLiberado(botao_e botao);
+  void TrataBotaoLiberado();
 
-  /** trata o botao pressionado, recebendo x, y (ja em coordenadas opengl). */
-  void TrataBotaoPressionado(botao_e botao, int x, int y);
+  /** trata o clique do botao esquerdo, preparando para movimento de arrastar entidades.
+  * Seleciona a entidade o clique for nela. Se alterna_selecao for true, alterna o estado de selecao da entidade.
+  */
+  void TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao = false);
+
+  /** trata o click do botao direito, preparando para movimento de deslizamento. */
+  void TrataBotaoDireitoPressionado(int x, int y);
+
+  /** Trata o clique do botao de rotacao pressionado (normalmente, botao do meio). */
+  void TrataBotaoRotacaoPressionado(int x, int y);
+
+  /** Ocorre quando se clica com o control em uma entidade. */
   void TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y);
 
   /** altera o estado da opcao de iluminacao do mestre igual a dos jogadores. */
@@ -264,14 +274,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Dada uma profundidade, faz a projecao inversa (2d para 3d). */
   bool MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d);
-
-  /** trata o clique do botao esquerdo, preparando para movimento de arrastar entidades.
-  * Seleciona a entidade o clique for nela. Se alterna_selecao for true, alterna o estado de selecao da entidade.
-  */
-  void TrataCliqueEsquerdo(int x, int y, bool alterna_selecao = false);
-
-  /** trata o click do botao direito, preparando para movimento de deslizamento. */
-  void TrataCliqueDireito(int x, int y);
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
