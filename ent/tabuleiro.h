@@ -8,7 +8,10 @@
 #include <list>
 #include <vector>
 #include "ent/acoes.pb.h"
+#include "ent/entidade.h"
 #include "ent/entidade.pb.h"
+#include "ent/formas.h"
+#include "ent/formas.pb.h"
 #include "ent/tabuleiro.pb.h"
 #include "ntf/notificacao.h"
 
@@ -22,11 +25,6 @@ class Acao;
 class Entidade;
 class InfoTextura;
 class Texturas;
-
-/** teclas reconhecidas. Mesmo valor do QT para simplificar. */
-enum tecla_e {
-  TECLA_DEL = 0x01000007,
-};
 
 /** Estados possiveis do tabuleiro. */
 enum etab_t {
@@ -47,6 +45,7 @@ struct Sinalizador {
 };
 
 typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
+typedef std::unordered_map<unsigned int, std::unique_ptr<Forma>> MapaFormas;
 typedef std::unordered_set<unsigned int> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste,
@@ -156,7 +155,7 @@ class Tabuleiro : public ntf::Receptor {
   /** altera o estado da opcao de iluminacao do mestre igual a dos jogadores. */
   void TrataBotaoAlternarIluminacaoMestre();
 
-  /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl). 
+  /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl).
   * Se acao_padrao == true, usa a acao de sinalizacao, caso contrario, usa a acao selecionada.
   */
   void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
@@ -196,18 +195,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }
 
-  enum forma_desenho_e {
-    FD_CUBO = 0,
-    FD_ESFERA,
-    FD_CIRCULO,
-    FD_RETANGULO,
-    FD_LIVRE,
-  };
   /** Seleciona uma das formas de desenho como padrao. */
-  void SelecionaFormaDesenho(forma_desenho_e fd);
+  void SelecionaFormaDesenho(TipoForma fd);
 
   /** Retorna a forma de desenho selecionada como padrao. */
-  forma_desenho_e FormaDesenhoSelecionada() const { return forma_selecionada_; }
+  TipoForma FormaDesenhoSelecionada() const { return forma_proto_.tipo(); }
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
@@ -253,10 +245,15 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha as sombras dos objetos. */
   void DesenhaSombras();
 
-  /** Desenha as entidades nao translucidas. */
+  /** Desenha as entidades. */
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
-  void DesenhaEntidades();
-  void DesenhaEntidadesTranslucidas();
+  void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
+  void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
+
+  /** Desenha as formas. */
+  void DesenhaFormasBase(const std::function<void (Forma*, const ParametrosDesenho&)>& f);
+  void DesenhaFormas() { DesenhaFormasBase(&Forma::Desenha); }
+  void DesenhaFormasTranslucidas() { DesenhaFormasBase(&Forma::DesenhaTranslucido); }
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
@@ -264,12 +261,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha a forma de desenho selecionada. */
   void DesenhaFormaSelecionada();
-
-  /** liga modo de desenho de stencil. */
-  void LigaStencil();
-
-  /** desenha a cor na tela toda e limpa stencil. */
-  void DesenhaStencil(const float* cor);
 
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
   void AtualizaOlho();
@@ -285,7 +276,7 @@ class Tabuleiro : public ntf::Receptor {
       int x, int y, unsigned int* id, unsigned int* pos_pilha, float* profundidade = nullptr);
 
   /** Dada uma coordenada de mouse (x, y) retorna o valor (x, y, z) 3d do objeto projetado mais proximo.
-  * Chama BuscaHitMaisProximo para obter a profundidade entao faz a projecao para aquele ponto, chamando 
+  * Chama BuscaHitMaisProximo para obter a profundidade entao faz a projecao para aquele ponto, chamando
   * MousePara3d.
   */
   bool MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d);
@@ -302,7 +293,7 @@ class Tabuleiro : public ntf::Receptor {
   /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
   * ETAB_ENT_SELECIONADA em case de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso
   * o tabuleiro fica ocioso e retorna false.
-  */ 
+  */
   bool SelecionaEntidade(unsigned int id);
 
   /** Seleciona as entidades passadas por id, deselecionando outras e colocando o tabuleiro
@@ -313,7 +304,7 @@ class Tabuleiro : public ntf::Receptor {
   /** seleciona as entidades em ids_adicionados_. */
   void SelecionaEntidadesAdicionadas() { SelecionaEntidades(ids_adicionados_); }
 
-  /** Adiciona entidades as entidades selecionadas. O estado final depende do tamanho dos ids e do 
+  /** Adiciona entidades as entidades selecionadas. O estado final depende do tamanho dos ids e do
   * numero de entidades selecionadas corrente.
   */
   void AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids);
@@ -459,21 +450,21 @@ class Tabuleiro : public ntf::Receptor {
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
   std::vector<EntidadeProto> entidades_copiadas_;
 
-  // Para processamento de grupos de notificacoes. 
+  // Para processamento de grupos de notificacoes.
   bool processando_grupo_;
   std::vector<unsigned int> ids_adicionados_;
 
   // Para rastros de movimentos das unidades.
-  std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_; 
+  std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_;
 
   // Para desfazer e refazer. A lista tem tamanho maximo.
   bool processando_desfazer_;
   std::list<ntf::Notificacao> lista_eventos_;
   std::list<ntf::Notificacao>::iterator evento_corrente_;
 
-  // Desenho.
-  forma_desenho_e forma_selecionada_;
-  std::vector<Posicao> pontos_desenho_;  // Para desenho livre.
+  // Desenho corrente.
+  FormaProto forma_proto_;
+  MapaFormas formas_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

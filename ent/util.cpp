@@ -1,4 +1,5 @@
 #include <cmath>
+#include <google/protobuf/repeated_field.h>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #else
@@ -47,6 +48,82 @@ void DesenhaDisco(GLfloat raio, int num_faces) {
     glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
   }
   glEnd();
+}
+
+namespace {
+template<class T>
+void DesenhaLinha3dBase(const T& pontos, float largura) {
+  if (pontos.size() == 0) {
+    return;
+  }
+  for (auto it = pontos.begin(); it != pontos.end() - 1;) {
+    const auto& ponto = *it;
+    glPushMatrix();
+    glTranslatef(ponto.x(), ponto.y(), ponto.z());
+    // Disco do ponto corrente.
+    DesenhaDisco(largura / 2.0f, 12);
+    // Reta ate proximo ponto.
+    const auto& proximo_ponto = *(++it);
+    float tam;
+    float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
+    glRotatef(graus, 0.0f, 0.0f, 1.0f);
+    glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
+    glPopMatrix();
+  }
+  const auto& ponto = *(pontos.end() - 1);
+  glPushMatrix();
+  glTranslatef(ponto.x(), ponto.y(), ponto.z());
+  DesenhaDisco(largura / 2.0f, 12);
+  glPopMatrix();
+}
+
+}  // namespace
+
+void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura) {
+  DesenhaLinha3dBase(pontos, largura);
+}
+
+void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura) {
+  DesenhaLinha3dBase(pontos, largura);
+}
+
+void LigaStencil() {
+  glPushAttrib(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glEnable(GL_BLEND);
+  glEnable(GL_STENCIL_TEST);  // Habilita stencil.
+  glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
+  glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
+}
+
+void DesenhaStencil(const float* cor) {
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT, viewport);
+  int largura = viewport[2], altura = viewport[3];
+
+  // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
+  glColorMask(true, true, true, true);
+  glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
+  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
+  // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix();
+  glLoadIdentity();
+  // Eixo com origem embaixo esquerda.
+  glOrtho(0, largura, 0, altura, 0, 1);
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+  glLoadIdentity();
+  MudaCorAlfa(cor);
+  glDisable(GL_DEPTH_TEST);
+  glRectf(0.0f, 0.0f, largura, altura);
+  glPopMatrix();
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  // Restaura atributos antes do stencil.
+  glPopAttrib();
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {

@@ -101,7 +101,7 @@ message ParametrosDesenho {
   optional bool entidade_selecionada = 4 [default=false];
   // Verdadeiro quando se quer desenhar as luzes.
   optional bool iluminacao = 5 [default=true];
-  // Verdadeiro quando se quer desenhar as entidades.
+  // Verdadeiro quando se quer desenhar as entidades e as formas.
   optional bool desenha_entidades = 6 [default=true];
   // Verdadeiro para desenhar texturas.
   optional bool desenha_texturas = 7 [default=true];
