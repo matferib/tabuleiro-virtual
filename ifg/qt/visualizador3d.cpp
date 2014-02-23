@@ -359,7 +359,11 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
     tabuleiro_->TrataBotaoAcaoPressionado(
         event->button() == Qt::RightButton, event->x(), height() - event->y());
   } else if (event->modifiers() == Qt::ControlModifier) {
-    tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
+    if (event->button() == Qt::LeftButton) {
+      tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
+    } else if (event->button() == Qt::RightButton) {
+      tabuleiro_->TrataBotaoDesenhoPressionado(event->x(), height() - event->y());
+    }
   } else {
     switch (event->button()) {
       case Qt::LeftButton:

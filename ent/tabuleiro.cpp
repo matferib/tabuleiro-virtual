@@ -652,111 +652,126 @@ void Tabuleiro::TrataMovimentoMouse() {
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
-  if (estado_ == ETAB_ROTACAO) {
-    // Realiza a rotacao da tela.
-    float olho_rotacao = olho_.rotacao_rad();
-    olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
-    if (olho_rotacao >= 2 * M_PI) {
-      olho_rotacao -= 2 * M_PI;
-    } else if (olho_rotacao <= - 2 * M_PI) {
-      olho_rotacao += 2 * M_PI;
-    }
-    olho_.set_rotacao_rad(olho_rotacao);
-    // move o olho no eixo Z de acordo com o eixo Y do movimento
-    float olho_altura = olho_.altura();
-    olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
-    if (olho_altura < OLHO_ALTURA_MINIMA) {
-      olho_altura = OLHO_ALTURA_MINIMA;
-    }
-    else if (olho_altura > OLHO_ALTURA_MAXIMA) {
-      olho_altura = OLHO_ALTURA_MAXIMA;
-    }
-    olho_.set_altura(olho_altura);
-
-    ultimo_x_ = x;
-    ultimo_y_ = y;
-  } else if (estado_ == ETAB_ENT_PRESSIONADA) {
-    // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
-    parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
-    parametros_desenho_.set_desenha_entidades(false);
-    GLdouble nx, ny, nz;
-    if (!MousePara3d(x, y, &nx, &ny, &nz)) {
-      return;
-    }
-    for (unsigned int id : ids_entidades_selecionadas_) {
-      auto* entidade_selecionada = BuscaEntidade(id);
-      if (entidade_selecionada == nullptr) {
-        continue;
+  switch (estado_) {
+    case ETAB_ROTACAO: {
+      // Realiza a rotacao da tela.
+      float olho_rotacao = olho_.rotacao_rad();
+      olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
+      if (olho_rotacao >= 2 * M_PI) {
+        olho_rotacao -= 2 * M_PI;
+      } else if (olho_rotacao <= - 2 * M_PI) {
+        olho_rotacao += 2 * M_PI;
       }
-      entidade_selecionada->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
-      Posicao pos;
-      pos.set_x(entidade_selecionada->X());
-      pos.set_y(entidade_selecionada->Y());
-      pos.set_z(ZChao(pos.x(), pos.y()));
-      auto& vp = rastros_movimento_[id];
-      int andou = AndouQuadrado(pos, vp.back());
-      if (andou != 0) {
-        if (andou == 1) {
-          // eixo X mantem, eixo y volta.
-          pos.set_y(vp.back().y());
-        } else if (andou == 2) {
-          // eixo y
-          pos.set_x(vp.back().x());
+      olho_.set_rotacao_rad(olho_rotacao);
+      // move o olho no eixo Z de acordo com o eixo Y do movimento
+      float olho_altura = olho_.altura();
+      olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
+      if (olho_altura < OLHO_ALTURA_MINIMA) {
+        olho_altura = OLHO_ALTURA_MINIMA;
+      }
+      else if (olho_altura > OLHO_ALTURA_MAXIMA) {
+        olho_altura = OLHO_ALTURA_MAXIMA;
+      }
+      olho_.set_altura(olho_altura);
+
+      ultimo_x_ = x;
+      ultimo_y_ = y;
+    }
+    break;
+    case ETAB_ENT_PRESSIONADA: {
+      // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
+      parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
+      parametros_desenho_.set_desenha_entidades(false);
+      GLdouble nx, ny, nz;
+      if (!MousePara3d(x, y, &nx, &ny, &nz)) {
+        return;
+      }
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        auto* entidade_selecionada = BuscaEntidade(id);
+        if (entidade_selecionada == nullptr) {
+          continue;
         }
-        vp.push_back(pos);
-        auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
-        auto* e = n->mutable_entidade();
-        e->set_id(id);
-        e->mutable_destino()->CopyFrom(pos);
-        central_->AdicionaNotificacaoRemota(n);
+        entidade_selecionada->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+        Posicao pos;
+        pos.set_x(entidade_selecionada->X());
+        pos.set_y(entidade_selecionada->Y());
+        pos.set_z(ZChao(pos.x(), pos.y()));
+        auto& vp = rastros_movimento_[id];
+        int andou = AndouQuadrado(pos, vp.back());
+        if (andou != 0) {
+          if (andou == 1) {
+            // eixo X mantem, eixo y volta.
+            pos.set_y(vp.back().y());
+          } else if (andou == 2) {
+            // eixo y
+            pos.set_x(vp.back().x());
+          }
+          vp.push_back(pos);
+          auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+          auto* e = n->mutable_entidade();
+          e->set_id(id);
+          e->mutable_destino()->CopyFrom(pos);
+          central_->AdicionaNotificacaoRemota(n);
+        }
       }
+      ultimo_x_ = x;
+      ultimo_y_ = y;
+      ultimo_x_3d_ = nx;
+      ultimo_y_3d_ = ny;
     }
-    ultimo_x_ = x;
-    ultimo_y_ = y;
-    ultimo_x_3d_ = nx;
-    ultimo_y_3d_ = ny;
-  } else if (estado_ == ETAB_DESLIZANDO) {
-    // Faz picking do tabuleiro sem entidades.
-    parametros_desenho_.set_desenha_entidades(false);
-    GLdouble nx, ny, nz;
-    if (!MousePara3d(x, y, &nx, &ny, &nz)) {
-      return;
-    }
-
-    float delta_x = nx - ultimo_x_3d_;
-    float delta_y = ny - ultimo_y_3d_;
-    auto* p = olho_.mutable_alvo();
-    p->set_x(p->x() - delta_x);
-    p->set_y(p->y() - delta_y);
-    olho_.clear_destino();
-
-    ultimo_x_ = x;
-    ultimo_y_ = y;
-    // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
-    // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
-  } else if ((estado_ == ETAB_QUAD_PRESSIONADO) || (estado_ == ETAB_SELECIONANDO_ENTIDADES)) {
-    quadrado_selecionado_ = -1;
-    double x3d, y3d, z3d;
-    parametros_desenho_.set_desenha_entidades(false);
-    if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
-      // Mouse fora do tabuleiro.
-      return;
-    }
-    ultimo_x_3d_ = x3d;
-    ultimo_y_3d_ = y3d;
-    ultimo_z_3d_ = z3d;
-    // Encontra as entidades cujos centros estao dentro dos limites da selecao.
-    std::vector<unsigned int> es;
-    for (const auto& eit : entidades_) {
-      ids_entidades_selecionadas_.clear();
-      const Entidade& e = *eit.second;
-      if (PontoDentroQuadrado(e.X(), e.Y(), primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_)) {
-        es.push_back(e.Id());
+    break;
+    case ETAB_DESLIZANDO: {
+      // Faz picking do tabuleiro sem entidades.
+      parametros_desenho_.set_desenha_entidades(false);
+      GLdouble nx, ny, nz;
+      if (!MousePara3d(x, y, &nx, &ny, &nz)) {
+        return;
       }
+
+      float delta_x = nx - ultimo_x_3d_;
+      float delta_y = ny - ultimo_y_3d_;
+      auto* p = olho_.mutable_alvo();
+      p->set_x(p->x() - delta_x);
+      p->set_y(p->y() - delta_y);
+      olho_.clear_destino();
+
+      ultimo_x_ = x;
+      ultimo_y_ = y;
+      // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
+      // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
     }
-    SelecionaEntidades(es);
-    estado_ = ETAB_SELECIONANDO_ENTIDADES;
+    break;
+    case ETAB_QUAD_PRESSIONADO:
+    case ETAB_SELECIONANDO_ENTIDADES: {
+      quadrado_selecionado_ = -1;
+      double x3d, y3d, z3d;
+      parametros_desenho_.set_desenha_entidades(false);
+      if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
+        // Mouse fora do tabuleiro.
+        return;
+      }
+      ultimo_x_3d_ = x3d;
+      ultimo_y_3d_ = y3d;
+      ultimo_z_3d_ = z3d;
+      // Encontra as entidades cujos centros estao dentro dos limites da selecao.
+      std::vector<unsigned int> es;
+      for (const auto& eit : entidades_) {
+        ids_entidades_selecionadas_.clear();
+        const Entidade& e = *eit.second;
+        if (PontoDentroQuadrado(e.X(), e.Y(), primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_)) {
+          es.push_back(e.Id());
+        }
+      }
+      SelecionaEntidades(es);
+      estado_ = ETAB_SELECIONANDO_ENTIDADES;
+    }
+    break;
+    case ETAB_DESENHANDO: {
+    }
+    break;
+    default: ;
   }
+
 }
 
 void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
@@ -909,7 +924,12 @@ void Tabuleiro::TrataBotaoLiberado() {
     case ETAB_QUAD_PRESSIONADO:
       estado_ = ETAB_QUAD_SELECIONADO;
       return;
+    case ETAB_DESENHANDO:
+      // TODO mudar para desenho selecionado.
+      estado_ = ETAB_OCIOSO;
+      return;
     default:
+      //estado_ = ETAB_OCIOSO;
       ;
   }
 }
@@ -1514,6 +1534,19 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
   ultimo_y_ = y;
   estado_anterior_rotacao_ = estado_;
   estado_ = ETAB_ROTACAO;
+}
+
+void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+  double x3d, y3d, z3d;
+  MousePara3d(x, y, &x3d, &y3d, &z3d);
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
+  primeiro_x_3d_ = x3d;
+  primeiro_y_3d_ = y3d;
+  primeiro_z_3d_ = z3d;
+  estado_ = ETAB_DESENHANDO;
 }
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {

@@ -38,6 +38,7 @@ enum etab_t {
   ETAB_QUAD_PRESSIONADO,
   ETAB_QUAD_SELECIONADO,
   ETAB_SELECIONANDO_ENTIDADES,
+  ETAB_DESENHANDO,
 };
 
 struct Sinalizador {
@@ -143,8 +144,11 @@ class Tabuleiro : public ntf::Receptor {
   /** trata o click do botao direito, preparando para movimento de deslizamento. */
   void TrataBotaoDireitoPressionado(int x, int y);
 
-  /** Trata o clique do botao de rotacao pressionado (normalmente, botao do meio). */
+  /** Trata o clique do botao de rotacao pressionado. */
   void TrataBotaoRotacaoPressionado(int x, int y);
+
+  /** Trata o botao de desenho pressionado. */
+  void TrataBotaoDesenhoPressionado(int x, int y);
 
   /** Ocorre quando se clica com o control em uma entidade. */
   void TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y);
