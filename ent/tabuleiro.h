@@ -201,6 +201,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a forma de desenho selecionada como padrao. */
   TipoForma FormaDesenhoSelecionada() const { return forma_selecionada_; }
 
+  /** Seleciona a cor do desenho (em RGB). */
+  void SelecionaCorDesenho(const Cor& cor) { forma_cor_ = cor; }
+
+  /** Retorna a cor de desenho. */
+  const Cor& CorDesenho() const { return forma_cor_; }
+
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
 
@@ -470,6 +476,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Desenho corrente.
   TipoForma forma_selecionada_;  // Necessario para poder limpar o proto em paz.
+  Cor forma_cor_;  // idem.
   FormaProto forma_proto_;
   MapaFormas formas_;
 

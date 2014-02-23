@@ -20,14 +20,15 @@ Forma::~Forma() {}
 
 void Forma::Desenha(const ParametrosDesenho& pd) {
   glPushAttrib(GL_ENABLE_BIT);
-  glEnable(GL_NORMALIZE);
-  if (proto_.cor().a() < 1.0f ) {
+  if (proto_.cor().a() < 1.0f) {
     glEnable(GL_BLEND);
   }
+  glEnable(GL_NORMALIZE);
   glDisable(GL_CULL_FACE);
   MudaCor(proto_.cor());
   switch (proto_.tipo()) {
     case TF_RETANGULO: {
+      glNormal3i(0, 0, 1);
       glRectf(proto_.inicio().x(), proto_.inicio().y(), proto_.fim().x(), proto_.fim().y());
     }
     break;
@@ -45,6 +46,7 @@ void Forma::Desenha(const ParametrosDesenho& pd) {
     }
     break;
     case TF_CIRCULO: {
+      glNormal3i(0, 0, 1);
       // Usar x como base para achatamento.
       float centro_x = (proto_.inicio().x() + proto_.fim().x()) / 2.0f;
       float centro_y = (proto_.inicio().y() + proto_.fim().y()) / 2.0f;
@@ -72,12 +74,14 @@ void Forma::Desenha(const ParametrosDesenho& pd) {
     }
     break;
     case TF_LIVRE: {
-      if (pd.transparencias()) {
+      glNormal3i(0, 0, 1);
+      bool usa_stencil = pd.transparencias() && proto_.cor().a() < 1.0f;
+      if (usa_stencil) {
         LigaStencil();
       }
       DesenhaLinha3d(proto_.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);
-      if (pd.transparencias()) {
-        DesenhaStencil(COR_AZUL_ALFA);
+      if (usa_stencil) {
+        DesenhaStencil(proto_.cor());
       }
     }
     break;

@@ -40,42 +40,6 @@ namespace {
 const int MAX_TEMPORIZADOR_TECLADO = 300;
 const int MAX_TEMPORIZADOR_MOUSE = 100;
 
-// Converte uma cor de float [0..1.0] para inteiro [0.255].
-int ConverteCor(float cor_float) {
-  int cor = static_cast<int>(255.0f * cor_float);
-  if (cor < 0) {
-    LOG(WARNING) << "Cor menor que zero!";
-    cor = 0;
-  } else if (cor > 255) {
-    LOG(WARNING) << "Cor maior que 255.";
-    cor = 255;
-  }
-  return cor;
-}
-
-// Converte uma cor de inteiro [0.255] para float [0..1.0].
-float ConverteCor(int cor_int) {
-  return cor_int / 255.0;
-}
-
-// Converte do formato ent::Proto para cor do QT.
-const QColor ProtoParaCor(const ent::Cor& cor) {
-  return QColor(ConverteCor(cor.r()),
-                ConverteCor(cor.g()),
-                ConverteCor(cor.b()),
-                ConverteCor(cor.a()));
-}
-
-// Converte cor do QT para ent::Cor.
-const ent::Cor CorParaProto(const QColor& qcor) {
-  ent::Cor cor;
-  cor.set_r(ConverteCor(qcor.red()));
-  cor.set_g(ConverteCor(qcor.green()));
-  cor.set_b(ConverteCor(qcor.blue()));
-  cor.set_a(ConverteCor(qcor.alpha()));
-  return cor;
-}
-
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -464,8 +428,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
   gerador.botao_cor->setStyleSheet(CorParaEstilo(entidade.cor()));
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
-    QColor cor =
-        QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
+    QColor cor = QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
     if (!cor.isValid()) {
       return;
     }

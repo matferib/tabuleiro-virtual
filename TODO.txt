@@ -1,5 +1,5 @@
 Versao 1.0
-- Arrumar desenho LIVRE e fazer picking dos desenhos e transmiti-los via rede.
+- Picking dos desenhos e transmiti-los via rede.
 - Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
 - Tirar desenho de cone ta so complicando codigo.
 - Adicionar modelos diversos.

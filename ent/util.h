@@ -48,6 +48,7 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
 void LigaStencil();
 void DesenhaStencil(const float* cor);
+void DesenhaStencil(const Cor& cor);
 
 /** Computa pos2 - pos1 em pos_res. */
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res);
