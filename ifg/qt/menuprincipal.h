@@ -1,7 +1,7 @@
 #ifndef MENU_PRINCIPAL_H
 #define MENU_PRINCIPAL_H
 
-/** 
+/**
 * @file include/ifg/qt/MenuPrincipal.h declaracao da bara de menu da janela principal.
 * Compilar com moc para gerar o fonte do qt.
 */
@@ -20,11 +20,7 @@ class Tabuleiro;
 namespace ifg {
 namespace qt {
 
-/** A barra de menu principal contem os seguintes menus:
-* <li> Jogo: Iniciar Mestre, Conectar no mestre, Sair
-* <li> Jogadores: Salvar, Restaurar, Adicionar, Remover 
-* <li> Sobre: Tabuleiro virtual
-*/
+/** A barra de menu principal e as acoes. */
 class MenuPrincipal : public QMenuBar, ntf::Receptor {
   Q_OBJECT
  public:
@@ -36,17 +32,18 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
 
  private:
   /** Menus da barra de menu. */
-  enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_ACOES, ME_SOBRE, ME_NUM };
+  enum menu_e { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_ACOES, ME_DESENHO, ME_SOBRE, ME_NUM };
   /** Os items de cada menu. */
-  enum menuitem_e { // items de cada menu 
+  enum menuitem_e { // items de cada menu
     MI_INICIAR = 0, MI_CONECTAR, MI_SAIR,  // ME_JOGO
     MI_DESFAZER = 0, MI_REFAZER, MI_OPCOES,
         MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_RESTAURAR,  // ME_TABULEIRO
     MI_PROPRIEDADES_ENTIDADE = 0, MI_ADICIONAR, MI_REMOVER,  // ME_ENTIDADES
-    // ME_ACOES eh vazio. 
+    // ME_ACOES eh vazio.
+    MI_CUBO = 0, MI_ESFERA, MI_CIRCULO, MI_RETANGULO, MI_LIVRE,  // ME_DESENHO
     MI_TABVIRT = 0,  // ME_SOBRE
   };
-  /** os modos (estados) do menu aceita. */  
+  /** os modos (estados) do menu aceita. */
   enum modomenu_e { MM_COMECO, MM_MESTRE, MM_JOGADOR };
 
  private slots:
@@ -65,6 +62,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
  private:
   /** Habilita/desabilita menus (e os items). */
   void EstadoMenu(bool estado, menu_e menu);
+
   /** Habilita/desabilita items de menu. */
   void EstadoItemMenu(bool estado, menu_e menu, const std::vector<menuitem_e>& items);
 
