@@ -1,14 +1,14 @@
 Versao 1.0
-- Parte de atualizacao de acoes tem que sair dos desenhos.
+- Arrumar desenho LIVRE e fazer picking dos desenhos e transmiti-los via rede.
+- Parte de atualizacao de ACOES tem que sair dos desenhos e ir para atualizacoes.
 - Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
 - Tirar desenho de cone ta so complicando codigo.
-- Objetos tipo features.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
-- Modelar menu com um proto ASCII para facilitar expansao.
 
 Versao 2.0
+- Modelar menu com um proto ASCII para facilitar expansao.
 - Botao de aplicar mudancas nos dialogos.
 - No movimento com teclado, acumular teclas ou deltas.
 - Shader.

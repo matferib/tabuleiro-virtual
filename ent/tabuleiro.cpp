@@ -237,6 +237,7 @@ void Tabuleiro::EstadoInicial() {
   processando_desfazer_ = false;
   // Desenho.
   forma_proto_.Clear();
+  forma_selecionada_ = TF_CUBO;
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -753,7 +754,6 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       }
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
-      ultimo_z_3d_ = z3d;
       auto* fim = forma_proto_.mutable_fim();
       fim->set_x(ultimo_x_3d_);
       fim->set_y(ultimo_y_3d_);
@@ -761,6 +761,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (forma_proto_.tipo() == TF_LIVRE) {
         forma_proto_.add_ponto()->CopyFrom(*fim);
       }
+      LOG(INFO) << "Prosseguindo: " << forma_proto_.ShortDebugString();
     }
     break;
     default: ;
@@ -918,10 +919,14 @@ void Tabuleiro::TrataBotaoLiberado() {
     case ETAB_QUAD_PRESSIONADO:
       estado_ = ETAB_QUAD_SELECIONADO;
       return;
-    case ETAB_DESENHANDO:
+    case ETAB_DESENHANDO: {
+      CorParaProto(COR_BRANCA, forma_proto_.mutable_cor());
+      LOG(INFO) << "Finalizando: " << forma_proto_.ShortDebugString();
+      formas_.insert(std::make_pair(GeraIdEntidade(id_cliente_), std::unique_ptr<Forma>(new Forma(forma_proto_))));
       // TODO mudar para desenho selecionado.
       estado_ = ETAB_OCIOSO;
       return;
+    }
     default:
       //estado_ = ETAB_OCIOSO;
       ;
@@ -1079,10 +1084,10 @@ void Tabuleiro::DesenhaCena() {
   glPushName(0);
   DesenhaEntidades();
   glPopName();
-  // Desenha as fornas bi terceiro lugar da pilha.
-  glPushName(1);
+  // Desenha as fornas no terceiro lugar da pilha.
+  //glPushName(1);
   DesenhaFormas();
-  glPopName();
+  //glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
@@ -1298,7 +1303,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
     case TF_CIRCULO:
     case TF_CUBO:
     case TF_LIVRE:
-      forma_proto_.set_tipo(fd);
+      forma_selecionada_ = fd;
       break;
     default:
       LOG(ERROR) << "Forma de desenho invalida: " << fd;
@@ -1545,21 +1550,24 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   ultimo_y_ = y;
   double x3d, y3d, z3d;
   MousePara3d(x, y, &x3d, &y3d, &z3d);
-  ultimo_x_3d_ = x3d;
-  ultimo_y_3d_ = y3d;
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
-  primeiro_z_3d_ = z3d;
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
   DeselecionaEntidades();
+  forma_proto_.Clear();
+  forma_proto_.set_tipo(forma_selecionada_);
   auto* inicio = forma_proto_.mutable_inicio();
-  inicio->set_x(ultimo_x_3d_);
-  inicio->set_y(ultimo_y_3d_);
+  inicio->set_x(primeiro_x_3d_);
+  inicio->set_y(primeiro_y_3d_);
   inicio->set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
   forma_proto_.mutable_fim()->CopyFrom(*inicio);
   if (forma_proto_.tipo() == TF_LIVRE) {
     forma_proto_.add_ponto()->CopyFrom(*inicio);
   }
+  CorAlfaParaProto(COR_AZUL_ALFA, forma_proto_.mutable_cor());
   estado_ = ETAB_DESENHANDO;
+  LOG(INFO) << "Iniciando: " << forma_proto_.ShortDebugString();
 }
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
