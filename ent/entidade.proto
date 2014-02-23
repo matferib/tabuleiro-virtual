@@ -2,6 +2,15 @@ package ent;
 
 enum TipoEntidade {
   TE_ENTIDADE = 0;
+  TE_FORMA = 1;
+}
+
+enum TipoForma {
+  TF_CUBO = 0;
+  TF_ESFERA = 1;
+  TF_CIRCULO = 2;
+  TF_RETANGULO = 3;
+  TF_LIVRE = 4;
 }
 
 enum TamanhoEntidade {
@@ -52,6 +61,7 @@ message InfoTextura {
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   optional TipoEntidade tipo = 1;
+  optional TipoForma sub_tipo = 18;
   // Identificador global da entidade composto pelo id_criador << 28 | id_local.
   // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
   // um GLuint para permitir realização da operação de picking no 3d.
@@ -86,6 +96,10 @@ message EntidadeProto {
   optional bool morta = 15 [default=false];
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
   optional bool selecionavel_para_jogador = 16 [default=true];
+  // Para formas.
+  optional Posicao inicio = 19;
+  optional Posicao fim = 20;
+  repeated Posicao ponto = 21;
 }
 
 // Alguns estados são mantidos nesta variável.
