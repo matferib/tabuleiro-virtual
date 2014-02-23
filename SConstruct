@@ -37,9 +37,9 @@ if sistema == 'win32':
   env['CXXFLAGS'] += ['-std=c++11', '-Wall', '-g']
   env['LIBS'] += ['freeglut_static', 'glu32', 'opengl32', 'protobuf', 'boost_system-mgw48-mt-1_55', 'boost_timer-mgw48-mt-1_55', 'boost_chrono-mgw48-mt-1_55', 'ws2_32', 'Mswsock', 'Gdi32', 'Winmm', 'ole32', 'Oleacc', 'OleAut32', 'libuuid', 'Comdlg32', 'imm32', 'Winspool']
   env['LIBPATH'] += [ 'win32/lib' ]
-  env['LINKFLAGS'] += ['-Wl,--subsystem,windows'] 
+  env['LINKFLAGS'] += ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
-  env['CPPPATH'] += ['./', 
+  env['CPPPATH'] += ['./',
                      '/usr/local/lib/QtGui.framework/Headers',
                      '/usr/local/lib/QtOpenGL.framework/Headers',
                      '/usr/local/lib/QtCore.framework/Headers']
@@ -78,10 +78,11 @@ cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
 cAcoes = env.Object('ent/acoes.cpp')
 cConstantes = env.Object('ent/constantes.cpp')
+cFormas = env.Object('ent/formas.cpp')
 cEntUtil = env.Object('ent/util.cpp')
 ent_proto = env.Protoc(
   target = [],
-  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto'],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/formas.proto'],
 )
 
 # net
@@ -108,6 +109,6 @@ env.Program(
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil,
+		ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6], cTabuleiro, cEntidade, cAcoes, cConstantes, cFormas, cEntUtil,
 	]
 )

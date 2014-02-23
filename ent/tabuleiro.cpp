@@ -24,6 +24,8 @@
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
+#include "ent/formas.h"
+#include "ent/formas.pb.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -137,32 +139,6 @@ float DistanciaHorizontalQuadrado(const Posicao& pos1, const Posicao& pos2) {
   return distancia;
 }
 
-// Desenha uma linha 3d passando pelos pontos. Desenha um circulo de largura 'largura / 2' em cada ponto.
-void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura) {
-  if (pontos.empty()) {
-    return;
-  }
-  for (auto it = pontos.begin(); it != pontos.end() - 1;) {
-    const auto& ponto = *it;
-    glPushMatrix();
-    glTranslatef(ponto.x(), ponto.y(), ponto.z());
-    // Disco do ponto corrente.
-    DesenhaDisco(largura / 2.0f, 12);
-    // Reta ate proximo ponto.
-    const auto& proximo_ponto = *(++it);
-    float tam;
-    float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
-    glRotatef(graus, 0.0f, 0.0f, 1.0f);
-    glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
-    glPopMatrix();
-  }
-  const auto& ponto = pontos.back();
-  glPushMatrix();
-  glTranslatef(ponto.x(), ponto.y(), ponto.z());
-  DesenhaDisco(largura / 2.0f, 12);
-  glPopMatrix();
-}
-
 }  // namespace.
 
 Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
@@ -260,8 +236,7 @@ void Tabuleiro::EstadoInicial() {
   evento_corrente_ = lista_eventos_.end();
   processando_desfazer_ = false;
   // Desenho.
-  forma_selecionada_ = FD_RETANGULO;
-  pontos_desenho_.clear();
+  forma_proto_.Clear();
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -779,12 +754,12 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
       ultimo_z_3d_ = z3d;
-      if (forma_selecionada_ == FD_LIVRE) {
-        Posicao pos;
-        pos.set_x(ultimo_x_3d_);
-        pos.set_y(ultimo_y_3d_);
-        pos.set_z(ZChao(pos.x(), pos.y()));
-        pontos_desenho_.push_back(pos);
+      auto* fim = forma_proto_.mutable_fim();
+      fim->set_x(ultimo_x_3d_);
+      fim->set_y(ultimo_y_3d_);
+      fim->set_z(ZChao(ultimo_x_3d_, ultimo_y_3d_));
+      if (forma_proto_.tipo() == TF_LIVRE) {
+        forma_proto_.add_ponto()->CopyFrom(*fim);
       }
     }
     break;
@@ -1099,10 +1074,14 @@ void Tabuleiro::DesenhaCena() {
     return;
   }
 
-  // desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
+  // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
   glPushName(0);
   DesenhaEntidades();
+  glPopName();
+  // Desenha as fornas bi terceiro lugar da pilha.
+  glPushName(1);
+  DesenhaFormas();
   glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
@@ -1237,13 +1216,19 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   parametros_desenho_.set_desenha_barra_vida(false);
 }
 
-void Tabuleiro::DesenhaEntidades() {
-  DesenhaEntidadesBase(&Entidade::Desenha);
-}
-
-
-void Tabuleiro::DesenhaEntidadesTranslucidas() {
-  DesenhaEntidadesBase(&Entidade::DesenhaTranslucido);
+void Tabuleiro::DesenhaFormasBase(const std::function<void (Forma*, const ParametrosDesenho&)>& f) {
+  for (MapaFormas::iterator it = formas_.begin(); it != formas_.end(); ++it) {
+    Forma* forma = it->second.get();
+    if (forma == nullptr) {
+      LOG(ERROR) << "Forma nao existe.";
+      continue;
+    }
+    // Nao roda disco se estiver arrastando.
+    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
+                                                 EntidadeEstaSelecionada(forma->Id()));
+    f(forma, parametros_desenho_);
+  }
+  parametros_desenho_.set_entidade_selecionada(false);
 }
 
 void Tabuleiro::DesenhaRastros() {
@@ -1302,75 +1287,18 @@ void Tabuleiro::DesenhaAcoes() {
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
-  glPushAttrib(GL_ENABLE_BIT);
-  glEnable(GL_NORMALIZE);
-  glEnable(GL_BLEND);
-  glDisable(GL_CULL_FACE);
-  MudaCor(COR_AZUL_ALFA);
-  switch (forma_selecionada_) {
-    case FD_RETANGULO: {
-      glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
-    }
-    break;
-    case FD_ESFERA: {
-      // Usar x como base para achatamento.
-      float centro_x = (primeiro_x_3d_ + ultimo_x_3d_) / 2.0f;
-      float centro_y = (primeiro_y_3d_ + ultimo_y_3d_) / 2.0f;
-      float escala_x = fabs(primeiro_x_3d_ - ultimo_x_3d_);
-      float escala_y = fabs(primeiro_y_3d_ - ultimo_y_3d_);
-      glPushMatrix();
-      glTranslatef(centro_x, centro_y, 0.0f);
-      glScalef(escala_x, escala_y, std::min(escala_x, escala_y));
-      glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
-      glPopMatrix();
-    }
-    break;
-    case FD_CIRCULO: {
-      // Usar x como base para achatamento.
-      float centro_x = (primeiro_x_3d_ + ultimo_x_3d_) / 2.0f;
-      float centro_y = (primeiro_y_3d_ + ultimo_y_3d_) / 2.0f;
-      float escala_x = fabs(primeiro_x_3d_ - ultimo_x_3d_);
-      float escala_y = fabs(primeiro_y_3d_ - ultimo_y_3d_);
-      glPushMatrix();
-      glTranslatef(centro_x, centro_y, 0.0f);
-      glScalef(escala_x, escala_y, 1.0f);
-      DesenhaDisco(0.5f, 12);
-      glPopMatrix();
-    }
-    break;
-    case FD_CUBO: {
-      // Usar x como base para achatamento.
-      float centro_x = (primeiro_x_3d_ + ultimo_x_3d_) / 2.0f;
-      float centro_y = (primeiro_y_3d_ + ultimo_y_3d_) / 2.0f;
-      float escala_x = fabs(primeiro_x_3d_ - ultimo_x_3d_);
-      float escala_y = fabs(primeiro_y_3d_ - ultimo_y_3d_);
-      glPushMatrix();
-      glTranslatef(centro_x, centro_y, 0.0f);
-      // Altura do cubo do lado do quadrado.
-      glScalef(escala_x, escala_y, TAMANHO_LADO_QUADRADO);
-      glutSolidCube(1.0f);
-      glPopMatrix();
-    }
-    case FD_LIVRE: {
-      LigaStencil();
-      DesenhaLinha3d(pontos_desenho_, TAMANHO_LADO_QUADRADO / 2.0f);
-      DesenhaStencil(COR_AZUL_ALFA);
-    }
-    break;
-    default:
-      LOG(ERROR) << "Forma de desenho invalida";
-  }
-  glPopAttrib();
+  Forma f(forma_proto_);
+  f.Desenha(parametros_desenho_);
 }
 
-void Tabuleiro::SelecionaFormaDesenho(forma_desenho_e fd) {
+void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
   switch (fd) {
-    case FD_RETANGULO:
-    case FD_ESFERA:
-    case FD_CIRCULO:
-    case FD_CUBO:
-    case FD_LIVRE:
-      forma_selecionada_ = fd;
+    case TF_RETANGULO:
+    case TF_ESFERA:
+    case TF_CIRCULO:
+    case TF_CUBO:
+    case TF_LIVRE:
+      forma_proto_.set_tipo(fd);
       break;
     default:
       LOG(ERROR) << "Forma de desenho invalida: " << fd;
@@ -1396,41 +1324,6 @@ void Tabuleiro::DesenhaSombras() {
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, std::min(0.5f, sinf(kAnguloInclinacao)) };
   DesenhaStencil(cor_sombra);
-}
-
-void Tabuleiro::LigaStencil() {
-  glPushAttrib(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_BLEND);
-  glEnable(GL_STENCIL_TEST);  // Habilita stencil.
-  glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
-  glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-  glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
-}
-
-void Tabuleiro::DesenhaStencil(const float* cor) {
-  // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-  glColorMask(true, true, true, true);
-  glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
-  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
-  // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  // Eixo com origem embaixo esquerda.
-  glOrtho(0, largura_, 0, altura_, 0, 1);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  MudaCorAlfa(cor);
-  glDisable(GL_DEPTH_TEST);
-  glRectf(0.0f, 0.0f, largura_, altura_);
-  glPopMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  // Restaura atributos antes do stencil.
-  glPopAttrib();
-  glMatrixMode(GL_MODELVIEW);
 }
 
 void Tabuleiro::AtualizaOlho() {
@@ -1658,13 +1551,13 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
   DeselecionaEntidades();
-  if (forma_selecionada_ == FD_LIVRE) {
-    pontos_desenho_.clear();
-    Posicao pos;
-    pos.set_x(primeiro_x_3d_);
-    pos.set_y(primeiro_y_3d_);
-    pos.set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
-    pontos_desenho_.push_back(pos);
+  auto* inicio = forma_proto_.mutable_inicio();
+  inicio->set_x(ultimo_x_3d_);
+  inicio->set_y(ultimo_y_3d_);
+  inicio->set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
+  forma_proto_.mutable_fim()->CopyFrom(*inicio);
+  if (forma_proto_.tipo() == TF_LIVRE) {
+    forma_proto_.add_ponto()->CopyFrom(*inicio);
   }
   estado_ = ETAB_DESENHANDO;
 }
@@ -1868,7 +1761,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (!entidades_.empty()) {
     LOG(ERROR) << "Tabuleiro não está vazio!";
     return;
-  } 
+  }
   if (notificacao.has_erro()) {
     auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
     ne->set_erro(std::string("Erro ao deserializar tabuleiro: ") + notificacao.erro());

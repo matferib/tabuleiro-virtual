@@ -308,7 +308,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            acao == acoes_[ME_DESENHO][MI_RETANGULO] ||
            acao == acoes_[ME_DESENHO][MI_CIRCULO] ||
            acao == acoes_[ME_DESENHO][MI_LIVRE]) {
-    tabuleiro_->SelecionaFormaDesenho(static_cast<ent::Tabuleiro::forma_desenho_e>(acao->data().toInt()));
+    tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
   }
   // ..
   else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {
