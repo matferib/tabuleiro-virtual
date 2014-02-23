@@ -23,14 +23,6 @@ class Entidade;
 class InfoTextura;
 class Texturas;
 
-/** botoes do mouse. */
-enum botao_e {
-  BOTAO_NENHUM,
-  BOTAO_ESQUERDO,
-  BOTAO_DIREITO,
-  BOTAO_MEIO
-};
-
 /** teclas reconhecidas. Mesmo valor do QT para simplificar. */
 enum tecla_e {
   TECLA_DEL = 0x01000007,
@@ -56,8 +48,8 @@ struct Sinalizador {
 typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
 typedef std::unordered_set<unsigned int> MapaClientes;
 
-/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste, 
-* Y para o norte e Z para alto. Cada unidade corresponde a um metro, portanto os quadrados 
+/** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste,
+* Y para o norte e Z para alto. Cada unidade corresponde a um metro, portanto os quadrados
 * sao de tamanho 1,5m.
 */
 class Tabuleiro : public ntf::Receptor {
