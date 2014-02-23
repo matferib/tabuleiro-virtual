@@ -868,14 +868,6 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   }
 }
 
-void Tabuleiro::TrataDuploClique(botao_e botao, int x, int y) {
-  if (botao == BOTAO_ESQUERDO) {
-    TrataDuploCliqueEsquerdo(x, y);
-  } else if (botao == BOTAO_DIREITO) {
-    TrataDuploCliqueDireito(x, y);
-  }
-}
-
 void Tabuleiro::TrataBotaoLiberado(botao_e botao) {
   switch (estado_) {
     case ETAB_ROTACAO:
