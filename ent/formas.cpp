@@ -10,13 +10,12 @@
 #endif
 #include "ent/constantes.h"
 #include "ent/formas.h"
-#include "ent/formas.pb.h"
 #include "ent/util.h"
 #include "log/log.h"
 
 namespace ent {
 
-Forma::Forma(const FormaProto& proto) : proto_(proto) {}
+Forma::Forma(const EntidadeProto& proto) : proto_(proto) {}
 Forma::~Forma() {}
 
 void Forma::Desenha(const ParametrosDesenho& pd) {
@@ -27,7 +26,7 @@ void Forma::Desenha(const ParametrosDesenho& pd) {
   glEnable(GL_NORMALIZE);
   glDisable(GL_CULL_FACE);
   MudaCor(proto_.cor());
-  switch (proto_.tipo()) {
+  switch (proto_.sub_tipo()) {
     case TF_RETANGULO: {
       glNormal3i(0, 0, 1);
       glRectf(proto_.inicio().x(), proto_.inicio().y(), proto_.fim().x(), proto_.fim().y());

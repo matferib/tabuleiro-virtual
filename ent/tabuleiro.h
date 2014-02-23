@@ -11,7 +11,6 @@
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/formas.h"
-#include "ent/formas.pb.h"
 #include "ent/tabuleiro.pb.h"
 #include "ntf/notificacao.h"
 
@@ -477,7 +476,7 @@ class Tabuleiro : public ntf::Receptor {
   // Desenho corrente.
   TipoForma forma_selecionada_;  // Necessario para poder limpar o proto em paz.
   Cor forma_cor_;  // idem.
-  FormaProto forma_proto_;
+  EntidadeProto forma_proto_;
   MapaFormas formas_;
 
   // elimina copia

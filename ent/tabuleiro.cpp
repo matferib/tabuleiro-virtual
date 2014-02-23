@@ -25,7 +25,6 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/formas.h"
-#include "ent/formas.pb.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -755,7 +754,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       fim->set_x(ultimo_x_3d_);
       fim->set_y(ultimo_y_3d_);
       fim->set_z(ZChao(ultimo_x_3d_, ultimo_y_3d_));
-      if (forma_proto_.tipo() == TF_LIVRE) {
+      if (forma_proto_.sub_tipo() == TF_LIVRE) {
         forma_proto_.add_ponto()->CopyFrom(*fim);
       }
       LOG(INFO) << "Prosseguindo: " << forma_proto_.ShortDebugString();
@@ -1591,13 +1590,14 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   ultimo_y_3d_ = y3d;
   DeselecionaEntidades();
   forma_proto_.Clear();
-  forma_proto_.set_tipo(forma_selecionada_);
+  forma_proto_.set_tipo(TE_FORMA);
+  forma_proto_.set_sub_tipo(forma_selecionada_);
   auto* inicio = forma_proto_.mutable_inicio();
   inicio->set_x(primeiro_x_3d_);
   inicio->set_y(primeiro_y_3d_);
   inicio->set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
   forma_proto_.mutable_fim()->CopyFrom(*inicio);
-  if (forma_proto_.tipo() == TF_LIVRE) {
+  if (forma_proto_.sub_tipo() == TF_LIVRE) {
     forma_proto_.add_ponto()->CopyFrom(*inicio);
   }
   forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
