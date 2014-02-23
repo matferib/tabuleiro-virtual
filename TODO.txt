@@ -1,5 +1,5 @@
 Versao 1.0
-- Arrumar Acoes que afetam pontos de vida vinda de um comando so (UNDO unico).
+- Tirar hack da entidade do tabuleiro e adicionar no proto entidade o campo novo.
 - Arrumar desenho LIVRE e fazer picking dos desenhos e transmiti-los via rede.
 - Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
 - Tirar desenho de cone ta so complicando codigo.
@@ -27,5 +27,4 @@ Versao 2.0
 - Tirar o evento de movimento ao liberar botao sem movimento.
 - Tooltip com mais informacao.
 - Arrumar tempo de desenho de cena.
-- Undo e redo para outros tipos de acoes.
 - Performance para tabuleiro grande.

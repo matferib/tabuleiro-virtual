@@ -71,6 +71,7 @@ class Entidade {
 
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();
+
   /** Atualiza pontos de vida do proto passado, matando ou revivendo os bits de acordo. */
   static void AtualizaPontosVidaProto(int delta_pontos_vida, EntidadeProto* proto);
 

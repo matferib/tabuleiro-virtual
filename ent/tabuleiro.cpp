@@ -234,7 +234,7 @@ void Tabuleiro::EstadoInicial() {
   // Lista de eventos.
   lista_eventos_.clear();
   evento_corrente_ = lista_eventos_.end();
-  processando_desfazer_ = false;
+  ignorar_lista_eventos_ = false;
   // Desenho.
   forma_proto_.Clear();
   forma_selecionada_ = TF_CUBO;
@@ -286,7 +286,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       auto* entidade = entidade_up.get();
       // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
       // se a entidade eh visivel e selecionavel para os jogadores.
-      if (!processando_desfazer_) {
+      if (!ignorar_lista_eventos_) {
         modelo.set_visivel(!modo_mestre_);
         modelo.set_selecionavel_para_jogador(!modo_mestre_);
         PreencheIdEntidadeProto(id_cliente_, id_entidade, &modelo);
@@ -487,24 +487,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_TEMPORIZADOR: {
       AtualizaOlho();
-      for (auto& id_ent : entidades_) {
-        id_ent.second->Atualiza();
-      }
-      std::vector<std::unique_ptr<Acao>> copia_acoes;
-      copia_acoes.swap(acoes_);
-      for (auto& a : copia_acoes) {
-        a->Atualiza();
-        if (a->Finalizada()) {
-          const auto& ap = a->Proto();
-          if (ap.has_id_entidade_destino() &&
-              ap.afeta_pontos_vida()) {
-            AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
-          }
-        } else {
-          acoes_.push_back(std::unique_ptr<Acao>(a.release()));
-        }
-      }
-      VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
+      AtualizaEntidades();
+      AtualizaAcoes();
       return true;
     }
     case ntf::TN_REINICIAR_TABULEIRO: {
@@ -832,6 +816,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   }
 
   if (estado_ == ETAB_OCIOSO) {
+    // Acoes sem origem.
     if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
       int delta_pontos_vida = lista_pontos_vida_.front();
       lista_pontos_vida_.pop_front();
@@ -839,19 +824,27 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
       acao_proto.set_afeta_pontos_vida(true);
     }
     VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
-    auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
-    n->mutable_acao()->Swap(&acao_proto);
-    central_->AdicionaNotificacao(n);
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    n.mutable_acao()->Swap(&acao_proto);
+    TrataNotificacao(n);
   } else if (estado_ == ETAB_ENTS_SELECIONADAS) {
     if (acao_proto.efeito_area()) {
-      // Uma acao.
+      // Para acoes de area, faz apenas uma acao.
       VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
-      auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
-      n->mutable_acao()->CopyFrom(acao_proto);
-      central_->AdicionaNotificacao(n);
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_ADICIONAR_ACAO);
+      n.mutable_acao()->CopyFrom(acao_proto);
+      TrataNotificacao(n);
     } else {
-      // Uma acao por entidade selecionada.
+      // Uma acao feita por cada entidade selecionada.
       unsigned int atraso = 0;
+      ntf::Notificacao grupo_notificacoes;
+      grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      // Para desfazer.
+      ntf::Notificacao grupo_desfazer;
+      grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      Entidade* entidade_destino = acao_proto.has_id_entidade_destino() ? BuscaEntidade(acao_proto.id_entidade_destino()) : nullptr;
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -859,17 +852,32 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
         }
         acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
         acao_proto.set_atraso(atraso);
-        if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
+        if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
           int delta_pontos_vida = lista_pontos_vida_.front();
           lista_pontos_vida_.pop_front();
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
+          // Para desfazer
+          {
+            auto* nd = grupo_desfazer.add_notificacao();
+            // Efeito antes acao. Hack da entidade do tabuleiro aqui.
+            auto* e_antes = nd->mutable_tabuleiro()->add_entidade();
+            e_antes->CopyFrom(entidade_destino->Proto());
+            auto* e_depois = nd->mutable_entidade();
+            e_depois->CopyFrom(entidade_destino->Proto());
+            nd->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+            Entidade::AtualizaPontosVidaProto(delta_pontos_vida, e_depois);
+          }
         }
         VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
-        auto* n = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+        auto* n = grupo_notificacoes.add_notificacao();
+        n->set_tipo(ntf::TN_ADICIONAR_ACAO);
         n->mutable_acao()->CopyFrom(acao_proto);
-        central_->AdicionaNotificacao(n);
         atraso += 50;
+      }
+      TrataNotificacao(grupo_notificacoes);
+      if (entidade_destino != nullptr) {
+        AdicionaNotificacaoListaEventos(grupo_desfazer);
       }
     }
   }
@@ -1354,6 +1362,33 @@ void Tabuleiro::AtualizaOlho() {
   if (chegou) {
     olho_.clear_destino();
   }
+}
+
+void Tabuleiro::AtualizaEntidades() {
+  for (auto& id_ent : entidades_) {
+    id_ent.second->Atualiza();
+  }
+}
+
+void Tabuleiro::AtualizaAcoes() {
+  // Qualquer acao adicionada aqui ja foi colocada na lista de desfazer durante a criacao.
+  ignorar_lista_eventos_ = true;
+  std::vector<std::unique_ptr<Acao>> copia_acoes;
+  copia_acoes.swap(acoes_);
+  for (auto& a : copia_acoes) {
+    a->Atualiza();
+    if (a->Finalizada()) {
+      const auto& ap = a->Proto();
+      if (ap.has_id_entidade_destino() &&
+          ap.afeta_pontos_vida()) {
+        AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
+      }
+    } else {
+      acoes_.push_back(std::unique_ptr<Acao>(a.release()));
+    }
+  }
+  ignorar_lista_eventos_ = false;
+  VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
 }
 
 // Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
@@ -1891,8 +1926,8 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
 }
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
-  if (processando_grupo_ || processando_desfazer_) {
-    VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer pois (processando_grupo_ || processando_desfazer_) == true";
+  if (processando_grupo_ || ignorar_lista_eventos_) {
+    VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer pois (processando_grupo_ || ignorar_lista_eventos_) == true";
     return;
   }
   if (evento_corrente_ != lista_eventos_.end()) {
@@ -1974,7 +2009,7 @@ void Tabuleiro::TrataComandoDesfazer() {
     return;
   }
   --evento_corrente_;
-  processando_desfazer_ = true;
+  ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
   ntf::Notificacao n_inversa = InverteNotificacao(n_original);
   if (n_inversa.tipo() != ntf::TN_ERRO) {
@@ -1982,7 +2017,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   } else {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
   }
-  processando_desfazer_ = false;
+  ignorar_lista_eventos_ = false;
   VLOG(1) << "Notificacao desfeita, tamanho lista: " << lista_eventos_.size();
 }
 
@@ -1995,10 +2030,10 @@ void Tabuleiro::TrataComandoRefazer() {
     VLOG(1) << "Não há ações para refazer.";
     return;
   }
-  processando_desfazer_ = true;
+  ignorar_lista_eventos_ = true;
   const ntf::Notificacao& n_original = *evento_corrente_;
   TrataNotificacao(n_original);
-  processando_desfazer_ = false;
+  ignorar_lista_eventos_ = false;
   ++evento_corrente_;
 }
 

@@ -265,6 +265,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
   void AtualizaOlho();
 
+  /** Atualiza as aentidades do tabuleiro. */
+  void AtualizaEntidades();
+
+  /** Atualiza as acoes do tabuleiro, removendo as finalizadas. */
+  void AtualizaAcoes();
+
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
   * desta funcao.
@@ -458,8 +464,8 @@ class Tabuleiro : public ntf::Receptor {
   std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_;
 
   // Para desfazer e refazer. A lista tem tamanho maximo.
-  bool processando_desfazer_;
-  std::list<ntf::Notificacao> lista_eventos_;
+  bool ignorar_lista_eventos_;  // Quando verdadeiro, eventos inseridos na lista de eventos serao ignorados.
+  std::list<ntf::Notificacao> lista_eventos_;  // Usar sempre as funcoes de evento para acessar.
   std::list<ntf::Notificacao>::iterator evento_corrente_;
 
   // Desenho corrente.
