@@ -782,16 +782,16 @@ void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
   opcoes_.set_iluminacao_mestre_igual_jogadores(!opcoes_.iluminacao_mestre_igual_jogadores());
 }
 
-void Tabuleiro::TrataBotaoAcaoPressionado(botao_e botao, int x, int y) {
+void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   AcaoProto acao_proto;
-  if (botao == BOTAO_ESQUERDO) {
+  if (acao_padrao) {
     // usa acao padrao.
-    VLOG(2) << "Acao padrao";
-    acao_proto.CopyFrom(*acao_selecionada_);
-  } else {
-    // Usa acoes.
     VLOG(2) << "Acao sinalizacao";
     acao_proto.set_tipo(ACAO_SINALIZACAO);
+  } else {
+    // Usa acoes.
+    VLOG(2) << "Acao padrao";
+    acao_proto.CopyFrom(*acao_selecionada_);
   }
   unsigned int id, pos_pilha;
   float profundidade;

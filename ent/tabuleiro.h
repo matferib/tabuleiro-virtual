@@ -151,10 +151,9 @@ class Tabuleiro : public ntf::Receptor {
   void TrataBotaoAlternarIluminacaoMestre();
 
   /** trata o botao pressionado em modo de acao, recebendo x, y (ja em coordenadas opengl). 
-  * Acao com botao esquerdo respeita a selecao de padrao, botao direito usa sinalizacao.
-  * Algumas acoes podem causar um delta de pontos de vida no alvo, indicado por delta_pontos_vida.
+  * Se acao_padrao == true, usa a acao de sinalizacao, caso contrario, usa a acao selecionada.
   */
-  void TrataBotaoAcaoPressionado(botao_e botao, int x, int y);
+  void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
 
   /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
   void TrataDuploClique(botao_e botao, int x, int y);
