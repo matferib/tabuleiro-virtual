@@ -397,7 +397,11 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     mousePressEvent(event2);
     return;
   }
-  tabuleiro_->TrataDuploClique(MapeiaBotao(*event), event->x(), height() - event->y());
+  if (event->button() == Qt::LeftButton) {
+    tabuleiro_->TrataDuploCliqueEsquerdo(event->x(), height() - event->y());
+  } else if (event->button() == Qt::RightButton) {
+    tabuleiro_->TrataDuploCliqueDireito(event->x(), height() - event->y());
+  }
   event->accept();
 }
 

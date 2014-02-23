@@ -155,8 +155,11 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y);
 
-  /** Trata o click duplo, recebendo x, y (coordenadas opengl). */
-  void TrataDuploClique(botao_e botao, int x, int y);
+  /** Trata o clique duplo do botao esquerdo. */
+  void TrataDuploCliqueEsquerdo(int x, int y);
+
+  /** Trata o duplo clique com botao direito. */
+  void TrataDuploCliqueDireito(int x, int y);
 
   /** Trata o evento de mouse parado em um determinado local (coordenadas opengl). */
   void TrataMouseParadoEm(int x, int y);
@@ -269,12 +272,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** trata o click do botao direito, preparando para movimento de deslizamento. */
   void TrataCliqueDireito(int x, int y);
-
-  /** Trata o clique duplo do botao esquerdo. */
-  void TrataDuploCliqueEsquerdo(int x, int y);
-
-  /** Trata o duplo clique com botao direito. */
-  void TrataDuploCliqueDireito(int x, int y);
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
