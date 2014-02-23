@@ -1,3 +1,4 @@
+#include <cmath>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
