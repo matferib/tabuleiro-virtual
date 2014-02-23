@@ -196,6 +196,19 @@ class Tabuleiro : public ntf::Receptor {
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }
 
+  enum forma_desenho_e {
+    FD_CUBO = 0,
+    FD_ESFERA,
+    FD_CIRCULO,
+    FD_RETANGULO,
+    FD_LIVRE,
+  };
+  /** Seleciona uma das formas de desenho como padrao. */
+  void SelecionaFormaDesenho(forma_desenho_e fd);
+
+  /** Retorna a forma de desenho selecionada como padrao. */
+  forma_desenho_e FormaDesenhoSelecionada() const { return forma_selecionada_; }
+
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
 
@@ -231,6 +244,9 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
+  /** Desenha o tabuleiro do sul pro norte. */
+  void DesenhaTabuleiro();
+
   /** funcao para desenha os rastros de movimento. */
   void DesenhaRastros();
 
@@ -241,7 +257,13 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades();
   void DesenhaEntidadesTranslucidas();
+
+  /** Desenha as acoes do tabuleiro (como misseis magicos). */
+  void DesenhaAcoes();
   void DesenhaAuras();
+
+  /** Desenha a forma de desenho selecionada. */
+  void DesenhaFormaSelecionada();
 
   /** liga modo de desenho de stencil. */
   void LigaStencil();
@@ -448,6 +470,9 @@ class Tabuleiro : public ntf::Receptor {
   bool processando_desfazer_;
   std::list<ntf::Notificacao> lista_eventos_;
   std::list<ntf::Notificacao>::iterator evento_corrente_;
+
+  // Desenho.
+  forma_desenho_e forma_selecionada_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
