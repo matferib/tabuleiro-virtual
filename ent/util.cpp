@@ -111,6 +111,11 @@ void LigaStencil() {
   glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
 }
 
+void DesenhaStencil(const Cor& cor) {
+  const float cor_float[] = { cor.r(), cor.g(), cor.b(), cor.a() };
+  DesenhaStencil(cor_float);
+}
+
 void DesenhaStencil(const float* cor) {
   GLint viewport[4];
   glGetIntegerv(GL_VIEWPORT, viewport);

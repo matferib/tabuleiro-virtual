@@ -2,6 +2,8 @@
 
 #include <QActionGroup>
 #include <QBoxLayout>
+#include <QColor>
+#include <QColorDialog>
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QLabel>
@@ -43,7 +45,7 @@ const char* g_menuitem_strs[] = {
   // Acoes.
   g_fim,
   // Desenho.
-  "&Cubo", "&Esfera", "Cí&rculo", "&Retângulo", "&Livre", g_fim,
+  "&Cubo", "&Esfera", "Cí&rculo", "&Retângulo", "&Livre", nullptr, "&Selecionar Cor", g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
@@ -309,6 +311,13 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            acao == acoes_[ME_DESENHO][MI_CIRCULO] ||
            acao == acoes_[ME_DESENHO][MI_LIVRE]) {
     tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
+  } else if (acao == acoes_[ME_DESENHO][MI_SELECIONAR_COR]) {
+    QColor cor_anterior = ProtoParaCor(tabuleiro_->CorDesenho());
+    QColor cor = QColorDialog::getColor(cor_anterior, this, QObject::tr("Cor do Desenho"));
+    if (!cor.isValid()) {
+      return;
+    }
+    tabuleiro_->SelecionaCorDesenho(CorParaProto(cor));
   }
   // ..
   else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {

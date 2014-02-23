@@ -238,6 +238,7 @@ void Tabuleiro::EstadoInicial() {
   // Desenho.
   forma_proto_.Clear();
   forma_selecionada_ = TF_CUBO;
+  CorParaProto(COR_BRANCA, &forma_cor_);
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -940,8 +941,8 @@ void Tabuleiro::TrataBotaoLiberado() {
       estado_ = ETAB_QUAD_SELECIONADO;
       return;
     case ETAB_DESENHANDO: {
-      CorParaProto(COR_BRANCA, forma_proto_.mutable_cor());
       LOG(INFO) << "Finalizando: " << forma_proto_.ShortDebugString();
+      forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
       formas_.insert(std::make_pair(GeraIdEntidade(id_cliente_), std::unique_ptr<Forma>(new Forma(forma_proto_))));
       // TODO mudar para desenho selecionado.
       estado_ = ETAB_OCIOSO;
@@ -1599,7 +1600,8 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   if (forma_proto_.tipo() == TF_LIVRE) {
     forma_proto_.add_ponto()->CopyFrom(*inicio);
   }
-  CorAlfaParaProto(COR_AZUL_ALFA, forma_proto_.mutable_cor());
+  forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
+  forma_proto_.mutable_cor()->set_a(0.5f);
   estado_ = ETAB_DESENHANDO;
   LOG(INFO) << "Iniciando: " << forma_proto_.ShortDebugString();
 }
