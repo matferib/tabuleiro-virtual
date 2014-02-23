@@ -48,6 +48,8 @@ message Notificacao {
   optional ent.TabuleiroProto tabuleiro = 6;
   // Entidade.
   optional ent.EntidadeProto entidade = 7;
+  // Para atualizacoes de entidade, guardando o estado anterior a modificacao.
+  optional ent.EntidadeProto entidade_antes = 3;
   // Acoes.
   optional ent.AcaoProto acao = 12;
   // Opcoes.

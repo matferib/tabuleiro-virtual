@@ -335,7 +335,7 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
     auto* entidade_selecionada = BuscaEntidade(id);
     EntidadeProto proto = entidade_selecionada->Proto();
     // Para desfazer.
-    n->mutable_tabuleiro()->add_entidade()->CopyFrom(proto);
+    n->mutable_entidade_antes()->CopyFrom(proto);
     if ((bits & BIT_VISIBILIDADE) > 0) {
       proto.set_visivel(!proto.visivel());
     }
@@ -396,11 +396,11 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidade(int delta_pontos_vida) {
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
     a->set_id_entidade_destino(entidade_selecionada->Id());
     a->set_delta_pontos_vida(delta_pontos_vida);
-    // Para desfazer
+    // Para desfazer.
     {
       auto* n_desfazer = g_desfazer.add_notificacao();
       n_desfazer->CopyFrom(*n);
-      n_desfazer->mutable_tabuleiro()->add_entidade()->CopyFrom(entidade_selecionada->Proto());
+      n_desfazer->mutable_entidade_antes()->CopyFrom(entidade_selecionada->Proto());
     }
   }
   TrataNotificacao(grupo_notificacoes);
@@ -860,8 +860,8 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           // Para desfazer
           {
             auto* nd = grupo_desfazer.add_notificacao();
-            // Efeito antes acao. Hack da entidade do tabuleiro aqui.
-            auto* e_antes = nd->mutable_tabuleiro()->add_entidade();
+            // Efeito antes acao.
+            auto* e_antes = nd->mutable_entidade_antes();
             e_antes->CopyFrom(entidade_destino->Proto());
             auto* e_depois = nd->mutable_entidade();
             e_depois->CopyFrom(entidade_destino->Proto());
@@ -1985,12 +1985,12 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
       break;
     case ntf::TN_ATUALIZAR_ENTIDADE:
-      if (n_original.tabuleiro().entidade_size() == 0 || !n_original.has_entidade()) {
+      if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_ENTIDADE sem o proto novo e o proto anterior";
         break;
       }
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-      n_inversa.mutable_entidade()->CopyFrom(n_original.tabuleiro().entidade(0));
+      n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
       break;
     default:
       break;
@@ -2131,7 +2131,7 @@ void Tabuleiro::AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao)
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
     // Para desfazer.
     ntf::Notificacao n_desfazer(notificacao);
-    n_desfazer.mutable_tabuleiro()->add_entidade()->Swap(&proto_antes);
+    n_desfazer.mutable_entidade_antes()->Swap(&proto_antes);
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
 }
