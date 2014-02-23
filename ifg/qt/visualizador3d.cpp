@@ -40,20 +40,6 @@ namespace {
 const int MAX_TEMPORIZADOR_TECLADO = 300;
 const int MAX_TEMPORIZADOR_MOUSE = 100;
 
-ent::botao_e MapeiaBotao(const QMouseEvent& evento) {
-  switch (evento.button()) {
-    case Qt::LeftButton: {
-      // Com shift pressionado, trata como botao do meio.
-      return evento.modifiers() == Qt::ShiftModifier ?
-        ent::BOTAO_MEIO :
-        ent::BOTAO_ESQUERDO;
-    }
-    case Qt::RightButton: return ent::BOTAO_DIREITO;
-    case Qt::MidButton: return ent::BOTAO_MEIO;
-    default: return ent::BOTAO_NENHUM;
-  }
-}
-
 // Converte uma cor de float [0..1.0] para inteiro [0.255].
 int ConverteCor(float cor_float) {
   int cor = static_cast<int>(255.0f * cor_float);
