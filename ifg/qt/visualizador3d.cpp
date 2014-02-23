@@ -369,8 +369,9 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   MudaEstado(ESTADO_OUTRO);
   if (event->modifiers() == Qt::AltModifier) {
+    // Acao padrao eh usada quando o botao eh o direito.
     tabuleiro_->TrataBotaoAcaoPressionado(
-        MapeiaBotao(*event), event->x(), height() - event->y());
+        event->button() == Qt::RightButton, event->x(), height() - event->y());
   } else if (event->modifiers() == Qt::ControlModifier) {
     tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
   } else {
