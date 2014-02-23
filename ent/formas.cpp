@@ -72,9 +72,13 @@ void Forma::Desenha(const ParametrosDesenho& pd) {
     }
     break;
     case TF_LIVRE: {
-      LigaStencil();
+      if (pd.transparencias()) {
+        LigaStencil();
+      }
       DesenhaLinha3d(proto_.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);
-      DesenhaStencil(COR_AZUL_ALFA);
+      if (pd.transparencias()) {
+        DesenhaStencil(COR_AZUL_ALFA);
+      }
     }
     break;
     default:

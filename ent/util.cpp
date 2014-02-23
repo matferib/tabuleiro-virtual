@@ -131,6 +131,8 @@ void DesenhaStencil(const float* cor) {
   glLoadIdentity();
   MudaCorAlfa(cor);
   glDisable(GL_DEPTH_TEST);
+  glDepthMask(false);
+  // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
   glRectf(0.0f, 0.0f, largura, altura);
   glPopMatrix();
   glMatrixMode(GL_PROJECTION);
