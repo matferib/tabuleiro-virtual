@@ -375,8 +375,24 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   } else if (event->modifiers() == Qt::ControlModifier) {
     tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
   } else {
-    tabuleiro_->TrataBotaoPressionado(
-        MapeiaBotao(*event), event->x(), height() - event->y());
+    switch (event->button()) {
+      case Qt::LeftButton:
+        if (event->modifiers() == Qt::ShiftModifier) {
+          // Mac nao tem botao do meio, entao usa o shift para simular.
+          tabuleiro_->TrataBotaoRotacaoPressionado(event->x(), height() - event->y());
+        } else {
+          tabuleiro_->TrataBotaoEsquerdoPressionado(event->x(), height() - event->y());
+        }
+        break;
+      case Qt::RightButton:
+        tabuleiro_->TrataBotaoDireitoPressionado(event->x(), height() - event->y());
+        break;
+      case Qt::MiddleButton:
+        tabuleiro_->TrataBotaoRotacaoPressionado(event->x(), height() - event->y());
+        break;
+      default:
+        ;
+    }
   }
   glDraw();
   event->accept();
@@ -384,7 +400,7 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
   MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
-  tabuleiro_->TrataBotaoLiberado(MapeiaBotao(*event));
+  tabuleiro_->TrataBotaoLiberado();
   event->accept();
   glDraw();
 }
