@@ -490,9 +490,21 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       for (auto& id_ent : entidades_) {
         id_ent.second->Atualiza();
       }
-      for (auto& a : acoes_) {
+      std::vector<std::unique_ptr<Acao>> copia_acoes;
+      copia_acoes.swap(acoes_);
+      for (auto& a : copia_acoes) {
         a->Atualiza();
+        if (a->Finalizada()) {
+          const auto& ap = a->Proto();
+          if (ap.has_id_entidade_destino() &&
+              ap.afeta_pontos_vida()) {
+            AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
+          }
+        } else {
+          acoes_.push_back(std::unique_ptr<Acao>(a.release()));
+        }
       }
+      VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
       return true;
     }
     case ntf::TN_REINICIAR_TABULEIRO: {
@@ -1272,23 +1284,10 @@ void Tabuleiro::DesenhaAuras() {
 
 void Tabuleiro::DesenhaAcoes() {
   // TODO passar a parte nao desenho para a atualizacao.
-  std::vector<std::unique_ptr<Acao>> copia_acoes;
-  copia_acoes.swap(acoes_);
-  for (auto& a : copia_acoes) {
-    VLOG(4) << "Desenhando acao";
+  for (auto& a : acoes_) {
+    VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
     a->Desenha(&parametros_desenho_);
-    if (a->Finalizada()) {
-      const auto& ap = a->Proto();
-      if (ap.has_delta_pontos_vida() &&
-          ap.has_id_entidade_destino() &&
-          ap.afeta_pontos_vida()) {
-        AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
-      }
-    } else {
-      acoes_.push_back(std::unique_ptr<Acao>(a.release()));
-    }
   }
-  VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
