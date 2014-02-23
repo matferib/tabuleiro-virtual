@@ -29,7 +29,7 @@ namespace {
 const char* g_fim = "FIM";
 
 // Strs de cada menu.
-const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Ações", "&Sobre" };
+const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Ações", "&Desenho", "&Sobre" };
 
 // Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
 const char* g_menuitem_strs[] = {
@@ -38,10 +38,12 @@ const char* g_menuitem_strs[] = {
   // Tabuleiro.
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
       "&Reiniciar", "&Salvar", "R&estaurar", g_fim,
-  // Entidades. 
+  // Entidades.
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.
   g_fim,
+  // Desenho.
+  "&Cubo", "&Esfera", "Cí&rculo", "&Retângulo", "&Livre", g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
@@ -62,11 +64,17 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
   // inicio das strings para o menu corrente
   unsigned int controle_item = 0;
   for (
-    unsigned int controle_menu = ME_JOGO; 
-    controle_menu < ME_NUM; 
+    unsigned int controle_menu = ME_JOGO;
+    controle_menu < ME_NUM;
     ++controle_menu
   ) {
     QMenu* menu = new QMenu(tr(g_menu_strs[controle_menu]), this);
+    QActionGroup* grupo_menu = nullptr;
+    if (controle_menu == ME_DESENHO || controle_menu == ME_ACOES) {
+      // Menus com acoes exclusivas.
+      grupo_menu = new QActionGroup(this);
+      grupo_menu->setExclusive(true);
+    }
     menus_.push_back(menu);
     // para cada item no menu, cria os items (acoes)
     acoes_.push_back(std::vector<QAction*>());
@@ -76,7 +84,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         menu->addSeparator();
       } else if (std::string(menuitem_str) == "&Selecionar modelo") {
         // Esse sub menu tem tratamento especial.
-        auto* grupo = new QActionGroup(this); 
+        auto* grupo = new QActionGroup(this);
         grupo->setExclusive(true);
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
         std::vector<std::pair<std::string, const ent::EntidadeProto*>> modelos_ordenados;
@@ -104,6 +112,10 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         // menuitem nao NULL, adiciona normalmente da lista de menuitems
         // incrementando para o proximo no final
         auto* acao = new QAction(tr(menuitem_str), menu);
+        if (grupo_menu != nullptr) {
+          acao->setCheckable(true);
+          grupo_menu->addAction(acao);
+        }
         acoes_[controle_menu].push_back(acao);
         menu->addAction(acao);
       }
@@ -112,8 +124,6 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
     ++controle_item;  // pula o FIM.
     if (controle_menu == ME_ACOES) {
       // Esse menu tem tratamento especial.
-      auto* grupo = new QActionGroup(this); 
-      grupo->setExclusive(true);
       std::vector<std::pair<std::string, const ent::AcaoProto*>> acoes_ordenadas;
       for (const auto& acao_it : tabuleiro_->MapaAcoes()) {
         auto par = std::make_pair(acao_it.first, acao_it.second.get());
@@ -128,7 +138,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         auto* acao = new QAction(tr(acao_it.first.c_str()), menu);
         acao->setCheckable(true);
         acao->setData(QVariant::fromValue(QString(acao_it.first.c_str())));
-        grupo->addAction(acao);
+        grupo_menu->addAction(acao);
         menu->addAction(acao);
         if (acao_it.second == tabuleiro->AcaoSelecionada()) {
           acao->setChecked(true);
@@ -196,6 +206,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
     EstadoMenu(false, ME_TABULEIRO);
+    EstadoMenu(false, ME_DESENHO);
     break;
   }
 }
@@ -215,12 +226,12 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_INICIAR);
   } else if (acao == acoes_[ME_JOGO][MI_CONECTAR]) {
-    // mostra a caixa de dialogo da conexao. 
+    // mostra a caixa de dialogo da conexao.
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
     qd->setModal(true);
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
     auto* le = new QLineEdit();
-    le->setPlaceholderText(tr("IP:porta ou nome do servidor")); 
+    le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
     ql->addWidget(le);
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, le] {
@@ -235,17 +246,13 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     qd->exec();
     delete qd;
   } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
-    notificacao = new ntf::Notificacao; 
-    notificacao->set_tipo(ntf::TN_SAIR);
+    notificacao = ntf::NovaNotificacao(ntf::TN_SAIR);
   } else if (acao == acoes_[ME_ENTIDADES][MI_PROPRIEDADES_ENTIDADE]) {
-    notificacao = new ntf::Notificacao; 
-    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR]) {
-    notificacao = new ntf::Notificacao; 
-    notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    notificacao = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
-    notificacao = new ntf::Notificacao; 
-    notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
   } else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
     tabuleiro_->TrataComandoDesfazer();
   } else if (acao == acoes_[ME_TABULEIRO][MI_REFAZER]) {
@@ -283,12 +290,12 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_OPCOES);
   }
-  // .. 
+  // ..
   else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {
     // mostra a caixa de dialogo da versao
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
-        tr("Sobre o tabuleiro virtual"), 
+        tr("Sobre o tabuleiro virtual"),
         tr("Tabuleiro virtual versão 0.1\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
