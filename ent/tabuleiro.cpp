@@ -261,6 +261,7 @@ void Tabuleiro::EstadoInicial() {
   processando_desfazer_ = false;
   // Desenho.
   forma_selecionada_ = FD_RETANGULO;
+  pontos_desenho_.clear();
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -778,6 +779,13 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
       ultimo_z_3d_ = z3d;
+      if (forma_selecionada_ == FD_LIVRE) {
+        Posicao pos;
+        pos.set_x(ultimo_x_3d_);
+        pos.set_y(ultimo_y_3d_);
+        pos.set_z(ZChao(pos.x(), pos.y()));
+        pontos_desenho_.push_back(pos);
+      }
     }
     break;
     default: ;
@@ -1294,19 +1302,65 @@ void Tabuleiro::DesenhaAcoes() {
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
+  glPushAttrib(GL_ENABLE_BIT);
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_BLEND);
+  glDisable(GL_CULL_FACE);
   MudaCor(COR_AZUL_ALFA);
   switch (forma_selecionada_) {
     case FD_RETANGULO: {
       glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
     }
-    case FD_ESFERA:
-    case FD_CIRCULO:
-    case FD_CUBO:
-    case FD_LIVRE:
-      break;
+    break;
+    case FD_ESFERA: {
+      // Usar x como base para achatamento.
+      float centro_x = (primeiro_x_3d_ + ultimo_x_3d_) / 2.0f;
+      float centro_y = (primeiro_y_3d_ + ultimo_y_3d_) / 2.0f;
+      float escala_x = fabs(primeiro_x_3d_ - ultimo_x_3d_);
+      float escala_y = fabs(primeiro_y_3d_ - ultimo_y_3d_);
+      glPushMatrix();
+      glTranslatef(centro_x, centro_y, 0.0f);
+      glScalef(escala_x, escala_y, std::min(escala_x, escala_y));
+      glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
+      glPopMatrix();
+    }
+    break;
+    case FD_CIRCULO: {
+      // Usar x como base para achatamento.
+      float centro_x = (primeiro_x_3d_ + ultimo_x_3d_) / 2.0f;
+      float centro_y = (primeiro_y_3d_ + ultimo_y_3d_) / 2.0f;
+      float escala_x = fabs(primeiro_x_3d_ - ultimo_x_3d_);
+      float escala_y = fabs(primeiro_y_3d_ - ultimo_y_3d_);
+      glPushMatrix();
+      glTranslatef(centro_x, centro_y, 0.0f);
+      glScalef(escala_x, escala_y, 1.0f);
+      DesenhaDisco(0.5f, 12);
+      glPopMatrix();
+    }
+    break;
+    case FD_CUBO: {
+      // Usar x como base para achatamento.
+      float centro_x = (primeiro_x_3d_ + ultimo_x_3d_) / 2.0f;
+      float centro_y = (primeiro_y_3d_ + ultimo_y_3d_) / 2.0f;
+      float escala_x = fabs(primeiro_x_3d_ - ultimo_x_3d_);
+      float escala_y = fabs(primeiro_y_3d_ - ultimo_y_3d_);
+      glPushMatrix();
+      glTranslatef(centro_x, centro_y, 0.0f);
+      // Altura do cubo do lado do quadrado.
+      glScalef(escala_x, escala_y, TAMANHO_LADO_QUADRADO);
+      glutSolidCube(1.0f);
+      glPopMatrix();
+    }
+    case FD_LIVRE: {
+      LigaStencil();
+      DesenhaLinha3d(pontos_desenho_, TAMANHO_LADO_QUADRADO / 2.0f);
+      DesenhaStencil(COR_AZUL_ALFA);
+    }
+    break;
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
+  glPopAttrib();
 }
 
 void Tabuleiro::SelecionaFormaDesenho(forma_desenho_e fd) {
@@ -1603,8 +1657,16 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
-  estado_ = ETAB_DESENHANDO;
   DeselecionaEntidades();
+  if (forma_selecionada_ == FD_LIVRE) {
+    pontos_desenho_.clear();
+    Posicao pos;
+    pos.set_x(primeiro_x_3d_);
+    pos.set_y(primeiro_y_3d_);
+    pos.set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
+    pontos_desenho_.push_back(pos);
+  }
+  estado_ = ETAB_DESENHANDO;
 }
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {

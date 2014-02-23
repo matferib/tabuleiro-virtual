@@ -473,6 +473,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Desenho.
   forma_desenho_e forma_selecionada_;
+  std::vector<Posicao> pontos_desenho_;  // Para desenho livre.
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
