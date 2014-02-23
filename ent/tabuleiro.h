@@ -135,10 +135,10 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRodela(int delta);
 
   /** trata movimento do mouse (y ja em coordenadas opengl). */
-  void TrataMovimento(botao_e botao, int x, int y);
+  void TrataMovimentoMouse(int x, int y);
 
   /** Trata o movimento do mouse apos ficar em repouso. */
-  void TrataMovimento();
+  void TrataMovimentoMouse();
 
   /** trata o botao do mouse liberado. */
   void TrataBotaoLiberado(botao_e botao);
