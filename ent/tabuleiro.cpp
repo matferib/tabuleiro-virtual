@@ -259,6 +259,8 @@ void Tabuleiro::EstadoInicial() {
   lista_eventos_.clear();
   evento_corrente_ = lista_eventos_.end();
   processando_desfazer_ = false;
+  // Desenho.
+  forma_selecionada_ = FD_RETANGULO;
 }
 
 int Tabuleiro::TamanhoX() const {
@@ -767,6 +769,15 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_DESENHANDO: {
+      double x3d, y3d, z3d;
+      parametros_desenho_.set_desenha_entidades(false);
+      if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
+        // Mouse fora do tabuleiro.
+        return;
+      }
+      ultimo_x_3d_ = x3d;
+      ultimo_y_3d_ = y3d;
+      ultimo_z_3d_ = z3d;
     }
     break;
     default: ;
@@ -786,11 +797,11 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   AcaoProto acao_proto;
   if (acao_padrao) {
     // usa acao padrao.
-    VLOG(2) << "Acao sinalizacao";
+    VLOG(1) << "Botao acao sinalizacao";
     acao_proto.set_tipo(ACAO_SINALIZACAO);
   } else {
     // Usa acoes.
-    VLOG(2) << "Acao padrao";
+    VLOG(1) << "Botao acao de modelo selecionado";
     acao_proto.CopyFrom(*acao_selecionada_);
   }
   unsigned int id, pos_pilha;
@@ -805,7 +816,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   // Depois tabuleiro.
   parametros_desenho_.set_desenha_entidades(false);
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-   if (pos_pilha == 1) {
+  if (pos_pilha == 1) {
     VLOG(1) << "Acao no tabuleiro: " << id;
     // Tabuleiro, posicao do quadrado clicado.
     double x, y, z;
@@ -1058,39 +1069,7 @@ void Tabuleiro::DesenhaCena() {
   //ceu_.desenha(parametros_desenho_);
 
   // desenha tabuleiro do sul para o norte.
-  GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
-      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
-  if (id_textura != GL_INVALID_VALUE) {
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, id_textura);
-  }
-
-  glPushMatrix();
-  double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
-  double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
-  glNormal3f(0, 0, 1.0f);
-  glTranslatef(deltaX / 2.0f,
-               deltaY / 2.0f,
-               parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
-  int id = 0;
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  // Desenha o chao mais pro fundo.
-  // TODO transformar offsets em constantes.
-  glPolygonOffset(2.0f, 20.0f);
-  for (int y = 0; y < TamanhoY(); ++y) {
-    for (int x = 0; x < TamanhoX(); ++x) {
-      // desenha quadrado
-      DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, id_textura != GL_INVALID_VALUE);
-      // anda 1 quadrado direita
-      glTranslatef(TAMANHO_LADO_QUADRADO, 0, 0);
-      ++id;
-    }
-    // volta tudo esquerda e sobe 1 quadrado
-    glTranslatef(deltaX, TAMANHO_LADO_QUADRADO, 0);
-  }
-  glDisable(GL_POLYGON_OFFSET_FILL);
-  glPopMatrix();
-  glDisable(GL_TEXTURE_2D);
+  DesenhaTabuleiro();
 
   if (parametros_desenho_.desenha_grade()) {
     glDisable(GL_DEPTH_TEST);
@@ -1119,23 +1098,7 @@ void Tabuleiro::DesenhaCena() {
   glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
-    std::vector<std::unique_ptr<Acao>> copia_acoes;
-    copia_acoes.swap(acoes_);
-    for (auto& a : copia_acoes) {
-      VLOG(4) << "Desenhando acao";
-      a->Desenha(&parametros_desenho_);
-      if (a->Finalizada()) {
-        const auto& ap = a->Proto();
-        if (ap.has_delta_pontos_vida() &&
-            ap.has_id_entidade_destino() &&
-            ap.afeta_pontos_vida()) {
-          AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
-        }
-      } else {
-        acoes_.push_back(std::unique_ptr<Acao>(a.release()));
-      }
-    }
-    VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
+    DesenhaAcoes();
   }
 
   // Sombras.
@@ -1174,6 +1137,10 @@ void Tabuleiro::DesenhaCena() {
     DesenhaStencil(COR_AZUL_ALFA);
   }
 
+  if (estado_ == ETAB_DESENHANDO) {
+    DesenhaFormaSelecionada();
+  }
+
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     glDepthMask(false);
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
@@ -1207,6 +1174,42 @@ void Tabuleiro::DesenhaCena() {
     glTranslated(0.0, altura_ - 15.0f, 0.0f);
     DesenhaStringTempo(tempo_str);
   }
+}
+
+void Tabuleiro::DesenhaTabuleiro() {
+  GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
+      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, id_textura);
+  }
+
+  glPushMatrix();
+  double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
+  double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
+  glNormal3f(0, 0, 1.0f);
+  glTranslatef(deltaX / 2.0f,
+               deltaY / 2.0f,
+               parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
+  int id = 0;
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  // Desenha o chao mais pro fundo.
+  // TODO transformar offsets em constantes.
+  glPolygonOffset(2.0f, 20.0f);
+  for (int y = 0; y < TamanhoY(); ++y) {
+    for (int x = 0; x < TamanhoX(); ++x) {
+      // desenha quadrado
+      DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, id_textura != GL_INVALID_VALUE);
+      // anda 1 quadrado direita
+      glTranslatef(TAMANHO_LADO_QUADRADO, 0, 0);
+      ++id;
+    }
+    // volta tudo esquerda e sobe 1 quadrado
+    glTranslatef(deltaX, TAMANHO_LADO_QUADRADO, 0);
+  }
+  glDisable(GL_POLYGON_OFFSET_FILL);
+  glPopMatrix();
+  glDisable(GL_TEXTURE_2D);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
@@ -1266,6 +1269,57 @@ void Tabuleiro::DesenhaAuras() {
       Entidade* entidade = it->second.get();
       entidade->DesenhaAura(&parametros_desenho_);
     }
+  }
+}
+
+void Tabuleiro::DesenhaAcoes() {
+  // TODO passar a parte nao desenho para a atualizacao.
+  std::vector<std::unique_ptr<Acao>> copia_acoes;
+  copia_acoes.swap(acoes_);
+  for (auto& a : copia_acoes) {
+    VLOG(4) << "Desenhando acao";
+    a->Desenha(&parametros_desenho_);
+    if (a->Finalizada()) {
+      const auto& ap = a->Proto();
+      if (ap.has_delta_pontos_vida() &&
+          ap.has_id_entidade_destino() &&
+          ap.afeta_pontos_vida()) {
+        AtualizaPontosVidaEntidade(ap.id_entidade_destino(), ap.delta_pontos_vida());
+      }
+    } else {
+      acoes_.push_back(std::unique_ptr<Acao>(a.release()));
+    }
+  }
+  VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
+}
+
+void Tabuleiro::DesenhaFormaSelecionada() {
+  MudaCor(COR_AZUL_ALFA);
+  switch (forma_selecionada_) {
+    case FD_RETANGULO: {
+      glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
+    }
+    case FD_ESFERA:
+    case FD_CIRCULO:
+    case FD_CUBO:
+    case FD_LIVRE:
+      break;
+    default:
+      LOG(ERROR) << "Forma de desenho invalida";
+  }
+}
+
+void Tabuleiro::SelecionaFormaDesenho(forma_desenho_e fd) {
+  switch (fd) {
+    case FD_RETANGULO:
+    case FD_ESFERA:
+    case FD_CIRCULO:
+    case FD_CUBO:
+    case FD_LIVRE:
+      forma_selecionada_ = fd;
+      break;
+    default:
+      LOG(ERROR) << "Forma de desenho invalida: " << fd;
   }
 }
 
@@ -1515,6 +1569,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 }
 
 void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
+  VLOG(1) << "Botao direito pressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -1530,6 +1585,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
+  VLOG(1) << "Botao rotacao pressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
   estado_anterior_rotacao_ = estado_;
@@ -1537,6 +1593,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
+  VLOG(1) << "Botao desenho pressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
   double x3d, y3d, z3d;
@@ -1547,6 +1604,7 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
   estado_ = ETAB_DESENHANDO;
+  DeselecionaEntidades();
 }
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {

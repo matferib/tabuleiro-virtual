@@ -79,6 +79,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
     // para cada item no menu, cria os items (acoes)
     acoes_.push_back(std::vector<QAction*>());
     const char* menuitem_str = nullptr;
+    int id_item = 0;  // Equivale aos MI_*.
     while ((menuitem_str = g_menuitem_strs[controle_item]) != g_fim) {
       if (menuitem_str == nullptr) {
         menu->addSeparator();
@@ -116,12 +117,15 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
           acao->setCheckable(true);
           grupo_menu->addAction(acao);
         }
+        acao->setData((QVariant::fromValue<int>(id_item)));
         acoes_[controle_menu].push_back(acao);
         menu->addAction(acao);
       }
       ++controle_item;
+      ++id_item;
     }
     ++controle_item;  // pula o FIM.
+    // Tratamento especifico de menus.
     if (controle_menu == ME_ACOES) {
       // Esse menu tem tratamento especial.
       std::vector<std::pair<std::string, const ent::AcaoProto*>> acoes_ordenadas;
@@ -145,6 +149,13 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         }
       }
       connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoAcoes(QAction*)));
+    } else if (controle_menu == ME_DESENHO) {
+      for (auto* a : grupo_menu->actions()) {
+        if (a->data().toInt() == tabuleiro_->FormaDesenhoSelecionada()) {
+          a->setChecked(true);
+          break;
+        }
+      }
     }
     // adiciona os menus ao menu principal
     connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoItem(QAction*)));
@@ -222,6 +233,7 @@ void MenuPrincipal::TrataAcaoAcoes(QAction* acao){
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
   //cout << (const char*)acao->text().toAscii() << endl;
   ntf::Notificacao* notificacao = nullptr;
+  // Jogo.
   if (acao == acoes_[ME_JOGO][MI_INICIAR]) {
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_INICIAR);
@@ -247,13 +259,17 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     delete qd;
   } else if (acao == acoes_[ME_JOGO][MI_SAIR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_SAIR);
-  } else if (acao == acoes_[ME_ENTIDADES][MI_PROPRIEDADES_ENTIDADE]) {
+  }
+  // Entidades.
+  else if (acao == acoes_[ME_ENTIDADES][MI_PROPRIEDADES_ENTIDADE]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_ADICIONAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
-  } else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
+  }
+  // Tabuleiro.
+  else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
     tabuleiro_->TrataComandoDesfazer();
   } else if (acao == acoes_[ME_TABULEIRO][MI_REFAZER]) {
     tabuleiro_->TrataComandoRefazer();
@@ -269,8 +285,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       VLOG(1) << "Operação de salvar cancelada.";
       return;
     }
-    notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
+    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
@@ -280,15 +295,20 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       VLOG(1) << "Operação de restaurar cancelada.";
       return;
     }
-    notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+    notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
-    notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {
-    notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_ABRIR_DIALOGO_OPCOES);
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
+  }
+  // Desenho.
+  else if (acao == acoes_[ME_DESENHO][MI_CUBO] ||
+           acao == acoes_[ME_DESENHO][MI_ESFERA] ||
+           acao == acoes_[ME_DESENHO][MI_RETANGULO] ||
+           acao == acoes_[ME_DESENHO][MI_CIRCULO] ||
+           acao == acoes_[ME_DESENHO][MI_LIVRE]) {
+    tabuleiro_->SelecionaFormaDesenho(static_cast<ent::Tabuleiro::forma_desenho_e>(acao->data().toInt()));
   }
   // ..
   else if (acao == acoes_[ME_SOBRE][MI_TABVIRT]) {
