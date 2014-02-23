@@ -411,11 +411,11 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
     temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
     event->accept();
-    tabuleiro_->TrataMovimento();
+    tabuleiro_->TrataMovimentoMouse();
     return;
   }
   temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-  tabuleiro_->TrataMovimento(MapeiaBotao(*event), event->x(), (height() - event->y()));
+  tabuleiro_->TrataMovimentoMouse(event->x(), (height() - event->y()));
   event->accept();
   glDraw();
 }
