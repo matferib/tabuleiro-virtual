@@ -21,9 +21,11 @@ Forma::~Forma() {}
 void Forma::Desenha(const ParametrosDesenho& pd) {
   glPushAttrib(GL_ENABLE_BIT);
   glEnable(GL_NORMALIZE);
-  glEnable(GL_BLEND);
+  if (proto_.cor().a() < 1.0f ) {
+    glEnable(GL_BLEND);
+  }
   glDisable(GL_CULL_FACE);
-  MudaCor(COR_AZUL_ALFA);
+  MudaCor(proto_.cor());
   switch (proto_.tipo()) {
     case TF_RETANGULO: {
       glRectf(proto_.inicio().x(), proto_.inicio().y(), proto_.fim().x(), proto_.fim().y());
@@ -62,12 +64,13 @@ void Forma::Desenha(const ParametrosDesenho& pd) {
       float escala_x = fabs(proto_.inicio().x() - proto_.fim().x());
       float escala_y = fabs(proto_.inicio().y() - proto_.fim().y());
       glPushMatrix();
-      glTranslatef(centro_x, centro_y, 0.0f);
+      glTranslatef(centro_x, centro_y, TAMANHO_LADO_QUADRADO_2);
       // Altura do cubo do lado do quadrado.
       glScalef(escala_x, escala_y, TAMANHO_LADO_QUADRADO);
       glutSolidCube(1.0f);
       glPopMatrix();
     }
+    break;
     case TF_LIVRE: {
       LigaStencil();
       DesenhaLinha3d(proto_.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);

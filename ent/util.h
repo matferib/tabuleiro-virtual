@@ -23,6 +23,12 @@ void MudaCorAlfa(const float* cor);
 void MudaCor(float r, float g, float b, float a);
 void MudaCor(const Cor& cor);
 
+/** Preenche proto_cor com cor. A entrada deve ter 4 componentes. */
+void CorAlfaParaProto(const float* cor, Cor* cor_proto);
+
+/** Igual CorAlfaParaProto mas para 3 componentes. */
+void CorParaProto(const float* cor, Cor* cor_proto);
+
 /** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 

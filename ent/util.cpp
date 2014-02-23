@@ -30,6 +30,20 @@ void MudaCor(const ent::Cor& cor) {
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
 }
 
+void CorAlfaParaProto(const float* cor, Cor* proto_cor) {
+  proto_cor->set_r(cor[0]);
+  proto_cor->set_g(cor[1]);
+  proto_cor->set_b(cor[2]);
+  proto_cor->set_a(cor[3]);
+}
+
+void CorParaProto(const float* cor, Cor* proto_cor) {
+  proto_cor->set_r(cor[0]);
+  proto_cor->set_g(cor[1]);
+  proto_cor->set_b(cor[2]);
+  proto_cor->clear_a();
+}
+
 float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   float tam = sqrt(x * x + y * y);
   float angulo = acosf(x / tam) * RAD_PARA_GRAUS;
@@ -92,8 +106,8 @@ void LigaStencil() {
   glEnable(GL_BLEND);
   glEnable(GL_STENCIL_TEST);  // Habilita stencil.
   glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
-  glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+  glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
   glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
 }
 

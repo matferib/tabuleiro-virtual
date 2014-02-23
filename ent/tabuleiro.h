@@ -199,7 +199,7 @@ class Tabuleiro : public ntf::Receptor {
   void SelecionaFormaDesenho(TipoForma fd);
 
   /** Retorna a forma de desenho selecionada como padrao. */
-  TipoForma FormaDesenhoSelecionada() const { return forma_proto_.tipo(); }
+  TipoForma FormaDesenhoSelecionada() const { return forma_selecionada_; }
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
@@ -463,6 +463,7 @@ class Tabuleiro : public ntf::Receptor {
   std::list<ntf::Notificacao>::iterator evento_corrente_;
 
   // Desenho corrente.
+  TipoForma forma_selecionada_;  // Necessario para poder limpar o proto em paz.
   FormaProto forma_proto_;
   MapaFormas formas_;
 
