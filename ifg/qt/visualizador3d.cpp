@@ -25,6 +25,7 @@
 #include "ifg/qt/util.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ifg/qt/ui/entidade.h"
+#include "ifg/qt/ui/forma.h"
 #include "ifg/qt/ui/iluminacao.h"
 #include "ifg/qt/ui/opcoes.h"
 #include "log/log.h"
@@ -396,7 +397,58 @@ void Visualizador3d::wheelEvent(QWheelEvent* event) {
   glDraw();
 }
 
-ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
+ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
+    const ntf::Notificacao& notificacao) {
+  const auto& entidade = notificacao.entidade();
+  auto* proto_retornado = new ent::EntidadeProto(entidade);
+  ifg::qt::Ui::DialogoForma gerador;
+  auto* dialogo = new QDialog(this);
+  gerador.setupUi(dialogo);
+  // ID.
+  QString id_str;
+  gerador.campo_id->setText(id_str.setNum(entidade.id()));
+  // Visibilidade.
+  gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
+  if (!notificacao.modo_mestre()) {
+    gerador.checkbox_visibilidade->setEnabled(false);
+  }
+  // Selecionavel para jogadores.
+  gerador.checkbox_selecionavel->setCheckState(entidade.selecionavel_para_jogador() ? Qt::Checked : Qt::Unchecked);
+  if (!notificacao.modo_mestre()) {
+    gerador.checkbox_selecionavel->setEnabled(false);
+  }
+  // Cor da entidade.
+  ent::EntidadeProto ent_cor;
+  ent_cor.mutable_cor()->CopyFrom(entidade.cor());
+  gerador.botao_cor->setStyleSheet(CorParaEstilo(entidade.cor()));
+  lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
+    QColor cor = QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
+    if (!cor.isValid()) {
+      return;
+    }
+    gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
+    ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
+  });
+  // Ao aceitar o diálogo, aplica as mudancas.
+  lambda_connect(dialogo, SIGNAL(accepted()),
+                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor ] () {
+    proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
+  });
+  // TODO: Ao aplicar as mudanças refresca e nao fecha.
+
+  // Cancelar.
+  lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
+      delete proto_retornado;
+      proto_retornado = nullptr;
+  });
+  dialogo->exec();
+  delete dialogo;
+  return proto_retornado;
+}
+
+ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     const ntf::Notificacao& notificacao) {
   const auto& entidade = notificacao.entidade();
   auto* proto_retornado = new ent::EntidadeProto;
@@ -544,6 +596,15 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   return proto_retornado;
 }
 
+ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
+    const ntf::Notificacao& notificacao) {
+  if (notificacao.entidade().tipo() == ent::TE_ENTIDADE) {
+    return AbreDialogoTipoEntidade(notificacao);
+  } else if (notificacao.entidade().tipo() == ent::TE_FORMA) {
+    return AbreDialogoTipoForma(notificacao);
+  }
+  return nullptr;
+}
 
 ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     const ntf::Notificacao& notificacao) {
@@ -728,7 +789,7 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
     }
     case Qt::Key_C:
     case Qt::Key_D:
-      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidade(CalculaDano(teclas_));
+      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(CalculaDano(teclas_));
       break;
     default:
       VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
