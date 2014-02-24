@@ -322,7 +322,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
   }
 }
 
-void Tabuleiro::AtualizaBitsEntidade(int bits) {
+void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
@@ -335,7 +335,8 @@ void Tabuleiro::AtualizaBitsEntidade(int bits) {
     EntidadeProto proto = entidade_selecionada->Proto();
     // Para desfazer.
     n->mutable_entidade_antes()->CopyFrom(proto);
-    if ((bits & BIT_VISIBILIDADE) > 0) {
+    if ((bits & BIT_VISIBILIDADE) > 0 && modo_mestre_) {
+      // Apenas modo mestre.
       proto.set_visivel(!proto.visivel());
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
