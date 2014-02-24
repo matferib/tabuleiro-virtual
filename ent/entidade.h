@@ -19,8 +19,8 @@ class Texturas {
   virtual unsigned int Textura(const std::string& id) const = 0;
 };
 
-/** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
-Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
+/** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
+Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::CentralNotificacoes* central);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -40,7 +40,9 @@ class Entidade {
   virtual ~Entidade();
 
   /** @return o identificador da entidade que deve ser unico globalmente. */
-  unsigned int Id() const;
+  unsigned int Id() const { return proto_.id(); }
+
+  TipoEntidade Tipo() const { return proto_.tipo(); }
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -103,7 +105,7 @@ class Entidade {
   float MultiplicadorTamanho() const;
 
  private:
-  friend Entidade* NovaEntidade(TipoEntidade, Texturas*, ntf::CentralNotificacoes*);
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, Texturas*, ntf::CentralNotificacoes*);
   Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** Realiza as chamadas de notificacao para as texturas. */

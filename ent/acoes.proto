@@ -25,13 +25,6 @@ enum TipoAceleracao {
   ACAO_ACEL_QUADRATICA = 3;  // Acelera quadraticamente.
 }
 
-// A escala nos tres eixos.
-message Escala {
-  optional float x = 1 [default=1.0];
-  optional float y = 2 [default=1.0];
-  optional float z = 3 [default=1.0];
-}
-
 message Translacao {
   optional float x = 1 [default=0];
   optional float y = 2 [default=0];

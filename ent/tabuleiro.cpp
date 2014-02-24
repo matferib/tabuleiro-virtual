@@ -265,7 +265,6 @@ void Tabuleiro::Desenha() {
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
-      std::unique_ptr<Entidade> entidade_up(NovaEntidade(TE_ENTIDADE, texturas_, central_));
       EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_);
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
@@ -282,7 +281,6 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       if (processando_grupo_) {
         ids_adicionados_.push_back(id_entidade);
       }
-      auto* entidade = entidade_up.get();
       // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
       // se a entidade eh visivel e selecionavel para os jogadores.
       if (!ignorar_lista_eventos_) {
@@ -296,8 +294,8 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      entidade->Inicializa(modelo);
-      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade_up.release())));
+      auto* entidade = NovaEntidade(modelo, texturas_, central_);
+      entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       SelecionaEntidade(entidade->Id());
       {
         // Para desfazer.
@@ -311,8 +309,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       central_->AdicionaNotificacaoRemota(n);
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade().tipo(), texturas_, central_);
-      entidade->Inicializa(notificacao.entidade());
+      auto* entidade = NovaEntidade(notificacao.entidade(), texturas_, central_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
@@ -749,12 +746,18 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       }
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
-      auto* fim = forma_proto_.mutable_fim();
-      fim->set_x(ultimo_x_3d_);
-      fim->set_y(ultimo_y_3d_);
-      fim->set_z(ZChao(ultimo_x_3d_, ultimo_y_3d_));
       if (forma_proto_.sub_tipo() == TF_LIVRE) {
-        forma_proto_.add_ponto()->CopyFrom(*fim);
+        auto* fim = forma_proto_.add_ponto();
+        fim->set_x(ultimo_x_3d_);
+        fim->set_y(ultimo_y_3d_);
+        fim->set_z(ZChao(ultimo_x_3d_, ultimo_y_3d_));
+      } else {
+        auto* pos = forma_proto_.mutable_pos();
+        pos->set_x((primeiro_x_3d_ + ultimo_x_3d_) / 2.0f);
+        pos->set_y((primeiro_y_3d_ + ultimo_y_3d_) / 2.0f);
+        auto* escala = forma_proto_.mutable_escala();
+        escala->set_x(fabs(primeiro_x_3d_ - ultimo_x_3d_));
+        escala->set_y(fabs(primeiro_y_3d_ - ultimo_y_3d_));
       }
       LOG(INFO) << "Prosseguindo: " << forma_proto_.ShortDebugString();
     }
@@ -941,11 +944,10 @@ void Tabuleiro::TrataBotaoLiberado() {
     case ETAB_DESENHANDO: {
       LOG(INFO) << "Finalizando: " << forma_proto_.ShortDebugString();
       forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
-      auto* forma = NovaEntidade(TE_FORMA, texturas_, central_);
-      forma->Inicializa(forma_proto_);
-      formas_.insert(std::make_pair(forma->Id(), std::unique_ptr<Entidade>(forma)));
-      // TODO mudar para desenho selecionado.
-      estado_ = ETAB_OCIOSO;
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n.mutable_entidade()->Swap(&forma_proto_);
+      TrataNotificacao(n);
       return;
     }
     default:
@@ -1105,10 +1107,6 @@ void Tabuleiro::DesenhaCena() {
   glPushName(0);
   DesenhaEntidades();
   glPopName();
-  // Desenha as fornas no terceiro lugar da pilha.
-  //glPushName(1);
-  DesenhaFormas();
-  //glPopName();
 
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
@@ -1242,21 +1240,6 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   parametros_desenho_.set_desenha_barra_vida(false);
 }
 
-void Tabuleiro::DesenhaFormasBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
-  for (MapaFormas::iterator it = formas_.begin(); it != formas_.end(); ++it) {
-    auto* forma = it->second.get();
-    if (forma == nullptr) {
-      LOG(ERROR) << "Forma nao existe.";
-      continue;
-    }
-    // Nao roda disco se estiver arrastando.
-    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
-                                                 EntidadeEstaSelecionada(forma->Id()));
-    f(forma, &parametros_desenho_);
-  }
-  parametros_desenho_.set_entidade_selecionada(false);
-}
-
 void Tabuleiro::DesenhaRastros() {
   glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
   glDepthMask(false);
@@ -1266,7 +1249,7 @@ void Tabuleiro::DesenhaRastros() {
   MudaCorAlfa(COR_AZUL_ALFA);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
-    if (e == nullptr) {
+    if (e == nullptr || e->Tipo() == TE_FORMA) {
       continue;
     }
     // Copia vetor de pontos e adiciona posicao corrente da entidade.
@@ -1300,8 +1283,7 @@ void Tabuleiro::DesenhaAcoes() {
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
-  std::unique_ptr<Entidade> forma(NovaEntidade(TE_FORMA, texturas_, central_));
-  forma->Inicializa(forma_proto_);
+  std::unique_ptr<Entidade> forma(NovaEntidade(forma_proto_, texturas_, central_));
   forma->Desenha(&parametros_desenho_);
 }
 
@@ -1538,6 +1520,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
+          // Forma nao deixa rastro.
           continue;
         }
         Posicao pos;
@@ -1595,13 +1578,18 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   forma_proto_.set_id(GeraIdEntidade(id_cliente_));
   forma_proto_.set_tipo(TE_FORMA);
   forma_proto_.set_sub_tipo(forma_selecionada_);
-  auto* inicio = forma_proto_.mutable_inicio();
-  inicio->set_x(primeiro_x_3d_);
-  inicio->set_y(primeiro_y_3d_);
-  inicio->set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
-  forma_proto_.mutable_fim()->CopyFrom(*inicio);
   if (forma_proto_.sub_tipo() == TF_LIVRE) {
-    forma_proto_.add_ponto()->CopyFrom(*inicio);
+    auto* inicio = forma_proto_.add_ponto();
+    inicio->set_x(primeiro_x_3d_);
+    inicio->set_y(primeiro_y_3d_);
+    inicio->set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
+  } else {
+    auto* pos = forma_proto_.mutable_pos();
+    pos->set_x(primeiro_x_3d_);
+    pos->set_y(primeiro_y_3d_);
+    auto* escala = forma_proto_.mutable_escala();
+    escala->set_x(0);
+    escala->set_y(0);
   }
   forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
   forma_proto_.mutable_cor()->set_a(0.5f);
@@ -1825,8 +1813,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     id_cliente_ = tabuleiro.id_cliente();
   }
   for (const auto& ep : tabuleiro.entidade()) {
-    auto* e = NovaEntidade(ep.tipo(), texturas_, central_);
-    e->Inicializa(ep);
+    auto* e = NovaEntidade(ep, texturas_, central_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }

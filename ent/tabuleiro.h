@@ -43,7 +43,6 @@ struct Sinalizador {
 };
 
 typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
-typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaFormas;
 typedef std::unordered_set<unsigned int> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste,
@@ -253,9 +252,6 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
-  void DesenhaFormasBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
-  void DesenhaFormas() { DesenhaFormasBase(&Entidade::Desenha); }
-  void DesenhaFormasTranslucidas() { DesenhaFormasBase(&Entidade::DesenhaTranslucido); }
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
@@ -474,7 +470,6 @@ class Tabuleiro : public ntf::Receptor {
   TipoForma forma_selecionada_;  // Necessario para poder limpar o proto em paz.
   Cor forma_cor_;  // idem.
   EntidadeProto forma_proto_;
-  MapaFormas formas_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
