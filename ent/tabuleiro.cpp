@@ -953,7 +953,7 @@ void Tabuleiro::TrataBotaoLiberado() {
       estado_ = ETAB_QUAD_SELECIONADO;
       return;
     case ETAB_DESENHANDO: {
-      LOG(INFO) << "Finalizando: " << forma_proto_.ShortDebugString();
+      VLOG(1) << "Finalizando: " << forma_proto_.ShortDebugString();
       forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);

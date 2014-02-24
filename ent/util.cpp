@@ -8,6 +8,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
+#include "log/log.h"
 
 namespace ent {
 
@@ -63,7 +64,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 }
 
 void DesenhaDisco(GLfloat raio, int num_faces) {
-  glNormal3i(0, 0, 1);
+  glNormal3f(0.0f, 0.0f, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
   for (int i = 0; i <= num_faces; ++i) {
@@ -79,6 +80,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   if (pontos.size() == 0) {
     return;
   }
+  glNormal3f(0.0f, 0.0f, 1.0f);
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     glPushMatrix();
@@ -90,7 +92,6 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     float tam;
     float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
     glRotatef(graus, 0.0f, 0.0f, 1.0f);
-    glNormal3i(0, 0, 1);
     glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
     glPopMatrix();
   }

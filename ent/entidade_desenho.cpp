@@ -129,7 +129,6 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
   if (transparencias) {
     glEnable(GL_BLEND);
   }
-  glEnable(GL_NORMALIZE);
   switch (proto_.sub_tipo()) {
     case TF_RETANGULO: {
       glEnable(GL_POLYGON_OFFSET_FILL);
@@ -138,7 +137,7 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
       glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.01f);
       float x = proto_.escala().x() / 2.0f;
       float y = proto_.escala().y() / 2.0f;
-      glNormal3i(0, 0, 1);
+      glNormal3f(0.0f, 0.0f, 1.0f);
       glRectf(-x, -y, x, y);
       glPopMatrix();
     }
@@ -155,11 +154,9 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
     case TF_CIRCULO: {
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(-1.0f, -40.0f);
-      // Usar x como base para achatamento.
       glPushMatrix();
       glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.01f);
-      glScalef(proto_.escala().x(), proto_.escala().y(), std::min(proto_.escala().x(), 1.0f));
-      glNormal3i(0, 0, 1);
+      glScalef(proto_.escala().x(), proto_.escala().y(), 1.0f);
       DesenhaDisco(0.5f, 12);
       glPopMatrix();
     }
@@ -182,7 +179,6 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-1.0, -40.0f);
       }
-      glNormal3i(0, 0, 1);
       DesenhaLinha3d(proto_.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);
       glPopMatrix();
       if (transparencias) {
