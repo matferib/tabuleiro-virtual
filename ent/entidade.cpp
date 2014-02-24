@@ -223,6 +223,18 @@ void Entidade::MataEntidade() {
   proto_.set_aura(0);
 }
 
+void Entidade::AtualizaPontosVida(int pontos_vida) {
+  if (proto_.pontos_vida() >= 0 && pontos_vida < 0) {
+    proto_.set_morta(true);
+    proto_.set_caida(true);
+    proto_.set_voadora(false);
+    proto_.set_aura(0);
+  } else if (proto_.pontos_vida() < 0 && pontos_vida >= 0) {
+    proto_.set_morta(false);
+  }
+  proto_.set_pontos_vida(pontos_vida);
+}
+
 void Entidade::AtualizaPontosVidaProto(int delta_pontos_vida, EntidadeProto* proto) {
   if (proto->pontos_vida() >= 0 && proto->pontos_vida() + delta_pontos_vida < 0) {
     proto->set_morta(true);

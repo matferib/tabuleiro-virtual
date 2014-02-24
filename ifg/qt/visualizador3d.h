@@ -61,6 +61,8 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
 
   // Dialogos.
   ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
+  ent::EntidadeProto* AbreDialogoTipoEntidade(const ntf::Notificacao& notificacao);
+  ent::EntidadeProto* AbreDialogoTipoForma(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
   void TrataAcaoTemporizadaTeclado();

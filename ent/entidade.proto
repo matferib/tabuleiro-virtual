@@ -86,6 +86,8 @@ message EntidadeProto {
   // Para formas.
   repeated Posicao ponto = 21;
   optional Escala escala = 22;
+  optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
+  optional float translacao_z = 24;  // translacao do objeto em Z.
 
   // Destino da entidade.
   optional Posicao destino = 5;

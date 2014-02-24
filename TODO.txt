@@ -1,7 +1,5 @@
 Versao 1.0
-- Dialogo para formas.
-- Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
-- Tirar desenho de cone ta so complicando codigo.
+- Finalizar Dialogo para formas.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.

@@ -100,9 +100,13 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaBitsEntidade(int bits);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
-  void TrataAcaoAtualizarPontosVidaEntidade(int delta_pontos_vida);
-  /** Atualiza os pontos de vida de uma entidade. */
-  void AtualizaPontosVidaEntidade(unsigned int id, int delta_pontos_vida);
+  void TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida);
+
+  /** Atualiza os pontos de vida de uma entidade, notificando clientes. */
+  void AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao);
+
+  /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao. Nao preocupa com desfazer, que ja foi feito no inicio da acao. */
+  void AtualizaPontosVidaEntidadePorAcao(unsigned int id, int delta_pontos_vida);
 
   /** Poe pv no final da lista de pontos de vida acumuladors. */
   void AcumulaPontosVida(int pv);
