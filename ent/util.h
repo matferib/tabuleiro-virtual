@@ -47,10 +47,10 @@ void DesenhaDisco(GLfloat raio, int num_faces);
 void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura);
 void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura);
 
-/** Par de funcoes para ligar o stencil e depois desenhar a cor passada onde o stencil foi marcado. */
+/** Funcoes para ligar o stencil e depois desenhar a cor passada (ou a corrente) onde o stencil foi marcado. */
 // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
 void LigaStencil();
-void DesenhaStencil(const float* cor);
+void DesenhaStencil(const float* cor = nullptr);
 void DesenhaStencil(const Cor& cor);
 
 /** Computa pos2 - pos1 em pos_res. */

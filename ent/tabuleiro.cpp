@@ -68,6 +68,9 @@ const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) 
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
+/** Distancia minima entre pontos no desenho livre. */
+const float DELTA_MINIMO_DESENHO_LIVRE = 0.2;
+
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -746,11 +749,14 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       }
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
-      if (forma_proto_.sub_tipo() == TF_LIVRE) {
-        auto* fim = forma_proto_.add_ponto();
-        fim->set_x(ultimo_x_3d_);
-        fim->set_y(ultimo_y_3d_);
-        fim->set_z(ZChao(ultimo_x_3d_, ultimo_y_3d_));
+      if (forma_selecionada_ == TF_LIVRE) {
+        Posicao pos;
+        pos.set_x(ultimo_x_3d_ - primeiro_x_3d_);
+        pos.set_y(ultimo_y_3d_ - primeiro_y_3d_);
+        pos.set_z(ZChao(ultimo_x_3d_, ultimo_y_3d_));
+        if (DistanciaHorizontalQuadrado(pos, forma_proto_.ponto(forma_proto_.ponto_size() - 1)) > DELTA_MINIMO_DESENHO_LIVRE) {
+          forma_proto_.add_ponto()->Swap(&pos);
+        }
       } else {
         auto* pos = forma_proto_.mutable_pos();
         pos->set_x((primeiro_x_3d_ + ultimo_x_3d_) / 2.0f);
@@ -759,7 +765,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         escala->set_x(fabs(primeiro_x_3d_ - ultimo_x_3d_));
         escala->set_y(fabs(primeiro_y_3d_ - ultimo_y_3d_));
       }
-      LOG(INFO) << "Prosseguindo: " << forma_proto_.ShortDebugString();
+      VLOG(2) << "Prosseguindo: " << forma_proto_.ShortDebugString();
     }
     break;
     default: ;
@@ -892,6 +898,11 @@ void Tabuleiro::TrataBotaoLiberado() {
       estado_ = estado_anterior_rotacao_;
       return;
     case ETAB_ENT_PRESSIONADA: {
+      if (primeiro_x_3d_ == ultimo_x_3d_ &&
+          primeiro_y_3d_ == ultimo_y_3d_) {
+        // Nao houve movimento.
+        return;
+      }
       // Para desfazer.
       ntf::Notificacao g_desfazer;
       g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -1129,9 +1140,9 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.transparencias()) {
     glEnable(GL_BLEND);
     glDepthMask(false);
-    parametros_desenho_.set_alpha_translucidos(0.5);
+    parametros_desenho_.set_alfa_translucidos(0.5);
     DesenhaEntidadesTranslucidas();
-    parametros_desenho_.clear_alpha_translucidos();
+    parametros_desenho_.clear_alfa_translucidos();
     DesenhaAuras();
     glDepthMask(true);
     glDisable(GL_BLEND);
@@ -1158,7 +1169,7 @@ void Tabuleiro::DesenhaCena() {
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-1.0, -20.0f);
+    glPolygonOffset(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
     glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
     glPopAttrib();
@@ -1203,9 +1214,9 @@ void Tabuleiro::DesenhaTabuleiro() {
                deltaY / 2.0f,
                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   int id = 0;
-  glEnable(GL_POLYGON_OFFSET_FILL);
   // Desenha o chao mais pro fundo.
   // TODO transformar offsets em constantes.
+  glEnable(GL_POLYGON_OFFSET_FILL);
   glPolygonOffset(2.0f, 20.0f);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
@@ -1245,7 +1256,7 @@ void Tabuleiro::DesenhaRastros() {
   glDepthMask(false);
   glEnable(GL_BLEND);
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-2.0, -30.0f);
+  glPolygonOffset(-2.0f, -20.0f);
   MudaCorAlfa(COR_AZUL_ALFA);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
@@ -1284,7 +1295,9 @@ void Tabuleiro::DesenhaAcoes() {
 
 void Tabuleiro::DesenhaFormaSelecionada() {
   std::unique_ptr<Entidade> forma(NovaEntidade(forma_proto_, texturas_, central_));
+  parametros_desenho_.set_alfa_translucidos(0.5);
   forma->Desenha(&parametros_desenho_);
+  parametros_desenho_.clear_alfa_translucidos();
 }
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
@@ -1426,7 +1439,7 @@ void Tabuleiro::BuscaHitMaisProximo(
   // - 3: nomes empilhados (1 para cada pos pilha).
   // Dado o hit mais proximo, retorna o identificador, a posicao da pilha e a
   // profundidade do objeto (normalizado 0..1.0).
-  VLOG(4) << "numero de hits no buffer de picking: " << numero_hits;
+  VLOG(3) << "numero de hits no buffer de picking: " << numero_hits;
   GLuint* ptr_hits = buffer_hits;
   // valores do hit mais proximo.
   GLuint menor_z = 0xFFFFFFFF;
@@ -1439,15 +1452,17 @@ void Tabuleiro::BuscaHitMaisProximo(
     // A posicao da pilha minimo eh 1.
     GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
     ptr_hits += (3 + (pos_pilha_corrente));
-    if (z_corrente < menor_z) {
-      VLOG(4) << "pos_pilha_corrente: " << pos_pilha_corrente
+    if (z_corrente <= menor_z) {
+      VLOG(3) << "pos_pilha_corrente: " << pos_pilha_corrente
               << ", z_corrente: " << z_corrente
               << ", id_corrente: " << id_corrente;
       menor_z = z_corrente;
       pos_pilha_menor = pos_pilha_corrente;
       id_menor = id_corrente;
     } else {
-      VLOG(4) << "pulando objeto mais longe...";
+      VLOG(3) << "Pulando objeto, pos_pilha_corrente: " << pos_pilha_corrente
+              << ", z_corrente: " << z_corrente
+              << ", id_corrente: " << id_corrente;
     }
   }
   *pos_pilha = pos_pilha_menor;
@@ -1578,23 +1593,22 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   forma_proto_.set_id(GeraIdEntidade(id_cliente_));
   forma_proto_.set_tipo(TE_FORMA);
   forma_proto_.set_sub_tipo(forma_selecionada_);
-  if (forma_proto_.sub_tipo() == TF_LIVRE) {
-    auto* inicio = forma_proto_.add_ponto();
-    inicio->set_x(primeiro_x_3d_);
-    inicio->set_y(primeiro_y_3d_);
-    inicio->set_z(ZChao(primeiro_x_3d_, primeiro_y_3d_));
-  } else {
-    auto* pos = forma_proto_.mutable_pos();
-    pos->set_x(primeiro_x_3d_);
-    pos->set_y(primeiro_y_3d_);
-    auto* escala = forma_proto_.mutable_escala();
-    escala->set_x(0);
-    escala->set_y(0);
+  auto* pos = forma_proto_.mutable_pos();
+  pos->set_x(primeiro_x_3d_);
+  pos->set_y(primeiro_y_3d_);
+  if (forma_selecionada_ == TF_LIVRE) {
+    auto* ponto = forma_proto_.add_ponto();
+    ponto->set_x(0.0f);
+    ponto->set_y(0.0f);
+    ponto->set_z(0.0f);
   }
+  auto* escala = forma_proto_.mutable_escala();
+  escala->set_x(0);
+  escala->set_y(0);
   forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
   forma_proto_.mutable_cor()->set_a(0.5f);
   estado_ = ETAB_DESENHANDO;
-  LOG(INFO) << "Iniciando: " << forma_proto_.ShortDebugString();
+  VLOG(2) << "Iniciando: " << forma_proto_.ShortDebugString();
 }
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {

@@ -305,7 +305,7 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   }
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   auto cor = proto_.cor();
-  cor.set_a(cor.a() * pd->alpha_translucidos());
+  cor.set_a(cor.a() * pd->alfa_translucidos());
   MudaCor(proto_.morta() ? EscureceCor(cor) : cor);
   DesenhaObjetoComDecoracoes(pd);
 }
