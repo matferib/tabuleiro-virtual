@@ -1,5 +1,4 @@
 Versao 1.0
-- Terminar movimento de desenho livre.
 - Dialogo para formas.
 - Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
 - Tirar desenho de cone ta so complicando codigo.
