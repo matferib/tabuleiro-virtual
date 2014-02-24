@@ -18,10 +18,6 @@
 namespace ent {
 namespace {
 
-const unsigned int NUM_FACES = 10;
-const unsigned int NUM_LINHAS = 1;
-const float ALTURA = TAMANHO_LADO_QUADRADO;
-const float ALTURA_VOO = ALTURA;
 // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
 const double VELOCIDADE_POR_EIXO = 0.1;
 // Tamanho da barra de vida.
@@ -46,38 +42,13 @@ float CalculaMultiplicador(TamanhoEntidade tamanho) {
   return 1.0f;
 }
 
-// Multiplica a matriz openGL matriz pelo vetor. A matriz OpenGL tem formato col x linha (column major), portanto,
-// ao inves de multiplicar matriz (4x4) pelo vetor (4x1), fazemos a inversao: vetor (1x4) pela matriz (4x4).
-void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor) {
-  GLfloat res[4];
-  for (int i = 0; i < 4; ++i) {
-    res[i] = vetor[0] * matriz[i] +
-             vetor[1] * matriz[i + 4] +
-             vetor[2] * matriz[i + 8] +
-             vetor[3] * matriz[i + 12];
-  }
-  vetor[0] = res[0];
-  vetor[1] = res[1];
-  vetor[2] = res[2];
-  vetor[3] = res[3];
-}
-
-// Escurece os fatores, exceto alfa.
-const Cor EscureceCor(const Cor& cor) {
-  Cor cret;
-  cret.set_r(cor.r() * 0.5);
-  cret.set_g(cor.g() * 0.5);
-  cret.set_b(cor.b() * 0.5);
-  cret.set_a(cor.a());
-  return cret;
-}
-
 }  // namespace
 
 // Factory.
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central) {
   switch (tipo) {
     case TE_ENTIDADE:
+    case TE_FORMA:
       return new Entidade(texturas, central);
     default:
       LOG(ERROR) << "Tipo de entidade inválido: " << tipo;
@@ -85,13 +56,8 @@ Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotifi
   }
 }
 
-void PreencheIdEntidadeProto(int id_cliente, int id_entidade, EntidadeProto* modelo) {
-  modelo->set_id((id_cliente << 28) | id_entidade);
-}
-
 // Entidade
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
-  proto_.set_tipo(TE_ENTIDADE);
   rotacao_disco_selecao_graus_ = 0;
   angulo_disco_voo_rad_ = 0;
   angulo_disco_queda_graus_ = 0;
@@ -112,12 +78,10 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Atualiza texturas antes de tudo.
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
-  TipoEntidade tipo = proto_.tipo();
   proto_.CopyFrom(novo_proto);
   if (!proto_.has_pontos_vida() || proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
-  proto_.set_tipo(tipo);
 }
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
@@ -401,98 +365,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     glPopMatrix();
     glPopAttrib();
   }
-}
-
-void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
-  if (!proto_.has_info_textura()) {
-    glPushMatrix();
-    MontaMatriz(true, matriz_shear);
-    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-	  glTranslated(0, 0, ALTURA);
-	  glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
-    glPopMatrix();
-    return;
-  }
-
-  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  {
-    glPushMatrix();
-    MontaMatriz(false, matriz_shear);
-    glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
-    glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
-    if (pd->entidade_selecionada()) {
-      glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
-    }
-    glutSolidCube(TAMANHO_LADO_QUADRADO);
-    glPopMatrix();
-  }
-
-  glPushMatrix();
-  MontaMatriz(true, matriz_shear);
-  // Tijolo da moldura.
-  if (proto_.achatado()) {
-    glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
-    if (pd->entidade_selecionada()) {
-      glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
-    }
-    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-    glScalef(0.8f, 1.0f, 0.8f);
-  } else {
-    // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
-    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
-    double angulo = 0;
-    // So desenha a textura de frente pra entidades nao caidas.
-    if (pd->texturas_sempre_de_frente() && !proto_.caida()) {
-      double dx = X() - pd->pos_olho().x();
-      double dy = Y() - pd->pos_olho().y();
-      double r = sqrt(pow(dx, 2) + pow(dy, 2));
-      angulo = (acos(dx / r) * RAD_PARA_GRAUS);
-      if (dy < 0) {
-        // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
-        // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
-        angulo = -angulo;
-      }
-      glRotated(angulo - 90.0f, 0, 0, 1.0);
-    }
-    glPushMatrix();
-    glScalef(1.0f, 0.1f, 1.0f);
-    glutSolidCube(TAMANHO_LADO_QUADRADO);
-    glPopMatrix();
-  }
-
-  // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
-  GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
-      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
-  if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, id_textura);
-    glNormal3f(0.0f, -1.0f, 0.0f);
-    Cor c;
-    c.set_r(1.0f);
-    c.set_g(1.0f);
-    c.set_b(1.0f);
-    c.set_a(pd->has_alpha_translucidos() ? pd->alpha_translucidos() : 1.0f);
-    MudaCor(proto_.morta() ? EscureceCor(c) : c);
-    glBegin(GL_QUADS);
-    // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
-    // imagem com origem em cima esquerda. Entao a gente mapeia a textura com o eixo vertical invertido.
-    // O quadrado eh desenhado EB, DB, DC, EC. A textura eh aplicada: EC, DC, DB, EB.
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(
-        -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(
-        TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(
-        TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(
-        -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-  }
-  glPopMatrix();
 }
 
 void Entidade::DesenhaLuz(ParametrosDesenho* pd) {

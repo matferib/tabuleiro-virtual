@@ -78,7 +78,6 @@ cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
 cAcoes = env.Object('ent/acoes.cpp')
 cConstantes = env.Object('ent/constantes.cpp')
-cFormas = env.Object('ent/formas.cpp')
 cEntUtil = env.Object('ent/util.cpp')
 cEntDesenho = env.Object('ent/entidade_desenho.cpp')
 ent_proto = env.Protoc(
@@ -110,6 +109,6 @@ env.Program(
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cFormas, cEntUtil,
+		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
 	]
 )

@@ -29,6 +29,9 @@ void CorAlfaParaProto(const float* cor, Cor* cor_proto);
 /** Igual CorAlfaParaProto mas para 3 componentes. */
 void CorParaProto(const float* cor, Cor* cor_proto);
 
+/** Reduz cada componente RGB pela metade. */
+const Cor EscureceCor(const Cor& cor);
+
 /** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 
@@ -61,6 +64,11 @@ void ComputaMultiplicacaoEscalar(float escala, const Posicao& pos, Posicao* pos_
 
 /** Computa o vetor normalizado. */
 void ComputaVetorNormalizado(Posicao* pos);
+
+/* Multiplica a matriz openGL matriz pelo vetor. A matriz OpenGL tem formato col x linha (column major), portanto,
+* ao inves de multiplicar matriz (4x4) pelo vetor (4x1), fazemos a inversao: vetor (1x4) pela matriz (4x4).
+*/
+void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor);
 
 }  // namespace ent
 
