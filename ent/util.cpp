@@ -44,6 +44,15 @@ void CorParaProto(const float* cor, Cor* proto_cor) {
   proto_cor->clear_a();
 }
 
+const Cor EscureceCor(const Cor& cor) {
+  Cor cret;
+  cret.set_r(cor.r() * 0.5);
+  cret.set_g(cor.g() * 0.5);
+  cret.set_b(cor.b() * 0.5);
+  cret.set_a(cor.a());
+  return cret;
+}
+
 float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   float tam = sqrt(x * x + y * y);
   float angulo = acosf(x / tam) * RAD_PARA_GRAUS;
@@ -173,6 +182,20 @@ void ComputaVetorNormalizado(Posicao* pos) {
   pos->set_x(x / tam);
   pos->set_y(y / tam);
   pos->set_z(z / tam);
+}
+
+void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor) {
+  GLfloat res[4];
+  for (int i = 0; i < 4; ++i) {
+    res[i] = vetor[0] * matriz[i] +
+             vetor[1] * matriz[i + 4] +
+             vetor[2] * matriz[i + 8] +
+             vetor[3] * matriz[i + 12];
+  }
+  vetor[0] = res[0];
+  vetor[1] = res[1];
+  vetor[2] = res[2];
+  vetor[3] = res[3];
 }
 
 }  // namespace ent

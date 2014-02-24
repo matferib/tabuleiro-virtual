@@ -24,7 +24,6 @@
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
-#include "ent/formas.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -289,7 +288,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       if (!ignorar_lista_eventos_) {
         modelo.set_visivel(!modo_mestre_);
         modelo.set_selecionavel_para_jogador(!modo_mestre_);
-        PreencheIdEntidadeProto(id_cliente_, id_entidade, &modelo);
+        modelo.set_id(id_entidade);
       } else {
         if (BuscaEntidade(modelo.id()) != nullptr) {
           // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
@@ -942,7 +941,9 @@ void Tabuleiro::TrataBotaoLiberado() {
     case ETAB_DESENHANDO: {
       LOG(INFO) << "Finalizando: " << forma_proto_.ShortDebugString();
       forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
-      formas_.insert(std::make_pair(GeraIdEntidade(id_cliente_), std::unique_ptr<Forma>(new Forma(forma_proto_))));
+      auto* forma = NovaEntidade(TE_FORMA, texturas_, central_);
+      forma->Inicializa(forma_proto_);
+      formas_.insert(std::make_pair(forma->Id(), std::unique_ptr<Entidade>(forma)));
       // TODO mudar para desenho selecionado.
       estado_ = ETAB_OCIOSO;
       return;
@@ -1241,9 +1242,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   parametros_desenho_.set_desenha_barra_vida(false);
 }
 
-void Tabuleiro::DesenhaFormasBase(const std::function<void (Forma*, const ParametrosDesenho&)>& f) {
+void Tabuleiro::DesenhaFormasBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   for (MapaFormas::iterator it = formas_.begin(); it != formas_.end(); ++it) {
-    Forma* forma = it->second.get();
+    auto* forma = it->second.get();
     if (forma == nullptr) {
       LOG(ERROR) << "Forma nao existe.";
       continue;
@@ -1251,7 +1252,7 @@ void Tabuleiro::DesenhaFormasBase(const std::function<void (Forma*, const Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
                                                  EntidadeEstaSelecionada(forma->Id()));
-    f(forma, parametros_desenho_);
+    f(forma, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
 }
@@ -1299,8 +1300,9 @@ void Tabuleiro::DesenhaAcoes() {
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
-  Forma f(forma_proto_);
-  f.Desenha(parametros_desenho_);
+  std::unique_ptr<Entidade> forma(NovaEntidade(TE_FORMA, texturas_, central_));
+  forma->Inicializa(forma_proto_);
+  forma->Desenha(&parametros_desenho_);
 }
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
@@ -1590,6 +1592,7 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   ultimo_y_3d_ = y3d;
   DeselecionaEntidades();
   forma_proto_.Clear();
+  forma_proto_.set_id(GeraIdEntidade(id_cliente_));
   forma_proto_.set_tipo(TE_FORMA);
   forma_proto_.set_sub_tipo(forma_selecionada_);
   auto* inicio = forma_proto_.mutable_inicio();

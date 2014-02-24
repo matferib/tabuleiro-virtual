@@ -10,7 +10,6 @@
 #include "ent/acoes.pb.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
-#include "ent/formas.h"
 #include "ent/tabuleiro.pb.h"
 #include "ntf/notificacao.h"
 
@@ -44,7 +43,7 @@ struct Sinalizador {
 };
 
 typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
-typedef std::unordered_map<unsigned int, std::unique_ptr<Forma>> MapaFormas;
+typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaFormas;
 typedef std::unordered_set<unsigned int> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste,
@@ -254,11 +253,9 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
-
-  /** Desenha as formas. */
-  void DesenhaFormasBase(const std::function<void (Forma*, const ParametrosDesenho&)>& f);
-  void DesenhaFormas() { DesenhaFormasBase(&Forma::Desenha); }
-  void DesenhaFormasTranslucidas() { DesenhaFormasBase(&Forma::DesenhaTranslucido); }
+  void DesenhaFormasBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
+  void DesenhaFormas() { DesenhaFormasBase(&Entidade::Desenha); }
+  void DesenhaFormasTranslucidas() { DesenhaFormasBase(&Entidade::DesenhaTranslucido); }
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();

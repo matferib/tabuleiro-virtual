@@ -10,6 +10,14 @@
 #define TAMANHO_LADO_QUADRADO_2 (TAMANHO_LADO_QUADRADO / 2.0f)
 /** tamanho do lado do quadrado / 10. */
 #define TAMANHO_LADO_QUADRADO_10 (TAMANHO_LADO_QUADRADO / 10.0f)
+/** Altura dos objetos. */
+#define ALTURA TAMANHO_LADO_QUADRADO
+/** Altura do voo dos objetos. */
+#define ALTURA_VOO ALTURA
+/** Numero de faces do cone. */
+#define NUM_FACES 10
+/** Numero de divisoes do eixo Z do cone. */
+#define NUM_LINHAS 1
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f 

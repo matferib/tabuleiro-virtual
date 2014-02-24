@@ -9,6 +9,7 @@ class CentralNotificacoes;
 namespace ent {
 
 class Entidade;
+class DesenhoBase;
 class IluminacaoDirecional;
 
 /** Interface de texturas para entidades. */
@@ -20,9 +21,6 @@ class Texturas {
 
 /** Constroi uma entidade de acordo com o tipo, que deve pertencer a enum TipoEntidade. */
 Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central);
-
-/* Preenche o id do modelo com id do cliente e da entidade. */
-void PreencheIdEntidadeProto(int id_cliente, int id_entidade, EntidadeProto* modelo);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -117,7 +115,7 @@ class Entidade {
   /** Realiza o desenho do objeto com as decoracoes, como disco de selecao e barra de vida (de acordo com pd). */
   void DesenhaObjetoComDecoracoes(ParametrosDesenho* pd);
 
-  /** desenha apenas o objeto, sem alterar cor nem matriz. */
+  /** desenha apenas o objeto, sem alterar cor nem matriz. Implementado em entidade_desenho.cpp. */
   void DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao. */
@@ -127,6 +125,10 @@ class Entidade {
   * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   */
   void MontaMatriz(bool usar_delta_voo, const float* matriz_shear = nullptr) const;
+
+  // Funcoes de desenho.
+  void DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear);
+  void DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_shear);
 
  private:
   EntidadeProto proto_;
