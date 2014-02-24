@@ -270,14 +270,14 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       if (event->modifiers() == Qt::ControlModifier) {
         tabuleiro_->ColaEntidadesSelecionadas();
       } else {
-        tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VISIBILIDADE);
+        tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
       }
       return;
     case Qt::Key_I:
       tabuleiro_->TrataBotaoAlternarIluminacaoMestre();
       return;
     case Qt::Key_L:
-      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_ILUMINACAO);
+      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
       return;
     case Qt::Key_Y:
       if (event->modifiers() == Qt::ControlModifier) {
@@ -290,10 +290,10 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
         tabuleiro_->TrataComandoDesfazer();
         return;
       }
-      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_VOO);
+      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       return;
     case Qt::Key_Q:
-      tabuleiro_->AtualizaBitsEntidade(ent::Tabuleiro::BIT_CAIDA);
+      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
       return;
     case Qt::Key_A:
     case Qt::Key_C:
@@ -429,12 +429,19 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
+  // Rotacao em Z.
+  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
+  // Translacao em Z.
+  gerador.spin_translacao->setValue(entidade.translacao_z());
+
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor ] () {
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
+    proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
+    proto_retornado->set_translacao_z(gerador.spin_translacao->value());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
