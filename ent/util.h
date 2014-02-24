@@ -29,8 +29,15 @@ void CorAlfaParaProto(const float* cor, Cor* cor_proto);
 /** Igual CorAlfaParaProto mas para 3 componentes. */
 void CorParaProto(const float* cor, Cor* cor_proto);
 
-/** Reduz cada componente RGB pela metade. */
+/** Reduz cada componente RGB em 0.5f. */
 const Cor EscureceCor(const Cor& cor);
+void EscureceCor(Cor* cor);
+
+/** Aumenta cada componente RGB em 0.5f. */
+void ClareiaCor(Cor* cor);
+
+/** Muda cada componente RGB de forma notavel. */
+void RealcaCor(Cor* cor);
 
 /** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
