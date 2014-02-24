@@ -1,6 +1,6 @@
 Versao 1.0
 - Terminar movimento de desenho livre.
-- Picking dos desenhos e transmiti-los via rede.
+- Dialogo para formas.
 - Criar uma classe para diversos tipos de desenhos diferentes (achatado, com textura, sem textura).
 - Tirar desenho de cone ta so complicando codigo.
 - Adicionar modelos diversos.
@@ -24,7 +24,6 @@ Versao 2.0
 - Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
-- Tirar o evento de movimento ao liberar botao sem movimento.
 - Tooltip com mais informacao.
 - Arrumar tempo de desenho de cena.
 - Performance para tabuleiro grande.

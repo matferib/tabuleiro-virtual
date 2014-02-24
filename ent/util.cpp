@@ -63,7 +63,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 }
 
 void DesenhaDisco(GLfloat raio, int num_faces) {
-  glNormal3f(0, 0, 1.0f);
+  glNormal3i(0, 0, 1);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
   for (int i = 0; i <= num_faces; ++i) {
@@ -90,6 +90,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     float tam;
     float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
     glRotatef(graus, 0.0f, 0.0f, 1.0f);
+    glNormal3i(0, 0, 1);
     glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
     glPopMatrix();
   }
@@ -143,7 +144,9 @@ void DesenhaStencil(const float* cor) {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  MudaCorAlfa(cor);
+  if (cor != nullptr) {
+    MudaCorAlfa(cor);
+  }
   glDisable(GL_DEPTH_TEST);
   glDepthMask(false);
   // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.

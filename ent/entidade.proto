@@ -140,8 +140,8 @@ message ParametrosDesenho {
   optional bool desenha_sombras = 13 [default=true];
   // Modo de desenho.
   optional bool modo_mestre = 14 [default=true];
-  // Alpha para translucidos.
-  optional float alpha_translucidos = 15 [default=0.5];
+  // Alfa para translucidos.
+  optional float alfa_translucidos = 15 [default=0.5];
   // Caso verdadeiro, a textura sempre ficara de frente para a camera.
   optional bool texturas_sempre_de_frente = 16 [default=true];
   // Posicao do olho.
