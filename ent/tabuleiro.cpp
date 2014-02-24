@@ -381,13 +381,11 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     if (entidade_selecionada == nullptr) {
       continue;
     }
-    auto proto = entidade_selecionada->Proto();
-    Entidade::AtualizaPontosVidaProto(delta_pontos_vida, &proto);
-    proto.set_id(entidade_selecionada->Id());
     // Atualizacao.
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-    n->mutable_entidade()->Swap(&proto);
+    n->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
+    n->mutable_entidade()->set_id(entidade_selecionada->Id());
+    n->mutable_entidade()->set_pontos_vida(entidade_selecionada->PontosVida() + delta_pontos_vida);
     // Acao.
     auto* na = grupo_notificacoes.add_notificacao();
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);

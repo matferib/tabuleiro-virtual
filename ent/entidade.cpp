@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #if __APPLE__
@@ -232,19 +233,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
   } else if (proto_.pontos_vida() < 0 && pontos_vida >= 0) {
     proto_.set_morta(false);
   }
-  proto_.set_pontos_vida(pontos_vida);
-}
-
-void Entidade::AtualizaPontosVidaProto(int delta_pontos_vida, EntidadeProto* proto) {
-  if (proto->pontos_vida() >= 0 && proto->pontos_vida() + delta_pontos_vida < 0) {
-    proto->set_morta(true);
-    proto->set_caida(true);
-    proto->set_voadora(false);
-    proto->set_aura(0);
-  } else if (proto->pontos_vida() < 0 && proto->pontos_vida() + delta_pontos_vida >= 0) {
-    proto->set_morta(false);
-  }
-  proto->set_pontos_vida(proto->pontos_vida() + delta_pontos_vida);
+  proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
 }
 
 const Posicao Entidade::PosicaoAcao() const {

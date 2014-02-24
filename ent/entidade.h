@@ -75,9 +75,6 @@ class Entidade {
   /** Atualiza os pontos de vida da entidade para a quantidade passada. */
   void AtualizaPontosVida(int pontos_vida);
 
-  /** Atualiza pontos de vida do proto passado, matando ou revivendo os bits de acordo. */
-  static void AtualizaPontosVidaProto(int delta_pontos_vida, EntidadeProto* proto);
-
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
 
