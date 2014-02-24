@@ -58,6 +58,13 @@ message InfoTextura {
   optional bytes bits = 5;
 }
 
+// A escala nos tres eixos.
+message Escala {
+  optional float x = 1 [default=1.0];
+  optional float y = 2 [default=1.0];
+  optional float z = 3 [default=1.0];
+}
+
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   optional TipoEntidade tipo = 1;
@@ -76,6 +83,10 @@ message EntidadeProto {
   optional bool achatado = 17 [default=false];
   // Posicao atual da entidade.
   optional Posicao pos = 4;
+  // Para formas.
+  repeated Posicao ponto = 21;
+  optional Escala escala = 22;
+
   // Destino da entidade.
   optional Posicao destino = 5;
   // Cor da entidade.
@@ -96,10 +107,6 @@ message EntidadeProto {
   optional bool morta = 15 [default=false];
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
   optional bool selecionavel_para_jogador = 16 [default=true];
-  // Para formas.
-  optional Posicao inicio = 19;
-  optional Posicao fim = 20;
-  repeated Posicao ponto = 21;
 }
 
 // Alguns estados são mantidos nesta variável.

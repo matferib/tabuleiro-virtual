@@ -120,28 +120,32 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
 }
 
 void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_shear) {
+  if (matriz_shear != nullptr) {
+    // TODO Nao desenha com sombra ainda.
+    return;
+  }
   glPushAttrib(GL_ENABLE_BIT);
   if (proto_.cor().a() < 1.0f) {
     glEnable(GL_BLEND);
   }
   glEnable(GL_NORMALIZE);
-  glDisable(GL_CULL_FACE);
-  MudaCor(proto_.cor());
   switch (proto_.sub_tipo()) {
     case TF_RETANGULO: {
+      glDisable(GL_CULL_FACE);
+      glPushMatrix();
       glNormal3i(0, 0, 1);
-      glRectf(proto_.inicio().x(), proto_.inicio().y(), proto_.fim().x(), proto_.fim().y());
+      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.0f);
+      float x = proto_.escala().x() / 2.0f;
+      float y = proto_.escala().y() / 2.0f;
+      glRectf(-x, -y, x, y);
+      glPopMatrix();
     }
     break;
     case TF_ESFERA: {
       // Usar x como base para achatamento.
-      float centro_x = (proto_.inicio().x() + proto_.fim().x()) / 2.0f;
-      float centro_y = (proto_.inicio().y() + proto_.fim().y()) / 2.0f;
-      float escala_x = fabs(proto_.inicio().x() - proto_.fim().x());
-      float escala_y = fabs(proto_.inicio().y() - proto_.fim().y());
       glPushMatrix();
-      glTranslatef(centro_x, centro_y, 0.0f);
-      glScalef(escala_x, escala_y, std::min(escala_x, escala_y));
+      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.0f);
+      glScalef(proto_.escala().x(), proto_.escala().y(), std::min(proto_.escala().x(), proto_.escala().y()));
       glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
       glPopMatrix();
     }
@@ -149,27 +153,17 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
     case TF_CIRCULO: {
       glNormal3i(0, 0, 1);
       // Usar x como base para achatamento.
-      float centro_x = (proto_.inicio().x() + proto_.fim().x()) / 2.0f;
-      float centro_y = (proto_.inicio().y() + proto_.fim().y()) / 2.0f;
-      float escala_x = fabs(proto_.inicio().x() - proto_.fim().x());
-      float escala_y = fabs(proto_.inicio().y() - proto_.fim().y());
       glPushMatrix();
-      glTranslatef(centro_x, centro_y, 0.0f);
-      glScalef(escala_x, escala_y, 1.0f);
+      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.0f);
+      glScalef(proto_.escala().x(), proto_.escala().y(), std::min(proto_.escala().x(), 1.0f));
       DesenhaDisco(0.5f, 12);
       glPopMatrix();
     }
     break;
     case TF_CUBO: {
-      // Usar x como base para achatamento.
-      float centro_x = (proto_.inicio().x() + proto_.fim().x()) / 2.0f;
-      float centro_y = (proto_.inicio().y() + proto_.fim().y()) / 2.0f;
-      float escala_x = fabs(proto_.inicio().x() - proto_.fim().x());
-      float escala_y = fabs(proto_.inicio().y() - proto_.fim().y());
       glPushMatrix();
-      glTranslatef(centro_x, centro_y, TAMANHO_LADO_QUADRADO_2);
-      // Altura do cubo do lado do quadrado.
-      glScalef(escala_x, escala_y, TAMANHO_LADO_QUADRADO);
+      glTranslatef(proto_.pos().x(), proto_.pos().y(), TAMANHO_LADO_QUADRADO_2);
+      glScalef(proto_.escala().x(), proto_.escala().y(), TAMANHO_LADO_QUADRADO);
       glutSolidCube(1.0f);
       glPopMatrix();
     }

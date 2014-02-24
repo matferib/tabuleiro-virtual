@@ -45,13 +45,16 @@ float CalculaMultiplicador(TamanhoEntidade tamanho) {
 }  // namespace
 
 // Factory.
-Entidade* NovaEntidade(TipoEntidade tipo, Texturas* texturas, ntf::CentralNotificacoes* central) {
-  switch (tipo) {
+Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::CentralNotificacoes* central) {
+  switch (proto.tipo()) {
     case TE_ENTIDADE:
-    case TE_FORMA:
-      return new Entidade(texturas, central);
+    case TE_FORMA: {
+      auto* e = new Entidade(texturas, central);
+      e->Inicializa(proto);
+      return e;
+    }
     default:
-      LOG(ERROR) << "Tipo de entidade inválido: " << tipo;
+      LOG(ERROR) << "Tipo de entidade inválido: " << proto.tipo();
       return nullptr;
   }
 }
@@ -178,8 +181,6 @@ void Entidade::Atualiza() {
     proto_.clear_destino();
   }
 }
-
-unsigned int Entidade::Id() const { return proto_.id(); }
 
 void Entidade::MovePara(float x, float y, float z) {
   VLOG(1) << "Entidade antes de mover: " << proto_.pos().ShortDebugString();
@@ -319,6 +320,10 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
+  if (proto_.tipo() == TE_FORMA) {
+    // Forma nao tem decoracoes.
+    return;
+  }
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
@@ -430,7 +435,6 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
   DesenhaObjeto(pd, matriz_shear);
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
-
 
 float Entidade::MultiplicadorTamanho() const {
   return CalculaMultiplicador(proto_.tamanho());
