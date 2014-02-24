@@ -126,7 +126,7 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>80</x>
      <y>180</y>
      <width>52</width>
      <height>14</height>
@@ -136,7 +136,7 @@
     <string>Rotação</string>
    </property>
   </widget>
-  <widget class="QDial" name="dial_posicao">
+  <widget class="QDial" name="dial_rotacao">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -146,7 +146,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Posição da fonte de luz</string>
+    <string>Rotação do objeto ao redor do eixo Z.</string>
    </property>
    <property name="minimum">
     <number>0</number>
@@ -184,7 +184,7 @@
     <rect>
      <x>200</x>
      <y>180</y>
-     <width>160</width>
+     <width>162</width>
      <height>80</height>
     </rect>
    </property>
@@ -197,9 +197,15 @@
      </widget>
     </item>
     <item>
-     <widget class="QLineEdit" name="linha_translacao">
-      <property name="readOnly">
-       <bool>true</bool>
+     <widget class="QDoubleSpinBox" name="spin_translacao">
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <double>10.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>0.100000000000000</double>
       </property>
      </widget>
     </item>

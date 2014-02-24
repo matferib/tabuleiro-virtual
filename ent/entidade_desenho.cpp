@@ -129,49 +129,39 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
   if (transparencias) {
     glEnable(GL_BLEND);
   }
+  glPushMatrix();
+  glTranslatef(proto_.pos().x(), proto_.pos().y(), proto_.translacao_z() + 0.01f);
+  glRotatef(proto_.rotacao_z_graus(), 0, 0, 1.0f);
   switch (proto_.sub_tipo()) {
     case TF_RETANGULO: {
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(-1.0f, -40.0f);
-      glPushMatrix();
-      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.01f);
       float x = proto_.escala().x() / 2.0f;
       float y = proto_.escala().y() / 2.0f;
       glNormal3f(0.0f, 0.0f, 1.0f);
       glRectf(-x, -y, x, y);
-      glPopMatrix();
     }
     break;
     case TF_ESFERA: {
       // Usar x como base para achatamento.
-      glPushMatrix();
-      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.0f);
       glScalef(proto_.escala().x(), proto_.escala().y(), std::min(proto_.escala().x(), proto_.escala().y()));
       glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
-      glPopMatrix();
     }
     break;
     case TF_CIRCULO: {
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(-1.0f, -40.0f);
-      glPushMatrix();
-      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.01f);
       glScalef(proto_.escala().x(), proto_.escala().y(), 1.0f);
       DesenhaDisco(0.5f, 12);
-      glPopMatrix();
     }
     break;
     case TF_CUBO: {
-      glPushMatrix();
-      glTranslatef(proto_.pos().x(), proto_.pos().y(), TAMANHO_LADO_QUADRADO_2);
+      glTranslatef(0, 0, TAMANHO_LADO_QUADRADO_2);
       glScalef(proto_.escala().x(), proto_.escala().y(), TAMANHO_LADO_QUADRADO);
       glutSolidCube(1.0f);
-      glPopMatrix();
     }
     break;
     case TF_LIVRE: {
-      glPushMatrix();
-      glTranslatef(proto_.pos().x(), proto_.pos().y(), 0.01f);
       if (transparencias) {
         LigaStencil();
       } else {
@@ -180,7 +170,6 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
         glPolygonOffset(-1.0, -40.0f);
       }
       DesenhaLinha3d(proto_.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);
-      glPopMatrix();
       if (transparencias) {
         DesenhaStencil();
       }
@@ -189,6 +178,7 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
+  glPopMatrix();
   glPopAttrib();
 }
 
