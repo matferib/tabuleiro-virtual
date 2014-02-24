@@ -95,9 +95,9 @@ class Tabuleiro : public ntf::Receptor {
     BIT_CAIDA            = 0x10,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
-  * O valor eh uma mascara de OUs de bit_e.
+  * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
   */
-  void AtualizaBitsEntidade(int bits);
+  void AtualizaBitsEntidadeNotificando(int bits);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
   void TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida);
