@@ -83,8 +83,14 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
-  if (!proto_.has_pontos_vida() || proto_.pontos_vida() > proto_.max_pontos_vida()) {
-    proto_.set_pontos_vida(proto_.max_pontos_vida());
+  if (proto_.tipo() == TE_ENTIDADE) {
+    if (!proto_.has_max_pontos_vida()) {
+      // Entidades sempre devem ter o maximo de pontos de vida, que eh usado para acoes de dano.
+      proto_.set_max_pontos_vida(0);
+    }
+    if (!proto_.has_pontos_vida() || proto_.pontos_vida() > proto_.max_pontos_vida()) {
+      proto_.set_pontos_vida(proto_.max_pontos_vida());
+    }
   }
 }
 
@@ -225,6 +231,10 @@ void Entidade::MataEntidade() {
 }
 
 void Entidade::AtualizaPontosVida(int pontos_vida) {
+  if (!proto_.has_max_pontos_vida()) {
+    // Entidades sem pontos de vida nao sao afetadas.
+    return;
+  }
   if (proto_.pontos_vida() >= 0 && pontos_vida < 0) {
     proto_.set_morta(true);
     proto_.set_caida(true);
@@ -294,8 +304,6 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     // Sera desenhado translucido para o mestre.
     return;
   }
-  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  MudaCor(proto_.morta() ? EscureceCor(proto_.cor()) : proto_.cor());
   DesenhaObjetoComDecoracoes(pd);
 }
 
@@ -304,14 +312,23 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
     // Um pouco diferente, pois so desenha se for visivel.
     return;
   }
-  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  auto cor = proto_.cor();
-  cor.set_a(cor.a() * pd->alfa_translucidos());
-  MudaCor(proto_.morta() ? EscureceCor(cor) : cor);
   DesenhaObjetoComDecoracoes(pd);
 }
 
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
+  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  auto cor = proto_.cor();
+  if (pd->has_alfa_translucidos()) {
+    cor.set_a(cor.a() * pd->alfa_translucidos());
+  }
+  if (pd->entidade_selecionada()) {
+    RealcaCor(&cor);
+  }
+  if (proto_.morta()) {
+    EscureceCor(&cor);
+  }
+  MudaCor(cor);
+
   glLoadName(Id());
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <google/protobuf/repeated_field.h>
 #if __APPLE__
@@ -45,13 +46,36 @@ void CorParaProto(const float* cor, Cor* proto_cor) {
   proto_cor->clear_a();
 }
 
+void EscureceCor(Cor* cor) {
+  cor->set_r(std::max(cor->r() - 0.5f, 0.0f));
+  cor->set_g(std::max(cor->g() - 0.5f, 0.0f));
+  cor->set_b(std::max(cor->b() - 0.5f, 0.0f));
+}
+
 const Cor EscureceCor(const Cor& cor) {
-  Cor cret;
-  cret.set_r(cor.r() * 0.5);
-  cret.set_g(cor.g() * 0.5);
-  cret.set_b(cor.b() * 0.5);
-  cret.set_a(cor.a());
+  Cor cret(cor);
+  EscureceCor(&cret);
   return cret;
+}
+
+void ClareiaCor(Cor* cor) {
+  cor->set_r(std::min(cor->r() + 0.5f, 1.0f));
+  cor->set_g(std::min(cor->g() + 0.5f, 1.0f));
+  cor->set_b(std::min(cor->b() + 0.5f, 1.0f));
+}
+
+float RealcaComponente(float c) {
+  if (c < 0.5) {
+    return std::min(c + 0.3f, 1.0f);
+  } else {
+    return std::max(c - 0.3f, 0.0f);
+  }
+}
+
+void RealcaCor(Cor* cor) {
+  cor->set_r(RealcaComponente(cor->r()));
+  cor->set_g(RealcaComponente(cor->g()));
+  cor->set_b(RealcaComponente(cor->b()));
 }
 
 float VetorParaRotacaoGraus(float x, float y, float* tamanho) {

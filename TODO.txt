@@ -1,5 +1,5 @@
 Versao 1.0
-- Finalizar Dialogo para formas.
+- Visao de cima.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
