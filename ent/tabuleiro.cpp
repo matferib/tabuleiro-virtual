@@ -814,6 +814,11 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         auto* escala = forma_proto_.mutable_escala();
         escala->set_x(fabs(primeiro_x_3d_ - ultimo_x_3d_));
         escala->set_y(fabs(primeiro_y_3d_ - ultimo_y_3d_));
+        if (forma_selecionada_ == TF_CUBO) {
+          escala->set_z(TAMANHO_LADO_QUADRADO);
+        } else if (forma_selecionada_ == TF_ESFERA) {
+          escala->set_z(std::min(escala->x(), escala->y()));
+        }
       }
       VLOG(2) << "Prosseguindo: " << forma_proto_.ShortDebugString();
     }
@@ -1695,6 +1700,7 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   auto* escala = forma_proto_.mutable_escala();
   escala->set_x(0);
   escala->set_y(0);
+  escala->set_z(0);
   forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
   forma_proto_.mutable_cor()->set_a(0.5f);
   estado_ = ETAB_DESENHANDO;

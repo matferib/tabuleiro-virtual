@@ -433,6 +433,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.translacao_z());
+  // Escalas.
+  gerador.spin_escala_x->setValue(entidade.escala().x());
+  gerador.spin_escala_y->setValue(entidade.escala().y());
+  gerador.spin_escala_z->setValue(entidade.escala().z());
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
@@ -442,6 +446,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
     proto_retornado->set_translacao_z(gerador.spin_translacao->value());
+    proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
+    proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
+    proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
