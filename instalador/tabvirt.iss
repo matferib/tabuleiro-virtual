@@ -18,9 +18,15 @@ DisableDirPage=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortuguese.isl"
 
+[Dirs]
+Name: {app}\texturas_locais
+Name: {app}\tabuleiros_salvos
+
 [Files]
 Source: ..\tabvirt.exe; Destdir: {app};
 Source: ..\win32\lib\*.dll; Destdir: {app};
+Source: ..\texturas\*.png; Destdir: {app}\texturas;
+Source: ..\dados\*.asciiproto; Destdir: {app}\dados;
 
 
 
