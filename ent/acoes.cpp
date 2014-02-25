@@ -203,6 +203,8 @@ class AcaoDispersao : public Acao {
     if (acao_proto_.geometria() == ACAO_GEO_CONE) {
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
       if (entidade_origem == nullptr) {
+        glPopMatrix();
+        glPopAttrib();
         return;
       }
       // Posicao da acao eh a ponta do cone. Computa tudo considerando nivel do solo, depois faz translacao pro nivel da acao.
