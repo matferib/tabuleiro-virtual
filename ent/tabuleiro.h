@@ -424,9 +424,10 @@ class Tabuleiro : public ntf::Receptor {
   /** proximo id de cliente. */
   int proximo_id_cliente_;
 
-  /** dados (X) para calculo de mouse. */
+  /** dados 2d para calculo de mouse. */
+  int primeiro_x_;
+  int primeiro_y_;
   int ultimo_x_;
-  /** dados (Y) para calculo de mouse. */
   int ultimo_y_;
   /** coordenadas 3d da ultima acao. */
   float ultimo_x_3d_;

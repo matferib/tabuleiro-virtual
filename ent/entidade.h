@@ -54,6 +54,12 @@ class Entidade {
   /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
   void Destino(const Posicao& pos);
 
+  /** Altera a translacao em Z da entidade. */
+  void AlteraTranslacaoZ(float delta_translacao);
+
+  /** Altera a rotacao em Z da entidade. */
+  void AlteraRotacaoZ(float delta_rotacao_graus);
+
   /** @return o HP da unidade. */
   int PontosVida() const;
 

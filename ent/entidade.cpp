@@ -207,6 +207,14 @@ void Entidade::Destino(const Posicao& pos) {
   proto_.mutable_destino()->CopyFrom(pos);
 }
 
+void Entidade::AlteraTranslacaoZ(float delta) {
+  proto_.set_translacao_z(proto_.translacao_z() + delta);
+}
+
+void Entidade::AlteraRotacaoZ(float delta) {
+  proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
+}
+
 int Entidade::PontosVida() const {
   return proto_.pontos_vida();
 }
