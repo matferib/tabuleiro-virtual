@@ -145,7 +145,7 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
     break;
     case TF_ESFERA: {
       // Usar x como base para achatamento.
-      glScalef(proto_.escala().x(), proto_.escala().y(), std::min(proto_.escala().x(), proto_.escala().y()));
+      glScalef(proto_.escala().x(), proto_.escala().y(), proto_.escala().z());
       glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
     }
     break;
@@ -158,7 +158,7 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
     break;
     case TF_CUBO: {
       glTranslatef(0, 0, TAMANHO_LADO_QUADRADO_2);
-      glScalef(proto_.escala().x(), proto_.escala().y(), TAMANHO_LADO_QUADRADO);
+      glScalef(proto_.escala().x(), proto_.escala().y(), proto_.escala().z());
       glutSolidCube(1.0f);
     }
     break;
