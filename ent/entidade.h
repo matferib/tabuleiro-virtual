@@ -126,7 +126,7 @@ class Entidade {
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   */
-  void MontaMatriz(bool usar_delta_voo, const float* matriz_shear = nullptr) const;
+  void MontaMatriz(bool usar_delta_voo, const ParametrosDesenho* pd = nullptr, const float* matriz_shear = nullptr) const;
 
   // Funcoes de desenho.
   void DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear);

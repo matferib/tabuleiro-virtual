@@ -1,5 +1,5 @@
 Versao 1.0
-- Visao de cima.
+- Rodela do mouse com entidade pressionada sobe e desce translacao Z.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.

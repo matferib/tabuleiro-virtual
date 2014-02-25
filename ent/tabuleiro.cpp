@@ -1067,6 +1067,13 @@ void Tabuleiro::DesenhaCena() {
   pos_olho->set_y(olho_.alvo().y() + sinf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_z(olho_.altura());
   parametros_desenho_.mutable_pos_olho()->CopyFrom(*pos_olho);
+  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
+  if (olho_.altura() > (2 * olho_.raio())) {
+    parametros_desenho_.set_desenha_texturas_para_cima(true);
+  } else {
+    parametros_desenho_.set_desenha_texturas_para_cima(false);
+  }
+
 
   if (parametros_desenho_.iluminacao()) {
     glEnable(GL_LIGHTING);

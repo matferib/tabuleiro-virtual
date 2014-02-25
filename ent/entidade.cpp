@@ -250,7 +250,7 @@ const Posicao Entidade::PosicaoAcao() const {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  MontaMatriz(true, nullptr);
+  MontaMatriz(true);
   if (!proto_.achatado()) {
     glTranslatef(0.0f, 0.0f, ALTURA);
   }
@@ -275,22 +275,25 @@ float Entidade::DeltaVoo() const {
   return angulo_disco_voo_rad_ > 0 ? sinf(angulo_disco_voo_rad_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::MontaMatriz(bool usar_delta_voo, const float* matriz_shear) const {
+void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho* pd, const float* matriz_shear) const {
+  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
   if (matriz_shear == nullptr) {
     glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
-    if (proto_.achatado() && !proto_.has_info_textura()) {
+    if (achatar && !proto_.has_info_textura()) {
+      // Achata cone.
       glScalef(1.0f, 1.0f, 0.1f);
     }
   } else {
     glTranslated(X(), Y(), 0);
     glMultMatrixf(matriz_shear);
     glTranslated(0, 0, usar_delta_voo ? Z() + DeltaVoo() : 0.0);
-    if (proto_.achatado() && !proto_.has_info_textura()) {
+    if (achatar && !proto_.has_info_textura()) {
+      // Achata cone.
       glScalef(1.0f, 1.0f, 0.1f);
     }
   }
   // So roda entidades nao achatadas.
-  if (angulo_disco_queda_graus_ > 0 && !proto_.achatado()) {
+  if (angulo_disco_queda_graus_ > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
     glRotatef(-angulo_disco_queda_graus_, 1.0, 0, 0);
@@ -345,7 +348,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
-    MontaMatriz(false);
+    MontaMatriz(false, pd);
     MudaCor(proto_.cor());
     glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
@@ -367,7 +370,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     glPushMatrix();
-    MontaMatriz(true);
+    MontaMatriz(true, pd);
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
     glPushMatrix();
     glScalef(0.2, 0.2, 1.0f);
@@ -399,7 +402,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   glPushMatrix();
-  MontaMatriz(true  /*usar_delta_voo*/);
+  MontaMatriz(true  /*usar_delta_voo*/, pd);
   // Um pouco acima do objeto e ao sul do objeto.
   glTranslated(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
