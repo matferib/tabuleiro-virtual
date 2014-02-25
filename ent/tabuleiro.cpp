@@ -627,16 +627,36 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::TrataRodela(int delta) {
-  // move o olho no eixo Z de acordo com o eixo Y do movimento
-  float olho_raio = olho_.raio();
-  olho_raio -= (delta * SENSIBILIDADE_RODA);
-  if (olho_raio < OLHO_RAIO_MINIMO) {
-    olho_raio = OLHO_RAIO_MINIMO;
+  if (estado_ == ETAB_ENT_PRESSIONADA) {
+    ntf::Notificacao grupo_notificacoes;
+    grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade = BuscaEntidade(id);
+      if (entidade == nullptr || entidade->Tipo() != TE_FORMA) {
+        continue;
+      }
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+      n->mutable_entidade_antes()->CopyFrom(entidade->Proto());
+      auto* e = n->mutable_entidade();
+      e->CopyFrom(entidade->Proto());
+      e->set_translacao_z(e->translacao_z() + delta * SENSIBILIDADE_RODA * 0.5f);
+    }
+    TrataNotificacao(grupo_notificacoes);
+    // Para desfazer.
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  } else {
+    // move o olho no eixo Z de acordo com o eixo Y do movimento
+    float olho_raio = olho_.raio();
+    olho_raio -= (delta * SENSIBILIDADE_RODA);
+    if (olho_raio < OLHO_RAIO_MINIMO) {
+      olho_raio = OLHO_RAIO_MINIMO;
+    }
+    else if (olho_raio > OLHO_RAIO_MAXIMO) {
+      olho_raio = OLHO_RAIO_MAXIMO;
+    }
+    olho_.set_raio(olho_raio);
   }
-  else if (olho_raio > OLHO_RAIO_MAXIMO) {
-    olho_raio = OLHO_RAIO_MAXIMO;
-  }
-  olho_.set_raio(olho_raio);
 }
 
 void Tabuleiro::TrataMovimentoMouse() {
@@ -646,26 +666,38 @@ void Tabuleiro::TrataMovimentoMouse() {
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   switch (estado_) {
     case ETAB_ROTACAO: {
-      // Realiza a rotacao da tela.
-      float olho_rotacao = olho_.rotacao_rad();
-      olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
-      if (olho_rotacao >= 2 * M_PI) {
-        olho_rotacao -= 2 * M_PI;
-      } else if (olho_rotacao <= - 2 * M_PI) {
-        olho_rotacao += 2 * M_PI;
+      if (estado_anterior_rotacao_ == ETAB_ENT_PRESSIONADA) {
+        // Realiza rotacao da entidade.
+        float delta = (x - ultimo_x_);
+        for (unsigned int id : ids_entidades_selecionadas_) {
+          auto* e = BuscaEntidade(id);
+          if (e == nullptr || e->Tipo() != TE_FORMA) {
+            continue;
+          }
+          // TODO fazer direito.
+          e->AlteraRotacaoZ(delta);
+        }
+      } else {
+        // Realiza a rotacao da tela.
+        float olho_rotacao = olho_.rotacao_rad();
+        olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
+        if (olho_rotacao >= 2 * M_PI) {
+          olho_rotacao -= 2 * M_PI;
+        } else if (olho_rotacao <= - 2 * M_PI) {
+          olho_rotacao += 2 * M_PI;
+        }
+        olho_.set_rotacao_rad(olho_rotacao);
+        // move o olho no eixo Z de acordo com o eixo Y do movimento
+        float olho_altura = olho_.altura();
+        olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
+        if (olho_altura < OLHO_ALTURA_MINIMA) {
+          olho_altura = OLHO_ALTURA_MINIMA;
+        }
+        else if (olho_altura > OLHO_ALTURA_MAXIMA) {
+          olho_altura = OLHO_ALTURA_MAXIMA;
+        }
+        olho_.set_altura(olho_altura);
       }
-      olho_.set_rotacao_rad(olho_rotacao);
-      // move o olho no eixo Z de acordo com o eixo Y do movimento
-      float olho_altura = olho_.altura();
-      olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
-      if (olho_altura < OLHO_ALTURA_MINIMA) {
-        olho_altura = OLHO_ALTURA_MINIMA;
-      }
-      else if (olho_altura > OLHO_ALTURA_MAXIMA) {
-        olho_altura = OLHO_ALTURA_MAXIMA;
-      }
-      olho_.set_altura(olho_altura);
-
       ultimo_x_ = x;
       ultimo_y_ = y;
     }
@@ -912,6 +944,30 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 void Tabuleiro::TrataBotaoLiberado() {
   switch (estado_) {
     case ETAB_ROTACAO:
+      if (estado_anterior_rotacao_ == ETAB_ENT_PRESSIONADA) {
+        ntf::Notificacao grupo_notificacoes;
+        grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+        for (unsigned int id : ids_entidades_selecionadas_) {
+          auto* entidade = BuscaEntidade(id);
+          if (entidade == nullptr || entidade->Tipo() != TE_FORMA) {
+            continue;
+          }
+          float delta = ultimo_x_ - primeiro_x_;
+          auto* n = grupo_notificacoes.add_notificacao();
+          n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+          auto* e_antes = n->mutable_entidade_antes();
+          e_antes->CopyFrom(entidade->Proto());
+          e_antes->set_translacao_z(e_antes->translacao_z() - delta * SENSIBILIDADE_RODA * 0.5f);
+          // A entidade ja foi alterada durante a rotacao.
+          n->mutable_entidade()->CopyFrom(entidade->Proto());
+        }
+        // Vai ser um nop, mas envia as notificacoes para os clientes.
+        TrataNotificacao(grupo_notificacoes);
+        // Para desfazer.
+        AdicionaNotificacaoListaEventos(grupo_notificacoes);
+      }
+      estado_ = estado_anterior_rotacao_;
+      return;
     case ETAB_DESLIZANDO:
       estado_ = estado_anterior_rotacao_;
       return;
@@ -1599,6 +1655,8 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
 
 void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
   VLOG(1) << "Botao rotacao pressionado";
+  primeiro_x_ = x;
+  primeiro_y_ = y;
   ultimo_x_ = x;
   ultimo_y_ = y;
   estado_anterior_rotacao_ = estado_;
@@ -1746,11 +1804,15 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 }
 
 void Tabuleiro::MudaEstadoAposSelecao() {
-  // Alterna o estado.
+  // Alterna o estado. Note que eh possivel que essa chamada ocorra durante uma rotacao com botao do meio (ETAB_ROTACAO).
   if (ids_entidades_selecionadas_.empty()) {
-    estado_ = ETAB_OCIOSO;
+    if (estado_ == ETAB_ENTS_SELECIONADAS) {
+      estado_ = ETAB_OCIOSO;
+    }
   } else {
-    estado_ = ETAB_ENTS_SELECIONADAS;
+    if (estado_ == ETAB_OCIOSO) {
+      estado_ = ETAB_ENTS_SELECIONADAS;
+    }
   }
   quadrado_selecionado_ = -1;
 }
