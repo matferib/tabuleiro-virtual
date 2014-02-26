@@ -61,13 +61,43 @@ modelo {
 }
 modelo {
   id: 'Uivante'
-  entidade: { max_pontos_vida: 39 tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+  entidade { max_pontos_vida: 39 tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
 }
 modelo {
   id: 'Zumbi (humano)'
-  entidade: { max_pontos_vida: 16 info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+  entidade { max_pontos_vida: 16 info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
 }
 modelo {
   id: 'Zumbi (kobold)'
-  entidade: { max_pontos_vida: 16 tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+  entidade { max_pontos_vida: 16 tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+}
+modelo {
+  id: 'Árvore (pinheiro)'
+  entidade {
+    tipo: TE_FORMA
+    sub_tipo: TF_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 } 
+      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0 translacao_z: 0 
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.32156864 g: 0.47058824 b: 0.22745098 a: 1 }
+      sub_tipo: TF_CONE escala { x: 2.4 y: 3 z: 4 } rotacao_z_graus: 0 translacao_z: 1.5
+    }
+  }
+}
+modelo {
+  id: 'Árvore (genérica)'
+  entidade {
+    tipo: TE_FORMA
+    sub_tipo: TF_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.63529414 g: 0.43137255 b: 0.25882354 a: 1 } sub_tipo: TF_CILINDRO
+      escala { x: 0.5 y: 0.6 z: 1.8 } rotacao_z_graus: 0 translacao_z: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.25098041 g: 0.4509804 b: 0.21568628 a: 1 } sub_tipo: TF_ESFERA
+      escala { x: 3.7 y: 4 z: 2 } rotacao_z_graus: 0 translacao_z: 2.6
+    }
+  }
 }

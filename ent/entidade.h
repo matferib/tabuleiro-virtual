@@ -110,6 +110,9 @@ class Entidade {
   */
   float MultiplicadorTamanho() const;
 
+  /** Funcao que desenha uma forma sem a entidade. */
+  static void DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear);
+
  private:
   friend Entidade* NovaEntidade(const EntidadeProto& proto, Texturas*, ntf::CentralNotificacoes*);
   Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);
@@ -136,7 +139,6 @@ class Entidade {
 
   // Funcoes de desenho.
   void DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear);
-  void DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_shear);
 
  private:
   EntidadeProto proto_;

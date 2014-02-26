@@ -5,6 +5,7 @@ enum TipoEntidade {
   TE_FORMA = 1;
 }
 
+// A ordem dos valores da enum deste proto eh importante, porque eh usada para construir o menu de desenho.
 enum TipoForma {
   TF_CILINDRO = 0;
   TF_CIRCULO = 1;
@@ -13,6 +14,7 @@ enum TipoForma {
   TF_ESFERA = 4;
   TF_LIVRE = 5;
   TF_RETANGULO = 6;
+  TF_COMPOSTA = 50;
 }
 
 enum TamanhoEntidade {
@@ -90,6 +92,7 @@ message EntidadeProto {
   optional Escala escala = 22;
   optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
   optional float translacao_z = 24;  // translacao do objeto em Z.
+  repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
 
   // Destino da entidade.
   optional Posicao destino = 5;
