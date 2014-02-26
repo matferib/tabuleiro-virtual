@@ -893,6 +893,12 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     TrataNotificacao(n);
   } else if (estado_ == ETAB_ENTS_SELECIONADAS) {
     if (acao_proto.efeito_area()) {
+      if (ids_entidades_selecionadas_.size() == 1) {
+        // So poe origem se houver uma entidade selecionada.
+        acao_proto.set_id_entidade_origem(*ids_entidades_selecionadas_.begin());
+      } else {
+        VLOG(1) << "Nao colocando origem em acao de area pois ha mais de uma entidade selecionada.";
+      }
       // Para acoes de area, faz apenas uma acao.
       VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
       ntf::Notificacao n;
