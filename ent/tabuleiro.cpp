@@ -1884,6 +1884,7 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->mutable_luz_direcional()->CopyFrom(proto_.luz_direcional());
   if (proto_.has_info_textura()) {
     tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());
+    tabuleiro->set_ladrilho(proto_.ladrilho());
   }
   tabuleiro->set_largura(proto_.largura());
   tabuleiro->set_altura(proto_.altura());
@@ -2330,8 +2331,10 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
 
   if (novo_proto.has_info_textura()) {
     proto_.mutable_info_textura()->CopyFrom(novo_proto.info_textura());
+    proto_.set_ladrilho(novo_proto.ladrilho());
   } else {
     proto_.clear_info_textura();
+    proto_.clear_ladrilho();
   }
 }
 
@@ -2357,13 +2360,29 @@ void Tabuleiro::DesenhaQuadrado(
     glBegin(GL_QUADS);
     // O quadrado eh desenhado EB, DB, DC, EC. A textura tem o eixo Y invertido.
     float tamanho_y_linha = TamanhoY() - linha;
-    glTexCoord2f(coluna * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v);
+    float coordenadas_texel[8] = {
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+      0.0f, 0.0f,
+    };
+    if (!proto_.ladrilho()) {
+      coordenadas_texel[0] = coluna * tamanho_texel_h;
+      coordenadas_texel[1] = tamanho_y_linha * tamanho_texel_v;
+      coordenadas_texel[2] = (coluna + 1) * tamanho_texel_h;
+      coordenadas_texel[3] = tamanho_y_linha * tamanho_texel_v;
+      coordenadas_texel[4] = (coluna + 1) * tamanho_texel_h;
+      coordenadas_texel[5] = (tamanho_y_linha - 1) * tamanho_texel_v;
+      coordenadas_texel[6] = coluna * tamanho_texel_h;
+      coordenadas_texel[7] = (tamanho_y_linha - 1) * tamanho_texel_v;
+    }
+    glTexCoord2fv(coordenadas_texel);
     glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2f((coluna + 1) * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v);
+    glTexCoord2fv(coordenadas_texel + 2);
     glVertex3f(TAMANHO_LADO_QUADRADO, 0.0f, 0.0f);
-    glTexCoord2f((coluna + 1) * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v);
+    glTexCoord2fv(coordenadas_texel + 4);
     glVertex3f(TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO, 0.0f);
-    glTexCoord2f(coluna * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v);
+    glTexCoord2fv(coordenadas_texel + 6);
     glVertex3f(0.0f, TAMANHO_LADO_QUADRADO, 0.0f);
     glEnd();
     glPopMatrix();

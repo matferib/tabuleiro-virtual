@@ -2,6 +2,7 @@ Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Formas compostas (arvores, casas).
 
 Versao 2.0
 - Modelar menu com um proto ASCII para facilitar expansao.
