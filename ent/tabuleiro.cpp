@@ -676,21 +676,15 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_ROTACAO: {
       if (estado_anterior_rotacao_ == ETAB_ENT_PRESSIONADA) {
         // Realiza rotacao da entidade.
-        float delta = (x - ultimo_x_);
+        float delta_x = (x - ultimo_x_);
+        float delta_y = (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
         for (unsigned int id : ids_entidades_selecionadas_) {
           auto* e = BuscaEntidade(id);
           if (e == nullptr || e->Tipo() != TE_FORMA) {
             continue;
           }
-          e->AlteraRotacaoZ(delta);
-        }
-        delta = (y - ultimo_y_);
-        for (unsigned int id : ids_entidades_selecionadas_) {
-          auto* e = BuscaEntidade(id);
-          if (e == nullptr || e->Tipo() != TE_FORMA) {
-            continue;
-          }
-          e->AlteraTranslacaoZ(delta * SENSIBILIDADE_ROTACAO_Y);
+          e->AlteraRotacaoZ(delta_x);
+          e->AlteraTranslacaoZ(delta_y);
         }
       } else {
         // Realiza a rotacao da tela.
@@ -974,13 +968,16 @@ void Tabuleiro::TrataBotaoLiberado() {
           if (entidade == nullptr || entidade->Tipo() != TE_FORMA) {
             continue;
           }
-          float delta = ultimo_x_ - primeiro_x_;
+          float delta_x = ultimo_x_ - primeiro_x_;
+          float delta_y = (ultimo_y_ - primeiro_y_) * SENSIBILIDADE_ROTACAO_Y;
           auto* n = grupo_notificacoes.add_notificacao();
           n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->CopyFrom(entidade->Proto());
-          e_antes->set_translacao_z(e_antes->translacao_z() - delta * SENSIBILIDADE_ROTACAO_Y);
-          e_antes->set_rotacao_z_graus(e_antes->rotacao_z_graus() - delta);
+          // Isso aqui ta meio tosco por causa das imprecisoes do float que no final pode gerar um delta total
+          // diferente.
+          e_antes->set_rotacao_z_graus(e_antes->rotacao_z_graus() - delta_x);
+          e_antes->set_translacao_z(e_antes->translacao_z() - delta_y);
           // A entidade ja foi alterada durante a rotacao.
           n->mutable_entidade()->CopyFrom(entidade->Proto());
         }
