@@ -37,7 +37,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   const std::string ns = notificacao.SerializeAsString();
-  if (notificacao.tipo() == ntf::TN_DESERIALIZAR_TABULEIRO) {
+  if (notificacao.clientes_pendentes()) {
     // Envia o tabuleiro a todos os clientes pendentes.
     for (auto* c : clientes_pendentes_) {
       VLOG(1) << "Enviando tabuleiro para cliente pendente";
@@ -103,6 +103,7 @@ void Servidor::EsperaCliente() {
       clientes_pendentes_.push_back(proximo_cliente_.release());
       proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
       auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      notificacao->set_clientes_pendentes(true);
       central_->AdicionaNotificacao(notificacao);
       EsperaCliente();
     } else {

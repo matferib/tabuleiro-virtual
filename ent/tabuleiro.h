@@ -351,7 +351,10 @@ class Tabuleiro : public ntf::Receptor {
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
   ntf::Notificacao* SerializaOpcoes() const;
 
-  /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO. */
+  /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO.
+  * Se usar_id for true, muda o identificador de cliente caso ele seja zero.
+  * Se manter_entidades for true, as entidades do tabuleiro corrente serao mantidas e as da notificacao serao ignoradas.
+  */
   void DeserializaTabuleiro(const ntf::Notificacao& notificacao);
 
   /** Deserializa apenas a parte de propriedades. */

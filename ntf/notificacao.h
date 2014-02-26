@@ -1,6 +1,7 @@
 #ifndef NOTIFICACAO_H
 #define NOTIFICACAO_H
 
+#include <memory>
 #include <vector>
 #include "ntf/notificacao.pb.h"
 
@@ -52,8 +53,8 @@ class CentralNotificacoes {
   void Notifica();
 
  private:
-  std::vector<Notificacao*> notificacoes_;
-  std::vector<Notificacao*> notificacoes_remotas_;
+  std::vector<std::unique_ptr<Notificacao>> notificacoes_;
+  std::vector<std::unique_ptr<Notificacao>> notificacoes_remotas_;
   std::vector<Receptor*> receptores_;
   std::vector<ReceptorRemoto*> receptores_remotos_;
 };
