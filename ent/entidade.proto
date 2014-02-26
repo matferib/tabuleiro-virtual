@@ -6,11 +6,13 @@ enum TipoEntidade {
 }
 
 enum TipoForma {
-  TF_CUBO = 0;
-  TF_ESFERA = 1;
-  TF_CIRCULO = 2;
-  TF_RETANGULO = 3;
-  TF_LIVRE = 4;
+  TF_CILINDRO = 0;
+  TF_CIRCULO = 1;
+  TF_CONE = 2;
+  TF_CUBO = 3;
+  TF_ESFERA = 4;
+  TF_LIVRE = 5;
+  TF_RETANGULO = 6;
 }
 
 enum TamanhoEntidade {
