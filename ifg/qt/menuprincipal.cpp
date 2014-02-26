@@ -45,7 +45,7 @@ const char* g_menuitem_strs[] = {
   // Acoes.
   g_fim,
   // Desenho.
-  "&Cubo", "&Esfera", "Cí&rculo", "&Retângulo", "&Livre", nullptr, "&Selecionar Cor", g_fim,
+  "&Cilindro", "Cí&rculo", "C&one", "C&ubo", "&Esfera", "&Livre", "&Retângulo", nullptr, "&Selecionar Cor", g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
@@ -309,11 +309,13 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
   }
   // Desenho.
-  else if (acao == acoes_[ME_DESENHO][MI_CUBO] ||
-           acao == acoes_[ME_DESENHO][MI_ESFERA] ||
-           acao == acoes_[ME_DESENHO][MI_RETANGULO] ||
+  else if (acao == acoes_[ME_DESENHO][MI_CILINDRO] ||
            acao == acoes_[ME_DESENHO][MI_CIRCULO] ||
-           acao == acoes_[ME_DESENHO][MI_LIVRE]) {
+           acao == acoes_[ME_DESENHO][MI_CONE] ||
+           acao == acoes_[ME_DESENHO][MI_CUBO] ||
+           acao == acoes_[ME_DESENHO][MI_ESFERA] ||
+           acao == acoes_[ME_DESENHO][MI_LIVRE] ||
+           acao == acoes_[ME_DESENHO][MI_RETANGULO]) {
     tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
   } else if (acao == acoes_[ME_DESENHO][MI_SELECIONAR_COR]) {
     QColor cor_anterior = ProtoParaCor(tabuleiro_->CorDesenho());

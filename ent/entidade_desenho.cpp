@@ -121,20 +121,54 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
 }
 
 void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_shear) {
-  if (matriz_shear != nullptr) {
-    // TODO Nao desenha com sombra ainda.
-    return;
-  }
   glPushAttrib(GL_ENABLE_BIT);
   bool transparencias = pd->transparencias() && pd->has_alfa_translucidos() &&  pd->alfa_translucidos() < 1.0f;
   if (transparencias) {
     glEnable(GL_BLEND);
   }
   glPushMatrix();
+  if (matriz_shear != nullptr) {
+    glMultMatrixf(matriz_shear);
+  }
   glTranslatef(proto_.pos().x(), proto_.pos().y(), proto_.translacao_z() + 0.01f);
   glRotatef(proto_.rotacao_z_graus(), 0, 0, 1.0f);
   switch (proto_.sub_tipo()) {
+    case TF_CIRCULO: {
+      if (matriz_shear != nullptr) {
+        break;
+      }
+      glEnable(GL_POLYGON_OFFSET_FILL);
+      glPolygonOffset(-1.0f, -40.0f);
+      glScalef(proto_.escala().x(), proto_.escala().y(), 1.0f);
+      DesenhaDisco(0.5f, 12);
+    }
+    break;
+    case TF_CILINDRO: {
+      GLUquadric* cilindro = gluNewQuadric();
+      gluQuadricOrientation(cilindro, GLU_OUTSIDE);
+      gluQuadricNormals(cilindro, GLU_SMOOTH);
+      gluQuadricDrawStyle(cilindro, GLU_FILL);
+      glScalef(proto_.escala().x(), proto_.escala().y(), proto_.escala().z());
+      gluCylinder(cilindro, 0.5f  /*radius_base*/, 0.5f  /*radius_top*/,
+                  1.0f  /*height*/, 20  /*slices*/, 20  /*stacks*/);
+      gluDeleteQuadric(cilindro);
+    }
+    break;
+    case TF_CONE: {
+      glScalef(proto_.escala().x(), proto_.escala().y(), proto_.escala().z());
+      glutSolidCone(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
+    }
+    break;
+    case TF_CUBO: {
+      glTranslatef(0, 0, proto_.escala().z() / 2.0f);
+      glScalef(proto_.escala().x(), proto_.escala().y(), proto_.escala().z());
+      glutSolidCube(1.0f);
+    }
+    break;
     case TF_RETANGULO: {
+      if (matriz_shear != nullptr) {
+        break;
+      }
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(-1.0f, -40.0f);
       float x = proto_.escala().x() / 2.0f;
@@ -149,20 +183,10 @@ void Entidade::DesenhaObjetoForma(ParametrosDesenho* pd, const float* matriz_she
       glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
     }
     break;
-    case TF_CIRCULO: {
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(-1.0f, -40.0f);
-      glScalef(proto_.escala().x(), proto_.escala().y(), 1.0f);
-      DesenhaDisco(0.5f, 12);
-    }
-    break;
-    case TF_CUBO: {
-      glTranslatef(0, 0, TAMANHO_LADO_QUADRADO_2);
-      glScalef(proto_.escala().x(), proto_.escala().y(), proto_.escala().z());
-      glutSolidCube(1.0f);
-    }
-    break;
     case TF_LIVRE: {
+      if (matriz_shear != nullptr) {
+        break;
+      }
       if (transparencias) {
         LigaStencil();
       } else {

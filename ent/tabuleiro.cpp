@@ -644,7 +644,11 @@ void Tabuleiro::TrataRodela(int delta) {
       n->mutable_entidade_antes()->CopyFrom(entidade->Proto());
       auto* e = n->mutable_entidade();
       e->CopyFrom(entidade->Proto());
-      e->set_translacao_z(e->translacao_z() + delta * SENSIBILIDADE_RODA * 0.5f);
+      float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.5f;
+      e->set_translacao_z(e->translacao_z() * fator);
+      e->mutable_escala()->set_x(e->escala().x() * fator);
+      e->mutable_escala()->set_y(e->escala().y() * fator);
+      e->mutable_escala()->set_z(e->escala().z() * fator);
     }
     TrataNotificacao(grupo_notificacoes);
     // Para desfazer.
@@ -678,8 +682,15 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
           if (e == nullptr || e->Tipo() != TE_FORMA) {
             continue;
           }
-          // TODO fazer direito.
           e->AlteraRotacaoZ(delta);
+        }
+        delta = (y - ultimo_y_);
+        for (unsigned int id : ids_entidades_selecionadas_) {
+          auto* e = BuscaEntidade(id);
+          if (e == nullptr || e->Tipo() != TE_FORMA) {
+            continue;
+          }
+          e->AlteraTranslacaoZ(delta * SENSIBILIDADE_ROTACAO_Y);
         }
       } else {
         // Realiza a rotacao da tela.
@@ -818,11 +829,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         auto* escala = forma_proto_.mutable_escala();
         escala->set_x(fabs(primeiro_x_3d_ - ultimo_x_3d_));
         escala->set_y(fabs(primeiro_y_3d_ - ultimo_y_3d_));
-        if (forma_selecionada_ == TF_CUBO) {
-          escala->set_z(TAMANHO_LADO_QUADRADO);
-        } else if (forma_selecionada_ == TF_ESFERA) {
-          escala->set_z(std::min(escala->x(), escala->y()));
-        }
+        escala->set_z(TAMANHO_LADO_QUADRADO);
       }
       VLOG(2) << "Prosseguindo: " << forma_proto_.ShortDebugString();
     }
@@ -972,7 +979,8 @@ void Tabuleiro::TrataBotaoLiberado() {
           n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->CopyFrom(entidade->Proto());
-          e_antes->set_translacao_z(e_antes->translacao_z() - delta * SENSIBILIDADE_RODA * 0.5f);
+          e_antes->set_translacao_z(e_antes->translacao_z() - delta * SENSIBILIDADE_ROTACAO_Y);
+          e_antes->set_rotacao_z_graus(e_antes->rotacao_z_graus() - delta);
           // A entidade ja foi alterada durante a rotacao.
           n->mutable_entidade()->CopyFrom(entidade->Proto());
         }
@@ -1400,11 +1408,13 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
   switch (fd) {
-    case TF_RETANGULO:
-    case TF_ESFERA:
+    case TF_CILINDRO:
     case TF_CIRCULO:
+    case TF_CONE:
     case TF_CUBO:
+    case TF_ESFERA:
     case TF_LIVRE:
+    case TF_RETANGULO:
       forma_selecionada_ = fd;
       break;
     default:
