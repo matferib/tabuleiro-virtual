@@ -43,6 +43,8 @@ message TabuleiroProto {
   optional Cor luz_ambiente = 7;
   // Textura do tabuleiro.
   optional InfoTextura info_textura = 5;
+  // Aplicar a textura de forma ladrilhada.
+  optional bool ladrilho = 9;
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
   optional uint32 altura = 6 [default=20];

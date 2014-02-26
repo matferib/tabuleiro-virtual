@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>456</width>
-    <height>578</height>
+    <width>501</width>
+    <height>611</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -34,7 +34,7 @@
     <rect>
      <x>20</x>
      <y>310</y>
-     <width>411</width>
+     <width>461</width>
      <height>80</height>
     </rect>
    </property>
@@ -56,6 +56,16 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_ladrilho">
+      <property name="toolTip">
+       <string>Se marcado, o tamanho do tabuleiro será computado a partir do tamanho da textura.</string>
+      </property>
+      <property name="text">
+       <string>Ladrilho</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_2">
@@ -63,7 +73,7 @@
     <rect>
      <x>20</x>
      <y>390</y>
-     <width>411</width>
+     <width>463</width>
      <height>80</height>
     </rect>
    </property>

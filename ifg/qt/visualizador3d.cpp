@@ -658,6 +658,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   gerador.dial_posicao->setSliderPosition(tab_proto.luz_direcional().posicao_graus() + 90.0f);
   // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
   gerador.dial_inclinacao->setSliderPosition(tab_proto.luz_direcional().inclinacao_graus() + 90.0f);
+
   // Textura do tabuleiro.
   gerador.linha_textura->setText(tab_proto.info_textura().id().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
@@ -669,6 +670,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     }
     gerador.linha_textura->setText(file_str);
   });
+  // Ladrilho de textura.
+  gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -711,7 +714,11 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
     }
-    VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
+    if (!gerador.linha_textura->text().isEmpty()) {
+      proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
+    } else {
+      proto_retornado->clear_ladrilho();
+    }
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
       // Busca tamanho da textura.
       ent::InfoTextura textura = proto_retornado->info_textura();
@@ -733,6 +740,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       proto_retornado->set_largura(largura);
       proto_retornado->set_altura(altura);
     }
+    VLOG(1) << "Retornando tabuleiro: " << proto_retornado->ShortDebugString();
     dialogo->accept();
   });
   // Cancelar.
