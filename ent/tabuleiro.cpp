@@ -269,6 +269,10 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
   try {
     if (notificacao.local()) {
       EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_);
+      if (modelo.tipo() == TE_FORMA && !modo_mestre_) {
+        LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
+        return;
+      }
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return;
@@ -1397,9 +1401,8 @@ void Tabuleiro::DesenhaAcoes() {
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
-  std::unique_ptr<Entidade> forma(NovaEntidade(forma_proto_, texturas_, central_));
   parametros_desenho_.set_alfa_translucidos(0.5);
-  forma->Desenha(&parametros_desenho_);
+  Entidade::DesenhaObjetoFormaProto(forma_proto_, &parametros_desenho_, nullptr);
   parametros_desenho_.clear_alfa_translucidos();
 }
 
@@ -1980,6 +1983,7 @@ void Tabuleiro::CopiaEntidadesSelecionadas() {
     auto* entidade = BuscaEntidade(id);
     if (entidade != nullptr) {
       entidades_copiadas_.push_back(entidade->Proto());
+      VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
     }
   }
 }

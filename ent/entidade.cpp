@@ -327,19 +327,6 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
-  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  auto cor = proto_.cor();
-  if (pd->has_alfa_translucidos()) {
-    cor.set_a(cor.a() * pd->alfa_translucidos());
-  }
-  if (pd->entidade_selecionada()) {
-    RealcaCor(&cor);
-  }
-  if (proto_.morta()) {
-    EscureceCor(&cor);
-  }
-  MudaCor(cor);
-
   glLoadName(Id());
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   glEnable(GL_NORMALIZE);
@@ -460,7 +447,7 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
     return;
   }
   glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-1.0f, -10.0f);
+  glPolygonOffset(-1.0f, -60.0f);
   DesenhaObjeto(pd, matriz_shear);
   glDisable(GL_POLYGON_OFFSET_FILL);
 }
