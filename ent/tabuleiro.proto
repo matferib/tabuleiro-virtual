@@ -46,6 +46,8 @@ message TabuleiroProto {
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
   optional uint32 altura = 6 [default=20];
+  // Se verdadeiro, nao usa entidades do proto e mantem as correntes.
+  optional bool manter_entidades = 8 [default=false];
   // Entidades do tabuleiro.
   repeated EntidadeProto entidade = 2;
 }

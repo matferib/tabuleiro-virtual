@@ -38,6 +38,8 @@ enum Tipo {
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
 message Notificacao {
   optional Tipo tipo = 1;
+  // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Caso contrario, enviado para todos.
+  optional bool clientes_pendentes = 2 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
   // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.

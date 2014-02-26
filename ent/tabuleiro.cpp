@@ -528,6 +528,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         arquivo.close();
       } else {
         // Enviar remotamente.
+        nt_tabuleiro->set_clientes_pendentes(notificacao.clientes_pendentes());
         central_->AdicionaNotificacaoRemota(nt_tabuleiro.release());
       }
       return true;
@@ -549,7 +550,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           central_->AdicionaNotificacao(ne);
           return true;
         }
+        nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
+        // Envia para os clientes.
+        central_->AdicionaNotificacaoRemota(SerializaTabuleiro());
       } else {
         // Deserializar da rede.
         DeserializaTabuleiro(notificacao);
@@ -1913,9 +1917,13 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
 }
 
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
-  if (!entidades_.empty()) {
-    LOG(ERROR) << "Tabuleiro não está vazio!";
-    return;
+  const auto& tabuleiro = notificacao.tabuleiro();
+  bool manter_entidades = tabuleiro.manter_entidades();
+  if (manter_entidades) {
+    VLOG(1) << "Deserializando tabuleiro mantendo entidades.";
+  } else {
+    VLOG(1) << "Deserializando tabuleiro todo.";
+    EstadoInicial();
   }
   if (notificacao.has_erro()) {
     auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -1925,12 +1933,20 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacao(n);
     return;
   }
-  const auto& tabuleiro = notificacao.tabuleiro();
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
-  if (id_cliente_ == 0) {
+  proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
+  proto_.clear_id_cliente();
+  bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
+  if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.
+    VLOG(1) << "Alterando id de cliente para " << id_cliente_;
     id_cliente_ = tabuleiro.id_cliente();
+  }
+  // So recebe as entidades se nao for para manter.
+  // O campo entidade eh usado apenas como um marcador 
+  if (manter_entidades) {
+    return;
   }
   for (const auto& ep : tabuleiro.entidade()) {
     auto* e = NovaEntidade(ep, texturas_, central_);
@@ -1938,7 +1954,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
   }
-  proto_.clear_entidade();
+  VLOG(1) << "Foram adicionadas " << tabuleiro.entidade_size() << " entidades";
 }
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
