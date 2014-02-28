@@ -72,6 +72,8 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   // menus e acoes dos items
   std::vector<QMenu*> menus_;
   std::vector<std::vector<QAction*>> acoes_;
+  // Usar para armazenar as acoes de modelos, que sao desattivas em alguns casos.
+  std::vector<QAction*> acoes_modelos_;
 
   ntf::CentralNotificacoes* central_;
 };

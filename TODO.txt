@@ -5,6 +5,7 @@ Versao 1.0
 - Instalador windows, rpm linux e ??? MAC.
 
 Versao 2.0
+- Ler tabuleiro sem apagar modelos.
 - Modelar menu com um proto ASCII para facilitar expansao.
 - Botao de aplicar mudancas nos dialogos.
 - No movimento com teclado, acumular teclas ou deltas.
