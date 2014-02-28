@@ -146,7 +146,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
   }
   MudaCor(cor);
 
-  glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT);
+  glPushAttrib(GL_ENABLE_BIT);
   bool transparencias = pd->transparencias() && pd->has_alfa_translucidos() &&  pd->alfa_translucidos() < 1.0f;
   if (transparencias) {
     glEnable(GL_BLEND);
@@ -169,6 +169,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
     }
     break;
     case TF_CILINDRO: {
+      glEnable(GL_NORMALIZE);
       GLUquadric* cilindro = gluNewQuadric();
       gluQuadricOrientation(cilindro, GLU_OUTSIDE);
       gluQuadricNormals(cilindro, GLU_SMOOTH);
@@ -180,65 +181,50 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
     }
     break;
     case TF_CONE: {
+      glEnable(GL_NORMALIZE);
       glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidCone(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
     }
     break;
     case TF_CUBO: {
+      glEnable(GL_NORMALIZE);
       glTranslatef(0, 0, proto.escala().z() / 2.0f);
       glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidCube(1.0f);
     }
     break;
     case TF_PIRAMIDE: {
+      glEnable(GL_NORMALIZE);
       float x = proto.escala().x() / 2.0f;
       float y = proto.escala().y() / 2.0f;
       float z = proto.escala().z();
-      // Calcula normais.
-      // Eixo X.
-      GLfloat matriz[16];
-      float angulo_graus = (z == 0) ? 0.0f : atanf(x / z) * RAD_PARA_GRAUS;
-      glPushMatrix();
-      glLoadIdentity();
-      glRotatef(angulo_graus, 0.0f, -1.0f, 0.0f);
-      glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
-      GLfloat normal_x[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-      MultiplicaMatrizVetor(matriz, normal_x);
-      glPopMatrix();
-      // Eixo Y.
-      angulo_graus = (z == 0) ? 0.0f : atanf(y / z) * RAD_PARA_GRAUS;
-      glPushMatrix();
-      glLoadIdentity();
-      glRotatef(angulo_graus, 1.0f, 0.0f, 0.0f);
-      glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
-      GLfloat normal_y[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-      MultiplicaMatrizVetor(matriz, normal_y);
-      glPopMatrix();
+      glEnable(GL_NORMALIZE);
+      glScalef(x, y, z);
 
       glBegin(GL_TRIANGLES);
       // Face sul
-      glNormal3f(0.0f, -normal_y[1], normal_y[2]);
-      glVertex3f(0.0f, 0.0f, proto.escala().z());
-      glVertex2f(-x, -y);
-      glVertex2f(x, -y);
+      glNormal3f(0.0f, -0.5, 0.5f);
+      glVertex3f(0.0f, 0.0f, 1.0f);
+      glVertex2f(-1.0f, -1.0f);
+      glVertex2f(1.0f, -1.0f);
 
       // Face leste.
-      glNormal3f(normal_x[0], 0.0f, normal_x[2]);
-      glVertex3f(0.0f, 0.0f, proto.escala().z());
-      glVertex2f(x, -y);
-      glVertex2f(x, y);
+      glNormal3f(0.5f, 0.0f, 0.5f);
+      glVertex3f(0.0f, 0.0f, 1.0f);
+      glVertex2f(1.0f, -1.0f);
+      glVertex2f(1.0f, 1.0f);
 
       // Face norte.
-      glNormal3f(0.0f, normal_y[1], normal_y[2]);
-      glVertex3f(0.0f, 0.0f, proto.escala().z());
-      glVertex2f(x, y);
-      glVertex2f(-x, y);
+      glNormal3f(0.0f, 0.5f, 0.5f);
+      glVertex3f(0.0f, 0.0f, 1.0f);
+      glVertex2f(1.0f, 1.0f);
+      glVertex2f(-1.0f, 1.0f);
 
       // Face Oeste.
-      glNormal3f(-normal_x[0], 0.0f, normal_x[2]);
-      glVertex3f(0.0f, 0.0f, proto.escala().z());
-      glVertex2f(-x, y);
-      glVertex2f(-x, -y);
+      glNormal3f(-0.5f, 0.0f, 0.5f);
+      glVertex3f(0.0f, 0.0f, 1.0f);
+      glVertex2f(-1.0f, 1.0f);
+      glVertex2f(-1.0f, -1.0f);
 
       glEnd();
     }
@@ -257,6 +243,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
     break;
     case TF_ESFERA: {
       // Usar x como base para achatamento.
+      glEnable(GL_NORMALIZE);
       glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
     }
