@@ -1102,6 +1102,15 @@ void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
   modelo_selecionado_ = it->second.get();
 }
 
+const EntidadeProto* Tabuleiro::BuscaModelo(const std::string& id_modelo) const {
+  auto it = mapa_modelos_.find(id_modelo);
+  if (it == mapa_modelos_.end()) {
+    LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
+    return nullptr;
+  }
+  return it->second.get();
+}
+
 void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   auto it = mapa_acoes_.find(id_acao);
   if (it == mapa_acoes_.end()) {
@@ -1762,7 +1771,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
 }
 
 bool Tabuleiro::SelecionaEntidade(unsigned int id) {
-  VLOG(1) << "Selecionando entidade: " << id;
+  VLOG(2) << "Selecionando entidade: " << id;
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
@@ -1787,7 +1796,7 @@ void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
     SelecionaEntidade(ids[0]);
     return;
   }
-  VLOG(1) << "Selecionando entidades";
+  VLOG(2) << "Selecionando entidades";
   ids_entidades_selecionadas_.clear();
   AdicionaEntidadesSelecionadas(ids);
 }
@@ -1955,7 +1964,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     id_cliente_ = tabuleiro.id_cliente();
   }
   // So recebe as entidades se nao for para manter.
-  // O campo entidade eh usado apenas como um marcador 
+  // O campo entidade eh usado apenas como um marcador
   if (manter_entidades) {
     return;
   }
@@ -1989,6 +1998,10 @@ void Tabuleiro::CopiaEntidadesSelecionadas() {
 }
 
 void Tabuleiro::ColaEntidadesSelecionadas() {
+  if (entidades_copiadas_.empty()) {
+    VLOG(1) << "Ignorando colar, não há entidades selecionadas";
+    return;
+  }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto& ep : entidades_copiadas_) {
@@ -1998,6 +2011,69 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
   }
   TrataNotificacao(grupo_notificacoes);
   SelecionaEntidadesAdicionadas();
+  // Para desfazer
+  {
+    if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
+      for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+        grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+      }
+      AdicionaNotificacaoListaEventos(grupo_notificacoes);
+    } else {
+      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
+    }
+  }
+}
+
+void Tabuleiro::AgrupaEntidadesSelecionadas() {
+  if (estado_ != ETAB_ENTS_SELECIONADAS) {
+    VLOG(1) << "Estado invalido." << estado_;
+    return;
+  }
+  VLOG(1) << "Agrupando entidades selecionadas.";
+  EntidadeProto nova_entidade;
+  nova_entidade.set_tipo(TE_FORMA);
+  nova_entidade.set_sub_tipo(TF_COMPOSTA);
+  float x_medio = 0;
+  float y_medio = 0;
+  int num_entidades = 0;
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      continue;
+    }
+    auto* notificacao = grupo_notificacoes.add_notificacao();
+    notificacao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    notificacao->mutable_entidade()->CopyFrom(e->Proto());
+    x_medio += e->X();
+    y_medio += e->Y();
+    nova_entidade.add_sub_forma()->CopyFrom(e->Proto());
+    ++num_entidades;
+  }
+  x_medio /= num_entidades;
+  y_medio /= num_entidades;
+  nova_entidade.mutable_pos()->set_x(x_medio);
+  nova_entidade.mutable_pos()->set_y(y_medio);
+  for (auto& sub_forma : *nova_entidade.mutable_sub_forma()) {
+    sub_forma.mutable_pos()->set_x(sub_forma.pos().x() - x_medio);
+    sub_forma.mutable_pos()->set_y(sub_forma.pos().y() - y_medio);
+  }
+  // TODO desfazer.
+  auto* notificacao = grupo_notificacoes.add_notificacao();
+  notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+  notificacao->mutable_entidade()->Swap(&nova_entidade);
+  TrataNotificacao(grupo_notificacoes);
+  {
+    // para desfazer
+    if (ids_adicionados_.size() == 1) {
+      // So tem como desfazer se conseguiu adicionar a entidade.
+      notificacao->mutable_entidade()->set_id(ids_adicionados_[0]);
+    } else {
+      LOG(WARNING) << "Impossivel desfazer a entidade adicionada porque ela no foi criada.";
+    }
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  }
 }
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
@@ -2169,7 +2245,7 @@ void Tabuleiro::TrataComandoDesfazer() {
     LOG(ERROR) << "Nao consegui desfazer notificacao: " << n_original.ShortDebugString();
   }
   ignorar_lista_eventos_ = false;
-  VLOG(1) << "Notificacao desfeita, tamanho lista: " << lista_eventos_.size();
+  VLOG(1) << "Notificacao desfeita: " << n_original.ShortDebugString() << ", tamanho lista: " << lista_eventos_.size();
 }
 
 void Tabuleiro::TrataComandoRefazer() {

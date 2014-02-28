@@ -179,6 +179,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaModeloEntidade(const std::string& id_modelo);
 
+  /** Busca um dos modelos pelo id. */
+  const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
+
   /** Acesso ao modelo de entidade selecionado. */
   const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
 
@@ -216,6 +219,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. */
   void ColaEntidadesSelecionadas();
+
+  /** Agrupa as entidades selecionadas, criado uma so do tipo TE_FORMA, subtipo TF_COMPOSTA. */
+  void AgrupaEntidadesSelecionadas();
 
   /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
   * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.

@@ -106,6 +106,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
           sub_acao->setData(QVariant::fromValue(QString(modelo_it.first.c_str())));
           grupo->addAction(sub_acao);
           menu_modelos->addAction(sub_acao);
+          acoes_modelos_.push_back(sub_acao);
           if (modelo_it.second == tabuleiro->ModeloSelecionado()) {
             sub_acao->setChecked(true);
           }
@@ -220,6 +221,15 @@ void MenuPrincipal::Modo(modomenu_e modo){
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
     EstadoMenu(false, ME_TABULEIRO);
     EstadoMenu(false, ME_DESENHO);
+    for (auto* acao : acoes_modelos_) {
+      std::string id = acao->data().toString().toStdString();
+      const ent::EntidadeProto* e_proto = tabuleiro_->BuscaModelo(id);
+      if (e_proto == nullptr) {
+        LOG(ERROR) << "Falha ao buscar modelo: " << id;
+        continue;
+      }
+      acao->setEnabled(e_proto->tipo() != ent::TE_FORMA);
+    }
     break;
   }
 }

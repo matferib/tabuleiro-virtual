@@ -266,6 +266,11 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Right:
       tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1);
       return;
+    case Qt::Key_G:
+      if (event->modifiers() == Qt::ControlModifier) {
+        tabuleiro_->AgrupaEntidadesSelecionadas();
+      }
+      return;
     case Qt::Key_V:
       if (event->modifiers() == Qt::ControlModifier) {
         tabuleiro_->ColaEntidadesSelecionadas();
