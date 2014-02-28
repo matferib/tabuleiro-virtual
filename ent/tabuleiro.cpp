@@ -648,7 +648,7 @@ void Tabuleiro::TrataRodela(int delta) {
       n->mutable_entidade_antes()->CopyFrom(entidade->Proto());
       auto* e = n->mutable_entidade();
       e->CopyFrom(entidade->Proto());
-      float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.5f;
+      float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.1f;
       e->set_translacao_z(e->translacao_z() * fator);
       e->mutable_escala()->set_x(e->escala().x() * fator);
       e->mutable_escala()->set_y(e->escala().y() * fator);
@@ -1416,6 +1416,7 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 }
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
+  forma_selecionada_ = fd;
   switch (fd) {
     case TF_CILINDRO:
     case TF_CIRCULO:
@@ -1423,8 +1424,8 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
     case TF_CUBO:
     case TF_ESFERA:
     case TF_LIVRE:
+    case TF_PIRAMIDE:
     case TF_RETANGULO:
-      forma_selecionada_ = fd;
       break;
     default:
       LOG(ERROR) << "Forma de desenho invalida: " << fd;

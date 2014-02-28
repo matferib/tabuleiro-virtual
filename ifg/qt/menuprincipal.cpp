@@ -45,7 +45,7 @@ const char* g_menuitem_strs[] = {
   // Acoes.
   g_fim,
   // Desenho.
-  "&Cilindro", "Cí&rculo", "C&one", "C&ubo", "&Esfera", "&Livre", "&Retângulo", nullptr, "&Selecionar Cor", g_fim,
+  "&Cilindro", "Cí&rculo", "C&one", "C&ubo", "&Esfera", "&Livre", "&Pirâmide", "&Retângulo", nullptr, "&Selecionar Cor", g_fim,
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
@@ -325,6 +325,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            acao == acoes_[ME_DESENHO][MI_CUBO] ||
            acao == acoes_[ME_DESENHO][MI_ESFERA] ||
            acao == acoes_[ME_DESENHO][MI_LIVRE] ||
+           acao == acoes_[ME_DESENHO][MI_PIRAMIDE] ||
            acao == acoes_[ME_DESENHO][MI_RETANGULO]) {
     tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
   } else if (acao == acoes_[ME_DESENHO][MI_SELECIONAR_COR]) {

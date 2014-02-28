@@ -77,8 +77,8 @@ modelo {
     tipo: TE_FORMA
     sub_tipo: TF_COMPOSTA
     sub_forma {
-      tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 } 
-      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0 translacao_z: 0 
+      tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 }
+      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0 translacao_z: 0
     }
     sub_forma {
       tipo: TE_FORMA cor { r: 0.32156864 g: 0.47058824 b: 0.22745098 a: 1 }
@@ -98,6 +98,21 @@ modelo {
     sub_forma {
       tipo: TE_FORMA cor { r: 0.25098041 g: 0.4509804 b: 0.21568628 a: 1 } sub_tipo: TF_ESFERA
       escala { x: 3.7 y: 4 z: 2 } rotacao_z_graus: 0 translacao_z: 2.6
+    }
+  }
+}
+modelo {
+  id: 'Casa (8x7)'
+  entidade {
+    tipo: TE_FORMA
+    sub_tipo: TF_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.67450982 g: 0.45882353 b: 0.26666668 a: 1 }
+      sub_tipo: TF_PIRAMIDE escala { x: 8.5 y: 7.5 z: 3 } rotacao_z_graus: 0 translacao_z: 3
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.63529414 g: 0.63529414 b: 0.63529414 a: 1 }
+      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 } rotacao_z_graus: 0 translacao_z: 0
     }
   }
 }
