@@ -146,7 +146,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
   }
   MudaCor(cor);
 
-  glPushAttrib(GL_ENABLE_BIT);
+  glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT);
   bool transparencias = pd->transparencias() && pd->has_alfa_translucidos() &&  pd->alfa_translucidos() < 1.0f;
   if (transparencias) {
     glEnable(GL_BLEND);
@@ -188,6 +188,59 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
       glTranslatef(0, 0, proto.escala().z() / 2.0f);
       glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidCube(1.0f);
+    }
+    break;
+    case TF_PIRAMIDE: {
+      float x = proto.escala().x() / 2.0f;
+      float y = proto.escala().y() / 2.0f;
+      float z = proto.escala().z();
+      // Calcula normais.
+      // Eixo X.
+      GLfloat matriz[16];
+      float angulo_graus = (z == 0) ? 0.0f : atanf(x / z) * RAD_PARA_GRAUS;
+      glPushMatrix();
+      glLoadIdentity();
+      glRotatef(angulo_graus, 0.0f, -1.0f, 0.0f);
+      glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
+      GLfloat normal_x[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+      MultiplicaMatrizVetor(matriz, normal_x);
+      glPopMatrix();
+      // Eixo Y.
+      angulo_graus = (z == 0) ? 0.0f : atanf(y / z) * RAD_PARA_GRAUS;
+      glPushMatrix();
+      glLoadIdentity();
+      glRotatef(angulo_graus, 1.0f, 0.0f, 0.0f);
+      glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
+      GLfloat normal_y[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+      MultiplicaMatrizVetor(matriz, normal_y);
+      glPopMatrix();
+
+      glBegin(GL_TRIANGLES);
+      // Face sul
+      glNormal3f(0.0f, -normal_y[1], normal_y[2]);
+      glVertex3f(0.0f, 0.0f, proto.escala().z());
+      glVertex2f(-x, -y);
+      glVertex2f(x, -y);
+
+      // Face leste.
+      glNormal3f(normal_x[0], 0.0f, normal_x[2]);
+      glVertex3f(0.0f, 0.0f, proto.escala().z());
+      glVertex2f(x, -y);
+      glVertex2f(x, y);
+
+      // Face norte.
+      glNormal3f(0.0f, normal_y[1], normal_y[2]);
+      glVertex3f(0.0f, 0.0f, proto.escala().z());
+      glVertex2f(x, y);
+      glVertex2f(-x, y);
+
+      // Face Oeste.
+      glNormal3f(-normal_x[0], 0.0f, normal_x[2]);
+      glVertex3f(0.0f, 0.0f, proto.escala().z());
+      glVertex2f(-x, y);
+      glVertex2f(-x, -y);
+
+      glEnd();
     }
     break;
     case TF_RETANGULO: {

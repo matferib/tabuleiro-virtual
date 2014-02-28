@@ -1,5 +1,4 @@
 Versao 1.0
-- Desabilitar formas para os jogadores no menu.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
