@@ -131,7 +131,7 @@ class Entidade {
   void AtualizaTexturas(const ent::EntidadeProto& novo_proto);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
-  float DeltaVoo() const;
+  static float DeltaVoo(const VariaveisDerivadas& vd);
 
   /** Realiza o desenho do objeto com as decoracoes, como disco de selecao e barra de vida (de acordo com pd). */
   void DesenhaObjetoComDecoracoes(ParametrosDesenho* pd);
@@ -145,13 +145,17 @@ class Entidade {
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   */
-  void MontaMatriz(bool em_voo,
-                   const VariaveisDerivadas& vd,
-                   const ParametrosDesenho* pd = nullptr,
-                   const float* matriz_shear = nullptr) const;
+  static void MontaMatriz(bool em_voo,
+                          const EntidadeProto& proto,
+                          const VariaveisDerivadas& vd,
+                          const ParametrosDesenho* pd = nullptr,
+                          const float* matriz_shear = nullptr);
 
   // Funcoes de desenho.
   void DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear);
+
+  /** Calcula o multiplicador para um determinado tamanho. */
+  static float CalculaMultiplicador(TamanhoEntidade tamanho);
 
  private:
   EntidadeProto proto_;

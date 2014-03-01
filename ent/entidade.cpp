@@ -26,23 +26,6 @@ const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
 const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 const float ALTURA_TIJOLO_BASE = TAMANHO_LADO_QUADRADO_10;
 
-// Multiplicador de dimensão por tamanho de entidade.
-float CalculaMultiplicador(TamanhoEntidade tamanho) {
-  switch (tamanho) {
-    case ent::TM_MINUSCULO: return 0.4f;
-    case ent::TM_DIMINUTO: return 0.5f;
-    case ent::TM_MIUDO: return 0.6f;
-    case ent::TM_PEQUENO: return 0.7f;
-    case ent::TM_MEDIO: return 1.0f;
-    case ent::TM_GRANDE: return 2.0f;
-    case ent::TM_ENORME: return 3.0f;
-    case ent::TM_IMENSO: return 4.0f;
-    case ent::TM_COLOSSAL: return 5.0f;
-  }
-  LOG(ERROR) << "Tamanho inválido: " << tamanho;
-  return 1.0f;
-}
-
 }  // namespace
 
 // Factory.
@@ -258,7 +241,7 @@ const Posicao Entidade::PosicaoAcao() const {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  MontaMatriz(true  /*em_voo*/, vd_);
+  MontaMatriz(true  /*em_voo*/, proto_, vd_);
   if (!proto_.achatado()) {
     glTranslatef(0.0f, 0.0f, ALTURA);
   }
@@ -279,34 +262,39 @@ const Posicao Entidade::PosicaoAcao() const {
   return pos;
 }
 
-float Entidade::DeltaVoo() const {
-  return vd_.angulo_disco_voo_rad > 0 ? sinf(vd_.angulo_disco_voo_rad) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
+float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
+  return vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::MontaMatriz(bool em_voo, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, const float* matriz_shear) const {
-  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
+void Entidade::MontaMatriz(bool em_voo,
+                           const EntidadeProto& proto,
+                           const VariaveisDerivadas& vd,
+                           const ParametrosDesenho* pd,
+                           const float* matriz_shear) {
+  const auto& pos = proto.pos();
+  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto.achatado();
   if (matriz_shear == nullptr) {
-    glTranslated(X(), Y(), em_voo ? Z() + DeltaVoo() : ZChao(X(), Y()));
-    if (achatar && !proto_.has_info_textura()) {
+    glTranslated(pos.x(), pos.y(), em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
+    if (achatar && !proto.has_info_textura()) {
       // Achata cone.
       glScalef(1.0f, 1.0f, 0.1f);
     }
   } else {
-    glTranslated(X(), Y(), 0);
+    glTranslated(pos.x(), pos.y(), 0);
     glMultMatrixf(matriz_shear);
-    glTranslated(0, 0, em_voo ? Z() + DeltaVoo() : ZChao(X(), Y()));
-    if (achatar && !proto_.has_info_textura()) {
+    glTranslated(0, 0, em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
+    if (achatar && !proto.has_info_textura()) {
       // Achata cone.
       glScalef(1.0f, 1.0f, 0.1f);
     }
   }
   // So roda entidades nao achatadas.
-  if (vd_.angulo_disco_queda_graus > 0 && !achatar) {
+  if (vd.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
-    glRotatef(-vd_.angulo_disco_queda_graus, 1.0, 0, 0);
+    glRotatef(-vd.angulo_disco_queda_graus, 1.0, 0, 0);
   }
-  float multiplicador = MultiplicadorTamanho();
+  float multiplicador = CalculaMultiplicador(proto.tamanho());
   glScalef(multiplicador, multiplicador, multiplicador);
 }
 
@@ -343,7 +331,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
-    MontaMatriz(false  /*em_voo*/, vd_, pd);
+    MontaMatriz(false  /*em_voo*/, proto_, vd_, pd);
     MudaCor(proto_.cor());
     glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
@@ -365,7 +353,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     glPushMatrix();
-    MontaMatriz(true  /*em_voo*/, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
     glPushMatrix();
     glScalef(0.2, 0.2, 1.0f);
@@ -397,7 +385,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   glPushMatrix();
-  MontaMatriz(true  /*em_voo*/, vd_, pd);
+  MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
   // Um pouco acima do objeto e ao sul do objeto.
   glTranslated(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
@@ -428,7 +416,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
     return;
   }
   glPushMatrix();
-  glTranslated(X(), Y(), Z() + DeltaVoo());
+  glTranslated(X(), Y(), Z() + DeltaVoo(vd_));
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
   float ent_quadrados = MultiplicadorTamanho();
@@ -454,6 +442,22 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
 
 float Entidade::MultiplicadorTamanho() const {
   return CalculaMultiplicador(proto_.tamanho());
+}
+
+float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
+  switch (tamanho) {
+    case ent::TM_MINUSCULO: return 0.4f;
+    case ent::TM_DIMINUTO: return 0.5f;
+    case ent::TM_MIUDO: return 0.6f;
+    case ent::TM_PEQUENO: return 0.7f;
+    case ent::TM_MEDIO: return 1.0f;
+    case ent::TM_GRANDE: return 2.0f;
+    case ent::TM_ENORME: return 3.0f;
+    case ent::TM_IMENSO: return 4.0f;
+    case ent::TM_COLOSSAL: return 5.0f;
+  }
+  LOG(ERROR) << "Tamanho inválido: " << tamanho;
+  return 1.0f;
 }
 
 }  // namespace ent
