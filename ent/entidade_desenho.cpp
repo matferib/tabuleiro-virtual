@@ -43,7 +43,7 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   if (!proto_.has_info_textura()) {
     glPushMatrix();
-    MontaMatriz(true, pd, matriz_shear);
+    MontaMatriz(true  /*em_voo*/, vd_, pd, matriz_shear);
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glTranslated(0, 0, ALTURA);
     glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
@@ -54,11 +54,11 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   {
     glPushMatrix();
-    MontaMatriz(false, pd, matriz_shear);
+    MontaMatriz(false  /*em_voo*/, vd_, pd, matriz_shear);
     glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
     glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
     if (pd->entidade_selecionada()) {
-      glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
+      glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     }
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
@@ -66,12 +66,12 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
 
   bool achatar = pd->desenha_texturas_para_cima() || proto_.achatado();
   glPushMatrix();
-  MontaMatriz(true, pd, matriz_shear);
+  MontaMatriz(true  /*em_voo*/, vd_, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
     //if (pd->entidade_selecionada()) {
-    //  glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
+    //  glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     //}
     glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
     glScalef(0.8f, 1.0f, 0.8f);
