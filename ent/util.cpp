@@ -66,9 +66,9 @@ void ClareiaCor(Cor* cor) {
 
 float RealcaComponente(float c) {
   if (c < 0.5) {
-    return std::min(c + 0.3f, 1.0f);
+    return std::min(c + 0.15f, 1.0f);
   } else {
-    return std::max(c - 0.3f, 0.0f);
+    return std::max(c - 0.15f, 0.0f);
   }
 }
 

@@ -1,4 +1,5 @@
 Versao 1.0
+- Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Permitir translacao_z ou rotacao_z de forma exclusiva.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.

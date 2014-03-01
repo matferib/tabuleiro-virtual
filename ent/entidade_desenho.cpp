@@ -16,34 +16,63 @@
 
 namespace ent {
 
-void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
-  switch (proto_.tipo()) {
-    case TE_ENTIDADE:
-      DesenhaObjetoEntidade(pd, matriz_shear);
-      return;
-    case TE_FORMA:
-      DesenhaObjetoFormaProto(proto_, pd, matriz_shear);
-      return;
-  }
-}
-
-void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear) {
-  auto cor = proto_.cor();
+void AjustaCor(const EntidadeProto& proto, ParametrosDesenho* pd) {
+  auto cor = proto.cor();
   if (pd->has_alfa_translucidos()) {
     cor.set_a(cor.a() * pd->alfa_translucidos());
   }
   if (pd->entidade_selecionada()) {
     RealcaCor(&cor);
   }
-  if (proto_.morta()) {
+  if (proto.morta()) {
     EscureceCor(&cor);
   }
   MudaCor(cor);
+}
 
+void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {
+  DesenhaObjetoProto(proto, VariaveisDerivadas(), pd, matriz_shear);
+}
+
+void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+  switch (proto.tipo()) {
+    case TE_ENTIDADE:
+      DesenhaObjetoEntidadeProto(proto, vd, pd, matriz_shear);
+      return;
+    case TE_FORMA:
+      DesenhaObjetoFormaProto(proto, vd, pd, matriz_shear);
+      return;
+    case TE_COMPOSTA: {
+      DesenhaObjetoCompostoProto(proto, vd, pd, matriz_shear);
+      return;
+    }
+    return;
+  }
+}
+
+void Entidade::DesenhaObjetoCompostoProto(
+    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+  glPushMatrix();
+  if (matriz_shear != nullptr) {
+    glMultMatrixf(matriz_shear);
+  }
+  glTranslatef(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
+  glRotatef(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  for (const auto& forma : proto.sub_forma()) {
+    DesenhaObjetoProto(forma, vd, pd, nullptr);
+  }
+  glPopMatrix();
+}
+
+void Entidade::DesenhaObjetoEntidadeProto(
+    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+  AjustaCor(proto, pd);
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  if (!proto_.has_info_textura()) {
+  const auto& pos = proto.pos();
+  if (!proto.has_info_textura()) {
     glPushMatrix();
-    MontaMatriz(true  /*em_voo*/, proto_, vd_, pd, matriz_shear);
+    MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glTranslated(0, 0, ALTURA);
     glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
@@ -54,24 +83,24 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   {
     glPushMatrix();
-    MontaMatriz(false  /*em_voo*/, proto_, vd_, pd, matriz_shear);
+    MontaMatriz(false  /*em_voo*/, proto, vd, pd, matriz_shear);
     glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
     glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
     if (pd->entidade_selecionada()) {
-      glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
+      glRotatef(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     }
     glutSolidCube(TAMANHO_LADO_QUADRADO);
     glPopMatrix();
   }
 
-  bool achatar = pd->desenha_texturas_para_cima() || proto_.achatado();
+  bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
   glPushMatrix();
-  MontaMatriz(true  /*em_voo*/, proto_, vd_, pd, matriz_shear);
+  MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
     //if (pd->entidade_selecionada()) {
-    //  glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    //  glRotatef(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     //}
     glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
     glScalef(0.8f, 1.0f, 0.8f);
@@ -80,9 +109,9 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
     glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
     double angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
-    if (pd->texturas_sempre_de_frente() && !proto_.caida()) {
-      double dx = X() - pd->pos_olho().x();
-      double dy = Y() - pd->pos_olho().y();
+    if (pd->texturas_sempre_de_frente() && !proto.caida()) {
+      double dx = pos.x() - pd->pos_olho().x();
+      double dy = pos.y() - pd->pos_olho().y();
       double r = sqrt(pow(dx, 2) + pow(dy, 2));
       angulo = (acos(dx / r) * RAD_PARA_GRAUS);
       if (dy < 0) {
@@ -99,8 +128,8 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
   }
 
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
-  GLuint id_textura = pd->desenha_texturas() && proto_.has_info_textura() ?
-    texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
+  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, id_textura);
@@ -110,7 +139,7 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
     c.set_g(1.0f);
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
-    MudaCor(proto_.morta() ? EscureceCor(c) : c);
+    MudaCor(proto.morta() ? EscureceCor(c) : c);
     glBegin(GL_QUADS);
     // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
     // imagem com origem em cima esquerda. Entao a gente mapeia a textura com o eixo vertical invertido.
@@ -133,19 +162,8 @@ void Entidade::DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_
   glPopMatrix();
 }
 
-void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {
-  auto cor = proto.cor();
-  if (pd->has_alfa_translucidos()) {
-    cor.set_a(cor.a() * pd->alfa_translucidos());
-  }
-  if (pd->entidade_selecionada()) {
-    RealcaCor(&cor);
-  }
-  if (proto.morta()) {
-    EscureceCor(&cor);
-  }
-  MudaCor(cor);
-
+void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+  AjustaCor(proto, pd);
   glPushAttrib(GL_ENABLE_BIT);
   bool transparencias = pd->transparencias() && pd->has_alfa_translucidos() &&  pd->alfa_translucidos() < 1.0f;
   if (transparencias) {
@@ -262,13 +280,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDes
       DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);
       if (transparencias) {
         DesenhaStencil();
-      }
-    }
-    break;
-    case TF_COMPOSTA: {
-      glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      for (const auto& forma : proto.sub_forma()) {
-        DesenhaObjetoFormaProto(forma, pd, nullptr);
       }
     }
     break;

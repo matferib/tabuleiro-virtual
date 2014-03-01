@@ -640,7 +640,7 @@ void Tabuleiro::TrataRodela(int delta) {
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (unsigned int id : ids_entidades_selecionadas_) {
       auto* entidade = BuscaEntidade(id);
-      if (entidade == nullptr || entidade->Tipo() != TE_FORMA) {
+      if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
         continue;
       }
       auto* n = grupo_notificacoes.add_notificacao();
@@ -684,7 +684,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         float delta_y = (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
         for (unsigned int id : ids_entidades_selecionadas_) {
           auto* e = BuscaEntidade(id);
-          if (e == nullptr || e->Tipo() != TE_FORMA) {
+          if (e == nullptr || e->Tipo() == TE_ENTIDADE) {
             continue;
           }
           e->AlteraRotacaoZ(delta_x);
@@ -969,7 +969,7 @@ void Tabuleiro::TrataBotaoLiberado() {
         grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
         for (unsigned int id : ids_entidades_selecionadas_) {
           auto* entidade = BuscaEntidade(id);
-          if (entidade == nullptr || entidade->Tipo() != TE_FORMA) {
+          if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
             continue;
           }
           float delta_x = ultimo_x_ - primeiro_x_;
@@ -1376,7 +1376,7 @@ void Tabuleiro::DesenhaRastros() {
   MudaCorAlfa(COR_AZUL_ALFA);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
-    if (e == nullptr || e->Tipo() == TE_FORMA) {
+    if (e == nullptr || e->Tipo() != TE_ENTIDADE) {
       continue;
     }
     // Copia vetor de pontos e adiciona posicao corrente da entidade.
@@ -1411,7 +1411,7 @@ void Tabuleiro::DesenhaAcoes() {
 
 void Tabuleiro::DesenhaFormaSelecionada() {
   parametros_desenho_.set_alfa_translucidos(0.5);
-  Entidade::DesenhaObjetoFormaProto(forma_proto_, &parametros_desenho_, nullptr);
+  Entidade::DesenhaObjetoProto(forma_proto_, &parametros_desenho_, nullptr);
   parametros_desenho_.clear_alfa_translucidos();
 }
 
@@ -2032,8 +2032,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   }
   VLOG(1) << "Agrupando entidades selecionadas.";
   EntidadeProto nova_entidade;
-  nova_entidade.set_tipo(TE_FORMA);
-  nova_entidade.set_sub_tipo(TF_COMPOSTA);
+  nova_entidade.set_tipo(TE_COMPOSTA);
   float x_medio = 0;
   float y_medio = 0;
   int num_entidades = 0;
