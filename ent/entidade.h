@@ -57,8 +57,12 @@ class Entidade {
   /** Altera a translacao em Z da entidade. */
   void AlteraTranslacaoZ(float delta_translacao);
 
+  float TranslacaoZ() const { return proto_.translacao_z(); }
+
   /** Altera a rotacao em Z da entidade. */
   void AlteraRotacaoZ(float delta_rotacao_graus);
+
+  float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
   /** @return o HP da unidade. */
   int PontosVida() const;

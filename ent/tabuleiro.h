@@ -483,6 +483,8 @@ class Tabuleiro : public ntf::Receptor {
   enum {
     TR_NENHUM, TR_TRANSLACAO, TR_ROTACAO
   } translacao_rotacao_;
+  // Para desfazer translacao rotacao.
+  std::unordered_map<unsigned int, std::pair<float, float>> translacoes_rotacoes_antes_;
 
   // Para desfazer e refazer. A lista tem tamanho maximo.
   bool ignorar_lista_eventos_;  // Quando verdadeiro, eventos inseridos na lista de eventos serao ignorados.
