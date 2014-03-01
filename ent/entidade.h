@@ -114,6 +114,16 @@ class Entidade {
   static void DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear);
 
  private:
+  // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
+  struct VariaveisDerivadas {
+    // Como esse estado é local e não precisa ser salvo, fica aqui.
+    float angulo_disco_selecao_graus;
+    // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
+    float  angulo_disco_voo_rad;
+    // Entidades em queda caem progressivamente ate 90 graus.
+    float angulo_disco_queda_graus;
+  };
+
   friend Entidade* NovaEntidade(const EntidadeProto& proto, Texturas*, ntf::CentralNotificacoes*);
   Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);
 
@@ -133,21 +143,19 @@ class Entidade {
   void DesenhaDecoracoes(ParametrosDesenho* pd);
 
   /** Auxiliar para montar a matriz de desenho do objeto.
-  * @param usar_delta_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
+  * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   */
-  void MontaMatriz(bool usar_delta_voo, const ParametrosDesenho* pd = nullptr, const float* matriz_shear = nullptr) const;
+  void MontaMatriz(bool em_voo,
+                   const VariaveisDerivadas& vd,
+                   const ParametrosDesenho* pd = nullptr,
+                   const float* matriz_shear = nullptr) const;
 
   // Funcoes de desenho.
   void DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear);
 
  private:
   EntidadeProto proto_;
-  // Como esse estado é local e não precisa ser salvo, fica aqui.
-  double rotacao_disco_selecao_graus_;
-  // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
-  double angulo_disco_voo_rad_;
-  // Entidades em queda caem progressivamente ate 90 graus.
-  double angulo_disco_queda_graus_;
+  VariaveisDerivadas vd_;
 
   Texturas* texturas_;
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.

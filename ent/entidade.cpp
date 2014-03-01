@@ -62,9 +62,9 @@ Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::Cent
 
 // Entidade
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
-  rotacao_disco_selecao_graus_ = 0;
-  angulo_disco_voo_rad_ = 0;
-  angulo_disco_queda_graus_ = 0;
+  vd_.angulo_disco_selecao_graus = 0;
+  vd_.angulo_disco_voo_rad = 0;
+  vd_.angulo_disco_queda_graus = 0;
   texturas_ = texturas;
   central_ = central;
 }
@@ -137,26 +137,26 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 
 void Entidade::Atualiza() {
   auto* po = proto_.mutable_pos();
-  rotacao_disco_selecao_graus_ = fmod(rotacao_disco_selecao_graus_ + 1.0, 360.0);
+  vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   float z_chao = ZChao(X(), Y());
   if (proto_.voadora()) {
     if (Z() < z_chao + ALTURA_VOO) {
       po->set_z(po->z() + 0.03f);
     }
-    angulo_disco_voo_rad_ = fmod(angulo_disco_voo_rad_ + 0.01, 2 * M_PI);
+    vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + 0.01, 2 * M_PI);
   } else {
     if (Z() > z_chao) {
       po->set_z(po->z() - 0.03f);
     }
-    angulo_disco_voo_rad_ = 0.0f;
+    vd_.angulo_disco_voo_rad = 0.0f;
   }
   if (proto_.caida()) {
-    if (angulo_disco_queda_graus_ < 90.0f) {
-      angulo_disco_queda_graus_ += 1.0f;
+    if (vd_.angulo_disco_queda_graus < 90.0f) {
+      vd_.angulo_disco_queda_graus += 1.0f;
     }
   } else {
-    if (angulo_disco_queda_graus_ > 0) {
-      angulo_disco_queda_graus_ -= 1.0f;
+    if (vd_.angulo_disco_queda_graus > 0) {
+      vd_.angulo_disco_queda_graus -= 1.0f;
     }
   }
   // Nunca fica abaixo do solo.
@@ -258,7 +258,7 @@ const Posicao Entidade::PosicaoAcao() const {
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
   glLoadIdentity();
-  MontaMatriz(true);
+  MontaMatriz(true  /*em_voo*/, vd_);
   if (!proto_.achatado()) {
     glTranslatef(0.0f, 0.0f, ALTURA);
   }
@@ -280,13 +280,13 @@ const Posicao Entidade::PosicaoAcao() const {
 }
 
 float Entidade::DeltaVoo() const {
-  return angulo_disco_voo_rad_ > 0 ? sinf(angulo_disco_voo_rad_) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
+  return vd_.angulo_disco_voo_rad > 0 ? sinf(vd_.angulo_disco_voo_rad) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
 }
 
-void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho* pd, const float* matriz_shear) const {
+void Entidade::MontaMatriz(bool em_voo, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, const float* matriz_shear) const {
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
   if (matriz_shear == nullptr) {
-    glTranslated(X(), Y(), usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+    glTranslated(X(), Y(), em_voo ? Z() + DeltaVoo() : ZChao(X(), Y()));
     if (achatar && !proto_.has_info_textura()) {
       // Achata cone.
       glScalef(1.0f, 1.0f, 0.1f);
@@ -294,17 +294,17 @@ void Entidade::MontaMatriz(bool usar_delta_voo, const ParametrosDesenho* pd, con
   } else {
     glTranslated(X(), Y(), 0);
     glMultMatrixf(matriz_shear);
-    glTranslated(0, 0, usar_delta_voo ? Z() + DeltaVoo() : 0.0);
+    glTranslated(0, 0, em_voo ? Z() + DeltaVoo() : ZChao(X(), Y()));
     if (achatar && !proto_.has_info_textura()) {
       // Achata cone.
       glScalef(1.0f, 1.0f, 0.1f);
     }
   }
   // So roda entidades nao achatadas.
-  if (angulo_disco_queda_graus_ > 0 && !achatar) {
+  if (vd_.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
-    glRotatef(-angulo_disco_queda_graus_, 1.0, 0, 0);
+    glRotatef(-vd_.angulo_disco_queda_graus, 1.0, 0, 0);
   }
   float multiplicador = MultiplicadorTamanho();
   glScalef(multiplicador, multiplicador, multiplicador);
@@ -343,9 +343,9 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     glPushMatrix();
-    MontaMatriz(false, pd);
+    MontaMatriz(false  /*em_voo*/, vd_, pd);
     MudaCor(proto_.cor());
-    glRotatef(rotacao_disco_selecao_graus_, 0, 0, 1.0f);
+    glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
     glPopMatrix();
   }
@@ -365,7 +365,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     glPushMatrix();
-    MontaMatriz(true, pd);
+    MontaMatriz(true  /*em_voo*/, vd_, pd);
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
     glPushMatrix();
     glScalef(0.2, 0.2, 1.0f);
@@ -397,7 +397,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   glPushMatrix();
-  MontaMatriz(true  /*usar_delta_voo*/, pd);
+  MontaMatriz(true  /*em_voo*/, vd_, pd);
   // Um pouco acima do objeto e ao sul do objeto.
   glTranslated(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
