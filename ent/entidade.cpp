@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <sstream>
 #include <stdexcept>
 #if __APPLE__
 #include <OpenGL/gl.h>
@@ -31,6 +32,7 @@ const float ALTURA_TIJOLO_BASE = TAMANHO_LADO_QUADRADO_10;
 // Factory.
 Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::CentralNotificacoes* central) {
   switch (proto.tipo()) {
+    case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
       auto* e = new Entidade(texturas, central);
@@ -38,30 +40,26 @@ Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::Cent
       return e;
     }
     default:
-      LOG(ERROR) << "Tipo de entidade inválido: " << proto.tipo();
-      return nullptr;
+      std::ostringstream oss;
+      oss << "Tipo de entidade inválido: " << proto.tipo();
+      throw std::logic_error(oss.str());
   }
 }
 
 // Entidade
 Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
-  vd_.angulo_disco_selecao_graus = 0;
-  vd_.angulo_disco_voo_rad = 0;
-  vd_.angulo_disco_queda_graus = 0;
-  texturas_ = texturas;
+  vd_.texturas = texturas;
   central_ = central;
 }
 
 Entidade::~Entidade() {
-  if (proto_.has_info_textura()) {
-    VLOG(1) << "Liberando textura: " << proto_.info_textura().id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->set_id(proto_.info_textura().id());
-    central_->AdicionaNotificacao(nl);
-  }
+  EntidadeProto dummy;
+  AtualizaTexturas(dummy);
 }
 
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
+  // Preciso do tipo aqui para atualizar as outras coisas de acordo.
+  proto_.set_tipo(novo_proto.tipo());
   // Atualiza texturas antes de tudo.
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
@@ -78,25 +76,55 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 }
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
-  VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+  AtualizaTexturasProto(novo_proto, &proto_, central_);
+}
+
+void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
+  if (proto_atual->tipo() == TE_COMPOSTA) {
+    VLOG(1) << "Atualizando textura para entidade composta";
+    AtualizaTexturasEntidadesCompostasProto(novo_proto, proto_atual, central);
+    return;
+  }
+  VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_atual->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (proto_.has_info_textura() && proto_.info_textura().id() != novo_proto.info_textura().id()) {
-    VLOG(1) << "Liberando textura: " << proto_.info_textura().id();
+  if (proto_atual->has_info_textura() && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
+    VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->set_id(proto_.info_textura().id());
-    central_->AdicionaNotificacao(nl);
+    nl->mutable_info_textura()->set_id(proto_atual->info_textura().id());
+    central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
-  if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_.info_textura().id()) {
-    VLOG(1) << "Carregando textura: " << proto_.info_textura().id();
+  if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
+    VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
-    central_->AdicionaNotificacao(nc);
+    central->AdicionaNotificacao(nc);
   }
   if (novo_proto.has_info_textura()) {
-    proto_.mutable_info_textura()->CopyFrom(novo_proto.info_textura());
+    proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
   } else {
-    proto_.clear_info_textura();
+    proto_atual->clear_info_textura();
+  }
+}
+
+void Entidade::AtualizaTexturasEntidadesCompostasProto(
+    const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
+  // Libera todas.
+  if (novo_proto.sub_forma_size() != proto_atual->sub_forma_size()) {
+    // Libera todos antigos e deixa do mesmo tamanho do novo.
+    EntidadeProto dummy;
+    for (auto& forma_velha : *proto_atual->mutable_sub_forma()) {
+      VLOG(2) << "Liberando textura de sub forma para entidade composta";
+      AtualizaTexturasProto(dummy, &forma_velha, central);
+    }
+    proto_atual->clear_sub_forma();
+    for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
+      proto_atual->add_sub_forma();
+    }
+  }
+  for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
+    VLOG(2) << "Atualizando textura de sub forma para entidade composta";
+    AtualizaTexturasProto(novo_proto.sub_forma(i), proto_atual->mutable_sub_forma(i), central);
   }
 }
 
@@ -314,6 +342,10 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   DesenhaObjetoComDecoracoes(pd);
 }
 
+void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
+  DesenhaObjetoProto(proto_, vd_, pd, matriz_shear);
+}
+
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   glLoadName(Id());
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
@@ -324,8 +356,8 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
-  if (proto_.tipo() == TE_FORMA) {
-    // Forma nao tem decoracoes.
+  if (proto_.tipo() != TE_ENTIDADE) {
+    // Apenas entidades tem decoracoes.
     return;
   }
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {

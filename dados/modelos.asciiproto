@@ -74,8 +74,7 @@ modelo {
 modelo {
   id: 'Árvore (pinheiro)'
   entidade {
-    tipo: TE_FORMA
-    sub_tipo: TF_COMPOSTA
+    tipo: TE_COMPOSTA
     sub_forma {
       tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 }
       sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0 translacao_z: 0
@@ -89,8 +88,7 @@ modelo {
 modelo {
   id: 'Árvore (genérica)'
   entidade {
-    tipo: TE_FORMA
-    sub_tipo: TF_COMPOSTA
+    tipo: TE_COMPOSTA
     sub_forma {
       tipo: TE_FORMA cor { r: 0.63529414 g: 0.43137255 b: 0.25882354 a: 1 } sub_tipo: TF_CILINDRO
       escala { x: 0.5 y: 0.6 z: 1.8 } rotacao_z_graus: 0 translacao_z: 0
@@ -104,8 +102,7 @@ modelo {
 modelo {
   id: 'Casa (8x7)'
   entidade {
-    tipo: TE_FORMA
-    sub_tipo: TF_COMPOSTA
+    tipo: TE_COMPOSTA
     sub_forma {
       tipo: TE_FORMA cor { r: 0.67450982 g: 0.45882353 b: 0.26666668 a: 1 }
       sub_tipo: TF_PIRAMIDE escala { x: 8.5 y: 7.5 z: 3 } rotacao_z_graus: 0 translacao_z: 3

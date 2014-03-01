@@ -110,25 +110,35 @@ class Entidade {
   */
   float MultiplicadorTamanho() const;
 
-  /** Funcao que desenha uma forma sem a entidade. */
-  static void DesenhaObjetoFormaProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear);
+  /** Desenha um objeto a partir de seu proto. Usado para desenhar de forma simples objetos (por exemplo, formas sendo adicionadas).
+  * Implementado em entidade_desenha.cpp.
+  */
+  static void DesenhaObjetoProto(
+      const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
  private:
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
+    VariaveisDerivadas() : angulo_disco_selecao_graus(0), angulo_disco_voo_rad(0), angulo_disco_queda_graus(0), texturas(nullptr) { }
     // Como esse estado é local e não precisa ser salvo, fica aqui.
     float angulo_disco_selecao_graus;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
     float  angulo_disco_voo_rad;
     // Entidades em queda caem progressivamente ate 90 graus.
     float angulo_disco_queda_graus;
+    // As texturas da entidade.
+    Texturas* texturas;
   };
 
   friend Entidade* NovaEntidade(const EntidadeProto& proto, Texturas*, ntf::CentralNotificacoes*);
   Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** Realiza as chamadas de notificacao para as texturas. */
-  void AtualizaTexturas(const ent::EntidadeProto& novo_proto);
+  void AtualizaTexturas(const EntidadeProto& novo_proto);
+  static void AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
+  /** Para entidades compostas. */
+  static void AtualizaTexturasEntidadesCompostasProto(
+      const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);
@@ -136,7 +146,7 @@ class Entidade {
   /** Realiza o desenho do objeto com as decoracoes, como disco de selecao e barra de vida (de acordo com pd). */
   void DesenhaObjetoComDecoracoes(ParametrosDesenho* pd);
 
-  /** desenha apenas o objeto, sem alterar cor nem matriz. Implementado em entidade_desenho.cpp. */
+  /** Realiza o desenho do objeto. */
   void DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao. */
@@ -151,8 +161,14 @@ class Entidade {
                           const ParametrosDesenho* pd = nullptr,
                           const float* matriz_shear = nullptr);
 
-  // Funcoes de desenho.
-  void DesenhaObjetoEntidade(ParametrosDesenho* pd, const float* matriz_shear);
+  static void DesenhaObjetoProto(
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear = nullptr);
+  static void DesenhaObjetoFormaProto(
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear);
+  static void DesenhaObjetoEntidadeProto(
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear);
+  static void DesenhaObjetoCompostoProto(
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear);
 
   /** Calcula o multiplicador para um determinado tamanho. */
   static float CalculaMultiplicador(TamanhoEntidade tamanho);
@@ -161,7 +177,6 @@ class Entidade {
   EntidadeProto proto_;
   VariaveisDerivadas vd_;
 
-  Texturas* texturas_;
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.
   ntf::CentralNotificacoes* central_;
 };

@@ -3,6 +3,7 @@ package ent;
 enum TipoEntidade {
   TE_ENTIDADE = 0;
   TE_FORMA = 1;
+  TE_COMPOSTA = 10;
 }
 
 // A ordem dos valores da enum deste proto eh importante, porque eh usada para construir o menu de desenho.
@@ -15,7 +16,6 @@ enum TipoForma {
   TF_LIVRE = 5;
   TF_PIRAMIDE = 6;
   TF_RETANGULO = 7;
-  TF_COMPOSTA = 50;
 }
 
 enum TamanhoEntidade {
