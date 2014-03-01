@@ -1626,6 +1626,14 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
     estado_ = ETAB_ENTS_TRANSLACAO_ROTACAO;
     estado_anterior_rotacao_ = ETAB_ENTS_SELECIONADAS;
     translacao_rotacao_ = TR_NENHUM;
+    translacoes_rotacoes_antes_.clear();
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade = BuscaEntidade(id);
+      if (entidade == nullptr) {
+        continue;
+      }
+      translacoes_rotacoes_antes_.insert(std::make_pair(entidade->Id(), std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
+    }
   } else {
     estado_anterior_rotacao_ = estado_;
     estado_ = ETAB_ROTACAO;
@@ -1800,16 +1808,14 @@ void Tabuleiro::FinalizaEstadoCorrente() {
           if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
             continue;
           }
-          float delta_x = (translacao_rotacao_ == TR_ROTACAO) ? (ultimo_x_ - primeiro_x_) : 0;
-          float delta_y = (translacao_rotacao_ == TR_TRANSLACAO) ?  ((ultimo_y_ - primeiro_y_) * SENSIBILIDADE_ROTACAO_Y) : 0;
           auto* n = grupo_notificacoes.add_notificacao();
           n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->CopyFrom(entidade->Proto());
           // Isso aqui ta meio tosco por causa das imprecisoes do float que no final pode gerar um delta total
           // diferente.
-          e_antes->set_rotacao_z_graus(e_antes->rotacao_z_graus() - delta_x);
-          e_antes->set_translacao_z(e_antes->translacao_z() - delta_y);
+          e_antes->set_translacao_z(translacoes_rotacoes_antes_[entidade->Id()].first);
+          e_antes->set_rotacao_z_graus(translacoes_rotacoes_antes_[entidade->Id()].second);
           // A entidade ja foi alterada durante a rotacao.
           n->mutable_entidade()->CopyFrom(entidade->Proto());
         }
