@@ -29,7 +29,8 @@ enum etab_t {
   ETAB_OCIOSO,
   ETAB_ROTACAO,
   ETAB_DESLIZANDO,
-  ETAB_ENT_PRESSIONADA,
+  ETAB_ENTS_PRESSIONADAS,
+  ETAB_ENTS_TRANSLACAO_ROTACAO,
   ETAB_ENTS_SELECIONADAS,
   ETAB_QUAD_PRESSIONADO,
   ETAB_QUAD_SELECIONADO,
@@ -342,6 +343,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void MudaEstadoAposSelecao();
 
+  /** Alguns estados podem ser interrompidos por outros. Esta funcao finaliza o corrente antes de mudar para um novo. */
+  void FinalizaEstadoCorrente();
+
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
 
@@ -474,6 +478,11 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para rastros de movimentos das unidades.
   std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_;
+
+  // Para decidir entre translacao e rotacao.
+  enum {
+    TR_NENHUM, TR_TRANSLACAO, TR_ROTACAO
+  } translacao_rotacao_;
 
   // Para desfazer e refazer. A lista tem tamanho maximo.
   bool ignorar_lista_eventos_;  // Quando verdadeiro, eventos inseridos na lista de eventos serao ignorados.

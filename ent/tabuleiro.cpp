@@ -2,6 +2,7 @@
 #include <boost/timer/timer.hpp>
 #include <cassert>
 #include <cstdio>
+#include <cstdlib>
 #include <cmath>
 #include <fstream>
 #include <map>
@@ -70,6 +71,8 @@ const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
 /** Distancia minima entre pontos no desenho livre. */
 const float DELTA_MINIMO_DESENHO_LIVRE = 0.2;
+
+const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
@@ -635,7 +638,7 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::TrataRodela(int delta) {
-  if (estado_ == ETAB_ENT_PRESSIONADA) {
+  if (estado_ == ETAB_ENTS_PRESSIONADAS) {
     ntf::Notificacao grupo_notificacoes;
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (unsigned int id : ids_entidades_selecionadas_) {
@@ -677,45 +680,71 @@ void Tabuleiro::TrataMovimentoMouse() {
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   switch (estado_) {
-    case ETAB_ROTACAO: {
-      if (estado_anterior_rotacao_ == ETAB_ENT_PRESSIONADA) {
-        // Realiza rotacao da entidade.
-        float delta_x = (x - ultimo_x_);
-        float delta_y = (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
-        for (unsigned int id : ids_entidades_selecionadas_) {
-          auto* e = BuscaEntidade(id);
-          if (e == nullptr || e->Tipo() == TE_ENTIDADE) {
-            continue;
-          }
-          e->AlteraRotacaoZ(delta_x);
-          e->AlteraTranslacaoZ(delta_y);
+    case ETAB_ENTS_TRANSLACAO_ROTACAO: {
+      if (translacao_rotacao_ == TR_NENHUM) {
+        int abs_delta_x = fabs(primeiro_x_ - x);
+        int abs_delta_y = fabs(primeiro_y_ - y);
+        // Ve se ja da pra decidir.
+        if (abs_delta_x > DELTA_MINIMO_TRANSLACAO_ROTACAO && abs_delta_y > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
+          // Usa o maior delta.
+          translacao_rotacao_ = (abs_delta_x > abs_delta_y) ? TR_ROTACAO : TR_TRANSLACAO;
+          LOG(INFO) << "Comecando (desempate) " << ((translacao_rotacao_ == TR_ROTACAO) ? "rotacao" : "translacao");
+        } else if (abs_delta_x > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
+          translacao_rotacao_ = TR_ROTACAO;
+          LOG(INFO) << "Comecando rotacao";
+        } else if (abs_delta_y > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
+          LOG(INFO) << "Comecando translacao";
+          translacao_rotacao_ = TR_TRANSLACAO;
+        } else {
+          ultimo_x_ = x;
+          ultimo_y_ = y;
+          return;
         }
-      } else {
-        // Realiza a rotacao da tela.
-        float olho_rotacao = olho_.rotacao_rad();
-        olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
-        if (olho_rotacao >= 2 * M_PI) {
-          olho_rotacao -= 2 * M_PI;
-        } else if (olho_rotacao <= - 2 * M_PI) {
-          olho_rotacao += 2 * M_PI;
-        }
-        olho_.set_rotacao_rad(olho_rotacao);
-        // move o olho no eixo Z de acordo com o eixo Y do movimento
-        float olho_altura = olho_.altura();
-        olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
-        if (olho_altura < OLHO_ALTURA_MINIMA) {
-          olho_altura = OLHO_ALTURA_MINIMA;
-        }
-        else if (olho_altura > OLHO_ALTURA_MAXIMA) {
-          olho_altura = OLHO_ALTURA_MAXIMA;
-        }
-        olho_.set_altura(olho_altura);
       }
+      // Deltas desde o ultimo movimento.
+      float delta_x = (x - ultimo_x_);
+      float delta_y = (y - ultimo_y_);
+      // Realiza rotacao da entidade.
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        auto* e = BuscaEntidade(id);
+        if (e == nullptr || e->Tipo() == TE_ENTIDADE) {
+          continue;
+        }
+        if (translacao_rotacao_ == TR_ROTACAO) {
+          e->AlteraRotacaoZ(delta_x);
+        } else if (translacao_rotacao_ == TR_TRANSLACAO) {
+          e->AlteraTranslacaoZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
+        }
+      }
+      ultimo_x_ = x;
+      ultimo_y_ = y;
+      return;
+    }
+    case ETAB_ROTACAO: {
+      // Realiza a rotacao da tela.
+      float olho_rotacao = olho_.rotacao_rad();
+      olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
+      if (olho_rotacao >= 2 * M_PI) {
+        olho_rotacao -= 2 * M_PI;
+      } else if (olho_rotacao <= - 2 * M_PI) {
+        olho_rotacao += 2 * M_PI;
+      }
+      olho_.set_rotacao_rad(olho_rotacao);
+      // move o olho no eixo Z de acordo com o eixo Y do movimento
+      float olho_altura = olho_.altura();
+      olho_altura -= (y - ultimo_y_) * SENSIBILIDADE_ROTACAO_Y;
+      if (olho_altura < OLHO_ALTURA_MINIMA) {
+        olho_altura = OLHO_ALTURA_MINIMA;
+      }
+      else if (olho_altura > OLHO_ALTURA_MAXIMA) {
+        olho_altura = OLHO_ALTURA_MAXIMA;
+      }
+      olho_.set_altura(olho_altura);
       ultimo_x_ = x;
       ultimo_y_ = y;
     }
     break;
-    case ETAB_ENT_PRESSIONADA: {
+    case ETAB_ENTS_PRESSIONADAS: {
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
@@ -962,109 +991,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoLiberado() {
-  switch (estado_) {
-    case ETAB_ROTACAO:
-      if (estado_anterior_rotacao_ == ETAB_ENT_PRESSIONADA) {
-        ntf::Notificacao grupo_notificacoes;
-        grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-        for (unsigned int id : ids_entidades_selecionadas_) {
-          auto* entidade = BuscaEntidade(id);
-          if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
-            continue;
-          }
-          float delta_x = ultimo_x_ - primeiro_x_;
-          float delta_y = (ultimo_y_ - primeiro_y_) * SENSIBILIDADE_ROTACAO_Y;
-          auto* n = grupo_notificacoes.add_notificacao();
-          n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-          auto* e_antes = n->mutable_entidade_antes();
-          e_antes->CopyFrom(entidade->Proto());
-          // Isso aqui ta meio tosco por causa das imprecisoes do float que no final pode gerar um delta total
-          // diferente.
-          e_antes->set_rotacao_z_graus(e_antes->rotacao_z_graus() - delta_x);
-          e_antes->set_translacao_z(e_antes->translacao_z() - delta_y);
-          // A entidade ja foi alterada durante a rotacao.
-          n->mutable_entidade()->CopyFrom(entidade->Proto());
-        }
-        // Vai ser um nop, mas envia as notificacoes para os clientes.
-        TrataNotificacao(grupo_notificacoes);
-        // Para desfazer.
-        AdicionaNotificacaoListaEventos(grupo_notificacoes);
-      }
-      estado_ = estado_anterior_rotacao_;
-      return;
-    case ETAB_DESLIZANDO:
-      estado_ = estado_anterior_rotacao_;
-      return;
-    case ETAB_ENT_PRESSIONADA: {
-      if (primeiro_x_3d_ == ultimo_x_3d_ &&
-          primeiro_y_3d_ == ultimo_y_3d_) {
-        // Nao houve movimento.
-        estado_ = ETAB_ENTS_SELECIONADAS;
-        rastros_movimento_.clear();
-        return;
-      }
-      // Para desfazer.
-      ntf::Notificacao g_desfazer;
-      g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-      Posicao vetor_delta;
-      vetor_delta.set_x(ultimo_x_3d_ - primeiro_x_3d_);
-      vetor_delta.set_y(ultimo_y_3d_ - primeiro_y_3d_);
-      vetor_delta.set_z(ultimo_z_3d_ - primeiro_z_3d_);
-      for (unsigned int id : ids_entidades_selecionadas_) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
-        auto* e = n->mutable_entidade();
-        e->set_id(id);
-        auto* entidade_selecionada = BuscaEntidade(id);
-        if (entidade_selecionada == nullptr) {
-          continue;
-        }
-        auto* destino = e->mutable_destino();
-        destino->set_x(entidade_selecionada->X());
-        destino->set_y(entidade_selecionada->Y());
-        destino->set_z(entidade_selecionada->Z());
-        central_->AdicionaNotificacaoRemota(n);
-        // Para desfazer.
-        auto* n_desfazer = g_desfazer.add_notificacao();
-        n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
-        n_desfazer->mutable_entidade()->set_id(id);
-        auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
-        pos_final->set_x(entidade_selecionada->X());
-        pos_final->set_y(entidade_selecionada->Y());
-        pos_final->set_z(entidade_selecionada->Z());
-        auto* pos_original = n_desfazer->mutable_entidade()->mutable_pos();
-        pos_original->set_x(entidade_selecionada->X() - vetor_delta.x());
-        pos_original->set_y(entidade_selecionada->Y() - vetor_delta.y());
-        pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
-      }
-      AdicionaNotificacaoListaEventos(g_desfazer);
-      estado_ = ETAB_ENTS_SELECIONADAS;
-      rastros_movimento_.clear();
-      return;
-    }
-    case ETAB_SELECIONANDO_ENTIDADES: {
-      if (ids_entidades_selecionadas_.empty()) {
-        DeselecionaEntidades();
-      } else {
-        estado_ = ETAB_ENTS_SELECIONADAS;
-      }
-      return;
-    }
-    case ETAB_QUAD_PRESSIONADO:
-      estado_ = ETAB_QUAD_SELECIONADO;
-      return;
-    case ETAB_DESENHANDO: {
-      VLOG(1) << "Finalizando: " << forma_proto_.ShortDebugString();
-      forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
-      ntf::Notificacao n;
-      n.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-      n.mutable_entidade()->Swap(&forma_proto_);
-      TrataNotificacao(n);
-      return;
-    }
-    default:
-      //estado_ = ETAB_OCIOSO;
-      ;
-  }
+  FinalizaEstadoCorrente();
 }
 
 void Tabuleiro::TrataMouseParadoEm(int x, int y) {
@@ -1358,7 +1285,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       continue;
     }
     // Nao roda disco se estiver arrastando.
-    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENT_PRESSIONADA &&
+    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
     f(entidade, &parametros_desenho_);
@@ -1662,7 +1589,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         pos.set_z(ZChao(pos.x(), pos.y()));
         rastros_movimento_[id].push_back(pos);
       }
-      estado_ = ETAB_ENT_PRESSIONADA;
+      estado_ = ETAB_ENTS_PRESSIONADAS;
     }
   } else {
     VLOG(1) << "Picking lugar nenhum.";
@@ -1694,8 +1621,15 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
   primeiro_y_ = y;
   ultimo_x_ = x;
   ultimo_y_ = y;
-  estado_anterior_rotacao_ = estado_;
-  estado_ = ETAB_ROTACAO;
+  if (estado_ == ETAB_ENTS_PRESSIONADAS) {
+    FinalizaEstadoCorrente();
+    estado_ = ETAB_ENTS_TRANSLACAO_ROTACAO;
+    estado_anterior_rotacao_ = ETAB_ENTS_SELECIONADAS;
+    translacao_rotacao_ = TR_NENHUM;
+  } else {
+    estado_anterior_rotacao_ = estado_;
+    estado_ = ETAB_ROTACAO;
+  }
 }
 
 void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
@@ -1851,6 +1785,118 @@ void Tabuleiro::MudaEstadoAposSelecao() {
     }
   }
   quadrado_selecionado_ = -1;
+}
+
+void Tabuleiro::FinalizaEstadoCorrente() {
+  switch (estado_) {
+    case ETAB_ENTS_TRANSLACAO_ROTACAO: {
+      if (translacao_rotacao_ == TR_NENHUM) {
+        // Nada a fazer.
+      } else {
+        ntf::Notificacao grupo_notificacoes;
+        grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+        for (unsigned int id : ids_entidades_selecionadas_) {
+          auto* entidade = BuscaEntidade(id);
+          if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
+            continue;
+          }
+          float delta_x = (translacao_rotacao_ == TR_ROTACAO) ? (ultimo_x_ - primeiro_x_) : 0;
+          float delta_y = (translacao_rotacao_ == TR_TRANSLACAO) ?  ((ultimo_y_ - primeiro_y_) * SENSIBILIDADE_ROTACAO_Y) : 0;
+          auto* n = grupo_notificacoes.add_notificacao();
+          n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+          auto* e_antes = n->mutable_entidade_antes();
+          e_antes->CopyFrom(entidade->Proto());
+          // Isso aqui ta meio tosco por causa das imprecisoes do float que no final pode gerar um delta total
+          // diferente.
+          e_antes->set_rotacao_z_graus(e_antes->rotacao_z_graus() - delta_x);
+          e_antes->set_translacao_z(e_antes->translacao_z() - delta_y);
+          // A entidade ja foi alterada durante a rotacao.
+          n->mutable_entidade()->CopyFrom(entidade->Proto());
+        }
+        // Vai ser um nop, mas envia as notificacoes para os clientes.
+        TrataNotificacao(grupo_notificacoes);
+        // Para desfazer.
+        AdicionaNotificacaoListaEventos(grupo_notificacoes);
+      }
+      estado_ = estado_anterior_rotacao_;
+      return;
+    }
+    case ETAB_ROTACAO:
+      estado_ = estado_anterior_rotacao_;
+      return;
+    case ETAB_DESLIZANDO:
+      estado_ = estado_anterior_rotacao_;
+      return;
+    case ETAB_ENTS_PRESSIONADAS: {
+      if (primeiro_x_3d_ == ultimo_x_3d_ &&
+          primeiro_y_3d_ == ultimo_y_3d_) {
+        // Nao houve movimento.
+        estado_ = ETAB_ENTS_SELECIONADAS;
+        rastros_movimento_.clear();
+        return;
+      }
+      // Para desfazer.
+      ntf::Notificacao g_desfazer;
+      g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      Posicao vetor_delta;
+      vetor_delta.set_x(ultimo_x_3d_ - primeiro_x_3d_);
+      vetor_delta.set_y(ultimo_y_3d_ - primeiro_y_3d_);
+      vetor_delta.set_z(ultimo_z_3d_ - primeiro_z_3d_);
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+        auto* e = n->mutable_entidade();
+        e->set_id(id);
+        auto* entidade_selecionada = BuscaEntidade(id);
+        if (entidade_selecionada == nullptr) {
+          continue;
+        }
+        auto* destino = e->mutable_destino();
+        destino->set_x(entidade_selecionada->X());
+        destino->set_y(entidade_selecionada->Y());
+        destino->set_z(entidade_selecionada->Z());
+        central_->AdicionaNotificacaoRemota(n);
+        // Para desfazer.
+        auto* n_desfazer = g_desfazer.add_notificacao();
+        n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
+        n_desfazer->mutable_entidade()->set_id(id);
+        auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
+        pos_final->set_x(entidade_selecionada->X());
+        pos_final->set_y(entidade_selecionada->Y());
+        pos_final->set_z(entidade_selecionada->Z());
+        auto* pos_original = n_desfazer->mutable_entidade()->mutable_pos();
+        pos_original->set_x(entidade_selecionada->X() - vetor_delta.x());
+        pos_original->set_y(entidade_selecionada->Y() - vetor_delta.y());
+        pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
+      }
+      AdicionaNotificacaoListaEventos(g_desfazer);
+      estado_ = ETAB_ENTS_SELECIONADAS;
+      rastros_movimento_.clear();
+      return;
+    }
+    case ETAB_SELECIONANDO_ENTIDADES: {
+      if (ids_entidades_selecionadas_.empty()) {
+        DeselecionaEntidades();
+      } else {
+        estado_ = ETAB_ENTS_SELECIONADAS;
+      }
+      return;
+    }
+    case ETAB_QUAD_PRESSIONADO:
+      estado_ = ETAB_QUAD_SELECIONADO;
+      return;
+    case ETAB_DESENHANDO: {
+      VLOG(1) << "Finalizando: " << forma_proto_.ShortDebugString();
+      forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n.mutable_entidade()->Swap(&forma_proto_);
+      TrataNotificacao(n);
+      return;
+    }
+    default:
+      //estado_ = ETAB_OCIOSO;
+      ;
+  }
 }
 
 bool Tabuleiro::EntidadeEstaSelecionada(unsigned int id) {
