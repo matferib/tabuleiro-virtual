@@ -65,9 +65,9 @@ void Entidade::DesenhaObjetoEntidadeProto(
   if (!proto.has_info_textura()) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
-    glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
+    gl::ConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::Translada(0, 0, ALTURA);
-    glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
+    gl::EsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
     return;
   }
 
@@ -80,7 +80,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     if (pd->entidade_selecionada()) {
       gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     }
-    glutSolidCube(TAMANHO_LADO_QUADRADO);
+    gl::CuboSolido(TAMANHO_LADO_QUADRADO);
   }
 
   bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
@@ -113,7 +113,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     }
     gl::MatrizEscopo salva_matriz;
     gl::Escala(1.0f, 0.1f, 1.0f);
-    glutSolidCube(TAMANHO_LADO_QUADRADO);
+    gl::CuboSolido(TAMANHO_LADO_QUADRADO);
   }
 
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
@@ -189,14 +189,14 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     case TF_CONE: {
       gl::Habilita(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      glutSolidCone(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
+      gl::ConeSolido(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
     }
     break;
     case TF_CUBO: {
       gl::Habilita(GL_NORMALIZE);
       gl::Translada(0, 0, proto.escala().z() / 2.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      glutSolidCube(1.0f);
+      gl::CuboSolido(1.0f);
     }
     break;
     case TF_PIRAMIDE: {
@@ -251,7 +251,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       // Usar x como base para achatamento.
       gl::Habilita(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
+      gl::EsferaSolida(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
     }
     break;
     case TF_LIVRE: {

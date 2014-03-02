@@ -10,6 +10,11 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
+#elif USAR_OPENGL_ES
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+#include <GLES/egl.h>
+#include <GLES/glplatform.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -65,7 +70,9 @@ class NomesEscopo {
 /** Funcoes gerais. */
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
+#if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
+#endif
 inline void Habilita(GLenum cap) { glEnable(cap); }
 inline void Desabilita(GLenum cap) { glDisable(cap); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
@@ -76,7 +83,7 @@ inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
 
 /** Funcoes de nomes. */
-inline void IniciaNomes() { glInitNames(); }
+inline void IniciaNomes() { /*glInitNames();*/ }
 inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
 inline void CarregaNome(GLuint nome) { glLoadName(nome); }
 inline void DesempilhaNome() { glPopName(); }
@@ -93,6 +100,10 @@ inline void ModeloLuz(GLenum nome_param, const GLfloat* params) { glLightModelfv
 
 /** Funcoes de normais. */
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
+
+void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
+void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
+void CuboSolido(GLfloat tam_lado);
 
 }  // namespace gl
 

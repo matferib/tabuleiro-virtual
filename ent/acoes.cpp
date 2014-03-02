@@ -25,14 +25,14 @@ void MudaCorProto(const Cor& cor) {
 void DesenhaGeometriaAcao(int geometria) {
   switch (geometria) {
     case ACAO_GEO_CUBO:
-      glutSolidCube(1.0f);
+      gl::CuboSolido(1.0f);
       return;
     case ACAO_GEO_CONE:
-      glutSolidCone(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
+      gl::ConeSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
       return;
     case ACAO_GEO_ESFERA:
     default:
-      glutSolidSphere(1.0f, 10, 10);
+      gl::EsferaSolida(1.0f  /*raio*/, 10  /*fatias*/, 10  /*tocos*/);
       return;
   }
 }
