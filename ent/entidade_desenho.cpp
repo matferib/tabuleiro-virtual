@@ -49,9 +49,9 @@ void Entidade::DesenhaObjetoCompostoProto(
   if (matriz_shear != nullptr) {
     glMultMatrixf(matriz_shear);
   }
-  glTranslatef(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
-  glRotatef(proto.rotacao_z_graus(), 0, 0, 1.0f);
-  glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
+  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   for (const auto& forma : proto.sub_forma()) {
     DesenhaObjetoProto(forma, vd, pd, nullptr);
   }
@@ -66,7 +66,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-    glTranslated(0, 0, ALTURA);
+    gl::Translada(0, 0, ALTURA);
     glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
     return;
   }
@@ -75,10 +75,10 @@ void Entidade::DesenhaObjetoEntidadeProto(
   {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*em_voo*/, proto, vd, pd, matriz_shear);
-    glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
-    glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
+    gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
     if (pd->entidade_selecionada()) {
-      glRotatef(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
+      gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     }
     glutSolidCube(TAMANHO_LADO_QUADRADO);
   }
@@ -88,15 +88,15 @@ void Entidade::DesenhaObjetoEntidadeProto(
   MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
-    glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
+    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
     //if (pd->entidade_selecionada()) {
-    //  glRotatef(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    //  gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     //}
-    glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-    glScalef(0.8f, 1.0f, 0.8f);
+    gl::Roda(-90.0f, 1.0f, 0.0f, 0.0f);
+    gl::Escala(0.8f, 1.0f, 0.8f);
   } else {
     // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
-    glTranslated(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
+    gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
     double angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
     if (pd->texturas_sempre_de_frente() && !proto.caida()) {
@@ -112,7 +112,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
       glRotated(angulo - 90.0f, 0, 0, 1.0);
     }
     gl::MatrizEscopo salva_matriz;
-    glScalef(1.0f, 0.1f, 1.0f);
+    gl::Escala(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
   }
 
@@ -153,7 +153,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
   AjustaCor(proto, pd);
   glPushAttrib(GL_ENABLE_BIT);
-  bool transparencias = pd->transparencias() && pd->has_alfa_translucidos() &&  pd->alfa_translucidos() < 1.0f;
+  bool transparencias = pd->transparencias() && ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   if (transparencias) {
     glEnable(GL_BLEND);
   }
@@ -161,8 +161,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
   if (matriz_shear != nullptr) {
     glMultMatrixf(matriz_shear);
   }
-  glTranslatef(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
-  glRotatef(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
+  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {
@@ -170,7 +170,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       }
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(-1.0f, -40.0f);
-      glScalef(proto.escala().x(), proto.escala().y(), 1.0f);
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
       DesenhaDisco(0.5f, 12);
     }
     break;
@@ -180,7 +180,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       gluQuadricOrientation(cilindro, GLU_OUTSIDE);
       gluQuadricNormals(cilindro, GLU_SMOOTH);
       gluQuadricDrawStyle(cilindro, GLU_FILL);
-      glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gluCylinder(cilindro, 0.5f  /*radius_base*/, 0.5f  /*radius_top*/,
                   1.0f  /*height*/, 20  /*slices*/, 20  /*stacks*/);
       gluDeleteQuadric(cilindro);
@@ -188,14 +188,14 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     break;
     case TF_CONE: {
       glEnable(GL_NORMALIZE);
-      glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidCone(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
     }
     break;
     case TF_CUBO: {
       glEnable(GL_NORMALIZE);
-      glTranslatef(0, 0, proto.escala().z() / 2.0f);
-      glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Translada(0, 0, proto.escala().z() / 2.0f);
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidCube(1.0f);
     }
     break;
@@ -205,7 +205,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       float y = proto.escala().y() / 2.0f;
       float z = proto.escala().z();
       glEnable(GL_NORMALIZE);
-      glScalef(x, y, z);
+      gl::Escala(x, y, z);
 
       glBegin(GL_TRIANGLES);
       // Face sul
@@ -250,7 +250,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     case TF_ESFERA: {
       // Usar x como base para achatamento.
       glEnable(GL_NORMALIZE);
-      glScalef(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       glutSolidSphere(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
     }
     break;
@@ -265,7 +265,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(-1.0, -40.0f);
       }
-      DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO / 2.0f);
+      DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z());
       if (transparencias) {
         DesenhaStencil();
       }

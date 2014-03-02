@@ -430,6 +430,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
+  gerador.slider_alfa->setValue(static_cast<int>(ent_cor.cor().a() * 100.0f));
   // Rotacao em Z.
   gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
   // Translacao em Z.
@@ -443,6 +444,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor ] () {
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());

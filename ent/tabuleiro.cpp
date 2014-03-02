@@ -1249,6 +1249,10 @@ void Tabuleiro::DesenhaTabuleiro() {
   glTranslatef(deltaX / 2.0f,
                deltaY / 2.0f,
                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
+  if (parametros_desenho_.has_offset_terreno()) {
+    // Para mover entidades acima do plano do olho.
+    glDisable(GL_CULL_FACE);
+  }
   int id = 0;
   // Desenha o chao mais pro fundo.
   // TODO transformar offsets em constantes.
@@ -1655,16 +1659,19 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   auto* pos = forma_proto_.mutable_pos();
   pos->set_x(primeiro_x_3d_);
   pos->set_y(primeiro_y_3d_);
+  auto* escala = forma_proto_.mutable_escala();
   if (forma_selecionada_ == TF_LIVRE) {
     auto* ponto = forma_proto_.add_ponto();
     ponto->set_x(0.0f);
     ponto->set_y(0.0f);
     ponto->set_z(0.0f);
+    // Usa a escala em Z para a largura da linha.
+    escala->set_z(1.0f);
+  } else {
+    escala->set_x(0);
+    escala->set_y(0);
+    escala->set_z(0);
   }
-  auto* escala = forma_proto_.mutable_escala();
-  escala->set_x(0);
-  escala->set_y(0);
-  escala->set_z(0);
   forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
   forma_proto_.mutable_cor()->set_a(0.5f);
   estado_ = ETAB_DESENHANDO;

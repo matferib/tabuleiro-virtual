@@ -104,19 +104,19 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     gl::MatrizEscopo salva_matriz;
-    glTranslatef(ponto.x(), ponto.y(), ponto.z());
+    gl::Translada(ponto.x(), ponto.y(), ponto.z());
     // Disco do ponto corrente.
     DesenhaDisco(largura / 2.0f, 12);
     // Reta ate proximo ponto.
     const auto& proximo_ponto = *(++it);
     float tam;
     float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
-    glRotatef(graus, 0.0f, 0.0f, 1.0f);
+    gl::Roda(graus, 0.0f, 0.0f, 1.0f);
     glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
   }
   const auto& ponto = *(pontos.end() - 1);
   gl::MatrizEscopo salva_matriz;
-  glTranslatef(ponto.x(), ponto.y(), ponto.z());
+  gl::Translada(ponto.x(), ponto.y(), ponto.z());
   DesenhaDisco(largura / 2.0f, 12);
 }
 
