@@ -84,7 +84,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 }
 
 void DesenhaDisco(float raio, int num_faces) {
-  glNormal3f(0.0f, 0.0f, 1.0f);
+  gl::Normal(0.0f, 0.0f, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
   for (int i = 0; i <= num_faces; ++i) {
@@ -100,7 +100,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   if (pontos.size() == 0) {
     return;
   }
-  glNormal3f(0.0f, 0.0f, 1.0f);
+  gl::Normal(0.0f, 0.0f, 1.0f);
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     gl::MatrizEscopo salva_matriz;
@@ -132,8 +132,8 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 
 void LigaStencil() {
   glPushAttrib(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_BLEND);
-  glEnable(GL_STENCIL_TEST);  // Habilita stencil.
+  gl::Habilita(GL_BLEND);
+  gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
   glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
   glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
@@ -166,7 +166,7 @@ void DesenhaStencil(const float* cor) {
       if (cor != nullptr) {
         MudaCorAlfa(cor);
       }
-      glDisable(GL_DEPTH_TEST);
+      gl::Desabilita(GL_DEPTH_TEST);
       glDepthMask(false);
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
       glRectf(0.0f, 0.0f, largura, altura);

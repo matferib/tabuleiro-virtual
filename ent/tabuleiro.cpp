@@ -252,7 +252,7 @@ void Tabuleiro::Desenha() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_modo_mestre(modo_mestre_);
   glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+  gl::CarregaIdentidade();
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_fps(opcoes_.mostrar_fps());
@@ -1005,10 +1005,10 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
 
 void Tabuleiro::InicializaGL() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glDisable(GL_BLEND);
+  gl::Desabilita(GL_BLEND);
 
   // Nao desenha as costas dos poligonos.
-  glEnable(GL_CULL_FACE);
+  gl::Habilita(GL_CULL_FACE);
   glCullFace(GL_BACK);
 }
 
@@ -1046,7 +1046,7 @@ void Tabuleiro::DesenhaCena() {
     timer.start();
   }
 
-  glEnable(GL_DEPTH_TEST);
+  gl::Habilita(GL_DEPTH_TEST);
   glClearColor(proto_.luz_ambiente().r(),
                proto_.luz_ambiente().g(),
                proto_.luz_ambiente().b(),
@@ -1056,10 +1056,10 @@ void Tabuleiro::DesenhaCena() {
   }
   glClear(GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
-    glDisable(GL_LIGHT0 + i);
+    gl::Desabilita(GL_LIGHT0 + i);
   }
   glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  gl::CarregaIdentidade();
   const Posicao& alvo = olho_.alvo();
   gluLookAt(
     // from.
@@ -1084,7 +1084,7 @@ void Tabuleiro::DesenhaCena() {
 
 
   if (parametros_desenho_.iluminacao()) {
-    glEnable(GL_LIGHTING);
+    gl::Habilita(GL_LIGHTING);
     GLfloat cor_luz_ambiente[] = { proto_.luz_ambiente().r(),
                                    proto_.luz_ambiente().g(),
                                    proto_.luz_ambiente().b(),
@@ -1095,7 +1095,7 @@ void Tabuleiro::DesenhaCena() {
       cor_luz_ambiente[1] = std::max(0.4f, cor_luz_ambiente[1]);
       cor_luz_ambiente[2] = std::max(0.4f, cor_luz_ambiente[2]);
     }
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
+    gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
 
     // Iluminação distante direcional.
     {
@@ -1105,15 +1105,15 @@ void Tabuleiro::DesenhaCena() {
       // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
       gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
       gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-      glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+      gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
     }
     // A cor da luz direcional.
     GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
                           proto_.luz_direcional().cor().g(),
                           proto_.luz_direcional().cor().b(),
                           proto_.luz_direcional().cor().a() };
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, cor_luz);
-    glEnable(GL_LIGHT0);
+    gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
+    gl::Habilita(GL_LIGHT0);
 
     // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
@@ -1121,7 +1121,7 @@ void Tabuleiro::DesenhaCena() {
       e->DesenhaLuz(&parametros_desenho_);
     }
   } else {
-    glDisable(GL_LIGHTING);
+    gl::Desabilita(GL_LIGHTING);
   }
 
   //ceu_.desenha(parametros_desenho_);
@@ -1130,20 +1130,24 @@ void Tabuleiro::DesenhaCena() {
   DesenhaTabuleiro();
 
   if (parametros_desenho_.desenha_grade()) {
-    glDisable(GL_DEPTH_TEST);
+    gl::Desabilita(GL_DEPTH_TEST);
     DesenhaGrade();
-    glEnable(GL_DEPTH_TEST);
+    gl::Habilita(GL_DEPTH_TEST);
   }
 
   // Algumas verificacoes.
   GLint depth;
-  glGetIntegerv(GL_MODELVIEW_STACK_DEPTH, &depth);
+  gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
   if (depth > 2) {
     LOG(ERROR) << "Pilha MODELVIEW com vazamento";
   }
-  glGetIntegerv(GL_PROJECTION_STACK_DEPTH, &depth);
+  gl::Le(GL_PROJECTION_STACK_DEPTH, &depth);
   if (depth > 2) {
     LOG(ERROR) << "Pilha PROJECTION com vazamento";
+  }
+  gl::Le(GL_ATTRIB_STACK_DEPTH, &depth);
+  if (depth > 2) {
+    LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento";
   }
   if (!parametros_desenho_.desenha_entidades()) {
     return;
@@ -1174,14 +1178,14 @@ void Tabuleiro::DesenhaCena() {
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
   // a outros nao transparentes.
   if (parametros_desenho_.transparencias()) {
-    glEnable(GL_BLEND);
+    gl::Habilita(GL_BLEND);
     glDepthMask(false);
     parametros_desenho_.set_alfa_translucidos(0.5);
     DesenhaEntidadesTranslucidas();
     parametros_desenho_.clear_alfa_translucidos();
     DesenhaAuras();
     glDepthMask(true);
-    glDisable(GL_BLEND);
+    gl::Desabilita(GL_BLEND);
   } else {
     // Desenha os translucidos de forma solida para picking.
     glPushName(0);
@@ -1202,10 +1206,10 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     glDepthMask(false);
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
-    glDisable(GL_CULL_FACE);
-    glEnable(GL_BLEND);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(-3.0f, -30.0f);
+    gl::Desabilita(GL_CULL_FACE);
+    gl::Habilita(GL_BLEND);
+    gl::Habilita(GL_POLYGON_OFFSET_FILL);
+    gl::DesvioProfundidade(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
     glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
     glPopAttrib();
@@ -1222,13 +1226,13 @@ void Tabuleiro::DesenhaCena() {
     std::string tempo_str = timer.format(boost::timer::default_places, "%w");
     // Modo 2d.
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
+    gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     glOrtho(0, largura_, 0, altura_, 0, 1);
     glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
+    gl::CarregaIdentidade();
+    gl::Desabilita(GL_DEPTH_TEST);
+    gl::Desabilita(GL_LIGHTING);
     gl::Translada(0.0, altura_ - 15.0f, 0.0f);
     DesenhaStringTempo(tempo_str);
   }
@@ -1238,26 +1242,26 @@ void Tabuleiro::DesenhaTabuleiro() {
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
-    glEnable(GL_TEXTURE_2D);
+    gl::Habilita(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D, id_textura);
   }
 
   gl::MatrizEscopo salva_matriz;
   double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
-  glNormal3f(0, 0, 1.0f);
+  gl::Normal(0, 0, 1.0f);
   gl::Translada(deltaX / 2.0f,
                deltaY / 2.0f,
                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
-    glDisable(GL_CULL_FACE);
+    gl::Desabilita(GL_CULL_FACE);
   }
   int id = 0;
   // Desenha o chao mais pro fundo.
   // TODO transformar offsets em constantes.
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(2.0f, 20.0f);
+  gl::Habilita(GL_POLYGON_OFFSET_FILL);
+  gl::DesvioProfundidade(2.0f, 20.0f);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado
@@ -1269,8 +1273,8 @@ void Tabuleiro::DesenhaTabuleiro() {
     // volta tudo esquerda e sobe 1 quadrado
     gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
-  glDisable(GL_POLYGON_OFFSET_FILL);
-  glDisable(GL_TEXTURE_2D);
+  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
+  gl::Desabilita(GL_TEXTURE_2D);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
@@ -1293,9 +1297,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
 void Tabuleiro::DesenhaRastros() {
   glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
   glDepthMask(false);
-  glEnable(GL_BLEND);
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-2.0f, -20.0f);
+  gl::Habilita(GL_BLEND);
+  gl::Habilita(GL_POLYGON_OFFSET_FILL);
+  gl::DesvioProfundidade(-2.0f, -20.0f);
   MudaCorAlfa(COR_AZUL_ALFA);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
@@ -1443,8 +1447,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 
   glMatrixMode(GL_PROJECTION);
   GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
-  glLoadIdentity();
+  gl::Le(GL_VIEWPORT, viewport);
+  gl::CarregaIdentidade();
   gluPickMatrix(x, y, 1.0, 1.0, viewport);
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
@@ -1531,9 +1535,9 @@ bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d)
 bool Tabuleiro::MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d) {
   GLdouble modelview[16], projection[16];
   GLint viewport[4];
-  glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-  glGetDoublev(GL_PROJECTION_MATRIX, projection);
-  glGetIntegerv(GL_VIEWPORT, viewport);
+  gl::Le(GL_MODELVIEW_MATRIX, modelview);
+  gl::Le(GL_PROJECTION_MATRIX, projection);
+  gl::Le(GL_VIEWPORT, viewport);
   if (!gluUnProject(x, y, profundidade,
                     modelview, projection, viewport,
                     x3d, y3d, z3d)) {
@@ -2543,14 +2547,14 @@ void Tabuleiro::DesenhaListaPontosVida() {
   }
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  glLoadIdentity();
+  gl::CarregaIdentidade();
   glOrtho(0, largura_, 0, altura_, 0, 1);
 
   {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-    glLoadIdentity();
-    glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
+    gl::CarregaIdentidade();
+    gl::Desabilita(GL_DEPTH_TEST);
+    gl::Desabilita(GL_LIGHTING);
     std::string titulo("Lista PV");
     gl::Translada(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
     MudaCor(COR_BRANCA);
