@@ -76,6 +76,7 @@ inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
 
 /** Funcoes de nomes. */
+inline void IniciaNomes() { glInitNames(); }
 inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
 inline void CarregaNome(GLuint nome) { glLoadName(nome); }
 inline void DesempilhaNome() { glPopName(); }
