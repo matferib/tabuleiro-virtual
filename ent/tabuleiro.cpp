@@ -1440,7 +1440,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   glSelectBuffer(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   glRenderMode(GL_SELECT);
-  glInitNames();
+  gl::IniciaNomes();
   gl::NomesEscopo nomes(0);
 
   gl::ModoMatriz(GL_PROJECTION);
