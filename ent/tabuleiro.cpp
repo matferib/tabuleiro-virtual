@@ -251,7 +251,7 @@ void Tabuleiro::Desenha() {
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
   parametros_desenho_.set_modo_mestre(modo_mestre_);
-  glMatrixMode(GL_PROJECTION);
+  gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
   // Aplica opcoes do jogador.
@@ -1058,7 +1058,7 @@ void Tabuleiro::DesenhaCena() {
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
-  glMatrixMode(GL_MODELVIEW);
+  gl::ModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   const Posicao& alvo = olho_.alvo();
   gluLookAt(
@@ -1155,9 +1155,10 @@ void Tabuleiro::DesenhaCena() {
 
   // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
   // na hora do picking.
-  glPushName(0);
-  DesenhaEntidades();
-  glPopName();
+  {
+    gl::NomesEscopo nomes(0);
+    DesenhaEntidades();
+  }
 
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
@@ -1188,9 +1189,8 @@ void Tabuleiro::DesenhaCena() {
     gl::Desabilita(GL_BLEND);
   } else {
     // Desenha os translucidos de forma solida para picking.
-    glPushName(0);
+    gl::NomesEscopo nomes(0);
     DesenhaEntidadesTranslucidas();
-    glPopName();
   }
 
   if (parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
@@ -1205,14 +1205,13 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     glDepthMask(false);
-    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
+    gl::AtributosEscopo salva_atributos(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
     gl::Desabilita(GL_CULL_FACE);
     gl::Habilita(GL_BLEND);
     gl::Habilita(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
     glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
-    glPopAttrib();
     glDepthMask(true);
   }
 
@@ -1225,11 +1224,11 @@ void Tabuleiro::DesenhaCena() {
     timer.stop();
     std::string tempo_str = timer.format(boost::timer::default_places, "%w");
     // Modo 2d.
-    glMatrixMode(GL_PROJECTION);
+    gl::ModoMatriz(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     glOrtho(0, largura_, 0, altura_, 0, 1);
-    glMatrixMode(GL_MODELVIEW);
+    gl::ModoMatriz(GL_MODELVIEW);
     gl::CarregaIdentidade();
     gl::Desabilita(GL_DEPTH_TEST);
     gl::Desabilita(GL_LIGHTING);
@@ -1295,7 +1294,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
 }
 
 void Tabuleiro::DesenhaRastros() {
-  glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
+  gl::AtributosEscopo salva_atributos(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
   glDepthMask(false);
   gl::Habilita(GL_BLEND);
   gl::Habilita(GL_POLYGON_OFFSET_FILL);
@@ -1316,7 +1315,6 @@ void Tabuleiro::DesenhaRastros() {
     // Rastro pouco menor que quadrado.
     DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO * 0.8);
   }
-  glPopAttrib();
 }
 
 void Tabuleiro::DesenhaAuras() {
@@ -1443,9 +1441,9 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   glRenderMode(GL_SELECT);
   glInitNames();
-  glPushName(0); // inicia a pilha de nomes com 0 para sempre haver um nome.
+  gl::NomesEscopo nomes(0);
 
-  glMatrixMode(GL_PROJECTION);
+  gl::ModoMatriz(GL_PROJECTION);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();

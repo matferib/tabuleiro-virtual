@@ -131,7 +131,7 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 }
 
 void LigaStencil() {
-  glPushAttrib(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  gl::EmpilhaAtributo(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   gl::Habilita(GL_BLEND);
   gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
   glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
@@ -147,7 +147,7 @@ void DesenhaStencil(const Cor& cor) {
 
 void DesenhaStencil(const float* cor) {
   GLint viewport[4];
-  glGetIntegerv(GL_VIEWPORT, viewport);
+  gl::Le(GL_VIEWPORT, viewport);
   int largura = viewport[2], altura = viewport[3];
 
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
@@ -157,12 +157,12 @@ void DesenhaStencil(const float* cor) {
   // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
   {
     gl::MatrizEscopo salva_projecao(GL_PROJECTION);
-    glLoadIdentity();
+    gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     glOrtho(0, largura, 0, altura, 0, 1);
     {
       gl::MatrizEscopo salva_projecao(GL_MODELVIEW);
-      glLoadIdentity();
+      gl::CarregaIdentidade();
       if (cor != nullptr) {
         MudaCorAlfa(cor);
       }
@@ -173,8 +173,8 @@ void DesenhaStencil(const float* cor) {
     }
   }
   // Restaura atributos antes do stencil.
-  glPopAttrib();
-  glMatrixMode(GL_MODELVIEW);
+  gl::DesempilhaAtributo();
+  gl::ModoMatriz(GL_MODELVIEW);
 }
 
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {
