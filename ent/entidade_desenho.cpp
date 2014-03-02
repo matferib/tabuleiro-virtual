@@ -45,7 +45,7 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   if (matriz_shear != nullptr) {
     glMultMatrixf(matriz_shear);
   }
@@ -55,7 +55,6 @@ void Entidade::DesenhaObjetoCompostoProto(
   for (const auto& forma : proto.sub_forma()) {
     DesenhaObjetoProto(forma, vd, pd, nullptr);
   }
-  glPopMatrix();
 }
 
 void Entidade::DesenhaObjetoEntidadeProto(
@@ -64,18 +63,17 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
   if (!proto.has_info_textura()) {
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
     glutSolidCone(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     glTranslated(0, 0, ALTURA);
     glutSolidSphere(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
-    glPopMatrix();
     return;
   }
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   {
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*em_voo*/, proto, vd, pd, matriz_shear);
     glTranslated(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
     glScalef(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
@@ -83,11 +81,10 @@ void Entidade::DesenhaObjetoEntidadeProto(
       glRotatef(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     }
     glutSolidCube(TAMANHO_LADO_QUADRADO);
-    glPopMatrix();
   }
 
   bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   MontaMatriz(true  /*em_voo*/, proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
@@ -114,10 +111,9 @@ void Entidade::DesenhaObjetoEntidadeProto(
       }
       glRotated(angulo - 90.0f, 0, 0, 1.0);
     }
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     glScalef(1.0f, 0.1f, 1.0f);
     glutSolidCube(TAMANHO_LADO_QUADRADO);
-    glPopMatrix();
   }
 
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
@@ -152,7 +148,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
     glEnd();
     glDisable(GL_TEXTURE_2D);
   }
-  glPopMatrix();
 }
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
@@ -162,7 +157,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
   if (transparencias) {
     glEnable(GL_BLEND);
   }
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   if (matriz_shear != nullptr) {
     glMultMatrixf(matriz_shear);
   }
@@ -279,7 +274,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
-  glPopMatrix();
   glPopAttrib();
 }
 

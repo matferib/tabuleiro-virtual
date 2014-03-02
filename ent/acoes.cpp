@@ -57,24 +57,25 @@ class AcaoSinalizacao : public Acao {
     glPolygonOffset(-3.0, -30.0f);
 
     const Posicao& pos = acao_proto_.pos_tabuleiro();
-    glPushMatrix();
-    glTranslated(pos.x(), pos.y(), pos.z());
-    glScaled(estado_, estado_, 0.0f);
-    glBegin(GL_TRIANGLES);
-    // Primeiro triangulo.
-    glVertex2d(COS_30 * 0.3, SEN_30 * 0.2);
-    glVertex2i(1, 0);
-    glVertex2d(COS_60, SEN_60);
-    // Segundo triangulo.
-    glVertex2d(-COS_30 * 0.3, SEN_30 * 0.2);
-    glVertex2d(-COS_60, SEN_60);
-    glVertex2i(-1, 0);
-    // Terceiro triangulo.
-    glVertex2d(0.0, -0.2);
-    glVertex2d(-COS_60, -SEN_60);
-    glVertex2d(COS_60, -SEN_60);
-    glEnd();
-    glPopMatrix();
+    {
+      gl::MatrizEscopo salva_matriz;
+      glTranslated(pos.x(), pos.y(), pos.z());
+      glScaled(estado_, estado_, 0.0f);
+      glBegin(GL_TRIANGLES);
+      // Primeiro triangulo.
+      glVertex2d(COS_30 * 0.3, SEN_30 * 0.2);
+      glVertex2i(1, 0);
+      glVertex2d(COS_60, SEN_60);
+      // Segundo triangulo.
+      glVertex2d(-COS_30 * 0.3, SEN_30 * 0.2);
+      glVertex2d(-COS_60, SEN_60);
+      glVertex2i(-1, 0);
+      // Terceiro triangulo.
+      glVertex2d(0.0, -0.2);
+      glVertex2d(-COS_60, -SEN_60);
+      glVertex2d(COS_60, -SEN_60);
+      glEnd();
+    }
 
     glDisable(GL_NORMALIZE);
     glDisable(GL_POLYGON_OFFSET_FILL);
@@ -134,9 +135,9 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+    gl::MatrizEscopo salva_matriz;
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
-    glPushMatrix();
     if (acao_proto_.delta_pontos_vida() > 0) {
       MudaCor(COR_VERDE);
     } else if (acao_proto_.delta_pontos_vida() == 0) {
@@ -145,7 +146,6 @@ class AcaoDeltaPontosVida : public Acao {
       MudaCor(COR_VERMELHA);
     }
     DesenhaStringDelta();
-    glPopMatrix();
     glPopAttrib();
   }
 
@@ -189,12 +189,11 @@ class AcaoDispersao : public Acao {
     glPushAttrib(GL_LIGHTING_BIT);
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
     MudaCorProto(acao_proto_.cor());
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
     if (acao_proto_.geometria() == ACAO_GEO_CONE) {
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
       if (entidade_origem == nullptr) {
-        glPopMatrix();
         glPopAttrib();
         return;
       }
@@ -220,7 +219,6 @@ class AcaoDispersao : public Acao {
       glScalef(efeito_, efeito_, efeito_);
     }
     DesenhaGeometriaAcao(acao_proto_.geometria());
-    glPopMatrix();
     glPopAttrib();
   }
 
@@ -282,14 +280,13 @@ class AcaoProjetil : public Acao {
     GLfloat pos_luz[] = { pos_olho.x() - pos_.x(), pos_olho.y() - pos_.y(), pos_olho.z() - pos_.z(), 0.0f };
     glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
 
+    gl::MatrizEscopo salva_matriz;
     MudaCorProto(acao_proto_.cor());
-    glPushMatrix();
     glTranslated(pos_.x(), pos_.y(), pos_.z());
     // Roda pro vetor de direcao.
     glRotatef(VetorParaRotacaoGraus(dx_, dy_), 0, 0, 1.0f);
     glScalef(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
     DesenhaGeometriaAcao(acao_proto_.has_geometria() ? acao_proto_.geometria() : ACAO_GEO_ESFERA);
-    glPopMatrix();
     glPopAttrib();
   }
 
@@ -601,20 +598,16 @@ void Acao::Desenha(ParametrosDesenho* pd) {
   if (Finalizada()) {
     return;
   }
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   DesenhaSeNaoFinalizada(pd);
-  glPopMatrix();
 }
 
 void Acao::DesenhaTranslucido(ParametrosDesenho* pd) {
   if (Finalizada()) {
     return;
   }
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   DesenhaTranslucidoSeNaoFinalizada(pd);
-  glPopMatrix();
 }
 
 void Acao::AtualizaVelocidade() {

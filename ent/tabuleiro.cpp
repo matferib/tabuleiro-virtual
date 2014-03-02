@@ -680,12 +680,12 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (abs_delta_x > DELTA_MINIMO_TRANSLACAO_ROTACAO && abs_delta_y > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
           // Usa o maior delta.
           translacao_rotacao_ = (abs_delta_x > abs_delta_y) ? TR_ROTACAO : TR_TRANSLACAO;
-          LOG(INFO) << "Comecando (desempate) " << ((translacao_rotacao_ == TR_ROTACAO) ? "rotacao" : "translacao");
+          VLOG(1) << "Comecando (desempate) " << ((translacao_rotacao_ == TR_ROTACAO) ? "rotacao" : "translacao");
         } else if (abs_delta_x > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
           translacao_rotacao_ = TR_ROTACAO;
-          LOG(INFO) << "Comecando rotacao";
+          VLOG(1) << "Comecando rotacao";
         } else if (abs_delta_y > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
-          LOG(INFO) << "Comecando translacao";
+          VLOG(1) << "Comecando translacao";
           translacao_rotacao_ = TR_TRANSLACAO;
         } else {
           ultimo_x_ = x;
@@ -1098,14 +1098,15 @@ void Tabuleiro::DesenhaCena() {
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
 
     // Iluminação distante direcional.
-    glPushMatrix();
-    // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
-    GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
-    // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    glRotatef(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-    glRotatef(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-    glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
-    glPopMatrix();
+    {
+      gl::MatrizEscopo salva_matriz;
+      // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
+      GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
+      // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
+      glRotatef(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+      glRotatef(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+      glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+    }
     // A cor da luz direcional.
     GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
                           proto_.luz_direcional().cor().g(),
@@ -1241,7 +1242,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     glBindTexture(GL_TEXTURE_2D, id_textura);
   }
 
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   glNormal3f(0, 0, 1.0f);
@@ -1265,7 +1266,6 @@ void Tabuleiro::DesenhaTabuleiro() {
     glTranslatef(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
   glDisable(GL_POLYGON_OFFSET_FILL);
-  glPopMatrix();
   glDisable(GL_TEXTURE_2D);
 }
 
@@ -2480,7 +2480,7 @@ void Tabuleiro::DesenhaQuadrado(
     float tamanho_texel_v = 1.0f / TamanhoY();
     // desenha o quadrado branco.
     MudaCor(COR_BRANCA);
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     glBegin(GL_QUADS);
     // O quadrado eh desenhado EB, DB, DC, EC. A textura tem o eixo Y invertido.
     float tamanho_y_linha = TamanhoY() - linha;
@@ -2509,7 +2509,6 @@ void Tabuleiro::DesenhaQuadrado(
     glTexCoord2fv(coordenadas_texel + 6);
     glVertex3f(0.0f, TAMANHO_LADO_QUADRADO, 0.0f);
     glEnd();
-    glPopMatrix();
   }
 }
 
@@ -2536,33 +2535,28 @@ void Tabuleiro::DesenhaListaPontosVida() {
     return;
   }
   // Modo 2d: eixo com origem embaixo esquerda.
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, largura_, 0, altura_, 0, 1);
 
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  glDisable(GL_DEPTH_TEST);
-  glDisable(GL_LIGHTING);
-  std::string titulo("Lista PV");
-  glTranslatef(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
-  MudaCor(COR_BRANCA);
-  DesenhaString(titulo);
-  glTranslatef((titulo.size() - 3) * 8, 0.0f, 0.0f);
-  for (int pv : lista_pontos_vida_) {
-    MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-    char str[4];
-    snprintf(str, 4, "%d", abs(pv));
-    glTranslatef(0.0f, -15.0f, 0.0f);
-    DesenhaString(str);
+  {
+    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    glLoadIdentity();
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    std::string titulo("Lista PV");
+    glTranslatef(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
+    MudaCor(COR_BRANCA);
+    DesenhaString(titulo);
+    glTranslatef((titulo.size() - 3) * 8, 0.0f, 0.0f);
+    for (int pv : lista_pontos_vida_) {
+      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+      char str[4];
+      snprintf(str, 4, "%d", abs(pv));
+      glTranslatef(0.0f, -15.0f, 0.0f);
+      DesenhaString(str);
+    }
   }
-  glPopMatrix();
-
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
-  glMatrixMode(GL_MODELVIEW);
 }
 
 double Tabuleiro::Aspecto() const {

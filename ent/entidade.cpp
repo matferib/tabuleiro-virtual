@@ -2,18 +2,12 @@
 #include <cmath>
 #include <sstream>
 #include <stdexcept>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glut.h>
-#endif
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
+#include "gl/gl.h"
 #include "ifg/qt/texturas.h"
 #include "log/log.h"
 
@@ -266,8 +260,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 }
 
 const Posicao Entidade::PosicaoAcao() const {
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   glLoadIdentity();
   MontaMatriz(true  /*em_voo*/, proto_, vd_);
   if (!proto_.achatado()) {
@@ -286,7 +279,6 @@ const Posicao Entidade::PosicaoAcao() const {
   pos.set_x(ponto[0]);
   pos.set_y(ponto[1]);
   pos.set_z(ponto[2]);
-  glPopMatrix();
   return pos;
 }
 
@@ -362,12 +354,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*em_voo*/, proto_, vd_, pd);
     MudaCor(proto_.cor());
     glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
-    glPopMatrix();
   }
   // Desenha a barra de vida.
   if (pd->desenha_barra_vida()) {
@@ -384,14 +375,15 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     glPushAttrib(GL_ENABLE_BIT);
 #endif
 
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
     glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
-    glPushMatrix();
-    glScalef(0.2, 0.2, 1.0f);
-    MudaCor(COR_VERMELHA);
-    glutSolidCube(TAMANHO_BARRA_VIDA);
-    glPopMatrix();
+    {
+      gl::MatrizEscopo salva_matriz;
+      glScalef(0.2, 0.2, 1.0f);
+      MudaCor(COR_VERMELHA);
+      glutSolidCube(TAMANHO_BARRA_VIDA);
+    }
     if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
       float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
       float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
@@ -403,7 +395,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       MudaCor(COR_VERDE);
       glutSolidCube(TAMANHO_BARRA_VIDA);
     }
-    glPopMatrix();
     glPopAttrib();
   }
 }
@@ -416,7 +407,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     return;
   }
 
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
   // Um pouco acima do objeto e ao sul do objeto.
   glTranslated(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
@@ -437,7 +428,6 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     glEnable(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }
-  glPopMatrix();
 }
 
 void Entidade::DesenhaAura(ParametrosDesenho* pd) {
@@ -447,7 +437,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!pd->desenha_aura() || !proto_.has_aura() || proto_.aura() == 0) {
     return;
   }
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   glTranslated(X(), Y(), Z() + DeltaVoo(vd_));
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
@@ -459,7 +449,6 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   glutSolidSphere(
       TAMANHO_LADO_QUADRADO_2 * ent_quadrados + TAMANHO_LADO_QUADRADO * proto_.aura(),
       NUM_FACES, NUM_FACES);
-  glPopMatrix();
 }
 
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
