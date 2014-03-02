@@ -47,10 +47,15 @@ elif sistema == 'apple':
   env['CXXFLAGS'] += ['-Wall', '-O2', '-std=c++11']
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'pthread']
 else:
-  env['CPPPATH'] += ['./']
-  env['CPPDEFINES'] = {'USAR_GLOG': 0}
+  env['CPPPATH'] += ['./', ]
+  env['CPPDEFINES'] = {'USAR_GLOG': 0, }
   env['CXXFLAGS'] = ['-Wall', '-g', '-std=c++11']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
+
+usar_opengl_es = False
+if usar_opengl_es:
+  env['CPPPATH'] += ['./opengl_es/']
+  env['CPPDEFINES'] += { 'USAR_OPENGL_ES': 1}
 
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
@@ -97,6 +102,9 @@ ntf_proto = env.Protoc(
   source = ['ntf/notificacao.proto'],
 )
 
+# GL
+cGl = env.Object('gl/gl.cpp')
+
 # programa final
 env.Program(
 	target = 'tabvirt',
@@ -110,5 +118,7 @@ env.Program(
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
 		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
+    # gl.
+    cGl,
 	]
 )

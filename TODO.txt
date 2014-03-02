@@ -1,8 +1,10 @@
 Versao 1.0
+- Fazer funcionar com OpenGL ES: color picking, sem pilha de atributos, formas basicas na mao, esfera, retangulo e vertex list.
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Terminar de mudar tudo pro gl.h.
 
 Versao 2.0
 - Registro correto dos diretorios para funcionar de qualquer diretorio.
