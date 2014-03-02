@@ -12,6 +12,14 @@ modelo {
   entidade { max_pontos_vida: 13 info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
 modelo {
+  id: 'Demônio Vrock'
+  entidade { max_pontos_vida: 115 tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 } }
+}
+modelo {
+  id: 'Demônio Babau'
+  entidade { max_pontos_vida: 66 info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
+}
+modelo {
   id: 'Enxame (centopéias)'
   entidade { max_pontos_vida: 31 achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
