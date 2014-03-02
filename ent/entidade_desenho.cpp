@@ -97,19 +97,19 @@ void Entidade::DesenhaObjetoEntidadeProto(
   } else {
     // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
     gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
-    double angulo = 0;
+    float angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
     if (pd->texturas_sempre_de_frente() && !proto.caida()) {
       double dx = pos.x() - pd->pos_olho().x();
       double dy = pos.y() - pd->pos_olho().y();
       double r = sqrt(pow(dx, 2) + pow(dy, 2));
-      angulo = (acos(dx / r) * RAD_PARA_GRAUS);
+      angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
       if (dy < 0) {
         // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
         // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
         angulo = -angulo;
       }
-      glRotated(angulo - 90.0f, 0, 0, 1.0);
+      gl::Roda(angulo - 90.0f, 0, 0, 1.0);
     }
     gl::MatrizEscopo salva_matriz;
     gl::Escala(1.0f, 0.1f, 1.0f);

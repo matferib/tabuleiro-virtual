@@ -264,7 +264,7 @@ const Posicao Entidade::PosicaoAcao() const {
   glLoadIdentity();
   MontaMatriz(true  /*em_voo*/, proto_, vd_);
   if (!proto_.achatado()) {
-    glTranslatef(0.0f, 0.0f, ALTURA);
+    gl::Translada(0.0f, 0.0f, ALTURA);
   }
   GLfloat matriz[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
@@ -294,28 +294,28 @@ void Entidade::MontaMatriz(bool em_voo,
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto.achatado();
   if (matriz_shear == nullptr) {
-    glTranslated(pos.x(), pos.y(), em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
+    gl::Translada(pos.x(), pos.y(), em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
     if (achatar && !proto.has_info_textura()) {
       // Achata cone.
-      glScalef(1.0f, 1.0f, 0.1f);
+      gl::Escala(1.0f, 1.0f, 0.1f);
     }
   } else {
-    glTranslated(pos.x(), pos.y(), 0);
+    gl::Translada(pos.x(), pos.y(), 0);
     glMultMatrixf(matriz_shear);
-    glTranslated(0, 0, em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
+    gl::Translada(0, 0, em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
     if (achatar && !proto.has_info_textura()) {
       // Achata cone.
-      glScalef(1.0f, 1.0f, 0.1f);
+      gl::Escala(1.0f, 1.0f, 0.1f);
     }
   }
   // So roda entidades nao achatadas.
   if (vd.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
-    //glTranslated(0, -TAMANHO_LADO_QUADRADO_2, 0);
-    glRotatef(-vd.angulo_disco_queda_graus, 1.0, 0, 0);
+    //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
+    gl::Roda(-vd.angulo_disco_queda_graus, 1.0, 0, 0);
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
-  glScalef(multiplicador, multiplicador, multiplicador);
+  gl::Escala(multiplicador, multiplicador, multiplicador);
 }
 
 void Entidade::Desenha(ParametrosDesenho* pd) {
@@ -364,7 +364,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*em_voo*/, proto_, vd_, pd);
     MudaCor(proto_.cor());
-    glRotatef(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
   }
   // Desenha a barra de vida.
@@ -384,10 +384,10 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
-    glTranslatef(0.0f, 0.0f, ALTURA * 1.5f);
+    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
     {
       gl::MatrizEscopo salva_matriz;
-      glScalef(0.2, 0.2, 1.0f);
+      gl::Escala(0.2, 0.2, 1.0f);
       MudaCor(COR_VERMELHA);
       glutSolidCube(TAMANHO_BARRA_VIDA);
     }
@@ -395,8 +395,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
       float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
-      glTranslatef(0, 0, delta);
-      glScalef(0.3f, 0.3f, porcentagem);
+      gl::Translada(0, 0, delta);
+      gl::Escala(0.3f, 0.3f, porcentagem);
       glEnable(GL_POLYGON_OFFSET_FILL);
       glPolygonOffset(0, -25.0);
       MudaCor(COR_VERDE);
@@ -417,7 +417,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   gl::MatrizEscopo salva_matriz;
   MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
   // Um pouco acima do objeto e ao sul do objeto.
-  glTranslated(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+  gl::Translada(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
     LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
@@ -445,7 +445,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
     return;
   }
   gl::MatrizEscopo salva_matriz;
-  glTranslated(X(), Y(), Z() + DeltaVoo(vd_));
+  gl::Translada(X(), Y(), Z() + DeltaVoo(vd_));
   const auto& cor = proto_.cor();
   MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
   float ent_quadrados = MultiplicadorTamanho();

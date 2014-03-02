@@ -59,8 +59,8 @@ class AcaoSinalizacao : public Acao {
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     {
       gl::MatrizEscopo salva_matriz;
-      glTranslated(pos.x(), pos.y(), pos.z());
-      glScaled(estado_, estado_, 0.0f);
+      gl::Translada(pos.x(), pos.y(), pos.z());
+      gl::Escala(estado_, estado_, 0.0f);
       glBegin(GL_TRIANGLES);
       // Primeiro triangulo.
       glVertex2d(COS_30 * 0.3, SEN_30 * 0.2);
@@ -207,16 +207,16 @@ class AcaoDispersao : public Acao {
       ComputaVetorNormalizado(&vetor_direcao);
       ComputaMultiplicacaoEscalar(efeito_, vetor_direcao, &vetor_direcao);
       // Faz a translacao pra base do cone que eh a posicao da acao + o inverso do vetor de direcao.
-      glTranslatef(pos_acao.x() - vetor_direcao.x(), pos_acao.y() - vetor_direcao.y(), pos_tabuleiro.z() + z_acao);
+      gl::Translada(pos_acao.x() - vetor_direcao.x(), pos_acao.y() - vetor_direcao.y(), pos_tabuleiro.z() + z_acao);
       // Deixa o eixo X na direcao da base para a ponta (acao). Depois deita o cone, fazendo a ponta apontar para o eixo X+.
-      glRotatef(VetorParaRotacaoGraus(vetor_direcao.x(), vetor_direcao.y()), 0.0f, 0.0f, 1.0f);
-      glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+      gl::Roda(VetorParaRotacaoGraus(vetor_direcao.x(), vetor_direcao.y()), 0.0f, 0.0f, 1.0f);
+      gl::Roda(90.0f, 0.0f, 1.0f, 0.0f);
       // Escala o cone para o tamanho correto (vetor de direcao). Apesar de tecnicamente ser um cone, o efeito visual eh melhor
       // achatando-se o cone na vertical. Apos a ultima rotacao, o eixo X esta apontando para baixo.
-      glScalef(efeito_ * 0.2f, efeito_, efeito_);
+      gl::Escala(efeito_ * 0.2f, efeito_, efeito_);
     } else {
-      glTranslatef(pos_tabuleiro.x(), pos_tabuleiro.y(), pos_tabuleiro.z());
-      glScalef(efeito_, efeito_, efeito_);
+      gl::Translada(pos_tabuleiro.x(), pos_tabuleiro.y(), pos_tabuleiro.z());
+      gl::Escala(efeito_, efeito_, efeito_);
     }
     DesenhaGeometriaAcao(acao_proto_.geometria());
     glPopAttrib();
@@ -282,10 +282,10 @@ class AcaoProjetil : public Acao {
 
     gl::MatrizEscopo salva_matriz;
     MudaCorProto(acao_proto_.cor());
-    glTranslated(pos_.x(), pos_.y(), pos_.z());
+    gl::Translada(pos_.x(), pos_.y(), pos_.z());
     // Roda pro vetor de direcao.
-    glRotatef(VetorParaRotacaoGraus(dx_, dy_), 0, 0, 1.0f);
-    glScalef(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
+    gl::Roda(VetorParaRotacaoGraus(dx_, dy_), 0, 0, 1.0f);
+    gl::Escala(acao_proto_.escala().x(), acao_proto_.escala().y(), acao_proto_.escala().z());
     DesenhaGeometriaAcao(acao_proto_.has_geometria() ? acao_proto_.geometria() : ACAO_GEO_ESFERA);
     glPopAttrib();
   }
@@ -411,8 +411,8 @@ class AcaoRaio : public Acao {
     double dy = pos_d.y() - pos_o.y();
     double dz = pos_d.z() - pos_o.z();
     float tam;
-    glTranslatef(pos_o.x(), pos_o.y(), pos_o.z());
-    glRotatef(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
+    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
+    gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
     glBegin(GL_POLYGON);
     glVertex3f(0.0f, 0.2, 0.0f);
     glVertex3f(tam, 0.0f, dz);
@@ -473,9 +473,9 @@ class AcaoCorpoCorpo : public Acao {
     MudaCorProto(acao_proto_.cor());
     glPushAttrib(GL_POLYGON_BIT);
     glDisable(GL_CULL_FACE);
-    glTranslatef(pos_o.x(), pos_o.y(), pos_o.z());
-    glRotatef(direcao_graus_, 0.0f,  0.0f, 1.0f);
-    glRotatef(rotacao_graus_, 0.0f, 1.0f, 0.0f);
+    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
+    gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
+    gl::Roda(rotacao_graus_, 0.0f, 1.0f, 0.0f);
     glBegin(GL_POLYGON);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.2f, 0.0f, 0.0f);
@@ -556,10 +556,10 @@ class AcaoFeiticoToque : public Acao {
     MudaCorProto(acao_proto_.cor());
     glPushAttrib(GL_LIGHTING_BIT);
     glDisable(GL_LIGHTING);
-    glTranslatef(pos.x() + acao_proto_.translacao().x(),
-                 pos.y() + acao_proto_.translacao().y(),
-                 pos.z() + acao_proto_.translacao().z());
-    glScalef(acao_proto_.escala().x() * raio_, acao_proto_.escala().y() * raio_, acao_proto_.escala().z() * raio_);
+    gl::Translada(pos.x() + acao_proto_.translacao().x(),
+                  pos.y() + acao_proto_.translacao().y(),
+                  pos.z() + acao_proto_.translacao().z());
+    gl::Escala(acao_proto_.escala().x() * raio_, acao_proto_.escala().y() * raio_, acao_proto_.escala().z() * raio_);
     DesenhaGeometriaAcao(acao_proto_.geometria());
     glPopAttrib();
   }

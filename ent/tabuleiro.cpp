@@ -1103,8 +1103,8 @@ void Tabuleiro::DesenhaCena() {
       // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
       GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
       // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-      glRotatef(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-      glRotatef(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+      gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+      gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
       glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
     }
     // A cor da luz direcional.
@@ -1229,7 +1229,7 @@ void Tabuleiro::DesenhaCena() {
     glLoadIdentity();
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
-    glTranslated(0.0, altura_ - 15.0f, 0.0f);
+    gl::Translada(0.0, altura_ - 15.0f, 0.0f);
     DesenhaStringTempo(tempo_str);
   }
 }
@@ -1246,7 +1246,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   glNormal3f(0, 0, 1.0f);
-  glTranslatef(deltaX / 2.0f,
+  gl::Translada(deltaX / 2.0f,
                deltaY / 2.0f,
                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   if (parametros_desenho_.has_offset_terreno()) {
@@ -1263,11 +1263,11 @@ void Tabuleiro::DesenhaTabuleiro() {
       // desenha quadrado
       DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, id_textura != GL_INVALID_VALUE);
       // anda 1 quadrado direita
-      glTranslatef(TAMANHO_LADO_QUADRADO, 0, 0);
+      gl::Translada(TAMANHO_LADO_QUADRADO, 0, 0);
       ++id;
     }
     // volta tudo esquerda e sobe 1 quadrado
-    glTranslatef(deltaX, TAMANHO_LADO_QUADRADO, 0);
+    gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
   glDisable(GL_POLYGON_OFFSET_FILL);
   glDisable(GL_TEXTURE_2D);
@@ -2552,15 +2552,15 @@ void Tabuleiro::DesenhaListaPontosVida() {
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_LIGHTING);
     std::string titulo("Lista PV");
-    glTranslatef(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
+    gl::Translada(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
     MudaCor(COR_BRANCA);
     DesenhaString(titulo);
-    glTranslatef((titulo.size() - 3) * 8, 0.0f, 0.0f);
+    gl::Translada((titulo.size() - 3) * 8, 0.0f, 0.0f);
     for (int pv : lista_pontos_vida_) {
       MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
       char str[4];
       snprintf(str, 4, "%d", abs(pv));
-      glTranslatef(0.0f, -15.0f, 0.0f);
+      gl::Translada(0.0f, -15.0f, 0.0f);
       DesenhaString(str);
     }
   }
