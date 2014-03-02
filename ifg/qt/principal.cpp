@@ -11,13 +11,7 @@
 #include <QTextCodec>
 #include <QTimer>
 
-// Glut.
-#if __APPLE__
-#include <GLUT/glut.h>
-#else
-#include <GL/glut.h>
-#endif
-
+#include "gl/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/visualizador3d.h"

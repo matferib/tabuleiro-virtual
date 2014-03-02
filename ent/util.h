@@ -1,6 +1,8 @@
 #ifndef ENT_UTIL_H
 #define ENT_UTIL_H
 
+#include <vector>
+
 namespace google {
 namespace protobuf {
 template <class T> class RepeatedPtrField;
@@ -48,7 +50,7 @@ inline float ZChao(float x3d, float y3d) {
 }
 
 /** Desenha um disco no eixo x-y, com um determinado numero de faces. */
-void DesenhaDisco(GLfloat raio, int num_faces);
+void DesenhaDisco(float raio, int num_faces);
 
 /** Desenha uma linha 3d com a largura passada, passando pelos pontos. Em cada ponto, sera desenhado um disco para conectar. */
 void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura);
@@ -75,7 +77,7 @@ void ComputaVetorNormalizado(Posicao* pos);
 /* Multiplica a matriz openGL matriz pelo vetor. A matriz OpenGL tem formato col x linha (column major), portanto,
 * ao inves de multiplicar matriz (4x4) pelo vetor (4x1), fazemos a inversao: vetor (1x4) pela matriz (4x4).
 */
-void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor);
+void MultiplicaMatrizVetor(const float* matriz, float* vetor);
 
 }  // namespace ent
 

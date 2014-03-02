@@ -12,15 +12,6 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
@@ -28,6 +19,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
+#include "gl/gl.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 

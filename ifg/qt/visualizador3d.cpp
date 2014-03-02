@@ -13,13 +13,9 @@
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QString>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 
 #include "ent/tabuleiro.h"
+#include "gl/gl.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
