@@ -261,7 +261,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  glLoadIdentity();
+  gl::CarregaIdentidade();
   MontaMatriz(true  /*em_voo*/, proto_, vd_);
   if (!proto_.achatado()) {
     gl::Translada(0.0f, 0.0f, ALTURA);
@@ -301,7 +301,7 @@ void Entidade::MontaMatriz(bool em_voo,
     }
   } else {
     gl::Translada(pos.x(), pos.y(), 0);
-    glMultMatrixf(matriz_shear);
+    gl::MultiplicaMatriz(matriz_shear);
     gl::Translada(0, 0, em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
     if (achatar && !proto.has_info_textura()) {
       // Achata cone.
@@ -348,10 +348,10 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   glLoadName(Id());
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
-  glEnable(GL_NORMALIZE);
+  gl::Habilita(GL_NORMALIZE);
   DesenhaObjeto(pd);
   DesenhaDecoracoes(pd);
-  glDisable(GL_NORMALIZE);
+  gl::Desabilita(GL_NORMALIZE);
 }
 
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
@@ -371,15 +371,15 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_barra_vida()) {
 #if 0
     // Codigo para iluminar barra de vida.
-    glPushAttrib(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+    gl::AtributoEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
     // Luz no olho apontando para a barra.
     const Posicao& pos_olho = pd->pos_olho();
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
+    gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
     const auto& pos = proto_.pos();
     GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
-    glLightfv(GL_LIGHT0, GL_POSITION, pos_luz);
+    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
 #else
-    glPushAttrib(GL_ENABLE_BIT);
+    gl::AtributosEscopo salva_attributos(GL_ENABLE_BIT);
 #endif
 
     gl::MatrizEscopo salva_matriz;
@@ -397,12 +397,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
       gl::Translada(0, 0, delta);
       gl::Escala(0.3f, 0.3f, porcentagem);
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      glPolygonOffset(0, -25.0);
+      gl::Habilita(GL_POLYGON_OFFSET_FILL);
+      gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
       glutSolidCube(TAMANHO_BARRA_VIDA);
     }
-    glPopAttrib();
   }
 }
 
@@ -425,14 +424,14 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // Objeto de luz. O quarto componente indica que a luz é posicional.
     // Se for 0, a luz é direcional e os componentes indicam sua direção.
     GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
-    glLightfv(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
     const ent::Cor& cor = proto_.luz().cor();
     GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
-    glLightfv(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-    glLightf(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f);
-    //glLightf(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.53f);
-    glLightf(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
-    glEnable(GL_LIGHT0 + id_luz);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f);
+    //gl::Luz(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.53f);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
+    gl::Habilita(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }
 }
@@ -462,10 +461,10 @@ void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glPolygonOffset(-1.0f, -60.0f);
+  gl::Habilita(GL_POLYGON_OFFSET_FILL);
+  gl::DesvioProfundidade(-1.0f, -60.0f);
   DesenhaObjeto(pd, matriz_shear);
-  glDisable(GL_POLYGON_OFFSET_FILL);
+  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
 }
 
 float Entidade::MultiplicadorTamanho() const {
