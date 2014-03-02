@@ -48,6 +48,10 @@ class MatrizEscopo {
   GLenum modo_;
 };
 
+inline void Escala(float x, float y, float z) { glScalef(x, y, z); }
+inline void Translada(float x, float y, float z) { glTranslatef(x, y, z); }
+inline void Roda(float angulo_graus, float x, float y, float z) { glRotatef(angulo_graus, x, y, z); }
+
 }  // namespace gl
 
 

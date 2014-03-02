@@ -319,17 +319,24 @@ void Entidade::MontaMatriz(bool em_voo,
 }
 
 void Entidade::Desenha(ParametrosDesenho* pd) {
-  if (!proto_.visivel()) {
-    // Sera desenhado translucido para o mestre.
+  if (!proto_.visivel() || proto_.cor().a() < 1.0f) {
+    // Sera desenhado translucido.
     return;
   }
   DesenhaObjetoComDecoracoes(pd);
 }
 
 void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
-  if (proto_.visivel() || !pd->modo_mestre()) {
-    // Um pouco diferente, pois so desenha se for visivel.
-    return;
+  if (proto_.visivel()) {
+    // Visivel so eh desenhado aqui se a cor for transparente.
+    if (proto_.cor().a() == 1.0f) {
+      return;
+    }
+  } else {
+    // Invisivel, so desenha para o mestre independente da cor (sera translucido).
+    if (!pd->modo_mestre()) {
+      return;
+    }
   }
   DesenhaObjetoComDecoracoes(pd);
 }
