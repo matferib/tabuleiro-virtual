@@ -103,7 +103,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   glNormal3f(0.0f, 0.0f, 1.0f);
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
-    glPushMatrix();
+    gl::MatrizEscopo salva_matriz;
     glTranslatef(ponto.x(), ponto.y(), ponto.z());
     // Disco do ponto corrente.
     DesenhaDisco(largura / 2.0f, 12);
@@ -113,13 +113,11 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
     glRotatef(graus, 0.0f, 0.0f, 1.0f);
     glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
-    glPopMatrix();
   }
   const auto& ponto = *(pontos.end() - 1);
-  glPushMatrix();
+  gl::MatrizEscopo salva_matriz;
   glTranslatef(ponto.x(), ponto.y(), ponto.z());
   DesenhaDisco(largura / 2.0f, 12);
-  glPopMatrix();
 }
 
 }  // namespace
@@ -157,24 +155,23 @@ void DesenhaStencil(const float* cor) {
   glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
   // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
-  glMatrixMode(GL_PROJECTION);
-  glPushMatrix();
-  glLoadIdentity();
-  // Eixo com origem embaixo esquerda.
-  glOrtho(0, largura, 0, altura, 0, 1);
-  glMatrixMode(GL_MODELVIEW);
-  glPushMatrix();
-  glLoadIdentity();
-  if (cor != nullptr) {
-    MudaCorAlfa(cor);
+  {
+    gl::MatrizEscopo salva_projecao(GL_PROJECTION);
+    glLoadIdentity();
+    // Eixo com origem embaixo esquerda.
+    glOrtho(0, largura, 0, altura, 0, 1);
+    {
+      gl::MatrizEscopo salva_projecao(GL_MODELVIEW);
+      glLoadIdentity();
+      if (cor != nullptr) {
+        MudaCorAlfa(cor);
+      }
+      glDisable(GL_DEPTH_TEST);
+      glDepthMask(false);
+      // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
+      glRectf(0.0f, 0.0f, largura, altura);
+    }
   }
-  glDisable(GL_DEPTH_TEST);
-  glDepthMask(false);
-  // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
-  glRectf(0.0f, 0.0f, largura, altura);
-  glPopMatrix();
-  glMatrixMode(GL_PROJECTION);
-  glPopMatrix();
   // Restaura atributos antes do stencil.
   glPopAttrib();
   glMatrixMode(GL_MODELVIEW);
