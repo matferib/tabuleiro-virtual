@@ -55,6 +55,13 @@ class AtributosEscopo {
   ~AtributosEscopo() { glPopAttrib(); }
 };
 
+/** Empilha o nome no inicio do escopo e desempilha no final. */
+class NomesEscopo {
+ public:
+  NomesEscopo(GLuint nome) { glPushName(nome); }
+  ~NomesEscopo() { glPopName(); }
+};
+
 /** Funcoes gerais. */
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
@@ -64,6 +71,14 @@ inline void Desabilita(GLenum cap) { glDisable(cap); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
 inline void CarregaIdentidade() { glLoadIdentity(); }
 inline void MultiplicaMatriz(const GLfloat* matriz) { glMultMatrixf(matriz); }
+inline void ModoMatriz(GLenum modo) { glMatrixMode(modo); }
+inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
+inline void DesempilhaAtributo() { glPopAttrib(); }
+
+/** Funcoes de nomes. */
+inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
+inline void CarregaNome(GLuint nome) { glLoadName(nome); }
+inline void DesempilhaNome() { glPopName(); }
 
 /** Funcoes de escala, translacao e rotacao. */
 inline void Escala(GLfloat x, GLfloat y, GLfloat z) { glScalef(x, y, z); }

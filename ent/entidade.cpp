@@ -267,7 +267,7 @@ const Posicao Entidade::PosicaoAcao() const {
     gl::Translada(0.0f, 0.0f, ALTURA);
   }
   GLfloat matriz[16];
-  glGetFloatv(GL_MODELVIEW_MATRIX, matriz);
+  gl::Le(GL_MODELVIEW_MATRIX, matriz);
   VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
   VLOG(2) << "Matriz: " << matriz[4] << " " << matriz[5] << " " << matriz[6] << " " << matriz[7];
   VLOG(2) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
