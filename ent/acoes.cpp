@@ -1,21 +1,12 @@
 #include <algorithm>
 #include <cmath>
 
-#if __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glut.h>
-#endif
-
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
+#include "gl/gl.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"

@@ -1,17 +1,10 @@
 /** Implementacao dos varios tipos de desenho da classe Entidade. */
 
 #include <cmath>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GL/glut.h>
-#endif
-
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/util.h"
+#include "gl/gl.h"
 #include "log/log.h"
 
 namespace ent {

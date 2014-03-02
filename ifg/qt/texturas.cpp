@@ -2,18 +2,8 @@
 #include <QFileInfo>
 #include <QImageReader>
 #include <QImage>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#if WIN32
-#include <GL/glext.h>
-#else
-#include <GL/glu.h>
-#endif
-#endif
 #include "ent/entidade.h"
+#include "gl/gl.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/texturas.h"
 #include "log/log.h"

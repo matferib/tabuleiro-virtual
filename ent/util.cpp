@@ -1,14 +1,10 @@
 #include <algorithm>
 #include <cmath>
 #include <google/protobuf/repeated_field.h>
-#if __APPLE__
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
+#include "gl/gl.h"  // TODO remover e passar desenhos para para gl
 #include "log/log.h"
 
 namespace ent {
@@ -87,7 +83,7 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   return (y >= 0 ? angulo : -angulo);
 }
 
-void DesenhaDisco(GLfloat raio, int num_faces) {
+void DesenhaDisco(float raio, int num_faces) {
   glNormal3f(0.0f, 0.0f, 1.0f);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(0.0, 0.0, 0.0);
@@ -212,7 +208,7 @@ void ComputaVetorNormalizado(Posicao* pos) {
   pos->set_z(z / tam);
 }
 
-void MultiplicaMatrizVetor(const GLfloat* matriz, GLfloat* vetor) {
+void MultiplicaMatrizVetor(const float* matriz, float* vetor) {
   GLfloat res[4];
   for (int i = 0; i < 4; ++i) {
     res[i] = vetor[0] * matriz[i] +
