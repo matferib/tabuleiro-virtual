@@ -32,10 +32,10 @@
 
 namespace ent {
 
-extern const double SEN_60;
-extern const double SEN_30;
-extern const double COS_60;
-extern const double COS_30;
+extern const float SEN_60;
+extern const float SEN_30;
+extern const float COS_60;
+extern const float COS_30;
 extern const float COR_PRETA[];
 extern const float COR_BRANCA[];
 extern const float COR_VERMELHA[];

@@ -61,20 +61,27 @@ class AcaoSinalizacao : public Acao {
       gl::MatrizEscopo salva_matriz;
       gl::Translada(pos.x(), pos.y(), pos.z());
       gl::Escala(estado_, estado_, 0.0f);
-      glBegin(GL_TRIANGLES);
-      // Primeiro triangulo.
-      glVertex2d(COS_30 * 0.3, SEN_30 * 0.2);
-      glVertex2i(1, 0);
-      glVertex2d(COS_60, SEN_60);
-      // Segundo triangulo.
-      glVertex2d(-COS_30 * 0.3, SEN_30 * 0.2);
-      glVertex2d(-COS_60, SEN_60);
-      glVertex2i(-1, 0);
-      // Terceiro triangulo.
-      glVertex2d(0.0, -0.2);
-      glVertex2d(-COS_60, -SEN_60);
-      glVertex2d(COS_60, -SEN_60);
-      glEnd();
+      glEnableClientState(GL_VERTEX_ARRAY);
+      const float vertices[] = {
+        // Primeiro triangulo.
+        COS_30 * 0.3f, SEN_30 * 0.2f,
+        1.0f, 0.0f,
+        COS_60, SEN_60,
+        // Segundo triangulo.
+        -COS_30 * 0.3f, SEN_30 * 0.2f,
+        -COS_60, SEN_60,
+        -1.0f, 0.0f,
+        // Terceiro triangulo.
+        0.0f, -0.2f,
+        -COS_60, -SEN_60,
+        COS_60, -SEN_60
+      };
+      const unsigned int indices[] = {
+        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+      };
+      glVertexPointer(2, GL_FLOAT, 0, vertices);
+      glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, indices);
+      glDisableClientState(GL_VERTEX_ARRAY);
     }
 
     gl::Desabilita(GL_NORMALIZE);
