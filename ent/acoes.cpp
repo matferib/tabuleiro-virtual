@@ -61,7 +61,6 @@ class AcaoSinalizacao : public Acao {
       gl::MatrizEscopo salva_matriz;
       gl::Translada(pos.x(), pos.y(), pos.z());
       gl::Escala(estado_, estado_, 0.0f);
-      glEnableClientState(GL_VERTEX_ARRAY);
       const float vertices[] = {
         // Primeiro triangulo.
         COS_30 * 0.3f, SEN_30 * 0.2f,
@@ -76,11 +75,12 @@ class AcaoSinalizacao : public Acao {
         -COS_60, -SEN_60,
         COS_60, -SEN_60
       };
-      const unsigned int indices[] = {
+      const unsigned short indices[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
       };
+      glEnableClientState(GL_VERTEX_ARRAY);
       glVertexPointer(2, GL_FLOAT, 0, vertices);
-      glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, indices);
+      glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices);
       glDisableClientState(GL_VERTEX_ARRAY);
     }
 

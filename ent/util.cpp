@@ -85,13 +85,22 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 
 void DesenhaDisco(float raio, int num_faces) {
   gl::Normal(0.0f, 0.0f, 1.0f);
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex3f(0.0, 0.0, 0.0);
+  unsigned int num_vertices = 2 + (num_faces + 1) * 2;
+  float vertices[num_vertices];
+  unsigned short indices[num_vertices];
+  vertices[0] = vertices[1] = 0.0f;
   for (int i = 0; i <= num_faces; ++i) {
     float angulo = i * 2 * M_PI / num_faces;
-    glVertex3f(cosf(angulo) * raio, sinf(angulo) * raio, 0.0f);
+    vertices[2 + i * 2] = cosf(angulo) * raio;
+    vertices[2 + i * 2 + 1] = sinf(angulo) * raio;
   }
-  glEnd();
+  for (unsigned int i = 0; i < num_vertices; ++i) {
+    indices[i] = i;
+  }
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, vertices);
+  glDrawElements(GL_TRIANGLE_FAN, num_vertices, GL_UNSIGNED_SHORT, indices);
+  glDisableClientState(GL_VERTEX_ARRAY);
 }
 
 namespace {
