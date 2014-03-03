@@ -5,10 +5,10 @@
 
 namespace ent {
 
-const double SEN_60 = sin(M_PI / 3.0);
-const double SEN_30 = sin(M_PI / 6.0);
-const double COS_60 = cos(M_PI / 3.0);
-const double COS_30 = cos(M_PI / 6.0);
+const float SEN_60 = sinf(M_PI / 3.0f);
+const float SEN_30 = sinf(M_PI / 6.0f);
+const float COS_60 = cosf(M_PI / 3.0f);
+const float COS_30 = cosf(M_PI / 6.0f);
 
 const float COR_BRANCA[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 const float COR_PRETA[]    = { 0.0f, 0.0f, 0.0f, 1.0f };

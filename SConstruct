@@ -52,7 +52,7 @@ else:
   env['CXXFLAGS'] = ['-Wall', '-g', '-std=c++11']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
-usar_opengl_es = False
+usar_opengl_es = False 
 if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES'] += { 'USAR_OPENGL_ES': 1}
