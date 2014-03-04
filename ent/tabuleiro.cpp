@@ -1238,6 +1238,7 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
+  gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT | GL_LIGHTING_BIT);
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
@@ -1261,6 +1262,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   // TODO transformar offsets em constantes.
   gl::Habilita(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(2.0f, 20.0f);
+  glShadeModel(GL_FLAT);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado
@@ -2473,9 +2475,8 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
 
 void Tabuleiro::DesenhaQuadrado(
     unsigned int id, int linha, int coluna, bool selecionado, bool usar_textura) {
-  glLoadName(id);
+  gl::CarregaNome(id);
   if (!usar_textura) {
-    // desenha o quadrado negro embaixo.
     if (selecionado) {
       GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };
       MudaCor(cinza);
@@ -2483,42 +2484,42 @@ void Tabuleiro::DesenhaQuadrado(
       GLfloat cinza_claro[] = { 0.8f, 0.8f, 0.8f, 1.0f };
       MudaCor(cinza_claro);
     }
-    glRectf(0.0f, 0.0f, TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO);
   } else {
-    float tamanho_texel_h = 1.0f / TamanhoX();
-    float tamanho_texel_v = 1.0f / TamanhoY();
-    // desenha o quadrado branco.
     MudaCor(COR_BRANCA);
-    gl::MatrizEscopo salva_matriz;
-    glBegin(GL_QUADS);
-    // O quadrado eh desenhado EB, DB, DC, EC. A textura tem o eixo Y invertido.
-    float tamanho_y_linha = TamanhoY() - linha;
-    float coordenadas_texel[8] = {
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
-    };
-    if (!proto_.ladrilho()) {
-      coordenadas_texel[0] = coluna * tamanho_texel_h;
-      coordenadas_texel[1] = tamanho_y_linha * tamanho_texel_v;
-      coordenadas_texel[2] = (coluna + 1) * tamanho_texel_h;
-      coordenadas_texel[3] = tamanho_y_linha * tamanho_texel_v;
-      coordenadas_texel[4] = (coluna + 1) * tamanho_texel_h;
-      coordenadas_texel[5] = (tamanho_y_linha - 1) * tamanho_texel_v;
-      coordenadas_texel[6] = coluna * tamanho_texel_h;
-      coordenadas_texel[7] = (tamanho_y_linha - 1) * tamanho_texel_v;
-    }
-    glTexCoord2fv(coordenadas_texel);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glTexCoord2fv(coordenadas_texel + 2);
-    glVertex3f(TAMANHO_LADO_QUADRADO, 0.0f, 0.0f);
-    glTexCoord2fv(coordenadas_texel + 4);
-    glVertex3f(TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO, 0.0f);
-    glTexCoord2fv(coordenadas_texel + 6);
-    glVertex3f(0.0f, TAMANHO_LADO_QUADRADO, 0.0f);
-    glEnd();
   }
+
+  float tamanho_texel_h = 1.0f / TamanhoX();
+  float tamanho_texel_v = 1.0f / TamanhoY();
+  float tamanho_y_linha = TamanhoY() - linha;
+  const float vertices_texel_ladrilho[] = {
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+  };
+  const float vertices_texel_nao_ladrilho[] = {
+    coluna * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v,
+    (coluna + 1) * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v,
+    (coluna + 1) * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v,
+    coluna * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v,
+  };
+
+  const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, };
+  const float vertices[] = {
+    0.0f, 0.0f,
+    TAMANHO_LADO_QUADRADO, 0.0f,
+    TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO,
+    0.0f, TAMANHO_LADO_QUADRADO,
+  };
+  if (usar_textura) {
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  }
+  glEnableClientState(GL_VERTEX_ARRAY);
+  glVertexPointer(2, GL_FLOAT, 0, vertices);
+  glTexCoordPointer(2, GL_FLOAT, 0, proto_.ladrilho() ? vertices_texel_ladrilho : vertices_texel_nao_ladrilho);
+  glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+  glDisableClientState(GL_VERTEX_ARRAY);
+  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void Tabuleiro::DesenhaGrade() {
