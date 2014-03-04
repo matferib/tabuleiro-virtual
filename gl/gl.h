@@ -103,7 +103,7 @@ inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
 }
 #endif
 
-/** Funcoes de nomes. */
+/** Funcoes de nomes. OpenGL ES não suporta. */
 #if !USAR_OPENGL_ES
 inline void IniciaNomes() { glInitNames(); }
 inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
