@@ -95,6 +95,13 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
   glTexCoordPointer(vertices_por_coordenada, tipo, 0, vertices);
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
+#if USAR_OPENGL_ES
+inline void Retangulo(GLfloat x1, GLFloat y1, GLfloat x2, GLfloat y2);
+#else
+inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
+  glRectf(x1, y1, x2, y2);
+}
+#endif
 
 /** Funcoes de nomes. */
 #if !USAR_OPENGL_ES

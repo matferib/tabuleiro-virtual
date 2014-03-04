@@ -87,7 +87,7 @@ void DesenhaString(const std::string& s) {
 /** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
 void DesenhaStringTempo(const std::string& tempo) {
   MudaCor(COR_PRETA);
-  glRectf(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
+  gl::Retangulo(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
   MudaCor(COR_BRANCA);
   DesenhaString(tempo);
 }
@@ -1215,7 +1215,7 @@ void Tabuleiro::DesenhaCena() {
     gl::Habilita(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
-    glRectf(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
+    gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
     glDepthMask(true);
   }
 
@@ -2534,12 +2534,12 @@ void Tabuleiro::DesenhaGrade() {
   const int y_2 = TamanhoY() / 2;
   for (int i = -x_2; i <= x_2; ++i) {
     float x = i * TAMANHO_LADO_QUADRADO;
-    glRectf(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);
+    gl::Retangulo(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);
   }
   // Linhas horizontais (W-E).
   for (int i = -y_2; i <= y_2; ++i) {
     float y = i * TAMANHO_LADO_QUADRADO;
-    glRectf(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
+    gl::Retangulo(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
   }
 }
 

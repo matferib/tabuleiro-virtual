@@ -258,7 +258,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       float x = proto.escala().x() / 2.0f;
       float y = proto.escala().y() / 2.0f;
       gl::Normal(0.0f, 0.0f, 1.0f);
-      glRectf(-x, -y, x, y);
+      gl::Retangulo(-x, -y, x, y);
     }
     break;
     case TF_ESFERA: {
