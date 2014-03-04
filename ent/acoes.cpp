@@ -407,19 +407,23 @@ class AcaoRaio : public Acao {
     }
     MudaCorProto(acao_proto_.cor());
     gl::AtributosEscopo salva_atributos(GL_LIGHTING_BIT | GL_POLYGON_BIT);
-    gl::Desabilita(GL_CULL_FACE);
     gl::Desabilita(GL_LIGHTING);
-    double dx = pos_d.x() - pos_o.x();
-    double dy = pos_d.y() - pos_o.y();
-    double dz = pos_d.z() - pos_o.z();
+    float dx = pos_d.x() - pos_o.x();
+    float dy = pos_d.y() - pos_o.y();
+    float dz = pos_d.z() - pos_o.z();
     float tam;
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
     gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
-    glBegin(GL_POLYGON);
-    glVertex3f(0.0f, 0.2, 0.0f);
-    glVertex3f(tam, 0.0f, dz);
-    glVertex3f(0.0f, -0.2, 0.0f);
-    glEnd();
+    const float vertices[] = {
+      0.0f, -0.2, 0.0f,
+      tam, 0.0f, dz,
+      0.0f, 0.2, 0.0f,
+    };
+    const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
+    glDisableClientState(GL_VERTEX_ARRAY);
   }
 
   void AtualizaAposAtraso() {
@@ -477,11 +481,24 @@ class AcaoCorpoCorpo : public Acao {
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
     gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
     gl::Roda(rotacao_graus_, 0.0f, 1.0f, 0.0f);
+#if 0
     glBegin(GL_POLYGON);
     glVertex3f(0.0f, 0.0f, 0.0f);
     glVertex3f(0.2f, 0.0f, 0.0f);
     glVertex3f(0.0f, 0.0f, distancia_);
     glEnd();
+#else
+    const float vertices[] = {
+      0.0f, 0.0f, 0.0f,
+      0.2, 0.0f, 0.0f,
+      0.0f, 0.0f, distancia_,
+    };
+    const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
+    glDisableClientState(GL_VERTEX_ARRAY);
+#endif
   }
 
   void AtualizaAposAtraso() {
