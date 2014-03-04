@@ -121,7 +121,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     float tam;
     float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
     gl::Roda(graus, 0.0f, 0.0f, 1.0f);
-    glRectf(0, -largura / 2.0f, tam, largura / 2.0f);
+    gl::Retangulo(0, -largura / 2.0f, tam, largura / 2.0f);
   }
   const auto& ponto = *(pontos.end() - 1);
   gl::MatrizEscopo salva_matriz;
@@ -178,7 +178,7 @@ void DesenhaStencil(const float* cor) {
       gl::Desabilita(GL_DEPTH_TEST);
       glDepthMask(false);
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
-      glRectf(0.0f, 0.0f, largura, altura);
+      gl::Retangulo(0.0f, 0.0f, largura, altura);
     }
   }
   // Restaura atributos antes do stencil.
