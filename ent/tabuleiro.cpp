@@ -1238,7 +1238,7 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
-  gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT | GL_LIGHTING_BIT);
+  gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT);
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
@@ -1262,7 +1262,6 @@ void Tabuleiro::DesenhaTabuleiro() {
   // TODO transformar offsets em constantes.
   gl::Habilita(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(2.0f, 20.0f);
-  glShadeModel(GL_FLAT);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
       // desenha quadrado

@@ -129,23 +129,26 @@ void Entidade::DesenhaObjetoEntidadeProto(
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
     MudaCor(proto.morta() ? EscureceCor(c) : c);
-    glBegin(GL_QUADS);
-    // O openGL assume que o (0.0, 0.0) da textura eh embaixo,esquerda. O QT retorna os dados da
-    // imagem com origem em cima esquerda. Entao a gente mapeia a textura com o eixo vertical invertido.
-    // O quadrado eh desenhado EB, DB, DC, EC. A textura eh aplicada: EC, DC, DB, EB.
-    glTexCoord2f(0.0f, 1.0f);
-    glVertex3f(
-        -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
-    glTexCoord2f(1.0f, 1.0f);
-    glVertex3f(
-        TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2);
-    glTexCoord2f(1.0f, 0.0f);
-    glVertex3f(
-        TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
-    glTexCoord2f(0.0f, 0.0f);
-    glVertex3f(
-        -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2);
-    glEnd();
+    const unsigned short indices[] = { 0, 1, 2, 3 };
+    const float vertices[] = {
+      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
+      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
+      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
+      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
+    };
+    const float vertices_texel[] = {
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+      0.0f, 0.0f,
+    };
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, vertices_texel);
+    glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 }
@@ -168,7 +171,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
-      glShadeModel(GL_FLAT);
       gl::Habilita(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
@@ -201,7 +203,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     }
     break;
     case TF_PIRAMIDE: {
-      glShadeModel(GL_FLAT);
       gl::Habilita(GL_NORMALIZE);
       gl::Escala(proto.escala().x() / 2.0f, proto.escala().y() / 2.0f, proto.escala().z());
       const unsigned short indices[] = {
@@ -252,7 +253,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
-      glShadeModel(GL_FLAT);
       gl::Habilita(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       float x = proto.escala().x() / 2.0f;
@@ -272,7 +272,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
-      glShadeModel(GL_FLAT);
       if (transparencias) {
         LigaStencil();
       } else {
