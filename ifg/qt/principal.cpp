@@ -40,7 +40,7 @@ Principal::Principal(Texturas* texturas,
                      ntf::CentralNotificacoes* central,
                      QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
-      tabuleiro_(texturas, central), menu_principal_(new MenuPrincipal(&tabuleiro_, central, this)), 
+      tabuleiro_(texturas, central), menu_principal_(new MenuPrincipal(&tabuleiro_, central, this)),
       v3d_(new Visualizador3d(central, &tabuleiro_, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));

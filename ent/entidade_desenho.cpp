@@ -142,13 +142,13 @@ void Entidade::DesenhaObjetoEntidadeProto(
       1.0f, 0.0f,
       0.0f, 0.0f,
     };
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+    gl::PonteiroVertices(3, GL_FLOAT, vertices);
     glTexCoordPointer(2, GL_FLOAT, 0, vertices_texel);
-    glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+    gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 }
@@ -240,13 +240,13 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
         -1.0f, 1.0f, 0.0f,
         -1.0f, -1.0f, 0.0f,
       };
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glEnableClientState(GL_NORMAL_ARRAY);
-      glNormalPointer(GL_FLOAT, 0, normais);
-      glVertexPointer(3, GL_FLOAT, 0, vertices);
-      glDrawElements(GL_TRIANGLE_FAN, 9, GL_UNSIGNED_SHORT, indices);
-      glDisableClientState(GL_NORMAL_ARRAY);
-      glDisableClientState(GL_VERTEX_ARRAY);
+      gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+      gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+      gl::PonteiroNormais(GL_FLOAT, normais);
+      gl::PonteiroVertices(3, GL_FLOAT, vertices);
+      gl::DesenhaElementos(GL_TRIANGLE_FAN, 9, GL_UNSIGNED_SHORT, indices);
+      gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+      gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     }
     break;
     case TF_RETANGULO: {

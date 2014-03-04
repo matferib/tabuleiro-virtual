@@ -97,10 +97,10 @@ void DesenhaDisco(float raio, int num_faces) {
   for (unsigned int i = 0; i < num_vertices; ++i) {
     indices[i] = i;
   }
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(2, GL_FLOAT, 0, vertices);
-  glDrawElements(GL_TRIANGLE_FAN, num_vertices / 2, GL_UNSIGNED_SHORT, indices);
-  glDisableClientState(GL_VERTEX_ARRAY);
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::PonteiroVertices(2, GL_FLOAT, vertices);
+  gl::DesenhaElementos(GL_TRIANGLE_FAN, num_vertices / 2, GL_UNSIGNED_SHORT, indices);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 namespace {
