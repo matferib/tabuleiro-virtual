@@ -75,6 +75,8 @@ inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_param
 #endif
 inline void Habilita(GLenum cap) { glEnable(cap); }
 inline void Desabilita(GLenum cap) { glDisable(cap); }
+inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
+inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
 inline void CarregaIdentidade() { glLoadIdentity(); }
 inline void MultiplicaMatriz(const GLfloat* matriz) { glMultMatrixf(matriz); }
@@ -82,11 +84,25 @@ inline void ModoMatriz(GLenum modo) { glMatrixMode(modo); }
 inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
 
+/** Desenha elementos e afins. */
+inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
+  glDrawElements(modo, num_vertices, tipo, indices);
+}
+inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
+  glVertexPointer(vertices_por_coordenada, tipo, 0, vertices);
+}
+inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
+  glTexCoordPointer(vertices_por_coordenada, tipo, 0, vertices);
+}
+inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
+
 /** Funcoes de nomes. */
-inline void IniciaNomes() { /*glInitNames();*/ }
+#if !USAR_OPENGL_ES
+inline void IniciaNomes() { glInitNames(); }
 inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
 inline void CarregaNome(GLuint nome) { glLoadName(nome); }
 inline void DesempilhaNome() { glPopName(); }
+#endif
 
 /** Funcoes de escala, translacao e rotacao. */
 inline void Escala(GLfloat x, GLfloat y, GLfloat z) { glScalef(x, y, z); }

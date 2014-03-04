@@ -630,7 +630,11 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::TrataRodela(int delta) {
-  if (estado_ == ETAB_ENTS_PRESSIONADAS) {
+  if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
+    if (estado_ == ETAB_ENTS_PRESSIONADAS) {
+      FinalizaEstadoCorrente();
+      estado_ = ETAB_ENTS_ESCALA;
+    }
     ntf::Notificacao grupo_notificacoes;
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (unsigned int id : ids_entidades_selecionadas_) {
@@ -2511,14 +2515,14 @@ void Tabuleiro::DesenhaQuadrado(
     0.0f, TAMANHO_LADO_QUADRADO,
   };
   if (usar_textura) {
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
   }
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glVertexPointer(2, GL_FLOAT, 0, vertices);
-  glTexCoordPointer(2, GL_FLOAT, 0, proto_.ladrilho() ? vertices_texel_ladrilho : vertices_texel_nao_ladrilho);
-  glDrawElements(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-  glDisableClientState(GL_VERTEX_ARRAY);
-  glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::PonteiroVertices(2, GL_FLOAT, vertices);
+  gl::PonteiroVerticesTexturas(2, GL_FLOAT, proto_.ladrilho() ? vertices_texel_ladrilho : vertices_texel_nao_ladrilho);
+  gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 
 void Tabuleiro::DesenhaGrade() {

@@ -78,10 +78,10 @@ class AcaoSinalizacao : public Acao {
       const unsigned short indices[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
       };
-      glEnableClientState(GL_VERTEX_ARRAY);
-      glVertexPointer(2, GL_FLOAT, 0, vertices);
-      glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices);
-      glDisableClientState(GL_VERTEX_ARRAY);
+      gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+      gl::PonteiroVertices(2, GL_FLOAT, vertices);
+      gl::DesenhaElementos(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices);
+      gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     }
 
     gl::Desabilita(GL_NORMALIZE);
@@ -420,10 +420,10 @@ class AcaoRaio : public Acao {
       0.0f, 0.2, 0.0f,
     };
     const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+    gl::PonteiroVertices(3, GL_FLOAT, vertices);
+    gl::DesenhaElementos(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
+    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   }
 
   void AtualizaAposAtraso() {
@@ -494,10 +494,10 @@ class AcaoCorpoCorpo : public Acao {
       0.0f, 0.0f, distancia_,
     };
     const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, vertices);
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+    gl::PonteiroVertices(3, GL_FLOAT, vertices);
+    gl::DesenhaElementos(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
+    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #endif
   }
 
