@@ -34,7 +34,7 @@ const double CAMPO_VERTICAL = 60.0;
 /** altura inicial do olho. */
 const double OLHO_ALTURA_INICIAL = 10.0;
 /** altura maxima do olho. */
-const double OLHO_ALTURA_MAXIMA = 15;
+const double OLHO_ALTURA_MAXIMA = 45.0;
 /** altura minima do olho. */
 const double OLHO_ALTURA_MINIMA = 1.5;
 

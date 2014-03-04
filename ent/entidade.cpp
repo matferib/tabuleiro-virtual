@@ -292,7 +292,7 @@ void Entidade::MontaMatriz(bool em_voo,
                            const ParametrosDesenho* pd,
                            const float* matriz_shear) {
   const auto& pos = proto.pos();
-  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto.achatado();
+  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima());
   if (matriz_shear == nullptr) {
     gl::Translada(pos.x(), pos.y(), em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
     if (achatar && !proto.has_info_textura()) {
@@ -413,8 +413,14 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     return;
   }
 
+  bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
   gl::MatrizEscopo salva_matriz;
-  MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
+  if (achatado) {
+    // So translada para a posicao do objeto.
+    gl::Translada(X(), Y(), Z());
+  } else {
+    MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
+  }
   // Um pouco acima do objeto e ao sul do objeto.
   gl::Translada(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
   int id_luz = pd->luz_corrente();
