@@ -10,13 +10,13 @@
 namespace ent {
 
 void MudaCor(const float* cor) {
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor3fv(cor);
+  float cor_rgba[4] = { cor[0], cor[1], cor[2], 1.0f };
+  MudaCorAlfa(cor_rgba);
 }
 
 void MudaCorAlfa(const float* cor) {
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor4fv(cor);
+  glColor4f(cor[0], cor[1], cor[2], cor[3]);
 }
 
 void MudaCor(float r, float g, float b, float a) {
@@ -140,8 +140,6 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 }
 
 void LigaStencil() {
-  gl::EmpilhaAtributo(GL_ENABLE_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  gl::Habilita(GL_BLEND);
   gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
   glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
   glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
@@ -168,21 +166,26 @@ void DesenhaStencil(const float* cor) {
     gl::MatrizEscopo salva_projecao(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
-    glOrtho(0, largura, 0, altura, 0, 1);
+    gl::Ortogonal(0, largura, 0, altura, 0, 1);
     {
       gl::MatrizEscopo salva_projecao(GL_MODELVIEW);
       gl::CarregaIdentidade();
       if (cor != nullptr) {
         MudaCorAlfa(cor);
+        if (cor[3] < 1.0f) {
+          gl::Habilita(GL_BLEND);
+        }
       }
-      gl::Desabilita(GL_DEPTH_TEST);
+      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       glDepthMask(false);
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
       gl::Retangulo(0.0f, 0.0f, largura, altura);
+      glDepthMask(true);
     }
   }
   // Restaura atributos antes do stencil.
-  gl::DesempilhaAtributo();
+  gl::Desabilita(GL_STENCIL_TEST);
+  gl::Desabilita(GL_BLEND);
   gl::ModoMatriz(GL_MODELVIEW);
 }
 

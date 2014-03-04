@@ -17,13 +17,13 @@
 #include "ent/tabuleiro.h"
 #include "gl/gl.h"
 #include "ifg/qt/constantes.h"
+#include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
-#include "ifg/qt/visualizador3d.h"
-#include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/ui/forma.h"
 #include "ifg/qt/ui/iluminacao.h"
 #include "ifg/qt/ui/opcoes.h"
+#include "ifg/qt/visualizador3d.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 
@@ -836,6 +836,5 @@ void Visualizador3d::MudaEstado(estado_e novo_estado) {
   VLOG(2) << "Mudando para estado: " << novo_estado;
   estado_ = novo_estado;
 }
-
 }  // namespace qt
 }  // namespace ifg

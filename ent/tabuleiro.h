@@ -295,10 +295,10 @@ class Tabuleiro : public ntf::Receptor {
   * Chama BuscaHitMaisProximo para obter a profundidade entao faz a projecao para aquele ponto, chamando
   * MousePara3d.
   */
-  bool MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d);
+  bool MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d);
 
   /** Dada uma profundidade, faz a projecao inversa (2d para 3d). */
-  bool MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d);
+  bool MousePara3d(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d);
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();

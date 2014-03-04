@@ -47,14 +47,12 @@ class AcaoSinalizacao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
-    gl::AtributosEscopo salva_atributos(GL_LIGHTING_BIT);
-    gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
-
-    gl::Habilita(GL_POLYGON_OFFSET_FILL);
-    gl::Habilita(GL_NORMALIZE);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+    gl::HabilitaEscopo normalizacao_escopo(GL_NORMALIZE);
     gl::Normal(0, 0, 1.0f);
-    MudaCor(COR_BRANCA);
+    gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(-3.0, -30.0f);
+    MudaCor(COR_BRANCA);
 
     const Posicao& pos = acao_proto_.pos_tabuleiro();
     {
@@ -83,9 +81,6 @@ class AcaoSinalizacao : public Acao {
       gl::DesenhaElementos(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices);
       gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     }
-
-    gl::Desabilita(GL_NORMALIZE);
-    gl::Desabilita(GL_POLYGON_OFFSET_FILL);
   }
 
   void AtualizaAposAtraso() {
@@ -142,8 +137,7 @@ class AcaoDeltaPontosVida : public Acao {
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
     gl::MatrizEscopo salva_matriz;
-    gl::AtributosEscopo salva_atributos(GL_LIGHTING_BIT);
-    gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     if (acao_proto_.delta_pontos_vida() > 0) {
       MudaCor(COR_VERDE);
     } else if (acao_proto_.delta_pontos_vida() == 0) {
@@ -191,8 +185,7 @@ class AcaoDispersao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
-    gl::AtributosEscopo salva_atributos(GL_LIGHTING_BIT);
-    gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, COR_BRANCA);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     MudaCorProto(acao_proto_.cor());
     gl::MatrizEscopo salva_matriz;
     const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
@@ -276,12 +269,16 @@ class AcaoProjetil : public Acao {
       return;
     }
     // TODO desenha impacto.
-    gl::AtributosEscopo salva_atributos(GL_LIGHTING_BIT);
+#if !USAR_OPENGL_ES
+    gl::AtributosEscopo salva_atributos(gl::BIT_LUZ);
     // Luz da camera apontando para a bola.
     const Posicao& pos_olho = pd->pos_olho();
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
     GLfloat pos_luz[] = { pos_olho.x() - pos_.x(), pos_olho.y() - pos_.y(), pos_olho.z() - pos_.z(), 0.0f };
     gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+#else
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+#endif
 
     gl::MatrizEscopo salva_matriz;
     MudaCorProto(acao_proto_.cor());
@@ -406,8 +403,7 @@ class AcaoRaio : public Acao {
       pos_d.set_z(pos_o.z());
     }
     MudaCorProto(acao_proto_.cor());
-    gl::AtributosEscopo salva_atributos(GL_LIGHTING_BIT | GL_POLYGON_BIT);
-    gl::Desabilita(GL_LIGHTING);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     float dx = pos_d.x() - pos_o.x();
     float dy = pos_d.y() - pos_o.y();
     float dz = pos_d.z() - pos_o.z();
@@ -476,8 +472,7 @@ class AcaoCorpoCorpo : public Acao {
     }
     const Posicao& pos_o = eo->PosicaoAcao();
     MudaCorProto(acao_proto_.cor());
-    gl::AtributosEscopo salva_atributos(GL_POLYGON_BIT);
-    gl::Desabilita(GL_CULL_FACE);
+    gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
     gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
     gl::Roda(rotacao_graus_, 0.0f, 1.0f, 0.0f);
@@ -571,8 +566,7 @@ class AcaoFeiticoToque : public Acao {
     }
     const Posicao& pos = e->PosicaoAcao();
     MudaCorProto(acao_proto_.cor());
-    gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT);
-    gl::Desabilita(GL_LIGHTING);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::Translada(pos.x() + acao_proto_.translacao().x(),
                   pos.y() + acao_proto_.translacao().y(),
                   pos.z() + acao_proto_.translacao().z());

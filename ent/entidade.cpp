@@ -378,8 +378,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     const auto& pos = proto_.pos();
     GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
     gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
-#else
-    gl::AtributosEscopo salva_attributos(GL_ENABLE_BIT);
 #endif
 
     gl::MatrizEscopo salva_matriz;
@@ -397,7 +395,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
       gl::Translada(0, 0, delta);
       gl::Escala(0.3f, 0.3f, porcentagem);
-      gl::Habilita(GL_POLYGON_OFFSET_FILL);
+      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);

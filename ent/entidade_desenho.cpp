@@ -1,6 +1,7 @@
 /** Implementacao dos varios tipos de desenho da classe Entidade. */
 
 #include <cmath>
+#include <memory>
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/util.h"
@@ -154,12 +155,19 @@ void Entidade::DesenhaObjetoEntidadeProto(
 }
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
-  AjustaCor(proto, pd);
-  gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT | GL_LIGHTING_BIT);
   bool transparencias = pd->transparencias() && ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
+  AjustaCor(proto, pd);
+#if !USAR_OPENGL_ES
+  gl::AtributosEscopo salva_atributos(gl::BIT_HABILITAR);
   if (transparencias) {
     gl::Habilita(GL_BLEND);
   }
+#else
+  std::unique_ptr<gl::HabilitaEscopo> habilita_blend;
+  if (transparencias) {
+    habilita_blend.reset(new gl::HabilitaEscopo(GL_BLEND));
+  }
+#endif
   gl::MatrizEscopo salva_matriz;
   if (matriz_shear != nullptr) {
     gl::MultiplicaMatriz(matriz_shear);
@@ -171,33 +179,33 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
-      gl::Habilita(GL_POLYGON_OFFSET_FILL);
+      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
       DesenhaDisco(0.5f, 12);
     }
     break;
     case TF_CILINDRO: {
-      gl::Habilita(GL_NORMALIZE);
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gl::CilindroSolido(0.5f  /*radius_base*/, 0.5f  /*radius_top*/, 1.0f  /*height*/, 20  /*slices*/, 20  /*stacks*/);
     }
     break;
     case TF_CONE: {
-      gl::Habilita(GL_NORMALIZE);
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gl::ConeSolido(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
     }
     break;
     case TF_CUBO: {
-      gl::Habilita(GL_NORMALIZE);
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Translada(0, 0, proto.escala().z() / 2.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gl::CuboSolido(1.0f);
     }
     break;
     case TF_PIRAMIDE: {
-      gl::Habilita(GL_NORMALIZE);
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x() / 2.0f, proto.escala().y() / 2.0f, proto.escala().z());
       const unsigned short indices[] = {
           0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
@@ -247,7 +255,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
-      gl::Habilita(GL_POLYGON_OFFSET_FILL);
+      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       float x = proto.escala().x() / 2.0f;
       float y = proto.escala().y() / 2.0f;
@@ -257,7 +265,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     break;
     case TF_ESFERA: {
       // Usar x como base para achatamento.
-      gl::Habilita(GL_NORMALIZE);
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gl::EsferaSolida(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
     }
@@ -266,11 +274,12 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
+      std::unique_ptr<gl::HabilitaEscopo> offset_escopo;
       if (transparencias) {
         LigaStencil();
       } else {
         // Com stencil nao pode usar o offset, pois ele se aplicara ao retangulo da tela toda.
-        gl::Habilita(GL_POLYGON_OFFSET_FILL);
+        offset_escopo.reset(new gl::HabilitaEscopo(GL_POLYGON_OFFSET_FILL));
         gl::DesvioProfundidade(-1.0, -40.0f);
       }
       DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z());
