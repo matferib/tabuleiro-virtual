@@ -13,17 +13,12 @@
 #elif USAR_OPENGL_ES
 #include <GLES/gl.h>
 #include <GLES/glext.h>
-#include <GLES/egl.h>
+//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
 #include <GLES/glplatform.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#endif
-
-#if USAR_OPENGL_ES
-// OpenGL ES nao tem double.
-typedef GLfloat GLdouble;
 #endif
 
 namespace gl {
@@ -58,41 +53,49 @@ class MatrizEscopo {
   GLenum modo_;
 };
 
-#if USAR_OPENGL_ES
+/** Habilita uma caracteristica pelo escopo. Ver glEnable. */
+class HabilitaEscopo {
+ public:
+  HabilitaEscopo(GLenum cap) : cap_(cap) { glEnable(cap_); }
+  ~HabilitaEscopo() { glDisable(cap_); }
+ private:
+  GLenum cap_;
+};
+
+/** Desabilita uma caracteristica pelo escopo. Ver glDisable. */
+class DesabilitaEscopo {
+ public:
+  DesabilitaEscopo(GLenum cap) : cap_(cap) { glDisable(cap_); }
+  ~DesabilitaEscopo() { glEnable(cap_); }
+ private:
+  GLenum cap_;
+};
+
+class ModeloLuzEscopo {
+ public:
+  ModeloLuzEscopo(const GLfloat* luz) { glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes); glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz); }
+  ~ModeloLuzEscopo() { glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes); }
+ private:
+  GLfloat luz_antes[4];
+};
+
+#if !USAR_OPENGL_ES
 /* glPush/PopAttrib bits */
-#define GL_CURRENT_BIT				0x00000001
-#define GL_POINT_BIT				0x00000002
-#define GL_LINE_BIT				0x00000004
-#define GL_POLYGON_BIT				0x00000008
-#define GL_POLYGON_STIPPLE_BIT			0x00000010
-#define GL_PIXEL_MODE_BIT			0x00000020
-#define GL_LIGHTING_BIT				0x00000040
-#define GL_FOG_BIT				0x00000080
-#define GL_DEPTH_BUFFER_BIT			0x00000100
-#define GL_ACCUM_BUFFER_BIT			0x00000200
-#define GL_STENCIL_BUFFER_BIT			0x00000400
-#define GL_VIEWPORT_BIT				0x00000800
-#define GL_TRANSFORM_BIT			0x00001000
-#define GL_ENABLE_BIT				0x00002000
-#define GL_COLOR_BUFFER_BIT			0x00004000
-#define GL_HINT_BIT				0x00008000
-#define GL_EVAL_BIT				0x00010000
-#define GL_LIST_BIT				0x00020000
-#define GL_TEXTURE_BIT				0x00040000
-#define GL_SCISSOR_BIT				0x00080000
-#define GL_ALL_ATTRIB_BITS			0x000FFFFF
-#endif
+enum bits_atributos_e {
+  BIT_POLIGONO = GL_POLYGON_BIT,
+  BIT_LUZ = GL_LIGHTING_BIT,
+  BIT_PROFUNDIDADE = GL_DEPTH_BUFFER_BIT,
+  BIT_STENCIL = GL_STENCIL_BUFFER_BIT,
+  BIT_HABILITAR = GL_ENABLE_BIT,
+  BIT_COR = GL_COLOR_BUFFER_BIT,
+};
 /** Salva os atributos durante o escopo da variavel, restaurando no fim. */
 class AtributosEscopo {
  public:
-#if !USAR_OPENGL_ES
-  AtributosEscopo(GLbitfield mascara) { glPushAttrib(mascara); }
+  AtributosEscopo(unsigned int mascara) { glPushAttrib(mascara); }
   ~AtributosEscopo() { glPopAttrib(); }
-#else
-  AtributosEscopo(GLbitfield mascara) { /* TODO */ }
-  ~AtributosEscopo() { /* TODO */ }
-#endif
 };
+#endif
 
 /** Empilha o nome no inicio do escopo e desempilha no final. */
 class NomesEscopo {
@@ -124,8 +127,6 @@ inline void ModoMatriz(GLenum modo) { glMatrixMode(modo); }
 inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
 #else
-inline void EmpilhaAtributo(GLbitfield mascara) { /* TODO */ }
-inline void DesempilhaAtributo() { /* TODO */ }
 #endif
 
 /** Desenha elementos e afins. */
@@ -190,7 +191,7 @@ inline void PosicaoRaster(GLint x, GLint y) { /* TODO */ }
 inline void DesenhaCaractere(char c) { /* TODO */ }
 #endif
 
-/** Matriz de olho e perspectiva. */
+/** Matriz de olho e perspectiva e picking. */
 #if !USAR_OPENGL_ES
 inline void Perspectiva(GLdouble angulo_y, GLdouble aspecto, GLdouble z_perto, GLdouble z_longe) {
   gluPerspective(angulo_y, aspecto, z_perto, z_longe);
@@ -205,20 +206,45 @@ inline void Ortogonal(GLdouble esquerda, GLdouble direita, GLdouble baixo, GLdou
 }
 inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
                         const GLdouble* model, const GLdouble* proj, const GLint* view,
-                        GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
-  return gluUnProject(x_janela, y_janela, profundidade_3d, model, proj, view, x3d, y3d, z3d);
+                        GLfloat* x3d, GLfloat* y3d, GLfloat* z3d) {
+  double x3dd, y3dd, z3dd;
+  GLint ret = gluUnProject(x_janela, y_janela, profundidade_3d, model, proj, view, &x3dd, &y3dd, &z3dd);
+  *x3d = x3dd; *y3d = y3dd; *z3d = z3dd;
+  return ret;
+}
+inline void MatrizPicking(GLdouble x, GLdouble y, GLdouble delta_x, GLdouble delta_y, GLint *viewport) {
+  gluPickMatrix(x, y, delta_x, delta_y, viewport);
 }
 #else
-void Perspectiva(GLdouble angulo_y, GLdouble aspecto, GLdouble z_perto, GLdouble z_longe);
-void OlharPara(GLdouble olho_x, GLdouble olho_y, GLdouble olho_z,
-               GLdouble centro_x, GLdouble centro_y, GLdouble centro_z,
-               GLdouble cima_x, GLdouble cima_y, GLdouble cima_z);
-inline void Ortogonal(GLdouble esquerda, GLdouble direita, GLdouble baixo, GLdouble cima, GLdouble proximo, GLdouble distante) {
+void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
+void OlharPara(float olho_x, float olho_y, float olho_z,
+               float centro_x, float centro_y, float centro_z,
+               float cima_x, float cima_y, float cima_z);
+inline void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
   glOrthof(esquerda, direita, baixo, cima, proximo, distante);
 }
-GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
-                 const GLdouble* model, const GLdouble* proj, const GLint* view,
-                 GLdouble* x3d, GLdouble* y3d, GLdouble* z3d);
+GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
+                 const float* model, const float* proj, const GLint* view,
+                 GLfloat* x3d, float* y3d, float* z3d);
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport);
+#endif
+
+/** Picking. */
+#if !USAR_OPENGL_ES
+enum modo_renderizacao_e {
+  MR_RENDER = GL_RENDER,
+  MR_SELECT = GL_SELECT
+};
+inline GLint ModoRenderizacao(modo_renderizacao_e modo) { return glRenderMode(modo); }
+inline void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) { glSelectBuffer(tam_buffer, buffer); }
+#else
+enum modo_renderizacao_e {
+  MR_RENDER = 0x1C00,
+  MR_SELECT = 0x1C02
+};
+/* Render Mode */
+GLint ModoRenderizacao(modo_renderizacao_e modo);
+void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
 #endif
 
 }  // namespace gl

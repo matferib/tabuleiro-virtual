@@ -20,7 +20,11 @@ int FormatoImagem(const QImage& imagem) {
     // ffRRGGBB: retorna invertido para inverter no tipo ja que nao tem um GL_ARGB.
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32:
+#if !USAR_OPENGL_ES
       return GL_BGRA;
+#else
+      // TODO
+#endif
     default:
       LOG(WARNING) << "Formato nao reconhecido: '" << imagem.format() << "'";
       return -1;
@@ -33,7 +37,11 @@ int TipoImagem(const QImage& imagem) {
     // O formato foi BGRA que invertido da ARGB.
     case QImage::Format_RGB32:
     case QImage::Format_ARGB32:
+#if !USAR_OPENGL_ES
       return GL_UNSIGNED_INT_8_8_8_8_REV;
+#else
+      // TODO
+#endif
     default:
       return -1;
   }

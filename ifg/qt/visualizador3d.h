@@ -1,8 +1,7 @@
 #ifndef IFG_QT_VISUALIZADOR3D_H
 #define IFG_QT_VISUALIZADOR3D_H
 
-#include <list>
-#include <qgl.h>
+#include <QGLWidget>
 #include <list>
 #include "ntf/notificacao.h"
 

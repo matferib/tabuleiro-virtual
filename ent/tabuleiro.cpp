@@ -744,7 +744,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
-      double nx, ny, nz;
+      float nx, ny, nz;
       if (!MousePara3d(x, y, &nx, &ny, &nz)) {
         return;
       }
@@ -785,7 +785,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_DESLIZANDO: {
       // Faz picking do tabuleiro sem entidades.
       parametros_desenho_.set_desenha_entidades(false);
-      double nx, ny, nz;
+      float nx, ny, nz;
       if (!MousePara3d(x, y, &nx, &ny, &nz)) {
         return;
       }
@@ -806,7 +806,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_QUAD_PRESSIONADO:
     case ETAB_SELECIONANDO_ENTIDADES: {
       quadrado_selecionado_ = -1;
-      double x3d, y3d, z3d;
+      float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
       if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
@@ -829,7 +829,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_DESENHANDO: {
-      double x3d, y3d, z3d;
+      float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
       if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
@@ -903,7 +903,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     pos_quadrado->set_y(y);
     pos_quadrado->set_z(z);
     // Posicao exata do clique.
-    double x3d, y3d, z3d;
+    float x3d, y3d, z3d;
     if (MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d)) {
       auto* pos_tabuleiro = acao_proto.mutable_pos_tabuleiro();
       pos_tabuleiro->set_x(x3d);
@@ -1198,7 +1198,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaEntidadesTranslucidas();
   }
 
-  if (parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
+  if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     LigaStencil();
     DesenhaRastros();
     DesenhaStencil(COR_AZUL_ALFA);
@@ -1210,10 +1210,9 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     glDepthMask(false);
-    gl::AtributosEscopo salva_atributos(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
-    gl::Desabilita(GL_CULL_FACE);
-    gl::Habilita(GL_BLEND);
-    gl::Habilita(GL_POLYGON_OFFSET_FILL);
+    gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
@@ -1243,11 +1242,11 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
-  gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT);
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
+  std::unique_ptr<gl::HabilitaEscopo> habilita_textura;
   if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
+    habilita_textura.reset(new gl::HabilitaEscopo(GL_TEXTURE_2D));
     glBindTexture(GL_TEXTURE_2D, id_textura);
   }
 
@@ -1265,7 +1264,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   int id = 0;
   // Desenha o chao mais pro fundo.
   // TODO transformar offsets em constantes.
-  gl::Habilita(GL_POLYGON_OFFSET_FILL);
+  gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(2.0f, 20.0f);
   for (int y = 0; y < TamanhoY(); ++y) {
     for (int x = 0; x < TamanhoX(); ++x) {
@@ -1278,8 +1277,6 @@ void Tabuleiro::DesenhaTabuleiro() {
     // volta tudo esquerda e sobe 1 quadrado
     gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
-  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
-  gl::Desabilita(GL_TEXTURE_2D);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
@@ -1300,12 +1297,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
 }
 
 void Tabuleiro::DesenhaRastros() {
-  gl::AtributosEscopo salva_atributos(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_DEPTH_BUFFER_BIT);
-  glDepthMask(false);
-  gl::Habilita(GL_BLEND);
-  gl::Habilita(GL_POLYGON_OFFSET_FILL);
+  gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(-2.0f, -20.0f);
-  MudaCorAlfa(COR_AZUL_ALFA);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
     if (e == nullptr || e->Tipo() != TE_ENTIDADE) {
@@ -1443,9 +1436,9 @@ void Tabuleiro::AtualizaAcoes() {
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
   // inicia o buffer de picking (selecao)
-  glSelectBuffer(100, buffer_hits);
+  gl::BufferSelecao(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
-  glRenderMode(GL_SELECT);
+  gl::ModoRenderizacao(gl::MR_SELECT);
   gl::IniciaNomes();
   gl::NomesEscopo nomes(0);
 
@@ -1453,7 +1446,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
-  gluPickMatrix(x, y, 1.0, 1.0, viewport);
+  gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
   gl::Perspectiva(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
   // desenha a cena sem firulas.
@@ -1472,7 +1465,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
-  *numero_hits = glRenderMode(GL_RENDER);
+  *numero_hits = gl::ModoRenderizacao(gl::MR_RENDER);
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
@@ -1526,7 +1519,7 @@ void Tabuleiro::BuscaHitMaisProximo(
           << ", id: " << id_menor;
 }
 
-bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d) {
+bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   GLuint not_used;
   float profundidade;
   BuscaHitMaisProximo(x, y, &not_used, &not_used, &profundidade);
@@ -1536,8 +1529,12 @@ bool Tabuleiro::MousePara3d(int x, int y, double* x3d, double* y3d, double* z3d)
   return MousePara3d(x, y, profundidade, x3d, y3d, z3d);
 }
 
-bool Tabuleiro::MousePara3d(int x, int y, float profundidade, double* x3d, double* y3d, double* z3d) {
+bool Tabuleiro::MousePara3d(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
+#if !USAR_OPENGL_ES
   GLdouble modelview[16], projection[16];
+#else
+  GLfloat modelview[16], projection[16];
+#endif
   GLint viewport[4];
   gl::Le(GL_MODELVIEW_MATRIX, modelview);
   gl::Le(GL_PROJECTION_MATRIX, projection);
@@ -1558,7 +1555,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  double x3d, y3d, z3d;
+  float x3d, y3d, z3d;
   MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d);
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
@@ -1609,7 +1606,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   ultimo_y_ = y;
 
   estado_anterior_rotacao_ = estado_;
-  double x3d, y3d, z3d;
+  float x3d, y3d, z3d;
   parametros_desenho_.set_desenha_entidades(false);
   MousePara3d(x, y, &x3d, &y3d, &z3d);
   ultimo_x_3d_ = x3d;
@@ -1653,7 +1650,7 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   VLOG(1) << "Botao desenho pressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
-  double x3d, y3d, z3d;
+  float x3d, y3d, z3d;
   MousePara3d(x, y, &x3d, &y3d, &z3d);
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
@@ -1710,7 +1707,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
 
 void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   parametros_desenho_.set_desenha_entidades(false);
-  double x3d, y3d, z3d;
+  float x3d, y3d, z3d;
   if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
     return;
   }
