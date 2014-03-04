@@ -346,7 +346,7 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
 }
 
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
-  glLoadName(Id());
+  gl::CarregaNome(Id());
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   gl::Habilita(GL_NORMALIZE);
   DesenhaObjeto(pd);
@@ -389,7 +389,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::MatrizEscopo salva_matriz;
       gl::Escala(0.2, 0.2, 1.0f);
       MudaCor(COR_VERMELHA);
-      glutSolidCube(TAMANHO_BARRA_VIDA);
+      gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
     if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
       float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
@@ -400,7 +400,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::Habilita(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
-      glutSolidCube(TAMANHO_BARRA_VIDA);
+      gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
   }
 }
@@ -452,7 +452,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
     ent_quadrados = 1.0f;
   }
   // A aura estende alem do tamanho da entidade.
-  glutSolidSphere(
+  gl::EsferaSolida(
       TAMANHO_LADO_QUADRADO_2 * ent_quadrados + TAMANHO_LADO_QUADRADO * proto_.aura(),
       NUM_FACES, NUM_FACES);
 }

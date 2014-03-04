@@ -155,7 +155,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
   AjustaCor(proto, pd);
-  glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT);
+  gl::AtributosEscopo salva_atributos(GL_ENABLE_BIT | GL_LIGHTING_BIT);
   bool transparencias = pd->transparencias() && ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   if (transparencias) {
     gl::Habilita(GL_BLEND);
@@ -179,14 +179,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     break;
     case TF_CILINDRO: {
       gl::Habilita(GL_NORMALIZE);
-      GLUquadric* cilindro = gluNewQuadric();
-      gluQuadricOrientation(cilindro, GLU_OUTSIDE);
-      gluQuadricNormals(cilindro, GLU_SMOOTH);
-      gluQuadricDrawStyle(cilindro, GLU_FILL);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gluCylinder(cilindro, 0.5f  /*radius_base*/, 0.5f  /*radius_top*/,
-                  1.0f  /*height*/, 20  /*slices*/, 20  /*stacks*/);
-      gluDeleteQuadric(cilindro);
+      gl::CilindroSolido(0.5f  /*radius_base*/, 0.5f  /*radius_top*/, 1.0f  /*height*/, 20  /*slices*/, 20  /*stacks*/);
     }
     break;
     case TF_CONE: {
@@ -288,7 +282,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
-  glPopAttrib();
 }
 
 }  // namespace ent

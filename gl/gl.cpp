@@ -40,4 +40,33 @@ void CuboSolido(GLfloat tam_lado) {
 #endif
 }
 
+void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
+#if USAR_OPENGL_ES
+#else
+  GLUquadric* cilindro = gluNewQuadric();
+  gluQuadricOrientation(cilindro, GLU_OUTSIDE);
+  gluQuadricNormals(cilindro, GLU_SMOOTH);
+  gluQuadricDrawStyle(cilindro, GLU_FILL);
+  gluCylinder(cilindro, raio_base, raio_topo, altura, fatias, tocos);
+  gluDeleteQuadric(cilindro);
+#endif
+}
+
+#if USAR_OPENGL_ES
+void Perspectiva(GLdouble angulo_y, GLdouble aspecto, GLdouble z_perto, GLdouble z_longe) {
+  // TODO
+}
+void OlharPara(GLdouble olho_x, GLdouble olho_y, GLdouble olho_z,
+               GLdouble centro_x, GLdouble centro_y, GLdouble centro_z,
+               GLdouble cima_x, GLdouble cima_y, GLdouble cima_z) {
+  // TODO
+}
+GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
+                 const GLdouble* model, const GLdouble* proj, const GLint* view,
+                 GLdouble* x3d, GLdouble* y3d, GLdouble* z3d) {
+  // TODO
+}
+
+#endif
+
 }  // namespace gl
