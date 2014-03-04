@@ -78,9 +78,9 @@ int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
 
 /** Desenha apenas a string. */
 void DesenhaString(const std::string& s) {
-  glRasterPos2i(1, 1);
+  gl::PosicaoRaster(1, 1);
   for (const char c : s) {
-    glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
+    gl::DesenhaCaractere(c);
   }
 }
 
@@ -253,7 +253,7 @@ void Tabuleiro::Desenha() {
   parametros_desenho_.set_modo_mestre(modo_mestre_);
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
-  gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+  gl::Perspectiva(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_fps(opcoes_.mostrar_fps());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
@@ -744,7 +744,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
-      GLdouble nx, ny, nz;
+      double nx, ny, nz;
       if (!MousePara3d(x, y, &nx, &ny, &nz)) {
         return;
       }
@@ -785,7 +785,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_DESLIZANDO: {
       // Faz picking do tabuleiro sem entidades.
       parametros_desenho_.set_desenha_entidades(false);
-      GLdouble nx, ny, nz;
+      double nx, ny, nz;
       if (!MousePara3d(x, y, &nx, &ny, &nz)) {
         return;
       }
@@ -1065,7 +1065,7 @@ void Tabuleiro::DesenhaCena() {
   gl::ModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   const Posicao& alvo = olho_.alvo();
-  gluLookAt(
+  gl::OlharPara(
     // from.
     alvo.x() + cos(olho_.rotacao_rad()) * olho_.raio(),
     alvo.y() + sin(olho_.rotacao_rad()) * olho_.raio(),
@@ -1085,7 +1085,6 @@ void Tabuleiro::DesenhaCena() {
   } else {
     parametros_desenho_.set_desenha_texturas_para_cima(false);
   }
-
 
   if (parametros_desenho_.iluminacao()) {
     gl::Habilita(GL_LIGHTING);
@@ -1149,10 +1148,12 @@ void Tabuleiro::DesenhaCena() {
   if (depth > 2) {
     LOG(ERROR) << "Pilha PROJECTION com vazamento";
   }
+#if !USAR_OPENGL_ES
   gl::Le(GL_ATTRIB_STACK_DEPTH, &depth);
   if (depth > 2) {
     LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento";
   }
+#endif
   if (!parametros_desenho_.desenha_entidades()) {
     return;
   }
@@ -1231,7 +1232,7 @@ void Tabuleiro::DesenhaCena() {
     gl::ModoMatriz(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
-    glOrtho(0, largura_, 0, altura_, 0, 1);
+    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
     gl::ModoMatriz(GL_MODELVIEW);
     gl::CarregaIdentidade();
     gl::Desabilita(GL_DEPTH_TEST);
@@ -1453,7 +1454,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
   gluPickMatrix(x, y, 1.0, 1.0, viewport);
-  gluPerspective(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+  gl::Perspectiva(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
 
   // desenha a cena sem firulas.
   parametros_desenho_.set_iluminacao(false);
@@ -1541,9 +1542,9 @@ bool Tabuleiro::MousePara3d(int x, int y, float profundidade, double* x3d, doubl
   gl::Le(GL_MODELVIEW_MATRIX, modelview);
   gl::Le(GL_PROJECTION_MATRIX, projection);
   gl::Le(GL_VIEWPORT, viewport);
-  if (!gluUnProject(x, y, profundidade,
-                    modelview, projection, viewport,
-                    x3d, y3d, z3d)) {
+  if (!gl::Desprojeta(x, y, profundidade,
+                      modelview, projection, viewport,
+                      x3d, y3d, z3d)) {
     LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
     return false;
   }
@@ -1709,7 +1710,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
 
 void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   parametros_desenho_.set_desenha_entidades(false);
-  GLdouble x3d, y3d, z3d;
+  double x3d, y3d, z3d;
   if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
     return;
   }
@@ -2550,7 +2551,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade();
-  glOrtho(0, largura_, 0, altura_, 0, 1);
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
 
   {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);

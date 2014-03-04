@@ -168,9 +168,9 @@ class AcaoDeltaPontosVida : public Acao {
 
  private:
   void DesenhaStringDelta() {
-    glRasterPos3f(pos_.x(), pos_.y(), pos_.z());
+    gl::PosicaoRaster(pos_.x(), pos_.y(), pos_.z());
     for (const char c : string_delta_) {
-      glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c);
+      gl::DesenhaCaractere(c);
     }
   }
 
