@@ -152,7 +152,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
   AjustaCor(proto, pd);
-  glPushAttrib(GL_ENABLE_BIT);
+  glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT);
   bool transparencias = pd->transparencias() && ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   if (transparencias) {
     gl::Habilita(GL_BLEND);
@@ -168,6 +168,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
+      glShadeModel(GL_FLAT);
       gl::Habilita(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
@@ -200,45 +201,58 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     }
     break;
     case TF_PIRAMIDE: {
+      glShadeModel(GL_FLAT);
       gl::Habilita(GL_NORMALIZE);
-      float x = proto.escala().x() / 2.0f;
-      float y = proto.escala().y() / 2.0f;
-      float z = proto.escala().z();
-      gl::Habilita(GL_NORMALIZE);
-      gl::Escala(x, y, z);
-
-      glBegin(GL_TRIANGLES);
-      // Face sul
-      gl::Normal(0.0f, -0.5, 0.5f);
-      glVertex3f(0.0f, 0.0f, 1.0f);
-      glVertex2f(-1.0f, -1.0f);
-      glVertex2f(1.0f, -1.0f);
-
-      // Face leste.
-      gl::Normal(0.5f, 0.0f, 0.5f);
-      glVertex3f(0.0f, 0.0f, 1.0f);
-      glVertex2f(1.0f, -1.0f);
-      glVertex2f(1.0f, 1.0f);
-
-      // Face norte.
-      gl::Normal(0.0f, 0.5f, 0.5f);
-      glVertex3f(0.0f, 0.0f, 1.0f);
-      glVertex2f(1.0f, 1.0f);
-      glVertex2f(-1.0f, 1.0f);
-
-      // Face Oeste.
-      gl::Normal(-0.5f, 0.0f, 0.5f);
-      glVertex3f(0.0f, 0.0f, 1.0f);
-      glVertex2f(-1.0f, 1.0f);
-      glVertex2f(-1.0f, -1.0f);
-
-      glEnd();
+      gl::Escala(proto.escala().x() / 2.0f, proto.escala().y() / 2.0f, proto.escala().z());
+      const unsigned short indices[] = {
+          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+      };
+      const float normais[] = {
+        // Topo.
+        0.0f, 0.0, 1.0f,
+        // Face sul
+        0.0f, -0.5, 0.5f,
+        0.0f, -0.5, 0.5f,
+        // Face leste.
+        0.5f, 0.0f, 0.5f,
+        0.5f, 0.0f, 0.5f,
+        // Face norte.
+        0.0f, 0.5f, 0.5f,
+        0.0f, 0.5f, 0.5f,
+        // Face Oeste.
+        -0.5f, 0.0f, 0.5f,
+        -0.5f, 0.0f, 0.5f,
+      };
+      const float vertices[] = {
+        // Topo.
+        0.0f, 0.0f, 1.0f,
+        // Face sul.
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        // Face leste.
+        1.0f, -1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
+        // Face norte.
+        1.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 0.0f,
+        // Face Oeste.
+        -1.0f, 1.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f,
+      };
+      glEnableClientState(GL_VERTEX_ARRAY);
+      glEnableClientState(GL_NORMAL_ARRAY);
+      glNormalPointer(GL_FLOAT, 0, normais);
+      glVertexPointer(3, GL_FLOAT, 0, vertices);
+      glDrawElements(GL_TRIANGLE_FAN, 9, GL_UNSIGNED_SHORT, indices);
+      glDisableClientState(GL_NORMAL_ARRAY);
+      glDisableClientState(GL_VERTEX_ARRAY);
     }
     break;
     case TF_RETANGULO: {
       if (matriz_shear != nullptr) {
         break;
       }
+      glShadeModel(GL_FLAT);
       gl::Habilita(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       float x = proto.escala().x() / 2.0f;
@@ -258,6 +272,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
+      glShadeModel(GL_FLAT);
       if (transparencias) {
         LigaStencil();
       } else {
