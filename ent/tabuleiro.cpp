@@ -1133,9 +1133,8 @@ void Tabuleiro::DesenhaCena() {
   DesenhaTabuleiro();
 
   if (parametros_desenho_.desenha_grade()) {
-    gl::Desabilita(GL_DEPTH_TEST);
+    gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
     DesenhaGrade();
-    gl::Habilita(GL_DEPTH_TEST);
   }
 
   // Algumas verificacoes.
