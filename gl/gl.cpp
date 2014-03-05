@@ -386,7 +386,8 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
     return 0;
   }
   g_contexto.modo_renderizacao = modo;
-  switch (modo) { 
+  //g_contexto.modo_renderizacao = MR_SELECT;
+  switch (modo) {
     case MR_SELECT:
       return 0;
     case MR_RENDER: {
@@ -399,8 +400,8 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       LOG(INFO) << "Id mapeado: " << (void*)id_mapeado;
       unsigned int pos_pilha = id_mapeado >> 22;
       LOG(INFO) << "Pos pilha: " << pos_pilha;
-      if (pos_pilha == 0) {
-        LOG(ERROR) << "Pos pilha = 0";
+      if (pos_pilha == 0 || pos_pilha > 3) {
+        LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
         return 0;
       }
       auto it = g_contexto.ids.find(id_mapeado);
@@ -420,7 +421,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       g_contexto.buffer_selecao = nullptr;
       g_contexto.tam_buffer = 0;
       return 1;  // Numero de hits: so pode ser 0 ou 1.
-    } 
+    }
     default:
       return 0;
   }
@@ -469,6 +470,16 @@ void MudaCor(float r, float g, float b, float a) {
   GLfloat cor[4] = { r, g, b, a };
   glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
+}
+
+void Limpa(GLbitfield mascara) {
+  if (g_contexto.modo_renderizacao == MR_SELECT) {
+    if ((mascara & GL_COLOR_BUFFER_BIT) != 0) {
+      // Preto nao eh valido no color picking.
+      glClearColor(0, 0, 0, 1.0f);
+    }
+  }
+  glClear(mascara);
 }
 
 #endif

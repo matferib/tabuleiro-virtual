@@ -1056,9 +1056,9 @@ void Tabuleiro::DesenhaCena() {
                proto_.luz_ambiente().b(),
                proto_.luz_ambiente().a());
   if (parametros_desenho_.limpa_fundo()) {
-    glClear(GL_COLOR_BUFFER_BIT);
+    gl::Limpa(GL_COLOR_BUFFER_BIT);
   }
-  glClear(GL_DEPTH_BUFFER_BIT);
+  gl::Limpa(GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
