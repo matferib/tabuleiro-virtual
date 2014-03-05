@@ -134,7 +134,7 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 
 void LigaStencil() {
   gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
-  glClear(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
+  gl::Limpa(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
   glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
   glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.

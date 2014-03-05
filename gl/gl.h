@@ -270,6 +270,12 @@ inline void MudaCor(float r, float g, float b, float a) {
 void MudaCor(float r, float g, float b, float a);
 #endif
 
+#if !USAR_OPENGL_ES
+inline void Limpa(GLbitfield mascara) { glClear(mascara); }
+#else
+void Limpa(GLbitfield mascara);
+#endif
+
 }  // namespace gl
 
 
