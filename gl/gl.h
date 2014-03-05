@@ -22,13 +22,23 @@
 #endif
 
 #ifndef M_PI
-#define M_PI 3.14159265358979323846f 
+#define M_PI 3.14159265358979323846f
 #endif
 
 #define RAD_PARA_GRAUS (180.0f / M_PI)
 #define GRAUS_PARA_RAD (M_PI / 180.0f)
 
 namespace gl {
+
+// Inicializacao e finalizacao da parte grafica.
+void IniciaGl(int* argcp, char** argv);
+void FinalizaGl();
+
+class Contexto{
+ public:
+  Contexto(int* argcp, char** argv) { IniciaGl(argcp, argv); }
+  ~Contexto() { FinalizaGl(); }
+};
 
 /** Salva a matriz corrente durante escopo da classe. Ou muda o modo de matriz e a salva, retornando ao modo anterior ao fim do escopo. */
 class MatrizEscopo {
@@ -104,18 +114,6 @@ class AtributosEscopo {
 };
 #endif
 
-/** Empilha o nome no inicio do escopo e desempilha no final. */
-class NomesEscopo {
- public:
-#if !USAR_OPENGL_ES
-  NomesEscopo(GLuint nome) { glPushName(nome); }
-  ~NomesEscopo() { glPopName(); }
-#else
-  NomesEscopo(GLuint nome) { /* TODO */ }
-  ~NomesEscopo() { /* TODO */ }
-#endif
-};
-
 /** Funcoes gerais. */
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
@@ -162,11 +160,18 @@ inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
 inline void CarregaNome(GLuint nome) { glLoadName(nome); }
 inline void DesempilhaNome() { glPopName(); }
 #else
-inline void IniciaNomes() { /* TODO */ }
-inline void EmpilhaNome(GLuint nome) { /* TODO */ }
-inline void CarregaNome(GLuint nome) { /* TODO */ }
-inline void DesempilhaNome() { /* TODO */ }
+void IniciaNomes();
+void EmpilhaNome(GLuint nome);
+void CarregaNome(GLuint nome);
+void DesempilhaNome();
 #endif
+
+/** Empilha o nome no inicio do escopo e desempilha no final. */
+class NomesEscopo {
+ public:
+  NomesEscopo(GLuint nome) { EmpilhaNome(nome); }
+  ~NomesEscopo() { DesempilhaNome(); }
+};
 
 /** Funcoes de escala, translacao e rotacao. */
 inline void Escala(GLfloat x, GLfloat y, GLfloat z) { glScalef(x, y, z); }
@@ -252,6 +257,17 @@ enum modo_renderizacao_e {
 /* Render Mode */
 GLint ModoRenderizacao(modo_renderizacao_e modo);
 void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
+#endif
+
+/** Mudanca de cor. */
+#if !USAR_OPENGL_ES
+inline void MudaCor(float r, float g, float b, float a) {
+  GLfloat cor[4] = { r, g, b, a };
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
+  glColor4f(r, g, b, a);
+}
+#else
+void MudaCor(float r, float g, float b, float a);
 #endif
 
 }  // namespace gl

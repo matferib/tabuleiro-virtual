@@ -10,22 +10,15 @@
 namespace ent {
 
 void MudaCor(const float* cor) {
-  float cor_rgba[4] = { cor[0], cor[1], cor[2], 1.0f };
-  MudaCorAlfa(cor_rgba);
+  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }
 
 void MudaCorAlfa(const float* cor) {
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor4f(cor[0], cor[1], cor[2], cor[3]);
-}
-
-void MudaCor(float r, float g, float b, float a) {
-  const GLfloat cor_gl[] = { r, g, b, a };
-  MudaCorAlfa(cor_gl);
+  gl::MudaCor(cor[0], cor[1], cor[2], cor[3]);
 }
 
 void MudaCor(const ent::Cor& cor) {
-  MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
+  gl::MudaCor(cor.r(), cor.g(), cor.b(), cor.a());
 }
 
 void CorAlfaParaProto(const float* cor, Cor* proto_cor) {

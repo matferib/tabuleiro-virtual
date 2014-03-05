@@ -22,7 +22,6 @@ void MudaCor(const float* cor);
 void MudaCorAlfa(const float* cor);
 
 /** Outra forma de mudar a cor. */
-void MudaCor(float r, float g, float b, float a);
 void MudaCor(const Cor& cor);
 
 /** Preenche proto_cor com cor. A entrada deve ter 4 componentes. */
