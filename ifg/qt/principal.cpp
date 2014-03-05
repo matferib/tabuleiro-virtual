@@ -30,9 +30,6 @@ using namespace std;
 
 Principal* Principal::Cria(int& argc, char** argv,
                            Texturas* texturas, ntf::CentralNotificacoes* central) {
-#if !USAR_OPENGL_ES
-	glutInit(&argc, argv);
-#endif
   auto* q_app = new QApplication(argc, argv);
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
   return new Principal(texturas, central, q_app);

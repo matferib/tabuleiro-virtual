@@ -450,7 +450,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   gl::MatrizEscopo salva_matriz;
   gl::Translada(X(), Y(), Z() + DeltaVoo(vd_));
   const auto& cor = proto_.cor();
-  MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
+  gl::MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
   float ent_quadrados = MultiplicadorTamanho();
   if (ent_quadrados < 1.0f) {
     ent_quadrados = 1.0f;

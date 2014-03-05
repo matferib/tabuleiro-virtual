@@ -1,8 +1,15 @@
 #include <cmath>
+#include <unordered_map>
 #include "gl/gl.h"
+#include "log/log.h"
 
 namespace gl {
 #if !USAR_OPENGL_ES
+void IniciaGl(int* argcp, char** argv) {
+  glutInit(argcp, argv);
+}
+void FinalizaGl() {
+}
 
 // OpenGL normal.
 void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
@@ -103,7 +110,39 @@ void MultiplicaMatrizVetor(const float m[16], float vetor[4]) {
   vetor[3] = res[3];
 }
 
+struct ContextoInterno {
+  // Mapeia um ID para a cor RGB em 22 bits (os dois mais significativos sao para a pilha).
+  std::unordered_map<unsigned int, unsigned int> ids;
+  unsigned int proximo_id;
+  // O bit da pilha em dois bits (0-3).
+  unsigned int bit_pilha;
+  modo_renderizacao_e modo_renderizacao;
+  GLuint* buffer_selecao;
+  GLuint tam_buffer;
+} g_contexto;
+
+// Gera um proximo ID.
+void MapeiaId(unsigned int id, GLubyte rgb[3]) {
+  unsigned int id_mapeado = g_contexto.proximo_id | (g_contexto.bit_pilha << 22);
+  g_contexto.ids.insert(std::make_pair(id_mapeado, id));
+  if (g_contexto.proximo_id == ((1 << 22) - 1)) {
+    LOG(ERROR) << "Limite de ids alcancado";
+  } else {
+    ++g_contexto.proximo_id;
+  }
+  rgb[0] = (id_mapeado & 0xFF);
+  rgb[1] = ((id_mapeado >> 8) & 0xFF);
+  rgb[2] = ((id_mapeado >> 16) & 0xFF);
+}
+
 }  // namespace
+
+void IniciaGl(int* argcp, char** argv) {
+  g_contexto.modo_renderizacao = MR_RENDER;
+}
+
+void FinalizaGl() {
+}
 
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
   const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, };
@@ -124,7 +163,29 @@ void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos)
 }
 
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  // TODO
+  // Desenhar a esfera baseada em cilindros.
+  float angulo_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
+  GLfloat raio_base = raio;
+  GLfloat raio_topo;
+
+  for (int i = 0; i < num_tocos; ++i) {
+    raio_topo = raio * cosf(angulo_rad * (i + 1));
+    GLfloat h_base = raio * sinf(angulo_rad * i);
+    GLfloat h_topo = raio * sinf(angulo_rad * (i + 1));
+    GLfloat h_delta = h_topo - h_base;
+    // Desenha cilindro de cima e de baixo.
+    {
+      MatrizEscopo salva_matriz;
+      glTranslatef(0.0f, 0.0f, h_base);
+      CilindroSolido(raio_base, raio_topo, h_delta, num_fatias, 1);
+    }
+    {
+      MatrizEscopo salva_matriz;
+      glTranslatef(0.0f, 0.0f, -h_topo);
+      CilindroSolido(raio_topo, raio_base, h_delta, num_fatias, 1);
+    }
+    raio_base = raio_topo;
+  }
 }
 
 void CuboSolido(GLfloat tam_lado) {
@@ -190,6 +251,7 @@ void CuboSolido(GLfloat tam_lado) {
 }
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
+  // TODO Conferir as normais, porque a esfera parece estar errada.
   gl::MatrizEscopo salva_matriz;
   float angulo_rotacao_graus = 360.0f / fatias;
   unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -309,16 +371,104 @@ GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
-  // TODO
+  if (delta_x <= 0 || delta_y <= 0) {
+      return;
+  }
+
+  /* Translate and scale the picked region to the entire window */
+  glTranslatef((viewport[2] - 2 * (x - viewport[0])) / delta_x,
+               (viewport[3] - 2 * (y - viewport[1])) / delta_y, 0);
+  glScalef(viewport[2] / delta_x, viewport[3] / delta_y, 1.0);
 }
 
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
-  // TODO
-  return 0;
+  if (g_contexto.modo_renderizacao == modo) {
+    return 0;
+  }
+  g_contexto.modo_renderizacao = modo;
+  switch (modo) { 
+    case MR_SELECT:
+      return 0;
+    case MR_RENDER: {
+      glFlush();
+      glFinish();
+      GLubyte pixel[4] = { 0 };
+      glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+      LOG(INFO) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
+      unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
+      LOG(INFO) << "Id mapeado: " << (void*)id_mapeado;
+      unsigned int pos_pilha = id_mapeado >> 22;
+      LOG(INFO) << "Pos pilha: " << pos_pilha;
+      if (pos_pilha == 0) {
+        LOG(ERROR) << "Pos pilha = 0";
+        return 0;
+      }
+      auto it = g_contexto.ids.find(id_mapeado);
+      if (it == g_contexto.ids.end()) {
+        LOG(ERROR) << "ERRO nao encontrei o id.";
+        return 0;
+      }
+      unsigned int id_original = it->second;
+      LOG(INFO) << "Id original: " << id_original;
+      GLuint* ptr = g_contexto.buffer_selecao;
+      ptr[0] = pos_pilha;
+      ptr[1] = 0.0f;  // zmin.
+      ptr[2] = 0.0f;  // zmax
+      for (unsigned int i = 0; i < pos_pilha; ++i) {
+        ptr[3 + i] = id_original;
+      }
+      g_contexto.buffer_selecao = nullptr;
+      g_contexto.tam_buffer = 0;
+      return 1;  // Numero de hits: so pode ser 0 ou 1.
+    } 
+    default:
+      return 0;
+  }
 }
 
 void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) {
-  // TODO
+  g_contexto.buffer_selecao = buffer;
+  g_contexto.tam_buffer = tam_buffer;
+}
+
+// Nomes
+void IniciaNomes() {
+  g_contexto.proximo_id = 0;
+  g_contexto.bit_pilha = 0;
+  g_contexto.ids.clear();
+}
+
+void EmpilhaNome(GLuint id) {
+  if (g_contexto.bit_pilha == 3) {
+    LOG(ERROR) << "Bit da pilha passou do limite superior.";
+    return;
+  }
+  ++g_contexto.bit_pilha;
+}
+
+void CarregaNome(GLuint id) {
+  GLubyte rgb[3];
+  MapeiaId(id, rgb);
+  // Muda a cor para a mapeada.
+  glColor4ub(rgb[0], rgb[1], rgb[2], 1.0f);
+}
+
+void DesempilhaNome() {
+  if (g_contexto.bit_pilha == 0) {
+    LOG(ERROR) << "Bit da pilha passou do limite inferior.";
+    return;
+  }
+  --g_contexto.bit_pilha;
+}
+
+void MudaCor(float r, float g, float b, float a) {
+  if (g_contexto.modo_renderizacao != MR_RENDER) {
+    // So muda no modo de renderizacao pra nao estragar o picking por cor.
+    return;
+  }
+  GLfloat cor[4] = { r, g, b, a };
+  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
+  glColor4f(r, g, b, a);
 }
 
 #endif
