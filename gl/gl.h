@@ -21,6 +21,13 @@
 #include <GL/glut.h>
 #endif
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f 
+#endif
+
+#define RAD_PARA_GRAUS (180.0f / M_PI)
+#define GRAUS_PARA_RAD (M_PI / 180.0f)
+
 namespace gl {
 
 /** Salva a matriz corrente durante escopo da classe. Ou muda o modo de matriz e a salva, retornando ao modo anterior ao fim do escopo. */
