@@ -19,13 +19,6 @@
 /** Numero de divisoes do eixo Z do cone. */
 #define NUM_LINHAS 1
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846f 
-#endif
-
-#define RAD_PARA_GRAUS (180.0f / M_PI)
-#define GRAUS_PARA_RAD (M_PI / 180.0f)
-
 #define DIR_DADOS "dados" 
 #define ARQUIVO_MODELOS "modelos.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
