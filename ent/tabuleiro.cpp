@@ -1002,18 +1002,18 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
 }
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
-  glViewport(0, 0, (GLint)largura, (GLint)altura);
+  gl::Viewport(0, 0, (GLint)largura, (GLint)altura);
   largura_ = largura;
   altura_ = altura;
 }
 
 void Tabuleiro::InicializaGL() {
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Desabilita(GL_BLEND);
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
-  glCullFace(GL_BACK);
+  gl::FaceNula(GL_BACK);
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
