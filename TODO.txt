@@ -9,6 +9,7 @@ Versao 1.0
 - Terminar de mudar tudo pro gl.h.
 
 Versao 2.0
+- Tipos de acoes padrao por modelo (por exemplo, orc tem primario corpo a corpo, secundario distancia).
 - Registro correto dos diretorios para funcionar de qualquer diretorio.
 - Ler tabuleiro sem apagar modelos.
 - Modelar menu com um proto ASCII para facilitar expansao.

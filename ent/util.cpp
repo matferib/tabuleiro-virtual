@@ -135,8 +135,8 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 void LigaStencil() {
   gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
   gl::Limpa(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
-  glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
-  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
+  gl::FuncaoStencil(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
+  gl::OperacaoStencil(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
   gl::MascaraCor(false);  // Para nao desenhar nada de verdade, apenas no stencil.
 }
 
@@ -152,8 +152,8 @@ void DesenhaStencil(const float* cor) {
 
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   gl::MascaraCor(true);
-  glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
-  glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
+  gl::FuncaoStencil(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
+  gl::OperacaoStencil(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
   // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
   {
     gl::MatrizEscopo salva_projecao(GL_PROJECTION);

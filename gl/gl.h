@@ -133,6 +133,9 @@ inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
 #else
 #endif
+inline void FaceNula(GLenum modo) { glCullFace(modo); }
+inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
+inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glViewport(x, y, largura, altura); }
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
@@ -284,6 +287,13 @@ class DesligaTesteProfundidadeEscopo {
   DesligaTesteProfundidadeEscopo() { MascaraProfundidade(false); }
   ~DesligaTesteProfundidadeEscopo() { MascaraProfundidade(true); }
 };
+
+/** Stencil. */
+inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFunc(func, ref, mascara); }
+
+inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLenum sucesso) {
+  glStencilOp(falha_stencil, falha_profundidade, sucesso);
+}
 
 }  // namespace gl
 
