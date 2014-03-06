@@ -286,17 +286,17 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
     -tam_lado_topo_2, -tam_y_topo, altura
   };
 
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
   for (int i = 0; i < fatias; ++i) {
-    glNormal3f(vetor_normal[0], vetor_normal[1], vetor_normal[2]);
-    gl::PonteiroNormais(GL_FLOAT, vertices_normais);
-    gl::PonteiroVertices(3, GL_FLOAT, vertices_sul);
-    gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-    glRotatef(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
+    Normal(vetor_normal[0], vetor_normal[1], vetor_normal[2]);
+    PonteiroNormais(GL_FLOAT, vertices_normais);
+    PonteiroVertices(3, GL_FLOAT, vertices_sul);
+    DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+    Roda(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
   }
-  gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
@@ -395,9 +395,13 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       glFinish();
       GLubyte pixel[4] = { 0 };
       glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+      // Usar void* para imprimir em hexa.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
       LOG(INFO) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
       LOG(INFO) << "Id mapeado: " << (void*)id_mapeado;
+#pragma GCC diagnostic push
       unsigned int pos_pilha = id_mapeado >> 22;
       LOG(INFO) << "Pos pilha: " << pos_pilha;
       if (pos_pilha == 0 || pos_pilha > 3) {

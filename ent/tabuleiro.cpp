@@ -1183,13 +1183,12 @@ void Tabuleiro::DesenhaCena() {
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
   // a outros nao transparentes.
   if (parametros_desenho_.transparencias()) {
-    gl::Habilita(GL_BLEND);
-    gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
     parametros_desenho_.set_alfa_translucidos(0.5);
     DesenhaEntidadesTranslucidas();
     parametros_desenho_.clear_alfa_translucidos();
     DesenhaAuras();
-    gl::Desabilita(GL_BLEND);
   } else {
     // Desenha os translucidos de forma solida para picking.
     gl::NomesEscopo nomes(0);
@@ -1371,6 +1370,7 @@ void Tabuleiro::DesenhaSombras() {
   DesenhaEntidadesBase(std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear));
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, std::min(0.5f, sinf(kAnguloInclinacao)) };
+  gl::HabilitaEscopo habilita_blend(GL_BLEND);
   DesenhaStencil(cor_sombra);
 }
 

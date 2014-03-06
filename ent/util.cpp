@@ -165,9 +165,6 @@ void DesenhaStencil(const float* cor) {
       gl::CarregaIdentidade();
       if (cor != nullptr) {
         MudaCorAlfa(cor);
-        if (cor[3] < 1.0f) {
-          gl::Habilita(GL_BLEND);
-        }
       }
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
@@ -175,10 +172,8 @@ void DesenhaStencil(const float* cor) {
       gl::Retangulo(0.0f, 0.0f, largura, altura);
     }
   }
-  // Restaura atributos antes do stencil.
+  // Desliga stencil.
   gl::Desabilita(GL_STENCIL_TEST);
-  gl::Desabilita(GL_BLEND);
-  gl::ModoMatriz(GL_MODELVIEW);
 }
 
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {

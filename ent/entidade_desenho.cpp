@@ -157,17 +157,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
   bool transparencias = pd->transparencias() && ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   AjustaCor(proto, pd);
-#if !USAR_OPENGL_ES
-  gl::AtributosEscopo salva_atributos(gl::BIT_HABILITAR);
-  if (transparencias) {
-    gl::Habilita(GL_BLEND);
-  }
-#else
-  std::unique_ptr<gl::HabilitaEscopo> habilita_blend;
-  if (transparencias) {
-    habilita_blend.reset(new gl::HabilitaEscopo(GL_BLEND));
-  }
-#endif
   gl::MatrizEscopo salva_matriz;
   if (matriz_shear != nullptr) {
     gl::MultiplicaMatriz(matriz_shear);
