@@ -281,7 +281,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           return;
         }
         // Notificacao sem entidade: posicao do quadrado selecionado.
-        double x, y, z;
+        float x, y, z;
         CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
         modelo.mutable_pos()->set_x(x);
         modelo.mutable_pos()->set_y(y);
@@ -906,7 +906,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   if (pos_pilha == 1) {
     VLOG(1) << "Acao no tabuleiro: " << id;
     // Tabuleiro, posicao do quadrado clicado.
-    double x, y, z;
+    float x, y, z;
     CoordenadaQuadrado(id, &x, &y, &z);
     auto* pos_quadrado = acao_proto.mutable_pos_quadrado();
     pos_quadrado->set_x(x);
@@ -1516,16 +1516,14 @@ void Tabuleiro::BuscaHitMaisProximo(
   }
   *pos_pilha = pos_pilha_menor;
   *id = id_menor;
+  float menor_profundidade = 0.0f;
 #if !USAR_OPENGL_ES
   // Profundidade de inteiro para float.
-  float menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
+  menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
   }
-  VLOG(3) << "Retornando menor profundidade: " << menor_profundidade
-          << ", pos_pilha: " << pos_pilha_menor
-          << ", id: " << id_menor;
-#else
+#elif 0
   // OBS: tudo isso assume alvo no chao e solo plano.
   // Computa a profundidade na mao para tabuleiro.
   float meio_fov_vertical_rad = (CAMPO_VERTICAL_GRAUS / 2.0f) * GRAUS_PARA_RAD;
@@ -1549,9 +1547,14 @@ void Tabuleiro::BuscaHitMaisProximo(
                     (DISTANCIA_PLANO_CORTE_DISTANTE - DISTANCIA_PLANO_CORTE_PROXIMO);
   }
 #endif
+  // Era VLOG(3)
+  LOG(INFO) << "Retornando menor profundidade: " << menor_profundidade
+          << ", pos_pilha: " << pos_pilha_menor
+          << ", id: " << id_menor;
 }
 
 bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
+#if !USAR_OPENGL_ES
   GLuint not_used;
   float profundidade;
   BuscaHitMaisProximo(x, y, &not_used, &not_used, &profundidade);
@@ -1559,14 +1562,34 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
     return false;
   }
   return MousePara3d(x, y, profundidade, x3d, y3d, z3d);
+#else
+  GLuint id;
+  GLuint pos_pilha;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  if (profundidade == 1.0f) {
+    return false;
+  }
+  if (pos_pilha == 1) {
+    // Tabuleiro.
+    CoordenadaQuadrado(id, x3d, y3d, z3d);
+  } else {
+    // Entidade.
+    auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr) {
+      return false;
+    }
+    *x3d = entidade->X();
+    *y3d = entidade->Y();
+    *z3d = entidade->Z();
+  }
+  return true;
+#endif
 }
 
 bool Tabuleiro::MousePara3d(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
 #if !USAR_OPENGL_ES
   GLdouble modelview[16], projection[16];
-#else
-  GLfloat modelview[16], projection[16];
-#endif
   GLint viewport[4];
   gl::Le(GL_MODELVIEW_MATRIX, modelview);
   gl::Le(GL_PROJECTION_MATRIX, projection);
@@ -1577,7 +1600,11 @@ bool Tabuleiro::MousePara3d(int x, int y, float profundidade, float* x3d, float*
     LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
     return false;
   }
+  LOG(INFO) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
   return true;
+#else
+  return MousePara3d(x, y, x3d, y3d, z3d);
+#endif
 }
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
@@ -1964,7 +1991,7 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
-void Tabuleiro::CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z) {
+void Tabuleiro::CoordenadaQuadrado(int id_quadrado, float* x, float* y, float* z) {
   int quad_x = id_quadrado % TamanhoX();
   int quad_y = id_quadrado / TamanhoX();
   VLOG(2) << "id_quadrado: " << id_quadrado << ", quad_x: " << quad_x << ", quad_y: " << quad_y;

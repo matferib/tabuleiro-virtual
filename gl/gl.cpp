@@ -540,8 +540,8 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       VLOG(2) << "Id original: " << id_original;
       GLuint* ptr = g_contexto.buffer_selecao;
       ptr[0] = pos_pilha;
-      ptr[1] = 0.0f;  // zmin.
-      ptr[2] = 0.0f;  // zmax
+      ptr[1] = 0;  // zmin.
+      ptr[2] = 0;  // zmax
       for (unsigned int i = 0; i < pos_pilha; ++i) {
         ptr[3 + i] = id_original;
       }
