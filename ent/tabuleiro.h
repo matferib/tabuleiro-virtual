@@ -272,8 +272,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a forma de desenho selecionada. */
   void DesenhaFormaSelecionada();
 
-  /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. */
-  void AtualizaOlho();
+  /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. Se forcar for false, so atualiza se houver
+  * destino. Caso contrario, atualiza independente do destino.*/
+  void AtualizaOlho(bool forcar = false);
 
   /** Atualiza as aentidades do tabuleiro. */
   void AtualizaEntidades();
