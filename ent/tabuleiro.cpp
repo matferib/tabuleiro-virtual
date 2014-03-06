@@ -29,7 +29,7 @@ namespace ent {
 namespace {
 
 /** campo de visao vertical em graus. */
-const double CAMPO_VERTICAL = 60.0;
+const double CAMPO_VERTICAL_GRAUS = 60.0;
 
 /** altura inicial do olho. */
 const double OLHO_ALTURA_INICIAL = 10.0;
@@ -64,7 +64,12 @@ const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 /** Distancia minima entre pontos no desenho livre. */
 const float DELTA_MINIMO_DESENHO_LIVRE = 0.2;
 
+/** A Translacao e a rotacao de objetos so ocorre depois que houver essa distancia de pixels percorrida pelo mouse. */
 const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
+
+/** Os clipping planes. */
+const double DISTANCIA_PLANO_CORTE_PROXIMO = 0.5;
+const double DISTANCIA_PLANO_CORTE_DISTANTE = 500.0f;
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
@@ -256,7 +261,7 @@ void Tabuleiro::Desenha() {
   parametros_desenho_.set_modo_mestre(modo_mestre_);
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
-  gl::Perspectiva(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+  gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_fps(opcoes_.mostrar_fps());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
@@ -1449,7 +1454,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
   gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
-  gl::Perspectiva(CAMPO_VERTICAL, Aspecto(), 0.5, 500.0);
+  gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
 
   // desenha a cena sem firulas.
   parametros_desenho_.set_iluminacao(false);
@@ -1511,7 +1516,8 @@ void Tabuleiro::BuscaHitMaisProximo(
   }
   *pos_pilha = pos_pilha_menor;
   *id = id_menor;
-  // Normaliza profundidade.
+#if !USAR_OPENGL_ES
+  // Profundidade de inteiro para float.
   float menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
@@ -1519,6 +1525,30 @@ void Tabuleiro::BuscaHitMaisProximo(
   VLOG(3) << "Retornando menor profundidade: " << menor_profundidade
           << ", pos_pilha: " << pos_pilha_menor
           << ", id: " << id_menor;
+#else
+  // OBS: tudo isso assume alvo no chao e solo plano.
+  // Computa a profundidade na mao para tabuleiro.
+  float meio_fov_vertical_rad = (CAMPO_VERTICAL_GRAUS / 2.0f) * GRAUS_PARA_RAD;
+  float meia_altura_viewport = altura_ / 2.0f;
+  float distancia_olho_near_clip_pixels = meia_altura_viewport * tanf(meio_fov_vertical_rad);
+  float distancia_pixel_meio_viewport_pixels = y - meia_altura_viewport;
+  float angulo_alfa_rad = atanf(distancia_pixel_meio_viewport_pixels / distancia_olho_near_clip_pixels);
+  float angulo_beta_rad = atanf(olho_.altura() / olho_.raio());
+  float angulo_teta_rad = (M_PI / 2.0f) - angulo_alfa_rad - angulo_beta_rad;
+  float distancia_olho = tanf(angulo_teta_rad) * olho_.altura();
+  float distancia_projecao = olho_.raio() - distancia_olho;
+  LOG(INFO) << "Y: " << y;
+  LOG(INFO) << "Distancia pixel ao centro viewport: " << distancia_pixel_meio_viewport_pixels;
+  LOG(INFO) << "Distancia olho ao near clip em pixels: " << distancia_olho_near_clip_pixels;
+  LOG(INFO) << "Angulo alfa: centro viewport ao pixel Y: " << (angulo_alfa_rad * RAD_PARA_GRAUS);
+  LOG(INFO) << "Angulo beta: entre olho e solo: " << (angulo_beta_rad * RAD_PARA_GRAUS);
+  LOG(INFO) << "Angulo teta: entre plano do pixel e eixo Z: " << (angulo_teta_rad * RAD_PARA_GRAUS);
+  LOG(INFO) << "Distancia horizontal da projecao ao olho: " << distancia_projecao;
+  if (profundidade != nullptr) {
+    *profundidade = sqrtf(distancia_olho * distancia_olho + olho_.altura() * olho_.altura()) /
+                    (DISTANCIA_PLANO_CORTE_DISTANTE - DISTANCIA_PLANO_CORTE_PROXIMO);
+  }
+#endif
 }
 
 bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
