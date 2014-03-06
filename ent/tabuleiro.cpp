@@ -214,6 +214,9 @@ void Tabuleiro::EstadoInicial() {
   olho_.set_rotacao_rad(-M_PI / 2.0f);
   olho_.set_altura(OLHO_ALTURA_INICIAL);
   olho_.set_raio(OLHO_RAIO_INICIAL);
+  olho_.clear_destino();
+  AtualizaOlho(true  /*forcar*/);
+
   // Valores iniciais.
   ultimo_x_ = ultimo_y_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
@@ -667,6 +670,7 @@ void Tabuleiro::TrataRodela(int delta) {
       olho_raio = OLHO_RAIO_MAXIMO;
     }
     olho_.set_raio(olho_raio);
+    AtualizaOlho(true  /*forcar*/);
   }
 }
 
@@ -738,6 +742,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       olho_.set_altura(olho_altura);
       ultimo_x_ = x;
       ultimo_y_ = y;
+      AtualizaOlho(true  /*forcar*/);
     }
     break;
     case ETAB_ENTS_PRESSIONADAS: {
@@ -1067,18 +1072,12 @@ void Tabuleiro::DesenhaCena() {
   const Posicao& alvo = olho_.alvo();
   gl::OlharPara(
     // from.
-    alvo.x() + cos(olho_.rotacao_rad()) * olho_.raio(),
-    alvo.y() + sin(olho_.rotacao_rad()) * olho_.raio(),
-    alvo.z() + olho_.altura(),
+    olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
     // to.
     alvo.x(), alvo.y(), alvo.z(),
     // up
     0, 0, 1.0);
-  Posicao* pos_olho = olho_.mutable_pos();;
-  pos_olho->set_x(olho_.alvo().x() + cosf(olho_.rotacao_rad()) * olho_.raio());
-  pos_olho->set_y(olho_.alvo().y() + sinf(olho_.rotacao_rad()) * olho_.raio());
-  pos_olho->set_z(olho_.altura());
-  parametros_desenho_.mutable_pos_olho()->CopyFrom(*pos_olho);
+  parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (olho_.altura() > (2 * olho_.raio())) {
     parametros_desenho_.set_desenha_texturas_para_cima(true);
@@ -1374,12 +1373,12 @@ void Tabuleiro::DesenhaSombras() {
   DesenhaStencil(cor_sombra);
 }
 
-void Tabuleiro::AtualizaOlho() {
-  if (!olho_.has_destino()) {
+void Tabuleiro::AtualizaOlho(bool forcar) {
+  if (!forcar && !olho_.has_destino()) {
     return;
   }
-  auto* po = olho_.mutable_alvo();
-  double origem[] = { po->x(), po->y(), po->z() };
+  auto* pos_alvo = olho_.mutable_alvo();
+  double origem[] = { pos_alvo->x(), pos_alvo->y(), pos_alvo->z() };
   const auto& pd = olho_.destino();
   double destino[] = { pd.x(), pd.y(), pd.z() };
   bool chegou = true;
@@ -1392,9 +1391,15 @@ void Tabuleiro::AtualizaOlho() {
       origem[i] = destino[i];
     }
   }
-  po->set_x(origem[0]);
-  po->set_y(origem[1]);
-  po->set_z(origem[2]);
+  pos_alvo->set_x(origem[0]);
+  pos_alvo->set_y(origem[1]);
+  pos_alvo->set_z(origem[2]);
+
+  Posicao* pos_olho = olho_.mutable_pos();;
+  pos_olho->set_x(pos_alvo->x() + cosf(olho_.rotacao_rad()) * olho_.raio());
+  pos_olho->set_y(pos_alvo->y() + sinf(olho_.rotacao_rad()) * olho_.raio());
+  pos_olho->set_z(olho_.altura());
+
   if (chegou) {
     olho_.clear_destino();
   }

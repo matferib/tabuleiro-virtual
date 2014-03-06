@@ -19,11 +19,11 @@ message IluminacaoDirecional {
 // de uma determinada altura e rotacao.
 // A posicao do destino eh para onde o olho se desloca conforme selecao de entidades ou quadrados.
 message Olho {
-  optional Posicao alvo = 1;
-  optional Posicao destino = 2;
+  optional Posicao alvo = 1;  // Para onde o olho olha.
+  optional Posicao destino = 2;  // Para movimentos de olho.
   optional float rotacao_rad = 3;  // radianos.
-  optional float altura = 4;
-  optional float raio = 5;
+  optional float altura = 4;  // Distancia vertical do olho ao alvo.
+  optional float raio = 5;  // Distancia horizontal do olho ao alvo.
   optional Posicao pos = 6;  // Posicao do olho, computada dos valores acima.
 }
 
