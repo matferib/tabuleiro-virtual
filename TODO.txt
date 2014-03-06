@@ -1,12 +1,10 @@
 Versao 1.0
 - Pensar em uma solucao pro slide do OpenGL ES.
-- Passar funcoes de stencil e clearcolor e textura pro GL.
 - Arrumar selecao de quadrados quando tabuleiro tiver lado de tamanho impar.
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
-- Terminar de mudar tudo pro gl.h.
 
 Versao 2.0
 - Tipos de acoes padrao por modelo (por exemplo, orc tem primario corpo a corpo, secundario distancia).
