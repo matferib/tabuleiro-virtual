@@ -1,5 +1,5 @@
 Versao 1.0
-- Pensar em uma solucao por slide do OpenGL ES.
+- Pensar em uma solucao pro slide do OpenGL ES.
 - Passar funcoes de stencil e clearcolor e textura pro GL.
 - Arrumar selecao de quadrados quando tabuleiro tiver lado de tamanho impar.
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.

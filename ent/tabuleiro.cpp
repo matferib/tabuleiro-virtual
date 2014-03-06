@@ -1051,10 +1051,10 @@ void Tabuleiro::DesenhaCena() {
   }
 
   gl::Habilita(GL_DEPTH_TEST);
-  glClearColor(proto_.luz_ambiente().r(),
-               proto_.luz_ambiente().g(),
-               proto_.luz_ambiente().b(),
-               proto_.luz_ambiente().a());
+  gl::CorLimpeza(proto_.luz_ambiente().r(),
+                 proto_.luz_ambiente().g(),
+                 proto_.luz_ambiente().b(),
+                 proto_.luz_ambiente().a());
   if (parametros_desenho_.limpa_fundo()) {
     gl::Limpa(GL_COLOR_BUFFER_BIT);
   }
@@ -1184,12 +1184,11 @@ void Tabuleiro::DesenhaCena() {
   // a outros nao transparentes.
   if (parametros_desenho_.transparencias()) {
     gl::Habilita(GL_BLEND);
-    glDepthMask(false);
+    gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
     parametros_desenho_.set_alfa_translucidos(0.5);
     DesenhaEntidadesTranslucidas();
     parametros_desenho_.clear_alfa_translucidos();
     DesenhaAuras();
-    glDepthMask(true);
     gl::Desabilita(GL_BLEND);
   } else {
     // Desenha os translucidos de forma solida para picking.
@@ -1208,14 +1207,13 @@ void Tabuleiro::DesenhaCena() {
   }
 
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
-    glDepthMask(false);
+    gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
     gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
-    glDepthMask(true);
   }
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {

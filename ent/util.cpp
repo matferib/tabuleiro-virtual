@@ -137,7 +137,7 @@ void LigaStencil() {
   gl::Limpa(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
   glStencilFunc(GL_ALWAYS, 0xFF, 0xFF);  // Sempre passa no stencil.
   glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);  // Quando passar no stencil e no depth, escreve 0xFF.
-  glColorMask(0, 0, 0, 0);  // Para nao desenhar nada de verdade, apenas no stencil.
+  gl::MascaraCor(false);  // Para nao desenhar nada de verdade, apenas no stencil.
 }
 
 void DesenhaStencil(const Cor& cor) {
@@ -151,7 +151,7 @@ void DesenhaStencil(const float* cor) {
   int largura = viewport[2], altura = viewport[3];
 
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-  glColorMask(true, true, true, true);
+  gl::MascaraCor(true);
   glStencilFunc(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
   glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
   // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
@@ -170,10 +170,9 @@ void DesenhaStencil(const float* cor) {
         }
       }
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-      glDepthMask(false);
+      gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
       gl::Retangulo(0.0f, 0.0f, largura, altura);
-      glDepthMask(true);
     }
   }
   // Restaura atributos antes do stencil.

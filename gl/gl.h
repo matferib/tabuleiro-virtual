@@ -269,12 +269,21 @@ inline void MudaCor(float r, float g, float b, float a) {
 #else
 void MudaCor(float r, float g, float b, float a);
 #endif
+inline void MascaraCor(GLboolean mascara) { glColorMask(mascara, mascara, mascara, mascara); }
 
+inline void CorLimpeza(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glClearColor(r, g, b, a); }
 #if !USAR_OPENGL_ES
 inline void Limpa(GLbitfield mascara) { glClear(mascara); }
 #else
 void Limpa(GLbitfield mascara);
 #endif
+
+inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
+class DesligaTesteProfundidadeEscopo {
+ public:
+  DesligaTesteProfundidadeEscopo() { MascaraProfundidade(false); }
+  ~DesligaTesteProfundidadeEscopo() { MascaraProfundidade(true); }
+};
 
 }  // namespace gl
 
