@@ -352,7 +352,7 @@ class Tabuleiro : public ntf::Receptor {
   void SelecionaQuadrado(int id_quadrado);
 
   /** retorna as coordenadas do quadrado. */
-  void CoordenadaQuadrado(int id_quadrado, double* x, double* y, double* z);
+  void CoordenadaQuadrado(int id_quadrado, float* x, float* y, float* z);
 
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida. */
   ntf::Notificacao* SerializaTabuleiro();
