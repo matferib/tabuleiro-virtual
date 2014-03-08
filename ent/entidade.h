@@ -68,13 +68,13 @@ class Entidade {
   int PontosVida() const;
 
   /** @return a coordenada (x). */
-  double X() const;
+  float X() const;
 
   /** @return a coordenada (y). */
-  double Y() const;
+  float Y() const;
 
-  /** @return a coordenada (z). */
-  double Z() const;
+  /** @return a coordenada (z). Se delta == true, aplica o delta de voo se a entidade estiver voando. */
+  float Z() const;
 
   /** Retorna as coordenadas do objeto como posicao. */
   const Posicao& Pos() const { return proto_.pos(); }

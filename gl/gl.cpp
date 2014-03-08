@@ -524,7 +524,6 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
       VLOG(2) << "Id mapeado: " << (void*)id_mapeado;
-#pragma GCC diagnostic push
       unsigned int pos_pilha = id_mapeado >> 22;
       VLOG(2) << "Pos pilha: " << pos_pilha;
       if (pos_pilha == 0 || pos_pilha > 3) {
@@ -533,9 +532,10 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       }
       auto it = g_contexto.ids.find(id_mapeado);
       if (it == g_contexto.ids.end()) {
-        LOG(ERROR) << "ERRO nao encontrei o id.";
+        LOG(ERROR) << "Id nao mapeado: " << (void*)id_mapeado;
         return 0;
       }
+#pragma GCC diagnostic pop 
       unsigned int id_original = it->second;
       VLOG(2) << "Id original: " << id_original;
       GLuint* ptr = g_contexto.buffer_selecao;
