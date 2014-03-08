@@ -224,15 +224,15 @@ int Entidade::PontosVida() const {
   return proto_.pontos_vida();
 }
 
-double Entidade::X() const {
+float Entidade::X() const {
   return proto_.pos().x();
 }
 
-double Entidade::Y() const {
+float Entidade::Y() const {
   return proto_.pos().y();
 }
 
-double Entidade::Z() const {
+float Entidade::Z() const {
   return proto_.pos().z();
 }
 

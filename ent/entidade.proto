@@ -166,4 +166,12 @@ message ParametrosDesenho {
   optional bool desenha_rastro_movimento = 22 [default=true];
   // Se verdadeiro, as texturas serao viradas sempre para cima.
   optional bool desenha_texturas_para_cima = 23 [default=false];
+  // Parametros de OpenGL ES.
+  message ParametrosOpenglEs {
+    // Indica se eh o id eh de tabuleiro ou entidade.
+    optional bool tabuleiro = 1 [default=true];  
+    // Id da entidade a ser desenhada com precisao.
+    optional uint32 id = 2;
+  }
+  optional ParametrosOpenglEs params_opengles = 24;
 }
