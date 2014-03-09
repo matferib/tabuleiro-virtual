@@ -1,10 +1,6 @@
-#include <cmath>
-#include <unordered_map>
-#include "gl/gl.h"
-#include "log/log.h"
-
-namespace gl {
 #if !USAR_OPENGL_ES
+namespace gl {
+
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
 }
@@ -33,10 +29,19 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   gluDeleteQuadric(cilindro);
 }
 
-#else
+}  // namespace gl.
 
+#else
 // OpenGL ES.
 // Varias funcoes copiadas do GLUES: https://code.google.com/p/glues/.
+
+#include <cmath>
+#include <unordered_map>
+#include <utility>
+#include "gl/gl.h"
+#include "log/log.h"
+
+namespace gl {
 
 #define __glPi 3.14159265358979323846
 namespace {
@@ -609,6 +614,6 @@ void Limpa(GLbitfield mascara) {
   glClear(mascara);
 }
 
-#endif
-
 }  // namespace gl
+
+#endif
