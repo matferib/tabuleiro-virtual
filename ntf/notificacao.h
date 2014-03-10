@@ -33,7 +33,7 @@ class CentralNotificacoes {
   /** Adiciona uma notificacao a central, que sera a dona dela. */
   void AdicionaNotificacao(Notificacao* notificacao);
 
-  /** Adiciona uma notificacao a ser processada apenas pelos receptores remotos. 
+  /** Adiciona uma notificacao a ser processada apenas pelos receptores remotos.
   * A central possuirá a notificação. */
   void AdicionaNotificacaoRemota(Notificacao* notificacao);
 

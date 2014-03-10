@@ -8,7 +8,6 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gl/gl.h"
-#include "ifg/qt/texturas.h"
 #include "log/log.h"
 
 namespace ent {
