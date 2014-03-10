@@ -116,7 +116,8 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         // menuitem nao NULL, adiciona normalmente da lista de menuitems
         // incrementando para o proximo no final
         auto* acao = new QAction(tr(menuitem_str), menu);
-        if (grupo_menu != nullptr) {
+        // Outro hack so pra selecao de cor...
+        if (grupo_menu != nullptr && std::string(menuitem_str) != "&Selecionar Cor") {
           acao->setCheckable(true);
           grupo_menu->addAction(acao);
         }
