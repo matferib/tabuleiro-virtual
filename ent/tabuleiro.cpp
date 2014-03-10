@@ -196,7 +196,7 @@ void DesenhaEntidadeDetalhada(const ParametrosDesenho& pd, Entidade* entidade) {
 
 }  // namespace.
 
-Tabuleiro::Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central) :
+Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central) :
     id_cliente_(0),
     proximo_id_cliente_(1),
     texturas_(texturas),

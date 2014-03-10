@@ -20,7 +20,7 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::CentralNotificacoes* central);
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf::CentralNotificacoes* central);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -131,11 +131,11 @@ class Entidade {
     // Entidades em queda caem progressivamente ate 90 graus.
     float angulo_disco_queda_graus;
     // As texturas da entidade.
-    Texturas* texturas;
+    const Texturas* texturas;
   };
 
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, Texturas*, ntf::CentralNotificacoes*);
-  Entidade(Texturas* texturas, ntf::CentralNotificacoes* central);
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, ntf::CentralNotificacoes*);
+  Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
