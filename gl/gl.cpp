@@ -1,4 +1,6 @@
 #if !USAR_OPENGL_ES
+#include "gl/gl.h"
+
 namespace gl {
 
 void IniciaGl(int* argcp, char** argv) {
