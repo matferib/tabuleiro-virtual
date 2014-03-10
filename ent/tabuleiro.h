@@ -53,7 +53,7 @@ typedef std::unordered_set<unsigned int> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(Texturas* texturas, ntf::CentralNotificacoes* central);
+  explicit Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -473,7 +473,7 @@ class Tabuleiro : public ntf::Receptor {
   const AcaoProto* acao_selecionada_;
   std::unordered_map<std::string, std::unique_ptr<AcaoProto>> mapa_acoes_;
 
-  Texturas* texturas_;
+  const Texturas* texturas_;
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.

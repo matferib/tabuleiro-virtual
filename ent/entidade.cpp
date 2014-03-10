@@ -23,7 +23,7 @@ const float ALTURA_TIJOLO_BASE = TAMANHO_LADO_QUADRADO_10;
 }  // namespace
 
 // Factory.
-Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::CentralNotificacoes* central) {
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf::CentralNotificacoes* central) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
@@ -40,7 +40,7 @@ Entidade* NovaEntidade(const EntidadeProto& proto, Texturas* texturas, ntf::Cent
 }
 
 // Entidade
-Entidade::Entidade(Texturas* texturas, ntf::CentralNotificacoes* central) {
+Entidade::Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central) {
   vd_.texturas = texturas;
   central_ = central;
 }
