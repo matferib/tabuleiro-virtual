@@ -1,6 +1,7 @@
+# Baseado na documentacao em: file:///opt/android-ndk-r9d/docs/APPLICATION-MK.html.
+#APP_MODULES := tabuleiro protobuf-prebuilt boost-prebuilt 
+APP_CPPFLAGS := -std=c++11
+APP_ABI := armeabi-v7a
+APP_PLATFORM := android-14  # 4.0
+APP_STL := gnustl_shared
 NDK_TOOLCHAIN_VERSION := 4.8
-APP_STL := gnustl_static
-#NDK_ROOT := /opt/android-ndk-r9d/
-#LOCAL_C_INCLUDES := $(NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/include
-#LOCAL_C_INCLUDES += $(NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/include
-#LOCAL_LDLIBS += $(NDK_ROOT)/sources/cxx-stl/gnu-libstdc++/4.8/libs/armeabi-v7a/libgnustl_static.a
