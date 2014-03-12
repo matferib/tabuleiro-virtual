@@ -1,5 +1,7 @@
 Versao 1.0
-- Arrumar o crash do tabuleiro e entender pau na iluminacao.
+- Implementar toque no tablet.
+- Implementar textura no tablet.
+- Aprender a depurar tablet.
 - Arrumar selecao de quadrados quando tabuleiro tiver lado de tamanho impar.
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.

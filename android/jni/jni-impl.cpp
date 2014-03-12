@@ -14,6 +14,15 @@
 
 namespace {
 
+class DummyReceptor : public ntf::Receptor {
+ public:
+  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
+    if (notificacao.tipo() == ntf::TN_ERRO) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+    }
+  }
+};
+
 // Textura dummy.
 class DummyTexturas : public ent::Texturas {
  public:
@@ -24,6 +33,7 @@ std::unique_ptr<DummyTexturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
+std::unique_ptr<ntf::Receptor> g_receptor;
 
 }  // namespace
 
@@ -35,11 +45,13 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env) {
   char** argvp = nullptr;
   gl::IniciaGl(argcp, argvp);
   ent::Tabuleiro::InicializaGL();
-  g_texturas.reset(new DummyTexturas);
   g_central.reset(new ntf::CentralNotificacoes);
+  g_texturas.reset(new DummyTexturas);
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
-  net::Cliente cliente(g_servico_io.get(), g_central.get());
+  g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
+  g_receptor.reset(new DummyReceptor);
+  g_central->RegistraReceptor(g_receptor.get());
 
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
   n->set_endereco("192.168.1.6:11223");
@@ -56,14 +68,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDone(JNIEnv* env) {
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeTogglePauseResume(JNIEnv* env) {
-  if (g_central.get() != nullptr) {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTogglePauseResume");
-    auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
-    g_central->AdicionaNotificacao(n);
-    g_central->Notifica();
-  } else {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTogglePauseResume antes");
-  }
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTogglePauseResume");
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env) {
@@ -78,6 +83,13 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRender");
   // TODO hack.
   g_tabuleiro->Desenha();
+}
+
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTimer");
+  auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
+  g_central->AdicionaNotificacao(n);
+  g_central->Notifica();
 }
 
 }  // extern "C"
