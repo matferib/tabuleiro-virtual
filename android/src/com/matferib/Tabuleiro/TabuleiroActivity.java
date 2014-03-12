@@ -40,8 +40,9 @@ public class TabuleiroActivity extends Activity {
 class TabuleiroSurfaceView extends GLSurfaceView {
   public TabuleiroSurfaceView(Context context) {
     super(context);
-    mRenderer = new TabuleiroRenderer();
+    mRenderer = new TabuleiroRenderer(this);
     setRenderer(mRenderer);
+    setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
 
   public boolean onTouchEvent(final MotionEvent event) {
@@ -70,13 +71,19 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private static native void nativeTogglePauseResume();
 }
 
-class TabuleiroRenderer implements GLSurfaceView.Renderer {
+class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Renderer, Runnable {
+  public TabuleiroRenderer(GLSurfaceView parent) {
+    parent_ = parent;
+  }
+
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
     nativeInit();
+    // Liga o timer a cada 10 ms.
+    java.util.Timer timer = new java.util.Timer();
+    timer.scheduleAtFixedRate(this, 0, 10);
   }
 
   public void onSurfaceChanged(GL10 gl, int w, int h) {
-    //gl.glViewport(0, 0, w, h);
     nativeResize(w, h);
   }
 
@@ -84,8 +91,16 @@ class TabuleiroRenderer implements GLSurfaceView.Renderer {
     nativeRender();
   }
 
+  public void run() {
+    nativeTimer();
+    parent_.requestRender();
+  }
+
   private static native void nativeInit();
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
   private static native void nativeDone();
+  private static native void nativeTimer();
+
+  private GLSurfaceView parent_;
 }

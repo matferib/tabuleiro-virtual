@@ -352,7 +352,7 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   GLfloat tam_y_base = raio_base * cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
   GLfloat tam_y_topo = raio_topo * cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
   GLfloat vetor_x[3] = { 1.0f, 0.0f, 0.0f };
-  GLfloat vetor_cima[3] = { 0.0f, -(raio_base - raio_topo), altura };
+  GLfloat vetor_cima[3] = { 0.0f, raio_base - raio_topo, altura };
   GLfloat vetor_normal[3];
   // Gera a normal FLAT.
   ProdutoVetorial(vetor_x, vetor_cima, vetor_normal);
@@ -542,7 +542,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         LOG(ERROR) << "Id nao mapeado: " << (void*)id_mapeado;
         return 0;
       }
-#pragma GCC diagnostic pop 
+#pragma GCC diagnostic pop
       unsigned int id_original = it->second;
       VLOG(2) << "Id original: " << id_original;
       GLuint* ptr = g_contexto.buffer_selecao;
@@ -602,7 +602,8 @@ void MudaCor(float r, float g, float b, float a) {
     return;
   }
   GLfloat cor[4] = { r, g, b, a };
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
+  // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
 }
 

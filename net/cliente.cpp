@@ -102,7 +102,7 @@ void Cliente::Desconecta() {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
   central_->DesregistraReceptorRemoto(this);
-  std::cout << "Desconectando..." << std::endl;
+  LOG(INFO) << "Desconectando...";
 }
 
 bool Cliente::Ligado() const {
