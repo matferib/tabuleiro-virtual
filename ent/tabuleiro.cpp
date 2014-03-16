@@ -1695,6 +1695,7 @@ bool Tabuleiro::MousePara3d(int x, int y, float profundidade, float* x3d, float*
 }
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
+  LOG(INFO) << "Tabuleiro::TrataBotaoEsquerdoPressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
 
