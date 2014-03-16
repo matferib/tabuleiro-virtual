@@ -4,7 +4,7 @@
 #include <gflags/gflags.h>
 #include <glog/logging.h>
 
-#elif __ANDROID__
+#elif ANDROID
 
 // TODO converter para android log.
 #include <android/log.h>
@@ -36,8 +36,8 @@ inline const StringLogger& operator<<(const StringLogger& logger, const std::str
   return logger;
 }
 
-#define LOG(X) if (false) StringLogger(__FILE__, __LINE__)
-#define VLOG(X) if (false && X <= 1) StringLogger(__FILE__, __LINE__)
+#define LOG(X) if (true) StringLogger(__FILE__, __LINE__)
+#define VLOG(X) if (true && X <= 1) StringLogger(__FILE__, __LINE__)
 // __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 
 #else
