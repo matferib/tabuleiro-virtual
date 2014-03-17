@@ -1,0 +1,33 @@
+Versao 1.0
+- Implementar toque no tablet.
+- Implementar textura no tablet.
+- Aprender a depurar tablet.
+- Arrumar selecao de quadrados quando tabuleiro tiver lado de tamanho impar.
+- Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
+- Adicionar modelos diversos.
+- Adicionar texturas globais.
+- Instalador windows, rpm linux e ??? MAC.
+
+Versao 2.0
+- Tipos de acoes padrao por modelo (por exemplo, orc tem primario corpo a corpo, secundario distancia).
+- Registro correto dos diretorios para funcionar de qualquer diretorio.
+- Ler tabuleiro sem apagar modelos.
+- Modelar menu com um proto ASCII para facilitar expansao.
+- Botao de aplicar mudancas nos dialogos.
+- No movimento com teclado, acumular teclas ou deltas.
+- Shader.
+- Dano em acoes de area.
+- Luz na camera?
+- Outros bits de status (dormindo, paralizado).
+- Outros tipos de efeito das acoes nas entidades (tremer).
+- Outros tipos de acoes (perfurante, concussao).
+- Adicionar mais detalhes as entidades (Ataque, CA, Saves).
+- Adicionar unit tests (comecar pelos simples).
+- Sons.
+- Versao IPAD e Android.
+- Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.
+- Mudar cursor quando control estiver pressionado.
+- Selecao de porta pelo servidor.
+- Tooltip com mais informacao.
+- Arrumar tempo de desenho de cena.
+- Performance para tabuleiro grande.

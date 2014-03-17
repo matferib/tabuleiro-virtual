@@ -1,0 +1,84 @@
+// Tudo relacionado as acoes que os jogadores podem realizar.
+import "ent/entidade.proto";
+
+package ent;
+
+enum TipoAcao {
+  ACAO_PROJETIL = 1;
+  ACAO_DISPERSAO = 2;
+  ACAO_RAIO = 3;
+  ACAO_SINALIZACAO = 4;
+  ACAO_DELTA_PONTOS_VIDA = 5;
+  ACAO_CORPO_A_CORPO = 6;
+  ACAO_FEITICO_TOQUE = 7;
+}
+
+enum GeometriaAcao {
+  ACAO_GEO_ESFERA = 1;
+  ACAO_GEO_CUBO = 2;
+  ACAO_GEO_CONE = 3;
+}
+
+enum TipoAceleracao {
+  ACAO_ACEL_ZERO = 1;  // Nao muda velocidade.
+  ACAO_ACEL_CONSTANTE = 2;  // Acelera constantemente.
+  ACAO_ACEL_QUADRATICA = 3;  // Acelera quadraticamente.
+}
+
+message Translacao {
+  optional float x = 1 [default=0];
+  optional float y = 2 [default=0];
+  optional float z = 3 [default=0];
+}
+
+message Velocidade {
+  // Em m / 10ms.
+  optional float inicial = 1;
+  optional TipoAceleracao tipo_aceleracao = 2 [default=ACAO_ACEL_ZERO];
+  // O delta a cada atualizacao ao qual sera aplicado a aceleracao. Em unidades / 10ms.
+  optional float delta_velocidade = 3;
+}
+
+message AcaoProto {
+  // Identificador da acao, para menus.
+  optional string id = 1;
+  // Tipo da acao.
+  optional TipoAcao tipo = 2;
+  // Raio da acao (para dispersao).
+  optional int32 raio_area = 3;  // quadrados.
+  // Distancia da acao (para dispersao de cone).
+  optional int32 distancia = 5;  // quadrados.
+  // Aplicada antes da escala.
+  optional Translacao translacao = 17;
+  // Escala sobre a geometria.
+  optional Escala escala = 18;
+  // Cor da acao.
+  optional Cor cor = 4;
+  // Identificador do causador da acao.
+  optional uint32 id_entidade_origem = 10;
+  // Identificador do alvo da acao.
+  optional uint32 id_entidade_destino = 11;
+  // Posicao do clique no tabuleiro, para quem usar.
+  optional Posicao pos_quadrado = 12;
+  optional Posicao pos_tabuleiro = 13;
+  // Usado para indicar o delta de pontos de vida da unidade afetada. Ver afeta_pontos_vida.
+  optional int32 delta_pontos_vida = 14;  // cosmetico apenas.
+  // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
+  optional bool afeta_pontos_vida = 15 [default=false];  // Se verdadeiro, a entidade sofre o dano de verdade.
+  // O tipo de objeto para algumas acoes especificas.
+  optional GeometriaAcao geometria = 16;
+  optional Velocidade velocidade = 19;
+  // Duracao * 10ms.
+  optional uint32 duracao = 20;
+  // Atraso para comecar a acao * 10ms.
+  optional uint32 atraso = 21;
+  // Acao tem efeito de area. Isso implica que se houver varias entidades selecionadas, o efeito se aplicara
+  // a elas (ao inves de cada entidade fazer uma acao).
+  optional bool efeito_area = 22 [default=false];
+
+}
+
+// O arquivo de acoes é serializado desta forma.
+message Acoes {
+  repeated AcaoProto acao = 1;
+}
