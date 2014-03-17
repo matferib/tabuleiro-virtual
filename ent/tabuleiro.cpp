@@ -1451,16 +1451,21 @@ void Tabuleiro::AtualizaOlho(bool forcar) {
   }
   auto* pos_alvo = olho_.mutable_alvo();
   double origem[] = { pos_alvo->x(), pos_alvo->y(), pos_alvo->z() };
-  const auto& pd = olho_.destino();
-  double destino[] = { pd.x(), pd.y(), pd.z() };
-  bool chegou = true;
-  for (int i = 0; i < 3; ++i) {
-    double delta = (origem[i] > destino[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
-    if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO) {
-      origem[i] += delta;
-      chegou = false;
-    } else {
-      origem[i] = destino[i];
+  if (olho_.has_destino()) {
+    const auto& pd = olho_.destino();
+    double destino[] = { pd.x(), pd.y(), pd.z() };
+    bool chegou = true;
+    for (int i = 0; i < 3; ++i) {
+      double delta = (origem[i] > destino[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
+      if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO) {
+        origem[i] += delta;
+        chegou = false;
+      } else {
+        origem[i] = destino[i];
+      }
+    }
+    if (chegou) {
+      olho_.clear_destino();
     }
   }
   pos_alvo->set_x(origem[0]);
@@ -1471,10 +1476,6 @@ void Tabuleiro::AtualizaOlho(bool forcar) {
   pos_olho->set_x(pos_alvo->x() + cosf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_y(pos_alvo->y() + sinf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_z(olho_.altura());
-
-  if (chegou) {
-    olho_.clear_destino();
-  }
 }
 
 void Tabuleiro::AtualizaEntidades() {
