@@ -42,7 +42,7 @@ inline const StringLogger& operator<<(const StringLogger& logger, const std::str
 
 #else
 // TODO dar um jeito de anular essas macros se nao tiver log.
-#include <iosfwd>
+#include <iostream>
 #define LOG(X) if (false) std::cout
 #define VLOG(X) if (false) std::cout
 #endif
