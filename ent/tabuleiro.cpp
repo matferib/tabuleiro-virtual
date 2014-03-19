@@ -940,11 +940,11 @@ void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
 void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   AcaoProto acao_proto;
   if (acao_padrao) {
-    // usa acao padrao.
+    // usa acao de sinalizacao.
     VLOG(1) << "Botao acao sinalizacao";
     acao_proto.set_tipo(ACAO_SINALIZACAO);
   } else {
-    // Usa acoes.
+    // Usa modelo selecionado.
     VLOG(1) << "Botao acao de modelo selecionado";
     acao_proto.CopyFrom(*acao_selecionada_);
   }
@@ -979,7 +979,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     }
   }
 
-  if (estado_ == ETAB_OCIOSO) {
+  if (estado_ == ETAB_OCIOSO || estado_ == ETAB_QUAD_SELECIONADO) {
     // Acoes sem origem.
     if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
       int delta_pontos_vida = lista_pontos_vida_.front();
