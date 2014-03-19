@@ -97,12 +97,15 @@ const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id) {
   return fileinfo;
 }
 
-// Calcula o dano acumulado no vetor de teclas, usando a primeira tecla para o tipo do dano.
-int CalculaDano(const std::vector<int>::const_reverse_iterator& inicio_teclas,
-                const std::vector<int>::const_reverse_iterator& fim_teclas) {
+// Calcula o dano de uma sequencia de caracteres.
+int CalculaDanoSimples(const std::vector<int>::const_iterator& inicio_teclas_normal,
+                       const std::vector<int>::const_iterator& fim_teclas_normal) {
+  std::vector<int>::const_reverse_iterator inicio_teclas(fim_teclas_normal);
+  std::vector<int>::const_reverse_iterator fim_teclas(inicio_teclas_normal);
+
   int delta = 0;
   int multiplicador = 1;
-  for (auto it = inicio_teclas; it < fim_teclas - 1; ++it) {
+  for (auto it = inicio_teclas; it < fim_teclas; ++it) {
     if (*it < Qt::Key_0 || *it > Qt::Key_9) {
       LOG(WARNING) << "Tecla inválida para delta pontos de vida";
       continue;
@@ -111,11 +114,22 @@ int CalculaDano(const std::vector<int>::const_reverse_iterator& inicio_teclas,
     multiplicador *= 10;
   }
   VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
-  return *(fim_teclas - 1) == Qt::Key_D ? -delta : delta;
+  return delta;
 }
 
-int CalculaDano(const std::vector<int>& teclas) {
-  return CalculaDano(teclas.rbegin(), teclas.rend());
+// Calcula o dano acumulado no vetor de teclas.
+const std::vector<int> CalculaDano(const std::vector<int>::const_iterator& inicio_teclas,
+                                   const std::vector<int>::const_iterator& fim_teclas) {
+  std::vector<int> result;
+  auto it_inicio = inicio_teclas;
+  for (auto it = inicio_teclas; it < fim_teclas; ++it) {
+    if (*it == Qt::Key_Space) {
+      result.push_back(CalculaDanoSimples(it_inicio, it));
+      it_inicio = it + 1;  // pula o espaco.
+    }
+  }
+  result.push_back(CalculaDanoSimples(it_inicio, fim_teclas));
+  return result;
 }
 
 }  // namespace
@@ -234,6 +248,12 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       case Qt::Key_Enter:
       case Qt::Key_Return:
         // Finaliza temporizacao.
+        TrataAcaoTemporizadaTeclado();
+        break;
+      case Qt::Key_Backspace:
+      case Qt::Key_Delete:
+        // Finaliza temporizacao.
+        teclas_.push_back(event->key());
         TrataAcaoTemporizadaTeclado();
         break;
       default:
@@ -808,14 +828,26 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
       } else if (teclas_[1] == Qt::Key_Backspace) {
         tabuleiro_->LimpaUltimoListaPontosVida();
       } else {
-        tabuleiro_->AcumulaPontosVida(CalculaDano(teclas_.rbegin(), teclas_.rend() - 1));
+        auto lista_dano = CalculaDano(teclas_.begin() + 1, teclas_.end());
+        if (teclas_[1] == Qt::Key_D) {
+          // Inverte o dano.
+          for (int& pv : lista_dano) {
+            pv = -pv;
+          }
+        }
+        tabuleiro_->AcumulaPontosVida(lista_dano);
       }
       break;
     }
     case Qt::Key_C:
-    case Qt::Key_D:
-      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(CalculaDano(teclas_));
+    case Qt::Key_D: {
+      const auto lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
+      if (lista_pv.size() != 1) {
+        break;
+      }
+      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(lista_pv[0]);
       break;
+    }
     default:
       VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
   }

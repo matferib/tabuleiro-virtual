@@ -508,12 +508,14 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(unsigned int id_entidade, int 
   TrataNotificacao(na);
 }
 
-void Tabuleiro::AcumulaPontosVida(int pv) {
-  if (pv >= 1000 || pv <= -1000) {
-    LOG(ERROR) << "Ignorando pv: " << pv;
-    return;
+void Tabuleiro::AcumulaPontosVida(const std::vector<int>& lista_pv) {
+  for (int pv : lista_pv) {
+    if (pv >= 1000 || pv <= -1000) {
+      LOG(ERROR) << "Ignorando pv: " << pv;
+      continue;
+    }
+    lista_pontos_vida_.emplace_back(pv);
   }
-  lista_pontos_vida_.emplace_back(pv);
 }
 
 void Tabuleiro::LimpaListaPontosVida() {
