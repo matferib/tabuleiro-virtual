@@ -110,8 +110,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao. Nao preocupa com desfazer, que ja foi feito no inicio da acao. */
   void AtualizaPontosVidaEntidadePorAcao(unsigned int id, int delta_pontos_vida);
 
-  /** Poe pv no final da lista de pontos de vida acumuladors. */
-  void AcumulaPontosVida(int pv);
+  /** Adiciona a lista_pv no final da lista de pontos de vida acumulados. */
+  void AcumulaPontosVida(const std::vector<int>& lista_pv);
   /** Limpa a lista de pontos de vida. */
   void LimpaListaPontosVida();
   /** Limpa a ultima entrada da lista de pontos de vida. */
