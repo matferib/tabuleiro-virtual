@@ -6,6 +6,8 @@
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #elif WIN32
+#include <windows.h>
+#include <windef.h> // According to comments above
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
