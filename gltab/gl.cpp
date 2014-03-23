@@ -40,7 +40,7 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
 #include <cmath>
 #include <unordered_map>
 #include <utility>
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "log/log.h"
 
 namespace gl {
@@ -516,6 +516,7 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
 
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
   if (g_contexto->modo_renderizacao == modo) {
+    VLOG(1) << "Nao houve mudanca no modo de renderizacao";
     return 0;
   }
   g_contexto->modo_renderizacao = modo;
@@ -526,10 +527,11 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       g_contexto->ids.clear();
       return 0;
     case MR_RENDER: {
-      glFlush();
-      glFinish();
+      //glFlush();
+      //glFinish();
       GLubyte pixel[4] = { 0 };
       glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+      VLOG(2) << "Erro pos glReadPixels: " << glGetError();
       // Usar void* para imprimir em hexa.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"

@@ -1199,19 +1199,19 @@ void Tabuleiro::DesenhaCena() {
   }
 
   // Algumas verificacoes.
-  GLint depth;
+  GLint depth = 0;
   gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
   if (depth > 2) {
-    LOG(ERROR) << "Pilha MODELVIEW com vazamento";
+    LOG(ERROR) << "Pilha MODELVIEW com vazamento: " << depth;
   }
   gl::Le(GL_PROJECTION_STACK_DEPTH, &depth);
   if (depth > 2) {
-    LOG(ERROR) << "Pilha PROJECTION com vazamento";
+    LOG(ERROR) << "Pilha PROJECTION com vazamento: " << depth;
   }
 #if !USAR_OPENGL_ES
   gl::Le(GL_ATTRIB_STACK_DEPTH, &depth);
   if (depth > 2) {
-    LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento";
+    LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento: " << depth;
   }
 #endif
   if (!parametros_desenho_.desenha_entidades()) {
@@ -1558,7 +1558,7 @@ void Tabuleiro::BuscaHitMaisProximo(
   // - 3: nomes empilhados (1 para cada pos pilha).
   // Dado o hit mais proximo, retorna o identificador, a posicao da pilha e a
   // profundidade do objeto (normalizado 0..1.0).
-  VLOG(3) << "numero de hits no buffer de picking: " << numero_hits;
+  VLOG(2) << "numero de hits no buffer de picking: " << numero_hits;
   GLuint* ptr_hits = buffer_hits;
   // valores do hit mais proximo.
   GLuint menor_z = 0xFFFFFFFF;
@@ -1617,7 +1617,7 @@ void Tabuleiro::BuscaHitMaisProximo(
                     (DISTANCIA_PLANO_CORTE_DISTANTE - DISTANCIA_PLANO_CORTE_PROXIMO);
   }
 #endif
-  VLOG(3) << "Retornando menor profundidade: " << menor_profundidade
+  VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
           << ", pos_pilha: " << pos_pilha_menor
           << ", id: " << id_menor;
 }
@@ -1698,7 +1698,6 @@ bool Tabuleiro::MousePara3d(int x, int y, float profundidade, float* x3d, float*
 }
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
-  LOG(INFO) << "Tabuleiro::TrataBotaoEsquerdoPressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
 

@@ -6,38 +6,34 @@
 
 #elif ANDROID
 
-// TODO converter para android log.
 #include <android/log.h>
+#include <cstring>
 #include <string>
 #include <sstream>
 
 class StringLogger {
  public:
   StringLogger(const char* file, int line) {
-    std::ostringstream oss;
-    oss << file << ", " << line << ": ";
-    str_ = oss.str();
+    oss_ << file << ", " << line << ": ";
   }
 
-  const std::string& str() const { return str_; }
+  ~StringLogger() {
+    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "%s", oss_.str().c_str());
+  }
+
+  template <class T>
+  inline StringLogger& operator<<(const T& msg) {
+    oss_ << msg;
+    return *this;
+  }
 
  private:
-  std::string str_;
+  std::ostringstream oss_;
 };
 
-template <class T>
-inline const StringLogger& operator<<(const StringLogger& logger, const T& msg) {
-  return logger;
-}
-
-template <>
-inline const StringLogger& operator<<(const StringLogger& logger, const std::string& msg) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "%s%s", logger.str().c_str(), msg.c_str());
-  return logger;
-}
-
-#define LOG(X) if (true) StringLogger(__FILE__, __LINE__)
-#define VLOG(X) if (true && X <= 1) StringLogger(__FILE__, __LINE__)
+#define SHORT_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define LOG(X) if (true) StringLogger(SHORT_FILE, __LINE__)
+#define VLOG(X) if (true && X <= 1) StringLogger(SHORT_FILE, __LINE__)
 // __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 
 #else
