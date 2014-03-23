@@ -54,7 +54,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env) {
   g_central->RegistraReceptor(g_receptor.get());
 
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_endereco("192.168.1.6:11223");
+  n->set_endereco("192.168.1.10:11223");
   g_central->AdicionaNotificacao(n);
 }
 
@@ -67,10 +67,6 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDone(JNIEnv* env) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDone");
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeTogglePauseResume(JNIEnv* env) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTogglePauseResume");
-}
-
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 }
@@ -79,9 +75,23 @@ void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env) 
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
 }
 
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* env, jobject thiz, jfloat x, jfloat y) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %f %f", x, y);
+  g_tabuleiro->TrataBotaoEsquerdoPressionado(x, y, false);
+}
+
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env, jfloat x, jfloat y) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchMoved: %f %f", x, y);
+  g_tabuleiro->TrataMovimentoMouse(x, y);
+}
+
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchReleased(JNIEnv* env) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchReleased");
+  g_tabuleiro->TrataBotaoLiberado();
+}
+
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRender");
-  // TODO hack.
   g_tabuleiro->Desenha();
 }
 
