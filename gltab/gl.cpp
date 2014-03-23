@@ -205,22 +205,24 @@ static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16],
 struct ContextoInterno {
   // Mapeia um ID para a cor RGB em 22 bits (os dois mais significativos sao para a pilha).
   std::unordered_map<unsigned int, unsigned int> ids;
-  unsigned int proximo_id;
-  // O bit da pilha em dois bits (0-3).
-  unsigned int bit_pilha;
-  modo_renderizacao_e modo_renderizacao;
-  GLuint* buffer_selecao;
-  GLuint tam_buffer;
-} g_contexto;
+  unsigned int proximo_id = 0;
+  // O bit da pilha em dois bits (valor de 0 a 3).
+  unsigned int bit_pilha = 0;
+  modo_renderizacao_e modo_renderizacao = MR_RENDER;
+  GLuint* buffer_selecao = nullptr;
+  GLuint tam_buffer = 0;
+};
+
+ContextoInterno* g_contexto = nullptr;
 
 // Gera um proximo ID.
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
-  unsigned int id_mapeado = g_contexto.proximo_id | (g_contexto.bit_pilha << 22);
-  g_contexto.ids.insert(std::make_pair(id_mapeado, id));
-  if (g_contexto.proximo_id == ((1 << 22) - 1)) {
+  unsigned int id_mapeado = g_contexto->proximo_id | (g_contexto->bit_pilha << 22);
+  g_contexto->ids.insert(std::make_pair(id_mapeado, id));
+  if (g_contexto->proximo_id == ((1 << 22) - 1)) {
     LOG(ERROR) << "Limite de ids alcancado";
   } else {
-    ++g_contexto.proximo_id;
+    ++g_contexto->proximo_id;
   }
   rgb[0] = (id_mapeado & 0xFF);
   rgb[1] = ((id_mapeado >> 8) & 0xFF);
@@ -230,10 +232,11 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
 }  // namespace
 
 void IniciaGl(int* argcp, char** argv) {
-  g_contexto.modo_renderizacao = MR_RENDER;
+  g_contexto = new ContextoInterno;
 }
 
 void FinalizaGl() {
+  delete g_contexto;
 }
 
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
@@ -512,13 +515,15 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
 }
 
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
-  if (g_contexto.modo_renderizacao == modo) {
+  if (g_contexto->modo_renderizacao == modo) {
     return 0;
   }
-  g_contexto.modo_renderizacao = modo;
-  //g_contexto.modo_renderizacao = MR_SELECT;
+  g_contexto->modo_renderizacao = modo;
   switch (modo) {
     case MR_SELECT:
+      g_contexto->proximo_id = 0;
+      g_contexto->bit_pilha = 0;
+      g_contexto->ids.clear();
       return 0;
     case MR_RENDER: {
       glFlush();
@@ -537,23 +542,23 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
         return 0;
       }
-      auto it = g_contexto.ids.find(id_mapeado);
-      if (it == g_contexto.ids.end()) {
+      auto it = g_contexto->ids.find(id_mapeado);
+      if (it == g_contexto->ids.end()) {
         LOG(ERROR) << "Id nao mapeado: " << (void*)id_mapeado;
         return 0;
       }
 #pragma GCC diagnostic pop
       unsigned int id_original = it->second;
       VLOG(2) << "Id original: " << id_original;
-      GLuint* ptr = g_contexto.buffer_selecao;
+      GLuint* ptr = g_contexto->buffer_selecao;
       ptr[0] = pos_pilha;
       ptr[1] = 0;  // zmin.
       ptr[2] = 0;  // zmax
       for (unsigned int i = 0; i < pos_pilha; ++i) {
         ptr[3 + i] = id_original;
       }
-      g_contexto.buffer_selecao = nullptr;
-      g_contexto.tam_buffer = 0;
+      g_contexto->buffer_selecao = nullptr;
+      g_contexto->tam_buffer = 0;
       return 1;  // Numero de hits: so pode ser 0 ou 1.
     }
     default:
@@ -562,26 +567,31 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
 }
 
 void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) {
-  g_contexto.buffer_selecao = buffer;
-  g_contexto.tam_buffer = tam_buffer;
+  g_contexto->buffer_selecao = buffer;
+  g_contexto->tam_buffer = tam_buffer;
 }
 
 // Nomes
 void IniciaNomes() {
-  g_contexto.proximo_id = 0;
-  g_contexto.bit_pilha = 0;
-  g_contexto.ids.clear();
 }
 
 void EmpilhaNome(GLuint id) {
-  if (g_contexto.bit_pilha == 3) {
+  if (g_contexto->modo_renderizacao != MR_SELECT) {
+    // So muda no modo de selecao.
+    return;
+  }
+  if (g_contexto->bit_pilha == 3) {
     LOG(ERROR) << "Bit da pilha passou do limite superior.";
     return;
   }
-  ++g_contexto.bit_pilha;
+  ++g_contexto->bit_pilha;
 }
 
 void CarregaNome(GLuint id) {
+  if (g_contexto->modo_renderizacao != MR_SELECT) {
+    // So muda no modo de selecao.
+    return;
+  }
   GLubyte rgb[3];
   MapeiaId(id, rgb);
   // Muda a cor para a mapeada.
@@ -589,15 +599,19 @@ void CarregaNome(GLuint id) {
 }
 
 void DesempilhaNome() {
-  if (g_contexto.bit_pilha == 0) {
+  if (g_contexto->modo_renderizacao != MR_SELECT) {
+    // So muda no modo de selecao.
+    return;
+  }
+  if (g_contexto->bit_pilha == 0) {
     LOG(ERROR) << "Bit da pilha passou do limite inferior.";
     return;
   }
-  --g_contexto.bit_pilha;
+  --g_contexto->bit_pilha;
 }
 
 void MudaCor(float r, float g, float b, float a) {
-  if (g_contexto.modo_renderizacao != MR_RENDER) {
+  if (g_contexto->modo_renderizacao != MR_RENDER) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
@@ -608,7 +622,7 @@ void MudaCor(float r, float g, float b, float a) {
 }
 
 void Limpa(GLbitfield mascara) {
-  if (g_contexto.modo_renderizacao == MR_SELECT) {
+  if (g_contexto->modo_renderizacao == MR_SELECT) {
     if ((mascara & GL_COLOR_BUFFER_BIT) != 0) {
       // Preto nao eh valido no color picking.
       glClearColor(0, 0, 0, 1.0f);

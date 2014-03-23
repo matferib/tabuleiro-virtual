@@ -40,15 +40,15 @@ public class TabuleiroActivity extends Activity {
 class TabuleiroSurfaceView extends GLSurfaceView {
   public TabuleiroSurfaceView(Context context) {
     super(context);
-    mRenderer = new TabuleiroRenderer(this);
-    setRenderer(mRenderer);
+    renderer_ = new TabuleiroRenderer(this);
+    setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
 
   public boolean onTouchEvent(final MotionEvent event) {
-    if (event.getAction() == MotionEvent.ACTION_DOWN) {
-      nativeTogglePauseResume();
-    }
+    MotionEvent event_copy = MotionEvent.obtain(event);
+    event_copy.setLocation(event.getX(), getHeight() - event.getY());
+    renderer_.PushBack(MotionEvent.obtain(event));
     return true;
   }
 
@@ -64,11 +64,9 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     nativeResume();
   }
 
-  TabuleiroRenderer mRenderer;
-
+  TabuleiroRenderer renderer_;
   private static native void nativePause();
   private static native void nativeResume();
-  private static native void nativeTogglePauseResume();
 }
 
 class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Renderer, Runnable {
@@ -80,7 +78,8 @@ class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Ren
     nativeInit();
     // Liga o timer a cada 10 ms.
     java.util.Timer timer = new java.util.Timer();
-    timer.scheduleAtFixedRate(this, 0, 10);
+    //timer.scheduleAtFixedRate(this, 0, 10);
+    timer.scheduleAtFixedRate(this, 0, 500);
   }
 
   public void onSurfaceChanged(GL10 gl, int w, int h) {
@@ -88,12 +87,55 @@ class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Ren
   }
 
   public void onDrawFrame(GL10 gl) {
+    //System.out.println("Render");
     nativeRender();
   }
 
   public void run() {
+    synchronized (events_) {
+      for (MotionEvent event : events_) {
+        processTouchEvent(event);
+      }
+      events_.clear();
+    }
     nativeTimer();
     parent_.requestRender();
+  }
+
+  public void PushBack(MotionEvent event) {
+    synchronized (events_) {
+      events_.add(event);
+    }
+  }
+
+  private void processTouchEvent(final MotionEvent event) {
+    if (event.getPointerCount() > 1) {
+      return;
+    }
+    //System.out.println("Evento: " + event.toString() + ", x: " + event.getX() + ", y: " + event.getY());
+    nativeTouchPressed(event.getX(), event.getY());
+    nativeTouchReleased();
+    /*
+    switch (estado_) {
+      case ESTADO_INICIAL:
+        if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+          nativeTouchPressed(event.getX(), event.getY());
+          estado_ = ESTADO_TOCADO;
+        }
+        break;
+      case ESTADO_TOCADO:
+        if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+          nativeTouchMoved(event.getX(), event.getY());
+        } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+          nativeTouchReleased();
+          estado_ = ESTADO_INICIAL;
+        }
+        break;
+      default:
+        return;
+    }
+    */
+    return;
   }
 
   private static native void nativeInit();
@@ -101,6 +143,14 @@ class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Ren
   private static native void nativeRender();
   private static native void nativeDone();
   private static native void nativeTimer();
+  private static native void nativeTouchPressed(float x, float y);
+  private static native void nativeTouchMoved(float x, float y);
+  private static native void nativeTouchReleased();
 
   private GLSurfaceView parent_;
+
+  public static final int ESTADO_INICIAL = 1;
+  public static final int ESTADO_TOCADO = 2;
+  private int estado_ = ESTADO_INICIAL;
+  private java.util.Vector<MotionEvent> events_ = new java.util.Vector<MotionEvent>();
 }
