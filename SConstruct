@@ -1,7 +1,11 @@
 import os
+import sys
+
 env = Environment(ENV=os.environ, toolpath=['tools'], tools=['protoc'])
 
-sistema='win32'
+sistema = ARGUMENTS.get('sistema', 'linux')
+if sistema not in ['win32', 'linux', 'apple']:
+  sys.exit('Sistema invalido: ' + sistema)
 print 'Usando sistema: ' + sistema
 
 env.Tool('qt')
@@ -103,13 +107,13 @@ ntf_proto = env.Protoc(
 )
 
 # GL
-cGl = env.Object('gl/gl.cpp')
+cGl = env.Object('gltab/gl.cpp')
 
 # programa final
 env.Program(
 	target = 'tabvirt',
 	source = [
-		#'main.cpp',
+		'main.cpp',
     # net.
     cNetServidor, cNetCliente, cNetUtil,
 		# notificacoes.

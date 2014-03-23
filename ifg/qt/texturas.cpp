@@ -3,7 +3,7 @@
 #include <QImageReader>
 #include <QImage>
 #include "ent/entidade.h"
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/texturas.h"
 #include "log/log.h"

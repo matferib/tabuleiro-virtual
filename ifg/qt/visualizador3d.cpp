@@ -15,7 +15,7 @@
 #include <QString>
 
 #include "ent/tabuleiro.h"
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"

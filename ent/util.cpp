@@ -4,7 +4,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
-#include "gl/gl.h"  // TODO remover e passar desenhos para para gl
+#include "gltab/gl.h"  // TODO remover e passar desenhos para para gl
 #include "log/log.h"
 
 namespace ent {
