@@ -9,7 +9,7 @@
 #include "ent/tabuleiro.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "net/cliente.h"
 
 namespace {
@@ -54,7 +54,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env) {
   g_central->RegistraReceptor(g_receptor.get());
 
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_endereco("192.168.1.10:11223");
+  n->set_endereco("192.168.1.5:11223");
   g_central->AdicionaNotificacao(n);
 }
 
@@ -80,7 +80,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* en
   g_tabuleiro->TrataBotaoEsquerdoPressionado(x, y, false);
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env, jfloat x, jfloat y) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env, jobject thiz, jfloat x, jfloat y) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchMoved: %f %f", x, y);
   g_tabuleiro->TrataMovimentoMouse(x, y);
 }
