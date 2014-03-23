@@ -1,13 +1,11 @@
-#ifndef GL_GL_H
-#define GL_GL_H
+#ifndef GLTAB_GL_H
+#define GLTAB_GL_H
 
 #if __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #elif WIN32
-#include <windows.h>
-#include <windef.h> // According to comments above
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>

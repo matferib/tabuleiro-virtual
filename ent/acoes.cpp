@@ -6,7 +6,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"

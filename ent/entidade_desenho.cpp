@@ -5,7 +5,7 @@
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/util.h"
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "log/log.h"
 
 namespace ent {

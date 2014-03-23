@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #include <boost/asio.hpp>
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/texturas.h"
 #include "net/cliente.h"

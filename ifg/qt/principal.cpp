@@ -11,7 +11,7 @@
 #include <QTextCodec>
 #include <QTimer>
 
-#include "gl/gl.h"
+#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/visualizador3d.h"

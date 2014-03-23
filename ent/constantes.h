@@ -2,6 +2,9 @@
 #define ENT_CONSTANTES_H
 
 /** Constantes comuns ao tabuleiro e entidades. */
+#ifndef M_PI
+#define M_PI 3.14159265358979323846f
+#endif
 
 /** tamanho do lado do quadrado no 3D. */
 #define TAMANHO_LADO_QUADRADO 1.5f
