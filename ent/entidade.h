@@ -158,8 +158,10 @@ class Entidade {
 
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
+  * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
   */
   static void MontaMatriz(bool em_voo,
+                          bool queda,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
                           const ParametrosDesenho* pd = nullptr,
