@@ -109,9 +109,9 @@ message EntidadeProto {
   optional bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.
   optional bool voadora = 13 [default=false];
-  // Entidade esta morta.
-  optional bool caida = 14 [default=false];
   // Entidade esta caida.
+  optional bool caida = 14 [default=false];
+  // Entidade esta morta.
   optional bool morta = 15 [default=false];
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
   optional bool selecionavel_para_jogador = 16 [default=true];
@@ -169,7 +169,7 @@ message ParametrosDesenho {
   // Parametros de OpenGL ES.
   message ParametrosOpenglEs {
     // Indica se eh o id eh de tabuleiro ou entidade.
-    optional bool tabuleiro = 1 [default=true];  
+    optional bool tabuleiro = 1 [default=true];
     // Id da entidade a ser desenhada com precisao.
     optional uint32 id = 2;
   }

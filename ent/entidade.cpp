@@ -261,7 +261,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  MontaMatriz(true  /*em_voo*/, proto_, vd_);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto_, vd_);
   if (!proto_.achatado()) {
     gl::Translada(0.0f, 0.0f, ALTURA);
   }
@@ -286,6 +286,7 @@ float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
 }
 
 void Entidade::MontaMatriz(bool em_voo,
+                           bool queda,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
                            const ParametrosDesenho* pd,
@@ -308,7 +309,7 @@ void Entidade::MontaMatriz(bool em_voo,
     }
   }
   // So roda entidades nao achatadas.
-  if (vd.angulo_disco_queda_graus > 0 && !achatar) {
+  if (queda && vd.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
     gl::Roda(-vd.angulo_disco_queda_graus, 1.0, 0, 0);
@@ -361,7 +362,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, proto_, vd_, pd);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/, proto_, vd_, pd);
     MudaCor(proto_.cor());
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
@@ -380,7 +381,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f);
     {
       gl::MatrizEscopo salva_matriz;
@@ -416,7 +417,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // So translada para a posicao do objeto.
     gl::Translada(X(), Y(), Z());
   } else {
-    MontaMatriz(true  /*em_voo*/, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/,proto_, vd_, pd);
   }
   // Um pouco acima do objeto e ao sul do objeto.
   gl::Translada(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
