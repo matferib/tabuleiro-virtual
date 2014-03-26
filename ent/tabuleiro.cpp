@@ -1373,6 +1373,8 @@ void Tabuleiro::DesenhaTabuleiro() {
   if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
     gl::Desabilita(GL_CULL_FACE);
+  } else {
+    gl::Habilita(GL_CULL_FACE);
   }
   int id = 0;
   // Desenha o chao mais pro fundo.

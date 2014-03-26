@@ -105,16 +105,11 @@ void MatrizRotacaoZ(GLfloat angulo, GLfloat m[16]) {
 */
 void MultiplicaMatrizVetor(const float m[16], float vetor[4]) {
   GLfloat res[4];
-  for (int i = 0; i < 4; ++i) {
-    res[i] = vetor[0] * m[i] +
-             vetor[1] * m[i + 4] +
-             vetor[2] * m[i + 8] +
-             vetor[3] * m[i + 12];
-  }
-  vetor[0] = res[0];
-  vetor[1] = res[1];
-  vetor[2] = res[2];
-  vetor[3] = res[3];
+  res[0] = vetor[0] * m[0] + vetor[1] * m[4] + vetor[2] * m[8]  + vetor[3] * m[12];
+  res[1] = vetor[0] * m[1] + vetor[1] * m[5] + vetor[2] * m[9]  + vetor[3] * m[13];
+  res[2] = vetor[0] * m[2] + vetor[1] * m[6] + vetor[2] * m[10] + vetor[3] * m[14];
+  res[3] = vetor[0] * m[3] + vetor[1] * m[7] + vetor[2] * m[11] + vetor[3] * m[15];
+  memcpy(vetor, res, sizeof(res));
 }
 
 /*
@@ -346,7 +341,46 @@ void CuboSolido(GLfloat tam_lado) {
 }
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-  // TODO Conferir as normais, porque a esfera parece estar errada.
+#if 0
+  gl::MatrizEscopo salva_matriz;
+  // Matriz eh column major, ou seja, esta invertida.
+  GLfloat matriz_transformacao[] = {
+    0.0f,                    0.0f, 0.0f, 1.0f,
+    0.0f,                    1.0f, 0.0f, 0.0f,
+    (raio_topo / raio_base), 0.0f, altura, 0.0f,
+    1.0f,                    0.0f, 0.0f, 1.0f,
+  };
+  gl::MultiplicaMatriz(matriz_transformacao);
+
+  float angulo_rotacao_graus = 360.0f / fatias;
+  unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+  GLfloat tam_lado_base_2 = sinf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
+  GLfloat tam_lado_topo_2 = sinf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
+  GLfloat tam_y_base = cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
+  GLfloat tam_y_topo = cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
+  GLfloat vetor_x[3] = { 1.0f, 0.0f, 0.0f };
+  GLfloat vetor_cima[3] = { 0.0f, 0.0f, 1.0f};
+  GLfloat vetor_normal[3] = { 0.0f, -1.0f, 0.0f };
+  const float vertices_sul[] = {
+    -tam_lado_base_2, -tam_y_base, 0.0f,
+    tam_lado_base_2, -tam_y_base, 0.0f,
+    tam_lado_topo_2, -tam_y_topo, altura,
+    -tam_lado_topo_2, -tam_y_topo, altura
+  };
+
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  //HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  for (int i = 0; i < fatias; ++i) {
+    Normal(vetor_normal[0], vetor_normal[1], vetor_normal[2]);
+    //PonteiroNormais(GL_FLOAT, vertices_normais);
+    PonteiroVertices(3, GL_FLOAT, vertices_sul);
+    DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+    Roda(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
+  }
+  //DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#else
+  // Versao antiga.
   gl::MatrizEscopo salva_matriz;
   float angulo_rotacao_graus = 360.0f / fatias;
   unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
@@ -392,6 +426,7 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   }
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#endif
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
