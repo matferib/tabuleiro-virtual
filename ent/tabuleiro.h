@@ -175,8 +175,14 @@ class Tabuleiro : public ntf::Receptor {
   /** trata a redimensao da janela. */
   void TrataRedimensionaJanela(int largura, int altura);
 
+  enum dir_rolagem_e {
+    DIR_LESTE = 0,
+    DIR_OESTE = 1,
+    DIR_NORTE = 2,
+    DIR_SUL = 3,
+  };
   /** Move todos os objetos do tabuleiro em uma direcao. */
-  void TrataRolagem(/*dir_rolagem_e dir, float porcentagem = 0.8f*/);
+  void TrataRolagem(dir_rolagem_e dir);
 
   /** inicializa os parametros do openGL. */
   static void InicializaGL();
@@ -257,8 +263,14 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha o tabuleiro do sul pro norte. */
   void DesenhaTabuleiro();
 
-  /** funcao para desenha os rastros de movimento. */
+  /** funcao para desenhar os rastros de movimento. */
   void DesenhaRastros();
+
+  /** funcao para desenhar a rosa dos ventos. */
+  void DesenhaRosaDosVentos();
+
+  /** funcao para desenhar os pontos de rolagem do tabuleiro. */
+  void DesenhaPontosRolagem();
 
   /** Desenha as sombras dos objetos. */
   void DesenhaSombras();

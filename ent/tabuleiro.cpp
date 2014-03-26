@@ -1074,7 +1074,7 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   altura_ = altura;
 }
 
-void Tabuleiro::TrataRolagem() {
+void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
   ntf::Notificacao g_desfazer;
   g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_ent : entidades_) {
@@ -1090,25 +1090,40 @@ void Tabuleiro::TrataRolagem() {
       pos_original->set_z(entidade->Z());
     }
 
-    float delta = -(TamanhoX() - 3) * TAMANHO_LADO_QUADRADO;
-    entidade->MoveDelta(delta, 0.0f, 0.0f);
+    float delta_x = 0.0f;
+    float delta_y = 0.0f;
+    if (direcao == DIR_LESTE) {
+      delta_x = -(TamanhoX() - 3) * TAMANHO_LADO_QUADRADO;
+    } else if (direcao == DIR_OESTE) {
+      delta_x = (TamanhoX() - 3) * TAMANHO_LADO_QUADRADO;
+    } else if (direcao == DIR_NORTE) {
+      delta_y = -(TamanhoY() - 3) * TAMANHO_LADO_QUADRADO;
+    } else if (direcao == DIR_SUL) {
+      delta_y = (TamanhoY() - 3) * TAMANHO_LADO_QUADRADO;
+    } else {
+      LOG(ERROR) << "Direcao invalida";
+      return;
+    }
+
+    {
+      Posicao destino;
+      destino.set_x(entidade->X() + delta_x);
+      destino.set_y(entidade->Y() + delta_y);
+      destino.set_z(entidade->Z());
+      entidade->Destino(destino);
+    }
     {
       // Notificacao para clientes remotos.
       auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
       e->set_id(id_ent.first);
       auto* destino = e->mutable_destino();
-      destino->set_x(entidade->X());
-      destino->set_y(entidade->Y());
+      destino->set_x(entidade->X() + delta_x);
+      destino->set_y(entidade->Y() + delta_y);
       destino->set_z(entidade->Z());
-      central_->AdicionaNotificacaoRemota(n);
-    }
-    {
       // Posicao final para desfazer.
-      auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
-      pos_final->set_x(entidade->X());
-      pos_final->set_y(entidade->Y());
-      pos_final->set_z(entidade->Z());
+      n_desfazer->mutable_entidade()->mutable_destino()->CopyFrom(*destino);
+      central_->AdicionaNotificacaoRemota(n);
     }
   }
   AdicionaNotificacaoListaEventos(g_desfazer);
@@ -1254,6 +1269,14 @@ void Tabuleiro::DesenhaCena() {
     LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento: " << depth;
   }
 #endif
+
+  if (modo_mestre_ && parametros_desenho_.desenha_pontos_rolagem()) {
+    // Pontos de rolagem na terceira posicao da pilha.
+    gl::NomesEscopo nomes_ent(0);
+    gl::NomesEscopo nomes_pontos(0);
+    DesenhaPontosRolagem();
+  }
+
   if (!parametros_desenho_.desenha_entidades()) {
     return;
   }
@@ -1455,7 +1478,23 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 }
 
 void Tabuleiro::DesenhaRosaDosVentos() {
-  // TODO
+}
+
+void Tabuleiro::DesenhaPontosRolagem() {
+  // 4 pontos.
+  MudaCor(COR_PRETA);
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO;
+  float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO;
+  int id = 0;
+  for (const std::pair<float, float>& delta : { std::pair<float, float>{ translacao_x, 0.0f },
+                                                std::pair<float, float>{ -translacao_x, 0.0f },
+                                                std::pair<float, float>{ 0.0f, translacao_y },
+                                                std::pair<float, float>{ 0.0f, -translacao_y } }) {
+    gl::CarregaNome(id++);
+    gl::Retangulo(-TAMANHO_LADO_QUADRADO_2 + delta.first, -TAMANHO_LADO_QUADRADO_2 + delta.second,
+                  TAMANHO_LADO_QUADRADO_2 + delta.first, TAMANHO_LADO_QUADRADO_2 + delta.second);
+  }
 }
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
@@ -1768,7 +1807,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     // Tabuleiro.
     VLOG(1) << "Picking no tabuleiro id quadrado: " << id;
     SelecionaQuadrado(id);
-  } else if (pos_pilha > 1) {
+  } else if (pos_pilha == 2) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
@@ -1793,6 +1832,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       }
       estado_ = ETAB_ENTS_PRESSIONADAS;
     }
+  } else if (pos_pilha == 3) {
+    VLOG(1) << "Picking em ponto de rolagem id " << id;
+    TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidades();
