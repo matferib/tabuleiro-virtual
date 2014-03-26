@@ -175,6 +175,9 @@ class Tabuleiro : public ntf::Receptor {
   /** trata a redimensao da janela. */
   void TrataRedimensionaJanela(int largura, int altura);
 
+  /** Move todos os objetos do tabuleiro em uma direcao. */
+  void TrataRolagem(/*dir_rolagem_e dir, float porcentagem = 0.8f*/);
+
   /** inicializa os parametros do openGL. */
   static void InicializaGL();
 

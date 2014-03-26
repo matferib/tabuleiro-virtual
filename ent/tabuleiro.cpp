@@ -1074,6 +1074,46 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   altura_ = altura;
 }
 
+void Tabuleiro::TrataRolagem() {
+  ntf::Notificacao g_desfazer;
+  g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (auto& id_ent : entidades_) {
+    auto* entidade = id_ent.second.get();
+    auto* n_desfazer = g_desfazer.add_notificacao();
+    {
+      // Posicao inicial para desfazer.
+      n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
+      n_desfazer->mutable_entidade()->set_id(id_ent.first);
+      auto* pos_original = n_desfazer->mutable_entidade()->mutable_pos();
+      pos_original->set_x(entidade->X());
+      pos_original->set_y(entidade->Y());
+      pos_original->set_z(entidade->Z());
+    }
+
+    float delta = -(TamanhoX() - 3) * TAMANHO_LADO_QUADRADO;
+    entidade->MoveDelta(delta, 0.0f, 0.0f);
+    {
+      // Notificacao para clientes remotos.
+      auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+      auto* e = n->mutable_entidade();
+      e->set_id(id_ent.first);
+      auto* destino = e->mutable_destino();
+      destino->set_x(entidade->X());
+      destino->set_y(entidade->Y());
+      destino->set_z(entidade->Z());
+      central_->AdicionaNotificacaoRemota(n);
+    }
+    {
+      // Posicao final para desfazer.
+      auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
+      pos_final->set_x(entidade->X());
+      pos_final->set_y(entidade->Y());
+      pos_final->set_z(entidade->Z());
+    }
+  }
+  AdicionaNotificacaoListaEventos(g_desfazer);
+}
+
 void Tabuleiro::InicializaGL() {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Desabilita(GL_BLEND);
@@ -1274,8 +1314,12 @@ void Tabuleiro::DesenhaCena() {
     DesenhaStencil(COR_AZUL_ALFA);
   }
 
-  if (estado_ == ETAB_DESENHANDO) {
+  if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
     DesenhaFormaSelecionada();
+  }
+
+  if (parametros_desenho_.desenha_rosa_dos_ventos()) {
+    DesenhaRosaDosVentos();
   }
 
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
@@ -1406,6 +1450,10 @@ void Tabuleiro::DesenhaFormaSelecionada() {
   parametros_desenho_.set_alfa_translucidos(0.5);
   Entidade::DesenhaObjetoProto(forma_proto_, &parametros_desenho_, nullptr);
   parametros_desenho_.clear_alfa_translucidos();
+}
+
+void Tabuleiro::DesenhaRosaDosVentos() {
+  // TODO
 }
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
@@ -1539,6 +1587,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_quadrado_selecao(false);
   parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
