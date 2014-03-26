@@ -316,10 +316,6 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Q:
       tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
       return;
-    case Qt::Key_PageUp:
-      // Temporario.
-      tabuleiro_->TrataRolagem();
-      return;
     case Qt::Key_A:
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(event->key());
