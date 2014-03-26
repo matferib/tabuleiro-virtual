@@ -316,7 +316,14 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_Q:
       tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
       return;
+    case Qt::Key_PageUp:
+      // Temporario.
+      tabuleiro_->TrataRolagem();
+      return;
     case Qt::Key_A:
+      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
+      teclas_.push_back(event->key());
+      return;
     case Qt::Key_C:
       if (event->modifiers() == Qt::ControlModifier) {
         tabuleiro_->CopiaEntidadesSelecionadas();
@@ -841,9 +848,12 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
     }
     case Qt::Key_C:
     case Qt::Key_D: {
-      const auto lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
+      auto lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
       if (lista_pv.size() != 1) {
         break;
+      }
+      if (primeira_tecla == Qt::Key_D) {
+        lista_pv[0] = -lista_pv[0];
       }
       tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(lista_pv[0]);
       break;
