@@ -62,6 +62,11 @@ if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES']['USAR_OPENGL_ES'] = 1
 
+gerar_profile = (ARGUMENTS.get('gerar_profile', 0) == '1')
+if gerar_profile:
+  env['CXXFLAGS'] += ['-pg']
+  env['LINKFLAGS'] += ['-pg']
+
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
 

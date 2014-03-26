@@ -54,7 +54,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env) {
   g_central->RegistraReceptor(g_receptor.get());
 
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_endereco("192.168.1.5:11223");
+  n->set_endereco("192.168.1.10:11223");
   g_central->AdicionaNotificacao(n);
 }
 
