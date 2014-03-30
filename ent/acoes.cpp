@@ -40,13 +40,14 @@ void DesenhaGeometriaAcao(int geometria) {
 // Ação mais básica: uma sinalizacao no tabuleiro.
 class AcaoSinalizacao : public Acao {
  public:
-  AcaoSinalizacao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), estado_(TAMANHO_LADO_QUADRADO * 2.0f) {
+  constexpr static float TAMANHO_MAXIMO = TAMANHO_LADO_QUADRADO * 2.0f;
+  AcaoSinalizacao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), estado_(TAMANHO_MAXIMO) {
     if (!acao_proto_.has_pos_tabuleiro()) {
       estado_ = -1.0f;
     }
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::HabilitaEscopo normalizacao_escopo(GL_NORMALIZE);
     gl::Normal(0, 0, 1.0f);
@@ -84,7 +85,8 @@ class AcaoSinalizacao : public Acao {
   }
 
   void AtualizaAposAtraso() {
-    estado_ -= 0.05f;
+    const float DURACAO_SINALIZACAO_SEGUNDOS = 0.5f;
+    estado_ -= TAMANHO_MAXIMO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SINALIZACAO_SEGUNDOS;
   }
 
   bool Finalizada() const override {
@@ -104,7 +106,7 @@ class AcaoDeltaPontosVida : public Acao {
     Entidade* entidade_destino = nullptr;
     if (!acao_proto_.has_id_entidade_destino() ||
         (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
-      contador_atualizacoes_ = MAX_ATUALIZACOES;
+      contador_atualizacoes_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
       return;
     }
@@ -113,12 +115,12 @@ class AcaoDeltaPontosVida : public Acao {
     // Monta a string de delta.
     int delta = abs(acao_proto_.delta_pontos_vida());
     if (!acao_proto_.has_delta_pontos_vida()) {
-      contador_atualizacoes_ = MAX_ATUALIZACOES;
+      contador_atualizacoes_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida, precisa de um delta.";
       return;
     }
     if (delta > 10000) {
-      contador_atualizacoes_ = MAX_ATUALIZACOES;
+      contador_atualizacoes_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
       return;
     }
@@ -133,9 +135,10 @@ class AcaoDeltaPontosVida : public Acao {
     }
     std::reverse(string_delta_.begin(), string_delta_.end());
     VLOG(2) << "String delta: " << string_delta_;
+    contador_atualizacoes_ = DURACAO_SEGUNDOS / POR_SEGUNDO_PARA_ATUALIZACAO;
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     gl::MatrizEscopo salva_matriz;
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     if (acao_proto_.delta_pontos_vida() > 0) {
@@ -149,26 +152,27 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   void AtualizaAposAtraso() {
-    pos_.set_z(pos_.z() + 0.02f);
-    ++contador_atualizacoes_;
-    if (contador_atualizacoes_ == MAX_ATUALIZACOES) {
+    pos_.set_z(pos_.z() + MAX_DELTA_Z * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS);
+    --contador_atualizacoes_;
+    if (contador_atualizacoes_ == 0) {
       VLOG(1) << "Finalizando delta_pontos_vida, MAX_ATUALIZACOES alcancado.";
     }
   }
 
   bool Finalizada() const override {
-    return contador_atualizacoes_ >= MAX_ATUALIZACOES;  // 3s.
+    return contador_atualizacoes_ == 0;  // 3s.
   }
 
  private:
-  void DesenhaStringDelta() {
+  void DesenhaStringDelta() const {
     gl::PosicaoRaster(pos_.x(), pos_.y(), pos_.z());
     for (const char c : string_delta_) {
       gl::DesenhaCaractere(c);
     }
   }
 
-  const int MAX_ATUALIZACOES = 100;
+  constexpr static float DURACAO_SEGUNDOS = 2.0f;
+  constexpr static float MAX_DELTA_Z = 2.0f;
 
   std::string string_delta_;
   Posicao pos_;
@@ -184,7 +188,7 @@ class AcaoDispersao : public Acao {
         acao_proto_.distancia() : acao_proto_.raio_area());
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     MudaCorProto(acao_proto_.cor());
     gl::MatrizEscopo salva_matriz;
@@ -219,7 +223,7 @@ class AcaoDispersao : public Acao {
   }
 
   void AtualizaAposAtraso() {
-    efeito_ += 0.2;
+    efeito_ += efeito_maximo_ * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS;
   }
 
   bool Finalizada() const override {
@@ -227,6 +231,7 @@ class AcaoDispersao : public Acao {
   }
 
  private:
+  constexpr static float DURACAO_SEGUNDOS = 0.5f;
   float efeito_maximo_;
   float efeito_;
 };
@@ -235,7 +240,6 @@ class AcaoDispersao : public Acao {
 class AcaoProjetil : public Acao {
  public:
   AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
-    velocidade_ = acao_proto_.velocidade().inicial();
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
@@ -264,7 +268,7 @@ class AcaoProjetil : public Acao {
     }
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     if (estagio_ == ATINGIU_ALVO) {
       return;
     }
@@ -363,29 +367,27 @@ class AcaoProjetil : public Acao {
 class AcaoRaio : public Acao {
  public:
   AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
-    duracao_ = acao_proto.duracao();
+    duracao_ = acao_proto.duracao_s();
     if (!acao_proto_.has_id_entidade_origem()) {
-      duracao_ = 0;
+      duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id origem.";
       return;
     }
     if (!acao_proto_.has_id_entidade_destino() && !acao_proto_.has_pos_tabuleiro()) {
-      duracao_ = 0;
+      duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id destino ou posicao destino.";
       return;
     }
     if (acao_proto_.has_id_entidade_destino() && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
-      duracao_ = 0;
+      duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer origem e destino diferentes.";
       return;
     }
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
-      VLOG(1) << "Terminando acao pois origem nao existe mais.";
-      duracao_ = 0;
       return;
     }
     const Posicao& pos_o = eo->PosicaoAcao();
@@ -393,8 +395,6 @@ class AcaoRaio : public Acao {
     if (acao_proto_.has_id_entidade_destino()) {
       auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
       if (ed == nullptr) {
-        VLOG(1) << "Terminando acao pois destino nao existe mais.";
-        duracao_ = 0;
         return;
       }
       pos_d = ed->PosicaoAcao();
@@ -423,20 +423,35 @@ class AcaoRaio : public Acao {
   }
 
   void AtualizaAposAtraso() {
-    if (duracao_ > 0) {
-      --duracao_;
+    auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    if (eo == nullptr) {
+      VLOG(1) << "Terminando acao pois origem nao existe mais.";
+      duracao_ = 0.0f;
+      return;
     }
-    if (duracao_ == 0) {
+    Posicao pos_d = acao_proto_.pos_tabuleiro();
+    if (acao_proto_.has_id_entidade_destino()) {
+      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+      if (ed == nullptr) {
+        VLOG(1) << "Terminando acao pois destino nao existe mais.";
+        duracao_ = 0.0f;
+        return;
+      }
+    }
+    if (duracao_ > 0.0f) {
+      duracao_ -= (INTERVALO_NOTIFICACAO_MS / 1000.0f);
+    }
+    if (duracao_ <= 0.0f) {
       VLOG(1) << "Finalizando raio, duracao acabou";
     }
   }
 
   bool Finalizada() const override {
-    return duracao_ == 0;
+    return duracao_ <= 0.0f;
   }
 
  private:
-  unsigned int duracao_;
+  float duracao_;
 };
 
 // Acao ACAO_CORPO_A_CORPO.
@@ -463,11 +478,9 @@ class AcaoCorpoCorpo : public Acao {
     finalizado_ = false;
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
-      VLOG(1) << "Terminando acao corpo a corpo: origem nao existe mais.";
-      finalizado_ = true;
       return;
     }
     const Posicao& pos_o = eo->PosicaoAcao();
@@ -497,10 +510,17 @@ class AcaoCorpoCorpo : public Acao {
   }
 
   void AtualizaAposAtraso() {
+    auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    if (eo == nullptr) {
+      VLOG(1) << "Terminando acao corpo a corpo: origem nao existe mais.";
+      finalizado_ = true;
+      return;
+    }
+
     // TODO desenhar o impacto.
     // Os parametros iniciais sao mantidos, so a rotacao do corte eh alterada.
     if (rotacao_graus_ < 180.0f) {
-      rotacao_graus_ += 10.0f;
+      rotacao_graus_ += 180.0f * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS;
     }
     bool terminou_alvo = false;
     if (rotacao_graus_ >= 90.0) {
@@ -523,7 +543,7 @@ class AcaoCorpoCorpo : public Acao {
     auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
     if (eo == nullptr || ed == nullptr) {
       VLOG(1) << "Terminando acao corpo a corpo: origem ou destino nao existe mais.";
-      rotacao_graus_ = 181.0f;
+      finalizado_ = true;
       return;
     }
     const Posicao& pos_o = eo->PosicaoAcao();
@@ -541,6 +561,7 @@ class AcaoCorpoCorpo : public Acao {
   float direcao_graus_;
   float rotacao_graus_;
   bool finalizado_;
+  constexpr static float DURACAO_SEGUNDOS = 0.18f;
 };
 
 // Acao de feitico de toque.
@@ -557,11 +578,9 @@ class AcaoFeiticoToque : public Acao {
     raio_ = 1.0f;
   }
 
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) override {
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino());
     if (e == nullptr) {
-      VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
-      terminado_ = true;
       return;
     }
     const Posicao& pos = e->PosicaoAcao();
@@ -575,13 +594,20 @@ class AcaoFeiticoToque : public Acao {
   }
 
   void AtualizaAposAtraso() {
+    auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino());
+    if (e == nullptr) {
+      VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
+      terminado_ = true;
+      return;
+    }
+    const float DELTA_RAIO = 1.0f * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS;
     if (desenhando_origem_) {
-      raio_ -= 0.02;
+      raio_ -= DELTA_RAIO;
       if (raio_ <= 0) {
         desenhando_origem_ = false;
       }
     } else {
-      raio_ += 0.02;
+      raio_ += DELTA_RAIO;
       if (raio_ >= 1.0f) {
         terminado_ = true;
       }
@@ -593,6 +619,7 @@ class AcaoFeiticoToque : public Acao {
   }
 
  private:
+  constexpr static float DURACAO_SEGUNDOS = 0.48f;
   bool desenhando_origem_;
   float raio_;
   bool terminado_;
@@ -601,8 +628,28 @@ class AcaoFeiticoToque : public Acao {
 }  // namespace
 
 // Acao.
-void Acao::Desenha(ParametrosDesenho* pd) {
-  if (contador_atraso_ > 0) {
+Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro)
+    : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {
+  delta_tempo_ = 0;
+  velocidade_ = acao_proto.velocidade().inicial_m_s() * POR_SEGUNDO_PARA_ATUALIZACAO;
+  aceleracao_ = acao_proto.velocidade().aceleracao_m_s_2() * POR_SEGUNDO_PARA_ATUALIZACAO;
+  delta_aceleracao_ = acao_proto.velocidade().delta_aceleracao_m_s_3() * POR_SEGUNDO_PARA_ATUALIZACAO;
+  dx_ = dy_ = dz_ = 0;
+  dx_total_ = dy_total_ = dz_total_ = 0;
+  disco_alvo_rad_ = 0;
+  atraso_s_ = acao_proto_.atraso_s();
+}
+
+void Acao::Atualiza() {
+  if (atraso_s_ > 0) {
+    atraso_s_ -= (INTERVALO_NOTIFICACAO_MS / 1000);
+    return;
+  }
+  AtualizaAposAtraso();
+}
+
+void Acao::Desenha(ParametrosDesenho* pd) const {
+  if (atraso_s_ > 0) {
     return;
   }
   if (Finalizada()) {
@@ -612,7 +659,7 @@ void Acao::Desenha(ParametrosDesenho* pd) {
   DesenhaSeNaoFinalizada(pd);
 }
 
-void Acao::DesenhaTranslucido(ParametrosDesenho* pd) {
+void Acao::DesenhaTranslucido(ParametrosDesenho* pd) const {
   if (Finalizada()) {
     return;
   }
@@ -627,11 +674,11 @@ void Acao::AtualizaVelocidade() {
     case ACAO_ACEL_ZERO:
       return;
     case ACAO_ACEL_CONSTANTE:
-      velocidade_ += acao_proto_.velocidade().delta_velocidade();
+      velocidade_ += aceleracao_;
       return;
-    case ACAO_ACEL_QUADRATICA:
-      velocidade_ += acao_proto_.velocidade().delta_velocidade() *
-                     (pow(delta_tempo_, 2) - pow(delta_tempo_ - 1, 2));
+    case ACAO_ACEL_LINEAR:
+      aceleracao_ += delta_aceleracao_;
+      velocidade_ += aceleracao_;
       return;
     default:
       LOG(WARNING) << "Tipo de aceleracao invalida.";
@@ -653,7 +700,7 @@ bool Acao::AtualizaAlvo() {
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
-  double cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO_2;
+  double cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO / 3.0f;
   float dx_alvo = dx_ * cos_delta_alvo;
   float dy_alvo = dy_ * cos_delta_alvo;
   float dz_alvo = dz_ * cos_delta_alvo;
@@ -664,7 +711,8 @@ bool Acao::AtualizaAlvo() {
   dx_total_ += entidade_destino->X() - x_antes;
   dy_total_ += entidade_destino->Y() - y_antes;
   dz_total_ += entidade_destino->Z() - z_antes;
-  disco_alvo_rad_ += 0.5;
+  const float DURACAO_ATUALIZACAO_ALVO_SEGUNDOS = 0.1f;
+  disco_alvo_rad_ += M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_ATUALIZACAO_ALVO_SEGUNDOS;
   return true;
 }
 

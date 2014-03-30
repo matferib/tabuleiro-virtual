@@ -22,9 +22,18 @@
 /** Numero de divisoes do eixo Z do cone. */
 #define NUM_LINHAS 1
 
-#define DIR_DADOS "dados" 
+#define DIR_DADOS "dados"
 #define ARQUIVO_MODELOS "modelos.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
+
+#if OPENGL_ES
+#define ATUALIZACOES_POR_SEGUNDO 30.0f
+#else
+#define ATUALIZACOES_POR_SEGUNDO 60.0f
+#endif
+#define INTERVALO_NOTIFICACAO_MS (1000.0f / ATUALIZACOES_POR_SEGUNDO)
+// Converte a velocidade por segundo para distancia por atualizacao.
+#define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
 
 namespace ent {
 
