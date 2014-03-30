@@ -229,7 +229,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
         LOG(ERROR) << "Falha ao buscar modelo: " << id;
         continue;
       }
-      acao->setEnabled(e_proto->tipo() != ent::TE_FORMA);
+      acao->setEnabled(e_proto->tipo() != ent::TE_COMPOSTA);
     }
     break;
   }
