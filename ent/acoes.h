@@ -13,28 +13,14 @@ class Tabuleiro;
 
 class Acao {
  public:
-  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro)
-      : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {
-    delta_tempo_ = 0;
-    velocidade_ = acao_proto.velocidade().inicial();
-    dx_ = dy_ = dz_ = 0;
-    dx_total_ = dy_total_ = dz_total_ = 0;
-    disco_alvo_rad_ = 0;
-    contador_atraso_ = acao_proto_.atraso();
-  }
+  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro);
   virtual ~Acao() {}
 
-  void Atualiza() {
-    if (contador_atraso_ > 0) {
-      --contador_atraso_;
-      return;
-    }
-    AtualizaAposAtraso();
-  }
+  void Atualiza();
 
   // Desenha a acao.
-  void Desenha(ParametrosDesenho* pd);
-  void DesenhaTranslucido(ParametrosDesenho* pd);
+  void Desenha(ParametrosDesenho* pd) const;
+  void DesenhaTranslucido(ParametrosDesenho* pd) const;
 
   // Indica que a acao ja terminou e pode ser descartada.
   virtual bool Finalizada() const = 0;
@@ -42,8 +28,8 @@ class Acao {
   const AcaoProto& Proto() const { return acao_proto_; }
 
  protected:
-  virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) {}
-  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) {}
+  virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
+  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void AtualizaAposAtraso() = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
@@ -56,9 +42,12 @@ class Acao {
  protected:
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_;
-  int contador_atraso_;
+  float atraso_s_;
   double delta_tempo_;
+  // Por atualizacao.
   double velocidade_;
+  double aceleracao_;
+  double delta_aceleracao_;
   // Diferenca entre posicao da acao da origem e do destino.
   double dx_, dy_, dz_;
   // O alvo se move em uma senoide de 0 ate PI (usando cosseno, vai e volta).

@@ -15,11 +15,10 @@
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/visualizador3d.h"
+#include "ent/constantes.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "ent/tabuleiro.h"
-
-const int INTERVALO_NOTIFICACAO_MS = 10;
 
 using namespace ifg::qt;
 using namespace std;

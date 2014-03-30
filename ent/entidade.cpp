@@ -13,8 +13,7 @@
 namespace ent {
 namespace {
 
-// deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
-const double VELOCIDADE_POR_EIXO = 0.1;
+const double DURACAO_QUEDA_SEGUNDOS = 0.3f;
 // Tamanho da barra de vida.
 const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
 const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
@@ -142,25 +141,33 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 void Entidade::Atualiza() {
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+  // Voo.
+  const float DURACAO_POSICIONAMENTO_INICIAL = 1.0f;
+  const float DURACAO_VOO_SEGUNDOS = 4.0f;
+  const float DELTA_VOO = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_VOO_SEGUNDOS;
   float z_chao = ZChao(X(), Y());
   if (proto_.voadora()) {
     if (Z() < z_chao + ALTURA_VOO) {
-      po->set_z(po->z() + 0.03f);
+      po->set_z(po->z() + ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
+      vd_.angulo_disco_voo_rad = 0.0f;
+    } else {
+      vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
-    vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + 0.01, 2 * M_PI);
   } else {
     if (Z() > z_chao) {
-      po->set_z(po->z() - 0.03f);
+      po->set_z(po->z() - ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
     }
     vd_.angulo_disco_voo_rad = 0.0f;
   }
+  // Queda.
+  const float DELTA_QUEDA = (90.0f * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_QUEDA_SEGUNDOS);
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
-      vd_.angulo_disco_queda_graus += 1.0f;
+      vd_.angulo_disco_queda_graus += DELTA_QUEDA;
     }
   } else {
     if (vd_.angulo_disco_queda_graus > 0) {
-      vd_.angulo_disco_queda_graus -= 1.0f;
+      vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
     }
   }
   // Nunca fica abaixo do solo.
@@ -176,6 +183,8 @@ void Entidade::Atualiza() {
   double destinos[] = { pd.x(), pd.y(), pd.z() };
 
   bool chegou = true;
+  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
+  const float VELOCIDADE_POR_EIXO = 10.0f * POR_SEGUNDO_PARA_ATUALIZACAO;
   for (int i = 0; i < 3; ++i) {
     double delta = (origens[i] > destinos[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
     if (fabs(origens[i] - destinos[i]) > VELOCIDADE_POR_EIXO) {
@@ -282,7 +291,7 @@ const Posicao Entidade::PosicaoAcao() const {
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
-  return vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * TAMANHO_LADO_QUADRADO_2 : 0.0f;
+  return vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f;
 }
 
 void Entidade::MontaMatriz(bool em_voo,

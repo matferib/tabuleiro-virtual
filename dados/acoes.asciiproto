@@ -10,7 +10,7 @@ acao {
   escala { x: 1.0 y: 0.05 z: 0.05 }
   cor { r: 0.0 g: 0.0 b: 0.0 }
   velocidade {
-    inicial: 0.6
+    inicial_m_s:50 
     tipo_aceleracao: ACAO_ACEL_ZERO
   }
 }
@@ -53,21 +53,22 @@ acao {
   escala { x: 0.2 y: 0.2 z: 0.2 }
   cor { r: 0.0 g: 0.0 b: 1.0 }
   velocidade {
-    tipo_aceleracao: ACAO_ACEL_QUADRATICA
-    delta_velocidade: 0.000008
+    tipo_aceleracao: ACAO_ACEL_LINEAR
+    aceleracao_m_s_2: 0
+    delta_aceleracao_m_s_3: 0.008
   }
 }
 acao {
   id: 'Raio'
   tipo: ACAO_RAIO
   cor { r: 1.0 g: 0 b: 0 }
-  duracao: 100
+  duracao_s: 0.5
 }
 acao {
   id: 'Relâmpago'
   tipo: ACAO_RAIO
   cor { r: 0.0 g: 0 b: 1.0 }
-  duracao: 100
+  duracao_s: 0.5
   efeito_area: true
 }
 acao {

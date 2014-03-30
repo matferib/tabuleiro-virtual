@@ -21,8 +21,8 @@ enum GeometriaAcao {
 
 enum TipoAceleracao {
   ACAO_ACEL_ZERO = 1;  // Nao muda velocidade.
-  ACAO_ACEL_CONSTANTE = 2;  // Acelera constantemente.
-  ACAO_ACEL_QUADRATICA = 3;  // Acelera quadraticamente.
+  ACAO_ACEL_CONSTANTE = 2;  // Aceleracao nao varia, velocidade varia linerarmente.
+  ACAO_ACEL_LINEAR = 3;  // Aceleracao varia, velocidade quadratica.
 }
 
 message Translacao {
@@ -32,11 +32,11 @@ message Translacao {
 }
 
 message Velocidade {
-  // Em m / 10ms.
-  optional float inicial = 1;
+  // Em m/s.
+  optional float inicial_m_s = 1;
   optional TipoAceleracao tipo_aceleracao = 2 [default=ACAO_ACEL_ZERO];
-  // O delta a cada atualizacao ao qual sera aplicado a aceleracao. Em unidades / 10ms.
-  optional float delta_velocidade = 3;
+  optional float aceleracao_m_s_2 = 3;
+  optional float delta_aceleracao_m_s_3 = 4 [default=0];
 }
 
 message AcaoProto {
@@ -68,10 +68,10 @@ message AcaoProto {
   // O tipo de objeto para algumas acoes especificas.
   optional GeometriaAcao geometria = 16;
   optional Velocidade velocidade = 19;
-  // Duracao * 10ms.
-  optional uint32 duracao = 20;
-  // Atraso para comecar a acao * 10ms.
-  optional uint32 atraso = 21;
+  // Duracao em s.
+  optional float duracao_s = 20;
+  // Atraso para comecar a acao em s.
+  optional float atraso_s = 21;
   // Acao tem efeito de area. Isso implica que se houver varias entidades selecionadas, o efeito se aplicara
   // a elas (ao inves de cada entidade fazer uma acao).
   optional bool efeito_area = 22 [default=false];

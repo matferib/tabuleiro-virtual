@@ -1008,7 +1008,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
       TrataNotificacao(n);
     } else {
       // Uma acao feita por cada entidade selecionada.
-      unsigned int atraso = 0;
+      float atraso_segundos = 0;
       ntf::Notificacao grupo_notificacoes;
       grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
       // Para desfazer.
@@ -1021,7 +1021,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           continue;
         }
         acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
-        acao_proto.set_atraso(atraso);
+        acao_proto.set_atraso_s(atraso_segundos);
         if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
           int delta_pontos_vida = lista_pontos_vida_.front();
           lista_pontos_vida_.pop_front();
@@ -1043,7 +1043,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
         auto* n = grupo_notificacoes.add_notificacao();
         n->set_tipo(ntf::TN_ADICIONAR_ACAO);
         n->mutable_acao()->CopyFrom(acao_proto);
-        atraso += 50;
+        atraso_segundos += 0.5;
       }
       TrataNotificacao(grupo_notificacoes);
       if (entidade_destino != nullptr) {
