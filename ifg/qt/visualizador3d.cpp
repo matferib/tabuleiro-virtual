@@ -334,6 +334,9 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(event->key());
       return;
+    case Qt::Key_K:
+      // TEMP TEST.
+      while (1) ;
     default:
       event->ignore();
   }
