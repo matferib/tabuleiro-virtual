@@ -52,7 +52,7 @@ elif sistema == 'apple':
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'pthread']
 else:
   env['CPPPATH'] += ['./', ]
-  env['CPPDEFINES'] = {'USAR_GLOG': 0, }
+  env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-g', '-std=c++11']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
