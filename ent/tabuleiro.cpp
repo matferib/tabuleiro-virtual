@@ -236,6 +236,16 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
   EstadoInicial();
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
+    LOG(ERROR) << "Estado do tabuleiro: " << estado_
+               << ", anterior_rotacao: " << estado_anterior_rotacao_
+               << ", acoes.size() == " << acoes_.size()
+               << ", ids_entidades_selecionadas_.size() == " << ids_entidades_selecionadas_.size()
+               << ", entidades_.size() == " << entidades_.size()
+               << ", rastros_movimento_.size() == " << rastros_movimento_.size()
+               << ", translacoes_rotacoes_antes_.size() == " << translacoes_rotacoes_antes_.size()
+               << ", lista_eventos_.size() == " << lista_eventos_.size()
+               << ", processando_grupo_: " << processando_grupo_;
+
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
     notificacao.set_endereco("tabuleiro_watchdog.binproto");
