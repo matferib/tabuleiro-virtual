@@ -11,7 +11,9 @@
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
+#if USAR_WATCHDOG
 #include "ent/watchdog.h"
+#endif
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -24,7 +26,9 @@ class Acao;
 class Entidade;
 class InfoTextura;
 class Texturas;
+#if USAR_WATCHDOG
 class Watchdog;
+#endif
 
 /** Estados possiveis do tabuleiro. */
 enum etab_t {
@@ -55,7 +59,6 @@ typedef std::unordered_set<unsigned int> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  /** Watchdog pode ser nullptr. */
   explicit Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
@@ -300,9 +303,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza as acoes do tabuleiro, removendo as finalizadas. */
   void AtualizaAcoes();
 
-  /** Refresca o watchdog, se houver. */
-  void RefrescaWatchdog();
-
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
   * desta funcao.
@@ -495,7 +495,9 @@ class Tabuleiro : public ntf::Receptor {
   std::unordered_map<std::string, std::unique_ptr<AcaoProto>> mapa_acoes_;
 
   const Texturas* texturas_;
+#if USAR_WATCHDOG
   Watchdog watchdog_;
+#endif
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.

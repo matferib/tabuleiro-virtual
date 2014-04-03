@@ -234,12 +234,14 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     }
   }
   EstadoInicial();
+#if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
     notificacao.set_endereco("tabuleiro_watchdog.binproto");
     this->TrataNotificacao(notificacao);
   });
+#endif
 }
 
 Tabuleiro::~Tabuleiro() {
@@ -572,7 +574,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaOlho();
       AtualizaEntidades();
       AtualizaAcoes();
-      RefrescaWatchdog();
+#if USAR_WATCHDOG
+      watchdog_.Refresca();
+#endif
       return true;
     }
     case ntf::TN_REINICIAR_TABULEIRO: {
@@ -1601,10 +1605,6 @@ void Tabuleiro::AtualizaAcoes() {
   }
   ignorar_lista_eventos_ = false;
   VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
-}
-
-void Tabuleiro::RefrescaWatchdog() {
-  watchdog_.Refresca();
 }
 
 // Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
@@ -2871,7 +2871,9 @@ double Tabuleiro::Aspecto() const {
 }
 
 void Tabuleiro::ModoJogador() {
+#if USAR_WATCHDOG
   watchdog_.Para();
+#endif
   modo_mestre_ = false;
 }
 
