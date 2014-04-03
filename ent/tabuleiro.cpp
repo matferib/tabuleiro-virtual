@@ -145,6 +145,35 @@ float DistanciaHorizontalQuadrado(const Posicao& pos1, const Posicao& pos2) {
   return distancia;
 }
 
+const std::string StringEstado(ent::etab_t estado) {
+  switch (estado) {
+    case ent::ETAB_OCIOSO:
+      return "ETAB_OCIOSO";
+    case ent::ETAB_ROTACAO:
+      return "ETAB_ROTACAO";
+    case ent::ETAB_DESLIZANDO:
+      return "ETAB_DESLIZANDO";
+    case ent::ETAB_ENTS_PRESSIONADAS:
+      return "ETAB_ENTS_PRESSIONADAS";
+    case ent::ETAB_ENTS_TRANSLACAO_ROTACAO:
+      return "ETAB_ENTS_TRANSLACAO_ROTACAO";
+    case ent::ETAB_ENTS_ESCALA:
+      return "ETAB_ENTS_ESCALA";
+    case ent::ETAB_ENTS_SELECIONADAS:
+      return "ETAB_ENTS_SELECIONADAS";
+    case ent::ETAB_QUAD_PRESSIONADO:
+      return "ETAB_QUAD_PRESSIONADO";
+    case ent::ETAB_QUAD_SELECIONADO:
+      return "ETAB_QUAD_SELECIONADO";
+    case ent::ETAB_SELECIONANDO_ENTIDADES:
+      return "ETAB_SELECIONANDO_ENTIDADES";
+    case ent::ETAB_DESENHANDO:
+      return "ETAB_DESENHANDO";
+    default:
+      return "DESCONHECIDO";
+  }
+}
+
 // Para picking em OpenGL ES.
 #if USAR_OPENGL_ES
 void DesenhaQuadradoDetalhado(int linha, int coluna) {
@@ -236,8 +265,8 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
   EstadoInicial();
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
-    LOG(ERROR) << "Estado do tabuleiro: " << estado_
-               << ", anterior_rotacao: " << estado_anterior_rotacao_
+    LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
+               << ", anterior_rotacao: " << StringEstado(estado_anterior_rotacao_)
                << ", acoes.size() == " << acoes_.size()
                << ", ids_entidades_selecionadas_.size() == " << ids_entidades_selecionadas_.size()
                << ", entidades_.size() == " << entidades_.size()
