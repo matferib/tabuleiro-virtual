@@ -263,15 +263,16 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       if (matriz_shear != nullptr) {
         break;
       }
-      std::unique_ptr<gl::HabilitaEscopo> offset_escopo;
       if (transparencias) {
         LigaStencil();
-      } else {
-        // Com stencil nao pode usar o offset, pois ele se aplicara ao retangulo da tela toda.
-        offset_escopo.reset(new gl::HabilitaEscopo(GL_POLYGON_OFFSET_FILL));
-        gl::DesvioProfundidade(-1.0, -40.0f);
       }
-      DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z());
+      {
+        // Durante preenchimento do stencil nao pode usar o offset pois ele se aplicara ao retangulo da tela toda.
+        // Portanto escopo deve terminar aqui.
+        gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
+        gl::DesvioProfundidade(-1.0, -40.0f);
+        DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z());
+      }
       if (transparencias) {
         DesenhaStencil();
       }
