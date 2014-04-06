@@ -65,10 +65,10 @@ class Tabuleiro : public ntf::Receptor {
   virtual ~Tabuleiro();
 
   /** @return numero de quadrados no eixo E-W. */
-  int TamanhoX() const;
+  inline int TamanhoX() const { return proto_.largura(); }
 
   /** @return numero de quadrados no eixo N-S. */
-  int TamanhoY() const;
+  inline int TamanhoY() const { return proto_.altura(); }
 
   /** adiciona a entidade ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
   * for local.
@@ -411,7 +411,9 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
 
   /** Desenha um quadrado do tabuleiro. */
-  void DesenhaQuadrado(unsigned int id, int linha, int coluna, bool selecionado, bool usar_textura);
+  void DesenhaQuadrado(unsigned int id,
+                       int linha, int coluna,
+                       const float* vertices, const float* vertices_texels, const unsigned short* indices);
 
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
