@@ -1,4 +1,5 @@
 #include <boost/timer/timer.hpp>
+// Esse define eh por causa de um bug na definicao do sleep for.
 #ifndef _GLIBCXX_USE_NANOSLEEP
 #define _GLIBCXX_USE_NANOSLEEP
 #include <thread>

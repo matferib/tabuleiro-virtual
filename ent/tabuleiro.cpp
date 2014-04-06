@@ -357,7 +357,7 @@ void Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
   // Aplica opcoes do jogador.
-  parametros_desenho_.set_desenha_fps(opcoes_.mostrar_fps());
+  parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   DesenhaCena();
 }
@@ -1383,7 +1383,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaFormaSelecionada();
   }
 
-  if (parametros_desenho_.desenha_rosa_dos_ventos()) {
+  if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
 
@@ -1553,6 +1553,38 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 }
 
 void Tabuleiro::DesenhaRosaDosVentos() {
+  // Modo 2d.
+  gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  // Eixo com origem embaixo esquerda.
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+  gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+  const static float kRaioRosa = 20.0f;
+  gl::Translada(largura_ - kRaioRosa, kRaioRosa, 0.0f);
+  MudaCor(COR_BRANCA);
+  // Desenha fundo da rosa.
+  DesenhaDisco(kRaioRosa, 8  /*faces*/);
+  // Desenha seta.
+  const static float kLarguraSeta = 5.0f;
+  const static float kTamanhoSeta = kRaioRosa * 0.8f;
+  MudaCor(COR_VERMELHA);
+  unsigned short indices[] = { 0, 1, 2 };
+  float vertices[] = {
+    0.0f, -kLarguraSeta,
+    kTamanhoSeta, 0.0f,
+    0.0f, kLarguraSeta,
+  };
+  // Roda pra posicao correta.
+  Posicao direcao;
+  ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &direcao);
+  gl::Roda(VetorParaRotacaoGraus(direcao.x(), direcao.y()), 0.0f, 0.0f, 1.0f);
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::PonteiroVertices(2, GL_FLOAT, vertices);
+  gl::DesenhaElementos(GL_TRIANGLE_FAN, 3, GL_UNSIGNED_SHORT, indices);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 void Tabuleiro::DesenhaPontosRolagem() {
