@@ -55,7 +55,9 @@ else:
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++11']
-  if (ARGUMENTS.get('debug', 1) == '1'):
+  debug = ARGUMENTS.get('debug', 1)
+  print 'Usando debug: %r' % debug
+  if (debug == '1'):
     env['CXXFLAGS'] += ['-g']
   else:
     env['CXXFLAGS'] += ['-O2']
