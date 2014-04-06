@@ -746,7 +746,7 @@ void Tabuleiro::TrataRodela(int delta) {
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (unsigned int id : ids_entidades_selecionadas_) {
       auto* entidade = BuscaEntidade(id);
-      if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
+      if (entidade == nullptr) {
         continue;
       }
       auto* n = grupo_notificacoes.add_notificacao();
@@ -755,7 +755,6 @@ void Tabuleiro::TrataRodela(int delta) {
       auto* e = n->mutable_entidade();
       e->CopyFrom(entidade->Proto());
       float fator = 1.0f + delta * SENSIBILIDADE_RODA * 0.1f;
-      e->set_translacao_z(e->translacao_z() * fator);
       e->mutable_escala()->set_x(e->escala().x() * fator);
       e->mutable_escala()->set_y(e->escala().y() * fator);
       e->mutable_escala()->set_z(e->escala().z() * fator);
@@ -811,10 +810,11 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       // Realiza rotacao da entidade.
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* e = BuscaEntidade(id);
-        if (e == nullptr || e->Tipo() == TE_ENTIDADE) {
+        if (e == nullptr) {
           continue;
         }
-        if (translacao_rotacao_ == TR_ROTACAO) {
+        if (translacao_rotacao_ == TR_ROTACAO && e->Tipo() != TE_ENTIDADE) {
+          // Rotacao nao se aplica a entidades.
           e->AlteraRotacaoZ(delta_x);
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->AlteraTranslacaoZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
