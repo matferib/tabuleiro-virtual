@@ -278,44 +278,46 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   }
 }
 
-void CuboSolido(GLfloat tam_lado) {
+namespace {
+
+// Cubo de tamanho 1.
+void CuboSolidoUnitario() {
   unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-  GLfloat tam_lado_2 = tam_lado / 2.0f;
   const float vertices_sul[] = {
-    -tam_lado_2, -tam_lado_2, -tam_lado_2,
-    tam_lado_2, -tam_lado_2, -tam_lado_2,
-    tam_lado_2, -tam_lado_2, tam_lado_2,
-    -tam_lado_2, -tam_lado_2, tam_lado_2
+    -0.5f, -0.5f, -0.5f,
+    0.5f, -0.5f, -0.5f,
+    0.5f, -0.5f, 0.5f,
+    -0.5f, -0.5f, 0.5f
   };
   const float vertices_norte[] = {
-    -tam_lado_2, tam_lado_2, -tam_lado_2,
-    -tam_lado_2, tam_lado_2, tam_lado_2,
-    tam_lado_2, tam_lado_2, tam_lado_2,
-    tam_lado_2, tam_lado_2, -tam_lado_2,
+    -0.5f, 0.5f, -0.5f,
+    -0.5f, 0.5f, 0.5f,
+    0.5f, 0.5f, 0.5f,
+    0.5f, 0.5f, -0.5f,
   };
   const float vertices_oeste[] = {
-    -tam_lado_2, -tam_lado_2, -tam_lado_2,
-    -tam_lado_2, -tam_lado_2, tam_lado_2,
-    -tam_lado_2, tam_lado_2, tam_lado_2,
-    -tam_lado_2, tam_lado_2, -tam_lado_2,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f,
+    -0.5f, 0.5f, -0.5f,
   };
   const float vertices_leste[] = {
-    tam_lado_2, -tam_lado_2, -tam_lado_2,
-    tam_lado_2, tam_lado_2, -tam_lado_2,
-    tam_lado_2, tam_lado_2, tam_lado_2,
-    tam_lado_2, -tam_lado_2, tam_lado_2,
+    0.5f, -0.5f, -0.5f,
+    0.5f, 0.5f, -0.5f,
+    0.5f, 0.5f, 0.5f,
+    0.5f, -0.5f, 0.5f,
   };
   const float vertices_cima[] = {
-    -tam_lado_2, -tam_lado_2, tam_lado_2,
-    tam_lado_2, -tam_lado_2, tam_lado_2,
-    tam_lado_2, tam_lado_2, tam_lado_2,
-    -tam_lado_2, tam_lado_2, tam_lado_2,
+    -0.5f, -0.5f, 0.5f,
+    0.5f, -0.5f, 0.5f,
+    0.5f, 0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f,
   };
   const float vertices_baixo[] = {
-    -tam_lado_2, -tam_lado_2, -tam_lado_2,
-    -tam_lado_2, tam_lado_2, -tam_lado_2,
-    tam_lado_2, tam_lado_2, -tam_lado_2,
-    tam_lado_2, -tam_lado_2, -tam_lado_2,
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, 0.5f, -0.5f,
+    0.5f, 0.5f, -0.5f,
+    0.5f, -0.5f, -0.5f,
   };
 
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
@@ -338,6 +340,14 @@ void CuboSolido(GLfloat tam_lado) {
   gl::PonteiroVertices(3, GL_FLOAT, vertices_baixo);
   gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+}
+
+}  // namespace
+
+void CuboSolido(GLfloat tam_lado) {
+  gl::MatrizEscopo salva_matriz;
+  gl::Escala(tam_lado, tam_lado, tam_lado);
+  CuboSolidoUnitario();
 }
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {

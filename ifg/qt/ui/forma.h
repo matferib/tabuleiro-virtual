@@ -26,6 +26,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QSlider>
+#include <QtGui/QSpinBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
@@ -69,12 +70,18 @@ public:
     QLabel *label_9;
     QHBoxLayout *horizontalLayout_12;
     QSlider *slider_alfa;
+    QWidget *layoutWidget;
+    QHBoxLayout *horizontalLayout_13;
+    QLabel *label_8;
+    QSpinBox *spin_pontos_vida;
+    QLabel *label_10;
+    QSpinBox *spin_max_pontos_vida;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(417, 453);
+        ifg__qt__DialogoForma->resize(417, 509);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(100, 10, 181, 41));
@@ -94,12 +101,12 @@ public:
 
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 400, 341, 32));
+        botoes->setGeometry(QRect(40, 460, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(190, 250, 221, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(190, 300, 221, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -126,7 +133,7 @@ public:
 
         groupBox = new QGroupBox(ifg__qt__DialogoForma);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(20, 240, 161, 141));
+        groupBox->setGeometry(QRect(20, 290, 161, 141));
         verticalLayoutWidget = new QWidget(groupBox);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(0, 20, 160, 121));
@@ -192,7 +199,7 @@ public:
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(20, 70, 361, 161));
+        groupBox_2->setGeometry(QRect(30, 120, 361, 161));
         dial_rotacao = new QDial(groupBox_2);
         dial_rotacao->setObjectName(QString::fromUtf8("dial_rotacao"));
         dial_rotacao->setGeometry(QRect(20, 30, 121, 121));
@@ -217,11 +224,11 @@ public:
         label_2->setGeometry(QRect(190, 50, 111, 16));
         checkbox_selecionavel = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
-        checkbox_selecionavel->setGeometry(QRect(200, 340, 177, 20));
+        checkbox_selecionavel->setGeometry(QRect(200, 390, 177, 20));
         checkbox_visibilidade = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
         checkbox_visibilidade->setEnabled(true);
-        checkbox_visibilidade->setGeometry(QRect(200, 370, 201, 20));
+        checkbox_visibilidade->setGeometry(QRect(200, 420, 201, 20));
         QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
@@ -229,7 +236,7 @@ public:
         checkbox_visibilidade->setSizePolicy(sizePolicy1);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(190, 290, 221, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(190, 340, 221, 41));
         horizontalLayout_9 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -261,6 +268,42 @@ public:
 
         horizontalLayout_9->addLayout(horizontalLayout_12);
 
+        layoutWidget = new QWidget(ifg__qt__DialogoForma);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(100, 70, 229, 26));
+        horizontalLayout_13 = new QHBoxLayout(layoutWidget);
+        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
+        horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
+        label_8 = new QLabel(layoutWidget);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+        sizePolicy.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy);
+        label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_13->addWidget(label_8);
+
+        spin_pontos_vida = new QSpinBox(layoutWidget);
+        spin_pontos_vida->setObjectName(QString::fromUtf8("spin_pontos_vida"));
+        spin_pontos_vida->setMinimum(-100);
+        spin_pontos_vida->setMaximum(999);
+
+        horizontalLayout_13->addWidget(spin_pontos_vida);
+
+        label_10 = new QLabel(layoutWidget);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+        sizePolicy.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
+        label_10->setSizePolicy(sizePolicy);
+        label_10->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_13->addWidget(label_10);
+
+        spin_max_pontos_vida = new QSpinBox(layoutWidget);
+        spin_max_pontos_vida->setObjectName(QString::fromUtf8("spin_max_pontos_vida"));
+        spin_max_pontos_vida->setMinimum(-100);
+        spin_max_pontos_vida->setMaximum(999);
+
+        horizontalLayout_13->addWidget(spin_max_pontos_vida);
+
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -287,6 +330,8 @@ public:
         checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoForma", "Alfa", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("ifg::qt::DialogoForma", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

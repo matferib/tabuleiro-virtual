@@ -17,6 +17,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QDoubleSpinBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
@@ -68,24 +69,28 @@ public:
     QSpinBox *spin_pontos_vida;
     QLabel *label_6;
     QSpinBox *spin_max_pontos_vida;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QHBoxLayout *horizontalLayout_9;
     QCheckBox *checkbox_caida;
     QCheckBox *checkbox_morta;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_4;
     QSpinBox *spin_aura;
+    QWidget *horizontalLayoutWidget_6;
+    QHBoxLayout *horizontalLayout_13;
+    QLabel *label_7;
+    QDoubleSpinBox *spin_translacao;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(411, 408);
+        ifg__qt__DialogoEntidade->resize(411, 447);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(30, 360, 341, 32));
+        botoes->setGeometry(QRect(40, 400, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -277,37 +282,57 @@ public:
 
         horizontalLayout_11->addLayout(horizontalLayout_12);
 
-        widget = new QWidget(ifg__qt__DialogoEntidade);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(20, 180, 361, 39));
-        horizontalLayout_9 = new QHBoxLayout(widget);
+        layoutWidget = new QWidget(ifg__qt__DialogoEntidade);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(20, 180, 361, 39));
+        horizontalLayout_9 = new QHBoxLayout(layoutWidget);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
-        checkbox_caida = new QCheckBox(widget);
+        checkbox_caida = new QCheckBox(layoutWidget);
         checkbox_caida->setObjectName(QString::fromUtf8("checkbox_caida"));
 
         horizontalLayout_9->addWidget(checkbox_caida);
 
-        checkbox_morta = new QCheckBox(widget);
+        checkbox_morta = new QCheckBox(layoutWidget);
         checkbox_morta->setObjectName(QString::fromUtf8("checkbox_morta"));
 
         horizontalLayout_9->addWidget(checkbox_morta);
 
         horizontalLayout_10 = new QHBoxLayout();
         horizontalLayout_10->setObjectName(QString::fromUtf8("horizontalLayout_10"));
-        label_4 = new QLabel(widget);
+        label_4 = new QLabel(layoutWidget);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_10->addWidget(label_4);
 
-        spin_aura = new QSpinBox(widget);
+        spin_aura = new QSpinBox(layoutWidget);
         spin_aura->setObjectName(QString::fromUtf8("spin_aura"));
 
         horizontalLayout_10->addWidget(spin_aura);
 
 
         horizontalLayout_9->addLayout(horizontalLayout_10);
+
+        horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 350, 351, 31));
+        horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
+        horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
+        horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
+        label_7 = new QLabel(horizontalLayoutWidget_6);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+        label_7->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_13->addWidget(label_7);
+
+        spin_translacao = new QDoubleSpinBox(horizontalLayoutWidget_6);
+        spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
+        spin_translacao->setDecimals(1);
+        spin_translacao->setMaximum(100);
+        spin_translacao->setSingleStep(0.1);
+
+        horizontalLayout_13->addWidget(spin_translacao);
 
 
         retranslateUi(ifg__qt__DialogoEntidade);
@@ -337,6 +362,7 @@ public:
         checkbox_caida->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ca\303\255da", 0, QApplication::UnicodeUTF8));
         checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o em Z", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

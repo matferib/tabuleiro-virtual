@@ -1,4 +1,6 @@
 Versao 1.0
+- translacao vertical para unidades nao formas;
+- Hitpoints na UI de formas.
 - Desenhar tabuleiro de forma otimizada.
 - Testar watchdog no windows e mac.
 - Rosa dos ventos.

@@ -434,6 +434,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   // ID.
   QString id_str;
   gerador.campo_id->setText(id_str.setNum(entidade.id()));
+  // Pontos de vida.
+  gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
+  gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -469,6 +472,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor ] () {
+    if (gerador.spin_max_pontos_vida->value() > 0) {
+      proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
+      proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
+    } else {
+      proto_retornado->clear_max_pontos_vida();
+      proto_retornado->clear_pontos_vida();
+    }
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
@@ -576,6 +586,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.checkbox_caida->setCheckState(entidade.caida() ? Qt::Checked : Qt::Unchecked);
   // Morta.
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
+  // Translacao em Z.
+  gerador.spin_translacao->setValue(entidade.translacao_z());
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
@@ -626,6 +638,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
+    if (gerador.spin_translacao->value() > 0) {
+      proto_retornado->set_translacao_z(gerador.spin_translacao->value());
+    } else {
+      proto_retornado->clear_translacao_z();
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

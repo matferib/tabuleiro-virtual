@@ -55,7 +55,7 @@ else:
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++11']
-  debug = ARGUMENTS.get('debug', 1)
+  debug = ARGUMENTS.get('debug', '1')
   print 'Usando debug: %r' % debug
   if (debug == '1'):
     env['CXXFLAGS'] += ['-g']
@@ -63,13 +63,13 @@ else:
     env['CXXFLAGS'] += ['-O2']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
-usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', 0) == '1')
+usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', '0') == '1')
 print 'usar_opengl_es : %r' % usar_opengl_es
 if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES']['USAR_OPENGL_ES'] = 1
 
-gerar_profile = (ARGUMENTS.get('gerar_profile', 0) == '1')
+gerar_profile = (ARGUMENTS.get('gerar_profile', '0') == '1')
 if gerar_profile:
   env['CXXFLAGS'] += ['-pg']
   env['LINKFLAGS'] += ['-pg']
