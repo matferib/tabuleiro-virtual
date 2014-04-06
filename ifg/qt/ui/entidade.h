@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created: Sun Apr 6 19:22:23 2014
+**      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
