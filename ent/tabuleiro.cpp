@@ -346,14 +346,6 @@ void Tabuleiro::EstadoInicial() {
   CorParaProto(COR_BRANCA, &forma_cor_);
 }
 
-int Tabuleiro::TamanhoX() const {
-  return proto_.largura();
-}
-
-int Tabuleiro::TamanhoY() const {
-  return proto_.altura();
-}
-
 void Tabuleiro::Desenha() {
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
@@ -1454,17 +1446,63 @@ void Tabuleiro::DesenhaTabuleiro() {
   // TODO transformar offsets em constantes.
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(2.0f, 20.0f);
+  bool usar_textura = id_textura != GL_INVALID_VALUE;
+  GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+  GLfloat cinza_claro[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+  if (!usar_textura) {
+    MudaCor(cinza_claro);
+  } else {
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    MudaCor(COR_BRANCA);
+  }
+
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  float tamanho_texel_h = 1.0f / TamanhoX();
+  float tamanho_texel_v = 1.0f / TamanhoY();
+  static const float vertices[] = {
+    0.0f, 0.0f,
+    TAMANHO_LADO_QUADRADO, 0.0f,
+    TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO,
+    0.0f, TAMANHO_LADO_QUADRADO,
+  };
+  static const float vertices_texel_ladrilho[] = {
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+  };
+  static const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, };
   for (int y = 0; y < TamanhoY(); ++y) {
+    float inicio_texel_v = (TamanhoY() - y) * tamanho_texel_v;
+    float inicio_texel_h = 0.0f;
     for (int x = 0; x < TamanhoX(); ++x) {
+      const float vertices_texel_nao_ladrilho[] = {
+        inicio_texel_h,                   inicio_texel_v,
+        inicio_texel_h + tamanho_texel_h, inicio_texel_v,
+        inicio_texel_h + tamanho_texel_h, inicio_texel_v - tamanho_texel_v,
+        inicio_texel_h,                   inicio_texel_v - tamanho_texel_v,
+      };
+      const float* vertices_texels = proto_.ladrilho() ? vertices_texel_ladrilho : vertices_texel_nao_ladrilho;
+
       // desenha quadrado
-      DesenhaQuadrado(id, y, x, id == quadrado_selecionado_, id_textura != GL_INVALID_VALUE);
+      if (id == quadrado_selecionado_ && !usar_textura) {
+        MudaCor(cinza);
+      }
+      DesenhaQuadrado(id, y, x,
+                      vertices, vertices_texels, indices);
+      if (id == quadrado_selecionado_ && !usar_textura)  {
+        MudaCor(cinza_claro);
+      }
       // anda 1 quadrado direita
       gl::Translada(TAMANHO_LADO_QUADRADO, 0, 0);
       ++id;
+      inicio_texel_h += tamanho_texel_h;
     }
     // volta tudo esquerda e sobe 1 quadrado
     gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
+  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
@@ -2801,8 +2839,9 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   }
 }
 
-void Tabuleiro::DesenhaQuadrado(
-    unsigned int id, int linha, int coluna, bool selecionado, bool usar_textura) {
+void Tabuleiro::DesenhaQuadrado(unsigned int id,
+                                int linha, int coluna,
+                                const float* vertices, const float* vertices_texels, const unsigned short* indices) {
 #if USAR_OPENGL_ES
   if (parametros_desenho_.has_params_opengles()) {
     if (parametros_desenho_.params_opengles().tabuleiro() && parametros_desenho_.params_opengles().id() == id) {
@@ -2812,50 +2851,9 @@ void Tabuleiro::DesenhaQuadrado(
   }
 #endif
   gl::CarregaNome(id);
-  if (!usar_textura) {
-    if (selecionado) {
-      GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-      MudaCor(cinza);
-    } else {
-      GLfloat cinza_claro[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-      MudaCor(cinza_claro);
-    }
-  } else {
-    MudaCor(COR_BRANCA);
-  }
-
-  float tamanho_texel_h = 1.0f / TamanhoX();
-  float tamanho_texel_v = 1.0f / TamanhoY();
-  float tamanho_y_linha = TamanhoY() - linha;
-  const float vertices_texel_ladrilho[] = {
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-  };
-  const float vertices_texel_nao_ladrilho[] = {
-    coluna * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v,
-    (coluna + 1) * tamanho_texel_h, tamanho_y_linha * tamanho_texel_v,
-    (coluna + 1) * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v,
-    coluna * tamanho_texel_h, (tamanho_y_linha - 1) * tamanho_texel_v,
-  };
-
-  const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, };
-  const float vertices[] = {
-    0.0f, 0.0f,
-    TAMANHO_LADO_QUADRADO, 0.0f,
-    TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO,
-    0.0f, TAMANHO_LADO_QUADRADO,
-  };
-  if (usar_textura) {
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-  }
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::PonteiroVertices(2, GL_FLOAT, vertices);
-  gl::PonteiroVerticesTexturas(2, GL_FLOAT, proto_.ladrilho() ? vertices_texel_ladrilho : vertices_texel_nao_ladrilho);
+  gl::PonteiroVerticesTexturas(2, GL_FLOAT, vertices_texels);
   gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 
 void Tabuleiro::DesenhaGrade() {

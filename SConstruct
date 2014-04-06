@@ -51,9 +51,14 @@ elif sistema == 'apple':
   env['CXXFLAGS'] += ['-Wall', '-O2', '-std=c++11']
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'pthread']
 else:
+  # linux.
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_WATCHDOG': 1}
-  env['CXXFLAGS'] = ['-Wall', '-g', '-std=c++11']
+  env['CXXFLAGS'] = ['-Wall', '-std=c++11']
+  if (ARGUMENTS.get('debug', 1) == '1'):
+    env['CXXFLAGS'] += ['-g']
+  else:
+    env['CXXFLAGS'] += ['-O2']
   env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
 usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', 0) == '1')

@@ -13,5 +13,8 @@ apple:
 linux_profile:
 	scons gerar_profile=1
 
+linux_release:
+	scons debug=0
+
 clean:
 	scons -c
