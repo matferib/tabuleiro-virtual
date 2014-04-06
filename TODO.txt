@@ -32,5 +32,3 @@ Versao 2.0
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
 - Tooltip com mais informacao.
-- Arrumar tempo de desenho de cena.
-- Performance para tabuleiro grande.

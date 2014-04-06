@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <boost/timer/timer.hpp>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -344,6 +343,8 @@ void Tabuleiro::EstadoInicial() {
   forma_proto_.Clear();
   forma_selecionada_ = TF_CUBO;
   CorParaProto(COR_BRANCA, &forma_cor_);
+  // Tempo renderizacao.
+  tempos_renderizacao_.clear();
 }
 
 void Tabuleiro::Desenha() {
@@ -1209,9 +1210,8 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
 
 // privadas
 void Tabuleiro::DesenhaCena() {
-  boost::timer::cpu_timer timer;
   if (parametros_desenho_.desenha_fps()) {
-    timer.start();
+    timer_.start();
   }
 
   gl::Habilita(GL_DEPTH_TEST);
@@ -1402,20 +1402,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   if (parametros_desenho_.desenha_fps()) {
-    glFlush();
-    timer.stop();
-    std::string tempo_str = timer.format(boost::timer::default_places, "%w");
-    // Modo 2d.
-    gl::ModoMatriz(GL_PROJECTION);
-    gl::CarregaIdentidade();
-    // Eixo com origem embaixo esquerda.
-    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    gl::ModoMatriz(GL_MODELVIEW);
-    gl::CarregaIdentidade();
-    gl::Desabilita(GL_DEPTH_TEST);
-    gl::Desabilita(GL_LIGHTING);
-    gl::Translada(0.0, altura_ - 15.0f, 0.0f);
-    DesenhaStringTempo(tempo_str);
+    DesenhaTempoRenderizacao();
   }
 }
 
@@ -2901,6 +2888,39 @@ void Tabuleiro::DesenhaListaPontosVida() {
       DesenhaString(str);
     }
   }
+}
+
+void Tabuleiro::DesenhaTempoRenderizacao() {
+  glFlush();
+  timer_.stop();
+  auto cpu_times = timer_.elapsed();
+  uint64_t tempo_ms = (cpu_times.user + cpu_times.system) / 1000000ULL;
+  if (tempos_renderizacao_.size() == kMaximoTamTemposRenderizacao) {
+    tempos_renderizacao_.pop_back();
+  }
+  tempos_renderizacao_.push_front(tempo_ms);
+  // Acha o maior.
+  uint64_t maior_tempo_ms = 0;
+  for (uint64_t tempo_ms : tempos_renderizacao_) {
+    if (tempo_ms > maior_tempo_ms) {
+      maior_tempo_ms = tempo_ms;
+    }
+  }
+  std::string tempo_str = std::to_string(maior_tempo_ms);
+  while (tempo_str.size() < 4) {
+    tempo_str.insert(0, "0");
+  }
+  // Modo 2d.
+  gl::ModoMatriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  // Eixo com origem embaixo esquerda.
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+  gl::ModoMatriz(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+  gl::Desabilita(GL_DEPTH_TEST);
+  gl::Desabilita(GL_LIGHTING);
+  gl::Translada(0.0, altura_ - 15.0f, 0.0f);
+  DesenhaStringTempo(tempo_str);
 }
 
 double Tabuleiro::Aspecto() const {

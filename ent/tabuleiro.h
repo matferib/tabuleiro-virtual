@@ -1,6 +1,7 @@
 #ifndef ENT_TABULEIRO_H
 #define ENT_TABULEIRO_H
 
+#include <boost/timer/timer.hpp>
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -293,6 +294,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a forma de desenho selecionada. */
   void DesenhaFormaSelecionada();
 
+  /** Desenha o tempo de renderizacao da cena. */
+  void DesenhaTempoRenderizacao();
+
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. Se forcar for false, so atualiza se houver
   * destino. Caso contrario, atualiza independente do destino.*/
   void AtualizaOlho(bool forcar = false);
@@ -528,6 +532,11 @@ class Tabuleiro : public ntf::Receptor {
   TipoForma forma_selecionada_;  // Necessario para poder limpar o proto em paz.
   Cor forma_cor_;  // idem.
   EntidadeProto forma_proto_;
+
+  // Armazena os ultimos tempos de renderizacao.
+  boost::timer::cpu_timer timer_;
+  std::list<uint64_t> tempos_renderizacao_;
+  constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
