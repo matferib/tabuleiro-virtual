@@ -88,7 +88,7 @@ message EntidadeProto {
   optional bool achatado = 17 [default=false];
   // Posicao atual da entidade.
   optional Posicao pos = 4;
-  // Para formas.
+  // Para formas (exceto translacao).
   repeated Posicao ponto = 21;
   optional Escala escala = 22;
   optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.

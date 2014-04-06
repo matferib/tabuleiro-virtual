@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>411</width>
-    <height>408</height>
+    <height>447</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,8 +23,8 @@
   <widget class="QDialogButtonBox" name="botoes">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>360</y>
+     <x>40</x>
+     <y>400</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -336,7 +336,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -376,6 +376,41 @@
        <widget class="QSpinBox" name="spin_aura"/>
       </item>
      </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_6">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>350</y>
+     <width>351</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_13">
+    <item>
+     <widget class="QLabel" name="label_7">
+      <property name="text">
+       <string>Translação em Z</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QDoubleSpinBox" name="spin_translacao">
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <double>100.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>0.100000000000000</double>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

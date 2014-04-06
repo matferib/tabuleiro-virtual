@@ -303,7 +303,7 @@ void Entidade::MontaMatriz(bool em_voo,
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima());
   if (matriz_shear == nullptr) {
-    gl::Translada(pos.x(), pos.y(), em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
+    gl::Translada(pos.x(), pos.y(), (em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y())) + proto.translacao_z());
     if (achatar && !proto.has_info_textura()) {
       // Achata cone.
       gl::Escala(1.0f, 1.0f, 0.1f);
@@ -311,7 +311,7 @@ void Entidade::MontaMatriz(bool em_voo,
   } else {
     gl::Translada(pos.x(), pos.y(), 0);
     gl::MultiplicaMatriz(matriz_shear);
-    gl::Translada(0, 0, em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y()));
+    gl::Translada(0, 0, (em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y())) + proto.translacao_z());
     if (achatar && !proto.has_info_textura()) {
       // Achata cone.
       gl::Escala(1.0f, 1.0f, 0.1f);
