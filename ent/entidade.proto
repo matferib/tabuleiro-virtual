@@ -82,6 +82,8 @@ message EntidadeProto {
   optional int32 pontos_vida = 11;
   // Maximo de pontos de vida da entidade.
   optional int32 max_pontos_vida = 12;
+  // Exemplo: 4d8 + 8.
+  optional string dados_vida = 19;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.

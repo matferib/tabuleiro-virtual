@@ -1210,7 +1210,7 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
 
 // privadas
 void Tabuleiro::DesenhaCena() {
-  if (parametros_desenho_.desenha_fps()) {
+  if (opcoes_.mostra_fps()) {
     timer_.start();
   }
 
@@ -1401,7 +1401,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaListaPontosVida();
   }
 
-  if (parametros_desenho_.desenha_fps()) {
+  if (opcoes_.mostra_fps()) {
     DesenhaTempoRenderizacao();
   }
 }
@@ -2931,6 +2931,11 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
     tempos_renderizacao_.pop_back();
   }
   tempos_renderizacao_.push_front(tempo_ms);
+  if (!parametros_desenho_.desenha_fps()) {
+    // Se nao eh pra desenhar, nao gasta tempo com o resto. A parte de cima eh importante
+    // para contabilizar os casos de picking.
+    return;
+  }
   // Acha o maior.
   uint64_t maior_tempo_ms = 0;
   for (uint64_t tempo_ms : tempos_renderizacao_) {

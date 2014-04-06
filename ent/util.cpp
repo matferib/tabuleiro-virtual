@@ -176,6 +176,14 @@ void DesenhaStencil(const float* cor) {
   gl::Desabilita(GL_STENCIL_TEST);
 }
 
+int GeraPontosVida(const std::string& dados_vida) {
+  throw std::logic_error(std::string("dados_vida mal formado: ") + dados_vida);
+}
+
+int GeraMaxPontosVida(const std::string& dados_vida) {
+  throw std::logic_error(std::string("dados_vida mal formado: ") + dados_vida);
+}
+
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {
   pos_res->set_x(pos2.x() - pos1.x());
   pos_res->set_y(pos2.y() - pos1.y());
