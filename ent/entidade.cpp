@@ -56,7 +56,18 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
-  if (proto_.tipo() == TE_ENTIDADE) {
+  if (proto_.has_dados_vida()) {
+    try {
+      if (!proto_.has_max_pontos_vida()) {
+        proto_.set_max_pontos_vida(GeraMaxPontosVida(proto_.dados_vida()));
+      }
+      if (!proto_.has_pontos_vida()) {
+        proto_.set_pontos_vida(GeraPontosVida(proto_.dados_vida()));
+      }
+    } catch (const std::logic_error& erro) {
+      LOG(ERROR) << "Erro inicializando entidade: " << erro.what();
+    }
+  } else {
     if (!proto_.has_max_pontos_vida()) {
       // Entidades sempre devem ter o maximo de pontos de vida, que eh usado para acoes de dano.
       proto_.set_max_pontos_vida(0);

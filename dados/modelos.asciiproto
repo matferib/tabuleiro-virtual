@@ -9,7 +9,7 @@ modelo {
 }
 modelo {
   id: 'Carniçal'
-  entidade { max_pontos_vida: 13 info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+  entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
 modelo {
   id: 'Demônio Vrock'
@@ -69,7 +69,7 @@ modelo {
 }
 modelo {
   id: 'Uivante'
-  entidade { max_pontos_vida: 39 tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+  entidade { dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
 }
 modelo {
   id: 'Zumbi (humano)'

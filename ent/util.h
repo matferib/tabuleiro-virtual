@@ -58,6 +58,16 @@ void LigaStencil();
 void DesenhaStencil(const float* cor = nullptr);
 void DesenhaStencil(const Cor& cor);
 
+/** Gera pontos de vida baseado nos dados de vida, da forma 4d8+8 por exemplo.
+* Da excecao se dados_vida for mal formado.
+*/
+int GeraPontosVida(const std::string& dados_vida);
+
+/** Gera o maximo de pontos de vida baseado no dados_vida.
+* Da excecao se dados_vida for mal formado.
+*/
+int GeraMaxPontosVida(const std::string& dados_vida);
+
 /** Computa pos2 - pos1 em pos_res. */
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res);
 

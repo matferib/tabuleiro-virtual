@@ -1,4 +1,5 @@
 Versao 1.0
+- Dados de vida para geracao de hit points.
 - Desenhar tabuleiro de forma otimizada.
 - Testar watchdog no windows e mac.
 - Entender pq mais de um picking por frame ta dando biziu no openglES.
