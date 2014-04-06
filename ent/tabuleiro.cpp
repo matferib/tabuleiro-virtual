@@ -1441,8 +1441,8 @@ void Tabuleiro::DesenhaTabuleiro() {
   double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
   gl::Normal(0, 0, 1.0f);
   gl::Translada(deltaX / 2.0f,
-               deltaY / 2.0f,
-               parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
+                deltaY / 2.0f,
+                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
     gl::Desabilita(GL_CULL_FACE);

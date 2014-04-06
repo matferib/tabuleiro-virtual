@@ -10,5 +10,8 @@ windows:
 apple:
 	scons sistema=apple
 
+linux_profile:
+	scons gerar_profile=1
+
 clean:
 	scons -c

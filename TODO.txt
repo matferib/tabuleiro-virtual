@@ -1,4 +1,5 @@
 Versao 1.0
+- Desenhar tabuleiro de forma otimizada.
 - Testar watchdog no windows e mac.
 - Rosa dos ventos.
 - Entender pq mais de um picking por frame ta dando biziu no openglES.
