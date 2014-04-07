@@ -58,12 +58,12 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   proto_.CopyFrom(novo_proto);
   if (proto_.has_dados_vida()) {
     try {
-      if (!proto_.has_max_pontos_vida()) {
-        proto_.set_max_pontos_vida(GeraMaxPontosVida(proto_.dados_vida()));
+      int pv = GeraPontosVida(proto_.dados_vida());
+      if (pv == 0) {
+        pv = 1;
       }
-      if (!proto_.has_pontos_vida()) {
-        proto_.set_pontos_vida(GeraPontosVida(proto_.dados_vida()));
-      }
+      proto_.set_max_pontos_vida(pv);
+      proto_.set_pontos_vida(pv);
     } catch (const std::logic_error& erro) {
       LOG(ERROR) << "Erro inicializando entidade: " << erro.what();
     }

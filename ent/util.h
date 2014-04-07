@@ -1,6 +1,7 @@
 #ifndef ENT_UTIL_H
 #define ENT_UTIL_H
 
+#include <string>
 #include <vector>
 
 namespace google {
