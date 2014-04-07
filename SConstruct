@@ -125,11 +125,7 @@ ntf_proto = env.Protoc(
 # GL
 cGl = env.Object('gltab/gl.cpp')
 
-# programa final
-env.Program(
-	target = 'tabvirt',
-	source = [
-		'main.cpp',
+objetos = [
     # net.
     cNetServidor, cNetCliente, cNetUtil,
 		# notificacoes.
@@ -141,4 +137,22 @@ env.Program(
     # gl.
     cGl,
 	] + ([ cEntWatchdog ] if sistema == 'linux' else [])
+
+
+# programa final
+env.Program(
+	target = 'tabvirt',
+	source = [ 'main.cpp', ] + objetos
 )
+
+compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
+print 'compilar_testes : %r' % compilar_testes
+if compilar_testes:
+  env['CPPPATH'] += ['./gtest/include/']
+  env['LIBPATH'] += ['./gtest/lib/']
+  env['LIBS'] += ['gtest', 'pthread']
+  env['RPATH'] += ['./gtest/lib/']
+  env.Program(
+      target = 'teste_ent_util',
+      source = ['ent/util_test.cpp', ] + objetos)
+

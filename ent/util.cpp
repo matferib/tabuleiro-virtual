@@ -1,7 +1,10 @@
 #include <algorithm>
 #include <cmath>
+#include <cctype>
+#include <cstdlib>
 #include <google/protobuf/repeated_field.h>
 #include <stdexcept>
+#include <random>
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
@@ -169,7 +172,8 @@ void DesenhaStencil(const float* cor) {
       }
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
-      // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
+      // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda).
+      // Operacoes de picking nao devem usar stencil.
       gl::Retangulo(0.0f, 0.0f, largura, altura);
     }
   }
@@ -177,12 +181,73 @@ void DesenhaStencil(const float* cor) {
   gl::Desabilita(GL_STENCIL_TEST);
 }
 
+namespace {
+
+// A string de dados de vida desmembrada.
+struct MultDadoSoma {
+  unsigned int mult;
+  unsigned int dado;
+  int soma;
+};
+
+const MultDadoSoma DesmembraDadosVida(const std::string& dados_vida) {
+  MultDadoSoma mult_dado_soma;
+  // Procura o d.
+  size_t indice_d = dados_vida.find('d');
+  if (indice_d == std::string::npos || indice_d == dados_vida.size() - 1) {
+    throw std::logic_error(std::string("Dados de vida mal formado, d nao encontrado: ") + dados_vida);
+  }
+  // Mult.
+  std::string str_mult(dados_vida.substr(0, indice_d));
+  mult_dado_soma.mult = atoi(str_mult.c_str());
+  if (mult_dado_soma.mult == 0) {
+    throw std::logic_error(std::string("Dados de vida mal formado, multiplicador invalido: ") + dados_vida);
+  }
+  // Dado.
+  size_t indice_sinal = dados_vida.find_first_of("+-", indice_d + 1);
+  if (indice_sinal == std::string::npos) {
+    indice_sinal = dados_vida.size();
+  }
+  std::string str_dado(dados_vida.substr(indice_d + 1, indice_sinal - indice_d - 1));
+  mult_dado_soma.dado = atoi(str_dado.c_str());
+  if (mult_dado_soma.dado == 0) {
+    throw std::logic_error(std::string("Dados de vida mal formado, dado invalido: ") + dados_vida);
+  }
+  // Soma.
+  if (indice_sinal == dados_vida.size()) {
+    mult_dado_soma.soma = 0;
+    return mult_dado_soma;
+  }
+  std::string str_soma(dados_vida.substr(indice_sinal + 1));
+  mult_dado_soma.soma = atoi(str_soma.c_str());
+  if (dados_vida[indice_sinal] == '-') {
+    mult_dado_soma.soma = -mult_dado_soma.soma;
+  }
+  return mult_dado_soma;
+}
+
+} // namespace
+
+// Rola um dado de nfaces.
+int RolaDado(unsigned int nfaces) {
+  static std::minstd_rand motor_aleatorio;
+  return (motor_aleatorio() % nfaces) + 1;
+}
+
+// Como gcc esta sem suporte a regex, vamos fazer na mao.
 int GeraPontosVida(const std::string& dados_vida) {
-  throw std::logic_error(std::string("dados_vida mal formado: ") + dados_vida);
+  auto mds = DesmembraDadosVida(dados_vida);
+  int res = 0;
+  for (int i = 0; i < mds.mult; ++i) {
+    res += RolaDado(mds.dado);
+  }
+  res += mds.soma;
+  return res;
 }
 
 int GeraMaxPontosVida(const std::string& dados_vida) {
-  throw std::logic_error(std::string("dados_vida mal formado: ") + dados_vida);
+  auto mds = DesmembraDadosVida(dados_vida);
+  return mds.mult * mds.dado + mds.soma;
 }
 
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {

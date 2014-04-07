@@ -1,5 +1,6 @@
 Versao 1.0
-- Dados de vida para geracao de hit points.
+- Adicionar mais unit tests (comecar pelos simples).
+- Label para identificar jogadores.
 - Desenhar tabuleiro de forma otimizada.
 - Testar watchdog no windows e mac.
 - Entender pq mais de um picking por frame ta dando biziu no openglES.
@@ -25,7 +26,6 @@ Versao 2.0
 - Outros tipos de efeito das acoes nas entidades (tremer).
 - Outros tipos de acoes (perfurante, concussao).
 - Adicionar mais detalhes as entidades (Ataque, CA, Saves).
-- Adicionar unit tests (comecar pelos simples).
 - Sons.
 - Versao IPAD e Android.
 - Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.

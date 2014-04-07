@@ -13,19 +13,19 @@ modelo {
 }
 modelo {
   id: 'Demônio Vrock'
-  entidade { max_pontos_vida: 115 tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 } }
+  entidade { dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 } }
 }
 modelo {
   id: 'Demônio Babau'
-  entidade { max_pontos_vida: 66 info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
+  entidade { dados_vda: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
 }
 modelo {
   id: 'Enxame (centopéias)'
-  entidade { max_pontos_vida: 31 achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
 modelo {
   id: 'Manto Negro'
-  entidade { max_pontos_vida: 6 tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
+  entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
 }
 modelo {
   id: 'Morcego (Caçador Noturno)'
@@ -53,19 +53,19 @@ modelo {
 }
 modelo {
   id: 'Goblin'
-  entidade { max_pontos_vida: 5 tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
+  entidade { dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
 }
 modelo {
   id: 'Homem-Rato'
-  entidade { max_pontos_vida: 12 info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
+  entidade { dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
 }
 modelo {
   id: 'Orc'
-  entidade { max_pontos_vida: 5 info_textura { id: 'orc.png'} cor { g: 1.0 } }
+  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
 }
 modelo {
   id: 'Troll'
-  entidade { max_pontos_vida: 63 tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
+  entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
 }
 modelo {
   id: 'Uivante'
@@ -73,11 +73,11 @@ modelo {
 }
 modelo {
   id: 'Zumbi (humano)'
-  entidade { max_pontos_vida: 16 info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+  entidade { dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
 }
 modelo {
   id: 'Zumbi (kobold)'
-  entidade { max_pontos_vida: 16 tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+  entidade { dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
 }
 modelo {
   id: 'Árvore (pinheiro)'
