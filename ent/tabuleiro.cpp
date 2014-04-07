@@ -1563,7 +1563,8 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
   gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
   const static float kRaioRosa = 20.0f;
-  gl::Translada(largura_ - kRaioRosa, kRaioRosa, 0.0f);
+  // Deixa espaco para o N.
+  gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f);
   MudaCor(COR_BRANCA);
   // Desenha fundo da rosa.
   DesenhaDisco(kRaioRosa, 8  /*faces*/);
@@ -1573,17 +1574,41 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   MudaCor(COR_VERMELHA);
   unsigned short indices[] = { 0, 1, 2 };
   float vertices[] = {
-    0.0f, -kLarguraSeta,
-    kTamanhoSeta, 0.0f,
-    0.0f, kLarguraSeta,
+    -kLarguraSeta, 0.0f,
+    kLarguraSeta, 0.0f,
+    0.0f, kTamanhoSeta,
   };
+  unsigned short indices_n[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+  float vertices_n[] = {
+    // Primeira perna N.
+    -4.0f, 0.0f,
+    -1.0f, 0.0f,
+    -4.0f, 13.0f,
+    // Segunda.
+    -4.0f, 13.0f,
+    -4.0f, 8.0f,
+    4.0f, 0.0f,
+    // Terceira.
+    4.0f, 0.0f,
+    4.0f, 13.0f,
+    1.0f, 13.0f,
+  };
+
   // Roda pra posicao correta.
   Posicao direcao;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &direcao);
-  gl::Roda(VetorParaRotacaoGraus(direcao.x(), direcao.y()), 0.0f, 0.0f, 1.0f);
+  // A diferenca eh em relacao ao leste e o norte esta a 90 graus. Quanto maior a diferenca, mais proximo do norte (ate 90.0f).
+  float diferenca_graus = 90.0f - VetorParaRotacaoGraus(direcao.x(), direcao.y());
+
+  // Seta.
+  gl::Roda(diferenca_graus, 0.0f, 0.0f, 1.0f);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::PonteiroVertices(2, GL_FLOAT, vertices);
   gl::DesenhaElementos(GL_TRIANGLE_FAN, 3, GL_UNSIGNED_SHORT, indices);
+  // N.
+  gl::Translada(0.0f, kRaioRosa + 2.0f, 0.0f);
+  gl::PonteiroVertices(2, GL_FLOAT, vertices_n);
+  gl::DesenhaElementos(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices_n);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
