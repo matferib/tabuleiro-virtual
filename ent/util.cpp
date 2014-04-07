@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 #include <google/protobuf/repeated_field.h>
+#include <stdexcept>
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
