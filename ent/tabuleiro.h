@@ -102,6 +102,7 @@ class Tabuleiro : public ntf::Receptor {
     BIT_VOO              = 0x4,
     BIT_MORTA            = 0x8,
     BIT_CAIDA            = 0x10,
+    BIT_SELECIONAVEL     = 0x20,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
@@ -346,7 +347,7 @@ class Tabuleiro : public ntf::Receptor {
   /** seleciona as entidades em ids_adicionados_. */
   void SelecionaEntidadesAdicionadas() { SelecionaEntidades(ids_adicionados_); }
 
-  /** Adiciona entidades as entidades selecionadas. O estado final depende do tamanho dos ids e do
+  /** Adiciona ids as entidades selecionadas. O estado final depende do tamanho dos ids e do
   * numero de entidades selecionadas corrente.
   */
   void AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids);
@@ -462,8 +463,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** estado do tabuleiro. */
   etab_t estado_;
-  /** usado para restaurar o estado apos rotacao. */
-  etab_t estado_anterior_rotacao_;
+  /** usado para restaurar o estado apos algumas operacoes. */
+  etab_t estado_anterior_;
 
   /** proximo id local de entidades. */
   int proximo_id_entidade_;
