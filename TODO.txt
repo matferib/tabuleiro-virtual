@@ -1,4 +1,5 @@
 Versao 1.0
+- Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).
 - Label para identificar jogadores.
 - Desenhar tabuleiro de forma otimizada.
