@@ -14,7 +14,7 @@ ant debug
 
 Instalacao:
 Colocar o dispositivo em USB debug mode.
-adb install bin/Tabuleiro-debug.apk
+adb install -r bin/TabuleiroVirtual-debug.apk
 
 Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
 adb logcat Tabuleiro:I *:S

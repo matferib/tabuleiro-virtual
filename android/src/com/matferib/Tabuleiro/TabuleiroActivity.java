@@ -6,15 +6,18 @@ import javax.microedition.khronos.opengles.GL10;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
+// Atividade do tabuleiro que possui o view do OpenGL.
 public class TabuleiroActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mGLView = new TabuleiroSurfaceView(this);
+    Intent intencao = getIntent();
+    mGLView = new TabuleiroSurfaceView(this, getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA));
     setContentView(mGLView);
   }
 
@@ -37,10 +40,11 @@ public class TabuleiroActivity extends Activity {
   }
 }
 
+// View do OpenGL.
 class TabuleiroSurfaceView extends GLSurfaceView {
-  public TabuleiroSurfaceView(Context context) {
+  public TabuleiroSurfaceView(Context context, String endereco) {
     super(context);
-    renderer_ = new TabuleiroRenderer(this);
+    renderer_ = new TabuleiroRenderer(this, endereco);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
@@ -69,17 +73,19 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private static native void nativeResume();
 }
 
+// Renderizador do tabuleiro. Responsavel pelo timer que atualiza o tabuleiro.
 class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Renderer, Runnable {
-  public TabuleiroRenderer(GLSurfaceView parent) {
+  public TabuleiroRenderer(GLSurfaceView parent, String endereco) {
+    endereco_ = endereco;
     parent_ = parent;
     last_x_ = last_y_ = 0;
   }
 
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-    nativeInit();
-    // Liga o timer a cada 10 ms.
+    nativeInit(endereco_);
+    // Liga o timer a cada 33 ms. TODO: funcao nativa para retornar o periodo do timer.
     java.util.Timer timer = new java.util.Timer();
-    timer.scheduleAtFixedRate(this, 0, 10);
+    timer.scheduleAtFixedRate(this, 0, 33);
   }
 
   public void onSurfaceChanged(GL10 gl, int w, int h) {
@@ -133,7 +139,7 @@ class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Ren
     return;
   }
 
-  private static native void nativeInit();
+  private static native void nativeInit(String endereco);
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
   private static native void nativeDone();
@@ -150,4 +156,5 @@ class TabuleiroRenderer extends java.util.TimerTask implements GLSurfaceView.Ren
   private java.util.Vector<MotionEvent> events_ = new java.util.Vector<MotionEvent>();
   private float last_x_;
   private float last_y_;
+  private String endereco_;
 }
