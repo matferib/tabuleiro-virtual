@@ -56,7 +56,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
-  if (proto_.has_dados_vida()) {
+  if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
+    // Geracao automatica de pontos de vida.
     try {
       int pv = GeraPontosVida(proto_.dados_vida());
       if (pv == 0) {
@@ -68,6 +69,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
       LOG(ERROR) << "Erro inicializando entidade: " << erro.what();
     }
   } else {
+    // Usa os pontos de vida que vierem.
     if (!proto_.has_max_pontos_vida()) {
       // Entidades sempre devem ter o maximo de pontos de vida, que eh usado para acoes de dano.
       proto_.set_max_pontos_vida(0);
