@@ -1,4 +1,5 @@
 Versao 1.0
+- Mensagens de erro do android, voltar para UI principal caso falhe.
 - Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).
 - Label para identificar jogadores.
@@ -12,6 +13,7 @@ Versao 1.0
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 - Instalador windows, rpm linux e ??? MAC.
+- Versao android.
 
 Versao 2.0
 - Tipos de acoes padrao por modelo (por exemplo, orc tem primario corpo a corpo, secundario distancia).
@@ -28,7 +30,7 @@ Versao 2.0
 - Outros tipos de acoes (perfurante, concussao).
 - Adicionar mais detalhes as entidades (Ataque, CA, Saves).
 - Sons.
-- Versao IPAD e Android.
+- Versao IPAD.
 - Remover grupo de notificacoes do proto e fazer so no nivel do tabuleiro.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
