@@ -39,8 +39,8 @@ std::unique_ptr<ntf::Receptor> g_receptor;
 
 extern "C" {
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInit");
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobject thisz, jstring endereco) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInit endereco: %x", endereco);
   int* argcp = nullptr;
   char** argvp = nullptr;
   gl::IniciaGl(argcp, argvp);
@@ -54,7 +54,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env) {
   g_central->RegistraReceptor(g_receptor.get());
 
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_endereco("192.168.1.10:11223");
+  const char* endereco_nativo = env->GetStringUTFChars(endereco, 0);
+  n->set_endereco(endereco_nativo);
+  env->ReleaseStringUTFChars(endereco, endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }
 
@@ -63,15 +65,15 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, job
   g_tabuleiro->TrataRedimensionaJanela(w, h);
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDone(JNIEnv* env) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDone(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDone");
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env) {
+void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env) {
+void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
 }
 
@@ -85,17 +87,17 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env,
   g_tabuleiro->TrataMovimentoMouse(x, y);
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchReleased(JNIEnv* env) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchReleased(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchReleased");
   g_tabuleiro->TrataBotaoLiberado();
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRender");
   g_tabuleiro->Desenha();
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTimer");
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
