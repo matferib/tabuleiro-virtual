@@ -740,7 +740,7 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
   }
 }
 
-void Tabuleiro::TrataRodela(int delta) {
+void Tabuleiro::TrataEscalaPorDelta(int delta) {
   if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
     if (estado_ == ETAB_ENTS_PRESSIONADAS) {
       FinalizaEstadoCorrente();
@@ -768,17 +768,12 @@ void Tabuleiro::TrataRodela(int delta) {
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   } else {
     // move o olho no eixo Z de acordo com o eixo Y do movimento
-    float olho_raio = olho_.raio();
-    olho_raio -= (delta * SENSIBILIDADE_RODA);
-    if (olho_raio < OLHO_RAIO_MINIMO) {
-      olho_raio = OLHO_RAIO_MINIMO;
-    }
-    else if (olho_raio > OLHO_RAIO_MAXIMO) {
-      olho_raio = OLHO_RAIO_MAXIMO;
-    }
-    olho_.set_raio(olho_raio);
-    AtualizaOlho(true  /*forcar*/);
+    AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
   }
+}
+
+void Tabuleiro::TrataEscalaPorFator(float fator) {
+  AtualizaRaioOlho(olho_.raio() / fator);
 }
 
 void Tabuleiro::TrataMovimentoMouse() {
@@ -1703,6 +1698,17 @@ void Tabuleiro::AtualizaOlho(bool forcar) {
   pos_olho->set_x(pos_alvo->x() + cosf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_y(pos_alvo->y() + sinf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_z(olho_.altura());
+}
+
+void Tabuleiro::AtualizaRaioOlho(float raio) {
+  if (raio < OLHO_RAIO_MINIMO) {
+    raio = OLHO_RAIO_MINIMO;
+  }
+  else if (raio > OLHO_RAIO_MAXIMO) {
+    raio = OLHO_RAIO_MAXIMO;
+  }
+  olho_.set_raio(raio);
+  AtualizaOlho(true  /*forcar*/);
 }
 
 void Tabuleiro::AtualizaEntidades() {

@@ -134,8 +134,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata teclado. */
   void TrataTeclaPressionada(int tecla);
 
-  /** trata evento de rodela de mouse. */
-  void TrataRodela(int delta);
+  /** trata evento de escala por delta (rodela). */
+  void TrataEscalaPorDelta(int delta);
+
+  /** Trata evento de escala por fator (pinca). Quanto maior o fator, mais proximo o olho ficara do foco. */
+  void TrataEscalaPorFator(float fator);
 
   /** trata movimento do mouse (y ja em coordenadas opengl). */
   void TrataMovimentoMouse(int x, int y);
@@ -298,9 +301,15 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha o tempo de renderizacao da cena. */
   void DesenhaTempoRenderizacao();
 
-  /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada. Se forcar for false, so atualiza se houver
-  * destino. Caso contrario, atualiza independente do destino.*/
+  /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada.
+  * Se forcar for false, so atualiza se houver destino. Caso contrario, atualiza independente do destino.
+  */
   void AtualizaOlho(bool forcar = false);
+
+  /** Atualiza o raio do olho (distancia horizontal para o ponto de foco), respeitando limites
+  * maximos e minimos.
+  */
+  void AtualizaRaioOlho(float raio);
 
   /** Atualiza as aentidades do tabuleiro. */
   void AtualizaEntidades();

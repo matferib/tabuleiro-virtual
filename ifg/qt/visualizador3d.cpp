@@ -422,7 +422,7 @@ void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  tabuleiro_->TrataRodela(event->delta());
+  tabuleiro_->TrataEscalaPorDelta(event->delta());
   event->accept();
   glDraw();
 }
