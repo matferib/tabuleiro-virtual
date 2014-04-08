@@ -230,6 +230,7 @@ const MultDadoSoma DesmembraDadosVida(const std::string& dados_vida) {
 
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces) {
+  // TODO inicializacao do motor de baseada no timestamp.
   static std::minstd_rand motor_aleatorio;
   return (motor_aleatorio() % nfaces) + 1;
 }

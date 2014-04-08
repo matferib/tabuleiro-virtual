@@ -6,6 +6,7 @@
 #include <fstream>
 #include <map>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
@@ -2968,7 +2969,11 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
       maior_tempo_ms = tempo_ms;
     }
   }
-  std::string tempo_str = std::to_string(maior_tempo_ms);
+#if ANDROID
+  std::string tempo_str;
+#else
+  std::string tempo_str = std::to_string(maior_tempo_ms.c_str());
+#endif
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }
