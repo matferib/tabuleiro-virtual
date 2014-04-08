@@ -266,7 +266,7 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
-               << ", anterior_rotacao: " << StringEstado(estado_anterior_rotacao_)
+               << ", anterior_rotacao: " << StringEstado(estado_anterior_)
                << ", acoes.size() == " << acoes_.size()
                << ", ids_entidades_selecionadas_.size() == " << ids_entidades_selecionadas_.size()
                << ", entidades_.size() == " << entidades_.size()
@@ -401,7 +401,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
       auto* entidade = NovaEntidade(modelo, texturas_, central_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
-      SelecionaEntidade(entidade->Id());
+      AdicionaEntidadesSelecionadas({ entidade->Id() });
       {
         // Para desfazer.
         ntf::Notificacao n_desfazer(notificacao);
@@ -454,11 +454,14 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
     if ((bits & BIT_VOO) > 0) {
       proto.set_voadora(!proto.voadora());
     }
-    if ((bits & BIT_CAIDA)) {
+    if (bits & BIT_CAIDA) {
       proto.set_caida(!proto.caida());
     }
-    if ((bits & BIT_MORTA)) {
+    if (bits & BIT_MORTA) {
       proto.set_morta(!proto.morta());
+    }
+    if (bits & BIT_SELECIONAVEL) {
+      proto.set_selecionavel_para_jogador(!proto.selecionavel_para_jogador());
     }
     proto.set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
@@ -1981,7 +1984,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   ultimo_x_ = x;
   ultimo_y_ = y;
 
-  estado_anterior_rotacao_ = estado_;
+  estado_anterior_ = estado_;
   float x3d, y3d, z3d;
   parametros_desenho_.set_desenha_entidades(false);
   MousePara3d(x, y, &x3d, &y3d, &z3d);
@@ -2001,7 +2004,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
   if (estado_ == ETAB_ENTS_PRESSIONADAS) {
     FinalizaEstadoCorrente();
     estado_ = ETAB_ENTS_TRANSLACAO_ROTACAO;
-    estado_anterior_rotacao_ = ETAB_ENTS_SELECIONADAS;
+    estado_anterior_ = ETAB_ENTS_SELECIONADAS;
     translacao_rotacao_ = TR_NENHUM;
     translacoes_rotacoes_antes_.clear();
     for (unsigned int id : ids_entidades_selecionadas_) {
@@ -2012,7 +2015,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
       translacoes_rotacoes_antes_.insert(std::make_pair(entidade->Id(), std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
     }
   } else {
-    estado_anterior_rotacao_ = estado_;
+    estado_anterior_ = estado_;
     estado_ = ETAB_ROTACAO;
   }
 }
@@ -2032,7 +2035,6 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   primeiro_y_3d_ = y3d;
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
-  DeselecionaEntidades();
   forma_proto_.Clear();
   forma_proto_.set_id(GeraIdEntidade(id_cliente_));
   forma_proto_.set_tipo(TE_FORMA);
@@ -2055,6 +2057,7 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
   }
   forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
   forma_proto_.mutable_cor()->set_a(0.5f);
+  estado_anterior_ = estado_;
   estado_ = ETAB_DESENHANDO;
   VLOG(2) << "Iniciando: " << forma_proto_.ShortDebugString();
 }
@@ -2168,10 +2171,11 @@ void Tabuleiro::MudaEstadoAposSelecao() {
       estado_ = ETAB_OCIOSO;
     }
   } else {
-    if (estado_ == ETAB_OCIOSO) {
+    if (estado_ == ETAB_OCIOSO || estado_ == ETAB_QUAD_PRESSIONADO) {
       estado_ = ETAB_ENTS_SELECIONADAS;
     }
   }
+  VLOG(2) << "Estado apos mudanca: " << StringEstado(estado_);
   quadrado_selecionado_ = -1;
 }
 
@@ -2204,14 +2208,14 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         // Para desfazer.
         AdicionaNotificacaoListaEventos(grupo_notificacoes);
       }
-      estado_ = estado_anterior_rotacao_;
+      estado_ = estado_anterior_;
       return;
     }
     case ETAB_ROTACAO:
-      estado_ = estado_anterior_rotacao_;
+      estado_ = estado_anterior_;
       return;
     case ETAB_DESLIZANDO:
-      estado_ = estado_anterior_rotacao_;
+      estado_ = estado_anterior_;
       return;
     case ETAB_ENTS_PRESSIONADAS: {
       if (primeiro_x_3d_ == ultimo_x_3d_ &&
@@ -2271,6 +2275,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       estado_ = ETAB_QUAD_SELECIONADO;
       return;
     case ETAB_DESENHANDO: {
+      estado_ = estado_anterior_;
       VLOG(1) << "Finalizando: " << forma_proto_.ShortDebugString();
       forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
       ntf::Notificacao n;
@@ -2972,7 +2977,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
 #if ANDROID
   std::string tempo_str;
 #else
-  std::string tempo_str = std::to_string(maior_tempo_ms.c_str());
+  std::string tempo_str = std::to_string(maior_tempo_ms);
 #endif
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
