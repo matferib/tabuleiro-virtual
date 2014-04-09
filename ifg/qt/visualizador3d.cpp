@@ -367,9 +367,6 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
           tabuleiro_->TrataBotaoRotacaoPressionado(event->x(), height() - event->y());
         } else {
           tabuleiro_->TrataBotaoEsquerdoPressionado(event->x(), height() - event->y());
-          // TODO teste.
-          tabuleiro_->TrataMovimentoMouse(event->x() + 1, height() - event->y() - 1);
-          tabuleiro_->TrataMovimentoMouse(event->x() + 1, height() - event->y() - 1);
         }
         break;
       case Qt::RightButton:
