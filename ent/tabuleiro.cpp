@@ -2341,7 +2341,7 @@ void Tabuleiro::CoordenadaQuadradoDetalhado(unsigned int id_quadrado, unsigned i
              TAMANHO_LADO_QUADRADO_DETALHADO_2;
   *x = quad_x + dx;
   *y = quad_y + dy;
-  LOG(INFO) << "IdQuadrado: " << id_quadrado << ", CoordenadaQuadradoDetalhado: " << *x << ", " << *y << ", id_detalhado: " << id_detalhado;
+  //LOG(INFO) << "IdQuadrado: " << id_quadrado << ", CoordenadaQuadradoDetalhado: " << *x << ", " << *y << ", id_detalhado: " << id_detalhado;
 }
 
 void Tabuleiro::CoordenadaEntidadeDetalhada(unsigned int id, unsigned int id_detalhado, float* x, float* y, float* z) {
