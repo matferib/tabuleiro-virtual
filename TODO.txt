@@ -1,5 +1,4 @@
 Versao 1.0
-- Entender pq mais de um picking por frame ta dando biziu no openglES.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).
