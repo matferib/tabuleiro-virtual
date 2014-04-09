@@ -1,5 +1,6 @@
 Versao 1.0
-- Implementar rotacao no tablet.
+- Implementar translacao no tablet (usando pinca).
+- Implementar rotacao no tablet (usando pinca).
 - Implementar textura no tablet.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Iniciar motor aleatorio com timestamp.
