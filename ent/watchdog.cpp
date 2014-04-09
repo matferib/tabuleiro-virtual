@@ -23,7 +23,9 @@ void Watchdog::Inicia(std::function<void()> funcao) {
 }
 
 void Watchdog::Para() {
-  finalizar_loop_ = true;
+  cond_lock_.lock();
+  cond_fim_.notify_one();
+  cond_lock_.unlock();
   if (thread_.get() != nullptr) {
     thread_->join();
     thread_.reset();
@@ -35,16 +37,19 @@ void Watchdog::Refresca() {
 }
 
 void Watchdog::Loop() {
+  std::unique_lock<std::mutex> ul(cond_lock_);
   do {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    if (cond_fim_.wait_for(ul, std::chrono::milliseconds(10000)) == std::cv_status::no_timeout) {
+      // condicao de termino.
+      break;
+    }
     if (!refrescado_) {
       LOG(ERROR) << "WATCHDOG NAO REFRESCADO";
       funcao_();
-      finalizar_loop_ = true;
     } else {
       refrescado_ = false;
     }
-  } while (!finalizar_loop_);
+  } while (true);
 }
 
 }  // namespace ent

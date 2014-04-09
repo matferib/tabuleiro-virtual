@@ -1,6 +1,7 @@
 /** Baseado no SanAngeles demo application. So uma casca Java para chamar o codigo nativo. */
 package com.matferib.Tabuleiro;
 
+import java.util.Vector;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -57,8 +58,14 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   }
 
   public boolean onTouchEvent(final MotionEvent event) {
-    //detectorEventos_.onTouchEvent(event);
-    detectorEscala_.onTouchEvent(event);
+    if ((event.getActionMasked() & MotionEvent.ACTION_UP) > 0) {
+      renderer_.onUp(event);
+    }
+    if (event.getPointerCount() <= 1) {
+      detectorEventos_.onTouchEvent(event);
+    } else {
+      detectorEscala_.onTouchEvent(event);
+    }
     return true;
     /* old
     MotionEvent event_copy = MotionEvent.obtain(event);
@@ -100,7 +107,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   public TabuleiroRenderer(GLSurfaceView parent, String endereco) {
     endereco_ = endereco;
     parent_ = parent;
-    last_x_ = last_y_ = 0;
+    //last_x_ = last_y_ = 0;
   }
 
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -116,27 +123,61 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   public void onDrawFrame(GL10 gl) {
+    //Log.d(TAG, "DrawFrame");
     nativeTimer();
-    synchronized (eventosEscala_) {
-      for (Float fator : eventosEscala_) {
-        nativeScale(fator.floatValue());
-      }
-      eventosEscala_.clear();
-    }
+    Vector<Evento> eventosSemMovimentosDuplicados = new Vector<Evento>();
+    //Log.d(TAG, "Tam Evento Antes: " + eventos_.size());
     synchronized (eventos_) {
-      /*
-      for (int i = 0; i < events_.size(); ++i) {
-        MotionEvent event = events_.get(i);
-        if (event.getActionMasked() == MotionEvent.ACTION_MOVE &&
-            i < (events_.size() - 1) &&
-            events_.get(i + 1).getActionMasked() == MotionEvent.ACTION_MOVE) {
-          // So pega um movimento por vez, descarta o resto.
-          continue;
+      // Remove os eventos consecutivos de movimento.
+      Evento ultimoMovimento = null;
+      for (Evento evento :  eventos_) {
+        if (evento.tipo() == Evento.MOVIMENTO) {
+          ultimoMovimento = evento;
+        } else {
+          if (ultimoMovimento != null) {
+            // Adiciona o ultimo movimento.
+            eventosSemMovimentosDuplicados.add(ultimoMovimento);
+            ultimoMovimento = null;
+          }
+          eventosSemMovimentosDuplicados.add(evento);
         }
-        processTouchEvent(event);
       }
-      events_.clear();
-      */
+      // Poe o ultimo movimento se ele foi o ultimo evento.
+      if (ultimoMovimento != null) {
+        // Adiciona o ultimo movimento.
+        eventosSemMovimentosDuplicados.add(ultimoMovimento);
+        ultimoMovimento = null;
+      }
+      eventos_.clear();
+    }
+    //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
+    for (Evento evento :  eventosSemMovimentosDuplicados) {
+      Log.d(TAG, "Evento: " + evento.toString());
+      switch (evento.tipo()) {
+        case Evento.ESCALA:
+          nativeScale(evento.escala());
+          break;
+        case Evento.CLIQUE:
+          nativeTouchPressed(evento.x(), evento.y());
+          nativeTouchReleased();
+          break;
+        case Evento.CLIQUE_DUPLO:
+          nativeDoubleClick(evento.x(), evento.y());
+          break;
+        case Evento.DETALHAMENTO:
+          nativeHover(evento.x(), evento.y());
+          break;
+        case Evento.PRESSIONADO:
+          nativeTouchPressed(evento.x(), evento.y());
+          break;
+        case Evento.LIBERADO:
+          nativeTouchReleased();
+          break;
+        case Evento.MOVIMENTO:
+          nativeTouchMoved(evento.x(), evento.y());
+          break;
+        default:
+      }
     }
     nativeRender();
   }
@@ -149,63 +190,91 @@ class TabuleiroRenderer extends java.util.TimerTask
   // Detector de eventos.
   @Override
   public boolean onDown(MotionEvent event) {
+    Log.d(TAG, "Down");
+    return true;
+  }
+
+  // Algum ponteiro terminou.
+  public boolean onUp(MotionEvent event) {
+    Log.d(TAG, "Up");
+    eventos_.add(Evento.Liberado());
+    carregando_ = false;
     return true;
   }
 
   @Override
   public boolean onFling(MotionEvent event1, MotionEvent event2,
       float velocityX, float velocityY) {
+    Log.d(TAG, "Fling");
     return true;
   }
 
   @Override
   public void onLongPress(MotionEvent event) {
+    Log.d(TAG, "LongPress");
+    eventos_.add(Evento.Detalhamento((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
   }
 
   @Override
   public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+    Log.d(TAG, "Scroll");
+    if (!carregando_) {
+      eventos_.add(Evento.Pressionado((int)e1.getX(), (int)(parent_.getHeight() - e1.getY())));
+      carregando_ = true;
+    }
+    eventos_.add(Evento.Movimento((int)e2.getX(), (int)(parent_.getHeight() - e2.getY())));
     return true;
   }
 
   @Override
   public void onShowPress(MotionEvent event) {
+    Log.d(TAG, "ShowPress");
+    eventos_.add(Evento.Toque((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
   }
 
   @Override
   public boolean onSingleTapUp(MotionEvent event) {
+    Log.d(TAG, "TapUp");
     return true;
   }
 
   @Override
   public boolean onDoubleTap(MotionEvent event) {
+    Log.d(TAG, "DoubleTap");
+    eventos_.add(Evento.DuploClique((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
     return true;
   }
 
   @Override
   public boolean onDoubleTapEvent(MotionEvent event) {
+    Log.d(TAG, "DoubleTapEvent");
     return true;
   }
 
   @Override
   public boolean onSingleTapConfirmed(MotionEvent event) {
+    Log.d(TAG, "SingleTapConfirmed");
+    eventos_.add(Evento.Clique((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
     return true;
   }
 
   // Detector de escala.
   @Override
   public boolean onScale(ScaleGestureDetector detector) {
-    //Log.d(TAG, "Escala");
-    eventosEscala_.add(new Float(detector.getScaleFactor()));
+    Log.d(TAG, "Scale");
+    eventos_.add(Evento.Escala(detector.getScaleFactor()));
     return true;
   }
 
   @Override
   public boolean onScaleBegin(ScaleGestureDetector detector) {
+    Log.d(TAG, "ScaleBegin");
     return true;
   }
 
   @Override
   public void onScaleEnd(ScaleGestureDetector detector) {
+    Log.d(TAG, "ScaleEnd");
   }
 
   /* Old
@@ -262,19 +331,116 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeRender();
   private static native void nativeDone();
   private static native void nativeTimer();
+  private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(int x, int y);
   private static native void nativeTouchMoved(int x, int y);
   private static native void nativeTouchReleased();
+  private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
 
   private GLSurfaceView parent_;
 
-  public static final int ESTADO_INICIAL = 1;
-  public static final int ESTADO_TOCADO = 2;
-  private int estado_ = ESTADO_INICIAL;
-  private java.util.Vector<MotionEvent> eventos_ = new java.util.Vector<MotionEvent>();
-  private java.util.Vector<Float> eventosEscala_ = new java.util.Vector<Float>();
-  private int last_x_;
-  private int last_y_;
+  private Vector<Evento> eventos_ = new Vector<Evento>();
+  private boolean carregando_ = false;
+  //private int last_x_;
+  //private int last_y_;
   private String endereco_;
+}
+
+/** Os tipos de eventos tratados pelo tabuleiro. */
+class Evento {
+  public static final int CLIQUE = 1;
+  public static final int CLIQUE_DUPLO = 2;
+  public static final int ESCALA = 3;
+  public static final int TOQUE = 4;
+  public static final int CARREGAR = 5;
+  public static final int DETALHAMENTO = 6;
+  public static final int PRESSIONADO = 7;
+  public static final int LIBERADO = 8;
+  public static final int MOVIMENTO = 9;
+
+  public static Evento Liberado() {
+    return new Evento(LIBERADO);
+  }
+
+  public static Evento Escala(float escala) {
+    Evento evento = new Evento(ESCALA);
+    evento.escala_ = escala;
+    return evento;
+  }
+
+  public static Evento Pressionado(int x,  int y) {
+    Evento evento = new Evento(PRESSIONADO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento Movimento(int x,  int y) {
+    Evento evento = new Evento(MOVIMENTO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento Clique(int x,  int y) {
+    Evento evento = new Evento(CLIQUE);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento DuploClique(int x,  int y) {
+    Evento evento = new Evento(CLIQUE_DUPLO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento Toque(int x,  int y) {
+    Evento evento = new Evento(TOQUE);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento Detalhamento(int x,  int y) {
+    Evento evento = new Evento(DETALHAMENTO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  private Evento(int tipo) {
+    tipo_ = tipo;
+  }
+
+  public String toString() {
+    return "Tipo: " + tipoString() + ", escala: " + escala_ + ", x:" + x_ + ", y: " + y_;
+  }
+
+  private String tipoString() {
+    switch (tipo_) {
+      case CLIQUE: return "CLIQUE";
+      case CLIQUE_DUPLO: return "CLIQUE_DUPLO";
+      case ESCALA: return "ESCALA";
+      case TOQUE: return "TOQUE";
+      case CARREGAR: return "CARREGAR";
+      case DETALHAMENTO: return "DETALHAMENTO";
+      case PRESSIONADO: return "PRESSIONADO";
+      case LIBERADO: return "LIBERADO";
+      case MOVIMENTO: return "MOVIMENTO";
+      default: return "INVALIDO";
+    }
+  }
+
+  public int tipo() { return tipo_; }
+  public float escala() { return escala_; }
+  public int x() { return x_; }
+  public int y() { return y_; }
+
+  private int tipo_;
+  private float escala_;
+  private int x_;
+  private int y_;
 }

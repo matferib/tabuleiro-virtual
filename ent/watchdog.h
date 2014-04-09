@@ -1,6 +1,7 @@
 #ifndef ENT_WATCHDOG_H
 #define ENT_WATCHDOG_H
 
+#include <condition_variable>
 #include <functional>
 #include <memory>
 #include <thread>
@@ -29,8 +30,8 @@ class Watchdog {
   void Loop();
 
   std::unique_ptr<std::thread> thread_;
-  // Controle do loop.
-  bool finalizar_loop_ = false;
+  std::mutex cond_lock_;
+  std::condition_variable cond_fim_;
   // Indica que watchdog foi refrescado.
   bool refrescado_ = false;
   std::function<void()> funcao_;

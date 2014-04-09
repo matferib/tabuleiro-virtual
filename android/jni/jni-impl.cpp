@@ -18,7 +18,7 @@ class DummyReceptor : public ntf::Receptor {
  public:
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
     if (notificacao.tipo() == ntf::TN_ERRO) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+      //__android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
     }
   }
 };
@@ -46,7 +46,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
     endereco_nativo = endereco_nativo_c;
     env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
   }
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInit endereco: %s", endereco_nativo.c_str());
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInit endereco: %s", endereco_nativo.c_str());
   int* argcp = nullptr;
   char** argvp = nullptr;
   gl::IniciaGl(argcp, argvp);
@@ -65,40 +65,50 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, jobject thiz, jint w, jint h) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "resize w=%d h=%d", w, h);
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "resize w=%d h=%d", w, h);
   g_tabuleiro->TrataRedimensionaJanela(w, h);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDone(JNIEnv* env, jobject thiz) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDone");
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDone");
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env, jobject thiz) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
 }
 
 // Touch.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDoubleClick(JNIEnv* env, jobject thiz, jint x, jint y) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDoubleClick: %d %d", x, y);
+  g_tabuleiro->TrataDuploCliqueEsquerdo(x, y);
+}
+
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* env, jobject thiz, jint x, jint y) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %d %d", x, y);
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %d %d", x, y);
   g_tabuleiro->TrataBotaoEsquerdoPressionado(x, y, false);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env, jobject thiz, jint x, jint y) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchMoved: %d %d", x, y);
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchMoved: %d %d", x, y);
   g_tabuleiro->TrataMovimentoMouse(x, y);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchReleased(JNIEnv* env, jobject thiz) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchReleased");
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchReleased");
   g_tabuleiro->TrataBotaoLiberado();
 }
 
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeHover(JNIEnv* env, jobject thiz, jint x, jint y) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeHover: %d %d", x, y);
+  g_tabuleiro->TrataMouseParadoEm(x, y);
+}
+
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeScale(JNIEnv* env, jobject thiz, jfloat s) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeScale: %f", s);
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeScale: %f", s);
   g_tabuleiro->TrataEscalaPorFator(s);
 }
 
