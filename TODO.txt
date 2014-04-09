@@ -1,4 +1,6 @@
 Versao 1.0
+- Implementar rotacao no tablet.
+- Implementar textura no tablet.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).
@@ -6,7 +8,6 @@ Versao 1.0
 - Desenhar tabuleiro de forma otimizada.
 - Testar watchdog no windows e mac.
 - Rodar o tabuleiro sempre na thread no run e sincroniza-la com o desenho.
-- Implementar textura no tablet.
 - Arrumar selecao de quadrados quando tabuleiro tiver lado de tamanho impar.
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
