@@ -256,7 +256,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       // Usar x como base para achatamento.
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::EsferaSolida(0.5f  /*raio*/, 20  /*ao redor*/, 20 /*vertical*/);
+      // TODO fazer baseado nas escalas?
+      gl::EsferaSolida(0.5f  /*raio*/, 10  /*ao redor*/, 10 /*vertical*/);
     }
     break;
     case TF_LIVRE: {
