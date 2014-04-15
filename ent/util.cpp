@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cctype>
 #include <cstdlib>
@@ -231,7 +232,7 @@ const MultDadoSoma DesmembraDadosVida(const std::string& dados_vida) {
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces) {
   // TODO inicializacao do motor de baseada no timestamp.
-  static std::minstd_rand motor_aleatorio;
+  static std::minstd_rand motor_aleatorio(std::chrono::system_clock::now().time_since_epoch().count());
   return (motor_aleatorio() % nfaces) + 1;
 }
 
