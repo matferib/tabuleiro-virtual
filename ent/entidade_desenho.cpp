@@ -68,7 +68,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
     gl::ConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::Translada(0, 0, ALTURA);
-    gl::EsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES);
+    gl::EsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
     return;
   }
 
@@ -257,7 +257,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       // TODO fazer baseado nas escalas?
-      gl::EsferaSolida(0.5f  /*raio*/, 10  /*ao redor*/, 10 /*vertical*/);
+      gl::EsferaSolida(0.5f  /*raio*/,  NUM_FACES /*ao redor*/, NUM_FACES / 2.0f /*vertical*/);
     }
     break;
     case TF_LIVRE: {

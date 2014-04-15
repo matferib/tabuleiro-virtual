@@ -1,4 +1,6 @@
 Versao 1.0
+- Pensar em como melhorar o desenho do cilindro, maior gargalo opengl ES.
+- Arrumar picking opengl quando movimenta muito rapido fora do tabuleiro.
 - Implementar translacao no tablet (usando pinca).
 - Implementar rotacao no tablet (usando pinca).
 - Implementar textura no tablet.

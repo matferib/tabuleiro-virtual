@@ -239,7 +239,7 @@ int RolaDado(unsigned int nfaces) {
 int GeraPontosVida(const std::string& dados_vida) {
   auto mds = DesmembraDadosVida(dados_vida);
   int res = 0;
-  for (int i = 0; i < mds.mult; ++i) {
+  for (unsigned int i = 0; i < mds.mult; ++i) {
     res += RolaDado(mds.dado);
   }
   res += mds.soma;

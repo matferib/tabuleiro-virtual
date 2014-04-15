@@ -1209,10 +1209,9 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
 
 // privadas
 void Tabuleiro::DesenhaCena() {
-  if (opcoes_.mostra_fps()) {
-    timer_.start();
-  }
-
+  // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
+  // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
+  TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
   gl::Habilita(GL_DEPTH_TEST);
   gl::CorLimpeza(proto_.luz_ambiente().r(),
                  proto_.luz_ambiente().g(),
@@ -1398,10 +1397,6 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
-  }
-
-  if (opcoes_.mostra_fps()) {
-    DesenhaTempoRenderizacao();
   }
 }
 
@@ -2993,6 +2988,10 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }
+#if USAR_OPENGL_ES
+  // OpenGL es ta sem caracteres.
+  std::cout << "TR: " << tempo_str << std::endl;
+#else
   // Modo 2d.
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -3004,6 +3003,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   gl::Desabilita(GL_LIGHTING);
   gl::Translada(0.0, altura_ - 15.0f, 0.0f);
   DesenhaStringTempo(tempo_str);
+#endif
 }
 
 double Tabuleiro::Aspecto() const {

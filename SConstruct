@@ -61,7 +61,7 @@ else:
     env['CXXFLAGS'] += ['-g']
   else:
     env['CXXFLAGS'] += ['-O2']
-  env['LIBS'] += ['glut', 'GLU', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
+  env['LIBS'] += ['glut', 'GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'pthread']
 
 usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', '0') == '1')
 print 'usar_opengl_es : %r' % usar_opengl_es
