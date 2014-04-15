@@ -1,5 +1,6 @@
 /** Implementacao dos varios tipos de desenho da classe Entidade. */
 
+#include <algorithm>
 #include <cmath>
 #include <memory>
 #include "ent/constantes.h"
@@ -257,7 +258,9 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       // TODO fazer baseado nas escalas?
-      gl::EsferaSolida(0.5f  /*raio*/,  NUM_FACES /*ao redor*/, NUM_FACES / 2.0f /*vertical*/);
+      int num_faces = std::max(4, static_cast<int>((proto.escala().x() + proto.escala().y()) * 2));
+      int num_tocos = std::max(4, static_cast<int>(proto.escala().z() * 4));
+      gl::EsferaSolida(0.5f  /*raio*/,  num_faces, num_tocos);
     }
     break;
     case TF_LIVRE: {

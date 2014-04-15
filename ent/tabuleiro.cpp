@@ -2171,12 +2171,13 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 
 void Tabuleiro::MudaEstadoAposSelecao() {
   // Alterna o estado. Note que eh possivel que essa chamada ocorra durante uma rotacao com botao do meio (ETAB_ROTACAO).
+  VLOG(2) << "Estado antes mudanca: " << StringEstado(estado_);
   if (ids_entidades_selecionadas_.empty()) {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       estado_ = ETAB_OCIOSO;
     }
   } else {
-    if (estado_ == ETAB_OCIOSO || estado_ == ETAB_QUAD_PRESSIONADO) {
+    if (estado_ == ETAB_OCIOSO || estado_ == ETAB_QUAD_PRESSIONADO || estado_ == ETAB_QUAD_SELECIONADO) {
       estado_ = ETAB_ENTS_SELECIONADAS;
     }
   }
