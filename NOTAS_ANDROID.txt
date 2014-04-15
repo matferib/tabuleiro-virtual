@@ -2,12 +2,13 @@ Seguindo exemplo do https://developer.android.com/tools/sdk/ndk/index.html#Insta
 
 Primeiro comando:
 Listar targets:
-/opt/android-dev-toolkit/sdk/tools/android list targets
-Criar os builds para o target:
-/opt/android-dev-toolkit/sdk/tools/android update project -p . -s -t 1
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
+
+Criar os builds para o target (diretorio pai do jni, onde esta o AndroidManifest.xml):
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
 
 Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
-/opt/android-ndk-r9d/ndk-build V=1
+${ANDROID_NDK}/ndk-build V=1
 
 Compilacao do java integrado com codigo nativo:
 ant debug
@@ -21,7 +22,7 @@ adb logcat Tabuleiro:I *:S
 
 Compilando protocol buffers:
 Criar o toolchain de cross-compile:
-/opt/android-ndk-r9d/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
 
 Configuracao do protobuf:
 export CXX="/var/tmp/my-toolchain/bin/arm-linux-androideabi-g++"
