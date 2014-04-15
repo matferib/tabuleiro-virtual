@@ -1,3 +1,4 @@
+.PHONY: all all_sem_testes opengles windows apple linux_profile linux_release clean
 all_sem_testes:
 	scons
 

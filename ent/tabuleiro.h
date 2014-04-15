@@ -262,6 +262,26 @@ class Tabuleiro : public ntf::Receptor {
   void TrataComandoRefazer();
 
  private:
+  // Classe para computar o tempo de desenho da cena pelo escopo.
+  class TimerEscopo {
+   public:
+    TimerEscopo(Tabuleiro* tabuleiro, bool valido) : tabuleiro_(tabuleiro), valido_(valido) {
+      if (valido_) {
+        tabuleiro_->timer_.start();
+      }
+    }
+
+    ~TimerEscopo() {
+      if (valido_) {
+        tabuleiro_->DesenhaTempoRenderizacao();
+      }
+    }
+
+   private:
+    Tabuleiro* tabuleiro_;
+    bool valido_;
+  };
+
   /** Poe o tabuleiro nas condicoes iniciais. */
   void EstadoInicial();
 

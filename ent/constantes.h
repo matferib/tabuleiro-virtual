@@ -18,7 +18,7 @@
 /** Altura do voo dos objetos. */
 #define ALTURA_VOO ALTURA
 /** Numero de faces do cone. */
-#define NUM_FACES 10
+#define NUM_FACES 8
 /** Numero de divisoes do eixo Z do cone. */
 #define NUM_LINHAS 1
 

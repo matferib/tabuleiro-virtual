@@ -393,11 +393,14 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   // Versao antiga.
   gl::MatrizEscopo salva_matriz;
   float angulo_rotacao_graus = 360.0f / fatias;
+  float angulo_rotacao_graus_2 = angulo_rotacao_graus / 2.0f;
   unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-  GLfloat tam_lado_base_2 = raio_base * sinf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
-  GLfloat tam_lado_topo_2 = raio_topo * sinf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
-  GLfloat tam_y_base = raio_base * cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
-  GLfloat tam_y_topo = raio_topo * cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
+  float seno_angulo_rotacao_2 = sinf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
+  GLfloat tam_lado_base_2 = raio_base * seno_angulo_rotacao_2;
+  GLfloat tam_lado_topo_2 = raio_topo * seno_angulo_rotacao_2;
+  float cos_angulo_rotacao_2 = cosf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
+  GLfloat tam_y_base = raio_base * cos_angulo_rotacao_2;
+  GLfloat tam_y_topo = raio_topo * cos_angulo_rotacao_2;
   GLfloat vetor_x[3] = { 1.0f, 0.0f, 0.0f };
   GLfloat vetor_cima[3] = { 0.0f, raio_base - raio_topo, altura };
   GLfloat vetor_normal[3];
@@ -407,10 +410,10 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   // Gera a normal SMOOTH.
   GLfloat matriz_rotacao[16];
   GLfloat vetor_normal_oeste[3] = { vetor_normal[0], vetor_normal[1], vetor_normal[2] };
-  MatrizRotacaoZ(-angulo_rotacao_graus / 2.0f, matriz_rotacao);
+  MatrizRotacaoZ(-angulo_rotacao_graus_2, matriz_rotacao);
   MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_oeste);
   GLfloat vetor_normal_leste[3] = { vetor_normal[0], vetor_normal[1], vetor_normal[2] };
-  MatrizRotacaoZ(angulo_rotacao_graus / 2.0f, matriz_rotacao);
+  MatrizRotacaoZ(angulo_rotacao_graus_2, matriz_rotacao);
   MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_leste);
   const float vertices_normais[12] = {
     vetor_normal_oeste[0], vetor_normal_oeste[1], vetor_normal_oeste[2],
