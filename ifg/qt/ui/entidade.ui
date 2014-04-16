@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>411</width>
-    <height>447</height>
+    <height>510</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>400</y>
+     <y>440</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -66,7 +66,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>220</y>
+     <y>260</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -105,7 +105,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>260</y>
+     <y>300</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -137,7 +137,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>60</y>
+     <y>100</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -207,7 +207,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>300</y>
+     <y>340</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -236,7 +236,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>140</y>
+     <y>180</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -272,7 +272,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>100</y>
+     <y>140</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -340,7 +340,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>180</y>
+     <y>220</y>
      <width>361</width>
      <height>39</height>
     </rect>
@@ -383,7 +383,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>350</y>
+     <y>390</y>
      <width>351</width>
      <height>31</height>
     </rect>
@@ -411,6 +411,45 @@
        <double>0.100000000000000</double>
       </property>
      </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_9">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>60</y>
+     <width>361</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_14">
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_15">
+      <item>
+       <widget class="QLabel" name="label_8">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Rótulo</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="campo_rotulo">
+        <property name="readOnly">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created: Sun Apr 6 19:22:23 2014
+** Created: Wed Apr 16 17:01:02 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -80,17 +80,22 @@ public:
     QHBoxLayout *horizontalLayout_13;
     QLabel *label_7;
     QDoubleSpinBox *spin_translacao;
+    QWidget *horizontalLayoutWidget_9;
+    QHBoxLayout *horizontalLayout_14;
+    QHBoxLayout *horizontalLayout_15;
+    QLabel *label_8;
+    QLineEdit *campo_rotulo;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(411, 447);
+        ifg__qt__DialogoEntidade->resize(411, 510);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 400, 341, 32));
+        botoes->setGeometry(QRect(40, 440, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -112,7 +117,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 220, 361, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 260, 361, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -139,7 +144,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(20, 260, 361, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(20, 300, 361, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -157,7 +162,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(20, 60, 361, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(20, 100, 361, 41));
         horizontalLayout_4 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         horizontalLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -204,7 +209,7 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(20, 300, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(20, 340, 361, 41));
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
@@ -221,7 +226,7 @@ public:
 
         horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
-        horizontalLayoutWidget_7->setGeometry(QRect(20, 140, 361, 41));
+        horizontalLayoutWidget_7->setGeometry(QRect(20, 180, 361, 41));
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_7);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
@@ -243,7 +248,7 @@ public:
 
         horizontalLayoutWidget_8 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
-        horizontalLayoutWidget_8->setGeometry(QRect(20, 100, 361, 41));
+        horizontalLayoutWidget_8->setGeometry(QRect(20, 140, 361, 41));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -284,7 +289,7 @@ public:
 
         layoutWidget = new QWidget(ifg__qt__DialogoEntidade);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(20, 180, 361, 39));
+        layoutWidget->setGeometry(QRect(20, 220, 361, 39));
         horizontalLayout_9 = new QHBoxLayout(layoutWidget);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -316,7 +321,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(20, 350, 351, 31));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 390, 351, 31));
         horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -333,6 +338,31 @@ public:
         spin_translacao->setSingleStep(0.1);
 
         horizontalLayout_13->addWidget(spin_translacao);
+
+        horizontalLayoutWidget_9 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_9->setObjectName(QString::fromUtf8("horizontalLayoutWidget_9"));
+        horizontalLayoutWidget_9->setGeometry(QRect(20, 60, 361, 41));
+        horizontalLayout_14 = new QHBoxLayout(horizontalLayoutWidget_9);
+        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
+        horizontalLayout_14->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_15 = new QHBoxLayout();
+        horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
+        label_8 = new QLabel(horizontalLayoutWidget_9);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+        sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy1);
+        label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_15->addWidget(label_8);
+
+        campo_rotulo = new QLineEdit(horizontalLayoutWidget_9);
+        campo_rotulo->setObjectName(QString::fromUtf8("campo_rotulo"));
+        campo_rotulo->setReadOnly(false);
+
+        horizontalLayout_15->addWidget(campo_rotulo);
+
+
+        horizontalLayout_14->addLayout(horizontalLayout_15);
 
 
         retranslateUi(ifg__qt__DialogoEntidade);
@@ -363,6 +393,7 @@ public:
         checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o em Z", 0, QApplication::UnicodeUTF8));
+        label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

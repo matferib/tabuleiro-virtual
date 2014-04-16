@@ -425,14 +425,14 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
-  if (pd->desenha_barra_vida()/* && proto_.has_rotulo()*/) {
+  if (pd->desenha_barra_vida() && proto_.has_rotulo()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
     gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
     MudaCor(COR_BRANCA);
-    gl::DesenhaString("TESTE");
+    gl::DesenhaString(proto_.rotulo());
   }
 }
 

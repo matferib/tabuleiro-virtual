@@ -515,6 +515,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // ID.
   QString id_str;
   gerador.campo_id->setText(id_str.setNum(entidade.id()));
+  // Rotulo.
+  QString rotulo_str;
+  gerador.campo_rotulo->setText(entidade.rotulo().c_str());
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -594,6 +597,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
+    if (gerador.campo_rotulo->text().isEmpty()) {
+      proto_retornado->clear_rotulo();
+    } else {
+      proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
+    }
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
