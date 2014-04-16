@@ -5,7 +5,6 @@ Versao 1.0
 - Implementar rotacao no tablet (usando pinca).
 - Implementar textura no tablet.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
-- Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).
 - Testar watchdog no windows e mac.
 - Rodar o tabuleiro sempre na thread no run e sincroniza-la com o desenho.
