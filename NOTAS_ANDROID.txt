@@ -1,0 +1,43 @@
+Seguindo exemplo do https://developer.android.com/tools/sdk/ndk/index.html#Installing: Exploring the native-activity Sample Application.
+
+Primeiro comando:
+Listar targets:
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
+
+Criar os builds para o target (diretorio pai do jni, onde esta o AndroidManifest.xml):
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
+
+Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
+${ANDROID_NDK}/ndk-build V=1
+
+Compilacao do java integrado com codigo nativo:
+ant debug
+
+Instalacao:
+Colocar o dispositivo em USB debug mode.
+adb install -r bin/TabuleiroVirtual-debug.apk
+
+Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
+adb logcat Tabuleiro:I *:S
+
+Compilando protocol buffers:
+Criar o toolchain de cross-compile:
+${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+
+Configuracao do protobuf:
+export CXX="/var/tmp/my-toolchain/bin/arm-linux-androideabi-g++"
+export CC=${CXX/g++/gcc}
+./configure --host=arm-*-eabi
+make
+
+Pode dar um erro no unit test aqui mas a lib esta ok.
+
+Depuração:
+Colocar no manifest, dentro do elemento application android:debuggable="true"
+Compilar codigo nativo.
+Compilar modo debug (ant debug)
+Instalar.
+Rodar no tablet.
+Diretorio do projeto (pai do jni): /opt/android-ndk-r9d/ndk-gdb
+
+Boost android: https://github.com/MysticTreeGames/Boost-for-Android.
