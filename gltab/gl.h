@@ -1,6 +1,7 @@
 #ifndef GLTAB_GL_H
 #define GLTAB_GL_H
 
+#include <string>
 #if __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
@@ -200,10 +201,13 @@ void CuboSolido(GLfloat tam_lado);
 inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { glRasterPos3f(x, y, z); }
 inline void PosicaoRaster(GLint x, GLint y) { glRasterPos2i(x, y); }
 inline void DesenhaCaractere(char c) { glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c); }
+// Desenha a string str centralizada no ponto do raster.
+void DesenhaString(const std::string& str);
 #else
 inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { /* TODO */ }
 inline void PosicaoRaster(GLint x, GLint y) { /* TODO */ }
 inline void DesenhaCaractere(char c) { /* TODO */ }
+inline void DesenhaString(const std::string& str) {}
 #endif
 
 /** Matriz de olho e perspectiva e picking. */

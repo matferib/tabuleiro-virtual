@@ -8,6 +8,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+
 #include "log/log.h"
 
 namespace ent {
@@ -422,6 +423,16 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       MudaCor(COR_VERDE);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
+  }
+
+  if (pd->desenha_barra_vida()/* && proto_.has_rotulo()*/) {
+    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+    gl::MatrizEscopo salva_matriz;
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
+    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
+    gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+    MudaCor(COR_BRANCA);
+    gl::DesenhaString("TESTE");
   }
 }
 
