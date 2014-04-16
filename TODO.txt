@@ -1,5 +1,4 @@
 Versao 1.0
-- Label para identificar jogadores.
 - Pensar em como melhorar o desenho do cilindro, maior gargalo opengl ES.
 - Arrumar picking opengl quando movimenta muito rapido fora do tabuleiro.
 - Implementar translacao no tablet (usando pinca).
