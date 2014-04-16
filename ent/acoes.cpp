@@ -166,9 +166,7 @@ class AcaoDeltaPontosVida : public Acao {
  private:
   void DesenhaStringDelta() const {
     gl::PosicaoRaster(pos_.x(), pos_.y(), pos_.z());
-    for (const char c : string_delta_) {
-      gl::DesenhaCaractere(c);
-    }
+    gl::DesenhaString(string_delta_);
   }
 
   constexpr static float DURACAO_SEGUNDOS = 2.0f;

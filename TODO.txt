@@ -1,4 +1,5 @@
 Versao 1.0
+- Label para identificar jogadores.
 - Pensar em como melhorar o desenho do cilindro, maior gargalo opengl ES.
 - Arrumar picking opengl quando movimenta muito rapido fora do tabuleiro.
 - Implementar translacao no tablet (usando pinca).
@@ -7,8 +8,6 @@ Versao 1.0
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).
-- Label para identificar jogadores.
-- Desenhar tabuleiro de forma otimizada.
 - Testar watchdog no windows e mac.
 - Rodar o tabuleiro sempre na thread no run e sincroniza-la com o desenho.
 - Arrumar selecao de quadrados quando tabuleiro tiver lado de tamanho impar.

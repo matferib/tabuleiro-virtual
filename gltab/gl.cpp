@@ -22,6 +22,28 @@ void CuboSolido(GLfloat tam_lado) {
   glutSolidCube(tam_lado);
 }
 
+void DesenhaString(const std::string& str) {
+  // Le o raster em coordenadas de janela.
+  GLint raster_pos[4];
+  glGetIntegerv(GL_CURRENT_RASTER_POSITION, raster_pos);
+  // Le viewport.
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  int largura = viewport[2], altura = viewport[3];
+
+  // Muda para projecao 2D.
+  gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura, 0, altura, 0, 1);
+  gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+  glRasterPos2i(raster_pos[0] - (str.size() / 2) * 8, raster_pos[1]);
+  for (const char c : str) {
+    gl::DesenhaCaractere(c);
+  }
+}
+
+
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
   GLUquadric* cilindro = gluNewQuadric();
   gluQuadricOrientation(cilindro, GLU_OUTSIDE);

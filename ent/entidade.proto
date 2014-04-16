@@ -84,6 +84,8 @@ message EntidadeProto {
   optional int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
   optional string dados_vida = 19;
+  // Para os jogadores poderem se identificar.
+  optional string rotulo = 20;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.
