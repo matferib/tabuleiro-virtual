@@ -112,6 +112,11 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeScale(JNIEnv* env, jobj
   g_tabuleiro->TrataEscalaPorFator(s);
 }
 
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRotation(JNIEnv* env, jobject thiz, jfloat rad) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeScale: %f", s);
+  g_tabuleiro->TrataRotacaoPorDelta(rad);
+}
+
 // Render.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRender");
