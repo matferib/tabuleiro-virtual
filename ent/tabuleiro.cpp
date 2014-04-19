@@ -1848,8 +1848,10 @@ void Tabuleiro::BuscaHitMaisProximo(
   *pos_pilha = pos_pilha_menor;
   *id = id_menor;
   float menor_profundidade = 0.0f;
-#if !USAR_OPENGL_ES
-  // Profundidade de inteiro para float.
+#if 1
+  // Converte profundidade de inteiro para float.
+  // No OpenGL ES a profundidade retornada vai ser sempre zero. Se nao houver hit, menor_z vai ser 0xFFFFFFFF
+  // e a profundidade maxima sera retornada.
   menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
