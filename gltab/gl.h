@@ -190,7 +190,7 @@ inline void ModeloLuz(GLenum nome_param, const GLfloat* params) { glLightModelfv
 /** Funcoes de nevoa. */
 inline void Nevoa(GLenum param, GLfloat valor) { glFogf(param, valor); }
 inline void Nevoa(GLenum param, const GLfloat* valor) { glFogfv(param, valor); }
-inline void ModoNevoa(GLint modo) { glFogi(GL_FOG_MODE, modo); }
+inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 
 /** Funcoes de normais. */
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }

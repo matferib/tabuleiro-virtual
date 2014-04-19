@@ -15,16 +15,17 @@ ant debug
 
 Instalacao:
 Colocar o dispositivo em USB debug mode.
-adb install -r bin/TabuleiroVirtual-debug.apk
+$ANDROID_DEV_TOOLKIT/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
 
 Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
-adb logcat Tabuleiro:I *:S
+$ANDROID_DEV_TOOLKIT/sdk/platform-tools/adb logcat Tabuleiro:I *:S
 
 Compilando protocol buffers:
 Criar o toolchain de cross-compile:
 ${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
 
 Configuracao do protobuf:
+ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
 export CXX="/var/tmp/my-toolchain/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
 ./configure --host=arm-*-eabi
@@ -41,3 +42,13 @@ Rodar no tablet.
 Diretorio do projeto (pai do jni): /opt/android-ndk-r9d/ndk-gdb
 
 Boost android: https://github.com/MysticTreeGames/Boost-for-Android.
+Abrir o build-android.sh e procurar pro LIBRARIES. Mudar para:
+LIBRARIES=--with-libraries=system,timer
+No case do NDK_RN adicionar a versao usada do ndk.
+Usar o toolchain mais novo:
+./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8
+
+Problema ao instalar de outra maquina:
+As chaves sao diferentes nas maquinas. Uma solucao eh copiar o ~/.android/debug.keystore de uma maquina pra outra.
+Senao, tem que desinstalar com adb e instalar de novo.
+adb uninstall com.example.testproj
