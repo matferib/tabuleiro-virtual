@@ -1276,10 +1276,10 @@ void Tabuleiro::DesenhaCena() {
 
     if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa()) {
       gl::Habilita(GL_FOG);
-      glFogi(GL_FOG_MODE, GL_LINEAR);
-      glFogf(GL_FOG_START, proto_.nevoa().distancia_minima());
-      glFogf(GL_FOG_END, proto_.nevoa().distancia_maxima());
-      glFogfv(GL_FOG_COLOR, cor_luz_ambiente);
+      gl::ModoNevoa(GL_LINEAR);
+      gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
+      gl::Nevoa(GL_FOG_END, proto_.nevoa().distancia_maxima());
+      gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
     } else {
       gl::Desabilita(GL_FOG);
     }
@@ -1496,12 +1496,27 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
+  float limite_quad = 0.0f;
+  if (sombra && proto_.has_nevoa()) {
+    float limite = proto_.nevoa().distancia_minima() +
+                   (proto_.nevoa().distancia_maxima() - proto_.nevoa().distancia_minima()) * 0.7f;
+    limite_quad = pow(limite, 2);
+  }
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
       continue;
+    }
+    if (sombra && proto_.has_nevoa()) {
+      // Distancia para camera. So desenha se estiver fora da nevoa.
+      float distancia_quad = pow(entidade->X() - olho_.pos().x(), 2) +
+                             pow(entidade->Y() - olho_.pos().y(), 2) +
+                             pow(entidade->Z() - olho_.pos().z(), 2);
+      if (distancia_quad >= limite_quad) {
+        continue;
+      }
     }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
@@ -1657,6 +1672,8 @@ void Tabuleiro::DesenhaSombras() {
   const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
   float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ?
       0.0f : 1.0f / tanf(kAnguloInclinacao);
+  // A sombra nao pode ser totalmente solida..
+  float alfa_sombra = std::min(0.5f, sinf(kAnguloInclinacao));
   // Matriz eh column major, ou seja, esta invertida.
   // A ideia eh adicionar ao x a altura * fator de shear.
   GLfloat matriz_shear[] = {
@@ -1668,9 +1685,11 @@ void Tabuleiro::DesenhaSombras() {
   // Habilita o stencil para desenhar apenas uma vez as sombras.
   gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
   LigaStencil();
-  DesenhaEntidadesBase(std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear));
+  DesenhaEntidadesBase(
+      std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear),
+      true);
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-  GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, std::min(0.5f, sinf(kAnguloInclinacao)) };
+  GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
   gl::HabilitaEscopo habilita_blend(GL_BLEND);
   DesenhaStencil(cor_sombra);
 }
