@@ -306,8 +306,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha as sombras dos objetos. */
   void DesenhaSombras();
 
-  /** Desenha as entidades. */
-  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
+  /** Desenha as entidades. O parametro sombra indica que a entidade so sera desenha se estiver fora do fog. */
+  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra = false);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
 
