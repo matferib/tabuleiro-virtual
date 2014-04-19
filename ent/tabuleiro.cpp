@@ -1610,8 +1610,10 @@ void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO;
-  float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO;
+  float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
+                       ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
+  float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
+                       ((TamanhoY() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   int id = 0;
   for (const std::pair<float, float>& delta : { std::pair<float, float>{ translacao_x, 0.0f },
                                                 std::pair<float, float>{ -translacao_x, 0.0f },
@@ -1654,6 +1656,7 @@ void Tabuleiro::DesenhaSombras() {
     0.0f, 0.0f, 0.0f, 1.0f,
   };
   // Habilita o stencil para desenhar apenas uma vez as sombras.
+  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
   LigaStencil();
   DesenhaEntidadesBase(std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear));
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
@@ -2075,7 +2078,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     TrataNotificacao(notificacao);
-  } else if (pos_pilha > 1) {
+  } else if (pos_pilha == 2) {
     // Entidade.
     if (SelecionaEntidade(id)) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
@@ -2915,18 +2918,34 @@ void Tabuleiro::DesenhaQuadrado(unsigned int id,
 
 void Tabuleiro::DesenhaGrade() {
   MudaCor(COR_PRETA);
-  // Linhas verticais (S-N).
+  const int x_2 = TamanhoX() / 2;
+  const int y_2 = TamanhoY() / 2;
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
   const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
-  const int x_2 = TamanhoX()  / 2;
-  const int y_2 = TamanhoY() / 2;
-  for (int i = -x_2; i <= x_2; ++i) {
-    float x = i * TAMANHO_LADO_QUADRADO;
+  // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
+  // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
+  // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
+  // inferior eh onde comeca a desenhar a linha.
+  // Linhas verticais (S-N).
+  int limite_inferior = -x_2;
+  float incremento = 0.0f;
+  if (TamanhoX() % 2 != 0) {
+    --limite_inferior;
+    incremento = TAMANHO_LADO_QUADRADO_2;
+  }
+  for (int i = limite_inferior; i <= x_2; ++i) {
+    float x = i * TAMANHO_LADO_QUADRADO + incremento;
     gl::Retangulo(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);
   }
   // Linhas horizontais (W-E).
-  for (int i = -y_2; i <= y_2; ++i) {
-    float y = i * TAMANHO_LADO_QUADRADO;
+  limite_inferior = -y_2;
+  incremento = 0.0f;
+  if (TamanhoY() % 2 != 0) {
+    --limite_inferior;
+    incremento = TAMANHO_LADO_QUADRADO_2;
+  }
+  for (int i = limite_inferior; i <= y_2; ++i) {
+    float y = i * TAMANHO_LADO_QUADRADO + incremento;
     gl::Retangulo(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
   }
 }
