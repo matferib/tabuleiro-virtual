@@ -12,6 +12,12 @@ message IluminacaoDirecional {
   optional float posicao_graus = 3 [default=0.0];
 }
 
+// A cor da nevoa vem da luz ambiente.
+message Nevoa {
+  optional float distancia_minima = 1;
+  optional float distancia_maxima = 2;
+}
+
 // O sistema de visualizacao funciona com dois pontos:
 // - Origem: de onde o olho olha.
 // - Alvo: para onde o olho olha.
@@ -53,6 +59,8 @@ message TabuleiroProto {
   optional bool manter_entidades = 8 [default=false];
   // Entidades do tabuleiro.
   repeated EntidadeProto entidade = 2;
+  // Nevoa do tabuleiro, se houver.
+  optional Nevoa nevoa = 10;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Apenas alguns campos da entidade sao considerados:

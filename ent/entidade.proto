@@ -176,6 +176,8 @@ message ParametrosDesenho {
   optional bool desenha_rosa_dos_ventos = 25 [default=true];
   // Se verdadeiro, desenha os pontos de rolagem do tabuleiro.
   optional bool desenha_pontos_rolagem = 26 [default=true];
+  // Se verdadeiro, aplica efeito de nevoa.
+  optional bool desenha_nevoa = 27 [default=true];
 
   // Parametros de OpenGL ES.
   message ParametrosOpenglEs {
