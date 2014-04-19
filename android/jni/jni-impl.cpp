@@ -117,6 +117,11 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRotation(JNIEnv* env, j
   g_tabuleiro->TrataRotacaoPorDelta(rad);
 }
 
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTranslation(JNIEnv* env, jobject thiz, jint x, jint y) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeScale: %f", s);
+  g_tabuleiro->TrataBotaoDireitoPressionado(x, y);
+}
+
 // Render.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRender");
