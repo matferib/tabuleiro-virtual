@@ -793,6 +793,10 @@ void Tabuleiro::TrataMovimentoMouse() {
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
+  if (x == ultimo_x_ && y == ultimo_y_) {
+    // No tablet pode acontecer de gerar estes eventos com mesma coordenadas.
+    return;
+  }
   switch (estado_) {
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
       if (translacao_rotacao_ == TR_NENHUM) {
