@@ -1274,6 +1274,16 @@ void Tabuleiro::DesenhaCena() {
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     gl::Habilita(GL_LIGHT0);
 
+    if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa()) {
+      gl::Habilita(GL_FOG);
+      glFogi(GL_FOG_MODE, GL_LINEAR);
+      glFogf(GL_FOG_START, proto_.nevoa().distancia_minima());
+      glFogf(GL_FOG_END, proto_.nevoa().distancia_maxima());
+      glFogfv(GL_FOG_COLOR, cor_luz_ambiente);
+    } else {
+      gl::Desabilita(GL_FOG);
+    }
+
     // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       auto* e = it->second.get();
@@ -1770,6 +1780,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_rastro_movimento(false);
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_nevoa(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -2380,6 +2391,9 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
     tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());
     tabuleiro->set_ladrilho(proto_.ladrilho());
   }
+  if (proto_.has_nevoa()) {
+    tabuleiro->mutable_nevoa()->CopyFrom(proto_.nevoa());
+  }
   tabuleiro->set_largura(proto_.largura());
   tabuleiro->set_altura(proto_.altura());
   return notificacao;
@@ -2392,10 +2406,16 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
 }
 
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
+  VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
   proto_.mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
   proto_.mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_.set_largura(novo_proto.largura());
   proto_.set_altura(novo_proto.altura());
+  if (novo_proto.has_nevoa()) {
+    proto_.mutable_nevoa()->CopyFrom(novo_proto.nevoa());
+  } else {
+    proto_.clear_nevoa();
+  }
   AtualizaTexturas(novo_proto);
 }
 
@@ -2418,13 +2438,15 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   }
 }
 
+// Aqui ocorre a deserializacao do tabuleiro todo. As propriedades como iluminacao sao atualizadas
+// na funcao Tabuleiro::DeserializaPropriedades.
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   const auto& tabuleiro = notificacao.tabuleiro();
   bool manter_entidades = tabuleiro.manter_entidades();
   if (manter_entidades) {
-    VLOG(1) << "Deserializando tabuleiro mantendo entidades.";
+    VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << tabuleiro.ShortDebugString();
   } else {
-    VLOG(1) << "Deserializando tabuleiro todo.";
+    VLOG(1) << "Deserializando tabuleiro todo: " << tabuleiro.ShortDebugString();
     EstadoInicial();
   }
   if (notificacao.has_erro()) {

@@ -684,6 +684,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
   const auto& tab_proto = notificacao.tabuleiro();
+  VLOG(1) << "Modificando tabuleiro: " << tab_proto.ShortDebugString();
 
   // Cor ambiente.
   ent::Cor cor_ambiente_proto(tab_proto.luz_ambiente());
@@ -715,6 +716,17 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   gerador.dial_posicao->setSliderPosition(tab_proto.luz_direcional().posicao_graus() + 90.0f);
   // Inclinacao: o zero do slider fica para baixo enquanto no proto ele fica para direita.
   gerador.dial_inclinacao->setSliderPosition(tab_proto.luz_direcional().inclinacao_graus() + 90.0f);
+
+  // Nevoa.
+  if (tab_proto.has_nevoa()) {
+    gerador.checkbox_nevoa->setCheckState(Qt::Checked);
+    gerador.linha_nevoa_min->setEnabled(true);
+    gerador.linha_nevoa_min->setText(QString().setNum(tab_proto.nevoa().distancia_minima()));
+    gerador.linha_nevoa_max->setEnabled(true);
+    gerador.linha_nevoa_max->setText(QString().setNum(tab_proto.nevoa().distancia_maxima()));
+  } else {
+    gerador.checkbox_nevoa->setCheckState(Qt::Unchecked);
+  }
 
   // Textura do tabuleiro.
   gerador.linha_textura->setText(tab_proto.info_textura().id().c_str());
@@ -751,6 +763,27 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     proto_retornado->mutable_luz_direcional()->set_inclinacao_graus(gerador.dial_inclinacao->sliderPosition() - 90.0f);
     proto_retornado->mutable_luz_direcional()->mutable_cor()->Swap(&cor_direcional_proto);
     proto_retornado->mutable_luz_ambiente()->Swap(&cor_ambiente_proto);
+    // Nevoa.
+    if (gerador.checkbox_nevoa->checkState() == Qt::Checked) {
+      bool ok;
+      int d_min = gerador.linha_nevoa_min->text().toInt(&ok);
+      if (!ok) {
+        LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa minima invalida: "
+                     << gerador.linha_nevoa_min->text().toStdString();
+        return;
+      }
+      int d_max = gerador.linha_nevoa_max->text().toInt(&ok);
+      if (!ok || d_min > d_max) {
+        LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa maxima invalida: "
+                     << gerador.linha_nevoa_max->text().toStdString();
+        return;
+      }
+      proto_retornado->mutable_nevoa()->set_distancia_minima(d_min);
+      proto_retornado->mutable_nevoa()->set_distancia_maxima(d_max);
+    } else {
+      proto_retornado->clear_nevoa();
+    }
+    // Textura.
     if (gerador.linha_textura->text().toStdString() == tab_proto.info_textura().id()) {
       // Textura igual a anterior.
       VLOG(2) << "Textura igual a anterior.";
@@ -776,6 +809,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     } else {
       proto_retornado->clear_ladrilho();
     }
+    // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
       // Busca tamanho da textura.
       ent::InfoTextura textura = proto_retornado->info_textura();
@@ -785,13 +819,18 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       proto_retornado->set_largura(textura.largura() / 8);
       proto_retornado->set_altura(textura.altura() / 8);
     } else {
+      // Converte da entrada.
       bool ok = true;
       int largura = gerador.linha_largura->text().toInt(&ok);
       if (!ok) {
+        LOG(WARNING) << "Descartando alteracoes tabuleiro, largura invalido: "
+                     << gerador.linha_altura->text().toStdString();
         return;
       }
       int altura = gerador.linha_altura->text().toInt(&ok);
       if (!ok) {
+        LOG(WARNING) << "Descartando alteracoes tabuleiro, altura invalido: "
+                     << gerador.linha_largura->text().toStdString();
         return;
       }
       proto_retornado->set_largura(largura);
