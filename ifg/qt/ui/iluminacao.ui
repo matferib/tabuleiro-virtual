@@ -469,6 +469,9 @@
       <property name="enabled">
        <bool>false</bool>
       </property>
+      <property name="toolTip">
+       <string>Distância mínma da névoa, em m.</string>
+      </property>
      </widget>
     </item>
     <item>
@@ -482,6 +485,9 @@
      <widget class="QLineEdit" name="linha_nevoa_max">
       <property name="enabled">
        <bool>false</bool>
+      </property>
+      <property name="toolTip">
+       <string>Distância onde o efeito máximo da névoa é aplicado.</string>
       </property>
      </widget>
     </item>

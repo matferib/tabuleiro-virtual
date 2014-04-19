@@ -140,6 +140,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata evento de escala por fator (pinca). Quanto maior o fator, mais proximo o olho ficara do foco. */
   void TrataEscalaPorFator(float fator);
 
+  /** Trata evento de rotacao por delta (pinca). */
+  void TrataRotacaoPorDelta(float delta_rad);
+
   /** trata movimento do mouse (y ja em coordenadas opengl). */
   void TrataMovimentoMouse(int x, int y);
 

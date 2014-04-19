@@ -776,6 +776,18 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
   AtualizaRaioOlho(olho_.raio() / fator);
 }
 
+void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
+  // Realiza a rotacao da tela.
+  float olho_rotacao = olho_.rotacao_rad() + delta_rad;
+  if (olho_rotacao >= 2 * M_PI) {
+    olho_rotacao -= 2 * M_PI;
+  } else if (olho_rotacao <= - 2 * M_PI) {
+    olho_rotacao += 2 * M_PI;
+  }
+  olho_.set_rotacao_rad(olho_rotacao);
+  AtualizaOlho(true  /*forcar*/);
+}
+
 void Tabuleiro::TrataMovimentoMouse() {
   id_entidade_detalhada_ = 0xFFFFFFFF;
 }
@@ -1411,6 +1423,11 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
+#if USAR_OPENGL_ES
+  if (!parametros_desenho_.params_opengles().tabuleiro()) {
+    return;
+  }
+#endif
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   std::unique_ptr<gl::HabilitaEscopo> habilita_textura;
@@ -2050,7 +2067,9 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
       if (entidade == nullptr) {
         continue;
       }
-      translacoes_rotacoes_antes_.insert(std::make_pair(entidade->Id(), std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
+      translacoes_rotacoes_antes_.insert(
+          std::make_pair(entidade->Id(), 
+                         std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
     }
   } else {
     estado_anterior_ = estado_;

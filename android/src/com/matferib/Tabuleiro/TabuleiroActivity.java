@@ -53,6 +53,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEscala_ = new ScaleGestureDetector(context, renderer_);
     detectorEscala_.setQuickScaleEnabled(true);
+    detectorRotacao_ = new RotationGestureDetector(renderer_);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
@@ -64,6 +65,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     if (event.getPointerCount() <= 1) {
       detectorEventos_.onTouchEvent(event);
     } else {
+      detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
     }
     return true;
@@ -90,6 +92,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private TabuleiroRenderer renderer_;
   private GestureDetector detectorEventos_;
   private ScaleGestureDetector detectorEscala_;
+  private RotationGestureDetector detectorRotacao_;
   private static native void nativePause();
   private static native void nativeResume();
 }
@@ -100,7 +103,8 @@ class TabuleiroRenderer extends java.util.TimerTask
                Runnable,
                GestureDetector.OnGestureListener,
                GestureDetector.OnDoubleTapListener,
-               ScaleGestureDetector.OnScaleGestureListener {
+               ScaleGestureDetector.OnScaleGestureListener,
+               RotationGestureDetector.RotationListener {
 
   public static final String TAG = "TabuleiroRenderer";
 
@@ -156,6 +160,9 @@ class TabuleiroRenderer extends java.util.TimerTask
       switch (evento.tipo()) {
         case Evento.ESCALA:
           nativeScale(evento.escala());
+          break;
+        case Evento.ROTACAO:
+          nativeRotation(evento.rotacao());
           break;
         case Evento.CLIQUE:
           nativeTouchPressed(evento.x(), evento.y());
@@ -277,6 +284,13 @@ class TabuleiroRenderer extends java.util.TimerTask
     Log.d(TAG, "ScaleEnd");
   }
 
+  // Detector rotacao.
+  @Override
+  public void onRotate(float delta) {
+    Log.d(TAG, "Rotate");
+    eventos_.add(Evento.Rotacao(delta));
+  }
+
   /* Old
   public void pushBack(MotionEvent event) {
     synchronized (events_) {
@@ -337,6 +351,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeTouchReleased();
   private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
+  private static native void nativeRotation(float r);
 
   private GLSurfaceView parent_;
 
@@ -358,6 +373,7 @@ class Evento {
   public static final int PRESSIONADO = 7;
   public static final int LIBERADO = 8;
   public static final int MOVIMENTO = 9;
+  public static final int ROTACAO = 10;
 
   public static Evento Liberado() {
     return new Evento(LIBERADO);
@@ -366,6 +382,12 @@ class Evento {
   public static Evento Escala(float escala) {
     Evento evento = new Evento(ESCALA);
     evento.escala_ = escala;
+    return evento;
+  }
+
+  public static Evento Rotacao(float rotacao) {
+    Evento evento = new Evento(ROTACAO);
+    evento.rotacao_ = rotacao;
     return evento;
   }
 
@@ -416,7 +438,8 @@ class Evento {
   }
 
   public String toString() {
-    return "Tipo: " + tipoString() + ", escala: " + escala_ + ", x:" + x_ + ", y: " + y_;
+    return "Tipo: " + tipoString() + ", escala: " + escala_ + ", rotacao: " + rotacao_ +
+                                     ", x:" + x_ + ", y: " + y_;
   }
 
   private String tipoString() {
@@ -430,17 +453,58 @@ class Evento {
       case PRESSIONADO: return "PRESSIONADO";
       case LIBERADO: return "LIBERADO";
       case MOVIMENTO: return "MOVIMENTO";
+      case ROTACAO: return "ROTACAO";
       default: return "INVALIDO";
     }
   }
 
   public int tipo() { return tipo_; }
   public float escala() { return escala_; }
+  public float rotacao() { return rotacao_; }
   public int x() { return x_; }
   public int y() { return y_; }
 
   private int tipo_;
   private float escala_;
+  private float rotacao_;
   private int x_;
   private int y_;
+}
+
+// Copiado de:
+// https://code.google.com/p/osmdroid/source/browse/trunk/
+// OpenStreetMapViewer/src/org/osmdroid/RotationGestureDetector.java?r=1186
+class RotationGestureDetector {
+  public interface RotationListener {
+    // Angulo em radianos.
+    public void onRotate(float deltaAngle);
+  }
+
+  protected float mRotation;
+  private RotationListener mListener;
+
+  public RotationGestureDetector(RotationListener listener) {
+    mListener = listener;
+  }
+
+  private float rotation(MotionEvent event) {
+    double delta_x = (event.getX(0) - event.getX(1));
+    double delta_y = (event.getY(0) - event.getY(1));
+    double radians = Math.atan2(delta_y, delta_x);
+    return (float)radians;
+  }
+
+  public void onTouch(MotionEvent e) {
+    if (e.getPointerCount() != 2)
+      return;
+
+    if (e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+      mRotation = rotation(e);
+    }
+
+    float rotation = rotation(e);
+    float delta = rotation - mRotation;
+    mRotation += delta;
+    mListener.onRotate(delta);
+  }
 }

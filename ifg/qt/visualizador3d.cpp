@@ -773,7 +773,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         return;
       }
       int d_max = gerador.linha_nevoa_max->text().toInt(&ok);
-      if (!ok || d_min > d_max) {
+      if (!ok || d_min >= d_max) {
         LOG(WARNING) << "Descartando alteracoes tabuleiro, nevoa maxima invalida: "
                      << gerador.linha_nevoa_max->text().toStdString();
         return;

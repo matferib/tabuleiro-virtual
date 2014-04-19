@@ -10,7 +10,7 @@ ${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
 Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
 ${ANDROID_NDK}/ndk-build V=1
 
-Compilacao do java integrado com codigo nativo:
+Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
 ant debug
 
 Instalacao:
