@@ -788,6 +788,29 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
   AtualizaOlho(true  /*forcar*/);
 }
 
+
+void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
+  // Faz picking do tabuleiro sem entidades.
+  parametros_desenho_.set_desenha_entidades(false);
+  float x0, y0, z0;
+  if (!MousePara3d(x, y, &x0, &y0, &z0)) {
+    return;
+  }
+
+  float x1, y1, z1;
+  if (!MousePara3d(nx, ny, &x1, &y1, &z1)) {
+    return;
+  }
+
+  float delta_x = x1 - x0;
+  float delta_y = y1 - y0;
+  auto* p = olho_.mutable_alvo();
+  p->set_x(p->x() - delta_x);
+  p->set_y(p->y() - delta_y);
+  olho_.clear_destino();
+  AtualizaOlho(true);
+}
+
 void Tabuleiro::TrataMovimentoMouse() {
   id_entidade_detalhada_ = 0xFFFFFFFF;
 }
@@ -1228,6 +1251,11 @@ void Tabuleiro::DesenhaCena() {
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
   // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
   TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
+
+  gl::InicioCena();
+  gl::IniciaNomes();
+  gl::NomesEscopo nomes_tabuleiro(0);
+
   gl::Habilita(GL_DEPTH_TEST);
   gl::CorLimpeza(proto_.luz_ambiente().r(),
                  proto_.luz_ambiente().g(),
@@ -1352,7 +1380,8 @@ void Tabuleiro::DesenhaCena() {
   {
     gl::NomesEscopo nomes(0);
 #if USAR_OPENGL_ES
-    if (parametros_desenho_.params_opengles().has_id()) {
+    if (parametros_desenho_.params_opengles().has_id() &&
+        !parametros_desenho_.params_opengles().tabuleiro()) {
       Entidade* entidade = BuscaEntidade(parametros_desenho_.params_opengles().id());
       if (entidade == nullptr) {
         LOG(ERROR) << "Entidade " << parametros_desenho_.params_opengles().id() << " nao encontrada.";
@@ -1795,8 +1824,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::BufferSelecao(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   gl::ModoRenderizacao(gl::MR_SELECT);
-  gl::IniciaNomes();
-  gl::NomesEscopo nomes(0);
 
   gl::ModoMatriz(GL_PROJECTION);
   GLint viewport[4];
@@ -2072,7 +2099,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
         continue;
       }
       translacoes_rotacoes_antes_.insert(
-          std::make_pair(entidade->Id(), 
+          std::make_pair(entidade->Id(),
                          std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
     }
   } else {
