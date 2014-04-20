@@ -15,10 +15,10 @@ ant debug
 
 Instalacao:
 Colocar o dispositivo em USB debug mode.
-$ANDROID_DEV_TOOLKIT/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
 
 Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
-$ANDROID_DEV_TOOLKIT/sdk/platform-tools/adb logcat Tabuleiro:I *:S
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat Tabuleiro:I *:S
 
 Compilando protocol buffers:
 Criar o toolchain de cross-compile:
@@ -51,4 +51,4 @@ Usar o toolchain mais novo:
 Problema ao instalar de outra maquina:
 As chaves sao diferentes nas maquinas. Uma solucao eh copiar o ~/.android/debug.keystore de uma maquina pra outra.
 Senao, tem que desinstalar com adb e instalar de novo.
-adb uninstall com.example.testproj
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb uninstall com.matferib.Tabuleiro

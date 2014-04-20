@@ -68,6 +68,7 @@ print 'usar_opengl_es : %r' % usar_opengl_es
 if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES']['USAR_OPENGL_ES'] = 1
+  env['LIBS'] += ['GLESv1_CM']
 
 gerar_profile = (ARGUMENTS.get('gerar_profile', '0') == '1')
 if gerar_profile:

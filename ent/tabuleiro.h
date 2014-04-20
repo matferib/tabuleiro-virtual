@@ -143,6 +143,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
 
+  /** Trata um evento de translacao do tabuleiro isoladamente. Parametros x, y sao as coordenadas originais,
+  * e nx, ny indicam as coordenadas apos o movimento do cursor.
+  */
+  void TrataTranslacaoPorDelta(int x, int y, int nx, int ny);
+
   /** trata movimento do mouse (y ja em coordenadas opengl). */
   void TrataMovimentoMouse(int x, int y);
 

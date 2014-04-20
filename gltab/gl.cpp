@@ -226,8 +226,13 @@ struct ContextoInterno {
   // O bit da pilha em dois bits (valor de 0 a 3).
   unsigned int bit_pilha = 0;
   modo_renderizacao_e modo_renderizacao = MR_RENDER;
+  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   GLuint* buffer_selecao = nullptr;
   GLuint tam_buffer = 0;
+
+  inline bool UsarSelecaoPorCor() const {
+    return depurar_selecao_por_cor || modo_renderizacao == MR_SELECT;
+  }
 };
 
 ContextoInterno* g_contexto = nullptr;
@@ -254,6 +259,23 @@ void IniciaGl(int* argcp, char** argv) {
 
 void FinalizaGl() {
   delete g_contexto;
+}
+
+void InicioCena() {
+  if (g_contexto->UsarSelecaoPorCor()) {
+    g_contexto->proximo_id = 0;
+    g_contexto->bit_pilha = 0;
+    g_contexto->ids.clear();
+  }
+}
+
+void Habilita(GLenum cap) {
+  if (g_contexto->UsarSelecaoPorCor() && (cap & GL_LIGHTING) != 0) {
+    // Sem luz no modo de selecao.
+    glDisable(cap);
+  } else {
+    glEnable(cap);
+  }
 }
 
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
@@ -592,24 +614,25 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
   g_contexto->modo_renderizacao = modo;
   switch (modo) {
     case MR_SELECT:
-      g_contexto->proximo_id = 0;
-      g_contexto->bit_pilha = 0;
-      g_contexto->ids.clear();
       return 0;
     case MR_RENDER: {
-      //glFlush();
-      //glFinish();
+      glFlush();
+      glFinish();
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       GLubyte pixel[4] = { 0 };
       glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-      VLOG(2) << "Erro pos glReadPixels: " << glGetError();
+      int erro = glGetError();
+      if (erro != 0) {
+        VLOG(1) << "Erro pos glReadPixels: " << erro;
+      }
       // Usar void* para imprimir em hexa.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
       VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
-      VLOG(2) << "Id mapeado: " << (void*)id_mapeado;
+      VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
       unsigned int pos_pilha = id_mapeado >> 22;
-      VLOG(2) << "Pos pilha: " << pos_pilha;
+      VLOG(1) << "Pos pilha: " << pos_pilha;
       if (pos_pilha == 0 || pos_pilha > 3) {
         LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
         return 0;
@@ -621,7 +644,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       }
 #pragma GCC diagnostic pop
       unsigned int id_original = it->second;
-      VLOG(2) << "Id original: " << id_original;
+      VLOG(1) << "Id original: " << id_original;
       GLuint* ptr = g_contexto->buffer_selecao;
       ptr[0] = pos_pilha;
       ptr[1] = 0;  // zmin.
@@ -648,7 +671,7 @@ void IniciaNomes() {
 }
 
 void EmpilhaNome(GLuint id) {
-  if (g_contexto->modo_renderizacao != MR_SELECT) {
+  if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -660,7 +683,7 @@ void EmpilhaNome(GLuint id) {
 }
 
 void CarregaNome(GLuint id) {
-  if (g_contexto->modo_renderizacao != MR_SELECT) {
+  if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -671,7 +694,7 @@ void CarregaNome(GLuint id) {
 }
 
 void DesempilhaNome() {
-  if (g_contexto->modo_renderizacao != MR_SELECT) {
+  if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -683,7 +706,7 @@ void DesempilhaNome() {
 }
 
 void MudaCor(float r, float g, float b, float a) {
-  if (g_contexto->modo_renderizacao != MR_RENDER) {
+  if (g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
@@ -694,7 +717,7 @@ void MudaCor(float r, float g, float b, float a) {
 }
 
 void Limpa(GLbitfield mascara) {
-  if (g_contexto->modo_renderizacao == MR_SELECT) {
+  if (g_contexto->UsarSelecaoPorCor()) {
     if ((mascara & GL_COLOR_BUFFER_BIT) != 0) {
       // Preto nao eh valido no color picking.
       glClearColor(0, 0, 0, 1.0f);

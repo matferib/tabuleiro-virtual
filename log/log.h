@@ -33,7 +33,7 @@ class StringLogger {
 
 #define SHORT_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define LOG(X) if (true) StringLogger(SHORT_FILE, __LINE__)
-#define VLOG(X) if (false && X <= 1) StringLogger(SHORT_FILE, __LINE__)
+#define VLOG(X) if (true && X <= 1) StringLogger(SHORT_FILE, __LINE__)
 // __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 
 #else

@@ -91,8 +91,14 @@ class DesabilitaEscopo {
 
 class ModeloLuzEscopo {
  public:
-  ModeloLuzEscopo(const GLfloat* luz) { glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes); glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz); }
-  ~ModeloLuzEscopo() { glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes); }
+  ModeloLuzEscopo(const GLfloat* luz) {
+      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
+  }
+  ~ModeloLuzEscopo() {
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+  }
+
  private:
   GLfloat luz_antes[4];
 };
@@ -115,13 +121,22 @@ class AtributosEscopo {
 };
 #endif
 
+/** Funcao especial para depuracao. */
+#if !USAR_OPENGL_ES
+inline void InicioCena() {}
+#else
+void InicioCena();
+#endif
+
 /** Funcoes gerais. */
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
-#endif
 inline void Habilita(GLenum cap) { glEnable(cap); }
+#else
+void Habilita(GLenum cap);
+#endif
 inline void Desabilita(GLenum cap) { glDisable(cap); }
 inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
 inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
