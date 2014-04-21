@@ -11,25 +11,21 @@
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
+#include "tex/texturas.h"
 
 namespace {
 
-class DummyReceptor : public ntf::Receptor {
+class ReceptorErro : public ntf::Receptor {
  public:
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
     if (notificacao.tipo() == ntf::TN_ERRO) {
-      //__android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
     }
   }
 };
 
-// Textura dummy.
-class DummyTexturas : public ent::Texturas {
- public:
-  virtual unsigned int Textura(const std::string& id) const override { return GL_INVALID_VALUE; }
-};
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
-std::unique_ptr<DummyTexturas> g_texturas;
+std::unique_ptr<tex::Texturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
@@ -52,11 +48,11 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   gl::IniciaGl(argcp, argvp);
   ent::Tabuleiro::InicializaGL();
   g_central.reset(new ntf::CentralNotificacoes);
-  g_texturas.reset(new DummyTexturas);
+  g_texturas.reset(new tex::Texturas(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
-  g_receptor.reset(new DummyReceptor);
+  g_receptor.reset(new ReceptorErro);
   g_central->RegistraReceptor(g_receptor.get());
 
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);

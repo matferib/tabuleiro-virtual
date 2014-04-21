@@ -1,8 +1,8 @@
 Versao 1.0
-- Implementar translacao no tablet (junto com rotacao?)
+- Acessar as texturas do codigo nativo.
+- Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
+- Pensar em como nao mostrar formas mortas.
 - Pensar em como melhorar o desenho do cilindro, maior gargalo opengl ES.
-- Implementar translacao no tablet (usando pinca).
-- Implementar textura no tablet.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Iniciar motor aleatorio com timestamp.
 - Adicionar mais unit tests (comecar pelos simples).

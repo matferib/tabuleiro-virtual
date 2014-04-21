@@ -28,13 +28,13 @@ using namespace std;
 /////////////
 
 Principal* Principal::Cria(int& argc, char** argv,
-                           Texturas* texturas, ntf::CentralNotificacoes* central) {
+                           ent::Texturas* texturas, ntf::CentralNotificacoes* central) {
   auto* q_app = new QApplication(argc, argv);
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
   return new Principal(texturas, central, q_app);
 }
 
-Principal::Principal(Texturas* texturas,
+Principal::Principal(ent::Texturas* texturas,
                      ntf::CentralNotificacoes* central,
                      QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
