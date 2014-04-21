@@ -38,7 +38,9 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 	                 gltab/gl.cpp \
 									 net/util.cpp net/cliente.cpp \
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
-									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/entidade.cpp ent/entidade_desenho.cpp ent/tabuleiro.cpp ent/acoes.cpp ent/util.cpp
+									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/entidade.cpp ent/entidade_desenho.cpp ent/tabuleiro.cpp ent/acoes.cpp ent/util.cpp \
+									 tex/texturas.cpp tex/lodepng.cpp
+
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES
 LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt
 LOCAL_LDLIBS := -lGLESv1_CM -llog

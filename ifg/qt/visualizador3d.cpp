@@ -671,7 +671,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
     const ntf::Notificacao& notificacao) {
   if (notificacao.entidade().tipo() == ent::TE_ENTIDADE) {
     return AbreDialogoTipoEntidade(notificacao);
-  } else if (notificacao.entidade().tipo() == ent::TE_FORMA) {
+  } else if (notificacao.entidade().tipo() == ent::TE_FORMA || notificacao.entidade().tipo() == ent::TE_COMPOSTA) {
     return AbreDialogoTipoForma(notificacao);
   }
   return nullptr;
