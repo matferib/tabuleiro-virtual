@@ -7,11 +7,12 @@
 #include <boost/asio.hpp>
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
-#include "ifg/qt/texturas.h"
 #include "net/cliente.h"
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
 #include "log/log.h"
+//#include "tex/texturas.h"
+#include "ifg/qt/texturas.h"
 
 using namespace std;
 

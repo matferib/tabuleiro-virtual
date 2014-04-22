@@ -9,6 +9,10 @@
 
 /** @file ifg/qt/principal.h declaracao da interface grafica principal baseada em QT. */
 
+namespace ent {
+class Texturas;
+}  // namespace tex
+
 namespace ifg {
 namespace qt {
 
@@ -25,7 +29,7 @@ class Principal : public QWidget, ntf::Receptor {
   * instanciar o objeto. 
   */
   static Principal* Cria(int& argc, char** argv,
-                         Texturas* texturas,
+                         ent::Texturas* texturas,
                          ntf::CentralNotificacoes* central);
 	~Principal();
 
@@ -42,7 +46,7 @@ class Principal : public QWidget, ntf::Receptor {
   void Temporizador();
 
  private:
-	Principal(Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
+	Principal(ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;

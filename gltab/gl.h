@@ -99,8 +99,14 @@ class DesabilitaEscopo {
 
 class ModeloLuzEscopo {
  public:
-  ModeloLuzEscopo(const GLfloat* luz) { glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes); glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz); }
-  ~ModeloLuzEscopo() { glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes); }
+  ModeloLuzEscopo(const GLfloat* luz) {
+      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
+  }
+  ~ModeloLuzEscopo() {
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+  }
+
  private:
   GLfloat luz_antes[4];
 };
@@ -123,13 +129,22 @@ class AtributosEscopo {
 };
 #endif
 
+/** Funcao especial para depuracao. */
+#if !USAR_OPENGL_ES
+inline void InicioCena() {}
+#else
+void InicioCena();
+#endif
+
 /** Funcoes gerais. */
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
-#endif
 inline void Habilita(GLenum cap) { glEnable(cap); }
+#else
+void Habilita(GLenum cap);
+#endif
 inline void Desabilita(GLenum cap) { glDisable(cap); }
 inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
 inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
@@ -194,6 +209,11 @@ inline void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) { glRota
 inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
 inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
 inline void ModeloLuz(GLenum nome_param, const GLfloat* params) { glLightModelfv(nome_param, params); }
+
+/** Funcoes de nevoa. */
+inline void Nevoa(GLenum param, GLfloat valor) { glFogf(param, valor); }
+inline void Nevoa(GLenum param, const GLfloat* valor) { glFogfv(param, valor); }
+inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 
 /** Funcoes de normais. */
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }

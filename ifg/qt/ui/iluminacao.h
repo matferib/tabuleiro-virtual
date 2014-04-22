@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'iluminacao.ui'
 **
-** Created: Wed Apr 16 17:01:02 2014
+** Created: Fri Apr 18 21:40:36 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -59,6 +59,13 @@ public:
     QLabel *label_9;
     QLabel *label_8;
     QLabel *label_2;
+    QWidget *horizontalLayoutWidget_3;
+    QHBoxLayout *horizontalLayout_3;
+    QCheckBox *checkbox_nevoa;
+    QLabel *label_12;
+    QLineEdit *linha_nevoa_min;
+    QLabel *label_13;
+    QLineEdit *linha_nevoa_max;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
@@ -67,12 +74,12 @@ public:
         ifg__qt__DialogoIluminacao->resize(501, 611);
         botoes = new QDialogButtonBox(ifg__qt__DialogoIluminacao);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(70, 510, 341, 32));
+        botoes->setGeometry(QRect(70, 570, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(20, 310, 461, 80));
+        horizontalLayoutWidget->setGeometry(QRect(20, 370, 461, 80));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -98,7 +105,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 390, 463, 80));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 450, 463, 80));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -226,9 +233,44 @@ public:
         label_2->setGeometry(QRect(170, 120, 64, 17));
         sizePolicy2.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
         label_2->setSizePolicy(sizePolicy2);
+        horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoIluminacao);
+        horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
+        horizontalLayoutWidget_3->setGeometry(QRect(20, 299, 461, 71));
+        horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+        checkbox_nevoa = new QCheckBox(horizontalLayoutWidget_3);
+        checkbox_nevoa->setObjectName(QString::fromUtf8("checkbox_nevoa"));
+
+        horizontalLayout_3->addWidget(checkbox_nevoa);
+
+        label_12 = new QLabel(horizontalLayoutWidget_3);
+        label_12->setObjectName(QString::fromUtf8("label_12"));
+
+        horizontalLayout_3->addWidget(label_12);
+
+        linha_nevoa_min = new QLineEdit(horizontalLayoutWidget_3);
+        linha_nevoa_min->setObjectName(QString::fromUtf8("linha_nevoa_min"));
+        linha_nevoa_min->setEnabled(false);
+
+        horizontalLayout_3->addWidget(linha_nevoa_min);
+
+        label_13 = new QLabel(horizontalLayoutWidget_3);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
+
+        horizontalLayout_3->addWidget(label_13);
+
+        linha_nevoa_max = new QLineEdit(horizontalLayoutWidget_3);
+        linha_nevoa_max->setObjectName(QString::fromUtf8("linha_nevoa_max"));
+        linha_nevoa_max->setEnabled(false);
+
+        horizontalLayout_3->addWidget(linha_nevoa_max);
+
 
         retranslateUi(ifg__qt__DialogoIluminacao);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoIluminacao, SLOT(reject()));
+        QObject::connect(checkbox_nevoa, SIGNAL(clicked(bool)), linha_nevoa_min, SLOT(setEnabled(bool)));
+        QObject::connect(checkbox_nevoa, SIGNAL(clicked(bool)), linha_nevoa_max, SLOT(setEnabled(bool)));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoIluminacao);
     } // setupUi
@@ -271,6 +313,9 @@ public:
         label_9->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "A pino", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Abaixo solo", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Nascente", 0, QApplication::UnicodeUTF8));
+        checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", 0, QApplication::UnicodeUTF8));
+        label_12->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Min", 0, QApplication::UnicodeUTF8));
+        label_13->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Max", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

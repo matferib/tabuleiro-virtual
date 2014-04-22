@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>510</y>
+     <y>570</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>310</y>
+     <y>370</y>
      <width>461</width>
      <height>80</height>
     </rect>
@@ -72,7 +72,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>390</y>
+     <y>450</y>
      <width>463</width>
      <height>80</height>
     </rect>
@@ -440,6 +440,59 @@
     </property>
    </widget>
   </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>299</y>
+     <width>461</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QCheckBox" name="checkbox_nevoa">
+      <property name="text">
+       <string>Névoa</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_12">
+      <property name="text">
+       <string>Min</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="linha_nevoa_min">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="toolTip">
+       <string>Distância mínma da névoa, em m.</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>Max</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="linha_nevoa_max">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="toolTip">
+       <string>Distância onde o efeito máximo da névoa é aplicado.</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections>
@@ -456,6 +509,38 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkbox_nevoa</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>linha_nevoa_min</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>208</x>
+     <y>334</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkbox_nevoa</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>linha_nevoa_max</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>57</x>
+     <y>333</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>403</x>
+     <y>334</y>
     </hint>
    </hints>
   </connection>

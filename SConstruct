@@ -68,6 +68,7 @@ print 'usar_opengl_es : %r' % usar_opengl_es
 if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES']['USAR_OPENGL_ES'] = 1
+  env['LIBS'] += ['GLESv1_CM']
 
 gerar_profile = (ARGUMENTS.get('gerar_profile', '0') == '1')
 if gerar_profile:
@@ -94,6 +95,8 @@ cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
 # Implementacao das texturas.
 cTexturas = env.Object('ifg/qt/texturas.cpp')
+#cTexturasPico = env.Object('tex/lodepng.cpp')
+#cTexturas = env.Object('tex/texturas.cpp')
 
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
@@ -131,7 +134,9 @@ objetos = [
 		# notificacoes.
 		ntf_proto[0], cNtf,
 		# interface QT
-		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cTexturas,
+		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
+    # Texturas
+    cTexturas, #cTexturasPico,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
 		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
@@ -155,4 +160,3 @@ if compilar_testes:
   env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', ] + objetos)
-
