@@ -226,8 +226,13 @@ struct ContextoInterno {
   // O bit da pilha em dois bits (valor de 0 a 3).
   unsigned int bit_pilha = 0;
   modo_renderizacao_e modo_renderizacao = MR_RENDER;
+  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   GLuint* buffer_selecao = nullptr;
   GLuint tam_buffer = 0;
+
+  inline bool UsarSelecaoPorCor() const {
+    return depurar_selecao_por_cor || modo_renderizacao == MR_SELECT;
+  }
 };
 
 ContextoInterno* g_contexto = nullptr;
@@ -254,6 +259,23 @@ void IniciaGl(int* argcp, char** argv) {
 
 void FinalizaGl() {
   delete g_contexto;
+}
+
+void InicioCena() {
+  if (g_contexto->UsarSelecaoPorCor()) {
+    g_contexto->proximo_id = 0;
+    g_contexto->bit_pilha = 0;
+    g_contexto->ids.clear();
+  }
+}
+
+void Habilita(GLenum cap) {
+  if (g_contexto->UsarSelecaoPorCor() && (cap & GL_LIGHTING) != 0) {
+    // Sem luz no modo de selecao.
+    glDisable(cap);
+  } else {
+    glEnable(cap);
+  }
 }
 
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
@@ -416,16 +438,20 @@ void VerticesNormaisFaceSulCilindro(
 
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-#if 1
+#if 0
   if (fatias % 2 != 0) {
     // Se for impar desenha uma a mais e boa.
     ++fatias;
   }
   gl::MatrizEscopo salva_matriz;
   float angulo_rotacao_graus = 360.0f / fatias;
-  unsigned short indices[36];
-  float vertices[24];  // 8 vertices de 3 coordenadas.
-  float normais[24];  // idem.
+  float angulo_rotacao_rad = angulo_rotacao_graus * GRAUS_PARA_RAD;
+  const int num_vertices_por_fatia = 2 * 3;  // 2 triangulos.
+  const int num_vertices = num_vertices_por_fatia * fatias;
+  const int num_coordenadas = 3 * num_vertices;
+  unsigned short indices[num_vertices];
+  float vertices[num_coordenadas];
+  float normais[num_coordenadas];
   VerticesNormaisFaceSulCilindro(raio_base, raio_topo, altura, fatias, tocos, vertices, normais);
   // 2 triangulos na face.
   indices[0] = 0;
@@ -435,26 +461,48 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   indices[4] = 2;
   indices[5] = 3;
 
-#if 0
-  // A face norte eh igual a face sul, invertida em X e Y.
-  int j = 12;
-  for (int i = 0; i < 12; i += 3, j += 3) {
-    vertices[j] = -vertices[i];
-    vertices[j + 1] = -vertices[i + 1];
-    vertices[j + 2] = vertices[i + 2];
-    normais[j] = -normais[i];
-    normais[j + 1] = -normais[i + 1];
-    normais[j + 2] = normais[i + 2];
+  int indice_destino = 12;  // onde escrever os vertices.
+  float angulo_corrente = angulo_rotacao_rad;
+  for (int i = 1; i < fatias; ++i) {
+    int indice_origem = 0;
+    float cosseno = cosf(angulo_corrente);
+    float seno = sinf(angulo_corrente);
+    angulo_corrente += angulo_rotacao_rad;
+    // Para cada um dos 4 vertices, roda em Z.
+    for (int v = 0; v < 4; ++v) {
+      float x0 = vertices[indice_origem];
+      float y0 = vertices[indice_origem + 1];
+      float z0 = vertices[indice_origem + 2];
+      vertices[indice_destino]     = x0 * cosseno - y0 * seno;
+      vertices[indice_destino + 1] = x0 * seno + y0 * cosseno;
+      vertices[indice_destino + 2] = z0;
+      float xn0 = normais[indice_origem];
+      float yn0 = normais[indice_origem + 1];
+      float zn0 = normais[indice_origem + 2];
+      normais[indice_destino]     = xn0 * cosseno - yn0 * seno;
+      normais[indice_destino + 1] = xn0 * seno + yn0 * cosseno;
+      normais[indice_destino + 2] = zn0;
+      indice_origem += 3;
+      indice_destino += 3;
+    }
+    // Indices apontam para os vertices. Sao 4 vertices por fatia (com
+    // replicacao de 2), portanto, sao 6 indices.
+    int indice_indices = 6 * i;
+    int indice_vertice_inicial = 4 * i;
+    indices[indice_indices]     = indice_vertice_inicial;
+    indices[indice_indices + 1] = indice_vertice_inicial + 1;
+    indices[indice_indices + 2] = indice_vertice_inicial + 2;
+    indices[indice_indices + 3] = indice_vertice_inicial + 0;
+    indices[indice_indices + 4] = indice_vertice_inicial + 2;
+    indices[indice_indices + 5] = indice_vertice_inicial + 3;
   }
-#endif
+
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  for (int i = 0; i < fatias; ++i) {
-    PonteiroNormais(GL_FLOAT, normais);
-    PonteiroVertices(3, GL_FLOAT, vertices);
-    DesenhaElementos(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
-    Roda(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
-  }
+  PonteiroNormais(GL_FLOAT, normais);
+  PonteiroVertices(3, GL_FLOAT, vertices);
+  DesenhaElementos(GL_TRIANGLES, num_vertices, GL_UNSIGNED_SHORT, indices);
+  Roda(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #else
@@ -639,24 +687,25 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
   g_contexto->modo_renderizacao = modo;
   switch (modo) {
     case MR_SELECT:
-      g_contexto->proximo_id = 0;
-      g_contexto->bit_pilha = 0;
-      g_contexto->ids.clear();
       return 0;
     case MR_RENDER: {
-      //glFlush();
-      //glFinish();
+      glFlush();
+      glFinish();
+      glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
       GLubyte pixel[4] = { 0 };
       glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
-      VLOG(2) << "Erro pos glReadPixels: " << glGetError();
+      int erro = glGetError();
+      if (erro != 0) {
+        VLOG(1) << "Erro pos glReadPixels: " << erro;
+      }
       // Usar void* para imprimir em hexa.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
       VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
-      VLOG(2) << "Id mapeado: " << (void*)id_mapeado;
+      VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
       unsigned int pos_pilha = id_mapeado >> 22;
-      VLOG(2) << "Pos pilha: " << pos_pilha;
+      VLOG(1) << "Pos pilha: " << pos_pilha;
       if (pos_pilha == 0 || pos_pilha > 3) {
         LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
         return 0;
@@ -668,7 +717,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       }
 #pragma GCC diagnostic pop
       unsigned int id_original = it->second;
-      VLOG(2) << "Id original: " << id_original;
+      VLOG(1) << "Id original: " << id_original;
       GLuint* ptr = g_contexto->buffer_selecao;
       ptr[0] = pos_pilha;
       ptr[1] = 0;  // zmin.
@@ -695,7 +744,7 @@ void IniciaNomes() {
 }
 
 void EmpilhaNome(GLuint id) {
-  if (g_contexto->modo_renderizacao != MR_SELECT) {
+  if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -707,7 +756,7 @@ void EmpilhaNome(GLuint id) {
 }
 
 void CarregaNome(GLuint id) {
-  if (g_contexto->modo_renderizacao != MR_SELECT) {
+  if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -718,7 +767,7 @@ void CarregaNome(GLuint id) {
 }
 
 void DesempilhaNome() {
-  if (g_contexto->modo_renderizacao != MR_SELECT) {
+  if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -730,7 +779,7 @@ void DesempilhaNome() {
 }
 
 void MudaCor(float r, float g, float b, float a) {
-  if (g_contexto->modo_renderizacao != MR_RENDER) {
+  if (g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
@@ -741,7 +790,7 @@ void MudaCor(float r, float g, float b, float a) {
 }
 
 void Limpa(GLbitfield mascara) {
-  if (g_contexto->modo_renderizacao == MR_SELECT) {
+  if (g_contexto->UsarSelecaoPorCor()) {
     if ((mascara & GL_COLOR_BUFFER_BIT) != 0) {
       // Preto nao eh valido no color picking.
       glClearColor(0, 0, 0, 1.0f);

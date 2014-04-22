@@ -140,6 +140,14 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata evento de escala por fator (pinca). Quanto maior o fator, mais proximo o olho ficara do foco. */
   void TrataEscalaPorFator(float fator);
 
+  /** Trata evento de rotacao por delta (pinca). */
+  void TrataRotacaoPorDelta(float delta_rad);
+
+  /** Trata um evento de translacao do tabuleiro isoladamente. Parametros x, y sao as coordenadas originais,
+  * e nx, ny indicam as coordenadas apos o movimento do cursor.
+  */
+  void TrataTranslacaoPorDelta(int x, int y, int nx, int ny);
+
   /** trata movimento do mouse (y ja em coordenadas opengl). */
   void TrataMovimentoMouse(int x, int y);
 
@@ -306,8 +314,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha as sombras dos objetos. */
   void DesenhaSombras();
 
-  /** Desenha as entidades. */
-  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
+  /** Desenha as entidades. O parametro sombra indica que a entidade so sera desenha se estiver fora do fog. */
+  void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra = false);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
 

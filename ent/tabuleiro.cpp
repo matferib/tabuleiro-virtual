@@ -776,11 +776,50 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
   AtualizaRaioOlho(olho_.raio() / fator);
 }
 
+void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
+  // Realiza a rotacao da tela.
+  float olho_rotacao = olho_.rotacao_rad() + delta_rad;
+  if (olho_rotacao >= 2 * M_PI) {
+    olho_rotacao -= 2 * M_PI;
+  } else if (olho_rotacao <= - 2 * M_PI) {
+    olho_rotacao += 2 * M_PI;
+  }
+  olho_.set_rotacao_rad(olho_rotacao);
+  AtualizaOlho(true  /*forcar*/);
+}
+
+
+void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
+  // Faz picking do tabuleiro sem entidades.
+  parametros_desenho_.set_desenha_entidades(false);
+  float x0, y0, z0;
+  if (!MousePara3d(x, y, &x0, &y0, &z0)) {
+    return;
+  }
+
+  float x1, y1, z1;
+  if (!MousePara3d(nx, ny, &x1, &y1, &z1)) {
+    return;
+  }
+
+  float delta_x = x1 - x0;
+  float delta_y = y1 - y0;
+  auto* p = olho_.mutable_alvo();
+  p->set_x(p->x() - delta_x);
+  p->set_y(p->y() - delta_y);
+  olho_.clear_destino();
+  AtualizaOlho(true);
+}
+
 void Tabuleiro::TrataMovimentoMouse() {
   id_entidade_detalhada_ = 0xFFFFFFFF;
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
+  if (x == ultimo_x_ && y == ultimo_y_) {
+    // No tablet pode acontecer de gerar estes eventos com mesma coordenadas.
+    return;
+  }
   switch (estado_) {
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
       if (translacao_rotacao_ == TR_NENHUM) {
@@ -1212,6 +1251,11 @@ void Tabuleiro::DesenhaCena() {
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
   // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
   TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
+
+  gl::InicioCena();
+  gl::IniciaNomes();
+  gl::NomesEscopo nomes_tabuleiro(0);
+
   gl::Habilita(GL_DEPTH_TEST);
   gl::CorLimpeza(proto_.luz_ambiente().r(),
                  proto_.luz_ambiente().g(),
@@ -1274,6 +1318,16 @@ void Tabuleiro::DesenhaCena() {
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     gl::Habilita(GL_LIGHT0);
 
+    if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa()) {
+      gl::Habilita(GL_FOG);
+      gl::ModoNevoa(GL_LINEAR);
+      gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
+      gl::Nevoa(GL_FOG_END, proto_.nevoa().distancia_maxima());
+      gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
+    } else {
+      gl::Desabilita(GL_FOG);
+    }
+
     // Posiciona as luzes dinâmicas.
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       auto* e = it->second.get();
@@ -1326,7 +1380,8 @@ void Tabuleiro::DesenhaCena() {
   {
     gl::NomesEscopo nomes(0);
 #if USAR_OPENGL_ES
-    if (parametros_desenho_.params_opengles().has_id()) {
+    if (parametros_desenho_.params_opengles().has_id() &&
+        !parametros_desenho_.params_opengles().tabuleiro()) {
       Entidade* entidade = BuscaEntidade(parametros_desenho_.params_opengles().id());
       if (entidade == nullptr) {
         LOG(ERROR) << "Entidade " << parametros_desenho_.params_opengles().id() << " nao encontrada.";
@@ -1401,6 +1456,11 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
+#if USAR_OPENGL_ES
+  if (!parametros_desenho_.params_opengles().tabuleiro()) {
+    return;
+  }
+#endif
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   std::unique_ptr<gl::HabilitaEscopo> habilita_textura;
@@ -1486,12 +1546,27 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
+  float limite_quad = 0.0f;
+  if (sombra && proto_.has_nevoa()) {
+    float limite = proto_.nevoa().distancia_minima() +
+                   (proto_.nevoa().distancia_maxima() - proto_.nevoa().distancia_minima()) * 0.7f;
+    limite_quad = pow(limite, 2);
+  }
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
       continue;
+    }
+    if (sombra && proto_.has_nevoa()) {
+      // Distancia para camera. So desenha se estiver fora da nevoa.
+      float distancia_quad = pow(entidade->X() - olho_.pos().x(), 2) +
+                             pow(entidade->Y() - olho_.pos().y(), 2) +
+                             pow(entidade->Z() - olho_.pos().z(), 2);
+      if (distancia_quad >= limite_quad) {
+        continue;
+      }
     }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
@@ -1610,8 +1685,10 @@ void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO;
-  float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO;
+  float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
+                       ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
+  float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
+                       ((TamanhoY() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   int id = 0;
   for (const std::pair<float, float>& delta : { std::pair<float, float>{ translacao_x, 0.0f },
                                                 std::pair<float, float>{ -translacao_x, 0.0f },
@@ -1645,6 +1722,8 @@ void Tabuleiro::DesenhaSombras() {
   const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
   float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ?
       0.0f : 1.0f / tanf(kAnguloInclinacao);
+  // A sombra nao pode ser totalmente solida..
+  float alfa_sombra = std::min(0.5f, sinf(kAnguloInclinacao));
   // Matriz eh column major, ou seja, esta invertida.
   // A ideia eh adicionar ao x a altura * fator de shear.
   GLfloat matriz_shear[] = {
@@ -1654,10 +1733,13 @@ void Tabuleiro::DesenhaSombras() {
     0.0f, 0.0f, 0.0f, 1.0f,
   };
   // Habilita o stencil para desenhar apenas uma vez as sombras.
+  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
   LigaStencil();
-  DesenhaEntidadesBase(std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear));
+  DesenhaEntidadesBase(
+      std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear),
+      true);
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-  GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, std::min(0.5f, sinf(kAnguloInclinacao)) };
+  GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
   gl::HabilitaEscopo habilita_blend(GL_BLEND);
   DesenhaStencil(cor_sombra);
 }
@@ -1742,8 +1824,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::BufferSelecao(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   gl::ModoRenderizacao(gl::MR_SELECT);
-  gl::IniciaNomes();
-  gl::NomesEscopo nomes(0);
 
   gl::ModoMatriz(GL_PROJECTION);
   GLint viewport[4];
@@ -1767,6 +1847,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_rastro_movimento(false);
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_nevoa(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -1815,8 +1896,10 @@ void Tabuleiro::BuscaHitMaisProximo(
   *pos_pilha = pos_pilha_menor;
   *id = id_menor;
   float menor_profundidade = 0.0f;
-#if !USAR_OPENGL_ES
-  // Profundidade de inteiro para float.
+#if 1
+  // Converte profundidade de inteiro para float.
+  // No OpenGL ES a profundidade retornada vai ser sempre zero. Se nao houver hit, menor_z vai ser 0xFFFFFFFF
+  // e a profundidade maxima sera retornada.
   menor_profundidade = static_cast<float>(menor_z) / static_cast<float>(0xFFFFFFFF);
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
@@ -2015,7 +2098,9 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
       if (entidade == nullptr) {
         continue;
       }
-      translacoes_rotacoes_antes_.insert(std::make_pair(entidade->Id(), std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
+      translacoes_rotacoes_antes_.insert(
+          std::make_pair(entidade->Id(),
+                         std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
     }
   } else {
     estado_anterior_ = estado_;
@@ -2075,7 +2160,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     TrataNotificacao(notificacao);
-  } else if (pos_pilha > 1) {
+  } else if (pos_pilha == 2) {
     // Entidade.
     if (SelecionaEntidade(id)) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
@@ -2377,6 +2462,9 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
     tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());
     tabuleiro->set_ladrilho(proto_.ladrilho());
   }
+  if (proto_.has_nevoa()) {
+    tabuleiro->mutable_nevoa()->CopyFrom(proto_.nevoa());
+  }
   tabuleiro->set_largura(proto_.largura());
   tabuleiro->set_altura(proto_.altura());
   return notificacao;
@@ -2389,10 +2477,16 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
 }
 
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
+  VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
   proto_.mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
   proto_.mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_.set_largura(novo_proto.largura());
   proto_.set_altura(novo_proto.altura());
+  if (novo_proto.has_nevoa()) {
+    proto_.mutable_nevoa()->CopyFrom(novo_proto.nevoa());
+  } else {
+    proto_.clear_nevoa();
+  }
   AtualizaTexturas(novo_proto);
 }
 
@@ -2415,13 +2509,15 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
   }
 }
 
+// Aqui ocorre a deserializacao do tabuleiro todo. As propriedades como iluminacao sao atualizadas
+// na funcao Tabuleiro::DeserializaPropriedades.
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   const auto& tabuleiro = notificacao.tabuleiro();
   bool manter_entidades = tabuleiro.manter_entidades();
   if (manter_entidades) {
-    VLOG(1) << "Deserializando tabuleiro mantendo entidades.";
+    VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << tabuleiro.ShortDebugString();
   } else {
-    VLOG(1) << "Deserializando tabuleiro todo.";
+    VLOG(1) << "Deserializando tabuleiro todo: " << tabuleiro.ShortDebugString();
     EstadoInicial();
   }
   if (notificacao.has_erro()) {
@@ -2915,18 +3011,34 @@ void Tabuleiro::DesenhaQuadrado(unsigned int id,
 
 void Tabuleiro::DesenhaGrade() {
   MudaCor(COR_PRETA);
-  // Linhas verticais (S-N).
+  const int x_2 = TamanhoX() / 2;
+  const int y_2 = TamanhoY() / 2;
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
   const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
-  const int x_2 = TamanhoX()  / 2;
-  const int y_2 = TamanhoY() / 2;
-  for (int i = -x_2; i <= x_2; ++i) {
-    float x = i * TAMANHO_LADO_QUADRADO;
+  // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
+  // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
+  // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
+  // inferior eh onde comeca a desenhar a linha.
+  // Linhas verticais (S-N).
+  int limite_inferior = -x_2;
+  float incremento = 0.0f;
+  if (TamanhoX() % 2 != 0) {
+    --limite_inferior;
+    incremento = TAMANHO_LADO_QUADRADO_2;
+  }
+  for (int i = limite_inferior; i <= x_2; ++i) {
+    float x = i * TAMANHO_LADO_QUADRADO + incremento;
     gl::Retangulo(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);
   }
   // Linhas horizontais (W-E).
-  for (int i = -y_2; i <= y_2; ++i) {
-    float y = i * TAMANHO_LADO_QUADRADO;
+  limite_inferior = -y_2;
+  incremento = 0.0f;
+  if (TamanhoY() % 2 != 0) {
+    --limite_inferior;
+    incremento = TAMANHO_LADO_QUADRADO_2;
+  }
+  for (int i = limite_inferior; i <= y_2; ++i) {
+    float y = i * TAMANHO_LADO_QUADRADO + incremento;
     gl::Retangulo(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
   }
 }

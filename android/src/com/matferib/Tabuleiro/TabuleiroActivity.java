@@ -53,6 +53,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEscala_ = new ScaleGestureDetector(context, renderer_);
     detectorEscala_.setQuickScaleEnabled(true);
+    detectorRotacao_ = new RotationGestureDetector(renderer_);
+    detectorTranslacao_ = new TranslationGestureDetector(renderer_);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
   }
@@ -63,16 +65,14 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     }
     if (event.getPointerCount() <= 1) {
       detectorEventos_.onTouchEvent(event);
-    } else {
+    } else if (event.getPointerCount() == 2) {
+      detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
+      detectorTranslacao_.onTouch(event);
+    } else if (event.getPointerCount() == 3) {
+      detectorTranslacao_.onTouch(event);
     }
     return true;
-    /* old
-    MotionEvent event_copy = MotionEvent.obtain(event);
-    event_copy.setLocation(event.getX(), getHeight() - event.getY());
-    renderer_.pushBack(event_copy);
-    return true;
-    */
   }
 
   @Override
@@ -90,6 +90,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private TabuleiroRenderer renderer_;
   private GestureDetector detectorEventos_;
   private ScaleGestureDetector detectorEscala_;
+  private RotationGestureDetector detectorRotacao_;
+  private TranslationGestureDetector detectorTranslacao_;
   private static native void nativePause();
   private static native void nativeResume();
 }
@@ -100,7 +102,9 @@ class TabuleiroRenderer extends java.util.TimerTask
                Runnable,
                GestureDetector.OnGestureListener,
                GestureDetector.OnDoubleTapListener,
-               ScaleGestureDetector.OnScaleGestureListener {
+               ScaleGestureDetector.OnScaleGestureListener,
+               RotationGestureDetector.RotationListener,
+               TranslationGestureDetector.TranslationListener {
 
   public static final String TAG = "TabuleiroRenderer";
 
@@ -121,41 +125,84 @@ class TabuleiroRenderer extends java.util.TimerTask
     nativeResize(w, h);
   }
 
+  /** Remove os eventos duplicados de um tipo. */
+  private void removeEventosDuplicados(int tipo, Vector<Evento> eventos) {
+    // Remove os eventos consecutivos de movimento.
+    Vector<Evento> eventosSemDuplicados = new Vector<Evento>();
+    Evento ultimo = null;
+    for (Evento evento :  eventos) {
+      if (evento.tipo() == tipo) {
+        ultimo = evento;
+      } else {
+        if (ultimo != null) {
+          // Adiciona o ultimo movimento.
+          eventosSemDuplicados.add(ultimo);
+          ultimo = null;
+        }
+        eventosSemDuplicados.add(evento);
+      }
+    }
+    // Poe o ultimo movimento se ele foi o ultimo evento.
+    if (ultimo != null) {
+      // Adiciona o ultimo movimento.
+      eventosSemDuplicados.add(ultimo);
+      ultimo = null;
+    }
+    eventos.clear();
+    eventos.addAll(eventosSemDuplicados);
+  }
+
+  /** Junta as translacoes em uma so. */
+  private void juntaTranslacoes(Vector<Evento> eventos) {
+    // Remove os eventos consecutivos de movimento.
+    boolean primeiraTranslacao = true;
+    Vector<Evento> eventosSemDuplicados = new Vector<Evento>();
+    int x = 0, y = 0, nx = 0, ny = 0;
+    for (Evento evento :  eventos) {
+      if (evento.tipo() == Evento.TRANSLACAO) {
+        if (primeiraTranslacao) {
+          primeiraTranslacao = false;
+          x = evento.x();
+          y = evento.y();
+        }
+        nx = evento.nx();
+        ny = evento.ny();
+      } else {
+        eventosSemDuplicados.add(evento);
+      }
+    }
+    if (!primeiraTranslacao) {
+      eventosSemDuplicados.add(Evento.Translacao(x, y, nx, ny));
+    }
+    eventos.clear();
+    eventos.addAll(eventosSemDuplicados);
+  }
+
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   public void onDrawFrame(GL10 gl) {
     //Log.d(TAG, "DrawFrame");
     nativeTimer();
-    Vector<Evento> eventosSemMovimentosDuplicados = new Vector<Evento>();
     //Log.d(TAG, "Tam Evento Antes: " + eventos_.size());
+    Vector<Evento> eventos;
     synchronized (eventos_) {
-      // Remove os eventos consecutivos de movimento.
-      Evento ultimoMovimento = null;
-      for (Evento evento :  eventos_) {
-        if (evento.tipo() == Evento.MOVIMENTO) {
-          ultimoMovimento = evento;
-        } else {
-          if (ultimoMovimento != null) {
-            // Adiciona o ultimo movimento.
-            eventosSemMovimentosDuplicados.add(ultimoMovimento);
-            ultimoMovimento = null;
-          }
-          eventosSemMovimentosDuplicados.add(evento);
-        }
-      }
-      // Poe o ultimo movimento se ele foi o ultimo evento.
-      if (ultimoMovimento != null) {
-        // Adiciona o ultimo movimento.
-        eventosSemMovimentosDuplicados.add(ultimoMovimento);
-        ultimoMovimento = null;
-      }
+      eventos = new Vector<Evento>(eventos_);
       eventos_.clear();
     }
+    removeEventosDuplicados(Evento.MOVIMENTO, eventos);
+    juntaTranslacoes(eventos);
+
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
-    for (Evento evento :  eventosSemMovimentosDuplicados) {
+    for (Evento evento :  eventos) {
       Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
+        case Evento.TRANSLACAO:
+          nativeTranslation(evento.x(), evento.y(), evento.nx(), evento.ny());
+          break;
         case Evento.ESCALA:
           nativeScale(evento.escala());
+          break;
+        case Evento.ROTACAO:
+          nativeRotation(evento.rotacao());
           break;
         case Evento.CLIQUE:
           nativeTouchPressed(evento.x(), evento.y());
@@ -277,54 +324,22 @@ class TabuleiroRenderer extends java.util.TimerTask
     Log.d(TAG, "ScaleEnd");
   }
 
-  /* Old
-  public void pushBack(MotionEvent event) {
-    synchronized (events_) {
-      events_.add(event);
+  // Detector rotacao.
+  @Override
+  public void onRotate(float delta) {
+    if (delta == 0.0f) {
+      return;
     }
+    Log.d(TAG, "Rotate");
+    eventos_.add(Evento.Rotacao(delta));
   }
 
-  private void processTouchEvent(final MotionEvent event) {
-    int eventX = (int)event.getX();
-    int eventY = (int)event.getY();
-    if (event.getPointerCount() == 1) {
-      //System.out.println("Evento: " + event.toString() + ", x: " + eventX() + ", y: " + eventY());
-      if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-        System.out.println("TOUCH PRESS");
-        nativeTouchPressed(eventX, eventY);
-      } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
-        if (eventX != last_x_ || eventY != last_y_) {
-          System.out.println("TOUCH MOVE");
-          nativeTouchMoved(eventX, eventY);
-        }
-      } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-        System.out.println("TOUCH RELEASE");
-        nativeTouchReleased();
-      }
-      last_x_ = eventX;
-      last_y_ = eventY;
-      return;
-    } else if (event.getPointerCount() == 2) {
-      if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-        System.out.println("PINCH PRESS");
-        nativeTouchReleased();
-        nativePinchPressed(eventX, eventY);
-      } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
-        if (eventX != last_x_ || eventY != last_y_) {
-          System.out.println("PINCH MOVE");
-          nativeTouchMoved(eventX, eventY);
-        }
-      } else if (event.getActionMasked() == MotionEvent.ACTION_UP) {
-        System.out.println("PINCH RELEASE");
-        nativeTouchReleased();
-      }
-      last_x_ = eventX;
-      last_y_ = eventY;
-      return;
-
-    }
+  // Detector de translacao.
+  @Override
+  public void onTranslate(int x, int y, int nx, int ny) {
+    Log.d(TAG, "Translation");
+    eventos_.add(Evento.Translacao(x, (int)(parent_.getHeight() - y), nx, (int)(parent_.getHeight() - ny)));
   }
-    */
 
   private static native void nativeInit(String endereco);
   private static native void nativeResize(int w, int h);
@@ -337,14 +352,99 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeTouchReleased();
   private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
+  private static native void nativeRotation(float r);
+  private static native void nativeTranslation(int x, int y, int nx, int ny);
 
   private GLSurfaceView parent_;
 
   private Vector<Evento> eventos_ = new Vector<Evento>();
   private boolean carregando_ = false;
-  //private int last_x_;
-  //private int last_y_;
   private String endereco_;
+}
+
+// Copiado de:
+// https://code.google.com/p/osmdroid/source/browse/trunk/
+// OpenStreetMapViewer/src/org/osmdroid/RotationGestureDetector.java?r=1186
+class RotationGestureDetector {
+  public interface RotationListener {
+    // Angulo em radianos.
+    public void onRotate(float deltaAngle);
+  }
+
+  protected float mRotation;
+  private RotationListener mListener;
+
+  public RotationGestureDetector(RotationListener listener) {
+    mListener = listener;
+  }
+
+  private float rotation(MotionEvent event) {
+    double delta_x = (event.getX(0) - event.getX(1));
+    double delta_y = (event.getY(0) - event.getY(1));
+    double radians = Math.atan2(delta_y, delta_x);
+    return (float)radians;
+  }
+
+  public void onTouch(MotionEvent e) {
+    if (e.getPointerCount() != 2)
+      return;
+
+    if (e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+      mRotation = rotation(e);
+    }
+
+    float rotation = rotation(e);
+    float delta = rotation - mRotation;
+    mRotation += delta;
+    mListener.onRotate(delta);
+  }
+}
+
+// Translacao com 3 dedos.
+class TranslationGestureDetector {
+  public interface TranslationListener {
+    public void onTranslate(int x, int y, int nx, int ny);
+  }
+
+  public TranslationGestureDetector(TranslationListener ouvinte) {
+    ouvinte_ = ouvinte;
+  }
+
+  public void onTouch(MotionEvent e) {
+    if (e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+      ultimo_x_ = X(e);
+      ultimo_y_ = Y(e);
+      return;
+    } else if (e.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+      return;
+    }
+    int nx = X(e);
+    int ny = Y(e);
+    if (nx != ultimo_x_ || ny != ultimo_y_) {
+      ouvinte_.onTranslate(ultimo_x_, ultimo_y_, nx, ny);
+    }
+    ultimo_x_ = X(e);
+    ultimo_y_ = Y(e);
+  }
+
+  private int X(MotionEvent e) {
+    int soma = 0;
+    for (int i = 0; i < e.getPointerCount(); ++i) {
+      soma += e.getX(i);
+    }
+    return soma / e.getPointerCount();
+  }
+
+  private int Y(MotionEvent e) {
+    int soma = 0;
+    for (int i = 0; i < e.getPointerCount(); ++i) {
+      soma += e.getY(i);
+    }
+    return soma / e.getPointerCount();
+  }
+
+  private TranslationListener ouvinte_;
+  private int ultimo_x_, ultimo_y_;
 }
 
 /** Os tipos de eventos tratados pelo tabuleiro. */
@@ -358,14 +458,31 @@ class Evento {
   public static final int PRESSIONADO = 7;
   public static final int LIBERADO = 8;
   public static final int MOVIMENTO = 9;
+  public static final int ROTACAO = 10;
+  public static final int TRANSLACAO = 11;
 
   public static Evento Liberado() {
     return new Evento(LIBERADO);
   }
 
+  public static Evento Translacao(int x,  int y, int nx, int ny) {
+    Evento evento = new Evento(TRANSLACAO);
+    evento.x_ = x;
+    evento.y_ = y;
+    evento.nx_ = nx;
+    evento.ny_ = ny;
+    return evento;
+  }
+
   public static Evento Escala(float escala) {
     Evento evento = new Evento(ESCALA);
     evento.escala_ = escala;
+    return evento;
+  }
+
+  public static Evento Rotacao(float rotacao) {
+    Evento evento = new Evento(ROTACAO);
+    evento.rotacao_ = rotacao;
     return evento;
   }
 
@@ -416,7 +533,8 @@ class Evento {
   }
 
   public String toString() {
-    return "Tipo: " + tipoString() + ", escala: " + escala_ + ", x:" + x_ + ", y: " + y_;
+    return "Tipo: " + tipoString() + ", escala: " + escala_ + ", rotacao: " + rotacao_ +
+                                     ", x:" + x_ + ", y: " + y_ + ", nx: " + nx_ + ", ny: " + ny_;
   }
 
   private String tipoString() {
@@ -430,17 +548,27 @@ class Evento {
       case PRESSIONADO: return "PRESSIONADO";
       case LIBERADO: return "LIBERADO";
       case MOVIMENTO: return "MOVIMENTO";
+      case ROTACAO: return "ROTACAO";
+      case TRANSLACAO: return "TRANSLACAO";
       default: return "INVALIDO";
     }
   }
 
   public int tipo() { return tipo_; }
   public float escala() { return escala_; }
+  public float rotacao() { return rotacao_; }
   public int x() { return x_; }
   public int y() { return y_; }
+  public int nx() { return nx_; }
+  public int ny() { return ny_; }
 
   private int tipo_;
   private float escala_;
+  private float rotacao_;
   private int x_;
   private int y_;
+  private int nx_;
+  private int ny_;
 }
+
+
