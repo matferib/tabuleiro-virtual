@@ -372,44 +372,90 @@ void CuboSolido(GLfloat tam_lado) {
   CuboSolidoUnitario();
 }
 
-void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-#if 0
-  gl::MatrizEscopo salva_matriz;
-  // Matriz eh column major, ou seja, esta invertida.
-  GLfloat matriz_transformacao[] = {
-    0.0f,                    0.0f, 0.0f, 1.0f,
-    0.0f,                    1.0f, 0.0f, 0.0f,
-    (raio_topo / raio_base), 0.0f, altura, 0.0f,
-    1.0f,                    0.0f, 0.0f, 1.0f,
-  };
-  gl::MultiplicaMatriz(matriz_transformacao);
-
+namespace {
+// Retorna os vertices e normais da face sul do cilindro. Parametros vertices e
+// normais devem conter 12 elementos.
+void VerticesNormaisFaceSulCilindro(
+    GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos,
+    float* vertices, float* normais) {
   float angulo_rotacao_graus = 360.0f / fatias;
-  unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
-  GLfloat tam_lado_base_2 = sinf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
-  GLfloat tam_lado_topo_2 = sinf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
-  GLfloat tam_y_base = cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
-  GLfloat tam_y_topo = cosf(angulo_rotacao_graus * GRAUS_PARA_RAD / 2.0f);
+  float angulo_rotacao_graus_2 = angulo_rotacao_graus / 2.0f;
+  float seno_angulo_rotacao_2 = sinf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
+  GLfloat tam_lado_base_2 = raio_base * seno_angulo_rotacao_2;
+  GLfloat tam_lado_topo_2 = raio_topo * seno_angulo_rotacao_2;
+  float cos_angulo_rotacao_2 = cosf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
+  GLfloat tam_y_base = raio_base * cos_angulo_rotacao_2;
+  GLfloat tam_y_topo = raio_topo * cos_angulo_rotacao_2;
   GLfloat vetor_x[3] = { 1.0f, 0.0f, 0.0f };
-  GLfloat vetor_cima[3] = { 0.0f, 0.0f, 1.0f};
-  GLfloat vetor_normal[3] = { 0.0f, -1.0f, 0.0f };
-  const float vertices_sul[] = {
-    -tam_lado_base_2, -tam_y_base, 0.0f,
-    tam_lado_base_2, -tam_y_base, 0.0f,
-    tam_lado_topo_2, -tam_y_topo, altura,
-    -tam_lado_topo_2, -tam_y_topo, altura
-  };
+  GLfloat vetor_cima[3] = { 0.0f, raio_base - raio_topo, altura };
+  GLfloat vetor_normal[3];
+  // Gera a normal FLAT.
+  ProdutoVetorial(vetor_x, vetor_cima, vetor_normal);
+  Normaliza(vetor_normal);
+  // Gera a normal SMOOTH.
+  GLfloat matriz_rotacao[16];
+  GLfloat vetor_normal_oeste[3] = { vetor_normal[0], vetor_normal[1], vetor_normal[2] };
+  MatrizRotacaoZ(-angulo_rotacao_graus_2, matriz_rotacao);
+  MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_oeste);
+  GLfloat vetor_normal_leste[3] = { vetor_normal[0], vetor_normal[1], vetor_normal[2] };
+  MatrizRotacaoZ(angulo_rotacao_graus_2, matriz_rotacao);
+  MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_leste);
 
+  normais[0] = vetor_normal_oeste[0]; normais[1]  = vetor_normal_oeste[1]; normais[2]  = vetor_normal_oeste[2];
+  normais[3] = vetor_normal_leste[0]; normais[4]  = vetor_normal_leste[1]; normais[5]  = vetor_normal_leste[2];
+  normais[6] = vetor_normal_leste[0]; normais[7]  = vetor_normal_leste[1]; normais[8]  = vetor_normal_leste[2];
+  normais[9] = vetor_normal_oeste[0]; normais[10] = vetor_normal_oeste[1]; normais[11] = vetor_normal_oeste[2];
+
+  vertices[0] = -tam_lado_base_2; vertices[1] = -tam_y_base;  vertices[2] = 0.0f;
+  vertices[3] = tam_lado_base_2;  vertices[4] = -tam_y_base;  vertices[5] = 0.0f;
+  vertices[6] = tam_lado_topo_2;  vertices[7] = -tam_y_topo;  vertices[8] = altura;
+  vertices[9] = -tam_lado_topo_2; vertices[10] = -tam_y_topo; vertices[11] = altura;
+}
+
+}  // namespace
+
+
+void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
+#if 1
+  if (fatias % 2 != 0) {
+    // Se for impar desenha uma a mais e boa.
+    ++fatias;
+  }
+  gl::MatrizEscopo salva_matriz;
+  float angulo_rotacao_graus = 360.0f / fatias;
+  unsigned short indices[36];
+  float vertices[24];  // 8 vertices de 3 coordenadas.
+  float normais[24];  // idem.
+  VerticesNormaisFaceSulCilindro(raio_base, raio_topo, altura, fatias, tocos, vertices, normais);
+  // 2 triangulos na face.
+  indices[0] = 0;
+  indices[1] = 1;
+  indices[2] = 2;
+  indices[3] = 0;
+  indices[4] = 2;
+  indices[5] = 3;
+
+#if 0
+  // A face norte eh igual a face sul, invertida em X e Y.
+  int j = 12;
+  for (int i = 0; i < 12; i += 3, j += 3) {
+    vertices[j] = -vertices[i];
+    vertices[j + 1] = -vertices[i + 1];
+    vertices[j + 2] = vertices[i + 2];
+    normais[j] = -normais[i];
+    normais[j + 1] = -normais[i + 1];
+    normais[j + 2] = normais[i + 2];
+  }
+#endif
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  //HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
   for (int i = 0; i < fatias; ++i) {
-    Normal(vetor_normal[0], vetor_normal[1], vetor_normal[2]);
-    //PonteiroNormais(GL_FLOAT, vertices_normais);
-    PonteiroVertices(3, GL_FLOAT, vertices_sul);
-    DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+    PonteiroNormais(GL_FLOAT, normais);
+    PonteiroVertices(3, GL_FLOAT, vertices);
+    DesenhaElementos(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
     Roda(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
   }
-  //DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #else
   // Versao antiga.
@@ -453,6 +499,7 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
   for (int i = 0; i < fatias; ++i) {
+    // TODO pra que esse normal aqui se tem o PonteiroNormais?
     Normal(vetor_normal[0], vetor_normal[1], vetor_normal[2]);
     PonteiroNormais(GL_FLOAT, vertices_normais);
     PonteiroVertices(3, GL_FLOAT, vertices_sul);

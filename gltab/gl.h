@@ -11,11 +11,11 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
-#elif USAR_OPENGL_ES
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
-#include <GLES/glplatform.h>
+//#elif USAR_OPENGL_ES
+//#include <GLES/gl.h>
+//#include <GLES/glext.h>
+////#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
+//#include <GLES/glplatform.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -28,6 +28,14 @@
 
 #define RAD_PARA_GRAUS (180.0f / M_PI)
 #define GRAUS_PARA_RAD (M_PI / 180.0f)
+
+// HACK
+void glOrtho(GLdouble left,
+             GLdouble right,
+             GLdouble bottom,
+             GLdouble top,
+             GLdouble nearVal,
+             GLdouble farVal);
 
 namespace gl {
 
@@ -240,7 +248,9 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
                float centro_x, float centro_y, float centro_z,
                float cima_x, float cima_y, float cima_z);
 inline void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
-  glOrthof(esquerda, direita, baixo, cima, proximo, distante);
+  //glOrthof(esquerda, direita, baixo, cima, proximo, distante);
+  // HACK!!!
+  glOrtho(esquerda, direita, baixo, cima, proximo, distante);
 }
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
