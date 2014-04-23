@@ -1498,6 +1498,20 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
 
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#if 0
+  for (int y = 0; y < TamanhoY(); ++y) {
+    for (int x = 0; x < TamanhoX(); ++x) {
+      DesenhaQuadrado(id, y, x,
+                      vertices, vertices_texels, indices);
+      // anda 1 quadrado direita
+      gl::Translada(TAMANHO_LADO_QUADRADO, 0, 0);
+      ++id;
+    }
+    // volta tudo esquerda e sobe 1 quadrado
+    gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
+  }
+
+#else
   float tamanho_texel_h = 1.0f / TamanhoX();
   float tamanho_texel_v = 1.0f / TamanhoY();
   static const float vertices[] = {
@@ -1542,6 +1556,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     // volta tudo esquerda e sobe 1 quadrado
     gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
+#endif
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
