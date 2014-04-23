@@ -2,7 +2,6 @@ Versao 1.0
 - Acessar as texturas do codigo nativo.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
 - Pensar em como nao mostrar formas mortas.
-- Pensar em como melhorar o desenho do cilindro, maior gargalo opengl ES.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).
 - Testar watchdog no windows e mac.
