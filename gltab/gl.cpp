@@ -113,7 +113,7 @@ const static std::vector<float> g_vertices_caracteres = {
 
 const static std::unordered_map<char, std::vector<short>> g_indices_caracteres = {
   {
-    '0', { 
+    '0', {
       4, 8, 9, 9, 5, 4,  // S
       9, 13, 14, 14, 10, 9, // L
       10, 7, 6, 10, 11, 7,  // N
@@ -122,7 +122,7 @@ const static std::unordered_map<char, std::vector<short>> g_indices_caracteres =
       8, 13, 9, // SE
       10, 14, 11, // NE
       2, 6, 7,  // NO
-    }, 
+    },
   }, {
     '1', {
       6, 22, 23,  // N
@@ -367,11 +367,10 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   rgb[2] = ((id_mapeado >> 16) & 0xFF);
 }
 
-// Retorna os vertices e normais da face sul do cilindro. A face possui dois triangulos em forma de quadrado, ou seja
-// 4 vertices (12 coordenadas). Indices devera ter 6 elementos.
+// Retorna os vertices e normais da face sul do cilindro. Os elementos serao anexados ao fim dos vetores.
 void VerticesNormaisIndicesFaceSulCilindro(
     GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos,
-    float* vertices, float* normais, unsigned short* indices) {
+    std::vector<float>* coordenadas, std::vector<float>* normais, std::vector<unsigned short>* indices) {
   float angulo_rotacao_graus = 360.0f / fatias;
   float angulo_rotacao_graus_2 = angulo_rotacao_graus / 2.0f;
   float seno_angulo_rotacao_2 = sinf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
@@ -395,68 +394,86 @@ void VerticesNormaisIndicesFaceSulCilindro(
   MatrizRotacaoZ(angulo_rotacao_graus_2, matriz_rotacao);
   MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_leste);
 
-  normais[0] = vetor_normal_oeste[0]; normais[1]  = vetor_normal_oeste[1]; normais[2]  = vetor_normal_oeste[2];
-  normais[3] = vetor_normal_leste[0]; normais[4]  = vetor_normal_leste[1]; normais[5]  = vetor_normal_leste[2];
-  normais[6] = vetor_normal_leste[0]; normais[7]  = vetor_normal_leste[1]; normais[8]  = vetor_normal_leste[2];
-  normais[9] = vetor_normal_oeste[0]; normais[10] = vetor_normal_oeste[1]; normais[11] = vetor_normal_oeste[2];
+  {
+    auto& n = *normais;
+    int in = n.size();
+    n.resize(in + 12);
+    n[in + 0] = vetor_normal_oeste[0]; n[in + 1]  = vetor_normal_oeste[1]; n[in + 2]  = vetor_normal_oeste[2];
+    n[in + 3] = vetor_normal_leste[0]; n[in + 4]  = vetor_normal_leste[1]; n[in + 5]  = vetor_normal_leste[2];
+    n[in + 6] = vetor_normal_leste[0]; n[in + 7]  = vetor_normal_leste[1]; n[in + 8]  = vetor_normal_leste[2];
+    n[in + 9] = vetor_normal_oeste[0]; n[in + 10] = vetor_normal_oeste[1]; n[in + 11] = vetor_normal_oeste[2];
+  }
 
-  vertices[0] = -tam_lado_base_2; vertices[1] = -tam_y_base;  vertices[2] = 0.0f;
-  vertices[3] = tam_lado_base_2;  vertices[4] = -tam_y_base;  vertices[5] = 0.0f;
-  vertices[6] = tam_lado_topo_2;  vertices[7] = -tam_y_topo;  vertices[8] = altura;
-  vertices[9] = -tam_lado_topo_2; vertices[10] = -tam_y_topo; vertices[11] = altura;
+  int ic = coordenadas->size();
+  {
+    auto& c = *coordenadas;
+    c.resize(ic + 12);
+    c[ic + 0] = -tam_lado_base_2; c[ic + 1] = -tam_y_base;  c[ic + 2] = 0.0f;
+    c[ic + 3] = tam_lado_base_2;  c[ic + 4] = -tam_y_base;  c[ic + 5] = 0.0f;
+    c[ic + 6] = tam_lado_topo_2;  c[ic + 7] = -tam_y_topo;  c[ic + 8] = altura;
+    c[ic + 9] = -tam_lado_topo_2; c[ic + 10] = -tam_y_topo; c[ic + 11] = altura;
+  }
 
-  // 2 triangulos na face.
-  indices[0] = 0;
-  indices[1] = 1;
-  indices[2] = 2;
-  indices[3] = 0;
-  indices[4] = 2;
-  indices[5] = 3;
+  {
+    // 2 triangulos na face.
+    auto& in = *indices;
+    int ii = in.size();
+    in.resize(ii + 6);
+    in[ii + 0] = ic + 0;
+    in[ii + 1] = ic + 1;
+    in[ii + 2] = ic + 2;
+    in[ii + 3] = ic + 0;
+    in[ii + 4] = ic + 2;
+    in[ii + 5] = ic + 3;
+  }
 }
 
 // Retorna os vertices, normais e indice de vertices do cilindro todo. Ao todo, vertices e normais devera conter 12 * fatias coordenadas,
-// enquanto indice devera ter 6 * fatias.
+// enquanto indice devera ter 6 * fatias. Os elementos serao anexados ao fim de cada vetor.
 void VerticesNormaisIndicesCilindro(
     GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos,
-    float* vertices, float* normais, unsigned short* indices) {
+    std::vector<float>* coordenadas, std::vector<float>* normais, std::vector<unsigned short>* indices) {
   float angulo_rotacao_graus = 360.0f / fatias;
   float angulo_rotacao_rad = angulo_rotacao_graus * GRAUS_PARA_RAD;
-  VerticesNormaisIndicesFaceSulCilindro(raio_base, raio_topo, altura, fatias, tocos, vertices, normais, indices);
+  int c_antes = coordenadas->size();
+  int n_antes = normais->size();
+  int i_antes = indices->size();
+  VerticesNormaisIndicesFaceSulCilindro(raio_base, raio_topo, altura, fatias, tocos, coordenadas, normais, indices);
+  int c_delta = coordenadas->size() - c_antes;
+  int n_delta = normais->size() - n_antes;
+  int i_delta = indices->size() - i_antes;
 
-  int indice_destino = 12;  // onde escrever os vertices.
+  coordenadas->resize(coordenadas->size() + (c_delta * (fatias - 1)));
+  normais->resize(normais->size() + (n_delta * (fatias - 1)));
+  indices->resize(indices->size() + (i_delta * (fatias - 1)));
+
   float angulo_corrente = angulo_rotacao_rad;
   for (int i = 1; i < fatias; ++i) {
-    int indice_origem = 0;
+    int coordenada_origem = c_antes;
     float cosseno = cosf(angulo_corrente);
     float seno = sinf(angulo_corrente);
     angulo_corrente += angulo_rotacao_rad;
     // Para cada um dos 4 vertices, roda em Z.
     for (int v = 0; v < 4; ++v) {
-      float x0 = vertices[indice_origem];
-      float y0 = vertices[indice_origem + 1];
-      float z0 = vertices[indice_origem + 2];
-      vertices[indice_destino]     = x0 * cosseno - y0 * seno;
-      vertices[indice_destino + 1] = x0 * seno + y0 * cosseno;
-      vertices[indice_destino + 2] = z0;
-      float xn0 = normais[indice_origem];
-      float yn0 = normais[indice_origem + 1];
-      float zn0 = normais[indice_origem + 2];
-      normais[indice_destino]     = xn0 * cosseno - yn0 * seno;
-      normais[indice_destino + 1] = xn0 * seno + yn0 * cosseno;
-      normais[indice_destino + 2] = zn0;
-      indice_origem += 3;
-      indice_destino += 3;
+      float x0 = coordenadas->at(coordenada_origem);
+      float y0 = coordenadas->at(coordenada_origem + 1);
+      float z0 = coordenadas->at(coordenada_origem + 2);
+      coordenadas->push_back(x0 * cosseno - y0 * seno);
+      coordenadas->push_back(x0 * seno + y0 * cosseno);
+      coordenadas->push_back(z0);
+      float xn0 = normais->at(coordenada_origem);
+      float yn0 = normais->at(coordenada_origem + 1);
+      float zn0 = normais->at(coordenada_origem + 2);
+      normais->push_back(xn0 * cosseno - yn0 * seno);
+      normais->push_back(xn0 * seno + yn0 * cosseno);
+      normais->push_back(zn0);
+      coordenada_origem += 3;
     }
     // Indices apontam para os vertices. Sao 4 vertices por fatia (com
     // replicacao de 2), portanto, sao 6 indices.
-    int indice_indices = 6 * i;
-    int indice_vertice_inicial = 4 * i;
-    indices[indice_indices]     = indice_vertice_inicial;
-    indices[indice_indices + 1] = indice_vertice_inicial + 1;
-    indices[indice_indices + 2] = indice_vertice_inicial + 2;
-    indices[indice_indices + 3] = indice_vertice_inicial + 0;
-    indices[indice_indices + 4] = indice_vertice_inicial + 2;
-    indices[indice_indices + 5] = indice_vertice_inicial + 3;
+    for (int j = 0; j < 6; ++j) {
+      indices->push_back(indices->at(indices->size() - 6) + 4);
+    }
   }
 }
 
@@ -500,6 +517,7 @@ void CuboSolidoUnitario() {
     0.5f, -0.5f, -0.5f,
   };
 
+  // TODO fazer tudo num desenho so.
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   glNormal3f(0.0f, -1.0f, 0.0f);
   gl::PonteiroVertices(3, GL_FLOAT, vertices_sul);
@@ -567,8 +585,9 @@ void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos)
   CilindroSolido(base, 0.0f, altura, num_fatias, num_tocos);
 }
 
-#define NOVO_DESENHO 1 
+#define NOVO_DESENHO 1
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
+  return;
 #if NOVO_DESENHO
   // Desenhar a esfera baseada em cilindros.
   float angulo_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
@@ -579,15 +598,13 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const int num_vertices_por_fatia = 4;
   const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
   const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
-  const int num_coordenadas = num_coordenadas_por_toco * num_tocos * 2;
   // Indices.
   const int num_indices_por_fatia = 6;
   const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
-  const int num_indices = num_indices_por_toco * num_tocos * 2;
 
-  float coordenadas[num_coordenadas];
-  float normais[num_coordenadas];
-  unsigned short indices[num_indices];
+  std::vector<float> coordenadas;
+  std::vector<float> normais;
+  std::vector<unsigned short> indices;
   int p_coordenadas = 0;
   int p_normais = 0;
   int p_indices = 0;
@@ -600,7 +617,7 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
     // Desenha cilindro de cima e de baixo.
     {
       VerticesNormaisIndicesCilindro(raio_base, raio_topo, h_delta, num_fatias, 1,
-                                     &coordenadas[p_coordenadas], &normais[p_normais], &indices[p_indices]);
+                                     &coordenadas, &normais, &indices);
       // Translada os Z dos vertices.
       for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
         coordenadas[p_coordenadas + c] += h_base;
@@ -616,7 +633,7 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
     {
       // TODO usar simetria.
       VerticesNormaisIndicesCilindro(raio_topo, raio_base, h_delta, num_fatias, 1,
-                                     &coordenadas[p_coordenadas], &normais[p_normais], &indices[p_indices]);
+                                     &coordenadas, &normais, &indices);
       // Translada os Z dos vertices.
       for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
         coordenadas[p_coordenadas + c] -= h_topo;
@@ -633,10 +650,9 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   }
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, normais);
-  PonteiroVertices(3, GL_FLOAT, coordenadas);
-  //DesenhaElementos(GL_TRIANGLES, num_indices_por_toco, GL_UNSIGNED_SHORT, indices + num_indices_por_toco);
-  DesenhaElementos(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, indices);
+  PonteiroNormais(GL_FLOAT, &normais[0]);
+  PonteiroVertices(3, GL_FLOAT, &coordenadas[0]);
+  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, &indices[0]);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #else
@@ -674,21 +690,16 @@ void CuboSolido(GLfloat tam_lado) {
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
 #if NOVO_DESENHO
-  const int num_vertices_por_fatia = 4;  // os 4 vertices formam 2 triangulos (ha repeticao).
-  const int num_vertices = num_vertices_por_fatia * fatias;
-  const int num_coordenadas = 3 * num_vertices;
-  const int num_indices_por_fatia = 6;
-  const int num_indices = num_indices_por_fatia * fatias;
-  float vertices[num_coordenadas];
-  float normais[num_coordenadas];
-  unsigned short indices[num_indices];
-  VerticesNormaisIndicesCilindro(raio_base, raio_topo, altura, fatias, tocos, vertices, normais, indices);
+  std::vector<float> coordenadas;
+  std::vector<float> normais;
+  std::vector<unsigned short> indices;
+  VerticesNormaisIndicesCilindro(raio_base, raio_topo, altura, fatias, tocos, &coordenadas, &normais, &indices);
 
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, normais);
-  PonteiroVertices(3, GL_FLOAT, vertices);
-  DesenhaElementos(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, indices);
+  PonteiroNormais(GL_FLOAT, &normais[0]);
+  PonteiroVertices(3, GL_FLOAT, &coordenadas[0]);
+  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, &indices[0]);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #else
