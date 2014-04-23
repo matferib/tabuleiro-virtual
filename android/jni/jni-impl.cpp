@@ -11,7 +11,7 @@
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
-#include "tex/texturas.h"
+//#include "tex/texturas.h"
 
 namespace {
 
@@ -24,8 +24,15 @@ class ReceptorErro : public ntf::Receptor {
   }
 };
 
+class DummyTexturas : public ent::Texturas {
+ public:
+  virtual unsigned int Textura(const std::string& id) const {
+    return GL_INVALID_VALUE;
+  }
+};
+
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
-std::unique_ptr<tex::Texturas> g_texturas;
+std::unique_ptr<ent::Texturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
@@ -48,7 +55,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   gl::IniciaGl(argcp, argvp);
   ent::Tabuleiro::InicializaGL();
   g_central.reset(new ntf::CentralNotificacoes);
-  g_texturas.reset(new tex::Texturas(g_central.get()));
+  //g_texturas.reset(new tex::Texturas(g_central.get()));
+  g_texturas.reset(new DummyTexturas);
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
