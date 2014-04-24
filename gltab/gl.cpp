@@ -396,35 +396,31 @@ void VerticesNormaisIndicesFaceSulCilindro(
 
   {
     auto& n = *normais;
-    int in = n.size();
-    n.resize(in + 12);
-    n[in + 0] = vetor_normal_oeste[0]; n[in + 1]  = vetor_normal_oeste[1]; n[in + 2]  = vetor_normal_oeste[2];
-    n[in + 3] = vetor_normal_leste[0]; n[in + 4]  = vetor_normal_leste[1]; n[in + 5]  = vetor_normal_leste[2];
-    n[in + 6] = vetor_normal_leste[0]; n[in + 7]  = vetor_normal_leste[1]; n[in + 8]  = vetor_normal_leste[2];
-    n[in + 9] = vetor_normal_oeste[0]; n[in + 10] = vetor_normal_oeste[1]; n[in + 11] = vetor_normal_oeste[2];
+    n.push_back(vetor_normal_oeste[0]); n.push_back(vetor_normal_oeste[1]); n.push_back(vetor_normal_oeste[2]);
+    n.push_back(vetor_normal_leste[0]); n.push_back(vetor_normal_leste[1]); n.push_back(vetor_normal_leste[2]);
+    n.push_back(vetor_normal_leste[0]); n.push_back(vetor_normal_leste[1]); n.push_back(vetor_normal_leste[2]);
+    n.push_back(vetor_normal_oeste[0]); n.push_back(vetor_normal_oeste[1]); n.push_back(vetor_normal_oeste[2]);
   }
 
   int ic = coordenadas->size();
   {
     auto& c = *coordenadas;
-    c.resize(ic + 12);
-    c[ic + 0] = -tam_lado_base_2; c[ic + 1] = -tam_y_base;  c[ic + 2] = 0.0f;
-    c[ic + 3] = tam_lado_base_2;  c[ic + 4] = -tam_y_base;  c[ic + 5] = 0.0f;
-    c[ic + 6] = tam_lado_topo_2;  c[ic + 7] = -tam_y_topo;  c[ic + 8] = altura;
-    c[ic + 9] = -tam_lado_topo_2; c[ic + 10] = -tam_y_topo; c[ic + 11] = altura;
+    c.push_back(-tam_lado_base_2); c.push_back(-tam_y_base); c.push_back(0.0f);
+    c.push_back(tam_lado_base_2);  c.push_back(-tam_y_base); c.push_back(0.0f);
+    c.push_back(tam_lado_topo_2);  c.push_back(-tam_y_topo); c.push_back(altura);
+    c.push_back(-tam_lado_topo_2); c.push_back(-tam_y_topo); c.push_back(altura);
   }
 
   {
     // 2 triangulos na face.
     auto& in = *indices;
-    int ii = in.size();
-    in.resize(ii + 6);
-    in[ii + 0] = ic + 0;
-    in[ii + 1] = ic + 1;
-    in[ii + 2] = ic + 2;
-    in[ii + 3] = ic + 0;
-    in[ii + 4] = ic + 2;
-    in[ii + 5] = ic + 3;
+    int indice_inicial = ic / 3;
+    in.push_back(indice_inicial + 0);
+    in.push_back(indice_inicial + 1);
+    in.push_back(indice_inicial + 2);
+    in.push_back(indice_inicial + 0);
+    in.push_back(indice_inicial + 2);
+    in.push_back(indice_inicial + 3);
   }
 }
 
@@ -436,16 +432,7 @@ void VerticesNormaisIndicesCilindro(
   float angulo_rotacao_graus = 360.0f / fatias;
   float angulo_rotacao_rad = angulo_rotacao_graus * GRAUS_PARA_RAD;
   int c_antes = coordenadas->size();
-  int n_antes = normais->size();
-  int i_antes = indices->size();
   VerticesNormaisIndicesFaceSulCilindro(raio_base, raio_topo, altura, fatias, tocos, coordenadas, normais, indices);
-  int c_delta = coordenadas->size() - c_antes;
-  int n_delta = normais->size() - n_antes;
-  int i_delta = indices->size() - i_antes;
-
-  coordenadas->resize(coordenadas->size() + (c_delta * (fatias - 1)));
-  normais->resize(normais->size() + (n_delta * (fatias - 1)));
-  indices->resize(indices->size() + (i_delta * (fatias - 1)));
 
   float angulo_corrente = angulo_rotacao_rad;
   for (int i = 1; i < fatias; ++i) {
@@ -587,7 +574,6 @@ void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos)
 
 #define NOVO_DESENHO 1
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  return;
 #if NOVO_DESENHO
   // Desenhar a esfera baseada em cilindros.
   float angulo_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
@@ -598,17 +584,12 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const int num_vertices_por_fatia = 4;
   const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
   const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
-  // Indices.
-  const int num_indices_por_fatia = 6;
-  const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
 
   std::vector<float> coordenadas;
   std::vector<float> normais;
   std::vector<unsigned short> indices;
-  int p_coordenadas = 0;
-  int p_normais = 0;
-  int p_indices = 0;
 
+  int p_coordenadas = 0;
   for (int i = 0; i < num_tocos; ++i) {
     raio_topo = raio * cosf(angulo_rad * (i + 1));
     GLfloat h_base = raio * sinf(angulo_rad * i);
@@ -622,13 +603,7 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
         coordenadas[p_coordenadas + c] += h_base;
       }
-      int inicio_vertices = p_coordenadas / 3;
-      for (int ii = 0; ii < num_indices_por_toco; ++ii) {
-        indices[p_indices + ii] += inicio_vertices;
-      }
       p_coordenadas += num_coordenadas_por_toco;
-      p_normais += num_coordenadas_por_toco;
-      p_indices += num_indices_por_toco;
     }
     {
       // TODO usar simetria.
@@ -638,13 +613,7 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
         coordenadas[p_coordenadas + c] -= h_topo;
       }
-      int inicio_vertices = p_coordenadas / 3;
-      for (int ii = 0; ii < num_indices_por_toco; ++ii) {
-        indices[p_indices + ii] += inicio_vertices;
-      }
       p_coordenadas += num_coordenadas_por_toco;
-      p_normais += num_coordenadas_por_toco;
-      p_indices += num_indices_por_toco;
     }
     raio_base = raio_topo;
   }
