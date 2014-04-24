@@ -94,9 +94,9 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
 # Implementacao das texturas.
-#cTexturas = env.Object('ifg/qt/texturas.cpp')
+cTexturas = env.Object('ifg/qt/texturas.cpp')
 cTexturasLode = env.Object('tex/lodepng.cpp')
-cTexturas = env.Object('tex/texturas.cpp')
+#cTexturas = env.Object('tex/texturas.cpp')
 
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
