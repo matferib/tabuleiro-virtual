@@ -622,7 +622,7 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   std::vector<unsigned short> indices;
   indices.reserve(num_indices_por_toco * num_tocos * 2);
 
-  int p_coordenadas = 0;
+  float* p_coord = &coordenadas[0];
   for (int i = 0; i < num_tocos; ++i) {
     raio_topo = raio * cosf(angulo_rad * (i + 1));
     GLfloat h_base = raio * sinf(angulo_rad * i);
@@ -634,9 +634,9 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
                                      &coordenadas, &normais, &indices);
       // Translada os Z dos vertices.
       for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
-        coordenadas[p_coordenadas + c] += h_base;
+        p_coord[c] += h_base;
       }
-      p_coordenadas += num_coordenadas_por_toco;
+      p_coord += num_coordenadas_por_toco;
     }
     {
       // TODO usar simetria.
@@ -644,9 +644,9 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
                                      &coordenadas, &normais, &indices);
       // Translada os Z dos vertices.
       for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
-        coordenadas[p_coordenadas + c] -= h_topo;
+        p_coord[c] -= h_topo;
       }
-      p_coordenadas += num_coordenadas_por_toco;
+      p_coord += num_coordenadas_por_toco;
     }
     raio_base = raio_topo;
   }
