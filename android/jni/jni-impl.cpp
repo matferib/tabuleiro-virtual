@@ -11,7 +11,7 @@
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
-//#include "tex/texturas.h"
+#include "tex/texturas.h"
 
 namespace {
 
@@ -56,7 +56,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   ent::Tabuleiro::InicializaGL();
   g_central.reset(new ntf::CentralNotificacoes);
   //g_texturas.reset(new tex::Texturas(g_central.get()));
-  g_texturas.reset(new DummyTexturas);
+  g_texturas.reset(new tex::Texturas(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));

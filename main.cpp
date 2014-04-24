@@ -11,8 +11,8 @@
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
 #include "log/log.h"
-//#include "tex/texturas.h"
-#include "ifg/qt/texturas.h"
+#include "tex/texturas.h"
+//#include "ifg/qt/texturas.h"
 
 using namespace std;
 
@@ -24,7 +24,8 @@ int main(int argc, char** argv) {
   ntf::CentralNotificacoes central;
   net::Servidor servidor(&servico_io, &central);
   net::Cliente cliente(&servico_io, &central);
-  ifg::qt::Texturas texturas(&central);
+  //ifg::qt::Texturas texturas(&central);
+  tex::Texturas texturas(&central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &texturas, &central));
   try {
     p->Executa();

@@ -94,9 +94,9 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
 # Implementacao das texturas.
-cTexturas = env.Object('ifg/qt/texturas.cpp')
-#cTexturasPico = env.Object('tex/lodepng.cpp')
-#cTexturas = env.Object('tex/texturas.cpp')
+#cTexturas = env.Object('ifg/qt/texturas.cpp')
+cTexturasLode = env.Object('tex/lodepng.cpp')
+cTexturas = env.Object('tex/texturas.cpp')
 
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
@@ -136,7 +136,7 @@ objetos = [
 		# interface QT
 		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # Texturas
-    cTexturas, #cTexturasPico,
+    cTexturas, cTexturasLode,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
 		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
