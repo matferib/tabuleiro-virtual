@@ -94,9 +94,9 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
 # Implementacao das texturas.
-cTexturas = env.Object('ifg/qt/texturas.cpp')
+#cTexturas = env.Object('ifg/qt/texturas.cpp')
 cTexturasLode = env.Object('tex/lodepng.cpp')
-#cTexturas = env.Object('tex/texturas.cpp')
+cTexturas = env.Object('tex/texturas.cpp')
 
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
@@ -131,23 +131,23 @@ cGl = env.Object('gltab/gl.cpp')
 objetos = [
     # net.
     cNetServidor, cNetCliente, cNetUtil,
-		# notificacoes.
-		ntf_proto[0], cNtf,
-		# interface QT
-		cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
+    # notificacoes.
+    ntf_proto[0], cNtf,
+    # interface QT
+    cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # Texturas
     cTexturas, cTexturasLode,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-		ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
+    ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGl,
-	] + ([ cEntWatchdog ] if sistema == 'linux' else [])
+] + ([ cEntWatchdog ] if sistema == 'linux' else [])
 
 
 # programa final
 env.Program(
-	target = 'tabvirt',
-	source = [ 'main.cpp', ] + objetos
+  target = 'tabvirt',
+  source = [ 'main.cpp', ] + objetos
 )
 
 compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
@@ -160,3 +160,10 @@ if compilar_testes:
   env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', ] + objetos)
+
+rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
+print 'benchmark : %r' % rodar_benchmark
+if rodar_benchmark:
+  env.Program(
+      target = 'benchmark',
+      source = ['benchmark.cpp', ] + objetos)

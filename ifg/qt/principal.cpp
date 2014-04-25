@@ -49,23 +49,23 @@ Principal::~Principal() {
 }
 
 void Principal::Executa() {
-	// maximiza janela
-	//QDesktopWidget* qdw = QApplication::desktop();
-	//setGeometry(qdw->screenGeometry());
-	setGeometry(QRect(100, 100, 500, 500));
+  // maximiza janela
+  //QDesktopWidget* qdw = QApplication::desktop();
+  //setGeometry(qdw->screenGeometry());
+  setGeometry(QRect(100, 100, 500, 500));
 
-	// layout grid com o menu, barra de ferramentas e o tabuleiro
-	QLayout* ql = new QGridLayout;
-	setLayout(ql);
+  // layout grid com o menu, barra de ferramentas e o tabuleiro
+  QLayout* ql = new QGridLayout;
+  setLayout(ql);
 
-	ql->setMenuBar(menu_principal_);
-	ql->addWidget(v3d_);
+  ql->setMenuBar(menu_principal_);
+  ql->addWidget(v3d_);
 
   q_timer_->start(INTERVALO_NOTIFICACAO_MS);
 
-	// mostra a janela e entra no loop do QT
-	show();
-	q_app_->exec();
+  // mostra a janela e entra no loop do QT
+  show();
+  q_app_->exec();
   q_timer_->stop();
 }
 
@@ -78,19 +78,17 @@ void Principal::Temporizador() {
 }
 
 bool Principal::TrataNotificacao(const ntf::Notificacao& notificacao) {
-	switch (notificacao.tipo()) {
-		case ntf::TN_SAIR:
-			q_app_->quit();
+  switch (notificacao.tipo()) {
+    case ntf::TN_SAIR:
+      q_app_->quit();
       return true;
-		case ntf::TN_INICIAR: {
+    case ntf::TN_INICIAR: {
       auto* notificacao_iniciado = new ntf::Notificacao;
       notificacao_iniciado->set_tipo(ntf::TN_INICIADO);
       central_->AdicionaNotificacao(notificacao_iniciado);
       return true;
     }
-		default:
+    default:
       return false;
-	}
+  }
 }
-
-
