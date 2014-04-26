@@ -156,32 +156,6 @@ class TabuleiroRenderer extends java.util.TimerTask
     eventos.addAll(eventosSemDuplicados);
   }
 
-  /** Junta as translacoes em uma so. */
-  private void juntaTranslacoes(Vector<Evento> eventos) {
-    // Remove os eventos consecutivos de movimento.
-    boolean primeiraTranslacao = true;
-    Vector<Evento> eventosSemDuplicados = new Vector<Evento>();
-    int x = 0, y = 0, nx = 0, ny = 0;
-    for (Evento evento :  eventos) {
-      if (evento.tipo() == Evento.TRANSLACAO) {
-        if (primeiraTranslacao) {
-          primeiraTranslacao = false;
-          x = evento.x();
-          y = evento.y();
-        }
-        nx = evento.nx();
-        ny = evento.ny();
-      } else {
-        eventosSemDuplicados.add(evento);
-      }
-    }
-    if (!primeiraTranslacao) {
-      eventosSemDuplicados.add(Evento.Translacao(x, y, nx, ny));
-    }
-    eventos.clear();
-    eventos.addAll(eventosSemDuplicados);
-  }
-
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   public void onDrawFrame(GL10 gl) {
     //Log.d(TAG, "DrawFrame");
@@ -193,14 +167,13 @@ class TabuleiroRenderer extends java.util.TimerTask
       eventos_.clear();
     }
     removeEventosDuplicados(Evento.MOVIMENTO, eventos);
-    juntaTranslacoes(eventos);
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
       Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
-          nativeTranslation(evento.x(), evento.y(), evento.nx(), evento.ny());
+          nativeTranslation(evento.x(), evento.y());
           break;
         case Evento.ESCALA:
           nativeScale(evento.escala());
@@ -340,9 +313,19 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   // Detector de translacao.
   @Override
-  public void onTranslate(int x, int y, int nx, int ny) {
+  public void onTranslateBegin(int x, int y) {
+    Log.d(TAG, "TranslationBegin");
+    eventos_.add(Evento.Translacao(x, (int)(parent_.getHeight() - y)));
+  }
+  @Override
+  public void onTranslate(int x, int y) {
     Log.d(TAG, "Translation");
-    eventos_.add(Evento.Translacao(x, (int)(parent_.getHeight() - y), nx, (int)(parent_.getHeight() - ny)));
+    eventos_.add(Evento.Movimento(x, (int)(parent_.getHeight() - y)));
+  }
+  @Override
+  public void onTranslateEnd() {
+    Log.d(TAG, "TranslationEnd");
+    eventos_.add(Evento.Liberado());
   }
 
   private static native void nativeInit(String endereco, Object assets);
@@ -357,7 +340,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
   private static native void nativeRotation(float r);
-  private static native void nativeTranslation(int x, int y, int nx, int ny);
+  private static native void nativeTranslation(int x, int y);
 
   private GLSurfaceView parent_;
 
@@ -408,7 +391,9 @@ class RotationGestureDetector {
 // Translacao com 3 dedos.
 class TranslationGestureDetector {
   public interface TranslationListener {
-    public void onTranslate(int x, int y, int nx, int ny);
+    public void onTranslateBegin(int x, int y);
+    public void onTranslate(int x, int y);
+    public void onTranslateEnd();
   }
 
   public TranslationGestureDetector(TranslationListener ouvinte) {
@@ -417,19 +402,13 @@ class TranslationGestureDetector {
 
   public void onTouch(MotionEvent e) {
     if (e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
-      ultimo_x_ = X(e);
-      ultimo_y_ = Y(e);
+      ouvinte_.onTranslateBegin(X(e), Y(e));
       return;
     } else if (e.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
+      ouvinte_.onTranslateEnd();
       return;
     }
-    int nx = X(e);
-    int ny = Y(e);
-    if (nx != ultimo_x_ || ny != ultimo_y_) {
-      ouvinte_.onTranslate(ultimo_x_, ultimo_y_, nx, ny);
-    }
-    ultimo_x_ = X(e);
-    ultimo_y_ = Y(e);
+    ouvinte_.onTranslate(X(e), Y(e));
   }
 
   private int X(MotionEvent e) {
@@ -449,7 +428,6 @@ class TranslationGestureDetector {
   }
 
   private TranslationListener ouvinte_;
-  private int ultimo_x_, ultimo_y_;
 }
 
 /** Os tipos de eventos tratados pelo tabuleiro. */
@@ -470,12 +448,10 @@ class Evento {
     return new Evento(LIBERADO);
   }
 
-  public static Evento Translacao(int x,  int y, int nx, int ny) {
+  public static Evento Translacao(int x,  int y) {
     Evento evento = new Evento(TRANSLACAO);
     evento.x_ = x;
     evento.y_ = y;
-    evento.nx_ = nx;
-    evento.ny_ = ny;
     return evento;
   }
 
@@ -539,7 +515,7 @@ class Evento {
 
   public String toString() {
     return "Tipo: " + tipoString() + ", escala: " + escala_ + ", rotacao: " + rotacao_ +
-                                     ", x:" + x_ + ", y: " + y_ + ", nx: " + nx_ + ", ny: " + ny_;
+                                     ", x:" + x_ + ", y: " + y_;
   }
 
   private String tipoString() {
