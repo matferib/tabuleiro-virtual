@@ -6,9 +6,6 @@
 #include "ntf/notificacao.h"
 
 #define DIR_TEXTURAS "texturas"
-#define DIR_TEXTURAS_LOCAIS "texturas_locais"
-#define DIR_TABULEIROS "tabuleiros_salvos"
-#define FILTRO_IMAGENS "Imagens (*.png *.gif *.jpg *.bmp)"
 
 namespace tex {
 
@@ -16,7 +13,7 @@ namespace tex {
 class Texturas : public ent::Texturas, public ntf::Receptor {
  public:
   Texturas(ntf::CentralNotificacoes* central);
-  ~Texturas();
+  virtual ~Texturas();
 
   /** Trata as notificacoes do tipo de carregamento descarregamento de textura. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -43,7 +40,7 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   int GeraIdTextura();
 
   /** Le e decodifica uma imagem. */
-  virtual void LeDecodificaImagem(const std::string& caminho,
+  void LeDecodificaImagem(const std::string& caminho,
                                   ent::InfoTextura* info_textura);
 
   /** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho. */

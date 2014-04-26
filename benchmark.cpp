@@ -4,8 +4,8 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-//#include <GL/gl.h>
-//#include <GL/glut.h>
+#include <GL/gl.h>
+#include <GL/glut.h>
 
 #include "ent/tabuleiro.h"
 #include "gltab/gl.h"
@@ -19,12 +19,15 @@ int main(int argc, char** argv) {
   gl::IniciaGl(&argc, argv);
   ent::Tabuleiro::InicializaGL();
 
-//  glutInitWindowSize(300, 300);
-//  glutInitWindowPosition(0, 0);
-//  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_STENCIL | GLUT_DEPTH);
+  glutInit(&argc, argv);
+  glutInitWindowSize(300, 300);
+  glutInitWindowPosition(0, 0);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_STENCIL | GLUT_DEPTH);
+  glutCreateWindow("benchmark");
   ntf::CentralNotificacoes central;
   tex::Texturas texturas(&central);
   ent::Tabuleiro tabuleiro(&texturas, &central);
+  tabuleiro.TrataRedimensionaJanela(300, 300);
 
   // Carrega castelo.
   {
@@ -41,8 +44,9 @@ int main(int argc, char** argv) {
 
   // Desenha 100 vezes.
   boost::timer::auto_cpu_timer timer;
-  for (int i = 0; i < 1000; ++i) {
+  for (int i = 0; i < 500; ++i) {
     tabuleiro.Desenha();
+    glutSwapBuffers();
   }
 
   return 0;
