@@ -48,7 +48,7 @@ public class TabuleiroActivity extends Activity {
 class TabuleiroSurfaceView extends GLSurfaceView {
   public TabuleiroSurfaceView(Context context, String endereco) {
     super(context);
-    renderer_ = new TabuleiroRenderer(this, endereco);
+    renderer_ = new TabuleiroRenderer(this, endereco, getResources().getAssets());
     detectorEventos_ = new GestureDetector(context, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEscala_ = new ScaleGestureDetector(context, renderer_);
@@ -108,14 +108,15 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   public static final String TAG = "TabuleiroRenderer";
 
-  public TabuleiroRenderer(GLSurfaceView parent, String endereco) {
+  public TabuleiroRenderer(GLSurfaceView parent, String endereco, android.content.res.AssetManager assets) {
     endereco_ = endereco;
+    assets_ = assets;
     parent_ = parent;
     //last_x_ = last_y_ = 0;
   }
 
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-    nativeInit(endereco_);
+    nativeInit(endereco_, assets_);
     // Liga o timer a cada 33 ms. TODO: funcao nativa para retornar o periodo do timer.
     java.util.Timer timer = new java.util.Timer();
     timer.scheduleAtFixedRate(this, 0, 33);
@@ -341,7 +342,7 @@ class TabuleiroRenderer extends java.util.TimerTask
     eventos_.add(Evento.Translacao(x, (int)(parent_.getHeight() - y), nx, (int)(parent_.getHeight() - ny)));
   }
 
-  private static native void nativeInit(String endereco);
+  private static native void nativeInit(String endereco, Object assets);
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
   private static native void nativeDone();
@@ -360,6 +361,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   private Vector<Evento> eventos_ = new Vector<Evento>();
   private boolean carregando_ = false;
   private String endereco_;
+  private android.content.res.AssetManager assets_;
 }
 
 // Copiado de:
@@ -570,5 +572,3 @@ class Evento {
   private int nx_;
   private int ny_;
 }
-
-

@@ -1,5 +1,5 @@
 #define NOVO_DESENHO 2
-#if 0 && !USAR_OPENGL_ES
+#if !USAR_OPENGL_ES
 #include "gltab/gl.h"
 
 namespace gl {

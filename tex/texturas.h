@@ -42,6 +42,13 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   int GeraIdTextura();
 
+  /** Le e decodifica uma imagem. */
+  virtual void LeDecodificaImagem(const std::string& caminho,
+                                  ent::InfoTextura* info_textura);
+
+  /** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho. */
+  virtual void LeImagem(const std::string& caminho, std::vector<unsigned char>* dados);
+
  private:
   // Nao possui.
   ntf::CentralNotificacoes* central_;
