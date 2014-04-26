@@ -48,9 +48,6 @@ class TexturasAndroid : public tex::Texturas {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido: %ld", tam);
       dados->resize(tam);
       memcpy(dados->data(), AAsset_getBuffer(asset), tam);
-
-      //(*dados)[tam - 1] = '\0';
-      //__android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "conteudo: %s", (char*)dados->data());
     } catch (...) {
     }
     if (asset != nullptr) {
@@ -173,9 +170,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRotation(JNIEnv* env, j
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTranslation(
-    JNIEnv* env, jobject thiz, jint x, jint y, jint nx, jint ny) {
+    JNIEnv* env, jobject thiz, jint x, jint y) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTranslation: (%d %d) (%d %d)", x, y, nx, ny);
-  g_tabuleiro->TrataTranslacaoPorDelta(x, y, nx, ny);
+  g_tabuleiro->TrataBotaoDireitoPressionado(x, y);
 }
 
 // Render.
