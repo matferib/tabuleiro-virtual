@@ -43,7 +43,7 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES
 LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt
-LOCAL_LDLIBS := -lGLESv1_CM -llog
+LOCAL_LDLIBS := -lGLESv1_CM -llog -landroid
 LOCAL_CPPFLAGS += -frtti -fexceptions
 
 include $(BUILD_SHARED_LIBRARY)  # Monta biblioteca dinamica libtabuleiro.so.

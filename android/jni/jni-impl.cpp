@@ -3,6 +3,7 @@
 #include <jni.h>
 #include <sys/time.h>
 #include <time.h>
+#include <android/asset_manager_jni.h>
 #include <android/log.h>
 #include <stdint.h>
 #include "ent/entidade.h"
@@ -24,11 +25,41 @@ class ReceptorErro : public ntf::Receptor {
   }
 };
 
-class DummyTexturas : public ent::Texturas {
+class TexturasAndroid : public tex::Texturas {
  public:
-  virtual unsigned int Textura(const std::string& id) const {
-    return GL_INVALID_VALUE;
+  TexturasAndroid(JNIEnv* env, jobject assets, ntf::CentralNotificacoes* central) : tex::Texturas(central) {
+    aman_ = AAssetManager_fromJava(env, assets);
   }
+
+  virtual void LeImagem(const std::string& caminho, std::vector<unsigned char>* dados) override {
+    AAsset* asset = nullptr;
+    try {
+      std::string caminho_asset(caminho/*"texturas/teste.png"*/);
+      asset = AAssetManager_open(aman_, caminho_asset.c_str(), AASSET_MODE_BUFFER);
+      if (asset == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
+        throw 1;
+      }
+      off_t tam = AAsset_getLength(asset);
+      if (tam <= 0) {
+        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha com tamanho do asset: %ld", tam);
+        throw 2;
+      }
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido: %ld", tam);
+      dados->resize(tam);
+      memcpy(dados->data(), AAsset_getBuffer(asset), tam);
+
+      //(*dados)[tam - 1] = '\0';
+      //__android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "conteudo: %s", (char*)dados->data());
+    } catch (...) {
+    }
+    if (asset != nullptr) {
+      AAsset_close(asset);
+    }
+  }
+
+ private:
+  AAssetManager* aman_;
 };
 
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
@@ -42,7 +73,7 @@ std::unique_ptr<ntf::Receptor> g_receptor;
 
 extern "C" {
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobject thisz, jstring endereco) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobject thisz, jstring endereco, jobject assets) {
   std::string endereco_nativo;
   {
     const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
@@ -55,8 +86,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   gl::IniciaGl(argcp, argvp);
   ent::Tabuleiro::InicializaGL();
   g_central.reset(new ntf::CentralNotificacoes);
-  //g_texturas.reset(new tex::Texturas(g_central.get()));
-  g_texturas.reset(new tex::Texturas(g_central.get()));
+  g_texturas.reset(new TexturasAndroid(env, assets, g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
@@ -66,6 +96,27 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
+  // TESTE
+  auto* n_teste = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+  auto* tab = n_teste->mutable_tabuleiro();
+  auto* ent = tab->add_entidade();
+  ent->set_id(0);
+  ent->set_visivel(true);
+  ent->mutable_info_textura()->set_id("cleric.png");
+  tab->set_largura(20);
+  tab->set_altura(20);
+  tab->set_manter_entidades(false);
+  tab->set_ladrilho(true);
+  auto* la = tab->mutable_luz_ambiente();
+  la->set_r(1.0f);
+  la->set_g(1.0f);
+  la->set_b(1.0f);
+  auto* ld = tab->mutable_luz_direcional();
+  ld->set_inclinacao_graus(45);
+  ld->set_posicao_graus(0);
+  tab->mutable_info_textura()->set_id("terreno_grass_dirty.png");
+
+  g_central->AdicionaNotificacao(n_teste);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, jobject thiz, jint w, jint h) {

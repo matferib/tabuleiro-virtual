@@ -12,32 +12,6 @@ namespace tex {
 
 namespace {
 
-/** Retorna a imagem lida. */
-void LeImagem(const std::string& caminho, ent::InfoTextura* info_textura) {
-  std::ifstream arquivo(caminho, std::ifstream::binary);
-  if (!arquivo) {
-    throw std::logic_error(std::string("Caminho invalido de imagem: ") + caminho);
-  }
-  arquivo.seekg(0, arquivo.end);
-  size_t tam = arquivo.tellg();
-  arquivo.seekg(0, arquivo.beg);
-  std::vector<unsigned char> dados(tam);
-  arquivo.read((char*)&dados[0], tam);
-  arquivo.close();
-  unsigned int largura, altura;
-  std::vector<char> bits;
-
-  //decode
-  unsigned int error = lodepng::decode(reinterpret_cast<std::vector<unsigned char>&>(bits), largura, altura, caminho);
-  if (error != 0) {
-    throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
-  }
-
-  info_textura->mutable_bits()->append(bits.begin(), bits.end());
-  info_textura->set_largura(largura);
-  info_textura->set_altura(altura);
-}
-
 /** Retorna o formato OpenGL de uma imagem, por exemplo: GL_BGRA. */
 int FormatoImagem() {
   return GL_RGBA;
@@ -145,7 +119,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
       try {
         std::string arquivo(DIR_TEXTURAS);
         arquivo += "/" + info_textura.id();
-        LeImagem(arquivo, &info_lido);
+        LeDecodificaImagem(arquivo, &info_lido);
       } catch (const std::exception& e) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
         return;
@@ -176,4 +150,36 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   }
 }
 
-}  // namespace tex 
+void Texturas::LeImagem(const std::string& caminho, std::vector<unsigned char>* dados) {
+  std::ifstream arquivo(caminho, std::ifstream::binary);
+  if (!arquivo) {
+    throw std::logic_error(std::string("Caminho invalido de imagem: ") + caminho);
+  }
+  arquivo.seekg(0, arquivo.end);
+  size_t tam = arquivo.tellg();
+  arquivo.seekg(0, arquivo.beg);
+  dados->resize(tam);
+  arquivo.read((char*)dados->data(), tam);
+  arquivo.close();
+}
+
+void Texturas::LeDecodificaImagem(const std::string& caminho, ent::InfoTextura* info_textura) {
+  std::vector<unsigned char> dados_arquivo;
+  LeImagem(caminho, &dados_arquivo);
+  if (dados_arquivo.size() <= 0) {
+    throw std::logic_error(std::string("Erro lendo imagem: ") + caminho);
+  }
+
+  //decode
+  unsigned int largura, altura;
+  std::vector<unsigned char> dados;
+  unsigned int error = lodepng::decode(dados, largura, altura, dados_arquivo);
+  if (error != 0) {
+    throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
+  }
+  info_textura->mutable_bits()->append(dados.begin(), dados.end());
+  info_textura->set_largura(largura);
+  info_textura->set_altura(altura);
+}
+
+}  // namespace tex
