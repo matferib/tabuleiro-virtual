@@ -11,7 +11,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
-#elif USAR_OPENGL_ES
+#elif USAR_OPENGL_ES && !BENCHMARK
 #include <GLES/gl.h>
 #include <GLES/glext.h>
 //#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
@@ -260,7 +260,11 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
                float centro_x, float centro_y, float centro_z,
                float cima_x, float cima_y, float cima_z);
 inline void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
+#if BENCHMARK
+  glOrtho(esquerda, direita, baixo, cima, proximo, distante);
+#else
   glOrthof(esquerda, direita, baixo, cima, proximo, distante);
+#endif
 }
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,

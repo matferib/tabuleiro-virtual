@@ -39,6 +39,9 @@ public class TabuleiroActivity extends Activity {
 
   private GLSurfaceView mGLView;
 
+  public static void loadAsset(String path) {
+  }
+
   static {
     System.loadLibrary("tabuleiro");
   }

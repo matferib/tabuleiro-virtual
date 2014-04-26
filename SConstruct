@@ -145,10 +145,10 @@ objetos = [
 
 
 # programa final
-env.Program(
+env.Default(env.Program(
   target = 'tabvirt',
   source = [ 'main.cpp', ] + objetos
-)
+))
 
 compilar_testes = (ARGUMENTS.get('testes', '0') == '1')
 print 'compilar_testes : %r' % compilar_testes
@@ -164,6 +164,7 @@ if compilar_testes:
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark
 if rodar_benchmark:
+  env['CPPDEFINES']['BENCHMARK'] = '1'
   env.Program(
       target = 'benchmark',
       source = ['benchmark.cpp', ] + objetos)

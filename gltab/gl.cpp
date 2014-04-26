@@ -1,4 +1,3 @@
-#define NOVO_DESENHO 2
 #if !USAR_OPENGL_ES
 #include "gltab/gl.h"
 
@@ -57,6 +56,7 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
 }  // namespace gl.
 
 #else
+#define NOVO_DESENHO 1 
 // OpenGL ES.
 // Varias funcoes copiadas do GLUES: https://code.google.com/p/glues/.
 
@@ -480,6 +480,7 @@ void VerticesNormaisIndicesFaceSulCilindro(
 }
 #endif
 
+// 0 eh o desenho velho. 1 eh o novo mais legivel mas um pouco mais lento. 2 eh o mais rapido.
 #if NOVO_DESENHO == 1
 // Retorna os vertices, normais e indice de vertices do cilindro todo. Ao todo, vertices e normais devera conter 12 * fatias coordenadas,
 // enquanto indice devera ter 6 * fatias. Os elementos serao anexados ao fim de cada vetor.
@@ -511,7 +512,6 @@ void VerticesNormaisIndicesCilindro(
   for (int i = 1; i < num_fatias; ++i) {
     float cosseno = cosf(angulo_corrente);
     float seno = sinf(angulo_corrente);
-    angulo_corrente += angulo_rotacao_rad;
     const float* cref = &(*coordenadas)[c_antes];
     const float* nref = &(*normais)[c_antes];
     // Para cada um dos 4 vertices, roda em Z.
@@ -540,6 +540,7 @@ void VerticesNormaisIndicesCilindro(
     }
     iref += 6;
     iref_esc += 6;
+    angulo_corrente += angulo_rotacao_rad;
   }
 }
 #elif NOVO_DESENHO == 2
@@ -558,7 +559,6 @@ void VerticesNormaisIndicesCilindro(
     int indice_origem = 0;
     float cosseno = cosf(angulo_corrente);
     float seno = sinf(angulo_corrente);
-    angulo_corrente += angulo_rotacao_rad;
     // Para cada um dos 4 vertices, roda em Z.
     for (int v = 0; v < 4; ++v) {
       float x0 = vertices[indice_origem];
@@ -586,6 +586,8 @@ void VerticesNormaisIndicesCilindro(
     indices[indice_indices + 3] = indice_vertice_inicial + 0;
     indices[indice_indices + 4] = indice_vertice_inicial + 2;
     indices[indice_indices + 5] = indice_vertice_inicial + 3;
+
+    angulo_corrente += angulo_rotacao_rad;
   }
 }
 
@@ -712,13 +714,15 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
   const int num_indices_por_fatia = 6;
   const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
+  const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos * 2;
+  const int num_indices_total = num_indices_por_toco * num_tocos * 2;
 
   std::vector<float> coordenadas;
-  coordenadas.reserve(num_coordenadas_por_toco * num_tocos * 2);
+  coordenadas.reserve(num_coordenadas_total);
   std::vector<float> normais;
-  normais.reserve(num_coordenadas_por_toco * num_tocos * 2);
+  normais.reserve(num_coordenadas_total);
   std::vector<unsigned short> indices;
-  indices.reserve(num_indices_por_toco * num_tocos * 2);
+  indices.reserve(num_indices_total);
 
   float* p_coord = &coordenadas[0];
   for (int i = 0; i < num_tocos; ++i) {
@@ -750,9 +754,9 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   }
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, &normais[0]);
-  PonteiroVertices(3, GL_FLOAT, &coordenadas[0]);
-  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, &indices[0]);
+  PonteiroNormais(GL_FLOAT, normais.data());
+  PonteiroVertices(3, GL_FLOAT, coordenadas.data());
+  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, indices.data());
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #elif NOVO_DESENHO == 2
@@ -875,9 +879,9 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
 
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, &normais[0]);
-  PonteiroVertices(3, GL_FLOAT, &coordenadas[0]);
-  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, &indices[0]);
+  PonteiroNormais(GL_FLOAT, normais.data());
+  PonteiroVertices(3, GL_FLOAT, coordenadas.data());
+  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, indices.data());
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #elif NOVO_DESENHO == 2
@@ -886,15 +890,15 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   const int num_coordenadas = 3 * num_vertices;
   const int num_indices_por_fatia = 6;
   const int num_indices = num_indices_por_fatia * num_fatias;
-  float vertices[num_coordenadas];
+  float coordenadas[num_coordenadas];
   float normais[num_coordenadas];
   unsigned short indices[num_indices];
-  VerticesNormaisIndicesCilindro(raio_base, raio_topo, altura, num_fatias, num_tocos, vertices, normais, indices);
+  VerticesNormaisIndicesCilindro(raio_base, raio_topo, altura, num_fatias, num_tocos, coordenadas, normais, indices);
 
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
   PonteiroNormais(GL_FLOAT, normais);
-  PonteiroVertices(3, GL_FLOAT, vertices);
+  PonteiroVertices(3, GL_FLOAT, coordenadas);
   DesenhaElementos(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, indices);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
