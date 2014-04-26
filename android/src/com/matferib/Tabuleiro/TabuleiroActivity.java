@@ -129,7 +129,7 @@ class TabuleiroRenderer extends java.util.TimerTask
     nativeResize(w, h);
   }
 
-  /** Remove os eventos duplicados de um tipo. */
+  /** Remove os eventos duplicados de um tipo ate que Liberado seja encontrado. */
   private void removeEventosDuplicados(int tipo, Vector<Evento> eventos) {
     // Remove os eventos consecutivos de movimento.
     Vector<Evento> eventosSemDuplicados = new Vector<Evento>();
@@ -137,12 +137,14 @@ class TabuleiroRenderer extends java.util.TimerTask
     for (Evento evento :  eventos) {
       if (evento.tipo() == tipo) {
         ultimo = evento;
-      } else {
+      } else if (evento.tipo() == Evento.LIBERADO) {
         if (ultimo != null) {
           // Adiciona o ultimo movimento.
           eventosSemDuplicados.add(ultimo);
           ultimo = null;
         }
+        eventosSemDuplicados.add(evento);
+      } else {
         eventosSemDuplicados.add(evento);
       }
     }
