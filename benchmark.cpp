@@ -44,8 +44,9 @@ int main(int argc, char** argv) {
 
   // Desenha 100 vezes.
   boost::timer::auto_cpu_timer timer;
-  for (int i = 0; i < 500; ++i) {
+  for (int i = 0; i < 1500; ++i) {
     tabuleiro.Desenha();
+    tabuleiro.TrataRotacaoPorDelta(0.01f);
     glutSwapBuffers();
   }
 
