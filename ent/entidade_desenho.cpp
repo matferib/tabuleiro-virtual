@@ -164,6 +164,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
   }
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  int num_faces = std::max(4, static_cast<int>((proto.escala().x() + proto.escala().y()) * 2));
+  int num_tocos = std::max(2, static_cast<int>(proto.escala().z() * 2));
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {
@@ -178,13 +180,13 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     case TF_CILINDRO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::CilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*fatias*/, 10  /*tocos*/);
+      gl::CilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, num_faces, num_tocos);
     }
     break;
     case TF_CONE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::ConeSolido(0.5f, 1.0f, 10  /*slices*/, 10  /*stacks*/);
+      gl::ConeSolido(0.5f, 1.0f, num_faces, num_tocos);
     }
     break;
     case TF_CUBO: {
@@ -257,9 +259,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
       // Usar x como base para achatamento.
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      // TODO fazer baseado nas escalas?
-      int num_faces = std::max(4, static_cast<int>((proto.escala().x() + proto.escala().y()) * 2));
-      int num_tocos = std::max(4, static_cast<int>(proto.escala().z() * 4));
       gl::EsferaSolida(0.5f  /*raio*/,  num_faces, num_tocos);
     }
     break;

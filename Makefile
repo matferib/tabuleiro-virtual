@@ -12,7 +12,7 @@ benchmark_debug:
 	scons debug=1 benchmark=1 gerar_profile=1 usar_opengl_es=1 benchmark
 
 benchmark:
-	scons debug=0 benchmark=1 gerar_profile=1 usar_opengl_es=1 benchmark
+	scons debug=0 benchmark=1 usar_opengl_es=1 benchmark
 
 windows:
 	scons sistema=win32
