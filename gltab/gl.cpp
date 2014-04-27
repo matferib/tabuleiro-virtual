@@ -1220,6 +1220,10 @@ void DesenhaCaractere(char c) {
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
+void AlternaModoDebug() {
+  g_contexto->depurar_selecao_por_cor = !g_contexto->depurar_selecao_por_cor;
+}
+
 }  // namespace gl
 
 #endif

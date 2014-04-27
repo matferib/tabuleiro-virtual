@@ -269,6 +269,9 @@ class Tabuleiro : public ntf::Receptor {
   /** refaz a ultima acao desfeita. */
   void TrataComandoRefazer();
 
+  /** Altera o desenho entre os modos de debug (para OpenGL ES). */
+  void AlternaModoDebug();
+
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
   class TimerEscopo {
@@ -361,8 +364,13 @@ class Tabuleiro : public ntf::Receptor {
   */
   bool MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d);
 
-  /** Dada uma profundidade, faz a projecao inversa (2d para 3d). */
-  bool MousePara3d(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d);
+#if !USAR_OPENGL_ES
+  /** Dada uma profundidade, faz a projecao inversa (2d para 3d). Bem mais barato que MousePara3d acima. */
+  bool MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d);
+#else
+  /** Dado um objeto retorna as coordenadas x y z. */
+  bool MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d);
+#endif
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
@@ -575,6 +583,8 @@ class Tabuleiro : public ntf::Receptor {
   boost::timer::cpu_timer timer_;
   std::list<uint64_t> tempos_renderizacao_;
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
+
+  bool modo_debug_ = false;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

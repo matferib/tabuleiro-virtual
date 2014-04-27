@@ -337,9 +337,9 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_S:
       tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       return;
-    //case Qt::Key_K:
+    case Qt::Key_K:
       // TEMP TEST.
-    //  while (1) ;
+      tabuleiro_->AlternaModoDebug();
     default:
       event->ignore();
   }

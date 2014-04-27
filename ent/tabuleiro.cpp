@@ -360,6 +360,23 @@ void Tabuleiro::Desenha() {
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  if (modo_debug_) {
+    parametros_desenho_.set_iluminacao(false);
+    parametros_desenho_.set_desenha_texturas(false);
+    parametros_desenho_.set_desenha_grade(false);
+    parametros_desenho_.set_desenha_fps(false);
+    parametros_desenho_.set_desenha_aura(false);
+    parametros_desenho_.set_desenha_sombras(false);
+    parametros_desenho_.set_limpa_fundo(false);
+    parametros_desenho_.set_transparencias(false);
+    parametros_desenho_.set_desenha_acoes(false);
+    parametros_desenho_.set_desenha_lista_pontos_vida(false);
+    parametros_desenho_.set_desenha_quadrado_selecao(false);
+    parametros_desenho_.set_desenha_rastro_movimento(false);
+    parametros_desenho_.set_desenha_forma_selecionada(false);
+    parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+    parametros_desenho_.set_desenha_nevoa(false);
+  }
   DesenhaCena();
 }
 
@@ -1052,7 +1069,13 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     pos_quadrado->set_z(z);
     // Posicao exata do clique.
     float x3d, y3d, z3d;
-    if (MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d)) {
+    bool achou;
+#if !USAR_OPENGL_ES
+    achou = MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+#else
+    achou = MousePara3dComId(x, y, id, pos_pilha, &x3d, &y3d, &z3d);
+#endif
+    if (achou) {
       auto* pos_tabuleiro = acao_proto.mutable_pos_tabuleiro();
       pos_tabuleiro->set_x(x3d);
       pos_tabuleiro->set_y(y3d);
@@ -1261,10 +1284,7 @@ void Tabuleiro::DesenhaCena() {
                  proto_.luz_ambiente().g(),
                  proto_.luz_ambiente().b(),
                  proto_.luz_ambiente().a());
-  if (parametros_desenho_.limpa_fundo()) {
-    gl::Limpa(GL_COLOR_BUFFER_BIT);
-  }
-  gl::Limpa(GL_DEPTH_BUFFER_BIT);
+  gl::Limpa(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
@@ -1375,8 +1395,6 @@ void Tabuleiro::DesenhaCena() {
     return;
   }
 
-  // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
-  // na hora do picking.
   {
     gl::NomesEscopo nomes(0);
 #if USAR_OPENGL_ES
@@ -1391,6 +1409,8 @@ void Tabuleiro::DesenhaCena() {
       return;
     }
 #endif
+    // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
+    // na hora do picking.
     DesenhaEntidades();
   }
 
@@ -1420,12 +1440,12 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.clear_alfa_translucidos();
     DesenhaAuras();
   } else {
-    // Desenha os translucidos de forma solida para picking.
     gl::NomesEscopo nomes(0);
+    // Desenha os translucidos de forma solida para picking.
     DesenhaEntidadesTranslucidas();
   }
 
-  if (false && estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
+  if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     gl::HabilitaEscopo blend_escopo(GL_BLEND);
     LigaStencil();
     DesenhaRastros();
@@ -1911,7 +1931,6 @@ void Tabuleiro::BuscaHitMaisProximo(
   *pos_pilha = pos_pilha_menor;
   *id = id_menor;
   float menor_profundidade = 0.0f;
-#if 1
   // Converte profundidade de inteiro para float.
   // No OpenGL ES a profundidade retornada vai ser sempre zero. Se nao houver hit, menor_z vai ser 0xFFFFFFFF
   // e a profundidade maxima sera retornada.
@@ -1919,7 +1938,8 @@ void Tabuleiro::BuscaHitMaisProximo(
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
   }
-#elif 0
+
+#if 0
   // OBS: tudo isso assume alvo no chao e solo plano.
   // Computa a profundidade na mao para tabuleiro.
   float meio_fov_vertical_rad = (CAMPO_VERTICAL_GRAUS / 2.0f) * GRAUS_PARA_RAD;
@@ -1949,15 +1969,6 @@ void Tabuleiro::BuscaHitMaisProximo(
 }
 
 bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
-#if !USAR_OPENGL_ES
-  GLuint not_used;
-  float profundidade;
-  BuscaHitMaisProximo(x, y, &not_used, &not_used, &profundidade);
-  if (profundidade == 1.0f) {
-    return false;
-  }
-  return MousePara3d(x, y, profundidade, x3d, y3d, z3d);
-#else
   GLuint id;
   GLuint pos_pilha;
   float profundidade;
@@ -1965,8 +1976,34 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   if (profundidade == 1.0f) {
     return false;
   }
+#if !USAR_OPENGL_ES
+  return MousePara3dProfundidade(x, y, profundidade, x3d, y3d, z3d);
+#else
+  return MousePara3dComId(x, y, id, pos_pilha, x3d, y3d, z3d);
+#endif
+}
+
+#if !USAR_OPENGL_ES
+bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
+  GLdouble modelview[16], projection[16];
+  GLint viewport[4];
+  gl::Le(GL_MODELVIEW_MATRIX, modelview);
+  gl::Le(GL_PROJECTION_MATRIX, projection);
+  gl::Le(GL_VIEWPORT, viewport);
+  if (!gl::Desprojeta(x, y, profundidade,
+                      modelview, projection, viewport,
+                      x3d, y3d, z3d)) {
+    LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
+    return false;
+  }
+  VLOG(2) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
+  return true;
+}
+#else
+bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d) {
   parametros_desenho_.mutable_params_opengles()->set_id(id);
   // Busca mais detalhado.
+  float profundidade;
   if (pos_pilha == 1) {
     // Para tabuleiro, aumenta resolucao em XY.
     unsigned int id_detalhado;
@@ -2000,30 +2037,10 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   }
   // Importante para operacoes no mesmo frame nao se confundirem.
   parametros_desenho_.clear_params_opengles();
+  VLOG(2) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
   return true;
-#endif
 }
-
-
-bool Tabuleiro::MousePara3d(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
-#if !USAR_OPENGL_ES
-  GLdouble modelview[16], projection[16];
-  GLint viewport[4];
-  gl::Le(GL_MODELVIEW_MATRIX, modelview);
-  gl::Le(GL_PROJECTION_MATRIX, projection);
-  gl::Le(GL_VIEWPORT, viewport);
-  if (!gl::Desprojeta(x, y, profundidade,
-                      modelview, projection, viewport,
-                      x3d, y3d, z3d)) {
-    LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
-    return false;
-  }
-  VLOG(3) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
-  return true;
-#else
-  return MousePara3d(x, y, x3d, y3d, z3d);
 #endif
-}
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
   ultimo_x_ = x;
@@ -2033,7 +2050,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   float x3d, y3d, z3d;
-  MousePara3d(x, y, profundidade, &x3d, &y3d, &z3d);
+#if !USAR_OPENGL_ES
+  MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+#else
+  MousePara3dComId(x, y, id, pos_pilha, &x3d, &y3d, &z3d);
+#endif
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
   ultimo_z_3d_ = z3d;
@@ -3155,6 +3176,11 @@ Entidade* Tabuleiro::EntidadeSelecionada() {
     return nullptr;
   }
   return it->second.get();
+}
+
+void Tabuleiro::AlternaModoDebug() {
+  gl::AlternaModoDebug();
+  modo_debug_ = !modo_debug_;
 }
 
 }  // namespace ent
