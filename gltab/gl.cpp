@@ -707,12 +707,6 @@ void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos)
 }
 
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-#if NOVO_DESENHO == 1
-  // Desenhar a esfera baseada em cilindros.
-  float angulo_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
-  GLfloat raio_base = raio;
-  GLfloat raio_topo;
-
   // Vertices.
   const int num_vertices_por_fatia = 4;
   const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
@@ -722,142 +716,109 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos * 2;
   const int num_indices_total = num_indices_por_toco * num_tocos * 2;
 
-  std::vector<float> coordenadas;
-  coordenadas.reserve(num_coordenadas_total);
-  std::vector<float> normais;
-  normais.reserve(num_coordenadas_total);
-  std::vector<unsigned short> indices;
-  indices.reserve(num_indices_total);
+  float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
+  float coordenadas[num_coordenadas_total];
+  float normais[num_coordenadas_total];
+  unsigned short indices[num_indices_total];
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
 
-  float* p_coord = &coordenadas[0];
-  for (int i = 0; i < num_tocos; ++i) {
-    raio_topo = raio * cosf(angulo_rad * (i + 1));
-    GLfloat h_base = raio * sinf(angulo_rad * i);
-    GLfloat h_topo = raio * sinf(angulo_rad * (i + 1));
-    GLfloat h_delta = h_topo - h_base;
-    // Desenha cilindro de cima e de baixo.
-    {
-      VerticesNormaisIndicesCilindro(raio_base, raio_topo, h_delta, num_fatias, 1,
-                                     &coordenadas, &normais, &indices);
-      // Translada os Z dos vertices.
-      for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
-        p_coord[c] += h_base;
+  float v_base[2];
+  v_base[0] = 0;
+  v_base[1] = 0;
+  float v_topo[2];
+  v_topo[0] = 0;
+  v_topo[1] = raio;
+  float h_topo = 0;
+
+  int i_coordenadas = 0;
+  int i_indices = 0;
+  int coordenada_inicial = 0;
+
+  float raio_topo = raio;
+  for (int i = 1; i <= num_tocos; ++i) {
+    float h_base = h_topo;
+    // Novas alturas e base.
+    float angulo_h_rad_vezes_i = angulo_h_rad * i;
+    h_topo = sinf(angulo_h_rad_vezes_i) * raio;
+    v_base[0] = 0.0f;
+    v_base[1] = raio_topo;
+    v_topo[0] = 0.0f;
+    raio_topo = raio * cosf(angulo_h_rad_vezes_i);
+    v_topo[1] = raio_topo;
+
+    for (int i = 0; i < num_fatias; ++i) {
+      // Cada faceta da esfera possui 4 vertices (anti horario). Cada vertices sera a propria normal.
+      // V0 = vbase.
+      coordenadas[i_coordenadas] = v_base[0];
+      coordenadas[i_coordenadas + 1] = v_base[1];
+      coordenadas[i_coordenadas + 2] = h_base;
+      // V1 = vbase rodado.
+      float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
+      float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
+      v_base[0] = v_base_0_rodado;
+      v_base[1] = v_base_1_rodado;
+      coordenadas[i_coordenadas + 3] = v_base[0];
+      coordenadas[i_coordenadas + 4] = v_base[1];
+      coordenadas[i_coordenadas + 5] = h_base;
+      // v3 = vtopo.
+      coordenadas[i_coordenadas + 9] = v_topo[0];
+      coordenadas[i_coordenadas + 10] = v_topo[1];
+      coordenadas[i_coordenadas + 11] = h_topo;
+      // V2 = vtopo rodado.
+      float v_topo_0_rodado = v_topo[0] * cos_fatia - v_topo[1] * sen_fatia;
+      float v_topo_1_rodado = v_topo[0] * sen_fatia + v_topo[1] * cos_fatia;
+      v_topo[0] = v_topo_0_rodado;
+      v_topo[1] = v_topo_1_rodado;
+      coordenadas[i_coordenadas + 6] = v_topo[0];
+      coordenadas[i_coordenadas + 7] = v_topo[1];
+      coordenadas[i_coordenadas + 8] = h_topo;
+
+      // Simetria na parte de baixo.
+      memcpy(coordenadas + i_coordenadas + 12, coordenadas + i_coordenadas, sizeof(float) * 12);
+      for (int i = 2; i < 12 ; i += 3) {
+        coordenadas[i_coordenadas + 12 + i] = -coordenadas[i_coordenadas + i]; 
       }
-      p_coord += num_coordenadas_por_toco;
+
+      // Indices: V0, V1, V2, V0, V2, V3.
+      indices[i_indices] = coordenada_inicial;
+      indices[i_indices + 1] = coordenada_inicial + 1;
+      indices[i_indices + 2] = coordenada_inicial + 2;
+      indices[i_indices + 3] = coordenada_inicial;
+      indices[i_indices + 4] = coordenada_inicial + 2;
+      indices[i_indices + 5] = coordenada_inicial + 3;
+      indices[i_indices + 6] = coordenada_inicial + 4;
+      indices[i_indices + 7] = coordenada_inicial + 7;
+      indices[i_indices + 8] = coordenada_inicial + 6;
+      indices[i_indices + 9] = coordenada_inicial + 4;
+      indices[i_indices + 10] = coordenada_inicial + 6;
+      indices[i_indices + 11] = coordenada_inicial + 5;
+
+      i_indices += 12;
+      i_coordenadas += 24;
+      coordenada_inicial += 8;
     }
-    {
-      // TODO usar simetria.
-      VerticesNormaisIndicesCilindro(raio_topo, raio_base, h_delta, num_fatias, 1,
-                                     &coordenadas, &normais, &indices);
-      // Translada os Z dos vertices.
-      for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
-        p_coord[c] -= h_topo;
-      }
-      p_coord += num_coordenadas_por_toco;
-    }
-    raio_base = raio_topo;
   }
-  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, normais.data());
-  PonteiroVertices(3, GL_FLOAT, coordenadas.data());
-  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, indices.data());
-  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-#elif NOVO_DESENHO == 2
-  // Desenhar a esfera baseada em cilindros.
-  float angulo_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
-  GLfloat raio_base = raio;
-  GLfloat raio_topo;
+  //LOG(INFO) << "raio: " << raio;
+  //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
+  //  LOG(INFO) << "indices[" << i << "]: " << indices[i]; 
+  //}
+  //for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
+  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: " 
+  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2]; 
+  //}
 
-  // Vertices.
-  const int num_vertices_por_fatia = 4;
-  const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
-  const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
-  const int num_coordenadas = num_coordenadas_por_toco * num_tocos * 2;
-  // Indices.
-  const int num_indices_por_fatia = 6;
-  const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
-  const int num_indices = num_indices_por_toco * num_tocos * 2;
+  // TODO normais unitarias.
+  memcpy(normais, coordenadas, sizeof(coordenadas));
 
-  float coordenadas[num_coordenadas];
-  float normais[num_coordenadas];
-  unsigned short indices[num_indices];
-  int p_coordenadas = 0;
-  int p_normais = 0;
-  int p_indices = 0;
-
-  for (int i = 0; i < num_tocos; ++i) {
-    raio_topo = raio * cosf(angulo_rad * (i + 1));
-    GLfloat h_base = raio * sinf(angulo_rad * i);
-    GLfloat h_topo = raio * sinf(angulo_rad * (i + 1));
-    GLfloat h_delta = h_topo - h_base;
-    // Desenha cilindro de cima e de baixo.
-    {
-      VerticesNormaisIndicesCilindro(raio_base, raio_topo, h_delta, num_fatias, 1,
-                                     &coordenadas[p_coordenadas], &normais[p_normais], &indices[p_indices]);
-      // Translada os Z dos vertices.
-      for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
-        coordenadas[p_coordenadas + c] += h_base;
-      }
-      int inicio_vertices = p_coordenadas / 3;
-      for (int ii = 0; ii < num_indices_por_toco; ++ii) {
-        indices[p_indices + ii] += inicio_vertices;
-      }
-      p_coordenadas += num_coordenadas_por_toco;
-      p_normais += num_coordenadas_por_toco;
-      p_indices += num_indices_por_toco;
-    }
-    {
-      // TODO usar simetria.
-      VerticesNormaisIndicesCilindro(raio_topo, raio_base, h_delta, num_fatias, 1,
-                                     &coordenadas[p_coordenadas], &normais[p_normais], &indices[p_indices]);
-      // Translada os Z dos vertices.
-      for (int c = 2; c < num_coordenadas_por_toco; c += 3) {
-        coordenadas[p_coordenadas + c] -= h_topo;
-      }
-      int inicio_vertices = p_coordenadas / 3;
-      for (int ii = 0; ii < num_indices_por_toco; ++ii) {
-        indices[p_indices + ii] += inicio_vertices;
-      }
-      p_coordenadas += num_coordenadas_por_toco;
-      p_normais += num_coordenadas_por_toco;
-      p_indices += num_indices_por_toco;
-    }
-    raio_base = raio_topo;
-  }
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
   PonteiroNormais(GL_FLOAT, normais);
   PonteiroVertices(3, GL_FLOAT, coordenadas);
-  DesenhaElementos(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, indices);
+  DesenhaElementos(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned short), GL_UNSIGNED_SHORT, indices);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-#else
-  // Desenhar a esfera baseada em cilindros.
-  float angulo_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
-  GLfloat raio_base = raio;
-  GLfloat raio_topo;
-
-  for (int i = 0; i < num_tocos; ++i) {
-    raio_topo = raio * cosf(angulo_rad * (i + 1));
-    GLfloat h_base = raio * sinf(angulo_rad * i);
-    GLfloat h_topo = raio * sinf(angulo_rad * (i + 1));
-    GLfloat h_delta = h_topo - h_base;
-    // Desenha cilindro de cima e de baixo.
-    {
-      MatrizEscopo salva_matriz;
-      glTranslatef(0.0f, 0.0f, h_base);
-      CilindroSolido(raio_base, raio_topo, h_delta, num_fatias, 1);
-    }
-    {
-      MatrizEscopo salva_matriz;
-      glTranslatef(0.0f, 0.0f, -h_topo);
-      CilindroSolido(raio_topo, raio_base, h_delta, num_fatias, 1);
-    }
-    raio_base = raio_topo;
-  }
-#endif
 }
 
 void CuboSolido(GLfloat tam_lado) {
