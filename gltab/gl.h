@@ -323,6 +323,9 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
   glStencilOp(falha_stencil, falha_profundidade, sucesso);
 }
 
+/** debugging. */
+void AlternaModoDebug();
+
 }  // namespace gl
 
 
