@@ -211,8 +211,8 @@ inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
 
 /** Objetos GLU e GLUT. */
-void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
+void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
 void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
 void CuboSolido(GLfloat tam_lado);
