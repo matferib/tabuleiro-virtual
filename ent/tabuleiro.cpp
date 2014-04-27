@@ -1661,7 +1661,7 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
   gl::CarregaIdentidade();
   // Eixo com origem embaixo esquerda.
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+  gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
   gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
   gl::CarregaIdentidade();
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
@@ -1977,7 +1977,7 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
     return false;
   }
 #if !USAR_OPENGL_ES
-  return MousePara3dProfundidade(x, y, profundidade, x3d, y3d, z3d);
+  return MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d);
 #else
   return MousePara3dComId(x, y, id, pos_pilha, x3d, y3d, z3d);
 #endif
@@ -3179,7 +3179,9 @@ Entidade* Tabuleiro::EntidadeSelecionada() {
 }
 
 void Tabuleiro::AlternaModoDebug() {
+#if USAR_OPENGL_ES
   gl::AlternaModoDebug();
+#endif
   modo_debug_ = !modo_debug_;
 }
 

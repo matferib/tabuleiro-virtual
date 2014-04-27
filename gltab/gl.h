@@ -261,11 +261,17 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
                float centro_x, float centro_y, float centro_z,
                float cima_x, float cima_y, float cima_z);
 inline void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
-#if BENCHMARK
-  glOrtho(esquerda, direita, baixo, cima, proximo, distante);
-#else
-  glOrthof(esquerda, direita, baixo, cima, proximo, distante);
-#endif
+  // glOrthof ta bugada no linux.
+  //glOrthof(esquerda, direita, baixo, cima, proximo, distante);
+  float tx = - ((direita + esquerda) / (direita - esquerda));
+  float ty = - ((cima + baixo) / (cima - baixo));
+  float tz = - ((distante + proximo) / (distante - proximo));
+  GLfloat m[16];
+  m[0] = 2.0f / (direita - esquerda); m[4] = 0; m[8] = 0; m[12] = tx;
+  m[1] = 0; m[5] = 2.0f / (cima - baixo); m[9] = 0; m[13] = ty;
+  m[2] = 0; m[6] = 0; m[10] = -2.0f / (distante - proximo); m[14] = tz;
+  m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
+  glMultMatrixf(m);
 }
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
