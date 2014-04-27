@@ -164,7 +164,7 @@ void DesenhaStencil(const float* cor) {
     gl::MatrizEscopo salva_projecao(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
-    gl::Ortogonal(0, largura, 0, altura, 0, 1);
+    gl::Ortogonal(0, largura, 0, altura, 0.0f, 1.0f);
     {
       gl::MatrizEscopo salva_projecao(GL_MODELVIEW);
       gl::CarregaIdentidade();

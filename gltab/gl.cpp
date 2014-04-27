@@ -43,6 +43,14 @@ void DesenhaString(const std::string& str) {
   }
 }
 
+void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
+  GLUquadric* cilindro = gluNewQuadric();
+  gluQuadricOrientation(cilindro, GLU_OUTSIDE);
+  gluQuadricNormals(cilindro, GLU_SMOOTH);
+  gluQuadricDrawStyle(cilindro, GLU_FILL);
+  gluCylinder(cilindro, raio, raio, altura, fatias, tocos);
+  gluDeleteQuadric(cilindro);
+}
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
   GLUquadric* cilindro = gluNewQuadric();
@@ -463,7 +471,7 @@ void Habilita(GLenum cap) {
 }
 
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, };
+  const unsigned short indices[] = { 0, 1, 2, 3 };
   const float vertices[] = {
     x1, y1,
     x2, y1,
