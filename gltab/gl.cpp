@@ -818,8 +818,10 @@ void CilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLint num_to
 }
 
 void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  //num_tocos = 1;
-  //num_fatias = 4;
+  if (raio_base == raio_topo_original) {
+    CilindroSolido(raio_base, altura, num_fatias, num_tocos);
+    return;
+  }
   const int num_vertices_por_fatia = 4;
   const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
   const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
@@ -846,6 +848,10 @@ void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat alt
   int coordenada_inicial = 0;
   float v_base[2];
   float v_topo[2] = { 0.0f, raio_base };
+  float beta_rad = atanf(altura / (raio_base - raio_topo_original));
+  float alfa_rad = (M_PI / 2.0f) - beta_rad;
+  float sen_alfa = sinf(alfa_rad);
+  float cos_alfa = cosf(alfa_rad);
   for (int t = 1; t <= num_tocos; ++t) {
     float h_base = h_topo;
     h_topo += h_delta;
@@ -855,6 +861,11 @@ void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat alt
     raio_topo -= delta_raio;
     v_topo[0] = 0.0f;
     v_topo[1] = raio_topo;
+    // Normal: TODO fazer direito.
+    float v_normal[3];
+    v_normal[0] = 0.0f;
+    v_normal[1] = cos_alfa;
+    v_normal[2] = sen_alfa;
 
     for (int f = 0; f < num_fatias; ++f) {
       // Cada faceta possui 4 vertices (anti horario).
@@ -883,6 +894,28 @@ void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat alt
       coordenadas[i_coordenadas + 7] = v_topo[1];
       coordenadas[i_coordenadas + 8] = h_topo;
 
+      // As normais.
+      // Vn0.
+      normais[i_coordenadas] = v_normal[0];
+      normais[i_coordenadas + 1] = v_normal[1];
+      normais[i_coordenadas + 2] = v_normal[2];
+      // Vn3 = acima de vn0.
+      normais[i_coordenadas + 9] = v_normal[0];
+      normais[i_coordenadas + 10] = v_normal[1];
+      normais[i_coordenadas + 11] = v_normal[2];
+      // Vn1 = vn0 rodado.
+      float v_normal_0_rodado = v_normal[0] * cos_fatia - v_normal[1] * sen_fatia;
+      float v_normal_1_rodado = v_normal[0] * sen_fatia + v_normal[1] * cos_fatia;
+      v_normal[0] = v_normal_0_rodado;
+      v_normal[1] = v_normal_1_rodado;
+      normais[i_coordenadas + 3] = v_normal[0];
+      normais[i_coordenadas + 4] = v_normal[1];
+      normais[i_coordenadas + 5] = v_normal[2];
+      // Vn2 = acima de vn1.
+      normais[i_coordenadas + 6] = v_normal[0];
+      normais[i_coordenadas + 7] = v_normal[1];
+      normais[i_coordenadas + 8] = v_normal[2];
+
       // Indices: V0, V1, V2, V0, V2, V3.
       indices[i_indices] = coordenada_inicial;
       indices[i_indices + 1] = coordenada_inicial + 1;
@@ -910,8 +943,8 @@ void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat alt
 #endif
 
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  //HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  //PonteiroNormais(GL_FLOAT, normais);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  PonteiroNormais(GL_FLOAT, normais);
   PonteiroVertices(3, GL_FLOAT, coordenadas);
   DesenhaElementos(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned short), GL_UNSIGNED_SHORT, indices);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
