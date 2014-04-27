@@ -703,7 +703,100 @@ void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
 }
 
 void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  CilindroSolido(base, 0.0f, altura, num_fatias, num_tocos);
+  float raio_base = base;
+  float raio_topo = 0.0f;
+#if NOVO_DESENHO == 1
+  const int num_vertices_por_fatia = 4;
+  const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
+  const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
+  const int num_indices_por_fatia = 6;
+  const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
+
+  std::vector<float> coordenadas;
+  coordenadas.reserve(num_coordenadas_por_toco * num_tocos);
+  std::vector<float> normais;
+  normais.reserve(num_coordenadas_por_toco * num_tocos);
+  std::vector<unsigned short> indices;
+  indices.reserve(num_indices_por_toco * num_tocos);
+  VerticesNormaisIndicesCilindro(raio_base, raio_topo, altura, num_fatias, num_tocos, &coordenadas, &normais, &indices);
+
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  PonteiroNormais(GL_FLOAT, normais.data());
+  PonteiroVertices(3, GL_FLOAT, coordenadas.data());
+  DesenhaElementos(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, indices.data());
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#elif NOVO_DESENHO == 2
+  const int num_vertices_por_fatia = 4;  // os 4 vertices formam 2 triangulos (ha repeticao).
+  const int num_vertices = num_vertices_por_fatia * num_fatias;
+  const int num_coordenadas = 3 * num_vertices;
+  const int num_indices_por_fatia = 6;
+  const int num_indices = num_indices_por_fatia * num_fatias;
+  float coordenadas[num_coordenadas];
+  float normais[num_coordenadas];
+  unsigned short indices[num_indices];
+  VerticesNormaisIndicesCilindro(raio_base, raio_topo, altura, num_fatias, num_tocos, coordenadas, normais, indices);
+
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  PonteiroNormais(GL_FLOAT, normais);
+  PonteiroVertices(3, GL_FLOAT, coordenadas);
+  DesenhaElementos(GL_TRIANGLES, num_indices, GL_UNSIGNED_SHORT, indices);
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#else
+  // Versao antiga.
+  gl::MatrizEscopo salva_matriz;
+  float angulo_rotacao_graus = 360.0f / num_fatias;
+  float angulo_rotacao_graus_2 = angulo_rotacao_graus / 2.0f;
+  unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+  float seno_angulo_rotacao_2 = sinf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
+  GLfloat tam_lado_base_2 = raio_base * seno_angulo_rotacao_2;
+  GLfloat tam_lado_topo_2 = raio_topo * seno_angulo_rotacao_2;
+  float cos_angulo_rotacao_2 = cosf(angulo_rotacao_graus_2 * GRAUS_PARA_RAD);
+  GLfloat tam_y_base = raio_base * cos_angulo_rotacao_2;
+  GLfloat tam_y_topo = raio_topo * cos_angulo_rotacao_2;
+  GLfloat vetor_x[3] = { 1.0f, 0.0f, 0.0f };
+  GLfloat vetor_cima[3] = { 0.0f, raio_base - raio_topo, altura };
+  GLfloat vetor_normal[3];
+  // Gera a normal FLAT.
+  ProdutoVetorial(vetor_x, vetor_cima, vetor_normal);
+  Normaliza(vetor_normal);
+  // Gera a normal SMOOTH.
+  GLfloat matriz_rotacao[16];
+  GLfloat vetor_normal_oeste[3] = { vetor_normal[0], vetor_normal[1], vetor_normal[2] };
+  MatrizRotacaoZ(-angulo_rotacao_graus_2, matriz_rotacao);
+  MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_oeste);
+  GLfloat vetor_normal_leste[3] = { vetor_normal[0], vetor_normal[1], vetor_normal[2] };
+  MatrizRotacaoZ(angulo_rotacao_graus_2, matriz_rotacao);
+  MultiplicaMatrizVetor(matriz_rotacao, vetor_normal_leste);
+  const float vertices_normais[12] = {
+    vetor_normal_oeste[0], vetor_normal_oeste[1], vetor_normal_oeste[2],
+    vetor_normal_leste[0], vetor_normal_leste[1], vetor_normal_leste[2],
+    vetor_normal_leste[0], vetor_normal_leste[1], vetor_normal_leste[2],
+    vetor_normal_oeste[0], vetor_normal_oeste[1], vetor_normal_oeste[2],
+  };
+  const float vertices_sul[] = {
+    -tam_lado_base_2, -tam_y_base, 0.0f,
+    tam_lado_base_2, -tam_y_base, 0.0f,
+    tam_lado_topo_2, -tam_y_topo, altura,
+    -tam_lado_topo_2, -tam_y_topo, altura
+  };
+
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  for (int i = 0; i < num_fatias; ++i) {
+    // TODO pra que esse normal aqui se tem o PonteiroNormais?
+    Normal(vetor_normal[0], vetor_normal[1], vetor_normal[2]);
+    PonteiroNormais(GL_FLOAT, vertices_normais);
+    PonteiroVertices(3, GL_FLOAT, vertices_sul);
+    DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+    Roda(angulo_rotacao_graus, 0.0f, 0.0f, 1.0f);
+  }
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#endif
 }
 
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
@@ -825,6 +918,97 @@ void CuboSolido(GLfloat tam_lado) {
   gl::MatrizEscopo salva_matriz;
   gl::Escala(tam_lado, tam_lado, tam_lado);
   CuboSolidoUnitario();
+}
+
+void CilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLint num_tocos) {
+  // Vertices.
+  const int num_vertices_por_fatia = 4;
+  const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
+  const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
+  const int num_indices_por_fatia = 6;
+  const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
+  const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos;
+  const int num_indices_total = num_indices_por_toco * num_tocos;
+
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
+  float coordenadas[num_coordenadas_total];
+  float normais[num_coordenadas_total];
+  unsigned short indices[num_indices_total];
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
+
+  float h_delta = altura / num_tocos;
+  float v_base[2];
+  v_base[0] = 0;
+  v_base[1] = raio;
+  float h_topo = 0;
+
+  int i_coordenadas = 0;
+  int i_indices = 0;
+  int coordenada_inicial = 0;
+
+  for (int i = 1; i <= num_tocos; ++i) {
+    float h_base = h_topo;
+    h_topo += h_delta;
+    // Novas alturas e base.
+    v_base[0] = 0.0f;
+    v_base[1] = raio;
+
+    for (int i = 0; i < num_fatias; ++i) {
+      // Cada faceta da esfera possui 4 vertices (anti horario). Cada vertices sera a propria normal.
+      // V0 = vbase.
+      coordenadas[i_coordenadas] = v_base[0];
+      coordenadas[i_coordenadas + 1] = v_base[1];
+      coordenadas[i_coordenadas + 2] = h_base;
+      // v3 = vbase topo.
+      coordenadas[i_coordenadas + 9] = v_base[0];
+      coordenadas[i_coordenadas + 10] = v_base[1];
+      coordenadas[i_coordenadas + 11] = h_topo;
+      // V1 = vbase rodado.
+      float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
+      float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
+      v_base[0] = v_base_0_rodado;
+      v_base[1] = v_base_1_rodado;
+      coordenadas[i_coordenadas + 3] = v_base[0];
+      coordenadas[i_coordenadas + 4] = v_base[1];
+      coordenadas[i_coordenadas + 5] = h_base;
+      // V2 = vtopo rodado.
+      coordenadas[i_coordenadas + 6] = v_base[0];
+      coordenadas[i_coordenadas + 7] = v_base[1];
+      coordenadas[i_coordenadas + 8] = h_topo;
+
+      // Indices: V0, V1, V2, V0, V2, V3.
+      indices[i_indices] = coordenada_inicial;
+      indices[i_indices + 1] = coordenada_inicial + 1;
+      indices[i_indices + 2] = coordenada_inicial + 2;
+      indices[i_indices + 3] = coordenada_inicial;
+      indices[i_indices + 4] = coordenada_inicial + 2;
+      indices[i_indices + 5] = coordenada_inicial + 3;
+
+      i_indices += 6;
+      i_coordenadas += 12;
+      coordenada_inicial += 4;
+    }
+  }
+  //LOG(INFO) << "raio: " << raio;
+  //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
+  //  LOG(INFO) << "indices[" << i << "]: " << indices[i]; 
+  //}
+  //for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
+  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: " 
+  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2]; 
+  //}
+
+  // TODO normais unitarias.
+  memcpy(normais, coordenadas, sizeof(coordenadas));
+
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  PonteiroNormais(GL_FLOAT, normais);
+  PonteiroVertices(3, GL_FLOAT, coordenadas);
+  DesenhaElementos(GL_TRIANGLES, sizeof(indices) / sizeof(unsigned short), GL_UNSIGNED_SHORT, indices);
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint num_fatias, GLint num_tocos) {

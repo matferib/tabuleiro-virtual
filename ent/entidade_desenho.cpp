@@ -178,13 +178,13 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
     case TF_CILINDRO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::CilindroSolido(0.5f  /*radius_base*/, 0.5f  /*radius_top*/, 1.0f  /*height*/, 20  /*slices*/, 20  /*stacks*/);
+      gl::CilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*fatias*/, 10  /*tocos*/);
     }
     break;
     case TF_CONE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::ConeSolido(0.5f, 1.0f, 20  /*slices*/, 20  /*stacks*/);
+      gl::ConeSolido(0.5f, 1.0f, 10  /*slices*/, 10  /*stacks*/);
     }
     break;
     case TF_CUBO: {
