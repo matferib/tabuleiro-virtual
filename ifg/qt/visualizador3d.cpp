@@ -330,6 +330,10 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
       }
       break;
     case Qt::Key_D:
+      if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
+        tabuleiro_->AlternaModoDebug();
+        return;
+      }
       // Entra em modo de temporizacao.
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(event->key());
@@ -337,9 +341,6 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
     case Qt::Key_S:
       tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       return;
-    case Qt::Key_K:
-      // TEMP TEST.
-      tabuleiro_->AlternaModoDebug();
     default:
       event->ignore();
   }
