@@ -165,6 +165,7 @@ rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark
 if rodar_benchmark:
   env['CPPDEFINES']['BENCHMARK'] = '1'
+  env['CPPDEFINES']['USAR_WATCHDOG'] = '0'
   env.Program(
       target = 'benchmark',
       source = ['benchmark.cpp', ] + objetos)
