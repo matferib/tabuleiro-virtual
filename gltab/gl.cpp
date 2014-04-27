@@ -361,7 +361,12 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   if (g_contexto->proximo_id == ((1 << 22) - 1)) {
     LOG(ERROR) << "Limite de ids alcancado";
   } else {
-    ++g_contexto->proximo_id;
+    if (g_contexto->depurar_selecao_por_cor) {
+      // Mais facil de ver.
+      g_contexto->proximo_id += 5;
+    } else {
+      ++g_contexto->proximo_id;
+    }
   }
   rgb[0] = (id_mapeado & 0xFF);
   rgb[1] = ((id_mapeado >> 8) & 0xFF);
@@ -675,7 +680,7 @@ void InicioCena() {
 }
 
 void Habilita(GLenum cap) {
-  if (g_contexto->UsarSelecaoPorCor() && (cap & GL_LIGHTING) != 0) {
+  if (g_contexto->UsarSelecaoPorCor() && (cap == GL_LIGHTING)) {
     // Sem luz no modo de selecao.
     glDisable(cap);
   } else {
@@ -1160,7 +1165,7 @@ void CarregaNome(GLuint id) {
   GLubyte rgb[3];
   MapeiaId(id, rgb);
   // Muda a cor para a mapeada.
-  glColor4ub(rgb[0], rgb[1], rgb[2], 1.0f);
+  glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 }
 
 void DesempilhaNome() {
