@@ -899,7 +899,7 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
   int primeira_tecla = *teclas_.begin();
   switch (primeira_tecla) {
     case Qt::Key_A: {
-      if (teclas_.size() == 1) {
+      if (teclas_.size() <= 2) {
         return;
       }
       if (teclas_[1] == Qt::Key_Delete) {
@@ -907,7 +907,7 @@ void Visualizador3d::TrataAcaoTemporizadaTeclado() {
       } else if (teclas_[1] == Qt::Key_Backspace) {
         tabuleiro_->LimpaUltimoListaPontosVida();
       } else {
-        auto lista_dano = CalculaDano(teclas_.begin() + 1, teclas_.end());
+        auto lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
         if (teclas_[1] == Qt::Key_D) {
           // Inverte o dano.
           for (int& pv : lista_dano) {

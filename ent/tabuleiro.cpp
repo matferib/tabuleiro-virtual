@@ -3083,6 +3083,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
   if (lista_pontos_vida_.empty()) {
     return;
   }
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -3091,15 +3092,15 @@ void Tabuleiro::DesenhaListaPontosVida() {
   {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
     gl::CarregaIdentidade();
-    int largura, altura;
-    gl::TamanhoFonte(&largura, &altura);
+    int largura_fonte, altura_fonte;
+    gl::TamanhoFonte(&largura_fonte, &altura_fonte);
 
     int raster_y = altura_ - altura_fonte;
     int raster_x = largura_ - 2;
     std::string titulo("Lista PV");
     gl::PosicaoRaster(raster_x, raster_y);
     MudaCor(COR_BRANCA);
-    DesenhaStringAlinhadoDireita(titulo);
+    gl::DesenhaStringAlinhadoDireita(titulo);
     raster_y -= (altura_fonte + 2);
     for (int pv : lista_pontos_vida_) {
       gl::PosicaoRaster(raster_x, raster_y);
@@ -3107,7 +3108,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
       MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
       char str[4];
       snprintf(str, 4, "%d", abs(pv));
-      DesenhaStringAlinhadoDireita(str);
+      gl::DesenhaStringAlinhadoDireita(str);
     }
   }
 }

@@ -1129,10 +1129,16 @@ void Limpa(GLbitfield mascara) {
   glClear(mascara);
 }
 
+void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura) {
+  unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
+  *largura_fonte = media_tela / 32;
+  *altura = static_cast<int>(*largura_fonte * (13.0f / 8.0f));
+}
+
 void TamanhoFonte(int* largura, int* altura) {
-  unsigned int media_tela = (viewport[2] + viewport[3]) / 2;
-  *largura = media_tela / 32;
-  *altura = static_cast<int>(largura_fonte * (13.0f / 8.0f));
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  TamanhoFonte(viewport[2], viewport[3], largura, altura);
 }
 
 void DesenhaString(const std::string& str) {
@@ -1147,8 +1153,8 @@ void DesenhaString(const std::string& str) {
   gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
   gl::CarregaIdentidade();
 
-  const float largura_fonte;
-  const float altura_fonte;
+  int largura_fonte;
+  int altura_fonte;
   TamanhoFonte(&largura_fonte, &altura_fonte);
 
   float x2d = g_contexto->raster_x;
