@@ -42,7 +42,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   gl::CarregaIdentidade();
   if (alinhamento < 0) {
     glRasterPos2i(raster_pos[0], raster_pos[1]);
-  } else if () {
+  } else if (alinhamento == 0) {
     glRasterPos2i(raster_pos[0] - (str.size() / 2) * 8, raster_pos[1]);
   } else {
     glRasterPos2i(raster_pos[0] - (str.size() * 8), raster_pos[1]);
