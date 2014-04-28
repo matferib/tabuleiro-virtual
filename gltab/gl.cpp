@@ -43,6 +43,27 @@ void DesenhaString(const std::string& str) {
   }
 }
 
+void DesenhaStringAlinhadoDireita(const std::string& str) {
+  // Le o raster em coordenadas de janela.
+  GLint raster_pos[4];
+  glGetIntegerv(GL_CURRENT_RASTER_POSITION, raster_pos);
+  // Le viewport.
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  int largura = viewport[2], altura = viewport[3];
+
+  // Muda para projecao 2D.
+  gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura, 0, altura, 0, 1);
+  gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+  glRasterPos2i(raster_pos[0] - (str.size() * 8), raster_pos[1]);
+  for (const char c : str) {
+    gl::DesenhaCaractere(c);
+  }
+}
+
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
   GLUquadric* cilindro = gluNewQuadric();
   gluQuadricOrientation(cilindro, GLU_OUTSIDE);
@@ -1108,7 +1129,42 @@ void Limpa(GLbitfield mascara) {
   glClear(mascara);
 }
 
+void TamanhoFonte(int* largura, int* altura) {
+  unsigned int media_tela = (viewport[2] + viewport[3]) / 2;
+  *largura = media_tela / 32;
+  *altura = static_cast<int>(largura_fonte * (13.0f / 8.0f));
+}
+
 void DesenhaString(const std::string& str) {
+  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  gl::DesligaTesteProfundidadeEscopo mascara_escopo;
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
+  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+
+  const float largura_fonte;
+  const float altura_fonte;
+  TamanhoFonte(&largura_fonte, &altura_fonte);
+
+  float x2d = g_contexto->raster_x;
+  float y2d = g_contexto->raster_y;
+  gl::Translada(x2d, y2d, 0.0f);
+
+  //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
+  gl::Escala(largura_fonte, altura_fonte, 1.0f);
+  gl::Translada(-static_cast<float>(str.size()) / 2.0f, 0.0f, 0.0f);
+  for (const char c : str) {
+    gl::DesenhaCaractere(c);
+    gl::Translada(1.0f, 0.0f, 0.0f);
+  }
+}
+
+void DesenhaStringAlinhadoDireita(const std::string& str) {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaTesteProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
@@ -1130,7 +1186,7 @@ void DesenhaString(const std::string& str) {
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   gl::Escala(largura_fonte, altura_fonte, 1.0f);
-  gl::Translada(-static_cast<float>(str.size()) / 2.0f, 0.0f, 0.0f);
+  gl::Translada(-static_cast<float>(str.size()), 0.0f, 0.0f);
   for (const char c : str) {
     gl::DesenhaCaractere(c);
     gl::Translada(1.0f, 0.0f, 0.0f);

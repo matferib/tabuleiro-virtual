@@ -3091,19 +3091,23 @@ void Tabuleiro::DesenhaListaPontosVida() {
   {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
     gl::CarregaIdentidade();
-    gl::Desabilita(GL_DEPTH_TEST);
-    gl::Desabilita(GL_LIGHTING);
+    int largura, altura;
+    gl::TamanhoFonte(&largura, &altura);
+
+    int raster_y = altura_ - altura_fonte;
+    int raster_x = largura_ - 2;
     std::string titulo("Lista PV");
-    gl::Translada(largura_ - 2 - 8 * titulo.size(), altura_ - 15.0f, 0.0f);
+    gl::PosicaoRaster(raster_x, raster_y);
     MudaCor(COR_BRANCA);
-    DesenhaString(titulo);
-    gl::Translada((titulo.size() - 3) * 8, 0.0f, 0.0f);
+    DesenhaStringAlinhadoDireita(titulo);
+    raster_y -= (altura_fonte + 2);
     for (int pv : lista_pontos_vida_) {
+      gl::PosicaoRaster(raster_x, raster_y);
+      raster_y -= (altura_fonte + 2);
       MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
       char str[4];
       snprintf(str, 4, "%d", abs(pv));
-      gl::Translada(0.0f, -15.0f, 0.0f);
-      DesenhaString(str);
+      DesenhaStringAlinhadoDireita(str);
     }
   }
 }
