@@ -326,15 +326,10 @@ static void __gluMultMatrixVecf(const GLfloat matrix[16], const GLfloat in[4],
     }
 }
 
-static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16],
-                               GLfloat r[16])
-{
+static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16], GLfloat r[16]) {
     int i, j;
-
-    for (i = 0; i < 4; i++)
-    {
-        for (j = 0; j < 4; j++)
-        {
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 4; j++) {
             r[i*4+j] = a[i*4+0]*b[0*4+j] +
                        a[i*4+1]*b[1*4+j] +
                        a[i*4+2]*b[2*4+j] +
@@ -343,6 +338,43 @@ static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16],
     }
 }
 
+GLint gluProject(
+    GLfloat objx, GLfloat objy, GLfloat objz, 
+    const GLfloat modelMatrix[16], 
+    const GLfloat projMatrix[16],
+    const GLint viewport[4],
+    GLfloat* winx, GLfloat* winy, GLfloat* winz) {
+  GLfloat in[4];
+  GLfloat out[4];
+
+  in[0]=objx;
+  in[1]=objy;
+  in[2]=objz;
+  in[3]=1.0;
+  __gluMultMatrixVecf(modelMatrix, in, out);
+  __gluMultMatrixVecf(projMatrix, out, in);
+  if (in[3] == 0.0) {
+      return (GL_FALSE);
+  }
+
+  in[0]/=in[3];
+  in[1]/=in[3];
+  in[2]/=in[3];
+  /* Map x, y and z to range 0-1 */
+  in[0]=in[0]*0.5f+0.5f;
+  in[1]=in[1]*0.5f+0.5f;
+  in[2]=in[2]*0.5f+0.5f;
+
+  /* Map x,y to viewport */
+  in[0]=in[0] * viewport[2] + viewport[0];
+  in[1]=in[1] * viewport[3] + viewport[1];
+
+  *winx=in[0];
+  *winy=in[1];
+  *winz=in[2];
+
+  return (GL_TRUE);
+}
 struct ContextoInterno {
   // Mapeia um ID para a cor RGB em 22 bits (os dois mais significativos sao para a pilha).
   std::unordered_map<unsigned int, unsigned int> ids;
@@ -353,6 +385,8 @@ struct ContextoInterno {
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   GLuint* buffer_selecao = nullptr;
   GLuint tam_buffer = 0;
+  float raster_x = 0.0f;
+  float raster_y = 0.0f;
 
   inline bool UsarSelecaoPorCor() const {
     return depurar_selecao_por_cor || modo_renderizacao == MR_SELECT;
@@ -1075,12 +1109,22 @@ void Limpa(GLbitfield mascara) {
 }
 
 void DesenhaString(const std::string& str) {
-  gl::MatrizEscopo salva_matriz;
-  // Inverte Y e Z e centraliza.
-  gl::Roda(90.0f, 1.0f, 0.0f, 0.0f);
-  gl::Escala(0.6f, 1.0f, 1.0f);
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
+  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+
+  float x2d = g_contexto->raster_x;
+  float y2d = g_contexto->raster_y;
+  gl::Translada(x2d, y2d, 0.0f);
+
+  //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
+  gl::Escala(8.0f, 13.0f, 1.0f);
   gl::Translada(-str.size() / 2.0f, 0.0f, 0.0f);
-  // TODO: colocar na escala certa.
   for (const char c : str) {
     gl::DesenhaCaractere(c);
     gl::Translada(1.0f, 0.0f, 0.0f);
@@ -1096,6 +1140,23 @@ void DesenhaCaractere(char c) {
   gl::PonteiroVertices(2, GL_FLOAT, &g_vertices_caracteres[0]);
   gl::DesenhaElementos(GL_TRIANGLES, caractere_it->second.size(), GL_UNSIGNED_SHORT, &caractere_it->second[0]);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+}
+
+void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
+  float matriz_mv[16];
+  float matriz_pr[16];
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
+  gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
+  float x2d, y2d, z2d;
+  gluProject(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d);
+  g_contexto->raster_x = x2d;
+  g_contexto->raster_y = y2d;
+}
+
+void PosicaoRaster(GLint x, GLint y) {
+  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
 }
 
 void AlternaModoDebug() {
