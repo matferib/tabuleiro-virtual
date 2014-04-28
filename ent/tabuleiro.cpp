@@ -99,7 +99,7 @@ void DesenhaStringTempo(const std::string& tempo) {
   MudaCor(COR_PRETA);
   gl::Retangulo(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
   MudaCor(COR_BRANCA);
-  DesenhaString(tempo);
+  gl::DesenhaStringAlinhadoEsquerda(tempo);
 }
 
 /** Le um arquivo proto serializado de forma binaria. */
@@ -3136,16 +3136,18 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   }
 #if ANDROID
   std::string tempo_str;
+  while (maior_tempo_ms > 0) {
+    char c = (maior_tempo_ms % 10) + '0';
+    tempo_str.push_back(c);
+    maior_tempo_ms /= 10;
+  }
+  std::reverse(tempo_str.begin(), tempo_str.end());
 #else
   std::string tempo_str = std::to_string(maior_tempo_ms);
 #endif
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }
-#if USAR_OPENGL_ES
-  // OpenGL es ta sem caracteres.
-  std::cout << "TR: " << tempo_str << std::endl;
-#else
   // Modo 2d.
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -3153,11 +3155,11 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
   gl::ModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  gl::Desabilita(GL_DEPTH_TEST);
-  gl::Desabilita(GL_LIGHTING);
-  gl::Translada(0.0, altura_ - 15.0f, 0.0f);
+  int largura_fonte, altura_fonte;
+  gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::PosicaoRaster(2, altura_ - altura_fonte - 2);
   DesenhaStringTempo(tempo_str);
-#endif
 }
 
 double Tabuleiro::Aspecto() const {
