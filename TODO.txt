@@ -1,6 +1,7 @@
 Versao 1.0
-- Dano desenhado virado para observador.
-- Interface de dano e acoes no tablet.
+- Interface generica de teclado.
+- Numeros e letras melhores opengles.
+- Interface de dano e acoes no tablet. Classe para eventos de teclado.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
 - Pensar em como nao mostrar formas mortas.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
