@@ -225,8 +225,8 @@ inline void DesenhaCaractere(char c) { glutBitmapCharacter(GLUT_BITMAP_8_BY_13, 
 // Desenha a string str centralizada no ponto do raster.
 void DesenhaString(const std::string& str);
 #else
-inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { gl::Translada(x, y, z); }
-inline void PosicaoRaster(GLint x, GLint y) { /* TODO */ }
+void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
+void PosicaoRaster(GLint x, GLint y);
 void DesenhaCaractere(char c);
 void DesenhaString(const std::string& str);
 #endif

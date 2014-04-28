@@ -1,4 +1,5 @@
 Versao 1.0
+- Dano desenhado virado para observador.
 - Interface de dano e acoes no tablet.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
 - Pensar em como nao mostrar formas mortas.
