@@ -22,7 +22,10 @@ void CuboSolido(GLfloat tam_lado) {
   glutSolidCube(tam_lado);
 }
 
-void DesenhaString(const std::string& str) {
+namespace {
+
+// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita. 
+void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   // Le o raster em coordenadas de janela.
   GLint raster_pos[4];
   glGetIntegerv(GL_CURRENT_RASTER_POSITION, raster_pos);
@@ -37,31 +40,30 @@ void DesenhaString(const std::string& str) {
   gl::Ortogonal(0, largura, 0, altura, 0, 1);
   gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  glRasterPos2i(raster_pos[0] - (str.size() / 2) * 8, raster_pos[1]);
+  if (alinhamento < 0) {
+    glRasterPos2i(raster_pos[0], raster_pos[1]);
+  } else if () {
+    glRasterPos2i(raster_pos[0] - (str.size() / 2) * 8, raster_pos[1]);
+  } else {
+    glRasterPos2i(raster_pos[0] - (str.size() * 8), raster_pos[1]);
+  }
   for (const char c : str) {
     gl::DesenhaCaractere(c);
   }
 }
 
-void DesenhaStringAlinhadoDireita(const std::string& str) {
-  // Le o raster em coordenadas de janela.
-  GLint raster_pos[4];
-  glGetIntegerv(GL_CURRENT_RASTER_POSITION, raster_pos);
-  // Le viewport.
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-  int largura = viewport[2], altura = viewport[3];
+}  // namespace
 
-  // Muda para projecao 2D.
-  gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  gl::Ortogonal(0, largura, 0, altura, 0, 1);
-  gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-  glRasterPos2i(raster_pos[0] - (str.size() * 8), raster_pos[1]);
-  for (const char c : str) {
-    gl::DesenhaCaractere(c);
-  }
+void DesenhaString(const std::string& str) {
+  DesenhaStringAlinhado(str, 0);
+}
+
+void DesenhaStringAlinhadoEsquerda(const std::string& str) {
+  DesenhaStringAlinhado(str, -1);
+}
+
+void DesenhaStringAlinhadoDireita(const std::string& str) {
+  DesenhaStringAlinhado(str, 1);
 }
 
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
@@ -1131,7 +1133,7 @@ void Limpa(GLbitfield mascara) {
 
 void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura) {
   unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
-  *largura_fonte = media_tela / 32;
+  *largura_fonte = media_tela / 64;
   *altura = static_cast<int>(*largura_fonte * (13.0f / 8.0f));
 }
 
@@ -1141,7 +1143,10 @@ void TamanhoFonte(int* largura, int* altura) {
   TamanhoFonte(viewport[2], viewport[3], largura, altura);
 }
 
-void DesenhaString(const std::string& str) {
+namespace {
+
+// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita. 
+void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaTesteProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
@@ -1163,40 +1168,30 @@ void DesenhaString(const std::string& str) {
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   gl::Escala(largura_fonte, altura_fonte, 1.0f);
-  gl::Translada(-static_cast<float>(str.size()) / 2.0f, 0.0f, 0.0f);
+  if (alinhamento < 0) {
+  } else if (alinhamento == 0) {
+    gl::Translada(-static_cast<float>(str.size()) / 2.0f, 0.0f, 0.0f);
+  } else {
+    gl::Translada(-static_cast<float>(str.size()), 0.0f, 0.0f);
+  }
   for (const char c : str) {
     gl::DesenhaCaractere(c);
     gl::Translada(1.0f, 0.0f, 0.0f);
   }
 }
 
+}  // namespace
+
+void DesenhaString(const std::string& str) {
+  DesenhaStringAlinhado(str, 0);
+}
+
+void DesenhaStringAlinhadoEsquerda(const std::string& str) {
+  DesenhaStringAlinhado(str, -1);
+}
+
 void DesenhaStringAlinhadoDireita(const std::string& str) {
-  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-  gl::DesligaTesteProfundidadeEscopo mascara_escopo;
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
-  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-
-  unsigned int media_tela = (viewport[2] + viewport[3]) / 2;
-  const float largura_fonte = media_tela / 32;
-  const float altura_fonte = largura_fonte * 13.0f / 8.0f;
-
-  float x2d = g_contexto->raster_x;
-  float y2d = g_contexto->raster_y;
-  gl::Translada(x2d, y2d, 0.0f);
-
-  //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
-  gl::Escala(largura_fonte, altura_fonte, 1.0f);
-  gl::Translada(-static_cast<float>(str.size()), 0.0f, 0.0f);
-  for (const char c : str) {
-    gl::DesenhaCaractere(c);
-    gl::Translada(1.0f, 0.0f, 0.0f);
-  }
+  DesenhaStringAlinhado(str, 1);
 }
 
 void DesenhaCaractere(char c) {

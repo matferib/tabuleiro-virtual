@@ -222,17 +222,21 @@ void CuboSolido(GLfloat tam_lado);
 inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { glRasterPos3f(x, y, z); }
 inline void PosicaoRaster(GLint x, GLint y) { glRasterPos2i(x, y); }
 inline void DesenhaCaractere(char c) { glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c); }
-/** Retorna o tamanho da fonte. */
+/** Retorna o tamanho da fonte. Sempre fixo. */
 inline void TamanhoFonte(int* largura, int* altura) { *largura = 8; *altura = 13; }
+inline void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura) { *largura = 8; *altura = 13; }
 #else
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
 void PosicaoRaster(GLint x, GLint y);
 void DesenhaCaractere(char c);
+/** Retorna o tamanho da fonte. Variavel de acordo com viewport. Segunda versao eh um pouco mais barata. */
 void TamanhoFonte(int* largura, int* altura);
+void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura);
 #endif
 // Desenha a string str centralizada no ponto do raster.
 void DesenhaString(const std::string& str);
-// Desenha a string str alinhada a direita do ponto do raster.
+// Desenha a string str alinhada ao raster.
+void DesenhaStringAlinhadoEsquerda(const std::string& str);
 void DesenhaStringAlinhadoDireita(const std::string& str);
 
 /** Matriz de olho e perspectiva e picking. */
