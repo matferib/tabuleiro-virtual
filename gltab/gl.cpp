@@ -1109,6 +1109,8 @@ void Limpa(GLbitfield mascara) {
 }
 
 void DesenhaString(const std::string& str) {
+  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  gl::DesligaTesteProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 
@@ -1118,13 +1120,17 @@ void DesenhaString(const std::string& str) {
   gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
   gl::CarregaIdentidade();
 
+  unsigned int media_tela = (viewport[2] + viewport[3]) / 2;
+  const float largura_fonte = media_tela / 32;
+  const float altura_fonte = largura_fonte * 13.0f / 8.0f;
+
   float x2d = g_contexto->raster_x;
   float y2d = g_contexto->raster_y;
   gl::Translada(x2d, y2d, 0.0f);
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
-  gl::Escala(8.0f, 13.0f, 1.0f);
-  gl::Translada(-str.size() / 2.0f, 0.0f, 0.0f);
+  gl::Escala(largura_fonte, altura_fonte, 1.0f);
+  gl::Translada(-static_cast<float>(str.size()) / 2.0f, 0.0f, 0.0f);
   for (const char c : str) {
     gl::DesenhaCaractere(c);
     gl::Translada(1.0f, 0.0f, 0.0f);

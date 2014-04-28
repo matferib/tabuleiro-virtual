@@ -99,6 +99,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   auto* ent = tab->add_entidade();
   ent->set_id(0);
   ent->set_visivel(true);
+  ent->set_rotulo("0123456789");
   ent->mutable_info_textura()->set_id("cleric.png");
   tab->set_largura(20);
   tab->set_altura(20);
