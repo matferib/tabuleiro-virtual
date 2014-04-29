@@ -805,6 +805,14 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
   AtualizaOlho(true  /*forcar*/);
 }
 
+void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
+  float olho_altura = olho_.altura() + delta;
+  if (olho_altura >= OLHO_ALTURA_MAXIMA) {
+    olho_altura = OLHO_ALTURA_MINIMA;
+  }
+  olho_.set_altura(olho_altura);
+  AtualizaOlho(true  /*forcar*/);
+}
 
 void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
   // Faz picking do tabuleiro sem entidades.

@@ -102,120 +102,6 @@ namespace gl {
 #define __glPi 3.14159265358979323846
 namespace {
 
-// Atlas de caracteres. Aqui estao vertices usados para construi-los. Cada linha eh um indice.
-const static std::vector<float> g_vertices_caracteres = {
-  0.1f, 0.1f,  // 0
-  0.1f, 0.2f,  // 1
-  0.1f, 0.8f,  // 2
-  0.1f, 0.9f,  // 3
-  0.2f, 0.1f,  // 4
-  0.2f, 0.2f,  // 5
-  0.2f, 0.8f,  // 6
-  0.2f, 0.9f,  // 7
-  0.8f, 0.1f,  // 8
-  0.8f, 0.2f,  // 9
-  0.8f, 0.8f,  // 10
-  0.8f, 0.9f,  // 11
-  0.9f, 0.1f,  // 12
-  0.9f, 0.2f,  // 13
-  0.9f, 0.8f,  // 14
-  0.9f, 0.9f,  // 15
-  0.45f, 0.1f, // 16
-  0.45f, 0.2f, // 17
-  0.45f, 0.8f, // 18
-  0.45f, 0.9f, // 19
-  0.55f, 0.1f, // 20
-  0.55f, 0.2f, // 21
-  0.55f, 0.8f, // 22
-  0.55f, 0.9f, // 23
-  0.45f, 0.5f, // 24
-  0.55f, 0.5f, // 25
-  0.9f, 0.35f, // 26
-  0.1f, 0.35f, // 27
-  0.1f, 0.45f, // 28
-  0.1f, 0.55f, // 29
-  0.2f, 0.45f, // 30
-  0.2f, 0.55f, // 31
-  0.8f, 0.45f, // 32
-  0.8f, 0.55f, // 33
-  0.9f, 0.45f, // 34
-  0.9f, 0.55f, // 35
-};
-
-const static std::unordered_map<char, std::vector<short>> g_indices_caracteres = {
-  {
-    '0', {
-      4, 8, 9, 9, 5, 4,  // S
-      9, 13, 14, 14, 10, 9, // L
-      10, 7, 6, 10, 11, 7,  // N
-      5, 6, 2, 2, 1, 5,  // O
-      4, 5, 1, // SO
-      8, 13, 9, // SE
-      10, 14, 11, // NE
-      2, 6, 7,  // NO
-    },
-  }, {
-    '1', {
-      6, 22, 23,  // N
-      17, 21, 22, 22, 18, 17,  // Meio
-      4, 8, 9, 9, 5, 4,  // Base
-    },
-  }, {
-    '2', {
-      6, 22, 23, 22, 14, 23,  // N
-      0, 4, 14, 0, 14, 10,  // Meio
-      0, 12, 13, // Base
-    },
-  }, {
-    '3', {
-      6, 22, 23, 22, 10, 23,  // N
-      24, 25, 10, 24, 10, 22,  // NE
-      9, 13, 24, 13, 25, 24,  // SE
-      20, 13, 1,  // Base
-    },
-  }, {
-    '4', {
-      5, 17, 19,  // O
-      5, 13, 26,  // Base
-      20, 8, 11,  // L
-    },
-  }, {
-    '5', {
-      6, 14, 15, 15, 7, 6,  // N
-      30, 24, 7,  // NO
-      30, 34, 24, 24, 34, 33,  // Meio
-      13, 34, 32, 13, 32, 9,  // L
-      0, 12, 13, 0, 13, 1,  // S
-    },
-  }, {
-    '6', {
-      2, 14, 19,  // N
-      1, 5, 2, 5, 6, 2,  // O
-      4, 5, 1, 4, 8, 9, 9, 5, 4, 8, 13, 9,  // S
-      9, 13, 34, 34, 32, 9, 32, 34, 33,  // L
-      30, 32, 33, 30, 33, 31,  // Meio.
-    },
-  }, {
-    '7', {
-      6, 14, 15, 15, 7, 6,  // N
-      4, 14, 10, 4, 16, 14,  // Corpo
-    },
-  }, {
-    '8', {
-      6, 18, 19, 18, 22, 23, 18, 23, 19, 22, 10, 23, // N
-      31, 18, 6, 30, 32, 33, 33, 31, 30, 33, 10, 22, // Meio
-      31, 1, 4, 4, 8, 9, 9, 5, 4, 8, 13, 33,  // Base
-    },
-  }, {
-    '9', {
-      2, 6, 7, 6, 10, 7, 10, 11, 7, 10, 14, 11,  // N
-      8, 12, 14, 14, 10, 8,  // L
-      28, 30, 2, 30, 6, 2,  // O
-      30, 32, 33, 33, 31, 30,  // Meio
-    },
-  },
-};
-
 void PreencheIdentidade(GLfloat m[16]) {
   m[0+4*0] = 1; m[0+4*1] = 0; m[0+4*2] = 0; m[0+4*3] = 0;
   m[1+4*0] = 0; m[1+4*1] = 1; m[1+4*2] = 0; m[1+4*3] = 0;
@@ -1192,17 +1078,6 @@ void DesenhaStringAlinhadoEsquerda(const std::string& str) {
 
 void DesenhaStringAlinhadoDireita(const std::string& str) {
   DesenhaStringAlinhado(str, 1);
-}
-
-void DesenhaCaractere(char c) {
-  const auto& caractere_it = g_indices_caracteres.find(c);
-  if (caractere_it == g_indices_caracteres.end()) {
-    return;
-  }
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::PonteiroVertices(2, GL_FLOAT, &g_vertices_caracteres[0]);
-  gl::DesenhaElementos(GL_TRIANGLES, caractere_it->second.size(), GL_UNSIGNED_SHORT, &caractere_it->second[0]);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
