@@ -1,6 +1,6 @@
 Versao 1.0
 - Interface generica de teclado.
-- Numeros e letras melhores opengles.
+- Fazer letras opengles.
 - Interface de dano e acoes no tablet. Classe para eventos de teclado.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
 - Pensar em como nao mostrar formas mortas.

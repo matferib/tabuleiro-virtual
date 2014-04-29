@@ -14,6 +14,10 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
 public class TabuleiroActivity extends Activity {
@@ -21,30 +25,27 @@ public class TabuleiroActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     Intent intencao = getIntent();
-    mGLView = new TabuleiroSurfaceView(this, getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA));
-    setContentView(mGLView);
+    view_ = new TabuleiroSurfaceView(this, getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA));
+    setContentView(view_);
   }
 
   @Override
   protected void onPause() {
     super.onPause();
-    mGLView.onPause();
+    view_.onPause();
   }
 
   @Override
   protected void onResume() {
     super.onResume();
-    mGLView.onResume();
-  }
-
-  private GLSurfaceView mGLView;
-
-  public static void loadAsset(String path) {
+    view_.onResume();
   }
 
   static {
     System.loadLibrary("tabuleiro");
   }
+
+  private GLSurfaceView view_;
 }
 
 // View do OpenGL.
@@ -72,21 +73,24 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
-    } else if (event.getPointerCount() == 3) {
-      detectorTranslacao_.onTouch(event);
-    }
+    } 
+    renderer_.habilitaSensores(event.getPointerCount() >= 3);
     return true;
   }
 
   @Override
   public void onPause() {
     super.onPause();
+    gerenteSensores_.unregisterListener(renderer_); 
     nativePause();
   }
 
   @Override
   public void onResume() {
     super.onResume();
+    gerenteSensores_.registerListener(renderer_, 
+                                      gerenteSensores_.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+                                      SensorManager.SENSOR_DELAY_NORMAL);
     nativeResume();
   }
 
@@ -95,6 +99,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private ScaleGestureDetector detectorEscala_;
   private RotationGestureDetector detectorRotacao_;
   private TranslationGestureDetector detectorTranslacao_;
+  private SensorManager gerenteSensores_ = (SensorManager)getContext().getSystemService(Context.SENSOR_SERVICE);
+  private Sensor sensor_ = gerenteSensores_.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
   private static native void nativePause();
   private static native void nativeResume();
 }
@@ -107,7 +113,8 @@ class TabuleiroRenderer extends java.util.TimerTask
                GestureDetector.OnDoubleTapListener,
                ScaleGestureDetector.OnScaleGestureListener,
                RotationGestureDetector.RotationListener,
-               TranslationGestureDetector.TranslationListener {
+               TranslationGestureDetector.TranslationListener,
+               SensorEventListener {
 
   public static final String TAG = "TabuleiroRenderer";
 
@@ -127,6 +134,13 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   public void onSurfaceChanged(GL10 gl, int w, int h) {
     nativeResize(w, h);
+  }
+
+  public void habilitaSensores(boolean hab) {
+    if (hab && !lerGiroscopio_) {
+      primeiraLeitura_ = true;
+    }
+    lerGiroscopio_ = hab;
   }
 
   /** Remove os eventos duplicados de um tipo ate que Liberado seja encontrado. */
@@ -202,6 +216,8 @@ class TabuleiroRenderer extends java.util.TimerTask
         case Evento.MOVIMENTO:
           nativeTouchMoved(evento.x(), evento.y());
           break;
+        case Evento.INCLINACAO:
+          nativeTilt(evento.delta());
         default:
       }
     }
@@ -330,6 +346,27 @@ class TabuleiroRenderer extends java.util.TimerTask
     eventos_.add(Evento.Liberado());
   }
 
+  // Sensores.
+  public void onSensorChanged(SensorEvent se) {
+    if (!lerGiroscopio_) {
+      return;
+    }
+    if (primeiraLeitura_) {
+      Log.d(TAG, "onSensorChanged: primeira");
+      ultimaLeitura_ = se.values[0];
+      primeiraLeitura_ = false;
+      return;
+    }
+    Log.d(TAG, "onSensorChanged: outras");
+    // Detectar landscape ou retrato para saber se le o y ou x.
+    float x = se.values[0];
+    eventos_.add(Evento.Inclinacao(x - ultimaLeitura_));
+    ultimaLeitura_ = x;
+  }
+
+  public void onAccuracyChanged(Sensor sensor, int accuracy) {
+  }
+
   private static native void nativeInit(String endereco, Object assets);
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
@@ -343,6 +380,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeScale(float s);
   private static native void nativeRotation(float r);
   private static native void nativeTranslation(int x, int y);
+  private static native void nativeTilt(float delta);
 
   private GLSurfaceView parent_;
 
@@ -350,6 +388,9 @@ class TabuleiroRenderer extends java.util.TimerTask
   private boolean carregando_ = false;
   private String endereco_;
   private android.content.res.AssetManager assets_;
+  private boolean lerGiroscopio_ = false;
+  private boolean primeiraLeitura_ = true;
+  private float ultimaLeitura_ = 0.0f;
 }
 
 // Copiado de:
@@ -445,9 +486,16 @@ class Evento {
   public static final int MOVIMENTO = 9;
   public static final int ROTACAO = 10;
   public static final int TRANSLACAO = 11;
+  public static final int INCLINACAO = 12;
 
   public static Evento Liberado() {
     return new Evento(LIBERADO);
+  }
+
+  public static Evento Inclinacao(float delta) {
+    Evento evento = new Evento(INCLINACAO);
+    evento.delta_ = delta;
+    return evento;
   }
 
   public static Evento Translacao(int x,  int y) {
@@ -517,7 +565,7 @@ class Evento {
 
   public String toString() {
     return "Tipo: " + tipoString() + ", escala: " + escala_ + ", rotacao: " + rotacao_ +
-                                     ", x:" + x_ + ", y: " + y_;
+                                     ", x:" + x_ + ", y: " + y_ + ", delta: " + delta_;
   }
 
   private String tipoString() {
@@ -533,6 +581,7 @@ class Evento {
       case MOVIMENTO: return "MOVIMENTO";
       case ROTACAO: return "ROTACAO";
       case TRANSLACAO: return "TRANSLACAO";
+      case INCLINACAO: return "INCLINACAO";
       default: return "INVALIDO";
     }
   }
@@ -544,6 +593,7 @@ class Evento {
   public int y() { return y_; }
   public int nx() { return nx_; }
   public int ny() { return ny_; }
+  public float delta() { return delta_; }
 
   private int tipo_;
   private float escala_;
@@ -552,4 +602,5 @@ class Evento {
   private int y_;
   private int nx_;
   private int ny_;
+  private float delta_;
 }

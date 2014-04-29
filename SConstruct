@@ -127,6 +127,7 @@ ntf_proto = env.Protoc(
 
 # GL
 cGl = env.Object('gltab/gl.cpp')
+cGlChar = env.Object('gltab/gl_char.cpp')
 
 objetos = [
     # net.
@@ -140,7 +141,7 @@ objetos = [
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
-    cGl,
+    cGl, cGlChar,
 ] + ([ cEntWatchdog ] if sistema == 'linux' else [])
 
 
