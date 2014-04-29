@@ -52,7 +52,7 @@ public class TabuleiroActivity extends Activity {
 class TabuleiroSurfaceView extends GLSurfaceView {
   public TabuleiroSurfaceView(Context context, String endereco) {
     super(context);
-    renderer_ = new TabuleiroRenderer(this, endereco, getResources().getAssets());
+    renderer_ = new TabuleiroRenderer(this, endereco, getResources());
     detectorEventos_ = new GestureDetector(context, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEscala_ = new ScaleGestureDetector(context, renderer_);
@@ -74,7 +74,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
     } 
-    renderer_.habilitaSensores(event.getPointerCount() >= 3);
+    renderer_.habilitaSensores(event.getPointerCount() >= 2);
     return true;
   }
 
@@ -89,7 +89,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   public void onResume() {
     super.onResume();
     gerenteSensores_.registerListener(renderer_, 
-                                      gerenteSensores_.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+                                      gerenteSensores_.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                                       SensorManager.SENSOR_DELAY_NORMAL);
     nativeResume();
   }
@@ -118,9 +118,10 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   public static final String TAG = "TabuleiroRenderer";
 
-  public TabuleiroRenderer(GLSurfaceView parent, String endereco, android.content.res.AssetManager assets) {
+  public TabuleiroRenderer(GLSurfaceView parent, String endereco, android.content.res.Resources resources) {
     endereco_ = endereco;
-    assets_ = assets;
+    resources_ = resources;
+    assets_ = resources.getAssets();
     parent_ = parent;
     //last_x_ = last_y_ = 0;
   }
@@ -137,9 +138,6 @@ class TabuleiroRenderer extends java.util.TimerTask
   }
 
   public void habilitaSensores(boolean hab) {
-    if (hab && !lerGiroscopio_) {
-      primeiraLeitura_ = true;
-    }
     lerGiroscopio_ = hab;
   }
 
@@ -351,17 +349,15 @@ class TabuleiroRenderer extends java.util.TimerTask
     if (!lerGiroscopio_) {
       return;
     }
-    if (primeiraLeitura_) {
-      Log.d(TAG, "onSensorChanged: primeira");
-      ultimaLeitura_ = se.values[0];
-      primeiraLeitura_ = false;
-      return;
-    }
     Log.d(TAG, "onSensorChanged: outras");
     // Detectar landscape ou retrato para saber se le o y ou x.
-    float x = se.values[0];
-    eventos_.add(Evento.Inclinacao(x - ultimaLeitura_));
-    ultimaLeitura_ = x;
+    float val;
+    if (resources_.getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+      val = se.values[0];
+    } else {
+      val = se.values[1];
+    }
+    eventos_.add(Evento.Inclinacao(-val));
   }
 
   public void onAccuracyChanged(Sensor sensor, int accuracy) {
@@ -388,9 +384,8 @@ class TabuleiroRenderer extends java.util.TimerTask
   private boolean carregando_ = false;
   private String endereco_;
   private android.content.res.AssetManager assets_;
+  private android.content.res.Resources resources_;
   private boolean lerGiroscopio_ = false;
-  private boolean primeiraLeitura_ = true;
-  private float ultimaLeitura_ = 0.0f;
 }
 
 // Copiado de:

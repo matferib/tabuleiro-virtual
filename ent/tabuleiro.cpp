@@ -807,7 +807,9 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
 
 void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
   float olho_altura = olho_.altura() + delta;
-  if (olho_altura >= OLHO_ALTURA_MAXIMA) {
+  if (olho_altura > OLHO_ALTURA_MAXIMA) {
+    olho_altura = OLHO_ALTURA_MAXIMA;
+  } else if (olho_altura < OLHO_ALTURA_MINIMA) {
     olho_altura = OLHO_ALTURA_MINIMA;
   }
   olho_.set_altura(olho_altura);
