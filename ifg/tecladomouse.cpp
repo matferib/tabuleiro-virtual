@@ -62,14 +62,14 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
   int primeira_tecla = *teclas_.begin();
   switch (primeira_tecla) {
     case Tecla_A: {
-      if (teclas_.size() <= 2) {
+      if (teclas_.size() < 2) {
         return;
       }
       if (teclas_[1] == Tecla_Delete) {
         tabuleiro_->LimpaListaPontosVida();
       } else if (teclas_[1] == Tecla_Backspace) {
         tabuleiro_->LimpaUltimoListaPontosVida();
-      } else {
+      } else if (teclas_.size() >= 2) {
         auto lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
         if (teclas_[1] == Tecla_D) {
           // Inverte o dano.
