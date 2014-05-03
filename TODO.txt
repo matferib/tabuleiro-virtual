@@ -1,5 +1,6 @@
 Versao 1.0
 - Modificadores de teclado.
+- Resolver os crashes de tablet.
 - Interface de dano e acoes no tablet. Classe para eventos de teclado.
 - Fazer letras opengles.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
