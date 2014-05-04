@@ -3146,7 +3146,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
       maior_tempo_ms = tempo_ms;
     }
   }
-#if ANDROID
+#if ANDROID || WIN32
   std::string tempo_str;
   while (maior_tempo_ms > 0) {
     char c = (maior_tempo_ms % 10) + '0';
