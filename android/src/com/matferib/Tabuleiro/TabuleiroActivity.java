@@ -76,8 +76,10 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
-    } 
-    renderer_.habilitaSensores(event.getPointerCount() >= 2);
+    } else if (event.getPointerCount() == 3) {
+      renderer_.onActionTouch(event);
+    }
+    renderer_.habilitaSensores(event.getPointerCount() == 2);
     return true;
   }
 
@@ -94,14 +96,14 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   @Override
   public void onPause() {
     super.onPause();
-    gerenteSensores_.unregisterListener(renderer_); 
+    gerenteSensores_.unregisterListener(renderer_);
     nativePause();
   }
 
   @Override
   public void onResume() {
     super.onResume();
-    gerenteSensores_.registerListener(renderer_, 
+    gerenteSensores_.registerListener(renderer_,
                                       gerenteSensores_.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                                       SensorManager.SENSOR_DELAY_NORMAL);
     nativeResume();
@@ -232,6 +234,9 @@ class TabuleiroRenderer extends java.util.TimerTask
           break;
         case Evento.TECLADO:
           nativeKeyboard(evento.tecla());
+          break;
+        case Evento.ACAO:
+          nativeAction(evento.x(), evento.y());
           break;
         default:
       }
@@ -387,6 +392,19 @@ class TabuleiroRenderer extends java.util.TimerTask
   public void onAccuracyChanged(Sensor sensor, int accuracy) {
   }
 
+  // Tres toques: acao.
+  public void onActionTouch(final MotionEvent e) {
+    int somaX = 0, somaY = 0;
+    for (int i = 0; i < e.getPointerCount(); ++i) {
+      somaX += e.getX(i);
+      somaY += e.getY(i);
+    }
+    somaX = somaX / e.getPointerCount();
+    somaY = somaY / e.getPointerCount();
+
+    eventos_.add(Evento.Acao(somaX, (int)(parent_.getHeight() - somaY)));
+  }
+
   private static native void nativeInit(String endereco, Object assets);
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
@@ -395,6 +413,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(int x, int y);
   private static native void nativeTouchMoved(int x, int y);
+  private static native void nativeAction(int x, int y);
   private static native void nativeTouchReleased();
   private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
@@ -508,6 +527,7 @@ class Evento {
   public static final int TRANSLACAO = 11;
   public static final int INCLINACAO = 12;
   public static final int TECLADO = 13;
+  public static final int ACAO = 14;
 
   public static Evento Teclado(int tecla) {
     Evento evento = new Evento(TECLADO);
@@ -517,6 +537,13 @@ class Evento {
 
   public static Evento Liberado() {
     return new Evento(LIBERADO);
+  }
+
+  public static Evento Acao(int x,  int y) {
+    Evento evento = new Evento(ACAO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
   }
 
   public static Evento Inclinacao(float delta) {
@@ -611,6 +638,7 @@ class Evento {
       case TRANSLACAO: return "TRANSLACAO";
       case INCLINACAO: return "INCLINACAO";
       case TECLADO: return "TECLADO";
+      case ACAO: return "ACAO";
       default: return "INVALIDO";
     }
   }

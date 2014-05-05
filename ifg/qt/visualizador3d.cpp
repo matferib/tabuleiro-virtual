@@ -152,12 +152,9 @@ Visualizador3d::Visualizador3d(
     :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
        teclado_mouse_(central, tabuleiro),
        central_(central), tabuleiro_(tabuleiro) {
-  //temporizador_mouse_ = 0;
-  //temporizador_teclado_ = 0;
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
-  //MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -252,7 +249,7 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
   teclado_mouse_.TrataBotaoMousePressionado(
-       BotaoMouseQtParaTratadorTecladoMouse(event->button()), 
+       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
        event->x(),
        height() - event->y());
@@ -278,39 +275,17 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
       event->x(), height() - event->y());
-  /*
-  if (event->button() == Qt::LeftButton) {
-    tabuleiro_->TrataDuploCliqueEsquerdo(event->x(), height() - event->y());
-  } else if (event->button() == Qt::RightButton) {
-    tabuleiro_->TrataDuploCliqueDireito(event->x(), height() - event->y());
-  }
-  */
   event->accept();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   teclado_mouse_.TrataMovimentoMouse(event->x(), height() - event->y());
-  /*
-  ultimo_x_ = event->x();
-  ultimo_y_ = height() - event->y();
-  if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
-    temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-    event->accept();
-    tabuleiro_->TrataMovimentoMouse();
-    return;
-  }
-  temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-  tabuleiro_->TrataMovimentoMouse(event->x(), (height() - event->y()));
-  */
   event->accept();
   glDraw();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
   teclado_mouse_.TrataRodela(event->delta());
-  /*
-  tabuleiro_->TrataEscalaPorDelta(event->delta());
-  */
   event->accept();
   glDraw();
 }

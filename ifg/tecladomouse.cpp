@@ -48,6 +48,7 @@ const std::vector<int> CalculaDano(const std::vector<teclas_e>::const_iterator& 
 
 TratadorTecladoMouse::TratadorTecladoMouse(ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro)
     : central_(central), tabuleiro_(tabuleiro) {
+  central_->RegistraReceptor(this);
   temporizador_mouse_ = 0;
   temporizador_teclado_ = 0;
   MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);

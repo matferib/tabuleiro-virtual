@@ -121,15 +121,15 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
 
   // TESTE
-  try {
-    ntf::Notificacao* ntf_tab = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    auto tab_lido = LeTabuleiro(env, assets);
-    ntf_tab->Swap(&tab_lido);
-    ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-    g_central->AdicionaNotificacao(ntf_tab);
-  } catch (...) {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
-  }
+  //try {
+  //  ntf::Notificacao* ntf_tab = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+  //  auto tab_lido = LeTabuleiro(env, assets);
+  //  ntf_tab->Swap(&tab_lido);
+  //  ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+  //  g_central->AdicionaNotificacao(ntf_tab);
+  //} catch (...) {
+  //  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
+  //}
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
@@ -205,6 +205,11 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeKeyboard(
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTilt: %f", delta);
   g_teclado_mouse->TrataTeclaPressionada(static_cast<ifg::teclas_e>(key),
                                          static_cast<ifg::modificadores_e>(0  /* TODO modificadores */));
+}
+
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeAction(JNIEnv* env, jobject thiz, jint x, jint y) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeHover: %d %d", x, y);
+  g_tabuleiro->TrataBotaoAcaoPressionado(true, x, y);
 }
 
 // Render.
