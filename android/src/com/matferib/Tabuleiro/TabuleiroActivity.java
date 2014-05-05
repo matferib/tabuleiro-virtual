@@ -12,6 +12,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.hardware.Sensor;
@@ -61,6 +62,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     detectorTranslacao_ = new TranslationGestureDetector(renderer_);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+    requestFocus();
+    setFocusableInTouchMode(true);
   }
 
   public boolean onTouchEvent(final MotionEvent event) {
@@ -73,9 +76,21 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
+    } else if (event.getPointerCount() == 3) {
+      renderer_.onActionTouch(event);
     }
-    renderer_.habilitaSensores(event.getPointerCount() >= 2);
+    renderer_.habilitaSensores(event.getPointerCount() == 2);
     return true;
+  }
+
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    return false;
+  }
+  @Override
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    Log.d("TabuleiroRenderer", "onKeyUp");
+    return renderer_.onKeyUp(keyCode, event);
   }
 
   @Override
@@ -88,7 +103,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   @Override
   public void onResume() {
     super.onResume();
-    gerenteSensores_.registerListener(renderer_, 
+    gerenteSensores_.registerListener(renderer_,
                                       gerenteSensores_.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                                       SensorManager.SENSOR_DELAY_NORMAL);
     nativeResume();
@@ -216,6 +231,13 @@ class TabuleiroRenderer extends java.util.TimerTask
           break;
         case Evento.INCLINACAO:
           nativeTilt(evento.delta());
+          break;
+        case Evento.TECLADO:
+          nativeKeyboard(evento.tecla());
+          break;
+        case Evento.ACAO:
+          nativeAction(evento.x(), evento.y());
+          break;
         default:
       }
     }
@@ -239,6 +261,13 @@ class TabuleiroRenderer extends java.util.TimerTask
     Log.d(TAG, "Up");
     eventos_.add(Evento.Liberado());
     carregando_ = false;
+    return true;
+  }
+
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    Log.d(TAG, "Teclado");
+    // TODO modificadores.
+    eventos_.add(Evento.Teclado(keyCode));
     return true;
   }
 
@@ -363,6 +392,19 @@ class TabuleiroRenderer extends java.util.TimerTask
   public void onAccuracyChanged(Sensor sensor, int accuracy) {
   }
 
+  // Tres toques: acao.
+  public void onActionTouch(final MotionEvent e) {
+    int somaX = 0, somaY = 0;
+    for (int i = 0; i < e.getPointerCount(); ++i) {
+      somaX += e.getX(i);
+      somaY += e.getY(i);
+    }
+    somaX = somaX / e.getPointerCount();
+    somaY = somaY / e.getPointerCount();
+
+    eventos_.add(Evento.Acao(somaX, (int)(parent_.getHeight() - somaY)));
+  }
+
   private static native void nativeInit(String endereco, Object assets);
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
@@ -371,12 +413,14 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(int x, int y);
   private static native void nativeTouchMoved(int x, int y);
+  private static native void nativeAction(int x, int y);
   private static native void nativeTouchReleased();
   private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
   private static native void nativeRotation(float r);
   private static native void nativeTranslation(int x, int y);
   private static native void nativeTilt(float delta);
+  private static native void nativeKeyboard(int tecla);
 
   private GLSurfaceView parent_;
 
@@ -482,9 +526,24 @@ class Evento {
   public static final int ROTACAO = 10;
   public static final int TRANSLACAO = 11;
   public static final int INCLINACAO = 12;
+  public static final int TECLADO = 13;
+  public static final int ACAO = 14;
+
+  public static Evento Teclado(int tecla) {
+    Evento evento = new Evento(TECLADO);
+    evento.tecla_ = teclaNativa(tecla);
+    return evento;
+  }
 
   public static Evento Liberado() {
     return new Evento(LIBERADO);
+  }
+
+  public static Evento Acao(int x,  int y) {
+    Evento evento = new Evento(ACAO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
   }
 
   public static Evento Inclinacao(float delta) {
@@ -560,7 +619,8 @@ class Evento {
 
   public String toString() {
     return "Tipo: " + tipoString() + ", escala: " + escala_ + ", rotacao: " + rotacao_ +
-                                     ", x:" + x_ + ", y: " + y_ + ", delta: " + delta_;
+                                     ", x:" + x_ + ", y: " + y_ + ", delta: " + delta_ +
+                                     ", tecla: " + tecla_;
   }
 
   private String tipoString() {
@@ -577,7 +637,36 @@ class Evento {
       case ROTACAO: return "ROTACAO";
       case TRANSLACAO: return "TRANSLACAO";
       case INCLINACAO: return "INCLINACAO";
+      case TECLADO: return "TECLADO";
+      case ACAO: return "ACAO";
       default: return "INVALIDO";
+    }
+  }
+
+  // Transforma o keycode de java para nativo. Sao os mesmos do QT: http://qt-project.org/doc/qt-4.8/qt.html#Key-enum.
+  private static int teclaNativa(int teclaJava) {
+    switch (teclaJava) {
+      case KeyEvent.KEYCODE_0: return 0x30;
+      case KeyEvent.KEYCODE_1: return 0x31;
+      case KeyEvent.KEYCODE_2: return 0x32;
+      case KeyEvent.KEYCODE_3: return 0x33;
+      case KeyEvent.KEYCODE_4: return 0x34;
+      case KeyEvent.KEYCODE_5: return 0x35;
+      case KeyEvent.KEYCODE_6: return 0x36;
+      case KeyEvent.KEYCODE_7: return 0x37;
+      case KeyEvent.KEYCODE_8: return 0x38;
+      case KeyEvent.KEYCODE_9: return 0x39;
+      case KeyEvent.KEYCODE_A: return 0x41;
+      case KeyEvent.KEYCODE_C: return 0x43;
+      case KeyEvent.KEYCODE_D: return 0x44;
+      case KeyEvent.KEYCODE_ENTER: return 0x01000004;
+      case KeyEvent.KEYCODE_ESCAPE: return 0x01000000;
+      case KeyEvent.KEYCODE_DPAD_LEFT: return 0x01000012;
+      case KeyEvent.KEYCODE_DPAD_UP: return 0x01000013;
+      case KeyEvent.KEYCODE_DPAD_RIGHT: return 0x01000014;
+      case KeyEvent.KEYCODE_DPAD_DOWN: return 0x01000015;
+      case KeyEvent.KEYCODE_DEL: return 0x01000003;
+      default: return -1;
     }
   }
 
@@ -589,6 +678,7 @@ class Evento {
   public int nx() { return nx_; }
   public int ny() { return ny_; }
   public float delta() { return delta_; }
+  public int tecla() { return tecla_; }
 
   private int tipo_;
   private float escala_;
@@ -598,4 +688,5 @@ class Evento {
   private int nx_;
   private int ny_;
   private float delta_;
+  private int tecla_;  // modo nativo.
 }

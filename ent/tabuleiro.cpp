@@ -198,7 +198,7 @@ void DesenhaEntidadeDetalhada(const ParametrosDesenho& pd, Entidade* entidade) {
   float lado = TAMANHO_LADO_QUADRADO * multiplicador_tamanho * 0.8f;
   float altura = multiplicador_tamanho * TAMANHO_LADO_QUADRADO * 2.0f;
   unsigned int id = 0;
-  gl::Translada(entidade->X(), entidade->Y(), entidade->Z());
+  gl::Translada(entidade->X(), entidade->Y(), entidade->Z() + entidade->TranslacaoZ());
   // De frente para camera.
   double dx = entidade->X() - pd.pos_olho().x();
   double dy = entidade->Y() - pd.pos_olho().y();
@@ -1172,6 +1172,7 @@ void Tabuleiro::TrataBotaoLiberado() {
 }
 
 void Tabuleiro::TrataMouseParadoEm(int x, int y) {
+  LOG(INFO) << "AQUI";
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
@@ -1438,6 +1439,27 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
   }
 
+  if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    LigaStencil();
+    DesenhaRastros();
+    DesenhaStencil(COR_AZUL_ALFA);
+  }
+
+  if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
+    DesenhaFormaSelecionada();
+  }
+
+  if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
+    gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
+    gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
+    gl::DesvioProfundidade(-3.0f, -30.0f);
+    MudaCorAlfa(COR_AZUL_ALFA);
+    gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
+  }
+
   // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
@@ -1455,30 +1477,11 @@ void Tabuleiro::DesenhaCena() {
     DesenhaEntidadesTranslucidas();
   }
 
-  if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
-    gl::HabilitaEscopo blend_escopo(GL_BLEND);
-    LigaStencil();
-    DesenhaRastros();
-    DesenhaStencil(COR_AZUL_ALFA);
-  }
-
-  if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
-    DesenhaFormaSelecionada();
-  }
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
 
-  if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
-    gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
-    gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
-    gl::HabilitaEscopo blend_escopo(GL_BLEND);
-    gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-    gl::DesvioProfundidade(-3.0f, -30.0f);
-    MudaCorAlfa(COR_AZUL_ALFA);
-    gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
-  }
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
@@ -2480,7 +2483,7 @@ void Tabuleiro::CoordenadaEntidadeDetalhada(unsigned int id, unsigned int id_det
   }
   *x = entidade->X();
   *y = entidade->Y();
-  *z = entidade->Z() + (id_detalhado * 0.1f);
+  *z = entidade->Z() + entidade->TranslacaoZ() + (id_detalhado * 0.1f);
   VLOG(3) << "Id entidade detalhado " << id_detalhado << ", pos: " << *x << " " << *y << " " << *z;
 }
 #endif
@@ -3144,7 +3147,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
       maior_tempo_ms = tempo_ms;
     }
   }
-#if ANDROID
+#if ANDROID || WIN32
   std::string tempo_str;
   while (maior_tempo_ms > 0) {
     char c = (maior_tempo_ms % 10) + '0';

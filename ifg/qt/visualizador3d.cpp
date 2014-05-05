@@ -132,18 +132,29 @@ const std::vector<int> CalculaDano(const std::vector<int>::const_iterator& inici
   return result;
 }
 
+// Mapeia a tecla do QT para do TratadorTecladoMouse.
+teclas_e TeclaQtParaTratadorTecladoMouse(int tecla_qt) {
+  return static_cast<teclas_e>(tecla_qt);
+}
+
+modificadores_e ModificadoresQtParaTratadorTecladoMouse(int modificadores_qt) {
+  return static_cast<modificadores_e>(modificadores_qt);
+}
+
+botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
+  return static_cast<botoesmouse_e>(botao_qt);
+}
+
 }  // namespace
 
 Visualizador3d::Visualizador3d(
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
+       teclado_mouse_(central, tabuleiro),
        central_(central), tabuleiro_(tabuleiro) {
-  temporizador_mouse_ = 0;
-  temporizador_teclado_ = 0;
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
-  MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -165,20 +176,6 @@ void Visualizador3d::paintGL() {
 // notificacao
 bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
-    case ntf::TN_TEMPORIZADOR:
-      if (estado_ == ESTADO_TEMPORIZANDO_MOUSE && underMouse()) {
-        if (--temporizador_mouse_ == 0) {
-          TrataAcaoTemporizadaMouse();
-        }
-        break;
-      } else if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
-        if (--temporizador_teclado_ == 0) {
-          TrataAcaoTemporizadaTeclado();
-          MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
-        }
-        break;
-      }
-      break;
     case ntf::TN_INICIADO:
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
@@ -241,152 +238,27 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
-    switch (event->key()) {
-      case Qt::Key_Escape:
-        break;
-      case Qt::Key_Enter:
-      case Qt::Key_Return:
-        // Finaliza temporizacao.
-        TrataAcaoTemporizadaTeclado();
-        break;
-      case Qt::Key_Backspace:
-      case Qt::Key_Delete:
-        // Finaliza temporizacao.
-        teclas_.push_back(event->key());
-        TrataAcaoTemporizadaTeclado();
-        break;
-      default:
-        // Nao muda estado mas reinicia o timer.
-        teclas_.push_back(event->key());
-        temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
-        return;
-    }
-    // Ao terminar, volta pro mouse.
-    MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
-    return;
-  }
-  switch (event->key()) {
-    case Qt::Key_Delete:
-      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
-      return;
-    case Qt::Key_Up:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1);
-      return;
-    case Qt::Key_Down:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1);
-      return;
-    case Qt::Key_Left:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1);
-      return;
-    case Qt::Key_Right:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1);
-      return;
-    case Qt::Key_G:
-      if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->AgrupaEntidadesSelecionadas();
-      }
-      return;
-    case Qt::Key_V:
-      if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->ColaEntidadesSelecionadas();
-      } else {
-        tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
-      }
-      return;
-    case Qt::Key_I:
-      tabuleiro_->TrataBotaoAlternarIluminacaoMestre();
-      return;
-    case Qt::Key_L:
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
-      return;
-    case Qt::Key_Y:
-      if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->TrataComandoRefazer();
-        return;
-      }
-      return;
-    case Qt::Key_Z:
-      if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->TrataComandoDesfazer();
-        return;
-      }
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
-      return;
-    case Qt::Key_Q:
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
-      return;
-    case Qt::Key_A:
-      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
-      teclas_.push_back(event->key());
-      return;
-    case Qt::Key_C:
-      if (event->modifiers() == Qt::ControlModifier) {
-        tabuleiro_->CopiaEntidadesSelecionadas();
-      } else {
-        MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
-        teclas_.push_back(event->key());
-        return;
-      }
-      break;
-    case Qt::Key_D:
-      if (event->modifiers() == (Qt::ControlModifier | Qt::AltModifier)) {
-        tabuleiro_->AlternaModoDebug();
-        return;
-      }
-      // Entra em modo de temporizacao.
-      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
-      teclas_.push_back(event->key());
-      return;
-    case Qt::Key_S:
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
-      return;
-    default:
-      event->ignore();
-  }
+  teclado_mouse_.TrataTeclaPressionada(
+      TeclaQtParaTratadorTecladoMouse(event->key()),
+      ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
+  glDraw();
+  event->accept();
 }
 
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  MudaEstado(ESTADO_OUTRO);
-  if (event->modifiers() == Qt::AltModifier) {
-    // Acao padrao eh usada quando o botao eh o direito.
-    tabuleiro_->TrataBotaoAcaoPressionado(
-        event->button() == Qt::RightButton, event->x(), height() - event->y());
-  } else if (event->modifiers() == Qt::ControlModifier) {
-    if (event->button() == Qt::LeftButton) {
-      tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(event->x(), height() - event->y());
-    } else if (event->button() == Qt::RightButton) {
-      tabuleiro_->TrataBotaoDesenhoPressionado(event->x(), height() - event->y());
-    }
-  } else {
-    switch (event->button()) {
-      case Qt::LeftButton:
-        if (event->modifiers() == Qt::ShiftModifier) {
-          // Mac nao tem botao do meio, entao usa o shift para simular.
-          tabuleiro_->TrataBotaoRotacaoPressionado(event->x(), height() - event->y());
-        } else {
-          tabuleiro_->TrataBotaoEsquerdoPressionado(event->x(), height() - event->y());
-        }
-        break;
-      case Qt::RightButton:
-        tabuleiro_->TrataBotaoDireitoPressionado(event->x(), height() - event->y());
-        break;
-      case Qt::MiddleButton:
-        tabuleiro_->TrataBotaoRotacaoPressionado(event->x(), height() - event->y());
-        break;
-      default:
-        ;
-    }
-  }
+  teclado_mouse_.TrataBotaoMousePressionado(
+       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
+       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
+       event->x(),
+       height() - event->y());
   glDraw();
   event->accept();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
-  tabuleiro_->TrataBotaoLiberado();
+  teclado_mouse_.TrataBotaoMouseLiberado();
   event->accept();
   glDraw();
 }
@@ -399,31 +271,21 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     mousePressEvent(event2);
     return;
   }
-  if (event->button() == Qt::LeftButton) {
-    tabuleiro_->TrataDuploCliqueEsquerdo(event->x(), height() - event->y());
-  } else if (event->button() == Qt::RightButton) {
-    tabuleiro_->TrataDuploCliqueDireito(event->x(), height() - event->y());
-  }
+  teclado_mouse_.TrataDuploCliqueMouse(
+      BotaoMouseQtParaTratadorTecladoMouse(event->button()),
+      ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
+      event->x(), height() - event->y());
   event->accept();
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  ultimo_x_ = event->x();
-  ultimo_y_ = height() - event->y();
-  if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
-    temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-    event->accept();
-    tabuleiro_->TrataMovimentoMouse();
-    return;
-  }
-  temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-  tabuleiro_->TrataMovimentoMouse(event->x(), (height() - event->y()));
+  teclado_mouse_.TrataMovimentoMouse(event->x(), height() - event->y());
   event->accept();
   glDraw();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  tabuleiro_->TrataEscalaPorDelta(event->delta());
+  teclado_mouse_.TrataRodela(event->delta());
   event->accept();
   glDraw();
 }
@@ -890,65 +752,5 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   return proto_retornado;
 }
 
-void Visualizador3d::TrataAcaoTemporizadaTeclado() {
-  // Busca primeira tecla.
-  if (teclas_.empty()) {
-    LOG(ERROR) << "Temporizador sem teclas";
-    return;
-  }
-  int primeira_tecla = *teclas_.begin();
-  switch (primeira_tecla) {
-    case Qt::Key_A: {
-      if (teclas_.size() <= 2) {
-        return;
-      }
-      if (teclas_[1] == Qt::Key_Delete) {
-        tabuleiro_->LimpaListaPontosVida();
-      } else if (teclas_[1] == Qt::Key_Backspace) {
-        tabuleiro_->LimpaUltimoListaPontosVida();
-      } else {
-        auto lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
-        if (teclas_[1] == Qt::Key_D) {
-          // Inverte o dano.
-          for (int& pv : lista_dano) {
-            pv = -pv;
-          }
-        }
-        tabuleiro_->AcumulaPontosVida(lista_dano);
-      }
-      break;
-    }
-    case Qt::Key_C:
-    case Qt::Key_D: {
-      auto lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
-      if (lista_pv.size() != 1) {
-        break;
-      }
-      if (primeira_tecla == Qt::Key_D) {
-        lista_pv[0] = -lista_pv[0];
-      }
-      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(lista_pv[0]);
-      break;
-    }
-    default:
-      VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
-  }
-}
-
-void Visualizador3d::TrataAcaoTemporizadaMouse() {
-  VLOG(1) << "Tratando acao temporizada de mouse em: " << ultimo_x_ << ", " << ultimo_y_;
-  tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
-}
-
-void Visualizador3d::MudaEstado(estado_e novo_estado) {
-  if (novo_estado == ESTADO_TEMPORIZANDO_MOUSE) {
-    temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
-  } else if (novo_estado == ESTADO_TEMPORIZANDO_TECLADO) {
-    teclas_.clear();
-    temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
-  }
-  VLOG(2) << "Mudando para estado: " << novo_estado;
-  estado_ = novo_estado;
-}
 }  // namespace qt
 }  // namespace ifg

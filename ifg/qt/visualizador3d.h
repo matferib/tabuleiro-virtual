@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include <list>
+#include "ifg/tecladomouse.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -51,34 +52,15 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
  private:
-  // Assumindo uma maquina de estados bem simples, que vai do ESTADO_OCIOSO pros outros e volta.
-  enum estado_e {
-    ESTADO_TEMPORIZANDO_TECLADO,
-    ESTADO_TEMPORIZANDO_MOUSE,
-    ESTADO_OUTRO,
-  };
-
   // Dialogos.
   ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::EntidadeProto* AbreDialogoTipoEntidade(const ntf::Notificacao& notificacao);
   ent::EntidadeProto* AbreDialogoTipoForma(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoTabuleiro(const ntf::Notificacao& notificacao);
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
-  void TrataAcaoTemporizadaTeclado();
-  void TrataAcaoTemporizadaMouse();
-  // Retorna o estado para ESTADO_OCIOSO.
-  void MudaEstado(estado_e estado);
 
  private:
-  estado_e estado_;
-  // Ultimas coordenadas do mouse (em OpenGL).
-  int ultimo_x_;
-  int ultimo_y_;
-  // Temporizador para teclas em sequencia.
-  int temporizador_teclado_;
-  int temporizador_mouse_;
-  // As teclas pressionadas ate o temporizador estourar ou enter ser pressionado.
-  std::vector<int> teclas_;
+  ifg::TratadorTecladoMouse teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
 };
