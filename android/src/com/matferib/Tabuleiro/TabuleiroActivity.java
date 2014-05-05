@@ -73,7 +73,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
-    } 
+    }
     renderer_.habilitaSensores(event.getPointerCount() >= 2);
     return true;
   }
@@ -81,7 +81,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   @Override
   public void onPause() {
     super.onPause();
-    gerenteSensores_.unregisterListener(renderer_); 
+    gerenteSensores_.unregisterListener(renderer_);
     nativePause();
   }
 
