@@ -171,7 +171,7 @@ void DesenhaStencil(const float* cor) {
       if (cor != nullptr) {
         MudaCorAlfa(cor);
       }
-      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+      //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda).
       // Operacoes de picking nao devem usar stencil.

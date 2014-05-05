@@ -80,6 +80,8 @@ env.SConscript('local.SConscript', exports = 'env')
 
 # Daqui pra baixo eh tudo comum.
 
+# Teclado.
+cTecladoMouse = env.Object('ifg/tecladomouse.cpp')
 # Permite lambdas no QT.
 cUtil = env.Object('ifg/qt/util.cpp')
 
@@ -134,6 +136,8 @@ objetos = [
     cNetServidor, cNetCliente, cNetUtil,
     # notificacoes.
     ntf_proto[0], cNtf,
+    # interface.
+    cTecladoMouse,
     # interface QT
     cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # Texturas

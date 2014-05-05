@@ -1,7 +1,8 @@
 Versao 1.0
-- Interface generica de teclado.
+- Modificadores de teclado para tablet.
+- Resolver os crashes de tablet.
+- Interface de dano e acoes no tablet.
 - Fazer letras opengles.
-- Interface de dano e acoes no tablet. Classe para eventos de teclado.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
 - Pensar em como nao mostrar formas mortas.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
