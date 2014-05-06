@@ -75,6 +75,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     detectorEscala_.setQuickScaleEnabled(true);
     detectorRotacao_ = new RotationGestureDetector(renderer_);
     detectorTranslacao_ = new TranslationGestureDetector(renderer_);
+    setEGLConfigChooser(8, 8, 8, 8, 16, 1);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     requestFocus();
