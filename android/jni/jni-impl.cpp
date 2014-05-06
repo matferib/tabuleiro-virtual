@@ -87,6 +87,7 @@ const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
   return ntf_tabuleiro;
 }
 
+// Contexto nativo.
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<ent::Texturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
@@ -99,18 +100,15 @@ std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 
 extern "C" {
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobject thisz, jstring endereco, jobject assets) {
+// Nativos de TabuleiroActivity.
+void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(JNIEnv* env, jobject thisz, jstring endereco, jobject assets) {
   std::string endereco_nativo;
   {
     const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
     endereco_nativo = endereco_nativo_c;
     env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
   }
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInit endereco: %s", endereco_nativo.c_str());
-  int* argcp = nullptr;
-  char** argvp = nullptr;
-  gl::IniciaGl(argcp, argvp);
-  ent::Tabuleiro::InicializaGL();
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate endereco: %s", endereco_nativo.c_str());
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new TexturasAndroid(env, assets, g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
@@ -121,35 +119,51 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInit(JNIEnv* env, jobje
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
 
   // TESTE
-  //try {
-  //  ntf::Notificacao* ntf_tab = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-  //  auto tab_lido = LeTabuleiro(env, assets);
-  //  ntf_tab->Swap(&tab_lido);
-  //  ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-  //  g_central->AdicionaNotificacao(ntf_tab);
-  //} catch (...) {
-  //  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
-  //}
+  try {
+    ntf::Notificacao* ntf_tab = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    auto tab_lido = LeTabuleiro(env, assets);
+    ntf_tab->Swap(&tab_lido);
+    ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+    g_central->AdicionaNotificacao(ntf_tab);
+  } catch (...) {
+    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
+  }
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }
 
+void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jobject thisz) {
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDestroy");
+  g_teclado_mouse.reset();
+  g_central->DesregistraReceptor(g_receptor.get());
+  g_receptor.reset();
+  g_cliente.reset();
+  g_servico_io.reset();
+  g_tabuleiro.reset();
+  g_texturas.reset();
+  g_central.reset();
+}
+
+// Nativos de TabuleiroRenderer.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, jobject thisz) {
+  int* argcp = nullptr;
+  char** argvp = nullptr;
+  gl::IniciaGl(argcp, argvp);
+  ent::Tabuleiro::InicializaGL();
+}
+
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, jobject thiz, jint w, jint h) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "resize w=%d h=%d", w, h);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "resize w=%d h=%d", w, h);
   g_tabuleiro->TrataRedimensionaJanela(w, h);
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDone(JNIEnv* env, jobject thiz) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDone");
-}
-
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env, jobject thiz) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
 }
 
 // Touch.

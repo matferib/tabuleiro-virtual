@@ -46,14 +46,6 @@ make
 
 Pode dar um erro no unit test aqui mas a lib esta ok.
 
-- Depuração:
-Colocar no manifest, dentro do elemento application android:debuggable="true"
-Compilar codigo nativo.
-Compilar modo debug (ant debug)
-Instalar.
-Rodar no tablet.
-Diretorio do projeto (pai do jni): /opt/android-ndk-r9d/ndk-gdb
-
 -- Boost:
 
 Boost android: https://github.com/MysticTreeGames/Boost-for-Android
@@ -70,6 +62,18 @@ LIBRARIES=--with-libraries=system,timer
 ===========
  Problemas
 ===========
+
+-- Depuração:
+
+Colocar no manifest, dentro do elemento application android:debuggable="true"
+Compilar codigo nativo.
+Compilar modo debug (ant debug)
+Instalar.
+Rodar no tablet.
+Diretorio do projeto (pai do jni):
+
+${ANDROID_NDK}/ndk-gdb --adb=${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb
+
 
 -- Problema de certificado ao instalar de outra maquina:
 

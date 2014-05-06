@@ -1,4 +1,5 @@
 Versao 1.0
+- Opcao para salvar personagens selecionaveis para jogadores.
 - Modificadores de teclado para tablet.
 - Resolver os crashes de tablet.
 - Interface de dano e acoes no tablet.
