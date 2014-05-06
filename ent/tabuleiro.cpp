@@ -820,12 +820,12 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
   // Faz picking do tabuleiro sem entidades.
   parametros_desenho_.set_desenha_entidades(false);
   float x0, y0, z0;
-  if (!MousePara3d(x, y, &x0, &y0, &z0)) {
+  if (!MousePara3dTabuleiro(x, y, &x0, &y0, &z0)) {
     return;
   }
 
   float x1, y1, z1;
-  if (!MousePara3d(nx, ny, &x1, &y1, &z1)) {
+  if (!MousePara3dTabuleiro(nx, ny, &x1, &y1, &z1)) {
     return;
   }
 
@@ -919,7 +919,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
-      if (!MousePara3d(x, y, &nx, &ny, &nz)) {
+      if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
         return;
       }
       for (unsigned int id : ids_entidades_selecionadas_) {
@@ -958,9 +958,8 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     case ETAB_DESLIZANDO: {
       // Faz picking do tabuleiro sem entidades.
-      parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
-      if (!MousePara3d(x, y, &nx, &ny, &nz)) {
+      if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
         return;
       }
 
@@ -971,7 +970,6 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       p->set_y(p->y() - delta_y);
       olho_.clear_destino();
       AtualizaOlho(true);
-
       ultimo_x_ = x;
       ultimo_y_ = y;
       // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
@@ -983,7 +981,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       quadrado_selecionado_ = -1;
       float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
-      if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
+      if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
         return;
       }
@@ -1006,7 +1004,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_DESENHANDO: {
       float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
-      if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
+      if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
         return;
       }
@@ -1995,6 +1993,42 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
 #endif
 }
 
+bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
+  // Intersecao de reta com plano z=0.
+  GLfloat modelview[16], projection[16];
+  GLint viewport[4];
+  gl::Le(GL_MODELVIEW_MATRIX, modelview);
+  gl::Le(GL_PROJECTION_MATRIX, projection);
+  gl::Le(GL_VIEWPORT, viewport);
+  float p1x, p1y, p1z;
+  gl::Desprojeta(x, y, -1.0f, modelview, projection, viewport, &p1x, &p1y, &p1z);
+  float p2x, p2y, p2z;
+  gl::Desprojeta(x, y, 1.0f, modelview, projection, viewport, &p2x, &p2y, &p2z);
+  if (p2z - p1z == 0) {
+    LOG(ERROR) << "Retornando lixo";
+    return false;
+  }
+  // TODO verificar os limites de tabuleiro.
+  float mult = (parametros_desenho_.offset_terreno() - p1z) / (p2z - p1z);
+  *x3d = p1x + (p2x - p1x) * mult;
+  *y3d = p1y + (p2y - p1y) * mult;
+  *z3d = parametros_desenho_.offset_terreno();
+  LOG(INFO) << "Retornando tabuleiro: " << *x3d << ", " << *y3d << ", " << *z3d;
+  return true;
+#if 0
+    // Para tabuleiro, aumenta resolucao em XY.
+    unsigned int id_detalhado;
+    parametros_desenho_.mutable_params_opengles()->set_tabuleiro(true);
+    parametros_desenho_.set_desenha_entidades(false);
+    BuscaHitMaisProximo(x, y, &id_detalhado, &pos_pilha, &profundidade);
+    if (profundidade == 1.0f) {
+      LOG(ERROR) << "Segunda chamada de BuscaHitMaisProximo nao deu hit em objeto.";
+      return false;
+    }
+    CoordenadaQuadradoDetalhado(id, id_detalhado, x3d, y3d, z3d);
+#endif
+}
+
 #if !USAR_OPENGL_ES
 bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
   GLdouble modelview[16], projection[16];
@@ -2017,16 +2051,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
   // Busca mais detalhado.
   float profundidade;
   if (pos_pilha == 1) {
-    // Para tabuleiro, aumenta resolucao em XY.
-    unsigned int id_detalhado;
-    parametros_desenho_.mutable_params_opengles()->set_tabuleiro(true);
-    parametros_desenho_.set_desenha_entidades(false);
-    BuscaHitMaisProximo(x, y, &id_detalhado, &pos_pilha, &profundidade);
-    if (profundidade == 1.0f) {
-      LOG(ERROR) << "Segunda chamada de BuscaHitMaisProximo nao deu hit em objeto.";
-      return false;
-    }
-    CoordenadaQuadradoDetalhado(id, id_detalhado, x3d, y3d, z3d);
+    MousePara3dTabuleiro(x, y, x3d, y3d, z3d);
   } else {
     unsigned int id_detalhado;
     parametros_desenho_.mutable_params_opengles()->set_tabuleiro(false);
@@ -2121,7 +2146,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   estado_anterior_ = estado_;
   float x3d, y3d, z3d;
   parametros_desenho_.set_desenha_entidades(false);
-  MousePara3d(x, y, &x3d, &y3d, &z3d);
+  MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
   estado_ = ETAB_DESLIZANDO;

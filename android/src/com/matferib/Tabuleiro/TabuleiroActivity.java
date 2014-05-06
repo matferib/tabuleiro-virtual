@@ -71,6 +71,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     renderer_ = new TabuleiroRenderer(this, getResources());
     detectorEventos_ = new GestureDetector(context, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
+    detectorEventos_.setIsLongpressEnabled(false);
+    detectorPressao_ = new PressureDetector(renderer_);
     detectorEscala_ = new ScaleGestureDetector(context, renderer_);
     detectorEscala_.setQuickScaleEnabled(true);
     detectorRotacao_ = new RotationGestureDetector(renderer_);
@@ -86,17 +88,36 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   public boolean onTouchEvent(final MotionEvent event) {
     if ((event.getActionMasked() & MotionEvent.ACTION_UP) > 0) {
       renderer_.onUp(event);
+      if (event.getPointerCount() == 1) {
+        // Voltou pro estado inicial.
+        estado_ = ESTADO_OCIOSO;
+      }
     }
+
+    renderer_.habilitaSensores(event.getPointerCount() == 2);
     if (event.getPointerCount() <= 1) {
+      if (estado_ != ESTADO_OCIOSO) {
+        return true;
+      }
+      detectorPressao_.onTouch(event);
       detectorEventos_.onTouchEvent(event);
     } else if (event.getPointerCount() == 2) {
+      if (estado_ != ESTADO_OCIOSO && estado_ != ESTADO_MULTITOQUE_2) {
+        return true;
+      }
       detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
+      estado_ = ESTADO_MULTITOQUE_2;
     } else if (event.getPointerCount() == 3) {
+      if (estado_ != ESTADO_OCIOSO &&
+          estado_ != ESTADO_MULTITOQUE_2 &&  // pode vir do estado de dois toques.
+          estado_ != ESTADO_MULTITOQUE_3) {
+        return true;
+      }
       renderer_.onActionTouch(event);
+      estado_ = ESTADO_MULTITOQUE_3;
     }
-    renderer_.habilitaSensores(event.getPointerCount() == 2);
     return true;
   }
 
@@ -138,12 +159,15 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   private TabuleiroRenderer renderer_;
   private GestureDetector detectorEventos_;
+  private PressureDetector detectorPressao_;
   private ScaleGestureDetector detectorEscala_;
   private RotationGestureDetector detectorRotacao_;
   private TranslationGestureDetector detectorTranslacao_;
   private SensorManager gerenteSensores_ = (SensorManager)getContext().getSystemService(Context.SENSOR_SERVICE);
   private Sensor sensor_ = gerenteSensores_.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
   private java.util.Timer timer_;
+  private static int ESTADO_OCIOSO = 1, ESTADO_MULTITOQUE_2 = 2, ESTADO_MULTITOQUE_3 = 3;
+  private int estado_ = ESTADO_OCIOSO;
 
   private static native void nativePause();
   private static native void nativeResume();
@@ -157,7 +181,8 @@ class TabuleiroRenderer
                ScaleGestureDetector.OnScaleGestureListener,
                RotationGestureDetector.RotationListener,
                TranslationGestureDetector.TranslationListener,
-               SensorEventListener {
+               SensorEventListener,
+               PressureDetector.PressureListener {
 
   public static final String TAG = "TabuleiroRenderer";
 
@@ -224,7 +249,7 @@ class TabuleiroRenderer
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      //Log.d(TAG, "Evento: " + evento.toString());
+      Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());
@@ -416,6 +441,13 @@ class TabuleiroRenderer
   public void onAccuracyChanged(Sensor sensor, int accuracy) {
   }
 
+  // Detector de pressao.
+  @Override
+  public void onPressure(int x, int y) {
+    //Log.d(TAG, "onPressure");
+    eventos_.add(Evento.Detalhamento(x, (int)(parent_.getHeight() - y)));
+  }
+
   // Tres toques: acao.
   public void onActionTouch(final MotionEvent e) {
     int somaX = 0, somaY = 0;
@@ -490,7 +522,25 @@ class RotationGestureDetector {
   }
 }
 
-// Translacao com 3 dedos.
+// Lanca eventos quando a pressao passar de um determinado valor.
+class PressureDetector {
+  public interface PressureListener {
+    public void onPressure(int x, int y);
+  }
+  public PressureDetector(PressureListener ouvinte) {
+    ouvinte_ = ouvinte;
+  }
+
+  public void onTouch(MotionEvent e) {
+    if (e.getPressure() > 1.0) {
+      ouvinte_.onPressure((int)e.getX(), (int)e.getY());
+    }
+  }
+
+  PressureListener ouvinte_;
+}
+
+// Translacao com 2+ dedos.
 class TranslationGestureDetector {
   public interface TranslationListener {
     public void onTranslateBegin(int x, int y);
