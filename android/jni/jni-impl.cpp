@@ -17,15 +17,19 @@
 
 namespace {
 
+// Trata notificacoes tipo TN_ERRO.
 class ReceptorErro : public ntf::Receptor {
  public:
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
     if (notificacao.tipo() == ntf::TN_ERRO) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+      return true;
     }
+    return false;
   }
 };
 
+// Implementacao das texturas para android.
 class TexturasAndroid : public tex::Texturas {
  public:
   TexturasAndroid(JNIEnv* env, jobject assets, ntf::CentralNotificacoes* central) : tex::Texturas(central) {
@@ -89,7 +93,7 @@ const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
 
 // Contexto nativo.
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
-std::unique_ptr<ent::Texturas> g_texturas;
+std::unique_ptr<tex::Texturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
@@ -152,6 +156,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, job
   char** argvp = nullptr;
   gl::IniciaGl(argcp, argvp);
   ent::Tabuleiro::InicializaGL();
+  g_texturas->Recarrega();
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, jobject thiz, jint w, jint h) {

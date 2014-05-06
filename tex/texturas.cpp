@@ -26,26 +26,17 @@ int TipoImagem() {
 
 struct Texturas::InfoTexturaInterna {
   InfoTexturaInterna(const std::string& id_mapa, const ent::InfoTextura& imagem) : contador(1) {
-    glGenTextures(1, &id);
-    if (id == GL_INVALID_VALUE) {
+    imagem_ = imagem;
+    try {
+      CriaTexturaOpenGl();
+    } catch (...) {
+      imagem_.Clear();
       LOG(ERROR) << "Erro gerando nome para textura";
       return;
     }
-    glBindTexture(GL_TEXTURE_2D, id);
-    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // Carrega a textura.
-    glTexImage2D(GL_TEXTURE_2D,
-                 0, GL_RGBA,
-                 imagem.altura(), imagem.largura(),
-                 0, FormatoImagem(), TipoImagem(),
-                 imagem.bits().c_str());
-    imagem_ = imagem;
     VLOG(1) << "Textura criada: id: '" << id_mapa << "', id OpenGL: '" << id
             << "', " << imagem.largura() << "x" << imagem.altura()
             << ", format: " << FormatoImagem();
-    glDisable(GL_TEXTURE_2D);
   }
 
   ~InfoTexturaInterna() {
@@ -54,6 +45,24 @@ struct Texturas::InfoTexturaInterna {
     }
     GLuint tex_name = id;
     glDeleteTextures(1, &tex_name);
+  }
+
+  void CriaTexturaOpenGl() {
+    glGenTextures(1, &id);
+    if (id == GL_INVALID_VALUE) {
+      throw std::logic_error("Erro criando textura (glGenTextures)");
+    }
+    glBindTexture(GL_TEXTURE_2D, id);
+    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // Carrega a textura.
+    glTexImage2D(GL_TEXTURE_2D,
+                 0, GL_RGBA,
+                 imagem_.altura(), imagem_.largura(),
+                 0, FormatoImagem(), TipoImagem(),
+                 imagem_.bits().c_str());
+    glDisable(GL_TEXTURE_2D);
   }
 
   ent::InfoTextura imagem_;
@@ -91,6 +100,12 @@ unsigned int Texturas::Textura(const std::string& id) const {
 }
 // Fim da interface ent::Texturas.
 
+void Texturas::Recarrega() {
+  for (auto& cv : texturas_) {
+    cv.second->CriaTexturaOpenGl();
+  }
+}
+
 Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id) {
   auto it = texturas_.find(id);
   if (it == texturas_.end()) {
@@ -111,7 +126,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
     if (info_textura.has_bits()) {
-      VLOG(1) << "Carregando textura local.";
+      VLOG(1) << "Carregando textura com bits.";
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_textura)));
     } else {
       VLOG(1) << "Carregando textura comum.";
