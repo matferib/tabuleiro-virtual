@@ -54,6 +54,11 @@ TratadorTecladoMouse::TratadorTecladoMouse(ntf::CentralNotificacoes* central, en
   MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
 }
 
+
+TratadorTecladoMouse::~TratadorTecladoMouse() {
+  central_->DesregistraReceptor(this);
+}
+
 void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
   // Busca primeira tecla.
   if (teclas_.empty()) {

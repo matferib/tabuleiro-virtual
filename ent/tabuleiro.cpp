@@ -1172,7 +1172,6 @@ void Tabuleiro::TrataBotaoLiberado() {
 }
 
 void Tabuleiro::TrataMouseParadoEm(int x, int y) {
-  LOG(INFO) << "AQUI";
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);

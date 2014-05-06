@@ -64,7 +64,7 @@ enum botoesmouse_e {
 class TratadorTecladoMouse : public ntf::Receptor {
  public:
   TratadorTecladoMouse(ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro);
-  ~TratadorTecladoMouse() {}
+  ~TratadorTecladoMouse();
 
   void TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores);
   void TrataBotaoMousePressionado(botoesmouse_e botao, modificadores_e modificadores, int x, int y);

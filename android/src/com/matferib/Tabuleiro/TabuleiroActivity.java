@@ -8,6 +8,8 @@ import javax.microedition.khronos.opengles.GL10;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,9 +27,14 @@ public class TabuleiroActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    Intent intencao = getIntent();
-    view_ = new TabuleiroSurfaceView(this, getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA));
+    view_ = new TabuleiroSurfaceView(this);
     setContentView(view_);
+    nativeCreate(getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA), getResources().getAssets());
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
   }
 
   @Override
@@ -42,18 +49,26 @@ public class TabuleiroActivity extends Activity {
     view_.onResume();
   }
 
+  @Override
+  protected void onDestroy() {
+    super.onStop();
+    nativeDestroy();
+  }
+
   static {
     System.loadLibrary("tabuleiro");
   }
+  private static native void nativeCreate(String endereco, Object assets);
+  private static native void nativeDestroy();
 
   private GLSurfaceView view_;
 }
 
 // View do OpenGL.
 class TabuleiroSurfaceView extends GLSurfaceView {
-  public TabuleiroSurfaceView(Context context, String endereco) {
+  public TabuleiroSurfaceView(Context context) {
     super(context);
-    renderer_ = new TabuleiroRenderer(this, endereco, getResources());
+    renderer_ = new TabuleiroRenderer(this, getResources());
     detectorEventos_ = new GestureDetector(context, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEscala_ = new ScaleGestureDetector(context, renderer_);
@@ -66,6 +81,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     setFocusableInTouchMode(true);
   }
 
+  @Override
   public boolean onTouchEvent(final MotionEvent event) {
     if ((event.getActionMasked() & MotionEvent.ACTION_UP) > 0) {
       renderer_.onUp(event);
@@ -87,6 +103,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   public boolean onKeyDown(int keyCode, KeyEvent event) {
     return false;
   }
+
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
     Log.d("TabuleiroRenderer", "onKeyUp");
@@ -96,6 +113,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   @Override
   public void onPause() {
     super.onPause();
+    timer_.cancel();
+    timer_ = null;
     gerenteSensores_.unregisterListener(renderer_);
     nativePause();
   }
@@ -107,6 +126,13 @@ class TabuleiroSurfaceView extends GLSurfaceView {
                                       gerenteSensores_.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
                                       SensorManager.SENSOR_DELAY_NORMAL);
     nativeResume();
+    // Liga o timer a cada 33 ms. TODO: funcao nativa para retornar o periodo do timer.
+    timer_ = new java.util.Timer();
+    timer_.scheduleAtFixedRate(new java.util.TimerTask() {
+      public void run() {
+        requestRender();
+      }
+    }, 0, 33);
   }
 
   private TabuleiroRenderer renderer_;
@@ -116,14 +142,15 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private TranslationGestureDetector detectorTranslacao_;
   private SensorManager gerenteSensores_ = (SensorManager)getContext().getSystemService(Context.SENSOR_SERVICE);
   private Sensor sensor_ = gerenteSensores_.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
+  private java.util.Timer timer_;
+
   private static native void nativePause();
   private static native void nativeResume();
 }
 
 // Renderizador do tabuleiro. Responsavel pelo timer que atualiza o tabuleiro.
-class TabuleiroRenderer extends java.util.TimerTask
+class TabuleiroRenderer
     implements GLSurfaceView.Renderer,
-               Runnable,
                GestureDetector.OnGestureListener,
                GestureDetector.OnDoubleTapListener,
                ScaleGestureDetector.OnScaleGestureListener,
@@ -133,21 +160,17 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   public static final String TAG = "TabuleiroRenderer";
 
-  public TabuleiroRenderer(GLSurfaceView parent, String endereco, android.content.res.Resources resources) {
-    endereco_ = endereco;
+  public TabuleiroRenderer(GLSurfaceView parent, Resources resources) {
     resources_ = resources;
-    assets_ = resources.getAssets();
     parent_ = parent;
-    //last_x_ = last_y_ = 0;
   }
 
+  @Override
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-    nativeInit(endereco_, assets_);
-    // Liga o timer a cada 33 ms. TODO: funcao nativa para retornar o periodo do timer.
-    java.util.Timer timer = new java.util.Timer();
-    timer.scheduleAtFixedRate(this, 0, 33);
+    nativeInitGl();
   }
 
+  @Override
   public void onSurfaceChanged(GL10 gl, int w, int h) {
     nativeResize(w, h);
   }
@@ -186,6 +209,7 @@ class TabuleiroRenderer extends java.util.TimerTask
   }
 
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
+  @Override
   public void onDrawFrame(GL10 gl) {
     //Log.d(TAG, "DrawFrame");
     nativeTimer();
@@ -199,7 +223,7 @@ class TabuleiroRenderer extends java.util.TimerTask
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      Log.d(TAG, "Evento: " + evento.toString());
+      //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());
@@ -244,28 +268,23 @@ class TabuleiroRenderer extends java.util.TimerTask
     nativeRender();
   }
 
-  /** Sera chamada pelo timer a cada intervalo de atualizacao. Pode vir de qualquer thread. */
-  public void run() {
-    parent_.requestRender();
-  }
-
   // Detector de eventos.
   @Override
   public boolean onDown(MotionEvent event) {
-    Log.d(TAG, "Down");
+    //Log.d(TAG, "Down");
     return true;
   }
 
   // Algum ponteiro terminou.
   public boolean onUp(MotionEvent event) {
-    Log.d(TAG, "Up");
+    //Log.d(TAG, "Up");
     eventos_.add(Evento.Liberado());
     carregando_ = false;
     return true;
   }
 
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    Log.d(TAG, "Teclado");
+    //Log.d(TAG, "Teclado");
     // TODO modificadores.
     eventos_.add(Evento.Teclado(keyCode));
     return true;
@@ -274,19 +293,19 @@ class TabuleiroRenderer extends java.util.TimerTask
   @Override
   public boolean onFling(MotionEvent event1, MotionEvent event2,
       float velocityX, float velocityY) {
-    Log.d(TAG, "Fling");
+    //Log.d(TAG, "Fling");
     return true;
   }
 
   @Override
   public void onLongPress(MotionEvent event) {
-    Log.d(TAG, "LongPress");
+    //Log.d(TAG, "LongPress");
     eventos_.add(Evento.Detalhamento((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
   }
 
   @Override
   public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-    Log.d(TAG, "Scroll");
+    //Log.d(TAG, "Scroll");
     if (!carregando_) {
       eventos_.add(Evento.Pressionado((int)e1.getX(), (int)(parent_.getHeight() - e1.getY())));
       carregando_ = true;
@@ -297,32 +316,32 @@ class TabuleiroRenderer extends java.util.TimerTask
 
   @Override
   public void onShowPress(MotionEvent event) {
-    Log.d(TAG, "ShowPress");
+    //Log.d(TAG, "ShowPress");
     eventos_.add(Evento.Toque((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
   }
 
   @Override
   public boolean onSingleTapUp(MotionEvent event) {
-    Log.d(TAG, "TapUp");
+    //Log.d(TAG, "TapUp");
     return true;
   }
 
   @Override
   public boolean onDoubleTap(MotionEvent event) {
-    Log.d(TAG, "DoubleTap");
+    //Log.d(TAG, "DoubleTap");
     eventos_.add(Evento.DuploClique((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
     return true;
   }
 
   @Override
   public boolean onDoubleTapEvent(MotionEvent event) {
-    Log.d(TAG, "DoubleTapEvent");
+    //Log.d(TAG, "DoubleTapEvent");
     return true;
   }
 
   @Override
   public boolean onSingleTapConfirmed(MotionEvent event) {
-    Log.d(TAG, "SingleTapConfirmed");
+    //Log.d(TAG, "SingleTapConfirmed");
     eventos_.add(Evento.Clique((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
     return true;
   }
@@ -330,20 +349,20 @@ class TabuleiroRenderer extends java.util.TimerTask
   // Detector de escala.
   @Override
   public boolean onScale(ScaleGestureDetector detector) {
-    Log.d(TAG, "Scale");
+    //Log.d(TAG, "Scale");
     eventos_.add(Evento.Escala(detector.getScaleFactor()));
     return true;
   }
 
   @Override
   public boolean onScaleBegin(ScaleGestureDetector detector) {
-    Log.d(TAG, "ScaleBegin");
+    //Log.d(TAG, "ScaleBegin");
     return true;
   }
 
   @Override
   public void onScaleEnd(ScaleGestureDetector detector) {
-    Log.d(TAG, "ScaleEnd");
+    //Log.d(TAG, "ScaleEnd");
   }
 
   // Detector rotacao.
@@ -352,33 +371,36 @@ class TabuleiroRenderer extends java.util.TimerTask
     if (delta == 0.0f) {
       return;
     }
-    Log.d(TAG, "Rotate");
+    //Log.d(TAG, "Rotate");
     eventos_.add(Evento.Rotacao(delta));
   }
 
   // Detector de translacao.
   @Override
   public void onTranslateBegin(int x, int y) {
-    Log.d(TAG, "TranslationBegin");
+    //Log.d(TAG, "TranslationBegin");
     eventos_.add(Evento.Translacao(x, (int)(parent_.getHeight() - y)));
   }
+
   @Override
   public void onTranslate(int x, int y) {
-    Log.d(TAG, "Translation");
+    //Log.d(TAG, "Translation");
     eventos_.add(Evento.Movimento(x, (int)(parent_.getHeight() - y)));
   }
+
   @Override
   public void onTranslateEnd() {
-    Log.d(TAG, "TranslationEnd");
+    //Log.d(TAG, "TranslationEnd");
     eventos_.add(Evento.Liberado());
   }
 
   // Sensores.
+  @Override
   public void onSensorChanged(SensorEvent se) {
     if (!lerGiroscopio_) {
       return;
     }
-    Log.d(TAG, "onSensorChanged: outras");
+    //Log.d(TAG, "onSensorChanged: outras");
     // Detectar landscape ou retrato para saber se le o y ou x.
     float val;
     if (resources_.getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
@@ -389,6 +411,7 @@ class TabuleiroRenderer extends java.util.TimerTask
     eventos_.add(Evento.Inclinacao(-val));
   }
 
+  @Override
   public void onAccuracyChanged(Sensor sensor, int accuracy) {
   }
 
@@ -405,10 +428,9 @@ class TabuleiroRenderer extends java.util.TimerTask
     eventos_.add(Evento.Acao(somaX, (int)(parent_.getHeight() - somaY)));
   }
 
-  private static native void nativeInit(String endereco, Object assets);
+  private static native void nativeInitGl();
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
-  private static native void nativeDone();
   private static native void nativeTimer();
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(int x, int y);
@@ -423,12 +445,9 @@ class TabuleiroRenderer extends java.util.TimerTask
   private static native void nativeKeyboard(int tecla);
 
   private GLSurfaceView parent_;
-
   private Vector<Evento> eventos_ = new Vector<Evento>();
   private boolean carregando_ = false;
-  private String endereco_;
-  private android.content.res.AssetManager assets_;
-  private android.content.res.Resources resources_;
+  private Resources resources_;
   private boolean lerGiroscopio_ = false;
 }
 
@@ -656,9 +675,33 @@ class Evento {
       case KeyEvent.KEYCODE_7: return 0x37;
       case KeyEvent.KEYCODE_8: return 0x38;
       case KeyEvent.KEYCODE_9: return 0x39;
-      case KeyEvent.KEYCODE_A: return 0x41;
-      case KeyEvent.KEYCODE_C: return 0x43;
-      case KeyEvent.KEYCODE_D: return 0x44;
+      case KeyEvent.KEYCODE_A:
+      case KeyEvent.KEYCODE_B:
+      case KeyEvent.KEYCODE_C:
+      case KeyEvent.KEYCODE_D:
+      case KeyEvent.KEYCODE_E:
+      case KeyEvent.KEYCODE_F:
+      case KeyEvent.KEYCODE_G:
+      case KeyEvent.KEYCODE_H:
+      case KeyEvent.KEYCODE_I:
+      case KeyEvent.KEYCODE_J:
+      case KeyEvent.KEYCODE_K:
+      case KeyEvent.KEYCODE_L:
+      case KeyEvent.KEYCODE_M:
+      case KeyEvent.KEYCODE_N:
+      case KeyEvent.KEYCODE_O:
+      case KeyEvent.KEYCODE_P:
+      case KeyEvent.KEYCODE_Q:
+      case KeyEvent.KEYCODE_R:
+      case KeyEvent.KEYCODE_S:
+      case KeyEvent.KEYCODE_T:
+      case KeyEvent.KEYCODE_U:
+      case KeyEvent.KEYCODE_V:
+      case KeyEvent.KEYCODE_W:
+      case KeyEvent.KEYCODE_X:
+      case KeyEvent.KEYCODE_Y:
+      case KeyEvent.KEYCODE_Z:
+        return 0x41 + (teclaJava - KeyEvent.KEYCODE_A);
       case KeyEvent.KEYCODE_ENTER: return 0x01000004;
       case KeyEvent.KEYCODE_ESCAPE: return 0x01000000;
       case KeyEvent.KEYCODE_DPAD_LEFT: return 0x01000012;
