@@ -21,6 +21,9 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Retorna uma textura. */
   virtual unsigned int Textura(const std::string& id) const override;
 
+  /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo). */
+  void Recarrega();
+
  private:
   struct InfoTexturaInterna;
 
