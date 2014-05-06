@@ -665,16 +665,17 @@ class Evento {
   // Transforma o keycode de java para nativo. Sao os mesmos do QT: http://qt-project.org/doc/qt-4.8/qt.html#Key-enum.
   private static int teclaNativa(int teclaJava) {
     switch (teclaJava) {
-      case KeyEvent.KEYCODE_0: return 0x30;
-      case KeyEvent.KEYCODE_1: return 0x31;
-      case KeyEvent.KEYCODE_2: return 0x32;
-      case KeyEvent.KEYCODE_3: return 0x33;
-      case KeyEvent.KEYCODE_4: return 0x34;
-      case KeyEvent.KEYCODE_5: return 0x35;
-      case KeyEvent.KEYCODE_6: return 0x36;
-      case KeyEvent.KEYCODE_7: return 0x37;
-      case KeyEvent.KEYCODE_8: return 0x38;
-      case KeyEvent.KEYCODE_9: return 0x39;
+      case KeyEvent.KEYCODE_0:
+      case KeyEvent.KEYCODE_1:
+      case KeyEvent.KEYCODE_2:
+      case KeyEvent.KEYCODE_3:
+      case KeyEvent.KEYCODE_4:
+      case KeyEvent.KEYCODE_5:
+      case KeyEvent.KEYCODE_6:
+      case KeyEvent.KEYCODE_7:
+      case KeyEvent.KEYCODE_8:
+      case KeyEvent.KEYCODE_9:
+        return 0x30 + (teclaJava - KeyEvent.KEYCODE_0);
       case KeyEvent.KEYCODE_A:
       case KeyEvent.KEYCODE_B:
       case KeyEvent.KEYCODE_C:
@@ -702,6 +703,7 @@ class Evento {
       case KeyEvent.KEYCODE_Y:
       case KeyEvent.KEYCODE_Z:
         return 0x41 + (teclaJava - KeyEvent.KEYCODE_A);
+      case KeyEvent.KEYCODE_SPACE: return 0x20;
       case KeyEvent.KEYCODE_ENTER: return 0x01000004;
       case KeyEvent.KEYCODE_ESCAPE: return 0x01000000;
       case KeyEvent.KEYCODE_DPAD_LEFT: return 0x01000012;
