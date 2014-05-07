@@ -1995,7 +1995,11 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
 
 bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
   // Intersecao de reta com plano z=0.
+#if !USAR_OPENGL_ES
+  GLdouble modelview[16], projection[16];
+#else
   GLfloat modelview[16], projection[16];
+#endif
   GLint viewport[4];
   gl::Le(GL_MODELVIEW_MATRIX, modelview);
   gl::Le(GL_PROJECTION_MATRIX, projection);
@@ -3186,11 +3190,11 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
     tempo_str.insert(0, "0");
   }
   // Modo 2d.
-  gl::ModoMatriz(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
   gl::CarregaIdentidade();
   // Eixo com origem embaixo esquerda.
   gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-  gl::ModoMatriz(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
   gl::CarregaIdentidade();
   int largura_fonte, altura_fonte;
   gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
