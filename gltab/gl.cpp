@@ -1031,7 +1031,7 @@ void TamanhoFonte(int* largura, int* altura) {
 
 namespace {
 
-// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita. 
+// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaTesteProfundidadeEscopo mascara_escopo;
