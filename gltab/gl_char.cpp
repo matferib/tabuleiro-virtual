@@ -62,9 +62,9 @@ const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres
     },
   }, {
     '1', {
-      Q(I(1, 1), I(9, 1), I(9, 3), I(1, 3)),  // Base.
-      Q(I(4, 3), I(6, 3), I(6, 9), I(4, 9)),  // Corpo
-      I(1, 7), I(4, 7), I(4, 9),  // Cabeca
+      Q(I(2, 1), I(8, 1), I(8, 2), I(2, 2)),  // Base.
+      Q(I(4, 2), I(6, 2), I(6, 9), I(4, 9)),  // Corpo
+      I(2, 7), I(4, 7), I(4, 9),  // Cabeca
     },
   }, {
     '2', {
