@@ -81,6 +81,19 @@
     <string>Desenha rosa dos ventos</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkbox_anti_aliasing">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>271</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Anti Serrilhamento</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

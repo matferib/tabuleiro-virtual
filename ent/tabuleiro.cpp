@@ -1241,13 +1241,20 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
   AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
-void Tabuleiro::InicializaGL() {
+void Tabuleiro::IniciaGL() {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  gl::Desabilita(GL_BLEND);
+  //gl::Desabilita(GL_BLEND);
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
+
+  glEnable(GL_BLEND);
+  //glEnable(GL_LINE_SMOOTH);
+  //glEnable(GL_POLYGON_SMOOTH);
+  //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+  //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+  //glHint(GL_FOG_HINT, GL_NICEST);
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
@@ -1437,7 +1444,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
-    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     LigaStencil();
     DesenhaRastros();
     DesenhaStencil(COR_AZUL_ALFA);
@@ -1450,7 +1457,7 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
-    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(-3.0f, -30.0f);
     MudaCorAlfa(COR_AZUL_ALFA);
@@ -1462,7 +1469,7 @@ void Tabuleiro::DesenhaCena() {
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
   // a outros nao transparentes.
   if (parametros_desenho_.transparencias()) {
-    gl::HabilitaEscopo blend_escopo(GL_BLEND);
+    //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
     parametros_desenho_.set_alfa_translucidos(0.5);
     DesenhaEntidadesTranslucidas();
@@ -1785,7 +1792,7 @@ void Tabuleiro::DesenhaSombras() {
       true);
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
-  gl::HabilitaEscopo habilita_blend(GL_BLEND);
+  //gl::HabilitaEscopo habilita_blend(GL_BLEND);
   DesenhaStencil(cor_sombra);
 }
 
@@ -2019,18 +2026,6 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
   *z3d = parametros_desenho_.offset_terreno();
   LOG(INFO) << "Retornando tabuleiro: " << *x3d << ", " << *y3d << ", " << *z3d;
   return true;
-#if 0
-    // Para tabuleiro, aumenta resolucao em XY.
-    unsigned int id_detalhado;
-    parametros_desenho_.mutable_params_opengles()->set_tabuleiro(true);
-    parametros_desenho_.set_desenha_entidades(false);
-    BuscaHitMaisProximo(x, y, &id_detalhado, &pos_pilha, &profundidade);
-    if (profundidade == 1.0f) {
-      LOG(ERROR) << "Segunda chamada de BuscaHitMaisProximo nao deu hit em objeto.";
-      return false;
-    }
-    CoordenadaQuadradoDetalhado(id, id_detalhado, x3d, y3d, z3d);
-#endif
 }
 
 #if !USAR_OPENGL_ES

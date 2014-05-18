@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'iluminacao.ui'
 **
-** Created: Fri Apr 18 21:40:36 2014
+** Created: Sun May 18 13:58:40 2014
 **      by: Qt User Interface Compiler version 4.8.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -315,7 +315,13 @@ public:
         label_2->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Nascente", 0, QApplication::UnicodeUTF8));
         checkbox_nevoa->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "N\303\251voa", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Min", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_nevoa_min->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia m\303\255nma da n\303\251voa, em m.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         label_13->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Max", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_nevoa_max->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia onde o efeito m\303\241ximo da n\303\251voa \303\251 aplicado.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

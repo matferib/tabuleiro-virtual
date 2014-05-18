@@ -155,7 +155,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, job
   int* argcp = nullptr;
   char** argvp = nullptr;
   gl::IniciaGl(argcp, argvp);
-  ent::Tabuleiro::InicializaGL();
+  g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
 }
 
