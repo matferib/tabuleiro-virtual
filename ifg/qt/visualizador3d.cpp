@@ -145,11 +145,17 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
   return static_cast<botoesmouse_e>(botao_qt);
 }
 
+// Formato da janela.
+QGLFormat Formato(bool anti_aliasing) {
+  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer |
+                   (anti_aliasing ? QGL::SampleBuffers : QGL::NoSampleBuffers));
+}
+
 }  // namespace
 
 Visualizador3d::Visualizador3d(
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QGLWidget(QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer), pai),
+    :  QGLWidget(Formato(false  /*anti_aliasing*/), pai),
        teclado_mouse_(central, tabuleiro),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
@@ -162,7 +168,7 @@ Visualizador3d::~Visualizador3d() {
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
-  ent::Tabuleiro::InicializaGL();
+  tabuleiro_->IniciaGL();
 }
 
 void Visualizador3d::resizeGL(int width, int height) {
@@ -731,9 +737,12 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // Rosa dos ventos.
   gerador.checkbox_rosa_dos_ventos->setCheckState(
       opcoes_proto.desenha_rosa_dos_ventos() ? Qt::Checked : Qt::Unchecked);
+  // Serrilhamento
+  gerador.checkbox_anti_aliasing->setCheckState(
+      opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
-  lambda_connect(dialogo, SIGNAL(accepted()), [dialogo, &gerador, proto_retornado] {
+  lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
     proto_retornado->set_mostra_fps(gerador.checkbox_mostrar_fps->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_texturas_sempre_de_frente(
         gerador.checkbox_texturas_sempre_de_frente->checkState() == Qt::Checked ? true : false);
@@ -741,6 +750,14 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_iluminacao_mestre->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_rosa_dos_ventos(
         gerador.checkbox_rosa_dos_ventos->checkState() == Qt::Checked ? true : false);
+    if (gerador.checkbox_anti_aliasing->checkState() == Qt::Checked) {
+      setFormat(Formato(true));
+      proto_retornado->set_anti_aliasing(true);
+    } else {
+      setFormat(Formato(false));
+      proto_retornado->set_anti_aliasing(false);
+    }
+
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

@@ -207,7 +207,7 @@ class Tabuleiro : public ntf::Receptor {
   void TrataRolagem(dir_rolagem_e dir);
 
   /** inicializa os parametros do openGL. */
-  static void InicializaGL();
+  void IniciaGL();
 
   /** Seleciona o modelo de entidade através do identificador. */
   void SelecionaModeloEntidade(const std::string& id_modelo);
