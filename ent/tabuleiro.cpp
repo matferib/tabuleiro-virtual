@@ -1243,13 +1243,13 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 
 void Tabuleiro::IniciaGL() {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  //gl::Desabilita(GL_BLEND);
+  gl::Habilita(GL_BLEND);
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
 
-  glEnable(GL_BLEND);
+  //glEnable(GL_BLEND);
   //glEnable(GL_LINE_SMOOTH);
   //glEnable(GL_POLYGON_SMOOTH);
   //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
