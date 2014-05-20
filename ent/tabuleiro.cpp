@@ -1249,15 +1249,16 @@ void Tabuleiro::IniciaGL() {
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
 
-  glEnable(GL_BLEND);
-  glEnable(GL_LINE_SMOOTH);
-  //glEnable(GL_POLYGON_SMOOTH);
+  // Isso aqui nao funciona, mas vai que funciona em algum dispositivo...
+  gl::Habilita(GL_LINE_SMOOTH);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
   if (glGetError() != GL_NO_ERROR) {
     LOG(INFO) << "Erro no GL_LINE_SMOOTH_HINT";
   }
-  //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-  //glHint(GL_FOG_HINT, GL_NICEST);
+  glHint(GL_FOG_HINT, GL_NICEST);
+  if (glGetError() != GL_NO_ERROR) {
+    LOG(INFO) << "Erro no GL_FOG_HINT";
+  }
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
