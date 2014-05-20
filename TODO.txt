@@ -1,8 +1,7 @@
 Versao 1.0
+- Restaurar sem entidades: manter entidades selecionaveis para jogadores e trazer todas nao selecionaveis.
 - Opcao para salvar personagens selecionaveis para jogadores.
-- Modificadores de teclado para tablet.
 - Interface de dano e acoes no tablet.
-- Fazer letras opengles.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
 - Pensar em como nao mostrar formas mortas.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
