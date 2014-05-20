@@ -221,10 +221,10 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTilt(
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeKeyboard(
-    JNIEnv* env, jobject thiz, jint key) {
-  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTilt: %f", delta);
+    JNIEnv* env, jobject thiz, jint key, jint modifiers) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeKeyboard: %d %d", key, modifiers);
   g_teclado_mouse->TrataTeclaPressionada(static_cast<ifg::teclas_e>(key),
-                                         static_cast<ifg::modificadores_e>(0  /* TODO modificadores */));
+                                         static_cast<ifg::modificadores_e>(modifiers));
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeAction(JNIEnv* env, jobject thiz, jint x, jint y) {
