@@ -283,7 +283,7 @@ class TabuleiroRenderer
           nativeTilt(evento.delta());
           break;
         case Evento.TECLADO:
-          nativeKeyboard(evento.tecla());
+          nativeKeyboard(evento.tecla(), evento.modificadores());
           break;
         case Evento.ACAO:
           nativeAction(evento.x(), evento.y());
@@ -312,7 +312,7 @@ class TabuleiroRenderer
   public boolean onKeyUp(int keyCode, KeyEvent event) {
     //Log.d(TAG, "Teclado");
     // TODO modificadores.
-    eventos_.add(Evento.Teclado(keyCode));
+    eventos_.add(Evento.Teclado(keyCode, event.isShiftPressed(), event.isCtrlPressed(), event.isAltPressed()));
     return true;
   }
 
@@ -475,7 +475,7 @@ class TabuleiroRenderer
   private static native void nativeRotation(float r);
   private static native void nativeTranslation(int x, int y);
   private static native void nativeTilt(float delta);
-  private static native void nativeKeyboard(int tecla);
+  private static native void nativeKeyboard(int tecla, int modificadores);
 
   private GLSurfaceView parent_;
   private Vector<Evento> eventos_ = new Vector<Evento>();
@@ -599,9 +599,10 @@ class Evento {
   public static final int TECLADO = 13;
   public static final int ACAO = 14;
 
-  public static Evento Teclado(int tecla) {
+  public static Evento Teclado(int tecla, boolean shift, boolean ctrl, boolean alt) {
     Evento evento = new Evento(TECLADO);
     evento.tecla_ = teclaNativa(tecla);
+    evento.modificadores_ = modificadoresNativos(shift, ctrl, alt);
     return evento;
   }
 
@@ -690,7 +691,7 @@ class Evento {
   public String toString() {
     return "Tipo: " + tipoString() + ", escala: " + escala_ + ", rotacao: " + rotacao_ +
                                      ", x:" + x_ + ", y: " + y_ + ", delta: " + delta_ +
-                                     ", tecla: " + tecla_;
+                                     ", tecla: " + tecla_ + ", modificadores: " + modificadores_;
   }
 
   private String tipoString() {
@@ -766,6 +767,21 @@ class Evento {
     }
   }
 
+  // Valores do QT: http://qt-project.org/doc/qt-4.8/qt.html#KeyboardModifier-enum.
+  private static int modificadoresNativos(boolean shift, boolean ctrl, boolean alt) {
+    int ret = 0;
+    if (shift) {
+      ret |= 0x02000000;
+    }
+    if (ctrl) {
+      ret |= 0x04000000;
+    }
+    if (alt) {
+      ret |= 0x08000000;
+    }
+    return ret;
+  }
+
   public int tipo() { return tipo_; }
   public float escala() { return escala_; }
   public float rotacao() { return rotacao_; }
@@ -775,6 +791,7 @@ class Evento {
   public int ny() { return ny_; }
   public float delta() { return delta_; }
   public int tecla() { return tecla_; }
+  public int modificadores() { return modificadores_; }
 
   private int tipo_;
   private float escala_;
@@ -785,4 +802,5 @@ class Evento {
   private int ny_;
   private float delta_;
   private int tecla_;  // modo nativo.
+  private int modificadores_;  // modo nativo.
 }
