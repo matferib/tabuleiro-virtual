@@ -1249,10 +1249,13 @@ void Tabuleiro::IniciaGL() {
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
 
-  //glEnable(GL_BLEND);
-  //glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_BLEND);
+  glEnable(GL_LINE_SMOOTH);
   //glEnable(GL_POLYGON_SMOOTH);
-  //glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+  if (glGetError() != GL_NO_ERROR) {
+    LOG(INFO) << "Erro no GL_LINE_SMOOTH_HINT";
+  }
   //glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
   //glHint(GL_FOG_HINT, GL_NICEST);
 }
@@ -1808,7 +1811,10 @@ void Tabuleiro::AtualizaOlho(bool forcar) {
     bool chegou = true;
     for (int i = 0; i < 3; ++i) {
       double delta = (origem[i] > destino[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
-      if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO) {
+      if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO * 3) {
+        origem[i] += delta * 3;
+        chegou = false;
+      } else if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO) {
         origem[i] += delta;
         chegou = false;
       } else {
@@ -2024,7 +2030,7 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
   *x3d = p1x + (p2x - p1x) * mult;
   *y3d = p1y + (p2y - p1y) * mult;
   *z3d = parametros_desenho_.offset_terreno();
-  LOG(INFO) << "Retornando tabuleiro: " << *x3d << ", " << *y3d << ", " << *z3d;
+  VLOG(2) << "Retornando tabuleiro: " << *x3d << ", " << *y3d << ", " << *z3d;
   return true;
 }
 
