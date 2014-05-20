@@ -115,7 +115,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
           estado_ != ESTADO_MULTITOQUE_3) {
         return true;
       }
-      renderer_.onActionTouch(event);
+      //renderer_.onActionTouch(event);
       estado_ = ESTADO_MULTITOQUE_3;
     }
     return true;
@@ -128,7 +128,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    Log.d("TabuleiroRenderer", "onKeyUp");
+    //Log.d("TabuleiroRenderer", "onKeyUp");
     return renderer_.onKeyUp(keyCode, event);
   }
 
@@ -249,7 +249,7 @@ class TabuleiroRenderer
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      Log.d(TAG, "Evento: " + evento.toString());
+      //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());
