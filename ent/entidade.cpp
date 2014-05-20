@@ -189,6 +189,7 @@ void Entidade::Atualiza() {
     po->set_z(z_chao);
   }
 
+  // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
     return;
   }
@@ -201,11 +202,18 @@ void Entidade::Atualiza() {
   const float VELOCIDADE_POR_EIXO = 10.0f * POR_SEGUNDO_PARA_ATUALIZACAO;
   for (int i = 0; i < 3; ++i) {
     double delta = (origens[i] > destinos[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
-    if (fabs(origens[i] - destinos[i]) > VELOCIDADE_POR_EIXO) {
-      origens[i] += delta;
-      chegou = false;
-    } else {
+    float diferenca = fabs(origens[i] - destinos[i]);
+    // Acelera para diferencas grandes.
+    if (diferenca <= VELOCIDADE_POR_EIXO) {
       origens[i] = destinos[i];
+    } else {
+      if (diferenca > 5 * VELOCIDADE_POR_EIXO) {
+        delta *= 5;
+      } else if (diferenca > 3 * VELOCIDADE_POR_EIXO) {
+        delta *= 3;
+      }
+      chegou = false;
+      origens[i] += delta;
     }
   }
   po->set_x(origens[0]);
