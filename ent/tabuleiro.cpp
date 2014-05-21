@@ -2059,6 +2059,59 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
   if (pos_pilha == 1) {
     MousePara3dTabuleiro(x, y, x3d, y3d, z3d);
   } else {
+#if !USAR_OPENGL_ES
+    GLdouble modelview[16], projection[16];
+#else
+    GLfloat modelview[16], projection[16];
+#endif
+    GLint viewport[4];
+    gl::Le(GL_MODELVIEW_MATRIX, modelview);
+    gl::Le(GL_PROJECTION_MATRIX, projection);
+    gl::Le(GL_VIEWPORT, viewport);
+    // Raio que sai do pixel.
+    float p1x, p1y, p1z;
+    gl::Desprojeta(x, y, -1.0f, modelview, projection, viewport, &p1x, &p1y, &p1z);
+    float p2x, p2y, p2z;
+    gl::Desprojeta(x, y, 1.0f, modelview, projection, viewport, &p2x, &p2y, &p2z);
+    if (p2z - p1z == 0) {
+      LOG(ERROR) << "Retornando lixo";
+      return false;
+    }
+    // Equacao parametrica do raio.
+    // x = x0 + at
+    // y = y0 + bt
+    // z = z0 + ct
+    float a_raio = p2x - p1x;
+    float b_raio = p2y - p1y;
+    float c_raio = p2z - p1z;
+
+    auto* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      return false;
+    }
+    // Cria um plano perpendicular a linha de visao para o objeto.
+    // Equacao do olho para o objeto. a_olho * x + b_olho = y.
+    // Equacao da perdicular: -x/a + b_perpendicular = y.
+    //                         onde a_perpendicular = -1 / a_olho.
+    float a_perpendicular = (fabs(olho_.pos().x() -  e->X() < 0.0001f)) ?i
+        0.0f : (-1.0f / (olho_.pos().y() - e->Y()) / (olho_.pos().x() - e->X()));
+    float b_perpendicular = e->Y() - e->X() * a_perpendicular;
+
+    // Valor do X da intersecao.
+    if (fabs(b_raio - a_raio * a_perpendicular) < 0.0001f) {
+      return false;
+    }
+    float x_inter = (a_raio * b_perpendicular - a_raio * p1y + b_raio * p1x) / (b_raio - a_raio * a_perpendicular);
+    // Valor do t para interceptar o plano perpendicular
+    float t_inter = (x_inter - p1x) / a_raio;
+    // Outros valores da intersecao.
+    float y_inter = p1y + b_raio * t_inter;
+    float z_inter = p1z + c_raio * t_inter;
+
+    *x3d = x_inter;
+    *y3d = y_inter;
+    *z3d = z_inter;
+#if 0
     unsigned int id_detalhado;
     parametros_desenho_.mutable_params_opengles()->set_tabuleiro(false);
     parametros_desenho_.set_desenha_entidades(true);
@@ -2077,6 +2130,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
       // Entidade.
       CoordenadaEntidadeDetalhada(id, id_detalhado, x3d, y3d, z3d);
     }
+#endif
   }
   // Importante para operacoes no mesmo frame nao se confundirem.
   parametros_desenho_.clear_params_opengles();
