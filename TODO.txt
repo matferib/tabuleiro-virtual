@@ -1,4 +1,5 @@
 Versao 1.0
+- Toque para detalhamento de unidades em tablet (entender melhor o getPressure).
 - Restaurar sem entidades: manter entidades selecionaveis para jogadores e trazer todas nao selecionaveis.
 - Opcao para salvar personagens selecionaveis para jogadores.
 - Interface de dano e acoes no tablet.
