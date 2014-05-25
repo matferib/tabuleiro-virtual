@@ -1,6 +1,4 @@
 Versao 1.0
-- Arrumar fundo preto to tempo de desenho.
-- Restaurar sem entidades: manter entidades selecionaveis para jogadores e trazer todas nao selecionaveis.
 - Opcao para salvar personagens selecionaveis para jogadores.
 - Interface de dano e acoes no tablet.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
