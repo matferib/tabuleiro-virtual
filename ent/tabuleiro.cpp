@@ -94,14 +94,6 @@ void DesenhaString(const std::string& s) {
   }
 }
 
-/** Renderiza o tempo de desenho no canto superior esquerdo da tela. */
-void DesenhaStringTempo(const std::string& tempo) {
-  MudaCor(COR_PRETA);
-  gl::Retangulo(0.0f, 0.0f, tempo.size() * 8.0f + 2.0f, 15.0f);
-  MudaCor(COR_BRANCA);
-  gl::DesenhaStringAlinhadoEsquerda(tempo);
-}
-
 /** Le um arquivo proto serializado de forma binaria. */
 bool LeArquivoProto(const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
   std::ifstream arquivo(nome_arquivo,  std::ios_base::in | std::ios_base::binary);
@@ -3255,8 +3247,12 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   int largura_fonte, altura_fonte;
   gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::DesligaTesteProfundidadeEscopo profundidade_escopo;
   gl::PosicaoRaster(2, altura_ - altura_fonte - 2);
-  DesenhaStringTempo(tempo_str);
+  MudaCor(COR_PRETA);
+  gl::Retangulo(0.0f, altura_ - 15.0f, tempo_str.size() * 8.0f + 2.0f, altura_);
+  MudaCor(COR_BRANCA);
+  gl::DesenhaStringAlinhadoEsquerda(tempo_str);
 }
 
 double Tabuleiro::Aspecto() const {
