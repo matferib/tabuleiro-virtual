@@ -460,7 +460,7 @@ class Tabuleiro : public ntf::Receptor {
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
 
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
-  int GeraIdEntidade(int id_cliente);
+  unsigned int GeraIdEntidade(int id_cliente);
 
   /** @return um id unico de cliente. Lanca excecao se chegar ao limite de clientes. */
   int GeraIdCliente();

@@ -39,7 +39,7 @@ const char* g_menuitem_strs[] = {
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
-      "&Reiniciar", "&Salvar", "R&estaurar", "Res&taurar sem Entidades", g_fim,
+      "&Reiniciar", "&Salvar", "R&estaurar", "Res&taurar mantendo Entidades", g_fim,
   // Entidades.
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.

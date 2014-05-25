@@ -391,7 +391,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         modelo.mutable_pos()->set_y(y);
         modelo.mutable_pos()->set_z(z);
       }
-      int id_entidade = GeraIdEntidade(id_cliente_);
+      unsigned int id_entidade = GeraIdEntidade(id_cliente_);
       if (processando_grupo_) {
         ids_adicionados_.push_back(id_entidade);
       }
@@ -2626,6 +2626,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     for (const auto& id_ent : entidades_) {
       t->add_entidade()->CopyFrom(id_ent.second->Proto());
     }
+    VLOG(1) << "Tabuleiro serializado: " << t->ShortDebugString();
     return notificacao;
   } catch (const std::logic_error& error) {
     notificacao->set_tipo(ntf::TN_ERRO);
@@ -2655,7 +2656,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
-  proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
+  proto_.clear_entidade();
   proto_.clear_id_cliente();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
@@ -2663,12 +2664,27 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     VLOG(1) << "Alterando id de cliente para " << id_cliente_;
     id_cliente_ = tabuleiro.id_cliente();
   }
-  // So recebe as entidades se nao for para manter.
-  // O campo entidade eh usado apenas como um marcador
-  if (manter_entidades) {
-    return;
+  // Remove as entidades do tabuleiro corrente.
+  std::vector<unsigned int> entidades_a_remover;
+  for (const auto& id_entidade : entidades_) {
+    if (manter_entidades && id_entidade.second->SelecionavelParaJogador()) {
+      continue;
+    }
+    entidades_a_remover.push_back(id_entidade.first);
   }
-  for (const auto& ep : tabuleiro.entidade()) {
+  for (unsigned int id : entidades_a_remover) {
+    RemoveEntidade(id);
+  }
+  // Recebe as entidades.
+  for (EntidadeProto ep : tabuleiro.entidade()) {
+    if (manter_entidades) {
+      if (ep.selecionavel_para_jogador()) {
+        continue;
+      }
+      // Para manter as entidades, os ids tem que ser regerados para as entidades do tabuleiro,
+      // senao pode dar conflito.
+      ep.set_id(GeraIdEntidade(id_cliente_));
+    }
     auto* e = NovaEntidade(ep, texturas_, central_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
@@ -3062,11 +3078,11 @@ void Tabuleiro::AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao)
   }
 }
 
-int Tabuleiro::GeraIdEntidade(int id_cliente) {
-  const int max_id_entidade = (1 << 28);
-  int count = max_id_entidade;
+unsigned int Tabuleiro::GeraIdEntidade(int id_cliente) {
+  const unsigned int max_id_entidade = (1 << 28);
+  unsigned int count = max_id_entidade;
   while (count-- > 0) {
-    int id = (id_cliente << 28) | proximo_id_entidade_;
+    unsigned int id = (id_cliente << 28) | proximo_id_entidade_;
     proximo_id_entidade_ = ((proximo_id_entidade_ + 1) % max_id_entidade);
     auto it = entidades_.find(id);
     if (it == entidades_.end()) {
