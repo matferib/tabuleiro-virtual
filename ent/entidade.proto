@@ -178,13 +178,4 @@ message ParametrosDesenho {
   optional bool desenha_pontos_rolagem = 26 [default=true];
   // Se verdadeiro, aplica efeito de nevoa.
   optional bool desenha_nevoa = 27 [default=true];
-
-  // Parametros de OpenGL ES.
-  message ParametrosOpenglEs {
-    // Indica se eh o id eh de tabuleiro ou entidade.
-    optional bool tabuleiro = 1 [default=true];
-    // Id da entidade a ser desenhada com precisao.
-    optional uint32 id = 2;
-  }
-  optional ParametrosOpenglEs params_opengles = 50;
 }

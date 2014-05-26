@@ -532,7 +532,8 @@ class PressureDetector {
   }
 
   public void onTouch(MotionEvent e) {
-    if (e.getPressure() > 1.0) {
+    //Log.d("TabuleiroRenderer", "Pressure: " + e.getPressure());
+    if (e.getPressure() > 0.25f) {
       ouvinte_.onPressure((int)e.getX(), (int)e.getY());
     }
   }

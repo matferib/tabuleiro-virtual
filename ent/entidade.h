@@ -120,6 +120,9 @@ class Entidade {
   static void DesenhaObjetoProto(
       const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
+  // Id de entidade invalido.
+  static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
+
  private:
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
