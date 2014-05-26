@@ -1,0 +1,82 @@
+========
+ Basico
+========
+
+-- Listar targets:
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
+
+-- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat Tabuleiro:I *:S
+
+
+=======
+ Build
+=======
+
+-- Criar os builds para o target (diretorio pai do jni, onde esta o AndroidManifest.xml):
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
+
+-- Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
+${ANDROID_NDK}/ndk-build V=1
+
+-- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
+ant debug
+
+-- Instalacao:
+Colocar o dispositivo em USB debug mode.
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
+
+
+==============
+ Bibliotecas
+==============
+
+-- Protobuffer:
+
+Compilando protocol buffers:
+Criar o toolchain de cross-compile:
+${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+
+- Configuracao do protobuf:
+ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
+export CXX="/var/tmp/my-toolchain/bin/arm-linux-androideabi-g++"
+export CC=${CXX/g++/gcc}
+./configure --host=arm-*-eabi
+make
+
+Pode dar um erro no unit test aqui mas a lib esta ok.
+
+-- Boost:
+
+Boost android: https://github.com/MysticTreeGames/Boost-for-Android
+
+- Abrir o build-android.sh e procurar pro LIBRARIES. Mudar para:
+LIBRARIES=--with-libraries=system,timer
+
+- No case do NDK_RN adicionar a versao usada do ndk.
+
+- Usar o toolchain mais novo:
+./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8
+
+
+===========
+ Problemas
+===========
+
+-- Depuração:
+
+Colocar no manifest, dentro do elemento application android:debuggable="true"
+Compilar codigo nativo.
+Compilar modo debug (ant debug)
+Instalar.
+Rodar no tablet.
+Diretorio do projeto (pai do jni):
+
+${ANDROID_NDK}/ndk-gdb --adb=${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb
+
+
+-- Problema de certificado ao instalar de outra maquina:
+
+As chaves sao diferentes nas maquinas. Uma solucao eh copiar o ~/.android/debug.keystore de uma maquina pra outra.
+Senao, tem que desinstalar com adb e instalar de novo.
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb uninstall com.matferib.Tabuleiro
