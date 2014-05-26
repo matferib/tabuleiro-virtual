@@ -71,11 +71,6 @@ const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
 const double DISTANCIA_PLANO_CORTE_PROXIMO = 0.5;
 const double DISTANCIA_PLANO_CORTE_DISTANTE = 500.0f;
 
-#if USAR_OPENGL_ES
-const unsigned int NUM_DIVISOES_DETALHAMENTO_PICKING = 10;
-const float ALTURA_DETALHAMENTO_PICKING = 0.1f;
-#endif
-
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -165,55 +160,6 @@ const std::string StringEstado(ent::etab_t estado) {
       return "DESCONHECIDO";
   }
 }
-
-// Para picking em OpenGL ES.
-#if USAR_OPENGL_ES
-void DesenhaQuadradoDetalhado(int linha, int coluna) {
-  float lado_quadrado = TAMANHO_LADO_QUADRADO / NUM_DIVISOES_DETALHAMENTO_PICKING;
-  for (unsigned int y = 0; y < NUM_DIVISOES_DETALHAMENTO_PICKING; ++y) {
-    for (unsigned int x = 0; x < NUM_DIVISOES_DETALHAMENTO_PICKING; ++x) {
-      unsigned int id = (y * NUM_DIVISOES_DETALHAMENTO_PICKING) + x;
-      gl::CarregaNome(id);
-      float inicio_x = x * lado_quadrado;
-      float fim_x = inicio_x + lado_quadrado;
-      float inicio_y = y * lado_quadrado;
-      float fim_y = inicio_y + lado_quadrado;
-      gl::Retangulo(inicio_x, inicio_y, fim_x, fim_y);
-    }
-  }
-}
-
-void DesenhaEntidadeDetalhada(const ParametrosDesenho& pd, Entidade* entidade) {
-  // Desenha varios cilindros da altura da entidade.
-  gl::MatrizEscopo salva_matriz;
-  float multiplicador_tamanho = entidade->MultiplicadorTamanho();
-  float lado = TAMANHO_LADO_QUADRADO * multiplicador_tamanho * 0.8f;
-  float altura = multiplicador_tamanho * TAMANHO_LADO_QUADRADO * 2.0f;
-  unsigned int id = 0;
-  gl::Translada(entidade->X(), entidade->Y(), entidade->Z() + entidade->TranslacaoZ());
-  // De frente para camera.
-  double dx = entidade->X() - pd.pos_olho().x();
-  double dy = entidade->Y() - pd.pos_olho().y();
-  double r = sqrt(pow(dx, 2) + pow(dy, 2));
-  float angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
-  if (dy < 0) {
-    // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
-    // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
-    angulo = -angulo;
-  }
-  gl::Roda(angulo - 90.0f, 0, 0, 1.0);
-  gl::Escala(1.0f, ALTURA_DETALHAMENTO_PICKING, 1.0f);
-
-  for (float base = 0; base < altura; base += ALTURA_DETALHAMENTO_PICKING) {
-    gl::CarregaNome(id++);
-    gl::MatrizEscopo salva_matriz;
-    gl::Translada(0.0f, 0.0f, base + (ALTURA_DETALHAMENTO_PICKING / 2.0f));
-    gl::Escala(1.0f, 1.0f, ALTURA_DETALHAMENTO_PICKING);
-    // Desenha retangulo
-    gl::CuboSolido(lado);
-  }
-}
-#endif  // USAR_OPENGL_ES
 
 }  // namespace.
 
@@ -323,7 +269,7 @@ void Tabuleiro::EstadoInicial() {
   entidades_.clear();
   acoes_.clear();
   // Outras variaveis.
-  id_entidade_detalhada_ = 0xFFFFFFFF;
+  id_entidade_detalhada_ = Entidade::IdInvalido;
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
   proximo_id_entidade_ = 0;
@@ -831,7 +777,7 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
 }
 
 void Tabuleiro::TrataMovimentoMouse() {
-  id_entidade_detalhada_ = 0xFFFFFFFF;
+  id_entidade_detalhada_ = Entidade::IdInvalido;
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
@@ -1167,6 +1113,7 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
   if (pos_pilha <= 1) {
     // Mouse no tabuleiro.
+    id_entidade_detalhada_ = Entidade::IdInvalido;
     return;
   }
   id_entidade_detalhada_ = id;
@@ -1408,18 +1355,6 @@ void Tabuleiro::DesenhaCena() {
 
   {
     gl::NomesEscopo nomes(0);
-#if USAR_OPENGL_ES
-    if (parametros_desenho_.params_opengles().has_id() &&
-        !parametros_desenho_.params_opengles().tabuleiro()) {
-      Entidade* entidade = BuscaEntidade(parametros_desenho_.params_opengles().id());
-      if (entidade == nullptr) {
-        LOG(ERROR) << "Entidade " << parametros_desenho_.params_opengles().id() << " nao encontrada.";
-        return;
-      }
-      DesenhaEntidadeDetalhada(parametros_desenho_, entidade);
-      return;
-    }
-#endif
     // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
     // na hora do picking.
     DesenhaEntidades();
@@ -1489,11 +1424,6 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
-#if USAR_OPENGL_ES
-  if (!parametros_desenho_.params_opengles().tabuleiro()) {
-    return;
-  }
-#endif
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   std::unique_ptr<gl::HabilitaEscopo> habilita_textura;
@@ -1531,20 +1461,6 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
 
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-#if 0
-  for (int y = 0; y < TamanhoY(); ++y) {
-    for (int x = 0; x < TamanhoX(); ++x) {
-      DesenhaQuadrado(id, y, x,
-                      vertices, vertices_texels, indices);
-      // anda 1 quadrado direita
-      gl::Translada(TAMANHO_LADO_QUADRADO, 0, 0);
-      ++id;
-    }
-    // volta tudo esquerda e sobe 1 quadrado
-    gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
-  }
-
-#else
   float tamanho_texel_h = 1.0f / TamanhoX();
   float tamanho_texel_v = 1.0f / TamanhoY();
   static const float vertices[] = {
@@ -1589,7 +1505,6 @@ void Tabuleiro::DesenhaTabuleiro() {
     // volta tudo esquerda e sobe 1 quadrado
     gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
   }
-#endif
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
@@ -2045,9 +1960,7 @@ bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, flo
 }
 #else
 bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d) {
-  parametros_desenho_.mutable_params_opengles()->set_id(id);
   // Busca mais detalhado.
-  float profundidade;
   if (pos_pilha == 1) {
     MousePara3dTabuleiro(x, y, x3d, y3d, z3d);
   } else {
@@ -2082,14 +1995,19 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
       return false;
     }
     // Cria um plano perpendicular a linha de visao para o objeto.
-    // Equacao do olho para o objeto. a_olho * x + b_olho = y.
-    // Equacao da perdicular: -x/a + b_perpendicular = y.
-    //                         onde a_perpendicular = -1 / a_olho.
-    float a_perpendicular = (fabs(olho_.pos().x() -  e->X() < 0.0001f)) ?i
+    // Equacao do olho para o objeto. a_olho_obj * x + b_olho_obj = y.
+    // Equacao da perdicular: a_perpendicular * x + b_perpendicular = y.
+    //                         onde a_perpendicular = -1 / a_olho_obj.
+    float a_perpendicular = (fabs(olho_.pos().x() -  e->X() < 0.0001f)) ?
         0.0f : (-1.0f / (olho_.pos().y() - e->Y()) / (olho_.pos().x() - e->X()));
     float b_perpendicular = e->Y() - e->X() * a_perpendicular;
 
-    // Valor do X da intersecao.
+    // Valor do t da intersecao. Onde a equacao perpendicular encontra com o plano.
+    // (para simplicar, p = a_perpendicular, q = b_perpendicular).
+    // y = y0 + bt = px + q;
+    // t = (px + q - y0) / b.
+    // Subsituindo t na equacao: x = x0 + at, temos que valor do X da intersecao do raio com o plano:
+    // x = (aq - ay0 + bx0) / (b -ap)
     if (fabs(b_raio - a_raio * a_perpendicular) < 0.0001f) {
       return false;
     }
@@ -2103,29 +2021,8 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
     *x3d = x_inter;
     *y3d = y_inter;
     *z3d = z_inter;
-#if 0
-    unsigned int id_detalhado;
-    parametros_desenho_.mutable_params_opengles()->set_tabuleiro(false);
-    parametros_desenho_.set_desenha_entidades(true);
-    BuscaHitMaisProximo(x, y, &id_detalhado, &pos_pilha, &profundidade);
-    if (profundidade == 1.0f) {
-      // Como o desenho da entidade eh aproximado, pode nao ter dado hit. Neste caso, usa a posicao da entidade e boa.
-      auto* entidade = BuscaEntidade(id);
-      if (entidade == nullptr) {
-        LOG(ERROR) << "Deveria encontrar a entidade.";
-        return false;
-      }
-      *x3d = entidade->X();
-      *y3d = entidade->Y();
-      *z3d = entidade->Z();
-    } else {
-      // Entidade.
-      CoordenadaEntidadeDetalhada(id, id_detalhado, x3d, y3d, z3d);
-    }
-#endif
   }
   // Importante para operacoes no mesmo frame nao se confundirem.
-  parametros_desenho_.clear_params_opengles();
   VLOG(2) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
   return true;
 }
@@ -2529,41 +2426,6 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
-#if USAR_OPENGL_ES
-void Tabuleiro::CoordenadaQuadradoDetalhado(unsigned int id_quadrado, unsigned int id_detalhado, float* x, float* y, float* z) {
-  const float TAMANHO_LADO_QUADRADO_DETALHADO = TAMANHO_LADO_QUADRADO / NUM_DIVISOES_DETALHAMENTO_PICKING;
-  const float TAMANHO_LADO_QUADRADO_DETALHADO_2 = TAMANHO_LADO_QUADRADO_DETALHADO / 2.0f;
-  float quad_x;
-  float quad_y;
-  CoordenadaQuadrado(id_quadrado, &quad_x, &quad_y, z);
-  quad_x -= TAMANHO_LADO_QUADRADO_2;
-  quad_y -= TAMANHO_LADO_QUADRADO_2;
-  *x = quad_x;
-  *y = quad_y;
-  VLOG(3) << "Id quadrado detalhado: " << id_detalhado;
-  float dx = static_cast<float>(id_detalhado % NUM_DIVISOES_DETALHAMENTO_PICKING) * TAMANHO_LADO_QUADRADO_DETALHADO +
-             TAMANHO_LADO_QUADRADO_DETALHADO_2;
-  float dy = static_cast<float>(id_detalhado / NUM_DIVISOES_DETALHAMENTO_PICKING) * TAMANHO_LADO_QUADRADO_DETALHADO +
-             TAMANHO_LADO_QUADRADO_DETALHADO_2;
-  *x = quad_x + dx;
-  *y = quad_y + dy;
-  //LOG(INFO) << "IdQuadrado: " << id_quadrado << ", CoordenadaQuadradoDetalhado: " << *x << ", " << *y << ", id_detalhado: " << id_detalhado;
-}
-
-void Tabuleiro::CoordenadaEntidadeDetalhada(unsigned int id, unsigned int id_detalhado, float* x, float* y, float* z) {
-  // Entidade: aumenta resolucao em Z.
-  auto* entidade = BuscaEntidade(id);
-  if (entidade == nullptr) {
-    LOG(ERROR) << "Nao encontrei entidade";
-    return;
-  }
-  *x = entidade->X();
-  *y = entidade->Y();
-  *z = entidade->Z() + entidade->TranslacaoZ() + (id_detalhado * 0.1f);
-  VLOG(3) << "Id entidade detalhado " << id_detalhado << ", pos: " << *x << " " << *y << " " << *z;
-}
-#endif
-
 void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
   int quad_x = id_quadrado % TamanhoX();
   int quad_y = id_quadrado / TamanhoX();
@@ -2626,7 +2488,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     for (const auto& id_ent : entidades_) {
       t->add_entidade()->CopyFrom(id_ent.second->Proto());
     }
-    VLOG(1) << "Tabuleiro serializado: " << t->ShortDebugString();
     return notificacao;
   } catch (const std::logic_error& error) {
     notificacao->set_tipo(ntf::TN_ERRO);
@@ -2656,7 +2517,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
-  proto_.clear_entidade();
+  proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
@@ -2664,6 +2525,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     VLOG(1) << "Alterando id de cliente para " << id_cliente_;
     id_cliente_ = tabuleiro.id_cliente();
   }
+
   // Remove as entidades do tabuleiro corrente.
   std::vector<unsigned int> entidades_a_remover;
   for (const auto& id_entidade : entidades_) {
@@ -2675,6 +2537,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   for (unsigned int id : entidades_a_remover) {
     RemoveEntidade(id);
   }
+
   // Recebe as entidades.
   for (EntidadeProto ep : tabuleiro.entidade()) {
     if (manter_entidades) {
@@ -3136,14 +2999,6 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
 void Tabuleiro::DesenhaQuadrado(unsigned int id,
                                 int linha, int coluna,
                                 const float* vertices, const float* vertices_texels, const unsigned short* indices) {
-#if USAR_OPENGL_ES
-  if (parametros_desenho_.has_params_opengles()) {
-    if (parametros_desenho_.params_opengles().tabuleiro() && parametros_desenho_.params_opengles().id() == id) {
-      DesenhaQuadradoDetalhado(linha, coluna);
-    }
-    return;
-  }
-#endif
   gl::CarregaNome(id);
   gl::PonteiroVertices(2, GL_FLOAT, vertices);
   gl::PonteiroVerticesTexturas(2, GL_FLOAT, vertices_texels);
