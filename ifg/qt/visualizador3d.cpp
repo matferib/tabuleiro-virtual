@@ -751,10 +751,14 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     proto_retornado->set_desenha_rosa_dos_ventos(
         gerador.checkbox_rosa_dos_ventos->checkState() == Qt::Checked ? true : false);
     if (gerador.checkbox_anti_aliasing->checkState() == Qt::Checked) {
+#if !__APPLE__
       setFormat(Formato(true));
+#endif
       proto_retornado->set_anti_aliasing(true);
     } else {
+#if !__APPLE__
       setFormat(Formato(false));
+#endif
       proto_retornado->set_anti_aliasing(false);
     }
 
