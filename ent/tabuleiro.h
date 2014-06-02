@@ -255,11 +255,15 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Agrupa as entidades selecionadas, criado uma so do tipo TE_FORMA, subtipo TF_COMPOSTA. */
   void AgrupaEntidadesSelecionadas();
+  void DesagrupaEntidadesSelecionadas();
 
   /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
   * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.
   */
   void TrataMovimentoEntidadesSelecionadas(bool vertical, int valor);
+
+  /** Trata o movimento de entidades no eixo Z. */
+  void TrataTranslacaoZEntidadesSelecionadas(float delta);
 
   /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
   * maximo, tira a cabeca.

@@ -2719,6 +2719,17 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
+void Tabuleiro::TrataTranslacaoZEntidadesSelecionadas(float delta) {
+  // TODO UNDO, limites e enviar para clientes.
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
+      continue;
+    }
+    entidade_selecionada->AlteraTranslacaoZ(delta);
+  }
+}
+
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
   if (processando_grupo_ || ignorar_lista_eventos_) {
     VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer pois (processando_grupo_ || ignorar_lista_eventos_) == true";
