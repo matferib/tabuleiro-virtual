@@ -135,10 +135,18 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
       return;
     case Tecla_Cima:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1);
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(0.1f);
+      } else {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1);
+      }
       return;
     case Tecla_Baixo:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1);
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(-0.1f);
+      } else {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1);
+      }
       return;
     case Tecla_Esquerda:
       tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1);
