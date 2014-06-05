@@ -2309,8 +2309,6 @@ void Tabuleiro::FinalizaEstadoCorrente() {
           n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->CopyFrom(entidade->Proto());
-          // Isso aqui ta meio tosco por causa das imprecisoes do float que no final pode gerar um delta total
-          // diferente.
           e_antes->set_translacao_z(translacoes_rotacoes_antes_[entidade->Id()].first);
           e_antes->set_rotacao_z_graus(translacoes_rotacoes_antes_[entidade->Id()].second);
           // A entidade ja foi alterada durante a rotacao.
@@ -2721,13 +2719,25 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
 
 void Tabuleiro::TrataTranslacaoZEntidadesSelecionadas(float delta) {
   // TODO UNDO, limites e enviar para clientes.
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
     }
+    // Salva para desfazer.
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->CopyFrom(entidade_selecionada->Proto());
+    // Altera a translacao em Z.
     entidade_selecionada->AlteraTranslacaoZ(delta);
+    n->mutable_entidade()->CopyFrom(entidade_selecionada->Proto());
   }
+  // Nop mas envia para os clientes.
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
