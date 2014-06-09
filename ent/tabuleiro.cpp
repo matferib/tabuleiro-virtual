@@ -1,17 +1,16 @@
 #include <algorithm>
+#include <boost/filesystem.hpp>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include <fstream>
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/text_format.h>
 
+#include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
@@ -89,19 +88,6 @@ void DesenhaString(const std::string& s) {
   }
 }
 
-/** Le um arquivo proto serializado de forma binaria. */
-bool LeArquivoProto(const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
-  std::ifstream arquivo(nome_arquivo,  std::ios_base::in | std::ios_base::binary);
-  return mensagem->ParseFromIstream(&arquivo);
-}
-
-/** Le um arquivo proto serializado de forma texto (arquivos de configuracao). */
-bool LeArquivoAsciiProto(const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
-  std::ifstream arquivo(nome_arquivo);
-  google::protobuf::io::IstreamInputStream zis(&arquivo);
-  return google::protobuf::TextFormat::Parse(&zis, mensagem);
-}
-
 /** Retorna true se o ponto (x,y) estiver dentro do quadrado qx1, qy1, qx2, qy2. */
 bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, float qy2) {
   float xesq = qx1;
@@ -176,30 +162,31 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
   mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<EntidadeProto>(modelo_padrao)));
   modelo_selecionado_ = modelo_padrao;
   Modelos modelos;
-  std::string arq_modelos(std::string(DIR_DADOS) + "/" + ARQUIVO_MODELOS);
-  if (!LeArquivoAsciiProto(arq_modelos, &modelos)) {
-    LOG(ERROR) << "Falha ao importar modelos do arquivo '" << arq_modelos << "'";
-  } else {
-    for (const auto& m : modelos.modelo()) {
-      mapa_modelos_.insert(std::make_pair(
-            m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
-    }
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, ARQUIVO_MODELOS, &modelos);
+  } catch (const std::logic_error& erro) {
+    LOG(ERROR) << erro.what();
+  }
+  for (const auto& m : modelos.modelo()) {
+    mapa_modelos_.insert(std::make_pair(
+          m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
   }
   // Acoes.
   acao_selecionada_ = nullptr;
   Acoes acoes;
-  std::string arq_acoes(std::string(DIR_DADOS) + "/" + ARQUIVO_ACOES);
-  if (!LeArquivoAsciiProto(arq_acoes, &acoes)) {
-    LOG(ERROR) << "Falha ao importar acoes do arquivo '" << arq_acoes << "'";
-  } else {
-    for (const auto& a : acoes.acao()) {
-      auto* nova_acao = new AcaoProto(a);
-      if (nova_acao->tipo() == ACAO_SINALIZACAO) {
-        acao_selecionada_ = nova_acao;
-      }
-      mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
-    }
+  try {
+    LeArquivoAsciiProto(arq::TIPO_DADOS, ARQUIVO_ACOES, &acoes);
+  } catch (const std::logic_error& erro) {
+    LOG(ERROR) << erro.what();
   }
+  for (const auto& a : acoes.acao()) {
+    auto* nova_acao = new AcaoProto(a);
+    if (nova_acao->tipo() == ACAO_SINALIZACAO) {
+      acao_selecionada_ = nova_acao;
+    }
+    mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
+  }
+
   EstadoInicial();
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
@@ -581,16 +568,15 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_SERIALIZAR_TABULEIRO: {
       std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
       if (notificacao.has_endereco()) {
-        std::string nt_tabuleiro_str = nt_tabuleiro->SerializeAsString();
         // Salvar no endereco.
-        std::ofstream arquivo(notificacao.endereco());
-        arquivo.write(nt_tabuleiro_str.c_str(), nt_tabuleiro_str.size());
-        if (!arquivo) {
+        try {
+          boost::filesystem::path caminho(notificacao.endereco());
+          arq::EscreveArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().native(), *nt_tabuleiro);
+        } catch (const std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-          ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
+          ne->set_erro(erro.what());
           central_->AdicionaNotificacao(ne);
         }
-        arquivo.close();
       } else {
         // Enviar remotamente.
         nt_tabuleiro->set_clientes_pendentes(notificacao.clientes_pendentes());
@@ -601,15 +587,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_DESERIALIZAR_TABULEIRO: {
       if (notificacao.has_endereco()) {
         // Deserializar de arquivo.
-        std::ifstream arquivo(notificacao.endereco());
-        if (!arquivo) {
-          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
-          ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
-          central_->AdicionaNotificacao(ne);
-          return true;
-        }
         ntf::Notificacao nt_tabuleiro;
-        if (!LeArquivoProto(notificacao.endereco(), &nt_tabuleiro)) {
+        try {
+          boost::filesystem::path caminho(notificacao.endereco());
+          arq::LeArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().native(), &nt_tabuleiro);
+        } catch (std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
           central_->AdicionaNotificacao(ne);

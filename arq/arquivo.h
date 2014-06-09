@@ -16,16 +16,15 @@ namespace arq {
 enum tipo_e {
   TIPO_TEXTURA,
   TIPO_TEXTURA_LOCAL,
+  TIPO_DADOS,
   TIPO_TABULEIRO
 };
 
 // Escreve no arquivo.
-void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& valor);
-void EscreveAsciiArquivo(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
-void EscreveBinArquivo(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
+void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
+void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 
 // Le um arquivo do diretorio.
-void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* valor);
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 
