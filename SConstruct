@@ -110,6 +110,9 @@ cEntDesenho = env.Object('ent/entidade_desenho.cpp')
 if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
 
+# arq
+cArq = env.Object('arq/arquivo.cpp')
+
 ent_proto = env.Protoc(
   target = [],
   source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto'],
@@ -146,6 +149,8 @@ objetos = [
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGl, cGlChar,
+    # arq
+    cArq,
 ] + ([ cEntWatchdog ] if sistema == 'linux' else [])
 
 
@@ -165,6 +170,9 @@ if compilar_testes:
   env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', ] + objetos)
+  env.Program(
+      target = 'teste_arq',
+      source = ['arq/arq_test.cpp', ] + cArq)
 
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark
