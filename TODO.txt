@@ -1,4 +1,5 @@
 Versao 1.0
+- Camada de arquivo para funcionar em diversos dispositivos.
 - Opcao para salvar personagens selecionaveis para jogadores.
 - Interface de dano e acoes no tablet.
 - Arrumar problema do RGB no PNG (funciona para alguns, nao funciona para outros).
