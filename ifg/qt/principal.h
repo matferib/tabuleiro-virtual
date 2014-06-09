@@ -22,11 +22,11 @@ class MenuPrincipal;
 class Visualizador3d;
 
 /** Interface grafica principal. Responsável por manipular a centra de eventos. */
-class Principal : public QWidget, ntf::Receptor { 
+class Principal : public QWidget, ntf::Receptor {
 	Q_OBJECT
  public:
   /** Realiza a inicializacao de algumas bibliotecas necessarias para o qt e opengl antes de
-  * instanciar o objeto. 
+  * instanciar o objeto.
   */
   static Principal* Cria(int& argc, char** argv,
                          ent::Texturas* texturas,
