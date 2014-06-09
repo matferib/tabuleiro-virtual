@@ -99,7 +99,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       if (estado_ != ESTADO_OCIOSO) {
         return true;
       }
-      detectorPressao_.onTouch(event);
+      // O detector de pressao esta causando algum tilt na pinca.
+      //detectorPressao_.onTouch(event);
       detectorEventos_.onTouchEvent(event);
     } else if (event.getPointerCount() == 2) {
       if (estado_ != ESTADO_OCIOSO && estado_ != ESTADO_MULTITOQUE_2) {
