@@ -170,9 +170,6 @@ if compilar_testes:
   env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', ] + objetos)
-  env.Program(
-      target = 'teste_arq',
-      source = ['arq/arq_test.cpp', ] + cArq)
 
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark

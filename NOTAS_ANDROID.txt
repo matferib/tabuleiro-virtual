@@ -31,11 +31,12 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-de
  Bibliotecas
 ==============
 
+Criar o toolchain de cross-compile:
+${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+
 -- Protobuffer:
 
 Compilando protocol buffers:
-Criar o toolchain de cross-compile:
-${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=/var/tmp/my-toolchain --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
 
 - Configuracao do protobuf:
 ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
@@ -50,8 +51,11 @@ Pode dar um erro no unit test aqui mas a lib esta ok.
 
 Boost android: https://github.com/MysticTreeGames/Boost-for-Android
 
+- Baixar:
+git pull https://github.com/MysticTreeGames/Boost-for-Android.git
+
 - Abrir o build-android.sh e procurar pro LIBRARIES. Mudar para:
-LIBRARIES=--with-libraries=system,timer
+LIBRARIES=--with-libraries=system,timer,filesystem.
 
 - No case do NDK_RN adicionar a versao usada do ndk.
 

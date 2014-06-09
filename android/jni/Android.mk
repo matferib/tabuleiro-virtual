@@ -27,6 +27,12 @@ LOCAL_MODULE := boost-timer-prebuilt
 LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/timer/build/gcc-androidR8e/release/link-static/threading-multi/libboost_timer-gcc-mt-1_55.a
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
 include $(PREBUILT_STATIC_LIBRARY)
+# Filesystem.
+include $(CLEAR_VARS)
+LOCAL_MODULE := boost-filesystem-prebuilt
+LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/filesystem/build/gcc-androidR8e/release/link-static/threading-multi/libboost_filesystem-gcc-mt-1_55.a
+LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
+include $(PREBUILT_STATIC_LIBRARY)
 
 
 
@@ -40,10 +46,11 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
 									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/entidade.cpp ent/entidade_desenho.cpp ent/tabuleiro.cpp ent/acoes.cpp ent/util.cpp \
                    ifg/tecladomouse.cpp \
-                   tex/texturas.cpp tex/lodepng.cpp
+                   tex/texturas.cpp tex/lodepng.cpp \
+									 arq/arquivo.cpp
 
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES
-LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt
+LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt boost-filesystem-prebuilt
 LOCAL_LDLIBS := -lGLESv1_CM -llog -landroid
 LOCAL_CPPFLAGS += -frtti -fexceptions
 
