@@ -36,10 +36,10 @@ class TexturasAndroid : public tex::Texturas {
     aman_ = AAssetManager_fromJava(env, assets);
   }
 
-  virtual void LeImagem(const std::string& caminho, std::vector<unsigned char>* dados) override {
+  virtual void LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados) override {
     AAsset* asset = nullptr;
     try {
-      std::string caminho_asset(caminho/*"texturas/teste.png"*/);
+      std::string caminho_asset(std::string("texturas/") + arquivo);
       asset = AAssetManager_open(aman_, caminho_asset.c_str(), AASSET_MODE_BUFFER);
       if (asset == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
