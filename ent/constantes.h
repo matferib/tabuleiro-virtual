@@ -22,7 +22,6 @@
 /** Numero de divisoes do eixo Z do cone. */
 #define NUM_LINHAS 1
 
-#define DIR_DADOS "dados"
 #define ARQUIVO_MODELOS "modelos.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
 
