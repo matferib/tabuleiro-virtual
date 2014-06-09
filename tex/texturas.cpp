@@ -1,5 +1,6 @@
-#include <fstream>
+#include <boost/filesystem.hpp>
 #include <stdexcept>
+#include "arq/arquivo.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
@@ -126,15 +127,13 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
     if (info_textura.has_bits()) {
-      VLOG(1) << "Carregando textura com bits.";
+      VLOG(1) << "Carregando textura local com bits, id: '" << info_textura.id() << "'.";
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_textura)));
     } else {
-      VLOG(1) << "Carregando textura comum.";
+      VLOG(1) << "Carregando textura global, id: '" << info_textura.id() << "'.";
       ent::InfoTextura info_lido;
       try {
-        std::string arquivo(DIR_TEXTURAS);
-        arquivo += "/" + info_textura.id();
-        LeDecodificaImagem(arquivo, &info_lido);
+        LeDecodificaImagem(info_textura.id(), &info_lido);
       } catch (const std::exception& e) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
         return;
@@ -165,7 +164,12 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   }
 }
 
-void Texturas::LeImagem(const std::string& caminho, std::vector<unsigned char>* dados) {
+void Texturas::LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados) {
+  boost::filesystem::path caminho(arquivo);
+  std::string dados_str;
+  arq::LeArquivo(arq::TIPO_TEXTURA, caminho.filename().native(), &dados_str);
+  dados->assign(dados_str.begin(), dados_str.end());
+  /*
   std::ifstream arquivo(caminho, std::ifstream::binary);
   if (!arquivo) {
     throw std::logic_error(std::string("Caminho invalido de imagem: ") + caminho);
@@ -176,6 +180,7 @@ void Texturas::LeImagem(const std::string& caminho, std::vector<unsigned char>* 
   dados->resize(tam);
   arquivo.read((char*)dados->data(), tam);
   arquivo.close();
+  */
 }
 
 void Texturas::LeDecodificaImagem(const std::string& caminho, ent::InfoTextura* info_textura) {

@@ -13,7 +13,7 @@ namespace {
 const std::string TipoParaDiretorio(tipo_e tipo) {
   switch (tipo) {
     case TIPO_TEXTURA: return "texturas";
-    case TIPO_TEXTURA_LOCAL: return "texturas_locais";
+    //case TIPO_TEXTURA_LOCAL: return "texturas_locais";
     case TIPO_TABULEIRO: return "tabuleiros_salvos";
     case TIPO_DADOS: return "dados";
     default:
@@ -49,6 +49,12 @@ void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const 
 }
 
 // Leitura.
+void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
+  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
+  std::ifstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
+  dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
+}
+
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
   std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
   std::ifstream arquivo(caminho_arquivo);
