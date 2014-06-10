@@ -289,6 +289,10 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
   proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
 }
 
+void Entidade::AtualizaAcao(const std::string& id_acao) {
+  proto_.set_ultima_acao(id_acao);
+}
+
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();

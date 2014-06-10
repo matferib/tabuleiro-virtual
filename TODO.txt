@@ -1,4 +1,6 @@
-Versao 1.0
+Versao 1.4
+- Acoes por entidade.
+- Escrever a acao selecionada.
 - !!!!Boost filesystem no Mac e Windows.!!!!
 - Entender o problema do detector de pressao com a pinca.
 - Externalizar o tabuleiro da interface, passar como parametro.
