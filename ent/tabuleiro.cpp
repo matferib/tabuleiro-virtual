@@ -964,6 +964,45 @@ void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
 }
 
 void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
+  // Preenche os dados comuns.
+  unsigned int id, pos_pilha;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  if (pos_pilha > 2) {
+    // invalido.
+    return;
+  }
+  // Primeiro, entidades.
+  uint32 id_entidade = Entidade::IdInvalido;
+  if (pos_pilha == 2) {
+    VLOG(1) << "Acao em entidade: " << id;
+    // Entidade.
+    id_entidade = id;
+    // Depois tabuleiro.
+    parametros_desenho_.set_desenha_entidades(false);
+    BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  }
+  Posicao pos_quadrado;
+  Posicao pos_tabuleiro;
+  if (pos_pilha == 1) {
+    VLOG(1) << "Acao no tabuleiro: " << id;
+    // Tabuleiro, posicao do quadrado clicado.
+    float x, y, z;
+    CoordenadaQuadrado(id, &x, &y, &z);
+    pos_quadrado.set_x(x);
+    pos_quadrado.set_y(y);
+    pos_quadrado.set_z(z);
+    // Posicao exata do clique.
+    float x3d, y3d, z3d;
+    bool achou;
+    achou = MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+    if (achou) {
+      pos_tabuleiro.set_x(x3d);
+      pos_tabuleiro.set_y(y3d);
+      pos_tabuleiro.set_z(z3d);
+    }
+  }
+
   AcaoProto acao_proto;
   if (acao_padrao) {
     // usa acao de sinalizacao.
@@ -974,43 +1013,10 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     VLOG(1) << "Botao acao de modelo selecionado";
     acao_proto.CopyFrom(*acao_selecionada_);
   }
-  unsigned int id, pos_pilha;
-  float profundidade;
-  // Primeiro, entidades.
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  if (pos_pilha > 1) {
-    VLOG(1) << "Acao em entidade: " << id;
-    // Entidade.
-    acao_proto.set_id_entidade_destino(id);
-  }
-  // Depois tabuleiro.
-  parametros_desenho_.set_desenha_entidades(false);
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  if (pos_pilha == 1) {
-    VLOG(1) << "Acao no tabuleiro: " << id;
-    // Tabuleiro, posicao do quadrado clicado.
-    float x, y, z;
-    CoordenadaQuadrado(id, &x, &y, &z);
-    auto* pos_quadrado = acao_proto.mutable_pos_quadrado();
-    pos_quadrado->set_x(x);
-    pos_quadrado->set_y(y);
-    pos_quadrado->set_z(z);
-    // Posicao exata do clique.
-    float x3d, y3d, z3d;
-    bool achou;
-#if !USAR_OPENGL_ES
-    achou = MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#else
-    achou = MousePara3dComId(x, y, id, pos_pilha, &x3d, &y3d, &z3d);
-#endif
-    if (achou) {
-      auto* pos_tabuleiro = acao_proto.mutable_pos_tabuleiro();
-      pos_tabuleiro->set_x(x3d);
-      pos_tabuleiro->set_y(y3d);
-      pos_tabuleiro->set_z(z3d);
-    }
-  }
 
+  // Executa a acao.
+  // TODO TERMINAR
+  XXX
   if (estado_ == ETAB_OCIOSO || estado_ == ETAB_QUAD_SELECIONADO) {
     // Acoes sem origem.
     if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
@@ -1205,6 +1211,13 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   if (it == mapa_acoes_.end()) {
     LOG(ERROR) << "Id de acao inválido: " << id_acao;
     return;
+  }
+  for (auto id_selecionado : ids_entidades_selecionadas_) {
+    Entidade* entidade = BuscaEntidade(id_selecionado);
+    if (entidade == nullptr) {
+      continue;
+    }
+    entidade->AtualizaAcao(it->first);
   }
   acao_selecionada_ = it->second.get();
 }

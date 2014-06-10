@@ -85,6 +85,9 @@ class Entidade {
   /** Atualiza os pontos de vida da entidade para a quantidade passada. */
   void AtualizaPontosVida(int pontos_vida);
 
+  /** Atualiza a acao realizada pela entidade nos comandos de acao. */
+  void AtualizaAcao(const std::string& id_acao);
+
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
 
