@@ -1,7 +1,7 @@
 # Este arquivo é uma representação texto do proto ent::Modelos.
 modelo {
   id: 'Aarakocra'
-  entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.png'} cor { r: 1.0 } }
+  entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.png'} cor { r: 1.0 } ultima_acao: 'Ataque a Distância' }
 }
 modelo {
   id: 'Aranha Armadeira'
@@ -9,7 +9,7 @@ modelo {
 }
 modelo {
   id: 'Carniçal'
-  entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+  entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
 }
 modelo {
   id: 'Demônio Vrock'

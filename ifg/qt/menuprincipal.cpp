@@ -102,7 +102,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         });
         for (const auto& modelo_it : modelos_ordenados) {
           auto* sub_acao = new QAction(tr(modelo_it.first.c_str()), menu);
-          //sub_acao->setCheckable(true);
+          sub_acao->setCheckable(true);
           sub_acao->setData(QVariant::fromValue(QString(modelo_it.first.c_str())));
           grupo->addAction(sub_acao);
           menu_modelos->addAction(sub_acao);
