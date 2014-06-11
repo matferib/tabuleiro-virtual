@@ -973,11 +973,11 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     return;
   }
   // Primeiro, entidades.
-  uint32 id_entidade = Entidade::IdInvalido;
+  unsigned int id_entidade_destino = Entidade::IdInvalido;
   if (pos_pilha == 2) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
-    id_entidade = id;
+    id_entidade_destino = id;
     // Depois tabuleiro.
     parametros_desenho_.set_desenha_entidades(false);
     BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
@@ -1003,91 +1003,84 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     }
   }
 
-  AcaoProto acao_proto;
-  if (acao_padrao) {
-    // usa acao de sinalizacao.
-    VLOG(1) << "Botao acao sinalizacao";
+  // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
+  // - Efeito de area
+  // - Efeito individual.
+  if (acao_padrao || ids_entidades_selecionadas_.size() == 0) {
+    AcaoProto acao_proto;
+    // Sem entidade selecionada, realiza sinalizacao.
+    VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
     acao_proto.set_tipo(ACAO_SINALIZACAO);
-  } else {
-    // Usa modelo selecionado.
-    VLOG(1) << "Botao acao de modelo selecionado";
-    acao_proto.CopyFrom(*acao_selecionada_);
-  }
-
-  // Executa a acao.
-  // TODO TERMINAR
-  XXX
-  if (estado_ == ETAB_OCIOSO || estado_ == ETAB_QUAD_SELECIONADO) {
-    // Acoes sem origem.
-    if (!lista_pontos_vida_.empty() && acao_proto.has_id_entidade_destino()) {
-      int delta_pontos_vida = lista_pontos_vida_.front();
-      lista_pontos_vida_.pop_front();
-      acao_proto.set_delta_pontos_vida(delta_pontos_vida);
-      acao_proto.set_afeta_pontos_vida(true);
+    if (id_entidade_destino != Entidade::IdInvalido) {
+      acao_proto.set_id_entidade_destino(id_entidade_destino);
     }
-    VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
+    acao_proto.mutable_pos_quadrado()->Swap(&pos_quadrado);
+    acao_proto.mutable_pos_tabuleiro()->Swap(&pos_tabuleiro);
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ADICIONAR_ACAO);
     n.mutable_acao()->Swap(&acao_proto);
     TrataNotificacao(n);
-  } else if (estado_ == ETAB_ENTS_SELECIONADAS) {
-    if (acao_proto.efeito_area()) {
-      if (ids_entidades_selecionadas_.size() == 1) {
-        // So poe origem se houver uma entidade selecionada.
-        acao_proto.set_id_entidade_origem(*ids_entidades_selecionadas_.begin());
-      } else {
-        VLOG(1) << "Nao colocando origem em acao de area pois ha mais de uma entidade selecionada.";
+  } else {
+    // Realiza a acao de cada entidade contra o alvo ou local.
+    // Usa modelo selecionado.
+    VLOG(1) << "Acao de entidades.";
+    // Para desfazer.
+    ntf::Notificacao grupo_desfazer;
+    grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    float atraso_segundos = 0;
+    for (auto id_selecionado : ids_entidades_selecionadas_) {
+      Entidade* entidade = BuscaEntidade(id_selecionado);
+      if (entidade == nullptr) {
+        continue;
       }
-      // Para acoes de area, faz apenas uma acao.
-      VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
+      std::string ultima_acao = entidade->Proto().ultima_acao().empty() ?
+         "Ataque Corpo a Corpo" : entidade->Proto().ultima_acao();
+      auto acao_it = mapa_acoes_.find(ultima_acao);
+      if (acao_it == mapa_acoes_.end()) {
+        LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";
+        continue;
+      }
+      AcaoProto acao_proto(*acao_it->second);
+      if (id_entidade_destino != Entidade::IdInvalido) {
+        acao_proto.set_id_entidade_destino(id_entidade_destino);
+      }
+      acao_proto.set_atraso_s(atraso_segundos);
+      acao_proto.mutable_pos_quadrado()->CopyFrom(pos_quadrado);
+      acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
+      acao_proto.set_id_entidade_origem(id_selecionado);
+
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_ADICIONAR_ACAO);
-      n.mutable_acao()->CopyFrom(acao_proto);
-      TrataNotificacao(n);
-    } else {
-      // Uma acao feita por cada entidade selecionada.
-      float atraso_segundos = 0;
-      ntf::Notificacao grupo_notificacoes;
-      grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-      // Para desfazer.
-      ntf::Notificacao grupo_desfazer;
-      grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-      Entidade* entidade_destino = acao_proto.has_id_entidade_destino() ? BuscaEntidade(acao_proto.id_entidade_destino()) : nullptr;
-      for (unsigned int id : ids_entidades_selecionadas_) {
-        auto* entidade_selecionada = BuscaEntidade(id);
-        if (entidade_selecionada == nullptr) {
-          continue;
-        }
-        acao_proto.set_id_entidade_origem(entidade_selecionada->Id());
-        acao_proto.set_atraso_s(atraso_segundos);
+      if (acao_proto.efeito_area()) {
+        VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
+        n.mutable_acao()->CopyFrom(acao_proto);
+      } else {
+        Entidade* entidade_destino =
+           id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(acao_proto.id_entidade_destino()) : nullptr;
         if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
           int delta_pontos_vida = lista_pontos_vida_.front();
           lista_pontos_vida_.pop_front();
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
-          // Para desfazer
+          // Para desfazer, apenas as acoes que tem dano.
           {
             auto* nd = grupo_desfazer.add_notificacao();
-            // Efeito antes acao.
+            // Entidade antes acao.
             nd->mutable_entidade_antes()->CopyFrom(entidade_destino->Proto());
-            // Hit points depois.
+            // Entidade depois.
             auto* e_depois = nd->mutable_entidade();
             e_depois->set_id(entidade_destino->Id());
             e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pontos_vida);
             nd->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
           }
         }
-        VLOG(2) << "Acao: " << acao_proto.ShortDebugString();
-        auto* n = grupo_notificacoes.add_notificacao();
-        n->set_tipo(ntf::TN_ADICIONAR_ACAO);
-        n->mutable_acao()->CopyFrom(acao_proto);
-        atraso_segundos += 0.5;
+        VLOG(2) << "Acao individual: " << acao_proto.ShortDebugString();
+        n.mutable_acao()->CopyFrom(acao_proto);
       }
-      TrataNotificacao(grupo_notificacoes);
-      if (entidade_destino != nullptr) {
-        AdicionaNotificacaoListaEventos(grupo_desfazer);
-      }
+      TrataNotificacao(n);
+      atraso_segundos += 0.5f;
     }
+    AdicionaNotificacaoListaEventos(grupo_desfazer);
   }
 }
 
@@ -1566,7 +1559,6 @@ void Tabuleiro::DesenhaAuras() {
 }
 
 void Tabuleiro::DesenhaAcoes() {
-  // TODO passar a parte nao desenho para a atualizacao.
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
     a->Desenha(&parametros_desenho_);
