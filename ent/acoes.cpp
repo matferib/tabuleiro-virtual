@@ -104,8 +104,8 @@ class AcaoDeltaPontosVida : public Acao {
  public:
   AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     Entidade* entidade_destino = nullptr;
-    if (!acao_proto_.has_id_entidade_destino() ||
-        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
+    if (acao_proto_.id_entidade_destino_size() == 0 ||
+        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
       contador_atualizacoes_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
       return;
@@ -245,7 +245,12 @@ class AcaoProjetil : public Acao {
       estagio_ = FIM;
       return;
     }
-    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+    if (acao_proto_.id_entidade_destino_size() == 0) {
+      VLOG(1) << "Finalizando projetil, nao ha entidade destino.";
+      estagio_ = FIM;
+      return;
+    }
+    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
       VLOG(1) << "Finalizando projetil, entidade origem == destino.";
       estagio_ = FIM;
       return;
@@ -299,8 +304,7 @@ class AcaoProjetil : public Acao {
   void AtualizaInicial() {
     // Atualiza destino a cada 50ms.
     Entidade* entidade_destino = nullptr;
-    if (!acao_proto_.has_id_entidade_destino() ||
-        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
+    if ((entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
       VLOG(1) << "Finalizando projetil, destino não existe.";
       estagio_ = FIM;
       return;
@@ -371,12 +375,12 @@ class AcaoRaio : public Acao {
       VLOG(1) << "Acao raio requer id origem.";
       return;
     }
-    if (!acao_proto_.has_id_entidade_destino() && !acao_proto_.has_pos_tabuleiro()) {
+    if (acao_proto_.id_entidade_destino_size() == 0 && !acao_proto_.has_pos_tabuleiro()) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id destino ou posicao destino.";
       return;
     }
-    if (acao_proto_.has_id_entidade_destino() && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+    if (acao_proto_.id_entidade_destino_size() > 0 && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer origem e destino diferentes.";
       return;
@@ -390,8 +394,8 @@ class AcaoRaio : public Acao {
     }
     const Posicao& pos_o = eo->PosicaoAcao();
     Posicao pos_d = acao_proto_.pos_tabuleiro();
-    if (acao_proto_.has_id_entidade_destino()) {
-      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+    if (acao_proto_.id_entidade_destino_size() > 0) {
+      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
       if (ed == nullptr) {
         return;
       }
@@ -428,8 +432,8 @@ class AcaoRaio : public Acao {
       return;
     }
     Posicao pos_d = acao_proto_.pos_tabuleiro();
-    if (acao_proto_.has_id_entidade_destino()) {
-      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+    if (acao_proto_.id_entidade_destino_size() > 0) {
+      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
       if (ed == nullptr) {
         VLOG(1) << "Terminando acao pois destino nao existe mais.";
         duracao_ = 0.0f;
@@ -462,12 +466,12 @@ class AcaoCorpoCorpo : public Acao {
       finalizado_ = true;
       return;
     }
-    if (!acao_proto_.has_id_entidade_destino()) {
+    if (acao_proto_.id_entidade_destino_size() == 0) {
       VLOG(1) << "Acao corpo a corpo requer id destino.";
       finalizado_ = true;
       return;
     }
-    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino()) {
+    if (acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
       VLOG(1) << "Acao corpo a corpo requer origem e destino diferentes.";
       finalizado_ = true;
       return;
@@ -538,7 +542,7 @@ class AcaoCorpoCorpo : public Acao {
   // Atualiza a direcao.
   void AtualizaDeltas() {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
-    auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino());
+    auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
     if (eo == nullptr || ed == nullptr) {
       VLOG(1) << "Terminando acao corpo a corpo: origem ou destino nao existe mais.";
       finalizado_ = true;
@@ -566,7 +570,7 @@ class AcaoCorpoCorpo : public Acao {
 class AcaoFeiticoToque : public Acao {
  public:
   AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
-    if (!acao_proto_.has_id_entidade_origem() || !acao_proto_.has_id_entidade_destino()) {
+    if (!acao_proto_.has_id_entidade_origem() || acao_proto_.id_entidade_destino_size() == 0) {
       VLOG(1) << "Acao de feitico de toque requer origem e destino";
       terminado_ = true;
       return;
@@ -577,7 +581,7 @@ class AcaoFeiticoToque : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
-    auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino());
+    auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino(0));
     if (e == nullptr) {
       return;
     }
@@ -592,7 +596,7 @@ class AcaoFeiticoToque : public Acao {
   }
 
   void AtualizaAposAtraso() {
-    auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino());
+    auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino(0));
     if (e == nullptr) {
       VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
       terminado_ = true;
@@ -686,8 +690,8 @@ void Acao::AtualizaVelocidade() {
 
 bool Acao::AtualizaAlvo() {
   Entidade* entidade_destino = nullptr;
-  if (!acao_proto_.has_id_entidade_destino() ||
-      (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino())) == nullptr) {
+  if (acao_proto_.id_entidade_destino_size() == 0 ||
+      (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
     VLOG(1) << "Finalizando alvo, destino não existe.";
     return false;
   }
