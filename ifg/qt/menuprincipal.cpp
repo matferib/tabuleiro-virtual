@@ -144,7 +144,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       });
       for (const auto& acao_it : acoes_ordenadas) {
         auto* acao = new QAction(tr(acao_it.first.c_str()), menu);
-        acao->setCheckable(true);
+        //acao->setCheckable(true);
         acao->setData(QVariant::fromValue(QString(acao_it.first.c_str())));
         grupo_menu->addAction(acao);
         menu->addAction(acao);
