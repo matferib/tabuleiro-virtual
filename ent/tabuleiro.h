@@ -489,6 +489,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Poe o tabuleiro no modo jogador. */
   void ModoJogador();
 
+  /** Retorna quais unidades sao afetadas por determinada acao. */
+  const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;

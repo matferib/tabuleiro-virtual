@@ -439,7 +439,7 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
     auto* a = na->mutable_acao();
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-    a->set_id_entidade_destino(entidade_selecionada->Id());
+    a->add_id_entidade_destino(entidade_selecionada->Id());
     a->set_delta_pontos_vida(delta_pontos_vida);
     // Para desfazer.
     {
@@ -488,7 +488,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(unsigned int id_entidade, int 
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
-  a->set_id_entidade_destino(entidade->Id());
+  a->add_id_entidade_destino(entidade->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
   a->set_afeta_pontos_vida(false);
   TrataNotificacao(na);
@@ -1014,8 +1014,8 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     if (id_entidade_destino != Entidade::IdInvalido) {
       acao_proto.set_id_entidade_destino(id_entidade_destino);
     }
-    acao_proto.mutable_pos_quadrado()->Swap(&pos_quadrado);
-    acao_proto.mutable_pos_tabuleiro()->Swap(&pos_tabuleiro);
+    acao_proto.mutable_pos_quadrado()->CopyFrom(pos_quadrado);
+    acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ADICIONAR_ACAO);
     n.mutable_acao()->Swap(&acao_proto);
@@ -1052,6 +1052,16 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_ADICIONAR_ACAO);
       if (acao_proto.efeito_area()) {
+        if (!lista_pontos_vida_.empty()) {
+          int delta_pontos_vida = lista_pontos_vida_.front();
+          lista_pontos_vida_.pop_front();
+          acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+          acao_proto.set_afeta_pontos_vida(true);
+        }
+        std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao_proto);
+        for (auto id : ids_afetadas) {
+          acao_proto.add_id_entidade_destino(id);
+        }
         VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
       } else {
@@ -1756,9 +1766,11 @@ void Tabuleiro::AtualizaAcoes() {
     a->Atualiza();
     if (a->Finalizada()) {
       const auto& ap = a->Proto();
-      if (ap.has_id_entidade_destino() &&
+      if (ap.id_entidade_destino_size() > 0 &&
           ap.afeta_pontos_vida()) {
-        AtualizaPontosVidaEntidadePorAcao(ap.id_entidade_destino(), ap.delta_pontos_vida());
+        for (auto id_entidade_destino : ap.id_entidade_destino()) {
+          AtualizaPontosVidaEntidadePorAcao(id_entidade_destino, ap.delta_pontos_vida());
+        }
       }
     } else {
       acoes_.push_back(std::unique_ptr<Acao>(a.release()));
@@ -3143,6 +3155,22 @@ void Tabuleiro::ModoJogador() {
   watchdog_.Para();
 #endif
   modo_mestre_ = false;
+}
+
+const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
+  std::vector<unsigned int> ids_afetados;
+  const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
+  for (const auto& id_entidade : entidades_) {
+    const Entidade* entidade = id_entidade.second.get();
+    if (acao.tipo() == Acao::ACAO_DISPERSAO) {
+      switch (acao.geometria()) {
+        case Acao::ACAO_GEO_ESFERA: {
+        }
+      }
+      default: ;
+    }
+  }
+  return ids_afetados;
 }
 
 Entidade* Tabuleiro::EntidadeSelecionada() {
