@@ -57,7 +57,7 @@ message AcaoProto {
   // Identificador do causador da acao.
   optional uint32 id_entidade_origem = 10;
   // Identificador do alvo da acao.
-  optional uint32 id_entidade_destino = 11;
+  repeated uint32 id_entidade_destino = 11;
   // Posicao do clique no tabuleiro, para quem usar.
   optional Posicao pos_quadrado = 12;
   optional Posicao pos_tabuleiro = 13;
@@ -72,8 +72,7 @@ message AcaoProto {
   optional float duracao_s = 20;
   // Atraso para comecar a acao em s.
   optional float atraso_s = 21;
-  // Acao tem efeito de area. Isso implica que se houver varias entidades selecionadas, o efeito se aplicara
-  // a elas (ao inves de cada entidade fazer uma acao).
+  // Acao tem efeito de area. Isso implica que os alvos serao calculados dinamicamente.
   optional bool efeito_area = 22 [default=false];
 
 }
