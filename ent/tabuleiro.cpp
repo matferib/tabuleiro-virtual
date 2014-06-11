@@ -1012,7 +1012,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
     acao_proto.set_tipo(ACAO_SINALIZACAO);
     if (id_entidade_destino != Entidade::IdInvalido) {
-      acao_proto.set_id_entidade_destino(id_entidade_destino);
+      acao_proto.add_id_entidade_destino(id_entidade_destino);
     }
     acao_proto.mutable_pos_quadrado()->CopyFrom(pos_quadrado);
     acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
@@ -1042,7 +1042,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
       }
       AcaoProto acao_proto(*acao_it->second);
       if (id_entidade_destino != Entidade::IdInvalido) {
-        acao_proto.set_id_entidade_destino(id_entidade_destino);
+        acao_proto.add_id_entidade_destino(id_entidade_destino);
       }
       acao_proto.set_atraso_s(atraso_segundos);
       acao_proto.mutable_pos_quadrado()->CopyFrom(pos_quadrado);
@@ -1052,21 +1052,39 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_ADICIONAR_ACAO);
       if (acao_proto.efeito_area()) {
+        int delta_pontos_vida = 0;
         if (!lista_pontos_vida_.empty()) {
-          int delta_pontos_vida = lista_pontos_vida_.front();
+          delta_pontos_vida = lista_pontos_vida_.front();
           lista_pontos_vida_.pop_front();
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
         std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao_proto);
-        for (auto id : ids_afetadas) {
+        for (auto id : ids_afetados) {
           acao_proto.add_id_entidade_destino(id);
+          // Para desfazer.
+          if (delta_pontos_vida == 0) {
+            continue;
+          }
+          const Entidade* entidade_destino = BuscaEntidade(id);
+          if (entidade_destino == nullptr) {
+            // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
+            LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+            continue;
+          }
+          auto* nd = grupo_desfazer.add_notificacao();
+          // Entidade antes e depois da acao.
+          nd->mutable_entidade_antes()->CopyFrom(entidade_destino->Proto());
+          auto* e_depois = nd->mutable_entidade();
+          e_depois->set_id(entidade_destino->Id());
+          e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pontos_vida);
+          nd->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
         }
         VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
       } else {
         Entidade* entidade_destino =
-           id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(acao_proto.id_entidade_destino()) : nullptr;
+           id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
         if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
           int delta_pontos_vida = lista_pontos_vida_.front();
           lista_pontos_vida_.pop_front();
@@ -3162,12 +3180,16 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
   for (const auto& id_entidade : entidades_) {
     const Entidade* entidade = id_entidade.second.get();
-    if (acao.tipo() == Acao::ACAO_DISPERSAO) {
+    if (acao.tipo() == ACAO_DISPERSAO) {
       switch (acao.geometria()) {
-        case Acao::ACAO_GEO_ESFERA: {
+        case ACAO_GEO_ESFERA: {
+          float d2 = DistanciaHorizontalQuadrado(pos_tabuleiro, entidade->Pos());
+          if (d2 <= powf(acao.raio_area() * TAMANHO_LADO_QUADRADO, 2)) {
+            ids_afetados.push_back(id_entidade.first);
+          }
         }
+        default: ;
       }
-      default: ;
     }
   }
   return ids_afetados;
