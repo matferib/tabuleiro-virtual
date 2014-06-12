@@ -70,6 +70,7 @@ acao {
   cor { r: 0.0 g: 0 b: 1.0 }
   duracao_s: 0.5
   efeito_area: true
+	distancia: 14  # quadrados
 }
 acao {
   id: 'Sinalização'

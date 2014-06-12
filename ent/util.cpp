@@ -72,6 +72,10 @@ void RealcaCor(Cor* cor) {
   cor->set_b(RealcaComponente(cor->b()));
 }
 
+float VetorParaRotacaoGraus(const Posicao& vetor, float* tamanho) {
+  return VetorParaRotacaoGraus(vetor.x(), vetor.y(), tamanho);
+}
+
 float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   float tam = sqrt(x * x + y * y);
   float angulo = acosf(x / tam) * RAD_PARA_GRAUS;
@@ -79,6 +83,16 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
     *tamanho = tam;
   }
   return (y >= 0 ? angulo : -angulo);
+}
+
+void RodaVetor2d(float graus, Posicao* vetor) {
+  float rad = graus * GRAUS_PARA_RAD;
+  float sen_o = sinf(rad);
+  float cos_o = cosf(rad);
+  float x = vetor->x() * cos_o - vetor->y() * sen_o;
+  float y = vetor->x() * sen_o + vetor->y() * cos_o;
+  vetor->set_x(x);
+  vetor->set_y(y);
 }
 
 void DesenhaDisco(float raio, int num_faces) {
@@ -292,6 +306,23 @@ void MultiplicaMatrizVetor(const float* matriz, float* vetor) {
   vetor[1] = res[1];
   vetor[2] = res[2];
   vetor[3] = res[3];
+}
+
+// Ray casting do ponto para uma direcao qualquer. A cada intersecao, inverte o resultado.
+// Referencia:
+// http://stackoverflow.com/questions/11716268/point-in-polygon-algorithm
+bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& vertices) {
+  // TODO verificar divisao por 0 aqui.
+  bool dentro = false;
+  for (unsigned int i = 0, j = vertices.size() - 1; i < vertices.size(); j = i++) {
+    if (((vertices[i].y() > ponto.y()) != (vertices[j].y() > ponto.y())) &&
+        (ponto.x() < (vertices[j].x() - vertices[i].x()) *
+        (ponto.y() - vertices[i].y()) / (vertices[j].y() - vertices[i].y()) + vertices[i].x())) {
+      // A cada intersecao com
+      dentro = !dentro;
+    }
+  }
+  return dentro;
 }
 
 }  // namespace ent

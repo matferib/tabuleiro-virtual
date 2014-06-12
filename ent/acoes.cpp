@@ -375,12 +375,14 @@ class AcaoRaio : public Acao {
       VLOG(1) << "Acao raio requer id origem.";
       return;
     }
-    if (acao_proto_.id_entidade_destino_size() == 0 && !acao_proto_.has_pos_tabuleiro()) {
+    if (!acao_proto_.efeito_area() &&
+        acao_proto_.id_entidade_destino_size() == 0 && !acao_proto_.has_pos_tabuleiro()) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id destino ou posicao destino.";
       return;
     }
-    if (acao_proto_.id_entidade_destino_size() > 0 && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
+    if (!acao_proto_.efeito_area() &&
+        acao_proto_.id_entidade_destino_size() > 0 && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer origem e destino diferentes.";
       return;
