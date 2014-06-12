@@ -375,12 +375,12 @@ class AcaoRaio : public Acao {
       VLOG(1) << "Acao raio requer id origem.";
       return;
     }
-    if (!acao_proto_.efeito_area() &&
-        acao_proto_.id_entidade_destino_size() == 0 && !acao_proto_.has_pos_tabuleiro()) {
+    if (acao_proto_.id_entidade_destino_size() == 0 && !acao_proto_.has_pos_tabuleiro()) {
       duracao_ = 0.0f;
       VLOG(1) << "Acao raio requer id destino ou posicao destino.";
       return;
     }
+
     if (!acao_proto_.efeito_area() &&
         acao_proto_.id_entidade_destino_size() > 0 && acao_proto_.id_entidade_origem() == acao_proto_.id_entidade_destino(0)) {
       duracao_ = 0.0f;
@@ -396,7 +396,7 @@ class AcaoRaio : public Acao {
     }
     const Posicao& pos_o = eo->PosicaoAcao();
     Posicao pos_d = acao_proto_.pos_tabuleiro();
-    if (acao_proto_.id_entidade_destino_size() > 0) {
+    if (!acao_proto_.efeito_area() && acao_proto_.id_entidade_destino_size() > 0) {
       auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
       if (ed == nullptr) {
         return;
@@ -414,6 +414,9 @@ class AcaoRaio : public Acao {
     float tam;
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
     gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
+    if (acao_proto_.has_distancia()) {
+      tam = acao_proto_.distancia() * TAMANHO_LADO_QUADRADO;
+    }
     const float vertices[] = {
       0.0f, -0.2, 0.0f,
       tam, 0.0f, dz,

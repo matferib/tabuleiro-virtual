@@ -313,12 +313,23 @@ void MultiplicaMatrizVetor(const float* matriz, float* vetor) {
 // http://stackoverflow.com/questions/11716268/point-in-polygon-algorithm
 bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& vertices) {
   // TODO verificar divisao por 0 aqui.
+  float ponto_x = ponto.x();
+  float ponto_y = ponto.y();
   bool dentro = false;
+  VLOG(1) << "Ponto: (" << ponto_x << ", " << ponto_y << ")";
   for (unsigned int i = 0, j = vertices.size() - 1; i < vertices.size(); j = i++) {
-    if (((vertices[i].y() > ponto.y()) != (vertices[j].y() > ponto.y())) &&
-        (ponto.x() < (vertices[j].x() - vertices[i].x()) *
-        (ponto.y() - vertices[i].y()) / (vertices[j].y() - vertices[i].y()) + vertices[i].x())) {
-      // A cada intersecao com
+    float vix = vertices[i].x();
+    float viy = vertices[i].y();
+    float vjx = vertices[j].x();
+    float vjy = vertices[j].y();
+    float vjy_viy = vjy - viy;
+    VLOG(1) << "Vertice: (" << vix << ", " << viy << ")";
+    if (fabs(vjy_viy) < 0.01) {
+      return true;
+    }
+    if (((viy > ponto_y) != (vjy > ponto_y)) &&
+        (ponto_x < ((vjx - vix) * ((ponto_y - viy) / vjy_viy) + vix))) {
+      // A cada intersecao com os vertices, inverte sinal.
       dentro = !dentro;
     }
   }
