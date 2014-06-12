@@ -3191,6 +3191,41 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
         }
       }
       break;
+      case ACAO_GEO_CONE: {
+        if (entidade_origem == nullptr) {
+          LOG(WARNING) << "Entidade de origem nao encontrada";
+          return ids_afetados;
+        }
+        // Vetor de direcao.
+        const Posicao& pos_o = entidade_origem->Pos();
+        Posicao vetor_direcao;
+        vetor_direcao.set_x(pos_tabuleiro.x() - pos_o.x());
+        vetor_direcao.set_y(pos_tabuleiro.y() - pos_o.y());
+        float rotacao = VetorParaRotacaoGraus(vetor_direcao);
+        // Ja temos a direcao, agora eh so rodar o triangulo.
+        float distancia = acao.distancia() * TAMANHO_LADO_QUADRADO;
+        float distancia_2 = distancia / 2.0f;
+        std::vector<Posicao> vertices(3);
+        vertices[1].set_x(distancia);
+        vertices[1].set_y(-distancia_2);
+        vertices[2].set_x(distancia);
+        vertices[2].set_y(distancia_2);
+        for (unsigned int i = 0; i < vertices.size(); ++i) {
+          RodaVetor2d(rotacao, &vertices[i]);
+          vertices[i].set_x(vertices[i].x() + pos_o.x());
+          vertices[i].set_y(vertices[i].y() + pos_o.y());
+        }
+        for (const auto& id_entidade_destino : entidades_) {
+          const Entidade* entidade_destino = id_entidade_destino.second.get();
+          if (entidade_destino == entidade_origem) {
+            continue;
+          }
+          if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
+            ids_afetados.push_back(id_entidade_destino.first);
+          }
+        }
+      }
+      break;
       default:
         LOG(WARNING) << "Geometria da acao nao implementada: " << acao.tipo();
     }
@@ -3213,7 +3248,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
     vertices[2].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
     vertices[3].set_y(-TAMANHO_LADO_QUADRADO_2);
     vertices[3].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
-    for (int i = 0; i < 4; ++i) {
+    for (unsigned int i = 0; i < vertices.size(); ++i) {
       RodaVetor2d(rotacao, &vertices[i]);
       vertices[i].set_x(vertices[i].x() + pos_o.x());
       vertices[i].set_y(vertices[i].y() + pos_o.y());
