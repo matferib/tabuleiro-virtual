@@ -46,7 +46,7 @@ message AcaoProto {
   optional TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
   optional int32 raio_area = 3;  // quadrados.
-  // Distancia da acao (para dispersao de cone).
+  // Distancia da acao (para dispersao de cone e raio).
   optional int32 distancia = 5;  // quadrados.
   // Aplicada antes da escala.
   optional Translacao translacao = 17;
