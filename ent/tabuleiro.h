@@ -116,7 +116,10 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao. Nao preocupa com desfazer, que ja foi feito no inicio da acao. */
-  void AtualizaPontosVidaEntidadePorAcao(unsigned int id, int delta_pontos_vida);
+  void AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id, int delta_pontos_vida);
+
+  /** Atualiza a proxima salvacao para cada entidade selecionada. */
+  void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
 
   /** Adiciona a lista_pv no final da lista de pontos de vida acumulados. */
   void AcumulaPontosVida(const std::vector<int>& lista_pv);

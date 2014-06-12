@@ -21,6 +21,7 @@ acao {
   raio_area: 4  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
+	permite_salvacao: true
 }
 acao {
   id: 'Cone de Gelo'
@@ -29,6 +30,7 @@ acao {
   distancia: 12  # quadrados
   geometria: ACAO_GEO_CONE
   efeito_area: true
+	permite_salvacao: true
 }
 acao {
   id: 'Mãos Flamejantes'
@@ -37,6 +39,7 @@ acao {
   distancia: 3  # quadrados
   geometria: ACAO_GEO_CONE
   efeito_area: true
+	permite_salvacao: true
 }
 acao {
   id: 'Feitiço de Toque'
@@ -71,6 +74,7 @@ acao {
   duracao_s: 0.5
   efeito_area: true
 	distancia: 14  # quadrados
+	permite_salvacao: true
 }
 acao {
   id: 'Sinalização'

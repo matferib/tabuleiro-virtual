@@ -30,6 +30,12 @@ enum TamanhoEntidade {
   TM_COLOSSAL = 8;
 }
 
+enum ResultadoSalvacao {
+  RS_FALHOU = 0;
+  RS_MEIO = 1;
+  RS_ANULOU = 2;
+}
+
 message Posicao {
   optional float x = 3;
   optional float y = 4;
@@ -121,6 +127,8 @@ message EntidadeProto {
   optional bool selecionavel_para_jogador = 16 [default=true];
   // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
+  // Resultado da proxima salvacao da entidade.
+  optional ResultadoSalvacao proxima_salvacao = 27;
 }
 
 // Alguns estados são mantidos nesta variável.
