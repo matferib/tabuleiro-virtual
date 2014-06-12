@@ -73,8 +73,8 @@ message AcaoProto {
   // Atraso para comecar a acao em s.
   optional float atraso_s = 21;
   // Acao tem efeito de area. Isso implica que os alvos serao calculados dinamicamente.
-  optional bool efeito_area = 22 [default=false];
-
+  optional bool efeito_area = 22;
+  optional bool permite_salvacao = 23;
 }
 
 // O arquivo de acoes é serializado desta forma.

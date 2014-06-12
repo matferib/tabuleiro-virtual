@@ -1,4 +1,5 @@
 #include "ifg/tecladomouse.h"
+#include "ent/acoes.h"
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
@@ -85,8 +86,8 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
       }
-      break;
     }
+    break;
     case Tecla_C:
     case Tecla_D: {
       auto lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
@@ -97,8 +98,21 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         lista_pv[0] = -lista_pv[0];
       }
       tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(lista_pv[0]);
-      break;
     }
+    break;
+    case Tecla_R: {
+      if (teclas_.size() != 2) {
+        LOG(ERROR) << "Resistencia requer uma tecla, recebi: " << (teclas_.size() - 1);
+      }
+      ent::ResultadoSalvacao rs = ent::RS_FALHOU;
+      if (teclas_[1] == Tecla_2) {
+        rs = ent::RS_MEIO;
+      } else if (teclas_[1] == Tecla_0) {
+        rs = ent::RS_ANULOU;
+      }
+      tabuleiro_->AtualizaSalvacaoEntidadesSelecionadas(rs);
+    }
+    break;
     default:
       VLOG(1) << "Tecla de temporizador nao reconhecida: " << primeira_tecla;
   }
@@ -212,6 +226,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     case Tecla_S:
       tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
+      return;
+    case Tecla_R:
+      MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
+      teclas_.push_back(tecla);
       return;
     default:
       LOG(INFO) << "Tecla nao reconhecida: " << tecla;

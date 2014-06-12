@@ -520,6 +520,10 @@ float Entidade::MultiplicadorTamanho() const {
   return CalculaMultiplicador(proto_.tamanho());
 }
 
+void Entidade::AtualizaProximaSalvacao(ResultadoSalvacao rs) {
+  proto_.set_proxima_salvacao(rs);
+}
+
 float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
   switch (tamanho) {
     case ent::TM_MINUSCULO: return 0.4f;

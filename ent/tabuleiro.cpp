@@ -470,12 +470,22 @@ void Tabuleiro::AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& no
   }
 }
 
-void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(unsigned int id_entidade, int delta_pontos_vida) {
+void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade, int delta_pontos_vida) {
   auto* entidade = BuscaEntidade(id_entidade);
   if (entidade == nullptr) {
     LOG(WARNING) << "Entidade nao encontrada: " << id_entidade;
     return;
   }
+
+  const auto& ap = acao.Proto();
+  if (ap.permite_salvacao()) {
+    if (entidade->ProximaSalvacao() == RS_MEIO) {
+      delta_pontos_vida /= 2;
+    } else if (entidade->ProximaSalvacao() == RS_ANULOU) {
+      delta_pontos_vida = 0;
+    }
+  }
+
   // Atualizacao de pontos de vida.
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
@@ -492,6 +502,25 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(unsigned int id_entidade, int 
   a->set_delta_pontos_vida(delta_pontos_vida);
   a->set_afeta_pontos_vida(false);
   TrataNotificacao(na);
+}
+
+void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade = BuscaEntidade(id);
+    if (entidade == nullptr) {
+      continue;
+    }
+    auto* ntf = grupo_notificacoes.add_notificacao();
+    ntf->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    ntf->mutable_entidade_antes()->CopyFrom(entidade->Proto());
+    ntf->mutable_entidade()->CopyFrom(entidade->Proto());
+    ntf->mutable_entidade()->set_proxima_salvacao(rs);
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AcumulaPontosVida(const std::vector<int>& lista_pv) {
@@ -1072,12 +1101,20 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
             LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
             continue;
           }
+          int delta_pv_pos_salvacao = delta_pontos_vida;
+          if (acao_proto.permite_salvacao()) {
+            if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
+              delta_pv_pos_salvacao /= 2;
+            } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
+              delta_pv_pos_salvacao= 0;
+            }
+          }
           auto* nd = grupo_desfazer.add_notificacao();
           // Entidade antes e depois da acao.
           nd->mutable_entidade_antes()->CopyFrom(entidade_destino->Proto());
           auto* e_depois = nd->mutable_entidade();
           e_depois->set_id(entidade_destino->Id());
-          e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pontos_vida);
+          e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pv_pos_salvacao);
           nd->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
         }
         VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
@@ -1088,7 +1125,15 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
         if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
           int delta_pontos_vida = lista_pontos_vida_.front();
           lista_pontos_vida_.pop_front();
-          acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+          int delta_pv_pos_salvacao = delta_pontos_vida;
+          if (acao_proto.permite_salvacao()) {
+            if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
+              delta_pv_pos_salvacao /= 2;
+            } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
+              delta_pv_pos_salvacao= 0;
+            }
+          }
+          acao_proto.set_delta_pontos_vida(delta_pv_pos_salvacao);
           acao_proto.set_afeta_pontos_vida(true);
           // Para desfazer, apenas as acoes que tem dano.
           {
@@ -1098,7 +1143,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
             // Entidade depois.
             auto* e_depois = nd->mutable_entidade();
             e_depois->set_id(entidade_destino->Id());
-            e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pontos_vida);
+            e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pv_pos_salvacao);
             nd->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
           }
         }
@@ -1780,18 +1825,27 @@ void Tabuleiro::AtualizaAcoes() {
   ignorar_lista_eventos_ = true;
   std::vector<std::unique_ptr<Acao>> copia_acoes;
   copia_acoes.swap(acoes_);
-  for (auto& a : copia_acoes) {
-    a->Atualiza();
-    if (a->Finalizada()) {
-      const auto& ap = a->Proto();
+  bool limpar_salvacoes = false;
+  for (auto& acao : copia_acoes) {
+    acao->Atualiza();
+    if (acao->Finalizada()) {
+      const auto& ap = acao->Proto();
       if (ap.id_entidade_destino_size() > 0 &&
           ap.afeta_pontos_vida()) {
+        if (ap.permite_salvacao()) {
+          limpar_salvacoes = true;
+        }
         for (auto id_entidade_destino : ap.id_entidade_destino()) {
-          AtualizaPontosVidaEntidadePorAcao(id_entidade_destino, ap.delta_pontos_vida());
+          AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino, ap.delta_pontos_vida());
         }
       }
     } else {
-      acoes_.push_back(std::unique_ptr<Acao>(a.release()));
+      acoes_.push_back(std::unique_ptr<Acao>(acao.release()));
+    }
+  }
+  if (limpar_salvacoes) {
+    for (auto& id_entidade : entidades_) {
+      id_entidade.second->AtualizaProximaSalvacao(RS_FALHOU);
     }
   }
   ignorar_lista_eventos_ = false;
