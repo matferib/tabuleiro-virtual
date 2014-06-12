@@ -3178,53 +3178,59 @@ void Tabuleiro::ModoJogador() {
 const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
   std::vector<unsigned int> ids_afetados;
   const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
-  for (const auto& id_entidade_destino : entidades_) {
-    const Entidade* entidade_destino = id_entidade_destino.second.get();
-    if (acao.tipo() == ACAO_DISPERSAO) {
-      switch (acao.geometria()) {
-        case ACAO_GEO_ESFERA: {
+  const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
+  if (acao.tipo() == ACAO_DISPERSAO) {
+    switch (acao.geometria()) {
+      case ACAO_GEO_ESFERA: {
+        for (const auto& id_entidade_destino : entidades_) {
+          const Entidade* entidade_destino = id_entidade_destino.second.get();
           float d2 = DistanciaHorizontalQuadrado(pos_tabuleiro, entidade_destino->Pos());
           if (d2 <= powf(acao.raio_area() * TAMANHO_LADO_QUADRADO, 2)) {
             ids_afetados.push_back(id_entidade_destino.first);
           }
         }
-        break;
-        default:
-          LOG(WARNING) << "Geometria da acao nao implementada: " << acao.tipo();
       }
-    } else if (acao.tipo() == ACAO_RAIO) {
-      const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
-      if (entidade_origem == nullptr) {
-        LOG(WARNING) << "Entidade de origem nao encontrada";
+      break;
+      default:
+        LOG(WARNING) << "Geometria da acao nao implementada: " << acao.tipo();
+    }
+  } else if (acao.tipo() == ACAO_RAIO) {
+    if (entidade_origem == nullptr) {
+      LOG(WARNING) << "Entidade de origem nao encontrada";
+      return ids_afetados;
+    }
+    // Vetor de direcao.
+    const Posicao& pos_o = entidade_origem->Pos();
+    Posicao vetor_direcao;
+    vetor_direcao.set_x(pos_tabuleiro.x() - pos_o.x());
+    vetor_direcao.set_y(pos_tabuleiro.y() - pos_o.y());
+    float rotacao = VetorParaRotacaoGraus(vetor_direcao);
+    // Ja temos a direcao, agora eh so rodar o retangulo.
+    std::vector<Posicao> vertices(4);
+    vertices[0].set_y(-TAMANHO_LADO_QUADRADO_2);
+    vertices[1].set_y(TAMANHO_LADO_QUADRADO_2);
+    vertices[2].set_y(TAMANHO_LADO_QUADRADO_2);
+    vertices[2].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
+    vertices[3].set_y(-TAMANHO_LADO_QUADRADO_2);
+    vertices[3].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
+    for (int i = 0; i < 4; ++i) {
+      RodaVetor2d(rotacao, &vertices[i]);
+      vertices[i].set_x(vertices[i].x() + pos_o.x());
+      vertices[i].set_y(vertices[i].y() + pos_o.y());
+    }
+    for (const auto& id_entidade_destino : entidades_) {
+      const Entidade* entidade_destino = id_entidade_destino.second.get();
+      if (entidade_destino == entidade_origem) {
         continue;
-      }
-      // Vetor de direcao.
-      const Posicao& pos_e = entidade_origem->Pos();
-      const Posicao& pos_d = entidade_destino->Pos();
-      Posicao vetor_direcao;
-      vetor_direcao.set_x(pos_d.x() - pos_e.x());
-      vetor_direcao.set_y(pos_d.y() - pos_e.y());
-      ComputaVetorNormalizado(&vetor_direcao);
-      ComputaMultiplicacaoEscalar(acao.distancia(), vetor_direcao, &vetor_direcao);
-      float rotacao = VetorParaRotacaoGraus(vetor_direcao);
-      // Ja temos os extremos, agora tem que andar meio quadrado na direcao perpendicular ao vetor.
-      std::vector<Posicao> vertices(4);
-      vertices[0].set_x(-TAMANHO_LADO_QUADRADO_2);
-      vertices[1].set_x(TAMANHO_LADO_QUADRADO_2);
-      vertices[2].set_x(TAMANHO_LADO_QUADRADO_2);
-      vertices[2].set_y(acao.distancia());
-      vertices[3].set_x(-TAMANHO_LADO_QUADRADO_2);
-      vertices[3].set_y(acao.distancia());
-      for (int i = 0; i < 4; ++i) {
-        RodaVetor2d(rotacao, &vertices[i]);
       }
       if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
         ids_afetados.push_back(id_entidade_destino.first);
       }
-    } else {
-      LOG(WARNING) << "Tipo de acao nao reconhecido: " << acao.tipo();
     }
+  } else {
+    LOG(WARNING) << "Tipo de acao nao reconhecido: " << acao.tipo();
   }
+
   return ids_afetados;
 }
 
