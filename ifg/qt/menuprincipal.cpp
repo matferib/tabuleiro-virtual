@@ -187,6 +187,9 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
         Modo(MM_JOGADOR);
       }
       return true;
+    case ntf::TN_REINICIAR_TABULEIRO:
+      // TODO Forma selecionada e desenho selecionado.
+      return true;
     default:
       return false;
   }

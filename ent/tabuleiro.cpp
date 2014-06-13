@@ -255,6 +255,8 @@ void Tabuleiro::EstadoInicial() {
   // Mapa de entidades e acoes vazios.
   entidades_.clear();
   acoes_.clear();
+  // Entidades selecionadas.
+  ids_entidades_selecionadas_.clear();
   // Outras variaveis.
   id_entidade_detalhada_ = Entidade::IdInvalido;
   quadrado_selecionado_ = -1;
