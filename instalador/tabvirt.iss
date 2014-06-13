@@ -4,13 +4,13 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{A9966132-260A-4314-9480-BBCA4BCA5C8F}
 AppName=Instalador Tabuleiro Virtual
-AppVerName=Tabuleiro Virtual 1.2
+AppVerName=Tabuleiro Virtual 1.4
 AppPublisher=Matferib
 OutputDir=output
 OutputBaseFilename=TabuleiroVirtual
 Compression=lzma
 SolidCompression=yes
-DefaultDirName=TabuleiroVirtual
+DefaultDirName={pf32}\TabuleiroVirtual
 DirExistsWarning=no
 DisableDirPage=no
 
@@ -27,6 +27,4 @@ Source: ..\tabvirt.exe; Destdir: {app};
 Source: ..\win32\lib\*.dll; Destdir: {app};
 Source: ..\texturas\*.png; Destdir: {app}\texturas;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados;
-
-
 
