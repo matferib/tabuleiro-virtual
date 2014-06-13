@@ -694,6 +694,17 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_LIMPAR_SALVACOES: {
+      for (auto& id_entidade : entidades_) {
+        id_entidade.second->AtualizaProximaSalvacao(RS_FALHOU);
+      }
+      if (notificacao.local()) {
+        // So repassa a notificacao pros clientes se a origem dela for local, para evitar ficar enviando
+        // infinitamente.
+        central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+      }
+      return true;
+    }
     default:
       return false;
   }
@@ -1844,9 +1855,9 @@ void Tabuleiro::AtualizaAcoes() {
     }
   }
   if (limpar_salvacoes) {
-    for (auto& id_entidade : entidades_) {
-      id_entidade.second->AtualizaProximaSalvacao(RS_FALHOU);
-    }
+    ntf::Notificacao ntf;
+    ntf.set_tipo(ntf::TN_LIMPAR_SALVACOES);
+    TrataNotificacao(ntf);
   }
   ignorar_lista_eventos_ = false;
   VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
