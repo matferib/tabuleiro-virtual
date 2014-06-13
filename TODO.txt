@@ -1,5 +1,4 @@
 Versao 1.4
-- !!!!Boost filesystem no Windows.!!!!
 - Entender o problema do detector de pressao com a pinca.
 - Externalizar o tabuleiro da interface, passar como parametro.
 - Camada de arquivo para funcionar em diversos dispositivos.
