@@ -600,7 +600,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Salvar no endereco.
         try {
           boost::filesystem::path caminho(notificacao.endereco());
-          arq::EscreveArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().native(), *nt_tabuleiro);
+          arq::EscreveArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
         } catch (const std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(erro.what());
@@ -619,7 +619,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         ntf::Notificacao nt_tabuleiro;
         try {
           boost::filesystem::path caminho(notificacao.endereco());
-          arq::LeArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().native(), &nt_tabuleiro);
+          arq::LeArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), &nt_tabuleiro);
         } catch (std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
