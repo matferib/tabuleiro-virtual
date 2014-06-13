@@ -167,20 +167,8 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
 void Texturas::LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados) {
   boost::filesystem::path caminho(arquivo);
   std::string dados_str;
-  arq::LeArquivo(arq::TIPO_TEXTURA, caminho.filename().native(), &dados_str);
+  arq::LeArquivo(arq::TIPO_TEXTURA, caminho.filename().string(), &dados_str);
   dados->assign(dados_str.begin(), dados_str.end());
-  /*
-  std::ifstream arquivo(caminho, std::ifstream::binary);
-  if (!arquivo) {
-    throw std::logic_error(std::string("Caminho invalido de imagem: ") + caminho);
-  }
-  arquivo.seekg(0, arquivo.end);
-  size_t tam = arquivo.tellg();
-  arquivo.seekg(0, arquivo.beg);
-  dados->resize(tam);
-  arquivo.read((char*)dados->data(), tam);
-  arquivo.close();
-  */
 }
 
 void Texturas::LeDecodificaImagem(const std::string& caminho, ent::InfoTextura* info_textura) {
