@@ -33,10 +33,6 @@ namespace ifg {
 namespace qt {
 namespace {
 
-// Temporizadores * 10ms.
-const int MAX_TEMPORIZADOR_TECLADO = 300;
-const int MAX_TEMPORIZADOR_MOUSE = 100;
-
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -185,7 +181,6 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_INICIADO:
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
-      glDraw();
       break;
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
@@ -235,10 +230,11 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
       break;
     }
+    case ntf::TN_TEMPORIZADOR:
+      glDraw();
+      break;
     default: ;
   }
-  // Sempre redesenha para evitar qualquer problema de atualizacao.
-  glDraw();
   return true;
 }
 
@@ -247,7 +243,6 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
   teclado_mouse_.TrataTeclaPressionada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
-  glDraw();
   event->accept();
 }
 
@@ -259,14 +254,12 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
        event->x(),
        height() - event->y());
-  glDraw();
   event->accept();
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
   teclado_mouse_.TrataBotaoMouseLiberado();
   event->accept();
-  glDraw();
 }
 
 void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -287,13 +280,11 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
   teclado_mouse_.TrataMovimentoMouse(event->x(), height() - event->y());
   event->accept();
-  glDraw();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
   teclado_mouse_.TrataRodela(event->delta());
   event->accept();
-  glDraw();
 }
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
