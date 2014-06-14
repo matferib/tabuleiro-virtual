@@ -231,6 +231,13 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
+    case Tecla_Tab:
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->AcaoAnterior();
+      } else {
+        tabuleiro_->ProximaAcao();
+      }
+      return;
     default:
       LOG(INFO) << "Tecla nao reconhecida: " << tecla;
   }

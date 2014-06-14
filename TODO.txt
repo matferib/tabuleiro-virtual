@@ -1,5 +1,5 @@
 Versao 1.5
-- Interface de escolha de acoes no android (tab, shift tab).
+- Mostrar a acao da entidade ao mudar.
 - Entender o problema do detector de pressao com a pinca.
 - Externalizar o tabuleiro da interface, passar como parametro.
 - Terminar camada de arquivo para funcionar em diversos dispositivos.

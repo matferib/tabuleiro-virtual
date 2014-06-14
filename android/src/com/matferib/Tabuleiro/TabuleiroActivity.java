@@ -496,10 +496,10 @@ class TabuleiroRenderer
 
   // Meta keys.
   public void onMetaKeyDown(int keyCode) {
-    nativeMetaKeyboard(true, keyCode);
+    nativeMetaKeyboard(true, Evento.teclaNativa(keyCode));
   }
   public void onMetaKeyUp(int keyCode) {
-    nativeMetaKeyboard(false, keyCode);
+    nativeMetaKeyboard(false, Evento.teclaNativa(keyCode));
   }
 
   private static native void nativeInitGl();
@@ -758,7 +758,7 @@ class Evento {
   }
 
   // Transforma o keycode de java para nativo. Sao os mesmos do QT: http://qt-project.org/doc/qt-4.8/qt.html#Key-enum.
-  private static int teclaNativa(int teclaJava) {
+  public static int teclaNativa(int teclaJava) {
     switch (teclaJava) {
       case KeyEvent.KEYCODE_0:
       case KeyEvent.KEYCODE_1:
@@ -806,6 +806,9 @@ class Evento {
       case KeyEvent.KEYCODE_DPAD_RIGHT: return 0x01000014;
       case KeyEvent.KEYCODE_DPAD_DOWN: return 0x01000015;
       case KeyEvent.KEYCODE_DEL: return 0x01000003;
+      case KeyEvent.KEYCODE_TAB: return 0x01000001;
+      case KeyEvent.KEYCODE_ALT_LEFT: return 0x01100007;
+      case KeyEvent.KEYCODE_ALT_RIGHT: return 0x01100008;
       default: return -1;
     }
   }

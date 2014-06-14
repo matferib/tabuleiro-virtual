@@ -13,6 +13,7 @@ class CentralNotificacoes;
 
 namespace ifg {
 
+// Codigos QT: http://qt-project.org/doc/qt-4.8/qt.html#Key-enum.
 enum teclas_e {
   Tecla_0 = 0x30,
   Tecla_1 = 0x31,
@@ -34,8 +35,10 @@ enum teclas_e {
   Tecla_Baixo = 0x01000015,
   Tecla_Esquerda = 0x01000012,
   Tecla_Direita = 0x01000014,
-  Tecla_AltEsquerdo = 57,
-  Tecla_AltDireito = 58,
+  // Inventados pois nao tem no QT.
+  Tecla_AltEsquerdo = 0x01100007,
+  Tecla_AltDireito = 0x01100008,
+  // Fim inventados
   Tecla_A = 0x41,
   Tecla_C = 0x43,
   Tecla_D = 0x44,
@@ -48,6 +51,7 @@ enum teclas_e {
   Tecla_V = 0x56,
   Tecla_Y = 0x59,
   Tecla_Z = 0x5a,
+  Tecla_Tab = 0x01000001,
 };
 
 enum modificadores_e {
