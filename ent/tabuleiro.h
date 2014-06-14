@@ -282,6 +282,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Altera o desenho entre os modos de debug (para OpenGL ES). */
   void AlternaModoDebug();
 
+  /** No modo acao, cada clique gera uma acao. Usado especialmente no tablet. */
+  void AlternaModoAcao();
+
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
   class TimerEscopo {
@@ -603,6 +606,7 @@ class Tabuleiro : public ntf::Receptor {
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
 
   bool modo_debug_ = false;
+  bool modo_acao_ = false;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

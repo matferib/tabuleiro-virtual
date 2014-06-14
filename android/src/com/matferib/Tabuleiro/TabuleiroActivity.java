@@ -124,13 +124,45 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    return false;
+    Log.d("TabuleiroRenderer", "onKeyDown: " + keyCode);
+    switch (keyCode) {
+      //case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
+      //case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
+      //  renderer_.onShiftKeyDown(keyCode);
+      //  break;
+      //case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
+      //case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
+      //  renderer_.onCtrlKeyDown(keyCode);
+      //  break;
+      case android.view.KeyEvent.KEYCODE_ALT_LEFT:
+      case android.view.KeyEvent.KEYCODE_ALT_RIGHT:
+        renderer_.onMetaKeyDown(keyCode);
+        return true;
+      default:
+        return false;
+    }
   }
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    //Log.d("TabuleiroRenderer", "onKeyUp");
-    return renderer_.onKeyUp(keyCode, event);
+    Log.d("TabuleiroRenderer", "onKeyUp: " + keyCode);
+    switch (keyCode) {
+      //case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
+      //case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
+      //  renderer_.onShiftKeyDown(keyCode);
+      //  break;
+      //case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
+      //case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
+      //  renderer_.onCtrlKeyDown(keyCode);
+      //  break;
+      case android.view.KeyEvent.KEYCODE_ALT_LEFT:
+      case android.view.KeyEvent.KEYCODE_ALT_RIGHT:
+        renderer_.onMetaKeyUp(keyCode);
+        return true;
+      default:
+        return renderer_.onKeyUp(keyCode, event);
+    }
+
   }
 
   @Override
@@ -462,6 +494,14 @@ class TabuleiroRenderer
     eventos_.add(Evento.Acao(somaX, (int)(parent_.getHeight() - somaY)));
   }
 
+  // Meta keys.
+  public void onMetaKeyDown(int keyCode) {
+    nativeMetaKeyboard(true, keyCode);
+  }
+  public void onMetaKeyUp(int keyCode) {
+    nativeMetaKeyboard(false, keyCode);
+  }
+
   private static native void nativeInitGl();
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
@@ -477,6 +517,7 @@ class TabuleiroRenderer
   private static native void nativeTranslation(int x, int y);
   private static native void nativeTilt(float delta);
   private static native void nativeKeyboard(int tecla, int modificadores);
+  private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
 
   private GLSurfaceView parent_;
   private Vector<Evento> eventos_ = new Vector<Evento>();
