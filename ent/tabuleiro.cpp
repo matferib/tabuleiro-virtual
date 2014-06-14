@@ -70,6 +70,8 @@ const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
 const double DISTANCIA_PLANO_CORTE_PROXIMO = 0.5;
 const double DISTANCIA_PLANO_CORTE_DISTANTE = 500.0f;
 
+const char* ID_ACAO_ATAQUE_CORPO_A_CORPO = "Ataque Corpo a Corpo";
+
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -172,7 +174,6 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
           m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
   }
   // Acoes.
-  acao_selecionada_ = nullptr;
   Acoes acoes;
   try {
     LeArquivoAsciiProto(arq::TIPO_DADOS, ARQUIVO_ACOES, &acoes);
@@ -181,10 +182,8 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
   }
   for (const auto& a : acoes.acao()) {
     auto* nova_acao = new AcaoProto(a);
-    if (nova_acao->tipo() == ACAO_SINALIZACAO) {
-      acao_selecionada_ = nova_acao;
-    }
     mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
+    id_acoes_.push_back(a.id());
   }
 
   EstadoInicial();
@@ -1078,7 +1077,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
         continue;
       }
       std::string ultima_acao = entidade->Proto().ultima_acao().empty() ?
-         "Ataque Corpo a Corpo" : entidade->Proto().ultima_acao();
+         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Proto().ultima_acao();
       auto acao_it = mapa_acoes_.find(ultima_acao);
       if (acao_it == mapa_acoes_.end()) {
         LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";
@@ -1300,7 +1299,58 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
     }
     entidade->AtualizaAcao(it->first);
   }
-  acao_selecionada_ = it->second.get();
+}
+
+void Tabuleiro::ProximaAcao() {
+  if (id_acoes_.size() == 0) {
+    return;
+  }
+  for (auto id_selecionado : ids_entidades_selecionadas_) {
+    Entidade* entidade = BuscaEntidade(id_selecionado);
+    if (entidade == nullptr) {
+      continue;
+    }
+    std::string acao(entidade->Acao());
+    if (acao.empty()) {
+      acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
+    }
+    auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao);
+    if (it == id_acoes_.end()) {
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      continue;
+    }
+    ++it;
+    if (it == id_acoes_.end()) {
+      it = id_acoes_.begin();
+    }
+    entidade->AtualizaAcao(*it);
+  }
+}
+
+void Tabuleiro::AcaoAnterior() {
+  if (id_acoes_.size() == 0) {
+    return;
+  }
+  for (auto id_selecionado : ids_entidades_selecionadas_) {
+    Entidade* entidade = BuscaEntidade(id_selecionado);
+    if (entidade == nullptr) {
+      continue;
+    }
+    std::string acao(entidade->Acao());
+    if (acao.empty()) {
+      acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
+    }
+    auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao);
+    if (it == id_acoes_.rend()) {
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      continue;
+    }
+    ++it;
+    if (it == id_acoes_.rend()) {
+      it = id_acoes_.rbegin();
+    }
+    entidade->AtualizaAcao(*it);
+  }
 }
 
 // privadas

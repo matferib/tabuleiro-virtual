@@ -226,11 +226,10 @@ class Tabuleiro : public ntf::Receptor {
     return mapa_modelos_;
   }
 
-  /** Seleciona o modelo de entidade através do identificador. */
+  /** Seleciona a acao para as entidades selecionadas através do identificador. */
   void SelecionaAcao(const std::string& id_acao);
-
-  /** Acesso ao modelo de entidade selecionado. */
-  const AcaoProto* AcaoSelecionada() const { return acao_selecionada_; }
+  void ProximaAcao();
+  void AcaoAnterior();
 
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }
@@ -564,8 +563,9 @@ class Tabuleiro : public ntf::Receptor {
   std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
 
   /** Ação selecionada (por id). */
-  const AcaoProto* acao_selecionada_;
-  std::unordered_map<std::string, std::unique_ptr<AcaoProto>> mapa_acoes_;
+  typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
+  MapaIdAcao mapa_acoes_;
+  std::vector<std::string> id_acoes_;
 
   const Texturas* texturas_;
 #if USAR_WATCHDOG
