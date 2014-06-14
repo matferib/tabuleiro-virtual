@@ -262,7 +262,7 @@ class TabuleiroRenderer
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      Log.d(TAG, "Evento: " + evento.toString());
+      //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());
