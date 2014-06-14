@@ -86,7 +86,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public boolean onTouchEvent(final MotionEvent event) {
-    if ((event.getActionMasked() & MotionEvent.ACTION_UP) > 0) {
+    if ((event.getActionMasked() & MotionEvent.ACTION_UP) != 0) {
       renderer_.onUp(event);
       if (event.getPointerCount() == 1) {
         // Voltou pro estado inicial.
@@ -258,6 +258,7 @@ class TabuleiroRenderer
       eventos_.clear();
     }
     removeEventosDuplicados(Evento.MOVIMENTO, eventos);
+    removeEventosDuplicados(Evento.DETALHAMENTO, eventos);
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
@@ -604,7 +605,7 @@ class PressureDetector {
 
   public void onTouch(MotionEvent e) {
     //Log.d("TabuleiroRenderer", "Pressure: " + e.getPressure());
-    if (e.getPressure() > 0.25f) {
+    if (e.getPressure() > 0.70f) {
       ouvinte_.onPressure((int)e.getX(), (int)e.getY());
     }
   }
