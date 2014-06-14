@@ -124,20 +124,15 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    Log.d("TabuleiroRenderer", "onKeyDown: " + keyCode);
+    //Log.d("TabuleiroRenderer", "onKeyDown: " + keyCode);
     switch (keyCode) {
-      //case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
-      //case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
-      //  renderer_.onShiftKeyDown(keyCode);
-      //  break;
-      //case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
-      //case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
-      //  renderer_.onCtrlKeyDown(keyCode);
-      //  break;
+      case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
+      case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
       case android.view.KeyEvent.KEYCODE_ALT_LEFT:
       case android.view.KeyEvent.KEYCODE_ALT_RIGHT:
-        renderer_.onMetaKeyDown(keyCode);
-        return true;
+      case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
+      case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
+        return renderer_.onKeyDown(keyCode, event);
       default:
         return false;
     }
@@ -146,23 +141,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
     Log.d("TabuleiroRenderer", "onKeyUp: " + keyCode);
-    switch (keyCode) {
-      //case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
-      //case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
-      //  renderer_.onShiftKeyDown(keyCode);
-      //  break;
-      //case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
-      //case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
-      //  renderer_.onCtrlKeyDown(keyCode);
-      //  break;
-      case android.view.KeyEvent.KEYCODE_ALT_LEFT:
-      case android.view.KeyEvent.KEYCODE_ALT_RIGHT:
-        renderer_.onMetaKeyUp(keyCode);
-        return true;
-      default:
-        return renderer_.onKeyUp(keyCode, event);
-    }
-
+    return renderer_.onKeyUp(keyCode, event);
   }
 
   @Override
@@ -282,7 +261,7 @@ class TabuleiroRenderer
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      //Log.d(TAG, "Evento: " + evento.toString());
+      Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());
@@ -294,7 +273,11 @@ class TabuleiroRenderer
           nativeRotation(evento.rotacao());
           break;
         case Evento.CLIQUE:
-          nativeTouchPressed(evento.x(), evento.y());
+          nativeTouchPressed(false  /*toggle*/, evento.x(), evento.y());
+          nativeTouchReleased();
+          break;
+        case Evento.CLIQUE_ALTERNANTE:
+          nativeTouchPressed(true  /*toggle*/, evento.x(), evento.y());
           nativeTouchReleased();
           break;
         case Evento.CLIQUE_DUPLO:
@@ -304,7 +287,7 @@ class TabuleiroRenderer
           nativeHover(evento.x(), evento.y());
           break;
         case Evento.PRESSIONADO:
-          nativeTouchPressed(evento.x(), evento.y());
+          nativeTouchPressed(false  /*toggle*/, evento.x(), evento.y());
           break;
         case Evento.LIBERADO:
           nativeTouchReleased();
@@ -319,7 +302,10 @@ class TabuleiroRenderer
           nativeKeyboard(evento.tecla(), evento.modificadores());
           break;
         case Evento.ACAO:
-          nativeAction(evento.x(), evento.y());
+          nativeAction(false, evento.x(), evento.y());
+          break;
+        case Evento.ACAO_SINALIZACAO:
+          nativeAction(true, evento.x(), evento.y());
           break;
         default:
       }
@@ -339,13 +325,6 @@ class TabuleiroRenderer
     //Log.d(TAG, "Up");
     eventos_.add(Evento.Liberado());
     carregando_ = false;
-    return true;
-  }
-
-  public boolean onKeyUp(int keyCode, KeyEvent event) {
-    //Log.d(TAG, "Teclado");
-    // TODO modificadores.
-    eventos_.add(Evento.Teclado(keyCode, event.isShiftPressed(), event.isCtrlPressed(), event.isAltPressed()));
     return true;
   }
 
@@ -401,7 +380,17 @@ class TabuleiroRenderer
   @Override
   public boolean onSingleTapConfirmed(MotionEvent event) {
     //Log.d(TAG, "SingleTapConfirmed");
-    eventos_.add(Evento.Clique((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
+    int x = (int)event.getX();
+    int y = (int)(parent_.getHeight() - event.getY());
+    if (metaTeclas_ == 0) {
+      eventos_.add(Evento.Clique(x, y));
+    } else if (((metaTeclas_ & META_CTRL_ESQUERDO) != 0) || ((metaTeclas_ & META_CTRL_DIREITO) != 0)) {
+      eventos_.add(Evento.CliqueAlternante(x, y));
+    } else if ((metaTeclas_ & META_ALT_ESQUERDO) != 0) {
+      eventos_.add(Evento.Acao(x, y));
+    } else if ((metaTeclas_ & META_ALT_DIREITO) != 0) {
+      eventos_.add(Evento.AcaoSinalizacao(x, y));
+    }
     return true;
   }
 
@@ -494,12 +483,47 @@ class TabuleiroRenderer
     eventos_.add(Evento.Acao(somaX, (int)(parent_.getHeight() - somaY)));
   }
 
-  // Meta keys.
-  public void onMetaKeyDown(int keyCode) {
-    nativeMetaKeyboard(true, Evento.teclaNativa(keyCode));
+  // Meta teclas.
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    switch (keyCode) {
+      case android.view.KeyEvent.KEYCODE_ALT_LEFT:
+        metaTeclas_ |= META_ALT_ESQUERDO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_ALT_RIGHT:
+        metaTeclas_ |= META_ALT_DIREITO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
+        Log.d(TAG, "CTRL");
+        metaTeclas_ |= META_CTRL_ESQUERDO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
+        metaTeclas_ |= META_CTRL_DIREITO;
+        return true;
+      default:
+        return false;
+    }
   }
-  public void onMetaKeyUp(int keyCode) {
-    nativeMetaKeyboard(false, Evento.teclaNativa(keyCode));
+
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    //Log.d(TAG, "Teclado");
+    switch (keyCode) {
+      case android.view.KeyEvent.KEYCODE_ALT_LEFT:
+        metaTeclas_ &= ~META_ALT_ESQUERDO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_ALT_RIGHT:
+        metaTeclas_ &= ~META_ALT_DIREITO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
+        metaTeclas_ &= ~META_CTRL_ESQUERDO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
+        metaTeclas_ &= ~META_CTRL_DIREITO;
+        return true;
+      default:
+        // TODO modificadores.
+        eventos_.add(Evento.Teclado(keyCode, event.isShiftPressed(), event.isCtrlPressed(), event.isAltPressed()));
+        return true;
+    }
   }
 
   private static native void nativeInitGl();
@@ -507,9 +531,9 @@ class TabuleiroRenderer
   private static native void nativeRender();
   private static native void nativeTimer();
   private static native void nativeDoubleClick(int x, int y);
-  private static native void nativeTouchPressed(int x, int y);
+  private static native void nativeTouchPressed(boolean toggle, int x, int y);
   private static native void nativeTouchMoved(int x, int y);
-  private static native void nativeAction(int x, int y);
+  private static native void nativeAction(boolean signal, int x, int y);
   private static native void nativeTouchReleased();
   private static native void nativeHover(int x, int y);
   private static native void nativeScale(float s);
@@ -524,6 +548,11 @@ class TabuleiroRenderer
   private boolean carregando_ = false;
   private Resources resources_;
   private boolean lerGiroscopio_ = false;
+  private int metaTeclas_ = 0;
+  private static final int META_ALT_ESQUERDO = 0x1;
+  private static final int META_ALT_DIREITO  = 0x2;
+  private static final int META_CTRL_ESQUERDO = 0x4;
+  private static final int META_CTRL_DIREITO  = 0x8;
 }
 
 // Copiado de:
@@ -628,19 +657,21 @@ class TranslationGestureDetector {
 /** Os tipos de eventos tratados pelo tabuleiro. */
 class Evento {
   public static final int CLIQUE = 1;
-  public static final int CLIQUE_DUPLO = 2;
-  public static final int ESCALA = 3;
-  public static final int TOQUE = 4;
-  public static final int CARREGAR = 5;
-  public static final int DETALHAMENTO = 6;
-  public static final int PRESSIONADO = 7;
-  public static final int LIBERADO = 8;
-  public static final int MOVIMENTO = 9;
-  public static final int ROTACAO = 10;
-  public static final int TRANSLACAO = 11;
-  public static final int INCLINACAO = 12;
-  public static final int TECLADO = 13;
-  public static final int ACAO = 14;
+  public static final int CLIQUE_ALTERNANTE = 2;
+  public static final int CLIQUE_DUPLO = 3;
+  public static final int ESCALA = 4;
+  public static final int TOQUE = 5;
+  public static final int CARREGAR = 6;
+  public static final int DETALHAMENTO = 7;
+  public static final int PRESSIONADO = 8;
+  public static final int LIBERADO = 9;
+  public static final int MOVIMENTO = 10;
+  public static final int ROTACAO = 11;
+  public static final int TRANSLACAO = 12;
+  public static final int INCLINACAO = 13;
+  public static final int TECLADO = 14;
+  public static final int ACAO = 15;
+  public static final int ACAO_SINALIZACAO = 16;
 
   public static Evento Teclado(int tecla, boolean shift, boolean ctrl, boolean alt) {
     Evento evento = new Evento(TECLADO);
@@ -655,6 +686,13 @@ class Evento {
 
   public static Evento Acao(int x,  int y) {
     Evento evento = new Evento(ACAO);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento AcaoSinalizacao(int x,  int y) {
+    Evento evento = new Evento(ACAO_SINALIZACAO);
     evento.x_ = x;
     evento.y_ = y;
     return evento;
@@ -706,6 +744,13 @@ class Evento {
     return evento;
   }
 
+  public static Evento CliqueAlternante(int x,  int y) {
+    Evento evento = new Evento(CLIQUE_ALTERNANTE);
+    evento.x_ = x;
+    evento.y_ = y;
+    return evento;
+  }
+
   public static Evento DuploClique(int x,  int y) {
     Evento evento = new Evento(CLIQUE_DUPLO);
     evento.x_ = x;
@@ -740,6 +785,7 @@ class Evento {
   private String tipoString() {
     switch (tipo_) {
       case CLIQUE: return "CLIQUE";
+      case CLIQUE_ALTERNANTE: return "CLIQUE_ALTERNANTE";
       case CLIQUE_DUPLO: return "CLIQUE_DUPLO";
       case ESCALA: return "ESCALA";
       case TOQUE: return "TOQUE";
@@ -753,6 +799,7 @@ class Evento {
       case INCLINACAO: return "INCLINACAO";
       case TECLADO: return "TECLADO";
       case ACAO: return "ACAO";
+      case ACAO_SINALIZACAO: return "ACAO_SINALIZACAO";
       default: return "INVALIDO";
     }
   }

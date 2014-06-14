@@ -101,12 +101,6 @@ std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<ntf::Receptor> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 
-enum metateclas_e {
-  META_ALT_ESQUERDO = 0x1,
-  META_ALT_DIREITO  = 0x2,
-};
-unsigned int g_meta_teclas_ = 0;
-
 }  // namespace
 
 extern "C" {
@@ -186,20 +180,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDoubleClick(JNIEnv* env
   g_tabuleiro->TrataDuploCliqueEsquerdo(x, y);
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* env, jobject thiz, jint x, jint y) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %d %d, meta: %u", x, y, g_meta_teclas_);
-  //g_tabuleiro->TrataBotaoEsquerdoPressionado(x, y, false);
-  ifg::botoesmouse_e botao = ifg::Botao_Esquerdo;
-  unsigned int modificadores = 0;
-  if ((g_meta_teclas_ & META_ALT_ESQUERDO) != 0) {
-    modificadores |= ifg::Modificador_Alt;
-    botao = ifg::Botao_Esquerdo;
-  }
-  if ((g_meta_teclas_ & META_ALT_DIREITO) != 0) {
-    modificadores |= ifg::Modificador_Alt;
-    botao = ifg::Botao_Direito;
-  }
-  g_teclado_mouse->TrataBotaoMousePressionado(botao, modificadores, x, y);
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* env, jobject thiz, jboolean toggle, jint x, jint y) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchPressed: %d %d", x, y);
+  g_teclado_mouse->TrataBotaoMousePressionado(ifg::Botao_Esquerdo, toggle ? ifg::Modificador_Ctrl : 0, x, y);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env, jobject thiz, jint x, jint y) {
@@ -246,34 +229,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeKeyboard(
                                          static_cast<ifg::modificadores_e>(modifiers));
 }
 
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeMetaKeyboard(
-    JNIEnv* env, jobject thiz, jboolean pressionado, jint key) {
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeMetaKeyboard: %d", key);
-  switch (key) {
-    case ifg::Tecla_AltEsquerdo:
-      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeMetaKeyboard: alt esquerdo");
-      if (pressionado) {
-        g_meta_teclas_ |= META_ALT_ESQUERDO;
-      } else {
-        g_meta_teclas_ &= ~META_ALT_ESQUERDO;
-      }
-      return;
-    case ifg::Tecla_AltDireito:
-      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeMetaKeyboard: alt direito");
-      if (pressionado) {
-        g_meta_teclas_ |= META_ALT_DIREITO;
-      } else {
-        g_meta_teclas_ &= ~META_ALT_DIREITO;
-      }
-      return;
-    default:
-      ;
-  }
-}
-
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeAction(JNIEnv* env, jobject thiz, jint x, jint y) {
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeAction(JNIEnv* env, jobject thiz, jboolean signal, jint x, jint y) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeHover: %d %d", x, y);
-  g_tabuleiro->TrataBotaoAcaoPressionado(true, x, y);
+  g_teclado_mouse->TrataBotaoMousePressionado(signal ? ifg::Botao_Direito: ifg::Botao_Esquerdo, ifg::Modificador_Alt, x, y);
 }
 
 // Render.

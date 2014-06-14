@@ -25,7 +25,7 @@
 #define ARQUIVO_MODELOS "modelos.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
 
-#if OPENGL_ES
+#if USAR_OPENGL_ES
 #define ATUALIZACOES_POR_SEGUNDO 30.0f
 #else
 #define ATUALIZACOES_POR_SEGUNDO 60.0f
