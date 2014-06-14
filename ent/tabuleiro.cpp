@@ -948,6 +948,18 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_DESLIZANDO: {
+      // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
+      gl::ModoMatriz(GL_MODELVIEW);
+      gl::CarregaIdentidade();
+      const Posicao& alvo = olho_.alvo();
+      gl::OlharPara(
+          // from.
+          olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
+          // to.
+          alvo.x(), alvo.y(), alvo.z(),
+          // up
+          0, 0, 1.0);
+
       // Faz picking do tabuleiro sem entidades.
       float nx, ny, nz;
       if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
