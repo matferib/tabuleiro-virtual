@@ -148,9 +148,6 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         acao->setData(QVariant::fromValue(QString(acao_it.first.c_str())));
         grupo_menu->addAction(acao);
         menu->addAction(acao);
-        if (acao_it.second == tabuleiro->AcaoSelecionada()) {
-          acao->setChecked(true);
-        }
       }
       connect(menu, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoAcoes(QAction*)));
     } else if (controle_menu == ME_DESENHO) {
