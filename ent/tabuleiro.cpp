@@ -152,7 +152,9 @@ const std::string StringEstado(ent::etab_t estado) {
 // Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
 const std::string StringSemUtf8(const std::string& id_acao) {
   std::string ret(id_acao);
+#if USAR_OPENGL_ES
   std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+#endif
   const static std::map<std::string, std::string> mapa = {
     { "á", "a" },
     { "ã", "a" },
@@ -3284,9 +3286,7 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
     id_acao.assign(ID_ACAO_ATAQUE_CORPO_A_CORPO);
   }
   id_acao = "Ação: " + id_acao;
-#if USAR_OPENGL_ES
   id_acao = StringSemUtf8(id_acao);
-#endif
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
