@@ -1,5 +1,9 @@
 #include <string>
 
+#if ANDROID
+#include <android/asset_manager_jni.h>
+#endif
+
 // As funcoes abaixo servem de wrapper sobre a camada de arquivos dos diversos dispositivos.
 // Por exemplo, no Mac os arquivos devem ser escritos no diretorio do usuario e lidos do diretorio
 // do bundle. No Linux le do diretorio da aplicacao. No windows tambem, mas deveria usar o registro.
@@ -19,6 +23,10 @@ enum tipo_e {
   TIPO_DADOS,
   TIPO_TABULEIRO
 };
+
+#if ANDROID
+void Inicializa(JNIEnv* env, jobject assets);
+#endif
 
 // Interface de escrita.
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);

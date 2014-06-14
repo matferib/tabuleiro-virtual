@@ -237,7 +237,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
 }
 
 void TratadorTecladoMouse::TrataBotaoMousePressionado(
-    botoesmouse_e botao, modificadores_e modificadores, int x, int y) {
+    botoesmouse_e botao, unsigned int modificadores, int x, int y) {
   MudaEstado(ESTADO_OUTRO);
   if (modificadores == Modificador_Alt) {
     // Acao padrao eh usada quando o botao eh o direito.

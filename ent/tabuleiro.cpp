@@ -273,6 +273,8 @@ void Tabuleiro::EstadoInicial() {
   CorParaProto(COR_BRANCA, &forma_cor_);
   // Tempo renderizacao.
   tempos_renderizacao_.clear();
+  // Modo de acao.
+  modo_acao_ = false;
 }
 
 void Tabuleiro::Desenha() {
@@ -3353,6 +3355,10 @@ void Tabuleiro::AlternaModoDebug() {
   gl::AlternaModoDebug();
 #endif
   modo_debug_ = !modo_debug_;
+}
+
+void Tabuleiro::AlternaModoAcao() {
+  modo_acao_ = !modo_acao_;
 }
 
 }  // namespace ent

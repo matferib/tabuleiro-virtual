@@ -34,6 +34,8 @@ enum teclas_e {
   Tecla_Baixo = 0x01000015,
   Tecla_Esquerda = 0x01000012,
   Tecla_Direita = 0x01000014,
+  Tecla_AltEsquerdo = 57,
+  Tecla_AltDireito = 58,
   Tecla_A = 0x41,
   Tecla_C = 0x43,
   Tecla_D = 0x44,
@@ -68,7 +70,8 @@ class TratadorTecladoMouse : public ntf::Receptor {
   ~TratadorTecladoMouse();
 
   void TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores);
-  void TrataBotaoMousePressionado(botoesmouse_e botao, modificadores_e modificadores, int x, int y);
+
+  void TrataBotaoMousePressionado(botoesmouse_e botao, unsigned int modificadores, int x, int y);
   void TrataMovimentoMouse(int x, int y);
   void TrataDuploCliqueMouse(botoesmouse_e botao, modificadores_e modificadores, int x, int y);
   void TrataBotaoMouseLiberado();

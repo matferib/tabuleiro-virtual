@@ -5,6 +5,12 @@
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
 
+#if ANDROID
+#include <cstring>
+#include <android/asset_manager_jni.h>
+#include <android/log.h>
+#endif
+
 namespace arq {
 
 namespace {
@@ -29,6 +35,70 @@ const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
 }
 
 }  // namespace
+
+#if ANDROID
+
+namespace {
+AAssetManager* g_aman = nullptr;
+}  // namespace
+
+void Inicializa(JNIEnv* env, jobject assets) {
+  g_aman = AAssetManager_fromJava(env, assets);;
+}
+
+// Escrita.
+void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
+  throw std::logic_error(std::string("Não implementado"));
+}
+
+void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
+  throw std::logic_error(std::string("Não implementado"));
+}
+
+// Leitura.
+void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
+  std::string caminho_asset(CaminhoArquivo(tipo, nome_arquivo));
+  AAsset* asset = nullptr;
+  try {
+    asset = AAssetManager_open(g_aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
+    if (asset == nullptr) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
+      throw 1;
+    }
+    off_t tam = AAsset_getLength(asset);
+    if (tam <= 0) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha com tamanho do asset: %ld", tam);
+      throw 2;
+    }
+    __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido '%s', tamnho '%ld'", nome_arquivo.c_str(), tam);
+    std::vector<char> vetor_dados;
+    vetor_dados.resize(tam);
+    memcpy(vetor_dados.data(), AAsset_getBuffer(asset), tam);
+    dados->assign(vetor_dados.begin(), vetor_dados.end());
+  } catch (...) {
+  }
+  if (asset != nullptr) {
+    AAsset_close(asset);
+  }
+}
+
+void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
+  std::string dados;
+  LeArquivo(tipo, nome_arquivo, &dados);
+  if (!google::protobuf::TextFormat::ParseFromString(dados, mensagem)) {
+    throw std::logic_error(std::string("Erro de parse do arquivo ") + nome_arquivo);
+  }
+}
+
+void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
+  std::string dados;
+  LeArquivo(tipo, nome_arquivo, &dados);
+  if (!mensagem->ParseFromString(dados)) {
+    throw std::logic_error(std::string("Erro de parse do arquivo ") + nome_arquivo);
+  }
+}
+
+#else
 
 // Escrita.
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
@@ -71,5 +141,7 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
     throw std::logic_error(std::string("Erro lendo arquivo: ") + caminho_arquivo);
   }
 }
+
+#endif
 
 }  // namespace arq
