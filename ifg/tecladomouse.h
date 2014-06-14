@@ -52,6 +52,7 @@ enum teclas_e {
   Tecla_Y = 0x59,
   Tecla_Z = 0x5a,
   Tecla_Tab = 0x01000001,
+  Tecla_TabInvertido = 0x01000002,
 };
 
 enum modificadores_e {

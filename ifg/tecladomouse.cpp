@@ -233,10 +233,15 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     case Tecla_Tab:
       if (modificadores == Modificador_Shift) {
+        // No android, shift tab eh tab.
         tabuleiro_->AcaoAnterior();
       } else {
         tabuleiro_->ProximaAcao();
       }
+      return;
+    case Tecla_TabInvertido:
+      // No qt, shift tab vira uma tecla.
+      tabuleiro_->AcaoAnterior();
       return;
     default:
       LOG(INFO) << "Tecla nao reconhecida: " << tecla;

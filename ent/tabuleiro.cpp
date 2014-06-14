@@ -149,6 +149,32 @@ const std::string StringEstado(ent::etab_t estado) {
   }
 }
 
+// Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
+const std::string StringSemUtf8(const std::string& id_acao) {
+  std::string ret(id_acao);
+  std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
+  const static std::map<std::string, std::string> mapa = {
+    { "á", "a" },
+    { "ã", "a" },
+    { "â", "a" },
+    { "é", "e" },
+    { "ê", "e" },
+    { "í", "i" },
+    { "ç", "c" },
+    { "ô", "o" },
+    { "ó", "o" },
+    { "õ", "o" },
+  };
+  for (const auto& it_mapa : mapa) {
+    auto it = ret.find(it_mapa.first);
+    while (it != std::string::npos) {
+      ret.replace(it, it_mapa.first.size(), it_mapa.second);
+      it = ret.find(it_mapa.first);
+    }
+  }
+  return ret;
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central) :
@@ -1547,6 +1573,11 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
   }
+  // TODO usar outra constante.
+  if (parametros_desenho_.desenha_lista_pontos_vida()) {
+    DesenhaIdAcaoEntidade();
+  }
+
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -3227,6 +3258,53 @@ void Tabuleiro::DesenhaListaPontosVida() {
       snprintf(str, 4, "%d", abs(pv));
       gl::DesenhaStringAlinhadoDireita(str);
     }
+  }
+}
+
+void Tabuleiro::DesenhaIdAcaoEntidade() {
+  if (ids_entidades_selecionadas_.size() == 0) {
+    return;
+  }
+  std::string id_acao;
+  bool achou = false;
+  for (const auto& id_entidade : ids_entidades_selecionadas_) {
+    const Entidade* entidade = BuscaEntidade(id_entidade);
+    if (entidade == nullptr) {
+      continue;
+    }
+    if (!achou) {
+      id_acao.assign(entidade->Acao());
+      achou = true;
+    } else if (id_acao != entidade->Acao()) {
+      id_acao.assign("acoes diferem");
+      break;
+    }
+  }
+  if (id_acao.empty()) {
+    id_acao.assign(ID_ACAO_ATAQUE_CORPO_A_CORPO);
+  }
+  id_acao = "Ação: " + id_acao;
+#if USAR_OPENGL_ES
+  id_acao = StringSemUtf8(id_acao);
+#endif
+
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  // Modo 2d: eixo com origem embaixo esquerda.
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+
+  {
+    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::CarregaIdentidade();
+    int largura_fonte, altura_fonte;
+    gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+
+    int raster_y = altura_ - altura_fonte;
+    int raster_x = largura_ / 2;
+    gl::PosicaoRaster(raster_x, raster_y);
+    MudaCor(COR_BRANCA);
+    gl::DesenhaString(id_acao);
   }
 }
 
