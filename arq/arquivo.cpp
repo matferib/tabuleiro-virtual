@@ -112,7 +112,7 @@ void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, cons
 
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
   std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ofstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
+  std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
   if (!mensagem.SerializeToOstream(&arquivo)) {
     throw std::logic_error(std::string("Erro escrevendo arquivo: ") + caminho_arquivo);
   }
