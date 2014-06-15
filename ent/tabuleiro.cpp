@@ -1462,7 +1462,8 @@ void Tabuleiro::DesenhaCena() {
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
     gl::Habilita(GL_LIGHT0);
 
-    if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa()) {
+    if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa() &&
+        (!modo_mestre_ || opcoes_.iluminacao_mestre_igual_jogadores())) {
       gl::Habilita(GL_FOG);
       gl::ModoNevoa(GL_LINEAR);
       gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
