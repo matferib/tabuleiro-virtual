@@ -1,6 +1,5 @@
-Versao 1.4.4
-- Letras maiusculas.
-- Criacao de entidades no tablet (duplo clique esta detalhando entidades).
+Versao 1.4.5
+- Mais letras maiusculas.
 
 Versao 1.5
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
