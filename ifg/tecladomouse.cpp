@@ -145,6 +145,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     return;
   }
   switch (tecla) {
+    case Tecla_Backspace:
     case Tecla_Delete:
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
       return;
@@ -336,7 +337,7 @@ bool TratadorTecladoMouse::TrataNotificacao(const ntf::Notificacao& notificacao)
   return true;
 }
 
-void TratadorTecladoMouse::TrataDuploCliqueMouse(botoesmouse_e botao, modificadores_e modificadores, int x, int y) {
+void TratadorTecladoMouse::TrataDuploCliqueMouse(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
   if (botao == Botao_Esquerdo) {
     tabuleiro_->TrataDuploCliqueEsquerdo(x, y);
   } else if (botao == Botao_Direito) {

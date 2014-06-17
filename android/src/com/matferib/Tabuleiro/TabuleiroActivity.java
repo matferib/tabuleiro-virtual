@@ -368,7 +368,13 @@ class TabuleiroRenderer
   @Override
   public boolean onDoubleTap(MotionEvent event) {
     //Log.d(TAG, "DoubleTap");
-    eventos_.add(Evento.DuploClique((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
+    int x = (int)event.getX();
+    int y = (int)(parent_.getHeight() - event.getY());
+    if (((metaTeclas_ & META_SHIFT_ESQUERDO) != 0) || ((metaTeclas_ & META_SHIFT_DIREITO) != 0)) {
+      eventos_.add(Evento.Detalhamento(x, y));
+    } else {
+      eventos_.add(Evento.DuploClique(x, y));
+    }
     return true;
   }
 
@@ -494,11 +500,16 @@ class TabuleiroRenderer
         metaTeclas_ |= META_ALT_DIREITO;
         return true;
       case android.view.KeyEvent.KEYCODE_CTRL_LEFT:
-        Log.d(TAG, "CTRL");
         metaTeclas_ |= META_CTRL_ESQUERDO;
         return true;
       case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
         metaTeclas_ |= META_CTRL_DIREITO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
+        metaTeclas_ |= META_SHIFT_ESQUERDO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
+        metaTeclas_ |= META_SHIFT_DIREITO;
         return true;
       default:
         return false;
@@ -519,6 +530,12 @@ class TabuleiroRenderer
         return true;
       case android.view.KeyEvent.KEYCODE_CTRL_RIGHT:
         metaTeclas_ &= ~META_CTRL_DIREITO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_SHIFT_LEFT:
+        metaTeclas_ &= ~META_SHIFT_ESQUERDO;
+        return true;
+      case android.view.KeyEvent.KEYCODE_SHIFT_RIGHT:
+        metaTeclas_ &= ~META_SHIFT_DIREITO;
         return true;
       default:
         // TODO modificadores.
@@ -554,6 +571,8 @@ class TabuleiroRenderer
   private static final int META_ALT_DIREITO  = 0x2;
   private static final int META_CTRL_ESQUERDO = 0x4;
   private static final int META_CTRL_DIREITO  = 0x8;
+  private static final int META_SHIFT_ESQUERDO = 0x10;
+  private static final int META_SHIFT_DIREITO  = 0x20;
 }
 
 // Copiado de:
