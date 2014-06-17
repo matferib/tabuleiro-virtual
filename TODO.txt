@@ -1,3 +1,8 @@
+Versao 1.4.4
+- Criacao de entidades no tablet (duplo clique esta detalhando entidades).
+- Centralizacao da vista quando se perde a visao do tabuleiro (reset de camera).
+- Adicionar fogo grego e acido as acoes.
+
 Versao 1.5
 - Entender o problema do detector de pressao com a pinca.
 - Externalizar o tabuleiro da interface, passar como parametro.
