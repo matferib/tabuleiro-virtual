@@ -584,7 +584,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     case ntf::TN_REINICIAR_CAMERA:
       ReiniciaCamera();
-      break;
+      return true;
     case ntf::TN_RESPOSTA_CONEXAO:
       if (!notificacao.has_erro()) {
         ModoJogador();
@@ -738,9 +738,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
-    default:
-      return false;
+    default: ;
   }
+  return false;
 }
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
@@ -1115,7 +1115,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     float atraso_segundos = 0;
     for (auto id_selecionado : ids_entidades_selecionadas_) {
       Entidade* entidade = BuscaEntidade(id_selecionado);
-      if (entidade == nullptr) {
+      if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
       std::string ultima_acao = entidade->Proto().ultima_acao().empty() ?
@@ -1594,7 +1594,6 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaIdAcaoEntidade();
   }
-
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -3279,14 +3278,11 @@ void Tabuleiro::DesenhaListaPontosVida() {
 }
 
 void Tabuleiro::DesenhaIdAcaoEntidade() {
-  if (ids_entidades_selecionadas_.size() == 0) {
-    return;
-  }
   std::string id_acao;
   bool achou = false;
   for (const auto& id_entidade : ids_entidades_selecionadas_) {
     const Entidade* entidade = BuscaEntidade(id_entidade);
-    if (entidade == nullptr) {
+    if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
       continue;
     }
     if (!achou) {
@@ -3296,6 +3292,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       id_acao.assign("acoes diferem");
       break;
     }
+  }
+  if (!achou) {
+    return;
   }
   if (id_acao.empty()) {
     id_acao.assign(ID_ACAO_ATAQUE_CORPO_A_CORPO);
