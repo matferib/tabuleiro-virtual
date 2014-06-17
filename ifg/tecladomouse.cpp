@@ -1,5 +1,6 @@
 #include "ifg/tecladomouse.h"
 #include "ent/acoes.h"
+#include "ent/constantes.h"
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
@@ -8,8 +9,11 @@ namespace ifg {
 namespace {
 
 // Temporizadores * 10ms.
-const int MAX_TEMPORIZADOR_TECLADO = 300;
-const int MAX_TEMPORIZADOR_MOUSE = 100;
+const float MAX_TEMPORIZADOR_TECLADO_S = 3;
+const float  MAX_TEMPORIZADOR_MOUSE_S = 1;
+
+const float MAX_TEMPORIZADOR_TECLADO = MAX_TEMPORIZADOR_TECLADO_S * ATUALIZACOES_POR_SEGUNDO;
+const float MAX_TEMPORIZADOR_MOUSE = MAX_TEMPORIZADOR_MOUSE_S * ATUALIZACOES_POR_SEGUNDO;
 
 int CalculaDanoSimples(const std::vector<teclas_e>::const_iterator& inicio_teclas_normal,
                        const std::vector<teclas_e>::const_iterator& fim_teclas_normal) {
