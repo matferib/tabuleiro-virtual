@@ -500,6 +500,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna quais unidades sao afetadas por determinada acao. */
   const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);
 
+  /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
+  void ReiniciaCamera();
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;

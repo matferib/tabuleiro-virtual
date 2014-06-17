@@ -39,7 +39,7 @@ const char* g_menuitem_strs[] = {
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
-      "&Reiniciar", "&Salvar", "R&estaurar", "Res&taurar mantendo Entidades", g_fim,
+      "&Reiniciar", "&Salvar", "R&estaurar", "Res&taurar mantendo Entidades", "Re&iniciar Câmera", g_fim,
   // Entidades.
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.
@@ -301,7 +301,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR] ||
-             acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_SEM_ENTIDADES]) {
+             acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                     tr("Abrir tabuleiro"),
                                                     DIR_TABULEIROS);
@@ -310,10 +310,12 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       return;
     }
     notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_SEM_ENTIDADES]) {
+    if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
       notificacao->mutable_tabuleiro()->set_manter_entidades(true);
     }
     notificacao->set_endereco(file_str.toStdString());
+  } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {

@@ -166,6 +166,14 @@ const std::string StringSemUtf8(const std::string& id_acao) {
     { "ô", "o" },
     { "ó", "o" },
     { "õ", "o" },
+    { "Á", "A" },
+    { "Â", "A" },
+    { "É", "E" },
+    { "Ê", "E" },
+    { "Í", "I" },
+    { "Ç", "C" },
+    { "Ô", "O" },
+    { "Ó", "O" },
   };
   for (const auto& it_mapa : mapa) {
     auto it = ret.find(it_mapa.first);
@@ -264,16 +272,7 @@ void Tabuleiro::EstadoInicial() {
   proto_.mutable_luz_direcional()->set_posicao_graus(0.0f);
   proto_.mutable_luz_direcional()->set_inclinacao_graus(45.0f);
   // Olho.
-  auto* pos = olho_.mutable_alvo();
-  pos->set_x(0.0f);
-  pos->set_y(0.0f);
-  pos->set_z(0.0f);
-  // Olho sempre comeca olhando do sul (-pi/2).
-  olho_.set_rotacao_rad(-M_PI / 2.0f);
-  olho_.set_altura(OLHO_ALTURA_INICIAL);
-  olho_.set_raio(OLHO_RAIO_INICIAL);
-  olho_.clear_destino();
-  AtualizaOlho(true  /*forcar*/);
+  ReiniciaCamera();
 
   // Valores iniciais.
   ultimo_x_ = ultimo_y_ = 0;
@@ -583,6 +582,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       processando_grupo_ = false;
       return true;
+    case ntf::TN_REINICIAR_CAMERA:
+      ReiniciaCamera();
+      break;
     case ntf::TN_RESPOSTA_CONEXAO:
       if (!notificacao.has_erro()) {
         ModoJogador();
@@ -3500,6 +3502,19 @@ void Tabuleiro::AlternaModoDebug() {
 
 void Tabuleiro::AlternaModoAcao() {
   modo_acao_ = !modo_acao_;
+}
+
+void Tabuleiro::ReiniciaCamera() {
+  auto* pos = olho_.mutable_alvo();
+  pos->set_x(0.0f);
+  pos->set_y(0.0f);
+  pos->set_z(0.0f);
+  // Olho sempre comeca olhando do sul (-pi/2).
+  olho_.set_rotacao_rad(-M_PI / 2.0f);
+  olho_.set_altura(OLHO_ALTURA_INICIAL);
+  olho_.set_raio(OLHO_RAIO_INICIAL);
+  olho_.clear_destino();
+  AtualizaOlho(true  /*forcar*/);
 }
 
 }  // namespace ent
