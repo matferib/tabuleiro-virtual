@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
-    <height>509</height>
+    <width>428</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>460</y>
+     <y>500</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -292,7 +292,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>390</y>
+     <y>430</y>
      <width>177</width>
      <height>20</height>
     </rect>
@@ -308,7 +308,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>420</y>
+     <y>460</y>
      <width>201</width>
      <height>20</height>
     </rect>
@@ -428,6 +428,38 @@
       </property>
       <property name="maximum">
        <number>999</number>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_4">
+   <property name="geometry">
+    <rect>
+     <x>190</x>
+     <y>380</y>
+     <width>221</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <item>
+     <widget class="QCheckBox" name="checkbox_luz">
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="text">
+       <string>Possui Luz</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="botao_luz">
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string>Escolher Cor da Luz</string>
       </property>
      </widget>
     </item>

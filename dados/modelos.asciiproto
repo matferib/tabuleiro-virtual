@@ -12,6 +12,10 @@ modelo {
   entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
 }
 modelo {
+  id: 'Centopéia Imensa'
+  entidade { dados_vida: '12d8+12' tamanho: TM_IMENSO achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+}
+modelo {
   id: 'Demônio Vrock'
   entidade { dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 } }
 }
@@ -21,7 +25,7 @@ modelo {
 }
 modelo {
   id: 'Enxame (centopéias)'
-  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
 modelo {
   id: 'Esqueleto (Humano Combatente)'

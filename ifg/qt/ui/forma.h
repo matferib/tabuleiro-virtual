@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'forma.ui'
 **
-** Created: Sun May 18 13:58:40 2014
-**      by: Qt User Interface Compiler version 4.8.1
+** Created
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -76,12 +76,16 @@ public:
     QSpinBox *spin_pontos_vida;
     QLabel *label_10;
     QSpinBox *spin_max_pontos_vida;
+    QWidget *horizontalLayoutWidget_4;
+    QHBoxLayout *horizontalLayout_3;
+    QCheckBox *checkbox_luz;
+    QPushButton *botao_luz;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(417, 509);
+        ifg__qt__DialogoForma->resize(428, 560);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(100, 10, 181, 41));
@@ -101,7 +105,7 @@ public:
 
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 460, 341, 32));
+        botoes->setGeometry(QRect(40, 500, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
@@ -224,11 +228,11 @@ public:
         label_2->setGeometry(QRect(190, 50, 111, 16));
         checkbox_selecionavel = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
-        checkbox_selecionavel->setGeometry(QRect(200, 390, 177, 20));
+        checkbox_selecionavel->setGeometry(QRect(200, 430, 177, 20));
         checkbox_visibilidade = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
         checkbox_visibilidade->setEnabled(true);
-        checkbox_visibilidade->setGeometry(QRect(200, 420, 201, 20));
+        checkbox_visibilidade->setGeometry(QRect(200, 460, 201, 20));
         QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
@@ -304,6 +308,24 @@ public:
 
         horizontalLayout_13->addWidget(spin_max_pontos_vida);
 
+        horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoForma);
+        horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
+        horizontalLayoutWidget_4->setGeometry(QRect(190, 380, 221, 41));
+        horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_4);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
+        checkbox_luz = new QCheckBox(horizontalLayoutWidget_4);
+        checkbox_luz->setObjectName(QString::fromUtf8("checkbox_luz"));
+        checkbox_luz->setLayoutDirection(Qt::RightToLeft);
+
+        horizontalLayout_3->addWidget(checkbox_luz);
+
+        botao_luz = new QPushButton(horizontalLayoutWidget_4);
+        botao_luz->setObjectName(QString::fromUtf8("botao_luz"));
+        botao_luz->setStyleSheet(QString::fromUtf8(""));
+
+        horizontalLayout_3->addWidget(botao_luz);
+
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -332,6 +354,8 @@ public:
         label_9->setText(QApplication::translate("ifg::qt::DialogoForma", "Alfa", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("ifg::qt::DialogoForma", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0, QApplication::UnicodeUTF8));
+        checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Possui Luz", 0, QApplication::UnicodeUTF8));
+        botao_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

@@ -323,6 +323,31 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
   gerador.slider_alfa->setValue(static_cast<int>(ent_cor.cor().a() * 100.0f));
+  // Luz.
+  ent::EntidadeProto luz_cor;
+  if (entidade.has_luz()) {
+    luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
+    gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
+  } else {
+    ent::Cor branco;
+    branco.set_r(1.0f);
+    branco.set_g(1.0f);
+    branco.set_b(1.0f);
+    luz_cor.mutable_cor()->CopyFrom(branco);
+    gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
+  }
+  gerador.checkbox_luz->setCheckState(entidade.has_luz() ? Qt::Checked : Qt::Unchecked);
+  lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
+    QColor cor =
+        QColorDialog::getColor(ProtoParaCor(luz_cor.cor()), dialogo, QObject::tr("Cor da luz"));
+    if (!cor.isValid()) {
+      return;
+    }
+    luz_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
+    gerador.botao_luz->setStyleSheet(CorParaEstilo(cor));
+    gerador.checkbox_luz->setCheckState(Qt::Checked);
+  });
+
   // Rotacao em Z.
   gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
   // Translacao em Z.
@@ -334,13 +359,18 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
-                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor ] () {
+                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor ] () {
     if (gerador.spin_max_pontos_vida->value() > 0) {
       proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
       proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     } else {
       proto_retornado->clear_max_pontos_vida();
       proto_retornado->clear_pontos_vida();
+    }
+    if (gerador.checkbox_luz->checkState() == Qt::Checked) {
+      proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
+    } else {
+      proto_retornado->clear_luz();
     }
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
