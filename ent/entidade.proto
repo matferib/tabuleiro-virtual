@@ -1,0 +1,191 @@
+package ent;
+
+enum TipoEntidade {
+  TE_ENTIDADE = 0;
+  TE_FORMA = 1;
+  TE_COMPOSTA = 10;
+}
+
+// A ordem dos valores da enum deste proto eh importante, porque eh usada para construir o menu de desenho.
+enum TipoForma {
+  TF_CILINDRO = 0;
+  TF_CIRCULO = 1;
+  TF_CONE = 2;
+  TF_CUBO = 3;
+  TF_ESFERA = 4;
+  TF_LIVRE = 5;
+  TF_PIRAMIDE = 6;
+  TF_RETANGULO = 7;
+}
+
+enum TamanhoEntidade {
+  TM_MINUSCULO = 0;
+  TM_DIMINUTO = 1;
+  TM_MIUDO = 2;
+  TM_PEQUENO = 3;
+  TM_MEDIO = 4;
+  TM_GRANDE = 5;
+  TM_ENORME = 6;
+  TM_IMENSO = 7;
+  TM_COLOSSAL = 8;
+}
+
+enum ResultadoSalvacao {
+  RS_FALHOU = 0;
+  RS_MEIO = 1;
+  RS_ANULOU = 2;
+}
+
+message Posicao {
+  optional float x = 3;
+  optional float y = 4;
+  optional float z = 5;
+}
+
+message Cor {
+  optional float r = 1 [default=0.0];
+  optional float g = 2 [default=0.0];
+  optional float b = 3 [default=0.0];
+  optional float a = 4 [default=1.0];
+}
+
+message IluminacaoPontual {
+  optional Cor cor = 1;
+  optional float raio = 2;
+  optional float atenuacao = 3;
+}
+
+message InfoTextura {
+  // Identificador da textura. Normalmente o nome do arquivo.
+  optional string id = 1;
+  // Os campos abaixo so sao usados para texturas nao globais.
+  // Largura em pixels.
+  optional int32 largura = 2;
+  // Altura em pixels.
+  optional int32 altura = 3;
+  // Formato QT da textura.
+  optional int32 formato = 4;
+  // Os bits da textura.
+  optional bytes bits = 5;
+}
+
+// A escala nos tres eixos.
+message Escala {
+  optional float x = 1 [default=1.0];
+  optional float y = 2 [default=1.0];
+  optional float z = 3 [default=1.0];
+}
+
+message EntidadeProto {
+  // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
+  optional TipoEntidade tipo = 1;
+  optional TipoForma sub_tipo = 18;
+  // Identificador global da entidade composto pelo id_criador << 28 | id_local.
+  // Portanto, o maximo de jogadores é 16. É importante que o identificador da entidade caiba em
+  // um GLuint para permitir realização da operação de picking no 3d.
+  optional uint32 id = 2;
+  // Pontos de vida da entidade.
+  optional int32 pontos_vida = 11;
+  // Maximo de pontos de vida da entidade.
+  optional int32 max_pontos_vida = 12;
+  // Exemplo: 4d8 + 8.
+  optional string dados_vida = 19;
+  // Para os jogadores poderem se identificar.
+  optional string rotulo = 20;
+  // Os varios tamanhos de uma entidade no tabuleiro. */
+  optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
+  // Se verdadeiro, objeto sera desenhado de forma achatada.
+  optional bool achatado = 17 [default=false];
+  // Posicao atual da entidade.
+  optional Posicao pos = 4;
+  // Para formas (exceto translacao).
+  repeated Posicao ponto = 21;
+  optional Escala escala = 22;
+  optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
+  optional float translacao_z = 24;  // translacao do objeto em Z.
+  repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
+
+  // Destino da entidade.
+  optional Posicao destino = 5;
+  // Cor da entidade.
+  optional Cor cor = 6;
+  // Iluminação da entidade.
+  optional IluminacaoPontual luz = 7;
+  // Textura.
+  optional InfoTextura info_textura = 8;
+  // Aura em quadrados.
+  optional int32 aura = 9;
+  // Visibilidade. Apenas o dono pode ver.
+  optional bool visivel = 10 [default=true];
+  // Verdadeiro se a entidade for voadora.
+  optional bool voadora = 13 [default=false];
+  // Entidade esta caida.
+  optional bool caida = 14 [default=false];
+  // Entidade esta morta.
+  optional bool morta = 15 [default=false];
+  // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
+  optional bool selecionavel_para_jogador = 16 [default=true];
+  // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
+  optional string ultima_acao = 26;
+  // Resultado da proxima salvacao da entidade.
+  optional ResultadoSalvacao proxima_salvacao = 27;
+}
+
+// Alguns estados são mantidos nesta variável.
+message ParametrosDesenho {
+  // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
+  optional int32 luz_corrente = 1 [default=1];
+  // OpenGL permite até 8 luzes simultaneas.
+  optional int32 max_num_luzes = 2 [default=8];
+  // Usado para fazer sliding: a gente cria um plano na altura do click inicial para fazer o movimento
+  // paralelo ao plano XY.
+  optional float offset_terreno = 3 [default=0];
+  // Verdadeiro quando se esta desenhando a entidade selecionada.
+  optional bool entidade_selecionada = 4 [default=false];
+  // Verdadeiro quando se quer desenhar as luzes.
+  optional bool iluminacao = 5 [default=true];
+  // Verdadeiro quando se quer desenhar as entidades e as formas.
+  optional bool desenha_entidades = 6 [default=true];
+  // Verdadeiro para desenhar texturas.
+  optional bool desenha_texturas = 7 [default=true];
+  // Desenha a grade do tabuleiro.
+  optional bool desenha_grade = 8 [default=true];
+  // Desenha a aura das entidades.
+  optional bool desenha_aura = 9 [default=true];
+  // Desenha o indicador de FPS.
+  optional bool desenha_fps = 10 [default=false];
+  // Operacao de limpeza eh cara, alguns modos nao precisam dela.
+  optional bool limpa_fundo = 11 [default=true];
+  // Usar transparencia.
+  optional bool transparencias = 12 [default=true];
+  // Desenhar sombras.
+  optional bool desenha_sombras = 13 [default=true];
+  // Modo de desenho.
+  optional bool modo_mestre = 14 [default=true];
+  // Alfa para translucidos.
+  optional float alfa_translucidos = 15 [default=0.5];
+  // Caso verdadeiro, a textura sempre ficara de frente para a camera.
+  optional bool texturas_sempre_de_frente = 16 [default=true];
+  // Posicao do olho.
+  optional Posicao pos_olho = 17;
+  // Desenhar acoes de jogadores.
+  optional bool desenha_acoes = 18 [default=true];
+  // Se verdadeiro, desenha a barra de vida da entidade.
+  optional bool desenha_barra_vida = 19 [default=false];
+  // Se verdadeiro, desenha a lista de pontos de vida.
+  optional bool desenha_lista_pontos_vida = 20 [default=true];
+  // Se verdadeiro, desenha o quadrado de selecao.
+  optional bool desenha_quadrado_selecao = 21 [default=true];
+  // Se verdadeiro, desenha o rastro de movimento das unidades ao se moverem.
+  optional bool desenha_rastro_movimento = 22 [default=true];
+  // Se verdadeiro, as texturas serao viradas sempre para cima.
+  optional bool desenha_texturas_para_cima = 23 [default=false];
+  // Se verdadeiro, desenha a forma selecionada.
+  optional bool desenha_forma_selecionada = 24 [default=true];
+  // Se verdadeiro, desenha a rosa dos ventos.
+  optional bool desenha_rosa_dos_ventos = 25 [default=true];
+  // Se verdadeiro, desenha os pontos de rolagem do tabuleiro.
+  optional bool desenha_pontos_rolagem = 26 [default=true];
+  // Se verdadeiro, aplica efeito de nevoa.
+  optional bool desenha_nevoa = 27 [default=true];
+}
