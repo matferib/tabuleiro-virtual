@@ -417,7 +417,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
-    gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f  : 1.5f));
+    gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     {
       gl::MatrizEscopo salva_matriz;
       gl::Escala(0.2, 0.2, 1.0f);
