@@ -1489,7 +1489,7 @@ void Tabuleiro::DesenhaCena() {
   // desenha tabuleiro do sul para o norte.
   DesenhaTabuleiro();
 
-  if (parametros_desenho_.desenha_grade()) {
+  if (parametros_desenho_.desenha_grade() && proto_.desenha_grade() && opcoes_.desenha_grade()) {
     gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
     DesenhaGrade();
   }
@@ -2650,6 +2650,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   proto_.mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_.set_largura(novo_proto.largura());
   proto_.set_altura(novo_proto.altura());
+  proto_.set_desenha_grade(novo_proto.desenha_grade());
   if (novo_proto.has_nevoa()) {
     proto_.mutable_nevoa()->CopyFrom(novo_proto.nevoa());
   } else {

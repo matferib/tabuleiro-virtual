@@ -46,6 +46,7 @@ public:
     QLabel *label_10;
     QLineEdit *linha_altura;
     QCheckBox *checkbox_tamanho_automatico;
+    QCheckBox *checkbox_grade;
     QPushButton *botao_cor_ambiente;
     QGroupBox *groupBox;
     QPushButton *botao_cor_direcional;
@@ -147,6 +148,11 @@ public:
         checkbox_tamanho_automatico->setObjectName(QString::fromUtf8("checkbox_tamanho_automatico"));
 
         horizontalLayout_2->addWidget(checkbox_tamanho_automatico);
+
+        checkbox_grade = new QCheckBox(horizontalLayoutWidget_2);
+        checkbox_grade->setObjectName(QString::fromUtf8("checkbox_grade"));
+
+        horizontalLayout_2->addWidget(checkbox_grade);
 
         botao_cor_ambiente = new QPushButton(ifg__qt__DialogoIluminacao);
         botao_cor_ambiente->setObjectName(QString::fromUtf8("botao_cor_ambiente"));
@@ -296,6 +302,10 @@ public:
         checkbox_tamanho_automatico->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         checkbox_tamanho_automatico->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Autom\303\241tico", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_grade->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Grade", 0, QApplication::UnicodeUTF8));
         botao_cor_ambiente->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz  Ambiente", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Luz Direcional", 0, QApplication::UnicodeUTF8));
         botao_cor_direcional->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Cor da Luz Direcional", 0, QApplication::UnicodeUTF8));

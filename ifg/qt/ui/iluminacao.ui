@@ -149,6 +149,16 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_grade">
+      <property name="toolTip">
+       <string>Se marcado, o tamanho do tabuleiro será computado a partir do tamanho da textura.</string>
+      </property>
+      <property name="text">
+       <string>Grade</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QPushButton" name="botao_cor_ambiente">

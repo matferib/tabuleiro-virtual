@@ -31,6 +31,7 @@ public:
     QCheckBox *checkbox_iluminacao_mestre;
     QCheckBox *checkbox_rosa_dos_ventos;
     QCheckBox *checkbox_anti_aliasing;
+    QCheckBox *checkbox_grade;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
@@ -57,6 +58,9 @@ public:
         checkbox_anti_aliasing = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_anti_aliasing->setObjectName(QString::fromUtf8("checkbox_anti_aliasing"));
         checkbox_anti_aliasing->setGeometry(QRect(10, 140, 271, 22));
+        checkbox_grade = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_grade->setObjectName(QString::fromUtf8("checkbox_grade"));
+        checkbox_grade->setGeometry(QRect(10, 170, 271, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -73,6 +77,7 @@ public:
         checkbox_iluminacao_mestre->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o do mestre igual \303\240 dos jogadores", 0, QApplication::UnicodeUTF8));
         checkbox_rosa_dos_ventos->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenha rosa dos ventos", 0, QApplication::UnicodeUTF8));
         checkbox_anti_aliasing->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Anti Serrilhamento", 0, QApplication::UnicodeUTF8));
+        checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Grade", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

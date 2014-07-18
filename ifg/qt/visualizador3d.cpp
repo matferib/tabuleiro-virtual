@@ -631,6 +631,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   });
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
+  // grade.
+  gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -726,6 +728,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       proto_retornado->set_largura(largura);
       proto_retornado->set_altura(altura);
     }
+    // Grade.
+    proto_retornado->set_desenha_grade(
+        gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
+
     VLOG(1) << "Retornando tabuleiro: " << proto_retornado->ShortDebugString();
     dialogo->accept();
   });
@@ -758,9 +764,11 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   // Rosa dos ventos.
   gerador.checkbox_rosa_dos_ventos->setCheckState(
       opcoes_proto.desenha_rosa_dos_ventos() ? Qt::Checked : Qt::Unchecked);
-  // Serrilhamento
+  // Serrilhamento.
   gerador.checkbox_anti_aliasing->setCheckState(
       opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
+  // grade.
+  gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -782,7 +790,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
 #endif
       proto_retornado->set_anti_aliasing(false);
     }
-
+    proto_retornado->set_desenha_grade(
+        gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
