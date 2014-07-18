@@ -80,6 +80,22 @@ modelo {
   entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
 }
 modelo {
+  id: 'Orc Lanceiro'
+  entidade { dados_vida: '1d8+1' info_textura { id: 'orc_spear.png'} cor { g: 1.0 } ultima_acao: 'Ataque a Distância' }
+}
+modelo {
+  id: 'Orc Sargento'
+  entidade { dados_vida: '3d8+6' info_textura { id: 'orc_lead.png'} cor { g: 0.7 } }
+}
+modelo {
+  id: 'Orc Tenente'
+  entidade { dados_vida: '5d8+15' info_textura { id: 'orc_lead.png'} cor { g: 0.5 } }
+}
+modelo {
+  id: 'Orc Capitão'
+  entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
+}
+modelo {
   id: 'Troll'
   entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
 }
