@@ -53,23 +53,27 @@ modelo {
 }
 modelo {
   id: 'Humano Bruxo'
-  entidade { max_pontos_vida: 3 info_textura { id: 'warlock.png'} cor { r: 0.698 g: 0.463 b: 0.275 } }
+  entidade { dados_vida: '1d6' info_textura { id: 'warlock.png'} cor { r: 0.698 g: 0.463 b: 0.275 } }
 }
 modelo {
   id: 'Humano Clérigo'
-  entidade { max_pontos_vida: 4 info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+  entidade { dados_vida: '1d8' info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
   id: 'Humano Guerreiro'
-  entidade { max_pontos_vida: 5 info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+  entidade { dados_vida: '1d10' info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
   id: 'Humano Ladino'
-  entidade { max_pontos_vida: 3 info_textura { id: 'rogue.png'} cor { r: 0.250 g: 0.250 b: 0.250 } }
+  entidade { dados_vida: '1d6' info_textura { id: 'rogue.png'} cor { r: 0.250 g: 0.250 b: 0.250 } }
+}
+modelo {
+  id: 'Humano Mago'
+  entidade { dados_vida: '1d4' info_textura { id: 'mage.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
 }
 modelo {
   id: 'Humano Paladino'
-  entidade { max_pontos_vida: 5 info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+  entidade { dados_vida: '1d10' info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
   id: 'Goblin'
