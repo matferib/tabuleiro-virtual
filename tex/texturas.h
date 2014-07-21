@@ -24,6 +24,9 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo). */
   void Recarrega();
 
+  /** Le e decodifica uma imagem. */
+  static void LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura);
+
  private:
   struct InfoTexturaInterna;
 
@@ -42,13 +45,10 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   int GeraIdTextura();
 
-  /** Le e decodifica uma imagem. */
-  void LeDecodificaImagem(const std::string& caminho, ent::InfoTextura* info_textura);
-
   /** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho.
   * Caso local, a textura sera local ao jogador. Caso contrario, eh uma textura global (da aplicacao).
   */
-  virtual void LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados);
+  static void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados);
 
  private:
   // Nao possui.
