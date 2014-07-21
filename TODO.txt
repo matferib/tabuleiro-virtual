@@ -1,10 +1,12 @@
 Versao 1.4.6
+- Texturas nao quadradas.
 - Grade nao esta sendo salva nas opcoes de tabuleiro.
 - Arrumar textura de tabuleiro, usando lodepng.
 - Liberar menu de tabuleiro para jogadores (algumas opcoes).
 - Mais letras maiusculas.
 
 Versao 1.5
+- Enviar dados de texturas locais de forma compacta.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Posicionar camera para os jogadores ao abrir tabuleiro.
 - Desabilitar watchdog em dialogos.

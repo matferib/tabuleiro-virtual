@@ -50,6 +50,9 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   static void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados);
 
+  /** Decodifica os dados_crus, preenchendo info_textura. */
+  static void DecodificaImagem(const std::vector<unsigned char>& dados_crus, ent::InfoTextura* info_textura);
+
  private:
   // Nao possui.
   ntf::CentralNotificacoes* central_;
