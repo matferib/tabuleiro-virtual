@@ -220,7 +220,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
     break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
-    EstadoMenu(false, ME_TABULEIRO);
+    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
       std::string id = acao->data().toString().toStdString();
