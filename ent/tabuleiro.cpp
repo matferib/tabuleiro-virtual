@@ -2665,6 +2665,10 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     auto* t = notificacao->mutable_tabuleiro();
     t->set_id_cliente(GeraIdCliente());
     t->CopyFrom(proto_);
+    if (t->info_textura().has_bits_crus()) {
+      // Serializa apenas os bits crus.
+      t->mutable_info_textura()->clear_bits();
+    }
     t->clear_entidade();  // As entidades vem do mapa de entidades.
     for (const auto& id_ent : entidades_) {
       t->add_entidade()->CopyFrom(id_ent.second->Proto());

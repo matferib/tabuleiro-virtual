@@ -126,7 +126,13 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
 void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
-    if (info_textura.has_bits()) {
+    if (info_textura.has_bits_crus()) {
+      VLOG(1) << "Carregando textura local com bits crus, id: '" << info_textura.id() << "'.";
+      ent::InfoTextura info_lido(info_textura);
+      std::vector<unsigned char> bits_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
+      DecodificaImagem(bits_crus, &info_lido);
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_lido)));
+    } else if (info_textura.has_bits()) {
       VLOG(1) << "Carregando textura local com bits, id: '" << info_textura.id() << "'.";
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_textura)));
     } else {
@@ -171,18 +177,11 @@ void Texturas::LeImagem(bool global, const std::string& arquivo, std::vector<uns
   dados->assign(dados_str.begin(), dados_str.end());
 }
 
-void Texturas::LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura) {
-  std::vector<unsigned char> dados_arquivo;
-  LeImagem(global, caminho, &dados_arquivo);
-  if (dados_arquivo.size() <= 0) {
-    throw std::logic_error(std::string("Erro lendo imagem: ") + caminho);
-  }
-
-  //decode
+void Texturas::DecodificaImagem(const std::vector<unsigned char>& dados_crus, ent::InfoTextura* info_textura) {
   unsigned int largura, altura;
   std::vector<unsigned char> dados;
   lodepng::State estado;
-  unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_arquivo);
+  unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_crus);
   if (error != 0) {
     throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
   }
@@ -204,6 +203,18 @@ void Texturas::LeDecodificaImagem(bool global, const std::string& caminho, ent::
   info_textura->mutable_bits()->append(dados.begin(), dados.end());
   info_textura->set_largura(largura);
   info_textura->set_altura(altura);
+}
+
+void Texturas::LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura) {
+  std::vector<unsigned char> dados_arquivo;
+  LeImagem(global, caminho, &dados_arquivo);
+  if (dados_arquivo.size() <= 0) {
+    throw std::logic_error(std::string("Erro lendo imagem: ") + caminho);
+  }
+  DecodificaImagem(dados_arquivo, info_textura);
+  if (!global) {
+    info_textura->mutable_bits_crus()->append(dados_arquivo.begin(), dados_arquivo.end());
+  }
 }
 
 }  // namespace tex
