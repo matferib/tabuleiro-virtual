@@ -1,4 +1,5 @@
 Versao 1.4.6
+- Grade nao esta sendo salva nas opcoes de tabuleiro.
 - Arrumar textura de tabuleiro, usando lodepng.
 - Liberar menu de tabuleiro para jogadores (algumas opcoes).
 - Mais letras maiusculas.
