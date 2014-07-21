@@ -8,7 +8,6 @@
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QImage>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QString>
