@@ -1,7 +1,7 @@
 /*
-LodePNG version 20131222
+LodePNG version 20140624
 
-Copyright (c) 2005-2013 Lode Vandevenne
+Copyright (c) 2005-2014 Lode Vandevenne
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
@@ -280,7 +280,7 @@ struct LodePNGCompressSettings /*deflate = compress*/
   /*LZ77 related settings*/
   unsigned btype; /*the block type for LZ (0, 1, 2 or 3, see zlib standard). Should be 2 for proper compression.*/
   unsigned use_lz77; /*whether or not to use LZ77. Should be 1 for proper compression.*/
-  unsigned windowsize; /*must be a power of two <= 32768. higher compresses more but is slower. Typical value: 2048.*/
+  unsigned windowsize; /*must be a power of two <= 32768. higher compresses more but is slower. Default value: 2048.*/
   unsigned minmatch; /*mininum lz77 length. 3 is normally best, 6 can be better for some PNGs. Default: 0*/
   unsigned nicematch; /*stop searching if >= this length found. Set to 258 for best compression. Default: 128*/
   unsigned lazymatching; /*use lazy matching: better compression but a bit slower. Default: true*/
@@ -1455,6 +1455,8 @@ LodePNG. For the C++ version, only the standard C++ library is needed on top.
 Add the files lodepng.c(pp) and lodepng.h to your project, include
 lodepng.h where needed, and your program can read/write PNG files.
 
+It is compatible with C90 and up, and C++03 and up.
+
 If performance is important, use optimization when compiling! For both the
 encoder and decoder, this makes a large difference.
 
@@ -1470,49 +1472,40 @@ LodePNG is developed in gcc so this compiler is natively supported. It gives no
 warnings with compiler options "-Wall -Wextra -pedantic -ansi", with gcc and g++
 version 4.7.1 on Linux, 32-bit and 64-bit.
 
+*) Clang
+
+Fully supported and warning-free.
+
 *) Mingw
 
-The Mingw compiler (a port of gcc) for Windows is fully supported by LodePNG.
+The Mingw compiler (a port of gcc for Windows) should be fully supported by
+LodePNG.
 
-*) Visual Studio 2005 and up, Visual C++ Express Edition 2005 and up
+*) Visual Studio and Visual C++ Express Edition
 
-Visual Studio may give warnings about 'fopen' being deprecated. A multiplatform library
-can't support the proposed Visual Studio alternative however, so LodePNG keeps using
-fopen. If you don't want to see the deprecated warnings, put this on top of lodepng.h
-before the inclusions:
-#define _CRT_SECURE_NO_DEPRECATE
-
-Other than the above warnings, LodePNG should be warning-free with warning
-level 3 (W3). Warning level 4 (W4) will give warnings about integer conversions.
-I'm not planning to resolve these warnings. To get rid of them, let Visual
-Studio use warning level W3 for lodepng.cpp only: right click lodepng.cpp,
-Properties, C/C++, General, Warning Level: Level 3 (/W3).
+LodePNG should be warning-free with warning level W4. Two warnings were disabled
+with pragmas though: warning 4244 about implicit conversions, and warning 4996
+where it wants to use a non-standard function fopen_s instead of the standard C
+fopen.
 
 Visual Studio may want "stdafx.h" files to be included in each source file and
 give an error "unexpected end of file while looking for precompiled header".
-That is not standard C++ and will not be added to the stock LodePNG. You can
+This is not standard C++ and will not be added to the stock LodePNG. You can
 disable it for lodepng.cpp only by right clicking it, Properties, C/C++,
 Precompiled Headers, and set it to Not Using Precompiled Headers there.
 
-*) Visual Studio 6.0
-
-LodePNG support for Visual Studio 6.0 is not guaranteed because VS6 doesn't
-follow the C++ standard correctly.
-
-*) Comeau C/C++
-
-Vesion 20070107 compiles without problems on the Comeau C/C++ Online Test Drive
-at http://www.comeaucomputing.com/tryitout in both C90 and C++ mode.
+NOTE: Modern versions of VS should be fully supported, but old versions, e.g.
+VS6, are not guaranteed to work.
 
 *) Compilers on Macintosh
 
-LodePNG has been reported to work both with the gcc and LLVM for Macintosh, both
-for C and C++.
+LodePNG has been reported to work both with gcc and LLVM for Macintosh, both for
+C and C++.
 
 *) Other Compilers
 
-If you encounter problems on other compilers, feel free to let me know and I may
-try to fix it if the compiler is modern standards complient.
+If you encounter problems on any compilers, feel free to let me know and I may
+try to fix it if the compiler is modern and standards complient.
 
 
 10. examples
@@ -1574,6 +1567,7 @@ yyyymmdd.
 Some changes aren't backwards compatible. Those are indicated with a (!)
 symbol.
 
+*) 09 jun 2014: Faster encoder by fixing hash bug and more zeros optimization.
 *) 22 dec 2013: Power of two windowsize required for optimization.
 *) 15 apr 2013: Fixed bug with LAC_ALPHA and color key.
 *) 25 mar 2013: Added an optional feature to ignore some PNG errors (fix_png).
@@ -1712,5 +1706,5 @@ Domain: gmail dot com.
 Account: lode dot vandevenne.
 
 
-Copyright (c) 2005-2013 Lode Vandevenne
+Copyright (c) 2005-2014 Lode Vandevenne
 */

@@ -133,7 +133,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
       VLOG(1) << "Carregando textura global, id: '" << info_textura.id() << "'.";
       ent::InfoTextura info_lido;
       try {
-        LeDecodificaImagem(info_textura.id(), &info_lido);
+        LeDecodificaImagem(true  /*global*/, info_textura.id(), &info_lido);
       } catch (const std::exception& e) {
         LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
         return;
@@ -164,16 +164,16 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   }
 }
 
-void Texturas::LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados) {
+void Texturas::LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados) {
   boost::filesystem::path caminho(arquivo);
   std::string dados_str;
-  arq::LeArquivo(arq::TIPO_TEXTURA, caminho.filename().string(), &dados_str);
+  arq::LeArquivo(global ? arq::TIPO_TEXTURA : arq::TIPO_TEXTURA_LOCAL, caminho.filename().string(), &dados_str);
   dados->assign(dados_str.begin(), dados_str.end());
 }
 
-void Texturas::LeDecodificaImagem(const std::string& caminho, ent::InfoTextura* info_textura) {
+void Texturas::LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura) {
   std::vector<unsigned char> dados_arquivo;
-  LeImagem(caminho, &dados_arquivo);
+  LeImagem(global, caminho, &dados_arquivo);
   if (dados_arquivo.size() <= 0) {
     throw std::logic_error(std::string("Erro lendo imagem: ") + caminho);
   }
@@ -181,9 +181,25 @@ void Texturas::LeDecodificaImagem(const std::string& caminho, ent::InfoTextura* 
   //decode
   unsigned int largura, altura;
   std::vector<unsigned char> dados;
-  unsigned int error = lodepng::decode(dados, largura, altura, dados_arquivo);
+  lodepng::State estado;
+  unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_arquivo);
   if (error != 0) {
     throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
+  }
+  const LodePNGColorMode& color = estado.info_png.color;
+  std::cout << "Color type: " << color.colortype << std::endl;
+  std::cout << "Bit depth: " << color.bitdepth << std::endl;
+  std::cout << "Bits per pixel: " << lodepng_get_bpp(&color) << std::endl;
+  std::cout << "Channels per pixel: " << lodepng_get_channels(&color) << std::endl;
+  std::cout << "Is greyscale type: " << lodepng_is_greyscale_type(&color) << std::endl;
+  std::cout << "Can have alpha: " << lodepng_can_have_alpha(&color) << std::endl;
+  std::cout << "Palette size: " << color.palettesize << std::endl;
+  std::cout << "Has color key: " << color.key_defined << std::endl;
+  if(color.key_defined)
+  {
+    std::cout << "Color key r: " << color.key_r << std::endl;
+    std::cout << "Color key g: " << color.key_g << std::endl;
+    std::cout << "Color key b: " << color.key_b << std::endl;
   }
   info_textura->mutable_bits()->append(dados.begin(), dados.end());
   info_textura->set_largura(largura);

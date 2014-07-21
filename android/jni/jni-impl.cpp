@@ -37,6 +37,7 @@ class TexturasAndroid : public tex::Texturas {
     aman_ = AAssetManager_fromJava(env, assets);
   }
 
+#if 0
   virtual void LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados) override {
     AAsset* asset = nullptr;
     try {
@@ -60,6 +61,7 @@ class TexturasAndroid : public tex::Texturas {
       AAsset_close(asset);
     }
   }
+#endif
 
  private:
   AAssetManager* aman_;

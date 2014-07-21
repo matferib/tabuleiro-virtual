@@ -1,4 +1,6 @@
-Versao 1.4.5
+Versao 1.4.6
+- Arrumar textura de tabuleiro, usando lodepng.
+- Liberar menu de tabuleiro para jogadores (algumas opcoes).
 - Mais letras maiusculas.
 
 Versao 1.5

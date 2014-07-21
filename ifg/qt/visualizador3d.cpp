@@ -9,7 +9,6 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QImage>
-#include <QImageReader>
 #include <QMessageBox>
 #include <QMouseEvent>
 #include <QString>
@@ -26,6 +25,7 @@
 #include "ifg/qt/visualizador3d.h"
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
+#include "tex/texturas.h"
 
 using namespace std;
 
@@ -65,17 +65,13 @@ const QString TamanhoParaTexto(int tamanho) {
 
 // Carrega os dados de uma textura local pro proto 'info_textura'.
 bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
-  QImageReader leitor_imagem(info_arquivo.absoluteFilePath());
-  QImage imagem = leitor_imagem.read();
-  if (imagem.isNull()) {
+  try {
+    tex::Texturas::LeDecodificaImagem(false  /*global*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
+    return true;
+  } catch (...) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
     return false;
   }
-  info_textura->set_altura(imagem.height());
-  info_textura->set_largura(imagem.width());
-  info_textura->set_bits(imagem.constBits(), imagem.byteCount());
-  info_textura->set_formato(imagem.format());
-  return true;
 }
 
 // Retorna o caminho para o id de textura.
