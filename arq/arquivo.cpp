@@ -19,7 +19,10 @@ namespace {
 const std::string TipoParaDiretorio(tipo_e tipo) {
   switch (tipo) {
     case TIPO_TEXTURA: return "texturas";
-    //case TIPO_TEXTURA_LOCAL: return "texturas_locais";
+#if !ANDROID
+    // Android nao tem textura local.
+    case TIPO_TEXTURA_LOCAL: return "texturas_locais";
+#endif
     case TIPO_TABULEIRO: return "tabuleiros_salvos";
     case TIPO_DADOS: return "dados";
     default:

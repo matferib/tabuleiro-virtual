@@ -1,7 +1,7 @@
-Versão 1.4.6
+Versao 1.4.6
 - Opcao de grade nao esta sendo respeitada no tabuleiro remoto e ao abrir as propriedades do tabuleiro.
+- Grade nao esta sendo salva nas opcoes de tabuleiro.
 - Lentidao ao carregar maps grandes.
-- Cor de mapas.
 - Mais letras maiusculas.
 
 Versao 1.5

@@ -2635,6 +2635,7 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   }
   tabuleiro->set_largura(proto_.largura());
   tabuleiro->set_altura(proto_.altura());
+  tabuleiro->set_desenha_grade(proto_.set_desenha_grade());
   return notificacao;
 }
 
