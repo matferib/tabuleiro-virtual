@@ -60,7 +60,7 @@ struct Texturas::InfoTexturaInterna {
     // Carrega a textura.
     glTexImage2D(GL_TEXTURE_2D,
                  0, GL_RGBA,
-                 imagem_.altura(), imagem_.largura(),
+                 imagem_.largura(), imagem_.altura(),
                  0, FormatoImagem(), TipoImagem(),
                  imagem_.bits().c_str());
     glDisable(GL_TEXTURE_2D);
