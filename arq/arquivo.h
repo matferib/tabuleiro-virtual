@@ -19,7 +19,7 @@ namespace arq {
 
 enum tipo_e {
   TIPO_TEXTURA,
-  //TIPO_TEXTURA_LOCAL,  // Nao usado
+  TIPO_TEXTURA_LOCAL,
   TIPO_DADOS,
   TIPO_TABULEIRO
 };
