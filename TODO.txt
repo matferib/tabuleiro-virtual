@@ -1,10 +1,6 @@
-Versao 1.4.6
-- Opcao de grade nao esta sendo respeitada no tabuleiro remoto e ao abrir as propriedades do tabuleiro.
-- Grade nao esta sendo salva nas opcoes de tabuleiro.
-- Lentidao ao carregar maps grandes.
-- Mais letras maiusculas.
-
 Versao 1.5
+- Salvar um tabuleiro ao sair.
+- Mais letras maiusculas.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Posicionar camera para os jogadores ao abrir tabuleiro.
 - Desabilitar watchdog em dialogos.
