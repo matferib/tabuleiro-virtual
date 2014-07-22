@@ -1,5 +1,5 @@
 Versao 1.5
-- Texturas nao quadradas.
+- Contador de rodadas.
 - Mais letras maiusculas.
 - Salvar um tabuleiro ao sair.
 - Mais letras maiusculas.
@@ -21,14 +21,11 @@ Versao 1.5
 - Instalador windows, rpm linux e ??? MAC.
 
 Versao 2.0
-- Tipos de acoes padrao por modelo (por exemplo, orc tem primario corpo a corpo, secundario distancia).
+- Joystick no android.
 - Registro correto dos diretorios para funcionar de qualquer diretorio.
 - Modelar menu com um proto ASCII para facilitar expansao.
 - Botao de aplicar mudancas nos dialogos.
-- No movimento com teclado, acumular teclas ou deltas.
 - Shader.
-- Dano em acoes de area.
-- Luz na camera?
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
 - Outros tipos de acoes (perfurante, concussao).
