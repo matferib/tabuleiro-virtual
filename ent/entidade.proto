@@ -67,6 +67,8 @@ message InfoTextura {
   optional int32 formato = 4;
   // Os bits da textura.
   optional bytes bits = 5;
+  // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas locais.
+  optional bytes bits_crus = 6;
 }
 
 // A escala nos tres eixos.

@@ -1,4 +1,6 @@
 Versao 1.5
+- Texturas nao quadradas.
+- Mais letras maiusculas.
 - Salvar um tabuleiro ao sair.
 - Mais letras maiusculas.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
