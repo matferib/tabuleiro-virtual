@@ -187,18 +187,18 @@ void Texturas::LeDecodificaImagem(bool global, const std::string& caminho, ent::
     throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
   }
   const LodePNGColorMode& color = estado.info_png.color;
-  VLOG(1) << "Color type: " << color.colortype << std::endl;
-  VLOG(1) << "Bit depth: " << color.bitdepth << std::endl;
-  VLOG(1) << "Bits per pixel: " << lodepng_get_bpp(&color) << std::endl;
-  VLOG(1) << "Channels per pixel: " << lodepng_get_channels(&color) << std::endl;
-  VLOG(1) << "Is greyscale type: " << lodepng_is_greyscale_type(&color) << std::endl;
-  VLOG(1) << "Can have alpha: " << lodepng_can_have_alpha(&color) << std::endl;
-  VLOG(1) << "Palette size: " << color.palettesize << std::endl;
-  VLOG(1) << "Has color key: " << color.key_defined << std::endl;
+  VLOG(1) << "Color type: " << color.colortype;
+  VLOG(1) << "Bit depth: " << color.bitdepth;
+  VLOG(1) << "Bits per pixel: " << lodepng_get_bpp(&color);
+  VLOG(1) << "Channels per pixel: " << lodepng_get_channels(&color);
+  VLOG(1) << "Is greyscale type: " << lodepng_is_greyscale_type(&color);
+  VLOG(1) << "Can have alpha: " << lodepng_can_have_alpha(&color);
+  VLOG(1) << "Palette size: " << color.palettesize;
+  VLOG(1) << "Has color key: " << color.key_defined;
   if (color.key_defined) {
-    VLOG(1) << "Color key r: " << color.key_r << std::endl;
-    VLOG(1) << "Color key g: " << color.key_g << std::endl;
-    VLOG(1) << "Color key b: " << color.key_b << std::endl;
+    VLOG(1) << "Color key r: " << color.key_r;
+    VLOG(1) << "Color key g: " << color.key_g;
+    VLOG(1) << "Color key b: " << color.key_b;
   }
   info_textura->mutable_bits()->append(dados.begin(), dados.end());
   info_textura->set_largura(largura);
