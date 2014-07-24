@@ -704,6 +704,7 @@ bool Acao::AtualizaAlvo() {
   if (disco_alvo_rad_ >= M_PI) {
     VLOG(1) << "Finalizando alvo, arco terminou.";
     entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
+    entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }

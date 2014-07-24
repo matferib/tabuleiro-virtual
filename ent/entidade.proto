@@ -131,6 +131,8 @@ message EntidadeProto {
   optional string ultima_acao = 26;
   // Resultado da proxima salvacao da entidade.
   optional ResultadoSalvacao proxima_salvacao = 27;
+  // A direcao do ultimo impacto sofrido pela entidade.
+  optional Posicao direcao_queda = 28;
 }
 
 // Alguns estados são mantidos nesta variável.

@@ -347,6 +347,13 @@ void Entidade::MontaMatriz(bool em_voo,
   if (queda && vd.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
+    // Roda pra direcao de queda.
+    const auto& dq = proto.direcao_queda();
+    if (dq.x() != 0.0f || dq.y() != 0) {
+      float direcao_queda_graus = VetorParaRotacaoGraus(dq);
+      LOG(INFO) << "Direcao queda: angulo: " << direcao_queda_graus << ", vetor: " << dq.x() << ", " << dq.y() << ", ";
+      gl::Roda(direcao_queda_graus - 90.0f, 0.0f, 0.0f, 1.0f);
+    }
     gl::Roda(-vd.angulo_disco_queda_graus, 1.0, 0, 0);
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
@@ -538,6 +545,14 @@ float Entidade::CalculaMultiplicador(TamanhoEntidade tamanho) {
   }
   LOG(ERROR) << "Tamanho inválido: " << tamanho;
   return 1.0f;
+}
+
+void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
+  Posicao v;
+  v.set_x(x);
+  v.set_y(y);
+  v.set_z(z);
+  proto_.mutable_direcao_queda()->Swap(&v);
 }
 
 }  // namespace ent
