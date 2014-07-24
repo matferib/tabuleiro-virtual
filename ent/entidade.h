@@ -124,6 +124,9 @@ class Entidade {
   /** Retorna a proxima salvacao para a entidade. */
   ResultadoSalvacao ProximaSalvacao() const { return static_cast<ResultadoSalvacao>(proto_.proxima_salvacao()); }
 
+  /** Atribui a direcao de queda da entidade. */
+  void AtualizaDirecaoDeQueda(float x, float y, float z);
+
   /** Desenha um objeto a partir de seu proto. Usado para desenhar de forma simples objetos (por exemplo, formas sendo adicionadas).
   * Implementado em entidade_desenha.cpp.
   */

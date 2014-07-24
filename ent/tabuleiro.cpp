@@ -1665,8 +1665,7 @@ void Tabuleiro::DesenhaTabuleiro() {
       if (id == quadrado_selecionado_ && !usar_textura) {
         MudaCor(cinza);
       }
-      DesenhaQuadrado(id, y, x,
-                      vertices, vertices_texels, indices);
+      DesenhaQuadrado(id, y, x, vertices, vertices_texels, indices);
       if (id == quadrado_selecionado_ && !usar_textura)  {
         MudaCor(cinza_claro);
       }
@@ -1680,6 +1679,8 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  // Se a face nula foi desativada, reativa.
+  gl::Habilita(GL_CULL_FACE);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
