@@ -352,9 +352,9 @@ void Entidade::MontaMatriz(bool em_voo,
     if (dq.x() != 0.0f || dq.y() != 0) {
       float direcao_queda_graus = VetorParaRotacaoGraus(dq);
       LOG(INFO) << "Direcao queda: angulo: " << direcao_queda_graus << ", vetor: " << dq.x() << ", " << dq.y() << ", ";
-      gl::Roda(direcao_queda_graus - 90.0f, 0.0f, 0.0f, 1.0f);
+      gl::Roda(direcao_queda_graus, 0.0f, 0.0f, 1.0f);
     }
-    gl::Roda(-vd.angulo_disco_queda_graus, 1.0, 0, 0);
+    gl::Roda(vd.angulo_disco_queda_graus, 0, 1.0f, 0);
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
   gl::Escala(multiplicador, multiplicador, multiplicador);
