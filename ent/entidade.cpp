@@ -289,6 +289,15 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
   proto_.set_pontos_vida(std::min(proto_.max_pontos_vida(), pontos_vida));
 }
 
+void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
+  proto_.MergeFrom(proto_parcial);
+  // Casos especiais.
+  auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
+  if (luz != nullptr && luz->r() == 0 && luz->g() == 0 && luz->b() == 0) {
+    proto_.clear_luz();
+  }
+}
+
 void Entidade::AtualizaAcao(const std::string& id_acao) {
   proto_.set_ultima_acao(id_acao);
 }
