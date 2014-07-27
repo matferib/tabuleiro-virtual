@@ -185,6 +185,28 @@ const std::string StringSemUtf8(const std::string& id_acao) {
   return ret;
 }
 
+// O delta de pontos de vida afeta outros bits tambem.
+void PreencheNotificacaoDeltaPontosVida(
+    const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* entidade_depois = n->mutable_entidade();
+  entidade_depois->set_id(entidade.Id());
+  entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
+
+  if (n_desfazer != nullptr) {
+    n_desfazer->mutable_entidade()->CopyFrom(*entidade_depois);
+    auto* entidade_antes = n_desfazer->mutable_entidade_antes();
+    entidade_antes->set_id(entidade.Id());
+    entidade_antes->set_pontos_vida(entidade.PontosVida());
+    entidade_antes->set_morta(entidade.Proto().morta());
+    entidade_antes->set_caida(entidade.Proto().caida());
+    entidade_antes->set_voadora(entidade.Proto().voadora());
+    entidade_antes->set_aura(entidade.Proto().aura());
+    entidade_antes->mutable_pos()->CopyFrom(entidade.Pos());
+    entidade_antes->mutable_direcao_queda()->CopyFrom(entidade.Proto().direcao_queda());
+  }
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central) :
@@ -411,6 +433,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
     auto* proto_antes = n->mutable_entidade_antes();
     if ((bits & BIT_VISIBILIDADE) > 0 && modo_mestre_) {
       // Apenas modo mestre.
+      proto_antes->set_visivel(proto.visivel());
       proto.set_visivel(!proto.visivel());
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
@@ -463,18 +486,18 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   // Para desfazer.
-  ntf::Notificacao g_desfazer;
-  g_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  ntf::Notificacao grupo_desfazer;
+  grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
     }
     // Atualizacao.
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-    n->mutable_entidade()->set_id(entidade_selecionada->Id());
-    n->mutable_entidade()->set_pontos_vida(entidade_selecionada->PontosVida() + delta_pontos_vida);
+    PreencheNotificacaoDeltaPontosVida(*entidade_selecionada,
+                                       delta_pontos_vida,
+                                       grupo_notificacoes.add_notificacao(),
+                                       grupo_desfazer.add_notificacao());
     // Acao.
     auto* na = grupo_notificacoes.add_notificacao();
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
@@ -482,17 +505,10 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
     a->add_id_entidade_destino(entidade_selecionada->Id());
     a->set_delta_pontos_vida(delta_pontos_vida);
-    // Para desfazer.
-    {
-      auto* n_desfazer = g_desfazer.add_notificacao();
-      n_desfazer->CopyFrom(*n);
-      n_desfazer->mutable_entidade_antes()->set_id(entidade_selecionada->Id());
-      n_desfazer->mutable_entidade_antes()->set_pontos_vida(entidade_selecionada->PontosVida());
-    }
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
-  AdicionaNotificacaoListaEventos(g_desfazer);
+  AdicionaNotificacaoListaEventos(grupo_desfazer);
 }
 
 void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao) {
@@ -528,11 +544,10 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
     }
   }
 
-  // Atualizacao de pontos de vida.
+  // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-  n.mutable_entidade()->set_id(id_entidade);
-  n.mutable_entidade()->set_pontos_vida(entidade->PontosVida() + delta_pontos_vida);
+  PreencheNotificacaoDeltaPontosVida(*entidade, delta_pontos_vida, &n);
   TrataNotificacao(n);
 
   // Acao de pontos de vida sem efeito.
@@ -555,10 +570,13 @@ void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
       continue;
     }
     auto* ntf = grupo_notificacoes.add_notificacao();
-    ntf->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-    ntf->mutable_entidade_antes()->CopyFrom(entidade->Proto());
-    ntf->mutable_entidade()->CopyFrom(entidade->Proto());
-    ntf->mutable_entidade()->set_proxima_salvacao(rs);
+    ntf->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* entidade_antes = ntf->mutable_entidade_antes();
+    entidade_antes->set_id(entidade->Id());
+    entidade_antes->set_proxima_salvacao(entidade->Proto().proxima_salvacao());
+    auto* entidade_depois = ntf->mutable_entidade();
+    entidade_depois->set_id(entidade->Id());
+    entidade_depois->set_proxima_salvacao(rs);
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
@@ -1179,13 +1197,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
             }
           }
           auto* nd = grupo_desfazer.add_notificacao();
-          // Entidade antes e depois da acao.
-          nd->mutable_entidade_antes()->set_pontos_vida(entidade_destino->PontosVida());
-          nd->mutable_entidade_antes()->set_id(entidade_destino->Id());
-          auto* e_depois = nd->mutable_entidade();
-          e_depois->set_id(entidade_destino->Id());
-          e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pv_pos_salvacao);
-          nd->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+          PreencheNotificacaoDeltaPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
         }
         VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
@@ -1205,18 +1217,8 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           }
           acao_proto.set_delta_pontos_vida(delta_pv_pos_salvacao);
           acao_proto.set_afeta_pontos_vida(true);
-          // Para desfazer, apenas as acoes que tem dano.
-          {
-            auto* nd = grupo_desfazer.add_notificacao();
-            // Entidade antes acao.
-            nd->mutable_entidade_antes()->set_pontos_vida(entidade_destino->PontosVida());
-            nd->mutable_entidade_antes()->set_id(entidade_destino->Id());
-            // Entidade depois.
-            auto* e_depois = nd->mutable_entidade();
-            e_depois->set_id(entidade_destino->Id());
-            e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pv_pos_salvacao);
-            nd->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-          }
+          auto* nd = grupo_desfazer.add_notificacao();
+          PreencheNotificacaoDeltaPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
         }
         VLOG(2) << "Acao individual: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);

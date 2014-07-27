@@ -118,7 +118,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza parcialmente entidades. Isso significa que apenas os campos presentes na entidade serao atualizados. */
   void AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao. Nao preocupa com desfazer, que ja foi feito no inicio da acao. */
+  /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
+  * Nao preocupa com desfazer, que ja foi feito no inicio da acao.
+  */
   void AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id, int delta_pontos_vida);
 
   /** Atualiza a proxima salvacao para cada entidade selecionada. */
