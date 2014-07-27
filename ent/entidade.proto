@@ -115,6 +115,8 @@ message EntidadeProto {
   optional IluminacaoPontual luz = 7;
   // Textura.
   optional InfoTextura info_textura = 8;
+
+  // BITS DAS ENTIDADE.
   // Aura em quadrados.
   optional int32 aura = 9;
   // Visibilidade. Apenas o dono pode ver.
@@ -127,6 +129,7 @@ message EntidadeProto {
   optional bool morta = 15 [default=false];
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
   optional bool selecionavel_para_jogador = 16 [default=true];
+
   // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
   // Resultado da proxima salvacao da entidade.

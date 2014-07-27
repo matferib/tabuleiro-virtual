@@ -408,35 +408,46 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
     auto* entidade_selecionada = BuscaEntidade(id);
     EntidadeProto proto = entidade_selecionada->Proto();
     // Para desfazer.
-    n->mutable_entidade_antes()->CopyFrom(proto);
+    auto* proto_antes = n->mutable_entidade_antes();
     if ((bits & BIT_VISIBILIDADE) > 0 && modo_mestre_) {
       // Apenas modo mestre.
       proto.set_visivel(!proto.visivel());
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
+      // Luz eh tricky pq nao eh um bit.
       if (proto.has_luz()) {
+        proto_antes->mutable_luz()->CopyFrom(proto.luz());
         proto.clear_luz();
       } else {
         auto* luz = proto.mutable_luz()->mutable_cor();
         luz->set_r(1.0f);
         luz->set_g(1.0f);
         luz->set_b(1.0f);
+        auto* luz_antes = proto_antes->mutable_luz()->mutable_cor();
+        luz_antes->set_r(0);
+        luz_antes->set_g(0);
+        luz_antes->set_b(0);
       }
     }
     if ((bits & BIT_VOO) > 0) {
+      proto_antes->set_voadora(proto.voadora());
       proto.set_voadora(!proto.voadora());
     }
     if (bits & BIT_CAIDA) {
+      proto_antes->set_caida(proto.caida());
       proto.set_caida(!proto.caida());
     }
     if (bits & BIT_MORTA) {
+      proto_antes->set_morta(proto.morta());
       proto.set_morta(!proto.morta());
     }
     if (bits & BIT_SELECIONAVEL) {
+      proto_antes->set_selecionavel_para_jogador(proto.selecionavel_para_jogador());
       proto.set_selecionavel_para_jogador(!proto.selecionavel_para_jogador());
     }
     proto.set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+    proto_antes->set_id(id);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
     n->mutable_entidade()->Swap(&proto);
   }
   TrataNotificacao(grupo_notificacoes);
@@ -461,7 +472,7 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     }
     // Atualizacao.
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
     n->mutable_entidade()->set_id(entidade_selecionada->Id());
     n->mutable_entidade()->set_pontos_vida(entidade_selecionada->PontosVida() + delta_pontos_vida);
     // Acao.
@@ -475,7 +486,8 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
     {
       auto* n_desfazer = g_desfazer.add_notificacao();
       n_desfazer->CopyFrom(*n);
-      n_desfazer->mutable_entidade_antes()->CopyFrom(entidade_selecionada->Proto());
+      n_desfazer->mutable_entidade_antes()->set_id(entidade_selecionada->Id());
+      n_desfazer->mutable_entidade_antes()->set_pontos_vida(entidade_selecionada->PontosVida());
     }
   }
   TrataNotificacao(grupo_notificacoes);
@@ -483,17 +495,17 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
   AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
-void Tabuleiro::AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao) {
-  if (!notificacao.entidade().has_pontos_vida() || !notificacao.entidade().has_id()) {
-    LOG(ERROR) << "Notificacao de atualizacao de pontos de vida sem pontos de vida ou id: " << notificacao.ShortDebugString();
+void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao) {
+  if (!notificacao.entidade().has_id()) {
+    LOG(ERROR) << "Notificacao de atualizacao parcial sem id: " << notificacao.ShortDebugString();
     return;
   }
   auto* entidade = BuscaEntidade(notificacao.entidade().id());
   if (entidade == nullptr) {
-    VLOG(1) << "Entidade invalida para notificacao de atualizacao de pontos de vida";
+    VLOG(1) << "Entidade invalida para notificacao de atualizacao parcial";
     return;
   }
-  entidade->AtualizaPontosVida(notificacao.entidade().pontos_vida());
+  entidade->AtualizaParcial(notificacao.entidade());
   if (notificacao.local()) {
     auto* n_remota = new ntf::Notificacao(notificacao);
     central_->AdicionaNotificacaoRemota(n_remota);
@@ -518,7 +530,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
 
   // Atualizacao de pontos de vida.
   ntf::Notificacao n;
-  n.set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
   n.mutable_entidade()->set_id(id_entidade);
   n.mutable_entidade()->set_pontos_vida(entidade->PontosVida() + delta_pontos_vida);
   TrataNotificacao(n);
@@ -681,9 +693,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaEntidadeNotificando(notificacao);
       return true;
     }
-    case ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE:
-      AtualizaPontosVidaEntidadeNotificando(notificacao);
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE: {
+      AtualizaParcialEntidadeNotificando(notificacao);
       return true;
+    }
     case ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO: {
       if (notificacao.has_tabuleiro()) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
@@ -1167,11 +1180,12 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           }
           auto* nd = grupo_desfazer.add_notificacao();
           // Entidade antes e depois da acao.
-          nd->mutable_entidade_antes()->CopyFrom(entidade_destino->Proto());
+          nd->mutable_entidade_antes()->set_pontos_vida(entidade_destino->PontosVida());
+          nd->mutable_entidade_antes()->set_id(entidade_destino->Id());
           auto* e_depois = nd->mutable_entidade();
           e_depois->set_id(entidade_destino->Id());
           e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pv_pos_salvacao);
-          nd->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
+          nd->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
         }
         VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
@@ -1195,12 +1209,13 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           {
             auto* nd = grupo_desfazer.add_notificacao();
             // Entidade antes acao.
-            nd->mutable_entidade_antes()->CopyFrom(entidade_destino->Proto());
+            nd->mutable_entidade_antes()->set_pontos_vida(entidade_destino->PontosVida());
+            nd->mutable_entidade_antes()->set_id(entidade_destino->Id());
             // Entidade depois.
             auto* e_depois = nd->mutable_entidade();
             e_depois->set_id(entidade_destino->Id());
             e_depois->set_pontos_vida(entidade_destino->PontosVida() + delta_pv_pos_salvacao);
-            nd->set_tipo(ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE);
+            nd->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
           }
         }
         VLOG(2) << "Acao individual: " << acao_proto.ShortDebugString();
@@ -2992,22 +3007,21 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       n_inversa.mutable_entidade()->mutable_destino()->CopyFrom(n_original.entidade().pos());
       n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
       break;
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE:
+      if (!n_original.has_entidade_antes()) {
+        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE sem o proto novo e o proto anterior: "
+                   << n_original.ShortDebugString();
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
+      break;
     case ntf::TN_ATUALIZAR_ENTIDADE:
       if (!n_original.has_entidade_antes()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_ENTIDADE sem o proto novo e o proto anterior: "
                    << n_original.ShortDebugString();
         break;
       }
-      n_inversa.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-      n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
-      break;
-    case ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE:
-      if (!n_original.entidade_antes().has_id() || !n_original.entidade_antes().has_pontos_vida()) {
-        LOG(ERROR) << "Impossivel inverter ntf::TN_ATUALIZAR_PONTOS_VIDA_ENTIDADE sem o proto novo e o proto anterior: "
-                   << n_original.ShortDebugString();
-        break;
-      }
-      // Volta entidade pro estado anterior a atualizacao.
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
       n_inversa.mutable_entidade()->CopyFrom(n_original.entidade_antes());
       break;

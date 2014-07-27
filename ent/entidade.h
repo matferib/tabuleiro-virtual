@@ -85,6 +85,9 @@ class Entidade {
   /** Atualiza os pontos de vida da entidade para a quantidade passada. */
   void AtualizaPontosVida(int pontos_vida);
 
+  /** Atualiza apenas os campos presentes no proto para a entidade. */
+  void AtualizaParcial(const EntidadeProto& proto_parcial);
+
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
   const std::string Acao() const { return proto_.ultima_acao(); }
