@@ -22,6 +22,12 @@ class Acao {
   void Desenha(ParametrosDesenho* pd) const;
   void DesenhaTranslucido(ParametrosDesenho* pd) const;
 
+  // Retorna se a acao ja atingiu alvo. A acao pode atingir o alvo antes de ser finalizada.
+  // Algumas acoes usam o bit atingiu alvo para isso.
+  virtual bool AtingiuAlvo() const { return Finalizada(); }
+  // Indica que o alvo ja foi processado pela acao.
+  void AlvoProcessado() { atingiu_alvo_ = false; }
+
   // Indica que a acao ja terminou e pode ser descartada.
   virtual bool Finalizada() const = 0;
 
@@ -41,19 +47,20 @@ class Acao {
 
  protected:
   AcaoProto acao_proto_;
-  Tabuleiro* tabuleiro_;
-  float atraso_s_;
-  double delta_tempo_;
+  Tabuleiro* tabuleiro_ = nullptr;
+  float atraso_s_ = 0;
+  double delta_tempo_ = 0;
   // Por atualizacao.
-  double velocidade_;
-  double aceleracao_;
-  double delta_aceleracao_;
+  double velocidade_ = 0;
+  double aceleracao_ = 0;
+  double delta_aceleracao_ = 0;
   // Diferenca entre posicao da acao da origem e do destino.
-  double dx_, dy_, dz_;
+  double dx_ = 0, dy_ = 0, dz_ = 0;
   // O alvo se move em uma senoide de 0 ate PI (usando cosseno, vai e volta).
-  double disco_alvo_rad_;
+  double disco_alvo_rad_ = 0;
   // Para controle de quanto o alvo se moveu.
-  double dx_total_, dy_total_, dz_total_;
+  double dx_total_ = 0, dy_total_ = 0, dz_total_ = 0;
+  bool atingiu_alvo_ = false;
 };
 
 // Cria uma nova acao no tabuleiro.

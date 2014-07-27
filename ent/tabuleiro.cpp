@@ -1941,7 +1941,8 @@ void Tabuleiro::AtualizaAcoes() {
   bool limpar_salvacoes = false;
   for (auto& acao : copia_acoes) {
     acao->Atualiza();
-    if (acao->Finalizada()) {
+    if (acao->AtingiuAlvo()) {
+      acao->AlvoProcessado();
       const auto& ap = acao->Proto();
       if (ap.id_entidade_destino_size() > 0 &&
           ap.afeta_pontos_vida()) {
@@ -1952,7 +1953,9 @@ void Tabuleiro::AtualizaAcoes() {
           AtualizaPontosVidaEntidadePorAcao(*acao, id_entidade_destino, ap.delta_pontos_vida());
         }
       }
-    } else {
+    }
+    // Apenas acoes nao finalizadas sao mantidas para a proxima iteracao.
+    if (!acao->Finalizada()) {
       acoes_.push_back(std::unique_ptr<Acao>(acao.release()));
     }
   }
