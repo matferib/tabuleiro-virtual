@@ -350,11 +350,12 @@ void Entidade::MontaMatriz(bool em_voo,
     // Roda pra direcao de queda.
     const auto& dq = proto.direcao_queda();
     if (dq.x() != 0.0f || dq.y() != 0) {
-      float direcao_queda_graus = VetorParaRotacaoGraus(dq);
-      LOG(INFO) << "Direcao queda: angulo: " << direcao_queda_graus << ", vetor: " << dq.x() << ", " << dq.y() << ", ";
+      // Como a queda é sobre o eixo X, subtrai 90 para a direcao ficar certa.
+      float direcao_queda_graus = VetorParaRotacaoGraus(dq) - 90.0f;
       gl::Roda(direcao_queda_graus, 0.0f, 0.0f, 1.0f);
     }
-    gl::Roda(vd.angulo_disco_queda_graus, 0, 1.0f, 0);
+    // Roda sobre o eixo X negativo para cair com a face para cima.
+    gl::Roda(vd.angulo_disco_queda_graus, -1.0f, 0, 0);
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
   gl::Escala(multiplicador, multiplicador, multiplicador);
