@@ -258,6 +258,10 @@ class AcaoProjetil : public Acao {
     pos_ = entidade_origem->PosicaoAcao();
   }
 
+  bool AtingiuAlvo() const override {
+    return atingiu_alvo_;
+  }
+
   void AtualizaAposAtraso() override {
     if (estagio_ == INICIAL) {
       AtualizaInicial();
@@ -485,6 +489,10 @@ class AcaoCorpoCorpo : public Acao {
     finalizado_ = false;
   }
 
+  bool AtingiuAlvo() const override {
+    return atingiu_alvo_;
+  }
+
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
@@ -700,11 +708,15 @@ bool Acao::AtualizaAlvo() {
     VLOG(1) << "Finalizando alvo, destino não existe.";
     return false;
   }
-  // Move o alvo na direcao do impacto e volta.
+  // Move o alvo na direcao do impacto e volta se nao estiver caido.
+  if (disco_alvo_rad_ >= M_PI_2 && entidade_destino->Proto().morta()) {
+    VLOG(1) << "Finalizando alvo, entidade morta nao precisa voltar.";
+    dx_total_ = dy_total_ = dz_total_ = 0;
+    return false;
+  }
   if (disco_alvo_rad_ >= M_PI) {
     VLOG(1) << "Finalizando alvo, arco terminou.";
     entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
-    entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
@@ -719,6 +731,10 @@ bool Acao::AtualizaAlvo() {
   dx_total_ += entidade_destino->X() - x_antes;
   dy_total_ += entidade_destino->Y() - y_antes;
   dz_total_ += entidade_destino->Z() - z_antes;
+  if (disco_alvo_rad_ == 0) {
+    entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
+    atingiu_alvo_ = true;
+  }
   const float DURACAO_ATUALIZACAO_ALVO_SEGUNDOS = 0.1f;
   disco_alvo_rad_ += M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_ATUALIZACAO_ALVO_SEGUNDOS;
   return true;
