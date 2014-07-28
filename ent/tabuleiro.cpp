@@ -428,7 +428,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
-    EntidadeProto proto = entidade_selecionada->Proto();
+    EntidadeProto proto = entidade_selecionada->Proto();  // Copia.
     // Para desfazer.
     auto* proto_antes = n->mutable_entidade_antes();
     if ((bits & BIT_VISIBILIDADE) > 0 && modo_mestre_) {
@@ -440,7 +440,10 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
       // Luz eh tricky pq nao eh um bit.
       if (proto.has_luz()) {
         proto_antes->mutable_luz()->CopyFrom(proto.luz());
-        proto.clear_luz();
+        auto* luz_depois = proto.mutable_luz()->mutable_cor();
+        luz_depois->set_r(0);
+        luz_depois->set_g(0);
+        luz_depois->set_b(0);
       } else {
         auto* luz = proto.mutable_luz()->mutable_cor();
         luz->set_r(1.0f);

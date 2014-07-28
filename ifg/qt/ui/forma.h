@@ -80,6 +80,8 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QCheckBox *checkbox_luz;
     QPushButton *botao_luz;
+    QGroupBox *groupBox_3;
+    QDial *dial_rotacao_y;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -203,10 +205,10 @@ public:
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(30, 120, 361, 161));
+        groupBox_2->setGeometry(QRect(20, 110, 271, 101));
         dial_rotacao = new QDial(groupBox_2);
         dial_rotacao->setObjectName(QString::fromUtf8("dial_rotacao"));
-        dial_rotacao->setGeometry(QRect(20, 30, 121, 121));
+        dial_rotacao->setGeometry(QRect(10, 20, 71, 71));
         dial_rotacao->setMinimum(0);
         dial_rotacao->setMaximum(360);
         dial_rotacao->setValue(0);
@@ -219,13 +221,13 @@ public:
         dial_rotacao->setNotchesVisible(true);
         spin_translacao = new QDoubleSpinBox(groupBox_2);
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
-        spin_translacao->setGeometry(QRect(190, 70, 160, 24));
+        spin_translacao->setGeometry(QRect(100, 60, 160, 24));
         spin_translacao->setDecimals(1);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);
         label_2 = new QLabel(groupBox_2);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(190, 50, 111, 16));
+        label_2->setGeometry(QRect(100, 40, 111, 16));
         checkbox_selecionavel = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
         checkbox_selecionavel->setGeometry(QRect(200, 430, 177, 20));
@@ -326,6 +328,22 @@ public:
 
         horizontalLayout_3->addWidget(botao_luz);
 
+        groupBox_3 = new QGroupBox(ifg__qt__DialogoForma);
+        groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
+        groupBox_3->setGeometry(QRect(300, 110, 111, 101));
+        dial_rotacao_y = new QDial(groupBox_3);
+        dial_rotacao_y->setObjectName(QString::fromUtf8("dial_rotacao_y"));
+        dial_rotacao_y->setGeometry(QRect(20, 20, 71, 71));
+        dial_rotacao_y->setMinimum(0);
+        dial_rotacao_y->setMaximum(360);
+        dial_rotacao_y->setValue(0);
+        dial_rotacao_y->setSliderPosition(0);
+        dial_rotacao_y->setOrientation(Qt::Horizontal);
+        dial_rotacao_y->setInvertedAppearance(true);
+        dial_rotacao_y->setInvertedControls(true);
+        dial_rotacao_y->setWrapping(true);
+        dial_rotacao_y->setNotchTarget(45);
+        dial_rotacao_y->setNotchesVisible(true);
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -356,6 +374,10 @@ public:
         label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0, QApplication::UnicodeUTF8));
         checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Possui Luz", 0, QApplication::UnicodeUTF8));
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
+        groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em Y", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

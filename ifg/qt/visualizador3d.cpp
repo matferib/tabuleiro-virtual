@@ -347,6 +347,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.translacao_z());
+  // Rotacao em Y.
+  gerador.dial_rotacao_y->setSliderPosition(-entidade.rotacao_y_graus() - 180.0f);
+
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());
   gerador.spin_escala_y->setValue(entidade.escala().y());
@@ -372,6 +375,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
+    proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_translacao_z(gerador.spin_translacao->value());
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
