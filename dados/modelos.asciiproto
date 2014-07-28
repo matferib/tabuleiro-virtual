@@ -84,6 +84,10 @@ modelo {
   entidade { dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
 }
 modelo {
+  id: 'Ogro'
+  entidade { dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ogre.png'} cor { g: 1.0 } }
+}
+modelo {
   id: 'Orc'
   entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
 }

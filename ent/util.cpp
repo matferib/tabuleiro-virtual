@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/tokenizer.hpp>
 #include <chrono>
 #include <cmath>
 #include <cctype>
@@ -198,47 +199,101 @@ void DesenhaStencil(const float* cor) {
 
 namespace {
 
-// A string de dados de vida desmembrada.
 struct MultDadoSoma {
-  unsigned int mult;
-  unsigned int dado;
-  int soma;
+  unsigned int mult = 0;  // O numero antes do dado.
+  unsigned int dado = 0;  // O numero de faces do dado
+  int soma = 0;           // A soma fixa apos o dado.
+  void Reset() {
+    soma = 0;
+    mult = 0;
+    dado = 0;
+  }
+  void Imprime() const {
+    LOG(INFO) << "MDS: " << mult << "d" << dado << "+-" << soma;
+  }
 };
 
-const MultDadoSoma DesmembraDadosVida(const std::string& dados_vida) {
-  MultDadoSoma mult_dado_soma;
-  // Procura o d.
-  size_t indice_d = dados_vida.find('d');
-  if (indice_d == std::string::npos || indice_d == dados_vida.size() - 1) {
-    throw std::logic_error(std::string("Dados de vida mal formado, d nao encontrado: ") + dados_vida);
+// A string de dados tem o seguinte formato.
+const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida) {
+  std::vector<MultDadoSoma> vetor_mult_dado_soma;
+  boost::char_separator<char> sep("", "+-d");
+  boost::tokenizer<boost::char_separator<char>> tokenizador(dados_vida, sep);
+  enum EstadoTokenizer {
+    ET_INICIAL,
+    ET_LEU_D,
+    ET_LEU_DADO,
+    ET_LEU_MAIS_MENOS,
+    ET_LEU_NUM,
+    ET_ERRO,
+  } et = ET_INICIAL;
+  int num = 1;
+  MultDadoSoma corrente;
+  for (const auto& token : tokenizador) {
+    VLOG(2) << "token: " << token;
+    switch (et) {
+      case ET_INICIAL:
+        if (token == "+" || token == "-" || token == "d") {
+          LOG(ERROR) << "Estado inicial deve comecar com numero, encontrei: " << token;
+          et = ET_ERRO;
+        } else {
+          num = atoi(token.c_str()) * num;
+          et = ET_LEU_NUM;
+        }
+        break;
+      case ET_LEU_NUM:
+        if (token == "d") {
+          if (corrente.mult != 0) {
+           vetor_mult_dado_soma.push_back(corrente);
+           corrente.Reset();
+          }
+          corrente.mult = num;
+          et = ET_LEU_D;
+        } else if (token == "+" || token == "-") {
+          corrente.soma = num;
+          vetor_mult_dado_soma.push_back(corrente);
+          corrente.Reset();
+          et = ET_INICIAL;
+          num = (token == "+") ? 1 : -1;
+        } else {
+          LOG(ERROR) << "Esperava d ou +- apos numero, encontrei: " << token;
+          et = ET_ERRO;
+        }
+        break;
+      case ET_LEU_D:
+        if (token == "+" || token == "-" || token == "d") {
+          LOG(ERROR) << "Esperando numero apos d, encontrei: " << token;
+          et = ET_ERRO;
+        } else {
+          corrente.dado = atoi(token.c_str());
+          et = ET_LEU_DADO;
+        }
+        break;
+      case ET_LEU_DADO:
+        if (token == "+" || token == "-") {
+          num = (token == "+") ? 1 : -1;
+          et = ET_LEU_MAIS_MENOS;
+        } else {
+          LOG(ERROR) << "Esperando +- apos dado, encontrei: " << token;
+          et = ET_ERRO;
+        }
+        break;
+      case ET_LEU_MAIS_MENOS:
+        if (token == "+" || token == "-") {
+          LOG(ERROR) << "Esperando numero ou dado apos +-, encontrei: " << token;
+          et = ET_ERRO;
+        } else {
+          num = atoi(token.c_str()) * num;
+          et = ET_LEU_NUM;
+        }
+        break;
+      case ET_ERRO:
+        break;
+    }
+    if (et == ET_ERRO) {
+      break;
+    }
   }
-  // Mult.
-  std::string str_mult(dados_vida.substr(0, indice_d));
-  mult_dado_soma.mult = atoi(str_mult.c_str());
-  if (mult_dado_soma.mult == 0) {
-    throw std::logic_error(std::string("Dados de vida mal formado, multiplicador invalido: ") + dados_vida);
-  }
-  // Dado.
-  size_t indice_sinal = dados_vida.find_first_of("+-", indice_d + 1);
-  if (indice_sinal == std::string::npos) {
-    indice_sinal = dados_vida.size();
-  }
-  std::string str_dado(dados_vida.substr(indice_d + 1, indice_sinal - indice_d - 1));
-  mult_dado_soma.dado = atoi(str_dado.c_str());
-  if (mult_dado_soma.dado == 0) {
-    throw std::logic_error(std::string("Dados de vida mal formado, dado invalido: ") + dados_vida);
-  }
-  // Soma.
-  if (indice_sinal == dados_vida.size()) {
-    mult_dado_soma.soma = 0;
-    return mult_dado_soma;
-  }
-  std::string str_soma(dados_vida.substr(indice_sinal + 1));
-  mult_dado_soma.soma = atoi(str_soma.c_str());
-  if (dados_vida[indice_sinal] == '-') {
-    mult_dado_soma.soma = -mult_dado_soma.soma;
-  }
-  return mult_dado_soma;
+  return vetor_mult_dado_soma;
 }
 
 } // namespace
@@ -252,18 +307,25 @@ int RolaDado(unsigned int nfaces) {
 
 // Como gcc esta sem suporte a regex, vamos fazer na mao.
 int GeraPontosVida(const std::string& dados_vida) {
-  auto mds = DesmembraDadosVida(dados_vida);
+  const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
   int res = 0;
-  for (unsigned int i = 0; i < mds.mult; ++i) {
-    res += RolaDado(mds.dado);
+  for (const auto& mds : vetor_mds) {
+    mds.Imprime();
+    for (unsigned int i = 0; i < mds.mult; ++i) {
+      res += RolaDado(mds.dado);
+    }
+    res += mds.soma;
   }
-  res += mds.soma;
   return res;
 }
 
 int GeraMaxPontosVida(const std::string& dados_vida) {
-  auto mds = DesmembraDadosVida(dados_vida);
-  return mds.mult * mds.dado + mds.soma;
+  const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
+  int res = 0;
+  for (const auto& mds : vetor_mds) {
+    res +=  mds.mult * mds.dado + mds.soma;
+  }
+  return res;
 }
 
 void ComputaDiferencaVetor(const Posicao& pos2, const Posicao& pos1, Posicao* pos_res) {
