@@ -11,6 +11,10 @@ TEST(TesteGeraDados, TesteGeraDados) {
   EXPECT_EQ(17, pv);
   pv = GeraMaxPontosVida("4d3");
   EXPECT_EQ(12, pv);
+  pv = GeraMaxPontosVida("4d3 + 5 - 2d8 -  3");
+  EXPECT_EQ(-2, pv);
+  pv = GeraMaxPontosVida("2d3 + 2 + 1d4 + 1");
+  EXPECT_EQ(13, pv);
 }
 
 }  // namespace ent.

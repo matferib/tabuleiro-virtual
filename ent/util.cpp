@@ -216,7 +216,7 @@ struct MultDadoSoma {
 // A string de dados tem o seguinte formato.
 const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida) {
   std::vector<MultDadoSoma> vetor_mult_dado_soma;
-  boost::char_separator<char> sep("", "+-d");
+  boost::char_separator<char> sep("\t ", "+-d");
   boost::tokenizer<boost::char_separator<char>> tokenizador(dados_vida, sep);
   enum EstadoTokenizer {
     ET_INICIAL,
@@ -288,10 +288,19 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
         break;
       case ET_ERRO:
         break;
+      default:
+        break;
     }
     if (et == ET_ERRO) {
       break;
     }
+  }
+  if (et == ET_LEU_NUM) {
+    corrente.soma = num;
+    vetor_mult_dado_soma.push_back(corrente);
+  }
+  if (et == ET_LEU_DADO) {
+    vetor_mult_dado_soma.push_back(corrente);
   }
   return vetor_mult_dado_soma;
 }
