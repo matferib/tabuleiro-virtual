@@ -85,7 +85,11 @@ modelo {
 }
 modelo {
   id: 'Ogro'
-  entidade { dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ogre.png'} cor { g: 1.0 } }
+  entidade { dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ogre.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
+  id: 'Ogro Bárbaro'
+  entidade { dados_vida: '4d8+19+4d12+16' tamanho: TM_GRANDE info_textura { id: 'ogre_barbarian.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
 modelo {
   id: 'Orc'
