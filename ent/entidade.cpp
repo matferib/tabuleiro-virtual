@@ -297,8 +297,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (luz != nullptr && luz->r() == 0 && luz->g() == 0 && luz->b() == 0) {
     proto_.clear_luz();
   }
-  proto_.set_pontos_vida(pontos_vida_antes);
-  AtualizaPontosVida(proto_parcial.pontos_vida());
+  if (proto_parcial.has_pontos_vida()) {
+    // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
+    proto_.set_pontos_vida(pontos_vida_antes);
+    AtualizaPontosVida(proto_parcial.pontos_vida());
+  }
 }
 
 void Entidade::AtualizaAcao(const std::string& id_acao) {
