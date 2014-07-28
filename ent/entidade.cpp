@@ -14,7 +14,7 @@
 namespace ent {
 namespace {
 
-const double DURACAO_QUEDA_SEGUNDOS = 0.3f;
+const double DURACAO_QUEDA_SEGUNDOS = 0.5f;
 // Tamanho da barra de vida.
 const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
 const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
