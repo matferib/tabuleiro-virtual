@@ -1,4 +1,5 @@
 Versao 1.5
+- Cor de formas compostas aplicando a todos os filhos.
 - Opcao de Salvar e Salvar como.
 - Contador de rodadas.
 - Mais letras maiusculas.

@@ -274,7 +274,7 @@ void Entidade::MataEntidade() {
 }
 
 void Entidade::AtualizaPontosVida(int pontos_vida) {
-  if (!proto_.has_max_pontos_vida()) {
+  if (proto_.max_pontos_vida() == 0) {
     // Entidades sem pontos de vida nao sao afetadas.
     return;
   }

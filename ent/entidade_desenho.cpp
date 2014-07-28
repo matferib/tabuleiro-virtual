@@ -53,6 +53,7 @@ void Entidade::DesenhaObjetoCompostoProto(
   }
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
   gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   for (const auto& forma : proto.sub_forma()) {
     DesenhaObjetoProto(forma, vd, pd, nullptr);
@@ -155,8 +156,12 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 }
 
-void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
-  bool transparencias = pd->transparencias() && ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
+void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
+                                       const VariaveisDerivadas& vd,
+                                       ParametrosDesenho* pd,
+                                       const float* matriz_shear) {
+  bool transparencias = pd->transparencias() &&
+                        ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz;
   if (matriz_shear != nullptr) {
@@ -164,6 +169,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto, const Variave
   }
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
   int num_faces = std::max(4, static_cast<int>((proto.escala().x() + proto.escala().y()) * 2));
   int num_tocos = std::max(2, static_cast<int>(proto.escala().z() * 2));
   switch (proto.sub_tipo()) {
