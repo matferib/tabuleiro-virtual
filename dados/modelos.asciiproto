@@ -24,6 +24,10 @@ modelo {
   entidade { dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
 }
 modelo {
+  id: 'Elemental do Ar (Pequeno)'
+  entidade { dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 } }
+}
+modelo {
   id: 'Enxame (centopéias)'
   entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
@@ -110,6 +114,10 @@ modelo {
 modelo {
   id: 'Orc Capitão'
   entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
+}
+modelo {
+  id: 'Soldado do Horror' # monstros de faerun.
+  entidade { dados_vida: '4d12' info_textura { id: 'dread_warrior' } cor { r: 0 g: 0 b: 0 } }
 }
 modelo {
   id: 'Troll'
