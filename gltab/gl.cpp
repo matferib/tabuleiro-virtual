@@ -24,7 +24,7 @@ void CuboSolido(GLfloat tam_lado) {
 
 namespace {
 
-// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita. 
+// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   // Le o raster em coordenadas de janela.
   GLint raster_pos[4];
@@ -248,11 +248,15 @@ static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16], GLfloat
 }
 
 GLint gluProject(
-    GLfloat objx, GLfloat objy, GLfloat objz, 
-    const GLfloat modelMatrix[16], 
+    GLfloat objx,
+    GLfloat objy,
+    GLfloat objz,
+    const GLfloat modelMatrix[16],
     const GLfloat projMatrix[16],
     const GLint viewport[4],
-    GLfloat* winx, GLfloat* winy, GLfloat* winz) {
+    GLfloat* winx,
+    GLfloat* winy,
+    GLfloat* winz) {
   GLfloat in[4];
   GLfloat out[4];
 
@@ -262,27 +266,49 @@ GLint gluProject(
   in[3]=1.0;
   __gluMultMatrixVecf(modelMatrix, in, out);
   __gluMultMatrixVecf(projMatrix, out, in);
-  if (in[3] == 0.0) {
-      return (GL_FALSE);
-  }
 
-  in[0]/=in[3];
-  in[1]/=in[3];
-  in[2]/=in[3];
+  /*
+  int max;
+  gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &max);
+  LOG(INFO) << "Maximo pilha PJ: " << max;
+  gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &max);
+  LOG(INFO) << "Maximo pilha MV: " << max;
+  for (int i = 0; i < 16; ++i) {
+    LOG(INFO) << "proj[" << i << "]: " << projMatrix[i];
+  }
+  for (int i = 0; i < 16; ++i) {
+    LOG(INFO) << "mv[" << i << "]: " << modelMatrix[i];
+  }
+  */
+  if (in[3] == 0.0) {
+    LOG(ERROR) << "Projecao falhou";
+    //int max;
+    //gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &max);
+    //LOG(INFO) << "Maximo pilha PJ: " << max;
+    //gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &max);
+    //LOG(INFO) << "Maximo pilha MV: " << max;
+    return GL_FALSE;
+  }
+  /*
+  LOG(INFO) << "Projecao ok";
+  */
+
+  in[0] /= in[3];
+  in[1] /= in[3];
+  in[2] /= in[3];
   /* Map x, y and z to range 0-1 */
-  in[0]=in[0]*0.5f+0.5f;
-  in[1]=in[1]*0.5f+0.5f;
-  in[2]=in[2]*0.5f+0.5f;
+  in[0]= in[0] * 0.5f + 0.5f;
+  in[1]= in[1] * 0.5f + 0.5f;
+  in[2]= in[2] * 0.5f + 0.5f;
 
   /* Map x,y to viewport */
-  in[0]=in[0] * viewport[2] + viewport[0];
-  in[1]=in[1] * viewport[3] + viewport[1];
+  in[0] = in[0] * viewport[2] + viewport[0];
+  in[1] = in[1] * viewport[3] + viewport[1];
 
-  *winx=in[0];
-  *winy=in[1];
-  *winz=in[2];
-
-  return (GL_TRUE);
+  *winx = in[0];
+  *winy = in[1];
+  *winz = in[2];
+  return GL_TRUE;
 }
 struct ContextoInterno {
   // Mapeia um ID para a cor RGB em 22 bits (os dois mais significativos sao para a pilha).
@@ -760,11 +786,11 @@ void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat alt
   LOG(INFO) << "raio_base: " << raio_base;
   LOG(INFO) << "raio_topo: " << raio_topo_original;
   for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
-    LOG(INFO) << "indices[" << i << "]: " << indices[i]; 
+    LOG(INFO) << "indices[" << i << "]: " << indices[i];
   }
   for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
-    LOG(INFO) << "coordenadas[" << i / 3 << "]: " 
-              << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2]; 
+    LOG(INFO) << "coordenadas[" << i / 3 << "]: "
+              << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   }
 #endif
 
@@ -1088,9 +1114,12 @@ void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
   gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
   float x2d, y2d, z2d;
-  gluProject(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d);
+  if (!gluProject(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
+    return;
+  }
   g_contexto->raster_x = x2d;
   g_contexto->raster_y = y2d;
+  //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
 }
 
 void PosicaoRaster(GLint x, GLint y) {

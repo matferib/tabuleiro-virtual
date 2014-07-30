@@ -49,6 +49,8 @@ LOCAL_SRC_FILES := jni-impl.cpp \
                    tex/texturas.cpp tex/lodepng.cpp \
 									 arq/arquivo.cpp
 
+# Para Nexus 7 e afins com zbuffer de 16 bits.
+#LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES -DZBUFFER_16_BITS
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES
 LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt boost-filesystem-prebuilt
 LOCAL_LDLIBS := -lGLESv1_CM -llog -landroid

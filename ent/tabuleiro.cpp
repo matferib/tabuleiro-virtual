@@ -66,9 +66,14 @@ const float DELTA_MINIMO_DESENHO_LIVRE = 0.2;
 /** A Translacao e a rotacao de objetos so ocorre depois que houver essa distancia de pixels percorrida pelo mouse. */
 const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
 
-/** Os clipping planes. */
-const double DISTANCIA_PLANO_CORTE_PROXIMO = 0.5;
-const double DISTANCIA_PLANO_CORTE_DISTANTE = 500.0f;
+/** Os clipping planes. Isso afeta diretamente a precisao do Z buffer. */
+#if ZBUFFER_16_BITS
+const double DISTANCIA_PLANO_CORTE_PROXIMO = 2.0f;
+const double DISTANCIA_PLANO_CORTE_DISTANTE = 80.0f;
+#else
+const double DISTANCIA_PLANO_CORTE_PROXIMO = 1.0f;
+const double DISTANCIA_PLANO_CORTE_DISTANTE = 160.0f;
+#endif
 
 const char* ID_ACAO_ATAQUE_CORPO_A_CORPO = "Ataque Corpo a Corpo";
 
@@ -601,7 +606,9 @@ void Tabuleiro::LimpaListaPontosVida() {
 }
 
 void Tabuleiro::LimpaUltimoListaPontosVida() {
-  lista_pontos_vida_.pop_back();
+  if (!lista_pontos_vida_.empty()) {
+    lista_pontos_vida_.pop_back();
+  }
 }
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -1311,6 +1318,7 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+  gl::Desabilita(GL_DITHER);
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
 
