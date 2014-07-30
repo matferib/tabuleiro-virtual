@@ -75,6 +75,12 @@ if gerar_profile:
   env['CXXFLAGS'] += ['-pg']
   env['LINKFLAGS'] += ['-pg']
 
+usar_zbuffer_16_bits = (ARGUMENTS.get('usar_zbuffer_16_bits', '0') == '1')
+if usar_zbuffer_16_bits:
+  env['CPPDEFINES']['ZBUFFER_16_BITS'] = 1
+else:
+  env['CPPDEFINES']['ZBUFFER_16_BITS'] = 0
+
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
 

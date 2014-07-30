@@ -1,4 +1,5 @@
 Versao 1.5
+- Ler no inicio os limites de pilha e verificar nas chamadas.
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Cor de formas compostas aplicando a todos os filhos.
 - Opcao de Salvar e Salvar como.

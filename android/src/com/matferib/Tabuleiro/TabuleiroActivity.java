@@ -205,6 +205,7 @@ class TabuleiroRenderer
 
   @Override
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+    gl.glDisable(GL10.GL_DITHER);
     nativeInitGl();
   }
 
@@ -396,7 +397,12 @@ class TabuleiroRenderer
     } else if ((metaTeclas_ & META_ALT_ESQUERDO) != 0) {
       eventos_.add(Evento.Acao(x, y));
     } else if ((metaTeclas_ & META_ALT_DIREITO) != 0) {
-      eventos_.add(Evento.AcaoSinalizacao(x, y));
+      if ((metaTeclas_ & META_SHIFT_DIREITO) != 0) {
+        // Hack para teclados sem alt esquerdo.
+        eventos_.add(Evento.Acao(x, y));
+      } else {
+        eventos_.add(Evento.AcaoSinalizacao(x, y));
+      }
     }
     return true;
   }
