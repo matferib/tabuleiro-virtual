@@ -39,7 +39,7 @@ const char* g_menuitem_strs[] = {
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
-      "&Reiniciar", "&Salvar", "R&estaurar", "Res&taurar mantendo Entidades", "Re&iniciar Câmera", g_fim,
+      "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Re&iniciar Câmera", g_fim,
   // Entidades.
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.
@@ -220,7 +220,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
     break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
-    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
+    EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
       std::string id = acao->data().toString().toStdString();
@@ -289,6 +289,9 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+    notificacao->set_endereco("");  // Endereco vazio para sinalizar o uso do corrente.
+  } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_COMO]) {
     // Abre dialogo de arquivo.
     QString file_str = QFileDialog::getSaveFileName(
         qobject_cast<QWidget*>(parent()),

@@ -7,6 +7,7 @@ package ntf;
 enum Tipo {
   TN_SAIR = 1;
   TN_ERRO = 2;
+  TN_INFO = 30;
   TN_INICIAR = 3;
   TN_INICIADO = 4;
   TN_CONECTAR = 5;

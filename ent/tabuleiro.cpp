@@ -670,15 +670,32 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_SERIALIZAR_TABULEIRO: {
       std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
       if (notificacao.has_endereco()) {
-        // Salvar no endereco.
+        // Salvar com nome corrente se endereco for vazio, caso contrario usar o nome da notificacao.
+        std::string caminho_str;
+        if (notificacao.endereco().empty()) {
+          // Busca o nome atual do tabuleiro.
+          if (proto_.nome().empty()) {
+            auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+            ne->set_erro("Tabuleiro ainda não salvo.");
+            central_->AdicionaNotificacao(ne);
+            return true;
+          }
+          caminho_str = proto_.nome();
+        } else {
+          caminho_str = notificacao.endereco();
+        }
         try {
-          boost::filesystem::path caminho(notificacao.endereco());
+          boost::filesystem::path caminho(caminho_str);
+          proto_.set_nome(caminho.filename().string());
           arq::EscreveArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
         } catch (const std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(erro.what());
           central_->AdicionaNotificacao(ne);
         }
+        auto* notificacao = ntf::NovaNotificacao(ntf::TN_INFO);
+        notificacao->set_erro(std::string("Tabuleiro '") + caminho_str + "' salvo.");
+        central_->AdicionaNotificacao(notificacao);
       } else {
         // Enviar remotamente.
         nt_tabuleiro->set_clientes_pendentes(notificacao.clientes_pendentes());
@@ -693,6 +710,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         try {
           boost::filesystem::path caminho(notificacao.endereco());
           arq::LeArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), &nt_tabuleiro);
+          nt_tabuleiro.mutable_tabuleiro()->set_nome(caminho.filename().string());
         } catch (std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
@@ -2692,7 +2710,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   AtualizaTexturas(novo_proto);
 }
 
-ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
+ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
   auto* notificacao = new ntf::Notificacao;
   try {
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
@@ -2707,6 +2725,10 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro() {
     for (const auto& id_ent : entidades_) {
       t->add_entidade()->CopyFrom(id_ent.second->Proto());
     }
+    if (!nome.empty()) {
+      t->set_nome(nome);
+    }
+    VLOG(1) << "Serializando tabuleiro " << t->ShortDebugString();
     return notificacao;
   } catch (const std::logic_error& error) {
     notificacao->set_tipo(ntf::TN_ERRO);

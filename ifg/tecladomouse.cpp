@@ -230,6 +230,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       teclas_.push_back(tecla);
       return;
     case Tecla_S:
+      if ((modificadores & Modificador_Ctrl) != 0) {
+        auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        notificacao->set_endereco("");  // Endereco vazio para sinalizar o uso do corrente.
+        central_->AdicionaNotificacao(notificacao);
+        return;
+      }
       tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       return;
     case Tecla_R:
