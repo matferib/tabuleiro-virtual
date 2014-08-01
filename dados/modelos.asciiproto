@@ -24,6 +24,10 @@ modelo {
   entidade { dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
 }
 modelo {
+	id: 'Dragontino'
+	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
   id: 'Elemental do Ar (Pequeno)'
   entidade { dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 } }
 }
@@ -114,6 +118,10 @@ modelo {
 modelo {
   id: 'Orc Capitão'
   entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
+}
+modelo {
+  id: 'Peryton'
+  entidade { dados_vida: '5d10+5' voadora: true info_textura { id: 'peryton.png'} cor { r: 0.5 g: 0.5 b: 0.0  } }
 }
 modelo {
   id: 'Soldado do Horror' # monstros de faerun.
