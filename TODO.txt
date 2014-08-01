@@ -1,8 +1,11 @@
-Versao 1.5
+Versao 1.5.1
+- Salvar ao sair.
+- Arrumar toque no android. Ao usar dois dedos, ao tirar um ele considera clique.
 - Ler no inicio os limites de pilha e verificar nas chamadas.
+
+Versao 1.6.0
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Cor de formas compostas aplicando a todos os filhos.
-- Opcao de Salvar e Salvar como.
 - Contador de rodadas.
 - Mais letras maiusculas.
 - Salvar um tabuleiro ao sair.

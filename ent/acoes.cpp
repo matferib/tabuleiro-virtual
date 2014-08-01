@@ -709,7 +709,7 @@ bool Acao::AtualizaAlvo() {
     return false;
   }
   // Move o alvo na direcao do impacto e volta se nao estiver caido.
-  if (disco_alvo_rad_ >= M_PI_2 && entidade_destino->Proto().morta()) {
+  if ((disco_alvo_rad_ >= M_PI / 2.0f) && entidade_destino->Proto().morta()) {
     VLOG(1) << "Finalizando alvo, entidade morta nao precisa voltar.";
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;

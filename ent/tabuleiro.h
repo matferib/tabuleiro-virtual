@@ -452,8 +452,10 @@ class Tabuleiro : public ntf::Receptor {
   void CoordenadaEntidadeDetalhada(unsigned int id, unsigned int id_detalhado, float* x, float* y, float* z);
 #endif
 
-  /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida. */
-  ntf::Notificacao* SerializaTabuleiro();
+  /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida.
+  * @param nome um tabuleiro com nome pode ser salvo diretamente, sem dialogo de nome
+  **/
+  ntf::Notificacao* SerializaTabuleiro(const std::string& nome = "");
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaPropriedades() const;

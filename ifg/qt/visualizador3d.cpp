@@ -221,6 +221,10 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+    case ntf::TN_INFO: {
+      QMessageBox::information(this, tr("Informação"), tr(notificacao.erro().c_str()));
+      break;
+    }
     case ntf::TN_ERRO: {
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
       break;
