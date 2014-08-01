@@ -387,7 +387,7 @@ class TabuleiroRenderer
 
   @Override
   public boolean onSingleTapConfirmed(MotionEvent event) {
-    //Log.d(TAG, "SingleTapConfirmed");
+    //Log.d(TAG, "SingleTapConfirmed: " + event.toString());
     int x = (int)event.getX();
     int y = (int)(parent_.getHeight() - event.getY());
     if (metaTeclas_ == 0) {
