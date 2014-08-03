@@ -1,14 +1,12 @@
 Versao 1.5.1
 - Salvar ao sair.
-- Arrumar toque no android. Ao usar dois dedos, ao tirar um ele considera clique.
-- Ler no inicio os limites de pilha e verificar nas chamadas.
+- Ler no inicio os limites de pilha MV e PROJ e verificar nas chamadas.
+- Arrumar bug da camera no tablet, esta ficando doidao de vez em quando.
 
 Versao 1.6.0
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Cor de formas compostas aplicando a todos os filhos.
 - Contador de rodadas.
-- Mais letras maiusculas.
-- Salvar um tabuleiro ao sair.
 - Mais letras maiusculas.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Posicionar camera para os jogadores ao abrir tabuleiro.
