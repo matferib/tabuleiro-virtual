@@ -3311,37 +3311,43 @@ void Tabuleiro::DesenhaGrade() {
   }
 }
 
+namespace {
+// Posiciona o raster no pixel.
+void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura_vp, 0, altura_vp, 0, 1);
+
+  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+  gl::PosicaoRaster(x, y);
+}
+}  // namespace
+
 void Tabuleiro::DesenhaListaPontosVida() {
   if (lista_pontos_vida_.empty()) {
     return;
   }
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+  int raster_x = 0, raster_y = 0;
+  int largura_fonte, altura_fonte;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+  raster_y = altura_ - altura_fonte;
+  raster_x = largura_ - 2;
+  PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
 
-  {
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-    gl::CarregaIdentidade();
-    int largura_fonte, altura_fonte;
-    gl::TamanhoFonte(&largura_fonte, &altura_fonte);
-
-    int raster_y = altura_ - altura_fonte;
-    int raster_x = largura_ - 2;
-    std::string titulo("Lista PV");
-    gl::PosicaoRaster(raster_x, raster_y);
-    MudaCor(COR_BRANCA);
-    gl::DesenhaStringAlinhadoDireita(titulo);
+  MudaCor(COR_BRANCA);
+  std::string titulo("Lista PV");
+  gl::DesenhaStringAlinhadoDireita(titulo);
+  raster_y -= (altura_fonte + 2);
+  for (int pv : lista_pontos_vida_) {
+    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
     raster_y -= (altura_fonte + 2);
-    for (int pv : lista_pontos_vida_) {
-      gl::PosicaoRaster(raster_x, raster_y);
-      raster_y -= (altura_fonte + 2);
-      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-      char str[4];
-      snprintf(str, 4, "%d", abs(pv));
-      gl::DesenhaStringAlinhadoDireita(str);
-    }
+    MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+    char str[4];
+    snprintf(str, 4, "%d", abs(pv));
+    gl::DesenhaStringAlinhadoDireita(str);
   }
 }
 
