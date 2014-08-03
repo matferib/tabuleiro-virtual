@@ -1034,9 +1034,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       auto* p = olho_.mutable_alvo();
       float novo_x = p->x() - delta_x;
       float novo_y = p->y() - delta_y;
-      float x_2 = TamanhoX() / 2.0f;
-      float y_2 = TamanhoY() / 2.0f;
-      if (novo_x < -x_2 || novo_x > x_2 || novo_y < -y_2 || novo_y > y_2) {
+      if (novo_x < -TamanhoX() || novo_x > TamanhoX() || novo_y < -TamanhoY() || novo_y > TamanhoY()) {
         return;
       }
       p->set_x(novo_x);
