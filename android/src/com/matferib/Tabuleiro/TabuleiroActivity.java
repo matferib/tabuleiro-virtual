@@ -16,7 +16,10 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.view.ScaleGestureDetector;
+import android.view.Window;
+import android.view.WindowManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -84,24 +87,42 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     setFocusableInTouchMode(true);
   }
 
+  // A sequencia de eventos acontece da seguinte forma:
+  // Primeiro toque: ON_ACTION_DOWN.
+  // Segundo, terceiro... toques: ON_ACTION_POINTER_DOWN
+  // Tirou terceiro, segundo: ON_ACTION_POINTER_UP
+  // Tirou ultimo: ON_ACTION_UP.
+  // Em resumo, ON_ACTION_POINTER_* serve para detectar ponteiros secundarios.
   @Override
   public boolean onTouchEvent(final MotionEvent event) {
-    if ((event.getActionMasked() & MotionEvent.ACTION_UP) != 0) {
+    //Log.d("TabuleiroRenderer", event.toString());
+    renderer_.habilitaSensores(event.getPointerCount() == 2);
+    if (event.getActionMasked() == MotionEvent.ACTION_UP || event.getActionMasked() == MotionEvent.ACTION_POINTER_UP) {
       renderer_.onUp(event);
+      detectorEventos_.onTouchEvent(event);
       if (event.getPointerCount() == 1) {
         // Voltou pro estado inicial.
         estado_ = ESTADO_OCIOSO;
       }
+      return true;
     }
 
-    renderer_.habilitaSensores(event.getPointerCount() == 2);
+    // O detector de eventos tem que ficar ciente dos up e downs para poder confirmar o single tap e nao confirma-lo
+    // quando houver duplo clique.
+    if (event.getActionMasked() == MotionEvent.ACTION_DOWN || event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
+      detectorEventos_.onTouchEvent(event);
+    }
+
     if (event.getPointerCount() <= 1) {
       if (estado_ != ESTADO_OCIOSO) {
         return true;
       }
+      if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
+        // Scroll nao foi detectado acima.
+        detectorEventos_.onTouchEvent(event);
+      }
       // O detector de pressao esta causando algum tilt na pinca.
       //detectorPressao_.onTouch(event);
-      detectorEventos_.onTouchEvent(event);
     } else if (event.getPointerCount() == 2) {
       if (estado_ != ESTADO_OCIOSO && estado_ != ESTADO_MULTITOQUE_2) {
         return true;
