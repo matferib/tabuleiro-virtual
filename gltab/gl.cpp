@@ -322,6 +322,8 @@ struct ContextoInterno {
   GLuint tam_buffer = 0;
   float raster_x = 0.0f;
   float raster_y = 0.0f;
+  int max_pilha_mv = 0.0f;
+  int max_pilha_pj = 0.0f;
 
   inline bool UsarSelecaoPorCor() const {
     return depurar_selecao_por_cor || modo_renderizacao == MR_SELECT;
@@ -416,6 +418,10 @@ void CuboSolidoUnitario() {
 
 void IniciaGl(int* argcp, char** argv) {
   g_contexto = new ContextoInterno;
+  gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &g_contexto->max_pilha_pj);
+  gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &g_contexto->max_pilha_mv);
+  LOG(INFO) << "Max pilha mv: " << g_contexto->max_pilha_mv;
+  LOG(INFO) << "Max pilha pj: " << g_contexto->max_pilha_pj;
 }
 
 void FinalizaGl() {

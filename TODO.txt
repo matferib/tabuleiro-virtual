@@ -1,6 +1,5 @@
 Versao 1.5.1
 - Salvar ao sair.
-- Ler no inicio os limites de pilha MV e PROJ e verificar nas chamadas.
 
 Versao 1.6.0
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
