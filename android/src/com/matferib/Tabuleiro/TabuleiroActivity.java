@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.opengl.GLSurfaceView;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -18,6 +19,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ScaleGestureDetector;
+import android.view.Surface;
 import android.view.Window;
 import android.view.WindowManager;
 import android.hardware.Sensor;
@@ -26,13 +28,43 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
-public class TabuleiroActivity extends Activity {
+public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     view_ = new TabuleiroSurfaceView(this);
     setContentView(view_);
     nativeCreate(getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA), getResources().getAssets());
+    getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
+  }
+
+  private void hideUi() {
+    if (Build.VERSION.SDK_INT >= 19) {
+      getWindow().getDecorView().setSystemUiVisibility(
+          View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+          | View.SYSTEM_UI_FLAG_FULLSCREEN
+          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+    }
+  }
+
+  @Override
+  public void onSystemUiVisibilityChange(int visibility) {
+    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
+    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+      hideUi();
+    }
+  }
+
+  @Override
+  public void onWindowFocusChanged(boolean hasFocus) {
+    Log.d("TabuleiroActivity", "onWindowsFocusChanged");
+    super.onWindowFocusChanged(hasFocus);
+    if (hasFocus) {
+      hideUi();
+    }
   }
 
   @Override
@@ -71,7 +103,7 @@ public class TabuleiroActivity extends Activity {
 class TabuleiroSurfaceView extends GLSurfaceView {
   public TabuleiroSurfaceView(Context context) {
     super(context);
-    renderer_ = new TabuleiroRenderer(this, getResources());
+    renderer_ = new TabuleiroRenderer(this, getResources(), OrientacaoPadrao(context));
     detectorEventos_ = new GestureDetector(context, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEventos_.setIsLongpressEnabled(false);
@@ -85,6 +117,22 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     requestFocus();
     setFocusableInTouchMode(true);
+  }
+
+  private int OrientacaoPadrao(Context context) {
+    // Encontra orientacao padrao do dispositivo, para inclinacao. Referencia:
+    // http://stackoverflow.com/questions/4553650/how-to-check-device-natural-default-orientation-on-android-i-e-get-landscape
+    WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+    Configuration config = getResources().getConfiguration();
+    int rotation = windowManager.getDefaultDisplay().getRotation();
+    if (((rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) &&
+          config.orientation == Configuration.ORIENTATION_LANDSCAPE)
+        || ((rotation == Surface.ROTATION_90 || rotation == Surface.ROTATION_270) &&
+          config.orientation == Configuration.ORIENTATION_PORTRAIT)) {
+      return Configuration.ORIENTATION_LANDSCAPE;
+    } else {
+      return Configuration.ORIENTATION_PORTRAIT;
+    }
   }
 
   // A sequencia de eventos acontece da seguinte forma:
@@ -219,9 +267,10 @@ class TabuleiroRenderer
 
   public static final String TAG = "TabuleiroRenderer";
 
-  public TabuleiroRenderer(GLSurfaceView parent, Resources resources) {
+  public TabuleiroRenderer(GLSurfaceView parent, Resources resources, int orientacao_padrao) {
     resources_ = resources;
     parent_ = parent;
+    orientacao_padrao_ = orientacao_padrao;
   }
 
   @Override
@@ -485,10 +534,19 @@ class TabuleiroRenderer
     //Log.d(TAG, "onSensorChanged: outras");
     // Detectar landscape ou retrato para saber se le o y ou x.
     float val;
-    if (resources_.getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-      val = se.values[0];
+    if (orientacao_padrao_ == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+      if (resources_.getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+        val = se.values[0];
+      } else {
+        val = se.values[1];
+      }
     } else {
-      val = se.values[1];
+      // Orientacao padrao PORTRAIT.
+      if (resources_.getConfiguration().orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+        val = -se.values[1];
+      } else {
+        val = se.values[0];
+      }
     }
     eventos_.add(Evento.Inclinacao(-val));
   }
@@ -594,6 +652,7 @@ class TabuleiroRenderer
   private Resources resources_;
   private boolean lerGiroscopio_ = false;
   private int metaTeclas_ = 0;
+  private int orientacao_padrao_;  // ORIENTATION_PORTRAIT ou ORIENTATION_LANDSCAPE.
   private static final int META_ALT_ESQUERDO = 0x1;
   private static final int META_ALT_DIREITO  = 0x2;
   private static final int META_CTRL_ESQUERDO = 0x4;
