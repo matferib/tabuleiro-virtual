@@ -1010,7 +1010,8 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     case ETAB_DESLIZANDO: {
       // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
-      gl::ModoMatriz(GL_MODELVIEW);
+      //gl::ModoMatriz(GL_MODELVIEW);
+      gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
       gl::CarregaIdentidade();
       const Posicao& alvo = olho_.alvo();
       gl::OlharPara(
@@ -1029,9 +1030,17 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
 
       float delta_x = nx - ultimo_x_3d_;
       float delta_y = ny - ultimo_y_3d_;
+      // Dependendo da posicao da pinca, os deltas podem se tornar muito grandes. Tentar manter o olho no tabuleiro.
       auto* p = olho_.mutable_alvo();
-      p->set_x(p->x() - delta_x);
-      p->set_y(p->y() - delta_y);
+      float novo_x = p->x() - delta_x;
+      float novo_y = p->y() - delta_y;
+      float x_2 = TamanhoX() / 2.0f;
+      float y_2 = TamanhoY() / 2.0f;
+      if (novo_x < -x_2 || novo_x > x_2 || novo_y < -y_2 || novo_y > y_2) {
+        return;
+      }
+      p->set_x(novo_x);
+      p->set_y(novo_y);
       olho_.clear_destino();
       AtualizaOlho(true);
       ultimo_x_ = x;
