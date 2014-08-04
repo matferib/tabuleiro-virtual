@@ -23,7 +23,7 @@ class Visualizador3d;
 
 /** Interface grafica principal. Responsável por manipular a centra de eventos. */
 class Principal : public QWidget, ntf::Receptor {
-	Q_OBJECT
+   Q_OBJECT
  public:
   /** Realiza a inicializacao de algumas bibliotecas necessarias para o qt e opengl antes de
   * instanciar o objeto.
@@ -31,35 +31,39 @@ class Principal : public QWidget, ntf::Receptor {
   static Principal* Cria(int& argc, char** argv,
                          ent::Texturas* texturas,
                          ntf::CentralNotificacoes* central);
-	~Principal();
+  ~Principal();
 
-	/** executa a classe principal ate que o evento de finalizacao seja executado.
-	* Inicia a janela e o menu e aguarda eventos.
-	*/
-	void Executa();
+  /** executa a classe principal ate que o evento de finalizacao seja executado.
+  * Inicia a janela e o menu e aguarda eventos.
+  */
+  void Executa();
 
   /** Interface ntf::Receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+
+ protected:
+  /** Handler de fechamento. */
+  void closeEvent(QCloseEvent * event) override;
 
  private slots:
   /** Trata o evento de temporização. */
   void Temporizador();
 
  private:
-	Principal(ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
+  Principal(ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;
-	/** a aplicacao QT. */
-	QApplication* q_app_;
+  /** a aplicacao QT. */
+  QApplication* q_app_;
   /** Temporizador. */
   QTimer* q_timer_;
   /** O mundo virtual. */
   ent::Tabuleiro tabuleiro_;
-	/** barra de menu principal. */
-	MenuPrincipal* menu_principal_;
-	/** visualizador 3d da aplicacao. */
-	Visualizador3d* v3d_;
+  /** barra de menu principal. */
+  MenuPrincipal* menu_principal_;
+  /** visualizador 3d da aplicacao. */
+  Visualizador3d* v3d_;
 };
 
 } // namespace qt
@@ -67,4 +71,3 @@ class Principal : public QWidget, ntf::Receptor {
 
 
 #endif
-

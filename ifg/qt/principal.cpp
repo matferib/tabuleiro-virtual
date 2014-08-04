@@ -5,8 +5,10 @@
 
 // QT
 #include <QApplication>
+#include <QCloseEvent>
 #include <QDesktopWidget>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QLayout>
 #include <QTextCodec>
 #include <QTimer>
@@ -69,6 +71,16 @@ void Principal::Executa() {
   q_timer_->stop();
 }
 
+void Principal::closeEvent(QCloseEvent *event) {
+  if (tabuleiro_.ModoMestre()) {
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
+    n.set_endereco("ultimo_tabuleiro_automatico.binproto");
+    tabuleiro_.TrataNotificacao(n);
+  }
+  event->accept();
+}
+
 void Principal::Temporizador() {
   // Realiza a notificação de todos.
   auto* notificacao = new ntf::Notificacao;
@@ -80,7 +92,7 @@ void Principal::Temporizador() {
 bool Principal::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_SAIR:
-      q_app_->quit();
+      close();
       return true;
     case ntf::TN_INICIAR: {
       auto* notificacao_iniciado = new ntf::Notificacao;
