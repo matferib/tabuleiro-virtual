@@ -440,13 +440,17 @@ class AcaoRaio : public Acao {
       duracao_ = 0.0f;
       return;
     }
-    Posicao pos_d = acao_proto_.pos_tabuleiro();
-    if (acao_proto_.id_entidade_destino_size() > 0) {
-      auto* ed = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
-      if (ed == nullptr) {
-        VLOG(1) << "Terminando acao pois destino nao existe mais.";
-        duracao_ = 0.0f;
-        return;
+    if (duracao_ == acao_proto_.duracao_s()) {
+      for (unsigned int id_destino : acao_proto_.id_entidade_destino()) {
+        auto* ed = tabuleiro_->BuscaEntidade(id_destino);
+        if (ed == nullptr) {
+          continue;
+        }
+        const Posicao& pos_o = eo->PosicaoAcao();
+        const Posicao& pos_d = ed->Pos();
+        float dx = pos_d.x() - pos_o.x();
+        float dy = pos_d.y() - pos_o.y();
+        ed->AtualizaDirecaoDeQueda(dx, dy, 0);
       }
     }
     if (duracao_ > 0.0f) {
