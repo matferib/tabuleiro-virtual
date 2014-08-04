@@ -501,6 +501,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha o identificador de acao da entidade selecionada. */
   void DesenhaIdAcaoEntidade();
 
+  /** Desenha o controle virtual. */
+  void DesenhaControleVirtual();
+
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
 

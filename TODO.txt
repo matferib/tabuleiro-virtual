@@ -2,6 +2,7 @@ Versao 1.5.1
 - Mais letras maiusculas.
 - Desabilitar watchdog em dialogos.
 - Externalizar o tabuleiro da interface, passar como parametro.
+- Controle virtual no tablet.
 
 Versao 1.6.0
 - Contador de rodadas.
@@ -11,7 +12,6 @@ Versao 1.6.0
 - Posicionar camera para os jogadores ao abrir tabuleiro.
 - Terminar camada de arquivo para funcionar em diversos dispositivos.
 - Opcao para salvar personagens selecionaveis para jogadores.
-- Interface de dano e acoes no tablet.
 - Pensar em como nao mostrar formas mortas.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).

@@ -41,6 +41,7 @@ message OpcoesProto {
   optional bool desenha_rosa_dos_ventos = 4 [default=true];
   optional bool anti_aliasing = 5 [default=false];
   optional bool desenha_grade = 6 [default=true];
+  optional bool desenha_controle_virtual = 7 [default=false];
 }
 
 // Mensagem enviada para os clientes de um jogo.
