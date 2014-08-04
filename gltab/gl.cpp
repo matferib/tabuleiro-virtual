@@ -311,10 +311,10 @@ GLint gluProject(
   return GL_TRUE;
 }
 struct ContextoInterno {
-  // Mapeia um ID para a cor RGB em 22 bits (os dois mais significativos sao para a pilha).
+  // Mapeia um ID para a cor RGB em 21 bits (os dois mais significativos sao para a pilha).
   std::unordered_map<unsigned int, unsigned int> ids;
   unsigned int proximo_id = 0;
-  // O bit da pilha em dois bits (valor de 0 a 3).
+  // O bit da pilha em tres bits (valor de [0 a 7]).
   unsigned int bit_pilha = 0;
   modo_renderizacao_e modo_renderizacao = MR_RENDER;
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
@@ -334,9 +334,9 @@ ContextoInterno* g_contexto = nullptr;
 
 // Gera um proximo ID.
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
-  unsigned int id_mapeado = g_contexto->proximo_id | (g_contexto->bit_pilha << 22);
+  unsigned int id_mapeado = g_contexto->proximo_id | (g_contexto->bit_pilha << 21);
   g_contexto->ids.insert(std::make_pair(id_mapeado, id));
-  if (g_contexto->proximo_id == ((1 << 22) - 1)) {
+  if (g_contexto->proximo_id == ((1 << 21) - 1)) {
     LOG(ERROR) << "Limite de ids alcancado";
   } else {
     if (g_contexto->depurar_selecao_por_cor) {
@@ -535,7 +535,7 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       // Simetria na parte de baixo.
       memcpy(coordenadas + i_coordenadas + 12, coordenadas + i_coordenadas, sizeof(float) * 12);
       for (int i = 2; i < 12 ; i += 3) {
-        coordenadas[i_coordenadas + 12 + i] = -coordenadas[i_coordenadas + i]; 
+        coordenadas[i_coordenadas + 12 + i] = -coordenadas[i_coordenadas + i];
       }
 
       // Indices: V0, V1, V2, V0, V2, V3.
@@ -559,11 +559,11 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   }
   //LOG(INFO) << "raio: " << raio;
   //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
-  //  LOG(INFO) << "indices[" << i << "]: " << indices[i]; 
+  //  LOG(INFO) << "indices[" << i << "]: " << indices[i];
   //}
   //for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
-  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: " 
-  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2]; 
+  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: "
+  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
   // TODO normais unitarias.
@@ -656,11 +656,11 @@ void CilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLint num_to
   }
   //LOG(INFO) << "raio: " << raio;
   //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
-  //  LOG(INFO) << "indices[" << i << "]: " << indices[i]; 
+  //  LOG(INFO) << "indices[" << i << "]: " << indices[i];
   //}
   //for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
-  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: " 
-  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2]; 
+  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: "
+  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
   // TODO normais unitarias.
@@ -954,9 +954,9 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
       VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
-      unsigned int pos_pilha = id_mapeado >> 22;
+      unsigned int pos_pilha = id_mapeado >> 21;
       VLOG(1) << "Pos pilha: " << pos_pilha;
-      if (pos_pilha == 0 || pos_pilha > 3) {
+      if (pos_pilha == 0 || pos_pilha > 7) {
         LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
         return 0;
       }
@@ -998,7 +998,7 @@ void EmpilhaNome(GLuint id) {
     // So muda no modo de selecao.
     return;
   }
-  if (g_contexto->bit_pilha == 3) {
+  if (g_contexto->bit_pilha == 7) {
     LOG(ERROR) << "Bit da pilha passou do limite superior.";
     return;
   }

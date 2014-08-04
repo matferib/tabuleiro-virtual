@@ -249,6 +249,11 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     id_acoes_.push_back(a.id());
   }
 
+  // TODO android apenas.
+#if 1
+  opcoes_.set_desenha_controle_virtual(true);
+#endif
+
   EstadoInicial();
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
@@ -1567,8 +1572,16 @@ void Tabuleiro::DesenhaCena() {
   if (modo_mestre_ && parametros_desenho_.desenha_pontos_rolagem()) {
     // Pontos de rolagem na terceira posicao da pilha.
     gl::NomesEscopo nomes_ent(0);
-    gl::NomesEscopo nomes_pontos(0);
+    gl::NomesEscopo pontos(0);
     DesenhaPontosRolagem();
+  }
+
+  if (opcoes_.desenha_controle_virtual()) {
+    // Controle na quarta posicao da pilha.
+    gl::NomesEscopo nomes_ent(0);
+    gl::NomesEscopo pontos(0);
+    gl::NomesEscopo controle(0);
+    DesenhaControleVirtual();
   }
 
   if (!parametros_desenho_.desenha_entidades()) {
@@ -1638,7 +1651,6 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
-
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
@@ -2109,31 +2121,6 @@ void Tabuleiro::BuscaHitMaisProximo(
   if (profundidade != nullptr) {
     *profundidade = menor_profundidade;
   }
-
-#if 0
-  // OBS: tudo isso assume alvo no chao e solo plano.
-  // Computa a profundidade na mao para tabuleiro.
-  float meio_fov_vertical_rad = (CAMPO_VERTICAL_GRAUS / 2.0f) * GRAUS_PARA_RAD;
-  float meia_altura_viewport = altura_ / 2.0f;
-  float distancia_olho_near_clip_pixels = meia_altura_viewport * tanf(meio_fov_vertical_rad);
-  float distancia_pixel_meio_viewport_pixels = y - meia_altura_viewport;
-  float angulo_alfa_rad = atanf(distancia_pixel_meio_viewport_pixels / distancia_olho_near_clip_pixels);
-  float angulo_beta_rad = atanf(olho_.altura() / olho_.raio());
-  float angulo_teta_rad = (M_PI / 2.0f) - angulo_alfa_rad - angulo_beta_rad;
-  float distancia_olho = tanf(angulo_teta_rad) * olho_.altura();
-  float distancia_projecao = olho_.raio() - distancia_olho;
-  LOG(INFO) << "Y: " << y;
-  LOG(INFO) << "Distancia pixel ao centro viewport: " << distancia_pixel_meio_viewport_pixels;
-  LOG(INFO) << "Distancia olho ao near clip em pixels: " << distancia_olho_near_clip_pixels;
-  LOG(INFO) << "Angulo alfa: centro viewport ao pixel Y: " << (angulo_alfa_rad * RAD_PARA_GRAUS);
-  LOG(INFO) << "Angulo beta: entre olho e solo: " << (angulo_beta_rad * RAD_PARA_GRAUS);
-  LOG(INFO) << "Angulo teta: entre plano do pixel e eixo Z: " << (angulo_teta_rad * RAD_PARA_GRAUS);
-  LOG(INFO) << "Distancia horizontal da projecao ao olho: " << distancia_projecao;
-  if (profundidade != nullptr) {
-    *profundidade = sqrtf(distancia_olho * distancia_olho + olho_.altura() * olho_.altura()) /
-                    (DISTANCIA_PLANO_CORTE_DISTANTE - DISTANCIA_PLANO_CORTE_PROXIMO);
-  }
-#endif
   VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
           << ", pos_pilha: " << pos_pilha_menor
           << ", id: " << id_menor;
@@ -2269,6 +2256,11 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
 #endif
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
+  if (modo_acao_) {
+    TrataBotaoAcaoPressionado(false, x, y);
+    modo_acao_ = false;
+    return;
+  }
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -2319,6 +2311,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   } else if (pos_pilha == 3) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
     TrataRolagem(static_cast<dir_rolagem_e>(id));
+  } else if (pos_pilha == 4) {
+    VLOG(1) << "Picking no controle virtual " << id;
+    AlternaModoAcao();
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidades();
@@ -3392,6 +3387,32 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
     MudaCor(COR_BRANCA);
     gl::DesenhaString(id_acao);
   }
+}
+
+
+void Tabuleiro::DesenhaControleVirtual() {
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  // Modo 2d: eixo com origem embaixo esquerda.
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+
+  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+
+  gl::CarregaNome(1);
+  float cor[3];
+  if (modo_acao_) {
+    cor[0] = 0.5f;
+    cor[1] = 0.5f;
+    cor[2] = 0.5f;
+  } else {
+    cor[0] = 0.2f;
+    cor[1] = 0.2f;
+    cor[2] = 0.2f;
+  }
+  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+  gl::Retangulo(2.0f, 2.0f, 32.0f, 32.0f);
 }
 
 void Tabuleiro::DesenhaTempoRenderizacao() {

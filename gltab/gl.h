@@ -47,7 +47,7 @@ class MatrizEscopo {
   /** Salva a matriz corrente pelo escopo. */
   MatrizEscopo() : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { glPushMatrix(); }
 
-  /** Muda matriz para matriz do modo e a salva pelo escopo. */
+  /** Muda matriz para matriz do modo e a salva pelo escopo. Ao terminar, retorna para a matriz anterior. */
   explicit MatrizEscopo(GLenum modo) : modo_(modo) {
     glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo_anterior_);
     glMatrixMode(modo_);
