@@ -289,6 +289,9 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo acao, cada clique gera uma acao. Usado especialmente no tablet. */
   void AlternaModoAcao();
 
+  /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
+  bool ModoMestre() const { return modo_mestre_; }
+
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
   class TimerEscopo {

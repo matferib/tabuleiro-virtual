@@ -1,5 +1,5 @@
 Versao 1.5.1
-- Salvar ao sair.
+- Direcao de raios.
 
 Versao 1.6.0
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
