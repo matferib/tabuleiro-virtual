@@ -3391,28 +3391,37 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
 
 
 void Tabuleiro::DesenhaControleVirtual() {
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::Desabilita(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade();
+  if (!parametros_desenho_.iluminacao()) {
+    // Modo de picking faz a matriz de picking para projecao ortogonal.
+    GLint viewport[4];
+    gl::Le(GL_VIEWPORT, viewport);
+    gl::MatrizPicking(3, 3, 1.0, 1.0, viewport);
+  }
   gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
 
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
   gl::CarregaIdentidade();
 
-  gl::CarregaNome(1);
+  gl::CarregaNome(17);
   float cor[3];
   if (modo_acao_) {
-    cor[0] = 0.5f;
-    cor[1] = 0.5f;
-    cor[2] = 0.5f;
+    cor[0] = 1.0f;
+    cor[1] = 1.0f;
+    cor[2] = 1.0f;
   } else {
-    cor[0] = 0.2f;
-    cor[1] = 0.2f;
-    cor[2] = 0.2f;
+    cor[0] = 1.0f;
+    cor[1] = 1.0f;
+    cor[2] = 1.0f;
   }
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
   gl::Retangulo(2.0f, 2.0f, 32.0f, 32.0f);
+  if (parametros_desenho_.iluminacao()) {
+    gl::Habilita(GL_LIGHTING);
+  }
 }
 
 void Tabuleiro::DesenhaTempoRenderizacao() {

@@ -951,7 +951,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       // Usar void* para imprimir em hexa.
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
-      VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];;
+      VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
       VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
       unsigned int pos_pilha = id_mapeado >> 21;
@@ -1003,6 +1003,7 @@ void EmpilhaNome(GLuint id) {
     return;
   }
   ++g_contexto->bit_pilha;
+  VLOG(1) << "bit pilha: " << g_contexto->bit_pilha;
 }
 
 void CarregaNome(GLuint id) {
@@ -1012,6 +1013,7 @@ void CarregaNome(GLuint id) {
   }
   GLubyte rgb[3];
   MapeiaId(id, rgb);
+  VLOG(2) << "Mapeando " << id << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
   // Muda a cor para a mapeada.
   glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 }
