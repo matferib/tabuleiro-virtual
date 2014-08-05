@@ -148,6 +148,9 @@ message ParametrosDesenho {
   // Usado para fazer sliding: a gente cria um plano na altura do click inicial para fazer o movimento
   // paralelo ao plano XY.
   optional float offset_terreno = 3 [default=0];
+  // Coordenadas de picking.
+  optional int32 picking_x = 28;
+  optional int32 picking_y = 29;
   // Verdadeiro quando se esta desenhando a entidade selecionada.
   optional bool entidade_selecionada = 4 [default=false];
   // Verdadeiro quando se quer desenhar as luzes.
