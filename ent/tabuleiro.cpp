@@ -2038,6 +2038,7 @@ void Tabuleiro::AtualizaAcoes() {
 // basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
+
   // inicia o buffer de picking (selecao)
   gl::BufferSelecao(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
@@ -2051,6 +2052,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
 
   // desenha a cena sem firulas.
+  parametros_desenho_.set_picking_x(x);
+  parametros_desenho_.set_picking_y(y);
   parametros_desenho_.set_iluminacao(false);
   parametros_desenho_.set_desenha_texturas(false);
   parametros_desenho_.set_desenha_grade(false);
@@ -3395,11 +3398,11 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade();
-  if (!parametros_desenho_.iluminacao()) {
+  if (parametros_desenho_.has_picking_x()) {
     // Modo de picking faz a matriz de picking para projecao ortogonal.
     GLint viewport[4];
     gl::Le(GL_VIEWPORT, viewport);
-    gl::MatrizPicking(3, 3, 1.0, 1.0, viewport);
+    gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
   }
   gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
 
@@ -3409,13 +3412,13 @@ void Tabuleiro::DesenhaControleVirtual() {
   gl::CarregaNome(17);
   float cor[3];
   if (modo_acao_) {
-    cor[0] = 1.0f;
-    cor[1] = 1.0f;
-    cor[2] = 1.0f;
+    cor[0] = 0.8f;
+    cor[1] = 0.8f;
+    cor[2] = 0.8f;
   } else {
-    cor[0] = 1.0f;
-    cor[1] = 1.0f;
-    cor[2] = 1.0f;
+    cor[0] = 0.4f;
+    cor[1] = 0.4f;
+    cor[2] = 0.4f;
   }
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
   gl::Retangulo(2.0f, 2.0f, 32.0f, 32.0f);
