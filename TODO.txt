@@ -1,4 +1,5 @@
 Versao 1.5.1
+- Problema do controle virtual com a matriz de picking (como sempre pega o pixel (0,0),(1,1) e o desenho 2d ignora a translacao e escala, nunca pega o desenho 2d).
 - Mais letras maiusculas.
 - Desabilitar watchdog em dialogos.
 - Externalizar o tabuleiro da interface, passar como parametro.
