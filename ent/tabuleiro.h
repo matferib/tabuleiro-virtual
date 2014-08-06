@@ -132,6 +132,8 @@ class Tabuleiro : public ntf::Receptor {
   void LimpaListaPontosVida();
   /** Limpa a ultima entrada da lista de pontos de vida. */
   void LimpaUltimoListaPontosVida();
+  /** Altera o ultimo valor da lista de pontos de vida. Se nao existir um ultimo valor, cria um novo. */
+  void AlteraUltimoPontoVidaListaPontosVida(int delta);
 
   /** desenha o mundo. */
   void Desenha();
@@ -625,7 +627,10 @@ class Tabuleiro : public ntf::Receptor {
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
 
   bool modo_debug_ = false;
+
+  // Controle virtual.
   bool modo_acao_ = false;
+  bool modo_acao_cura_ = false;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

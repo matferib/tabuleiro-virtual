@@ -77,6 +77,17 @@ const double DISTANCIA_PLANO_CORTE_DISTANTE = 160.0f;
 
 const char* ID_ACAO_ATAQUE_CORPO_A_CORPO = "Ataque Corpo a Corpo";
 
+// Constantes do controle virtual.
+const int CONTROLE_ACAO = 1;
+const int CONTROLE_ACAO_ANTERIOR = 2;
+const int CONTROLE_ACAO_PROXIMA = 3;
+const int CONTROLE_ADICIONA_1 = 4;
+const int CONTROLE_ADICIONA_5 = 5;
+const int CONTROLE_ADICIONA_10 = 6;
+const int CONTROLE_CONFIRMA_DANO = 7;
+const int CONTROLE_APAGA_DANO = 8;
+const int CONTROLE_ALTERNA_CURA = 9;
+
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -608,6 +619,15 @@ void Tabuleiro::AcumulaPontosVida(const std::vector<int>& lista_pv) {
 
 void Tabuleiro::LimpaListaPontosVida() {
   lista_pontos_vida_.clear();
+}
+
+void Tabuleiro::AlteraUltimoPontoVidaListaPontosVida(int delta) {
+  int valor = 0;
+  if (!lista_pontos_vida_.empty()) {
+    valor = lista_pontos_vida_.back();
+    lista_pontos_vida_.pop_back();
+  }
+  lista_pontos_vida_.push_back(valor + delta);
 }
 
 void Tabuleiro::LimpaUltimoListaPontosVida() {
@@ -2316,7 +2336,37 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (pos_pilha == 4) {
     VLOG(1) << "Picking no controle virtual " << id;
-    AlternaModoAcao();
+    switch (id) {
+      case CONTROLE_ACAO:
+        AlternaModoAcao();
+        break;
+      case CONTROLE_ACAO_ANTERIOR:
+        AcaoAnterior();
+        break;
+      case CONTROLE_ACAO_PROXIMA:
+        ProximaAcao();
+        break;
+      case CONTROLE_ADICIONA_1:
+        AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 1 : -1);
+        break;
+      case CONTROLE_ADICIONA_5:
+        AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 5 : -5);
+        break;
+      case CONTROLE_ADICIONA_10:
+        AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 10 : -10);
+        break;
+      case CONTROLE_CONFIRMA_DANO:
+        AcumulaPontosVida({0});
+        break;
+      case CONTROLE_APAGA_DANO:
+        LimpaUltimoListaPontosVida();
+        break;
+      case CONTROLE_ALTERNA_CURA:
+        modo_acao_cura_ = !modo_acao_cura_;
+
+      default:
+        LOG(WARNING) << "Controle invalido: " << id;
+    }
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidades();
@@ -3409,19 +3459,48 @@ void Tabuleiro::DesenhaControleVirtual() {
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
   gl::CarregaIdentidade();
 
-  gl::CarregaNome(17);
-  float cor[3];
-  if (modo_acao_) {
-    cor[0] = 0.8f;
-    cor[1] = 0.8f;
-    cor[2] = 0.8f;
-  } else {
-    cor[0] = 0.4f;
-    cor[1] = 0.4f;
-    cor[2] = 0.4f;
+  float cor_padrao[3];
+  float cor_ativa[3];
+  cor_padrao[0] = 0.8f;
+  cor_padrao[1] = 0.8f;
+  cor_padrao[2] = 0.8f;
+  cor_ativa[0] = 0.4f;
+  cor_ativa[1] = 0.4f;
+  cor_ativa[2] = 0.4f;
+  struct DadosBotao {
+    float xi, yi, xf, yf;
+    int id;
+    bool alternavel;
+  };
+  std::vector<DadosBotao> dados_botoes = {
+    // Acao.
+    { 2.0f, 2.0f, 32.0f, 32.0f, CONTROLE_ACAO, true },
+    // Linha de cima.
+    // Alterna acao para tras.
+    { 34.0f, 18.0f, 44.0f, 32.0f, CONTROLE_ACAO_ANTERIOR, false },
+    // Alterna acao para frente.
+    { 46.0f, 18.0f, 56.0f, 32.0f, CONTROLE_ACAO_PROXIMA, false },
+    // Linha de baixo
+    // Adiciona dano +1.
+    { 34.0f, 2.0f, 44.0f, 16.0f, CONTROLE_ADICIONA_1, false },
+    // Adiciona dano +5
+    { 46.0f, 2.0f, 56.0f, 16.0f, CONTROLE_ADICIONA_5, false },
+    // Adiciona dano +10.
+    { 58.0f, 2.0f, 68.0f, 16.0f, CONTROLE_ADICIONA_10, false },
+    // Confirma dano.
+    { 70.0f, 2.0f, 80.0f, 16.0f, CONTROLE_CONFIRMA_DANO, false },
+    // Apaga dano.
+    { 82.0f, 2.0f, 92.0f, 16.0f, CONTROLE_APAGA_DANO, false },
+    // Alterna cura.
+    { 94.0f, 2.0f, 104.0f, 16.0f, CONTROLE_ALTERNA_CURA, false },
+  };
+  for (const DadosBotao& db : dados_botoes) {
+    gl::CarregaNome(db.id);
+    float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
+    gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+    gl::Retangulo(db.xi, db.yi, db.xf, db.yf);
   }
-  gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-  gl::Retangulo(2.0f, 2.0f, 32.0f, 32.0f);
+  // So volta a luz se havia iluminacao antes.
   if (parametros_desenho_.iluminacao()) {
     gl::Habilita(GL_LIGHTING);
   }
