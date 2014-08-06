@@ -3467,44 +3467,53 @@ void Tabuleiro::DesenhaControleVirtual() {
   cor_ativa[0] = 0.4f;
   cor_ativa[1] = 0.4f;
   cor_ativa[2] = 0.4f;
+  // Todos os botoes tem tamanho baseado no tamanho da fonte.
   struct DadosBotao {
-    float xi, yi, xf, yf;
+    int tamanho;  // 1 eh base, 2 eh duas vezes maior.
+    int linha;    // Em qual linha esta a base do botao (0 ou 1)
+    int coluna;   // Em qual coluna esta a esquerda do botao.
     std::string rotulo;
     int id;
     bool alternavel;
   };
   std::vector<DadosBotao> dados_botoes = {
     // Acao.
-    { 2.0f, 2.0f, 32.0f, 32.0f, "A", CONTROLE_ACAO, true },
+    { 2, 0, 0, "A", CONTROLE_ACAO, true },
     // Linha de cima.
     // Alterna acao para tras.
-    { 34.0f, 18.0f, 44.0f, 32.0f, "<", CONTROLE_ACAO_ANTERIOR, false },
+    { 1, 1, 2, "<", CONTROLE_ACAO_ANTERIOR, false },
     // Alterna acao para frente.
-    { 46.0f, 18.0f, 56.0f, 32.0f, ">", CONTROLE_ACAO_PROXIMA, false },
+    { 1, 1, 3, ">", CONTROLE_ACAO_PROXIMA, false },
     // Linha de baixo
     // Adiciona dano +1.
-    { 34.0f, 2.0f, 44.0f, 16.0f, "1", CONTROLE_ADICIONA_1, false },
+    { 1, 0, 2, "1", CONTROLE_ADICIONA_1, false },
     // Adiciona dano +5
-    { 46.0f, 2.0f, 56.0f, 16.0f, "5", CONTROLE_ADICIONA_5, false },
+    { 1, 0, 3, "5", CONTROLE_ADICIONA_5, false },
     // Adiciona dano +10.
-    { 58.0f, 2.0f, 68.0f, 16.0f, "10", CONTROLE_ADICIONA_10, false },
+    { 1, 0, 4, "10", CONTROLE_ADICIONA_10, false },
     // Confirma dano.
-    { 70.0f, 2.0f, 80.0f, 16.0f, "v", CONTROLE_CONFIRMA_DANO, false },
+    { 1, 0, 5, "v", CONTROLE_CONFIRMA_DANO, false },
     // Apaga dano.
-    { 82.0f, 2.0f, 92.0f, 16.0f, "x", CONTROLE_APAGA_DANO, false },
+    { 1, 0, 6, "x", CONTROLE_APAGA_DANO, false },
     // Alterna cura.
-    { 94.0f, 2.0f, 104.0f, 16.0f, "+-", CONTROLE_ALTERNA_CURA, false },
+    { 1, 0, 7, "+-", CONTROLE_ALTERNA_CURA, false },
   };
   int fonte_x, fonte_y;
   gl::TamanhoFonte(&fonte_x, &fonte_y);
+  fonte_x *= 2;
   for (const DadosBotao& db : dados_botoes) {
     gl::CarregaNome(db.id);
     float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
     gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-    gl::Retangulo(db.xi, db.yi, db.xf, db.yf);
+    float xi, xf, yi, yf;
+    xi = db.coluna * (fonte_x + 1) + 2;
+    yi = db.linha * (fonte_y + 1) + 2;
+    xf = xi + db.tamanho * fonte_x;
+    yf = yi + db.tamanho * fonte_y;
+    gl::Retangulo(xi, yi, xf, yf);
     if (!db.rotulo.empty()) {
-      float x_meio = (db.xi + db.xf) / 2.0f;
-      float y_meio = (db.yi + db.yf) / 2.0f;
+      float x_meio = (xi + xf) / 2.0f;
+      float y_meio = (yi + yf) / 2.0f;
       float y_base = y_meio - (fonte_y / 2.0f);
       gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
       gl::PosicaoRaster(x_meio, y_base);
