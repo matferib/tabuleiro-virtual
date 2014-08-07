@@ -3473,30 +3473,31 @@ void Tabuleiro::DesenhaControleVirtual() {
     int linha;    // Em qual linha esta a base do botao (0 ou 1)
     int coluna;   // Em qual coluna esta a esquerda do botao.
     std::string rotulo;
+    const float* cor_rotulo;   // cor do rotulo.
     int id;
     bool alternavel;
   };
   std::vector<DadosBotao> dados_botoes = {
     // Acao.
-    { 2, 0, 0, "A", CONTROLE_ACAO, true },
+    { 2, 0, 0, "A", nullptr, CONTROLE_ACAO, true },
     // Linha de cima.
     // Alterna acao para tras.
-    { 1, 1, 2, "<", CONTROLE_ACAO_ANTERIOR, false },
+    { 1, 1, 2, "<", nullptr, CONTROLE_ACAO_ANTERIOR, false },
     // Alterna acao para frente.
-    { 1, 1, 3, ">", CONTROLE_ACAO_PROXIMA, false },
+    { 1, 1, 3, ">", nullptr,CONTROLE_ACAO_PROXIMA, false },
     // Linha de baixo
     // Adiciona dano +1.
-    { 1, 0, 2, "1", CONTROLE_ADICIONA_1, false },
+    { 1, 0, 2, "1", nullptr, CONTROLE_ADICIONA_1, false },
     // Adiciona dano +5
-    { 1, 0, 3, "5", CONTROLE_ADICIONA_5, false },
+    { 1, 0, 3, "5", nullptr, CONTROLE_ADICIONA_5, false },
     // Adiciona dano +10.
-    { 1, 0, 4, "10", CONTROLE_ADICIONA_10, false },
+    { 1, 0, 4, "10", nullptr, CONTROLE_ADICIONA_10, false },
     // Confirma dano.
-    { 1, 0, 5, "v", CONTROLE_CONFIRMA_DANO, false },
+    { 1, 0, 5, "v", COR_VERDE, CONTROLE_CONFIRMA_DANO, false },
     // Apaga dano.
-    { 1, 0, 6, "x", CONTROLE_APAGA_DANO, false },
+    { 1, 0, 6, "x", COR_VERMELHA, CONTROLE_APAGA_DANO, false },
     // Alterna cura.
-    { 1, 0, 7, "+-", CONTROLE_ALTERNA_CURA, false },
+    { 1, 0, 7, "+-", nullptr, CONTROLE_ALTERNA_CURA, false },
   };
   int fonte_x, fonte_y;
   gl::TamanhoFonte(&fonte_x, &fonte_y);
@@ -3509,13 +3510,17 @@ void Tabuleiro::DesenhaControleVirtual() {
     xi = db.coluna * (fonte_x + 1) + 2;
     yi = db.linha * (fonte_y + 1) + 2;
     xf = xi + db.tamanho * fonte_x;
-    yf = yi + db.tamanho * fonte_y;
+    yf = yi + db.tamanho * fonte_y + db.tamanho - 1;
     gl::Retangulo(xi, yi, xf, yf);
     if (!db.rotulo.empty()) {
       float x_meio = (xi + xf) / 2.0f;
       float y_meio = (yi + yf) / 2.0f;
       float y_base = y_meio - (fonte_y / 2.0f);
-      gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
+      if (db.cor_rotulo != nullptr) {
+        gl::MudaCor(db.cor_rotulo[0], db.cor_rotulo[1], db.cor_rotulo[2], 1.0f);
+      } else {
+        gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
+      }
       gl::PosicaoRaster(x_meio, y_base);
       gl::DesenhaString(db.rotulo);
     }
