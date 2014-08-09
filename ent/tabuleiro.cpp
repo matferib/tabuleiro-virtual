@@ -3445,6 +3445,7 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
 
 void Tabuleiro::DesenhaControleVirtual() {
   gl::Desabilita(GL_LIGHTING);
+  gl::Desabilita(GL_DEPTH_TEST);
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -3499,23 +3500,28 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Alterna cura.
     { 1, 0, 7, "+-", nullptr, CONTROLE_ALTERNA_CURA, false },
   };
-  int fonte_x, fonte_y;
-  gl::TamanhoFonte(&fonte_x, &fonte_y);
-  fonte_x *= 2;
+  int fonte_x_int, fonte_y_int;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
+  const float fonte_x = fonte_x_int;
+  const float fonte_y = fonte_y_int;
+  const float botao_x = fonte_x * 2.5f;
+  const float botao_y = fonte_y * 2.0f;
+  const float padding = 2.0f;
   for (const DadosBotao& db : dados_botoes) {
     gl::CarregaNome(db.id);
     float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
     gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
     float xi, xf, yi, yf;
-    xi = db.coluna * (fonte_x + 1) + 2;
-    yi = db.linha * (fonte_y + 1) + 2;
-    xf = xi + db.tamanho * fonte_x;
-    yf = yi + db.tamanho * fonte_y + db.tamanho - 1;
-    gl::Retangulo(xi, yi, xf, yf);
-    if (!db.rotulo.empty()) {
+    xi = db.coluna * botao_x;
+    xf = xi + db.tamanho * botao_x;
+    yi = db.linha * botao_y;
+    yf = yi + db.tamanho * botao_y;
+    gl::Retangulo(xi + padding, yi + padding, xf - padding, yf - padding);
+    // So desenha os rotulos em modo normal, em picking nao precisamos deles.
+    if (!db.rotulo.empty() && !parametros_desenho_.has_picking_x()) {
       float x_meio = (xi + xf) / 2.0f;
       float y_meio = (yi + yf) / 2.0f;
-      float y_base = y_meio - (fonte_y / 2.0f);
+      float y_base = y_meio - (fonte_y / 4.0f);
       if (db.cor_rotulo != nullptr) {
         gl::MudaCor(db.cor_rotulo[0], db.cor_rotulo[1], db.cor_rotulo[2], 1.0f);
       } else {
@@ -3529,6 +3535,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   if (parametros_desenho_.iluminacao()) {
     gl::Habilita(GL_LIGHTING);
   }
+  gl::Habilita(GL_DEPTH_TEST);
 }
 
 void Tabuleiro::DesenhaTempoRenderizacao() {
