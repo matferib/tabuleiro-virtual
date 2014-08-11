@@ -1,11 +1,57 @@
 #if !USAR_OPENGL_ES
+//#include <string>
+//#include "arq/arquivo.h"
 #include "gltab/gl.h"
+#include "log/log.h"
 
 namespace gl {
 
+bool ImprimeSeErro() {
+  auto erro = glGetError();
+  if (erro != GL_NO_ERROR) {
+    LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
+    return true;
+  }
+  return false;
+}
+
+#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
+  /*
+  LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
+  GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
+  V_ERRO();
+  GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  V_ERRO();
+  std::string codigo_v_shader_str;
+  arq::LeArquivo(arq::TIPO_SHADER, "vert.c", &codigo_v_shader_str);
+  const char* codigo_v_shader = codigo_v_shader_str.c_str();
+  glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
+  V_ERRO();
+  std::string codigo_f_shader_str;
+  arq::LeArquivo(arq::TIPO_SHADER, "frag.c", &codigo_f_shader_str);
+  const char* codigo_f_shader = codigo_f_shader_str.c_str();
+  glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
+  V_ERRO();
+  glCompileShader(v_shader);
+  V_ERRO();
+  glCompileShader(f_shader);
+  V_ERRO();
+  GLuint p = glCreateProgram();
+  V_ERRO();
+  glAttachShader(p, v_shader);
+  V_ERRO();
+  glAttachShader(p, f_shader);
+  V_ERRO();
+  glLinkProgram(p);
+  V_ERRO();
+  glUseProgram(p);
+  V_ERRO();
+  */
 }
+#undef V_ERRO
+
 void FinalizaGl() {
 }
 

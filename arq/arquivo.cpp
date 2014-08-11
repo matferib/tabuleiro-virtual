@@ -25,6 +25,7 @@ const std::string TipoParaDiretorio(tipo_e tipo) {
 #endif
     case TIPO_TABULEIRO: return "tabuleiros_salvos";
     case TIPO_DADOS: return "dados";
+    case TIPO_SHADER: return "shaders";
     default:
       throw std::logic_error("Tipo de arquivo invalido.");
   }

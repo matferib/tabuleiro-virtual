@@ -160,8 +160,14 @@ inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, con
 inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
   glVertexPointer(vertices_por_coordenada, tipo, 0, vertices);
 }
+inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
+  glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+}
 inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
   glTexCoordPointer(vertices_por_coordenada, tipo, 0, vertices);
+}
+inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
+  glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
 #if USAR_OPENGL_ES

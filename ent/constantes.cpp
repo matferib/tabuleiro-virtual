@@ -12,6 +12,8 @@ const float COS_30 = cosf(M_PI / 6.0f);
 
 const float COR_BRANCA[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
 const float COR_PRETA[]    = { 0.0f, 0.0f, 0.0f, 1.0f };
+const float COR_CINZA[]    = { 0.5f, 0.5f, 0.5f, 1.0f };
+const float COR_CINZA_CLARO[] = { 0.8f, 0.8f, 0.8f, 1.0f };
 const float COR_VERMELHA[] = { 1.0f, 0.0f, 0.0f, 1.0f };
 const float COR_VERDE[]    = { 0.0f, 1.0f, 0.0f, 1.0f };
 const float COR_AZUL[]     = { 0.0f, 0.0f, 1.0f, 1.0f };

@@ -15,25 +15,28 @@
 
 using namespace std;
 
-int main(int argc, char** argv) {
-  gl::IniciaGl(&argc, argv);
-  ent::Tabuleiro::InicializaGL();
+DEFINE_string(tabuleiro, "tabuleiros_salvos/douren.binproto", "Tabuleiro de benchmark.");
+DEFINE_int32(num_desenhos, 1500, "Numero de vezes que o tabuleiro sera renderizado.");
 
+int main(int argc, char** argv) {
+  meulog::Inicializa(&argc, &argv);
   glutInit(&argc, argv);
   glutInitWindowSize(300, 300);
   glutInitWindowPosition(0, 0);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_STENCIL | GLUT_DEPTH);
+  gl::IniciaGl(&argc, argv);
   glutCreateWindow("benchmark");
   ntf::CentralNotificacoes central;
   tex::Texturas texturas(&central);
   ent::Tabuleiro tabuleiro(&texturas, &central);
+  tabuleiro.IniciaGL();
   tabuleiro.TrataRedimensionaJanela(300, 300);
 
-  // Carrega castelo.
+  // Carrega tabuleiro.
   {
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-    n.set_endereco("tabuleiros_salvos/castelo.binproto");
+    n.set_endereco(FLAGS_tabuleiro);
     tabuleiro.TrataNotificacao(n);
   }
   {
@@ -42,9 +45,9 @@ int main(int argc, char** argv) {
     tabuleiro.TrataNotificacao(n);
   }
 
-  // Desenha 100 vezes.
+  // Desenha varias vezes.
   boost::timer::auto_cpu_timer timer;
-  for (int i = 0; i < 1500; ++i) {
+  for (int i = 0; i < FLAGS_num_desenhos; ++i) {
     tabuleiro.Desenha();
     tabuleiro.TrataRotacaoPorDelta(0.01f);
     glutSwapBuffers();

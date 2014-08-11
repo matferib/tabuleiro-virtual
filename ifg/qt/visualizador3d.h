@@ -19,15 +19,15 @@ class TabuleiroProto;
 namespace ifg {
 namespace qt {
 
-/** Widget responsavel por desenhar a area 3D. Recebe eventos de redimensionamento, 
-* mouse e repassa ao contexto 3D.  
+/** Widget responsavel por desenhar a area 3D. Recebe eventos de redimensionamento,
+* mouse e repassa ao contexto 3D.
 */
 class Visualizador3d : public QGLWidget, ntf::Receptor {
  public:
   /** constroi a widget do tabuleiro recebendo a widget pai.
   * Nao se torna dono de nada.
   */
-  explicit Visualizador3d(ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
+  Visualizador3d(int* argcp, char** argv, ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
 
   /** destroi as entidades do tabuleiro e libera os recursos. */
   virtual ~Visualizador3d();
@@ -43,8 +43,8 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   // funcoes sobrecarregadas mouse e teclado.
   void keyPressEvent(QKeyEvent* event) override;
   void mouseMoveEvent(QMouseEvent* event) override;
-  void mousePressEvent(QMouseEvent* event) override; 
-  void mouseReleaseEvent(QMouseEvent* event) override; 
+  void mousePressEvent(QMouseEvent* event) override;
+  void mouseReleaseEvent(QMouseEvent* event) override;
   void mouseDoubleClickEvent(QMouseEvent* event) override;
   void wheelEvent(QWheelEvent* event) override;
 
@@ -60,6 +60,8 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
 
  private:
+  int* argcp_;
+  char** argv_;
   ifg::TratadorTecladoMouse teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
