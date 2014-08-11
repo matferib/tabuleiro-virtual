@@ -81,6 +81,8 @@ if usar_zbuffer_16_bits:
 else:
   env['CPPDEFINES']['ZBUFFER_16_BITS'] = 0
 
+env['CPPDEFINES']['GL_GLEXT_PROTOTYPES'] = 1
+
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')
 

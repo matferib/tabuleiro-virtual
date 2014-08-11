@@ -451,6 +451,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** retorna as coordenadas do quadrado. */
   void CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z);
+  /** retorna o id do quadrado em determinada coordenada. */
+  unsigned int IdQuadrado(float x, float y);
 #if USAR_OPENGL_ES
   /** Retorna as coordenadas do sub quadrado dentro de um quadrado, para picking de maior resolucao. */
   void CoordenadaQuadradoDetalhado(unsigned int id_quadrado, unsigned int id_detalhado, float* x, float* y, float* z);
@@ -517,6 +519,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
   void ReiniciaCamera();
+
+  /** REgera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
+  void RegeraVbo();
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
@@ -631,6 +636,17 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   bool modo_acao_ = false;
   bool modo_acao_cura_ = false;
+
+  // Renderizacao por VBO.
+  bool regerar_vbo_ = true;
+  unsigned int nome_buffer_ = 0;
+  unsigned int nome_indice_buffer_ = 0;
+  std::vector<unsigned short> indices_tabuleiro_;
+  struct InfoVerticeTabuleiro {
+    float x, y;
+    float s0, t0;
+  };
+  std::vector<InfoVerticeTabuleiro> vertices_tabuleiro_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

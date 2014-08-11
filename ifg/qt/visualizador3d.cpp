@@ -145,8 +145,10 @@ QGLFormat Formato(bool anti_aliasing) {
 }  // namespace
 
 Visualizador3d::Visualizador3d(
+    int* argcp, char** argv,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(Formato(false  /*anti_aliasing*/), pai),
+       argcp_(argcp), argv_(argv),
        teclado_mouse_(central, tabuleiro),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
@@ -155,10 +157,12 @@ Visualizador3d::Visualizador3d(
 }
 
 Visualizador3d::~Visualizador3d() {
+  gl::FinalizaGl();
 }
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
+  gl::IniciaGl(argcp_, argv_);
   tabuleiro_->IniciaGL();
 }
 

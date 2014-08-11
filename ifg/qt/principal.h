@@ -50,7 +50,7 @@ class Principal : public QWidget, ntf::Receptor {
   void Temporizador();
 
  private:
-  Principal(ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
+  Principal(int& argc, char** argv, ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;

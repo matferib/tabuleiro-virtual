@@ -42,6 +42,8 @@ extern const float COS_60;
 extern const float COS_30;
 extern const float COR_PRETA[];
 extern const float COR_BRANCA[];
+extern const float COR_CINZA[];
+extern const float COR_CINZA_CLARO[];
 extern const float COR_VERMELHA[];
 extern const float COR_VERDE[];
 extern const float COR_AZUL[];

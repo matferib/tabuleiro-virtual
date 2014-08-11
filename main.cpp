@@ -17,7 +17,6 @@
 using namespace std;
 
 int main(int argc, char** argv) {
-  gl::Contexto contexto_grafico(&argc, argv);
   meulog::Inicializa(&argc, &argv);
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   boost::asio::io_service servico_io;

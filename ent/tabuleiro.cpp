@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <cassert>
+#include <climits>
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
@@ -288,6 +289,12 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
 
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
+  if (nome_buffer_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_);
+  }
+  if (nome_indice_buffer_ != 0) {
+    glDeleteBuffers(1, &nome_indice_buffer_);
+  }
 }
 
 void Tabuleiro::LiberaTextura() {
@@ -1161,22 +1168,20 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   Posicao pos_quadrado;
   Posicao pos_tabuleiro;
   if (pos_pilha == 1) {
-    VLOG(1) << "Acao no tabuleiro: " << id;
+    float x3d, y3d, z3d;
+    MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+    unsigned int id_quadrado = IdQuadrado(x3d, y3d);
+    VLOG(1) << "Acao no tabuleiro: " << id_quadrado;
     // Tabuleiro, posicao do quadrado clicado.
     float x, y, z;
-    CoordenadaQuadrado(id, &x, &y, &z);
+    CoordenadaQuadrado(id_quadrado, &x, &y, &z);
     pos_quadrado.set_x(x);
     pos_quadrado.set_y(y);
     pos_quadrado.set_z(z);
     // Posicao exata do clique.
-    float x3d, y3d, z3d;
-    bool achou;
-    achou = MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
-    if (achou) {
-      pos_tabuleiro.set_x(x3d);
-      pos_tabuleiro.set_y(y3d);
-      pos_tabuleiro.set_z(z3d);
-    }
+    pos_tabuleiro.set_x(x3d);
+    pos_tabuleiro.set_y(y3d);
+    pos_tabuleiro.set_z(z3d);
   }
 
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
@@ -1681,6 +1686,7 @@ void Tabuleiro::DesenhaCena() {
   }
 }
 
+#if 0 
 void Tabuleiro::DesenhaTabuleiro() {
   GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
@@ -1767,6 +1773,136 @@ void Tabuleiro::DesenhaTabuleiro() {
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
 }
+#else
+void Tabuleiro::RegeraVbo() {
+  regerar_vbo_ = false;
+  // TODO quando limpar essa flag.
+  // TODO limite de tamanho de tabuleiro.
+  indices_tabuleiro_.clear();
+  vertices_tabuleiro_.resize(TamanhoY() * TamanhoX() * 4 * 2);  // 4 vertices por quadrado, cada um dois pontos.
+  unsigned short indice = 0;
+  float x = 0, y = 0;
+  float tamanho_texel_h;
+  float tamanho_texel_v;
+  if (proto_.ladrilho()) {
+    tamanho_texel_h = 1.0f;
+    tamanho_texel_v = 1.0f;
+  } else {
+    tamanho_texel_h = 1.0f / TamanhoX();
+    tamanho_texel_v = 1.0f / TamanhoY();
+  }
+  for (int y_tab = 0; y_tab < TamanhoY(); ++y_tab) {
+    if (indice + 4 > USHRT_MAX) {
+      LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoX() << "x" << TamanhoY();
+      break;
+    }
+    float inicio_texel_v = proto_.ladrilho() ? 0.0f : (TamanhoY() - y_tab) * tamanho_texel_v;
+    float inicio_texel_h = 0.0f;
+    for (int x_tab = 0; x_tab < TamanhoX(); ++x_tab) {
+      if (indice + 4 > USHRT_MAX) {
+        break;
+      }
+      // desenha quadrado
+      vertices_tabuleiro_[indice + 0].x = x;
+      vertices_tabuleiro_[indice + 0].y = y;
+      vertices_tabuleiro_[indice + 0].s0 = inicio_texel_h;
+      vertices_tabuleiro_[indice + 0].t0 = inicio_texel_v;
+      vertices_tabuleiro_[indice + 1].x = x + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro_[indice + 1].y = y;
+      vertices_tabuleiro_[indice + 1].s0 = inicio_texel_h + tamanho_texel_h;
+      vertices_tabuleiro_[indice + 1].t0 = inicio_texel_v;
+      vertices_tabuleiro_[indice + 2].x = x + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro_[indice + 2].y = y + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro_[indice + 2].s0 = inicio_texel_h + tamanho_texel_h;
+      vertices_tabuleiro_[indice + 2].t0 = inicio_texel_v - tamanho_texel_v;
+      vertices_tabuleiro_[indice + 3].x = x;
+      vertices_tabuleiro_[indice + 3].y = y + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro_[indice + 3].s0 = inicio_texel_h;
+      vertices_tabuleiro_[indice + 3].t0 = inicio_texel_v - tamanho_texel_v;
+
+      indices_tabuleiro_.push_back(indice);
+      indices_tabuleiro_.push_back(indice + 1);
+      indices_tabuleiro_.push_back(indice + 2);
+      indices_tabuleiro_.push_back(indice);
+      indices_tabuleiro_.push_back(indice + 2);
+      indices_tabuleiro_.push_back(indice + 3);
+      indice += 4;
+      x += TAMANHO_LADO_QUADRADO;
+      if (!proto_.ladrilho()) {
+        inicio_texel_h += tamanho_texel_h;
+      }
+    }
+    // volta tudo esquerda e sobe 1 quadrado
+    x = 0;
+    y += TAMANHO_LADO_QUADRADO;
+  }
+  // Cria o ID do VBO.
+  if (nome_buffer_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_);
+  }
+  glGenBuffers(1, &nome_buffer_);
+  // Associa vertices com ARRAY_BUFFER.
+  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(InfoVerticeTabuleiro) * vertices_tabuleiro_.size(), vertices_tabuleiro_.data(), GL_STATIC_DRAW);
+  // Cria buffer de indices.
+  if (nome_indice_buffer_ != 0) {
+    glDeleteBuffers(1, &nome_indice_buffer_);
+  }
+  glGenBuffers(1, &nome_indice_buffer_);
+  // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indice_buffer_);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_tabuleiro_.size(), indices_tabuleiro_.data(), GL_STATIC_DRAW);
+}
+
+void Tabuleiro::DesenhaTabuleiro() {
+  if (regerar_vbo_) {
+    RegeraVbo();
+  }
+  gl::MatrizEscopo salva_matriz;
+  float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
+  float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
+  gl::Normal(0, 0, 1.0f);
+  if (parametros_desenho_.has_offset_terreno()) {
+    // Para mover entidades acima do plano do olho.
+    gl::Desabilita(GL_CULL_FACE);
+  } else {
+    gl::Habilita(GL_CULL_FACE);
+  }
+  // Desenha o chao mais pro fundo.
+  // TODO transformar offsets em constantes.
+  gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
+  gl::DesvioProfundidade(2.0f, 20.0f);
+  MudaCor(proto_.has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+  gl::Translada(deltaX / 2.0f,
+                deltaY / 2.0f,
+                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  // Usa os vertices de VBO.
+  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_);
+  gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)0);
+  GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
+      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    glBindTexture(GL_TEXTURE_2D, id_textura);
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)8);
+  }
+  // Usa os indices de VBO.
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indice_buffer_);
+  gl::DesenhaElementos(GL_TRIANGLES, indices_tabuleiro_.size(), GL_UNSIGNED_SHORT, (void*)0);
+
+  // Se a face nula foi desativada, reativa.
+  gl::Habilita(GL_CULL_FACE);
+
+  // Volta ao normal.
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl::Desabilita(GL_TEXTURE_2D);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+}
+#endif
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
   float limite_quad = 0.0f;
@@ -2304,8 +2440,8 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_z_3d_ = z3d;
   if (pos_pilha == 1) {
     // Tabuleiro.
-    VLOG(1) << "Picking no tabuleiro id quadrado: " << id;
-    SelecionaQuadrado(id);
+    // Converte x3d y3d para id quadrado.
+    SelecionaQuadrado(IdQuadrado(x3d, y3d));
   } else if (pos_pilha == 2) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
@@ -2462,10 +2598,13 @@ void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
 
 void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   unsigned int id, pos_pilha;
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha);
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == 1) {
+    float x3d, y3d, z3d;
+    MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
     // Tabuleiro: cria uma entidade nova.
-    SelecionaQuadrado(id);
+    SelecionaQuadrado(IdQuadrado(x3d, y3d));
     estado_ = ETAB_QUAD_SELECIONADO;
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
@@ -2712,6 +2851,24 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
 
+unsigned int Tabuleiro::IdQuadrado(float x, float y) {
+  float inicio_x = -(TamanhoX() * TAMANHO_LADO_QUADRADO) / 2.0f;
+  float delta_x_float = x - inicio_x;
+  int delta_x = delta_x_float / TAMANHO_LADO_QUADRADO;
+  if (delta_x < 0 || delta_x >= TamanhoX()) {
+    LOG(ERROR) << "Posicao invalida para tabuleiro, x: " << x;
+    return -1;
+  }
+  float inicio_y = -(TamanhoY() * TAMANHO_LADO_QUADRADO) / 2.0f;
+  float delta_y_float = y - inicio_y;
+  int delta_y = delta_y_float / TAMANHO_LADO_QUADRADO;
+  if (delta_y >= TamanhoY()) {
+    LOG(ERROR) << "Posicao invalida para tabuleiro, y: " << y;
+    return -1;
+  }
+  return delta_y * TamanhoX() + delta_x;
+}
+
 void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
   int quad_x = id_quadrado % TamanhoX();
   int quad_y = id_quadrado / TamanhoX();
@@ -2763,6 +2920,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
     proto_.clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
+  regerar_vbo_ = true;
 }
 
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
@@ -2811,6 +2969,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacao(n);
     return;
   }
+  regerar_vbo_ = true;
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
