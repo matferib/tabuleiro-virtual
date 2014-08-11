@@ -20,11 +20,10 @@ DEFINE_int32(num_desenhos, 1500, "Numero de vezes que o tabuleiro sera renderiza
 
 int main(int argc, char** argv) {
   meulog::Inicializa(&argc, &argv);
-  glutInit(&argc, argv);
+  gl::IniciaGl(&argc, argv);  // inicia o glut.
   glutInitWindowSize(300, 300);
   glutInitWindowPosition(0, 0);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_STENCIL | GLUT_DEPTH);
-  gl::IniciaGl(&argc, argv);
   glutCreateWindow("benchmark");
   ntf::CentralNotificacoes central;
   tex::Texturas texturas(&central);

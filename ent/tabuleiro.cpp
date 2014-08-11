@@ -292,8 +292,14 @@ Tabuleiro::~Tabuleiro() {
   if (nome_buffer_ != 0) {
     glDeleteBuffers(1, &nome_buffer_);
   }
-  if (nome_indice_buffer_ != 0) {
-    glDeleteBuffers(1, &nome_indice_buffer_);
+  if (nome_buffer_indice_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_indice_);
+  }
+  if (nome_buffer_grade_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_grade_);
+  }
+  if (nome_buffer_indice_grade_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_indice_grade_);
   }
 }
 
@@ -351,6 +357,9 @@ void Tabuleiro::EstadoInicial() {
   tempos_renderizacao_.clear();
   // Modo de acao.
   modo_acao_ = false;
+  if (gl_iniciado_) {
+    RegeraVbo();
+  }
 }
 
 void Tabuleiro::Desenha() {
@@ -1391,6 +1400,8 @@ void Tabuleiro::IniciaGL() {
   if (glGetError() != GL_NO_ERROR) {
     LOG(INFO) << "Erro no GL_FOG_HINT";
   }
+  RegeraVbo();
+  gl_iniciado_ = true;
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
@@ -1686,96 +1697,7 @@ void Tabuleiro::DesenhaCena() {
   }
 }
 
-#if 0 
-void Tabuleiro::DesenhaTabuleiro() {
-  GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
-      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
-  std::unique_ptr<gl::HabilitaEscopo> habilita_textura;
-  if (id_textura != GL_INVALID_VALUE) {
-    habilita_textura.reset(new gl::HabilitaEscopo(GL_TEXTURE_2D));
-    glBindTexture(GL_TEXTURE_2D, id_textura);
-  }
-
-  gl::MatrizEscopo salva_matriz;
-  double deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
-  double deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
-  gl::Normal(0, 0, 1.0f);
-  gl::Translada(deltaX / 2.0f,
-                deltaY / 2.0f,
-                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
-  if (parametros_desenho_.has_offset_terreno()) {
-    // Para mover entidades acima do plano do olho.
-    gl::Desabilita(GL_CULL_FACE);
-  } else {
-    gl::Habilita(GL_CULL_FACE);
-  }
-  int id = 0;
-  // Desenha o chao mais pro fundo.
-  // TODO transformar offsets em constantes.
-  gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(2.0f, 20.0f);
-  bool usar_textura = id_textura != GL_INVALID_VALUE;
-  GLfloat cinza[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-  GLfloat cinza_claro[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-  if (!usar_textura) {
-    MudaCor(cinza_claro);
-  } else {
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    MudaCor(COR_BRANCA);
-  }
-
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  float tamanho_texel_h = 1.0f / TamanhoX();
-  float tamanho_texel_v = 1.0f / TamanhoY();
-  static const float vertices[] = {
-    0.0f, 0.0f,
-    TAMANHO_LADO_QUADRADO, 0.0f,
-    TAMANHO_LADO_QUADRADO, TAMANHO_LADO_QUADRADO,
-    0.0f, TAMANHO_LADO_QUADRADO,
-  };
-  static const float vertices_texel_ladrilho[] = {
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f,
-  };
-  static const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, };
-  for (int y = 0; y < TamanhoY(); ++y) {
-    float inicio_texel_v = (TamanhoY() - y) * tamanho_texel_v;
-    float inicio_texel_h = 0.0f;
-    for (int x = 0; x < TamanhoX(); ++x) {
-      const float vertices_texel_nao_ladrilho[] = {
-        inicio_texel_h,                   inicio_texel_v,
-        inicio_texel_h + tamanho_texel_h, inicio_texel_v,
-        inicio_texel_h + tamanho_texel_h, inicio_texel_v - tamanho_texel_v,
-        inicio_texel_h,                   inicio_texel_v - tamanho_texel_v,
-      };
-      const float* vertices_texels = proto_.ladrilho() ? vertices_texel_ladrilho : vertices_texel_nao_ladrilho;
-
-      // desenha quadrado
-      if (id == quadrado_selecionado_ && !usar_textura) {
-        MudaCor(cinza);
-      }
-      DesenhaQuadrado(id, y, x, vertices, vertices_texels, indices);
-      if (id == quadrado_selecionado_ && !usar_textura)  {
-        MudaCor(cinza_claro);
-      }
-      // anda 1 quadrado direita
-      gl::Translada(TAMANHO_LADO_QUADRADO, 0, 0);
-      ++id;
-      inicio_texel_h += tamanho_texel_h;
-    }
-    // volta tudo esquerda e sobe 1 quadrado
-    gl::Translada(deltaX, TAMANHO_LADO_QUADRADO, 0);
-  }
-  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  // Se a face nula foi desativada, reativa.
-  gl::Habilita(GL_CULL_FACE);
-}
-#else
 void Tabuleiro::RegeraVbo() {
-  regerar_vbo_ = false;
   // TODO quando limpar essa flag.
   // TODO limite de tamanho de tabuleiro.
   indices_tabuleiro_.clear();
@@ -1845,19 +1767,97 @@ void Tabuleiro::RegeraVbo() {
   glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_);
   glBufferData(GL_ARRAY_BUFFER, sizeof(InfoVerticeTabuleiro) * vertices_tabuleiro_.size(), vertices_tabuleiro_.data(), GL_STATIC_DRAW);
   // Cria buffer de indices.
-  if (nome_indice_buffer_ != 0) {
-    glDeleteBuffers(1, &nome_indice_buffer_);
+  if (nome_buffer_indice_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_indice_);
   }
-  glGenBuffers(1, &nome_indice_buffer_);
+  glGenBuffers(1, &nome_buffer_indice_);
   // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indice_buffer_);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_tabuleiro_.size(), indices_tabuleiro_.data(), GL_STATIC_DRAW);
+
+  // Regera a grade.
+  if (nome_buffer_grade_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_grade_);
+  }
+  if (nome_buffer_indice_grade_ != 0) {
+    glDeleteBuffers(1, &nome_buffer_indice_grade_);
+  }
+  vertices_grade_.clear();
+  indices_grade_.clear();
+  if (!proto_.desenha_grade()) {
+    return;
+  }
+  const int x_2 = TamanhoX() / 2;
+  const int y_2 = TamanhoY() / 2;
+  const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
+  const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
+
+  // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
+  // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
+  // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
+  // inferior eh onde comeca a desenhar a linha.
+
+  // Linhas verticais (S-N).
+  int limite_inferior = -x_2;
+  float incremento = 0.0f;
+  if (TamanhoX() % 2 != 0) {
+    --limite_inferior;
+    incremento = TAMANHO_LADO_QUADRADO_2;
+  }
+  indice = 0;
+  for (int i = limite_inferior; i <= x_2; ++i) {
+    float x = i * TAMANHO_LADO_QUADRADO + incremento;
+    vertices_grade_.push_back(x - EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(-tamanho_y_2);
+    vertices_grade_.push_back(x + EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(-tamanho_y_2);
+    vertices_grade_.push_back(x + EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(tamanho_y_2);
+    vertices_grade_.push_back(x - EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(tamanho_y_2);
+    indices_grade_.push_back(indice);
+    indices_grade_.push_back(indice + 1);
+    indices_grade_.push_back(indice + 2);
+    indices_grade_.push_back(indice);
+    indices_grade_.push_back(indice + 2);
+    indices_grade_.push_back(indice + 3);
+    indice += 4;
+  }
+  // Linhas horizontais (W-E).
+  limite_inferior = -y_2;
+  incremento = 0.0f;
+  if (TamanhoY() % 2 != 0) {
+    --limite_inferior;
+    incremento = TAMANHO_LADO_QUADRADO_2;
+  }
+  for (int i = limite_inferior; i <= y_2; ++i) {
+    float y = i * TAMANHO_LADO_QUADRADO + incremento;
+    vertices_grade_.push_back(-tamanho_x_2);
+    vertices_grade_.push_back(y - EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(tamanho_x_2);
+    vertices_grade_.push_back(y - EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(tamanho_x_2);
+    vertices_grade_.push_back(y + EXPESSURA_LINHA_2);
+    vertices_grade_.push_back(-tamanho_x_2);
+    vertices_grade_.push_back(y + EXPESSURA_LINHA_2);
+    indices_grade_.push_back(indice);
+    indices_grade_.push_back(indice + 1);
+    indices_grade_.push_back(indice + 2);
+    indices_grade_.push_back(indice);
+    indices_grade_.push_back(indice + 2);
+    indices_grade_.push_back(indice + 3);
+    indice += 4;
+  }
+  glGenBuffers(1, &nome_buffer_grade_);
+  glGenBuffers(1, &nome_buffer_indice_grade_);
+  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices_grade_.size(), vertices_grade_.data(), GL_STATIC_DRAW);
+  // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_grade_.size(), indices_grade_.data(), GL_STATIC_DRAW);
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
-  if (regerar_vbo_) {
-    RegeraVbo();
-  }
   gl::MatrizEscopo salva_matriz;
   float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
@@ -1889,7 +1889,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)8);
   }
   // Usa os indices de VBO.
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indice_buffer_);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
   gl::DesenhaElementos(GL_TRIANGLES, indices_tabuleiro_.size(), GL_UNSIGNED_SHORT, (void*)0);
 
   // Se a face nula foi desativada, reativa.
@@ -1899,10 +1899,31 @@ void Tabuleiro::DesenhaTabuleiro() {
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   gl::Desabilita(GL_TEXTURE_2D);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+
+  // Desenha quadrado selecionado.
+  if (quadrado_selecionado_ != -1 && proto_.desenha_grade()) {
+    gl::Desabilita(GL_DEPTH_TEST);
+    float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
+    MudaCorAlfa(cor);
+    int linha = quadrado_selecionado_ / TamanhoX();
+    int coluna = quadrado_selecionado_ % TamanhoX();
+    float x3d = coluna * TAMANHO_LADO_QUADRADO, y3d = linha * TAMANHO_LADO_QUADRADO;
+    float vertices_s[] = {
+      x3d, y3d,
+      x3d + TAMANHO_LADO_QUADRADO, y3d,
+      x3d + TAMANHO_LADO_QUADRADO, y3d + TAMANHO_LADO_QUADRADO,
+      x3d, y3d + TAMANHO_LADO_QUADRADO,
+    };
+    unsigned short indices_s[] = { 0, 1, 2, 3 };
+    gl::PonteiroVertices(2, GL_FLOAT, vertices_s);
+    gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices_s);
+    gl::Habilita(GL_DEPTH_TEST);
+  }
+
+  // Desliga vertex array.
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
-#endif
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
   float limite_quad = 0.0f;
@@ -2319,7 +2340,6 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
     LOG(ERROR) << "Retornando lixo";
     return false;
   }
-  // TODO verificar os limites de tabuleiro.
   float mult = (parametros_desenho_.offset_terreno() - p1z) / (p2z - p1z);
   *x3d = p1x + (p2x - p1x) * mult;
   *y3d = p1y + (p2y - p1y) * mult;
@@ -2920,7 +2940,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
     proto_.clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
-  regerar_vbo_ = true;
+  RegeraVbo();
 }
 
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
@@ -2969,11 +2989,11 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacao(n);
     return;
   }
-  regerar_vbo_ = true;
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
+  RegeraVbo();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.
@@ -3473,47 +3493,16 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   }
 }
 
-void Tabuleiro::DesenhaQuadrado(unsigned int id,
-                                int linha, int coluna,
-                                const float* vertices, const float* vertices_texels, const unsigned short* indices) {
-  gl::CarregaNome(id);
-  gl::PonteiroVertices(2, GL_FLOAT, vertices);
-  gl::PonteiroVerticesTexturas(2, GL_FLOAT, vertices_texels);
-  gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-}
-
 void Tabuleiro::DesenhaGrade() {
   MudaCor(COR_PRETA);
-  const int x_2 = TamanhoX() / 2;
-  const int y_2 = TamanhoY() / 2;
-  const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
-  const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
-  // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
-  // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
-  // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
-  // inferior eh onde comeca a desenhar a linha.
-  // Linhas verticais (S-N).
-  int limite_inferior = -x_2;
-  float incremento = 0.0f;
-  if (TamanhoX() % 2 != 0) {
-    --limite_inferior;
-    incremento = TAMANHO_LADO_QUADRADO_2;
-  }
-  for (int i = limite_inferior; i <= x_2; ++i) {
-    float x = i * TAMANHO_LADO_QUADRADO + incremento;
-    gl::Retangulo(x - EXPESSURA_LINHA_2, -tamanho_y_2, x + EXPESSURA_LINHA_2, tamanho_y_2);
-  }
-  // Linhas horizontais (W-E).
-  limite_inferior = -y_2;
-  incremento = 0.0f;
-  if (TamanhoY() % 2 != 0) {
-    --limite_inferior;
-    incremento = TAMANHO_LADO_QUADRADO_2;
-  }
-  for (int i = limite_inferior; i <= y_2; ++i) {
-    float y = i * TAMANHO_LADO_QUADRADO + incremento;
-    gl::Retangulo(-tamanho_x_2, y - EXPESSURA_LINHA_2, tamanho_x_2, y + EXPESSURA_LINHA_2);
-  }
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
+  gl::PonteiroVertices(2, GL_FLOAT, (void*)0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
+  gl::DesenhaElementos(GL_TRIANGLES, indices_grade_.size(), GL_UNSIGNED_SHORT, (void*)0);
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 namespace {

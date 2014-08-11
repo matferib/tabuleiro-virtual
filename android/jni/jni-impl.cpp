@@ -30,43 +30,6 @@ class ReceptorErro : public ntf::Receptor {
   }
 };
 
-// Implementacao das texturas para android.
-class TexturasAndroid : public tex::Texturas {
- public:
-  TexturasAndroid(JNIEnv* env, jobject assets, ntf::CentralNotificacoes* central) : tex::Texturas(central) {
-    aman_ = AAssetManager_fromJava(env, assets);
-  }
-
-#if 0
-  virtual void LeImagem(const std::string& arquivo, std::vector<unsigned char>* dados) override {
-    AAsset* asset = nullptr;
-    try {
-      std::string caminho_asset(std::string("texturas/") + arquivo);
-      asset = AAssetManager_open(aman_, caminho_asset.c_str(), AASSET_MODE_BUFFER);
-      if (asset == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
-        throw 1;
-      }
-      off_t tam = AAsset_getLength(asset);
-      if (tam <= 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha com tamanho do asset: %ld", tam);
-        throw 2;
-      }
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido: %ld", tam);
-      dados->resize(tam);
-      memcpy(dados->data(), AAsset_getBuffer(asset), tam);
-    } catch (...) {
-    }
-    if (asset != nullptr) {
-      AAsset_close(asset);
-    }
-  }
-#endif
-
- private:
-  AAssetManager* aman_;
-};
-
 // Teste
 const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
   AAssetManager* aman = AAssetManager_fromJava(env, assets);
@@ -118,7 +81,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(JNIEnv* env, job
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate endereco: %s", endereco_nativo.c_str());
   arq::Inicializa(env, assets);
   g_central.reset(new ntf::CentralNotificacoes);
-  g_texturas.reset(new TexturasAndroid(env, assets, g_central.get()));
+  g_texturas.reset(new tex::Texturas(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
