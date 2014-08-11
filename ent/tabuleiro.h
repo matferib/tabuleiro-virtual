@@ -449,15 +449,10 @@ class Tabuleiro : public ntf::Receptor {
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
 
-  /** retorna as coordenadas do quadrado. */
+  /** retorna as coordenadas do centro do quadrado. */
   void CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z);
   /** retorna o id do quadrado em determinada coordenada. */
   unsigned int IdQuadrado(float x, float y);
-#if USAR_OPENGL_ES
-  /** Retorna as coordenadas do sub quadrado dentro de um quadrado, para picking de maior resolucao. */
-  void CoordenadaQuadradoDetalhado(unsigned int id_quadrado, unsigned int id_detalhado, float* x, float* y, float* z);
-  void CoordenadaEntidadeDetalhada(unsigned int id, unsigned int id_detalhado, float* x, float* y, float* z);
-#endif
 
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida.
   * @param nome um tabuleiro com nome pode ser salvo diretamente, sem dialogo de nome
@@ -490,11 +485,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
-
-  /** Desenha um quadrado do tabuleiro. */
-  void DesenhaQuadrado(unsigned int id,
-                       int linha, int coluna,
-                       const float* vertices, const float* vertices_texels, const unsigned short* indices);
 
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
@@ -638,15 +628,20 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_acao_cura_ = false;
 
   // Renderizacao por VBO.
-  bool regerar_vbo_ = true;
   unsigned int nome_buffer_ = 0;
-  unsigned int nome_indice_buffer_ = 0;
+  unsigned int nome_buffer_indice_ = 0;
   std::vector<unsigned short> indices_tabuleiro_;
   struct InfoVerticeTabuleiro {
     float x, y;
     float s0, t0;
   };
   std::vector<InfoVerticeTabuleiro> vertices_tabuleiro_;
+  unsigned int nome_buffer_grade_ = 0;
+  unsigned int nome_buffer_indice_grade_ = 0;
+  std::vector<float> vertices_grade_;
+  std::vector<unsigned short> indices_grade_;
+
+  bool gl_iniciado_ = false;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
