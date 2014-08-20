@@ -199,4 +199,8 @@ message ParametrosDesenho {
   optional bool desenha_pontos_rolagem = 26 [default=true];
   // Se verdadeiro, aplica efeito de nevoa.
   optional bool desenha_nevoa = 27 [default=true];
+  // Se verdadeiro, desenha o id da acao corrente.
+  optional bool desenha_id_acao = 30 [default=true];
+  // Se verdadeiro, desenha o controle virtual de acoes.
+  optional bool desenha_controle_virtual = 31 [default=true];
 }

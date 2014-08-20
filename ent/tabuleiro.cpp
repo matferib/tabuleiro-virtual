@@ -1612,19 +1612,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaPontosRolagem();
   }
 
-  if (opcoes_.desenha_controle_virtual()) {
-    // Controle na quarta posicao da pilha.
-    gl::NomesEscopo nomes_ent(0);
-    gl::NomesEscopo pontos(0);
-    gl::NomesEscopo controle(0);
-    DesenhaControleVirtual();
-  }
-
-  if (!parametros_desenho_.desenha_entidades()) {
-    return;
-  }
-
-  {
+  if (parametros_desenho_.desenha_entidades()) {
     gl::NomesEscopo nomes(0);
     // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
     // na hora do picking.
@@ -1670,17 +1658,19 @@ void Tabuleiro::DesenhaCena() {
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
   // a outros nao transparentes.
-  if (parametros_desenho_.transparencias()) {
-    //gl::HabilitaEscopo blend_escopo(GL_BLEND);
-    gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
-    parametros_desenho_.set_alfa_translucidos(0.5);
-    DesenhaEntidadesTranslucidas();
-    parametros_desenho_.clear_alfa_translucidos();
-    DesenhaAuras();
-  } else {
-    gl::NomesEscopo nomes(0);
-    // Desenha os translucidos de forma solida para picking.
-    DesenhaEntidadesTranslucidas();
+  if (parametros_desenho_.desenha_entidades()) {
+    if (parametros_desenho_.transparencias()) {
+      //gl::HabilitaEscopo blend_escopo(GL_BLEND);
+      gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
+      parametros_desenho_.set_alfa_translucidos(0.5);
+      DesenhaEntidadesTranslucidas();
+      parametros_desenho_.clear_alfa_translucidos();
+      DesenhaAuras();
+    } else {
+      gl::NomesEscopo nomes(0);
+      // Desenha os translucidos de forma solida para picking.
+      DesenhaEntidadesTranslucidas();
+    }
   }
 
 
@@ -1691,9 +1681,17 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
   }
-  // TODO usar outra constante.
-  if (parametros_desenho_.desenha_lista_pontos_vida()) {
+
+  if (parametros_desenho_.desenha_id_acao()) {
     DesenhaIdAcaoEntidade();
+  }
+
+  if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
+    // Controle na quarta posicao da pilha.
+    gl::NomesEscopo nomes_ent(0);
+    gl::NomesEscopo pontos(0);
+    gl::NomesEscopo controle(0);
+    DesenhaControleVirtual();
   }
 }
 
@@ -2246,6 +2244,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_id_acao(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
