@@ -3593,20 +3593,6 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
 void Tabuleiro::DesenhaControleVirtual() {
   gl::Desabilita(GL_LIGHTING);
   gl::Desabilita(GL_DEPTH_TEST);
-  // Modo 2d: eixo com origem embaixo esquerda.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  if (parametros_desenho_.has_picking_x()) {
-    // Modo de picking faz a matriz de picking para projecao ortogonal.
-    GLint viewport[4];
-    gl::Le(GL_VIEWPORT, viewport);
-    gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-  }
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-
   float cor_padrao[3];
   float cor_ativa[3];
   cor_padrao[0] = 0.8f;
@@ -3654,18 +3640,45 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float botao_x = fonte_x * 2.5f;
   const float botao_y = fonte_y * 2.0f;
   const float padding = 2.0f;
-  for (const DadosBotao& db : dados_botoes) {
-    gl::CarregaNome(db.id);
-    float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
-    gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-    float xi, xf, yi, yf;
-    xi = db.coluna * botao_x;
-    xf = xi + db.tamanho * botao_x;
-    yi = db.linha * botao_y;
-    yf = yi + db.tamanho * botao_y;
-    gl::Retangulo(xi + padding, yi + padding, xf - padding, yf - padding);
-    // So desenha os rotulos em modo normal, em picking nao precisamos deles.
-    if (!db.rotulo.empty() && !parametros_desenho_.has_picking_x()) {
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+
+  // Desenha em duas passadas por causa da limitacao de projecao do nexus 7.
+  // Desenha apenas os botoes.
+  {
+    // Modo 2d: eixo com origem embaixo esquerda.
+    gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+    gl::CarregaIdentidade();
+    if (parametros_desenho_.has_picking_x()) {
+      // Modo de picking faz a matriz de picking para projecao ortogonal.
+      gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+    }
+    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+    gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+    gl::CarregaIdentidade();
+    for (const DadosBotao& db : dados_botoes) {
+      gl::CarregaNome(db.id);
+      float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
+      gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
+      float xi, xf, yi, yf;
+      xi = db.coluna * botao_x;
+      xf = xi + db.tamanho * botao_x;
+      yi = db.linha * botao_y;
+      yf = yi + db.tamanho * botao_y;
+      gl::Retangulo(xi + padding, yi + padding, xf - padding, yf - padding);
+    }
+  }
+  // Desenha os labels.
+  if (!parametros_desenho_.has_picking_x()) {
+    for (const DadosBotao& db : dados_botoes) {
+      if (db.rotulo.empty()) {
+        continue;
+      }
+      float xi, xf, yi, yf;
+      xi = db.coluna * botao_x;
+      xf = xi + db.tamanho * botao_x;
+      yi = db.linha * botao_y;
+      yf = yi + db.tamanho * botao_y;
       float x_meio = (xi + xf) / 2.0f;
       float y_meio = (yi + yf) / 2.0f;
       float y_base = y_meio - (fonte_y / 4.0f);
@@ -3674,10 +3687,11 @@ void Tabuleiro::DesenhaControleVirtual() {
       } else {
         gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
       }
-      gl::PosicaoRaster(x_meio, y_base);
+      PosicionaRaster2d(x_meio, y_base, viewport[2], viewport[3]);
       gl::DesenhaString(db.rotulo);
     }
   }
+
   // So volta a luz se havia iluminacao antes.
   if (parametros_desenho_.iluminacao()) {
     gl::Habilita(GL_LIGHTING);
