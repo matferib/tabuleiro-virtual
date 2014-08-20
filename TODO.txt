@@ -1,10 +1,9 @@
 Versao 1.5.1
-- Arrumar ZBuffer do controle virtual com entidades.
+- Controle virtual quebrado no nexus 7.
 - Mais letras maiusculas.
 - Desabilitar watchdog em dialogos.
 - Externalizar o tabuleiro da interface, passar como parametro.
-- Controle virtual no tablet.
-- Frame Buffer Objects.
+- VBO em entidades.
 
 Versao 1.6.0
 - Contador de rodadas.
