@@ -372,7 +372,7 @@ struct ContextoInterno {
   int max_pilha_pj = 0.0f;
 
   inline bool UsarSelecaoPorCor() const {
-    return depurar_selecao_por_cor || modo_renderizacao == MR_SELECT;
+    return modo_renderizacao == MR_SELECT || depurar_selecao_por_cor ;
   }
 };
 
@@ -399,7 +399,88 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
 
 // Cubo de tamanho 1.
 void CuboSolidoUnitario() {
-  unsigned short indices[12] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
+#if 1
+  unsigned short indices[] = {
+      0, 1, 2, 0, 2, 3,
+      4, 5, 6, 4, 6, 7,
+      8, 9, 10, 8, 10, 11,
+      12, 13, 14, 12, 14, 15,
+      16, 17, 18, 16, 18, 19,
+      20, 21, 22, 20, 22, 23,
+  };
+  const float normais[] = {
+    // sul.
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    // norte.
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    // oeste.
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    // leste.
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    // cima.
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    // baixo.
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+  };
+  const float vertices[] = {
+    // sul: 0-3
+    -0.5f, -0.5f, -0.5f,
+    0.5f, -0.5f, -0.5f,
+    0.5f, -0.5f, 0.5f,
+    -0.5f, -0.5f, 0.5f,
+    // norte: 4-7.
+    -0.5f, 0.5f, -0.5f,
+    -0.5f, 0.5f, 0.5f,
+    0.5f, 0.5f, 0.5f,
+    0.5f, 0.5f, -0.5f,
+    // oeste: 8-11.
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, -0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f,
+    -0.5f, 0.5f, -0.5f,
+    // leste: 12-15.
+    0.5f, -0.5f, -0.5f,
+    0.5f, 0.5f, -0.5f,
+    0.5f, 0.5f, 0.5f,
+    0.5f, -0.5f, 0.5f,
+    // cima: 16-19.
+    -0.5f, -0.5f, 0.5f,
+    0.5f, -0.5f, 0.5f,
+    0.5f, 0.5f, 0.5f,
+    -0.5f, 0.5f, 0.5f,
+    // baixo: 20-23.
+    -0.5f, -0.5f, -0.5f,
+    -0.5f, 0.5f, -0.5f,
+    0.5f, 0.5f, -0.5f,
+    0.5f, -0.5f, -0.5f,
+  };
+  gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::PonteiroNormais(GL_FLOAT, normais);
+  gl::PonteiroVertices(3, GL_FLOAT, vertices);
+  gl::DesenhaElementos(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, indices);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+#else
+  unsigned short indices[4] = { 0, 1, 2, 3 };
   const float vertices_sul[] = {
     -0.5f, -0.5f, -0.5f,
     0.5f, -0.5f, -0.5f,
@@ -458,6 +539,7 @@ void CuboSolidoUnitario() {
   gl::PonteiroVertices(3, GL_FLOAT, vertices_baixo);
   gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#endif
 }
 
 }  // namespace

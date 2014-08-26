@@ -12,17 +12,18 @@
 namespace ent {
 
 void AjustaCor(const EntidadeProto& proto, ParametrosDesenho* pd) {
-  auto cor = proto.cor();
+  const auto& cp = proto.cor();
+  float cor[4] = { cp.r(), cp.g(), cp.b(), 1.0f };
   if (pd->has_alfa_translucidos()) {
-    cor.set_a(cor.a() * pd->alfa_translucidos());
+    cor[3] = cp.a() * pd->alfa_translucidos();
   }
   if (pd->entidade_selecionada()) {
-    RealcaCor(&cor);
+    RealcaCor(cor);
   }
   if (proto.morta()) {
-    EscureceCor(&cor);
+    EscureceCor(cor);
   }
-  MudaCor(cor);
+  MudaCorAlfa(cor);
 }
 
 void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {

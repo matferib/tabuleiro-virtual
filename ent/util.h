@@ -34,12 +34,14 @@ void CorParaProto(const float* cor, Cor* cor_proto);
 /** Reduz cada componente RGB em 0.5f. */
 const Cor EscureceCor(const Cor& cor);
 void EscureceCor(Cor* cor);
+void EscureceCor(float* cor);
 
 /** Aumenta cada componente RGB em 0.5f. */
 void ClareiaCor(Cor* cor);
 
 /** Muda cada componente RGB de forma notavel. */
 void RealcaCor(Cor* cor);
+void RealcaCor(float* cor);
 
 // Placeholder para retornar a altura do chao em determinado ponto do tabuleiro.
 inline float ZChao(float x3d, float y3d) {

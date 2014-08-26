@@ -64,6 +64,43 @@ LIBRARIES=--with-libraries=system,timer,filesystem.
 ./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8
 
 
+==============
+Instrumentação
+==============
+
+OBS: Funciona apenas em dispositivos com um usuario (so consegui no telefone).
+
+- Colocar no AndroidManifest.xml para poder escrever o arquivo de profile:
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+- Descompactar o android-ndk-profiler em android/jni (https://code.google.com/p/android-ndk-profiler/).
+
+- Adicionar no Android.mk:
+LOCAL_CFLAGS := -pg
+LOCAL_STATIC_LIBRARIES += android-ndk-profiler
+# ultima linha.
+$(call import-module,android-ndk-profiler)
+
+- Adicionar no jni-impl.cpp:
+#include "prof.h"
+...
+// Resume. Sim, o nome é sem o prefixo lib.
+  monstartup("tabuleiro.so");
+// Pause
+  moncleanup();
+
+- Compilar o jni com:
+${ANDROID_NDK}/ndk-build NDK_MODULE_PATH=/home/matheus/Projetos/rpg/tabuleiro/android/jni/ V=1
+
+- Compilar, instalar e rodar a app para gerar o profile. Ao pausar a app, o arquivo sera escrito.
+
+- Baixar o profile:
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
+
+- Analisar:
+${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
+
+
 ===========
  Problemas
 ===========

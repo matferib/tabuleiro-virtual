@@ -1,5 +1,6 @@
 /** Wrapper JNI para o tabuleiro baseado no Tabuleiro. */
 #include <memory>
+#include <stdlib.h>
 #include <jni.h>
 #include <sys/time.h>
 #include <time.h>
@@ -15,6 +16,10 @@
 #include "gltab/gl.h"
 #include "net/cliente.h"
 #include "tex/texturas.h"
+
+#if PROFILER_LIGADO
+#include "prof.h"
+#endif
 
 namespace {
 
@@ -35,7 +40,7 @@ const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
   AAssetManager* aman = AAssetManager_fromJava(env, assets);
   ntf::Notificacao ntf_tabuleiro;
   AAsset* asset = nullptr;
-  std::string caminho_asset("tabuleiros_salvos/castelo.binproto");
+  std::string caminho_asset("tabuleiros_salvos/douren.binproto");
   asset = AAssetManager_open(aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
   if (asset == nullptr) {
     __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
@@ -133,10 +138,17 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, job
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
+  //setenv("CPUPROFILE", "/data/data/com.matferib.Tabuleiro/files/gmon.out", 1);
+#if PROFILER_LIGADO
+  moncleanup();
+#endif
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeResume(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeResume");
+#if PROFILER_LIGADO
+  monstartup("tabuleiro.so");
+#endif
 }
 
 // Touch.
