@@ -1,0 +1,7 @@
+Versoes:
+
+- instalador/tabvirt.iss: instalador windows.
+- ifg/qt/menuprincipal.cpp: dialogo de versao.
+- android/AndroidManifest.xml: as duas versoes.
+
+Lembrar de gerar o APK do Nexus 7 tb (mudar LOCAL_CPPFLAGS no android/jni/Android.mk).
