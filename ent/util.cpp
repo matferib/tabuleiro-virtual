@@ -47,6 +47,12 @@ void EscureceCor(Cor* cor) {
   cor->set_b(std::max(cor->b() - 0.5f, 0.0f));
 }
 
+void EscureceCor(float* cor) {
+  cor[0] = std::max(cor[0] - 0.5f, 0.0f);
+  cor[1] = std::max(cor[1] - 0.5f, 0.0f);
+  cor[2] = std::max(cor[2] - 0.5f, 0.0f);
+}
+
 const Cor EscureceCor(const Cor& cor) {
   Cor cret(cor);
   EscureceCor(&cret);
@@ -65,6 +71,12 @@ float RealcaComponente(float c) {
   } else {
     return std::max(c - 0.15f, 0.0f);
   }
+}
+
+void RealcaCor(float* cor) {
+  cor[0] = RealcaComponente(cor[0]);
+  cor[1] = RealcaComponente(cor[1]);
+  cor[2] = RealcaComponente(cor[2]);
 }
 
 void RealcaCor(Cor* cor) {

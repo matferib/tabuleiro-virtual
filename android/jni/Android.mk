@@ -56,4 +56,8 @@ LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-pr
 LOCAL_LDLIBS := -lGLESv1_CM -llog -landroid
 LOCAL_CPPFLAGS += -frtti -fexceptions
 
+#LOCAL_CFLAGS := -pg -DPROFILER_LIGADO
+#LOCAL_STATIC_LIBRARIES += android-ndk-profiler
+
 include $(BUILD_SHARED_LIBRARY)  # Monta biblioteca dinamica libtabuleiro.so.
+#$(call import-module,android-ndk-profiler)
