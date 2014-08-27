@@ -1131,7 +1131,7 @@ void EmpilhaNome(GLuint id) {
     return;
   }
   ++g_contexto->bit_pilha;
-  VLOG(1) << "bit pilha: " << g_contexto->bit_pilha;
+  VLOG(1) << "Empilhando bit pilha: " << g_contexto->bit_pilha;
 }
 
 void CarregaNome(GLuint id) {
@@ -1141,7 +1141,8 @@ void CarregaNome(GLuint id) {
   }
   GLubyte rgb[3];
   MapeiaId(id, rgb);
-  VLOG(2) << "Mapeando " << id << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
+  VLOG(2) << "Mapeando " << id << ", bit pilha " << g_contexto->bit_pilha
+          << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
   // Muda a cor para a mapeada.
   glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 }
@@ -1155,6 +1156,7 @@ void DesempilhaNome() {
     LOG(ERROR) << "Bit da pilha passou do limite inferior.";
     return;
   }
+  VLOG(1) << "Desempilhando bit pilha: " << g_contexto->bit_pilha;
   --g_contexto->bit_pilha;
 }
 
