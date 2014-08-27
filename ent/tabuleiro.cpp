@@ -3670,7 +3670,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     }
   }
   // Desenha os labels.
-  if (!parametros_desenho_.has_picking_x()) {
+  if (!parametros_desenho_.has_picking_x() && !modo_debug_) {
     for (const DadosBotao& db : dados_botoes) {
       if (db.rotulo.empty()) {
         continue;
