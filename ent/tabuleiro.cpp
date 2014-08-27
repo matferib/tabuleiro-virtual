@@ -281,7 +281,7 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
 
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
-    notificacao.set_endereco("tabuleiro_watchdog.binproto");
+    notificacao.set_endereco("tabuleiros_salvos/tabuleiro_watchdog.binproto");
     this->TrataNotificacao(notificacao);
   });
 #endif
@@ -3892,6 +3892,24 @@ void Tabuleiro::ReiniciaCamera() {
   olho_.set_raio(OLHO_RAIO_INICIAL);
   olho_.clear_destino();
   AtualizaOlho(true  /*forcar*/);
+}
+
+void Tabuleiro::DesativaWatchdog() {
+#if USAR_WATCHDOG
+  if (!modo_mestre_) {
+    return;
+  }
+  watchdog_.Para();
+#endif
+}
+
+void Tabuleiro::ReativaWatchdog() {
+#if USAR_WATCHDOG
+  if (!modo_mestre_) {
+    return;
+  }
+  watchdog_.Reinicia();
+#endif
 }
 
 }  // namespace ent

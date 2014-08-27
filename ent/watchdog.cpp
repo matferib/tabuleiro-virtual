@@ -18,8 +18,12 @@ Watchdog::~Watchdog() {
 }
 
 void Watchdog::Inicia(std::function<void()> funcao) {
-  thread_.reset(new std::thread(&Watchdog::Loop, this));
   funcao_ = funcao;
+  thread_.reset(new std::thread(&Watchdog::Loop, this));
+}
+
+void Watchdog::Reinicia() {
+  thread_.reset(new std::thread(&Watchdog::Loop, this));
 }
 
 void Watchdog::Para() {

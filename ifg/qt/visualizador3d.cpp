@@ -32,6 +32,19 @@ namespace ifg {
 namespace qt {
 namespace {
 
+class DesativadorWatchdogEscopo {
+ public:
+  DesativadorWatchdogEscopo(ent::Tabuleiro* tabuleiro) : tabuleiro_(tabuleiro) {
+    tabuleiro_->DesativaWatchdog();
+  }
+  ~DesativadorWatchdogEscopo() {
+    tabuleiro_->ReativaWatchdog();
+  }
+
+ private:
+  ent::Tabuleiro* tabuleiro_;
+};
+
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -185,6 +198,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (!notificacao.has_entidade()) {
         return false;
       }
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* entidade = AbreDialogoEntidade(notificacao);
       if (entidade == nullptr) {
         VLOG(1) << "Alterações descartadas";
@@ -200,6 +214,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // O tabuleiro criara a mensagem completa.
         return false;
       }
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* tabuleiro = AbreDialogoTabuleiro(notificacao);
       if (tabuleiro == nullptr) {
         VLOG(1) << "Alterações de iluminação descartadas";
@@ -215,6 +230,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // O tabuleiro criara a mensagem completa.
         return false;
       }
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* opcoes = AbreDialogoOpcoes(notificacao);
       if (opcoes == nullptr) {
         VLOG(1) << "Alterações de opcoes descartadas";
@@ -226,10 +242,12 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_INFO: {
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::information(this, tr("Informação"), tr(notificacao.erro().c_str()));
       break;
     }
     case ntf::TN_ERRO: {
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
       break;
     }
