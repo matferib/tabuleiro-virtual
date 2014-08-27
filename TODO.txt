@@ -1,6 +1,5 @@
 Versao 1.5.1
 - Mais letras maiusculas.
-- Desabilitar watchdog em dialogos.
 - Externalizar o tabuleiro da interface, passar como parametro.
 - VBO em entidades.
 

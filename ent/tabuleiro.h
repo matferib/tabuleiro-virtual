@@ -294,6 +294,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
   bool ModoMestre() const { return modo_mestre_; }
 
+  /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
+  void DesativaWatchdog();
+
+  /** Para reativar o watchdog. */
+  void ReativaWatchdog();
+
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
   class TimerEscopo {
