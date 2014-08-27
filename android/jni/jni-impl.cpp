@@ -40,7 +40,7 @@ const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
   AAssetManager* aman = AAssetManager_fromJava(env, assets);
   ntf::Notificacao ntf_tabuleiro;
   AAsset* asset = nullptr;
-  std::string caminho_asset("tabuleiros_salvos/douren.binproto");
+  std::string caminho_asset("tabuleiros_salvos/castelo.binproto");
   asset = AAssetManager_open(aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
   if (asset == nullptr) {
     __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
