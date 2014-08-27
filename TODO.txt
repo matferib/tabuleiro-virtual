@@ -1,9 +1,8 @@
 Versao 1.5.1
-- Mais letras maiusculas.
-- Externalizar o tabuleiro da interface, passar como parametro.
 - VBO em entidades.
 
 Versao 1.6.0
+- Mais letras maiusculas.
 - Contador de rodadas.
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Cor de formas compostas aplicando a todos os filhos.
