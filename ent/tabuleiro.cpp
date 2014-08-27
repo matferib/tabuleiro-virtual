@@ -1497,7 +1497,6 @@ void Tabuleiro::DesenhaCena() {
 
   gl::InicioCena();
   gl::IniciaNomes();
-  gl::NomesEscopo nomes_tabuleiro(0);
 
   gl::Habilita(GL_DEPTH_TEST);
   gl::CorLimpeza(proto_.luz_ambiente().r(),
@@ -1581,6 +1580,8 @@ void Tabuleiro::DesenhaCena() {
   //ceu_.desenha(parametros_desenho_);
 
   // desenha tabuleiro do sul para o norte.
+  gl::NomesEscopo nomes_tabuleiro(0);
+  gl::CarregaNome(0);
   DesenhaTabuleiro();
 
   if (parametros_desenho_.desenha_grade() && proto_.desenha_grade() && opcoes_.desenha_grade()) {
