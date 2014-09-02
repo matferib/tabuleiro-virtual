@@ -1879,7 +1879,9 @@ void Tabuleiro::DesenhaTabuleiro() {
   // Usa os vertices de VBO.
   glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_);
   gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)0);
-  GLuint id_textura = parametros_desenho_.desenha_texturas() && proto_.has_info_textura() ?
+  GLuint id_textura = parametros_desenho_.desenha_texturas() &&
+                      proto_.has_info_textura() &&
+                      (!proto_.textura_mestre_apenas() || modo_mestre_) ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
@@ -2911,6 +2913,7 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   if (proto_.has_info_textura()) {
     tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());
     tabuleiro->set_ladrilho(proto_.ladrilho());
+    tabuleiro->set_textura_mestre_apenas(proto_.textura_mestre_apenas());
   }
   if (proto_.has_nevoa()) {
     tabuleiro->mutable_nevoa()->CopyFrom(proto_.nevoa());
@@ -3487,9 +3490,11 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   if (novo_proto.has_info_textura()) {
     proto_.mutable_info_textura()->CopyFrom(novo_proto.info_textura());
     proto_.set_ladrilho(novo_proto.ladrilho());
+    proto_.set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
   } else {
     proto_.clear_info_textura();
     proto_.clear_ladrilho();
+    proto_.clear_textura_mestre_apenas();
   }
 }
 

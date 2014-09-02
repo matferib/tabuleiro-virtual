@@ -1,8 +1,7 @@
 Versao 1.5.1
-- Deadlock ao fechar.
-- VBO em entidades.
 
 Versao 1.6.0
+- VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).

@@ -677,6 +677,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
   // grade.
   gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
+  // Mestre apenas.
+  gerador.checkbox_mestre_apenas->setCheckState(tab_proto.textura_mestre_apenas() ? Qt::Checked : Qt::Unchecked);
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -775,6 +777,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     // Grade.
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
+    // Mestre apenas.
+    proto_retornado->set_textura_mestre_apenas(
+        gerador.checkbox_mestre_apenas->checkState() == Qt::Checked ? true : false);
 
     VLOG(1) << "Retornando tabuleiro: " << proto_retornado->ShortDebugString();
     dialogo->accept();

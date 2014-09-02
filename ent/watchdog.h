@@ -33,6 +33,7 @@ class Watchdog {
 
   std::unique_ptr<std::thread> thread_;
   std::mutex cond_lock_;
+  std::condition_variable cond_inicio_;
   std::condition_variable cond_fim_;
   // Indica que watchdog foi refrescado.
   bool refrescado_ = false;
