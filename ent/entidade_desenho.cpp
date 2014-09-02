@@ -11,7 +11,7 @@
 
 namespace ent {
 
-void AjustaCor(const EntidadeProto& proto, ParametrosDesenho* pd) {
+void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
   const auto& cp = proto.cor();
   float cor[4] = { cp.r(), cp.g(), cp.b(), 1.0f };
   if (pd->has_alfa_translucidos()) {
