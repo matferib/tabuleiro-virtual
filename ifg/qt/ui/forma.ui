@@ -500,7 +500,7 @@
      </rect>
     </property>
     <property name="toolTip">
-     <string>Rotação do objeto ao redor do eixo Z.</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotação do objeto ao redor do eixo Y.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="minimum">
      <number>0</number>
