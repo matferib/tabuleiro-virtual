@@ -62,6 +62,7 @@ public:
     QDial *dial_rotacao;
     QDoubleSpinBox *spin_translacao;
     QLabel *label_2;
+    QSpinBox *spin_rotacao;
     QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_visibilidade;
     QWidget *horizontalLayoutWidget_3;
@@ -82,6 +83,7 @@ public:
     QPushButton *botao_luz;
     QGroupBox *groupBox_3;
     QDial *dial_rotacao_y;
+    QSpinBox *spin_rotacao_y;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -205,7 +207,7 @@ public:
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(20, 110, 271, 101));
+        groupBox_2->setGeometry(QRect(20, 110, 271, 131));
         dial_rotacao = new QDial(groupBox_2);
         dial_rotacao->setObjectName(QString::fromUtf8("dial_rotacao"));
         dial_rotacao->setGeometry(QRect(10, 20, 71, 71));
@@ -228,6 +230,10 @@ public:
         label_2 = new QLabel(groupBox_2);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(100, 40, 111, 16));
+        spin_rotacao = new QSpinBox(groupBox_2);
+        spin_rotacao->setObjectName(QString::fromUtf8("spin_rotacao"));
+        spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
+        spin_rotacao->setMaximum(360);
         checkbox_selecionavel = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
         checkbox_selecionavel->setGeometry(QRect(200, 430, 177, 20));
@@ -330,7 +336,7 @@ public:
 
         groupBox_3 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(300, 110, 111, 101));
+        groupBox_3->setGeometry(QRect(300, 110, 111, 141));
         dial_rotacao_y = new QDial(groupBox_3);
         dial_rotacao_y->setObjectName(QString::fromUtf8("dial_rotacao_y"));
         dial_rotacao_y->setGeometry(QRect(20, 20, 71, 71));
@@ -344,6 +350,11 @@ public:
         dial_rotacao_y->setWrapping(true);
         dial_rotacao_y->setNotchTarget(45);
         dial_rotacao_y->setNotchesVisible(true);
+        spin_rotacao_y = new QSpinBox(groupBox_3);
+        spin_rotacao_y->setObjectName(QString::fromUtf8("spin_rotacao_y"));
+        spin_rotacao_y->setGeometry(QRect(30, 100, 51, 24));
+        spin_rotacao_y->setMinimum(-180);
+        spin_rotacao_y->setMaximum(180);
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));

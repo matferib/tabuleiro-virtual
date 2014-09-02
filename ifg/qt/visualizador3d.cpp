@@ -375,10 +375,25 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   // Rotacao em Z.
   gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
+  gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  lambda_connect(gerador.dial_rotacao, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  });
+  lambda_connect(gerador.spin_rotacao, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.dial_rotacao->setValue(gerador.spin_rotacao->value());
+  });
+
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.translacao_z());
   // Rotacao em Y.
   gerador.dial_rotacao_y->setSliderPosition(-entidade.rotacao_y_graus() - 180.0f);
+  gerador.spin_rotacao_y->setValue(entidade.rotacao_y_graus());
+  lambda_connect(gerador.dial_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.spin_rotacao_y->setValue(180 - gerador.dial_rotacao_y->value());
+  });
+  lambda_connect(gerador.spin_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.dial_rotacao_y->setValue(-gerador.spin_rotacao_y->value() - 180);
+  });
 
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());
