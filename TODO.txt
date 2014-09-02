@@ -1,6 +1,8 @@
 Versao 1.5.1
+- Desenho livre virando circulo.
 
 Versao 1.6.0
+- Textura em formas.
 - VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
