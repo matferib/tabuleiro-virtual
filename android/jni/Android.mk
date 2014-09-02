@@ -68,5 +68,5 @@ endif
 
 include $(BUILD_SHARED_LIBRARY)  # Monta biblioteca dinamica libtabuleiro.so.
 ifneq ($(PROFILER_LIGADO),)
-$(call import-module,android-ndk-profiler)
+	$(call import-module,android-ndk-profiler)
 endif
