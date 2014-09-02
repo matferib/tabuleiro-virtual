@@ -17,6 +17,8 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat TabuleiroRenderer:I *:S
 -- Criar os builds para o target (diretorio pai do jni, onde esta o AndroidManifest.xml):
 ${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
 
+-- Criar os arquivos de protocol buffer. So criar os do projeto original ja funciona (o codigo do android usa link para eles).
+
 -- Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
 ${ANDROID_NDK}/ndk-build V=1
 
