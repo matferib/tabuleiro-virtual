@@ -387,7 +387,7 @@ public:
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em Y", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0, QApplication::UnicodeUTF8));
+        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 
