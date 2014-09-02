@@ -1,4 +1,6 @@
 Versao 1.5.1
+- Deadlock ao fechar.
+- Controle de angulo de rotacao da entidade por numero tb.
 - VBO em entidades.
 
 Versao 1.6.0

@@ -107,6 +107,19 @@
     <string>Desenhar Grade</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkbox_controle">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>200</y>
+     <width>271</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Desenhar Controle Virtual</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections>

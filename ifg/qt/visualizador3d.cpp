@@ -175,7 +175,11 @@ Visualizador3d::~Visualizador3d() {
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
-  gl::IniciaGl(argcp_, argv_);
+  static bool once = false;
+  if (!once) {
+    once = true;
+    gl::IniciaGl(argcp_, argv_);
+  }
   tabuleiro_->IniciaGL();
 }
 
@@ -794,6 +798,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
       opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
   // grade.
   gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
+  // Controle virtual.
+  gerador.checkbox_controle->setCheckState(opcoes_proto.desenha_controle_virtual() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -817,6 +823,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     }
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_desenha_controle_virtual(
+        gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

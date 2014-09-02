@@ -32,6 +32,7 @@ public:
     QCheckBox *checkbox_rosa_dos_ventos;
     QCheckBox *checkbox_anti_aliasing;
     QCheckBox *checkbox_grade;
+    QCheckBox *checkbox_controle;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
@@ -61,6 +62,9 @@ public:
         checkbox_grade = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_grade->setObjectName(QString::fromUtf8("checkbox_grade"));
         checkbox_grade->setGeometry(QRect(10, 170, 271, 22));
+        checkbox_controle = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_controle->setObjectName(QString::fromUtf8("checkbox_controle"));
+        checkbox_controle->setGeometry(QRect(10, 200, 271, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -78,6 +82,7 @@ public:
         checkbox_rosa_dos_ventos->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenha rosa dos ventos", 0, QApplication::UnicodeUTF8));
         checkbox_anti_aliasing->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Anti Serrilhamento", 0, QApplication::UnicodeUTF8));
         checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Grade", 0, QApplication::UnicodeUTF8));
+        checkbox_controle->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Controle Virtual", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
