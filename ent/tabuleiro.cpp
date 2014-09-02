@@ -465,24 +465,25 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
-    EntidadeProto proto = entidade_selecionada->Proto();  // Copia.
+    const auto& proto_original = entidade_selecionada->Proto();
     // Para desfazer.
     auto* proto_antes = n->mutable_entidade_antes();
+    auto* proto_depois = n->mutable_entidade();
     if ((bits & BIT_VISIBILIDADE) > 0 && modo_mestre_) {
       // Apenas modo mestre.
-      proto_antes->set_visivel(proto.visivel());
-      proto.set_visivel(!proto.visivel());
+      proto_antes->set_visivel(proto_original.visivel());
+      proto_depois->set_visivel(!proto_original.visivel());
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit.
-      if (proto.has_luz()) {
-        proto_antes->mutable_luz()->CopyFrom(proto.luz());
-        auto* luz_depois = proto.mutable_luz()->mutable_cor();
+      if (proto_original.has_luz()) {
+        proto_antes->mutable_luz()->CopyFrom(proto_original.luz());
+        auto* luz_depois = proto_depois->mutable_luz()->mutable_cor();
         luz_depois->set_r(0);
         luz_depois->set_g(0);
         luz_depois->set_b(0);
       } else {
-        auto* luz = proto.mutable_luz()->mutable_cor();
+        auto* luz = proto_depois->mutable_luz()->mutable_cor();
         luz->set_r(1.0f);
         luz->set_g(1.0f);
         luz->set_b(1.0f);
@@ -493,25 +494,24 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
       }
     }
     if ((bits & BIT_VOO) > 0) {
-      proto_antes->set_voadora(proto.voadora());
-      proto.set_voadora(!proto.voadora());
+      proto_antes->set_voadora(proto_original.voadora());
+      proto_depois->set_voadora(!proto_original.voadora());
     }
     if (bits & BIT_CAIDA) {
-      proto_antes->set_caida(proto.caida());
-      proto.set_caida(!proto.caida());
+      proto_antes->set_caida(proto_original.caida());
+      proto_depois->set_caida(!proto_original.caida());
     }
     if (bits & BIT_MORTA) {
-      proto_antes->set_morta(proto.morta());
-      proto.set_morta(!proto.morta());
+      proto_antes->set_morta(proto_original.morta());
+      proto_depois->set_morta(!proto_original.morta());
     }
     if (bits & BIT_SELECIONAVEL) {
-      proto_antes->set_selecionavel_para_jogador(proto.selecionavel_para_jogador());
-      proto.set_selecionavel_para_jogador(!proto.selecionavel_para_jogador());
+      proto_antes->set_selecionavel_para_jogador(proto_original.selecionavel_para_jogador());
+      proto_depois->set_selecionavel_para_jogador(!proto_original.selecionavel_para_jogador());
     }
-    proto.set_id(id);
     proto_antes->set_id(id);
+    proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-    n->mutable_entidade()->Swap(&proto);
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.

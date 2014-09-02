@@ -291,7 +291,11 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   int pontos_vida_antes = PontosVida();
+  LOG(INFO) << "Proto parcial: " << proto_parcial.ShortDebugString();
+  LOG(INFO) << "Proto antes: " << proto_.ShortDebugString();
+  // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao.
   proto_.MergeFrom(proto_parcial);
+  LOG(INFO) << "Proto depois: " << proto_.ShortDebugString();
   // Casos especiais.
   auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
   if (luz != nullptr && luz->r() == 0 && luz->g() == 0 && luz->b() == 0) {

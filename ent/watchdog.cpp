@@ -24,6 +24,7 @@ void Watchdog::Inicia(std::function<void()> funcao) {
 
 void Watchdog::Reinicia() {
   std::unique_lock<std::mutex> ul(cond_lock_);
+  VLOG(1) << "Reiniciando watchdog";
   thread_.reset(new std::thread(&Watchdog::Loop, this));
   // Espera inicio da thread para evitar deadlock na saida. Por exemplo:
   // 1- Para() eh chamado.
@@ -36,7 +37,7 @@ void Watchdog::Reinicia() {
 
 void Watchdog::Para() {
   cond_lock_.lock();
-  LOG(INFO) << "Notificando termino do watchdog loop";
+  VLOG(1) << "Notificando termino do watchdog loop";
   cond_fim_.notify_one();
   cond_lock_.unlock();
   if (thread_.get() != nullptr) {
@@ -55,7 +56,7 @@ void Watchdog::Loop() {
   do {
     if (cond_fim_.wait_for(ul, std::chrono::milliseconds(10000)) == std::cv_status::no_timeout) {
       // condicao de termino.
-      LOG(INFO) << "Terminando thread watchdog loop";
+      VLOG(1) << "Terminando thread watchdog loop";
       break;
     }
     if (!refrescado_) {
