@@ -206,7 +206,7 @@
      <x>20</x>
      <y>110</y>
      <width>271</width>
-     <height>101</height>
+     <height>131</height>
     </rect>
    </property>
    <property name="title">
@@ -285,6 +285,19 @@
     </property>
     <property name="text">
      <string>Translação</string>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spin_rotacao">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>100</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>360</number>
     </property>
    </widget>
   </widget>
@@ -471,7 +484,7 @@
      <x>300</x>
      <y>110</y>
      <width>111</width>
-     <height>101</height>
+     <height>141</height>
     </rect>
    </property>
    <property name="title">
@@ -518,6 +531,22 @@
     </property>
     <property name="notchesVisible">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spin_rotacao_y">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>-180</number>
+    </property>
+    <property name="maximum">
+     <number>180</number>
     </property>
    </widget>
   </widget>
