@@ -71,38 +71,6 @@ class MatrizEscopo {
   GLenum modo_;
 };
 
-/** Habilita uma caracteristica pelo escopo. Ver glEnable. */
-class HabilitaEscopo {
- public:
-  HabilitaEscopo(GLenum cap) : cap_(cap) { glEnable(cap_); }
-  ~HabilitaEscopo() { glDisable(cap_); }
- private:
-  GLenum cap_;
-};
-
-/** Desabilita uma caracteristica pelo escopo. Ver glDisable. */
-class DesabilitaEscopo {
- public:
-  DesabilitaEscopo(GLenum cap) : cap_(cap) { glDisable(cap_); }
-  ~DesabilitaEscopo() { glEnable(cap_); }
- private:
-  GLenum cap_;
-};
-
-class ModeloLuzEscopo {
- public:
-  ModeloLuzEscopo(const GLfloat* luz) {
-      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
-  }
-  ~ModeloLuzEscopo() {
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-  }
-
- private:
-  GLfloat luz_antes[4];
-};
-
 #if !USAR_OPENGL_ES
 /* glPush/PopAttrib bits */
 enum bits_atributos_e {
@@ -131,6 +99,7 @@ void InicioCena();
 /** Funcoes gerais. */
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
+inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
 inline void Habilita(GLenum cap) { glEnable(cap); }
@@ -331,11 +300,58 @@ void Limpa(GLbitfield mascara);
 #endif
 
 inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
-class DesligaTesteProfundidadeEscopo {
+class DesligaEscritaProfundidadeEscopo {
  public:
-  DesligaTesteProfundidadeEscopo() { MascaraProfundidade(false); }
-  ~DesligaTesteProfundidadeEscopo() { MascaraProfundidade(true); }
+  DesligaEscritaProfundidadeEscopo() {
+    Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
+    MascaraProfundidade(false);
+  }
+  ~DesligaEscritaProfundidadeEscopo() { MascaraProfundidade(valor_anterior_); }
+
+ private:
+  GLboolean valor_anterior_;
 };
+
+/** Habilita uma caracteristica pelo escopo. Ver glEnable. */
+class HabilitaEscopo {
+ public:
+  HabilitaEscopo(GLenum cap) : cap_(cap) { glEnable(cap_); }
+  ~HabilitaEscopo() { glDisable(cap_); }
+ private:
+  GLenum cap_;
+};
+
+/** Desabilita uma caracteristica pelo escopo. Ver glDisable. */
+class DesabilitaEscopo {
+ public:
+  DesabilitaEscopo(GLenum cap) : cap_(cap) {
+    Le(cap, &valor_anterior_);
+    glDisable(cap_);
+  }
+  ~DesabilitaEscopo() {
+    if (valor_anterior_) {
+      glEnable(cap_);
+    }
+  }
+ private:
+  GLenum cap_;
+  GLboolean valor_anterior_;
+};
+
+class ModeloLuzEscopo {
+ public:
+  ModeloLuzEscopo(const GLfloat* luz) {
+      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
+  }
+  ~ModeloLuzEscopo() {
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+  }
+
+ private:
+  GLfloat luz_antes[4];
+};
+
 
 /** Stencil. */
 inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFunc(func, ref, mascara); }

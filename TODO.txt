@@ -1,5 +1,6 @@
 Versao 1.5.1
-- Desenho livre virando circulo.
+- Refazer as features bugadas.
+- Bug das texturas locais.
 
 Versao 1.6.0
 - Textura em formas.

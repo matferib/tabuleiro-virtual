@@ -1394,11 +1394,11 @@ void Tabuleiro::IniciaGL() {
   gl::Habilita(GL_LINE_SMOOTH);
   glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
   if (glGetError() != GL_NO_ERROR) {
-    LOG(INFO) << "Erro no GL_LINE_SMOOTH_HINT";
+    LOG(WARNING) << "Erro no GL_LINE_SMOOTH_HINT";
   }
   glHint(GL_FOG_HINT, GL_NICEST);
   if (glGetError() != GL_NO_ERROR) {
-    LOG(INFO) << "Erro no GL_FOG_HINT";
+    LOG(WARNING) << "Erro no GL_FOG_HINT";
   }
   RegeraVbo();
   gl_iniciado_ = true;
@@ -1646,7 +1646,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
-    gl::DesligaTesteProfundidadeEscopo desliga_teste_escopo;
+    gl::DesligaEscritaProfundidadeEscopo desliga_teste_escopo;
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
@@ -1657,12 +1657,12 @@ void Tabuleiro::DesenhaCena() {
 
   // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
-  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparentes
-  // a outros nao transparentes.
+  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparente
+  // a outros nao transparentes durante o picking.
   if (parametros_desenho_.desenha_entidades()) {
     if (parametros_desenho_.transparencias()) {
-      //gl::HabilitaEscopo blend_escopo(GL_BLEND);
-      gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
+      gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
+      gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
@@ -3750,7 +3750,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   int largura_fonte, altura_fonte;
   gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::DesligaTesteProfundidadeEscopo profundidade_escopo;
+  gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
   gl::PosicaoRaster(2, altura_ - altura_fonte - 2);
   MudaCor(COR_PRETA);
   gl::Retangulo(0.0f, altura_ - 15.0f, tempo_str.size() * 8.0f + 2.0f, altura_);
