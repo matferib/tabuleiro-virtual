@@ -176,6 +176,8 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_G:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->AgrupaEntidadesSelecionadas();
+      } else if (modificadores == (Modificador_Ctrl | Modificador_Shift)) {
+        tabuleiro_->DesagrupaEntidadesSelecionadas();
       }
       return;
     case Tecla_V:
