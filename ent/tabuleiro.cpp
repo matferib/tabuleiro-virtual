@@ -3083,7 +3083,7 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
 
 void Tabuleiro::AgrupaEntidadesSelecionadas() {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
-    VLOG(1) << "Estado invalido." << estado_;
+    VLOG(1) << "Estado invalido para agrupar: " << estado_;
     return;
   }
   VLOG(1) << "Agrupando entidades selecionadas.";
@@ -3115,7 +3115,6 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
     sub_forma.mutable_pos()->set_x(sub_forma.pos().x() - x_medio);
     sub_forma.mutable_pos()->set_y(sub_forma.pos().y() - y_medio);
   }
-  // TODO desfazer.
   auto* notificacao = grupo_notificacoes.add_notificacao();
   notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
   notificacao->mutable_entidade()->Swap(&nova_entidade);
@@ -3125,10 +3124,59 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
     if (ids_adicionados_.size() == 1) {
       // So tem como desfazer se conseguiu adicionar a entidade.
       notificacao->mutable_entidade()->set_id(ids_adicionados_[0]);
+      AdicionaNotificacaoListaEventos(grupo_notificacoes);
     } else {
       LOG(WARNING) << "Impossivel desfazer a entidade adicionada porque ela no foi criada.";
     }
-    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  }
+}
+
+void Tabuleiro::DesagrupaEntidadesSelecionadas() {
+  if (estado_ != ETAB_ENTS_SELECIONADAS) {
+    VLOG(1) << "Estado invalido para desagrupar: " << estado_;
+    return;
+  }
+  VLOG(1) << "Desagrupando entidades selecionadas.";
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  unsigned int num_adicionados = 0;
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      continue;
+    }
+    const auto& proto_composto = e->Proto();
+    for (const auto& sub_entidade : proto_composto.sub_forma()) {
+      auto* notificacao_adicao = grupo_notificacoes.add_notificacao();
+      notificacao_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      auto* nova_entidade = notificacao_adicao->mutable_entidade();
+      nova_entidade->CopyFrom(sub_entidade);
+      nova_entidade->clear_id();
+      auto* pos = nova_entidade->mutable_pos();
+      pos->set_x(pos->x() + proto_composto.pos().x());
+      pos->set_y(pos->y() + proto_composto.pos().y());
+      pos->set_z(pos->z() + proto_composto.pos().z());
+      ++num_adicionados;
+    }
+    auto* notificacao_remocao = grupo_notificacoes.add_notificacao();
+    notificacao_remocao->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    notificacao_remocao->mutable_entidade()->CopyFrom(proto_composto);
+  }
+  TrataNotificacao(grupo_notificacoes);
+  {
+    // para desfazer
+    if (ids_adicionados_.size() == num_adicionados) {
+      int i = 0;
+      for (auto& n : *grupo_notificacoes.mutable_notificacao()) {
+        if (n.tipo() != ntf::TN_ADICIONAR_ENTIDADE) {
+          continue;
+        }
+        n.mutable_entidade()->set_id(ids_adicionados_[i++]);
+      }
+      AdicionaNotificacaoListaEventos(grupo_notificacoes);
+    } else {
+      LOG(WARNING) << "Impossivel desfazer desagrupamento porque numero de adicionados difere.";
+    }
   }
 }
 

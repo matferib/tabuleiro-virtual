@@ -264,6 +264,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Agrupa as entidades selecionadas, criado uma so do tipo TE_FORMA, subtipo TF_COMPOSTA. */
   void AgrupaEntidadesSelecionadas();
+
+  /** Desagrupa as entidades selecionadas, criando varias de acordo com os subtipos. */
   void DesagrupaEntidadesSelecionadas();
 
   /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
