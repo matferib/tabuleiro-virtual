@@ -1,5 +1,4 @@
 Versao 1.5.1
-- Refazer as features bugadas.
 - Bug das texturas locais.
 
 Versao 1.6.0
