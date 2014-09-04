@@ -2259,6 +2259,13 @@ void Tabuleiro::BuscaHitMaisProximo(
   GLuint buffer_hits[100] = {0};
   GLuint numero_hits = 0;
   EncontraHits(x, y, &numero_hits, buffer_hits);
+  // Cada hit ocupa pelo menos 4 inteiros do buffer. Na pratica, por causa da pilha vao ocupar ate mais.
+  if (numero_hits > 25) {
+    LOG(WARNING) << "Muitos hits para a posicao, tamanho de buffer de selecao invalido.";
+    *pos_pilha = 0;
+    *id = 0;
+    return;
+  }
 
   // Busca o hit mais próximo em buffer_hits. Cada posicao do buffer (hit record):
   // - 0: pos_pilha de nomes (numero de nomes empilhados);
@@ -2273,6 +2280,7 @@ void Tabuleiro::BuscaHitMaisProximo(
   GLuint menor_z = 0xFFFFFFFF;
   GLuint pos_pilha_menor = 0;
   GLuint id_menor = 0;
+
   // Busca o hit mais proximo.
   for (GLuint i = 0; i < numero_hits; ++i) {
     GLuint pos_pilha_corrente = *ptr_hits;
