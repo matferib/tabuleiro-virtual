@@ -1,5 +1,5 @@
 Versao 1.5.1
-- Bug das texturas locais.
+- Textura de formas.
 
 Versao 1.6.0
 - Textura em formas.
