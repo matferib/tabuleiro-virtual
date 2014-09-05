@@ -335,6 +335,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   if (!notificacao.modo_mestre()) {
     gerador.checkbox_selecionavel->setEnabled(false);
   }
+  // Textura do objeto.
+  gerador.linha_textura->setText(entidade.info_textura().id().c_str());
+  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
+      [this, dialogo, &gerador ] () {
+    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de leitura de textura cancelada.";
+      return;
+    }
+    gerador.linha_textura->setText(file_str);
+  });
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -425,6 +436,33 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
+    if (!gerador.linha_textura->text().isEmpty()) {
+      if (gerador.linha_textura->text().toStdString() == entidade.info_textura().id()) {
+        // Textura igual a anterior.
+        VLOG(2) << "Textura igual a anterior.";
+        proto_retornado->mutable_info_textura()->set_id(entidade.info_textura().id());
+      } else {
+        VLOG(2) << "Textura diferente da anterior.";
+        QFileInfo info(gerador.linha_textura->text());
+        // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
+        // mesmo nome isso vai falhar.
+        if (info.dir().dirName() != DIR_TEXTURAS) {
+          VLOG(2) << "Textura local, recarregando.";
+          QString id = QString::number(notificacao.tabuleiro().id_cliente());
+          id.append(":");
+          id.append(info.fileName());
+          proto_retornado->mutable_info_textura()->set_id(id.toStdString());
+          // Usa o id para evitar conflito de textura local com texturas globais.
+          // Enviar a textura toda.
+          PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+        } else {
+          proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
+        }
+      }
+      VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
+    } else {
+      proto_retornado->clear_info_textura();
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
@@ -507,7 +545,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Textura do objeto.
   gerador.linha_textura->setText(entidade.info_textura().id().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
-      [this, dialogo, &gerador, &luz_cor ] () {
+      [this, dialogo, &gerador ] () {
     QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de leitura de textura cancelada.";
