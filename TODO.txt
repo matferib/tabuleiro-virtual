@@ -1,8 +1,7 @@
 Versao 1.5.1
-- Textura de formas.
 
 Versao 1.6.0
-- Textura em formas.
+- Textura em outras formas.
 - VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
