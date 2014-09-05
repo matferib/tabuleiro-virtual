@@ -3544,7 +3544,15 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   }
 
   if (novo_proto.has_info_textura()) {
+    // Os bits crus so sao reenviados se houver mudanca. Nao eh bom perde-los por causa de novas serializacoes
+    // como salvamentos e novos jogadores. Salva aqui pra restaurar ali embaixo.
+    bool manter_bits_crus =
+        novo_proto.info_textura().id() == proto_.info_textura().id() && proto_.info_textura().has_bits_crus();
+    std::string bits_crus = manter_bits_crus ? proto_.info_textura().bits_crus() : std::string("");
     proto_.mutable_info_textura()->CopyFrom(novo_proto.info_textura());
+    if (manter_bits_crus) {
+      proto_.mutable_info_textura()->set_bits_crus(bits_crus);
+    }
     proto_.set_ladrilho(novo_proto.ladrilho());
     proto_.set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
   } else {
