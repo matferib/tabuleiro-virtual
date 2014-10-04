@@ -1,10 +1,26 @@
 #if !USAR_OPENGL_ES
+
+#if WIN32
+#include <Windows.h>
+#include <Wingdi.h>
+#endif
+
 //#include <string>
 //#include "arq/arquivo.h"
 #include "gltab/gl.h"
 #include "log/log.h"
 
 namespace gl {
+
+#if WIN32
+struct ContextoInterno {
+ public:
+  PROC pglGenBuffers;
+  PROC pglBindBuffer;
+  PROC pglDeleteBuffers;
+  PROC pglBufferData;
+} g_contexto;
+#endif
 
 bool ImprimeSeErro() {
   auto erro = glGetError();
@@ -18,6 +34,25 @@ bool ImprimeSeErro() {
 #define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
+#if WIN32
+  LOG(INFO) << "pegando ponteiros";
+  g_contexto.pglGenBuffers = wglGetProcAddress("glGenBuffers");
+  if (g_contexto.pglGenBuffers == nullptr) {
+    LOG(FATAL) << "null glGenBuffers";
+  }
+  g_contexto.pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
+  if (g_contexto.pglDeleteBuffers == nullptr) {
+    LOG(FATAL) << "null glDeleteBuffers";
+  }
+  g_contexto.pglBufferData = wglGetProcAddress("glBufferData");
+  if (g_contexto.pglBufferData == nullptr) {
+    LOG(FATAL) << "null glBufferData";
+  }
+  g_contexto.pglBindBuffer = wglGetProcAddress("glBindBuffer");
+  if (g_contexto.pglBindBuffer == nullptr) {
+    LOG(FATAL) << "null glBindBuffer";
+  }
+#endif
   /*
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -53,6 +88,9 @@ void IniciaGl(int* argcp, char** argv) {
 #undef V_ERRO
 
 void FinalizaGl() {
+#if WIN32
+  // Apagar o contexto_interno
+#endif
 }
 
 // OpenGL normal.
@@ -128,6 +166,22 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   gluQuadricDrawStyle(cilindro, GLU_FILL);
   gluCylinder(cilindro, raio_base, raio_topo, altura, fatias, tocos);
   gluDeleteQuadric(cilindro);
+}
+
+void GeraBuffers(GLsizei n, GLuint* buffers) {
+  ((PFNGLGENBUFFERSPROC)g_contexto.pglGenBuffers)(n, buffers);
+}
+
+void LigacaoComBuffer(GLenum target, GLuint buffer) {
+  ((PFNGLBINDBUFFERPROC)g_contexto.pglBindBuffer)(target, buffer);
+}
+
+void ApagaBuffers(GLsizei n, const GLuint* buffers) {
+  ((PFNGLDELETEBUFFERSPROC)g_contexto.pglDeleteBuffers)(n, buffers);
+}
+
+void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
+  ((PFNGLBUFFERDATAPROC)g_contexto.pglBufferData)(target, size, data, usage);
 }
 
 }  // namespace gl.
