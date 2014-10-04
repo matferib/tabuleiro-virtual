@@ -290,16 +290,16 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
   if (nome_buffer_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_);
+    gl::ApagaBuffers(1, &nome_buffer_);
   }
   if (nome_buffer_indice_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_indice_);
+    gl::ApagaBuffers(1, &nome_buffer_indice_);
   }
   if (nome_buffer_grade_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_grade_);
+    gl::ApagaBuffers(1, &nome_buffer_grade_);
   }
   if (nome_buffer_indice_grade_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_indice_grade_);
+    gl::ApagaBuffers(1, &nome_buffer_indice_grade_);
   }
 }
 
@@ -1759,27 +1759,27 @@ void Tabuleiro::RegeraVbo() {
   }
   // Cria o ID do VBO.
   if (nome_buffer_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_);
+    gl::ApagaBuffers(1, &nome_buffer_);
   }
-  glGenBuffers(1, &nome_buffer_);
+  gl::GeraBuffers(1, &nome_buffer_);
   // Associa vertices com ARRAY_BUFFER.
-  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(InfoVerticeTabuleiro) * vertices_tabuleiro_.size(), vertices_tabuleiro_.data(), GL_STATIC_DRAW);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_);
+  gl::BufferizaDados(GL_ARRAY_BUFFER, sizeof(InfoVerticeTabuleiro) * vertices_tabuleiro_.size(), vertices_tabuleiro_.data(), GL_STATIC_DRAW);
   // Cria buffer de indices.
   if (nome_buffer_indice_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_indice_);
+    gl::ApagaBuffers(1, &nome_buffer_indice_);
   }
-  glGenBuffers(1, &nome_buffer_indice_);
+  gl::GeraBuffers(1, &nome_buffer_indice_);
   // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_tabuleiro_.size(), indices_tabuleiro_.data(), GL_STATIC_DRAW);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
+  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_tabuleiro_.size(), indices_tabuleiro_.data(), GL_STATIC_DRAW);
 
   // Regera a grade.
   if (nome_buffer_grade_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_grade_);
+    gl::ApagaBuffers(1, &nome_buffer_grade_);
   }
   if (nome_buffer_indice_grade_ != 0) {
-    glDeleteBuffers(1, &nome_buffer_indice_grade_);
+    gl::ApagaBuffers(1, &nome_buffer_indice_grade_);
   }
   vertices_grade_.clear();
   indices_grade_.clear();
@@ -1847,13 +1847,13 @@ void Tabuleiro::RegeraVbo() {
     indices_grade_.push_back(indice + 3);
     indice += 4;
   }
-  glGenBuffers(1, &nome_buffer_grade_);
-  glGenBuffers(1, &nome_buffer_indice_grade_);
-  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices_grade_.size(), vertices_grade_.data(), GL_STATIC_DRAW);
+  gl::GeraBuffers(1, &nome_buffer_grade_);
+  gl::GeraBuffers(1, &nome_buffer_indice_grade_);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
+  gl::BufferizaDados(GL_ARRAY_BUFFER, sizeof(float) * vertices_grade_.size(), vertices_grade_.data(), GL_STATIC_DRAW);
   // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_grade_.size(), indices_grade_.data(), GL_STATIC_DRAW);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
+  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_grade_.size(), indices_grade_.data(), GL_STATIC_DRAW);
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -1877,7 +1877,7 @@ void Tabuleiro::DesenhaTabuleiro() {
                 parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   // Usa os vertices de VBO.
-  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_);
   gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)0);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_.has_info_textura() &&
@@ -1890,15 +1890,15 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)8);
   }
   // Usa os indices de VBO.
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
   gl::DesenhaElementos(GL_TRIANGLES, indices_tabuleiro_.size(), GL_UNSIGNED_SHORT, (void*)0);
 
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
 
   // Volta ao normal.
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   gl::Desabilita(GL_TEXTURE_2D);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 
@@ -3565,12 +3565,12 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
 void Tabuleiro::DesenhaGrade() {
   MudaCor(COR_PRETA);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  glBindBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
   gl::PonteiroVertices(2, GL_FLOAT, (void*)0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
   gl::DesenhaElementos(GL_TRIANGLES, indices_grade_.size(), GL_UNSIGNED_SHORT, (void*)0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 

@@ -122,6 +122,20 @@ inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glViewport(x, y, largura, altura); }
 
+// Funcoes OpenGL 1.2 e acima.
+#if WIN32
+void GeraBuffers(GLsizei n, GLuint* buffers);
+void LigacaoComBuffer(GLenum target, GLuint buffer);
+void ApagaBuffers(GLsizei n, const GLuint* buffers);
+void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
+#else
+inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
+inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
+inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
+inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
+#endif
+
+
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
   glDrawElements(modo, num_vertices, tipo, indices);
