@@ -168,6 +168,7 @@ void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint 
   gluDeleteQuadric(cilindro);
 }
 
+#if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers) {
   ((PFNGLGENBUFFERSPROC)g_contexto.pglGenBuffers)(n, buffers);
 }
@@ -183,6 +184,7 @@ void ApagaBuffers(GLsizei n, const GLuint* buffers) {
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
   ((PFNGLBUFFERDATAPROC)g_contexto.pglBufferData)(target, size, data, usage);
 }
+#endif
 
 }  // namespace gl.
 
