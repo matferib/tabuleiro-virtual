@@ -1,6 +1,10 @@
-Versao 1.5.1
+Versao 1.6.1
+- Texturas faltantes.
+- Identificacao de clientes.
+- Mudar forma que +- funciona no joystick virtual.
+- Disco rotacao flutuando com translacao de unidade selecionada.
 
-Versao 1.6.0
+Versao 1.6.2
 - Textura em outras formas.
 - VBO em entidades.
 - Mais letras maiusculas.
