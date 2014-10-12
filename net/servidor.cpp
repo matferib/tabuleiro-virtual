@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/asio/error.hpp>
 
 #include "log/log.h"
 #include "net/servidor.h"
@@ -134,7 +135,15 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
     [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
       if (ec) {
         // remove o cliente.
-        VLOG(1) << "Removendo cliente: " << ec.message();
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+        std::string erro("Erro recebendo dados do cliente: ");
+        if (ec.value() == boost::asio::error::eof) {
+          erro += "Conexao fechada pela outra ponta.";
+        } else {
+          erro += std::to_string(ec.value()) + ": " + ec.message();
+        }
+        n->set_erro(erro);
+        central_->AdicionaNotificacao(n);
         DesconectaCliente(cliente);
         return;
       }
@@ -144,7 +153,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       do {
         if (cliente->a_receber_ == 0) {
           if (bytes_recebidos < 4) {
-            LOG(ERROR) << "Erro recebendo dados de um cliente, msg menor que tamanho.";
+            std::string erro("Erro recebendo dados de um cliente, msg menor que tamanho.");
+            LOG(ERROR) << erro;
+            auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+            n->set_erro(erro);
+            central_->AdicionaNotificacao(n);
             DesconectaCliente(cliente);
             return;
           }
@@ -159,7 +172,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           // Decodifica mensagem e poe na central.
           std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
           if (!notificacao->ParseFromString(cliente->buffer_notificacao)) {
-            LOG(ERROR) << "Erro ParseFromString recebendo dados de um cliente.";
+            std::string erro("Erro ParseFromString recebendo dados de um cliente.");
+            LOG(ERROR) << erro;
+            auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+            n->set_erro(erro);
+            central_->AdicionaNotificacao(n);
             DesconectaCliente(cliente);
             return;
           }
