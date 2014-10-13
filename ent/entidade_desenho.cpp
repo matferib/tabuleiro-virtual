@@ -68,7 +68,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   const auto& pos = proto.pos();
   if (!proto.has_info_textura()) {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto, vd, pd, matriz_shear);
     gl::ConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::Translada(0, 0, ALTURA);
     gl::EsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
@@ -78,7 +78,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/, false  /*tz*/, proto, vd, pd, matriz_shear);
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
     gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
     if (pd->entidade_selecionada()) {
@@ -89,7 +89,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
 
   bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
   gl::MatrizEscopo salva_matriz;
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);

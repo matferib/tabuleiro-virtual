@@ -312,7 +312,7 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto_, vd_);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto_, vd_);
   if (!proto_.achatado()) {
     gl::Translada(0.0f, 0.0f, ALTURA);
   }
@@ -338,27 +338,29 @@ float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
 
 void Entidade::MontaMatriz(bool em_voo,
                            bool queda,
+                           bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
                            const ParametrosDesenho* pd,
                            const float* matriz_shear) {
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima());
+  float translacao_z = ZChao(pos.x(), pos.y()) + (transladar_z ? pos.z() + proto.translacao_z() : 0);
+  if (em_voo) {
+    translacao_z += DeltaVoo(vd);
+  }
   if (matriz_shear == nullptr) {
-    gl::Translada(pos.x(), pos.y(), (em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y())) + proto.translacao_z());
-    if (achatar && !proto.has_info_textura()) {
-      // Achata cone.
-      gl::Escala(1.0f, 1.0f, 0.1f);
-    }
+    gl::Translada(pos.x(), pos.y(), translacao_z);
   } else {
     gl::Translada(pos.x(), pos.y(), 0);
     gl::MultiplicaMatriz(matriz_shear);
-    gl::Translada(0, 0, (em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y())) + proto.translacao_z());
-    if (achatar && !proto.has_info_textura()) {
-      // Achata cone.
-      gl::Escala(1.0f, 1.0f, 0.1f);
-    }
+    gl::Translada(0, 0, translacao_z);
   }
+  if (achatar && !proto.has_info_textura()) {
+    // Achata cone.
+    gl::Escala(1.0f, 1.0f, 0.1f);
+  }
+
   // So roda entidades nao achatadas.
   if (queda && vd.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
@@ -421,7 +423,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, proto_, vd_, pd);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/, false /*tz*/, proto_, vd_, pd);
     MudaCor(proto_.cor());
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
@@ -440,7 +442,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     {
       gl::MatrizEscopo salva_matriz;
@@ -464,7 +466,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_barra_vida() && proto_.has_rotulo()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
     gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
     MudaCor(COR_BRANCA);
@@ -486,7 +488,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // So translada para a posicao do objeto.
     gl::Translada(X(), Y(), Z());
   } else {
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/,proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto_, vd_, pd);
   }
   // Um pouco acima do objeto e ao sul do objeto.
   gl::Translada(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
