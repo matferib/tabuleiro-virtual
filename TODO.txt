@@ -1,7 +1,6 @@
 Versao 1.6.1
 - Texturas faltantes.
 - Identificacao de clientes.
-- Mudar forma que +- funciona no joystick virtual.
 
 Versao 1.6.2
 - Textura em outras formas.

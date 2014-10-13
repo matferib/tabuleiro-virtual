@@ -134,6 +134,8 @@ class Tabuleiro : public ntf::Receptor {
   void LimpaUltimoListaPontosVida();
   /** Altera o ultimo valor da lista de pontos de vida. Se nao existir um ultimo valor, cria um novo. */
   void AlteraUltimoPontoVidaListaPontosVida(int delta);
+  /** Alterna o ultimo valor da lista entre cura e dano. */
+  void AlternaUltimoPontoVidaListaPontosVida();
 
   /** desenha o mundo. */
   void Desenha();
