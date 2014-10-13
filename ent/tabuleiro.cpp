@@ -646,6 +646,17 @@ void Tabuleiro::AlteraUltimoPontoVidaListaPontosVida(int delta) {
   lista_pontos_vida_.push_back(valor + delta);
 }
 
+void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
+  if (!lista_pontos_vida_.empty()) {
+    int valor = -lista_pontos_vida_.back();
+    lista_pontos_vida_.pop_back();
+    lista_pontos_vida_.push_back(valor);
+    modo_acao_cura_ = valor >= 0;
+  } else {
+    modo_acao_cura_ = !modo_acao_cura_;
+  }
+}
+
 void Tabuleiro::LimpaUltimoListaPontosVida() {
   if (!lista_pontos_vida_.empty()) {
     lista_pontos_vida_.pop_back();
@@ -2528,8 +2539,8 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         LimpaUltimoListaPontosVida();
         break;
       case CONTROLE_ALTERNA_CURA:
-        modo_acao_cura_ = !modo_acao_cura_;
-
+        AlternaUltimoPontoVidaListaPontosVida();
+        break;
       default:
         LOG(WARNING) << "Controle invalido: " << id;
     }
