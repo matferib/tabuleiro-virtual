@@ -34,7 +34,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
-    Conecta(notificacao.endereco());
+    Conecta(notificacao.id(), notificacao.endereco());
     return true;
   } else if (notificacao.tipo() == ntf::TN_DESCONECTAR) {
     Desconecta();
@@ -58,7 +58,7 @@ void Cliente::EnviaDados(const std::string& dados) {
     VLOG(1) << "Enviei " << dados.size() << " bytes pro servidor.";
   }
 }
-void Cliente::Conecta(const std::string& endereco_str) {
+void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   std::vector<std::string> endereco_porta;
   boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
   if (endereco_porta.size() == 0) {
@@ -79,8 +79,11 @@ void Cliente::Conecta(const std::string& endereco_str) {
     // Handler de leitura.
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
+    notificacao->set_id(id);
     central_->AdicionaNotificacao(notificacao);
     central_->RegistraReceptorRemoto(this);
+    auto* copia = new ntf::Notificacao(*notificacao);
+    central_->AdicionaNotificacaoRemota(copia);
     RecebeDados();
     VLOG(1) << "Conexão bem sucedida";
   } catch (std::exception& e) {

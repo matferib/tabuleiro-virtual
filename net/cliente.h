@@ -15,8 +15,8 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
 
  private:
-  // Conecta o cliente ao servidor localizado em endereco, formato: <host:porta>.
-  void Conecta(const std::string& endereco_str);
+  // Conecta o cliente identificado por id ao servidor localizado em endereco, formato: <host:porta>.
+  void Conecta(const std::string& id, const std::string& endereco_str);
 
   // Desconecta o cliente.
   void Desconecta();
