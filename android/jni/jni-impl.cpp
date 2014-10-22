@@ -76,14 +76,23 @@ std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 extern "C" {
 
 // Nativos de TabuleiroActivity.
-void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(JNIEnv* env, jobject thisz, jstring endereco, jobject assets) {
+void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
+    JNIEnv* env, jobject thisz, jstring nome, jstring endereco, jobject assets) {
+  std::string nome_nativo;
+  {
+    const char* nome_nativo_c = env->GetStringUTFChars(nome, 0);
+    nome_nativo = nome_nativo_c;
+    env->ReleaseStringUTFChars(nome, nome_nativo_c);
+  }
+
   std::string endereco_nativo;
   {
     const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
     endereco_nativo = endereco_nativo_c;
     env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
   }
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate endereco: %s", endereco_nativo.c_str());
+  __android_log_print(
+      ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: %s", nome_nativo.c_str(), endereco_nativo.c_str());
   arq::Inicializa(env, assets);
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
@@ -105,6 +114,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(JNIEnv* env, job
     __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
   }
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
+  n->set_id(nome_nativo);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }

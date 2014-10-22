@@ -1,6 +1,5 @@
 Versao 1.6.1
 - Texturas faltantes.
-- Identificacao de clientes.
 
 Versao 1.6.2
 - Textura em outras formas.

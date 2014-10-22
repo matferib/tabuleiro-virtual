@@ -34,7 +34,10 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     super.onCreate(savedInstanceState);
     view_ = new TabuleiroSurfaceView(this);
     setContentView(view_);
-    nativeCreate(getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA), getResources().getAssets());
+    nativeCreate(
+        getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
+        getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
+        getResources().getAssets());
     getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
   }
 
@@ -93,7 +96,7 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
   static {
     System.loadLibrary("tabuleiro");
   }
-  private static native void nativeCreate(String endereco, Object assets);
+  private static native void nativeCreate(String nome, String endereco, Object assets);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;

@@ -255,14 +255,22 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
     qd->setModal(true);
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-    auto* le = new QLineEdit();
-    le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
-    ql->addWidget(le);
+    auto* nome_rotulo = new QLabel("Nome do jogador:");
+    auto* nome_le = new QLineEdit();
+    nome_le->setPlaceholderText(tr("Nome do jogador"));
+    ql->addWidget(nome_rotulo);
+    ql->addWidget(nome_le);
+    auto* ip_rotulo = new QLabel("IP:");
+    auto* ip_le = new QLineEdit();
+    ip_le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
+    ql->addWidget(ip_rotulo);
+    ql->addWidget(ip_le);
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, le] {
+    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
       notificacao = new ntf::Notificacao;
       notificacao->set_tipo(ntf::TN_CONECTAR);
-      notificacao->set_endereco(le->text().toStdString());
+      notificacao->set_id(nome_le->text().toStdString());
+      notificacao->set_endereco(ip_le->text().toStdString());
       qd->accept();
     });
     connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));

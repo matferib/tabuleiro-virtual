@@ -18,6 +18,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   struct Cliente {
     Cliente(boost::asio::ip::tcp::socket* socket) : socket(socket), a_receber_(0) {}
     Cliente() : Cliente(nullptr) {}
+    std::string id;
     std::unique_ptr<boost::asio::ip::tcp::socket> socket;
     std::string buffer_notificacao;
     int a_receber_;

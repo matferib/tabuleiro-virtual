@@ -136,7 +136,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       if (ec) {
         // remove o cliente.
         auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        std::string erro("Erro recebendo dados do cliente: ");
+        std::string erro(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
         if (ec.value() == boost::asio::error::eof) {
           erro += "Conexao fechada pela outra ponta.";
         } else {
@@ -147,13 +147,13 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         DesconectaCliente(cliente);
         return;
       }
-      VLOG(2) << "Recebi " << bytes_recebidos << " dados de um cliente";
+      VLOG(2) << "Recebi " << bytes_recebidos << " dados do cliente " << cliente->id;
       auto buffer_inicio = buffer_.begin();
       auto buffer_fim = buffer_inicio + bytes_recebidos;
       do {
         if (cliente->a_receber_ == 0) {
           if (bytes_recebidos < 4) {
-            std::string erro("Erro recebendo dados de um cliente, msg menor que tamanho.");
+            std::string erro(std::string("Erro recebendo dados do cliente '") + cliente->id + "' , msg menor que tamanho.");
             LOG(ERROR) << erro;
             auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
             n->set_erro(erro);
@@ -172,13 +172,18 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           // Decodifica mensagem e poe na central.
           std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
           if (!notificacao->ParseFromString(cliente->buffer_notificacao)) {
-            std::string erro("Erro ParseFromString recebendo dados de um cliente.");
+            std::string erro(std::string("Erro ParseFromString recebendo dados do cliente '") + cliente->id + "'");
             LOG(ERROR) << erro;
             auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
             n->set_erro(erro);
             central_->AdicionaNotificacao(n);
             DesconectaCliente(cliente);
             return;
+          }
+          // Notificacao de identificacao eh tratada neste nivel tambem. Aqui eh o unico local onde se tem o objeto do cliente
+          // e a notificacao.
+          if (notificacao->tipo() == ntf::TN_RESPOSTA_CONEXAO) {
+            cliente->id = notificacao->id();
           }
           // Envia a notificacao para os outros clientes.
           for (auto* c : clientes_) {
