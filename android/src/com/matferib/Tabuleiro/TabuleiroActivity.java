@@ -28,7 +28,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
-public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
+public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -38,7 +38,8 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
         getResources().getAssets());
-    getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
+    view_.setOnFocusChangeListener(this);
+    view_.requestFocus();
   }
 
   private void hideUi() {
@@ -54,16 +55,16 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
   }
 
   @Override
-  public void onSystemUiVisibilityChange(int visibility) {
-    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
-    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+  public void onFocusChange(View v, boolean hasFocus) {
+    Log.d("TabuleiroActivity", "onFocusChanged: " + hasFocus);
+    if (hasFocus) {
       hideUi();
     }
   }
 
   @Override
   public void onWindowFocusChanged(boolean hasFocus) {
-    Log.d("TabuleiroActivity", "onWindowsFocusChanged");
+    Log.d("TabuleiroActivity", "onWindowsFocusChanged: " + hasFocus);
     super.onWindowFocusChanged(hasFocus);
     if (hasFocus) {
       hideUi();
@@ -118,7 +119,6 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     setEGLConfigChooser(8, 8, 8, 8, 16, 1);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    requestFocus();
     setFocusableInTouchMode(true);
   }
 
