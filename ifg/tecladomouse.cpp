@@ -111,6 +111,10 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
       ent::ResultadoSalvacao rs = ent::RS_FALHOU;
       if (teclas_[1] == Tecla_2) {
         rs = ent::RS_MEIO;
+      } else if (teclas_[1] == Tecla_2) {
+        rs = ent::RS_MEIO;
+      } else if (teclas_[1] == Tecla_4) {
+        rs = ent::RS_QUARTO;
       } else if (teclas_[1] == Tecla_0) {
         rs = ent::RS_ANULOU;
       }

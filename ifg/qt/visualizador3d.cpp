@@ -566,6 +566,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.translacao_z());
+
+  // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
+  gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
+
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
@@ -626,6 +630,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->clear_translacao_z();
     }
+    proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
