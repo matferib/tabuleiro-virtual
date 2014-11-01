@@ -3199,7 +3199,7 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   }
 }
 
-void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, int valor) {
+void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) {
   Posicao vetor_camera;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
   // angulo da camera em relacao ao eixo X.

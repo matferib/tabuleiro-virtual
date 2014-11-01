@@ -1,15 +1,15 @@
 Versao 1.6.1
 - Texturas faltantes.
+- Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
+- Posicionar camera para os jogadores ao abrir tabuleiro.
+- Textura em outras formas.
 
 Versao 1.6.2
-- Textura em outras formas.
 - VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
-- Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
-- Posicionar camera para os jogadores ao abrir tabuleiro.
 - Terminar camada de arquivo para funcionar em diversos dispositivos.
 - Opcao para salvar personagens selecionaveis para jogadores.
 - Pensar em como nao mostrar formas mortas.

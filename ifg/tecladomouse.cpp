@@ -157,21 +157,29 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       if (modificadores == Modificador_Shift) {
         tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(0.1f);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       }
       return;
     case Tecla_Baixo:
       if (modificadores == Modificador_Shift) {
         tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(-0.1f);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1.0f);
       }
       return;
     case Tecla_Esquerda:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1);
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -0.1f);
+      } else {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1.0f);
+      }
       return;
     case Tecla_Direita:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1);
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 0.1f);
+      } else {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1.0f);
+      }
       return;
     case Tecla_G:
       if (modificadores == Modificador_Ctrl) {
