@@ -33,7 +33,8 @@ enum TamanhoEntidade {
 enum ResultadoSalvacao {
   RS_FALHOU = 0;
   RS_MEIO = 1;
-  RS_ANULOU = 2;
+  RS_QUARTO = 2;
+  RS_ANULOU = 3;
 }
 
 message Posicao {
@@ -203,4 +204,6 @@ message ParametrosDesenho {
   optional bool desenha_id_acao = 30 [default=true];
   // Se verdadeiro, desenha o controle virtual de acoes.
   optional bool desenha_controle_virtual = 31 [default=true];
+  // Se verdadeiro, desenha as salvacoes da entidades com salvacoes.
+  optional bool desenha_salvacoes = 32 [default=false];
 }

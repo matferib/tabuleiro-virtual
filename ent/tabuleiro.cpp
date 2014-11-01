@@ -579,6 +579,8 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   if (ap.permite_salvacao()) {
     if (entidade->ProximaSalvacao() == RS_MEIO) {
       delta_pontos_vida /= 2;
+    } else if (entidade->ProximaSalvacao() == RS_QUARTO) {
+      delta_pontos_vida /= 4;
     } else if (entidade->ProximaSalvacao() == RS_ANULOU) {
       delta_pontos_vida = 0;
     }
@@ -1277,8 +1279,10 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
               delta_pv_pos_salvacao /= 2;
+            } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
+              delta_pv_pos_salvacao /= 4;
             } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-              delta_pv_pos_salvacao= 0;
+              delta_pv_pos_salvacao = 0;
             }
           }
           auto* nd = grupo_desfazer.add_notificacao();
@@ -1296,8 +1300,10 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
               delta_pv_pos_salvacao /= 2;
+            } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
+              delta_pv_pos_salvacao /= 4;
             } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-              delta_pv_pos_salvacao= 0;
+              delta_pv_pos_salvacao = 0;
             }
           }
           acao_proto.set_delta_pontos_vida(delta_pv_pos_salvacao);
