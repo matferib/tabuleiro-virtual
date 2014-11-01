@@ -273,7 +273,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
   * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.
   */
-  void TrataMovimentoEntidadesSelecionadas(bool vertical, int valor);
+  void TrataMovimentoEntidadesSelecionadas(bool vertical, float valor);
 
   /** Trata o movimento de entidades no eixo Z. */
   void TrataTranslacaoZEntidadesSelecionadas(float delta);
