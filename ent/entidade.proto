@@ -204,6 +204,6 @@ message ParametrosDesenho {
   optional bool desenha_id_acao = 30 [default=true];
   // Se verdadeiro, desenha o controle virtual de acoes.
   optional bool desenha_controle_virtual = 31 [default=true];
-  // Se verdadeiro, desenha as salvacoes da entidades com salvacoes.
-  optional bool desenha_salvacoes = 32 [default=false];
+  // Se verdadeiro, desenha o rotulo da unidade.
+  optional bool desenha_rotulo = 32 [default=false];
 }

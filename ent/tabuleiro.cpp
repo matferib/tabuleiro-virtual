@@ -1968,7 +1968,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
-    parametros_desenho_.set_desenha_barra_vida(entidade->Id() == id_entidade_detalhada_);
+    bool entidade_detalhada = entidade->Id() == id_entidade_detalhada_;
+    parametros_desenho_.set_desenha_barra_vida(entidade_detalhada);
+    parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
