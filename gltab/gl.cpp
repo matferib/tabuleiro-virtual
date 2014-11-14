@@ -108,6 +108,25 @@ void CuboSolido(GLfloat tam_lado) {
 
 namespace {
 
+std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra) {
+  std::vector<std::string> ret;
+  if (entrada.empty()) {
+    return ret;
+  }
+  auto it_inicio = entrada.begin();
+  auto it = it_inicio;
+  while (it != entrada.end()) {
+    if (*it == caractere_quebra) {
+      ret.push_back(std::string(it_inicio, it));
+      it_inicio = ++it;
+    } else {
+      ++it;
+    }
+  }
+  ret.push_back(std::string(it_inicio, it));
+  return ret;
+}
+
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   // Le o raster em coordenadas de janela.
@@ -117,6 +136,8 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   int largura = viewport[2], altura = viewport[3];
+  int altura_fonte, largura_fonte;
+  TamanhoFonte(&largura_fonte, &altura_fonte);
 
   // Muda para projecao 2D.
   gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
@@ -124,15 +145,21 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
   gl::Ortogonal(0, largura, 0, altura, 0, 1);
   gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  if (alinhamento < 0) {
-    glRasterPos2i(raster_pos[0], raster_pos[1]);
-  } else if (alinhamento == 0) {
-    glRasterPos2i(raster_pos[0] - (str.size() / 2.0f) * 8, raster_pos[1]);
-  } else {
-    glRasterPos2i(raster_pos[0] - (str.size() * 8), raster_pos[1]);
-  }
-  for (const char c : str) {
-    gl::DesenhaCaractere(c);
+  int x_original = raster_pos[0];
+  int y = raster_pos[1];
+  std::vector<std::string> str_linhas(QuebraString(str, '\n'));
+  for (const std::string& str_linha : str_linhas) {
+    if (alinhamento < 0) {
+      glRasterPos2i(x_original, y);
+    } else if (alinhamento == 0) {
+      glRasterPos2i(x_original - (str_linha.size() / 2.0f) * largura_fonte, y);
+    } else {
+      glRasterPos2i(x_original - (str_linha.size() * largura_fonte), y);
+    }
+    for (const char c : str_linha) {
+      gl::DesenhaCaractere(c);
+    }
+    y -= (altura_fonte + 1);
   }
 }
 

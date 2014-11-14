@@ -463,34 +463,38 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
-  if (pd->desenha_rotulo()) {
+  if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
-    gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
     MudaCor(COR_BRANCA);
-    std::string rotulo(proto_.rotulo());
-    if (proto_.proxima_salvacao() != RS_FALHOU) {
-      if (!rotulo.empty()) {
-        rotulo += ", ";
-      }
-      rotulo += "prox. salv.: ";
-      switch (proto_.proxima_salvacao()) {
-        case RS_MEIO:
-          rotulo += "1/2";
-          break;
-        case RS_QUARTO:
-          rotulo += "1/4";
-          break;
-        case RS_ANULOU:
-          rotulo += "ANULA";
-          break;
-        default:
-          rotulo += "VALOR INVALIDO";
-      }
+    if (pd->desenha_rotulo()) {
+      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+      gl::DesenhaString(proto_.rotulo());
     }
-    gl::DesenhaString(rotulo);
+    if (pd->desenha_rotulo_especial()) {
+      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+      std::string rotulo("\n");
+      rotulo += proto_.rotulo_especial();
+      if (proto_.proxima_salvacao() != RS_FALHOU) {
+        rotulo += "\nprox. salv.: ";
+        switch (proto_.proxima_salvacao()) {
+          case RS_MEIO:
+            rotulo += "1/2";
+            break;
+          case RS_QUARTO:
+            rotulo += "1/4";
+            break;
+          case RS_ANULOU:
+            rotulo += "ANULA";
+            break;
+          default:
+            rotulo += "VALOR INVALIDO";
+        }
+      }
+      gl::DesenhaString(rotulo);
+    }
   }
 }
 
