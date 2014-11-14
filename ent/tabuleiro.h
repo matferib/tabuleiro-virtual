@@ -298,6 +298,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
   bool ModoMestre() const { return modo_mestre_; }
 
+  /** Permite ligar/desligar o detalhamento de todas as entidades. */
+  void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
@@ -520,7 +523,7 @@ class Tabuleiro : public ntf::Receptor {
   /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
   void ReiniciaCamera();
 
-  /** REgera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
+  /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVbo();
 
  private:
@@ -631,7 +634,11 @@ class Tabuleiro : public ntf::Receptor {
   std::list<uint64_t> tempos_renderizacao_;
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
 
+  // Modo de depuracao do tabuleiro.
   bool modo_debug_ = false;
+
+  // Se verdadeiro, todas entidades serao consideradas detalhadas durante o desenho. */
+  bool detalhar_todas_entidades_ = false;
 
   // Controle virtual.
   bool modo_acao_ = false;

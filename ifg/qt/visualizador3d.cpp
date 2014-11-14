@@ -271,6 +271,13 @@ void Visualizador3d::keyPressEvent(QKeyEvent* event) {
   event->accept();
 }
 
+void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
+  teclado_mouse_.TrataTeclaLiberada(
+      TeclaQtParaTratadorTecladoMouse(event->key()),
+      ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
+  event->accept();
+}
+
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {

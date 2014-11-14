@@ -127,6 +127,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
+  LOG(INFO) << "Tecla: " << (void*)tecla << ", mod: " << (void*)modificadores;
   if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
     switch (tecla) {
       case Tecla_Esc:
@@ -156,6 +157,9 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_Backspace:
     case Tecla_Delete:
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
+      return;
+    case Tecla_AltEsquerdo:
+      tabuleiro_->DetalharTodasEntidades(true);
       return;
     case Tecla_Cima:
       if (modificadores == Modificador_Shift) {
@@ -269,7 +273,13 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->AcaoAnterior();
       return;
     default:
-      LOG(INFO) << "Tecla nao reconhecida: " << tecla;
+      LOG(INFO) << "Tecla nao reconhecida: " << (void*)tecla;
+  }
+}
+
+void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e modificadores) {
+  if (tecla == Tecla_AltEsquerdo) {
+    tabuleiro_->DetalharTodasEntidades(false);
   }
 }
 

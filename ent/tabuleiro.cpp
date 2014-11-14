@@ -367,6 +367,7 @@ void Tabuleiro::Desenha() {
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
+  parametros_desenho_.set_detalhar_todas_entidades(detalhar_todas_entidades_);
   parametros_desenho_.set_modo_mestre(modo_mestre_);
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -1968,7 +1969,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
-    bool entidade_detalhada = entidade->Id() == id_entidade_detalhada_;
+    bool entidade_detalhada = entidade->Id() == id_entidade_detalhada_ || parametros_desenho_.detalhar_todas_entidades();
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     f(entidade, &parametros_desenho_);
