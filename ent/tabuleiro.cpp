@@ -1972,6 +1972,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     bool entidade_detalhada = entidade->Id() == id_entidade_detalhada_ || parametros_desenho_.detalhar_todas_entidades();
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
+    parametros_desenho_.set_desenha_rotulo_especial(
+        entidade_detalhada && (modo_mestre_ || entidade->SelecionavelParaJogador()));
     f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);

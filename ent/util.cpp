@@ -331,7 +331,7 @@ int GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
   int res = 0;
   for (const auto& mds : vetor_mds) {
-    mds.Imprime();
+    //mds.Imprime();
     for (unsigned int i = 0; i < mds.mult; ++i) {
       res += RolaDado(mds.dado);
     }

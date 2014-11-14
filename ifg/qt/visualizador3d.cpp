@@ -585,6 +585,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
+    if (entidade.has_rotulo_especial()) {
+      proto_retornado->set_rotulo_especial(entidade.rotulo_especial());
+    }
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
