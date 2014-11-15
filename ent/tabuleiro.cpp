@@ -367,7 +367,6 @@ void Tabuleiro::Desenha() {
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
-  parametros_desenho_.set_detalhar_todas_entidades(detalhar_todas_entidades_);
   parametros_desenho_.set_modo_mestre(modo_mestre_);
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -681,8 +680,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       ReiniciaCamera();
       return true;
     case ntf::TN_RESPOSTA_CONEXAO:
-      if (!notificacao.has_erro()) {
-        ModoJogador();
+      if (notificacao.local()) {
+        if (!notificacao.has_erro()) {
+          ModoJogador();
+        } else {
+          auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+          ne->set_erro(std::string("Erro conectando ao servidor: ") + notificacao.erro());
+          central_->AdicionaNotificacao(ne);
+        }
       }
       return true;
     case ntf::TN_ADICIONAR_ENTIDADE:
@@ -1969,7 +1974,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
-    bool entidade_detalhada = entidade->Id() == id_entidade_detalhada_ || parametros_desenho_.detalhar_todas_entidades();
+    bool entidade_detalhada = entidade->Id() == id_entidade_detalhada_ || detalhar_todas_entidades_;
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
@@ -3852,6 +3857,7 @@ void Tabuleiro::ModoJogador() {
 #if USAR_WATCHDOG
   watchdog_.Para();
 #endif
+  LOG(INFO) << "Alternando para modo jogador.";
   modo_mestre_ = false;
 }
 

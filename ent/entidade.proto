@@ -211,6 +211,4 @@ message ParametrosDesenho {
   optional bool desenha_rotulo = 32 [default=false];
   // Se verdadeiro, desenha o rotulo especial da entidade.
   optional bool desenha_rotulo_especial = 34 [default=false];
-  // Se verdadeiro, todas as entidades serao consideradas detalhadas.
-  optional bool detalhar_todas_entidades = 33 [default=false];
 }

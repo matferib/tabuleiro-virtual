@@ -176,11 +176,7 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
       Modo(MM_MESTRE);
       return true;
     case ntf::TN_RESPOSTA_CONEXAO:
-      if (notificacao.has_erro()) {
-        // Mostra dialogo com mensagem de erro.
-        QMessageBox::information(
-            qobject_cast<QWidget*>(parent()), tr("Erro de Conexão"), tr(notificacao.erro().c_str()));
-      } else {
+      if (!notificacao.has_erro()) {
         Modo(MM_JOGADOR);
       }
       return true;

@@ -297,6 +297,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
   bool ModoMestre() const { return modo_mestre_; }
+  // Debug.
+  void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
