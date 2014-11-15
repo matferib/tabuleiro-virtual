@@ -11,6 +11,9 @@
 #include "log/log.h"
 
 namespace gl {
+namespace {
+const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
+} // namespace
 
 #if WIN32
 struct ContextoInterno {
@@ -107,25 +110,6 @@ void CuboSolido(GLfloat tam_lado) {
 }
 
 namespace {
-
-std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra) {
-  std::vector<std::string> ret;
-  if (entrada.empty()) {
-    return ret;
-  }
-  auto it_inicio = entrada.begin();
-  auto it = it_inicio;
-  while (it != entrada.end()) {
-    if (*it == caractere_quebra) {
-      ret.push_back(std::string(it_inicio, it));
-      it_inicio = ++it;
-    } else {
-      ++it;
-    }
-  }
-  ret.push_back(std::string(it_inicio, it));
-  return ret;
-}
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
@@ -230,6 +214,7 @@ namespace gl {
 
 #define __glPi 3.14159265358979323846
 namespace {
+const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
 
 void PreencheIdentidade(GLfloat m[16]) {
   m[0+4*0] = 1; m[0+4*1] = 0; m[0+4*2] = 0; m[0+4*3] = 0;
@@ -1301,15 +1286,19 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   gl::Escala(largura_fonte, altura_fonte, 1.0f);
-  if (alinhamento < 0) {
-  } else if (alinhamento == 0) {
-    gl::Translada(-static_cast<float>(str.size()) / 2.0f, 0.0f, 0.0f);
-  } else {
-    gl::Translada(-static_cast<float>(str.size()), 0.0f, 0.0f);
-  }
-  for (const char c : str) {
-    gl::DesenhaCaractere(c);
-    gl::Translada(1.0f, 0.0f, 0.0f);
+  std::vector<std::string> str_linhas(QuebraString(str, '\n'));
+  for (const std::string& str_linha : str_linhas) {
+    if (alinhamento < 0) {
+    } else if (alinhamento == 0) {
+      gl::Translada(-static_cast<float>(str_linha.size()) / 2.0f, 0.0f, 0.0f);
+    } else {
+      gl::Translada(-static_cast<float>(str_linha.size()), 0.0f, 0.0f);
+    }
+    for (const char c : str_linha) {
+      gl::DesenhaCaractere(c);
+      gl::Translada(1.0f, 0.0f, 0.0f);
+    }
+    gl::Translada(0.0f, -1.0f, 0.0f);
   }
 }
 
@@ -1354,3 +1343,29 @@ void AlternaModoDebug() {
 }  // namespace gl
 
 #endif
+
+// Comum.
+namespace gl {
+namespace {
+
+const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra) {
+  std::vector<std::string> ret;
+  if (entrada.empty()) {
+    return ret;
+  }
+  auto it_inicio = entrada.begin();
+  auto it = it_inicio;
+  while (it != entrada.end()) {
+    if (*it == caractere_quebra) {
+      ret.push_back(std::string(it_inicio, it));
+      it_inicio = ++it;
+    } else {
+      ++it;
+    }
+  }
+  ret.push_back(std::string(it_inicio, it));
+  return ret;
+}
+
+}  // namespace
+}  // namespace gl

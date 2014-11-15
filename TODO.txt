@@ -1,7 +1,4 @@
 Versao 1.6.1
-- Arrumar visivilidade do rotulo especial para jogadores.
-- aRrumar desenha string para android.
-- Comando para mostrar barra de vida e rotulos para todos (estilo warcraft).
 - Texturas faltantes.
 - Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Posicionar camera para os jogadores ao abrir tabuleiro.
