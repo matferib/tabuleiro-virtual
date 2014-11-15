@@ -247,6 +247,9 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
+    //case Tecla_M:
+    //  tabuleiro_->AlternaModoMestre();
+    //  return;
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
         auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
