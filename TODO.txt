@@ -1,6 +1,5 @@
 Versao 1.6.1
 - Texturas faltantes.
-- Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
 - Posicionar camera para os jogadores ao abrir tabuleiro.
 - Textura em outras formas.
 

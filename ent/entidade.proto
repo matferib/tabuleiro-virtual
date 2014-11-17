@@ -95,9 +95,9 @@ message EntidadeProto {
   optional string dados_vida = 19;
   // Para os jogadores poderem se identificar.
   optional string rotulo = 20;
-  // Informaçoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
+  // Informacoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
   // Algumas informacoes serao concatenadas ao valor do campo.
-  optional string rotulo_especial = 30;
+  repeated string rotulo_especial = 30;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.
