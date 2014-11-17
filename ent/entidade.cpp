@@ -475,8 +475,10 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
     if (pd->desenha_rotulo_especial()) {
       gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      std::string rotulo("\n");
-      rotulo += proto_.rotulo_especial();
+      std::string rotulo;
+      for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
+        rotulo += std::string("\n") + rotulo_especial;
+      }
       if (proto_.proxima_salvacao() != RS_FALHOU) {
         rotulo += "\nprox. salv.: ";
         switch (proto_.proxima_salvacao()) {

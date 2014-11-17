@@ -497,6 +497,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Rotulo.
   QString rotulo_str;
   gerador.campo_rotulo->setText(entidade.rotulo().c_str());
+  // Rotulos especiais.
+  std::string rotulos_especiais;
+  for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
+    rotulos_especiais += rotulo_especial + "\n";
+  }
+  gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
+
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -585,8 +592,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
-    if (entidade.has_rotulo_especial()) {
-      proto_retornado->set_rotulo_especial(entidade.rotulo_especial());
+    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    if (!lista_rotulos.empty()) {
+      for (const auto& rotulo : lista_rotulos) {
+        proto_retornado->add_rotulo_especial(rotulo.toStdString());
+      }
     }
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
