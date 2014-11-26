@@ -39,7 +39,7 @@ const char* g_menuitem_strs[] = {
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
-      "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Re&iniciar Câmera", g_fim,
+      "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Salvar &Câmera", "Re&iniciar Câmera", g_fim,
   // Entidades.
   "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
   // Acoes.
@@ -323,6 +323,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_CAMERA]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_SALVAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {

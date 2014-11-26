@@ -71,7 +71,7 @@ message TabuleiroProto {
   // Se verdadeiro, apenas o mestre vera a textura do tabuleiro.
   optional bool textura_mestre_apenas = 13 [default=false];
   // Quando jogador entra no jogo, a camera aponta inicialmente para ca.
-  optional Posicao camera_inicial = 14;
+  optional Olho camera_inicial = 14;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Apenas alguns campos da entidade sao considerados:

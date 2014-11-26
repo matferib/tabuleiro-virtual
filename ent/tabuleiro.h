@@ -522,6 +522,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna quais unidades sao afetadas por determinada acao. */
   const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);
 
+  /** Salva a camera inicial. */
+  void SalvaCameraInicial();
+
   /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
   void ReiniciaCamera();
 

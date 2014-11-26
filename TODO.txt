@@ -1,6 +1,5 @@
 Versao 1.6.1
 - Texturas faltantes.
-- Posicionar camera para os jogadores ao abrir tabuleiro.
 - Textura em outras formas.
 
 Versao 1.6.2
