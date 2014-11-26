@@ -679,6 +679,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_REINICIAR_CAMERA:
       ReiniciaCamera();
       return true;
+    case ntf::TN_SALVAR_CAMERA:
+      SalvaCameraInicial();
+      return true;
     case ntf::TN_RESPOSTA_CONEXAO:
       if (notificacao.local()) {
         if (!notificacao.has_erro()) {
@@ -3029,6 +3032,9 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
   AtualizaTexturas(tabuleiro);
   proto_.CopyFrom(tabuleiro);
+  if (proto_.has_camera_inicial()) {
+    ReiniciaCamera();
+  }
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
   RegeraVbo();
@@ -3978,16 +3984,26 @@ void Tabuleiro::AlternaModoAcao() {
   modo_acao_ = !modo_acao_;
 }
 
+void Tabuleiro::SalvaCameraInicial() {
+  proto_.mutable_camera_inicial()->CopyFrom(olho_);
+  // Destino é para movimento.
+  proto_.mutable_camera_inicial()->clear_destino();
+}
+
 void Tabuleiro::ReiniciaCamera() {
-  auto* pos = olho_.mutable_alvo();
-  pos->set_x(0.0f);
-  pos->set_y(0.0f);
-  pos->set_z(0.0f);
-  // Olho sempre comeca olhando do sul (-pi/2).
-  olho_.set_rotacao_rad(-M_PI / 2.0f);
-  olho_.set_altura(OLHO_ALTURA_INICIAL);
-  olho_.set_raio(OLHO_RAIO_INICIAL);
-  olho_.clear_destino();
+  if (proto_.has_camera_inicial()) {
+    olho_.CopyFrom(proto_.camera_inicial());
+  } else {
+    auto* pos = olho_.mutable_alvo();
+    pos->set_x(0.0f);
+    pos->set_y(0.0f);
+    pos->set_z(0.0f);
+    // Olho sempre comeca olhando do sul (-pi/2).
+    olho_.set_rotacao_rad(-M_PI / 2.0f);
+    olho_.set_altura(OLHO_ALTURA_INICIAL);
+    olho_.set_raio(OLHO_RAIO_INICIAL);
+    olho_.clear_destino();
+  }
   AtualizaOlho(true  /*forcar*/);
 }
 
