@@ -1,8 +1,8 @@
-Versao 1.6.1
+Versao 1.7.1
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.6.2
+Versao 1.7.2
 - VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
