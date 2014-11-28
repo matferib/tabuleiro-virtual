@@ -28,22 +28,27 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
-public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener {
+public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener,
+                                                           View.OnSystemUiVisibilityChangeListener {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    Log.d("TabuleiroActivity", "onCreate");
     super.onCreate(savedInstanceState);
     view_ = new TabuleiroSurfaceView(this);
+    view_.setOnFocusChangeListener(this);
+    view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
         getResources().getAssets());
-    view_.setOnFocusChangeListener(this);
     view_.requestFocus();
   }
 
   private void hideUi() {
+    Log.d("TabuleiroActivity", "hideUi");
     if (Build.VERSION.SDK_INT >= 19) {
+      Log.d("TabuleiroActivity", "hideUiInside");
       getWindow().getDecorView().setSystemUiVisibility(
           View.SYSTEM_UI_FLAG_LAYOUT_STABLE
           | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -63,6 +68,12 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
   }
 
   @Override
+  public void onSystemUiVisibilityChange(int visibility) {
+    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
+    hideUi();
+  }
+
+  @Override
   public void onWindowFocusChanged(boolean hasFocus) {
     Log.d("TabuleiroActivity", "onWindowsFocusChanged: " + hasFocus);
     super.onWindowFocusChanged(hasFocus);
@@ -73,23 +84,33 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
+    Log.d("TabuleiroActivity", "onConfigurationChanged");
     super.onConfigurationChanged(newConfig);
   }
 
   @Override
+  public void onContentChanged() {
+    Log.d("TabuleiroActivity", "onContentChanged");
+    super.onContentChanged();
+  }
+
+  @Override
   protected void onPause() {
+    Log.d("TabuleiroActivity", "onPause");
     super.onPause();
     view_.onPause();
   }
 
   @Override
   protected void onResume() {
+    Log.d("TabuleiroActivity", "onResume");
     super.onResume();
     view_.onResume();
   }
 
   @Override
   protected void onDestroy() {
+    Log.d("TabuleiroActivity", "onDestroy");
     super.onStop();
     nativeDestroy();
   }
@@ -212,7 +233,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    Log.d("TabuleiroRenderer", "onKeyUp: " + keyCode);
+    //Log.d("TabuleiroRenderer", "onKeyUp: " + keyCode);
     return renderer_.onKeyUp(keyCode, event);
   }
 
@@ -336,7 +357,7 @@ class TabuleiroRenderer
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      Log.d(TAG, "Evento: " + evento.toString());
+      //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());

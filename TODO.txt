@@ -1,4 +1,5 @@
 Versao 1.7.1
+- Mostrar grade para jogadores caso a textura seja visivel apenas para o mestre.
 - Texturas faltantes.
 - Textura em outras formas.
 
