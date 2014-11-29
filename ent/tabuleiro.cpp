@@ -1610,7 +1610,9 @@ void Tabuleiro::DesenhaCena() {
   gl::CarregaNome(0);
   DesenhaTabuleiro();
 
-  if (parametros_desenho_.desenha_grade() && proto_.desenha_grade() && opcoes_.desenha_grade()) {
+  if (parametros_desenho_.desenha_grade() &&
+      opcoes_.desenha_grade() &&
+      (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
     gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
     DesenhaGrade();
   }
@@ -1809,9 +1811,8 @@ void Tabuleiro::RegeraVbo() {
   }
   vertices_grade_.clear();
   indices_grade_.clear();
-  if (!proto_.desenha_grade()) {
-    return;
-  }
+  // A grade sera regerada independente dos valores do proto, ja que o controle se ela devera ser desenha ou nao
+  // e feito durante o desenho da cena.
   const int x_2 = TamanhoX() / 2;
   const int y_2 = TamanhoY() / 2;
   const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
