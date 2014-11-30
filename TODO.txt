@@ -1,9 +1,9 @@
-Versao 1.7.1
+Versao 1.7.2
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.7.2
+Versao 1.7.3
 - VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
