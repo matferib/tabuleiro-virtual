@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
 
 #include "log/log.h"
@@ -21,7 +22,19 @@ Servidor::~Servidor() {
 }
 
 bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
+  static int contador = 0;
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
+    ++contador;
+    if (contador >= 300) {
+      contador = 0;
+      if (anunciante_.get() != nullptr) {
+        std::string bla("bla");
+        anunciante_->async_send_to(
+            boost::asio::buffer(bla),
+            boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), 11224),
+            [] (const boost::system::error_code& error, std::size_t bytes_transferred) {});
+      }
+    }
     if (Ligado()) {
       servico_io_->poll_one();
     }
@@ -77,7 +90,15 @@ void Servidor::Liga() {
     notificacao->set_tipo(ntf::TN_ERRO);
     notificacao->set_erro(e.what());
     central_->AdicionaNotificacao(notificacao);
+    return;
   }
+
+  // Aqui eh so pro anunciante do jogo.
+  anunciante_.reset(new boost::asio::ip::udp::socket(*servico_io_));
+  boost::system::error_code erro;
+  anunciante_->open(boost::asio::ip::udp::v4(), erro);
+  boost::asio::socket_base::broadcast option(true);
+  anunciante_->set_option(option);
 }
 
 void Servidor::Desliga() {
@@ -88,6 +109,7 @@ void Servidor::Desliga() {
   }
   central_->DesregistraReceptorRemoto(this);
   aceitador_.reset();
+  anunciante_.reset();
   for (auto* c : clientes_) {
     delete c;
   }

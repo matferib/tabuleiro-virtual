@@ -33,8 +33,10 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
+  std::unique_ptr<boost::asio::ip::udp::socket> socket_anuncio_;
   int a_receber_;  // bytes a receber.
   std::vector<char> buffer_;  // Buffer de recepcao.
+  std::vector<char> buffer_anuncio_;  // Buffer de recepcao.
   std::string buffer_notificacao_;  // Armazena o objeto lido.
 };
 

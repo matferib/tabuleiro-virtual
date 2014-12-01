@@ -28,7 +28,21 @@ Cliente::Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* 
 }
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
+  static int contador = 0;
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
+    ++contador;
+    if (contador >= 300) {
+      if (socket_anuncio_.get() != nullptr) {
+        boost::asio::ip::udp::endpoint endereco;
+        socket_anuncio_->async_receive_from(
+            boost::asio::buffer(buffer_anuncio_),
+            endereco,
+            [this] (const boost::system::error_code& error, std::size_t bytes_transferred) {
+              std::string dados_str(buffer_anuncio_.begin(), buffer_anuncio_.end());
+              LOG(INFO) << "RECEBI de: " << ;
+            });
+      }
+    }
     if (Ligado()) {
       servico_io_->poll_one();
     }
@@ -93,7 +107,13 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     notificacao->set_erro(e.what());
     central_->AdicionaNotificacao(notificacao);
     VLOG(1) << "Falha de conexão";
+    return;
   }
+
+  // Anuncio.
+  boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), 11224);
+  socket_anuncio_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
+  buffer_anuncio_.resize(1000);
 }
 
 void Cliente::Desconecta() {

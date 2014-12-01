@@ -45,6 +45,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   ntf::CentralNotificacoes* central_;
   boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
+  std::unique_ptr<boost::asio::ip::udp::socket> anunciante_;
   std::unique_ptr<Cliente> proximo_cliente_;
   std::vector<Cliente*> clientes_pendentes_;
   std::vector<Cliente*> clientes_;
