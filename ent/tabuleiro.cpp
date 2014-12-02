@@ -1931,22 +1931,22 @@ void Tabuleiro::DesenhaTabuleiro() {
 
   // Desenha quadrado selecionado.
   if (quadrado_selecionado_ != -1 && proto_.desenha_grade()) {
-    gl::Desabilita(GL_DEPTH_TEST);
-    float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
+    //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+    // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
+    const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
     MudaCorAlfa(cor);
     int linha = quadrado_selecionado_ / TamanhoX();
     int coluna = quadrado_selecionado_ % TamanhoX();
     float x3d = coluna * TAMANHO_LADO_QUADRADO, y3d = linha * TAMANHO_LADO_QUADRADO;
-    float vertices_s[] = {
-      x3d, y3d,
-      x3d + TAMANHO_LADO_QUADRADO, y3d,
-      x3d + TAMANHO_LADO_QUADRADO, y3d + TAMANHO_LADO_QUADRADO,
-      x3d, y3d + TAMANHO_LADO_QUADRADO,
+    const float vertices_s[] = {
+      x3d, y3d, 0.05f,
+      x3d + TAMANHO_LADO_QUADRADO, y3d, 0.05f,
+      x3d + TAMANHO_LADO_QUADRADO, y3d + TAMANHO_LADO_QUADRADO, 0.05f,
+      x3d, y3d + TAMANHO_LADO_QUADRADO, 0.05f,
     };
     unsigned short indices_s[] = { 0, 1, 2, 3 };
-    gl::PonteiroVertices(2, GL_FLOAT, vertices_s);
+    gl::PonteiroVertices(3, GL_FLOAT, vertices_s);
     gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices_s);
-    gl::Habilita(GL_DEPTH_TEST);
   }
 
   // Desliga vertex array.
