@@ -1,5 +1,4 @@
 Versao 1.7.2
-- Broadcast discovery.
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
