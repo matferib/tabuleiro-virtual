@@ -76,7 +76,7 @@ std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 
 extern "C" {
 
-// Nativos de TabuleiroActivity.
+// Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     JNIEnv* env, jobject thisz, jstring nome, jstring endereco, jobject assets) {
   std::string nome_nativo;
@@ -87,7 +87,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   }
 
   std::string endereco_nativo;
-  {
+  if (endereco != nullptr) {
     const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
     endereco_nativo = endereco_nativo_c;
     env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
@@ -116,7 +116,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   }
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
   n->set_id(nome_nativo);
-  n->set_endereco(endereco_nativo);
+  if (endereco != nullptr) {
+    n->set_endereco(endereco_nativo);
+  }
   g_central->AdicionaNotificacao(n);
 }
 

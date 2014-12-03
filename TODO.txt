@@ -1,4 +1,5 @@
 Versao 1.7.2
+- Mensagens de erro no android.
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
