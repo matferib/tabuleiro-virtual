@@ -2,6 +2,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
 
+#include "ent/constantes.h"
 #include "log/log.h"
 #include "net/servidor.h"
 #include "net/util.h"
@@ -22,15 +23,14 @@ Servidor::~Servidor() {
 }
 
 bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
-  static int contador = 0;
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
-    ++contador;
-    if (contador >= 300) {
-      contador = 0;
+    ++timer_anuncio_;
+    if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
+      timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
-        std::string bla("bla");
+        std::string porta("11223");
         anunciante_->async_send_to(
-            boost::asio::buffer(bla),
+            boost::asio::buffer(porta),
             boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), 11224),
             [] (const boost::system::error_code& error, std::size_t bytes_transferred) {});
       }

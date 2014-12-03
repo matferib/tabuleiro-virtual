@@ -46,6 +46,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   boost::asio::io_service* servico_io_;
   std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
   std::unique_ptr<boost::asio::ip::udp::socket> anunciante_;
+  int timer_anuncio_ = 0;
   std::unique_ptr<Cliente> proximo_cliente_;
   std::vector<Cliente*> clientes_pendentes_;
   std::vector<Cliente*> clientes_;

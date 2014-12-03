@@ -686,6 +686,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.local()) {
         if (!notificacao.has_erro()) {
           ModoJogador();
+          auto* ni = ntf::NovaNotificacao(ntf::TN_INFO);
+          ni->set_erro(std::string("Conectado ao servidor"));
+          central_->AdicionaNotificacao(ni);
         } else {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro conectando ao servidor: ") + notificacao.erro());
