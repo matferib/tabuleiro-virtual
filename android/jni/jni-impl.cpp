@@ -31,6 +31,10 @@ class ReceptorErro : public ntf::Receptor {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
       return true;
     }
+    if (notificacao.tipo() == ntf::TN_INFO) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+      return true;
+    }
     return false;
   }
 };
