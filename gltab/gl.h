@@ -35,7 +35,7 @@ namespace gl {
 void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
-class Contexto{
+class Contexto {
  public:
   Contexto(int* argcp, char** argv) { IniciaGl(argcp, argv); }
   ~Contexto() { FinalizaGl(); }

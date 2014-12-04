@@ -5,8 +5,8 @@
 #include <Wingdi.h>
 #endif
 
-//#include <string>
-//#include "arq/arquivo.h"
+#include <vector>
+#include <string>
 #include "gltab/gl.h"
 #include "log/log.h"
 
@@ -207,6 +207,7 @@ void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum u
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <string>
 #include "gltab/gl.h"
 #include "log/log.h"
 
