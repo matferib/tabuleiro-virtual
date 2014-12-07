@@ -1,0 +1,196 @@
+# Este arquivo é uma representação texto do proto ent::Modelos.
+modelo {
+  id: 'Aarakocra'
+  entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.png'} cor { r: 1.0 } ultima_acao: 'Ataque a Distância' }
+}
+modelo {
+  id: 'Aranha Armadeira'
+  entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
+}
+modelo {
+  id: 'Carniçal'
+  entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+}
+modelo {
+  id: 'Centopéia Imensa'
+  entidade { dados_vida: '12d8+12' tamanho: TM_IMENSO achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+}
+modelo {
+  id: 'Demônio Vrock'
+  entidade { dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 } }
+}
+modelo {
+  id: 'Demônio Babau'
+  entidade { dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
+}
+modelo {
+	id: 'Dragontino'
+	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
+  id: 'Elemental do Ar (Pequeno)'
+  entidade { dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 } }
+}
+modelo {
+  id: 'Enxame (centopéias)'
+  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+}
+modelo {
+  id: 'Esqueleto (Humano Combatente)'
+  entidade { dados_vida: '1d12' info_textura { id: 'skeleton.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Esqueleto (Lobo)'
+  entidade { dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Esqueleto (Troll)'
+  entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Garra de Ossos'  # Manual dos monstros 3.
+  entidade { dados_vida: '10d12+40' tamanho: TM_GRANDE info_textura { id: 'boneclaw.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Gigante da Colina'
+  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 } }
+}
+modelo {
+  id: 'Gigante da Montanha'  # http://www.dandwiki.com/wiki/Mountain_Giant_(3.5e_Creature)
+  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.427 g: 0.222 b: 0.076 } }
+}
+
+modelo {
+  id: 'Manto Negro'
+  entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
+}
+modelo {
+  id: 'Morcego (Caçador Noturno)'
+  entidade { max_pontos_vida: 13 tamanho: TM_MEDIO voadora: true info_textura { id: 'bat_deep_hunter.png' } cor { r: 0 g: 0 b: 0 } }
+}
+modelo {
+  id: 'Humano Bruxo'
+  entidade { dados_vida: '1d6' info_textura { id: 'warlock.png'} cor { r: 0.698 g: 0.463 b: 0.275 } }
+}
+modelo {
+  id: 'Humano Clérigo'
+  entidade { dados_vida: '1d8' info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Guerreiro'
+  entidade { dados_vida: '1d10' info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Ladino'
+  entidade { dados_vida: '1d6' info_textura { id: 'rogue.png'} cor { r: 0.250 g: 0.250 b: 0.250 } }
+}
+modelo {
+  id: 'Humano Mago'
+  entidade { dados_vida: '1d4' info_textura { id: 'mage.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
+}
+modelo {
+  id: 'Humano Paladino'
+  entidade { dados_vida: '1d10' info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Goblin'
+  entidade { dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
+}
+modelo {
+  id: 'Homem-Rato'
+  entidade { dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
+}
+modelo {
+  id: 'Ogro'
+  entidade { dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ogre.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
+  id: 'Ogro Bárbaro'
+  entidade { dados_vida: '4d8+19+4d12+16' tamanho: TM_GRANDE info_textura { id: 'ogre_barbarian.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
+  id: 'Orc'
+  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
+}
+modelo {
+  id: 'Orc Lanceiro'
+  entidade { dados_vida: '1d8+1' info_textura { id: 'orc_spear.png'} cor { g: 1.0 } ultima_acao: 'Ataque a Distância' }
+}
+modelo {
+  id: 'Orc Sargento'
+  entidade { dados_vida: '3d8+6' info_textura { id: 'orc_lead.png'} cor { g: 0.7 } }
+}
+modelo {
+  id: 'Orc Tenente'
+  entidade { dados_vida: '5d8+15' info_textura { id: 'orc_lead.png'} cor { g: 0.5 } }
+}
+modelo {
+  id: 'Orc Capitão'
+  entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
+}
+modelo {
+  id: 'Peryton'
+  entidade { dados_vida: '5d10+5' voadora: true info_textura { id: 'peryton.png'} cor { r: 0.5 g: 0.5 b: 0.0  } }
+}
+modelo {
+  id: 'Soldado do Horror' # monstros de faerun.
+  entidade { dados_vida: '4d12' info_textura { id: 'dread_warrior' } cor { r: 0 g: 0 b: 0 } }
+}
+modelo {
+  id: 'Troll'
+  entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
+}
+modelo {
+  id: 'Uivante'
+  entidade { dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+}
+modelo {
+  id: 'Zumbi (humano)'
+  entidade { dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+}
+modelo {
+  id: 'Zumbi (kobold)'
+  entidade { dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+}
+modelo {
+  id: 'Árvore (pinheiro)'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 }
+      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0 translacao_z: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.32156864 g: 0.47058824 b: 0.22745098 a: 1 }
+      sub_tipo: TF_CONE escala { x: 2.4 y: 3 z: 4 } rotacao_z_graus: 0 translacao_z: 1.5
+    }
+  }
+}
+modelo {
+  id: 'Árvore (genérica)'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.63529414 g: 0.43137255 b: 0.25882354 a: 1 } sub_tipo: TF_CILINDRO
+      escala { x: 0.5 y: 0.6 z: 1.8 } rotacao_z_graus: 0 translacao_z: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.25098041 g: 0.4509804 b: 0.21568628 a: 1 } sub_tipo: TF_ESFERA
+      escala { x: 3.7 y: 4 z: 2 } rotacao_z_graus: 0 translacao_z: 2.6
+    }
+  }
+}
+modelo {
+  id: 'Casa (8x7)'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.67450982 g: 0.45882353 b: 0.26666668 a: 1 }
+      sub_tipo: TF_PIRAMIDE escala { x: 8.5 y: 7.5 z: 3 } rotacao_z_graus: 0 translacao_z: 3
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.63529414 g: 0.63529414 b: 0.63529414 a: 1 }
+      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 } rotacao_z_graus: 0 translacao_z: 0
+    }
+  }
+}

@@ -1,0 +1,37 @@
+Versao 1.7.2
+- Mensagens de erro no android.
+- Camera isometrica.
+- Texturas faltantes.
+- Textura em outras formas.
+
+Versao 1.7.3
+- VBO em entidades.
+- Mais letras maiusculas.
+- Contador de rodadas.
+- Cor de formas compostas aplicando a todos os filhos.
+- Modelar corretamente os efeitos de splash (acido, fogo grego).
+- Terminar camada de arquivo para funcionar em diversos dispositivos.
+- Opcao para salvar personagens selecionaveis para jogadores.
+- Pensar em como nao mostrar formas mortas.
+- Mensagens de erro do android, voltar para UI principal caso falhe.
+- Adicionar mais unit tests (comecar pelos simples).
+- Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
+- Adicionar modelos diversos.
+- Adicionar texturas globais.
+- Instalador windows, rpm linux e ??? MAC.
+
+Versao 2.0
+- Joystick no android.
+- Registro correto dos diretorios para funcionar de qualquer diretorio.
+- Modelar menu com um proto ASCII para facilitar expansao.
+- Botao de aplicar mudancas nos dialogos.
+- Shader.
+- Outros bits de status (dormindo, paralizado).
+- Outros tipos de efeito das acoes nas entidades (tremer).
+- Outros tipos de acoes (perfurante, concussao).
+- Adicionar mais detalhes as entidades (Ataque, CA, Saves).
+- Sons.
+- Versao IPAD.
+- Mudar cursor quando control estiver pressionado.
+- Selecao de porta pelo servidor.
+- Tooltip com mais informacao.
