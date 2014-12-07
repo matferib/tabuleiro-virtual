@@ -26,6 +26,8 @@ namespace {
 // Trata notificacoes tipo TN_ERRO.
 class ReceptorErro : public ntf::Receptor {
  public:
+  ReceptorErro(JNIEnv* env, jobject thisz) : env_(env), thisz_(thisz) {}
+
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
     if (notificacao.tipo() == ntf::TN_ERRO) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
@@ -34,9 +36,27 @@ class ReceptorErro : public ntf::Receptor {
     if (notificacao.tipo() == ntf::TN_INFO) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
       return true;
+      /*
+      jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroActivity");
+      if (classe == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "classe invalida");
+        return true;
+      }
+      jmethodID metodo = env_->GetMethodID(classe, "teste", "()V");
+      if (metodo == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "metodo invalido");
+        return true;
+      }
+      env_->CallVoidMethod(thisz_, metodo);
+      return true;
+      */
     }
     return false;
   }
+
+ private:
+  JNIEnv* env_ = nullptr;
+  jobject thisz_ = nullptr;
 };
 
 // Teste
@@ -104,7 +124,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
-  g_receptor.reset(new ReceptorErro);
+  g_receptor.reset(new ReceptorErro(env, thisz));
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
 
@@ -118,6 +138,12 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   } catch (...) {
     __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
   }
+  /*{
+    ntf::Notificacao ninfo;
+    ninfo.set_tipo(ntf::TN_INFO);
+    ninfo.set_erro("TESTE");
+    g_receptor->TrataNotificacao(ninfo);
+  }*/
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
   n->set_id(nome_nativo);
   if (endereco != nullptr) {

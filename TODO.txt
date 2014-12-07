@@ -1,5 +1,4 @@
 Versao 1.7.2
-- Pgk para mac.
 - Mensagens de erro no android.
 - Camera isometrica.
 - Texturas faltantes.

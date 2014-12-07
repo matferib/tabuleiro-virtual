@@ -6,6 +6,8 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -43,6 +45,12 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
         getResources().getAssets());
     view_.requestFocus();
+  }
+
+  public void teste() {
+    AlertDialog.Builder alert = new AlertDialog.Builder(this);
+    alert.setTitle("TEST");
+    alert.show();
   }
 
   private void hideUi() {
@@ -118,7 +126,7 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
   static {
     System.loadLibrary("tabuleiro");
   }
-  private static native void nativeCreate(String nome, String endereco, Object assets);
+  private native void nativeCreate(String nome, String endereco, Object assets);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;
