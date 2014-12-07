@@ -1,0 +1,35 @@
+1- Colocar no diretorio mac as coisas da instalação:
+Os executaveis:
+tabvirt
+tabvirt.command
+
+Os 3 frameworks do Qt, sem headers:
+QtGui
+QtCore
+QtOpenGL
+
+As bibliotecas compartilhadas:
+libSystem.B.dylib
+libboost_system.dylib
+libc++.1.dylib
+libglog.0.dylib
+Libboost_filesystem.dylib
+libboost_timer.dylib
+libgflags.2.dylib
+libprotobuf.9.dylib
+
+Texturas e dados:
+texturas/*.png
+dados/*.asciiproto
+
+O esqueleto pode ser encontrado em https://drive.google.com/file/d/0B7clSIFMH9R-NWMzaGJVS1RXd3M/view?usp=sharing (mac_skeleton.tgz).
+
+2- Usar o pkgbuild para gerar o pacote (rodar do diretorio do tabuleiro).
+pkgbuild --identifier com.matferib.TabuleiroVirtual --version 1.7.2 --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-1.7.2.pkg
+
+OBS:
+Nao vi utilidade em usar o plist. De qualquer forma, a versao para criar o arquivo padrao:
+pkgbuild --analyze --root ./mac TabuleiroVirtual.plist
+Depois adicionar --component-plist TabuleiroVirtual.plist.
+
+nao precisa de usar install_name_tool para mudar os caminhos linkados.
