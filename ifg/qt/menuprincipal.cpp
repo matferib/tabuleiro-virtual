@@ -12,6 +12,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVariant>
+#include <boost/asio/ip/host_name.hpp>
 #include <google/protobuf/text_format.h>
 
 #include "ifg/qt/constantes.h"
@@ -49,15 +50,6 @@ const char* g_menuitem_strs[] = {
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
-
-// Cria um proto de entidade a partir da string texto.
-ent::EntidadeProto* CriaProto(const std::string& str = "") {
-  auto* ent = new ent::EntidadeProto;
-  if (!google::protobuf::TextFormat::ParseFromString(str, ent)) {
-    LOG(ERROR) << "Falha no parser de modelo, str: " << str;
-  }
-  return ent;
-}
 
 }  // namespace
 
@@ -253,7 +245,9 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
     auto* nome_rotulo = new QLabel("Nome do jogador:");
     auto* nome_le = new QLineEdit();
-    nome_le->setPlaceholderText(tr("Nome do jogador"));
+    std::string nome_completo(boost::asio::ip::host_name());
+    std::string nome_simples = nome_completo.substr(0, nome_completo.find("."));
+    nome_le->setText(tr(nome_simples.c_str()));
     ql->addWidget(nome_rotulo);
     ql->addWidget(nome_le);
     auto* ip_rotulo = new QLabel("IP:");
