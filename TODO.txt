@@ -1,11 +1,13 @@
-Versao 1.7.2
+Versao 1.7.3
+- Descobrir e arrumar os Parse error.
+- Entender porque o nome ou rotulo especial esta aparecendo na hora do dano.
 - Pgk para mac.
 - Mensagens de erro no android.
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.7.3
+Versao 1.7.4
 - VBO em entidades.
 - Mais letras maiusculas.
 - Contador de rodadas.
