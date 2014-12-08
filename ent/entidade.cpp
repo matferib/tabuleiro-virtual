@@ -516,8 +516,14 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   } else {
     MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto_, vd_, pd);
   }
-  // Um pouco acima do objeto e ao sul do objeto.
-  gl::Translada(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+  // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
+  Posicao vetor_camera_objeto;
+  ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
+  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
+
+  // Um para direcao da camera para luz iluminar o proprio objeto.
+  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
     LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
