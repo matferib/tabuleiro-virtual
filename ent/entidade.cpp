@@ -468,7 +468,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
-    MudaCor(COR_BRANCA);
+    MudaCor(COR_AMARELA);
     if (pd->desenha_rotulo()) {
       gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
       gl::DesenhaString(proto_.rotulo());
