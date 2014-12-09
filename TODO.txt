@@ -1,5 +1,4 @@
 Versao 1.7.3
-- Descobrir e arrumar os Parse error.
 - Mensagens de erro no android.
 - Camera isometrica.
 - Texturas faltantes.
