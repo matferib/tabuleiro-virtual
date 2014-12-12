@@ -15,8 +15,6 @@ Servidor::Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes
   servico_io_ = servico_io;
   central_ = central;
   central_->RegistraReceptor(this);
-  // tamanho maximo da mensagem: 1MB.
-  buffer_.resize(1 * 1024 * 1024);
 }
 
 Servidor::~Servidor() {
@@ -153,7 +151,7 @@ void Servidor::DesconectaCliente(Cliente* cliente) {
 
 void Servidor::RecebeDadosCliente(Cliente* cliente) {
   cliente->socket->async_receive(
-    boost::asio::buffer(buffer_),
+    boost::asio::buffer(cliente->buffer),
     [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
       if (ec) {
         // remove o cliente.
@@ -169,14 +167,17 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         DesconectaCliente(cliente);
         return;
       }
-      VLOG(2) << "Recebi " << bytes_recebidos << " dados do cliente " << cliente->id;
-      auto buffer_inicio = buffer_.begin();
+      VLOG(2) << "Recebi " << bytes_recebidos << " bytes do cliente " << cliente->id;
+      auto buffer_inicio = cliente->buffer.begin();
       auto buffer_fim = buffer_inicio + bytes_recebidos;
+      std::size_t bytes_faltando = bytes_recebidos;
       do {
         if (cliente->a_receber_ == 0) {
-          if (bytes_recebidos < 4) {
+          if (bytes_faltando < 4) {
             std::string erro(std::string("Erro recebendo dados do cliente '") + cliente->id + "' , msg menor que tamanho.");
-            LOG(ERROR) << erro;
+            LOG(ERROR) << erro
+                       << ", bytes_recebidos: " << bytes_recebidos
+                       << ", bytes_faltando: " << bytes_faltando;
             auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
             n->set_erro(erro);
             central_->AdicionaNotificacao(n);
@@ -184,18 +185,37 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
             return;
           }
           cliente->a_receber_ = DecodificaTamanho(buffer_inicio);
+          if (cliente->a_receber_ > 1024 * 1024) {
+            LOG(ERROR) << "recebendo mensagem maior que 1MB, impossivel. Algum problema podera acontecer. "
+                << "Cliente: " << cliente->id << " "
+                << ", a_receber: " << cliente->a_receber_
+                << ", bytes_recebidos: " << bytes_recebidos
+                << ", bytes_faltando: " << bytes_faltando;
+          }
           buffer_inicio += 4;
-          VLOG(2) << "A receber: " << cliente->a_receber_;
+          bytes_faltando -= 4;
         }
         if ((buffer_fim - buffer_inicio) >= cliente->a_receber_) {
-          VLOG(2) << "Recebendo notificacao inteira";
+          VLOG(2) << "Recebendo notificacao inteira de "
+                  << cliente->id << " "
+                  << ", buffer_fim: " << (int)(buffer_fim - cliente->buffer.begin())
+                  << ", buffer_inicio: " << (int)(buffer_inicio - cliente->buffer.begin())
+                  << ", a_receber: " << cliente->a_receber_
+                  << ", bytes_recebidos: " << bytes_recebidos
+                  << ", bytes_faltando: " << bytes_faltando;
+
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
           cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_inicio + cliente->a_receber_);
           // Decodifica mensagem e poe na central.
           std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
           if (!notificacao->ParseFromString(cliente->buffer_notificacao)) {
             std::string erro(std::string("Erro ParseFromString recebendo dados do cliente '") + cliente->id + "'");
-            LOG(ERROR) << erro;
+            LOG(ERROR) << erro
+                       << ", buffer_fim: " << (int)(buffer_fim - cliente->buffer.begin())
+                       << ", buffer_inicio: " << (int)(buffer_inicio - cliente->buffer.begin())
+                       << ", a_receber: " << cliente->a_receber_
+                       << ", bytes_recebidos: " << bytes_recebidos
+                       << ", bytes_faltando: " << bytes_faltando;
             auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
             n->set_erro(erro);
             central_->AdicionaNotificacao(n);
@@ -220,9 +240,16 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           central_->AdicionaNotificacao(notificacao.release());
           cliente->buffer_notificacao.clear();
           buffer_inicio += cliente->a_receber_;
+          bytes_faltando -= cliente->a_receber_;
           cliente->a_receber_ = 0;
         } else {
-          VLOG(2) << "Recebendo notificacao parcial";
+          VLOG(2) << "Recebendo notificacao parcial de "
+                  << cliente->id << " "
+                  << ", buffer_fim: " << (int)(buffer_fim - cliente->buffer.begin())
+                  << ", buffer_inicio: " << (int)(buffer_inicio - cliente->buffer.begin())
+                  << ", a_receber: " << cliente->a_receber_
+                  << ", bytes_recebidos: " << bytes_recebidos
+                  << ", bytes_faltando: " << bytes_faltando;
           // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
           // e sai.
           cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_fim);
@@ -230,7 +257,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           buffer_inicio = buffer_fim;
         }
       } while (buffer_inicio != buffer_fim);
-      VLOG(2) << "Tudo recebido";
+      VLOG(2) << "Tudo recebido de cliente " << cliente->id;
       RecebeDadosCliente(cliente);
     }
   );

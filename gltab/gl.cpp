@@ -113,6 +113,12 @@ namespace {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
+  GLboolean raster_valido;
+  glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &raster_valido);
+  if (!raster_valido) {
+    return;
+  }
+
   // Le o raster em coordenadas de janela.
   GLint raster_pos[4];
   glGetIntegerv(GL_CURRENT_RASTER_POSITION, raster_pos);
@@ -140,8 +146,12 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
     } else {
       glRasterPos2i(x_original - (str_linha.size() * largura_fonte), y);
     }
+    glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &raster_valido);
+    if (!raster_valido) {
+      break;
+    }
     for (const char c : str_linha) {
-      gl::DesenhaCaractere(c);
+     gl::DesenhaCaractere(c);
     }
     y -= (altura_fonte + 1);
   }
