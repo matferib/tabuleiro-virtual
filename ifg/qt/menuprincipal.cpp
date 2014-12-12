@@ -274,7 +274,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       notificacao->set_id(nome_le->text().toStdString());
       qd->accept();
     });
-    bb->addButton(botao_auto, QDialogButtonBox::AcceptRole);
+    bb->addButton(botao_auto, QDialogButtonBox::ActionRole);
 
     ql->addWidget(bb);
     qd->setWindowTitle(tr("Endereço do Servidor"));

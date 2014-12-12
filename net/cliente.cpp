@@ -70,6 +70,7 @@ void Cliente::EnviaDados(const std::string& dados) {
 }
 
 void Cliente::AutoConecta(const std::string& id) {
+  VLOG(1) << "Tentando auto conectar como " << id;
   if (socket_descobrimento_.get() != nullptr) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("Já há um descobrimento em curso.");
@@ -104,6 +105,7 @@ void Cliente::AutoConecta(const std::string& id) {
 }
 
 void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
+  VLOG(1) << "Tentando conectar como " << id << " em " << endereco_str;
   if (socket_descobrimento_.get() != nullptr) {
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro("Já há um descobrimento em curso.");
