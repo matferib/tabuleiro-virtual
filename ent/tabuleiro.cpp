@@ -99,14 +99,6 @@ int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   return 0;
 }
 
-/** Desenha apenas a string. */
-void DesenhaString(const std::string& s) {
-  gl::PosicaoRaster(1, 1);
-  for (const char c : s) {
-    gl::DesenhaCaractere(c);
-  }
-}
-
 /** Retorna true se o ponto (x,y) estiver dentro do quadrado qx1, qy1, qx2, qy2. */
 bool PontoDentroQuadrado(float x, float y, float qx1, float qy1, float qx2, float qy2) {
   float xesq = qx1;
@@ -791,6 +783,15 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Deserializar da rede.
         DeserializaTabuleiro(notificacao);
       }
+      return true;
+    }
+    case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
+      std::unique_ptr<ntf::Notificacao> n(SerializaEntidadesSelecionaveis());
+      // TODO
+      return true;
+    }
+    case ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS: {
+      DeserializaEntidadesSelecionaveis(notificacao);
       return true;
     }
     case ntf::TN_ATUALIZAR_OPCOES: {
@@ -3079,6 +3080,27 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     }
   }
   VLOG(1) << "Foram adicionadas " << tabuleiro.entidade_size() << " entidades";
+}
+
+ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS));
+  for (const auto& id_e : entidades_) {
+    if (id_e.second->SelecionavelParaJogador()) {
+      n->mutable_tabuleiro()->add_entidade()->CopyFrom(id_e.second->Proto());
+    }
+  }
+  return n.release();
+}
+
+void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
+  for (const auto& e : n.tabuleiro().entidade()) {
+    if (e.selecionavel_para_jogador()) {
+      ntf::Notificacao n_adicao;
+      n_adicao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n_adicao.mutable_entidade()->CopyFrom(e);
+      AdicionaEntidadeNotificando(n_adicao);
+    }
+  }
 }
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {

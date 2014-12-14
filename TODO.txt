@@ -1,4 +1,5 @@
 Versao 1.7.3
+- Salvar e restaurar entidades (parcialmente implementado).
 - Fireball em criaturas (ao inves de so em area).
 - Mensagens de erro no android.
 - Camera isometrica.

@@ -474,6 +474,9 @@ class Tabuleiro : public ntf::Receptor {
   **/
   ntf::Notificacao* SerializaTabuleiro(const std::string& nome = "");
 
+  /** @return uma notificacao do tipo TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS preenchida. */
+  ntf::Notificacao* SerializaEntidadesSelecionaveis() const;
+
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaPropriedades() const;
 
@@ -491,6 +494,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
+
+  /** Adiciona as entidades selecionaveis da notificacao ao tabuleiro. */
+  void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);
 
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
   unsigned int GeraIdEntidade(int id_cliente);
