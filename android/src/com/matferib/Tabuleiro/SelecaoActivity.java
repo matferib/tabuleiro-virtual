@@ -25,6 +25,7 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
     // Nome.
     id_ = new EditText(this);
     id_.setHint("identificador do jogador");
+    id_.setText(android.os.Build.MODEL);
     id_.setLayoutParams(
         new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
     grupo.addView(id_);
