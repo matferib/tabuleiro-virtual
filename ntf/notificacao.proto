@@ -1,0 +1,76 @@
+import "ent/acoes.proto";
+import "ent/entidade.proto";
+import "ent/tabuleiro.proto";
+
+package ntf;
+
+enum Tipo {
+  TN_SAIR = 1;
+  TN_ERRO = 2;
+  TN_INFO = 30;
+  TN_INICIAR = 3;
+  TN_INICIADO = 4;
+  TN_CONECTAR = 5;
+  TN_DESCONECTAR = 6;
+  TN_RESPOSTA_CONEXAO = 7;
+  TN_DESCONECTADO = 8;
+  TN_ADICIONAR_JOGADOR = 9;
+  TN_ADICIONAR_ENTIDADE = 10;
+  TN_LIMPAR_SALVACOES = 11;
+  TN_REMOVER_ENTIDADE = 12;
+  TN_ATUALIZAR_ENTIDADE = 13;
+  TN_ATUALIZAR_PARCIAL_ENTIDADE = 29;
+  TN_ATUALIZAR_TABULEIRO = 14;
+  TN_TEMPORIZADOR = 16;
+  TN_SERIALIZAR_TABULEIRO = 17;
+  TN_DESERIALIZAR_TABULEIRO = 18;
+  TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS = 32;
+  TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS = 33;
+  TN_MOVER_ENTIDADE = 19;
+  TN_ABRIR_DIALOGO_ENTIDADE = 20;
+  TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO = 21;
+  TN_ABRIR_DIALOGO_OPCOES = 22;
+  TN_ATUALIZAR_OPCOES = 23;
+  TN_CARREGAR_TEXTURA = 24;
+  TN_DESCARREGAR_TEXTURA = 25;
+  TN_ADICIONAR_ACAO = 26;
+  TN_REINICIAR_TABULEIRO = 27;
+  TN_REINICIAR_CAMERA = 28;
+  TN_SALVAR_CAMERA = 31;
+  // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
+  TN_GRUPO_NOTIFICACOES = 100;
+}
+
+// Por padrao, toda notificacao eh processada localmente e nao remotamente.
+message Notificacao {
+  optional Tipo tipo = 1;
+  // Para identificacao de clientes.
+  optional string id = 15;
+  // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Caso contrario, enviado para todos.
+  optional bool clientes_pendentes = 2 [default=false];
+  // Usado para varios tipos de respostas. Ausente quando nao ha erro.
+  optional string erro = 4;
+  // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
+  // Muitas vezes usada para evitar repeticao de mensagens (cliente recebe e repassa ao servidor
+  // que processa e repassa ao cliente infinitamente). Quando usada assim, a ausencia de endereco
+  // significa, processe e nao repasse.
+  optional string endereco = 5;
+  // Tabuleiro de jogo.
+  optional ent.TabuleiroProto tabuleiro = 6;
+  // Entidade.
+  optional ent.EntidadeProto entidade = 7;
+  // Para atualizacoes de entidade, guardando o estado anterior a modificacao.
+  optional ent.EntidadeProto entidade_antes = 3;
+  // Acoes.
+  optional ent.AcaoProto acao = 12;
+  // Opcoes.
+  optional ent.OpcoesProto opcoes = 8;
+  // Informacao sobre textura para carregamento e descarregamento.
+  optional ent.InfoTextura info_textura = 9;
+  // Indica se o jogo esta em modo mestre ou nao.
+  optional bool modo_mestre = 10;
+  // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
+  optional bool local = 11 [default=true];
+  // Para notificacoes do tipo TN_GRUPO_NOTIFICACOES. Apenas alguns tipos de notificacoes sao suportadas.
+  repeated Notificacao notificacao = 14;
+}

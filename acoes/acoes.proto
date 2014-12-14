@@ -1,0 +1,15 @@
+package acoes;
+
+enum Tipo {
+  ENTIDADE_CRIADA = 1;
+  ENTIDADE_REMOVIDA = 2;
+  ENTIDADE_MOVIDA = 3;
+}
+
+message Acao {
+  optional Tipo tipo = 1;
+  optional int32 id = 2;
+  optional float x = 3;
+  optional float y = 4;
+  optional float z = 5;  
+}
