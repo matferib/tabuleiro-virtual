@@ -127,7 +127,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
-  LOG(INFO) << "Tecla: " << (void*)tecla << ", mod: " << (void*)modificadores;
+  VLOG(1) << "Tecla: " << (void*)tecla << ", mod: " << (void*)modificadores;
   if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
     switch (tecla) {
       case Tecla_Esc:
