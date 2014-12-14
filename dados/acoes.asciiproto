@@ -41,6 +41,14 @@ acao {
 	permite_salvacao: true
 }
 acao {
+  id: 'Feitiço de Toque'
+  tipo: ACAO_FEITICO_TOQUE
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 0.5 y: 0.5 z: 0.5 }
+  translacao { x: 0 y: -0.3 z: -0.3 }
+  cor { r: 0.0 g: 0.0  b: 1.0 }
+}
+acao {
   id: 'Fogo Grego'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
@@ -58,14 +66,6 @@ acao {
 	permite_salvacao: true
 }
 acao {
-  id: 'Feitiço de Toque'
-  tipo: ACAO_FEITICO_TOQUE
-  geometria: ACAO_GEO_ESFERA
-  escala { x: 0.5 y: 0.5 z: 0.5 }
-  translacao { x: 0 y: -0.3 z: -0.3 }
-  cor { r: 0.0 g: 0.0  b: 1.0 }
-}
-acao {
   id: 'Míssil Mágico'
   tipo: ACAO_PROJETIL
   geometria: ACAO_GEO_ESFERA
@@ -75,6 +75,17 @@ acao {
     tipo_aceleracao: ACAO_ACEL_LINEAR
     aceleracao_m_s_2: 0
     delta_aceleracao_m_s_3: 0.008
+  }
+}
+acao {
+  id: 'Pedrada (gigante)'
+  tipo: ACAO_PROJETIL
+  geometria: ACAO_GEO_ESFERA
+  escala { x: 1.0 y: 1.0 z: 1.0 }
+  cor { r: 0.2 g: 0.2 b: 0.2 }
+  velocidade {
+    tipo_aceleracao: ACAO_ACEL_ZERO
+    inicial_m_s: 35.0
   }
 }
 acao {

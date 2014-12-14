@@ -1,13 +1,14 @@
 Versao 1.7.3
+- Fireball em criaturas (ao inves de so em area).
 - Mensagens de erro no android.
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
 Versao 1.7.4
+- Contador de rodadas.
 - VBO em entidades.
 - Mais letras maiusculas.
-- Contador de rodadas.
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Terminar camada de arquivo para funcionar em diversos dispositivos.
