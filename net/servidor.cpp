@@ -55,7 +55,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
       return true;
     }
     // Pego o ultimo, mas nao tem muito problema de starvation aqui pq assume-se um pequeno
-    // numero de clientes.
+    // numero de clientes. Caso contrario o primeiro cliente poderia ficar na fila sempre.
     auto* c = clientes_pendentes_.back();
     VLOG(1) << "Enviando primeira notificacao para cliente pendente";
     EnviaDadosCliente(c->socket.get(), ns);
