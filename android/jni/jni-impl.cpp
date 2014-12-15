@@ -34,10 +34,9 @@ class ReceptorErro : public ntf::Receptor {
       return true;
     }
     if (notificacao.tipo() == ntf::TN_INFO) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "%s", notificacao.erro().c_str());
       return true;
-      /*
-      jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroActivity");
+      /*jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroActivity");
       if (classe == nullptr) {
         __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "classe invalida");
         return true;
