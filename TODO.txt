@@ -1,4 +1,6 @@
-Versao 1.7.3
+Versao 1.7.4
+- Adicionar grifo e hipogrifo.
+- Arrumar ALT no android para ver barras.
 - Salvar e restaurar entidades (parcialmente implementado).
 - Fireball em criaturas (ao inves de so em area).
 - Mensagens de erro no android.
@@ -6,7 +8,7 @@ Versao 1.7.3
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.7.4
+Versao 1.7.5
 - Contador de rodadas.
 - VBO em entidades.
 - Mais letras maiusculas.
