@@ -9,6 +9,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -48,9 +49,16 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
   }
 
   public void teste() {
-    AlertDialog.Builder alert = new AlertDialog.Builder(this);
-    alert.setTitle("TEST");
-    alert.show();
+    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+    builder.setTitle("TEST").setMessage("Test message");
+    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int id) {
+        dialog.dismiss();
+      }
+    });
+    AlertDialog caixa = builder.create();
+    caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    caixa.show();
   }
 
   private void hideUi() {

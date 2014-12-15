@@ -1,12 +1,12 @@
-Versao 1.7.3
+Versao 1.7.4
 - Salvar e restaurar entidades (parcialmente implementado).
+- Mensagens de erro no android (parcialmente implementado).
 - Fireball em criaturas (ao inves de so em area).
-- Mensagens de erro no android.
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.7.4
+Versao 1.7.5
 - Contador de rodadas.
 - VBO em entidades.
 - Mais letras maiusculas.

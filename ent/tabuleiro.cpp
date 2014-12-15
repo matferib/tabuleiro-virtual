@@ -3048,7 +3048,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.
-    VLOG(1) << "Alterando id de cliente para " << id_cliente_;
+    VLOG(1) << "Alterando id de cliente para " << tabuleiro.id_cliente();
     id_cliente_ = tabuleiro.id_cliente();
   }
 
