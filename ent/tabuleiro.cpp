@@ -2996,8 +2996,8 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
   try {
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
-    t->set_id_cliente(GeraIdCliente());
     t->CopyFrom(proto_);
+    t->set_id_cliente(GeraIdCliente());
     if (t->info_textura().has_bits_crus()) {
       // Serializa apenas os bits crus.
       t->mutable_info_textura()->clear_bits();
@@ -3581,6 +3581,7 @@ int Tabuleiro::GeraIdCliente() {
     // O id zero esta sempre reservado para o mestre.
     proximo_id_cliente_ = ((proximo_id_cliente_) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
+      LOG(INFO) << "Retornando id para cliente: " << id_cliente;
       return id_cliente;
     }
   }

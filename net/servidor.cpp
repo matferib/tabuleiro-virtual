@@ -50,14 +50,18 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
 bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   const std::string ns = notificacao.SerializeAsString();
   if (notificacao.clientes_pendentes()) {
-    // Envia o tabuleiro a todos os clientes pendentes.
-    for (auto* c : clientes_pendentes_) {
-      VLOG(1) << "Enviando tabuleiro para cliente pendente";
-      EnviaDadosCliente(c->socket.get(), ns);
-      RecebeDadosCliente(c);
-      clientes_.push_back(c);
+    // Envia o tabuleiro para um cliente pendente.
+    if (clientes_pendentes_.empty()) {
+      return true;
     }
-    clientes_pendentes_.clear();
+    // Pego o ultimo, mas nao tem muito problema de starvation aqui pq assume-se um pequeno
+    // numero de clientes.
+    auto* c = clientes_pendentes_.back();
+    VLOG(1) << "Enviando primeira notificacao para cliente pendente";
+    EnviaDadosCliente(c->socket.get(), ns);
+    RecebeDadosCliente(c);
+    clientes_.push_back(c);
+    clientes_pendentes_.pop_back();
   } else {
     for (auto* c : clientes_) {
       VLOG(1) << "Enviando notificacao para cliente";
