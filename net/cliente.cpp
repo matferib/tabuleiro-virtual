@@ -40,7 +40,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
-    if (!notificacao.has_endereco()) {
+    if (notificacao.endereco().empty()) {
       AutoConecta(notificacao.id());
     } else {
       Conecta(notificacao.id(), notificacao.endereco());
@@ -116,6 +116,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
   if (endereco_porta.size() == 0) {
     // Endereco padrao.
+    LOG(ERROR) << "Nunca deveria chegar aqui: conexao sem endereco nem portal";
     endereco_porta.push_back("localhost");
   } else if (endereco_porta[0].empty()) {
     endereco_porta[0] = "localhost";
