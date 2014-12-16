@@ -550,7 +550,7 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
   }
   auto* entidade = BuscaEntidade(notificacao.entidade().id());
   if (entidade == nullptr) {
-    VLOG(1) << "Entidade invalida para notificacao de atualizacao parcial";
+    VLOG(1) << "Entidade '" << notificacao.entidade().id() << "' invalida para notificacao de atualizacao parcial";
     return;
   }
   entidade->AtualizaParcial(notificacao.entidade());
@@ -775,6 +775,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           central_->AdicionaNotificacao(ne);
           return true;
         }
+        nt_tabuleiro.set_endereco(notificacao.endereco());
         nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
@@ -2996,8 +2997,8 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
   try {
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
-    t->set_id_cliente(GeraIdCliente());
     t->CopyFrom(proto_);
+    t->set_id_cliente(GeraIdCliente());
     if (t->info_textura().has_bits_crus()) {
       // Serializa apenas os bits crus.
       t->mutable_info_textura()->clear_bits();
@@ -3042,6 +3043,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
   }
+  proto_.clear_manter_entidades();  // Os clientes nao devem receber isso.
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
   RegeraVbo();
@@ -3581,6 +3583,7 @@ int Tabuleiro::GeraIdCliente() {
     // O id zero esta sempre reservado para o mestre.
     proximo_id_cliente_ = ((proximo_id_cliente_) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
+      LOG(INFO) << "Retornando id para cliente: " << id_cliente;
       return id_cliente;
     }
   }
@@ -3588,7 +3591,7 @@ int Tabuleiro::GeraIdCliente() {
 }
 
 void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
-  VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+  VLOG(2) << "Atualizando texturas, novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_.has_info_textura() && proto_.info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
