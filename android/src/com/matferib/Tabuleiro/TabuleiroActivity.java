@@ -48,19 +48,6 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
     view_.requestFocus();
   }
 
-  public void teste() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-    builder.setTitle("TEST").setMessage("Test message");
-    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-      public void onClick(DialogInterface dialog, int id) {
-        dialog.dismiss();
-      }
-    });
-    AlertDialog caixa = builder.create();
-    caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-    caixa.show();
-  }
-
   private void hideUi() {
     Log.d("TabuleiroActivity", "hideUi");
     if (Build.VERSION.SDK_INT >= 19) {
@@ -312,6 +299,20 @@ class TabuleiroRenderer
     parent_ = parent;
     orientacao_padrao_ = orientacao_padrao;
   }
+
+  public void teste() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(parent_.getContext());
+    builder.setTitle("TEST").setMessage("Test message");
+    builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+      public void onClick(DialogInterface dialog, int id) {
+        dialog.dismiss();
+      }
+    });
+    AlertDialog caixa = builder.create();
+    caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+    caixa.show();
+  }
+
 
   @Override
   public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -672,7 +673,7 @@ class TabuleiroRenderer
   private static native void nativeInitGl();
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
-  private static native void nativeTimer();
+  private native void nativeTimer();
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(boolean toggle, int x, int y);
   private static native void nativeTouchMoved(int x, int y);

@@ -501,7 +501,9 @@ class Tabuleiro : public ntf::Receptor {
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
   unsigned int GeraIdEntidade(int id_cliente);
 
-  /** @return um id unico de cliente. Lanca excecao se chegar ao limite de clientes. */
+  /** @return um id unico de cliente. Lanca excecao se chegar ao limite de clientes.
+  * Os ids retornados serao de 1 a 15. O id zero eh reservado para o servidor.
+  */
   int GeraIdCliente();
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */

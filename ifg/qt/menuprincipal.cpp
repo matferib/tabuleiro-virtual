@@ -266,16 +266,6 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     });
     // Botao Cancela.
     connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
-    // Botao Auto.
-    auto* botao_auto = new QPushButton(tr("Automático"));
-    lambda_connect(botao_auto, SIGNAL(clicked()), [&notificacao, qd, nome_le] {
-      notificacao = new ntf::Notificacao;
-      notificacao->set_tipo(ntf::TN_CONECTAR);
-      notificacao->set_id(nome_le->text().toStdString());
-      qd->accept();
-    });
-    bb->addButton(botao_auto, QDialogButtonBox::ActionRole);
-
     ql->addWidget(bb);
     qd->setWindowTitle(tr("Endereço do Servidor"));
     qd->exec();

@@ -31,17 +31,10 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
     grupo.addView(id_);
     // Endereco.
     endereco_ = new EditText(this);
-    endereco_.setHint("endereço ou IP");
+    endereco_.setHint("endereço ou IP (vazio para automático)");
     endereco_.setLayoutParams(
         new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
     grupo.addView(endereco_);
-    // Botao auto.
-    botaoAuto_ = new Button(this);
-    botaoAuto_.setText("Auto-Conectar");
-    botaoAuto_.setOnClickListener(this);
-    botaoAuto_.setLayoutParams(
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
-    grupo.addView(botaoAuto_);
 
     // Botao.
     botao_ = new Button(this);
@@ -67,10 +60,8 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   @Override
   public void onClick(View v) {
     Intent intencao = new Intent(this, TabuleiroActivity.class);
-    if (v == botao_) {
-      // Abre a activity do tabuleiro.
-      intencao.putExtra(MENSAGEM_EXTRA, endereco_.getText().toString());
-    }
+    // Abre a activity do tabuleiro.
+    intencao.putExtra(MENSAGEM_EXTRA, endereco_.getText().toString());
     intencao.putExtra(MENSAGEM_NOME, id_.getText().toString());
     startActivity(intencao);
   }
