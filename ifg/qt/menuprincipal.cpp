@@ -13,7 +13,6 @@
 #include <QPushButton>
 #include <QVariant>
 #include <boost/asio/ip/host_name.hpp>
-#include <google/protobuf/text_format.h>
 
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"
