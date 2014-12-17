@@ -1,6 +1,6 @@
 Versao 1.7.4
 - Arrumar o mapa de clientes que nao esta sendo usado.
-- Descobrir pq tem hora que a conexao automatica falha e nao da timeout.
+- Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Salvar e restaurar entidades (parcialmente implementado).
 - Mensagens de erro no android (parcialmente implementado).
 - Fireball em criaturas (ao inves de so em area).

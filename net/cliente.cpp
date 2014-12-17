@@ -32,7 +32,11 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
     if (socket_descobrimento_.get() != nullptr) {
       if (++timer_descobrimento_ * INTERVALO_NOTIFICACAO_MS > 3000) {
-        socket_descobrimento_->cancel();
+        //LOG(INFO) << "Timer: " << timer_descobrimento_;
+        boost::system::error_code ec;
+        if (socket_descobrimento_->close(ec)) {
+          //LOG(INFO) << "erro close: " << ec;
+        }
       }
       servico_io_->poll_one();
     } else if (Ligado()) {
@@ -77,13 +81,18 @@ void Cliente::AutoConecta(const std::string& id) {
     central_->AdicionaNotificacao(n);
     return;
   }
+  //LOG(INFO) << "recriando socket";
   boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), 11224);
   socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
+  if (!socket_descobrimento_->is_open()) {
+    //LOG(INFO) << "socket nao esta aberto";
+  }
   buffer_descobrimento_.resize(100);
   socket_descobrimento_->async_receive_from(
       boost::asio::buffer(buffer_descobrimento_, buffer_descobrimento_.size()),
       endereco_descoberto_,
       [this, id] (const boost::system::error_code& erro, std::size_t num_bytes) {
+        //LOG(INFO) << "zerando socket";
         socket_descobrimento_.reset();
         if (erro) {
           auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -91,7 +100,7 @@ void Cliente::AutoConecta(const std::string& id) {
           central_->AdicionaNotificacao(n);
           return;
         }
-        LOG(INFO) << "RECEBI de: " << endereco_descoberto_.address().to_string()
+        //LOG(INFO) << "RECEBI de: " << endereco_descoberto_.address().to_string()
                   << ", anuncio: " << std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.end());
         std::string endereco_str(endereco_descoberto_.address().to_string());
         if (num_bytes > 0) {
@@ -101,6 +110,7 @@ void Cliente::AutoConecta(const std::string& id) {
         Conecta(id, endereco_str);
       }
   );
+  //LOG(INFO) << "zerando timer";
   timer_descobrimento_ = 0;
 }
 
