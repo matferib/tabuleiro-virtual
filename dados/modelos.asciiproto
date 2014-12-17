@@ -59,7 +59,13 @@ modelo {
   id: 'Gigante da Montanha'  # http://www.dandwiki.com/wiki/Mountain_Giant_(3.5e_Creature)
   entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.427 g: 0.222 b: 0.076 } }
 }
-
+modelo {
+  id: 'Grifo'
+  entidade {
+    dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'ini: +2\nat: +11/+8/+8\ndano: 2d6+4/1d4+2/1d4+2\nca: 17'
+  }
+}
 modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
