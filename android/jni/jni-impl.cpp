@@ -32,8 +32,8 @@ class ReceptorErro : public ntf::Receptor {
   void setEnvThisz(JNIEnv* env, jobject thisz) { env_ = env; thisz_ = thisz; }
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
-    if (notificacao.tipo() != ntf::TN_ERRO && notificacao.tipo() == ntf::TN_INFO) {
-      return false;
+    if (notificacao.tipo() != ntf::TN_ERRO && notificacao.tipo() != ntf::TN_INFO) {
+      return true;
     }
     if (notificacao.tipo() == ntf::TN_ERRO) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
@@ -50,12 +50,18 @@ class ReceptorErro : public ntf::Receptor {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "classe invalida");
       return true;
     }
-    jmethodID metodo = env_->GetMethodID(classe, "teste", "()V");
+    jmethodID metodo = env_->GetMethodID(classe, "teste", "(Ljava/lang/String;)V");
     if (metodo == nullptr) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "metodo invalido");
       return true;
     }
-    //env_->CallVoidMethod(thisz_, metodo);
+    jstring msg = env_->NewStringUTF(notificacao.erro().c_str());
+    if (msg == nullptr) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "String de msg nullptr");
+      return true;
+    }
+    env_->CallVoidMethod(thisz_, metodo, msg);
+    env_->DeleteLocalRef(msg);
     return true;
   }
 
