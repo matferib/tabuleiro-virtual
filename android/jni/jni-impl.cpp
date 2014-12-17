@@ -31,7 +31,7 @@ class ReceptorErro : public ntf::Receptor {
   /** O env da thread de desenho eh diferente do da inicializacao. */
   void setEnvThisz(JNIEnv* env, jobject thisz) { env_ = env; thisz_ = thisz; }
 
-  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
+  bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
     if (notificacao.tipo() != ntf::TN_ERRO && notificacao.tipo() != ntf::TN_INFO) {
       return true;
     }
@@ -50,7 +50,7 @@ class ReceptorErro : public ntf::Receptor {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "classe invalida");
       return true;
     }
-    jmethodID metodo = env_->GetMethodID(classe, "teste", "(Ljava/lang/String;)V");
+    jmethodID metodo = env_->GetMethodID(classe, "mensagem", "(ZLjava/lang/String;)V");
     if (metodo == nullptr) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "metodo invalido");
       return true;
@@ -60,7 +60,7 @@ class ReceptorErro : public ntf::Receptor {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "String de msg nullptr");
       return true;
     }
-    env_->CallVoidMethod(thisz_, metodo, msg);
+    env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
     env_->DeleteLocalRef(msg);
     return true;
   }

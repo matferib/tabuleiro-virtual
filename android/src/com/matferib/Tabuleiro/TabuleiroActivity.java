@@ -8,7 +8,6 @@ import javax.microedition.khronos.opengles.GL10;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.os.Handler;
 import android.os.Message;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,25 +38,7 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
   protected void onCreate(Bundle savedInstanceState) {
     Log.d("TabuleiroActivity", "onCreate");
     super.onCreate(savedInstanceState);
-    Handler handler = new Handler() {
-      @Override
-      public void handleMessage(Message msg) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TabuleiroActivity.this);
-        builder.setTitle("TEST").setMessage("Mensagem");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-          public void onClick(DialogInterface dialog, int id) {
-            dialog.dismiss();
-          }
-        });
-        AlertDialog caixa = builder.create();
-        //caixa.requestFocus();
-        caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
-        caixa.show();
-      }
-
-      private Context context_;
-    };
-    view_ = new TabuleiroSurfaceView(this, handler);
+    view_ = new TabuleiroSurfaceView(this);
     view_.setOnFocusChangeListener(this);
     view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
@@ -149,9 +130,9 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
 
 // View do OpenGL.
 class TabuleiroSurfaceView extends GLSurfaceView {
-  public TabuleiroSurfaceView(Activity activity, Handler handler) {
+  public TabuleiroSurfaceView(Activity activity) {
     super(activity);
-    renderer_ = new TabuleiroRenderer(this, handler, getResources(), OrientacaoPadrao(activity));
+    renderer_ = new TabuleiroRenderer(activity, this, getResources(), OrientacaoPadrao(activity));
     detectorEventos_ = new GestureDetector(activity, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEventos_.setIsLongpressEnabled(false);
@@ -314,16 +295,31 @@ class TabuleiroRenderer
 
   public static final String TAG = "TabuleiroRenderer";
 
-  public TabuleiroRenderer(GLSurfaceView view, Handler handler, Resources resources, int orientacao_padrao) {
+  public TabuleiroRenderer(Activity activity, GLSurfaceView view, Resources resources, int orientacao_padrao) {
     resources_ = resources;
-    handler_ = handler;
     parent_ = view;
     orientacao_padrao_ = orientacao_padrao;
+    activity_ = activity;
   }
 
-  public void teste(String mensagem) {
-    Log.d(TAG, "teste: " + mensagem);
-    handler_.sendEmptyMessage(1);
+  /** Manda uma mensagem para a thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
+  public void mensagem(final boolean erro, final String mensagem) {
+    //Log.d(TAG, "mensagem: " + mensagem);
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle(erro ? "Erro" : "Info").setMessage(mensagem);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            dialog.dismiss();
+          }
+        });
+        AlertDialog caixa = builder.create();
+        caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        caixa.show();
+      }
+    });
   }
 
   @Override
@@ -699,7 +695,7 @@ class TabuleiroRenderer
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
 
-  private Handler handler_;
+  private Activity activity_;
   private GLSurfaceView parent_;
   private Vector<Evento> eventos_ = new Vector<Evento>();
   private boolean carregando_ = false;
