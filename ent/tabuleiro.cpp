@@ -3583,7 +3583,7 @@ int Tabuleiro::GeraIdCliente() {
     // O id zero esta sempre reservado para o mestre.
     proximo_id_cliente_ = ((proximo_id_cliente_) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
-      LOG(INFO) << "Retornando id para cliente: " << id_cliente;
+      VLOG(1) << "GeraIdCliente retornando id para cliente: " << id_cliente;
       return id_cliente;
     }
   }
