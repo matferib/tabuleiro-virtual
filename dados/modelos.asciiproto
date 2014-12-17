@@ -67,6 +67,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Hipogrifo'
+  entidade {
+    dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hipogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'ini: +2\nat: +6/+6/+1\ndano: 1d4+4/1d4+4/1d8+2\nca: 15'
+  }
+}
+
+modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
 }
