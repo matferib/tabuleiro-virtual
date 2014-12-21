@@ -80,7 +80,10 @@ modelo {
 }
 modelo {
   id: 'Mephit do Fogo'
-  entidade { dados_vida: '3d8' tamanho: TM_PEQUENO voadora: true info_textura { id: 'fire_mephit.png' } cor { r: 0.8 g: 0.3 b: 0 } }
+  entidade {
+    dados_vida: '3d8' tamanho: TM_PEQUENO voadora: true info_textura { id: 'fire_mephit.png' } cor { r: 0.8 g: 0.3 b: 0 }
+    rotulo_especial: 'ini: +5\nat: +4/+4, dano: 1d3+1d4(fogo) 1d3+1d4(fogo)\nca: 16'
+  }
 }
 modelo {
   id: 'Morcego (Caçador Noturno)'
