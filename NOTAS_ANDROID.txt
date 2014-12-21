@@ -1,0 +1,130 @@
+========
+ Basico
+========
+
+-- Listar targets:
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
+
+-- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
+// *:S so deixa passar o primeiro filtro. Suppress all.
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat Tabuleiro:I *:S
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat TabuleiroRenderer:I *:S
+
+
+=======
+ Build
+=======
+
+-- Criar os builds para o target (diretorio pai do jni, onde esta o AndroidManifest.xml):
+${ANDROID_DEV_TOOLKIT}/sdk/tools/android update project -p . -s -t 1
+
+-- Criar os arquivos de protocol buffer. So criar os do projeto original ja funciona (o codigo do android usa link para eles).
+
+-- Compilacao do codigo nativo (do diretorio do jni para os caminhos de include funcionarem):
+${ANDROID_NDK}/ndk-build V=1
+ou
+${ANDROID_NDK}/ndk-build V=1 NEXUS7=1
+
+-- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
+ant debug
+
+-- Instalacao:
+Colocar o dispositivo em USB debug mode.
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
+
+
+==============
+ Bibliotecas
+==============
+
+Criar o toolchain de cross-compile:
+export TOOLCHAIN=/var/tmp/my-toolchain
+${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=$TOOLCHAIN --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+
+-- Protobuffer:
+
+Compilando protocol buffers:
+
+- Configuracao do protobuf:
+ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
+export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
+export CC=${CXX/g++/gcc}
+./configure --host=arm-*-eabi
+make
+
+Pode dar um erro no unit test aqui mas a lib esta ok.
+
+-- Boost:
+
+Boost android: https://github.com/MysticTreeGames/Boost-for-Android
+
+- Baixar:
+git clone https://github.com/MysticTreeGames/Boost-for-Android.git
+
+- Abrir o build-android.sh e procurar pro LIBRARIES. Mudar para:
+LIBRARIES=--with-libraries=system,timer,filesystem.
+
+- No case do NDK_RN adicionar a versao usada do ndk.
+
+- Usar o toolchain mais novo:
+./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8
+
+
+==============
+Instrumentação
+==============
+
+OBS: Funciona apenas em dispositivos com um usuario (so consegui no telefone).
+
+- Colocar no AndroidManifest.xml para poder escrever o arquivo de profile:
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+- Descompactar o android-ndk-profiler em android/jni (https://code.google.com/p/android-ndk-profiler/).
+
+- Adicionar no Android.mk:
+LOCAL_CFLAGS := -pg
+LOCAL_STATIC_LIBRARIES += android-ndk-profiler
+# ultima linha.
+$(call import-module,android-ndk-profiler)
+
+- Adicionar no jni-impl.cpp:
+#include "prof.h"
+...
+// Resume. Sim, o nome é sem o prefixo lib.
+  monstartup("tabuleiro.so");
+// Pause
+  moncleanup();
+
+- Compilar o jni com:
+${ANDROID_NDK}/ndk-build NDK_MODULE_PATH=/home/matheus/Projetos/rpg/tabuleiro/android/jni/ V=1
+
+- Compilar, instalar e rodar a app para gerar o profile. Ao pausar a app, o arquivo sera escrito.
+
+- Baixar o profile:
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
+
+- Analisar:
+${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
+
+
+===========
+ Problemas
+===========
+
+-- Depuração:
+
+Colocar no manifest, dentro do elemento application android:debuggable="true"
+Compilar codigo nativo.
+Compilar modo debug (ant debug)
+Instalar.
+Rodar no tablet.
+Diretorio do projeto (pai do jni):
+
+${ANDROID_NDK}/ndk-gdb --adb=${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb
+
+
+-- Problema de certificado ao instalar de outra maquina:
+
+As chaves sao diferentes nas maquinas. Uma solucao eh copiar o ~/.android/debug.keystore de uma maquina pra outra.
+Senao, tem que desinstalar com adb e instalar de novo.
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb uninstall com.matferib.Tabuleiro

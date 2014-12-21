@@ -1,0 +1,9 @@
+Versoes:
+
+- instalador/tabvirt.iss: instalador windows.
+- ifg/qt/menuprincipal.cpp: dialogo de versao.
+- android/AndroidManifest.xml: as duas versoes.
+- mac: na hora de gerar o pkgbuild, usar a versao correta.
+
+Lembrar de gerar o APK do Nexus 7 tb (NEXUS7=1 na linha de compilacao jni).
+Lembrar de atualizar as texturas do android.
