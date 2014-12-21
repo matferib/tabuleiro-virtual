@@ -101,7 +101,7 @@ void Cliente::AutoConecta(const std::string& id) {
           return;
         }
         //LOG(INFO) << "RECEBI de: " << endereco_descoberto_.address().to_string()
-                  << ", anuncio: " << std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.end());
+        //          << ", anuncio: " << std::string(buffer_descobrimento_.begin(), buffer_descobrimento_.end());
         std::string endereco_str(endereco_descoberto_.address().to_string());
         if (num_bytes > 0) {
           endereco_str.append(":");
