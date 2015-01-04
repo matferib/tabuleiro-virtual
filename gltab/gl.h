@@ -2,7 +2,17 @@
 #define GLTAB_GL_H
 
 #include <string>
+#if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#else
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
+#include <GLES/glplatform.h>
+#endif
+#elif __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
@@ -11,11 +21,6 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
-#elif USAR_OPENGL_ES && !BENCHMARK
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
-#include <GLES/glplatform.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
