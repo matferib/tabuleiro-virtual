@@ -1,4 +1,5 @@
 Versao 1.7.4
+- Interface de mouse generico para tablets (suporte a multitap).
 - Arrumar o mapa de clientes que nao esta sendo usado.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Salvar e restaurar entidades (parcialmente implementado).
