@@ -36,7 +36,6 @@ Versao 2.0
 - Outros tipos de acoes (perfurante, concussao).
 - Adicionar mais detalhes as entidades (Ataque, CA, Saves).
 - Sons.
-- Versao IPAD.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
 - Tooltip com mais informacao.
