@@ -85,7 +85,11 @@ void Cliente::AutoConecta(const std::string& id) {
   boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), 11224);
   socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
   if (!socket_descobrimento_->is_open()) {
-    //LOG(INFO) << "socket nao esta aberto";
+    socket_descobrimento_.reset();
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro("Nao consegui abrir socket de auto conexao.");
+    central_->AdicionaNotificacao(n);
+    return;
   }
   buffer_descobrimento_.resize(100);
   socket_descobrimento_->async_receive_from(
