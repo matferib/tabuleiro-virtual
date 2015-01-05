@@ -102,7 +102,7 @@
 		EACF267C1A58C6DA0052E95A /* TabuleiroVirtualTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TabuleiroVirtualTests.m; sourceTree = "<group>"; };
 		EACF26861A58C77B0052E95A /* GameViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; };
 		EACF268C1A58C9680052E95A /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dados; path = ../dados; sourceTree = "<group>"; };
-		EACF26921A58D0720052E95A /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = native.cpp; sourceTree = "<group>"; };
+		EACF26921A58D0720052E95A /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = native.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		EACF26931A58D0720052E95A /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native.h; sourceTree = "<group>"; };
 		EACF26D51A58D7000052E95A /* boost.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = boost.framework; path = boost/ios/framework/boost.framework; sourceTree = "<group>"; };
 		EACF26D71A58D8930052E95A /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };

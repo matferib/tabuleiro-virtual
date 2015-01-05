@@ -25,7 +25,8 @@ std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 }  // namespace native
 
 void nativeCreate() {
-  std::string nome_nativo;  // TODO
+  std::string nome_completo(boost::asio::ip::host_name());
+  std::string nome_nativo = nome_completo.substr(0, nome_completo.find("."));
   std::string endereco_nativo;
 
   g_central.reset(new ntf::CentralNotificacoes);
