@@ -253,10 +253,7 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     id_acoes_.push_back(a.id());
   }
 
-  // TODO android apenas.
-#if 1
   opcoes_.set_desenha_controle_virtual(true);
-#endif
 
   EstadoInicial();
 #if USAR_WATCHDOG
@@ -659,6 +656,30 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_CONECTAR: {
+      AlterarModoMestre(false);
+      return true;
+    }
+    case ntf::TN_DESCONECTADO: {
+      if (ModoMestre()) {
+        // cliente desconectado.
+        for (auto it : clientes_) {
+          if (it.second == notificacao.id()) {
+            clientes_.erase(it.first);
+            return true;
+          }
+        }
+        LOG(ERROR) << "Nao encontrei cliente desconectado: '" << notificacao.id() << "'";
+        return true;
+      } else {
+        if (notificacao.has_erro()) {
+          auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+          n->set_erro(notificacao.erro());
+          central_->AdicionaNotificacao(n);
+        }
+        return true;
+      }
+    }
     case ntf::TN_GRUPO_NOTIFICACOES:
       // Nunca deve vir da central.
       processando_grupo_ = true;
@@ -677,11 +698,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_RESPOSTA_CONEXAO:
       if (notificacao.local()) {
         if (!notificacao.has_erro()) {
-          ModoJogador();
           auto* ni = ntf::NovaNotificacao(ntf::TN_INFO);
           ni->set_erro(std::string("Conectado ao servidor"));
           central_->AdicionaNotificacao(ni);
         } else {
+          AlterarModoMestre(true);  // volta modo mestre.
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro conectando ao servidor: ") + notificacao.erro());
           central_->AdicionaNotificacao(ne);
@@ -750,12 +771,32 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(erro.what());
           central_->AdicionaNotificacao(ne);
+          return true;
         }
         auto* notificacao = ntf::NovaNotificacao(ntf::TN_INFO);
         notificacao->set_erro(std::string("Tabuleiro '") + caminho_str + "' salvo.");
         central_->AdicionaNotificacao(notificacao);
       } else {
         // Enviar remotamente.
+        if (notificacao.clientes_pendentes()) {
+          try {
+            // Estamos enviando para um novo cliente.
+            nt_tabuleiro->set_id(notificacao.id());
+            int id_tab = GeraIdTabuleiro();
+            clientes_.insert(std::make_pair(id_tab, notificacao.id()));
+            nt_tabuleiro->mutable_tabuleiro()->set_id_cliente(id_tab);
+          } catch (const std::logic_error& e) {
+            auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+            ne->set_erro(e.what());
+            // Envia para os clientes pendentes tb.
+            auto* copia_ne = new ntf::Notificacao(*ne);
+            copia_ne->set_clientes_pendentes(true);
+            copia_ne->set_id(notificacao.id());
+            central_->AdicionaNotificacao(ne);
+            central_->AdicionaNotificacaoRemota(copia_ne);
+            return true;
+          }
+        }
         nt_tabuleiro->set_clientes_pendentes(notificacao.clientes_pendentes());
         central_->AdicionaNotificacaoRemota(nt_tabuleiro.release());
       }
@@ -2998,7 +3039,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
     t->CopyFrom(proto_);
-    t->set_id_cliente(GeraIdCliente());
     if (t->info_textura().has_bits_crus()) {
       // Serializa apenas os bits crus.
       t->mutable_info_textura()->clear_bits();
@@ -3574,17 +3614,17 @@ unsigned int Tabuleiro::GeraIdEntidade(int id_cliente) {
   throw std::logic_error("Limite de entidades alcancado para cliente.");
 }
 
-int Tabuleiro::GeraIdCliente() {
+int Tabuleiro::GeraIdTabuleiro() {
   const int max_id_cliente = 15;
   int count = max_id_cliente;
   while (count-- > 0) {
-    int id_cliente = proximo_id_cliente_;
-    auto it = clientes_.find(id_cliente);
+    int id_tab = proximo_id_cliente_;
+    auto it = clientes_.find(id_tab);
     // O id zero esta sempre reservado para o mestre.
     proximo_id_cliente_ = ((proximo_id_cliente_) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
-      VLOG(1) << "GeraIdCliente retornando id para cliente: " << id_cliente;
-      return id_cliente;
+      VLOG(1) << "GeraIdTabuleiro retornando id para cliente: " << id_tab;
+      return id_tab;
     }
   }
   throw std::logic_error("Limite de clientes alcancado.");
@@ -3890,12 +3930,16 @@ double Tabuleiro::Aspecto() const {
   return static_cast<double>(largura_) / static_cast<double>(altura_);
 }
 
-void Tabuleiro::ModoJogador() {
+void Tabuleiro::AlterarModoMestre(bool modo) {
+  LOG(INFO) << "Alternando para modo mestre: " << modo;
+  modo_mestre_ = modo;
 #if USAR_WATCHDOG
-  watchdog_.Para();
+  if (modo) {
+    DesativaWatchdog();
+  } else {
+    ReativaWatchdog();
+  }
 #endif
-  LOG(INFO) << "Alternando para modo jogador.";
-  modo_mestre_ = false;
 }
 
 const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {

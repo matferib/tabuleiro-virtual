@@ -8,12 +8,12 @@ enum Tipo {
   TN_SAIR = 1;
   TN_ERRO = 2;
   TN_INFO = 30;
-  TN_INICIAR = 3;
+  TN_INICIAR = 3;  // Iniciar jogo modo mestre.
   TN_INICIADO = 4;
-  TN_CONECTAR = 5;
-  TN_DESCONECTAR = 6;
+  TN_CONECTAR = 5;  // Conectar no jogo mestre.
+  TN_DESCONECTAR = 6;  // Comando para desconectar jogo.
   TN_RESPOSTA_CONEXAO = 7;
-  TN_DESCONECTADO = 8;
+  TN_DESCONECTADO = 8;  // Cliente ou servidor desconectou.
   TN_ADICIONAR_JOGADOR = 9;
   TN_ADICIONAR_ENTIDADE = 10;
   TN_LIMPAR_SALVACOES = 11;
@@ -44,12 +44,14 @@ enum Tipo {
 // Por padrao, toda notificacao eh processada localmente e nao remotamente.
 message Notificacao {
   optional Tipo tipo = 1;
-  // Para identificacao de clientes.
-  optional string id = 15;
-  // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Caso contrario, enviado para todos.
+  // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
+  // devera ser acompanhada do do do cliente.
+  //Caso contrario, enviado para todos.
   optional bool clientes_pendentes = 2 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
+  // Identificacao propria do cliente no formato de string.
+  optional string id = 15;
   // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
   // Muitas vezes usada para evitar repeticao de mensagens (cliente recebe e repassa ao servidor
   // que processa e repassa ao cliente infinitamente). Quando usada assim, a ausencia de endereco

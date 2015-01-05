@@ -1,16 +1,15 @@
-Versao 1.7.4
-- Interface de mouse generico para tablets (suporte a multitap).
-- Arrumar o mapa de clientes que nao esta sendo usado.
+Versao 1.8.0
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
+- Contador de rodadas.
+- Interface de mouse generico para tablets (suporte a multitap).
 - Salvar e restaurar entidades (parcialmente implementado).
 - Mensagens de erro no android (parcialmente implementado).
-- Fireball em criaturas (ao inves de so em area).
+- Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.7.5
-- Contador de rodadas.
+Versao 1.8.1
 - VBO em entidades.
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
