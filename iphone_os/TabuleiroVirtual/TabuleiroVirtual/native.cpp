@@ -21,8 +21,31 @@ std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
-    
+
+// Carrega o tabuleiro do castelo quando o load de rede falhar.
+class CarregadorTabuleiro : public ntf::Receptor {
+ public:
+  explicit CarregadorTabuleiro(ntf::CentralNotificacoes* central) {
+    central->RegistraReceptor(this);
+  }
+  bool TrataNotificacao(const ntf::Notificacao& n) override {
+    if (n.tipo() == ntf::TN_RESPOSTA_CONEXAO) {
+      if (n.has_erro()) {
+        // Carrega tab.
+        auto* cn = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+        cn->set_endereco("castelo.binproto");
+        g_central->AdicionaNotificacao(cn);
+      }
+      g_central->DesregistraReceptor(this);
+    }
+    return true;
+  }
+};
+std::unique_ptr<CarregadorTabuleiro> g_carregador;
+  
 }  // namespace native
+
+
 
 void nativeCreate() {
   std::string nome_completo(boost::asio::ip::host_name());
@@ -36,6 +59,7 @@ void nativeCreate() {
   g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
   g_teclado_mouse.reset(
       new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
+  g_carregador.reset(new CarregadorTabuleiro(g_central.get()));
 
   int* argcp = nullptr;
   char** argvp = nullptr;
