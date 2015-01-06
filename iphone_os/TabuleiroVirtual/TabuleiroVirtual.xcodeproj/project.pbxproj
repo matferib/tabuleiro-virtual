@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EA06FA2E1A5B858B008ABF75 /* tabuleiros_salvos in Resources */ = {isa = PBXBuildFile; fileRef = EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */; };
 		EACF265F1A58C6DA0052E95A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF265E1A58C6DA0052E95A /* main.m */; };
 		EACF26621A58C6DA0052E95A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF26611A58C6DA0052E95A /* AppDelegate.m */; };
 		EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EACF266A1A58C6DA0052E95A /* Main.storyboard */; };
@@ -88,6 +89,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tabuleiros_salvos; sourceTree = "<group>"; };
 		EACF26591A58C6DA0052E95A /* TabuleiroVirtual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TabuleiroVirtual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EACF265D1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF265E1A58C6DA0052E95A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -101,7 +103,6 @@
 		EACF267B1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF267C1A58C6DA0052E95A /* TabuleiroVirtualTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TabuleiroVirtualTests.m; sourceTree = "<group>"; };
 		EACF26861A58C77B0052E95A /* GameViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; tabWidth = 2; };
-		EACF268C1A58C9680052E95A /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dados; path = ../dados; sourceTree = "<group>"; };
 		EACF26921A58D0720052E95A /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = native.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		EACF26931A58D0720052E95A /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native.h; sourceTree = "<group>"; };
 		EACF26D51A58D7000052E95A /* boost.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = boost.framework; path = boost/ios/framework/boost.framework; sourceTree = "<group>"; };
@@ -263,6 +264,7 @@
 		EACF26501A58C6DA0052E95A = {
 			isa = PBXGroup;
 			children = (
+				EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */,
 				EACF27BB1A58DBFB0052E95A /* dados */,
 				EACF27BC1A58DBFB0052E95A /* texturas */,
 				EACF27B91A58DB230052E95A /* libz.dylib */,
@@ -297,7 +299,6 @@
 				EACF27161A58D95D0052E95A /* tex */,
 				EACF26921A58D0720052E95A /* native.cpp */,
 				EACF26931A58D0720052E95A /* native.h */,
-				EACF268C1A58C9680052E95A /* dados */,
 				EACF26861A58C77B0052E95A /* GameViewController.mm */,
 				EACF26601A58C6DA0052E95A /* AppDelegate.h */,
 				EACF26611A58C6DA0052E95A /* AppDelegate.m */,
@@ -635,6 +636,7 @@
 			files = (
 				EACF27BD1A58DBFC0052E95A /* dados in Resources */,
 				EACF27BE1A58DBFC0052E95A /* texturas in Resources */,
+				EA06FA2E1A5B858B008ABF75 /* tabuleiros_salvos in Resources */,
 				EACF26711A58C6DA0052E95A /* LaunchScreen.xib in Resources */,
 				EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */,
 				EACF266E1A58C6DA0052E95A /* Images.xcassets in Resources */,
@@ -839,6 +841,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TabuleiroVirtual/boost/ios/framework",
@@ -859,6 +862,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TabuleiroVirtual/boost/ios/framework",
