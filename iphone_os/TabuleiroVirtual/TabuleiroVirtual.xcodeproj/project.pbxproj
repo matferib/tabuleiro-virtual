@@ -100,7 +100,7 @@
 		EACF26761A58C6DA0052E95A /* TabuleiroVirtualTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TabuleiroVirtualTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EACF267B1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF267C1A58C6DA0052E95A /* TabuleiroVirtualTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TabuleiroVirtualTests.m; sourceTree = "<group>"; };
-		EACF26861A58C77B0052E95A /* GameViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; };
+		EACF26861A58C77B0052E95A /* GameViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; tabWidth = 2; };
 		EACF268C1A58C9680052E95A /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dados; path = ../dados; sourceTree = "<group>"; };
 		EACF26921A58D0720052E95A /* native.cpp */ = {isa = PBXFileReference; fileEncoding = 4; indentWidth = 2; lastKnownFileType = sourcecode.cpp.cpp; path = native.cpp; sourceTree = "<group>"; tabWidth = 2; };
 		EACF26931A58D0720052E95A /* native.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = native.h; sourceTree = "<group>"; };
@@ -601,6 +601,7 @@
 				TargetAttributes = {
 					EACF26581A58C6DA0052E95A = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 33D4E88C2X;
 					};
 					EACF26751A58C6DA0052E95A = {
 						CreatedOnToolsVersion = 6.1;

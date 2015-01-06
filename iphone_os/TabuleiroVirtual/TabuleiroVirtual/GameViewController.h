@@ -14,6 +14,7 @@
 {
     float last_scale_;
     float last_rotation_;
+    bool one_finger_;
 }
 
 @end
