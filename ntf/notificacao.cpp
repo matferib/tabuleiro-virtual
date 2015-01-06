@@ -65,6 +65,9 @@ void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
 void CentralNotificacoes::Notifica() {
   // Realiza a copia pq pode haver novas notificacoes durante o loop.
   std::vector<std::unique_ptr<Notificacao>> copia_notificacoes;
+  // Copia receptores caso algum queira se desregistrar.
+  std::vector<Receptor*> copia_receptores(receptores_);
+  std::vector<ReceptorRemoto*> copia_receptores_remotos(receptores_remotos_);
   copia_notificacoes.swap(notificacoes_);
   for (const auto& n : copia_notificacoes) {
     if (n->tipo() != ntf::TN_TEMPORIZADOR) {
@@ -72,7 +75,7 @@ void CentralNotificacoes::Notifica() {
     } else {
       VLOG(2) << "Despachando local: " << n->ShortDebugString();
     }
-    for (auto* r : receptores_) {
+    for (auto* r : copia_receptores) {
       r->TrataNotificacao(*n);
     }
   }
@@ -80,7 +83,7 @@ void CentralNotificacoes::Notifica() {
   copia_notificacoes.swap(notificacoes_remotas_);
   for (const auto& n : copia_notificacoes) {
     VLOG(1) << "Despachando remota: " << n->ShortDebugString();
-    for (auto* r : receptores_remotos_) {
+    for (auto* r : copia_receptores_remotos) {
       r->TrataNotificacaoRemota(*n);
     }
   }

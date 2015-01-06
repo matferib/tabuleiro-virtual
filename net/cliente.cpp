@@ -76,7 +76,7 @@ void Cliente::EnviaDados(const std::string& dados) {
 void Cliente::AutoConecta(const std::string& id) {
   VLOG(1) << "Tentando auto conectar como " << id;
   if (socket_descobrimento_.get() != nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
     n->set_erro("Já há um descobrimento em curso.");
     central_->AdicionaNotificacao(n);
     return;
@@ -86,7 +86,7 @@ void Cliente::AutoConecta(const std::string& id) {
   socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
   if (!socket_descobrimento_->is_open()) {
     socket_descobrimento_.reset();
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
     n->set_erro("Nao consegui abrir socket de auto conexao.");
     central_->AdicionaNotificacao(n);
     return;
@@ -99,7 +99,7 @@ void Cliente::AutoConecta(const std::string& id) {
         //LOG(INFO) << "zerando socket";
         socket_descobrimento_.reset();
         if (erro) {
-          auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+          auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
           n->set_erro("Tempo de espera expirado para autoconexão");
           central_->AdicionaNotificacao(n);
           return;
@@ -121,7 +121,7 @@ void Cliente::AutoConecta(const std::string& id) {
 void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   VLOG(1) << "Tentando conectar como " << id << " em " << endereco_str;
   if (socket_descobrimento_.get() != nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
     n->set_erro("Já há um descobrimento em curso.");
     central_->AdicionaNotificacao(n);
     return;
