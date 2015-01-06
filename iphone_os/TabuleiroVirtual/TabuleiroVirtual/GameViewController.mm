@@ -56,15 +56,19 @@
   view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
   view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
   super.preferredFramesPerSecond = 30;
+  
+  one_finger_ = true;
 
   [self setupGL];
 }
 
 -(void)viewDidAppear:(BOOL)animated
 {
+  CGFloat scale = [[UIScreen mainScreen] scale];
   [super viewDidAppear:animated];
   GLKView *view = (GLKView *)self.view;
-  nativeResize(view.drawableWidth, view.drawableHeight);
+  nativeResize(view.bounds.size.width * scale,
+               view.bounds.size.height * scale);
 }
 
 - (void)viewDidUnload
@@ -93,6 +97,20 @@
   }
 
   // Dispose of any resources that can be recreated.
+}
+
+-(GLfloat)viewHeight
+{
+  GLKView *view = (GLKView *)self.view;
+  CGRect bounds = [view bounds];
+  return bounds.size.height;
+}
+
+-(GLfloat)viewWidth
+{
+  GLKView *view = (GLKView *)self.view;
+  CGRect bounds = [view bounds];
+  return bounds.size.width;
 }
 
 -(void)scale:(id)sender {
@@ -152,57 +170,60 @@
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  CGFloat scale = [[UIScreen mainScreen] scale];
   NSSet* all_touches = [event allTouches];
-  if ([all_touches count] == 1) {
-    UITouch* touch = [touches anyObject];
-    CGPoint point = [touch locationInView:self.view];
-    GLKView *view = (GLKView *)self.view;
-    nativeTouchPressed(
-        ifg::Botao_Esquerdo, false, point.x, view.drawableHeight - point.y);
-  } else if ([all_touches count] == 2) {
-    nativeTouchReleased();
-    // media dos toques
-    CGPoint point = [self touchAvg:all_touches];
-
-    GLKView *view = (GLKView *)self.view;
-    nativeTouchPressed(
-        ifg::Botao_Direito, false, point.x, view.drawableHeight - point.y);
-  }
+  GLKView *view = (GLKView *)self.view;
+  one_finger_ = [all_touches count] == 1;
+  CGPoint point = [self touchAvg:all_touches];
+  nativeTouchPressed(
+      one_finger_ ? ifg::Botao_Esquerdo : ifg::Botao_Direito,
+      false,  // toggle
+      point.x * scale,
+      (view.bounds.size.height - point.y) * scale);
 }
 
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
+  CGFloat scale = [[UIScreen mainScreen] scale];
   NSSet* all_touches = [event allTouches];
-  if ([all_touches count] == 1) {
-    UITouch* touch = [touches anyObject];
-    CGPoint point = [touch locationInView:self.view];
-    GLKView *view = (GLKView *)self.view;
-    nativeTouchMoved(point.x, view.drawableHeight - point.y);
-  } else if ([all_touches count] == 2) {
-    CGPoint point = [self touchAvg:all_touches];
-    GLKView *view = (GLKView *)self.view;
-    nativeTouchMoved(point.x, view.drawableHeight - point.y);
+  GLKView *view = (GLKView *)self.view;
+  CGPoint point = [self touchAvg:all_touches];
+  if (one_finger_ && [all_touches count] == 2) {
+    one_finger_ = false;
+    nativeTouchReleased();
+    nativeTouchPressed(
+        ifg::Botao_Direito,
+        false,
+        point.x * scale,
+        (view.bounds.size.height - point.y) * scale);
+  } else {
+    nativeTouchMoved(point.x * scale,
+                     (view.bounds.size.height - point.y) * scale);
   }
 }
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
   nativeTouchReleased();
+  one_finger_ = true;
 }
 
 - (void)handleTapGesture:(UITapGestureRecognizer *)sender {
+  CGFloat scale = [[UIScreen mainScreen] scale];
   if (sender.state == UIGestureRecognizerStateRecognized) {
     GLKView *view = (GLKView *)self.view;
     CGPoint point = [sender locationInView:view];
-    nativeDoubleClick(point.x, view.drawableHeight - point.y);
+    nativeDoubleClick(point.x * scale,
+                      (view.bounds.size.height - point.y) * scale);
   }
 }
 
 -(void)viewWillLayoutSubviews
 {
+  CGFloat scale = [[UIScreen mainScreen] scale];
   GLKView *view = (GLKView *)self.view;
   CGRect bounds = [view bounds];
-  nativeResize(bounds.size.width, bounds.size.height);
+  nativeResize(bounds.size.width * scale, bounds.size.height * scale);
 }
 
 #pragma mark - GLKView and GLKViewController delegate methods
