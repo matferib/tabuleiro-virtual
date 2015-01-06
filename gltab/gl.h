@@ -102,6 +102,7 @@ void InicioCena();
 #endif
 
 /** Funcoes gerais. */
+inline bool EstaHabilitado(GLenum nome_parametro) { return glIsEnabled(nome_parametro); }
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
@@ -322,6 +323,7 @@ inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
 class DesligaEscritaProfundidadeEscopo {
  public:
   DesligaEscritaProfundidadeEscopo() {
+    // Nao funciona com glIsEnabled.
     Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
     MascaraProfundidade(false);
   }
@@ -344,7 +346,8 @@ class HabilitaEscopo {
 class DesabilitaEscopo {
  public:
   DesabilitaEscopo(GLenum cap) : cap_(cap) {
-    Le(cap, &valor_anterior_);
+    //Le(cap, &valor_anterior_);
+    valor_anterior_ = EstaHabilitado(cap);
     glDisable(cap_);
   }
   ~DesabilitaEscopo() {
