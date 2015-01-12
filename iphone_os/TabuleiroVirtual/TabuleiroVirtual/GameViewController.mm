@@ -1,11 +1,3 @@
-//
-//  GameViewController.m
-//  TabuleiroVirtual
-//
-//  Created by Matheus Ribeiro on 12/21/14.
-//  Copyright (c) 2014 Matheus Ribeiro. All rights reserved.
-//
-
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
 #import <UIKit/UIKit.h>
@@ -55,7 +47,7 @@
   view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
   view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
   view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
-  super.preferredFramesPerSecond = 30;
+  super.preferredFramesPerSecond = ATUALIZACOES_POR_SEGUNDO;
   
   one_finger_ = true;
 
@@ -184,8 +176,12 @@
 
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-  CGFloat scale = [[UIScreen mainScreen] scale];
   NSSet* all_touches = [event allTouches];
+  if (one_finger_ == false && [all_touches count] == 1) {
+    // Tava usando dois dedos e um soltou.
+    return;
+  }
+  CGFloat scale = [[UIScreen mainScreen] scale];
   GLKView *view = (GLKView *)self.view;
   CGPoint point = [self touchAvg:all_touches];
   if (one_finger_ && [all_touches count] == 2) {
@@ -226,7 +222,26 @@
   nativeResize(bounds.size.width * scale, bounds.size.height * scale);
 }
 
+#pragma mark - Keyboard events
+-(void)luz
+{
+  nativeKeyboardLuz();
+}
+
 #pragma mark - GLKView and GLKViewController delegate methods
+
+-(NSArray*)keyCommands
+{
+  UIKeyCommand* comando_l = [UIKeyCommand keyCommandWithInput:@"l"
+                                          modifierFlags:0
+                                          action:@selector(luz)];
+  return [[NSMutableArray alloc] initWithArray:@[comando_l]];
+}
+
+-(BOOL)canBecomeFirstResponder
+{
+  return YES;
+}
 
 - (void)update
 {

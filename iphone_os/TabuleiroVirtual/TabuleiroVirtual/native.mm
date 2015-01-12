@@ -1,3 +1,7 @@
+#import <UIKit/UIKit.h>
+
+#include "native.h"
+
 #include <memory>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -121,4 +125,28 @@ void nativeTouchReleased() {
 void nativeDoubleClick(int x, int y) {
   g_teclado_mouse->TrataDuploCliqueMouse(ifg::Botao_Esquerdo, 0, x, y);
 }
+
+// Teclado
+void nativeKeyboardLuz() {
+  g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_L, ifg::modificadores_e(0));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -1,8 +1,10 @@
 #ifndef NATIVE_H
 #define NATIVE_H
 
+#import <Foundation/Foundation.h>
 #undef TYPE_BOOL
 #include "ifg/tecladomouse.h"
+#include "ent/constantes.h"
 
 void nativeCreate();
 void nativeDestroy();
@@ -15,5 +17,8 @@ void nativeTouchReleased();
 void nativeDoubleClick(int x, int y);
 void nativeScale(float scale);
 void nativeRotate(float rad);
+
+// Teclado.
+void nativeKeyboardLuz();
 
 #endif
