@@ -88,6 +88,11 @@ const int CONTROLE_ADICIONA_10 = 6;
 const int CONTROLE_CONFIRMA_DANO = 7;
 const int CONTROLE_APAGA_DANO = 8;
 const int CONTROLE_ALTERNA_CURA = 9;
+const int CONTROLE_DESFAZER = 10;
+const int CONTROLE_VOO = 11;
+const int CONTROLE_VISIBILIDADE = 12;
+const int CONTROLE_QUEDA = 13;
+const int CONTROLE_LUZ = 14;
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
@@ -829,11 +834,33 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
       std::unique_ptr<ntf::Notificacao> n(SerializaEntidadesSelecionaveis());
-      // TODO
+      try {
+        boost::filesystem::path caminho(notificacao.endereco());
+        arq::EscreveArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), *n);
+        auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
+        ninfo->set_erro("Entidades selecionáveis salvas");
+        central_->AdicionaNotificacao(ninfo);
+      } catch (const std::logic_error& e) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+        n->set_erro(e.what());
+        central_->AdicionaNotificacao(n);
+      }
       return true;
     }
     case ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS: {
-      DeserializaEntidadesSelecionaveis(notificacao);
+      try {
+        boost::filesystem::path caminho(notificacao.endereco());
+        ntf::Notificacao n;
+        arq::LeArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), &n);
+        DeserializaEntidadesSelecionaveis(n);
+        auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
+        ninfo->set_erro("Entidades selecionáveis restauradas");
+        central_->AdicionaNotificacao(ninfo);
+      } catch (const std::logic_error& e) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+        n->set_erro(e.what());
+        central_->AdicionaNotificacao(n);
+      }
       return true;
     }
     case ntf::TN_ATUALIZAR_OPCOES: {
@@ -2609,6 +2636,21 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case CONTROLE_ALTERNA_CURA:
         AlternaUltimoPontoVidaListaPontosVida();
         break;
+      case CONTROLE_LUZ:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
+        break;
+      case CONTROLE_QUEDA:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
+        break;
+      case CONTROLE_VOO:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
+        break;
+      case CONTROLE_VISIBILIDADE:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+        break;
+      case CONTROLE_DESFAZER:
+        TrataComandoDesfazer();
+        break;
       default:
         LOG(WARNING) << "Controle invalido: " << id;
     }
@@ -3135,12 +3177,29 @@ ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
 }
 
 void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto& e : n.tabuleiro().entidade()) {
     if (e.selecionavel_para_jogador()) {
-      ntf::Notificacao n_adicao;
-      n_adicao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-      n_adicao.mutable_entidade()->CopyFrom(e);
-      AdicionaEntidadeNotificando(n_adicao);
+      ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
+      n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n_adicao->mutable_entidade()->CopyFrom(e);
+    }
+  }
+  // Hack para entidades aparecerem visiveis e selecionaveis.
+  bool modo_mestre_anterior = modo_mestre_;
+  modo_mestre_ = false;
+  TrataNotificacao(grupo_notificacoes);
+  modo_mestre_ = modo_mestre_anterior;
+  // Para desfazer
+  {
+    if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
+      for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+        grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+      }
+      AdicionaNotificacaoListaEventos(grupo_notificacoes);
+    } else {
+      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
 }
@@ -3782,10 +3841,11 @@ void Tabuleiro::DesenhaControleVirtual() {
     int coluna;   // Em qual coluna esta a esquerda do botao.
     std::string rotulo;
     const float* cor_rotulo;   // cor do rotulo.
-    int id;
+    int id;  // Identifica o que o botao faz, ver pos_pilha == 4 para cada id.
     bool alternavel;
   };
   std::vector<DadosBotao> dados_botoes = {
+    // Botoes grandes.
     // Acao.
     { 2, 0, 0, "A", nullptr, CONTROLE_ACAO, true },
     // Linha de cima.
@@ -3793,6 +3853,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 1, 2, "<", nullptr, CONTROLE_ACAO_ANTERIOR, false },
     // Alterna acao para frente.
     { 1, 1, 3, ">", nullptr,CONTROLE_ACAO_PROXIMA, false },
+    // Alterna cura.
+    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, CONTROLE_ALTERNA_CURA, false },
     // Linha de baixo
     // Adiciona dano +1.
     { 1, 0, 2, "1", nullptr, CONTROLE_ADICIONA_1, false },
@@ -3801,11 +3863,19 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Adiciona dano +10.
     { 1, 0, 4, "10", nullptr, CONTROLE_ADICIONA_10, false },
     // Confirma dano.
-    { 1, 0, 5, "v", COR_VERDE, CONTROLE_CONFIRMA_DANO, false },
+    { 1, 0, 5, "v", COR_AZUL, CONTROLE_CONFIRMA_DANO, false },
     // Apaga dano.
-    { 1, 0, 6, "x", COR_VERMELHA, CONTROLE_APAGA_DANO, false },
-    // Alterna cura.
-    { 1, 0, 7, "+-", nullptr, CONTROLE_ALTERNA_CURA, false },
+    { 1, 0, 6, "x", nullptr, CONTROLE_APAGA_DANO, false },
+
+    // Status.
+    { 1, 0, 8, "L", COR_AMARELA, CONTROLE_LUZ, false },
+    { 1, 0, 9, "Q", nullptr, CONTROLE_QUEDA, false },
+    { 1, 1, 8, "Vo", nullptr, CONTROLE_VOO, false },
+    { 1, 1, 9, "Vi", nullptr, CONTROLE_VISIBILIDADE, false },
+
+    // Desfazer.
+    { 2, 0, 11, "<=", COR_VERMELHA, CONTROLE_DESFAZER, false },
+
   };
   int fonte_x_int, fonte_y_int;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
