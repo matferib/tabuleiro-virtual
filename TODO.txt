@@ -1,8 +1,10 @@
 Versao 1.8.0
-- Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
+- Mais teclado global.
+- Mais teclado ipad.
+- Acoes de entidade (ao inves de ser global).
 - Contador de rodadas.
+- Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Interface de mouse generico para tablets (suporte a multitap).
-- Salvar e restaurar entidades (parcialmente implementado).
 - Mensagens de erro no android (parcialmente implementado).
 - Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
 - Camera isometrica.

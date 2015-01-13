@@ -20,5 +20,9 @@ void nativeRotate(float rad);
 
 // Teclado.
 void nativeKeyboardLuz();
+void nativeKeyboardCima();
+void nativeKeyboardBaixo();
+void nativeKeyboardEsquerda();
+void nativeKeyboardDireita();
 
 #endif

@@ -503,6 +503,19 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     rotulos_especiais += rotulo_especial + "\n";
   }
   gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
+  // Eventos entidades.
+  lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador] () {
+    gerador.tabela_eventos->insertRow(gerador.tabela_eventos->rowCount());
+  });
+  gerador.tabela_eventos->setRowCount(entidade.evento_size());
+  int linha = 0;
+  for (const auto& evento : entidade.evento()) {
+    auto* item_rodadas = new QTableWidgetItem(tr("%1").arg(evento.rodadas()));
+    gerador.tabela_eventos->setItem(linha, 0, item_rodadas);
+    auto* item_descricao = new QTableWidgetItem(QString::fromStdString(evento.descricao()));
+    gerador.tabela_eventos->setItem(linha, 1, item_descricao);
+    ++linha;
+  }
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -593,11 +606,28 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
-    if (!lista_rotulos.empty()) {
-      for (const auto& rotulo : lista_rotulos) {
-        proto_retornado->add_rotulo_especial(rotulo.toStdString());
-      }
+    for (const auto& rotulo : lista_rotulos) {
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
+    for (int i = 0; i < gerador.tabela_eventos->rowCount(); ++i) {
+      break;
+      ent::EntidadeProto_Evento evento;
+      gerador.tabela_eventos->setCurrentCell(i, 0);
+      auto* item_rodada = gerador.tabela_eventos->currentItem();
+      bool ok = false;
+      int rodadas = item_rodada->text().toInt(&ok);
+      if (!ok) {
+        LOG(ERROR) << "Numero de rodadas invalido: '" << item_rodada->text().toStdString() << "', ignorando";
+        continue;;
+      }
+      evento.set_rodadas(rodadas);
+
+      gerador.tabela_eventos->setCurrentCell(i, 1);
+      auto* item_descricao = gerador.tabela_eventos->currentItem();
+      evento.set_descricao(item_descricao->text().toStdString());
+      proto_retornado->add_evento()->Swap(&evento);
+    }
+
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {

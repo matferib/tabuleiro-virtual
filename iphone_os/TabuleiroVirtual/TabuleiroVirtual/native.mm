@@ -130,7 +130,18 @@ void nativeDoubleClick(int x, int y) {
 void nativeKeyboardLuz() {
   g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_L, ifg::modificadores_e(0));
 }
-
+void nativeKeyboardCima() {
+  g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_Cima, ifg::modificadores_e(0));
+}
+void nativeKeyboardBaixo() {
+  g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_Baixo, ifg::modificadores_e(0));
+}
+void nativeKeyboardEsquerda() {
+  g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_Esquerda, ifg::modificadores_e(0));
+}
+void nativeKeyboardDireita() {
+  g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_Direita, ifg::modificadores_e(0));
+}
 
 
 

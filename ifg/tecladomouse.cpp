@@ -80,7 +80,10 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         tabuleiro_->LimpaListaPontosVida();
       } else if (teclas_[1] == Tecla_Backspace) {
         tabuleiro_->LimpaUltimoListaPontosVida();
-      } else if (teclas_.size() >= 2) {
+      } else if (teclas_[1] == Tecla_D || teclas_[1] == Tecla_C) {
+        if (teclas_.size() < 2) {
+          break;
+        }
         auto lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
         if (teclas_[1] == Tecla_D) {
           // Inverte o dano.
@@ -89,6 +92,14 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
           }
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
+      } else if (teclas_[1] == Tecla_E) {
+        if (teclas_.size() < 2) {
+          break;
+        }
+        auto rodadas = CalculaDano(teclas_.begin() + 2, teclas_.end());
+        for (const auto& r : rodadas) {
+          tabuleiro_->AdicionaEventoEntidadesSelecionadas(r);
+        }
       }
     }
     break;
@@ -250,6 +261,11 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     //case Tecla_M:
     //  tabuleiro_->AlternaModoMestre();
     //  return;
+    case Tecla_P: {
+      auto* n = ntf::NovaNotificacao(ntf::TN_PASSAR_UMA_RODADA);
+      central_->AdicionaNotificacao(n);
+      return;
+    }
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
         auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
