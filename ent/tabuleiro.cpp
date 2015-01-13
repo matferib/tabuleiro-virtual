@@ -665,6 +665,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AlterarModoMestre(false);
       return true;
     }
+    case ntf::TN_PASSAR_UMA_RODADA: {
+      PassaUmaRodada();
+      break;
+    }
     case ntf::TN_DESCONECTADO: {
       if (ModoMestre()) {
         // cliente desconectado.
@@ -2057,6 +2061,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (modo_mestre_ || entidade->SelecionavelParaJogador()));
+    parametros_desenho_.set_desenha_eventos_entidades(modo_mestre_ || entidade->SelecionavelParaJogador());
     f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
@@ -2354,6 +2359,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_id_acao(false);
   parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -4123,6 +4129,26 @@ void Tabuleiro::AlternaModoDebug() {
   gl::AlternaModoDebug();
 #endif
   modo_debug_ = !modo_debug_;
+}
+
+void Tabuleiro::AdicionaEventoEntidadesSelecionadas(int rodadas) {
+  // TODO rede.
+  if (rodadas <= 0) {
+    return;
+  }
+  for (auto id : ids_entidades_selecionadas_) {
+    Entidade* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      continue;
+    }
+    e->AdicionaEvento(rodadas, "");
+  }
+}
+void Tabuleiro::PassaUmaRodada() {
+  // TODO rede.
+  for (auto& id_entidade : entidades_) {
+    id_entidade.second->PassaUmaRodada();
+  }
 }
 
 void Tabuleiro::AlternaModoAcao() {

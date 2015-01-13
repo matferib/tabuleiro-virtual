@@ -141,6 +141,13 @@ message EntidadeProto {
   optional ResultadoSalvacao proxima_salvacao = 27;
   // A direcao do ultimo impacto sofrido pela entidade.
   optional Posicao direcao_queda = 28;
+  // Evento de entidade. A cada rodada, o contador de rodadas diminuira ate zero.
+  // Ao termino do contador, o tabuleiro sinalizara a entidade.
+  message Evento {
+    optional int32 rodadas = 1;
+    optional string descricao = 2;
+  }
+  repeated Evento evento = 31;
 }
 
 // Alguns estados são mantidos nesta variável.
@@ -215,4 +222,6 @@ message ParametrosDesenho {
   optional bool desenha_rotulo = 32 [default=false];
   // Se verdadeiro, desenha o rotulo especial da entidade.
   optional bool desenha_rotulo_especial = 34 [default=false];
+  // Desenha sinalizacao de eventos.
+  optional bool desenha_eventos_entidades = 35 [default=true];
 }

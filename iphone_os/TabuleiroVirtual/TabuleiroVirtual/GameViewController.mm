@@ -227,6 +227,22 @@
 {
   nativeKeyboardLuz();
 }
+-(void)cima
+{
+  nativeKeyboardCima();
+}
+-(void)baixo
+{
+  nativeKeyboardBaixo();
+}
+-(void)esquerda
+{
+  nativeKeyboardEsquerda();
+}
+-(void)direita
+{
+  nativeKeyboardDireita();
+}
 
 #pragma mark - GLKView and GLKViewController delegate methods
 
@@ -235,7 +251,19 @@
   UIKeyCommand* comando_l = [UIKeyCommand keyCommandWithInput:@"l"
                                           modifierFlags:0
                                           action:@selector(luz)];
-  return [[NSMutableArray alloc] initWithArray:@[comando_l]];
+  UIKeyCommand* comando_up = [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow
+                                           modifierFlags:0
+                                           action:@selector(cima)];
+  UIKeyCommand* comando_left = [UIKeyCommand keyCommandWithInput:UIKeyInputLeftArrow
+                                             modifierFlags:0
+                                             action:@selector(esquerda)];
+  UIKeyCommand* comando_right = [UIKeyCommand keyCommandWithInput:UIKeyInputRightArrow
+                                              modifierFlags:0
+                                              action:@selector(direita)];
+  UIKeyCommand* comando_down = [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow
+                                             modifierFlags:0
+                                             action:@selector(baixo)];
+  return [[NSMutableArray alloc] initWithArray:@[comando_l, comando_up, comando_down, comando_left, comando_right]];
 }
 
 -(BOOL)canBecomeFirstResponder

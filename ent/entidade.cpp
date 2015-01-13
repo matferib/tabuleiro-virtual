@@ -432,7 +432,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_barra_vida()) {
 #if 0
     // Codigo para iluminar barra de vida.
-    gl::AtributoEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+    gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
     // Luz no olho apontando para a barra.
     const Posicao& pos_olho = pd->pos_olho();
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
@@ -446,7 +446,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     {
       gl::MatrizEscopo salva_matriz;
-      gl::Escala(0.2, 0.2, 1.0f);
+      gl::Escala(0.2f, 0.2f, 1.0f);
       MudaCor(COR_VERMELHA);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
@@ -460,6 +460,37 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
+    }
+  }
+
+  if (pd->desenha_eventos_entidades()) {
+    EntidadeProto_Evento* evento = nullptr;
+    for (auto& e : *proto_.mutable_evento()) {
+      if (e.rodadas() == 0) {
+        evento = &e;
+        break;
+      }
+    }
+    if (evento != nullptr) {
+#if 0
+      // Codigo para iluminar barra de vida.
+      gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+      // Luz no olho apontando para a barra.
+      const Posicao& pos_olho = pd->pos_olho();
+      gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
+      const auto& pos = proto_.pos();
+      GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
+      gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+#endif
+      MudaCor(COR_AMARELA);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
+      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::EsferaSolida(0.2f, 4, 2);
+      gl::Translada(0.0f, 0.0f, 0.3f);
+      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
+      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
+      gl::EsferaSolida(0.2f, 4, 2);
     }
   }
 

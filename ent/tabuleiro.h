@@ -304,6 +304,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
+  /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
+  void AdicionaEventoEntidadesSelecionadas(int rodadas);
+  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo. */
+  void PassaUmaRodada();
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
