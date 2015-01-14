@@ -1,5 +1,6 @@
 Versao 1.8.0
-- Terminar eventos.
+- Dialogos de erro e info no ipad.
+- Terminar eventos: rede e undo.
 - Mais teclado global.
 - Mais teclado ipad.
 - Acoes de entidade (ao inves de ser global).
