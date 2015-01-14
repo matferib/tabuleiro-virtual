@@ -26,7 +26,6 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QSlider>
 #include <QtGui/QSpinBox>
-#include <QtGui/QTableWidget>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
@@ -98,12 +97,8 @@ public:
     QPlainTextEdit *lista_rotulos;
     QWidget *layoutWidget_2;
     QHBoxLayout *horizontalLayout_19;
-    QVBoxLayout *verticalLayout_2;
     QLabel *label_11;
-    QHBoxLayout *horizontalLayout_14;
-    QPushButton *botao_adicionar_evento;
-    QPushButton *botao_remover_evento;
-    QTableWidget *tabela_eventos;
+    QPlainTextEdit *lista_eventos;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -114,7 +109,7 @@ public:
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 750, 341, 32));
+        botoes->setGeometry(QRect(40, 760, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -340,7 +335,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(20, 520, 351, 31));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 520, 351, 80));
         horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -425,52 +420,27 @@ public:
 
         layoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
-        layoutWidget_2->setGeometry(QRect(20, 610, 351, 121));
+        layoutWidget_2->setGeometry(QRect(20, 610, 351, 141));
         horizontalLayout_19 = new QHBoxLayout(layoutWidget_2);
         horizontalLayout_19->setObjectName(QString::fromUtf8("horizontalLayout_19"));
         horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
-        verticalLayout_2 = new QVBoxLayout();
-        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         label_11 = new QLabel(layoutWidget_2);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
         label_11->setSizePolicy(sizePolicy1);
         label_11->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        verticalLayout_2->addWidget(label_11);
+        horizontalLayout_19->addWidget(label_11);
 
-        horizontalLayout_14 = new QHBoxLayout();
-        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
-        botao_adicionar_evento = new QPushButton(layoutWidget_2);
-        botao_adicionar_evento->setObjectName(QString::fromUtf8("botao_adicionar_evento"));
+        lista_eventos = new QPlainTextEdit(layoutWidget_2);
+        lista_eventos->setObjectName(QString::fromUtf8("lista_eventos"));
 
-        horizontalLayout_14->addWidget(botao_adicionar_evento);
-
-        botao_remover_evento = new QPushButton(layoutWidget_2);
-        botao_remover_evento->setObjectName(QString::fromUtf8("botao_remover_evento"));
-
-        horizontalLayout_14->addWidget(botao_remover_evento);
-
-
-        verticalLayout_2->addLayout(horizontalLayout_14);
-
-
-        horizontalLayout_19->addLayout(verticalLayout_2);
-
-        tabela_eventos = new QTableWidget(layoutWidget_2);
-        if (tabela_eventos->columnCount() < 2)
-            tabela_eventos->setColumnCount(2);
-        QTableWidgetItem *__qtablewidgetitem = new QTableWidgetItem();
-        tabela_eventos->setHorizontalHeaderItem(0, __qtablewidgetitem);
-        QTableWidgetItem *__qtablewidgetitem1 = new QTableWidgetItem();
-        tabela_eventos->setHorizontalHeaderItem(1, __qtablewidgetitem1);
-        tabela_eventos->setObjectName(QString::fromUtf8("tabela_eventos"));
-
-        horizontalLayout_19->addWidget(tabela_eventos);
+        horizontalLayout_19->addWidget(lista_eventos);
 
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
+        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);
     } // setupUi
@@ -510,12 +480,9 @@ public:
         label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", 0, QApplication::UnicodeUTF8));
-        botao_adicionar_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
-        botao_remover_evento->setText(QApplication::translate("ifg::qt::DialogoEntidade", "-", 0, QApplication::UnicodeUTF8));
-        QTableWidgetItem *___qtablewidgetitem = tabela_eventos->horizontalHeaderItem(0);
-        ___qtablewidgetitem->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Rodadas", 0, QApplication::UnicodeUTF8));
-        QTableWidgetItem *___qtablewidgetitem1 = tabela_eventos->horizontalHeaderItem(1);
-        ___qtablewidgetitem1->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Descri\303\247\303\243o", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        lista_eventos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cada linha deve conter um evento com formato <descricao:rodadas> sem as <>.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

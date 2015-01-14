@@ -504,18 +504,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   }
   gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
   // Eventos entidades.
-  lambda_connect(gerador.botao_adicionar_evento, SIGNAL(clicked()), [&gerador] () {
-    gerador.tabela_eventos->insertRow(gerador.tabela_eventos->rowCount());
-  });
-  gerador.tabela_eventos->setRowCount(entidade.evento_size());
-  int linha = 0;
+  std::string eventos;
   for (const auto& evento : entidade.evento()) {
-    auto* item_rodadas = new QTableWidgetItem(tr("%1").arg(evento.rodadas()));
-    gerador.tabela_eventos->setItem(linha, 0, item_rodadas);
-    auto* item_descricao = new QTableWidgetItem(QString::fromStdString(evento.descricao()));
-    gerador.tabela_eventos->setItem(linha, 1, item_descricao);
-    ++linha;
+    eventos += evento.descricao() + ": " + std::to_string(evento.rodadas()) + "\n";
   }
+  gerador.lista_eventos->appendPlainText(eventos.c_str());
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -609,22 +602,20 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
-    for (int i = 0; i < gerador.tabela_eventos->rowCount(); ++i) {
-      break;
+    QStringList lista_eventos = gerador.lista_eventos->toPlainText().split("\n", QString::SkipEmptyParts);
+    for (const auto& desc_rodadas : lista_eventos) {
       ent::EntidadeProto_Evento evento;
-      gerador.tabela_eventos->setCurrentCell(i, 0);
-      auto* item_rodada = gerador.tabela_eventos->currentItem();
-      bool ok = false;
-      int rodadas = item_rodada->text().toInt(&ok);
-      if (!ok) {
-        LOG(ERROR) << "Numero de rodadas invalido: '" << item_rodada->text().toStdString() << "', ignorando";
-        continue;;
+      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::SkipEmptyParts);
+      if (desc_rodadas_quebrado.size() != 2) {
+        LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
+        continue;
       }
-      evento.set_rodadas(rodadas);
-
-      gerador.tabela_eventos->setCurrentCell(i, 1);
-      auto* item_descricao = gerador.tabela_eventos->currentItem();
-      evento.set_descricao(item_descricao->text().toStdString());
+      evento.set_descricao(desc_rodadas_quebrado[0].trimmed().toStdString());
+      bool ok = false;
+      evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
+      if (!ok) {
+        continue;
+      }
       proto_retornado->add_evento()->Swap(&evento);
     }
 
