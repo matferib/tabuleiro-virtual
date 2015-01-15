@@ -229,10 +229,12 @@ void TamanhoFonte(int* largura, int* altura);
 void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura);
 #endif
 // Desenha a string str centralizada no ponto do raster.
-void DesenhaString(const std::string& str);
+// Se inverte_vertical for verdadeiro, linhas irao para cima ao inves de ir
+// para baixo.
+void DesenhaString(const std::string& str, bool inverte_vertical = false);
 // Desenha a string str alinhada ao raster.
-void DesenhaStringAlinhadoEsquerda(const std::string& str);
-void DesenhaStringAlinhadoDireita(const std::string& str);
+void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical = false);
+void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte = false);
 
 /** Matriz de olho e perspectiva e picking. */
 #if !USAR_OPENGL_ES
