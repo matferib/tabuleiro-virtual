@@ -29,6 +29,7 @@ class Principal : public QWidget, ntf::Receptor {
   * instanciar o objeto.
   */
   static Principal* Cria(int& argc, char** argv,
+                         ent::Tabuleiro* tabuleiro,
                          ent::Texturas* texturas,
                          ntf::CentralNotificacoes* central);
   ~Principal();
@@ -50,7 +51,8 @@ class Principal : public QWidget, ntf::Receptor {
   void Temporizador();
 
  private:
-  Principal(int& argc, char** argv, ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
+  Principal(int& argc, char** argv, 
+            ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;
@@ -59,7 +61,7 @@ class Principal : public QWidget, ntf::Receptor {
   /** Temporizador. */
   QTimer* q_timer_;
   /** O mundo virtual. */
-  ent::Tabuleiro tabuleiro_;
+  ent::Tabuleiro* tabuleiro_;
   /** barra de menu principal. */
   MenuPrincipal* menu_principal_;
   /** visualizador 3d da aplicacao. */

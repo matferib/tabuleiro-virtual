@@ -12,7 +12,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVariant>
-#include <google/protobuf/text_format.h>
+#include <boost/asio/ip/host_name.hpp>
 
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"
@@ -39,9 +39,9 @@ const char* g_menuitem_strs[] = {
   "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
   // Tabuleiro.
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
-      "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Re&iniciar Câmera", g_fim,
+      "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Salvar &Câmera", "Re&iniciar Câmera", g_fim,
   // Entidades.
-  "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
+  "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", nullptr, "Salvar selecionáveis", "Restaurar selecionáveis", g_fim,
   // Acoes.
   g_fim,
   // Desenho.
@@ -49,15 +49,6 @@ const char* g_menuitem_strs[] = {
   // Sobre
   "&Tabuleiro virtual", g_fim,
 };
-
-// Cria um proto de entidade a partir da string texto.
-ent::EntidadeProto* CriaProto(const std::string& str = "") {
-  auto* ent = new ent::EntidadeProto;
-  if (!google::protobuf::TextFormat::ParseFromString(str, ent)) {
-    LOG(ERROR) << "Falha no parser de modelo, str: " << str;
-  }
-  return ent;
-}
 
 }  // namespace
 
@@ -176,11 +167,7 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
       Modo(MM_MESTRE);
       return true;
     case ntf::TN_RESPOSTA_CONEXAO:
-      if (notificacao.has_erro()) {
-        // Mostra dialogo com mensagem de erro.
-        QMessageBox::information(
-            qobject_cast<QWidget*>(parent()), tr("Erro de Conexão"), tr(notificacao.erro().c_str()));
-      } else {
+      if (notificacao.local() && !notificacao.has_erro()) {
         Modo(MM_JOGADOR);
       }
       return true;
@@ -255,16 +242,28 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
     qd->setModal(true);
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-    auto* le = new QLineEdit();
-    le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
-    ql->addWidget(le);
+    auto* nome_rotulo = new QLabel("Nome do jogador:");
+    auto* nome_le = new QLineEdit();
+    std::string nome_completo(boost::asio::ip::host_name());
+    std::string nome_simples = nome_completo.substr(0, nome_completo.find("."));
+    nome_le->setText(tr(nome_simples.c_str()));
+    ql->addWidget(nome_rotulo);
+    ql->addWidget(nome_le);
+    auto* ip_rotulo = new QLabel("IP:");
+    auto* ip_le = new QLineEdit();
+    ip_le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
+    ql->addWidget(ip_rotulo);
+    ql->addWidget(ip_le);
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, le] {
+    // Botao OK.
+    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
       notificacao = new ntf::Notificacao;
       notificacao->set_tipo(ntf::TN_CONECTAR);
-      notificacao->set_endereco(le->text().toStdString());
+      notificacao->set_id(nome_le->text().toStdString());
+      notificacao->set_endereco(ip_le->text().toStdString());
       qd->accept();
     });
+    // Botao Cancela.
     connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
     ql->addWidget(bb);
     qd->setWindowTitle(tr("Endereço do Servidor"));
@@ -280,6 +279,28 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_ENTIDADES]) {
+    // Abre dialogo de arquivo.
+    QString file_str = QFileDialog::getSaveFileName(
+        qobject_cast<QWidget*>(parent()),
+        tr("Salvar entidades selecionáveis"),
+        tr(DIR_ENTIDADES));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de salvar cancelada.";
+      return;
+    }
+    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS);
+    notificacao->set_endereco(file_str.toStdString());
+  } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES]) {
+    QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+                                                    tr("Abrir entidades selecionáveis"),
+                                                    DIR_ENTIDADES);
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de restaurar cancelada.";
+      return;
+    }
+    notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
+    notificacao->set_endereco(file_str.toStdString());
   }
   // Tabuleiro.
   else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
@@ -319,6 +340,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_CAMERA]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_SALVAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_OPCOES]) {
@@ -348,7 +371,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 1.5.0\n"
+        tr("Tabuleiro virtual versão 1.7.4\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
   }

@@ -6,7 +6,11 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.os.Message;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -28,18 +32,27 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
-public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
+public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener,
+                                                           View.OnSystemUiVisibilityChangeListener {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    Log.d("TabuleiroActivity", "onCreate");
     super.onCreate(savedInstanceState);
     view_ = new TabuleiroSurfaceView(this);
+    view_.setOnFocusChangeListener(this);
+    view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
-    nativeCreate(getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA), getResources().getAssets());
-    getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(this);
+    nativeCreate(
+        getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
+        getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
+        getResources().getAssets());
+    view_.requestFocus();
   }
 
   private void hideUi() {
+    Log.d("TabuleiroActivity", "hideUi");
     if (Build.VERSION.SDK_INT >= 19) {
+      Log.d("TabuleiroActivity", "hideUiInside");
       getWindow().getDecorView().setSystemUiVisibility(
           View.SYSTEM_UI_FLAG_LAYOUT_STABLE
           | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -51,16 +64,22 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
   }
 
   @Override
-  public void onSystemUiVisibilityChange(int visibility) {
-    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
-    if ((visibility & View.SYSTEM_UI_FLAG_FULLSCREEN) != 0) {
+  public void onFocusChange(View v, boolean hasFocus) {
+    Log.d("TabuleiroActivity", "onFocusChanged: " + hasFocus);
+    if (hasFocus) {
       hideUi();
     }
   }
 
   @Override
+  public void onSystemUiVisibilityChange(int visibility) {
+    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
+    hideUi();
+  }
+
+  @Override
   public void onWindowFocusChanged(boolean hasFocus) {
-    Log.d("TabuleiroActivity", "onWindowsFocusChanged");
+    Log.d("TabuleiroActivity", "onWindowsFocusChanged: " + hasFocus);
     super.onWindowFocusChanged(hasFocus);
     if (hasFocus) {
       hideUi();
@@ -69,23 +88,33 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
+    Log.d("TabuleiroActivity", "onConfigurationChanged");
     super.onConfigurationChanged(newConfig);
   }
 
   @Override
+  public void onContentChanged() {
+    Log.d("TabuleiroActivity", "onContentChanged");
+    super.onContentChanged();
+  }
+
+  @Override
   protected void onPause() {
+    Log.d("TabuleiroActivity", "onPause");
     super.onPause();
     view_.onPause();
   }
 
   @Override
   protected void onResume() {
+    Log.d("TabuleiroActivity", "onResume");
     super.onResume();
     view_.onResume();
   }
 
   @Override
   protected void onDestroy() {
+    Log.d("TabuleiroActivity", "onDestroy");
     super.onStop();
     nativeDestroy();
   }
@@ -93,7 +122,7 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
   static {
     System.loadLibrary("tabuleiro");
   }
-  private static native void nativeCreate(String endereco, Object assets);
+  private native void nativeCreate(String nome, String endereco, Object assets);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;
@@ -101,21 +130,20 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
 
 // View do OpenGL.
 class TabuleiroSurfaceView extends GLSurfaceView {
-  public TabuleiroSurfaceView(Context context) {
-    super(context);
-    renderer_ = new TabuleiroRenderer(this, getResources(), OrientacaoPadrao(context));
-    detectorEventos_ = new GestureDetector(context, renderer_);
+  public TabuleiroSurfaceView(Activity activity) {
+    super(activity);
+    renderer_ = new TabuleiroRenderer(activity, this, getResources(), OrientacaoPadrao(activity));
+    detectorEventos_ = new GestureDetector(activity, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEventos_.setIsLongpressEnabled(false);
     detectorPressao_ = new PressureDetector(renderer_);
-    detectorEscala_ = new ScaleGestureDetector(context, renderer_);
+    detectorEscala_ = new ScaleGestureDetector(activity, renderer_);
     detectorEscala_.setQuickScaleEnabled(true);
     detectorRotacao_ = new RotationGestureDetector(renderer_);
     detectorTranslacao_ = new TranslationGestureDetector(renderer_);
     setEGLConfigChooser(8, 8, 8, 8, 16, 1);
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    requestFocus();
     setFocusableInTouchMode(true);
   }
 
@@ -209,7 +237,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    Log.d("TabuleiroRenderer", "onKeyUp: " + keyCode);
+    //Log.d("TabuleiroRenderer", "onKeyUp: " + keyCode);
     return renderer_.onKeyUp(keyCode, event);
   }
 
@@ -267,10 +295,31 @@ class TabuleiroRenderer
 
   public static final String TAG = "TabuleiroRenderer";
 
-  public TabuleiroRenderer(GLSurfaceView parent, Resources resources, int orientacao_padrao) {
+  public TabuleiroRenderer(Activity activity, GLSurfaceView view, Resources resources, int orientacao_padrao) {
     resources_ = resources;
-    parent_ = parent;
+    parent_ = view;
     orientacao_padrao_ = orientacao_padrao;
+    activity_ = activity;
+  }
+
+  /** Manda uma mensagem para a thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
+  public void mensagem(final boolean erro, final String mensagem) {
+    //Log.d(TAG, "mensagem: " + mensagem);
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle(erro ? "Erro" : "Info").setMessage(mensagem);
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            dialog.dismiss();
+          }
+        });
+        AlertDialog caixa = builder.create();
+        caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        caixa.show();
+      }
+    });
   }
 
   @Override
@@ -333,7 +382,7 @@ class TabuleiroRenderer
 
     //Log.d(TAG, "Tam Evento Depois: " + eventosSemMovimentosDuplicados.size());
     for (Evento evento :  eventos) {
-      Log.d(TAG, "Evento: " + evento.toString());
+      //Log.d(TAG, "Evento: " + evento.toString());
       switch (evento.tipo()) {
         case Evento.TRANSLACAO:
           nativeTranslation(evento.x(), evento.y());
@@ -632,7 +681,7 @@ class TabuleiroRenderer
   private static native void nativeInitGl();
   private static native void nativeResize(int w, int h);
   private static native void nativeRender();
-  private static native void nativeTimer();
+  private native void nativeTimer();
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(boolean toggle, int x, int y);
   private static native void nativeTouchMoved(int x, int y);
@@ -646,6 +695,7 @@ class TabuleiroRenderer
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
 
+  private Activity activity_;
   private GLSurfaceView parent_;
   private Vector<Evento> eventos_ = new Vector<Evento>();
   private boolean carregando_ = false;

@@ -66,6 +66,16 @@
       </property>
      </widget>
     </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_mestre_apenas">
+      <property name="toolTip">
+       <string>Se marcado, o tamanho do tabuleiro será computado a partir do tamanho da textura.</string>
+      </property>
+      <property name="text">
+       <string>Mestre Apenas</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_2">

@@ -1,15 +1,24 @@
-Versao 1.5.1
-- Mais letras maiusculas.
-- Desabilitar watchdog em dialogos.
-- Externalizar o tabuleiro da interface, passar como parametro.
-- VBO em entidades.
-
-Versao 1.6.0
+Versao 1.8.0
+- Botao de rodadas no controle virtual.
+- Id de cliente da versao ipad (conferir se esta vindo branco).
+- Dialogos de erro e info no ipad.
+- Mais teclado global.
+- Mais teclado ipad.
+- Acoes de entidade (ao inves de ser global).
 - Contador de rodadas.
-- Mostrar mais detalhes para as unidades: texto livre (para colocar CA, ataque etc).
+- Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
+- Interface de mouse generico para tablets (suporte a multitap).
+- Mensagens de erro no android (parcialmente implementado).
+- Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
+- Camera isometrica.
+- Texturas faltantes.
+- Textura em outras formas.
+
+Versao 1.8.1
+- VBO em entidades.
+- Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
-- Posicionar camera para os jogadores ao abrir tabuleiro.
 - Terminar camada de arquivo para funcionar em diversos dispositivos.
 - Opcao para salvar personagens selecionaveis para jogadores.
 - Pensar em como nao mostrar formas mortas.
@@ -31,7 +40,6 @@ Versao 2.0
 - Outros tipos de acoes (perfurante, concussao).
 - Adicionar mais detalhes as entidades (Ataque, CA, Saves).
 - Sons.
-- Versao IPAD.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
 - Tooltip com mais informacao.

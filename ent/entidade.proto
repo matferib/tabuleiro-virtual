@@ -33,7 +33,8 @@ enum TamanhoEntidade {
 enum ResultadoSalvacao {
   RS_FALHOU = 0;
   RS_MEIO = 1;
-  RS_ANULOU = 2;
+  RS_QUARTO = 2;
+  RS_ANULOU = 3;
 }
 
 message Posicao {
@@ -94,6 +95,9 @@ message EntidadeProto {
   optional string dados_vida = 19;
   // Para os jogadores poderem se identificar.
   optional string rotulo = 20;
+  // Informacoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
+  // Algumas informacoes serao concatenadas ao valor do campo.
+  repeated string rotulo_especial = 30;
   // Os varios tamanhos de uma entidade no tabuleiro. */
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.
@@ -137,6 +141,13 @@ message EntidadeProto {
   optional ResultadoSalvacao proxima_salvacao = 27;
   // A direcao do ultimo impacto sofrido pela entidade.
   optional Posicao direcao_queda = 28;
+  // Evento de entidade. A cada rodada, o contador de rodadas diminuira ate zero.
+  // Ao termino do contador, o tabuleiro sinalizara a entidade.
+  message Evento {
+    optional int32 rodadas = 1;
+    optional string descricao = 2;
+  }
+  repeated Evento evento = 31;
 }
 
 // Alguns estados são mantidos nesta variável.
@@ -181,8 +192,6 @@ message ParametrosDesenho {
   optional Posicao pos_olho = 17;
   // Desenhar acoes de jogadores.
   optional bool desenha_acoes = 18 [default=true];
-  // Se verdadeiro, desenha a barra de vida da entidade.
-  optional bool desenha_barra_vida = 19 [default=false];
   // Se verdadeiro, desenha a lista de pontos de vida.
   optional bool desenha_lista_pontos_vida = 20 [default=true];
   // Se verdadeiro, desenha o quadrado de selecao.
@@ -203,4 +212,16 @@ message ParametrosDesenho {
   optional bool desenha_id_acao = 30 [default=true];
   // Se verdadeiro, desenha o controle virtual de acoes.
   optional bool desenha_controle_virtual = 31 [default=true];
+  // Se false, os detalhes nao serao desenhados.
+  optional bool desenha_detalhes = 33 [default=true];
+
+  // Opcoes por entidade.
+  // Se verdadeiro, desenha a barra de vida da entidade.
+  optional bool desenha_barra_vida = 19 [default=false];
+  // Se verdadeiro, desenha o rotulo da entidade.
+  optional bool desenha_rotulo = 32 [default=false];
+  // Se verdadeiro, desenha o rotulo especial da entidade.
+  optional bool desenha_rotulo_especial = 34 [default=false];
+  // Desenha sinalizacao de eventos.
+  optional bool desenha_eventos_entidades = 35 [default=true];
 }

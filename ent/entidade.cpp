@@ -291,6 +291,11 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   int pontos_vida_antes = PontosVida();
+  if (proto_parcial.evento_size() > 0) {
+    // Evento eh repeated, merge nao serve.
+    proto_.clear_evento();
+  }
+  // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao.
   proto_.MergeFrom(proto_parcial);
   // Casos especiais.
   auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
@@ -311,7 +316,7 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto_, vd_);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto_, vd_);
   if (!proto_.achatado()) {
     gl::Translada(0.0f, 0.0f, ALTURA);
   }
@@ -337,27 +342,29 @@ float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
 
 void Entidade::MontaMatriz(bool em_voo,
                            bool queda,
+                           bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
                            const ParametrosDesenho* pd,
                            const float* matriz_shear) {
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima());
+  float translacao_z = ZChao(pos.x(), pos.y()) + (transladar_z ? pos.z() + proto.translacao_z() : 0);
+  if (em_voo) {
+    translacao_z += DeltaVoo(vd);
+  }
   if (matriz_shear == nullptr) {
-    gl::Translada(pos.x(), pos.y(), (em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y())) + proto.translacao_z());
-    if (achatar && !proto.has_info_textura()) {
-      // Achata cone.
-      gl::Escala(1.0f, 1.0f, 0.1f);
-    }
+    gl::Translada(pos.x(), pos.y(), translacao_z);
   } else {
     gl::Translada(pos.x(), pos.y(), 0);
     gl::MultiplicaMatriz(matriz_shear);
-    gl::Translada(0, 0, (em_voo ? pos.z() + DeltaVoo(vd) : ZChao(pos.x(), pos.y())) + proto.translacao_z());
-    if (achatar && !proto.has_info_textura()) {
-      // Achata cone.
-      gl::Escala(1.0f, 1.0f, 0.1f);
-    }
+    gl::Translada(0, 0, translacao_z);
   }
+  if (achatar && !proto.has_info_textura()) {
+    // Achata cone.
+    gl::Escala(1.0f, 1.0f, 0.1f);
+  }
+
   // So roda entidades nao achatadas.
   if (queda && vd.angulo_disco_queda_graus > 0 && !achatar) {
     // Descomentar essa linha para ajustar a posicao da entidade.
@@ -420,7 +427,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, proto_, vd_, pd);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/, false /*tz*/, proto_, vd_, pd);
     MudaCor(proto_.cor());
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
@@ -429,7 +436,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_barra_vida()) {
 #if 0
     // Codigo para iluminar barra de vida.
-    gl::AtributoEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+    gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
     // Luz no olho apontando para a barra.
     const Posicao& pos_olho = pd->pos_olho();
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
@@ -439,11 +446,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     {
       gl::MatrizEscopo salva_matriz;
-      gl::Escala(0.2, 0.2, 1.0f);
+      gl::Escala(0.2f, 0.2f, 1.0f);
       MudaCor(COR_VERMELHA);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
@@ -460,14 +467,71 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
-  if (pd->desenha_barra_vida() && proto_.has_rotulo()) {
+  if (pd->desenha_eventos_entidades()) {
+    EntidadeProto_Evento* evento = nullptr;
+    for (auto& e : *proto_.mutable_evento()) {
+      if (e.rodadas() == 0) {
+        evento = &e;
+        break;
+      }
+    }
+    if (evento != nullptr) {
+#if 0
+      // Codigo para iluminar barra de vida.
+      gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+      // Luz no olho apontando para a barra.
+      const Posicao& pos_olho = pd->pos_olho();
+      gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
+      const auto& pos = proto_.pos();
+      GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
+      gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+#endif
+      MudaCor(COR_AMARELA);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
+      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::EsferaSolida(0.2f, 4, 2);
+      gl::Translada(0.0f, 0.0f, 0.3f);
+      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
+      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
+      gl::EsferaSolida(0.2f, 4, 2);
+    }
+  }
+
+  if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
-    gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-    MudaCor(COR_BRANCA);
-    gl::DesenhaString(proto_.rotulo());
+    MudaCor(COR_AMARELA);
+    if (pd->desenha_rotulo()) {
+      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+      gl::DesenhaString(proto_.rotulo());
+    }
+    if (pd->desenha_rotulo_especial()) {
+      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+      std::string rotulo;
+      for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
+        rotulo += std::string("\n") + rotulo_especial;
+      }
+      if (proto_.proxima_salvacao() != RS_FALHOU) {
+        rotulo += "\nprox. salv.: ";
+        switch (proto_.proxima_salvacao()) {
+          case RS_MEIO:
+            rotulo += "1/2";
+            break;
+          case RS_QUARTO:
+            rotulo += "1/4";
+            break;
+          case RS_ANULOU:
+            rotulo += "ANULA";
+            break;
+          default:
+            rotulo += "VALOR INVALIDO";
+        }
+      }
+      gl::DesenhaString(rotulo);
+    }
   }
 }
 
@@ -485,10 +549,16 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // So translada para a posicao do objeto.
     gl::Translada(X(), Y(), Z());
   } else {
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/,proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto_, vd_, pd);
   }
-  // Um pouco acima do objeto e ao sul do objeto.
-  gl::Translada(0, -0.2f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+  // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
+  Posicao vetor_camera_objeto;
+  ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
+  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
+
+  // Um para direcao da camera para luz iluminar o proprio objeto.
+  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
     LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;

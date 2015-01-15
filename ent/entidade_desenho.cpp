@@ -11,7 +11,7 @@
 
 namespace ent {
 
-void AjustaCor(const EntidadeProto& proto, ParametrosDesenho* pd) {
+void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
   const auto& cp = proto.cor();
   float cor[4] = { cp.r(), cp.g(), cp.b(), 1.0f };
   if (pd->has_alfa_translucidos()) {
@@ -68,7 +68,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   const auto& pos = proto.pos();
   if (!proto.has_info_textura()) {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto, vd, pd, matriz_shear);
     gl::ConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::Translada(0, 0, ALTURA);
     gl::EsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
@@ -78,7 +78,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/, false  /*tz*/, proto, vd, pd, matriz_shear);
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
     gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
     if (pd->entidade_selecionada()) {
@@ -89,7 +89,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
 
   bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
   gl::MatrizEscopo salva_matriz;
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, proto, vd, pd, matriz_shear);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
@@ -251,15 +251,38 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     }
     break;
     case TF_RETANGULO: {
-      if (matriz_shear != nullptr) {
-        break;
-      }
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       float x = proto.escala().x() / 2.0f;
       float y = proto.escala().y() / 2.0f;
       gl::Normal(0.0f, 0.0f, 1.0f);
-      gl::Retangulo(-x, -y, x, y);
+      const unsigned short indices[] = { 0, 1, 2, 3 };
+      const float vertices[] = {
+        -x, -y,
+        x,  -y,
+        x,  y,
+        -x, y,
+      };
+      const float vertices_texel[] = {
+        0.0f, 1.0f,
+        1.0f, 1.0f,
+        1.0f, 0.0f,
+        0.0f, 0.0f,
+      };
+      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+      if (id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, id_textura);
+        gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+      }
+      gl::PonteiroVertices(2, GL_FLOAT, vertices);
+      gl::PonteiroVerticesTexturas(2, GL_FLOAT, vertices_texel);
+      gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+      gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
+      gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+      gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+      gl::Desabilita(GL_TEXTURE_2D);
     }
     break;
     case TF_ESFERA: {

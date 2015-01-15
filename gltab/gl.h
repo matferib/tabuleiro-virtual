@@ -2,7 +2,17 @@
 #define GLTAB_GL_H
 
 #include <string>
+#if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
+#include <OpenGLES/ES1/gl.h>
+#include <OpenGLES/ES1/glext.h>
+#else
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
+#include <GLES/glplatform.h>
+#endif
+#elif __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
@@ -11,11 +21,6 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
-#elif USAR_OPENGL_ES && !BENCHMARK
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
-#include <GLES/glplatform.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -35,7 +40,7 @@ namespace gl {
 void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
-class Contexto{
+class Contexto {
  public:
   Contexto(int* argcp, char** argv) { IniciaGl(argcp, argv); }
   ~Contexto() { FinalizaGl(); }
@@ -71,38 +76,6 @@ class MatrizEscopo {
   GLenum modo_;
 };
 
-/** Habilita uma caracteristica pelo escopo. Ver glEnable. */
-class HabilitaEscopo {
- public:
-  HabilitaEscopo(GLenum cap) : cap_(cap) { glEnable(cap_); }
-  ~HabilitaEscopo() { glDisable(cap_); }
- private:
-  GLenum cap_;
-};
-
-/** Desabilita uma caracteristica pelo escopo. Ver glDisable. */
-class DesabilitaEscopo {
- public:
-  DesabilitaEscopo(GLenum cap) : cap_(cap) { glDisable(cap_); }
-  ~DesabilitaEscopo() { glEnable(cap_); }
- private:
-  GLenum cap_;
-};
-
-class ModeloLuzEscopo {
- public:
-  ModeloLuzEscopo(const GLfloat* luz) {
-      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
-  }
-  ~ModeloLuzEscopo() {
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-  }
-
- private:
-  GLfloat luz_antes[4];
-};
-
 #if !USAR_OPENGL_ES
 /* glPush/PopAttrib bits */
 enum bits_atributos_e {
@@ -129,8 +102,10 @@ void InicioCena();
 #endif
 
 /** Funcoes gerais. */
+inline bool EstaHabilitado(GLenum nome_parametro) { return glIsEnabled(nome_parametro); }
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
+inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
 inline void Habilita(GLenum cap) { glEnable(cap); }
@@ -152,6 +127,20 @@ inline void DesempilhaAtributo() { glPopAttrib(); }
 inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glViewport(x, y, largura, altura); }
+
+// Funcoes OpenGL 1.2 e acima.
+#if WIN32
+void GeraBuffers(GLsizei n, GLuint* buffers);
+void LigacaoComBuffer(GLenum target, GLuint buffer);
+void ApagaBuffers(GLsizei n, const GLuint* buffers);
+void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
+#else
+inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
+inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
+inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
+inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
+#endif
+
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
@@ -331,11 +320,60 @@ void Limpa(GLbitfield mascara);
 #endif
 
 inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
-class DesligaTesteProfundidadeEscopo {
+class DesligaEscritaProfundidadeEscopo {
  public:
-  DesligaTesteProfundidadeEscopo() { MascaraProfundidade(false); }
-  ~DesligaTesteProfundidadeEscopo() { MascaraProfundidade(true); }
+  DesligaEscritaProfundidadeEscopo() {
+    // Nao funciona com glIsEnabled.
+    Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
+    MascaraProfundidade(false);
+  }
+  ~DesligaEscritaProfundidadeEscopo() { MascaraProfundidade(valor_anterior_); }
+
+ private:
+  GLboolean valor_anterior_;
 };
+
+/** Habilita uma caracteristica pelo escopo. Ver glEnable. */
+class HabilitaEscopo {
+ public:
+  HabilitaEscopo(GLenum cap) : cap_(cap) { glEnable(cap_); }
+  ~HabilitaEscopo() { glDisable(cap_); }
+ private:
+  GLenum cap_;
+};
+
+/** Desabilita uma caracteristica pelo escopo. Ver glDisable. */
+class DesabilitaEscopo {
+ public:
+  DesabilitaEscopo(GLenum cap) : cap_(cap) {
+    //Le(cap, &valor_anterior_);
+    valor_anterior_ = EstaHabilitado(cap);
+    glDisable(cap_);
+  }
+  ~DesabilitaEscopo() {
+    if (valor_anterior_) {
+      glEnable(cap_);
+    }
+  }
+ private:
+  GLenum cap_;
+  GLboolean valor_anterior_;
+};
+
+class ModeloLuzEscopo {
+ public:
+  ModeloLuzEscopo(const GLfloat* luz) {
+      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
+  }
+  ~ModeloLuzEscopo() {
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
+  }
+
+ private:
+  GLfloat luz_antes[4];
+};
+
 
 /** Stencil. */
 inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFunc(func, ref, mascara); }
