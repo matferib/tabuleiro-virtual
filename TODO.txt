@@ -1,4 +1,5 @@
 Versao 1.8.0
+- Clicar para remover eventos.
 - Botao de rodadas no controle virtual.
 - Id de cliente da versao ipad (conferir se esta vindo branco).
 - Dialogos de erro e info no ipad.

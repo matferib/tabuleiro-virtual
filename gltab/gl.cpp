@@ -248,7 +248,7 @@ void CuboSolido(GLfloat tam_lado) {
 namespace {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
-void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
+void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
   GLboolean raster_valido;
   glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &raster_valido);
   if (!raster_valido) {
@@ -289,22 +289,22 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
     for (const char c : str_linha) {
      gl::DesenhaCaractere(c);
     }
-    y -= (altura_fonte + 1);
+    y -= (altura_fonte + 1) * (inverte_vertical ? -1 : 1);
   }
 }
 
 }  // namespace
 
-void DesenhaString(const std::string& str) {
-  DesenhaStringAlinhado(str, 0);
+void DesenhaString(const std::string& str, bool inverte_vertical) {
+  DesenhaStringAlinhado(str, 0, inverte_vertical);
 }
 
-void DesenhaStringAlinhadoEsquerda(const std::string& str) {
-  DesenhaStringAlinhado(str, -1);
+void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical) {
+  DesenhaStringAlinhado(str, -1, inverte_vertical);
 }
 
-void DesenhaStringAlinhadoDireita(const std::string& str) {
-  DesenhaStringAlinhado(str, 1);
+void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical) {
+  DesenhaStringAlinhado(str, 1, inverte_vertical);
 }
 
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
@@ -1411,7 +1411,7 @@ void TamanhoFonte(int* largura, int* altura) {
 namespace {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
-void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
+void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
@@ -1445,22 +1445,22 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
       gl::DesenhaCaractere(c);
       gl::Translada(1.0f, 0.0f, 0.0f);
     }
-    gl::Translada(0.0f, -1.0f, 0.0f);
+    gl::Translada(0.0f, inverte_vertical ? 1.0f : -1.0f, 0.0f);
   }
 }
 
 }  // namespace
 
-void DesenhaString(const std::string& str) {
-  DesenhaStringAlinhado(str, 0);
+void DesenhaString(const std::string& str, bool inverte_vertical) {
+  DesenhaStringAlinhado(str, 0, inverte_vertical);
 }
 
-void DesenhaStringAlinhadoEsquerda(const std::string& str) {
-  DesenhaStringAlinhado(str, -1);
+void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical) {
+  DesenhaStringAlinhado(str, -1, inverte_vertical);
 }
 
-void DesenhaStringAlinhadoDireita(const std::string& str) {
-  DesenhaStringAlinhado(str, 1);
+void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical) {
+  DesenhaStringAlinhado(str, 1, inverte_vertical);
 }
 
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {

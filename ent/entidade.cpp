@@ -468,24 +468,21 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
 
   if (pd->desenha_eventos_entidades()) {
-    EntidadeProto_Evento* evento = nullptr;
+    bool ha_evento = false;
+    std::string descricao;
+    int num_descricoes = 0;
     for (auto& e : *proto_.mutable_evento()) {
       if (e.rodadas() == 0) {
-        evento = &e;
-        break;
+        ha_evento = true;
+        if (!e.descricao().empty()) {
+          descricao += e.descricao() + "\n";
+          ++num_descricoes;
+        }
       }
     }
-    if (evento != nullptr) {
-#if 0
-      // Codigo para iluminar barra de vida.
-      gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
-      // Luz no olho apontando para a barra.
-      const Posicao& pos_olho = pd->pos_olho();
-      gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
-      const auto& pos = proto_.pos();
-      GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
-      gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
-#endif
+    if (ha_evento) {
+      gl::DesabilitaEscopo de(GL_LIGHTING);
+
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
@@ -495,6 +492,14 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
       gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
       gl::EsferaSolida(0.2f, 4, 2);
+      // Descricao.
+      if (!descricao.empty()) {
+        int l, a;
+        gl::TamanhoFonte(&l, &a);
+        gl::Translada(0.0f, 0.0f, 0.4f);
+        gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+        gl::DesenhaString(descricao, true  /*inverte vertical*/);
+      }
     }
   }
 
