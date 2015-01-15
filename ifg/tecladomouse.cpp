@@ -80,7 +80,10 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         tabuleiro_->LimpaListaPontosVida();
       } else if (teclas_[1] == Tecla_Backspace) {
         tabuleiro_->LimpaUltimoListaPontosVida();
-      } else if (teclas_.size() >= 2) {
+      } else if (teclas_[1] == Tecla_D || teclas_[1] == Tecla_C) {
+        if (teclas_.size() < 2) {
+          break;
+        }
         auto lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
         if (teclas_[1] == Tecla_D) {
           // Inverte o dano.
@@ -89,6 +92,14 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
           }
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
+      } else if (teclas_[1] == Tecla_E) {
+        if (teclas_.size() < 2) {
+          break;
+        }
+        auto rodadas = CalculaDano(teclas_.begin() + 2, teclas_.end());
+        for (const auto& r : rodadas) {
+          tabuleiro_->AdicionaEventoEntidadesSelecionadasNotificando(r);
+        }
       }
     }
     break;
@@ -111,6 +122,10 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
       ent::ResultadoSalvacao rs = ent::RS_FALHOU;
       if (teclas_[1] == Tecla_2) {
         rs = ent::RS_MEIO;
+      } else if (teclas_[1] == Tecla_2) {
+        rs = ent::RS_MEIO;
+      } else if (teclas_[1] == Tecla_4) {
+        rs = ent::RS_QUARTO;
       } else if (teclas_[1] == Tecla_0) {
         rs = ent::RS_ANULOU;
       }
@@ -123,6 +138,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
+  VLOG(1) << "Tecla: " << (void*)tecla << ", mod: " << (void*)modificadores;
   if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
     switch (tecla) {
       case Tecla_Esc:
@@ -153,29 +169,42 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_Delete:
       central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE));
       return;
+    case Tecla_AltEsquerdo:
+      tabuleiro_->DetalharTodasEntidades(true);
+      return;
     case Tecla_Cima:
       if (modificadores == Modificador_Shift) {
         tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(0.1f);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       }
       return;
     case Tecla_Baixo:
       if (modificadores == Modificador_Shift) {
         tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(-0.1f);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1.0f);
       }
       return;
     case Tecla_Esquerda:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1);
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -0.1f);
+      } else {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1.0f);
+      }
       return;
     case Tecla_Direita:
-      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1);
+      if (modificadores == Modificador_Shift) {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 0.1f);
+      } else {
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1.0f);
+      }
       return;
     case Tecla_G:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->AgrupaEntidadesSelecionadas();
+      } else if (modificadores == (Modificador_Ctrl | Modificador_Shift)) {
+        tabuleiro_->DesagrupaEntidadesSelecionadas();
       }
       return;
     case Tecla_V:
@@ -229,6 +258,14 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
+    //case Tecla_M:
+    //  tabuleiro_->AlternaModoMestre();
+    //  return;
+    case Tecla_P: {
+      auto* n = ntf::NovaNotificacao(ntf::TN_PASSAR_UMA_RODADA);
+      central_->AdicionaNotificacao(n);
+      return;
+    }
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
         auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
@@ -255,7 +292,13 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->AcaoAnterior();
       return;
     default:
-      LOG(INFO) << "Tecla nao reconhecida: " << tecla;
+      LOG(INFO) << "Tecla nao reconhecida: " << (void*)tecla;
+  }
+}
+
+void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e modificadores) {
+  if (tecla == Tecla_AltEsquerdo) {
+    tabuleiro_->DetalharTodasEntidades(false);
   }
 }
 

@@ -1,8 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'forma.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created by: Qt User Interface Compiler version 4.8.6
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -62,6 +61,7 @@ public:
     QDial *dial_rotacao;
     QDoubleSpinBox *spin_translacao;
     QLabel *label_2;
+    QSpinBox *spin_rotacao;
     QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_visibilidade;
     QWidget *horizontalLayoutWidget_3;
@@ -82,12 +82,17 @@ public:
     QPushButton *botao_luz;
     QGroupBox *groupBox_3;
     QDial *dial_rotacao_y;
+    QSpinBox *spin_rotacao_y;
+    QWidget *horizontalLayoutWidget_5;
+    QHBoxLayout *horizontalLayout_8;
+    QLineEdit *linha_textura;
+    QPushButton *botao_textura;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(428, 560);
+        ifg__qt__DialogoForma->resize(428, 604);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(100, 10, 181, 41));
@@ -107,12 +112,12 @@ public:
 
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 500, 341, 32));
+        botoes->setGeometry(QRect(40, 550, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(190, 300, 221, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(190, 350, 221, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -139,7 +144,7 @@ public:
 
         groupBox = new QGroupBox(ifg__qt__DialogoForma);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(20, 290, 161, 141));
+        groupBox->setGeometry(QRect(20, 340, 161, 141));
         verticalLayoutWidget = new QWidget(groupBox);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(0, 20, 160, 121));
@@ -205,7 +210,7 @@ public:
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(20, 110, 271, 101));
+        groupBox_2->setGeometry(QRect(20, 110, 271, 131));
         dial_rotacao = new QDial(groupBox_2);
         dial_rotacao->setObjectName(QString::fromUtf8("dial_rotacao"));
         dial_rotacao->setGeometry(QRect(10, 20, 71, 71));
@@ -228,13 +233,17 @@ public:
         label_2 = new QLabel(groupBox_2);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(100, 40, 111, 16));
+        spin_rotacao = new QSpinBox(groupBox_2);
+        spin_rotacao->setObjectName(QString::fromUtf8("spin_rotacao"));
+        spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
+        spin_rotacao->setMaximum(360);
         checkbox_selecionavel = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
-        checkbox_selecionavel->setGeometry(QRect(200, 430, 177, 20));
+        checkbox_selecionavel->setGeometry(QRect(200, 480, 177, 20));
         checkbox_visibilidade = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
         checkbox_visibilidade->setEnabled(true);
-        checkbox_visibilidade->setGeometry(QRect(200, 460, 201, 20));
+        checkbox_visibilidade->setGeometry(QRect(200, 510, 201, 20));
         QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
         sizePolicy1.setHorizontalStretch(0);
         sizePolicy1.setVerticalStretch(0);
@@ -242,7 +251,7 @@ public:
         checkbox_visibilidade->setSizePolicy(sizePolicy1);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(190, 340, 221, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(190, 390, 221, 41));
         horizontalLayout_9 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -312,7 +321,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(190, 380, 221, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(190, 430, 221, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -330,7 +339,7 @@ public:
 
         groupBox_3 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(300, 110, 111, 101));
+        groupBox_3->setGeometry(QRect(300, 110, 111, 141));
         dial_rotacao_y = new QDial(groupBox_3);
         dial_rotacao_y->setObjectName(QString::fromUtf8("dial_rotacao_y"));
         dial_rotacao_y->setGeometry(QRect(20, 20, 71, 71));
@@ -344,6 +353,28 @@ public:
         dial_rotacao_y->setWrapping(true);
         dial_rotacao_y->setNotchTarget(45);
         dial_rotacao_y->setNotchesVisible(true);
+        spin_rotacao_y = new QSpinBox(groupBox_3);
+        spin_rotacao_y->setObjectName(QString::fromUtf8("spin_rotacao_y"));
+        spin_rotacao_y->setGeometry(QRect(30, 100, 51, 24));
+        spin_rotacao_y->setMinimum(-180);
+        spin_rotacao_y->setMaximum(180);
+        horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoForma);
+        horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
+        horizontalLayoutWidget_5->setGeometry(QRect(30, 270, 361, 41));
+        horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_5);
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
+        linha_textura = new QLineEdit(horizontalLayoutWidget_5);
+        linha_textura->setObjectName(QString::fromUtf8("linha_textura"));
+        linha_textura->setReadOnly(false);
+
+        horizontalLayout_8->addWidget(linha_textura);
+
+        botao_textura = new QPushButton(horizontalLayoutWidget_5);
+        botao_textura->setObjectName(QString::fromUtf8("botao_textura"));
+
+        horizontalLayout_8->addWidget(botao_textura);
+
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -376,8 +407,10 @@ public:
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em Y", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0, QApplication::UnicodeUTF8));
+        dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
+        botao_textura->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Textura", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

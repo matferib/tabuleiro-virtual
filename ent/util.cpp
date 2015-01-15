@@ -199,7 +199,7 @@ void DesenhaStencil(const float* cor) {
         MudaCorAlfa(cor);
       }
       //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-      gl::DesligaTesteProfundidadeEscopo desliga_teste_profundidade_escopo;
+      gl::DesligaEscritaProfundidadeEscopo desliga_teste_profundidade_escopo;
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda).
       // Operacoes de picking nao devem usar stencil.
       gl::Retangulo(0.0f, 0.0f, largura, altura);
@@ -331,7 +331,7 @@ int GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
   int res = 0;
   for (const auto& mds : vetor_mds) {
-    mds.Imprime();
+    //mds.Imprime();
     for (unsigned int i = 0; i < mds.mult; ++i) {
       res += RolaDado(mds.dado);
     }

@@ -7,12 +7,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>411</width>
-    <height>510</height>
+    <width>395</width>
+    <height>813</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Propriedades da Entidade</string>
+  </property>
+  <property name="toolTip">
+   <string>Visível apenas para o mestre e, caso a entidade seja selecionável, para os jogadores.</string>
   </property>
   <property name="styleSheet">
    <string notr="true"/>
@@ -24,7 +27,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>440</y>
+     <y>760</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -66,7 +69,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>260</y>
+     <y>390</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -105,7 +108,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>300</y>
+     <y>430</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -137,7 +140,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>100</y>
+     <y>230</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -207,7 +210,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>340</y>
+     <y>470</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -236,7 +239,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>180</y>
+     <y>310</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -272,7 +275,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>140</y>
+     <y>270</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -340,7 +343,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>220</y>
+     <y>350</y>
      <width>361</width>
      <height>39</height>
     </rect>
@@ -383,9 +386,9 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>390</y>
+     <y>520</y>
      <width>351</width>
-     <height>31</height>
+     <height>80</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_13">
@@ -414,18 +417,67 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget_9">
+  <widget class="QWidget" name="horizontalLayoutWidget_10">
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>60</y>
-     <width>361</width>
-     <height>41</height>
+     <y>570</y>
+     <width>351</width>
+     <height>31</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_14">
+   <layout class="QHBoxLayout" name="horizontalLayout_16">
+    <item>
+     <widget class="QLabel" name="label_9">
+      <property name="text">
+       <string>Próxima Salvação</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="combo_salvacao">
+      <item>
+       <property name="text">
+        <string>Falha</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Meio Dano</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Um Quarto de Dano</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Dano Anulado</string>
+       </property>
+      </item>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="verticalLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>70</y>
+     <width>361</width>
+     <height>161</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_15">
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_17"/>
+      </item>
       <item>
        <widget class="QLabel" name="label_8">
         <property name="sizePolicy">
@@ -451,27 +503,69 @@
       </item>
      </layout>
     </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_18">
+      <item>
+       <widget class="QLabel" name="label_10">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Rótulos Especial</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="lista_rotulos"/>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>610</y>
+     <width>351</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_19">
+    <item>
+     <widget class="QLabel" name="label_11">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Lista de Eventos</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="lista_eventos">
+      <property name="toolTip">
+       <string>Cada linha deve conter um evento com formato &lt;descricao:rodadas&gt; sem as &lt;&gt;.</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>botoes</sender>
-   <signal>accepted()</signal>
-   <receiver>ifg::qt::DialogoEntidade</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>botoes</sender>
    <signal>rejected()</signal>
@@ -485,6 +579,22 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>botoes</sender>
+   <signal>accepted()</signal>
+   <receiver>ifg::qt::DialogoEntidade</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>210</x>
+     <y>775</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>197</x>
+     <y>406</y>
     </hint>
    </hints>
   </connection>

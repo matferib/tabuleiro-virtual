@@ -30,19 +30,20 @@ using namespace std;
 /////////////
 
 Principal* Principal::Cria(int& argc, char** argv,
-                           ent::Texturas* texturas, ntf::CentralNotificacoes* central) {
+                           ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ntf::CentralNotificacoes* central) {
   auto* q_app = new QApplication(argc, argv);
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-  return new Principal(argc, argv, texturas, central, q_app);
+  return new Principal(argc, argv, tabuleiro, texturas, central, q_app);
 }
 
 Principal::Principal(int& argc, char** argv,
+                     ent::Tabuleiro* tabuleiro,
                      ent::Texturas* texturas,
                      ntf::CentralNotificacoes* central,
                      QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
-      tabuleiro_(texturas, central), menu_principal_(new MenuPrincipal(&tabuleiro_, central, this)),
-      v3d_(new Visualizador3d(&argc, argv, central, &tabuleiro_, this)) {
+      tabuleiro_(tabuleiro), menu_principal_(new MenuPrincipal(tabuleiro, central, this)),
+      v3d_(new Visualizador3d(&argc, argv, central, tabuleiro, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));
 }
@@ -73,11 +74,11 @@ void Principal::Executa() {
 }
 
 void Principal::closeEvent(QCloseEvent *event) {
-  if (tabuleiro_.ModoMestre()) {
+  if (tabuleiro_->ModoMestre()) {
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
     n.set_endereco("ultimo_tabuleiro_automatico.binproto");
-    tabuleiro_.TrataNotificacao(n);
+    tabuleiro_->TrataNotificacao(n);
   }
   event->accept();
 }

@@ -68,6 +68,10 @@ message TabuleiroProto {
   optional Nevoa nevoa = 10;
   // Alguns tabuleiros ja vem com grade desenhada.
   optional bool desenha_grade = 11 [default=true];
+  // Se verdadeiro, apenas o mestre vera a textura do tabuleiro.
+  optional bool textura_mestre_apenas = 13 [default=false];
+  // Quando jogador entra no jogo, a camera aponta inicialmente para ca.
+  optional Olho camera_inicial = 14;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Apenas alguns campos da entidade sao considerados:

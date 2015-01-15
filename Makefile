@@ -24,7 +24,10 @@ windows:
 	scons sistema=win32
 
 apple:
-	scons sistema=apple
+	scons sistema=apple debug=0
+
+apple_debug:
+	scons sistema=apple debug=1
 
 linux_profile:
 	scons gerar_profile=1

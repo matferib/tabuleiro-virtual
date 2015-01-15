@@ -1,8 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created by: Qt User Interface Compiler version 4.8.6
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -15,6 +14,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QDoubleSpinBox>
@@ -22,9 +22,11 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
+#include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
 #include <QtGui/QSlider>
 #include <QtGui/QSpinBox>
+#include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
 namespace ifg {
@@ -80,22 +82,34 @@ public:
     QHBoxLayout *horizontalLayout_13;
     QLabel *label_7;
     QDoubleSpinBox *spin_translacao;
-    QWidget *horizontalLayoutWidget_9;
-    QHBoxLayout *horizontalLayout_14;
+    QWidget *horizontalLayoutWidget_10;
+    QHBoxLayout *horizontalLayout_16;
+    QLabel *label_9;
+    QComboBox *combo_salvacao;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_15;
+    QHBoxLayout *horizontalLayout_17;
     QLabel *label_8;
     QLineEdit *campo_rotulo;
+    QHBoxLayout *horizontalLayout_18;
+    QLabel *label_10;
+    QPlainTextEdit *lista_rotulos;
+    QWidget *layoutWidget_2;
+    QHBoxLayout *horizontalLayout_19;
+    QLabel *label_11;
+    QPlainTextEdit *lista_eventos;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(411, 510);
+        ifg__qt__DialogoEntidade->resize(395, 813);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 440, 341, 32));
+        botoes->setGeometry(QRect(40, 760, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -117,7 +131,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 260, 361, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 390, 361, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -144,7 +158,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(20, 300, 361, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(20, 430, 361, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -162,7 +176,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(20, 100, 361, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(20, 230, 361, 41));
         horizontalLayout_4 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
         horizontalLayout_4->setContentsMargins(0, 0, 0, 0);
@@ -209,7 +223,7 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(20, 340, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(20, 470, 361, 41));
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
@@ -226,7 +240,7 @@ public:
 
         horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
-        horizontalLayoutWidget_7->setGeometry(QRect(20, 180, 361, 41));
+        horizontalLayoutWidget_7->setGeometry(QRect(20, 310, 361, 41));
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_7);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
@@ -248,7 +262,7 @@ public:
 
         horizontalLayoutWidget_8 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
-        horizontalLayoutWidget_8->setGeometry(QRect(20, 140, 361, 41));
+        horizontalLayoutWidget_8->setGeometry(QRect(20, 270, 361, 41));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -289,7 +303,7 @@ public:
 
         layoutWidget = new QWidget(ifg__qt__DialogoEntidade);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(20, 220, 361, 39));
+        layoutWidget->setGeometry(QRect(20, 350, 361, 39));
         horizontalLayout_9 = new QHBoxLayout(layoutWidget);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -321,7 +335,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(20, 390, 351, 31));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 520, 351, 80));
         horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -339,15 +353,37 @@ public:
 
         horizontalLayout_13->addWidget(spin_translacao);
 
-        horizontalLayoutWidget_9 = new QWidget(ifg__qt__DialogoEntidade);
-        horizontalLayoutWidget_9->setObjectName(QString::fromUtf8("horizontalLayoutWidget_9"));
-        horizontalLayoutWidget_9->setGeometry(QRect(20, 60, 361, 41));
-        horizontalLayout_14 = new QHBoxLayout(horizontalLayoutWidget_9);
-        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
-        horizontalLayout_14->setContentsMargins(0, 0, 0, 0);
+        horizontalLayoutWidget_10 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_10->setObjectName(QString::fromUtf8("horizontalLayoutWidget_10"));
+        horizontalLayoutWidget_10->setGeometry(QRect(20, 570, 351, 31));
+        horizontalLayout_16 = new QHBoxLayout(horizontalLayoutWidget_10);
+        horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
+        horizontalLayout_16->setContentsMargins(0, 0, 0, 0);
+        label_9 = new QLabel(horizontalLayoutWidget_10);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+        label_9->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_16->addWidget(label_9);
+
+        combo_salvacao = new QComboBox(horizontalLayoutWidget_10);
+        combo_salvacao->setObjectName(QString::fromUtf8("combo_salvacao"));
+
+        horizontalLayout_16->addWidget(combo_salvacao);
+
+        verticalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
+        verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
+        verticalLayoutWidget->setGeometry(QRect(20, 70, 361, 161));
+        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_15 = new QHBoxLayout();
         horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
-        label_8 = new QLabel(horizontalLayoutWidget_9);
+        horizontalLayout_17 = new QHBoxLayout();
+        horizontalLayout_17->setObjectName(QString::fromUtf8("horizontalLayout_17"));
+
+        horizontalLayout_15->addLayout(horizontalLayout_17);
+
+        label_8 = new QLabel(verticalLayoutWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
         sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
         label_8->setSizePolicy(sizePolicy1);
@@ -355,19 +391,56 @@ public:
 
         horizontalLayout_15->addWidget(label_8);
 
-        campo_rotulo = new QLineEdit(horizontalLayoutWidget_9);
+        campo_rotulo = new QLineEdit(verticalLayoutWidget);
         campo_rotulo->setObjectName(QString::fromUtf8("campo_rotulo"));
         campo_rotulo->setReadOnly(false);
 
         horizontalLayout_15->addWidget(campo_rotulo);
 
 
-        horizontalLayout_14->addLayout(horizontalLayout_15);
+        verticalLayout->addLayout(horizontalLayout_15);
+
+        horizontalLayout_18 = new QHBoxLayout();
+        horizontalLayout_18->setObjectName(QString::fromUtf8("horizontalLayout_18"));
+        label_10 = new QLabel(verticalLayoutWidget);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+        sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
+        label_10->setSizePolicy(sizePolicy1);
+        label_10->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_18->addWidget(label_10);
+
+        lista_rotulos = new QPlainTextEdit(verticalLayoutWidget);
+        lista_rotulos->setObjectName(QString::fromUtf8("lista_rotulos"));
+
+        horizontalLayout_18->addWidget(lista_rotulos);
+
+
+        verticalLayout->addLayout(horizontalLayout_18);
+
+        layoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
+        layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
+        layoutWidget_2->setGeometry(QRect(20, 610, 351, 141));
+        horizontalLayout_19 = new QHBoxLayout(layoutWidget_2);
+        horizontalLayout_19->setObjectName(QString::fromUtf8("horizontalLayout_19"));
+        horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
+        label_11 = new QLabel(layoutWidget_2);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+        sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy1);
+        label_11->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_19->addWidget(label_11);
+
+        lista_eventos = new QPlainTextEdit(layoutWidget_2);
+        lista_eventos->setObjectName(QString::fromUtf8("lista_eventos"));
+
+        horizontalLayout_19->addWidget(lista_eventos);
 
 
         retranslateUi(ifg__qt__DialogoEntidade);
-        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
+        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);
     } // setupUi
@@ -375,6 +448,9 @@ public:
     void retranslateUi(QDialog *ifg__qt__DialogoEntidade)
     {
         ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        ifg__qt__DialogoEntidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel apenas para o mestre e, caso a entidade seja selecion\303\241vel, para os jogadores.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", 0, QApplication::UnicodeUTF8));
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
@@ -393,7 +469,20 @@ public:
         checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o em Z", 0, QApplication::UnicodeUTF8));
+        label_9->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Pr\303\263xima Salva\303\247\303\243o", 0, QApplication::UnicodeUTF8));
+        combo_salvacao->clear();
+        combo_salvacao->insertItems(0, QStringList()
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Falha", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Meio Dano", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Um Quarto de Dano", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Dano Anulado", 0, QApplication::UnicodeUTF8)
+        );
         label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", 0, QApplication::UnicodeUTF8));
+        label_10->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        lista_eventos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cada linha deve conter um evento com formato <descricao:rodadas> sem as <>.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

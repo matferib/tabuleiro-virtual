@@ -49,15 +49,24 @@ LOCAL_SRC_FILES := jni-impl.cpp \
                    tex/texturas.cpp tex/lodepng.cpp \
 									 arq/arquivo.cpp
 
-# Para Nexus 7 e afins com zbuffer de 16 bits.
-#LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES -DZBUFFER_16_BITS
+# Flags de performance.
+LOCAL_ARM_MODE := arm
+LOCAL_ARM_NEON := true
+
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES
+ifneq ($(NEXUS7),)
+	LOCAL_CPPFLAGS += -DZBUFFER_16_BITS
+endif
 LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt boost-filesystem-prebuilt
 LOCAL_LDLIBS := -lGLESv1_CM -llog -landroid
-LOCAL_CPPFLAGS += -frtti -fexceptions
+LOCAL_CPP_FEATURES := rtti exceptions
 
-#LOCAL_CFLAGS := -pg -DPROFILER_LIGADO
-#LOCAL_STATIC_LIBRARIES += android-ndk-profiler
+ifneq ($(PROFILER_LIGADO),)
+	LOCAL_CFLAGS := -pg -DPROFILER_LIGADO
+	LOCAL_STATIC_LIBRARIES += android-ndk-profiler
+endif
 
 include $(BUILD_SHARED_LIBRARY)  # Monta biblioteca dinamica libtabuleiro.so.
-#$(call import-module,android-ndk-profiler)
+ifneq ($(PROFILER_LIGADO),)
+	$(call import-module,android-ndk-profiler)
+endif

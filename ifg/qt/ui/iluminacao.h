@@ -1,8 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'iluminacao.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created by: Qt User Interface Compiler version 4.8.6
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -39,6 +38,7 @@ public:
     QLineEdit *linha_textura;
     QPushButton *botao_textura;
     QCheckBox *checkbox_ladrilho;
+    QCheckBox *checkbox_mestre_apenas;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
     QLabel *label_11;
@@ -103,6 +103,11 @@ public:
         checkbox_ladrilho->setObjectName(QString::fromUtf8("checkbox_ladrilho"));
 
         horizontalLayout->addWidget(checkbox_ladrilho);
+
+        checkbox_mestre_apenas = new QCheckBox(horizontalLayoutWidget);
+        checkbox_mestre_apenas->setObjectName(QString::fromUtf8("checkbox_mestre_apenas"));
+
+        horizontalLayout->addWidget(checkbox_mestre_apenas);
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
@@ -290,6 +295,10 @@ public:
         checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Ladrilho", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_mestre_apenas->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_mestre_apenas->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Mestre Apenas", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Tamanho", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         linha_largura->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "largura", 0, QApplication::UnicodeUTF8));

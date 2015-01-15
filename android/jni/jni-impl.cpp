@@ -26,13 +26,48 @@ namespace {
 // Trata notificacoes tipo TN_ERRO.
 class ReceptorErro : public ntf::Receptor {
  public:
-  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
-    if (notificacao.tipo() == ntf::TN_ERRO) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+  ReceptorErro() {}
+
+  /** O env da thread de desenho eh diferente do da inicializacao. */
+  void setEnvThisz(JNIEnv* env, jobject thisz) { env_ = env; thisz_ = thisz; }
+
+  bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
+    if (notificacao.tipo() != ntf::TN_ERRO && notificacao.tipo() != ntf::TN_INFO) {
       return true;
     }
-    return false;
+    if (notificacao.tipo() == ntf::TN_ERRO) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
+    }
+    if (notificacao.tipo() == ntf::TN_INFO) {
+      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "%s", notificacao.erro().c_str());
+    }
+    if (env_ == nullptr) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "env invalido");
+      return true;
+    }
+    jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroRenderer");
+    if (classe == nullptr) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "classe invalida");
+      return true;
+    }
+    jmethodID metodo = env_->GetMethodID(classe, "mensagem", "(ZLjava/lang/String;)V");
+    if (metodo == nullptr) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "metodo invalido");
+      return true;
+    }
+    jstring msg = env_->NewStringUTF(notificacao.erro().c_str());
+    if (msg == nullptr) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "String de msg nullptr");
+      return true;
+    }
+    env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
+    env_->DeleteLocalRef(msg);
+    return true;
   }
+
+ private:
+  JNIEnv* env_ = nullptr;
+  jobject thisz_ = nullptr;
 };
 
 // Teste
@@ -40,6 +75,7 @@ const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
   AAssetManager* aman = AAssetManager_fromJava(env, assets);
   ntf::Notificacao ntf_tabuleiro;
   AAsset* asset = nullptr;
+  //std::string caminho_asset("tabuleiros_salvos/deck_matheus.binproto");
   std::string caminho_asset("tabuleiros_salvos/castelo.binproto");
   asset = AAssetManager_open(aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
   if (asset == nullptr) {
@@ -68,22 +104,30 @@ std::unique_ptr<tex::Texturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
-std::unique_ptr<ntf::Receptor> g_receptor;
+std::unique_ptr<ReceptorErro> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 
 }  // namespace
 
 extern "C" {
 
-// Nativos de TabuleiroActivity.
-void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(JNIEnv* env, jobject thisz, jstring endereco, jobject assets) {
-  std::string endereco_nativo;
+// Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
+void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
+    JNIEnv* env, jobject thisz, jstring nome, jstring endereco, jobject assets) {
+  std::string nome_nativo;
   {
-    const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
-    endereco_nativo = endereco_nativo_c;
-    env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
+    const char* nome_nativo_c = env->GetStringUTFChars(nome, 0);
+    nome_nativo = nome_nativo_c;
+    env->ReleaseStringUTFChars(nome, nome_nativo_c);
   }
-  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate endereco: %s", endereco_nativo.c_str());
+
+  std::string endereco_nativo;
+  const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
+  endereco_nativo = endereco_nativo_c;
+  env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
+
+  __android_log_print(
+      ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: '%s'", nome_nativo.c_str(), endereco_nativo.c_str());
   arq::Inicializa(env, assets);
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
@@ -104,7 +148,14 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(JNIEnv* env, job
   } catch (...) {
     __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
   }
+  /*{
+    ntf::Notificacao ninfo;
+    ninfo.set_tipo(ntf::TN_INFO);
+    ninfo.set_erro("TESTE");
+    g_receptor->TrataNotificacao(ninfo);
+  }*/
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
+  n->set_id(nome_nativo);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }
@@ -221,6 +272,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, job
 // Timer.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTimer");
+  g_receptor->setEnvThisz(env, thiz);
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();

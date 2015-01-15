@@ -86,6 +86,9 @@ class Entidade {
   /** Retorna as coordenadas do objeto como posicao. */
   const Posicao& Pos() const { return proto_.pos(); }
 
+  /** Adiciona um evento para acontecer em rodadas. */
+  void AdicionaEvento(int rodadas, const std::string& descricao) { proto_.add_evento()->set_rodadas(rodadas); }
+
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();
 
@@ -185,9 +188,11 @@ class Entidade {
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
+  * @param translacao_z se verdadeiro, considera a translacao no eixo z.
   */
   static void MontaMatriz(bool em_voo,
                           bool queda,
+                          bool transladar_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
                           const ParametrosDesenho* pd = nullptr,

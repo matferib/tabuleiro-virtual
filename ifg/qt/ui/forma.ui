@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>428</width>
-    <height>560</height>
+    <height>604</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,7 +43,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>500</y>
+     <y>550</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -59,7 +59,7 @@
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>300</y>
+     <y>350</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -98,7 +98,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>290</y>
+     <y>340</y>
      <width>161</width>
      <height>141</height>
     </rect>
@@ -206,7 +206,7 @@
      <x>20</x>
      <y>110</y>
      <width>271</width>
-     <height>101</height>
+     <height>131</height>
     </rect>
    </property>
    <property name="title">
@@ -287,12 +287,25 @@
      <string>Translação</string>
     </property>
    </widget>
+   <widget class="QSpinBox" name="spin_rotacao">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>100</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="maximum">
+     <number>360</number>
+    </property>
+   </widget>
   </widget>
   <widget class="QCheckBox" name="checkbox_selecionavel">
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>430</y>
+     <y>480</y>
      <width>177</width>
      <height>20</height>
     </rect>
@@ -308,7 +321,7 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>460</y>
+     <y>510</y>
      <width>201</width>
      <height>20</height>
     </rect>
@@ -327,7 +340,7 @@
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>340</y>
+     <y>390</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -437,7 +450,7 @@
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>380</y>
+     <y>430</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -471,7 +484,7 @@
      <x>300</x>
      <y>110</y>
      <width>111</width>
-     <height>101</height>
+     <height>141</height>
     </rect>
    </property>
    <property name="title">
@@ -487,7 +500,7 @@
      </rect>
     </property>
     <property name="toolTip">
-     <string>Rotação do objeto ao redor do eixo Z.</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotação do objeto ao redor do eixo Y.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="minimum">
      <number>0</number>
@@ -520,6 +533,51 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QSpinBox" name="spin_rotacao_y">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>-180</number>
+    </property>
+    <property name="maximum">
+     <number>180</number>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_5">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>270</y>
+     <width>361</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_8">
+    <item>
+     <widget class="QLineEdit" name="linha_textura">
+      <property name="readOnly">
+       <bool>false</bool>
+      </property>
+      <property name="placeholderText">
+       <string>Caminho para textura ou vazio</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="botao_textura">
+      <property name="text">
+       <string>Escolher Textura</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

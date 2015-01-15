@@ -18,6 +18,8 @@ class Watchdog {
 
   // Inicia o watchdog, a partir desse momento ele devera ser refrescado. Caso contrario, funcao sera chamada.
   void Inicia(std::function<void()> funcao);
+  // Reinicia o watchdog usando a funcao previamente definida em inicia.
+  void Reinicia();
 
   // Para o watchdog.
   void Para();
@@ -31,6 +33,7 @@ class Watchdog {
 
   std::unique_ptr<std::thread> thread_;
   std::mutex cond_lock_;
+  std::condition_variable cond_inicio_;
   std::condition_variable cond_fim_;
   // Indica que watchdog foi refrescado.
   bool refrescado_ = false;

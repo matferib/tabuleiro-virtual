@@ -32,6 +32,19 @@ namespace ifg {
 namespace qt {
 namespace {
 
+class DesativadorWatchdogEscopo {
+ public:
+  DesativadorWatchdogEscopo(ent::Tabuleiro* tabuleiro) : tabuleiro_(tabuleiro) {
+    tabuleiro_->DesativaWatchdog();
+  }
+  ~DesativadorWatchdogEscopo() {
+    tabuleiro_->ReativaWatchdog();
+  }
+
+ private:
+  ent::Tabuleiro* tabuleiro_;
+};
+
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -162,7 +175,11 @@ Visualizador3d::~Visualizador3d() {
 
 // reimplementacoes
 void Visualizador3d::initializeGL() {
-  gl::IniciaGl(argcp_, argv_);
+  static bool once = false;
+  if (!once) {
+    once = true;
+    gl::IniciaGl(argcp_, argv_);
+  }
   tabuleiro_->IniciaGL();
 }
 
@@ -185,6 +202,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (!notificacao.has_entidade()) {
         return false;
       }
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* entidade = AbreDialogoEntidade(notificacao);
       if (entidade == nullptr) {
         VLOG(1) << "Alterações descartadas";
@@ -200,6 +218,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // O tabuleiro criara a mensagem completa.
         return false;
       }
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* tabuleiro = AbreDialogoTabuleiro(notificacao);
       if (tabuleiro == nullptr) {
         VLOG(1) << "Alterações de iluminação descartadas";
@@ -215,6 +234,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // O tabuleiro criara a mensagem completa.
         return false;
       }
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       auto* opcoes = AbreDialogoOpcoes(notificacao);
       if (opcoes == nullptr) {
         VLOG(1) << "Alterações de opcoes descartadas";
@@ -226,10 +246,12 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
     case ntf::TN_INFO: {
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::information(this, tr("Informação"), tr(notificacao.erro().c_str()));
       break;
     }
     case ntf::TN_ERRO: {
+      DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
       break;
     }
@@ -244,6 +266,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
   teclado_mouse_.TrataTeclaPressionada(
+      TeclaQtParaTratadorTecladoMouse(event->key()),
+      ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
+  event->accept();
+}
+
+void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
+  teclado_mouse_.TrataTeclaLiberada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
@@ -313,6 +342,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   if (!notificacao.modo_mestre()) {
     gerador.checkbox_selecionavel->setEnabled(false);
   }
+  // Textura do objeto.
+  gerador.linha_textura->setText(entidade.info_textura().id().c_str());
+  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
+      [this, dialogo, &gerador ] () {
+    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de leitura de textura cancelada.";
+      return;
+    }
+    gerador.linha_textura->setText(file_str);
+  });
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -353,10 +393,25 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   // Rotacao em Z.
   gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
+  gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  lambda_connect(gerador.dial_rotacao, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  });
+  lambda_connect(gerador.spin_rotacao, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.dial_rotacao->setValue(gerador.spin_rotacao->value());
+  });
+
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.translacao_z());
   // Rotacao em Y.
   gerador.dial_rotacao_y->setSliderPosition(-entidade.rotacao_y_graus() - 180.0f);
+  gerador.spin_rotacao_y->setValue(entidade.rotacao_y_graus());
+  lambda_connect(gerador.dial_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.spin_rotacao_y->setValue(180 - gerador.dial_rotacao_y->value());
+  });
+  lambda_connect(gerador.spin_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.dial_rotacao_y->setValue(-gerador.spin_rotacao_y->value() - 180);
+  });
 
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());
@@ -388,6 +443,33 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
+    if (!gerador.linha_textura->text().isEmpty()) {
+      if (gerador.linha_textura->text().toStdString() == entidade.info_textura().id()) {
+        // Textura igual a anterior.
+        VLOG(2) << "Textura igual a anterior.";
+        proto_retornado->mutable_info_textura()->set_id(entidade.info_textura().id());
+      } else {
+        VLOG(2) << "Textura diferente da anterior.";
+        QFileInfo info(gerador.linha_textura->text());
+        // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
+        // mesmo nome isso vai falhar.
+        if (info.dir().dirName() != DIR_TEXTURAS) {
+          VLOG(2) << "Textura local, recarregando.";
+          QString id = QString::number(notificacao.tabuleiro().id_cliente());
+          id.append(":");
+          id.append(info.fileName());
+          proto_retornado->mutable_info_textura()->set_id(id.toStdString());
+          // Usa o id para evitar conflito de textura local com texturas globais.
+          // Enviar a textura toda.
+          PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+        } else {
+          proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
+        }
+      }
+      VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
+    } else {
+      proto_retornado->clear_info_textura();
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
@@ -415,6 +497,19 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Rotulo.
   QString rotulo_str;
   gerador.campo_rotulo->setText(entidade.rotulo().c_str());
+  // Rotulos especiais.
+  std::string rotulos_especiais;
+  for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
+    rotulos_especiais += rotulo_especial + "\n";
+  }
+  gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
+  // Eventos entidades.
+  std::string eventos;
+  for (const auto& evento : entidade.evento()) {
+    eventos += evento.descricao() + ": " + std::to_string(evento.rodadas()) + "\n";
+  }
+  gerador.lista_eventos->appendPlainText(eventos.c_str());
+
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -470,7 +565,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Textura do objeto.
   gerador.linha_textura->setText(entidade.info_textura().id().c_str());
   lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
-      [this, dialogo, &gerador, &luz_cor ] () {
+      [this, dialogo, &gerador ] () {
     QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de leitura de textura cancelada.";
@@ -491,6 +586,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.translacao_z());
+
+  // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
+  gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
+
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
@@ -499,6 +598,27 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
+    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    for (const auto& rotulo : lista_rotulos) {
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
+    }
+    QStringList lista_eventos = gerador.lista_eventos->toPlainText().split("\n", QString::SkipEmptyParts);
+    for (const auto& desc_rodadas : lista_eventos) {
+      ent::EntidadeProto_Evento evento;
+      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::KeepEmptyParts);
+      if (desc_rodadas_quebrado.size() != 2) {
+        LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
+        continue;
+      }
+      evento.set_descricao(desc_rodadas_quebrado[0].trimmed().toStdString());
+      bool ok = false;
+      evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
+      if (!ok) {
+        continue;
+      }
+      proto_retornado->add_evento()->Swap(&evento);
+    }
+
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
@@ -551,6 +671,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->clear_translacao_z();
     }
+    proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
@@ -640,6 +761,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
   // grade.
   gerador.checkbox_grade->setCheckState(tab_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
+  // Mestre apenas.
+  gerador.checkbox_mestre_apenas->setCheckState(tab_proto.textura_mestre_apenas() ? Qt::Checked : Qt::Unchecked);
 
   // Tamanho.
   gerador.linha_largura->setText(QString::number(tab_proto.largura()));
@@ -738,6 +861,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     // Grade.
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
+    // Mestre apenas.
+    proto_retornado->set_textura_mestre_apenas(
+        gerador.checkbox_mestre_apenas->checkState() == Qt::Checked ? true : false);
 
     VLOG(1) << "Retornando tabuleiro: " << proto_retornado->ShortDebugString();
     dialogo->accept();
@@ -776,6 +902,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
       opcoes_proto.anti_aliasing() ? Qt::Checked : Qt::Unchecked);
   // grade.
   gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
+  // Controle virtual.
+  gerador.checkbox_controle->setCheckState(opcoes_proto.desenha_controle_virtual() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -799,6 +927,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     }
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_desenha_controle_virtual(
+        gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

@@ -52,7 +52,8 @@ struct Sinalizador {
 };
 
 typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
-typedef std::unordered_set<unsigned int> MapaClientes;
+// Mapa de id_tab-> id net.
+typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste,
 * Y para o norte e Z para alto. Cada unidade corresponde a um metro, portanto os quadrados
@@ -115,7 +116,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza os pontos de vida de uma entidade, notificando clientes. */
   void AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Atualiza parcialmente entidades. Isso significa que apenas os campos presentes na entidade serao atualizados. */
+  /** Atualiza parcialmente entidade dentro da notificacao. Isso significa que apenas os campos presentes na entidade serao atualizados. */
   void AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
@@ -134,6 +135,8 @@ class Tabuleiro : public ntf::Receptor {
   void LimpaUltimoListaPontosVida();
   /** Altera o ultimo valor da lista de pontos de vida. Se nao existir um ultimo valor, cria um novo. */
   void AlteraUltimoPontoVidaListaPontosVida(int delta);
+  /** Alterna o ultimo valor da lista entre cura e dano. */
+  void AlternaUltimoPontoVidaListaPontosVida();
 
   /** desenha o mundo. */
   void Desenha();
@@ -264,12 +267,14 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Agrupa as entidades selecionadas, criado uma so do tipo TE_FORMA, subtipo TF_COMPOSTA. */
   void AgrupaEntidadesSelecionadas();
+
+  /** Desagrupa as entidades selecionadas, criando varias de acordo com os subtipos. */
   void DesagrupaEntidadesSelecionadas();
 
   /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
   * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.
   */
-  void TrataMovimentoEntidadesSelecionadas(bool vertical, int valor);
+  void TrataMovimentoEntidadesSelecionadas(bool vertical, float valor);
 
   /** Trata o movimento de entidades no eixo Z. */
   void TrataTranslacaoZEntidadesSelecionadas(float delta);
@@ -293,6 +298,22 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
   bool ModoMestre() const { return modo_mestre_; }
+  // Debug.
+  void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
+
+  /** Permite ligar/desligar o detalhamento de todas as entidades. */
+  void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
+
+  /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
+  void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
+  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo. */
+  void PassaUmaRodadaNotificando();
+
+  /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
+  void DesativaWatchdog();
+
+  /** Para reativar o watchdog. */
+  void ReativaWatchdog();
 
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
@@ -459,6 +480,9 @@ class Tabuleiro : public ntf::Receptor {
   **/
   ntf::Notificacao* SerializaTabuleiro(const std::string& nome = "");
 
+  /** @return uma notificacao do tipo TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS preenchida. */
+  ntf::Notificacao* SerializaEntidadesSelecionaveis() const;
+
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaPropriedades() const;
 
@@ -477,11 +501,16 @@ class Tabuleiro : public ntf::Receptor {
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
 
+  /** Adiciona as entidades selecionaveis da notificacao ao tabuleiro. */
+  void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);
+
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
   unsigned int GeraIdEntidade(int id_cliente);
 
-  /** @return um id unico de cliente. Lanca excecao se chegar ao limite de clientes. */
-  int GeraIdCliente();
+  /** @return um id unico de tabuleiro para um cliente. Lanca excecao se chegar ao limite de clientes.
+  * Os ids retornados serao de 1 a 15. O id zero eh reservado para o servidor.
+  */
+  int GeraIdTabuleiro();
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
@@ -501,16 +530,19 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
 
-  /** Poe o tabuleiro no modo jogador. */
-  void ModoJogador();
+  /** Poe o tabuleiro no modo mestre se true, modo jogador se false. */
+  void AlterarModoMestre(bool modo);
 
   /** Retorna quais unidades sao afetadas por determinada acao. */
   const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);
 
+  /** Salva a camera inicial. */
+  void SalvaCameraInicial();
+
   /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
   void ReiniciaCamera();
 
-  /** REgera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
+  /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVbo();
 
  private:
@@ -621,7 +653,11 @@ class Tabuleiro : public ntf::Receptor {
   std::list<uint64_t> tempos_renderizacao_;
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
 
+  // Modo de depuracao do tabuleiro.
   bool modo_debug_ = false;
+
+  // Se verdadeiro, todas entidades serao consideradas detalhadas durante o desenho. */
+  bool detalhar_todas_entidades_ = false;
 
   // Controle virtual.
   bool modo_acao_ = false;
