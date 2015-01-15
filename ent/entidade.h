@@ -88,14 +88,6 @@ class Entidade {
 
   /** Adiciona um evento para acontecer em rodadas. */
   void AdicionaEvento(int rodadas, const std::string& descricao) { proto_.add_evento()->set_rodadas(rodadas); }
-  /** Passa uma rodada para a entidade, decrementando todos os contadores de eventos. */
-  void PassaUmaRodada() { 
-    for (auto& e : *proto_.mutable_evento()) {
-      if (e.rodadas() > 0) {
-        e.set_rodadas(e.rodadas() - 1);
-      }
-    }
-  }
 
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();

@@ -98,7 +98,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         }
         auto rodadas = CalculaDano(teclas_.begin() + 2, teclas_.end());
         for (const auto& r : rodadas) {
-          tabuleiro_->AdicionaEventoEntidadesSelecionadas(r);
+          tabuleiro_->AdicionaEventoEntidadesSelecionadasNotificando(r);
         }
       }
     }

@@ -605,7 +605,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     QStringList lista_eventos = gerador.lista_eventos->toPlainText().split("\n", QString::SkipEmptyParts);
     for (const auto& desc_rodadas : lista_eventos) {
       ent::EntidadeProto_Evento evento;
-      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::SkipEmptyParts);
+      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::KeepEmptyParts);
       if (desc_rodadas_quebrado.size() != 2) {
         LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
         continue;

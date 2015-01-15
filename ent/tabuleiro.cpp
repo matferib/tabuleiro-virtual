@@ -666,7 +666,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_PASSAR_UMA_RODADA: {
-      PassaUmaRodada();
+      PassaUmaRodadaNotificando();
       break;
     }
     case ntf::TN_DESCONECTADO: {
@@ -4131,24 +4131,83 @@ void Tabuleiro::AlternaModoDebug() {
   modo_debug_ = !modo_debug_;
 }
 
-void Tabuleiro::AdicionaEventoEntidadesSelecionadas(int rodadas) {
-  // TODO rede.
-  if (rodadas <= 0) {
+void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
+  if (rodadas < 0) {
+    LOG(ERROR) << "Adicionando rodadas < 0";
     return;
   }
-  for (auto id : ids_entidades_selecionadas_) {
-    Entidade* e = BuscaEntidade(id);
-    if (e == nullptr) {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (auto& id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
       continue;
     }
-    e->AdicionaEvento(rodadas, "");
+    // Para desfazer.
+    EntidadeProto proto_antes;
+    proto_antes.set_id(id);
+    proto_antes.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
+    // Proto depois.
+    EntidadeProto proto_depois;
+    proto_depois.set_id(id);
+    proto_depois.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
+    proto_depois.add_evento()->set_rodadas(rodadas);
+
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->mutable_entidade_antes()->Swap(&proto_antes);
+    n->mutable_entidade()->Swap(&proto_depois);
   }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
-void Tabuleiro::PassaUmaRodada() {
-  // TODO rede.
-  for (auto& id_entidade : entidades_) {
-    id_entidade.second->PassaUmaRodada();
+
+void Tabuleiro::PassaUmaRodadaNotificando() {
+  if (!ModoMestre()) {
+    return;
   }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (auto& id_entidade : entidades_) {
+    EntidadeProto proto_antes;
+    EntidadeProto proto_depois;
+    bool havera_mudanca = false;
+    const auto* entidade = id_entidade.second.get();
+    for (const auto& e : entidade->Proto().evento()) {
+      if (e.rodadas() > 0) {
+        havera_mudanca = true;
+      }
+    }
+    if (!havera_mudanca) {
+      continue;
+    }
+    // Desfazer.
+    proto_antes.set_id(id_entidade.first);
+    proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+    // Novo proto.
+    proto_depois.set_id(id_entidade.first);
+    for (const auto& e : entidade->Proto().evento()) {
+      int rodadas = e.rodadas();
+      if (rodadas > 0) {
+        --rodadas;
+      }
+      auto* evento_depois = proto_depois.add_evento();
+      evento_depois->set_rodadas(rodadas);
+      evento_depois->set_descricao(e.descricao());
+    }
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->mutable_entidade_antes()->Swap(&proto_antes);;
+    n->mutable_entidade()->Swap(&proto_depois);;
+  }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AlternaModoAcao() {

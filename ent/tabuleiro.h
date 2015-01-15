@@ -116,7 +116,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza os pontos de vida de uma entidade, notificando clientes. */
   void AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Atualiza parcialmente entidades. Isso significa que apenas os campos presentes na entidade serao atualizados. */
+  /** Atualiza parcialmente entidade dentro da notificacao. Isso significa que apenas os campos presentes na entidade serao atualizados. */
   void AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
@@ -305,9 +305,9 @@ class Tabuleiro : public ntf::Receptor {
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
 
   /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
-  void AdicionaEventoEntidadesSelecionadas(int rodadas);
+  void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
   /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo. */
-  void PassaUmaRodada();
+  void PassaUmaRodadaNotificando();
 
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
