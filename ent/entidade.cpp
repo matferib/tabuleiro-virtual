@@ -291,6 +291,10 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   int pontos_vida_antes = PontosVida();
+  if (proto_parcial.evento_size() > 0) {
+    // Evento eh repeated, merge nao serve.
+    proto_.clear_evento();
+  }
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao.
   proto_.MergeFrom(proto_parcial);
   // Casos especiais.
