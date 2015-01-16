@@ -387,6 +387,12 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
 /** debugging. */
 void AlternaModoDebug();
 
+// Namespace para utilidades internas, nem deveria estar aqui.
+namespace interno {
+// Quebra uma string em varias.
+const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
+}  // namespace internal
+
 }  // namespace gl
 
 
