@@ -152,6 +152,8 @@ message EntidadeProto {
 
 // Alguns estados são mantidos nesta variável.
 message ParametrosDesenho {
+  // Usado para quando estiver em modo picking.
+  optional bool modo_picking = 100;
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
   optional int32 luz_corrente = 1 [default=1];
   // OpenGL permite até 8 luzes simultaneas.

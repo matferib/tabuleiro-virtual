@@ -2359,7 +2359,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_id_acao(false);
   parametros_desenho_.set_desenha_detalhes(false);
-  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_eventos_entidades(true);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -2660,6 +2660,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       default:
         LOG(WARNING) << "Controle invalido: " << id;
     }
+  } else if (pos_pilha == 5) {
+    VLOG(1) << "Picking em evento da entidade " << id;
+    ApagaEventosZeradosDeEntidadeNotificando(id);
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidades();
@@ -4208,6 +4211,38 @@ void Tabuleiro::PassaUmaRodadaNotificando() {
   }
   TrataNotificacao(grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
+  auto* entidade = BuscaEntidade(id);
+  if (entidade == nullptr) {
+    LOG(ERROR) << "Entidade invalida para picking: " << id;
+    return;
+  }
+  EntidadeProto proto_antes;
+  EntidadeProto proto_depois;
+  // Desfazer.
+  proto_antes.set_id(id);
+  proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+  // Novo proto.
+  proto_depois.set_id(id);
+  for (const auto& evento : entidade->Proto().evento()) {
+    int rodadas = evento.rodadas();
+    if (rodadas > 0) {
+      proto_depois.add_evento()->CopyFrom(evento);
+    }
+  }
+  // Hack: se nao tiver nenhum evento mais, cria um dummy para a atualizacao parcial saber que deve mexer nos eventos.
+  if (proto_depois.evento_size() == 0) {
+    proto_depois.add_evento();
+  }
+
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n.mutable_entidade_antes()->Swap(&proto_antes);;
+  n.mutable_entidade()->Swap(&proto_depois);;
+  TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(n);
 }
 
 void Tabuleiro::AlternaModoAcao() {
