@@ -297,6 +297,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao.
   proto_.MergeFrom(proto_parcial);
+  if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
+    // Evento dummy so para limpar eventos.
+    proto_.clear_evento();
+  }
+
   // Casos especiais.
   auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
   if (luz != nullptr && luz->r() == 0 && luz->g() == 0 && luz->b() == 0) {
@@ -481,8 +486,12 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       }
     }
     if (ha_evento) {
+      // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+      gl::NomesEscopo nomes_pontos(0);
+      gl::NomesEscopo nomes_controle(0);
+      gl::NomesEscopo nomes_eventos(0);
+      gl::CarregaNome(Id());
       gl::DesabilitaEscopo de(GL_LIGHTING);
-
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
@@ -492,8 +501,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
       gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
       gl::EsferaSolida(0.2f, 4, 2);
-      // Descricao.
-      if (!descricao.empty()) {
+      // Descricao (so quando nao for picking).
+      if (!pd->has_picking_x() && !descricao.empty()) {
         int l, a;
         gl::TamanhoFonte(&l, &a);
         gl::Translada(0.0f, 0.0f, 0.4f);
