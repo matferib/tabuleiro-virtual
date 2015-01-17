@@ -26,8 +26,14 @@ windows:
 apple:
 	scons sistema=apple debug=0
 
+apple_opengles:
+	scons sistema=apple debug=0 usar_opengl_es=1
+
 apple_debug:
 	scons sistema=apple debug=1
+
+apple_debug_opengles:
+	scons sistema=apple debug=1 usar_opengl_es=1
 
 linux_profile:
 	scons gerar_profile=1

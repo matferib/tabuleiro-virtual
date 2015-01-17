@@ -948,10 +948,10 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
       VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
-      unsigned int pos_pilha = id_mapeado >> 21;
-      VLOG(1) << "Pos pilha: " << pos_pilha;
-      if (pos_pilha == 0 || pos_pilha > 7) {
-        LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
+      unsigned int tipo_objeto = id_mapeado >> 21;
+      VLOG(1) << "Tipo objeto: " << tipo_objeto;
+      if (tipo_objeto > 7) {
+        LOG(ERROR) << "Tipo objeto invalido: " << tipo_objeto;
         return 0;
       }
       auto it = g_contexto->ids.find(id_mapeado);
@@ -963,12 +963,11 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       unsigned int id_original = it->second;
       VLOG(1) << "Id original: " << id_original;
       GLuint* ptr = g_contexto->buffer_selecao;
-      ptr[0] = pos_pilha;
+      ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
       ptr[1] = 0;  // zmin.
       ptr[2] = 0;  // zmax
-      for (unsigned int i = 0; i < pos_pilha; ++i) {
-        ptr[3 + i] = id_original;
-      }
+      ptr[3] = tipo_objeto;
+      ptr[4] = id_original;
       g_contexto->buffer_selecao = nullptr;
       g_contexto->tam_buffer = 0;
       return 1;  // Numero de hits: so pode ser 0 ou 1.
@@ -987,7 +986,7 @@ void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) {
 void IniciaNomes() {
 }
 
-void TipoNome(GLuint id) {
+void EmpilhaNome(GLuint id) {
   if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
@@ -996,7 +995,7 @@ void TipoNome(GLuint id) {
     LOG(ERROR) << "Bit da pilha passou do limite superior.";
     return;
   }
-  ++g_contexto->bit_pilha;
+  g_contexto->bit_pilha = id;
   VLOG(1) << "Empilhando bit pilha: " << g_contexto->bit_pilha;
 }
 
@@ -1023,7 +1022,7 @@ void DesempilhaNome() {
     return;
   }
   VLOG(1) << "Desempilhando bit pilha: " << g_contexto->bit_pilha;
-  --g_contexto->bit_pilha;
+  g_contexto->bit_pilha = 0;
 }
 
 void MudaCor(float r, float g, float b, float a) {
@@ -1086,12 +1085,9 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::Escala(largura_fonte, altura_fonte, 1.0f);
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   for (const std::string& str_linha : str_linhas) {
-    float translacao_x;
-    if (alinhamento < 0) {
-    } else if (alinhamento == 0) {
-      translacao_x = -static_cast<float>(str_linha.size()) / 2.0f;
-    } else {
-      translacao_x = -static_cast<float>(str_linha.size());
+    float translacao_x = -static_cast<float>(str_linha.size());
+    if (alinhamento == 0) {
+      translacao_x /= 2.0f;
     }
     gl::Translada(translacao_x, 0.0f, 0.0f);
     for (const char c : str_linha) {
