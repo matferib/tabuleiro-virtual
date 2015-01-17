@@ -987,7 +987,7 @@ void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) {
 void IniciaNomes() {
 }
 
-void EmpilhaNome(GLuint id) {
+void TipoNome(GLuint id) {
   if (!g_contexto->UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;

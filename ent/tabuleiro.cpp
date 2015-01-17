@@ -1415,7 +1415,7 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
-  if (pos_pilha != POSPILHA_ENTIDADE) {
+  if (pos_pilha != OBJ_ENTIDADE) {
     // Mouse no tabuleiro.
     id_entidade_detalhada_ = Entidade::IdInvalido;
     return;
@@ -1683,15 +1683,15 @@ void Tabuleiro::DesenhaCena() {
   //ceu_.desenha(parametros_desenho_);
 
   // desenha tabuleiro do sul para o norte.
-  gl::NomesEscopo nomes_tabuleiro(0);
-  gl::CarregaNome(0);
-  DesenhaTabuleiro();
-
-  if (parametros_desenho_.desenha_grade() &&
-      opcoes_.desenha_grade() &&
-      (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
-    gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-    DesenhaGrade();
+  {
+    gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
+    DesenhaTabuleiro();
+    if (parametros_desenho_.desenha_grade() &&
+        opcoes_.desenha_grade() &&
+        (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
+      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+      DesenhaGrade();
+    }
   }
 
   // Algumas verificacoes.
@@ -1713,13 +1713,12 @@ void Tabuleiro::DesenhaCena() {
 
   if (modo_mestre_ && parametros_desenho_.desenha_pontos_rolagem()) {
     // Pontos de rolagem na terceira posicao da pilha.
-    gl::NomesEscopo nomes_ent(0);
-    gl::NomesEscopo pontos(0);
+    gl::TipoEscopo pontos(OBJ_ROLAGEM);
     DesenhaPontosRolagem();
   }
 
   if (parametros_desenho_.desenha_entidades()) {
-    gl::NomesEscopo nomes(0);
+    gl::TipoEscopo nomes(OBJ_ENTIDADE);
     // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
     // na hora do picking.
     DesenhaEntidades();
@@ -1773,7 +1772,7 @@ void Tabuleiro::DesenhaCena() {
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
     } else {
-      gl::NomesEscopo nomes(0);
+      gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
       DesenhaEntidadesTranslucidas();
     }
@@ -1794,9 +1793,7 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
-    gl::NomesEscopo nomes_ent(0);
-    gl::NomesEscopo pontos(0);
-    gl::NomesEscopo controle(0);
+    gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
     DesenhaControleVirtual();
   }
 }
@@ -1961,6 +1958,7 @@ void Tabuleiro::RegeraVbo() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
+  gl::CarregaNome(0);
   gl::MatrizEscopo salva_matriz;
   float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
@@ -2367,14 +2365,14 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
-    int x, int y, unsigned int* id, unsigned int* pos_pilha, float* profundidade) {
+    int x, int y, unsigned int* id, unsigned int* tipo_objeto, float* profundidade) {
   GLuint buffer_hits[100] = {0};
   GLuint numero_hits = 0;
   EncontraHits(x, y, &numero_hits, buffer_hits);
   // Cada hit ocupa pelo menos 4 inteiros do buffer. Na pratica, por causa da pilha vao ocupar ate mais.
   if (numero_hits > 25) {
     LOG(WARNING) << "Muitos hits para a posicao, tamanho de buffer de selecao invalido.";
-    *pos_pilha = 0;
+    *tipo_objeto = 0;
     *id = 0;
     return;
   }
@@ -2390,30 +2388,42 @@ void Tabuleiro::BuscaHitMaisProximo(
   GLuint* ptr_hits = buffer_hits;
   // valores do hit mais proximo.
   GLuint menor_z = 0xFFFFFFFF;
-  GLuint pos_pilha_menor = 0;
+  GLuint tipo_objeto_menor = 0;
   GLuint id_menor = 0;
 
   // Busca o hit mais proximo.
   for (GLuint i = 0; i < numero_hits; ++i) {
     GLuint pos_pilha_corrente = *ptr_hits;
-    GLuint z_corrente = *(ptr_hits + 1);
-    // A posicao da pilha minimo eh 1.
-    GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
-    ptr_hits += (3 + (pos_pilha_corrente));
+    ++ptr_hits;
+    if (pos_pilha_corrente != 2) {
+      LOG(ERROR) << "Tamanho da pilha diferente de 2: " << pos_pilha_corrente;
+      *tipo_objeto = 0;
+      *id = 0;
+      return;
+    }
+    GLuint z_corrente = *ptr_hits;
+    ptr_hits += 2;  // pula maximo.
+    // Tipo do objeto do hit.
+    GLuint tipo_corrente = *ptr_hits;
+    ++ptr_hits;
+    // Id do objeto.
+    GLuint id_corrente = *ptr_hits;
+    ++ptr_hits;
+
     if (z_corrente <= menor_z) {
-      VLOG(3) << "pos_pilha_corrente: " << pos_pilha_corrente
+      VLOG(3) << "tipo_corrente: " << tipo_corrente
               << ", z_corrente: " << z_corrente
               << ", id_corrente: " << id_corrente;
       menor_z = z_corrente;
-      pos_pilha_menor = pos_pilha_corrente;
+      tipo_objeto_menor = tipo_corrente;
       id_menor = id_corrente;
     } else {
-      VLOG(3) << "Pulando objeto, pos_pilha_corrente: " << pos_pilha_corrente
+      VLOG(3) << "Pulando objeto, tipo_corrente: " << tipo_corrente
               << ", z_corrente: " << z_corrente
               << ", id_corrente: " << id_corrente;
     }
   }
-  *pos_pilha = pos_pilha_menor;
+  *tipo_objeto = tipo_objeto_menor;
   *id = id_menor;
   float menor_profundidade = 0.0f;
   // Converte profundidade de inteiro para float.
@@ -2424,7 +2434,7 @@ void Tabuleiro::BuscaHitMaisProximo(
     *profundidade = menor_profundidade;
   }
   VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
-          << ", pos_pilha: " << pos_pilha_menor
+          << ", tipo_objeto: " << tipo_objeto_menor 
           << ", id: " << id_menor;
 }
 
@@ -2580,11 +2590,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
-  if (pos_pilha == POSPILHA_TABULEIRO) {
+  if (pos_pilha == OBJ_TABULEIRO) {
     // Tabuleiro.
     // Converte x3d y3d para id quadrado.
     SelecionaQuadrado(IdQuadrado(x3d, y3d));
-  } else if (pos_pilha == POSPILHA_ENTIDADE) {
+  } else if (pos_pilha == OBJ_ENTIDADE) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
@@ -2609,10 +2619,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       }
       estado_ = ETAB_ENTS_PRESSIONADAS;
     }
-  } else if (pos_pilha == POSPILHA_ROLAGEM) {
+  } else if (pos_pilha == OBJ_ROLAGEM) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
     TrataRolagem(static_cast<dir_rolagem_e>(id));
-  } else if (pos_pilha == POSPILHA_CONTROLE_VIRTUAL) {
+  } else if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
     switch (id) {
       case CONTROLE_ACAO:
@@ -2660,7 +2670,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       default:
         LOG(WARNING) << "Controle invalido: " << id;
     }
-  } else if (pos_pilha == POSPILHA_EVENTO_ENTIDADE) {
+  } else if (pos_pilha == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
   } else {
