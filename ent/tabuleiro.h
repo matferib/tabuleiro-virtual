@@ -308,6 +308,8 @@ class Tabuleiro : public ntf::Receptor {
   void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
   /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo. */
   void PassaUmaRodadaNotificando();
+  /** Zera o contador de rodadas do tabuleiro. */
+  void ZeraRodadasNotificando();
   /** Apaga os eventos que estao zerados para a entidade. */
   void ApagaEventosZeradosDeEntidadeNotificando(unsigned int id);
 

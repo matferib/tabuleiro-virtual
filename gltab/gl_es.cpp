@@ -991,7 +991,7 @@ void EmpilhaNome(GLuint id) {
     // So muda no modo de selecao.
     return;
   }
-  if (g_contexto->bit_pilha == 7) {
+  if (id > 7) {
     LOG(ERROR) << "Bit da pilha passou do limite superior.";
     return;
   }
