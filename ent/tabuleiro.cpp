@@ -93,6 +93,7 @@ const int CONTROLE_VOO = 11;
 const int CONTROLE_VISIBILIDADE = 12;
 const int CONTROLE_QUEDA = 13;
 const int CONTROLE_LUZ = 14;
+const int CONTROLE_RODADA = 15;
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
@@ -667,6 +668,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_PASSAR_UMA_RODADA: {
       PassaUmaRodadaNotificando();
+      break;
+    }
+    case ntf::TN_ATUALIZAR_RODADAS: {
+      proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
+      if (notificacao.local()) {
+        auto* nr = ntf::NovaNotificacao(notificacao.tipo());
+        nr->mutable_tabuleiro()->set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
+        central_->AdicionaNotificacaoRemota(nr);
+      }
+
       break;
     }
     case ntf::TN_DESCONECTADO: {
@@ -2665,7 +2676,18 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
         break;
       case CONTROLE_DESFAZER:
-        TrataComandoDesfazer();
+        if (!alterna_selecao) {
+          TrataComandoDesfazer();
+        } else {
+          TrataComandoRefazer();
+        }
+        break;
+      case CONTROLE_RODADA:
+        if (!alterna_selecao) {
+          PassaUmaRodadaNotificando();
+        } else {
+          ZeraRodadasNotificando();
+        }
         break;
       default:
         LOG(WARNING) << "Controle invalido: " << id;
@@ -3489,6 +3511,11 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
       }
       break;
+    case ntf::TN_ATUALIZAR_RODADAS:
+      VLOG(1) << "Invertendo TN_ATUALIZAR_RODADAS";
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_RODADAS);
+      n_inversa.mutable_tabuleiro()->set_contador_rodadas(n_original.tabuleiro_antes().contador_rodadas());
+      break;
     case ntf::TN_ADICIONAR_ENTIDADE:
       if (!n_original.entidade().has_id()) {
         LOG(ERROR) << "Impossivel inverter TN_ADICIONAR_ENTIDADE sem id da entidade.";
@@ -3895,6 +3922,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Desfazer.
     { 2, 0, 11, "<=", COR_VERMELHA, CONTROLE_DESFAZER, false },
 
+    // Contador de rodadas.
+    { 2, 0, 14, std::to_string(proto_.contador_rodadas()), nullptr, CONTROLE_RODADA, false },
   };
   int fonte_x_int, fonte_y_int;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
@@ -4216,11 +4245,25 @@ void Tabuleiro::PassaUmaRodadaNotificando() {
     n->mutable_entidade_antes()->Swap(&proto_antes);;
     n->mutable_entidade()->Swap(&proto_depois);;
   }
-  if (grupo_notificacoes.notificacao_size() == 0) {
-    return;
-  }
+  auto* nr = grupo_notificacoes.add_notificacao();
+  nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
+  nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
+  nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
+
   TrataNotificacao(grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::ZeraRodadasNotificando() {
+  if (!ModoMestre()) {
+    return;
+  }
+  ntf::Notificacao nr;
+  nr.set_tipo(ntf::TN_ATUALIZAR_RODADAS);
+  nr.mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
+  nr.mutable_tabuleiro()->set_contador_rodadas(0);
+  TrataNotificacao(nr);
+  AdicionaNotificacaoListaEventos(nr);
 }
 
 void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {

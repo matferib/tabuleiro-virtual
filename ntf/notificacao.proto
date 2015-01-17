@@ -21,6 +21,7 @@ enum Tipo {
   TN_ATUALIZAR_ENTIDADE = 13;
   TN_ATUALIZAR_PARCIAL_ENTIDADE = 29;
   TN_ATUALIZAR_TABULEIRO = 14;
+  TN_ATUALIZAR_OPCOES = 23;
   TN_TEMPORIZADOR = 16;
   TN_SERIALIZAR_TABULEIRO = 17;
   TN_DESERIALIZAR_TABULEIRO = 18;
@@ -30,14 +31,14 @@ enum Tipo {
   TN_ABRIR_DIALOGO_ENTIDADE = 20;
   TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO = 21;
   TN_ABRIR_DIALOGO_OPCOES = 22;
-  TN_ATUALIZAR_OPCOES = 23;
   TN_CARREGAR_TEXTURA = 24;
   TN_DESCARREGAR_TEXTURA = 25;
   TN_ADICIONAR_ACAO = 26;
   TN_REINICIAR_TABULEIRO = 27;
   TN_REINICIAR_CAMERA = 28;
   TN_SALVAR_CAMERA = 31;
-  TN_PASSAR_UMA_RODADA = 34;
+  TN_PASSAR_UMA_RODADA = 34;  // Modo mestre: atualiza todas as entidades e notifica.
+  TN_ATUALIZAR_RODADAS = 35;  // Notifica clientes sobre atualizacao de rodadas.
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
 }
@@ -60,6 +61,8 @@ message Notificacao {
   optional string endereco = 5;
   // Tabuleiro de jogo.
   optional ent.TabuleiroProto tabuleiro = 6;
+  // Para desfazer.
+  optional ent.TabuleiroProto tabuleiro_antes = 16;
   // Entidade.
   optional ent.EntidadeProto entidade = 7;
   // Para atualizacoes de entidade, guardando o estado anterior a modificacao.

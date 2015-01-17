@@ -1,7 +1,5 @@
 Versao 1.8.0
-- Contador de rodadas no tabuleiro.
-- Botao de rodadas no controle virtual.
-- Id de cliente da versao ipad (conferir se esta vindo branco).
+- Id de cliente da versao ipad (pelo menos id nao vem vazio).
 - Dialogos de erro e info no ipad.
 - Mais teclado global.
 - Mais teclado ipad.
