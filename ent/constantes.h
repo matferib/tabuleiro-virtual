@@ -34,6 +34,13 @@
 // Converte a velocidade por segundo para distancia por atualizacao.
 #define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
 
+// Constantes de pilha do tabuleiro.
+#define POSPILHA_TABULEIRO 1
+#define POSPILHA_ENTIDADE 2
+#define POSPILHA_ROLAGEM 3
+#define POSPILHA_CONTROLE_VIRTUAL 4
+#define POSPILHA_EVENTO_ENTIDADE 5
+
 namespace ent {
 
 extern const float SEN_60;

@@ -1415,7 +1415,7 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
-  if (pos_pilha <= 1) {
+  if (pos_pilha != POSPILHA_ENTIDADE) {
     // Mouse no tabuleiro.
     id_entidade_detalhada_ = Entidade::IdInvalido;
     return;
@@ -2580,11 +2580,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
-  if (pos_pilha == 1) {
+  if (pos_pilha == POSPILHA_TABULEIRO) {
     // Tabuleiro.
     // Converte x3d y3d para id quadrado.
     SelecionaQuadrado(IdQuadrado(x3d, y3d));
-  } else if (pos_pilha == 2) {
+  } else if (pos_pilha == POSPILHA_ENTIDADE) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
@@ -2609,10 +2609,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       }
       estado_ = ETAB_ENTS_PRESSIONADAS;
     }
-  } else if (pos_pilha == 3) {
+  } else if (pos_pilha == POSPILHA_ROLAGEM) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
     TrataRolagem(static_cast<dir_rolagem_e>(id));
-  } else if (pos_pilha == 4) {
+  } else if (pos_pilha == POSPILHA_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
     switch (id) {
       case CONTROLE_ACAO:
@@ -2660,7 +2660,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       default:
         LOG(WARNING) << "Controle invalido: " << id;
     }
-  } else if (pos_pilha == 5) {
+  } else if (pos_pilha == POSPILHA_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
   } else {
