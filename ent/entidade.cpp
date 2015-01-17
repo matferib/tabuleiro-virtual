@@ -487,9 +487,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
     if (ha_evento) {
       // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
-      gl::NomesEscopo nomes_pontos(0);
-      gl::NomesEscopo nomes_controle(0);
-      gl::NomesEscopo nomes_eventos(0);
+      gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
       gl::CarregaNome(Id());
       gl::DesabilitaEscopo de(GL_LIGHTING);
       MudaCor(COR_AMARELA);

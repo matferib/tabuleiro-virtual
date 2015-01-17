@@ -11,15 +11,15 @@
 
 namespace gl {
 
-#if WIN32
 struct ContextoInterno {
  public:
+#if WIN32
   PROC pglGenBuffers;
   PROC pglBindBuffer;
   PROC pglDeleteBuffers;
   PROC pglBufferData;
-} g_contexto;
 #endif
+} g_contexto;
 
 bool ImprimeSeErro() {
   auto erro = glGetError();

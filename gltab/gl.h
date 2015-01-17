@@ -180,11 +180,29 @@ void CarregaNome(GLuint nome);
 void DesempilhaNome();
 #endif
 
-/** Empilha o nome no inicio do escopo e desempilha no final. */
-class NomesEscopo {
+/** Configura o tipo de objeto para o escopo, retornando ao sair. */
+class TipoEscopo {
  public:
-  NomesEscopo(GLuint nome) { EmpilhaNome(nome); }
-  ~NomesEscopo() { DesempilhaNome(); }
+  TipoEscopo(GLuint tipo, GLuint tipo_anterior = -1) {
+    tipo_anterior_ = tipo_anterior;
+    if (tipo_anterior != -1) {
+      DesempilhaNome();
+      DesempilhaNome();
+    }
+    EmpilhaNome(tipo);
+    EmpilhaNome(0);
+  }
+  ~TipoEscopo() {
+    DesempilhaNome();
+    DesempilhaNome();
+    if (tipo_anterior_ != -1) {
+      EmpilhaNome(tipo_anterior_);
+      EmpilhaNome(0);
+    }
+  }
+
+ private:
+  int tipo_anterior_;
 };
 
 /** Funcoes de escala, translacao e rotacao. */
