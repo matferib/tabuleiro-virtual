@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		EA06FA2E1A5B858B008ABF75 /* tabuleiros_salvos in Resources */ = {isa = PBXBuildFile; fileRef = EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */; };
+		EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253D91A6A2B43007EF810 /* gl_es.cpp */; };
+		EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */; };
 		EACF265F1A58C6DA0052E95A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF265E1A58C6DA0052E95A /* main.m */; };
 		EACF26621A58C6DA0052E95A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF26611A58C6DA0052E95A /* AppDelegate.m */; };
 		EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EACF266A1A58C6DA0052E95A /* Main.storyboard */; };
@@ -29,7 +31,6 @@
 		EACF27241A58D95D0052E95A /* tabuleiro.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EACF26FA1A58D95D0052E95A /* tabuleiro.pb.cc */; };
 		EACF27251A58D95D0052E95A /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF26FC1A58D95D0052E95A /* util.cpp */; };
 		EACF27271A58D95D0052E95A /* watchdog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF26FF1A58D95D0052E95A /* watchdog.cpp */; };
-		EACF27281A58D95D0052E95A /* gl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF27021A58D95D0052E95A /* gl.cpp */; };
 		EACF27291A58D95D0052E95A /* gl_char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF27041A58D95D0052E95A /* gl_char.cpp */; };
 		EACF272A1A58D95D0052E95A /* tecladomouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF27061A58D95D0052E95A /* tecladomouse.cpp */; };
 		EACF272B1A58D95D0052E95A /* cliente.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF270B1A58D95D0052E95A /* cliente.cpp */; };
@@ -90,6 +91,8 @@
 
 /* Begin PBXFileReference section */
 		EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tabuleiros_salvos; sourceTree = "<group>"; };
+		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
+		EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_comum.cpp; path = ../../../../gltab/gl_comum.cpp; sourceTree = "<group>"; };
 		EACF26591A58C6DA0052E95A /* TabuleiroVirtual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TabuleiroVirtual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EACF265D1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF265E1A58C6DA0052E95A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -128,7 +131,6 @@
 		EACF26FD1A58D95D0052E95A /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		EACF26FF1A58D95D0052E95A /* watchdog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = watchdog.cpp; sourceTree = "<group>"; };
 		EACF27001A58D95D0052E95A /* watchdog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = watchdog.h; sourceTree = "<group>"; };
-		EACF27021A58D95D0052E95A /* gl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gl.cpp; sourceTree = "<group>"; };
 		EACF27031A58D95D0052E95A /* gl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl.h; sourceTree = "<group>"; };
 		EACF27041A58D95D0052E95A /* gl_char.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gl_char.cpp; sourceTree = "<group>"; };
 		EACF27061A58D95D0052E95A /* tecladomouse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tecladomouse.cpp; sourceTree = "<group>"; };
@@ -375,7 +377,8 @@
 		EACF27011A58D95D0052E95A /* gltab */ = {
 			isa = PBXGroup;
 			children = (
-				EACF27021A58D95D0052E95A /* gl.cpp */,
+				EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */,
+				EA9253D91A6A2B43007EF810 /* gl_es.cpp */,
 				EACF27031A58D95D0052E95A /* gl.h */,
 				EACF27041A58D95D0052E95A /* gl_char.cpp */,
 			);
@@ -669,6 +672,7 @@
 				EACF27991A58D9AA0052E95A /* dynamic_message.cc in Sources */,
 				EACF27211A58D95D0052E95A /* entidade.pb.cc in Sources */,
 				EACF27201A58D95D0052E95A /* entidade.cpp in Sources */,
+				EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */,
 				EACF27A81A58D9AA0052E95A /* message_lite.cc in Sources */,
 				EACF27311A58D95D0052E95A /* picopng.cpp in Sources */,
 				EACF27A31A58D9AA0052E95A /* tokenizer.cc in Sources */,
@@ -691,6 +695,7 @@
 				EACF26871A58C77B0052E95A /* GameViewController.mm in Sources */,
 				EACF271C1A58D95D0052E95A /* arquivo.mm in Sources */,
 				EACF272E1A58D95D0052E95A /* notificacao.cpp in Sources */,
+				EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */,
 				EACF27B31A58D9AA0052E95A /* strutil.cc in Sources */,
 				EACF272F1A58D95D0052E95A /* notificacao.pb.cc in Sources */,
 				EACF27251A58D95D0052E95A /* util.cpp in Sources */,
@@ -705,7 +710,6 @@
 				EACF27A41A58D9AA0052E95A /* zero_copy_stream.cc in Sources */,
 				EACF27A11A58D9AA0052E95A /* printer.cc in Sources */,
 				EACF26941A58D0720052E95A /* native.mm in Sources */,
-				EACF27281A58D95D0052E95A /* gl.cpp in Sources */,
 				EACF265F1A58C6DA0052E95A /* main.m in Sources */,
 				EACF279D1A58D9AA0052E95A /* generated_message_util.cc in Sources */,
 				EACF27271A58D95D0052E95A /* watchdog.cpp in Sources */,

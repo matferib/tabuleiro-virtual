@@ -4,8 +4,15 @@
 #include <string>
 #if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
-#include <OpenGLES/ES1/gl.h>
-#include <OpenGLES/ES1/glext.h>
+  #include "TargetConditionals.h"
+  #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+    // iOS device
+    #include <OpenGLES/ES1/gl.h>
+    #include <OpenGLES/ES1/glext.h>
+  #elif TARGET_OS_MAC
+    // Other kinds of Mac OS
+    #include <OpenGL/gl.h>
+  #endif
 #else
 #include <GLES/gl.h>
 #include <GLES/glext.h>
@@ -190,14 +197,14 @@ class TipoEscopo {
       DesempilhaNome();
     }
     EmpilhaNome(tipo);
-    EmpilhaNome(0);
+    EmpilhaNome(tipo);  // no openglES vai ser util.
   }
   ~TipoEscopo() {
     DesempilhaNome();
     DesempilhaNome();
     if (tipo_anterior_ != -1) {
       EmpilhaNome(tipo_anterior_);
-      EmpilhaNome(0);
+      EmpilhaNome(tipo_anterior_);
     }
   }
 
