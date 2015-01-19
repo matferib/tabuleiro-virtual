@@ -1,7 +1,11 @@
 #import "GameViewController.h"
 #import <OpenGLES/ES2/glext.h>
+#import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
 #include "native.h"
+
+#include "ent/entidade.pb.h"
+#include "ntf/notificacao.pb.h"
 
 @interface GameViewController () {
 }
@@ -135,7 +139,7 @@
 - (void)setupGL
 {
   [EAGLContext setCurrentContext:self.context_];
-  nativeCreate();
+  nativeCreate((__bridge void*)self);
 }
 
 - (void)tearDownGL
@@ -222,14 +226,122 @@
   nativeResize(bounds.size.width * scale, bounds.size.height * scale);
 }
 
-#pragma mark - Keyboard events
--(void)luz
+#pragma mark - Notificacoes
+-(bool)trataNotificacao:(const ntf::Notificacao*)notificacao
 {
-  nativeKeyboardLuz();
+  const ntf::Notificacao& n = *notificacao;
+  if (n.tipo() == ntf::TN_ERRO || n.tipo() == ntf::TN_INFO) {
+    UIAlertController *alert = nil;
+    UIAlertAction* defaultAction = nil;
+    alert = [UIAlertController alertControllerWithTitle: n.tipo() == ntf::TN_INFO ? @"Info" : @"Erro"
+                                                message: [NSString stringWithCString: n.erro().c_str()
+                                                                            encoding: NSUTF8StringEncoding]
+                                         preferredStyle: UIAlertControllerStyleAlert];
+    defaultAction = [UIAlertAction actionWithTitle: @"OK"
+                                             style: UIAlertActionStyleDefault
+                                           handler: ^(UIAlertAction * action) {}];
+    [alert addAction:defaultAction];
+    [self presentViewController:alert animated:YES completion:nil];
+    return true;
+  } else if (n.tipo() == ntf::TN_ABRIR_DIALOGO_ENTIDADE) {
+    UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    vc_entidade_ = [sb instantiateViewControllerWithIdentifier:@"EntidadeView"];
+    notificacao_ = new ntf::Notificacao;
+    notificacao_->CopyFrom(n);
+    vc_entidade_.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
+    //vc.modalPresentationStyle = UIModalPresentationStyle.UIModalPresentationPopover;
+    NSArray* subviews = [vc_entidade_.view subviews];
+    for (UIView* subview in subviews) {
+      switch ([subview tag]) {
+        case 1: {
+          // Identificador do objeto.
+          UITextField* texto_id = (UITextField*)subview;
+          [texto_id setText: [NSString stringWithFormat: @"%d", n.entidade().id()]];
+          break;
+        }
+        case 2: {
+          // Eventos.
+          UITextView* text_view = (UITextView*)subview;
+          [text_view.layer setBorderColor:[[[UIColor grayColor] colorWithAlphaComponent: 0.5] CGColor]];
+          [text_view.layer setBorderWidth: 1.0];
+          text_view.layer.cornerRadius = 5;
+          text_view.clipsToBounds = YES;
+          std::string eventos_str;
+          for (const auto& evento : n.entidade().evento()) {
+            eventos_str.append(evento.descricao());
+            eventos_str.append(": ");
+            eventos_str.append(std::to_string(evento.rodadas()) + "\n");
+          }
+          [text_view setText: [NSString stringWithCString: eventos_str.c_str() encoding: NSUTF8StringEncoding]];
+          break;
+        }
+        case 100: {
+          UIButton* botao_ok = (UIButton*)subview;
+          [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
+          break;
+          break;
+        }
+        case 101: {
+          UIButton* botao_cancelar = (UIButton*)subview;
+          [botao_cancelar addTarget:self action:@selector(fechaViewEntidade) forControlEvents:UIControlEventTouchDown];
+          break;
+        }
+      }
+    }
+    [self presentModalViewController:vc_entidade_ animated:TRUE];
+    return true;
+  }
+  return false;
 }
+           
+-(void)fechaViewEntidade
+{
+  [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
+  vc_entidade_ = nil;
+}
+
+-(void)aceitaFechaViewEntidade
+{
+  NSArray* subviews = [vc_entidade_.view subviews];
+  for (UIView* subview in subviews) {
+    switch ([subview tag]) {
+      case 2: {
+        // Eventos.
+        UITextView* text_view = (UITextView*)subview;
+        NSString* eventos_str = [text_view text];
+        notificacao_->mutable_entidade()->clear_evento();
+        // Break string.
+        for (NSString* str in [eventos_str componentsSeparatedByString:@"\n"]) {
+          NSArray* desc_rodadas = [str componentsSeparatedByString:@":"];
+          if ([desc_rodadas count] != 2) {
+            continue;
+          }
+          ent::EntidadeProto_Evento evento;
+          evento.set_descricao([[desc_rodadas firstObject] cStringUsingEncoding:NSUTF8StringEncoding]);
+          evento.set_rodadas([[desc_rodadas lastObject] intValue]);
+          notificacao_->mutable_entidade()->add_evento()->Swap(&evento);
+        }
+        // copy proto.
+        notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+        nativeCentral()->AdicionaNotificacao(notificacao_);
+        notificacao_ = nullptr;
+        break;
+      }
+    }
+  }
+  [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
+  vc_entidade_ = nil;
+}
+
+#pragma mark - Keyboard events
+/*-(SEL)seletorLetra: (NSString*)id
+{
+  SEL s = nil;
+  return s;
+}*/
 -(void)cima
 {
-  nativeKeyboardCima();
+  nativeKeyboardCima();;
 }
 -(void)baixo
 {
@@ -248,9 +360,18 @@
 
 -(NSArray*)keyCommands
 {
-  UIKeyCommand* comando_l = [UIKeyCommand keyCommandWithInput:@"l"
-                                          modifierFlags:0
-                                          action:@selector(luz)];
+  return nil;
+  NSMutableArray* ret = [NSMutableArray alloc];
+  /*char c_str[2] = { '\0' };
+  for (int i = 0; i < 'z' - 'a'; ++i) {
+    c_str[0] = 'a' + i;
+    NSString* letra = [NSString stringWithCString: c_str encoding: NSASCIIStringEncoding];
+    UIKeyCommand* comando = [UIKeyCommand keyCommandWithInput: letra
+                                          modifierFlags: 0
+                                          action: [self seletorLetra: letra]];
+    [ret addObject: comando];
+  }*/
+  
   UIKeyCommand* comando_up = [UIKeyCommand keyCommandWithInput:UIKeyInputUpArrow
                                            modifierFlags:0
                                            action:@selector(cima)];
@@ -263,7 +384,12 @@
   UIKeyCommand* comando_down = [UIKeyCommand keyCommandWithInput:UIKeyInputDownArrow
                                              modifierFlags:0
                                              action:@selector(baixo)];
-  return [[NSMutableArray alloc] initWithArray:@[comando_l, comando_up, comando_down, comando_left, comando_right]];
+  [ret addObjectsFromArray: @[
+      comando_up,
+      comando_down,
+      comando_left,
+      comando_right]];
+  return ret;
 }
 
 -(BOOL)canBecomeFirstResponder
@@ -282,8 +408,7 @@
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer
-   shouldRecognizeSimultaneouslyWithGestureRecognizer:
-       (UIGestureRecognizer *)otherGestureRecognizer
+   shouldRecognizeSimultaneouslyWithGestureRecognizer: (UIGestureRecognizer *)otherGestureRecognizer
 {
   return YES;
 }

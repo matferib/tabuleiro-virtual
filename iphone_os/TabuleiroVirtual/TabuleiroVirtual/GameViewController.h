@@ -10,11 +10,19 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 
+namespace ntf {
+class Notificacao;
+}  // namespace ntf
+
 @interface GameViewController : GLKViewController <UIGestureRecognizerDelegate>
 {
     float last_scale_;
     float last_rotation_;
     bool one_finger_;
+    UIViewController* vc_entidade_;  // dialogo de propriedade de entidade.
+    ntf::Notificacao* notificacao_;
 }
+
+-(bool)trataNotificacao:(const ntf::Notificacao*)notificacao;
 
 @end

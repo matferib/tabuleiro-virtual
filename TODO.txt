@@ -1,6 +1,6 @@
 Versao 1.8.0
+- Dialogo de entidade versao ipad.
 - Id de cliente da versao ipad (pelo menos id nao vem vazio).
-- Dialogos de erro e info no ipad.
 - Mais teclado global.
 - Mais teclado ipad.
 - Acoes de entidade (ao inves de ser global).

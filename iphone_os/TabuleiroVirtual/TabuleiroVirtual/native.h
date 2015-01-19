@@ -6,7 +6,7 @@
 #include "ifg/tecladomouse.h"
 #include "ent/constantes.h"
 
-void nativeCreate();
+void nativeCreate(void* view);
 void nativeDestroy();
 void nativeTimer();
 void nativeRender();
@@ -17,9 +17,10 @@ void nativeTouchReleased();
 void nativeDoubleClick(int x, int y);
 void nativeScale(float scale);
 void nativeRotate(float rad);
+ntf::CentralNotificacoes* nativeCentral();
 
 // Teclado.
-void nativeKeyboardLuz();
+void nativeKeyboard(int tecla);
 void nativeKeyboardCima();
 void nativeKeyboardBaixo();
 void nativeKeyboardEsquerda();
