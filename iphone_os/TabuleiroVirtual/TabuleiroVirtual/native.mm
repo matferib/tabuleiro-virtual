@@ -1,6 +1,7 @@
 #import <UIKit/UIKit.h>
 
 #include "native.h"
+#import "GameViewController.h"
 
 #include <memory>
 #include <stdlib.h>
@@ -25,6 +26,7 @@ std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
+GameViewController* g_view;  // ponteiro para o view principal.
 
 // Carrega o tabuleiro do castelo quando o load de rede falhar.
 class CarregadorTabuleiro : public ntf::Receptor {
@@ -46,12 +48,24 @@ class CarregadorTabuleiro : public ntf::Receptor {
   }
 };
 std::unique_ptr<CarregadorTabuleiro> g_carregador;
-  
+
+class TratadorDialogos : public ntf::Receptor {
+ public:
+  explicit TratadorDialogos(ntf::CentralNotificacoes* central) {
+    central->RegistraReceptor(this);
+  }
+  bool TrataNotificacao(const ntf::Notificacao& n) override {
+    return [g_view trataNotificacao:&n];
+  }
+
+ private:
+};
+std::unique_ptr<TratadorDialogos> g_tratador_dialogos;
+
 }  // namespace native
 
-
-
-void nativeCreate() {
+void nativeCreate(void* view) {
+  g_view = (__bridge GameViewController*)view;
   std::string nome_completo(boost::asio::ip::host_name());
   std::string nome_nativo = nome_completo.substr(0, nome_completo.find("."));
   std::string endereco_nativo;
@@ -64,6 +78,7 @@ void nativeCreate() {
   g_teclado_mouse.reset(
       new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
   g_carregador.reset(new CarregadorTabuleiro(g_central.get()));
+  g_tratador_dialogos.reset(new TratadorDialogos(g_central.get()));
 
   int* argcp = nullptr;
   char** argvp = nullptr;
@@ -78,6 +93,7 @@ void nativeCreate() {
 }
     
 void nativeDestroy() {
+  g_tratador_dialogos.reset();
   g_teclado_mouse.reset();
   g_cliente.reset();
   g_servico_io.reset();
@@ -126,9 +142,13 @@ void nativeDoubleClick(int x, int y) {
   g_teclado_mouse->TrataDuploCliqueMouse(ifg::Botao_Esquerdo, 0, x, y);
 }
 
+ntf::CentralNotificacoes* nativeCentral() {
+  return g_central.get();
+}
+
 // Teclado
-void nativeKeyboardLuz() {
-  g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_L, ifg::modificadores_e(0));
+void nativeKeyboard(int id_tecla) {
+  g_teclado_mouse->TrataTeclaPressionada(ifg::teclas_e(ifg::Tecla_A + id_tecla), ifg::modificadores_e(0));
 }
 void nativeKeyboardCima() {
   g_teclado_mouse->TrataTeclaPressionada(ifg::Tecla_Cima, ifg::modificadores_e(0));
