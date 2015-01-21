@@ -1,13 +1,14 @@
 Versao 1.8.0
-- Dialogo de entidade versao ipad.
+- Outras formas de botoes no controle virtual.
+- Diretorio de coisas opensource e coisas privadas.
+- Dialogo de entidade versao ipad (comecado).
 - Id de cliente da versao ipad (pelo menos id nao vem vazio).
 - Mais teclado global.
 - Mais teclado ipad.
-- Acoes de entidade (ao inves de ser global).
+- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Contador de rodadas.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Interface de mouse generico para tablets (suporte a multitap).
-- Mensagens de erro no android (parcialmente implementado).
 - Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
 - Camera isometrica.
 - Texturas faltantes.

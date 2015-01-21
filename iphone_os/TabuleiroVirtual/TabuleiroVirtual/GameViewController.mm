@@ -275,6 +275,12 @@
           [text_view setText: [NSString stringWithCString: eventos_str.c_str() encoding: NSUTF8StringEncoding]];
           break;
         }
+        case 3: {
+          // Rotulo.
+          UITextField* texto_rotulo = (UITextField*)subview;
+          [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
+          break;
+        }
         case 100: {
           UIButton* botao_ok = (UIButton*)subview;
           [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
@@ -317,18 +323,30 @@
             continue;
           }
           ent::EntidadeProto_Evento evento;
-          evento.set_descricao([[desc_rodadas firstObject] cStringUsingEncoding:NSUTF8StringEncoding]);
+          std::string evento_str(
+              [[[desc_rodadas firstObject]
+                  stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                      cStringUsingEncoding:NSUTF8StringEncoding]);
+          evento.set_descricao(evento_str);
           evento.set_rodadas([[desc_rodadas lastObject] intValue]);
           notificacao_->mutable_entidade()->add_evento()->Swap(&evento);
         }
-        // copy proto.
-        notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-        nativeCentral()->AdicionaNotificacao(notificacao_);
-        notificacao_ = nullptr;
+
+        break;
+      }
+      case 3: {
+        UITextField* texto_rotulo = (UITextField*)subview;
+        notificacao_->mutable_entidade()->set_rotulo(
+            [[[texto_rotulo text]
+              stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                  cStringUsingEncoding:NSUTF8StringEncoding]);
         break;
       }
     }
   }
+  notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+  nativeCentral()->AdicionaNotificacao(notificacao_);
+  notificacao_ = nullptr;
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
   vc_entidade_ = nil;
 }
