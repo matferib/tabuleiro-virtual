@@ -371,7 +371,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 1.7.4\n"
+        tr("Tabuleiro virtual versão 1.8.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
   }
