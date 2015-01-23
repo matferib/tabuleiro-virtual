@@ -4,6 +4,7 @@
 #define DIR_TEXTURAS "texturas"
 #define DIR_TEXTURAS_LOCAIS "texturas_locais"
 #define DIR_TABULEIROS "tabuleiros_salvos"
+#define DIR_ENTIDADES "entidades_salvas"
 #define FILTRO_IMAGENS "Imagens (*.png *.gif *.jpg *.bmp)"
 
 #endif

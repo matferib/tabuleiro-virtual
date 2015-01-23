@@ -41,7 +41,7 @@ const char* g_menuitem_strs[] = {
   "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
       "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Salvar &Câmera", "Re&iniciar Câmera", g_fim,
   // Entidades.
-  "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", g_fim,
+  "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", nullptr, "Salvar selecionáveis", "Restaurar selecionáveis", g_fim,
   // Acoes.
   g_fim,
   // Desenho.
@@ -279,6 +279,28 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = ntf::NovaNotificacao(ntf::TN_ADICIONAR_ENTIDADE);
   } else if (acao == acoes_[ME_ENTIDADES][MI_REMOVER]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_ENTIDADE);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_ENTIDADES]) {
+    // Abre dialogo de arquivo.
+    QString file_str = QFileDialog::getSaveFileName(
+        qobject_cast<QWidget*>(parent()),
+        tr("Salvar entidades selecionáveis"),
+        tr(DIR_ENTIDADES));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de salvar cancelada.";
+      return;
+    }
+    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS);
+    notificacao->set_endereco(file_str.toStdString());
+  } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES]) {
+    QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+                                                    tr("Abrir entidades selecionáveis"),
+                                                    DIR_ENTIDADES);
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de restaurar cancelada.";
+      return;
+    }
+    notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
+    notificacao->set_endereco(file_str.toStdString());
   }
   // Tabuleiro.
   else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
@@ -349,7 +371,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 1.7.4\n"
+        tr("Tabuleiro virtual versão 1.8.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
   }

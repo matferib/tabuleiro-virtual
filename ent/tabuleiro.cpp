@@ -21,6 +21,7 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
+#include "net/util.h"  // hack to_string
 #include "ntf/notificacao.pb.h"
 
 
@@ -88,6 +89,12 @@ const int CONTROLE_ADICIONA_10 = 6;
 const int CONTROLE_CONFIRMA_DANO = 7;
 const int CONTROLE_APAGA_DANO = 8;
 const int CONTROLE_ALTERNA_CURA = 9;
+const int CONTROLE_DESFAZER = 10;
+const int CONTROLE_VOO = 11;
+const int CONTROLE_VISIBILIDADE = 12;
+const int CONTROLE_QUEDA = 13;
+const int CONTROLE_LUZ = 14;
+const int CONTROLE_RODADA = 15;
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
@@ -253,10 +260,7 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     id_acoes_.push_back(a.id());
   }
 
-  // TODO android apenas.
-#if 1
   opcoes_.set_desenha_controle_virtual(true);
-#endif
 
   EstadoInicial();
 #if USAR_WATCHDOG
@@ -659,6 +663,44 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_CONECTAR: {
+      AlterarModoMestre(false);
+      return true;
+    }
+    case ntf::TN_PASSAR_UMA_RODADA: {
+      PassaUmaRodadaNotificando();
+      break;
+    }
+    case ntf::TN_ATUALIZAR_RODADAS: {
+      proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
+      if (notificacao.local()) {
+        auto* nr = ntf::NovaNotificacao(notificacao.tipo());
+        nr->mutable_tabuleiro()->set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
+        central_->AdicionaNotificacaoRemota(nr);
+      }
+
+      break;
+    }
+    case ntf::TN_DESCONECTADO: {
+      if (ModoMestre()) {
+        // cliente desconectado.
+        for (auto it : clientes_) {
+          if (it.second == notificacao.id()) {
+            clientes_.erase(it.first);
+            return true;
+          }
+        }
+        LOG(ERROR) << "Nao encontrei cliente desconectado: '" << notificacao.id() << "'";
+        return true;
+      } else {
+        if (notificacao.has_erro()) {
+          auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+          n->set_erro(notificacao.erro());
+          central_->AdicionaNotificacao(n);
+        }
+        return true;
+      }
+    }
     case ntf::TN_GRUPO_NOTIFICACOES:
       // Nunca deve vir da central.
       processando_grupo_ = true;
@@ -677,11 +719,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_RESPOSTA_CONEXAO:
       if (notificacao.local()) {
         if (!notificacao.has_erro()) {
-          ModoJogador();
           auto* ni = ntf::NovaNotificacao(ntf::TN_INFO);
           ni->set_erro(std::string("Conectado ao servidor"));
           central_->AdicionaNotificacao(ni);
         } else {
+          AlterarModoMestre(true);  // volta modo mestre.
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro conectando ao servidor: ") + notificacao.erro());
           central_->AdicionaNotificacao(ne);
@@ -750,12 +792,32 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(erro.what());
           central_->AdicionaNotificacao(ne);
+          return true;
         }
         auto* notificacao = ntf::NovaNotificacao(ntf::TN_INFO);
         notificacao->set_erro(std::string("Tabuleiro '") + caminho_str + "' salvo.");
         central_->AdicionaNotificacao(notificacao);
       } else {
         // Enviar remotamente.
+        if (notificacao.clientes_pendentes()) {
+          try {
+            // Estamos enviando para um novo cliente.
+            nt_tabuleiro->set_id(notificacao.id());
+            int id_tab = GeraIdTabuleiro();
+            clientes_.insert(std::make_pair(id_tab, notificacao.id()));
+            nt_tabuleiro->mutable_tabuleiro()->set_id_cliente(id_tab);
+          } catch (const std::logic_error& e) {
+            auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
+            ne->set_erro(e.what());
+            // Envia para os clientes pendentes tb.
+            auto* copia_ne = new ntf::Notificacao(*ne);
+            copia_ne->set_clientes_pendentes(true);
+            copia_ne->set_id(notificacao.id());
+            central_->AdicionaNotificacao(ne);
+            central_->AdicionaNotificacaoRemota(copia_ne);
+            return true;
+          }
+        }
         nt_tabuleiro->set_clientes_pendentes(notificacao.clientes_pendentes());
         central_->AdicionaNotificacaoRemota(nt_tabuleiro.release());
       }
@@ -788,11 +850,33 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
       std::unique_ptr<ntf::Notificacao> n(SerializaEntidadesSelecionaveis());
-      // TODO
+      try {
+        boost::filesystem::path caminho(notificacao.endereco());
+        arq::EscreveArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), *n);
+        auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
+        ninfo->set_erro("Entidades selecionáveis salvas");
+        central_->AdicionaNotificacao(ninfo);
+      } catch (const std::logic_error& e) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+        n->set_erro(e.what());
+        central_->AdicionaNotificacao(n);
+      }
       return true;
     }
     case ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS: {
-      DeserializaEntidadesSelecionaveis(notificacao);
+      try {
+        boost::filesystem::path caminho(notificacao.endereco());
+        ntf::Notificacao n;
+        arq::LeArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), &n);
+        DeserializaEntidadesSelecionaveis(n);
+        auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
+        ninfo->set_erro("Entidades selecionáveis restauradas");
+        central_->AdicionaNotificacao(ninfo);
+      } catch (const std::logic_error& e) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+        n->set_erro(e.what());
+        central_->AdicionaNotificacao(n);
+      }
       return true;
     }
     case ntf::TN_ATUALIZAR_OPCOES: {
@@ -1343,7 +1427,7 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
-  if (pos_pilha <= 1) {
+  if (pos_pilha != OBJ_ENTIDADE) {
     // Mouse no tabuleiro.
     id_entidade_detalhada_ = Entidade::IdInvalido;
     return;
@@ -1611,15 +1695,15 @@ void Tabuleiro::DesenhaCena() {
   //ceu_.desenha(parametros_desenho_);
 
   // desenha tabuleiro do sul para o norte.
-  gl::NomesEscopo nomes_tabuleiro(0);
-  gl::CarregaNome(0);
-  DesenhaTabuleiro();
-
-  if (parametros_desenho_.desenha_grade() &&
-      opcoes_.desenha_grade() &&
-      (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
-    gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-    DesenhaGrade();
+  {
+    gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
+    DesenhaTabuleiro();
+    if (parametros_desenho_.desenha_grade() &&
+        opcoes_.desenha_grade() &&
+        (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
+      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+      DesenhaGrade();
+    }
   }
 
   // Algumas verificacoes.
@@ -1641,13 +1725,12 @@ void Tabuleiro::DesenhaCena() {
 
   if (modo_mestre_ && parametros_desenho_.desenha_pontos_rolagem()) {
     // Pontos de rolagem na terceira posicao da pilha.
-    gl::NomesEscopo nomes_ent(0);
-    gl::NomesEscopo pontos(0);
+    gl::TipoEscopo pontos(OBJ_ROLAGEM);
     DesenhaPontosRolagem();
   }
 
   if (parametros_desenho_.desenha_entidades()) {
-    gl::NomesEscopo nomes(0);
+    gl::TipoEscopo nomes(OBJ_ENTIDADE);
     // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
     // na hora do picking.
     DesenhaEntidades();
@@ -1701,7 +1784,7 @@ void Tabuleiro::DesenhaCena() {
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
     } else {
-      gl::NomesEscopo nomes(0);
+      gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
       DesenhaEntidadesTranslucidas();
     }
@@ -1722,9 +1805,7 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
-    gl::NomesEscopo nomes_ent(0);
-    gl::NomesEscopo pontos(0);
-    gl::NomesEscopo controle(0);
+    gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
     DesenhaControleVirtual();
   }
 }
@@ -1889,6 +1970,7 @@ void Tabuleiro::RegeraVbo() {
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
+  gl::CarregaNome(0);
   gl::MatrizEscopo salva_matriz;
   float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
@@ -1989,6 +2071,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (modo_mestre_ || entidade->SelecionavelParaJogador()));
+    parametros_desenho_.set_desenha_eventos_entidades(modo_mestre_ || entidade->SelecionavelParaJogador());
     f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
@@ -2286,6 +2369,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_id_acao(false);
   parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(true);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -2293,14 +2377,14 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
-    int x, int y, unsigned int* id, unsigned int* pos_pilha, float* profundidade) {
+    int x, int y, unsigned int* id, unsigned int* tipo_objeto, float* profundidade) {
   GLuint buffer_hits[100] = {0};
   GLuint numero_hits = 0;
   EncontraHits(x, y, &numero_hits, buffer_hits);
   // Cada hit ocupa pelo menos 4 inteiros do buffer. Na pratica, por causa da pilha vao ocupar ate mais.
   if (numero_hits > 25) {
     LOG(WARNING) << "Muitos hits para a posicao, tamanho de buffer de selecao invalido.";
-    *pos_pilha = 0;
+    *tipo_objeto = 0;
     *id = 0;
     return;
   }
@@ -2316,30 +2400,42 @@ void Tabuleiro::BuscaHitMaisProximo(
   GLuint* ptr_hits = buffer_hits;
   // valores do hit mais proximo.
   GLuint menor_z = 0xFFFFFFFF;
-  GLuint pos_pilha_menor = 0;
+  GLuint tipo_objeto_menor = 0;
   GLuint id_menor = 0;
 
   // Busca o hit mais proximo.
   for (GLuint i = 0; i < numero_hits; ++i) {
     GLuint pos_pilha_corrente = *ptr_hits;
-    GLuint z_corrente = *(ptr_hits + 1);
-    // A posicao da pilha minimo eh 1.
-    GLuint id_corrente = *(ptr_hits + 3 + (pos_pilha_corrente - 1));
-    ptr_hits += (3 + (pos_pilha_corrente));
+    ++ptr_hits;
+    if (pos_pilha_corrente != 2) {
+      LOG(ERROR) << "Tamanho da pilha diferente de 2: " << pos_pilha_corrente;
+      *tipo_objeto = 0;
+      *id = 0;
+      return;
+    }
+    GLuint z_corrente = *ptr_hits;
+    ptr_hits += 2;  // pula maximo.
+    // Tipo do objeto do hit.
+    GLuint tipo_corrente = *ptr_hits;
+    ++ptr_hits;
+    // Id do objeto.
+    GLuint id_corrente = *ptr_hits;
+    ++ptr_hits;
+
     if (z_corrente <= menor_z) {
-      VLOG(3) << "pos_pilha_corrente: " << pos_pilha_corrente
+      VLOG(3) << "tipo_corrente: " << tipo_corrente
               << ", z_corrente: " << z_corrente
               << ", id_corrente: " << id_corrente;
       menor_z = z_corrente;
-      pos_pilha_menor = pos_pilha_corrente;
+      tipo_objeto_menor = tipo_corrente;
       id_menor = id_corrente;
     } else {
-      VLOG(3) << "Pulando objeto, pos_pilha_corrente: " << pos_pilha_corrente
+      VLOG(3) << "Pulando objeto, tipo_corrente: " << tipo_corrente
               << ", z_corrente: " << z_corrente
               << ", id_corrente: " << id_corrente;
     }
   }
-  *pos_pilha = pos_pilha_menor;
+  *tipo_objeto = tipo_objeto_menor;
   *id = id_menor;
   float menor_profundidade = 0.0f;
   // Converte profundidade de inteiro para float.
@@ -2350,7 +2446,7 @@ void Tabuleiro::BuscaHitMaisProximo(
     *profundidade = menor_profundidade;
   }
   VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
-          << ", pos_pilha: " << pos_pilha_menor
+          << ", tipo_objeto: " << tipo_objeto_menor 
           << ", id: " << id_menor;
 }
 
@@ -2506,11 +2602,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
-  if (pos_pilha == 1) {
+  if (pos_pilha == OBJ_TABULEIRO) {
     // Tabuleiro.
     // Converte x3d y3d para id quadrado.
     SelecionaQuadrado(IdQuadrado(x3d, y3d));
-  } else if (pos_pilha == 2) {
+  } else if (pos_pilha == OBJ_ENTIDADE) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
@@ -2535,10 +2631,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       }
       estado_ = ETAB_ENTS_PRESSIONADAS;
     }
-  } else if (pos_pilha == 3) {
+  } else if (pos_pilha == OBJ_ROLAGEM) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
     TrataRolagem(static_cast<dir_rolagem_e>(id));
-  } else if (pos_pilha == 4) {
+  } else if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
     switch (id) {
       case CONTROLE_ACAO:
@@ -2568,9 +2664,38 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case CONTROLE_ALTERNA_CURA:
         AlternaUltimoPontoVidaListaPontosVida();
         break;
+      case CONTROLE_LUZ:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
+        break;
+      case CONTROLE_QUEDA:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
+        break;
+      case CONTROLE_VOO:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
+        break;
+      case CONTROLE_VISIBILIDADE:
+        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+        break;
+      case CONTROLE_DESFAZER:
+        if (!alterna_selecao) {
+          TrataComandoDesfazer();
+        } else {
+          TrataComandoRefazer();
+        }
+        break;
+      case CONTROLE_RODADA:
+        if (!alterna_selecao) {
+          PassaUmaRodadaNotificando();
+        } else {
+          ZeraRodadasNotificando();
+        }
+        break;
       default:
         LOG(WARNING) << "Controle invalido: " << id;
     }
+  } else if (pos_pilha == OBJ_EVENTO_ENTIDADE) {
+    VLOG(1) << "Picking em evento da entidade " << id;
+    ApagaEventosZeradosDeEntidadeNotificando(id);
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidades();
@@ -2998,7 +3123,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
     t->CopyFrom(proto_);
-    t->set_id_cliente(GeraIdCliente());
     if (t->info_textura().has_bits_crus()) {
       // Serializa apenas os bits crus.
       t->mutable_info_textura()->clear_bits();
@@ -3095,12 +3219,29 @@ ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
 }
 
 void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto& e : n.tabuleiro().entidade()) {
     if (e.selecionavel_para_jogador()) {
-      ntf::Notificacao n_adicao;
-      n_adicao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
-      n_adicao.mutable_entidade()->CopyFrom(e);
-      AdicionaEntidadeNotificando(n_adicao);
+      ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
+      n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n_adicao->mutable_entidade()->CopyFrom(e);
+    }
+  }
+  // Hack para entidades aparecerem visiveis e selecionaveis.
+  bool modo_mestre_anterior = modo_mestre_;
+  modo_mestre_ = false;
+  TrataNotificacao(grupo_notificacoes);
+  modo_mestre_ = modo_mestre_anterior;
+  // Para desfazer
+  {
+    if (ids_adicionados_.size() == static_cast<unsigned int>(grupo_notificacoes.notificacao_size())) {
+      for (int i = 0; i < grupo_notificacoes.notificacao_size(); ++i) {
+        grupo_notificacoes.mutable_notificacao(i)->mutable_entidade()->set_id(ids_adicionados_[i]);
+      }
+      AdicionaNotificacaoListaEventos(grupo_notificacoes);
+    } else {
+      LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
 }
@@ -3371,6 +3512,11 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
         n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
       }
       break;
+    case ntf::TN_ATUALIZAR_RODADAS:
+      VLOG(1) << "Invertendo TN_ATUALIZAR_RODADAS";
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_RODADAS);
+      n_inversa.mutable_tabuleiro()->set_contador_rodadas(n_original.tabuleiro_antes().contador_rodadas());
+      break;
     case ntf::TN_ADICIONAR_ENTIDADE:
       if (!n_original.entidade().has_id()) {
         LOG(ERROR) << "Impossivel inverter TN_ADICIONAR_ENTIDADE sem id da entidade.";
@@ -3574,17 +3720,17 @@ unsigned int Tabuleiro::GeraIdEntidade(int id_cliente) {
   throw std::logic_error("Limite de entidades alcancado para cliente.");
 }
 
-int Tabuleiro::GeraIdCliente() {
+int Tabuleiro::GeraIdTabuleiro() {
   const int max_id_cliente = 15;
   int count = max_id_cliente;
   while (count-- > 0) {
-    int id_cliente = proximo_id_cliente_;
-    auto it = clientes_.find(id_cliente);
+    int id_tab = proximo_id_cliente_;
+    auto it = clientes_.find(id_tab);
     // O id zero esta sempre reservado para o mestre.
     proximo_id_cliente_ = ((proximo_id_cliente_) % max_id_cliente) + 1;
     if (it == clientes_.end()) {
-      VLOG(1) << "GeraIdCliente retornando id para cliente: " << id_cliente;
-      return id_cliente;
+      VLOG(1) << "GeraIdTabuleiro retornando id para cliente: " << id_tab;
+      return id_tab;
     }
   }
   throw std::logic_error("Limite de clientes alcancado.");
@@ -3742,10 +3888,11 @@ void Tabuleiro::DesenhaControleVirtual() {
     int coluna;   // Em qual coluna esta a esquerda do botao.
     std::string rotulo;
     const float* cor_rotulo;   // cor do rotulo.
-    int id;
+    int id;  // Identifica o que o botao faz, ver pos_pilha == 4 para cada id.
     bool alternavel;
   };
   std::vector<DadosBotao> dados_botoes = {
+    // Botoes grandes.
     // Acao.
     { 2, 0, 0, "A", nullptr, CONTROLE_ACAO, true },
     // Linha de cima.
@@ -3753,6 +3900,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 1, 2, "<", nullptr, CONTROLE_ACAO_ANTERIOR, false },
     // Alterna acao para frente.
     { 1, 1, 3, ">", nullptr,CONTROLE_ACAO_PROXIMA, false },
+    // Alterna cura.
+    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, CONTROLE_ALTERNA_CURA, false },
     // Linha de baixo
     // Adiciona dano +1.
     { 1, 0, 2, "1", nullptr, CONTROLE_ADICIONA_1, false },
@@ -3761,11 +3910,21 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Adiciona dano +10.
     { 1, 0, 4, "10", nullptr, CONTROLE_ADICIONA_10, false },
     // Confirma dano.
-    { 1, 0, 5, "v", COR_VERDE, CONTROLE_CONFIRMA_DANO, false },
+    { 1, 0, 5, "v", COR_AZUL, CONTROLE_CONFIRMA_DANO, false },
     // Apaga dano.
-    { 1, 0, 6, "x", COR_VERMELHA, CONTROLE_APAGA_DANO, false },
-    // Alterna cura.
-    { 1, 0, 7, "+-", nullptr, CONTROLE_ALTERNA_CURA, false },
+    { 1, 0, 6, "x", nullptr, CONTROLE_APAGA_DANO, false },
+
+    // Status.
+    { 1, 0, 8, "L", COR_AMARELA, CONTROLE_LUZ, false },
+    { 1, 0, 9, "Q", nullptr, CONTROLE_QUEDA, false },
+    { 1, 1, 8, "Vo", nullptr, CONTROLE_VOO, false },
+    { 1, 1, 9, "Vi", nullptr, CONTROLE_VISIBILIDADE, false },
+
+    // Desfazer.
+    { 2, 0, 11, "<=", COR_VERMELHA, CONTROLE_DESFAZER, false },
+
+    // Contador de rodadas.
+    { 2, 0, 14, net::to_string(proto_.contador_rodadas()), nullptr, CONTROLE_RODADA, false },
   };
   int fonte_x_int, fonte_y_int;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
@@ -3863,7 +4022,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   }
   std::reverse(tempo_str.begin(), tempo_str.end());
 #else
-  std::string tempo_str = std::to_string(maior_tempo_ms);
+  std::string tempo_str = net::to_string(maior_tempo_ms);
 #endif
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
@@ -3890,12 +4049,16 @@ double Tabuleiro::Aspecto() const {
   return static_cast<double>(largura_) / static_cast<double>(altura_);
 }
 
-void Tabuleiro::ModoJogador() {
+void Tabuleiro::AlterarModoMestre(bool modo) {
+  LOG(INFO) << "Alternando para modo mestre: " << modo;
+  modo_mestre_ = modo;
 #if USAR_WATCHDOG
-  watchdog_.Para();
+  if (modo) {
+    DesativaWatchdog();
+  } else {
+    ReativaWatchdog();
+  }
 #endif
-  LOG(INFO) << "Alternando para modo jogador.";
-  modo_mestre_ = false;
 }
 
 const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
@@ -4009,6 +4172,131 @@ void Tabuleiro::AlternaModoDebug() {
   gl::AlternaModoDebug();
 #endif
   modo_debug_ = !modo_debug_;
+}
+
+void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
+  if (rodadas < 0) {
+    LOG(ERROR) << "Adicionando rodadas < 0";
+    return;
+  }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (auto& id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
+      continue;
+    }
+    // Para desfazer.
+    EntidadeProto proto_antes;
+    proto_antes.set_id(id);
+    proto_antes.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
+    // Proto depois.
+    EntidadeProto proto_depois;
+    proto_depois.set_id(id);
+    proto_depois.mutable_evento()->CopyFrom(entidade_selecionada->Proto().evento());
+    proto_depois.add_evento()->set_rodadas(rodadas);
+
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->mutable_entidade_antes()->Swap(&proto_antes);
+    n->mutable_entidade()->Swap(&proto_depois);
+  }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::PassaUmaRodadaNotificando() {
+  if (!ModoMestre()) {
+    return;
+  }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (auto& id_entidade : entidades_) {
+    EntidadeProto proto_antes;
+    EntidadeProto proto_depois;
+    bool havera_mudanca = false;
+    const auto* entidade = id_entidade.second.get();
+    for (const auto& e : entidade->Proto().evento()) {
+      if (e.rodadas() > 0) {
+        havera_mudanca = true;
+      }
+    }
+    if (!havera_mudanca) {
+      continue;
+    }
+    // Desfazer.
+    proto_antes.set_id(id_entidade.first);
+    proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+    // Novo proto.
+    proto_depois.set_id(id_entidade.first);
+    for (const auto& e : entidade->Proto().evento()) {
+      int rodadas = e.rodadas();
+      if (rodadas > 0) {
+        --rodadas;
+      }
+      auto* evento_depois = proto_depois.add_evento();
+      evento_depois->set_rodadas(rodadas);
+      evento_depois->set_descricao(e.descricao());
+    }
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->mutable_entidade_antes()->Swap(&proto_antes);;
+    n->mutable_entidade()->Swap(&proto_depois);;
+  }
+  auto* nr = grupo_notificacoes.add_notificacao();
+  nr->set_tipo(ntf::TN_ATUALIZAR_RODADAS);
+  nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
+  nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
+
+  TrataNotificacao(grupo_notificacoes);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::ZeraRodadasNotificando() {
+  if (!ModoMestre()) {
+    return;
+  }
+  ntf::Notificacao nr;
+  nr.set_tipo(ntf::TN_ATUALIZAR_RODADAS);
+  nr.mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
+  nr.mutable_tabuleiro()->set_contador_rodadas(0);
+  TrataNotificacao(nr);
+  AdicionaNotificacaoListaEventos(nr);
+}
+
+void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
+  auto* entidade = BuscaEntidade(id);
+  if (entidade == nullptr) {
+    LOG(ERROR) << "Entidade invalida para picking: " << id;
+    return;
+  }
+  EntidadeProto proto_antes;
+  EntidadeProto proto_depois;
+  // Desfazer.
+  proto_antes.set_id(id);
+  proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
+  // Novo proto.
+  proto_depois.set_id(id);
+  for (const auto& evento : entidade->Proto().evento()) {
+    int rodadas = evento.rodadas();
+    if (rodadas > 0) {
+      proto_depois.add_evento()->CopyFrom(evento);
+    }
+  }
+  // Hack: se nao tiver nenhum evento mais, cria um dummy para a atualizacao parcial saber que deve mexer nos eventos.
+  if (proto_depois.evento_size() == 0) {
+    proto_depois.add_evento();
+  }
+
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n.mutable_entidade_antes()->Swap(&proto_antes);;
+  n.mutable_entidade()->Swap(&proto_depois);;
+  TrataNotificacao(n);
+  AdicionaNotificacaoListaEventos(n);
 }
 
 void Tabuleiro::AlternaModoAcao() {

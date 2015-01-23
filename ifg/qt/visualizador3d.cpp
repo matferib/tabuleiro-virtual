@@ -503,6 +503,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     rotulos_especiais += rotulo_especial + "\n";
   }
   gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
+  // Eventos entidades.
+  std::string eventos;
+  for (const auto& evento : entidade.evento()) {
+    eventos += evento.descricao() + ": " + std::to_string(evento.rodadas()) + "\n";
+  }
+  gerador.lista_eventos->appendPlainText(eventos.c_str());
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -593,11 +599,26 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
-    if (!lista_rotulos.empty()) {
-      for (const auto& rotulo : lista_rotulos) {
-        proto_retornado->add_rotulo_especial(rotulo.toStdString());
-      }
+    for (const auto& rotulo : lista_rotulos) {
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
+    QStringList lista_eventos = gerador.lista_eventos->toPlainText().split("\n", QString::SkipEmptyParts);
+    for (const auto& desc_rodadas : lista_eventos) {
+      ent::EntidadeProto_Evento evento;
+      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::KeepEmptyParts);
+      if (desc_rodadas_quebrado.size() != 2) {
+        LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
+        continue;
+      }
+      evento.set_descricao(desc_rodadas_quebrado[0].trimmed().toStdString());
+      bool ok = false;
+      evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
+      if (!ok) {
+        continue;
+      }
+      proto_retornado->add_evento()->Swap(&evento);
+    }
+
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
