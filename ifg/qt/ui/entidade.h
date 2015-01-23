@@ -1,8 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'entidade.ui'
 **
-** Created
-**      by: Qt User Interface Compiler version 4.8.4
+** Created by: Qt User Interface Compiler version 4.8.6
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -96,17 +95,21 @@ public:
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_10;
     QPlainTextEdit *lista_rotulos;
+    QWidget *layoutWidget_2;
+    QHBoxLayout *horizontalLayout_19;
+    QLabel *label_11;
+    QPlainTextEdit *lista_eventos;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(406, 672);
+        ifg__qt__DialogoEntidade->resize(395, 813);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(40, 620, 341, 32));
+        botoes->setGeometry(QRect(40, 760, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -332,7 +335,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(20, 520, 351, 31));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 520, 351, 80));
         horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -415,10 +418,29 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_18);
 
+        layoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
+        layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
+        layoutWidget_2->setGeometry(QRect(20, 610, 351, 141));
+        horizontalLayout_19 = new QHBoxLayout(layoutWidget_2);
+        horizontalLayout_19->setObjectName(QString::fromUtf8("horizontalLayout_19"));
+        horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
+        label_11 = new QLabel(layoutWidget_2);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+        sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy1);
+        label_11->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_19->addWidget(label_11);
+
+        lista_eventos = new QPlainTextEdit(layoutWidget_2);
+        lista_eventos->setObjectName(QString::fromUtf8("lista_eventos"));
+
+        horizontalLayout_19->addWidget(lista_eventos);
+
 
         retranslateUi(ifg__qt__DialogoEntidade);
-        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
+        QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);
     } // setupUi
@@ -457,6 +479,10 @@ public:
         );
         label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
+        label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        lista_eventos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cada linha deve conter um evento com formato <descricao:rodadas> sem as <>.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };

@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>406</width>
-    <height>672</height>
+    <width>395</width>
+    <height>813</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>620</y>
+     <y>760</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -388,7 +388,7 @@
      <x>20</x>
      <y>520</y>
      <width>351</width>
-     <height>31</height>
+     <height>80</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_13">
@@ -528,25 +528,44 @@
     </item>
    </layout>
   </widget>
+  <widget class="QWidget" name="layoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>610</y>
+     <width>351</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_19">
+    <item>
+     <widget class="QLabel" name="label_11">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Lista de Eventos</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="lista_eventos">
+      <property name="toolTip">
+       <string>Cada linha deve conter um evento com formato &lt;descricao:rodadas&gt; sem as &lt;&gt;.</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections>
-  <connection>
-   <sender>botoes</sender>
-   <signal>accepted()</signal>
-   <receiver>ifg::qt::DialogoEntidade</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>botoes</sender>
    <signal>rejected()</signal>
@@ -560,6 +579,22 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>botoes</sender>
+   <signal>accepted()</signal>
+   <receiver>ifg::qt::DialogoEntidade</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>210</x>
+     <y>775</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>197</x>
+     <y>406</y>
     </hint>
    </hints>
   </connection>

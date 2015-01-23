@@ -35,10 +35,12 @@ env['PROTOCOUTDIR'] = './'
 env['PROTOCPYTHONOUTDIR'] = None
 
 # c++
+debug = ARGUMENTS.get('debug', '1')
+print 'Usando debug: %r' % debug
 if sistema == 'win32':
   env['CPPPATH'] += ['./', 'win32/include']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'WIN32_LEAN_AND_MEAN': 1, 'WIN32': 1, '_WINDOWS': 1, '_CRT_SECURE_NO_WARNINGS': 1, '_WIN32_WINNT': 0x0601, 'WINVER': 0x0601, 'FREEGLUT_STATIC': 1, 'QT_STATIC_BUILD': 1}
-  env['CXXFLAGS'] += ['-std=c++11', '-Wall', '-O2', '-Wfatal-errors']
+  env['CXXFLAGS'] += ['-std=c++11', '-Wall', '-Wfatal-errors']
   env['LIBS'] += ['freeglut_static', 'glu32', 'opengl32', 'protobuf', 'boost_filesystem-mgw48-mt-1_55', 'boost_system-mgw48-mt-1_55', 'boost_timer-mgw48-mt-1_55', 'boost_chrono-mgw48-mt-1_55', 'ws2_32', 'Mswsock', 'Gdi32', 'Winmm', 'ole32', 'Oleacc', 'OleAut32', 'libuuid', 'Comdlg32', 'imm32', 'Winspool']
   env['LIBPATH'] += [ 'win32/lib' ]
   env['LINKFLAGS'] += ['-Wl,--subsystem,windows']
@@ -48,27 +50,27 @@ elif sistema == 'apple':
                      '/usr/local/lib/QtOpenGL.framework/Headers',
                      '/usr/local/lib/QtCore.framework/Headers']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
-  env['CXXFLAGS'] += ['-Wall', '-O2', '-std=c++11']
+  env['CXXFLAGS'] += ['-Wall', '-std=c++11']
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 else:
   # linux.
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_WATCHDOG': 1}
   env['CXXFLAGS'] = ['-Wall', '-std=c++11']
-  debug = ARGUMENTS.get('debug', '1')
-  print 'Usando debug: %r' % debug
-  if (debug == '1'):
-    env['CXXFLAGS'] += ['-g']
-  else:
-    env['CXXFLAGS'] += ['-O2']
   env['LIBS'] += ['glut', 'GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
+
+if (debug == '1'):
+  env['CXXFLAGS'] += ['-g']
+else:
+  env['CXXFLAGS'] += ['-O2']
 
 usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', '0') == '1')
 print 'usar_opengl_es : %r' % usar_opengl_es
 if usar_opengl_es:
   env['CPPPATH'] += ['./opengl_es/']
   env['CPPDEFINES']['USAR_OPENGL_ES'] = 1
-  env['LIBS'] += ['GLESv1_CM']
+  if sistema != 'apple':
+    env['LIBS'] += ['GLESv1_CM']
 
 gerar_profile = (ARGUMENTS.get('gerar_profile', '0') == '1')
 if gerar_profile:
@@ -139,7 +141,8 @@ ntf_proto = env.Protoc(
 )
 
 # GL
-cGl = env.Object('gltab/gl.cpp')
+cGl = env.Object('gltab/gl_es.cpp') if usar_opengl_es else env.Object('gltab/gl_normal.cpp')
+cGlComum = env.Object('gltab/gl_comum.cpp')
 cGlChar = env.Object('gltab/gl_char.cpp')
 
 objetos = [
@@ -156,7 +159,7 @@ objetos = [
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
-    cGl, cGlChar,
+    cGlComum, cGl, cGlChar,
     # arq
     cArq,
 ] + ([ cEntWatchdog ] if sistema == 'linux' else [])

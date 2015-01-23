@@ -1,215 +1,3 @@
-#if !USAR_OPENGL_ES
-
-#if WIN32
-#include <Windows.h>
-#include <Wingdi.h>
-#endif
-
-#include <vector>
-#include <string>
-#include "gltab/gl.h"
-#include "log/log.h"
-
-namespace gl {
-namespace {
-const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
-} // namespace
-
-#if WIN32
-struct ContextoInterno {
- public:
-  PROC pglGenBuffers;
-  PROC pglBindBuffer;
-  PROC pglDeleteBuffers;
-  PROC pglBufferData;
-} g_contexto;
-#endif
-
-bool ImprimeSeErro() {
-  auto erro = glGetError();
-  if (erro != GL_NO_ERROR) {
-    LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
-    return true;
-  }
-  return false;
-}
-
-#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
-void IniciaGl(int* argcp, char** argv) {
-  glutInit(argcp, argv);
-#if WIN32
-  LOG(INFO) << "pegando ponteiros";
-  g_contexto.pglGenBuffers = wglGetProcAddress("glGenBuffers");
-  if (g_contexto.pglGenBuffers == nullptr) {
-    LOG(FATAL) << "null glGenBuffers";
-  }
-  g_contexto.pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
-  if (g_contexto.pglDeleteBuffers == nullptr) {
-    LOG(FATAL) << "null glDeleteBuffers";
-  }
-  g_contexto.pglBufferData = wglGetProcAddress("glBufferData");
-  if (g_contexto.pglBufferData == nullptr) {
-    LOG(FATAL) << "null glBufferData";
-  }
-  g_contexto.pglBindBuffer = wglGetProcAddress("glBindBuffer");
-  if (g_contexto.pglBindBuffer == nullptr) {
-    LOG(FATAL) << "null glBindBuffer";
-  }
-#endif
-  /*
-  LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
-  GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-  V_ERRO();
-  GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  V_ERRO();
-  std::string codigo_v_shader_str;
-  arq::LeArquivo(arq::TIPO_SHADER, "vert.c", &codigo_v_shader_str);
-  const char* codigo_v_shader = codigo_v_shader_str.c_str();
-  glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-  V_ERRO();
-  std::string codigo_f_shader_str;
-  arq::LeArquivo(arq::TIPO_SHADER, "frag.c", &codigo_f_shader_str);
-  const char* codigo_f_shader = codigo_f_shader_str.c_str();
-  glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-  V_ERRO();
-  glCompileShader(v_shader);
-  V_ERRO();
-  glCompileShader(f_shader);
-  V_ERRO();
-  GLuint p = glCreateProgram();
-  V_ERRO();
-  glAttachShader(p, v_shader);
-  V_ERRO();
-  glAttachShader(p, f_shader);
-  V_ERRO();
-  glLinkProgram(p);
-  V_ERRO();
-  glUseProgram(p);
-  V_ERRO();
-  */
-}
-#undef V_ERRO
-
-void FinalizaGl() {
-#if WIN32
-  // Apagar o contexto_interno
-#endif
-}
-
-// OpenGL normal.
-void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  glutSolidCone(base, altura, num_fatias, num_tocos);
-}
-
-void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  glutSolidSphere(raio, num_fatias, num_tocos);
-}
-
-void CuboSolido(GLfloat tam_lado) {
-  glutSolidCube(tam_lado);
-}
-
-namespace {
-
-// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
-void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
-  GLboolean raster_valido;
-  glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &raster_valido);
-  if (!raster_valido) {
-    return;
-  }
-
-  // Le o raster em coordenadas de janela.
-  GLint raster_pos[4];
-  glGetIntegerv(GL_CURRENT_RASTER_POSITION, raster_pos);
-  // Le viewport.
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-  int largura = viewport[2], altura = viewport[3];
-  int altura_fonte, largura_fonte;
-  TamanhoFonte(&largura_fonte, &altura_fonte);
-
-  // Muda para projecao 2D.
-  gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  gl::Ortogonal(0, largura, 0, altura, 0, 1);
-  gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-  int x_original = raster_pos[0];
-  int y = raster_pos[1];
-  std::vector<std::string> str_linhas(QuebraString(str, '\n'));
-  for (const std::string& str_linha : str_linhas) {
-    if (alinhamento < 0) {
-      glRasterPos2i(x_original, y);
-    } else if (alinhamento == 0) {
-      glRasterPos2i(x_original - (str_linha.size() / 2.0f) * largura_fonte, y);
-    } else {
-      glRasterPos2i(x_original - (str_linha.size() * largura_fonte), y);
-    }
-    glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID, &raster_valido);
-    if (!raster_valido) {
-      break;
-    }
-    for (const char c : str_linha) {
-     gl::DesenhaCaractere(c);
-    }
-    y -= (altura_fonte + 1);
-  }
-}
-
-}  // namespace
-
-void DesenhaString(const std::string& str) {
-  DesenhaStringAlinhado(str, 0);
-}
-
-void DesenhaStringAlinhadoEsquerda(const std::string& str) {
-  DesenhaStringAlinhado(str, -1);
-}
-
-void DesenhaStringAlinhadoDireita(const std::string& str) {
-  DesenhaStringAlinhado(str, 1);
-}
-
-void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
-  GLUquadric* cilindro = gluNewQuadric();
-  gluQuadricOrientation(cilindro, GLU_OUTSIDE);
-  gluQuadricNormals(cilindro, GLU_SMOOTH);
-  gluQuadricDrawStyle(cilindro, GLU_FILL);
-  gluCylinder(cilindro, raio, raio, altura, fatias, tocos);
-  gluDeleteQuadric(cilindro);
-}
-
-void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-  GLUquadric* cilindro = gluNewQuadric();
-  gluQuadricOrientation(cilindro, GLU_OUTSIDE);
-  gluQuadricNormals(cilindro, GLU_SMOOTH);
-  gluQuadricDrawStyle(cilindro, GLU_FILL);
-  gluCylinder(cilindro, raio_base, raio_topo, altura, fatias, tocos);
-  gluDeleteQuadric(cilindro);
-}
-
-#if WIN32
-void GeraBuffers(GLsizei n, GLuint* buffers) {
-  ((PFNGLGENBUFFERSPROC)g_contexto.pglGenBuffers)(n, buffers);
-}
-
-void LigacaoComBuffer(GLenum target, GLuint buffer) {
-  ((PFNGLBINDBUFFERPROC)g_contexto.pglBindBuffer)(target, buffer);
-}
-
-void ApagaBuffers(GLsizei n, const GLuint* buffers) {
-  ((PFNGLDELETEBUFFERSPROC)g_contexto.pglDeleteBuffers)(n, buffers);
-}
-
-void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
-  ((PFNGLBUFFERDATAPROC)g_contexto.pglBufferData)(target, size, data, usage);
-}
-#endif
-
-}  // namespace gl.
-
-#else
 // OpenGL ES.
 // Varias funcoes copiadas do GLUES: https://code.google.com/p/glues/.
 
@@ -225,7 +13,6 @@ namespace gl {
 
 #define __glPi 3.14159265358979323846
 namespace {
-const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
 
 void PreencheIdentidade(GLfloat m[16]) {
   m[0+4*0] = 1; m[0+4*1] = 0; m[0+4*2] = 0; m[0+4*3] = 0;
@@ -1161,10 +948,10 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];
       unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
       VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
-      unsigned int pos_pilha = id_mapeado >> 21;
-      VLOG(1) << "Pos pilha: " << pos_pilha;
-      if (pos_pilha == 0 || pos_pilha > 7) {
-        LOG(ERROR) << "Pos pilha invalido: " << pos_pilha;
+      unsigned int tipo_objeto = id_mapeado >> 21;
+      VLOG(1) << "Tipo objeto: " << tipo_objeto;
+      if (tipo_objeto > 7) {
+        LOG(ERROR) << "Tipo objeto invalido: " << tipo_objeto;
         return 0;
       }
       auto it = g_contexto->ids.find(id_mapeado);
@@ -1176,12 +963,11 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       unsigned int id_original = it->second;
       VLOG(1) << "Id original: " << id_original;
       GLuint* ptr = g_contexto->buffer_selecao;
-      ptr[0] = pos_pilha;
+      ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
       ptr[1] = 0;  // zmin.
       ptr[2] = 0;  // zmax
-      for (unsigned int i = 0; i < pos_pilha; ++i) {
-        ptr[3 + i] = id_original;
-      }
+      ptr[3] = tipo_objeto;
+      ptr[4] = id_original;
       g_contexto->buffer_selecao = nullptr;
       g_contexto->tam_buffer = 0;
       return 1;  // Numero de hits: so pode ser 0 ou 1.
@@ -1205,11 +991,11 @@ void EmpilhaNome(GLuint id) {
     // So muda no modo de selecao.
     return;
   }
-  if (g_contexto->bit_pilha == 7) {
+  if (id > 7) {
     LOG(ERROR) << "Bit da pilha passou do limite superior.";
     return;
   }
-  ++g_contexto->bit_pilha;
+  g_contexto->bit_pilha = id;
   VLOG(1) << "Empilhando bit pilha: " << g_contexto->bit_pilha;
 }
 
@@ -1236,7 +1022,7 @@ void DesempilhaNome() {
     return;
   }
   VLOG(1) << "Desempilhando bit pilha: " << g_contexto->bit_pilha;
-  --g_contexto->bit_pilha;
+  g_contexto->bit_pilha = 0;
 }
 
 void MudaCor(float r, float g, float b, float a) {
@@ -1272,10 +1058,10 @@ void TamanhoFonte(int* largura, int* altura) {
   TamanhoFonte(viewport[2], viewport[3], largura, altura);
 }
 
-namespace {
+namespace interno {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
-void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
+void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
@@ -1297,35 +1083,22 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento) {
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   gl::Escala(largura_fonte, altura_fonte, 1.0f);
-  std::vector<std::string> str_linhas(QuebraString(str, '\n'));
+  std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   for (const std::string& str_linha : str_linhas) {
-    if (alinhamento < 0) {
-    } else if (alinhamento == 0) {
-      gl::Translada(-static_cast<float>(str_linha.size()) / 2.0f, 0.0f, 0.0f);
-    } else {
-      gl::Translada(-static_cast<float>(str_linha.size()), 0.0f, 0.0f);
+    float translacao_x = -static_cast<float>(str_linha.size());
+    if (alinhamento == 0) {
+      translacao_x /= 2.0f;
     }
+    gl::Translada(translacao_x, 0.0f, 0.0f);
     for (const char c : str_linha) {
       gl::DesenhaCaractere(c);
       gl::Translada(1.0f, 0.0f, 0.0f);
     }
-    gl::Translada(0.0f, -1.0f, 0.0f);
+    gl::Translada(-(translacao_x + static_cast<float>(str_linha.size())), inverte_vertical ? 1.0f : -1.0f, 0.0f);
   }
 }
 
 }  // namespace
-
-void DesenhaString(const std::string& str) {
-  DesenhaStringAlinhado(str, 0);
-}
-
-void DesenhaStringAlinhadoEsquerda(const std::string& str) {
-  DesenhaStringAlinhado(str, -1);
-}
-
-void DesenhaStringAlinhadoDireita(const std::string& str) {
-  DesenhaStringAlinhado(str, 1);
-}
 
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   float matriz_mv[16];
@@ -1351,32 +1124,4 @@ void AlternaModoDebug() {
   g_contexto->depurar_selecao_por_cor = !g_contexto->depurar_selecao_por_cor;
 }
 
-}  // namespace gl
-
-#endif
-
-// Comum.
-namespace gl {
-namespace {
-
-const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra) {
-  std::vector<std::string> ret;
-  if (entrada.empty()) {
-    return ret;
-  }
-  auto it_inicio = entrada.begin();
-  auto it = it_inicio;
-  while (it != entrada.end()) {
-    if (*it == caractere_quebra) {
-      ret.push_back(std::string(it_inicio, it));
-      it_inicio = ++it;
-    } else {
-      ++it;
-    }
-  }
-  ret.push_back(std::string(it_inicio, it));
-  return ret;
-}
-
-}  // namespace
 }  // namespace gl

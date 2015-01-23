@@ -2,7 +2,24 @@
 #define GLTAB_GL_H
 
 #include <string>
+#if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
+  #include "TargetConditionals.h"
+  #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+    // iOS device
+    #include <OpenGLES/ES1/gl.h>
+    #include <OpenGLES/ES1/glext.h>
+  #elif TARGET_OS_MAC
+    // Other kinds of Mac OS
+    #include <OpenGL/gl.h>
+  #endif
+#else
+#include <GLES/gl.h>
+#include <GLES/glext.h>
+//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
+#include <GLES/glplatform.h>
+#endif
+#elif __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
@@ -11,11 +28,6 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <GL/glext.h>
-#elif USAR_OPENGL_ES && !BENCHMARK
-#include <GLES/gl.h>
-#include <GLES/glext.h>
-//#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
-#include <GLES/glplatform.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -97,6 +109,7 @@ void InicioCena();
 #endif
 
 /** Funcoes gerais. */
+inline bool EstaHabilitado(GLenum nome_parametro) { return glIsEnabled(nome_parametro); }
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
@@ -174,11 +187,29 @@ void CarregaNome(GLuint nome);
 void DesempilhaNome();
 #endif
 
-/** Empilha o nome no inicio do escopo e desempilha no final. */
-class NomesEscopo {
+/** Configura o tipo de objeto para o escopo, retornando ao sair. */
+class TipoEscopo {
  public:
-  NomesEscopo(GLuint nome) { EmpilhaNome(nome); }
-  ~NomesEscopo() { DesempilhaNome(); }
+  TipoEscopo(GLuint tipo, GLuint tipo_anterior = -1) {
+    tipo_anterior_ = tipo_anterior;
+    if (tipo_anterior != (GLuint)-1) {
+      DesempilhaNome();
+      DesempilhaNome();
+    }
+    EmpilhaNome(tipo);
+    EmpilhaNome(tipo);  // no openglES vai ser util.
+  }
+  ~TipoEscopo() {
+    DesempilhaNome();
+    DesempilhaNome();
+    if (tipo_anterior_ != (GLuint)-1) {
+      EmpilhaNome(tipo_anterior_);
+      EmpilhaNome(tipo_anterior_);
+    }
+  }
+
+ private:
+  GLuint tipo_anterior_;
 };
 
 /** Funcoes de escala, translacao e rotacao. */
@@ -223,10 +254,12 @@ void TamanhoFonte(int* largura, int* altura);
 void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura);
 #endif
 // Desenha a string str centralizada no ponto do raster.
-void DesenhaString(const std::string& str);
+// Se inverte_vertical for verdadeiro, linhas irao para cima ao inves de ir
+// para baixo.
+void DesenhaString(const std::string& str, bool inverte_vertical = false);
 // Desenha a string str alinhada ao raster.
-void DesenhaStringAlinhadoEsquerda(const std::string& str);
-void DesenhaStringAlinhadoDireita(const std::string& str);
+void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical = false);
+void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte = false);
 
 /** Matriz de olho e perspectiva e picking. */
 #if !USAR_OPENGL_ES
@@ -317,6 +350,7 @@ inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
 class DesligaEscritaProfundidadeEscopo {
  public:
   DesligaEscritaProfundidadeEscopo() {
+    // Nao funciona com glIsEnabled.
     Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
     MascaraProfundidade(false);
   }
@@ -339,7 +373,8 @@ class HabilitaEscopo {
 class DesabilitaEscopo {
  public:
   DesabilitaEscopo(GLenum cap) : cap_(cap) {
-    Le(cap, &valor_anterior_);
+    //Le(cap, &valor_anterior_);
+    valor_anterior_ = EstaHabilitado(cap);
     glDisable(cap_);
   }
   ~DesabilitaEscopo() {
@@ -376,6 +411,12 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
 
 /** debugging. */
 void AlternaModoDebug();
+
+// Namespace para utilidades internas, nem deveria estar aqui.
+namespace interno {
+// Quebra uma string em varias.
+const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
+}  // namespace internal
 
 }  // namespace gl
 

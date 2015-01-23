@@ -52,7 +52,8 @@ struct Sinalizador {
 };
 
 typedef std::unordered_map<unsigned int, std::unique_ptr<Entidade>> MapaEntidades;
-typedef std::unordered_set<unsigned int> MapaClientes;
+// Mapa de id_tab-> id net.
+typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 
 /** Responsavel pelo mundo do jogo. O sistema de coordenadas tera X apontando para o leste,
 * Y para o norte e Z para alto. Cada unidade corresponde a um metro, portanto os quadrados
@@ -115,7 +116,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza os pontos de vida de uma entidade, notificando clientes. */
   void AtualizaPontosVidaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Atualiza parcialmente entidades. Isso significa que apenas os campos presentes na entidade serao atualizados. */
+  /** Atualiza parcialmente entidade dentro da notificacao. Isso significa que apenas os campos presentes na entidade serao atualizados. */
   void AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
@@ -302,6 +303,15 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
+
+  /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
+  void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
+  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo. */
+  void PassaUmaRodadaNotificando();
+  /** Zera o contador de rodadas do tabuleiro. */
+  void ZeraRodadasNotificando();
+  /** Apaga os eventos que estao zerados para a entidade. */
+  void ApagaEventosZeradosDeEntidadeNotificando(unsigned int id);
 
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
@@ -501,10 +511,10 @@ class Tabuleiro : public ntf::Receptor {
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
   unsigned int GeraIdEntidade(int id_cliente);
 
-  /** @return um id unico de cliente. Lanca excecao se chegar ao limite de clientes.
+  /** @return um id unico de tabuleiro para um cliente. Lanca excecao se chegar ao limite de clientes.
   * Os ids retornados serao de 1 a 15. O id zero eh reservado para o servidor.
   */
-  int GeraIdCliente();
+  int GeraIdTabuleiro();
 
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
@@ -524,8 +534,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
 
-  /** Poe o tabuleiro no modo jogador. */
-  void ModoJogador();
+  /** Poe o tabuleiro no modo mestre se true, modo jogador se false. */
+  void AlterarModoMestre(bool modo);
 
   /** Retorna quais unidades sao afetadas por determinada acao. */
   const std::vector<unsigned int> EntidadesAfetadasPorAcao(const AcaoProto& acao);

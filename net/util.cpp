@@ -1,3 +1,4 @@
+#include <cstdio>
 #include "net/util.h"
 
 namespace net {
@@ -16,6 +17,16 @@ const std::vector<char> CodificaDados(const std::string& dados) {
 unsigned int DecodificaTamanho(const std::vector<char>::iterator& buffer) {
   const auto& ubuffer = reinterpret_cast<const std::vector<unsigned char>::iterator&>(buffer);
   return ubuffer[0] | (ubuffer[1] << 8) | (ubuffer[2] << 16) | (ubuffer[3] << 24);
+}
+
+const std::string to_string(int numero) {
+#if 0 && WIN32 || ANDROID
+  char buffer[51];
+  snprintf(buffer, 51, "%d", numero);
+  return std::string(buffer);
+#else
+  return std::to_string(numero);
+#endif
 }
 
 }  // namespace net

@@ -34,6 +34,13 @@
 // Converte a velocidade por segundo para distancia por atualizacao.
 #define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
 
+// Constantes para picking do tabuleiro.
+#define OBJ_TABULEIRO 1
+#define OBJ_ENTIDADE 2
+#define OBJ_ROLAGEM 3
+#define OBJ_CONTROLE_VIRTUAL 4
+#define OBJ_EVENTO_ENTIDADE 5
+
 namespace ent {
 
 extern const float SEN_60;

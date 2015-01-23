@@ -1,15 +1,20 @@
-Versao 1.7.4
-- Arrumar o mapa de clientes que nao esta sendo usado.
+Versao 1.8.0
+- Outras formas de botoes no controle virtual.
+- Diretorio de coisas opensource e coisas privadas.
+- Dialogo de entidade versao ipad (comecado).
+- Id de cliente da versao ipad (pelo menos id nao vem vazio).
+- Mais teclado global.
+- Mais teclado ipad.
+- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
+- Contador de rodadas.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
-- Salvar e restaurar entidades (parcialmente implementado).
-- Mensagens de erro no android (parcialmente implementado).
-- Fireball em criaturas (ao inves de so em area).
+- Interface de mouse generico para tablets (suporte a multitap).
+- Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.7.5
-- Contador de rodadas.
+Versao 1.8.1
 - VBO em entidades.
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
@@ -35,7 +40,6 @@ Versao 2.0
 - Outros tipos de acoes (perfurante, concussao).
 - Adicionar mais detalhes as entidades (Ataque, CA, Saves).
 - Sons.
-- Versao IPAD.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
 - Tooltip com mais informacao.

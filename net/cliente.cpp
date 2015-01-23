@@ -51,7 +51,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_DESCONECTAR) {
-    Desconecta();
+    Desconecta("");
     return true;
   }
   return false;
@@ -76,7 +76,7 @@ void Cliente::EnviaDados(const std::string& dados) {
 void Cliente::AutoConecta(const std::string& id) {
   VLOG(1) << "Tentando auto conectar como " << id;
   if (socket_descobrimento_.get() != nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
     n->set_erro("Já há um descobrimento em curso.");
     central_->AdicionaNotificacao(n);
     return;
@@ -85,7 +85,11 @@ void Cliente::AutoConecta(const std::string& id) {
   boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), 11224);
   socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
   if (!socket_descobrimento_->is_open()) {
-    //LOG(INFO) << "socket nao esta aberto";
+    socket_descobrimento_.reset();
+    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
+    n->set_erro("Nao consegui abrir socket de auto conexao.");
+    central_->AdicionaNotificacao(n);
+    return;
   }
   buffer_descobrimento_.resize(100);
   socket_descobrimento_->async_receive_from(
@@ -95,7 +99,7 @@ void Cliente::AutoConecta(const std::string& id) {
         //LOG(INFO) << "zerando socket";
         socket_descobrimento_.reset();
         if (erro) {
-          auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+          auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
           n->set_erro("Tempo de espera expirado para autoconexão");
           central_->AdicionaNotificacao(n);
           return;
@@ -117,7 +121,7 @@ void Cliente::AutoConecta(const std::string& id) {
 void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   VLOG(1) << "Tentando conectar como " << id << " em " << endereco_str;
   if (socket_descobrimento_.get() != nullptr) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
     n->set_erro("Já há um descobrimento em curso.");
     central_->AdicionaNotificacao(n);
     return;
@@ -161,7 +165,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   }
 }
 
-void Cliente::Desconecta() {
+void Cliente::Desconecta(const std::string& erro) {
   if (!Ligado()) {
     return;
   }
@@ -170,7 +174,10 @@ void Cliente::Desconecta() {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
   central_->DesregistraReceptorRemoto(this);
-  LOG(INFO) << "Desconectando...";
+  if (!erro.empty()) {
+    notificacao->set_erro(erro);
+  }
+  LOG(INFO) << "Desconectando: " << erro;
 }
 
 bool Cliente::Ligado() const {
@@ -183,8 +190,9 @@ void Cliente::RecebeDados() {
     boost::asio::buffer(buffer_),
     [this](boost::system::error_code ec, std::size_t bytes_recebidos) {
       if (ec) {
-        LOG(ERROR) << "Erro recebendo dados: " << ec.message();
-        Desconecta();
+        std::string erro;
+        erro = "Erro recebendo dados: " + ec.message();
+        Desconecta(erro);
         return;
       }
       auto buffer_inicio = buffer_.begin();
@@ -192,8 +200,10 @@ void Cliente::RecebeDados() {
       do {
         if (a_receber_ == 0) {
           if (bytes_recebidos < 4) {
-            LOG(ERROR) << "Erro recebendo tamanho de dados do servidor, bytes recebidos: " << bytes_recebidos;
-            Desconecta();
+            std::string erro;
+            erro = "Erro recebendo tamanho de dados do servidor, bytes recebidos: " +
+                   to_string(bytes_recebidos);
+            Desconecta(erro);
             return;
           }
           a_receber_ = DecodificaTamanho(buffer_inicio);
@@ -209,10 +219,11 @@ void Cliente::RecebeDados() {
           // Decodifica mensagem e poe na central.
           auto* notificacao = new ntf::Notificacao;
           if (!notificacao->ParseFromString(buffer_notificacao_)) {
-            LOG(ERROR) << "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: "
-                       << buffer_notificacao_.size();
+            std::string erro;
+            erro = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " +
+                    to_string(buffer_notificacao_.size());
             delete notificacao;
-            Desconecta();
+            Desconecta(erro);
             return;
           }
           notificacao->set_local(false);

@@ -291,8 +291,17 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   int pontos_vida_antes = PontosVida();
+  if (proto_parcial.evento_size() > 0) {
+    // Evento eh repeated, merge nao serve.
+    proto_.clear_evento();
+  }
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao.
   proto_.MergeFrom(proto_parcial);
+  if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
+    // Evento dummy so para limpar eventos.
+    proto_.clear_evento();
+  }
+
   // Casos especiais.
   auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
   if (luz != nullptr && luz->r() == 0 && luz->g() == 0 && luz->b() == 0) {
@@ -432,7 +441,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_barra_vida()) {
 #if 0
     // Codigo para iluminar barra de vida.
-    gl::AtributoEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+    gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
     // Luz no olho apontando para a barra.
     const Posicao& pos_olho = pd->pos_olho();
     gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
@@ -446,7 +455,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     {
       gl::MatrizEscopo salva_matriz;
-      gl::Escala(0.2, 0.2, 1.0f);
+      gl::Escala(0.2f, 0.2f, 1.0f);
       MudaCor(COR_VERMELHA);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
@@ -460,6 +469,44 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
+    }
+  }
+
+  if (pd->desenha_eventos_entidades()) {
+    bool ha_evento = false;
+    std::string descricao;
+    int num_descricoes = 0;
+    for (auto& e : *proto_.mutable_evento()) {
+      if (e.rodadas() == 0) {
+        ha_evento = true;
+        if (!e.descricao().empty()) {
+          descricao += e.descricao() + "\n";
+          ++num_descricoes;
+        }
+      }
+    }
+    if (ha_evento) {
+      // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+      gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
+      gl::CarregaNome(Id());
+      gl::DesabilitaEscopo de(GL_LIGHTING);
+      MudaCor(COR_AMARELA);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
+      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::EsferaSolida(0.2f, 4, 2);
+      gl::Translada(0.0f, 0.0f, 0.3f);
+      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
+      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
+      gl::EsferaSolida(0.2f, 4, 2);
+      // Descricao (so quando nao for picking).
+      if (!pd->has_picking_x() && !descricao.empty()) {
+        int l, a;
+        gl::TamanhoFonte(&l, &a);
+        gl::Translada(0.0f, 0.0f, 0.4f);
+        gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+        gl::DesenhaString(descricao, true  /*inverte vertical*/);
+      }
     }
   }
 
