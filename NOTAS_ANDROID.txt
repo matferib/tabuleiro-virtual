@@ -26,7 +26,8 @@ ou
 ${ANDROID_NDK}/ndk-build V=1 NEXUS7=1
 
 -- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
-ant debug
+export ANTROOT=
+$ANTROOT/bin/ant debug
 
 -- Instalacao:
 Colocar o dispositivo em USB debug mode.
@@ -39,7 +40,7 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-de
 
 Criar o toolchain de cross-compile:
 export TOOLCHAIN=/var/tmp/my-toolchain
-${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-14 --install-dir=$TOOLCHAIN --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
+${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh  --platform=android-19 --install-dir=$TOOLCHAIN --toolchain=arm-linux-androideabi-4.8 --stl=gnustl
 
 -- Protobuffer:
 
@@ -47,12 +48,19 @@ Compilando protocol buffers:
 
 - Configuracao do protobuf:
 ATENCAO: a versao deve ser a mesma do sistema que gerou os pb.h pb.c.
+Essas variaveis abaixo devem ser setadas, caso contrario vai usar as do sistema que podem ser incompativeis com android (por exemplo, mac).
+export AR="${TOOLCHAIN}/bin/arm-linux-androideabi-ar"
+export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
 export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
+export CFLAGS="-fPIC -DANDROID -nostdlib"
+export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-3/arch-arm/usr/lib/"
+export CPPFLAGS="-I$ANDROID_NDK/platforms/android-19/arch-arm/usr/include/"
+export LIBS="-lc "
 ./configure --host=arm-*-eabi
 make
 
-Pode dar um erro no unit test aqui mas a lib esta ok.
+Pode dar um erro no unit test ou no compilador aqui mas a lib esta ok (src/.libs/libprotobuffer.a).
 
 -- Boost:
 
@@ -61,13 +69,10 @@ Boost android: https://github.com/MysticTreeGames/Boost-for-Android
 - Baixar:
 git clone https://github.com/MysticTreeGames/Boost-for-Android.git
 
-- Abrir o build-android.sh e procurar pro LIBRARIES. Mudar para:
-LIBRARIES=--with-libraries=system,timer,filesystem.
-
 - No case do NDK_RN adicionar a versao usada do ndk.
 
 - Usar o toolchain mais novo:
-./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8
+./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8 --with-libraries=system,timer,filesystem
 
 
 ==============

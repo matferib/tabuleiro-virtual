@@ -4,33 +4,33 @@ LOCAL_PATH := $(call my-dir)
 # Baseado em file:///opt/android-ndk-r9d/docs/PREBUILTS.html.
 include $(CLEAR_VARS)
 LOCAL_MODULE := protobuf-prebuilt
-LOCAL_SRC_FILES := protobuf-2.5.0/src/.libs/libprotobuf.a
-LOCAL_EXPORT_C_INCLUDES := protobuf-2.5.0/src
+LOCAL_SRC_FILES := protobuf-2.6.1/src/.libs/libprotobuf.a
+LOCAL_EXPORT_C_INCLUDES := protobuf-2.6.1/src
 include $(PREBUILT_STATIC_LIBRARY)
 
 # Boost pre compilado.
 # System
 include $(CLEAR_VARS)
 LOCAL_MODULE := boost-system-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/system/build/gcc-androidR8e/release/link-static/threading-multi/libboost_system-gcc-mt-1_55.a
+LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/system/build/gcc-androidR8e/release/link-static/target-os-linux/threading-multi/libboost_system-gcc-mt-1_55.a
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
 include $(PREBUILT_STATIC_LIBRARY)
 # Chrono.
 include $(CLEAR_VARS)
 LOCAL_MODULE := boost-chrono-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/chrono/build/gcc-androidR8e/release/link-static/threading-multi/libboost_chrono-gcc-mt-1_55.a
+LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/chrono/build/gcc-androidR8e/release/link-static/target-os-linux/threading-multi/libboost_chrono-gcc-mt-1_55.a
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
 include $(PREBUILT_STATIC_LIBRARY)
 # Timer.
 include $(CLEAR_VARS)
 LOCAL_MODULE := boost-timer-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/timer/build/gcc-androidR8e/release/link-static/threading-multi/libboost_timer-gcc-mt-1_55.a
+LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/timer/build/gcc-androidR8e/release/link-static/target-os-linux/threading-multi/libboost_timer-gcc-mt-1_55.a
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
 include $(PREBUILT_STATIC_LIBRARY)
 # Filesystem.
 include $(CLEAR_VARS)
 LOCAL_MODULE := boost-filesystem-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/filesystem/build/gcc-androidR8e/release/link-static/threading-multi/libboost_filesystem-gcc-mt-1_55.a
+LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/filesystem/build/gcc-androidR8e/release/link-static/target-os-linux/threading-multi/libboost_filesystem-gcc-mt-1_55.a
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
 include $(PREBUILT_STATIC_LIBRARY)
 
