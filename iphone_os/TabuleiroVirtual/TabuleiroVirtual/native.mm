@@ -104,10 +104,12 @@ void nativeDestroy() {
 }
 
 void nativeScale(float scale) {
-  g_tabuleiro->TrataEscalaPorFator(scale);
+  //NSLog(@"nativeScale");
+  g_teclado_mouse->TrataPincaEscala(scale);
 }
 
 void nativeRotate(float rad) {
+  //NSLog(@"nativeRotate");
   g_tabuleiro->TrataRotacaoPorDelta(rad);
 }
 
@@ -126,19 +128,23 @@ void nativeRender() {
 }
   
 void nativeTouchPressed(ifg::botoesmouse_e botao, bool toggle, int x, int y) {
+  //NSLog(@"nativeTouchPressed");
   g_teclado_mouse->TrataBotaoMousePressionado(
       botao, toggle ? ifg::Modificador_Ctrl : 0, x, y);
 }
   
 void nativeTouchMoved(int x, int y) {
+  //NSLog(@"NativeMoved");
   g_teclado_mouse->TrataMovimentoMouse(x, y);
 }
   
 void nativeTouchReleased() {
+  //NSLog(@"nativeReleased");
   g_teclado_mouse->TrataBotaoMouseLiberado();
 }
 
 void nativeDoubleClick(int x, int y) {
+  //NSLog(@"nativeDoubleClick");
   g_teclado_mouse->TrataDuploCliqueMouse(ifg::Botao_Esquerdo, 0, x, y);
 }
 
