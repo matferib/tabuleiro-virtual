@@ -2374,6 +2374,11 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
   *numero_hits = gl::ModoRenderizacao(gl::MR_RENDER);
+
+  // Restaura projecao manualmente por causa da pilha pequena.
+  gl::ModoMatriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
@@ -2992,6 +2997,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       AdicionaNotificacaoListaEventos(g_desfazer);
       estado_ = ETAB_ENTS_SELECIONADAS;
       rastros_movimento_.clear();
+      parametros_desenho_.Clear();
       return;
     }
     case ETAB_SELECIONANDO_ENTIDADES: {
