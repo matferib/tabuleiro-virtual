@@ -39,8 +39,8 @@ class StringLogger {
 #else
 // TODO dar um jeito de anular essas macros se nao tiver log.
 #include <iostream>
-#define LOG(X) if (false) std::cout
-#define VLOG(X) if (false) std::cout
+#define LOG(X) if (false) std::cout << std::endl
+#define VLOG(X) if (false) std::cout << std::endl
 #endif
 
 namespace meulog {
