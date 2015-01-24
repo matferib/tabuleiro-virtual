@@ -4,6 +4,8 @@
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
+#define LOGT(X) VLOG(1)
+
 namespace ifg {
 
 namespace {
@@ -304,6 +306,7 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
 
 void TratadorTecladoMouse::TrataBotaoMousePressionado(
     botoesmouse_e botao, unsigned int modificadores, int x, int y) {
+  LOGT(1) << "Pressionado: " << x << ", " << y;
   MudaEstado(ESTADO_OUTRO);
   if (modificadores == Modificador_Alt) {
     // Acao padrao eh usada quando o botao eh o direito.
@@ -337,6 +340,7 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(
 }
 
 void TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
+  LOGT(1) << "Movimento: " << x << ", " << y;
   ultimo_x_ = x;
   ultimo_y_ = y;
   if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
@@ -349,7 +353,13 @@ void TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
 }
 
 void TratadorTecladoMouse::TrataRodela(int delta) {
+  LOGT(1) << "Rodela: " << delta;
   tabuleiro_->TrataEscalaPorDelta(delta);
+}
+
+void TratadorTecladoMouse::TrataPincaEscala(float fator) {
+  LOGT(1) << "Pinca: " << fator;
+  tabuleiro_->TrataEscalaPorFator(fator);
 }
 
 void TratadorTecladoMouse::MudaEstado(estado_e novo_estado) {
@@ -365,7 +375,7 @@ void TratadorTecladoMouse::MudaEstado(estado_e novo_estado) {
 
 void TratadorTecladoMouse::TrataAcaoTemporizadaMouse() {
   VLOG(1) << "Tratando acao temporizada de mouse em: " << ultimo_x_ << ", " << ultimo_y_;
-  tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
+  //tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
 }
 
 bool TratadorTecladoMouse::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -391,6 +401,7 @@ bool TratadorTecladoMouse::TrataNotificacao(const ntf::Notificacao& notificacao)
 }
 
 void TratadorTecladoMouse::TrataDuploCliqueMouse(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
+  LOGT(1) << "Duplo clique: " << x << ", " << y;
   if (botao == Botao_Esquerdo) {
     tabuleiro_->TrataDuploCliqueEsquerdo(x, y);
   } else if (botao == Botao_Direito) {
@@ -399,6 +410,7 @@ void TratadorTecladoMouse::TrataDuploCliqueMouse(botoesmouse_e botao, unsigned i
 }
 
 void TratadorTecladoMouse::TrataBotaoMouseLiberado() {
+  LOGT(1) << "Liberado";
   MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
   tabuleiro_->TrataBotaoLiberado();
 }

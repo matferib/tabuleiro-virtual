@@ -86,6 +86,7 @@ class TratadorTecladoMouse : public ntf::Receptor {
   void TrataDuploCliqueMouse(botoesmouse_e botao, unsigned int modificadores, int x, int y);
   void TrataBotaoMouseLiberado();
   void TrataRodela(int delta);
+  void TrataPincaEscala(float fator);
 
   // Interface receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
