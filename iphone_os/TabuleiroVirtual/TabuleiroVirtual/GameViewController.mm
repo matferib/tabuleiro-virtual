@@ -171,6 +171,7 @@
   GLKView *view = (GLKView *)self.view;
   one_finger_ = [all_touches count] == 1;
   CGPoint point = [self touchAvg:all_touches];
+  //NSLog(@"Begin: %0.1f %0.1f", point.x, point.y);
   nativeTouchPressed(
       one_finger_ ? ifg::Botao_Esquerdo : ifg::Botao_Direito,
       false,  // toggle
@@ -189,6 +190,7 @@
   GLKView *view = (GLKView *)self.view;
   CGPoint point = [self touchAvg:all_touches];
   if (one_finger_ && [all_touches count] == 2) {
+    //NSLog(@"Switched: %0.1f %0.1f", point.x, point.y);
     one_finger_ = false;
     nativeTouchReleased();
     nativeTouchPressed(
@@ -197,6 +199,7 @@
         point.x * scale,
         (view.bounds.size.height - point.y) * scale);
   } else {
+    //NSLog(@"Moved: %0.1f %0.1f", point.x, point.y);
     nativeTouchMoved(point.x * scale,
                      (view.bounds.size.height - point.y) * scale);
   }
@@ -379,6 +382,7 @@
 -(NSArray*)keyCommands
 {
   return nil;
+#if 0
   NSMutableArray* ret = [NSMutableArray alloc];
   /*char c_str[2] = { '\0' };
   for (int i = 0; i < 'z' - 'a'; ++i) {
@@ -408,6 +412,7 @@
       comando_left,
       comando_right]];
   return ret;
+#endif
 }
 
 -(BOOL)canBecomeFirstResponder
