@@ -519,6 +519,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
 
+  /** Carrega as texturas do controle virtual. */
+  void CarregaTexturasControleVirtual();
+
+  /** Carrega as texturas do controle virtual. */
+  void LiberaTexturasControleVirtual();
+
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
 
@@ -530,6 +536,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o controle virtual. */
   void DesenhaControleVirtual();
+
+  /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
+  void PickingControleVirtual(bool alterna_selecao, int id);
 
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;

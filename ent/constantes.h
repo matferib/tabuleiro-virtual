@@ -23,6 +23,7 @@
 #define NUM_LINHAS 1
 
 #define ARQUIVO_MODELOS "modelos.asciiproto"
+#define ARQUIVO_MODELOS_NAO_SRD "modelos_nao_srd.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
 
 #if USAR_OPENGL_ES

@@ -1,13 +1,16 @@
 Versao 1.8.1
+- Arrumar invisibilidade para jogadores.
+- Credito para atribuicoes.
+- Icones para botoes.
+- Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Diretorio de coisas opensource e coisas privadas.
-- Dialogo de entidade versao ipad (comecado).
+- Dialogo de entidade versao ipad: slider de tamanho de entidades.
 - Id de cliente da versao ipad (pelo menos id nao vem vazio).
 - Mais teclado global.
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Interface de mouse generico para tablets (suporte a multitap).
-- Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
 - Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.

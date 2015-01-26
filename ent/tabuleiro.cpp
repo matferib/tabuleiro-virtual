@@ -79,23 +79,6 @@ const double DISTANCIA_PLANO_CORTE_DISTANTE = 160.0f;
 
 const char* ID_ACAO_ATAQUE_CORPO_A_CORPO = "Ataque Corpo a Corpo";
 
-// Constantes do controle virtual.
-const int CONTROLE_ACAO = 1;
-const int CONTROLE_ACAO_ANTERIOR = 2;
-const int CONTROLE_ACAO_PROXIMA = 3;
-const int CONTROLE_ADICIONA_1 = 4;
-const int CONTROLE_ADICIONA_5 = 5;
-const int CONTROLE_ADICIONA_10 = 6;
-const int CONTROLE_CONFIRMA_DANO = 7;
-const int CONTROLE_APAGA_DANO = 8;
-const int CONTROLE_ALTERNA_CURA = 9;
-const int CONTROLE_DESFAZER = 10;
-const int CONTROLE_VOO = 11;
-const int CONTROLE_VISIBILIDADE = 12;
-const int CONTROLE_QUEDA = 13;
-const int CONTROLE_LUZ = 14;
-const int CONTROLE_RODADA = 15;
-
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
 int AndouQuadrado(const Posicao& p1, const Posicao& p2) {
   float dx = fabs(p1.x() - p2.x());
@@ -238,14 +221,17 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
   mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<EntidadeProto>(modelo_padrao)));
   modelo_selecionado_ = modelo_padrao;
   Modelos modelos;
-  try {
-    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, ARQUIVO_MODELOS, &modelos);
-  } catch (const std::logic_error& erro) {
-    LOG(ERROR) << erro.what();
-  }
-  for (const auto& m : modelos.modelo()) {
-    mapa_modelos_.insert(std::make_pair(
-          m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
+  const std::string arquivos_modelos[] = { ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD };
+  for (const std::string& nome_arquivo_modelo : arquivos_modelos) {
+    try {
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_modelo, &modelos);
+    } catch (const std::logic_error& erro) {
+      LOG(ERROR) << erro.what();
+    }
+    for (const auto& m : modelos.modelo()) {
+      mapa_modelos_.insert(std::make_pair(
+            m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
+    }
   }
   // Acoes.
   Acoes acoes;
@@ -259,6 +245,8 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     mapa_acoes_.insert(std::make_pair(a.id(), std::unique_ptr<AcaoProto>(nova_acao)));
     id_acoes_.push_back(a.id());
   }
+  // Controle virtual.
+  CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
 
@@ -285,6 +273,7 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
 
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
+  LiberaTexturasControleVirtual();
   if (nome_buffer_ != 0) {
     gl::ApagaBuffers(1, &nome_buffer_);
   }
@@ -2641,64 +2630,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
-    contador_pressao_por_controle_[id]++;
-    switch (id) {
-      case CONTROLE_ACAO:
-        AlternaModoAcao();
-        break;
-      case CONTROLE_ACAO_ANTERIOR:
-        AcaoAnterior();
-        break;
-      case CONTROLE_ACAO_PROXIMA:
-        ProximaAcao();
-        break;
-      case CONTROLE_ADICIONA_1:
-        AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 1 : -1);
-        break;
-      case CONTROLE_ADICIONA_5:
-        AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 5 : -5);
-        break;
-      case CONTROLE_ADICIONA_10:
-        AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 10 : -10);
-        break;
-      case CONTROLE_CONFIRMA_DANO:
-        AcumulaPontosVida({0});
-        break;
-      case CONTROLE_APAGA_DANO:
-        LimpaUltimoListaPontosVida();
-        break;
-      case CONTROLE_ALTERNA_CURA:
-        AlternaUltimoPontoVidaListaPontosVida();
-        break;
-      case CONTROLE_LUZ:
-        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
-        break;
-      case CONTROLE_QUEDA:
-        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
-        break;
-      case CONTROLE_VOO:
-        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
-        break;
-      case CONTROLE_VISIBILIDADE:
-        AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
-        break;
-      case CONTROLE_DESFAZER:
-        if (!alterna_selecao) {
-          TrataComandoDesfazer();
-        } else {
-          TrataComandoRefazer();
-        }
-        break;
-      case CONTROLE_RODADA:
-        if (!alterna_selecao) {
-          PassaUmaRodadaNotificando();
-        } else {
-          ZeraRodadasNotificando();
-        }
-        break;
-      default:
-        LOG(WARNING) << "Controle invalido: " << id;
-    }
+    PickingControleVirtual(alterna_selecao, id);
   } else if (pos_pilha == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
@@ -3791,19 +3723,6 @@ void Tabuleiro::DesenhaGrade() {
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
-namespace {
-// Posiciona o raster no pixel.
-void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  gl::Ortogonal(0, largura_vp, 0, altura_vp, 0, 1);
-
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-  gl::PosicaoRaster(x, y);
-}
-}  // namespace
-
 void Tabuleiro::DesenhaListaPontosVida() {
   if (lista_pontos_vida_.empty()) {
     return;
@@ -3874,154 +3793,6 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
     MudaCor(COR_BRANCA);
     gl::DesenhaString(id_acao);
   }
-}
-
-
-void Tabuleiro::DesenhaControleVirtual() {
-  gl::Desabilita(GL_LIGHTING);
-  gl::Desabilita(GL_DEPTH_TEST);
-  float cor_padrao[3];
-  float cor_ativa[3];
-  cor_padrao[0] = 0.8f;
-  cor_padrao[1] = 0.8f;
-  cor_padrao[2] = 0.8f;
-  cor_ativa[0] = 0.4f;
-  cor_ativa[1] = 0.4f;
-  cor_ativa[2] = 0.4f;
-  // Todos os botoes tem tamanho baseado no tamanho da fonte.
-  struct DadosBotao {
-    int tamanho;  // 1 eh base, 2 eh duas vezes maior.
-    int linha;    // Em qual linha esta a base do botao (0 ou 1)
-    int coluna;   // Em qual coluna esta a esquerda do botao.
-    std::string rotulo;
-    const float* cor_rotulo;   // cor do rotulo.
-    int id;  // Identifica o que o botao faz, ver pos_pilha == 4 para cada id.
-    bool alternavel;
-    int num_lados_botao;  // numero de lados do botao,.
-    float rotacao_graus;  // Rotacao do botao.
-  };
-  std::vector<DadosBotao> dados_botoes = {
-    // Botoes grandes.
-    // Acao.
-    { 2, 0, 0, "A", nullptr, CONTROLE_ACAO, true, 4, 0.0f },
-    // Linha de cima.
-    // Alterna acao para tras.
-    { 1, 1, 2, "<", nullptr, CONTROLE_ACAO_ANTERIOR, false, 4, 0.0f },
-    // Alterna acao para frente.
-    { 1, 1, 3, ">", nullptr,CONTROLE_ACAO_PROXIMA, false, 4, 0.0f },
-    // Alterna cura.
-    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, CONTROLE_ALTERNA_CURA, false, 4, 0.0f },
-    // Linha de baixo
-    // Adiciona dano +1.
-    { 1, 0, 2, "1", nullptr, CONTROLE_ADICIONA_1, false, 4, 0.0f },
-    // Adiciona dano +5
-    { 1, 0, 3, "5", nullptr, CONTROLE_ADICIONA_5, false, 4, 0.0f },
-    // Adiciona dano +10.
-    { 1, 0, 4, "10", nullptr, CONTROLE_ADICIONA_10, false, 4, 0.0f },
-    // Confirma dano.
-    { 1, 0, 5, "v", COR_AZUL, CONTROLE_CONFIRMA_DANO, false, 4, 0.0f },
-    // Apaga dano.
-    { 1, 0, 6, "x", nullptr, CONTROLE_APAGA_DANO, false, 4, 0.0f },
-
-    // Status.
-    { 1, 0, 8, "L", COR_AMARELA, CONTROLE_LUZ, false, 4, 0.0f },
-    { 1, 0, 9, "Q", nullptr, CONTROLE_QUEDA, false, 4, 0.0f },
-    { 1, 1, 8, "Vo", nullptr, CONTROLE_VOO, false, 4, 0.0f },
-    { 1, 1, 9, "Vi", nullptr, CONTROLE_VISIBILIDADE, false, 4, 0.0f },
-
-    // Desfazer.
-    { 2, 0, 11, "<=", COR_VERMELHA, CONTROLE_DESFAZER, false, 3, 30.0f },
-
-    // Contador de rodadas.
-    { 2, 0, 14, net::to_string(proto_.contador_rodadas()), nullptr, CONTROLE_RODADA, false, 8, 0.0f },
-  };
-  int fonte_x_int, fonte_y_int;
-  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
-  const float fonte_x = fonte_x_int;
-  const float fonte_y = fonte_y_int;
-  const float botao_x = fonte_x * 3.0f;
-  const float botao_y = fonte_y * 2.5f;
-  const float padding = fonte_x / 2;
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-
-  // Desenha em duas passadas por causa da limitacao de projecao do nexus 7.
-  // Desenha apenas os botoes.
-  {
-    // Modo 2d: eixo com origem embaixo esquerda.
-    gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-    gl::CarregaIdentidade();
-    if (parametros_desenho_.has_picking_x()) {
-      // Modo de picking faz a matriz de picking para projecao ortogonal.
-      gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-    }
-    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-    gl::CarregaIdentidade();
-    for (const DadosBotao& db : dados_botoes) {
-      gl::CarregaNome(db.id);
-      auto res = contador_pressao_por_controle_.find(db.id);
-      bool pressionado = false;
-      if (res != contador_pressao_por_controle_.end()) {
-        int& num_frames = res->second;
-        pressionado = num_frames > 0;
-        if (pressionado) {
-          ++num_frames;
-          if (num_frames > ATUALIZACOES_BOTAO_PRESSIONADO) {
-            // Ficou suficiente, volta no proximo.
-            num_frames = 0;
-          }
-        }
-      }
-      float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
-      if (pressionado) {
-        cor = cor_ativa;
-      }
-      gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-      float xi, xf, yi, yf;
-      xi = db.coluna * botao_x;
-      xf = xi + db.tamanho * botao_x;
-      yi = db.linha * botao_y;
-      yf = yi + db.tamanho * botao_y;
-      gl::MatrizEscopo salva;
-      if (db.num_lados_botao == 4) {
-        gl::Retangulo(xi + padding, yi + padding, xf - padding, yf - padding);
-      } else {
-        gl::Translada((xi + xf) / 2.0f, (yi + yf) / 2.0f, 0.0f);
-        gl::Roda(db.rotacao_graus, 0.0f, 0.0f, 1.0f);
-        DesenhaDisco((xf - xi) / 2.0f, db.num_lados_botao);
-      }
-    }
-  }
-  // Desenha os labels.
-  if (!parametros_desenho_.has_picking_x() && !modo_debug_) {
-    for (const DadosBotao& db : dados_botoes) {
-      if (db.rotulo.empty()) {
-        continue;
-      }
-      float xi, xf, yi, yf;
-      xi = db.coluna * botao_x;
-      xf = xi + db.tamanho * botao_x;
-      yi = db.linha * botao_y;
-      yf = yi + db.tamanho * botao_y;
-      float x_meio = (xi + xf) / 2.0f;
-      float y_meio = (yi + yf) / 2.0f;
-      float y_base = y_meio - (fonte_y / 4.0f);
-      if (db.cor_rotulo != nullptr) {
-        gl::MudaCor(db.cor_rotulo[0], db.cor_rotulo[1], db.cor_rotulo[2], 1.0f);
-      } else {
-        gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
-      }
-      PosicionaRaster2d(x_meio, y_base, viewport[2], viewport[3]);
-      gl::DesenhaString(db.rotulo);
-    }
-  }
-
-  // So volta a luz se havia iluminacao antes.
-  if (parametros_desenho_.iluminacao()) {
-    gl::Habilita(GL_LIGHTING);
-  }
-  gl::Habilita(GL_DEPTH_TEST);
 }
 
 void Tabuleiro::DesenhaTempoRenderizacao() {
