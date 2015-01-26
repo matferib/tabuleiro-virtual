@@ -34,6 +34,9 @@
 // Converte a velocidade por segundo para distancia por atualizacao.
 #define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
 
+// Por quantos frames um botao fica pressionado. 240ms.
+#define ATUALIZACOES_BOTAO_PRESSIONADO (static_cast<int>(ATUALIZACOES_POR_SEGUNDO * 0.240f))
+
 // Constantes para picking do tabuleiro.
 #define OBJ_TABULEIRO 1
 #define OBJ_ENTIDADE 2

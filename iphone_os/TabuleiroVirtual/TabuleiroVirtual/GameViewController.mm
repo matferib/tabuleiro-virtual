@@ -7,6 +7,15 @@
 #include "ent/entidade.pb.h"
 #include "ntf/notificacao.pb.h"
 
+
+const int TAG_ID = 1;
+const int TAG_EVENTOS = 2;
+const int TAG_ROTULO = 3;
+const int TAG_AURA = 4;
+const int TAG_TEXTO_AURA = 5;
+const int TAG_BOTAO_OK = 100;
+const int TAG_BOTAO_CANCELA = 101;
+
 @interface GameViewController () {
 }
 @property (strong, nonatomic) EAGLContext* context_;
@@ -274,14 +283,12 @@
     NSArray* subviews = [vc_entidade_.view subviews];
     for (UIView* subview in subviews) {
       switch ([subview tag]) {
-        case 1: {
-          // Identificador do objeto.
+        case TAG_ID: {
           UITextField* texto_id = (UITextField*)subview;
           [texto_id setText: [NSString stringWithFormat: @"%d", n.entidade().id()]];
           break;
         }
-        case 2: {
-          // Eventos.
+        case TAG_EVENTOS: {
           UITextView* text_view = (UITextView*)subview;
           [text_view.layer setBorderColor:[[[UIColor grayColor] colorWithAlphaComponent: 0.5] CGColor]];
           [text_view.layer setBorderWidth: 1.0];
@@ -296,31 +303,28 @@
           [text_view setText: [NSString stringWithCString: eventos_str.c_str() encoding: NSUTF8StringEncoding]];
           break;
         }
-        case 3: {
-          // Rotulo.
+        case TAG_ROTULO: {
           UITextField* texto_rotulo = (UITextField*)subview;
           [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
           break;
         }
-        case 4: {
-          // Aura.
+        case TAG_AURA: {
           slider_ = (UISlider*)subview;
           [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
           [slider_ setValue:n.entidade().aura()];
           break;
         }
-        case 5: {
-          // Aura.
+        case TAG_TEXTO_AURA: {
           texto_slider_ = (UITextField*)subview;
           [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
           break;
         }
-        case 100: {
+        case TAG_BOTAO_OK: {
           UIButton* botao_ok = (UIButton*)subview;
           [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
           break;
         }
-        case 101: {
+        case TAG_BOTAO_CANCELA: {
           UIButton* botao_cancelar = (UIButton*)subview;
           [botao_cancelar addTarget:self action:@selector(fechaViewEntidade) forControlEvents:UIControlEventTouchDown];
           break;
@@ -345,7 +349,7 @@
   NSArray* subviews = [vc_entidade_.view subviews];
   for (UIView* subview in subviews) {
     switch ([subview tag]) {
-      case 2: {
+      case TAG_EVENTOS: {
         // Eventos.
         UITextView* text_view = (UITextView*)subview;
         NSString* eventos_str = [text_view text];
@@ -368,7 +372,7 @@
 
         break;
       }
-      case 3: {
+      case TAG_ROTULO: {
         UITextField* texto_rotulo = (UITextField*)subview;
         notificacao_->mutable_entidade()->set_rotulo(
             [[[texto_rotulo text]
