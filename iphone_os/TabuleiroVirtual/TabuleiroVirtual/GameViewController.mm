@@ -229,6 +229,15 @@
   nativeResize(bounds.size.width * scale, bounds.size.height * scale);
 }
 
+
+// Arrendonda valor do slider.
+-(void)arredonda
+{
+  int valor =round(slider_.value);
+  slider_.value = valor;
+  [texto_slider_ setText:[NSString stringWithFormat:@"%d", valor]];
+}
+
 #pragma mark - Notificacoes
 -(bool)trataNotificacao:(const ntf::Notificacao*)notificacao
 {
@@ -293,10 +302,22 @@
           [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
           break;
         }
+        case 4: {
+          // Aura.
+          slider_ = (UISlider*)subview;
+          [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
+          [slider_ setValue:n.entidade().aura()];
+          break;
+        }
+        case 5: {
+          // Aura.
+          texto_slider_ = (UITextField*)subview;
+          [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
+          break;
+        }
         case 100: {
           UIButton* botao_ok = (UIButton*)subview;
           [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
-          break;
           break;
         }
         case 101: {
@@ -316,6 +337,7 @@
 {
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
   vc_entidade_ = nil;
+  slider_ = nil;
 }
 
 -(void)aceitaFechaViewEntidade
@@ -356,11 +378,18 @@
       }
     }
   }
+  int valor_slider = (int)[slider_ value];
+  if (valor_slider > 0) {
+    notificacao_->mutable_entidade()->set_aura(valor_slider);
+  } else {
+    notificacao_->mutable_entidade()->clear_aura();
+  }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);
   notificacao_ = nullptr;
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
   vc_entidade_ = nil;
+  slider_ = nil;
 }
 
 #pragma mark - Keyboard events
