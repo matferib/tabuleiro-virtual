@@ -1,13 +1,5 @@
 # Este arquivo é uma representação texto do proto ent::Modelos.
 modelo {
-  id: 'Aarakocra'
-  entidade { max_pontos_vida: 4 info_textura { id: 'aarakocra.png'} cor { r: 1.0 } ultima_acao: 'Ataque a Distância' }
-}
-modelo {
-  id: 'Aranha Armadeira'
-  entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
-}
-modelo {
   id: 'Carniçal'
   entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
 }
@@ -22,10 +14,6 @@ modelo {
 modelo {
   id: 'Demônio Babau'
   entidade { dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
-}
-modelo {
-	id: 'Dragontino'
-	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
 modelo {
   id: 'Elemental do Ar (Pequeno)'
@@ -48,16 +36,8 @@ modelo {
   entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
 }
 modelo {
-  id: 'Garra de Ossos'  # Manual dos monstros 3.
-  entidade { dados_vida: '10d12+40' tamanho: TM_GRANDE info_textura { id: 'boneclaw.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
-}
-modelo {
   id: 'Gigante da Colina'
   entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 } }
-}
-modelo {
-  id: 'Gigante da Montanha'  # http://www.dandwiki.com/wiki/Mountain_Giant_(3.5e_Creature)
-  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.427 g: 0.222 b: 0.076 } }
 }
 modelo {
   id: 'Grifo'
@@ -84,14 +64,6 @@ modelo {
     dados_vida: '3d8' tamanho: TM_PEQUENO voadora: true info_textura { id: 'fire_mephit.png' } cor { r: 0.8 g: 0.3 b: 0 }
     rotulo_especial: 'ini: +5\nat: +4/+4, dano: 1d3+1d4(fogo) 1d3+1d4(fogo)\nca: 16'
   }
-}
-modelo {
-  id: 'Morcego (Caçador Noturno)'
-  entidade { max_pontos_vida: 13 tamanho: TM_MEDIO voadora: true info_textura { id: 'bat_deep_hunter.png' } cor { r: 0 g: 0 b: 0 } }
-}
-modelo {
-  id: 'Humano Bruxo'
-  entidade { dados_vida: '1d6' info_textura { id: 'warlock.png'} cor { r: 0.698 g: 0.463 b: 0.275 } }
 }
 modelo {
   id: 'Humano Clérigo'
@@ -148,14 +120,6 @@ modelo {
 modelo {
   id: 'Orc Capitão'
   entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
-}
-modelo {
-  id: 'Peryton'
-  entidade { dados_vida: '5d10+5' voadora: true info_textura { id: 'peryton.png'} cor { r: 0.5 g: 0.5 b: 0.0  } }
-}
-modelo {
-  id: 'Soldado do Horror' # monstros de faerun.
-  entidade { dados_vida: '4d12' info_textura { id: 'dread_warrior' } cor { r: 0 g: 0 b: 0 } }
 }
 modelo {
   id: 'Troll'

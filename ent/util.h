@@ -98,6 +98,9 @@ void RodaVetor2d(float graus, Posicao* vetor);
 /** Retorna true se o ponto estiver dentro do poligono. */
 bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& vertices);
 
+/** Posicionamento do raster em 2d. */
+void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

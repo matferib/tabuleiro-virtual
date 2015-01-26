@@ -373,6 +373,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
         tr("Sobre o tabuleiro virtual"),
         tr("Tabuleiro virtual versão 1.8.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
+           "Ícones: http://www.flaticon.com/\n"
            "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
   }
 

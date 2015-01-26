@@ -149,7 +149,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
     gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
     gl::PonteiroVertices(3, GL_FLOAT, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, vertices_texel);
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, vertices_texel);
     gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
     gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);

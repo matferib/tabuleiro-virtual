@@ -112,6 +112,7 @@ cTexturas = env.Object('tex/texturas.cpp')
 
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
+cTabuleiroControleVirtual = env.Object('ent/tabuleiro_controle_virtual.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
 cAcoes = env.Object('ent/acoes.cpp')
 cConstantes = env.Object('ent/constantes.cpp')
@@ -157,7 +158,7 @@ objetos = [
     # Texturas
     cTexturas, cTexturasLode,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-    ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
+    ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cTabuleiroControleVirtual, cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar,
     # arq
