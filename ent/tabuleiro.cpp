@@ -3896,41 +3896,43 @@ void Tabuleiro::DesenhaControleVirtual() {
     const float* cor_rotulo;   // cor do rotulo.
     int id;  // Identifica o que o botao faz, ver pos_pilha == 4 para cada id.
     bool alternavel;
+    int num_lados_botao;  // numero de lados do botao,.
+    float rotacao_graus;  // Rotacao do botao.
   };
   std::vector<DadosBotao> dados_botoes = {
     // Botoes grandes.
     // Acao.
-    { 2, 0, 0, "A", nullptr, CONTROLE_ACAO, true },
+    { 2, 0, 0, "A", nullptr, CONTROLE_ACAO, true, 4, 0.0f },
     // Linha de cima.
     // Alterna acao para tras.
-    { 1, 1, 2, "<", nullptr, CONTROLE_ACAO_ANTERIOR, false },
+    { 1, 1, 2, "<", nullptr, CONTROLE_ACAO_ANTERIOR, false, 4, 0.0f },
     // Alterna acao para frente.
-    { 1, 1, 3, ">", nullptr,CONTROLE_ACAO_PROXIMA, false },
+    { 1, 1, 3, ">", nullptr,CONTROLE_ACAO_PROXIMA, false, 4, 0.0f },
     // Alterna cura.
-    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, CONTROLE_ALTERNA_CURA, false },
+    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, CONTROLE_ALTERNA_CURA, false, 4, 0.0f },
     // Linha de baixo
     // Adiciona dano +1.
-    { 1, 0, 2, "1", nullptr, CONTROLE_ADICIONA_1, false },
+    { 1, 0, 2, "1", nullptr, CONTROLE_ADICIONA_1, false, 4, 0.0f },
     // Adiciona dano +5
-    { 1, 0, 3, "5", nullptr, CONTROLE_ADICIONA_5, false },
+    { 1, 0, 3, "5", nullptr, CONTROLE_ADICIONA_5, false, 4, 0.0f },
     // Adiciona dano +10.
-    { 1, 0, 4, "10", nullptr, CONTROLE_ADICIONA_10, false },
+    { 1, 0, 4, "10", nullptr, CONTROLE_ADICIONA_10, false, 4, 0.0f },
     // Confirma dano.
-    { 1, 0, 5, "v", COR_AZUL, CONTROLE_CONFIRMA_DANO, false },
+    { 1, 0, 5, "v", COR_AZUL, CONTROLE_CONFIRMA_DANO, false, 4, 0.0f },
     // Apaga dano.
-    { 1, 0, 6, "x", nullptr, CONTROLE_APAGA_DANO, false },
+    { 1, 0, 6, "x", nullptr, CONTROLE_APAGA_DANO, false, 4, 0.0f },
 
     // Status.
-    { 1, 0, 8, "L", COR_AMARELA, CONTROLE_LUZ, false },
-    { 1, 0, 9, "Q", nullptr, CONTROLE_QUEDA, false },
-    { 1, 1, 8, "Vo", nullptr, CONTROLE_VOO, false },
-    { 1, 1, 9, "Vi", nullptr, CONTROLE_VISIBILIDADE, false },
+    { 1, 0, 8, "L", COR_AMARELA, CONTROLE_LUZ, false, 4, 0.0f },
+    { 1, 0, 9, "Q", nullptr, CONTROLE_QUEDA, false, 4, 0.0f },
+    { 1, 1, 8, "Vo", nullptr, CONTROLE_VOO, false, 4, 0.0f },
+    { 1, 1, 9, "Vi", nullptr, CONTROLE_VISIBILIDADE, false, 4, 0.0f },
 
     // Desfazer.
-    { 2, 0, 11, "<=", COR_VERMELHA, CONTROLE_DESFAZER, false },
+    { 2, 0, 11, "<=", COR_VERMELHA, CONTROLE_DESFAZER, false, 3, 30.0f },
 
     // Contador de rodadas.
-    { 2, 0, 14, net::to_string(proto_.contador_rodadas()), nullptr, CONTROLE_RODADA, false },
+    { 2, 0, 14, net::to_string(proto_.contador_rodadas()), nullptr, CONTROLE_RODADA, false, 8, 0.0f },
   };
   int fonte_x_int, fonte_y_int;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
@@ -3964,7 +3966,14 @@ void Tabuleiro::DesenhaControleVirtual() {
       xf = xi + db.tamanho * botao_x;
       yi = db.linha * botao_y;
       yf = yi + db.tamanho * botao_y;
-      gl::Retangulo(xi + padding, yi + padding, xf - padding, yf - padding);
+      gl::MatrizEscopo salva;
+      if (db.num_lados_botao == 4) {
+        gl::Retangulo(xi + padding, yi + padding, xf - padding, yf - padding);
+      } else {
+        gl::Translada((xi + xf) / 2.0f, (yi + yf) / 2.0f, 0.0f);
+        gl::Roda(db.rotacao_graus, 0.0f, 0.0f, 1.0f);
+        DesenhaDisco((xf - xi) / 2.0f, db.num_lados_botao);
+      }
     }
   }
   // Desenha os labels.

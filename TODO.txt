@@ -1,5 +1,5 @@
 Versao 1.8.0
-- Outras formas de botoes no controle virtual.
+- Feedback dos botoes do controle virtual.
 - Diretorio de coisas opensource e coisas privadas.
 - Dialogo de entidade versao ipad (comecado).
 - Id de cliente da versao ipad (pelo menos id nao vem vazio).
