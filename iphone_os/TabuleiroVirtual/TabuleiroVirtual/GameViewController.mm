@@ -234,17 +234,26 @@
 {
   const ntf::Notificacao& n = *notificacao;
   if (n.tipo() == ntf::TN_ERRO || n.tipo() == ntf::TN_INFO) {
-    UIAlertController *alert = nil;
+    // Deprecated ios8 mas funciona em ipad1.
+    NSString* msg_str = [NSString stringWithCString:n.erro().c_str() encoding:NSUTF8StringEncoding];
+    NSString* titulo_str = n.tipo() == ntf::TN_INFO ? @"Info" : @"Erro";
+    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:titulo_str
+                                              message:msg_str
+                                              delegate:nil
+                                              cancelButtonTitle:@"OK"
+                                              otherButtonTitles:nil];
+    [alert show];
+    // Nao funciona ipad1.
+    /*UIAlertController *alert = nil;
     UIAlertAction* defaultAction = nil;
-    alert = [UIAlertController alertControllerWithTitle: n.tipo() == ntf::TN_INFO ? @"Info" : @"Erro"
-                                                message: [NSString stringWithCString: n.erro().c_str()
-                                                                            encoding: NSUTF8StringEncoding]
-                                         preferredStyle: UIAlertControllerStyleAlert];
+    alert = [UIAlertController alertControllerWithTitle:titulo_str
+                               message:msg_str
+                               preferredStyle:UIAlertControllerStyleAlert];
     defaultAction = [UIAlertAction actionWithTitle: @"OK"
                                              style: UIAlertActionStyleDefault
                                            handler: ^(UIAlertAction * action) {}];
     [alert addAction:defaultAction];
-    [self presentViewController:alert animated:YES completion:nil];
+    [self presentViewController:alert animated:YES completion:nil];*/
     return true;
   } else if (n.tipo() == ntf::TN_ABRIR_DIALOGO_ENTIDADE) {
     UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
