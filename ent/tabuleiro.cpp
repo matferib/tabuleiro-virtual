@@ -2641,6 +2641,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
+    contador_pressao_por_controle_[id]++;
     switch (id) {
       case CONTROLE_ACAO:
         AlternaModoAcao();
@@ -3959,7 +3960,23 @@ void Tabuleiro::DesenhaControleVirtual() {
     gl::CarregaIdentidade();
     for (const DadosBotao& db : dados_botoes) {
       gl::CarregaNome(db.id);
+      auto res = contador_pressao_por_controle_.find(db.id);
+      bool pressionado = false;
+      if (res != contador_pressao_por_controle_.end()) {
+        int& num_frames = res->second;
+        pressionado = num_frames > 0;
+        if (pressionado) {
+          ++num_frames;
+          if (num_frames > ATUALIZACOES_BOTAO_PRESSIONADO) {
+            // Ficou suficiente, volta no proximo.
+            num_frames = 0;
+          }
+        }
+      }
       float* cor = db.alternavel && modo_acao_ ? cor_ativa : cor_padrao;
+      if (pressionado) {
+        cor = cor_ativa;
+      }
       gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
       float xi, xf, yi, yf;
       xi = db.coluna * botao_x;

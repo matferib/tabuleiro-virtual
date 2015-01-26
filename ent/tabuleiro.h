@@ -666,6 +666,8 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   bool modo_acao_ = false;
   bool modo_acao_cura_ = false;
+  // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
+  std::map<int, int> contador_pressao_por_controle_;
 
   // Renderizacao por VBO.
   unsigned int nome_buffer_ = 0;
