@@ -1,5 +1,4 @@
 Versao 1.8.1
-- Arrumar invisibilidade para jogadores.
 - Credito para atribuicoes.
 - Icones para botoes.
 - Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).

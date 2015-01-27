@@ -454,8 +454,8 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
     // Para desfazer.
     auto* proto_antes = n->mutable_entidade_antes();
     auto* proto_depois = n->mutable_entidade();
-    if ((bits & BIT_VISIBILIDADE) > 0 && modo_mestre_) {
-      // Apenas modo mestre.
+    if ((bits & BIT_VISIBILIDADE) > 0 && (modo_mestre_ || proto_original.selecionavel_para_jogador())) {
+      // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(!proto_original.visivel());
     }

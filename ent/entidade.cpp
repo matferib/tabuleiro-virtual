@@ -404,7 +404,8 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
     }
   } else {
     // Invisivel, so desenha para o mestre independente da cor (sera translucido).
-    if (!pd->modo_mestre()) {
+    // Para jogador desenha se for selecionavel.
+    if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
       return;
     }
   }
@@ -612,7 +613,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
-  if (!proto_.visivel() && !pd->modo_mestre()) {
+  if (!proto_.visivel() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
     return;
   }
   gl::Habilita(GL_POLYGON_OFFSET_FILL);
