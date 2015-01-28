@@ -119,6 +119,12 @@ float DistanciaHorizontalQuadrado(const Posicao& pos1, const Posicao& pos2) {
   return distancia;
 }
 
+float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2) {
+  float distancia = powf(pos1.x() - pos2.x(), 2) + powf(pos1.y() - pos2.y(), 2) + powf(pos1.z() - pos2.z(), 2);
+  VLOG(4) << "Distancia: " << distancia;
+  return distancia;
+}
+
 const std::string StringEstado(ent::etab_t estado) {
   switch (estado) {
     case ent::ETAB_OCIOSO:
@@ -1266,27 +1272,31 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   }
   // Primeiro, entidades.
   unsigned int id_entidade_destino = Entidade::IdInvalido;
-  if (pos_pilha == 2) {
+  Posicao pos_entidade;
+  if (pos_pilha == OBJ_ENTIDADE) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
     id_entidade_destino = id;
+    float x3d, y3d, z3d;
+#if !USAR_OPENGL_ES
+    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+#else
+    MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
+#endif
+    pos_entidade.set_x(x3d);
+    pos_entidade.set_y(y3d);
+    pos_entidade.set_z(z3d);
     // Depois tabuleiro.
     parametros_desenho_.set_desenha_entidades(false);
     BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   }
-  Posicao pos_quadrado;
   Posicao pos_tabuleiro;
-  if (pos_pilha == 1) {
+  if (pos_pilha == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
     MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
     unsigned int id_quadrado = IdQuadrado(x3d, y3d);
     VLOG(1) << "Acao no tabuleiro: " << id_quadrado;
     // Tabuleiro, posicao do quadrado clicado.
-    float x, y, z;
-    CoordenadaQuadrado(id_quadrado, &x, &y, &z);
-    pos_quadrado.set_x(x);
-    pos_quadrado.set_y(y);
-    pos_quadrado.set_z(z);
     // Posicao exata do clique.
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
@@ -1304,7 +1314,6 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     if (id_entidade_destino != Entidade::IdInvalido) {
       acao_proto.add_id_entidade_destino(id_entidade_destino);
     }
-    acao_proto.mutable_pos_quadrado()->CopyFrom(pos_quadrado);
     acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_ADICIONAR_ACAO);
@@ -1335,13 +1344,15 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
         acao_proto.add_id_entidade_destino(id_entidade_destino);
       }
       acao_proto.set_atraso_s(atraso_segundos);
-      acao_proto.mutable_pos_quadrado()->CopyFrom(pos_quadrado);
       acao_proto.mutable_pos_tabuleiro()->CopyFrom(pos_tabuleiro);
       acao_proto.set_id_entidade_origem(id_selecionado);
 
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_ADICIONAR_ACAO);
       if (acao_proto.efeito_area()) {
+        if (pos_entidade.has_x()) {
+          acao_proto.mutable_pos_entidade()->CopyFrom(pos_entidade);
+        }
         int delta_pontos_vida = 0;
         if (!lista_pontos_vida_.empty()) {
           delta_pontos_vida = lista_pontos_vida_.front();
@@ -3867,14 +3878,19 @@ void Tabuleiro::AlterarModoMestre(bool modo) {
 const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
   std::vector<unsigned int> ids_afetados;
   const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
+  const Posicao& pos_destino = acao.pos_entidade();
   const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
   if (acao.tipo() == ACAO_DISPERSAO) {
     switch (acao.geometria()) {
       case ACAO_GEO_ESFERA: {
+        const Posicao pos_para_computar = pos_destino.has_x() ? pos_destino : pos_tabuleiro;
         for (const auto& id_entidade_destino : entidades_) {
           const Entidade* entidade_destino = id_entidade_destino.second.get();
-          float d2 = DistanciaHorizontalQuadrado(pos_tabuleiro, entidade_destino->Pos());
+          Posicao pos_entidade(entidade_destino->Pos());
+          pos_entidade.set_z(pos_entidade.z() + entidade_destino->TranslacaoZ());
+          float d2 = DistanciaQuadrado(pos_para_computar, pos_entidade);
           if (d2 <= powf(acao.raio_area() * TAMANHO_LADO_QUADRADO, 2)) {
+            VLOG(1) << "Adicionando id: " << id_entidade_destino.first;
             ids_afetados.push_back(id_entidade_destino.first);
           }
         }
@@ -3910,6 +3926,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
             continue;
           }
           if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
+            VLOG(1) << "Adicionando id: " << id_entidade_destino.first;
             ids_afetados.push_back(id_entidade_destino.first);
           }
         }
@@ -3948,6 +3965,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
         continue;
       }
       if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
+        VLOG(1) << "Adicionando id: " << id_entidade_destino.first;
         ids_afetados.push_back(id_entidade_destino.first);
       }
     }

@@ -214,7 +214,8 @@ class AcaoDispersao : public Acao {
       // achatando-se o cone na vertical. Apos a ultima rotacao, o eixo X esta apontando para baixo.
       gl::Escala(efeito_ * 0.2f, efeito_, efeito_);
     } else {
-      gl::Translada(pos_tabuleiro.x(), pos_tabuleiro.y(), pos_tabuleiro.z());
+      const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
+      gl::Translada(pos.x(), pos.y(), pos.z());
       gl::Escala(efeito_, efeito_, efeito_);
     }
     DesenhaGeometriaAcao(acao_proto_.geometria());
