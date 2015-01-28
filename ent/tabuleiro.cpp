@@ -2742,7 +2742,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   unsigned int id, pos_pilha;
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  if (pos_pilha == 1) {
+  if (pos_pilha == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
     MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
     // Tabuleiro: cria uma entidade nova.
@@ -2751,7 +2751,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     TrataNotificacao(notificacao);
-  } else if (pos_pilha == 2) {
+  } else if (pos_pilha == OBJ_ENTIDADE) {
     // Entidade.
     if (SelecionaEntidade(id)) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
@@ -2760,6 +2760,8 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
       n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
       central_->AdicionaNotificacao(n);
     }
+  } if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
+    PickingControleVirtual(false  /*alterna selecao*/, id);
   } else {
     ;
   }
