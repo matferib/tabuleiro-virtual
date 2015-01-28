@@ -1,7 +1,7 @@
 Versao 1.8.1
 - Credito para atribuicoes.
-- Icones para botoes.
-- Fireball em criaturas (ao inves de so em area, por exemplo para criaturas voando).
+- Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
+  Problema eh que o controle de voo da entidade eh feito pelo z.
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Diretorio de coisas opensource e coisas privadas.
 - Dialogo de entidade versao ipad: slider de tamanho de entidades.

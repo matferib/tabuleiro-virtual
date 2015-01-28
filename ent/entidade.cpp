@@ -162,13 +162,16 @@ void Entidade::Atualiza() {
   float z_chao = ZChao(X(), Y());
   if (proto_.voadora()) {
     if (Z() < z_chao + ALTURA_VOO) {
+      // Decolando, ate chegar na altura do voo.
       po->set_z(po->z() + ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
       vd_.angulo_disco_voo_rad = 0.0f;
     } else {
+      // Chegou na altura do voo, flutua.
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
     if (Z() > z_chao) {
+      // Nao eh voadora e esta suspensa. Pousando.
       po->set_z(po->z() - ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
     }
     vd_.angulo_disco_voo_rad = 0.0f;

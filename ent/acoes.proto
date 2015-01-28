@@ -59,8 +59,9 @@ message AcaoProto {
   // Identificador do alvo da acao.
   repeated uint32 id_entidade_destino = 11;
   // Posicao do clique no tabuleiro, para quem usar.
-  optional Posicao pos_quadrado = 12;
   optional Posicao pos_tabuleiro = 13;
+  // Posicao do clique na entidade, se houver.
+  optional Posicao pos_entidade = 12;
   // Usado para indicar o delta de pontos de vida da unidade afetada. Ver afeta_pontos_vida.
   optional int32 delta_pontos_vida = 14;  // cosmetico apenas.
   // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
