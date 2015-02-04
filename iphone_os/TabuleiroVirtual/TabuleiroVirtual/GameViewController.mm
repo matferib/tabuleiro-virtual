@@ -13,6 +13,8 @@ const int TAG_EVENTOS = 2;
 const int TAG_ROTULO = 3;
 const int TAG_AURA = 4;
 const int TAG_TEXTO_AURA = 5;
+const int TAG_TAMANHO = 6;
+const int TAG_TEXTO_TAMANHO = 7;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -242,9 +244,30 @@ const int TAG_BOTAO_CANCELA = 101;
 // Arrendonda valor do slider.
 -(void)arredonda
 {
-  int valor =round(slider_.value);
+  int valor = round(slider_.value);
   slider_.value = valor;
   [texto_slider_ setText:[NSString stringWithFormat:@"%d", valor]];
+}
+
+-(void)arredondaTamanho
+{
+  int valor = round(slider_tamanho_.value);
+  slider_tamanho_.value = valor;
+  [texto_slider_tamanho_ setText:[self tamanhoParaString:valor]];
+}
+
+// Tira o prefixo TM, e deixa so primeira maiuscula.
+-(NSString*)tamanhoParaString:(int)tamanho
+{
+  std::string tamanho_cstr = ent::TamanhoEntidade_Name((ent::TamanhoEntidade)tamanho);
+  if (tamanho_cstr.size() < 3) {
+    NSLog(@"Tamanho: %d", tamanho);
+    return @"";
+  }
+  NSString* tamanho_str = [[NSString stringWithCString:tamanho_cstr.c_str() encoding:NSUTF8StringEncoding] substringFromIndex:3];
+  tamanho_str = [tamanho_str capitalizedString];
+  NSLog(@"Retornando Tamanho: %@", tamanho_str);
+  return tamanho_str;
 }
 
 #pragma mark - Notificacoes
@@ -319,6 +342,17 @@ const int TAG_BOTAO_CANCELA = 101;
           [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
           break;
         }
+        case TAG_TAMANHO: {
+          slider_tamanho_ = (UISlider*)subview;
+          [slider_tamanho_ addTarget:self action:@selector(arredondaTamanho) forControlEvents:UIControlEventValueChanged];
+          [slider_tamanho_ setValue:n.entidade().tamanho()];
+          break;
+        }
+        case TAG_TEXTO_TAMANHO: {
+          texto_slider_tamanho_ = (UITextField*)subview;
+          [texto_slider_tamanho_ setText:[self tamanhoParaString:n.entidade().tamanho()]];
+          break;
+        }
         case TAG_BOTAO_OK: {
           UIButton* botao_ok = (UIButton*)subview;
           [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
@@ -382,11 +416,17 @@ const int TAG_BOTAO_CANCELA = 101;
       }
     }
   }
-  int valor_slider = (int)[slider_ value];
-  if (valor_slider > 0) {
-    notificacao_->mutable_entidade()->set_aura(valor_slider);
-  } else {
-    notificacao_->mutable_entidade()->clear_aura();
+  {
+    int valor_slider = (int)[slider_ value];
+    if (valor_slider > 0) {
+      notificacao_->mutable_entidade()->set_aura(valor_slider);
+    } else {
+      notificacao_->mutable_entidade()->clear_aura();
+    }
+  }
+  {
+    int valor_slider_tamanho = (int)[slider_tamanho_ value];
+    notificacao_->mutable_entidade()->set_tamanho((ent::TamanhoEntidade)valor_slider_tamanho);
   }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);
