@@ -4,7 +4,6 @@ Versao 1.8.1
   Problema eh que o controle de voo da entidade eh feito pelo z.
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Diretorio de coisas opensource e coisas privadas.
-- Dialogo de entidade versao ipad: slider de tamanho de entidades.
 - Id de cliente da versao ipad (pelo menos id nao vem vazio).
 - Mais teclado global.
 - Mais teclado ipad.
