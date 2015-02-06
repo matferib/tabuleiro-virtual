@@ -1,5 +1,6 @@
 /** @file ifg/qt/MenuPrincipal.cpp implementacao do menu principal. */
 
+#include <stack>
 #include <QActionGroup>
 #include <QBoxLayout>
 #include <QColor>
@@ -14,8 +15,10 @@
 #include <QVariant>
 #include <boost/asio/ip/host_name.hpp>
 
+#include "arq/arquivo.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"
+#include "ifg/modelos.pb.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/util.h"
 #include "log/log.h"
@@ -50,6 +53,51 @@ const char* g_menuitem_strs[] = {
   "&Tabuleiro virtual", g_fim,
 };
 
+// Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
+void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* grupo) {
+  std::map<std::string, std::pair<std::string, const MenuModelos*>> mapa;
+  for (const auto& m : menu_modelos.modelo()) {
+    mapa.insert(std::make_pair(m.id(), std::make_pair(m.texto(), nullptr)));
+  }
+  for (const auto& s : menu_modelos.sub_menu()) {
+    mapa.insert(std::make_pair(s.id(), std::make_pair(s.id(), &s)));
+  }
+  // Agora preenche os menus.
+  for (const auto& id_par_texto_menu : mapa) {
+    const std::string& id = id_par_texto_menu.first;
+    const std::string& texto = id_par_texto_menu.second.first.empty() ? id : id_par_texto_menu.second.first;
+    const MenuModelos* modelo = id_par_texto_menu.second.second;
+    if (modelo == nullptr) {
+      QAction* acao = menu->addAction(QObject::tr(texto.c_str()));
+      acao->setCheckable(true);
+      grupo->addAction(acao);
+      acao->setData(QVariant::fromValue(QString(id.c_str())));
+    } else {
+      PreencheMenu(*modelo, menu->addMenu(QObject::tr(texto.c_str())), grupo);
+    }
+  }
+}
+
+void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
+  for (const auto& m : entrada.modelo()) {
+    saida->add_modelo()->CopyFrom(m);
+  }
+  for (const auto& sub_entrada : entrada.sub_menu()) {
+    MenuModelos* sub_saida = nullptr;
+    for (auto& esta_sub_saida : *saida->mutable_sub_menu()) {
+      if (esta_sub_saida.id() == sub_entrada.id()) {
+        sub_saida = &esta_sub_saida;
+        break;
+      }
+    }
+    if (sub_saida == nullptr) {
+      sub_saida = saida->add_sub_menu();
+      sub_saida->set_id(sub_entrada.id());
+    }
+    MisturaProtosMenu(sub_entrada, sub_saida);
+  }
+}
+
 }  // namespace
 
 MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central, QWidget* pai)
@@ -78,30 +126,26 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         menu->addSeparator();
       } else if (std::string(menuitem_str) == "&Selecionar modelo") {
         // Esse sub menu tem tratamento especial.
+        const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
+        const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
         auto* grupo = new QActionGroup(this);
         grupo->setExclusive(true);
+        const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
-        std::vector<std::pair<std::string, const ent::EntidadeProto*>> modelos_ordenados;
-        for (const auto& modelo_it : tabuleiro_->MapaModelos()) {
-          auto par = std::make_pair(modelo_it.first, modelo_it.second.get());
-          modelos_ordenados.push_back(par);
-        }
-        std::sort(modelos_ordenados.begin(), modelos_ordenados.end(),
-                  [] (const std::pair<std::string, const ent::EntidadeProto*>& esq,
-                      const std::pair<std::string, const ent::EntidadeProto*>& dir) {
-            return esq.first < dir.first;
-        });
-        for (const auto& modelo_it : modelos_ordenados) {
-          auto* sub_acao = new QAction(tr(modelo_it.first.c_str()), menu);
-          sub_acao->setCheckable(true);
-          sub_acao->setData(QVariant::fromValue(QString(modelo_it.first.c_str())));
-          grupo->addAction(sub_acao);
-          menu_modelos->addAction(sub_acao);
-          acoes_modelos_.push_back(sub_acao);
-          if (modelo_it.second == tabuleiro->ModeloSelecionado()) {
-            sub_acao->setChecked(true);
+        std::vector<ent::EntidadeProto*> entidades;
+        MenuModelos menu_modelos_proto;
+        for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
+          MenuModelos este_menu_modelos_proto;
+          try {
+            arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
+            LOG(INFO) << "Este modelo: " << este_menu_modelos_proto.DebugString(); 
+            MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
+          } catch (const std::logic_error& erro) {
+            LOG(ERROR) << erro.what();
           }
         }
+        LOG(INFO) << "Modelos final: " << menu_modelos_proto.DebugString(); 
+        PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
         connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
       } else {
         // menuitem nao NULL, adiciona normalmente da lista de menuitems

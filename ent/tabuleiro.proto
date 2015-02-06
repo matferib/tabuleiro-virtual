@@ -76,6 +76,7 @@ message TabuleiroProto {
   optional int32 contador_rodadas = 15;
 }
 
+// TODO sumir com isso.
 // Cada modelo de entidade que pode ser adicionada. Apenas alguns campos da entidade sao considerados:
 // - pontos de vida.
 // - tamanho.
