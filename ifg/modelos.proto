@@ -1,0 +1,13 @@
+package ifg;
+
+message Modelo {
+  optional string id = 1;  // id do modelo de acordo com arquivo de modelos.asciiproto
+  optional string texto = 2;  // texto do menu, se houver. Caso contrario usa id.
+}
+
+// O menu de modelos pode conter um submenu ou modelos.
+message MenuModelos {
+  optional string id = 1;
+  repeated MenuModelos sub_menu = 2;
+  repeated Modelo modelo = 3;
+}

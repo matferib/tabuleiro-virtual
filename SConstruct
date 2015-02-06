@@ -94,6 +94,10 @@ env.SConscript('local.SConscript', exports = 'env')
 cTecladoMouse = env.Object('ifg/tecladomouse.cpp')
 # Permite lambdas no QT.
 cUtil = env.Object('ifg/qt/util.cpp')
+ifg_proto = env.Protoc(
+  target = [],
+  source = ['ifg/modelos.proto'],
+)
 
 # Principal: qt moc e fonte. Os mocs sao gerados automaticamente
 # se estiverem no mesmo diretorio do fonte.
@@ -120,14 +124,13 @@ cEntUtil = env.Object('ent/util.cpp')
 cEntDesenho = env.Object('ent/entidade_desenho.cpp')
 if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
-
-# arq
-cArq = env.Object('arq/arquivo.cpp')
-
 ent_proto = env.Protoc(
   target = [],
   source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto'],
 )
+
+# arq
+cArq = env.Object('arq/arquivo.cpp')
 
 # net
 cNetServidor = env.Object('net/servidor.cpp')
@@ -152,7 +155,7 @@ objetos = [
     # notificacoes.
     ntf_proto[0], cNtf,
     # interface.
-    cTecladoMouse,
+    cTecladoMouse, ifg_proto[0],
     # interface QT
     cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # Texturas
