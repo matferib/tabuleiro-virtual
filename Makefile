@@ -35,6 +35,9 @@ apple_debug:
 apple_debug_opengles:
 	scons sistema=apple debug=1 usar_opengl_es=1
 
+apple_test:
+	scons sistema=apple debug=1 testes=1 modelos_test teste_ent_util 
+
 linux_profile:
 	scons gerar_profile=1
 
