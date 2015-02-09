@@ -1,5 +1,5 @@
 Versao 1.8.1
-- Unit test dos menus (ver se os ids casam com o tabuleiro).
+- Mensagem de erro ao inciar GL no windows.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
   Problema eh que o controle de voo da entidade eh feito pelo z.

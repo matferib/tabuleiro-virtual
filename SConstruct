@@ -185,6 +185,9 @@ if compilar_testes:
   env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', ] + objetos)
+  env.Program(
+      target = 'teste_modelos',
+      source = ['ifg/modelos_test.cpp', ] + objetos)
 
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark

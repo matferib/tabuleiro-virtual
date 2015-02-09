@@ -34,7 +34,7 @@ void Inicializa(JNIEnv* env, jobject assets);
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 
-// Interface de leitura.
+// Interface de leitura. Lancam std::logic_error em caso de erro.
 void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados);
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
