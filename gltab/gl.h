@@ -43,7 +43,7 @@
 
 namespace gl {
 
-// Inicializacao e finalizacao da parte grafica.
+// Inicializacao e finalizacao da parte grafica. Inicializacao lanca excecao std::logic_error em caso de erro.
 void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
