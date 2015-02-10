@@ -176,11 +176,17 @@ Visualizador3d::~Visualizador3d() {
 // reimplementacoes
 void Visualizador3d::initializeGL() {
   static bool once = false;
-  if (!once) {
-    once = true;
-    gl::IniciaGl(argcp_, argv_);
+  try {
+    if (!once) {
+      once = true;
+      gl::IniciaGl(argcp_, argv_);
+    }
+    tabuleiro_->IniciaGL();
+  } catch (const std::logic_error& erro) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro(erro.what());
+    central_->AdicionaNotificacao(n);
   }
-  tabuleiro_->IniciaGL();
 }
 
 void Visualizador3d::resizeGL(int width, int height) {

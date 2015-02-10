@@ -266,7 +266,7 @@ const int TAG_BOTAO_CANCELA = 101;
   }
   NSString* tamanho_str = [[NSString stringWithCString:tamanho_cstr.c_str() encoding:NSUTF8StringEncoding] substringFromIndex:3];
   tamanho_str = [tamanho_str capitalizedString];
-  NSLog(@"Retornando Tamanho: %@", tamanho_str);
+  //NSLog(@"Retornando Tamanho: %@", tamanho_str);
   return tamanho_str;
 }
 
@@ -303,68 +303,47 @@ const int TAG_BOTAO_CANCELA = 101;
     notificacao_->CopyFrom(n);
     vc_entidade_.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
     //vc.modalPresentationStyle = UIModalPresentationStyle.UIModalPresentationPopover;
-    NSArray* subviews = [vc_entidade_.view subviews];
-    for (UIView* subview in subviews) {
-      switch ([subview tag]) {
-        case TAG_ID: {
-          UITextField* texto_id = (UITextField*)subview;
-          [texto_id setText: [NSString stringWithFormat: @"%d", n.entidade().id()]];
-          break;
-        }
-        case TAG_EVENTOS: {
-          UITextView* text_view = (UITextView*)subview;
-          [text_view.layer setBorderColor:[[[UIColor grayColor] colorWithAlphaComponent: 0.5] CGColor]];
-          [text_view.layer setBorderWidth: 1.0];
-          text_view.layer.cornerRadius = 5;
-          text_view.clipsToBounds = YES;
-          std::string eventos_str;
-          for (const auto& evento : n.entidade().evento()) {
-            eventos_str.append(evento.descricao());
-            eventos_str.append(": ");
-            eventos_str.append(std::to_string(evento.rodadas()) + "\n");
-          }
-          [text_view setText: [NSString stringWithCString: eventos_str.c_str() encoding: NSUTF8StringEncoding]];
-          break;
-        }
-        case TAG_ROTULO: {
-          UITextField* texto_rotulo = (UITextField*)subview;
-          [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
-          break;
-        }
-        case TAG_AURA: {
-          slider_ = (UISlider*)subview;
-          [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
-          [slider_ setValue:n.entidade().aura()];
-          break;
-        }
-        case TAG_TEXTO_AURA: {
-          texto_slider_ = (UITextField*)subview;
-          [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
-          break;
-        }
-        case TAG_TAMANHO: {
-          slider_tamanho_ = (UISlider*)subview;
-          [slider_tamanho_ addTarget:self action:@selector(arredondaTamanho) forControlEvents:UIControlEventValueChanged];
-          [slider_tamanho_ setValue:n.entidade().tamanho()];
-          break;
-        }
-        case TAG_TEXTO_TAMANHO: {
-          texto_slider_tamanho_ = (UITextField*)subview;
-          [texto_slider_tamanho_ setText:[self tamanhoParaString:n.entidade().tamanho()]];
-          break;
-        }
-        case TAG_BOTAO_OK: {
-          UIButton* botao_ok = (UIButton*)subview;
-          [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
-          break;
-        }
-        case TAG_BOTAO_CANCELA: {
-          UIButton* botao_cancelar = (UIButton*)subview;
-          [botao_cancelar addTarget:self action:@selector(fechaViewEntidade) forControlEvents:UIControlEventTouchDown];
-          break;
-        }
-      }
+    UIView* view = [vc_entidade_ view];
+    
+    UITextField* texto_id = (UITextField*)[view viewWithTag:TAG_ID];
+    [texto_id setText: [NSString stringWithFormat: @"%d", n.entidade().id()]];
+
+    UITextView* text_view = (UITextView*)[view viewWithTag:TAG_EVENTOS];
+    [text_view.layer setBorderColor:[[[UIColor grayColor]colorWithAlphaComponent:0.5] CGColor]];
+    [text_view.layer setBorderWidth: 1.0];
+    text_view.layer.cornerRadius = 5;
+    text_view.clipsToBounds = YES;
+    std::string eventos_str;
+    for (const auto& evento : n.entidade().evento()) {
+      eventos_str.append(evento.descricao());
+      eventos_str.append(": ");
+      eventos_str.append(std::to_string(evento.rodadas()) + "\n");
     }
+    [text_view setText: [NSString stringWithCString:eventos_str.c_str()
+                                           encoding: NSUTF8StringEncoding]];
+    UIButton* botao_ok = (UIButton*)[view viewWithTag:TAG_BOTAO_OK];
+    [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
+
+    UIButton* botao_cancelar = (UIButton*)[view viewWithTag:TAG_BOTAO_CANCELA];
+    [botao_cancelar addTarget:self action:@selector(fechaViewEntidade) forControlEvents:UIControlEventTouchDown];
+
+    UITextField* texto_rotulo = (UITextField*)[view viewWithTag:TAG_ROTULO];
+    [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
+    
+    slider_ = (UISlider*)[view viewWithTag:TAG_AURA];
+    [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
+    [slider_ setValue:n.entidade().aura()];
+    
+    texto_slider_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];
+    [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
+    
+    slider_tamanho_ = (UISlider*)[view viewWithTag:TAG_TAMANHO];
+    [slider_tamanho_ addTarget:self action:@selector(arredondaTamanho) forControlEvents:UIControlEventValueChanged];
+    [slider_tamanho_ setValue:n.entidade().tamanho()];
+    
+    texto_slider_tamanho_ = (UITextField*)[view viewWithTag:TAG_TEXTO_TAMANHO];
+    [texto_slider_tamanho_ setText:[self tamanhoParaString:n.entidade().tamanho()]];
+    
     [self presentModalViewController:vc_entidade_ animated:TRUE];
     return true;
   }
