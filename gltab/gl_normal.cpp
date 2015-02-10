@@ -36,20 +36,24 @@ void IniciaGl(int* argcp, char** argv) {
 #if WIN32
   LOG(INFO) << "pegando ponteiros";
   g_contexto.pglGenBuffers = wglGetProcAddress("glGenBuffers");
+  std::string erro;
   if (g_contexto.pglGenBuffers == nullptr) {
-    LOG(FATAL) << "null glGenBuffers";
+    erro = "null glGenBuffers";
   }
   g_contexto.pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
   if (g_contexto.pglDeleteBuffers == nullptr) {
-    LOG(FATAL) << "null glDeleteBuffers";
+    erro = "null glDeleteBuffers";
   }
   g_contexto.pglBufferData = wglGetProcAddress("glBufferData");
   if (g_contexto.pglBufferData == nullptr) {
-    LOG(FATAL) << "null glBufferData";
+    erro = "null glBufferData";
   }
   g_contexto.pglBindBuffer = wglGetProcAddress("glBindBuffer");
   if (g_contexto.pglBindBuffer == nullptr) {
-    LOG(FATAL) << "null glBindBuffer";
+    erro = "null glBindBuffer";
+  }
+  if (!erro.empty()) {
+    throw std::logic_error(erro);
   }
 #endif
   /*
