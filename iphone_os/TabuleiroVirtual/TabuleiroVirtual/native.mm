@@ -66,9 +66,8 @@ std::unique_ptr<TratadorDialogos> g_tratador_dialogos;
 
 void nativeCreate(void* view) {
   g_view = (__bridge GameViewController*)view;
-  std::string nome_completo(boost::asio::ip::host_name());
-  std::string nome_nativo = nome_completo.substr(0, nome_completo.find("."));
-  std::string endereco_nativo;
+  std::string nome_nativo([g_view->id_cliente_ UTF8String]);
+  std::string endereco_nativo([g_view->endereco_servidor_ UTF8String]);
 
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));

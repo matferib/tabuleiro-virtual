@@ -1,11 +1,10 @@
 Versao 1.8.1
-- Mensagem de erro ao inciar GL no windows.
+- Mensagem de erro ao iniciar GL no windows.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
   Problema eh que o controle de voo da entidade eh feito pelo z.
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
-- Diretorio de coisas opensource e coisas privadas.
-- Id de cliente da versao ipad (pelo menos id nao vem vazio).
+- Transicao para coisas opensource e coisas privadas.
 - Mais teclado global.
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
@@ -30,9 +29,9 @@ Versao 1.8.2
 - Instalador windows, rpm linux e ??? MAC.
 
 Versao 2.0
+- Visao primeira pessoa.
 - Joystick no android.
 - Registro correto dos diretorios para funcionar de qualquer diretorio.
-- Modelar menu com um proto ASCII para facilitar expansao.
 - Botao de aplicar mudancas nos dialogos.
 - Shader.
 - Outros bits de status (dormindo, paralizado).

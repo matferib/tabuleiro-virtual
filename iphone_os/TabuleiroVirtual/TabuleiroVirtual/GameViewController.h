@@ -25,6 +25,10 @@ class Notificacao;
     UITextField* texto_slider_;  // ditto.
     UISlider* slider_tamanho_;  // para dialogo de propriedade de entidade.
     UITextField* texto_slider_tamanho_;  // ditto.
+    
+    @public
+    NSString* id_cliente_;
+    NSString* endereco_servidor_;
 }
 
 -(bool)trataNotificacao:(const ntf::Notificacao*)notificacao;

@@ -12,7 +12,7 @@
 		EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */; };
 		EA9253DE1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */; };
 		EACF265F1A58C6DA0052E95A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF265E1A58C6DA0052E95A /* main.m */; };
-		EACF26621A58C6DA0052E95A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF26611A58C6DA0052E95A /* AppDelegate.m */; };
+		EACF26621A58C6DA0052E95A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = EACF26611A58C6DA0052E95A /* AppDelegate.mm */; };
 		EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EACF266A1A58C6DA0052E95A /* Main.storyboard */; };
 		EACF266E1A58C6DA0052E95A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EACF266D1A58C6DA0052E95A /* Images.xcassets */; };
 		EACF26711A58C6DA0052E95A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = EACF266F1A58C6DA0052E95A /* LaunchScreen.xib */; };
@@ -99,7 +99,7 @@
 		EACF265D1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF265E1A58C6DA0052E95A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		EACF26601A58C6DA0052E95A /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		EACF26611A58C6DA0052E95A /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		EACF26611A58C6DA0052E95A /* AppDelegate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		EACF26671A58C6DA0052E95A /* GameViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
 		EACF266B1A58C6DA0052E95A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		EACF266D1A58C6DA0052E95A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
@@ -304,7 +304,7 @@
 				EACF26931A58D0720052E95A /* native.h */,
 				EACF26921A58D0720052E95A /* native.mm */,
 				EACF26601A58C6DA0052E95A /* AppDelegate.h */,
-				EACF26611A58C6DA0052E95A /* AppDelegate.m */,
+				EACF26611A58C6DA0052E95A /* AppDelegate.mm */,
 				EACF26671A58C6DA0052E95A /* GameViewController.h */,
 				EACF26861A58C77B0052E95A /* GameViewController.mm */,
 				EACF266A1A58C6DA0052E95A /* Main.storyboard */,
@@ -706,7 +706,7 @@
 				EACF27AB1A58D9AA0052E95A /* service.cc in Sources */,
 				EACF27B61A58D9AA0052E95A /* unknown_field_set.cc in Sources */,
 				EACF27B41A58D9AA0052E95A /* substitute.cc in Sources */,
-				EACF26621A58C6DA0052E95A /* AppDelegate.m in Sources */,
+				EACF26621A58C6DA0052E95A /* AppDelegate.mm in Sources */,
 				EACF279F1A58D9AA0052E95A /* coded_stream.cc in Sources */,
 				EACF27981A58D9AA0052E95A /* descriptor_database.cc in Sources */,
 				EACF272A1A58D95D0052E95A /* tecladomouse.cpp in Sources */,
