@@ -77,16 +77,17 @@ void Entidade::DesenhaObjetoEntidadeProto(
     MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto, vd, pd, matriz_shear);
 
     gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-    //gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
 
     const gl::Vbo& vbo = g_vbos[VBO_PEAO];
 
-    //gl::PonteiroNormais(GL_FLOAT, &vbo.normais[0]);
 
-    //gl::PonteiroVertices(3, GL_FLOAT, &vbo.coordenadas[0]);
+    //gl::PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
+    //gl::PonteiroVertices(3, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
     gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
     V_ERRO();
-    gl::PonteiroVertices(3, GL_FLOAT, sizeof(GL_FLOAT) * 3, (void*)0);
+    gl::PonteiroNormais(GL_FLOAT, vbo.Passo(), (void*)vbo.DeslocamentoNormais());
+    gl::PonteiroVertices(3, GL_FLOAT, vbo.Passo(), (void*)0);
     V_ERRO();
     //gl::DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
     gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
@@ -97,7 +98,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
     gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
-    //gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
     gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     return;
   }
