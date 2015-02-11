@@ -1517,6 +1517,8 @@ void Tabuleiro::IniciaGL() {
   }
   RegeraVbo();
   gl_iniciado_ = true;
+
+  Entidade::IniciaGl();
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {

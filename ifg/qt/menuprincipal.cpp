@@ -138,13 +138,13 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
           MenuModelos este_menu_modelos_proto;
           try {
             arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
-            LOG(INFO) << "Este modelo: " << este_menu_modelos_proto.DebugString(); 
+            VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString(); 
             MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
           } catch (const std::logic_error& erro) {
             LOG(ERROR) << erro.what();
           }
         }
-        LOG(INFO) << "Modelos final: " << menu_modelos_proto.DebugString(); 
+        VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString(); 
         PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
         connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
       } else {

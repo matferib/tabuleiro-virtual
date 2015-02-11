@@ -231,11 +231,33 @@ inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
 
 /** Objetos GLU e GLUT. */
+struct Vbo {
+  void Concatena(const Vbo& rhs) {
+    // TODO esse tres aqui vai dar trabalho. Colocar no vbo.
+    const unsigned short num_coordenadas_inicial = coordenadas.size() / 3;  // pegar antes da alteracao.
+    coordenadas.insert(coordenadas.end(), rhs.coordenadas.begin(), rhs.coordenadas.end());
+    normais.insert(normais.end(), rhs.normais.begin(), rhs.normais.end());
+    for (const auto indice : rhs.indices) {
+      indices.push_back(indice + num_coordenadas_inicial);
+    }
+  }
+
+  std::vector<float> coordenadas;  // um para x, outro y, outro z e por ai vai.
+  std::vector<float> normais;  // idem, mesma cardinalidade de coordenadas.
+  std::vector<unsigned short> indices;  // indices de coordenadas e normais.
+  // Buffers.
+  GLuint nome_coordenadas;
+  GLuint nome_indices;
+};
+
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
+const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
 void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
 void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
+const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
 void CuboSolido(GLfloat tam_lado);
+const Vbo RetornaConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
 
 /** Raster. */
 #if !USAR_OPENGL_ES

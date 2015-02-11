@@ -9,6 +9,12 @@
 #include "gltab/gl.h"
 #include "log/log.h"
 
+namespace gl {
+bool ImprimeSeErro();
+}  // namespace gl
+
+#define V_ERRO() do { gl::ImprimeSeErro(); } while (0)
+
 namespace ent {
 
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
@@ -69,9 +75,30 @@ void Entidade::DesenhaObjetoEntidadeProto(
   if (!proto.has_info_textura()) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto, vd, pd, matriz_shear);
-    gl::ConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-    gl::Translada(0, 0, ALTURA);
-    gl::EsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
+
+    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+    //gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+
+    const gl::Vbo& vbo = g_vbos[VBO_PEAO];
+
+    //gl::PonteiroNormais(GL_FLOAT, &vbo.normais[0]);
+
+    //gl::PonteiroVertices(3, GL_FLOAT, &vbo.coordenadas[0]);
+    gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
+    V_ERRO();
+    gl::PonteiroVertices(3, GL_FLOAT, (void*)0);
+    V_ERRO();
+    //gl::DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
+    gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
+    V_ERRO();
+    gl::DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+    V_ERRO();
+
+    gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+    gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    //gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     return;
   }
 

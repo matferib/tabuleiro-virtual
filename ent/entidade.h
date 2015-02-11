@@ -2,6 +2,7 @@
 #define ENT_ENTIDADE_H
 
 #include "ent/entidade.pb.h"
+#include "gltab/gl.h"
 
 namespace ntf {
 class CentralNotificacoes;
@@ -146,10 +147,17 @@ class Entidade {
   static void DesenhaObjetoProto(
       const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
+  /** Carrega modelos usados pelas entidades. */
+  static void IniciaGl();
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
  private:
+  // Nome dos buffers de VBO.
+  constexpr static unsigned short VBO_PEAO = 0;
+  static std::vector<gl::Vbo> g_vbos;
+
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
     VariaveisDerivadas() : angulo_disco_selecao_graus(0), angulo_disco_voo_rad(0), angulo_disco_queda_graus(0), texturas(nullptr) { }
