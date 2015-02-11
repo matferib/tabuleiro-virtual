@@ -675,7 +675,7 @@ void Entidade::IniciaGl() {
   vbo = gl::RetornaConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
   gl::Vbo vbo_esfera(gl::RetornaEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
   // Translada todos os Z da esfera em ALTURA.
-  for (int i = 2; i < vbo_esfera.coordenadas.size(); i += 3) {
+  for (unsigned int i = 2; i < vbo_esfera.coordenadas.size(); i += 3) {
     vbo_esfera.coordenadas[i] += ALTURA;
   }
   vbo.Concatena(vbo_esfera);
@@ -686,7 +686,7 @@ void Entidade::IniciaGl() {
   // Associa coordenadas com ARRAY_BUFFER.
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
   V_ERRO();
-  gl::BufferizaDados(GL_ARRAY_BUFFER, 3 * sizeof(GL_FLOAT), vbo.coordenadas.data(), GL_STATIC_DRAW);
+  gl::BufferizaDados(GL_ARRAY_BUFFER, sizeof(GL_FLOAT) * vbo.coordenadas.size(),  vbo.coordenadas.data(), GL_STATIC_DRAW);
   V_ERRO();
   // TODO normais!!!!
   // Buffer de indices.
@@ -694,7 +694,7 @@ void Entidade::IniciaGl() {
   V_ERRO();
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
   V_ERRO();
-  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short), vbo.indices.data(), GL_STATIC_DRAW);
+  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * vbo.indices.size(), vbo.indices.data(), GL_STATIC_DRAW);
   V_ERRO();
   LOG(INFO) << "Buffers: " << vbo.nome_coordenadas << ", " << vbo.nome_indices;
 }
