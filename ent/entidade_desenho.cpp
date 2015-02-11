@@ -86,7 +86,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     //gl::PonteiroVertices(3, GL_FLOAT, &vbo.coordenadas[0]);
     gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
     V_ERRO();
-    gl::PonteiroVertices(3, GL_FLOAT, (void*)0);
+    gl::PonteiroVertices(3, GL_FLOAT, sizeof(GL_FLOAT) * 3, (void*)0);
     V_ERRO();
     //gl::DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
     gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);

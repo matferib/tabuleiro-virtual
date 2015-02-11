@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstring>
 #include <string>
 #include <vector>
 #include "gltab/gl.h"
