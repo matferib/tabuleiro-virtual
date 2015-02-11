@@ -2,6 +2,7 @@
 #define GLTAB_GL_H
 
 #include <string>
+#include <stdexcept>
 #if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
   #include "TargetConditionals.h"
@@ -166,6 +167,7 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
   glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
+inline void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) { glNormalPointer(tipo, passo, normais);  }
 #if USAR_OPENGL_ES
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 #else
@@ -231,23 +233,64 @@ inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
 
 /** Objetos GLU e GLUT. */
-struct Vbo {
+class Vbo {
+ public:
+  explicit Vbo(const std::string& nome = "") : nome(nome) {}
+
+  // Concatena um vbo a outro, ajustando os indices.
   void Concatena(const Vbo& rhs) {
-    // TODO esse tres aqui vai dar trabalho. Colocar no vbo.
-    const unsigned short num_coordenadas_inicial = coordenadas.size() / 3;  // pegar antes da alteracao.
-    coordenadas.insert(coordenadas.end(), rhs.coordenadas.begin(), rhs.coordenadas.end());
-    normais.insert(normais.end(), rhs.normais.begin(), rhs.normais.end());
+    // Coordenadas do primeiro indice apos o ultimo, onde serao inseridos os novos.
+    const unsigned short num_coordenadas_inicial =
+        coordenadas.size() / CoordenadasPorVertice();
+    coordenadas.insert(
+        coordenadas.end(), rhs.coordenadas.begin(), rhs.coordenadas.end());
     for (const auto indice : rhs.indices) {
       indices.push_back(indice + num_coordenadas_inicial);
     }
   }
 
-  std::vector<float> coordenadas;  // um para x, outro y, outro z e por ai vai.
-  std::vector<float> normais;  // idem, mesma cardinalidade de coordenadas.
+  // Deslocamento em bytes para a primeira coordenada de normal.
+  unsigned short DeslocamentoNormais() const {
+    if (!tem_normais) {
+      throw std::logic_error(std::string("VBO '") + nome + "' sem normal");
+    }
+    return num_dimensoes * sizeof(float);
+  }
+
+  // Deslocamento em bytes para a primeira coordenada de textura.
+  unsigned short DeslocamentoTextura() const {
+    if (!tem_textura) {
+      throw std::logic_error(std::string("VBO '") + nome + "' sem textura");
+    }
+    return tem_normais ? 2 * DeslocamentoNormais() : num_dimensoes * sizeof(float);
+  }
+
+  // Numero de coordenadas por elemento, incluindo normais e textura.
+  unsigned short CoordenadasPorVertice() const {
+    unsigned short ret = num_dimensoes;
+    if (tem_normais) {
+      ret *= 2;
+    }
+    if (tem_textura) {
+      ret += 2;
+    }
+    return ret;
+  }
+
+  // Retorna o passo em bytes para o proximo elemento.
+  unsigned short Passo() const {
+    return CoordenadasPorVertice() * sizeof(float);
+  }
+
+  std::string nome;
+  std::vector<float> coordenadas;  // Sequencia varia. Normalmente: x, y, z, nx, ny, nz, s0, t0.
   std::vector<unsigned short> indices;  // indices de coordenadas e normais.
+  unsigned short num_dimensoes = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
+  bool tem_normais = false;
+  bool tem_textura = false;
   // Buffers.
-  GLuint nome_coordenadas;
-  GLuint nome_indices;
+  GLuint nome_coordenadas = 0;
+  GLuint nome_indices = 0;
 };
 
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);

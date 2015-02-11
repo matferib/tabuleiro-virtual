@@ -175,8 +175,12 @@ const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
 #endif
 
   Vbo ret;
-  ret.coordenadas.insert(ret.coordenadas.begin(), coordenadas, coordenadas + num_coordenadas_total);
-  ret.normais.insert(ret.normais.begin(), normais, normais + num_coordenadas_total);
+  for (int i = 0; i < num_coordenadas_total; i += 3) {
+    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
+    ret.coordenadas.insert(ret.coordenadas.end(), &normais[i], &normais[i + 3]);
+  }
+  ret.tem_normais = true;
+  ret.num_dimensoes = 3;
   ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
   return ret;
 }
@@ -185,8 +189,8 @@ void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLin
   const Vbo vbo(RetornaTroncoConeSolido(raio_base, raio_topo, altura, num_fatias, num_tocos));
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, &vbo.normais[0]);
-  PonteiroVertices(3, GL_FLOAT, &vbo.coordenadas[0]);
+  PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
+  PonteiroVertices(3, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
   DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
@@ -196,8 +200,8 @@ void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const Vbo vbo(RetornaEsferaSolida(raio, num_fatias, num_tocos));
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, &vbo.normais[0]);
-  PonteiroVertices(3, GL_FLOAT, &vbo.coordenadas[0]);
+  PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
+  PonteiroVertices(3, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
   DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
@@ -216,7 +220,6 @@ const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   float coordenadas[num_coordenadas_total];
-  float normais[num_coordenadas_total];
   unsigned short indices[num_indices_total];
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
@@ -306,11 +309,14 @@ const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
-  // TODO normais unitarias.
-  memcpy(normais, coordenadas, sizeof(coordenadas));
   Vbo ret;
-  ret.coordenadas.insert(ret.coordenadas.begin(), coordenadas, coordenadas + num_coordenadas_total);
-  ret.normais.insert(ret.normais.begin(), normais, normais + num_coordenadas_total);
+  for (int i = 0; i < num_coordenadas_total; i += 3) {
+    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
+    // TODO normais unitarias. Aqui elas sao identicas.
+    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
+  }
+  ret.tem_normais = true;
+  ret.num_dimensoes = 3;
   ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
   return ret;
 }
