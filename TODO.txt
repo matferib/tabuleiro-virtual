@@ -1,4 +1,8 @@
 Versao 1.8.1
+- Entender pq VBO nao ta rolando no peao e comparar benchmarks
+- Tirar a mensagem de tabuleiro salvo ao sair.
+- Destruir VBOs ao sair.
+- Vbos de entidades.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
   Problema eh que o controle de voo da entidade eh feito pelo z.

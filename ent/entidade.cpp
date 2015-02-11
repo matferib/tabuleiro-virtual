@@ -11,6 +11,13 @@
 
 #include "log/log.h"
 
+namespace gl {
+bool ImprimeSeErro();
+}  // namespace gl
+
+#define V_ERRO() do { if (gl::ImprimeSeErro()) return; } while (0)
+
+
 namespace ent {
 namespace {
 
@@ -655,6 +662,41 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   v.set_y(y);
   v.set_z(z);
   proto_.mutable_direcao_queda()->Swap(&v);
+}
+
+// Nome dos buffers de VBO.
+std::vector<gl::Vbo> Entidade::g_vbos;
+
+void Entidade::IniciaGl() {
+  // Vbo peao.
+  g_vbos.resize(1);
+  gl::Vbo& vbo = g_vbos[VBO_PEAO];
+  //vbo = (gl::RetornaEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
+  vbo = gl::RetornaConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
+  gl::Vbo vbo_esfera(gl::RetornaEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
+  // Translada todos os Z da esfera em ALTURA.
+  for (int i = 2; i < vbo_esfera.coordenadas.size(); i += 3) {
+    vbo_esfera.coordenadas[i] += ALTURA;
+  }
+  vbo.Concatena(vbo_esfera);
+
+  // Gera o buffer.
+  gl::GeraBuffers(1, &vbo.nome_coordenadas);
+  V_ERRO();
+  // Associa coordenadas com ARRAY_BUFFER.
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
+  V_ERRO();
+  gl::BufferizaDados(GL_ARRAY_BUFFER, 3 * sizeof(GL_FLOAT), vbo.coordenadas.data(), GL_STATIC_DRAW);
+  V_ERRO();
+  // TODO normais!!!!
+  // Buffer de indices.
+  gl::GeraBuffers(1, &vbo.nome_indices);
+  V_ERRO();
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
+  V_ERRO();
+  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short), vbo.indices.data(), GL_STATIC_DRAW);
+  V_ERRO();
+  LOG(INFO) << "Buffers: " << vbo.nome_coordenadas << ", " << vbo.nome_indices;
 }
 
 }  // namespace ent
