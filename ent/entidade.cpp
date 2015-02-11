@@ -682,23 +682,7 @@ void Entidade::IniciaGl() {
   vbo.nome = "peão";
 
   // Gera o buffer.
-  gl::GeraBuffers(1, &vbo.nome_coordenadas);
-  V_ERRO();
-  // Associa coordenadas com ARRAY_BUFFER.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
-  V_ERRO();
-  gl::BufferizaDados(GL_ARRAY_BUFFER,
-                     sizeof(GL_FLOAT) * vbo.coordenadas.size(),
-                     vbo.coordenadas.data(),
-                     GL_STATIC_DRAW);
-  V_ERRO();
-  // Buffer de indices.
-  gl::GeraBuffers(1, &vbo.nome_indices);
-  V_ERRO();
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
-  V_ERRO();
-  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * vbo.indices.size(), vbo.indices.data(), GL_STATIC_DRAW);
-  V_ERRO();
+  gl::GravaVbo(&vbo);
 }
 
 }  // namespace ent

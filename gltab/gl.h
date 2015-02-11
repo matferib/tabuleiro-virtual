@@ -293,6 +293,15 @@ class Vbo {
   GLuint nome_indices = 0;
 };
 
+// Grava o VBO na memoria de video.
+void GravaVbo(Vbo* vbo);
+void DesgravaVbo(Vbo* vbo);
+// Desenha o vbo, assumindo que ele ja tenha sido gravado.
+void DesenhaVbo(const Vbo& vbo);
+// Desenha o vbo, assumindo que ele nao tenha sido gravado (funciona para
+// gravados tb, mas eh mais lento).
+void DesenhaVboNaoGravado(const Vbo& vbo);
+
 void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
 const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
 void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
