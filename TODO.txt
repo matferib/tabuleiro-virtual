@@ -1,4 +1,5 @@
 Versao 1.8.1
+- Passar piramide para gl (outras formas tb).
 - Entender pq VBO nao ta rolando no peao e comparar benchmarks
 - Tirar a mensagem de tabuleiro salvo ao sair.
 - Destruir VBOs ao sair.

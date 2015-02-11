@@ -57,15 +57,11 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical)
   interno::DesenhaStringAlinhado(str, 1, inverte_vertical);
 }
 
-const Vbo RetornaConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  return RetornaTroncoConeSolido(base, 0.0f, altura, num_fatias, num_tocos);
+const Vbo VboConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
+  return VboTroncoConeSolido(base, 0.0f, altura, num_fatias, num_tocos);
 }
 
-void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  TroncoConeSolido(base, 0.0f, altura, num_fatias, num_tocos);
-}
-
-const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat altura, GLint num_fatias, GLint num_tocos) {
+const Vbo VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLfloat altura, GLint num_fatias, GLint num_tocos) {
   const int num_vertices_por_fatia = 4;
   const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
   const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
@@ -197,15 +193,7 @@ const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   return ret;
 }
 
-void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  DesenhaVboNaoGravado(RetornaTroncoConeSolido(raio_base, raio_topo, altura, num_fatias, num_tocos));
-}
-
-void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  DesenhaVboNaoGravado(RetornaEsferaSolida(raio, num_fatias, num_tocos));
-}
-
-const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
+const Vbo VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   // Vertices.
   const int num_vertices_por_fatia = 4;
   const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
@@ -316,6 +304,215 @@ const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   ret.tem_normais = true;
   ret.num_dimensoes = 3;
   ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
+  return ret;
+}
+
+const Vbo VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLint num_tocos) {
+  // Vertices.
+  const int num_vertices_por_fatia = 4;
+  const int num_vertices_por_toco = num_vertices_por_fatia * num_fatias;
+  const int num_coordenadas_por_toco = num_vertices_por_toco * 3;
+  const int num_indices_por_fatia = 6;
+  const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
+  const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos;
+  const int num_indices_total = num_indices_por_toco * num_tocos;
+
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
+  float coordenadas[num_coordenadas_total];
+  float normais[num_coordenadas_total];
+  unsigned short indices[num_indices_total];
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
+
+  int i_normais = 0;
+  float v_base[2];
+  for (int toco = 1; toco <= num_tocos; ++toco) {
+    v_base[0] = 0.0f;
+    v_base[1] = raio;
+    for (int i = 0; i < num_fatias; ++i) {
+      // Cada faceta possui 4 vertices (anti horario).
+      // V0 = vbase.
+      normais[i_normais] = v_base[0];
+      normais[i_normais + 1] = v_base[1];
+      normais[i_normais + 2] = 0;
+      // v3 = vbase topo.
+      normais[i_normais + 9] = v_base[0];
+      normais[i_normais + 10] = v_base[1];
+      normais[i_normais + 11] = 0;
+      // V1 = vbase rodado.
+      float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
+      float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
+      v_base[0] = v_base_0_rodado;
+      v_base[1] = v_base_1_rodado;
+      normais[i_normais + 3] = v_base[0];
+      normais[i_normais + 4] = v_base[1];
+      normais[i_normais + 5] = 0;
+      // V2 = vtopo rodado.
+      normais[i_normais + 6] = v_base[0];
+      normais[i_normais + 7] = v_base[1];
+      normais[i_normais + 8] = 0;
+
+      // Incrementa.
+      i_normais += 12;
+    }
+  }
+
+  float h_delta = altura / num_tocos;
+  v_base[0] = 0;
+  v_base[1] = raio;
+  float h_topo = 0;
+
+  int i_coordenadas = 0;
+  int i_indices = 0;
+  int coordenada_inicial = 0;
+  for (int toco = 1; toco <= num_tocos; ++toco) {
+    float h_base = h_topo;
+    h_topo += h_delta;
+    // Novas alturas e base.
+    v_base[0] = 0.0f;
+    v_base[1] = raio;
+
+    for (int i = 0; i < num_fatias; ++i) {
+      // Cada faceta possui 4 vertices (anti horario).
+      // V0 = vbase.
+      coordenadas[i_coordenadas] = v_base[0];
+      coordenadas[i_coordenadas + 1] = v_base[1];
+      coordenadas[i_coordenadas + 2] = h_base;
+      // v3 = vbase topo.
+      coordenadas[i_coordenadas + 9] = v_base[0];
+      coordenadas[i_coordenadas + 10] = v_base[1];
+      coordenadas[i_coordenadas + 11] = h_topo;
+      // V1 = vbase rodado.
+      float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
+      float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
+      v_base[0] = v_base_0_rodado;
+      v_base[1] = v_base_1_rodado;
+      coordenadas[i_coordenadas + 3] = v_base[0];
+      coordenadas[i_coordenadas + 4] = v_base[1];
+      coordenadas[i_coordenadas + 5] = h_base;
+      // V2 = vtopo rodado.
+      coordenadas[i_coordenadas + 6] = v_base[0];
+      coordenadas[i_coordenadas + 7] = v_base[1];
+      coordenadas[i_coordenadas + 8] = h_topo;
+
+      // Indices: V0, V1, V2, V0, V2, V3.
+      indices[i_indices] = coordenada_inicial;
+      indices[i_indices + 1] = coordenada_inicial + 1;
+      indices[i_indices + 2] = coordenada_inicial + 2;
+      indices[i_indices + 3] = coordenada_inicial;
+      indices[i_indices + 4] = coordenada_inicial + 2;
+      indices[i_indices + 5] = coordenada_inicial + 3;
+
+      i_indices += 6;
+      i_coordenadas += 12;
+      coordenada_inicial += 4;
+    }
+  }
+  //LOG(INFO) << "raio: " << raio;
+  //for (int i = 0; i < sizeof(indices) / sizeof(unsigned short); ++i) {
+  //  LOG(INFO) << "indices[" << i << "]: " << indices[i];
+  //}
+  //for (int i = 0; i < sizeof(coordenadas) / sizeof(float); i += 3) {
+  //  LOG(INFO) << "coordenadas[" << i / 3 << "]: "
+  //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
+  //}
+
+  // As normais sao os vertices do primeiro nivel.
+  Vbo ret;
+  for (int i = 0; i < num_coordenadas_total; i += 3) {
+    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
+    ret.coordenadas.insert(ret.coordenadas.end(), &normais[i], &normais[i + 3]);
+  }
+  ret.tem_normais = true;
+  ret.num_dimensoes = 3;
+  ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
+  return ret;
+}
+
+const Vbo VboCuboSolido(GLfloat tam_lado) {
+  GLfloat meio_lado = tam_lado / 2.0f;
+  const unsigned short num_indices = 36;
+  unsigned short indices[num_indices] = {
+      0, 1, 2, 0, 2, 3,
+      4, 5, 6, 4, 6, 7,
+      8, 9, 10, 8, 10, 11,
+      12, 13, 14, 12, 14, 15,
+      16, 17, 18, 16, 18, 19,
+      20, 21, 22, 20, 22, 23,
+  };
+  const unsigned short num_coordenadas = 6 * 3 * 4;
+  const float normais[num_coordenadas] = {
+    // sul.
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    0.0f, -1.0f, 0.0f,
+    // norte.
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    0.0f, 1.0f, 0.0f,
+    // oeste.
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    -1.0f, 0.0f, 0.0f,
+    // leste.
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    1.0f, 0.0f, 0.0f,
+    // cima.
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    // baixo.
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+    0.0f, 0.0f, -1.0f,
+  };
+  const float coordenadas[num_coordenadas] = {
+    // sul: 0-3
+    -meio_lado, -meio_lado, -meio_lado,
+    meio_lado, -meio_lado, -meio_lado,
+    meio_lado, -meio_lado, meio_lado,
+    -meio_lado, -meio_lado, meio_lado,
+    // norte: 4-7.
+    -meio_lado, meio_lado, -meio_lado,
+    -meio_lado, meio_lado, meio_lado,
+    meio_lado, meio_lado, meio_lado,
+    meio_lado, meio_lado, -meio_lado,
+    // oeste: 8-11.
+    -meio_lado, -meio_lado, -meio_lado,
+    -meio_lado, -meio_lado, meio_lado,
+    -meio_lado, meio_lado, meio_lado,
+    -meio_lado, meio_lado, -meio_lado,
+    // leste: 12-15.
+    meio_lado, -meio_lado, -meio_lado,
+    meio_lado, meio_lado, -meio_lado,
+    meio_lado, meio_lado, meio_lado,
+    meio_lado, -meio_lado, meio_lado,
+    // cima: 16-19.
+    -meio_lado, -meio_lado, meio_lado,
+    meio_lado, -meio_lado, meio_lado,
+    meio_lado, meio_lado, meio_lado,
+    -meio_lado, meio_lado, meio_lado,
+    // baixo: 20-23.
+    -meio_lado, -meio_lado, -meio_lado,
+    -meio_lado, meio_lado, -meio_lado,
+    meio_lado, meio_lado, -meio_lado,
+    meio_lado, -meio_lado, -meio_lado,
+  };
+  Vbo ret;
+  for (int i = 0; i < num_coordenadas; i += 3) {
+    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
+    ret.coordenadas.insert(ret.coordenadas.end(), &normais[i], &normais[i + 3]);
+  }
+  ret.tem_normais = true;
+  ret.num_dimensoes = 3;
+  ret.indices.insert(ret.indices.begin(), indices, indices + num_indices);
   return ret;
 }
 

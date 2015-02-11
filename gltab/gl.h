@@ -302,14 +302,30 @@ void DesenhaVbo(const Vbo& vbo);
 // gravados tb, mas eh mais lento).
 void DesenhaVboNaoGravado(const Vbo& vbo);
 
-void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
-const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
-void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
-void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
-const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
-void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
-void CuboSolido(GLfloat tam_lado);
-const Vbo RetornaConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
+const Vbo VboCilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
+inline void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
+  DesenhaVboNaoGravado(VboCilindroSolido(raio, altura, fatias, tocos));
+}
+
+const Vbo VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
+inline void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
+  DesenhaVboNaoGravado(VboTroncoConeSolido(raio_base, raio_topo, altura, fatias, tocos));
+}
+
+const Vbo VboConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
+inline void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
+  DesenhaVboNaoGravado(VboConeSolido(base, altura, num_fatias, num_tocos));
+}
+
+const Vbo VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
+inline void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
+  DesenhaVboNaoGravado(VboEsferaSolida(raio, num_fatias, num_tocos));
+}
+
+const Vbo VboCuboSolido(GLfloat tam_lado);
+inline void CuboSolido(GLfloat tam_lado) {
+  DesenhaVboNaoGravado(VboCuboSolido(tam_lado));
+}
 
 /** Raster. */
 #if !USAR_OPENGL_ES
