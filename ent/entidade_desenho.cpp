@@ -211,37 +211,45 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x() / 2.0f, proto.escala().y() / 2.0f, proto.escala().z());
       const unsigned short indices[] = {
-          0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+          0, 1, 2,  // sul
+          3, 4, 5,  // leste
+          6, 7, 8,  // norte
+          9, 10, 11, // oeste
       };
       const float normais[] = {
-        // Topo.
-        0.0f, 0.0, 1.0f,
         // Face sul
+        0.0f, -0.5, 0.5f,
         0.0f, -0.5, 0.5f,
         0.0f, -0.5, 0.5f,
         // Face leste.
         0.5f, 0.0f, 0.5f,
         0.5f, 0.0f, 0.5f,
+        0.5f, 0.0f, 0.5f,
         // Face norte.
         0.0f, 0.5f, 0.5f,
         0.0f, 0.5f, 0.5f,
+        0.0f, 0.5f, 0.5f,
         // Face Oeste.
+        -0.5f, 0.0f, 0.5f,
         -0.5f, 0.0f, 0.5f,
         -0.5f, 0.0f, 0.5f,
       };
       const float vertices[] = {
         // Topo.
-        0.0f, 0.0f, 1.0f,
         // Face sul.
+        0.0f, 0.0f, 1.0f,
         -1.0f, -1.0f, 0.0f,
         1.0f, -1.0f, 0.0f,
         // Face leste.
+        0.0f, 0.0f, 1.0f,
         1.0f, -1.0f, 0.0f,
         1.0f, 1.0f, 0.0f,
         // Face norte.
+        0.0f, 0.0f, 1.0f,
         1.0f, 1.0f, 0.0f,
         -1.0f, 1.0f, 0.0f,
         // Face Oeste.
+        0.0f, 0.0f, 1.0f,
         -1.0f, 1.0f, 0.0f,
         -1.0f, -1.0f, 0.0f,
       };
@@ -249,7 +257,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
       gl::PonteiroNormais(GL_FLOAT, normais);
       gl::PonteiroVertices(3, GL_FLOAT, vertices);
-      gl::DesenhaElementos(GL_TRIANGLE_FAN, 9, GL_UNSIGNED_SHORT, indices);
+      gl::DesenhaElementos(GL_TRIANGLES, 12, GL_UNSIGNED_SHORT, indices);
       gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
       gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
     }

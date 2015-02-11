@@ -89,10 +89,6 @@ void FinalizaGl() {
 #endif
 }
 
-void CuboSolido(GLfloat tam_lado) {
-  glutSolidCube(tam_lado);
-}
-
 namespace interno {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
@@ -142,24 +138,6 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 }
 
 }  // namespace
-
-void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
-  GLUquadric* cilindro = gluNewQuadric();
-  gluQuadricOrientation(cilindro, GLU_OUTSIDE);
-  gluQuadricNormals(cilindro, GLU_SMOOTH);
-  gluQuadricDrawStyle(cilindro, GLU_FILL);
-  gluCylinder(cilindro, raio, raio, altura, fatias, tocos);
-  gluDeleteQuadric(cilindro);
-}
-
-void CilindroSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-  GLUquadric* cilindro = gluNewQuadric();
-  gluQuadricOrientation(cilindro, GLU_OUTSIDE);
-  gluQuadricNormals(cilindro, GLU_SMOOTH);
-  gluQuadricDrawStyle(cilindro, GLU_FILL);
-  gluCylinder(cilindro, raio_base, raio_topo, altura, fatias, tocos);
-  gluDeleteQuadric(cilindro);
-}
 
 #if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers) {
