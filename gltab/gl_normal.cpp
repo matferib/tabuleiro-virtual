@@ -21,14 +21,7 @@ struct ContextoInterno {
 #endif
 } g_contexto;
 
-bool ImprimeSeErro() {
-  auto erro = glGetError();
-  if (erro != GL_NO_ERROR) {
-    LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
-    return true;
-  }
-  return false;
-}
+bool ImprimeSeErro();
 
 #define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 void IniciaGl(int* argcp, char** argv) {

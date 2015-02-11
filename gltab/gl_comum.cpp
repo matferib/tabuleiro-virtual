@@ -3,9 +3,21 @@
 #include <string>
 #include <vector>
 #include "gltab/gl.h"
+#include "log/log.h"
 
 // Comum.
 namespace gl {
+
+bool ImprimeSeErro() {
+  auto erro = glGetError();
+  if (erro != GL_NO_ERROR) {
+    LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
+    return true;
+  }
+  return false;
+}
+#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
+
 namespace interno {
 
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra) {
@@ -186,25 +198,11 @@ const Vbo RetornaTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
 }
 
 void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  const Vbo vbo(RetornaTroncoConeSolido(raio_base, raio_topo, altura, num_fatias, num_tocos));
-  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
-  PonteiroVertices(3, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
-  DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
-  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  DesenhaVboNaoGravado(RetornaTroncoConeSolido(raio_base, raio_topo, altura, num_fatias, num_tocos));
 }
 
 void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  const Vbo vbo(RetornaEsferaSolida(raio, num_fatias, num_tocos));
-  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
-  PonteiroVertices(3, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
-  DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
-  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  DesenhaVboNaoGravado(RetornaEsferaSolida(raio, num_fatias, num_tocos));
 }
 
 const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
@@ -321,5 +319,59 @@ const Vbo RetornaEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   return ret;
 }
 
+void GravaVbo(Vbo* vbo) {
+  // Gera o buffer.
+  gl::GeraBuffers(1, &vbo->nome_coordenadas);
+  V_ERRO();
+  // Associa coordenadas com ARRAY_BUFFER.
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo->nome_coordenadas);
+  V_ERRO();
+  gl::BufferizaDados(GL_ARRAY_BUFFER,
+                     sizeof(GL_FLOAT) * vbo->coordenadas.size(),
+                     vbo->coordenadas.data(),
+                     GL_STATIC_DRAW);
+  V_ERRO();
+  // Buffer de indices.
+  gl::GeraBuffers(1, &vbo->nome_indices);
+  V_ERRO();
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->nome_indices);
+  V_ERRO();
+  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * vbo->indices.size(), vbo->indices.data(), GL_STATIC_DRAW);
+  V_ERRO();
+}
+
+void DesgravaVbo(Vbo* vbo) {
+  gl::ApagaBuffers(1, &vbo->nome_coordenadas);
+  gl::ApagaBuffers(1, &vbo->nome_indices);
+}
+
+void DesenhaVbo(const Vbo& vbo) {
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
+  // double cast para tirar warning de int pra void*. Neste caso ele sera usado
+  // apenas como offset do array.
+  gl::PonteiroNormais(GL_FLOAT, vbo.Passo(), (void*)(unsigned long int)vbo.DeslocamentoNormais());
+  gl::PonteiroVertices(3, GL_FLOAT, vbo.Passo(), (void*)0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
+  gl::DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+  gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+}
+
+void DesenhaVboNaoGravado(const Vbo& vbo) {
+  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
+  PonteiroVertices(vbo.num_dimensoes, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
+  DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
+  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+}
 
 }  // namespace gl
