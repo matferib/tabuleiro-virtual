@@ -1,5 +1,4 @@
 Versao 1.8.1
-- Mensagem de erro ao iniciar GL no windows.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
   Problema eh que o controle de voo da entidade eh feito pelo z.
