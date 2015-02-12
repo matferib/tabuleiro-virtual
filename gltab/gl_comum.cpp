@@ -183,13 +183,9 @@ const Vbo VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original, GLf
 #endif
 
   Vbo ret;
-  for (int i = 0; i < num_coordenadas_total; i += 3) {
-    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
-    ret.coordenadas.insert(ret.coordenadas.end(), &normais[i], &normais[i + 3]);
-  }
-  ret.tem_normais = true;
-  ret.num_dimensoes = 3;
-  ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
+  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
+  ret.AtribuiNormais(normais);
+  ret.AtribuiIndices(indices, num_indices_total);
   return ret;
 }
 
@@ -296,14 +292,9 @@ const Vbo VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   //}
 
   Vbo ret;
-  for (int i = 0; i < num_coordenadas_total; i += 3) {
-    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
-    // TODO normais unitarias. Aqui elas sao identicas.
-    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
-  }
-  ret.tem_normais = true;
-  ret.num_dimensoes = 3;
-  ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
+  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
+  ret.AtribuiNormais(coordenadas);  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
+  ret.AtribuiIndices(indices, num_indices_total);
   return ret;
 }
 
@@ -417,15 +408,10 @@ const Vbo VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLin
   //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
-  // As normais sao os vertices do primeiro nivel.
   Vbo ret;
-  for (int i = 0; i < num_coordenadas_total; i += 3) {
-    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
-    ret.coordenadas.insert(ret.coordenadas.end(), &normais[i], &normais[i + 3]);
-  }
-  ret.tem_normais = true;
-  ret.num_dimensoes = 3;
-  ret.indices.insert(ret.indices.begin(), indices, indices + num_indices_total);
+  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
+  ret.AtribuiNormais(normais);
+  ret.AtribuiIndices(indices, num_indices_total);
   return ret;
 }
 
@@ -505,14 +491,11 @@ const Vbo VboCuboSolido(GLfloat tam_lado) {
     meio_lado, meio_lado, -meio_lado,
     meio_lado, -meio_lado, -meio_lado,
   };
+
   Vbo ret;
-  for (int i = 0; i < num_coordenadas; i += 3) {
-    ret.coordenadas.insert(ret.coordenadas.end(), &coordenadas[i], &coordenadas[i + 3]);
-    ret.coordenadas.insert(ret.coordenadas.end(), &normais[i], &normais[i + 3]);
-  }
-  ret.tem_normais = true;
-  ret.num_dimensoes = 3;
-  ret.indices.insert(ret.indices.begin(), indices, indices + num_indices);
+  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas);
+  ret.AtribuiNormais(normais);
+  ret.AtribuiIndices(indices, num_indices);
   return ret;
 }
 
@@ -523,9 +506,10 @@ void GravaVbo(Vbo* vbo) {
   // Associa coordenadas com ARRAY_BUFFER.
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo->nome_coordenadas);
   V_ERRO();
+  vbo->GeraBufferUnico();
   gl::BufferizaDados(GL_ARRAY_BUFFER,
-                     sizeof(GL_FLOAT) * vbo->coordenadas.size(),
-                     vbo->coordenadas.data(),
+                     sizeof(GL_FLOAT) * vbo->buffer_unico().size(),
+                     vbo->buffer_unico().data(),
                      GL_STATIC_DRAW);
   V_ERRO();
   // Buffer de indices.
@@ -533,26 +517,31 @@ void GravaVbo(Vbo* vbo) {
   V_ERRO();
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo->nome_indices);
   V_ERRO();
-  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * vbo->indices.size(), vbo->indices.data(), GL_STATIC_DRAW);
+  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * vbo->indices().size(), vbo->indices().data(), GL_STATIC_DRAW);
   V_ERRO();
 }
 
 void DesgravaVbo(Vbo* vbo) {
   gl::ApagaBuffers(1, &vbo->nome_coordenadas);
   gl::ApagaBuffers(1, &vbo->nome_indices);
+  vbo->ApagaBufferUnico();
 }
 
-void DesenhaVbo(const Vbo& vbo) {
+void DesenhaVbo(const Vbo& vbo, GLenum modo) {
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
-  // double cast para tirar warning de int pra void*. Neste caso ele sera usado
-  // apenas como offset do array.
-  gl::PonteiroNormais(GL_FLOAT, vbo.Passo(), (void*)(unsigned long int)vbo.DeslocamentoNormais());
-  gl::PonteiroVertices(3, GL_FLOAT, vbo.Passo(), (void*)0);
+  if (vbo.tem_normais()) {
+    gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    gl::PonteiroNormais(GL_FLOAT, (void*)vbo.DeslocamentoNormais());
+  }
+  if (vbo.tem_texturas()) {
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, (void*)vbo.DeslocamentoTexturas());
+  }
+
+  gl::PonteiroVertices(3, GL_FLOAT, 0, (void*)0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices);
-  gl::DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+  gl::DesenhaElementos(modo, vbo.NumVertices(), GL_UNSIGNED_SHORT, (void*)0);
 
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -561,14 +550,21 @@ void DesenhaVbo(const Vbo& vbo) {
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
-void DesenhaVboNaoGravado(const Vbo& vbo) {
+void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo) {
   HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  PonteiroNormais(GL_FLOAT, vbo.Passo(), &vbo.coordenadas[vbo.num_dimensoes]);
-  PonteiroVertices(vbo.num_dimensoes, GL_FLOAT, vbo.Passo(), &vbo.coordenadas[0]);
-  DesenhaElementos(GL_TRIANGLES, vbo.indices.size(), GL_UNSIGNED_SHORT, &vbo.indices[0]);
+  if (vbo.tem_normais()) {
+    HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    PonteiroNormais(GL_FLOAT, vbo.normais().data());
+  }
+  if (vbo.tem_texturas()) {
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, vbo.texturas().data());
+  }
+  PonteiroVertices(vbo.num_dimensoes(), GL_FLOAT, vbo.coordenadas().data());
+  DesenhaElementos(modo, vbo.indices().size(), GL_UNSIGNED_SHORT, vbo.indices().data());
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 
 }  // namespace gl

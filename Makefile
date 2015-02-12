@@ -38,6 +38,9 @@ apple_debug_opengles:
 apple_test:
 	scons sistema=apple debug=1 testes=1 modelos_test teste_ent_util 
 
+apple_benchmark:
+	scons sistema=apple debug=0 benchmark=1 benchmark
+
 linux_profile:
 	scons gerar_profile=1
 
