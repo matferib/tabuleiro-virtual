@@ -4,8 +4,6 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
-#include <GL/gl.h>
-#include <GL/glut.h>
 
 #include "ent/tabuleiro.h"
 #include "gltab/gl.h"

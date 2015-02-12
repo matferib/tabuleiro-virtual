@@ -1,8 +1,9 @@
 Versao 1.8.1
-- Passar piramide para gl (outras formas tb).
-- Entender pq VBO nao ta rolando no peao e comparar benchmarks
-- Tirar a mensagem de tabuleiro salvo ao sair.
 - Destruir VBOs ao sair.
+- Separar Vbo gravado do nao gravado.
+- Passar piramide para gl (outras formas tb).
+- Comparar benchmarks com e sem VBO.
+- Tirar a mensagem de tabuleiro salvo ao sair.
 - Vbos de entidades.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.

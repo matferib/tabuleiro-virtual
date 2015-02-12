@@ -668,20 +668,54 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
 std::vector<gl::Vbo> Entidade::g_vbos;
 
 void Entidade::IniciaGl() {
-  // Vbo peao.
-  g_vbos.resize(1);
-  gl::Vbo& vbo = g_vbos[VBO_PEAO];
-  vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-  gl::Vbo vbo_esfera(gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
-  // Translada todos os Z da esfera em ALTURA.
-  for (unsigned int i = 2; i < vbo_esfera.coordenadas.size(); i += vbo_esfera.CoordenadasPorVertice()) {
-    vbo_esfera.coordenadas[i] += ALTURA;
-  }
-  vbo.Concatena(vbo_esfera);
-  vbo.nome = "peão";
+  g_vbos.resize(3);
 
-  // Gera o buffer.
-  gl::GravaVbo(&vbo);
+  // Vbo peao.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_PEAO];
+    vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
+    gl::Vbo vbo_esfera(gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
+    // Translada todos os Z da esfera em ALTURA.
+    for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.num_dimensoes()) {
+      vbo_esfera.coordenadas()[i] += ALTURA;
+    }
+    vbo.Concatena(vbo_esfera);
+    vbo.Nomeia("peão");
+  }
+
+  // Vbo tijolo da base.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_TIJOLO_BASE];
+    vbo = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
+    vbo.Nomeia("tijolo da base");
+  }
+
+  // Tela para desenho de texturas de entidades.
+  {
+    const unsigned short indices[] = { 0, 1, 2, 3 };
+    const float coordenadas[] = {
+      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
+      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
+      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
+      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
+    };
+    const float coordenadas_textura[] = {
+      0.0f, 1.0f,
+      1.0f, 1.0f,
+      1.0f, 0.0f,
+      0.0f, 0.0f,
+    };
+    gl::Vbo& vbo = g_vbos[VBO_TELA_TEXTURA];
+    vbo.AtribuiCoordenadas(3, coordenadas, 12);
+    vbo.AtribuiTexturas(coordenadas_textura);
+    vbo.AtribuiIndices(indices, 4);
+    vbo.Nomeia("tela de textura");
+  }
+
+  // Gera os Vbos.
+  for (gl::Vbo& vbo : g_vbos) {
+    gl::GravaVbo(&vbo);
+  }
 }
 
 }  // namespace ent

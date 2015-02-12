@@ -235,72 +235,138 @@ inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
 /** Objetos GLU e GLUT. */
 class Vbo {
  public:
-  explicit Vbo(const std::string& nome = "") : nome(nome) {}
+  explicit Vbo(const std::string& nome = "") : nome_(nome) {}
+
+  void Nomeia(const std::string& nome) {
+    nome_ = nome;
+  }
+
+  void AtribuiIndices(const unsigned short* dados, unsigned short num_indices) {
+    indices_.clear();
+    indices_.insert(indices_.end(), dados, dados + num_indices);
+  }
+
+  void AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned short num_coordenadas) {
+    coordenadas_.clear();
+    coordenadas_.insert(coordenadas_.end(), dados, dados + num_coordenadas);
+    num_dimensoes_ = num_dimensoes;
+  }
+
+  void AtribuiNormais(const float* dados) {
+    normais_.clear();
+    normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
+    tem_normais_ = true;
+  }
+
+  void AtribuiTexturas(const float* dados) {
+    texturas_.clear();
+    texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
+    tem_texturas_ = true;
+  }
 
   // Concatena um vbo a outro, ajustando os indices.
   void Concatena(const Vbo& rhs) {
     // Coordenadas do primeiro indice apos o ultimo, onde serao inseridos os novos.
-    const unsigned short num_coordenadas_inicial =
-        coordenadas.size() / CoordenadasPorVertice();
-    coordenadas.insert(
-        coordenadas.end(), rhs.coordenadas.begin(), rhs.coordenadas.end());
-    for (const auto indice : rhs.indices) {
-      indices.push_back(indice + num_coordenadas_inicial);
+    const unsigned short num_coordenadas_inicial = coordenadas_.size() / num_dimensoes_;
+    coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
+    normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
+    for (const auto indice : rhs.indices_) {
+      indices_.push_back(indice + num_coordenadas_inicial);
     }
   }
 
   // Deslocamento em bytes para a primeira coordenada de normal.
   unsigned short DeslocamentoNormais() const {
-    if (!tem_normais) {
-      throw std::logic_error(std::string("VBO '") + nome + "' sem normal");
+    if (!tem_normais_) {
+      throw std::logic_error(std::string("VBO '") + nome_ + "' sem normal");
     }
-    return num_dimensoes * sizeof(float);
+    return deslocamento_normais_;
   }
-
   // Deslocamento em bytes para a primeira coordenada de textura.
-  unsigned short DeslocamentoTextura() const {
-    if (!tem_textura) {
-      throw std::logic_error(std::string("VBO '") + nome + "' sem textura");
+  unsigned short DeslocamentoTexturas() const {
+    if (!tem_texturas_) {
+      throw std::logic_error(std::string("VBO '") + nome_ + "' sem textura");
     }
-    return tem_normais ? 2 * DeslocamentoNormais() : num_dimensoes * sizeof(float);
+    return deslocamento_texturas_;
   }
 
-  // Numero de coordenadas por elemento, incluindo normais e textura.
-  unsigned short CoordenadasPorVertice() const {
-    unsigned short ret = num_dimensoes;
-    if (tem_normais) {
-      ret *= 2;
+  // TODO: destruir os dados para liberar memoria.
+  void GeraBufferUnico() {
+    buffer_unico_.clear();
+    buffer_unico_.insert(buffer_unico_.end(), coordenadas_.begin(), coordenadas_.end());
+    buffer_unico_.insert(buffer_unico_.end(), normais_.begin(), normais_.end());
+    buffer_unico_.insert(buffer_unico_.end(), cores_.begin(), cores_.end());
+    buffer_unico_.insert(buffer_unico_.end(), texturas_.begin(), texturas_.end());
+    unsigned int pos_final = coordenadas_.size() * sizeof(float);
+    if (tem_normais_) {
+      deslocamento_normais_ = pos_final;
+      pos_final += normais_.size();
     }
-    if (tem_textura) {
-      ret += 2;
+    if (tem_cores_) {
+      deslocamento_cores_ = pos_final;
+      pos_final += cores_.size();
     }
-    return ret;
+    if (tem_texturas_) {
+      deslocamento_texturas_ = pos_final;
+      pos_final += texturas_.size();
+    }
   }
 
-  // Retorna o passo em bytes para o proximo elemento.
-  unsigned short Passo() const {
-    return CoordenadasPorVertice() * sizeof(float);
+  void ApagaBufferUnico() {
+    buffer_unico_.clear();
   }
 
-  std::string nome;
-  std::vector<float> coordenadas;  // Sequencia varia. Normalmente: x, y, z, nx, ny, nz, s0, t0.
-  std::vector<unsigned short> indices;  // indices de coordenadas e normais.
-  unsigned short num_dimensoes = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
-  bool tem_normais = false;
-  bool tem_textura = false;
+  unsigned short NumVertices() const {
+    return indices_.size();
+  }
+
+  unsigned short num_dimensoes() const {
+    return num_dimensoes_;
+  }
+
+  bool tem_normais() const { return tem_normais_; }
+  bool tem_cores() const { return tem_cores_; }
+  bool tem_texturas() const { return tem_texturas_; }
+
+  const std::vector<unsigned short> indices() const { return indices_; }
+  const std::vector<float>& buffer_unico() const { return buffer_unico_; }
+  std::vector<float>& coordenadas() { return coordenadas_; }
+  std::vector<float>& normais() { return normais_; }
+  std::vector<float>& texturas() { return texturas_; }
+  const std::vector<float>& coordenadas() const { return coordenadas_; }
+  const std::vector<float>& normais() const { return normais_; }
+  const std::vector<float>& texturas() const { return texturas_; }
+
   // Buffers.
   GLuint nome_coordenadas = 0;
   GLuint nome_indices = 0;
+
+ private:
+  std::vector<float> buffer_unico_;  // Buffer unico com coordenadas, normais, cores e texturas. Valido apenas apos geracao.
+  unsigned int deslocamento_normais_ = 0;
+  unsigned int deslocamento_cores_ = 0;
+  unsigned int deslocamento_texturas_ = 0;
+
+  std::vector<float> coordenadas_;
+  std::vector<float> normais_;
+  std::vector<float> cores_;
+  std::vector<float> texturas_;
+  std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
+  std::string nome_;
+  unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
+  bool tem_normais_ = false;
+  bool tem_cores_ = false;
+  bool tem_texturas_ = false;
 };
 
 // Grava o VBO na memoria de video.
 void GravaVbo(Vbo* vbo);
 void DesgravaVbo(Vbo* vbo);
 // Desenha o vbo, assumindo que ele ja tenha sido gravado.
-void DesenhaVbo(const Vbo& vbo);
+void DesenhaVbo(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
 // Desenha o vbo, assumindo que ele nao tenha sido gravado (funciona para
 // gravados tb, mas eh mais lento).
-void DesenhaVboNaoGravado(const Vbo& vbo);
+void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
 
 const Vbo VboCilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
 inline void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {

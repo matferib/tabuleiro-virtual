@@ -88,7 +88,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     if (pd->entidade_selecionada()) {
       gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     }
-    gl::CuboSolido(TAMANHO_LADO_QUADRADO);
+    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
   bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
@@ -121,7 +121,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     }
     gl::MatrizEscopo salva_matriz;
     gl::Escala(1.0f, 0.1f, 1.0f);
-    gl::CuboSolido(TAMANHO_LADO_QUADRADO);
+    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
@@ -137,26 +137,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
     MudaCor(proto.morta() ? EscureceCor(c) : c);
-    const unsigned short indices[] = { 0, 1, 2, 3 };
-    const float vertices[] = {
-      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
-      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
-      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
-      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
-    };
-    const float vertices_texel[] = {
-      0.0f, 1.0f,
-      1.0f, 1.0f,
-      1.0f, 0.0f,
-      0.0f, 0.0f,
-    };
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-    gl::PonteiroVertices(3, GL_FLOAT, vertices);
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, vertices_texel);
-    gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-    gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 }
