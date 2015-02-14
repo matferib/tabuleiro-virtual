@@ -47,6 +47,7 @@ if sistema == 'win32':
 elif sistema == 'apple':
   env['CPPPATH'] += ['./',
                      '/usr/local/lib/QtGui.framework/Headers',
+                     '/usr/local/lib/GLUT.framework/Headers',
                      '/usr/local/lib/QtOpenGL.framework/Headers',
                      '/usr/local/lib/QtCore.framework/Headers']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
