@@ -221,6 +221,11 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     central_(central),
     modo_mestre_(true) {
   central_->RegistraReceptor(this);
+
+  auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+  nc->mutable_info_textura()->set_id("skybox.png");
+  central_->AdicionaNotificacao(nc);
+
   // Modelos.
   auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
   modelo_padrao->mutable_cor()->set_g(1.0f);
@@ -1695,6 +1700,9 @@ void Tabuleiro::DesenhaCena() {
   }
 
   //ceu_.desenha(parametros_desenho_);
+  if (!parametros_desenho_.has_picking_x()) {
+    DesenhaCaixaCeu();
+  }
 
   // desenha tabuleiro do sul para o norte.
   {
@@ -3723,6 +3731,68 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
     proto_.clear_info_textura();
     proto_.clear_ladrilho();
     proto_.clear_textura_mestre_apenas();
+  }
+}
+
+void Tabuleiro::DesenhaCaixaCeu() {
+  for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
+    gl::Desabilita(GL_LIGHT0 + i);
+  }
+  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
+  gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+  MudaCor(COR_BRANCA);
+  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  gl::FaceNula(GL_FRONT);
+  gl::Vbo vbo_ceu(gl::VboCuboSolido(10.0f));
+  // Valores de referencia:
+  // imagem 4x3.
+  // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
+  // y = 1.0f, 0.66f, 0.33f, 0f
+  const float texturas[6 * 4 * 2] = {
+    // sul: 0-3 (linha meio, coluna 0),--,+-,++,-+
+    0.25f, 0.66f,
+    0.0f, 0.66f,
+    0.0f, 0.33f,
+    0.25f, 0.33f,
+    // norte: 4-7 (linha meio, coluna 2),--,-+,++,+-
+    0.50f, 0.66f,
+    0.50f, 0.33f,
+    0.75f, 0.33f,
+    0.75f, 0.66f,
+    // oeste: 8-11 (linha meio, coluna 1),--,-+,++,+-
+    0.25f, 0.66f,
+    0.25f, 0.33f,
+    0.50f, 0.33f,
+    0.50f, 0.66f,
+    // leste: 12-15 (linha meio, coluna 3):--,+-,++,-+
+    1.0f, 0.66f,
+    0.75f, 0.66f,
+    0.75f, 0.33f,
+    1.0f, 0.33f,
+    // cima: 16-19 (linha de cima, coluna 1):--,+-,++,-+
+    0.25f, 0.33f,
+    0.50f, 0.33f,
+    0.50f, 0.0f,
+    0.25f, 0.0f,
+    // baixo: 20-23 (linha de baixo, coluna 1):--,-+,++,+-
+    0.25f, 1.0f,
+    0.25f, 0.66f,
+    0.50f, 0.66f,
+    0.50f, 1.0f,
+  };
+  GLuint id_textura = texturas_->Textura("skybox.png");
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    glBindTexture(GL_TEXTURE_2D, id_textura);
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, texturas);
+  }
+  //vbo.AtribuiTexturas(texturas);
+  gl::DesenhaVboNaoGravado(vbo_ceu);
+  gl::Desabilita(GL_TEXTURE_2D);
+  gl::FaceNula(GL_BACK);
+  for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
+    gl::Habilita(GL_LIGHT0 + i);
   }
 }
 
