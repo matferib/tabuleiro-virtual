@@ -349,6 +349,9 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
+  /** Desenha o skybox ao redor da camera. */
+  void DesenhaCaixaCeu();
+
   /** Desenha o tabuleiro do sul pro norte. */
   void DesenhaTabuleiro();
 
