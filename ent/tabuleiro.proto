@@ -55,6 +55,8 @@ message TabuleiroProto {
   optional Cor luz_ambiente = 7;
   // Textura do tabuleiro.
   optional InfoTextura info_textura = 5;
+  // Textura do tabuleiro.
+  optional InfoTextura info_textura_ceu = 16;
   // Aplicar a textura de forma ladrilhada.
   optional bool ladrilho = 9;
   // Tamanho do tabuleiro em quadrados.
