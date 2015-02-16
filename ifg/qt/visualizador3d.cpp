@@ -763,6 +763,18 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     }
     gerador.linha_textura->setText(file_str);
   });
+  // Ceu do tabuleiro.
+  gerador.linha_textura_ceu->setText(tab_proto.info_textura_ceu().id().c_str());
+  lambda_connect(gerador.botao_textura_ceu, SIGNAL(clicked()),
+      [this, dialogo, &gerador ] () {
+    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura do céu"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de leitura de textura de céu cancelada.";
+      return;
+    }
+    gerador.linha_textura_ceu->setText(file_str);
+  });
+
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
   // grade.
@@ -836,6 +848,27 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
     } else {
       proto_retornado->clear_ladrilho();
+    }
+    // Textura ceu.
+    if (gerador.linha_textura_ceu->text().toStdString() == tab_proto.info_textura_ceu().id()) {
+      // Textura ceu igual a anterior.
+      VLOG(2) << "Textura de ceu igual a anterior.";
+      proto_retornado->mutable_info_textura_ceu()->set_id(tab_proto.info_textura_ceu().id());
+    } else {
+      VLOG(2) << "Textura de ceu diferente da anterior.";
+      QFileInfo info(gerador.linha_textura_ceu->text());
+      // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
+      // mesmo nome isso vai falhar.
+      if (info.dir().dirName() != DIR_TEXTURAS) {
+        VLOG(2) << "Textura de ceu local, recarregando.";
+        QString id = QString::number(tab_proto.id_cliente()).append(":").append(info.fileName());
+        proto_retornado->mutable_info_textura_ceu()->set_id(id.toStdString());
+        // Usa o id para evitar conflito de textura local com texturas globais.
+        // Enviar a textura toda.
+        PreencheProtoTextura(info, proto_retornado->mutable_info_textura_ceu());
+      } else {
+        proto_retornado->mutable_info_textura_ceu()->set_id(info.fileName().toStdString());
+      }
     }
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
