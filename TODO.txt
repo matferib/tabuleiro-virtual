@@ -1,4 +1,5 @@
 Versao 1.8.1
+- Terminar ceu.
 - Destruir VBOs ao sair.
 - Separar Vbo gravado do nao gravado.
 - Passar piramide para gl (outras formas tb).
