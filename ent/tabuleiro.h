@@ -561,6 +561,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVbo();
 
+  /** Gera o Vbo da caixa do ceu, chamado uma vez apenas. */
+  void GeraVboCaixaCeu();
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -694,6 +697,7 @@ class Tabuleiro : public ntf::Receptor {
   unsigned int nome_buffer_indice_grade_ = 0;
   std::vector<float> vertices_grade_;
   std::vector<unsigned short> indices_grade_;
+  gl::Vbo vbo_caixa_ceu_;
 
   bool gl_iniciado_ = false;
 
