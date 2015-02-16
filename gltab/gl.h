@@ -232,10 +232,23 @@ inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 /** Funcoes de normais. */
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
 
+class Vbo;
+
+// Grava o VBO na memoria de video.
+void GravaVbo(Vbo* vbo);
+void DesgravaVbo(Vbo* vbo);
+// Desenha o vbo, assumindo que ele ja tenha sido gravado.
+void DesenhaVbo(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
+// Desenha o vbo, assumindo que ele nao tenha sido gravado (funciona para
+// gravados tb, mas eh mais lento).
+void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
+
+
 /** Objetos GLU e GLUT. */
 class Vbo {
  public:
   explicit Vbo(const std::string& nome = "") : nome_(nome) {}
+  ~Vbo() { DesgravaVbo(this); }
 
   void Nomeia(const std::string& nome) {
     nome_ = nome;
@@ -359,15 +372,6 @@ class Vbo {
   bool tem_cores_ = false;
   bool tem_texturas_ = false;
 };
-
-// Grava o VBO na memoria de video.
-void GravaVbo(Vbo* vbo);
-void DesgravaVbo(Vbo* vbo);
-// Desenha o vbo, assumindo que ele ja tenha sido gravado.
-void DesenhaVbo(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
-// Desenha o vbo, assumindo que ele nao tenha sido gravado (funciona para
-// gravados tb, mas eh mais lento).
-void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
 
 const Vbo VboCilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
 inline void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
