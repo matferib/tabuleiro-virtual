@@ -697,6 +697,7 @@ class Tabuleiro : public ntf::Receptor {
   unsigned int nome_buffer_indice_grade_ = 0;
   std::vector<float> vertices_grade_;
   std::vector<unsigned short> indices_grade_;
+  // TODO VBO dessas coisas aqui em cima.
   gl::Vbo vbo_caixa_ceu_;
 
   bool gl_iniciado_ = false;
