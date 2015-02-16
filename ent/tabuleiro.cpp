@@ -222,10 +222,6 @@ Tabuleiro::Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central
     modo_mestre_(true) {
   central_->RegistraReceptor(this);
 
-  auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-  nc->mutable_info_textura()->set_id("skybox.png");
-  central_->AdicionaNotificacao(nc);
-
   // Modelos.
   auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
   modelo_padrao->mutable_cor()->set_g(1.0f);
@@ -313,13 +309,13 @@ void Tabuleiro::EstadoInicial() {
   LiberaTextura();
   proto_.Clear();
   // Iluminacao ambiente inicial.
-  proto_.mutable_luz_ambiente()->set_r(0.2f);
-  proto_.mutable_luz_ambiente()->set_g(0.2f);
-  proto_.mutable_luz_ambiente()->set_b(0.2f);
+  proto_.mutable_luz_ambiente()->set_r(0.5f);
+  proto_.mutable_luz_ambiente()->set_g(0.5f);
+  proto_.mutable_luz_ambiente()->set_b(0.5f);
   // Iluminacao direcional inicial.
-  proto_.mutable_luz_direcional()->mutable_cor()->set_r(0.2f);
-  proto_.mutable_luz_direcional()->mutable_cor()->set_g(0.2f);
-  proto_.mutable_luz_direcional()->mutable_cor()->set_b(0.2f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_r(0.5f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_g(0.5f);
+  proto_.mutable_luz_direcional()->mutable_cor()->set_b(0.5f);
   // Vinda de 45 graus leste.
   proto_.mutable_luz_direcional()->set_posicao_graus(0.0f);
   proto_.mutable_luz_direcional()->set_inclinacao_graus(45.0f);
@@ -1521,6 +1517,7 @@ void Tabuleiro::IniciaGL() {
     LOG(WARNING) << "Erro no GL_FOG_HINT";
   }
   RegeraVbo();
+  GeraVboCaixaCeu();
   gl_iniciado_ = true;
 
   Entidade::IniciaGl();
@@ -1700,7 +1697,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   //ceu_.desenha(parametros_desenho_);
-  if (!parametros_desenho_.has_picking_x()) {
+  if (parametros_desenho_.desenha_texturas() && proto_.has_info_textura_ceu()) {
     DesenhaCaixaCeu();
   }
 
@@ -1711,6 +1708,7 @@ void Tabuleiro::DesenhaCena() {
     if (parametros_desenho_.desenha_grade() &&
         opcoes_.desenha_grade() &&
         (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
+      // Pra evitar z fight, desliga a profundidade,
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
     }
@@ -1818,6 +1816,48 @@ void Tabuleiro::DesenhaCena() {
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
     DesenhaControleVirtual();
   }
+}
+
+void Tabuleiro::GeraVboCaixaCeu() {
+  vbo_caixa_ceu_ = gl::VboCuboSolido(10.0f);
+  // Valores de referencia:
+  // imagem 4x3.
+  // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
+  // y = 1.0f, 0.66f, 0.33f, 0f
+  const float texturas[6 * 4 * 2] = {
+    // sul: 0-3 (linha meio, coluna 0),--,+-,++,-+
+    0.25f, 0.66f,
+    0.0f, 0.66f,
+    0.0f, 0.33f,
+    0.25f, 0.33f,
+    // norte: 4-7 (linha meio, coluna 2),--,-+,++,+-
+    0.50f, 0.66f,
+    0.50f, 0.33f,
+    0.75f, 0.33f,
+    0.75f, 0.66f,
+    // oeste: 8-11 (linha meio, coluna 1),--,-+,++,+-
+    0.25f, 0.66f,
+    0.25f, 0.33f,
+    0.50f, 0.33f,
+    0.50f, 0.66f,
+    // leste: 12-15 (linha meio, coluna 3):--,+-,++,-+
+    1.0f, 0.66f,
+    0.75f, 0.66f,
+    0.75f, 0.33f,
+    1.0f, 0.33f,
+    // cima: 16-19 (linha de cima, coluna 1):--,+-,++,-+
+    0.25f, 0.33f,
+    0.50f, 0.33f,
+    0.50f, 0.0f,
+    0.25f, 0.0f,
+    // baixo: 20-23 (linha de baixo, coluna 1):--,-+,++,+-
+    0.25f, 1.0f,
+    0.25f, 0.66f,
+    0.50f, 0.66f,
+    0.50f, 1.0f,
+  };
+  vbo_caixa_ceu_.AtribuiTexturas(texturas);
+  gl::GravaVbo(&vbo_caixa_ceu_);
 }
 
 void Tabuleiro::RegeraVbo() {
@@ -3048,6 +3088,9 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
     tabuleiro->set_ladrilho(proto_.ladrilho());
     tabuleiro->set_textura_mestre_apenas(proto_.textura_mestre_apenas());
   }
+  if (proto_.has_info_textura_ceu()) {
+    tabuleiro->mutable_info_textura_ceu()->CopyFrom(proto_.info_textura_ceu());
+  }
   if (proto_.has_nevoa()) {
     tabuleiro->mutable_nevoa()->CopyFrom(proto_.nevoa());
   }
@@ -3698,33 +3741,46 @@ int Tabuleiro::GeraIdTabuleiro() {
   throw std::logic_error("Limite de clientes alcancado.");
 }
 
-void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
-  VLOG(2) << "Atualizando texturas, novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+namespace {
+// Retorna true se ha uma nova textura.
+bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
+                      bool velho_tem, ent::InfoTextura* velho_proto, ntf::CentralNotificacoes* central) {
+  VLOG(2) << "Atualizando texturas, novo proto: " << novo_proto.ShortDebugString() << ", velho: " << velho_proto->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (proto_.has_info_textura() && proto_.info_textura().id() != novo_proto.info_textura().id()) {
-    VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
+  if (velho_tem && velho_proto->id() != novo_proto.id()) {
+    VLOG(2) << "Liberando textura: " << velho_proto->id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->CopyFrom(proto_.info_textura());
-    central_->AdicionaNotificacao(nl);
+    nl->mutable_info_textura()->CopyFrom(*velho_proto);
+    central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
-  if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_.info_textura().id()) {
-    VLOG(2) << "Carregando textura: " << novo_proto.info_textura().id();
+  if (novo_tem && novo_proto.id() != velho_proto->id()) {
+    VLOG(2) << "Carregando textura: " << novo_proto.id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
-    central_->AdicionaNotificacao(nc);
+    nc->mutable_info_textura()->CopyFrom(novo_proto);
+    central->AdicionaNotificacao(nc);
   }
 
-  if (novo_proto.has_info_textura()) {
+  if (novo_tem) {
     // Os bits crus so sao reenviados se houver mudanca. Nao eh bom perde-los por causa de novas serializacoes
     // como salvamentos e novos jogadores. Salva aqui pra restaurar ali embaixo.
     bool manter_bits_crus =
-        novo_proto.info_textura().id() == proto_.info_textura().id() && proto_.info_textura().has_bits_crus();
-    std::string bits_crus = manter_bits_crus ? proto_.info_textura().bits_crus() : std::string("");
-    proto_.mutable_info_textura()->CopyFrom(novo_proto.info_textura());
+        novo_proto.id() == velho_proto->id() && velho_proto->has_bits_crus();
+    std::string bits_crus = manter_bits_crus ? velho_proto->bits_crus() : std::string("");
+    velho_proto->CopyFrom(novo_proto);
     if (manter_bits_crus) {
-      proto_.mutable_info_textura()->set_bits_crus(bits_crus);
+      velho_proto->set_bits_crus(bits_crus);
     }
+    return true;
+  }
+  return false;
+}
+}  // namespace
+
+void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
+  if (ent::AtualizaTexturas(novo_proto.has_info_textura(), novo_proto.info_textura(),
+                            proto_.has_info_textura(), proto_.mutable_info_textura(),
+                            central_)) {
     proto_.set_ladrilho(novo_proto.ladrilho());
     proto_.set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
   } else {
@@ -3732,63 +3788,33 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
     proto_.clear_ladrilho();
     proto_.clear_textura_mestre_apenas();
   }
+  if (!ent::AtualizaTexturas(novo_proto.has_info_textura_ceu(), novo_proto.info_textura_ceu(),
+                             proto_.has_info_textura_ceu(), proto_.mutable_info_textura_ceu(),
+                             central_)) {
+    proto_.clear_info_textura_ceu();
+  }
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+  //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
+  gl::DesabilitaEscopo blend(GL_BLEND);
   gl::MatrizEscopo salva_mv(GL_MODELVIEW);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+  //gl::Translada(0, 0, 50.0f);
   MudaCor(COR_BRANCA);
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::FaceNula(GL_FRONT);
-  gl::Vbo vbo_ceu(gl::VboCuboSolido(10.0f));
-  // Valores de referencia:
-  // imagem 4x3.
-  // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
-  // y = 1.0f, 0.66f, 0.33f, 0f
-  const float texturas[6 * 4 * 2] = {
-    // sul: 0-3 (linha meio, coluna 0),--,+-,++,-+
-    0.25f, 0.66f,
-    0.0f, 0.66f,
-    0.0f, 0.33f,
-    0.25f, 0.33f,
-    // norte: 4-7 (linha meio, coluna 2),--,-+,++,+-
-    0.50f, 0.66f,
-    0.50f, 0.33f,
-    0.75f, 0.33f,
-    0.75f, 0.66f,
-    // oeste: 8-11 (linha meio, coluna 1),--,-+,++,+-
-    0.25f, 0.66f,
-    0.25f, 0.33f,
-    0.50f, 0.33f,
-    0.50f, 0.66f,
-    // leste: 12-15 (linha meio, coluna 3):--,+-,++,-+
-    1.0f, 0.66f,
-    0.75f, 0.66f,
-    0.75f, 0.33f,
-    1.0f, 0.33f,
-    // cima: 16-19 (linha de cima, coluna 1):--,+-,++,-+
-    0.25f, 0.33f,
-    0.50f, 0.33f,
-    0.50f, 0.0f,
-    0.25f, 0.0f,
-    // baixo: 20-23 (linha de baixo, coluna 1):--,-+,++,+-
-    0.25f, 1.0f,
-    0.25f, 0.66f,
-    0.50f, 0.66f,
-    0.50f, 1.0f,
-  };
-  GLuint id_textura = texturas_->Textura("skybox.png");
-  if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    glBindTexture(GL_TEXTURE_2D, id_textura);
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, texturas);
+  GLuint id_textura = texturas_->Textura(proto_.info_textura_ceu().id());
+  if (id_textura == GL_INVALID_VALUE) {
+    return;
   }
-  //vbo.AtribuiTexturas(texturas);
-  gl::DesenhaVboNaoGravado(vbo_ceu);
+  gl::Habilita(GL_TEXTURE_2D);
+  gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+  glBindTexture(GL_TEXTURE_2D, id_textura);
+  gl::DesenhaVbo(vbo_caixa_ceu_);
   gl::Desabilita(GL_TEXTURE_2D);
   gl::FaceNula(GL_BACK);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {

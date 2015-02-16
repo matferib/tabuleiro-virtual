@@ -313,15 +313,15 @@ class Vbo {
     unsigned int pos_final = coordenadas_.size() * sizeof(float);
     if (tem_normais_) {
       deslocamento_normais_ = pos_final;
-      pos_final += normais_.size();
+      pos_final += normais_.size() * sizeof(float);
     }
     if (tem_cores_) {
       deslocamento_cores_ = pos_final;
-      pos_final += cores_.size();
+      pos_final += cores_.size() * sizeof(float);
     }
     if (tem_texturas_) {
       deslocamento_texturas_ = pos_final;
-      pos_final += texturas_.size();
+      pos_final += texturas_.size() * sizeof(float);
     }
   }
 
