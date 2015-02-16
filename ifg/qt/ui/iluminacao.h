@@ -67,15 +67,20 @@ public:
     QLineEdit *linha_nevoa_min;
     QLabel *label_13;
     QLineEdit *linha_nevoa_max;
+    QWidget *horizontalLayoutWidget_4;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_14;
+    QLineEdit *linha_textura_ceu;
+    QPushButton *botao_textura_ceu;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
         if (ifg__qt__DialogoIluminacao->objectName().isEmpty())
             ifg__qt__DialogoIluminacao->setObjectName(QString::fromUtf8("ifg__qt__DialogoIluminacao"));
-        ifg__qt__DialogoIluminacao->resize(501, 611);
+        ifg__qt__DialogoIluminacao->resize(515, 670);
         botoes = new QDialogButtonBox(ifg__qt__DialogoIluminacao);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(70, 570, 341, 32));
+        botoes->setGeometry(QRect(130, 630, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoIluminacao);
@@ -111,7 +116,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(20, 450, 463, 80));
+        horizontalLayoutWidget_2->setGeometry(QRect(20, 530, 461, 80));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -277,6 +282,27 @@ public:
 
         horizontalLayout_3->addWidget(linha_nevoa_max);
 
+        horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoIluminacao);
+        horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
+        horizontalLayoutWidget_4->setGeometry(QRect(20, 450, 461, 80));
+        horizontalLayout_4 = new QHBoxLayout(horizontalLayoutWidget_4);
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        horizontalLayout_4->setContentsMargins(0, 0, 0, 0);
+        label_14 = new QLabel(horizontalLayoutWidget_4);
+        label_14->setObjectName(QString::fromUtf8("label_14"));
+
+        horizontalLayout_4->addWidget(label_14);
+
+        linha_textura_ceu = new QLineEdit(horizontalLayoutWidget_4);
+        linha_textura_ceu->setObjectName(QString::fromUtf8("linha_textura_ceu"));
+
+        horizontalLayout_4->addWidget(linha_textura_ceu);
+
+        botao_textura_ceu = new QPushButton(horizontalLayoutWidget_4);
+        botao_textura_ceu->setObjectName(QString::fromUtf8("botao_textura_ceu"));
+
+        horizontalLayout_4->addWidget(botao_textura_ceu);
+
 
         retranslateUi(ifg__qt__DialogoIluminacao);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoIluminacao, SLOT(reject()));
@@ -288,7 +314,7 @@ public:
 
     void retranslateUi(QDialog *ifg__qt__DialogoIluminacao)
     {
-        ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Ilumina\303\247\303\243o Ambiente", 0, QApplication::UnicodeUTF8));
+        ifg__qt__DialogoIluminacao->setWindowTitle(QApplication::translate("ifg::qt::DialogoIluminacao", "Propriedades Tabuleiro", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Fundo", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -341,6 +367,8 @@ public:
 #ifndef QT_NO_TOOLTIP
         linha_nevoa_max->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia onde o efeito m\303\241ximo da n\303\251voa \303\251 aplicado.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        label_14->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", 0, QApplication::UnicodeUTF8));
+        botao_textura_ceu->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
