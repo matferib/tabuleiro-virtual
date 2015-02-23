@@ -1702,7 +1702,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   //ceu_.desenha(parametros_desenho_);
-  if (parametros_desenho_.desenha_texturas() && proto_.has_info_textura_ceu()) {
+  if (!parametros_desenho_.has_picking_x() && parametros_desenho_.desenha_texturas() && proto_.has_info_textura_ceu()) {
     DesenhaCaixaCeu();
   }
 
@@ -3836,14 +3836,13 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+  // Desliga luzes pontuais.
   //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
-  gl::DesabilitaEscopo blend(GL_BLEND);
   gl::MatrizEscopo salva_mv(GL_MODELVIEW);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
-  //gl::Translada(0, 0, 50.0f);
   MudaCor(COR_BRANCA);
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::FaceNula(GL_FRONT);
@@ -3856,6 +3855,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   glBindTexture(GL_TEXTURE_2D, id_textura);
   gl::DesenhaVbo(vbo_caixa_ceu_);
   gl::Desabilita(GL_TEXTURE_2D);
+  // Religa luzes.
   gl::FaceNula(GL_BACK);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Habilita(GL_LIGHT0 + i);
