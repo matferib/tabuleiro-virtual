@@ -360,7 +360,6 @@ class Vbo {
   unsigned int deslocamento_cores_ = 0;
   unsigned int deslocamento_texturas_ = 0;
 
-  unsigned int textura_ = GL_INVALID_VALUE;
   std::vector<float> coordenadas_;
   std::vector<float> normais_;
   std::vector<float> cores_;

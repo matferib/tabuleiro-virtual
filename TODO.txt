@@ -1,5 +1,5 @@
 Versao 1.8.1
-- Terminar ceu.
+- Area de trabalho no QT.
 - Destruir VBOs ao sair.
 - Separar Vbo gravado do nao gravado.
 - Passar piramide para gl (outras formas tb).
