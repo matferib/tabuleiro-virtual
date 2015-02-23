@@ -225,3 +225,8 @@ message ParametrosDesenho {
   // Desenha sinalizacao de eventos.
   optional bool desenha_eventos_entidades = 35 [default=true];
 }
+
+// Para copiar e colar.
+message EntidadesCopiadas {
+  repeated EntidadeProto entidade = 1;
+}

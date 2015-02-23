@@ -85,6 +85,7 @@ else:
   env['CPPDEFINES']['ZBUFFER_16_BITS'] = 0
 
 env['CPPDEFINES']['GL_GLEXT_PROTOTYPES'] = 1
+env['CPPDEFINES']['USAR_QT'] = 1
 
 # Configuracoes locais.
 env.SConscript('local.SConscript', exports = 'env')

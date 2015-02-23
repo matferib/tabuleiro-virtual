@@ -52,4 +52,5 @@ sub_menu {
   modelo { id: 'Árvore (pinheiro)' }
   modelo { id: 'Árvore (genérica)' }
   modelo { id: 'Casa (8x7)' }
+  modelo { id: 'Moedas' }
 }
