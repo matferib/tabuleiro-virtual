@@ -74,6 +74,7 @@ void Principal::Executa() {
 }
 
 void Principal::closeEvent(QCloseEvent *event) {
+  q_timer_->stop();
   if (tabuleiro_->ModoMestre()) {
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
