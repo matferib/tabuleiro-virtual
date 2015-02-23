@@ -824,7 +824,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
       proto_retornado->clear_nevoa();
     }
     // Textura.
-    if (gerador.linha_textura->text().toStdString() == tab_proto.info_textura().id()) {
+    if (gerador.linha_textura->text().isEmpty()) {
+      VLOG(2) << "Textura vazia.";
+      proto_retornado->clear_info_textura();
+    } else if (gerador.linha_textura->text().toStdString() == tab_proto.info_textura().id()) {
       // Textura igual a anterior.
       VLOG(2) << "Textura igual a anterior.";
       proto_retornado->mutable_info_textura()->set_id(tab_proto.info_textura().id());
@@ -844,13 +847,17 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
     }
+    // Ladrilho.
     if (!gerador.linha_textura->text().isEmpty()) {
       proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
     } else {
       proto_retornado->clear_ladrilho();
     }
     // Textura ceu.
-    if (gerador.linha_textura_ceu->text().toStdString() == tab_proto.info_textura_ceu().id()) {
+    if (gerador.linha_textura_ceu->text().isEmpty()) {
+      VLOG(2) << "Textura de ceu vazia.";
+      proto_retornado->clear_info_textura_ceu();
+    } else if (gerador.linha_textura_ceu->text().toStdString() == tab_proto.info_textura_ceu().id()) {
       // Textura ceu igual a anterior.
       VLOG(2) << "Textura de ceu igual a anterior.";
       proto_retornado->mutable_info_textura_ceu()->set_id(tab_proto.info_textura_ceu().id());
