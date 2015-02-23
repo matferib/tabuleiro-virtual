@@ -506,6 +506,10 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
       proto_antes->set_selecionavel_para_jogador(proto_original.selecionavel_para_jogador());
       proto_depois->set_selecionavel_para_jogador(!proto_original.selecionavel_para_jogador());
     }
+    if (bits & BIT_FIXA) {
+      proto_antes->set_fixa(proto_original.fixa());
+      proto_depois->set_fixa(!proto_original.fixa());
+    }
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -2808,7 +2812,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     TrataNotificacao(notificacao);
   } else if (pos_pilha == OBJ_ENTIDADE) {
     // Entidade.
-    if (SelecionaEntidade(id)) {
+    if (SelecionaEntidade(id, true  /*forcar_fixa*/)) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
       n->set_modo_mestre(modo_mestre_);
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
@@ -2834,14 +2838,14 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   p->set_z(z3d);
 }
 
-bool Tabuleiro::SelecionaEntidade(unsigned int id) {
+bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   VLOG(2) << "Selecionando entidade: " << id;
   ids_entidades_selecionadas_.clear();
   auto* entidade = BuscaEntidade(id);
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  if (!modo_mestre_ && !entidade->SelecionavelParaJogador()) {
+  if ((!forcar_fixa && entidade->Fixa()) || (!modo_mestre_ && !entidade->SelecionavelParaJogador())) {
     DeselecionaEntidades();
     return false;
   }
@@ -2868,7 +2872,7 @@ void Tabuleiro::SelecionaEntidades(const std::vector<unsigned int>& ids) {
 void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& ids) {
   for (unsigned int id : ids) {
     auto* entidade = BuscaEntidade(id);
-    if (entidade == nullptr || (!modo_mestre_ && !entidade->SelecionavelParaJogador())) {
+    if (entidade == nullptr || entidade->Fixa() || (!modo_mestre_ && !entidade->SelecionavelParaJogador())) {
       continue;
     }
     ids_entidades_selecionadas_.insert(id);

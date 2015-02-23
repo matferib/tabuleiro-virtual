@@ -104,6 +104,7 @@ class Tabuleiro : public ntf::Receptor {
     BIT_MORTA            = 0x8,
     BIT_CAIDA            = 0x10,
     BIT_SELECIONAVEL     = 0x20,
+    BIT_FIXA             = 0x40,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
@@ -436,8 +437,9 @@ class Tabuleiro : public ntf::Receptor {
   /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
   * ETAB_ENT_SELECIONADA em case de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso
   * o tabuleiro fica ocioso e retorna false.
+  * Se forcar_fixa for verdadeiro, entidades fixas sao aceitas.
   */
-  bool SelecionaEntidade(unsigned int id);
+  bool SelecionaEntidade(unsigned int id, bool forcar_fixa = false);
 
   /** Seleciona as entidades passadas por id, deselecionando outras e colocando o tabuleiro
   * no estado ETAB_ENTS_SELECIONADAS.

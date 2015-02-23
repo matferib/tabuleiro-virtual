@@ -127,6 +127,9 @@ class Entidade {
   /** Retorna se a entidade eh selecionavel para jogador. */
   bool SelecionavelParaJogador() const { return proto_.selecionavel_para_jogador(); }
 
+  /** Retorna se a entidade eh fixa (ou seja, nem o mestre pode mover). */
+  bool Fixa() const { return proto_.fixa(); }
+
   /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
   * 1.0f para entidades medias.
   */

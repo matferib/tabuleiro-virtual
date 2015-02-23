@@ -1,11 +1,8 @@
 Versao 1.8.1
-- Area de trabalho no QT.
-- Destruir VBOs ao sair.
-- Separar Vbo gravado do nao gravado.
-- Passar piramide para gl (outras formas tb).
-- Comparar benchmarks com e sem VBO.
-- Tirar a mensagem de tabuleiro salvo ao sair.
 - Vbos de entidades.
+- Separar Vbo gravado do nao gravado.
+- Passar outras formas para gl (disco).
+- Comparar benchmarks com e sem VBO.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
   Problema eh que o controle de voo da entidade eh feito pelo z.

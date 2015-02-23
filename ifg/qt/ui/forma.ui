@@ -301,41 +301,6 @@
     </property>
    </widget>
   </widget>
-  <widget class="QCheckBox" name="checkbox_selecionavel">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>480</y>
-     <width>177</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Selecionável</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="checkbox_visibilidade">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>510</y>
-     <width>201</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="text">
-    <string>Visível</string>
-   </property>
-  </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">
     <rect>
@@ -387,7 +352,7 @@
     <rect>
      <x>100</x>
      <y>70</y>
-     <width>229</width>
+     <width>277</width>
      <height>26</height>
     </rect>
    </property>
@@ -451,7 +416,7 @@
     <rect>
      <x>190</x>
      <y>430</y>
-     <width>221</width>
+     <width>259</width>
      <height>41</height>
     </rect>
    </property>
@@ -574,6 +539,51 @@
      <widget class="QPushButton" name="botao_textura">
       <property name="text">
        <string>Escolher Textura</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_6">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>480</y>
+     <width>401</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_11">
+    <item>
+     <widget class="QCheckBox" name="checkbox_fixa">
+      <property name="toolTip">
+       <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+      </property>
+      <property name="text">
+       <string>Fixa</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_selecionavel">
+      <property name="text">
+       <string>Selecionável</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_visibilidade">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Visível</string>
       </property>
      </widget>
     </item>
