@@ -53,4 +53,5 @@ sub_menu {
   modelo { id: 'Árvore (genérica)' }
   modelo { id: 'Casa (8x7)' }
   modelo { id: 'Moedas' }
+  modelo { id: 'Baú (madeira)' }
 }
