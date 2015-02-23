@@ -641,7 +641,10 @@ class Tabuleiro : public ntf::Receptor {
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
+
+#if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
+#endif
 
   // Para processamento de grupos de notificacoes.
   bool processando_grupo_;

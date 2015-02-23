@@ -1,3 +1,8 @@
+#if USAR_QT
+#include <QApplication>
+#include <QClipboard>
+#include <google/protobuf/text_format.h>
+#endif
 #include <algorithm>
 #include <boost/filesystem.hpp>
 #include <cassert>
@@ -3261,6 +3266,19 @@ Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
 }
 
 void Tabuleiro::CopiaEntidadesSelecionadas() {
+#if USAR_QT
+  ent::EntidadesCopiadas entidades_copiadas;
+  for (const unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade = BuscaEntidade(id);
+    if (entidade != nullptr) {
+      entidades_copiadas.add_entidade()->CopyFrom(entidade->Proto());
+      VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
+    }
+  }
+  std::string str_entidades;
+  google::protobuf::TextFormat::PrintToString(entidades_copiadas, &str_entidades);
+  QApplication::clipboard()->setText(QString::fromStdString(str_entidades));
+#else
   entidades_copiadas_.clear();
   for (const unsigned int id : ids_entidades_selecionadas_) {
     auto* entidade = BuscaEntidade(id);
@@ -3269,9 +3287,29 @@ void Tabuleiro::CopiaEntidadesSelecionadas() {
       VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
     }
   }
+#endif
 }
 
 void Tabuleiro::ColaEntidadesSelecionadas() {
+#if USAR_QT
+  std::string str_entidades(QApplication::clipboard()->text().toStdString());
+  if (str_entidades.empty()) {
+    VLOG(1) << "Ignorando colar, não há entidades selecionadas";
+    return;
+  }
+  ent::EntidadesCopiadas entidades_copiadas;
+  if (!google::protobuf::TextFormat::ParseFromString(str_entidades, &entidades_copiadas)) {
+    LOG(ERROR) << "Erro colando, nao consegui entender o buffer de clipboard: " << str_entidades;
+    return;
+  }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (const auto& ep : entidades_copiadas.entidade()) {
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    n->mutable_entidade()->CopyFrom(ep);
+  }
+#else
   if (entidades_copiadas_.empty()) {
     VLOG(1) << "Ignorando colar, não há entidades selecionadas";
     return;
@@ -3283,6 +3321,7 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
     n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     n->mutable_entidade()->CopyFrom(ep);
   }
+#endif
   TrataNotificacao(grupo_notificacoes);
   SelecionaEntidadesAdicionadas();
   // Para desfazer
@@ -3296,6 +3335,7 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
       LOG(ERROR) << "Impossivel adicionar notificacao para desfazer porque o numero de entidades adicionadas difere do que foi tentado.";
     }
   }
+
 }
 
 void Tabuleiro::AgrupaEntidadesSelecionadas() {
