@@ -499,6 +499,70 @@ const Vbo VboCuboSolido(GLfloat tam_lado) {
   return ret;
 }
 
+const Vbo VboPiramide(GLfloat tam_lado, GLfloat altura) {
+  const unsigned short indices[] = {
+      0, 1, 2,  // sul
+      3, 4, 5,  // leste
+      6, 7, 8,  // norte
+      9, 10, 11, // oeste
+  };
+  // Todas normais sao compostas pelo mesmo componente em direcoes diferentes por 90 graus.
+  // Alfa eh o angulo da base com as paredes.
+  // m = tam_lado / 2.0f.
+  // t = lateral da piramide, tamanho: sqrt(m^2 + h^2).
+  // cos(a) = m / t = componente eixo x-y.
+  // sen(a) = h / t = componente z.
+  const float m = tam_lado / 2.0f;
+  const float h = altura;
+  const float t = sqrt(m * m + h * h);
+  const float cos_a = m / t;
+  const float comp_xy = cos_a;
+  const float sen_a = h / t;
+  const float comp_z = sen_a;
+  const float normais[] = {
+    // Face sul
+    0.0f, -comp_xy, comp_z,
+    0.0f, -comp_xy, comp_z,
+    0.0f, -comp_xy, comp_z,
+    // Face leste.
+    comp_xy, 0.0f, comp_z,
+    comp_xy, 0.0f, comp_z,
+    comp_xy, 0.0f, comp_z,
+    // Face norte.
+    0.0f, comp_xy, comp_z,
+    0.0f, comp_xy, comp_z,
+    0.0f, comp_xy, comp_z,
+    // Face Oeste.
+    -comp_xy, 0.0f, comp_z,
+    -comp_xy, 0.0f, comp_z,
+    -comp_xy, 0.0f, comp_z,
+  };
+  const float coordenadas[] = {
+    // Topo.
+    // Face sul.
+    0.0f, 0.0f, altura,
+    -m, -m, 0.0f,
+    m, -m, 0.0f,
+    // Face leste.
+    0.0f, 0.0f, altura,
+    m, -m, 0.0f,
+    m, m, 0.0f,
+    // Face norte.
+    0.0f, 0.0f, altura,
+    m, m, 0.0f,
+    -m, m, 0.0f,
+    // Face Oeste.
+    0.0f, 0.0f, altura,
+    -m, m, 0.0f,
+    -m, -m, 0.0f,
+  };
+  Vbo vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
+  vbo.AtribuiIndices(indices, 12);
+  vbo.AtribuiNormais(normais);
+  return vbo;
+}
+
 void GravaVbo(Vbo* vbo) {
   // Gera o buffer.
   gl::GeraBuffers(1, &vbo->nome_coordenadas);

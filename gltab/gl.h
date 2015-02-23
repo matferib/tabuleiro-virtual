@@ -397,6 +397,11 @@ inline void CuboSolido(GLfloat tam_lado) {
   DesenhaVboNaoGravado(VboCuboSolido(tam_lado));
 }
 
+const Vbo VboPiramide(GLfloat tam_lado, GLfloat altura);
+inline void Piramide(GLfloat tam_lado, GLfloat altura) {
+  DesenhaVboNaoGravado(VboPiramide(tam_lado, altura));
+}
+
 /** Raster. */
 #if !USAR_OPENGL_ES
 inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { glRasterPos3f(x, y, z); }

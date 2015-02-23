@@ -62,8 +62,6 @@ public:
     QDoubleSpinBox *spin_translacao;
     QLabel *label_2;
     QSpinBox *spin_rotacao;
-    QCheckBox *checkbox_selecionavel;
-    QCheckBox *checkbox_visibilidade;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_9;
     QHBoxLayout *horizontalLayout_10;
@@ -87,6 +85,11 @@ public:
     QHBoxLayout *horizontalLayout_8;
     QLineEdit *linha_textura;
     QPushButton *botao_textura;
+    QWidget *horizontalLayoutWidget_6;
+    QHBoxLayout *horizontalLayout_11;
+    QCheckBox *checkbox_fixa;
+    QCheckBox *checkbox_selecionavel;
+    QCheckBox *checkbox_visibilidade;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -237,18 +240,6 @@ public:
         spin_rotacao->setObjectName(QString::fromUtf8("spin_rotacao"));
         spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
         spin_rotacao->setMaximum(360);
-        checkbox_selecionavel = new QCheckBox(ifg__qt__DialogoForma);
-        checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
-        checkbox_selecionavel->setGeometry(QRect(200, 480, 177, 20));
-        checkbox_visibilidade = new QCheckBox(ifg__qt__DialogoForma);
-        checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
-        checkbox_visibilidade->setEnabled(true);
-        checkbox_visibilidade->setGeometry(QRect(200, 510, 201, 20));
-        QSizePolicy sizePolicy1(QSizePolicy::Minimum, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(checkbox_visibilidade->sizePolicy().hasHeightForWidth());
-        checkbox_visibilidade->setSizePolicy(sizePolicy1);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
         horizontalLayoutWidget_3->setGeometry(QRect(190, 390, 221, 41));
@@ -270,11 +261,11 @@ public:
         horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
         slider_alfa = new QSlider(horizontalLayoutWidget_3);
         slider_alfa->setObjectName(QString::fromUtf8("slider_alfa"));
-        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(slider_alfa->sizePolicy().hasHeightForWidth());
-        slider_alfa->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(slider_alfa->sizePolicy().hasHeightForWidth());
+        slider_alfa->setSizePolicy(sizePolicy1);
         slider_alfa->setMaximum(100);
         slider_alfa->setOrientation(Qt::Horizontal);
 
@@ -285,7 +276,7 @@ public:
 
         layoutWidget = new QWidget(ifg__qt__DialogoForma);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(100, 70, 229, 26));
+        layoutWidget->setGeometry(QRect(100, 70, 277, 26));
         horizontalLayout_13 = new QHBoxLayout(layoutWidget);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -321,7 +312,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(190, 430, 221, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(190, 430, 259, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -375,6 +366,33 @@ public:
 
         horizontalLayout_8->addWidget(botao_textura);
 
+        horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoForma);
+        horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 480, 401, 51));
+        horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_6);
+        horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
+        horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
+        checkbox_fixa = new QCheckBox(horizontalLayoutWidget_6);
+        checkbox_fixa->setObjectName(QString::fromUtf8("checkbox_fixa"));
+
+        horizontalLayout_11->addWidget(checkbox_fixa);
+
+        checkbox_selecionavel = new QCheckBox(horizontalLayoutWidget_6);
+        checkbox_selecionavel->setObjectName(QString::fromUtf8("checkbox_selecionavel"));
+
+        horizontalLayout_11->addWidget(checkbox_selecionavel);
+
+        checkbox_visibilidade = new QCheckBox(horizontalLayoutWidget_6);
+        checkbox_visibilidade->setObjectName(QString::fromUtf8("checkbox_visibilidade"));
+        checkbox_visibilidade->setEnabled(true);
+        QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(checkbox_visibilidade->sizePolicy().hasHeightForWidth());
+        checkbox_visibilidade->setSizePolicy(sizePolicy2);
+
+        horizontalLayout_11->addWidget(checkbox_visibilidade);
+
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -398,8 +416,6 @@ public:
         dial_rotacao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_2->setText(QApplication::translate("ifg::qt::DialogoForma", "Transla\303\247\303\243o", 0, QApplication::UnicodeUTF8));
-        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
-        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoForma", "Alfa", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("ifg::qt::DialogoForma", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0, QApplication::UnicodeUTF8));
@@ -411,6 +427,12 @@ public:
 #endif // QT_NO_TOOLTIP
         linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
         botao_textura->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Textura", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", 0, QApplication::UnicodeUTF8));
+        checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
+        checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

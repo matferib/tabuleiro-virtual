@@ -343,9 +343,19 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   if (!notificacao.modo_mestre()) {
     gerador.checkbox_visibilidade->setEnabled(false);
   }
+  // Fixa.
+  gerador.checkbox_fixa->setCheckState(entidade.fixa() ? Qt::Checked : Qt::Unchecked);
+  if (!notificacao.modo_mestre()) {
+    gerador.checkbox_selecionavel->setEnabled(false);
+  }
+  lambda_connect(gerador.checkbox_fixa, SIGNAL(clicked()),
+      [this, &gerador, &notificacao] () {
+    gerador.checkbox_selecionavel->setEnabled(notificacao.modo_mestre() &&
+                                              (gerador.checkbox_fixa->checkState() != Qt::Checked));
+  });
   // Selecionavel para jogadores.
   gerador.checkbox_selecionavel->setCheckState(entidade.selecionavel_para_jogador() ? Qt::Checked : Qt::Unchecked);
-  if (!notificacao.modo_mestre()) {
+  if (!notificacao.modo_mestre() || entidade.fixa()) {
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Textura do objeto.
@@ -443,6 +453,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
+    bool fixa = gerador.checkbox_fixa->checkState() == Qt::Checked;
+    if (fixa) {
+      // Override.
+      proto_retornado->set_selecionavel_para_jogador(false);
+    }
+    proto_retornado->set_fixa(fixa);
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_translacao_z(gerador.spin_translacao->value());

@@ -134,6 +134,8 @@ message EntidadeProto {
   optional bool morta = 15 [default=false];
   // Se false, apenas o mestre pode ver propriedades da entidade, seleciona-la e fazer picking.
   optional bool selecionavel_para_jogador = 16 [default=true];
+  // Se verdadeiro, o mestre nao conseguira selecionar a entidade. Ela sera apenas editavel com duplo clique.
+  optional bool fixa = 32 [default=false];
 
   // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
