@@ -25,7 +25,6 @@ const double DURACAO_QUEDA_SEGUNDOS = 0.5f;
 // Tamanho da barra de vida.
 const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
 const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
-const float ALTURA_TIJOLO_BASE = TAMANHO_LADO_QUADRADO_10;
 
 }  // namespace
 
