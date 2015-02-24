@@ -197,8 +197,9 @@ void Tabuleiro::DesenhaControleVirtual() {
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
   const float fonte_x = fonte_x_int;
   const float fonte_y = fonte_y_int;
-  const float botao_x = fonte_x * 3.0f;
   const float botao_y = fonte_y * 2.5f;
+  //const float botao_x = botao_y;  // botoes quadrados. Era: fonte_x * 3.0f;
+  const float botao_x = fonte_x * 3.0f;
   const float padding = fonte_x / 2;
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);

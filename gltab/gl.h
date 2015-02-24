@@ -397,9 +397,14 @@ inline void CuboSolido(GLfloat tam_lado) {
   DesenhaVboNaoGravado(VboCuboSolido(tam_lado));
 }
 
-const Vbo VboPiramide(GLfloat tam_lado, GLfloat altura);
-inline void Piramide(GLfloat tam_lado, GLfloat altura) {
-  DesenhaVboNaoGravado(VboPiramide(tam_lado, altura));
+const Vbo VboPiramideSolida(GLfloat tam_lado, GLfloat altura);
+inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {
+  DesenhaVboNaoGravado(VboPiramideSolida(tam_lado, altura));
+}
+
+const Vbo VboRetangulo(GLfloat tam_lado);
+inline void Retangulo(GLfloat tam_lado) {
+  DesenhaVboNaoGravado(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);
 }
 
 /** Raster. */

@@ -191,42 +191,20 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     case TF_PIRAMIDE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::Piramide(1.0f, 1.0f);
+      gl::PiramideSolida(1.0f, 1.0f);
     }
     break;
     case TF_RETANGULO: {
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
-      float x = proto.escala().x() / 2.0f;
-      float y = proto.escala().y() / 2.0f;
-      gl::Normal(0.0f, 0.0f, 1.0f);
-      const unsigned short indices[] = { 0, 1, 2, 3 };
-      const float vertices[] = {
-        -x, -y,
-        x,  -y,
-        x,  y,
-        -x, y,
-      };
-      const float vertices_texel[] = {
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f,
-        0.0f, 0.0f,
-      };
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
       GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
           vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
       if (id_textura != GL_INVALID_VALUE) {
         gl::Habilita(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, id_textura);
-        gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
       }
-      gl::PonteiroVertices(2, GL_FLOAT, vertices);
-      gl::PonteiroVerticesTexturas(2, GL_FLOAT, vertices_texel);
-      gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-      gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-      gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-      gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-      gl::Desabilita(GL_TEXTURE_2D);
+      gl::Retangulo(1.0f);
     }
     break;
     case TF_ESFERA: {

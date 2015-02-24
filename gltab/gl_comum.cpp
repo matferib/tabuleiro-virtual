@@ -499,7 +499,7 @@ const Vbo VboCuboSolido(GLfloat tam_lado) {
   return ret;
 }
 
-const Vbo VboPiramide(GLfloat tam_lado, GLfloat altura) {
+const Vbo VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
   const unsigned short indices[] = {
       0, 1, 2,  // sul
       3, 4, 5,  // leste
@@ -563,6 +563,35 @@ const Vbo VboPiramide(GLfloat tam_lado, GLfloat altura) {
   return vbo;
 }
 
+const Vbo VboRetangulo(GLfloat tam_lado) {
+  const unsigned short indices[] = { 0, 1, 2, 3 };
+  float m = tam_lado / 2.0f;
+  const float coordenadas[] = {
+    -m, -m, 0.0f,
+    m,  -m, 0.0f,
+    m,  m,  0.0f,
+    -m, m,  0.0f,
+  };
+  const float normais[] = {
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+  };
+  const float coordenadas_texel[] = {
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+  };
+  Vbo vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
+  vbo.AtribuiNormais(normais);
+  vbo.AtribuiTexturas(coordenadas_texel);
+  vbo.AtribuiIndices(indices, 4);
+  return vbo;
+}
+
 void GravaVbo(Vbo* vbo) {
   // Gera o buffer.
   gl::GeraBuffers(1, &vbo->nome_coordenadas);
@@ -592,15 +621,16 @@ void DesgravaVbo(Vbo* vbo) {
 }
 
 void DesenhaVbo(const Vbo& vbo, GLenum modo) {
+  // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas);
   if (vbo.tem_normais()) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-    gl::PonteiroNormais(GL_FLOAT, (void*)vbo.DeslocamentoNormais());
+    gl::PonteiroNormais(GL_FLOAT, static_cast<char*>(0) + vbo.DeslocamentoNormais());
   }
   if (vbo.tem_texturas()) {
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, (void*)vbo.DeslocamentoTexturas());
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<char*>(0) + vbo.DeslocamentoTexturas());
   }
 
   gl::PonteiroVertices(3, GL_FLOAT, 0, (void*)0);
