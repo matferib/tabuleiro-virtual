@@ -1,7 +1,8 @@
 Versao 1.8.1
+- Tirar warnings apple.
 - Vbos de entidades.
 - Separar Vbo gravado do nao gravado.
-- Passar outras formas para gl (disco).
+- Passar outras formas para gl (disco, triangulo).
 - Comparar benchmarks com e sem VBO.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
