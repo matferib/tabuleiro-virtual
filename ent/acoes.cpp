@@ -366,7 +366,6 @@ class AcaoProjetil : public Acao {
     ATINGIU_ALVO,
     FIM
   } estagio_;
-  double delta_tempo_;
   Posicao pos_;
 };
 
