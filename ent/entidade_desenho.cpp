@@ -91,7 +91,8 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
-  bool achatar = pd->desenha_texturas_para_cima() || proto.achatado();
+  // Moldura da textura.
+  bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   gl::MatrizEscopo salva_matriz;
   MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
@@ -100,7 +101,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     //if (pd->entidade_selecionada()) {
     //  gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     //}
-    gl::Roda(-90.0f, 1.0f, 0.0f, 0.0f);
+    gl::Roda(90.0f, -1.0f, 0.0f, 0.0f);
     gl::Escala(0.8f, 1.0f, 0.8f);
   } else {
     // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
