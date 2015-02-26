@@ -365,9 +365,10 @@ void Tabuleiro::ConfiguraProjecao() {
     // o tamanho do vetor 
     float dif_x = alvo.x() - olho_.pos().x();
     float dif_y = alvo.y() - olho_.pos().y();
-    float fator_zoom = dif_x * dif_x + dif_y * dif_y;
-    float largura = largura_ * fator_zoom / 6400.0f;
-    float altura = altura_ * fator_zoom / 6400.0f;
+    float fator_zoom = sqrt(dif_x * dif_x + dif_y * dif_y);
+    const float tam_base = 3.0f;
+    float largura = tam_base * Aspecto() * fator_zoom;
+    float altura = tam_base * fator_zoom;
     gl::Ortogonal(-largura, largura, -altura, altura,
                   DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
   } else {
