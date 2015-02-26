@@ -1,5 +1,7 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 modelo { id: 'Padrão' }
+modelo { id: 'Allip' }
+modelo { id: 'Carneçal' }
 modelo { id: 'Carniçal' }
 modelo { id: 'Centopéia Imensa' }
 sub_menu {
@@ -54,4 +56,5 @@ sub_menu {
   modelo { id: 'Casa (8x7)' }
   modelo { id: 'Moedas' }
   modelo { id: 'Baú (madeira)' }
+  modelo { id: 'Barras' }
 }
