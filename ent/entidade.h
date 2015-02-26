@@ -167,9 +167,11 @@ class Entidade {
     // Como esse estado é local e não precisa ser salvo, fica aqui.
     float angulo_disco_selecao_graus;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
-    float  angulo_disco_voo_rad;
+    float angulo_disco_voo_rad;
     // Entidades em queda caem progressivamente ate 90 graus.
     float angulo_disco_queda_graus;
+    // Oscilacao da luz.
+    float angulo_disco_luz_rad;
     // As texturas da entidade.
     const Texturas* texturas;
   };

@@ -61,6 +61,9 @@ void LigaStencil();
 void DesenhaStencil(const float* cor = nullptr);
 void DesenhaStencil(const Cor& cor);
 
+/** Gera um aleatorio de 1 a nfaces. */
+int RolaDado(unsigned int nfaces);
+
 /** Gera pontos de vida baseado nos dados de vida, da forma 4d8+8 por exemplo.
 * Da excecao se dados_vida for mal formado.
 */
