@@ -1,4 +1,6 @@
 Versao 1.8.1
+- Bug da transparencia quando um retangulo com textura transparente eh colocado.
+- Ao colar, dar um jeito de ficar proximo ao campo de visao ou do quadrado selecionado.
 - Vbos de entidades.
 - Separar Vbo gravado do nao gravado.
 - Passar outras formas para gl (disco, triangulo).
@@ -12,7 +14,6 @@ Versao 1.8.1
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Interface de mouse generico para tablets (suporte a multitap).
-- Camera isometrica.
 - Texturas faltantes.
 - Textura em outras formas.
 
@@ -22,8 +23,6 @@ Versao 1.8.2
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Terminar camada de arquivo para funcionar em diversos dispositivos.
-- Opcao para salvar personagens selecionaveis para jogadores.
-- Pensar em como nao mostrar formas mortas.
 - Mensagens de erro do android, voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.

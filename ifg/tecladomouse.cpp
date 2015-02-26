@@ -202,6 +202,13 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1.0f);
       }
       return;
+    case Tecla_F:
+      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FIXA);
+      return;
+    case Tecla_F1:
+    case Tecla_F2:
+      tabuleiro_->AlteraModoCamera(tecla == Tecla_F2);
+      return;
     case Tecla_G:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->AgrupaEntidadesSelecionadas();
@@ -375,7 +382,7 @@ void TratadorTecladoMouse::MudaEstado(estado_e novo_estado) {
 
 void TratadorTecladoMouse::TrataAcaoTemporizadaMouse() {
   VLOG(1) << "Tratando acao temporizada de mouse em: " << ultimo_x_ << ", " << ultimo_y_;
-  //tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
+  tabuleiro_->TrataMouseParadoEm(ultimo_x_, ultimo_y_);
 }
 
 bool TratadorTecladoMouse::TrataNotificacao(const ntf::Notificacao& notificacao) {

@@ -314,6 +314,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Apaga os eventos que estao zerados para a entidade. */
   void ApagaEventosZeradosDeEntidadeNotificando(unsigned int id);
 
+  /** Altera o modo da camera entre isometrica e perspectiva. */
+  void AlteraModoCamera(bool isometrica);
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
@@ -560,6 +563,11 @@ class Tabuleiro : public ntf::Receptor {
   /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
   void ReiniciaCamera();
 
+  /** Configura a matriz de projecao de acordo com o tipo de camera. */
+  void ConfiguraProjecao();
+  /** Configura o olho, de acordo com o tipo de camera. */
+  void ConfiguraOlhar();
+
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVbo();
 
@@ -626,6 +634,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
+  bool camera_isometrica_ = false;
 
   /** O modelo selecionado para inserção de entidades. */
   const ent::EntidadeProto* modelo_selecionado_;

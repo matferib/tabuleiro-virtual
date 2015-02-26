@@ -359,6 +359,43 @@ void Tabuleiro::EstadoInicial() {
   }
 }
 
+void Tabuleiro::ConfiguraProjecao() {
+  if (camera_isometrica_) {
+    const Posicao& alvo = olho_.alvo();
+    // o tamanho do vetor 
+    float dif_x = alvo.x() - olho_.pos().x();
+    float dif_y = alvo.y() - olho_.pos().y();
+    float fator_zoom = dif_x * dif_x + dif_y * dif_y;
+    float largura = largura_ * fator_zoom / 6400.0f;
+    float altura = altura_ * fator_zoom / 6400.0f;
+    gl::Ortogonal(-largura, largura, -altura, altura,
+                  DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+  } else {
+    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+  }
+}
+
+void Tabuleiro::ConfiguraOlhar() {
+  const Posicao& alvo = olho_.alvo();
+  if (camera_isometrica_) {
+    gl::OlharPara(
+        // from.
+        alvo.x(), alvo.y(), olho_.pos().z(),
+        // to.
+        alvo.x(), alvo.y(), alvo.z(),
+        // up
+        alvo.x() - olho_.pos().x(), alvo.y() - olho_.pos().y(), 0.0);
+  } else {
+    gl::OlharPara(
+        // from.
+        olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
+        // to.
+        alvo.x(), alvo.y(), alvo.z(),
+        // up
+        0, 0, 1.0);
+  }
+}
+
 void Tabuleiro::Desenha() {
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
@@ -367,7 +404,7 @@ void Tabuleiro::Desenha() {
   parametros_desenho_.set_modo_mestre(modo_mestre_);
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
-  gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+  ConfiguraProjecao();
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
@@ -1170,15 +1207,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       //gl::ModoMatriz(GL_MODELVIEW);
       gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
       gl::CarregaIdentidade();
-      const Posicao& alvo = olho_.alvo();
-      gl::OlharPara(
-          // from.
-          olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
-          // to.
-          alvo.x(), alvo.y(), alvo.z(),
-          // up
-          0, 0, 1.0);
-
+      ConfiguraOlhar();
       // Faz picking do tabuleiro sem entidades.
       float nx, ny, nz;
       if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
@@ -1637,17 +1666,10 @@ void Tabuleiro::DesenhaCena() {
   }
   gl::ModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  const Posicao& alvo = olho_.alvo();
-  gl::OlharPara(
-    // from.
-    olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
-    // to.
-    alvo.x(), alvo.y(), alvo.z(),
-    // up
-    0, 0, 1.0);
+  ConfiguraOlhar();
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
-  if (olho_.altura() > (2 * olho_.raio())) {
+  if (camera_isometrica_ || (olho_.altura() > (2 * olho_.raio()))) {
     parametros_desenho_.set_desenha_texturas_para_cima(true);
   } else {
     parametros_desenho_.set_desenha_texturas_para_cima(false);
@@ -2406,7 +2428,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
   gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
-  gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+  ConfiguraProjecao();
 
   // desenha a cena sem firulas.
   parametros_desenho_.set_picking_x(x);
@@ -2437,7 +2459,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   // Restaura projecao manualmente por causa da pilha pequena.
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
-  gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+  ConfiguraProjecao();
 }
 
 void Tabuleiro::BuscaHitMaisProximo(
@@ -4289,6 +4311,10 @@ void Tabuleiro::ReiniciaCamera() {
     olho_.clear_destino();
   }
   AtualizaOlho(true  /*forcar*/);
+}
+
+void Tabuleiro::AlteraModoCamera(bool isometrica) {
+  camera_isometrica_ = isometrica;
 }
 
 void Tabuleiro::DesativaWatchdog() {
