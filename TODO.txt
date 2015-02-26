@@ -1,5 +1,4 @@
 Versao 1.8.1
-- Oscilacao de luz.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Ao colar, dar um jeito de ficar proximo ao campo de visao ou do quadrado selecionado.
 - Vbos de entidades.
@@ -24,7 +23,7 @@ Versao 1.8.2
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Terminar camada de arquivo para funcionar em diversos dispositivos.
-- Mensagens de erro do android, voltar para UI principal caso falhe.
+- Android e ipad: voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
