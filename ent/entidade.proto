@@ -37,6 +37,7 @@ enum ResultadoSalvacao {
   RS_ANULOU = 3;
 }
 
+// Tambem conhecido como vetor.
 message Posicao {
   optional float x = 3;
   optional float y = 4;
