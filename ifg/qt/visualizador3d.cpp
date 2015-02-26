@@ -101,41 +101,6 @@ const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id) {
   return fileinfo;
 }
 
-// Calcula o dano de uma sequencia de caracteres.
-int CalculaDanoSimples(const std::vector<int>::const_iterator& inicio_teclas_normal,
-                       const std::vector<int>::const_iterator& fim_teclas_normal) {
-  std::vector<int>::const_reverse_iterator inicio_teclas(fim_teclas_normal);
-  std::vector<int>::const_reverse_iterator fim_teclas(inicio_teclas_normal);
-
-  int delta = 0;
-  int multiplicador = 1;
-  for (auto it = inicio_teclas; it < fim_teclas; ++it) {
-    if (*it < Qt::Key_0 || *it > Qt::Key_9) {
-      LOG(WARNING) << "Tecla inválida para delta pontos de vida";
-      continue;
-    }
-    delta += (*it - Qt::Key_0) * multiplicador;
-    multiplicador *= 10;
-  }
-  VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
-  return delta;
-}
-
-// Calcula o dano acumulado no vetor de teclas.
-const std::vector<int> CalculaDano(const std::vector<int>::const_iterator& inicio_teclas,
-                                   const std::vector<int>::const_iterator& fim_teclas) {
-  std::vector<int> result;
-  auto it_inicio = inicio_teclas;
-  for (auto it = inicio_teclas; it < fim_teclas; ++it) {
-    if (*it == Qt::Key_Space) {
-      result.push_back(CalculaDanoSimples(it_inicio, it));
-      it_inicio = it + 1;  // pula o espaco.
-    }
-  }
-  result.push_back(CalculaDanoSimples(it_inicio, fim_teclas));
-  return result;
-}
-
 // Mapeia a tecla do QT para do TratadorTecladoMouse.
 teclas_e TeclaQtParaTratadorTecladoMouse(int tecla_qt) {
   return static_cast<teclas_e>(tecla_qt);
@@ -611,6 +576,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
+
+  // Coisas que nao estao na UI.
+  if (entidade.has_direcao_queda()) {
+    proto_retornado->mutable_direcao_queda()->CopyFrom(entidade.direcao_queda());
+  }
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
