@@ -371,7 +371,7 @@ void Entidade::MontaMatriz(bool em_voo,
                            const ParametrosDesenho* pd,
                            const float* matriz_shear) {
   const auto& pos = proto.pos();
-  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima());
+  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida();
   float translacao_z = ZChao(pos.x(), pos.y()) + (transladar_z ? pos.z() + proto.translacao_z() : 0);
   if (em_voo) {
     translacao_z += DeltaVoo(vd);
@@ -389,7 +389,7 @@ void Entidade::MontaMatriz(bool em_voo,
   }
 
   // So roda entidades nao achatadas.
-  if (queda && vd.angulo_disco_queda_graus > 0 && !achatar) {
+  if (queda && vd.angulo_disco_queda_graus > 0/* && !achatar*/) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
     // Roda pra direcao de queda.
@@ -399,8 +399,10 @@ void Entidade::MontaMatriz(bool em_voo,
       float direcao_queda_graus = VetorParaRotacaoGraus(dq) - 90.0f;
       gl::Roda(direcao_queda_graus, 0.0f, 0.0f, 1.0f);
     }
-    // Roda sobre o eixo X negativo para cair com a face para cima.
-    gl::Roda(vd.angulo_disco_queda_graus, -1.0f, 0, 0);
+    if (!achatar) {
+      // Roda sobre o eixo X negativo para cair com a face para cima.
+      gl::Roda(vd.angulo_disco_queda_graus, -1.0f, 0, 0);
+    }
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
   gl::Escala(multiplicador, multiplicador, multiplicador);
