@@ -85,6 +85,10 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
       proto_.set_pontos_vida(proto_.max_pontos_vida());
     }
   }
+  // Evitar oscilacoes juntas.
+  if (proto_.has_luz()) {
+    vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
+  }
 }
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
@@ -165,7 +169,12 @@ void Entidade::Atualiza() {
   const float DURACAO_POSICIONAMENTO_INICIAL = 1.0f;
   const float DURACAO_VOO_SEGUNDOS = 4.0f;
   const float DELTA_VOO = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_VOO_SEGUNDOS;
+  const float DURACAO_LUZ_SEGUNDOS = 3.0f;
+  const float DELTA_LUZ = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_LUZ_SEGUNDOS;
   float z_chao = ZChao(X(), Y());
+  if (proto_.has_luz()) {
+    vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI); 
+  }
   if (proto_.voadora()) {
     if (Z() < z_chao + ALTURA_VOO) {
       // Decolando, ate chegar na altura do voo.
@@ -592,7 +601,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     const ent::Cor& cor = proto_.luz().cor();
     GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
     gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-    gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f + sinf(vd_.angulo_disco_luz_rad) * 0.1);
     //gl::Luz(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.53f);
     gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
     gl::Habilita(GL_LIGHT0 + id_luz);
