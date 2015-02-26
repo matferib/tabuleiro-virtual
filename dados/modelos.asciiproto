@@ -1,7 +1,24 @@
 # Este arquivo é uma representação texto do proto ent::Modelos.
 modelo {
+  id: 'Allip'
+  entidade {
+    dados_vida: '4d12' info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini: +5\nat: +3 toque\ndano: 1d4 sab\nca: 15'
+  }
+}
+modelo {
   id: 'Carniçal'
-  entidade { dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+  entidade {
+    dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini: +2\nat: +2/+0/+0\ndano: 1d6+1+paralisia/1d3+paralisia\nca: 14'
+  }
+}
+modelo {
+  id: 'Carneçal'
+  entidade {
+    dados_vida: '4d12' info_textura { id: 'ghoul.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini: +3\nat: +5/+3/+3\ndano: 1d8+3+paralisia/1d4+1+paralisia\nca: 17'
+  }
 }
 modelo {
   id: 'Centopéia Imensa'
@@ -328,6 +345,55 @@ modelo {
       escala { x: 3 y: 1.5 z: 0.2 }
       rotacao_z_graus: 0
       translacao_z: 0
+    }
+  }
+}
+modelo {
+  id: 'Barras'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos { x: 9.1388693 y: -3.4490695 z: 0 }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.0089092255 y: -0.12849927 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.010389328 y: 0.60484362 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.011434555 y: -0.5697937 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.1 y: 0.1 z: 2 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.014289856 y: -0.35526085 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.0053091049 y: 0.10105181 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.018933296 y: 0.34765816 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
     }
   }
 }
