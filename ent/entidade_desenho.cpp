@@ -80,7 +80,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  {
+  if (!proto.morta()) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*em_voo*/, true  /*queda*/, false  /*tz*/, proto, vd, pd, matriz_shear);
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
