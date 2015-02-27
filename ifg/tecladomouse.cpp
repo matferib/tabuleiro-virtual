@@ -209,6 +209,8 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_F2:
       tabuleiro_->AlteraModoCamera(tecla == Tecla_F2);
       return;
+    case Tecla_F4:
+      tabuleiro_->AlternaVisaoJogador();
     case Tecla_G:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->AgrupaEntidadesSelecionadas();

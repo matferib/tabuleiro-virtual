@@ -402,7 +402,7 @@ void Tabuleiro::Desenha() {
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
-  parametros_desenho_.set_modo_mestre(modo_mestre_);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
   gl::ModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
@@ -1682,11 +1682,11 @@ void Tabuleiro::DesenhaCena() {
                                    proto_.luz_ambiente().g(),
                                    proto_.luz_ambiente().b(),
                                    proto_.luz_ambiente().a()};
-    if (modo_mestre_ && !opcoes_.iluminacao_mestre_igual_jogadores()) {
+    if (VisaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
       // Adiciona luz pro mestre ver melhor.
-      cor_luz_ambiente[0] = std::max(0.4f, cor_luz_ambiente[0]);
-      cor_luz_ambiente[1] = std::max(0.4f, cor_luz_ambiente[1]);
-      cor_luz_ambiente[2] = std::max(0.4f, cor_luz_ambiente[2]);
+      cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
+      cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
+      cor_luz_ambiente[2] = std::max(0.65f, cor_luz_ambiente[2]);
     }
     gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
 
@@ -1709,7 +1709,7 @@ void Tabuleiro::DesenhaCena() {
     gl::Habilita(GL_LIGHT0);
 
     if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa() &&
-        (!modo_mestre_ || opcoes_.iluminacao_mestre_igual_jogadores())) {
+        (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
       gl::Habilita(GL_FOG);
       gl::ModoNevoa(GL_LINEAR);
       gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
@@ -1739,7 +1739,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaTabuleiro();
     if (parametros_desenho_.desenha_grade() &&
         opcoes_.desenha_grade() &&
-        (proto_.desenha_grade() || (!modo_mestre_ && proto_.textura_mestre_apenas()))) {
+        (proto_.desenha_grade() || (!VisaoMestre() && proto_.textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
@@ -1763,7 +1763,7 @@ void Tabuleiro::DesenhaCena() {
   }
 #endif
 
-  if (modo_mestre_ && parametros_desenho_.desenha_pontos_rolagem()) {
+  if (VisaoMestre() && parametros_desenho_.desenha_pontos_rolagem()) {
     // Pontos de rolagem na terceira posicao da pilha.
     gl::TipoEscopo pontos(OBJ_ROLAGEM);
     DesenhaPontosRolagem();
@@ -2077,7 +2077,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)0);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_.has_info_textura() &&
-                      (!proto_.textura_mestre_apenas() || modo_mestre_) ?
+                      (!proto_.textura_mestre_apenas() || VisaoMestre()) ?
       texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
@@ -2152,8 +2152,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
-        entidade_detalhada && (modo_mestre_ || entidade->SelecionavelParaJogador()));
-    parametros_desenho_.set_desenha_eventos_entidades(modo_mestre_ || entidade->SelecionavelParaJogador());
+        entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
+    parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
     f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
