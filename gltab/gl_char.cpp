@@ -50,6 +50,15 @@ const std::unordered_set<char> g_caracteres_baixos = { 'g', 'j', 'p', 'q', 'y' }
 // O atlas de caracteres.
 const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres = {
   {
+    '?', {
+      Q(I(1, 7), I(3, 7), I(3, 8), I(1, 8)),  // NW
+      Q(I(1, 8), I(9, 8), I(7, 9), I(3, 9)),  // N
+      Q(I(7, 6), I(9, 6), I(9, 8), I(7, 8)),  // NE
+      Q(I(4, 5), I(6, 5), I(9, 6), I(7, 6)),  // Meio-E
+      Q(I(4, 3), I(6, 3), I(6, 5), I(4, 5)),  // Meio
+      Q(I(4, 1), I(6, 1), I(6, 2), I(4, 2)),  // S
+    },
+  }, {
     '-', {
       Q(I(1, 4), I(9, 4), I(9, 5), I(1, 5)),  // WE
     },
