@@ -2147,9 +2147,11 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
+    bool detalhar_tudo = detalhar_todas_entidades_ || modo_acao_;
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
-                              (entidade->Id() == id_entidade_detalhada_ || detalhar_todas_entidades_ || modo_acao_);
-    parametros_desenho_.set_desenha_barra_vida(entidade_detalhada);
+                              (entidade->Id() == id_entidade_detalhada_);
+    parametros_desenho_.set_desenha_barra_vida(entidade_detalhada || detalhar_tudo);
+    // Rotulos apenas individualmente.
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
