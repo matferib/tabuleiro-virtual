@@ -2637,7 +2637,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
     // Equacao do olho para o objeto. a_olho_obj * x + b_olho_obj = y.
     // Equacao da perdicular: a_perpendicular * x + b_perpendicular = y.
     //                         onde a_perpendicular = -1 / a_olho_obj.
-    float a_perpendicular = (fabs(olho_.pos().x() -  e->X() < 0.0001f)) ?
+    float a_perpendicular = (fabs(olho_.pos().x() -  e->X()) < 0.0001f) ?
         0.0f : (-1.0f / (olho_.pos().y() - e->Y()) / (olho_.pos().x() - e->X()));
     float b_perpendicular = e->Y() - e->X() * a_perpendicular;
 
@@ -2645,7 +2645,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
     // (para simplicar, p = a_perpendicular, q = b_perpendicular).
     // y = y0 + bt = px + q;
     // t = (px + q - y0) / b.
-    // Subsituindo t na equacao: x = x0 + at, temos que valor do X da intersecao do raio com o plano:
+    // Substituindo t na equacao: x = x0 + at, temos que valor do X da intersecao do raio com o plano:
     // x = (aq - ay0 + bx0) / (b -ap)
     if (fabs(b_raio - a_raio * a_perpendicular) < 0.0001f) {
       return false;

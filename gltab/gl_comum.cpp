@@ -11,11 +11,7 @@ namespace gl {
 bool ImprimeSeErro() {
   auto erro = glGetError();
   if (erro != GL_NO_ERROR) {
-#if __APPLE__
-    LOG(ERROR) << "OpenGL Erro: " << erro;
-#else
     LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
-#endif
     return true;
   }
   return false;

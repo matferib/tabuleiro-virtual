@@ -13,6 +13,7 @@
   #elif TARGET_OS_MAC
     // Other kinds of Mac OS
     #include <OpenGL/gl.h>
+    #include <OpenGL/glu.h>
   #endif
 #else
 #include <GLES/gl.h>
