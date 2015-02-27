@@ -37,48 +37,6 @@ void ProdutoVetorial(GLfloat v1[3], GLfloat v2[3], GLfloat result[3]) {
   result[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
-/** Matriz de rotacao baseada no eixo X. */
-void MatrizRotacaoX(GLfloat angulo, GLfloat m[16]) {
-  float s = sinf(angulo * GRAUS_PARA_RAD);
-  float c = cosf(angulo * GRAUS_PARA_RAD);
-  m[0+4*0] = 1; m[0+4*1] = 0; m[0+4*2] = 0;  m[0+4*3] = 0;
-  m[1+4*0] = 0; m[1+4*1] = c; m[1+4*2] = -s; m[1+4*3] = 0;
-  m[2+4*0] = 0; m[2+4*1] = s; m[2+4*2] = c;  m[2+4*3] = 0;
-  m[3+4*0] = 0; m[3+4*1] = 0; m[3+4*2] = 0;  m[3+4*3] = 1;
-}
-
-/** Matriz de rotacao baseada no eixo X. */
-void MatrizRotacaoY(GLfloat angulo, GLfloat m[16]) {
-  float s = sinf(angulo * GRAUS_PARA_RAD);
-  float c = cosf(angulo * GRAUS_PARA_RAD);
-  m[0+4*0] = c;  m[0+4*1] = 0; m[0+4*2] = 0;  m[0+4*3] = 0;
-  m[1+4*0] = 0;  m[1+4*1] = 1; m[1+4*2] = -s; m[1+4*3] = 0;
-  m[2+4*0] = -s; m[2+4*1] = 0; m[2+4*2] = c;  m[2+4*3] = 0;
-  m[3+4*0] = 0;  m[3+4*1] = 0; m[3+4*2] = 0;  m[3+4*3] = 1;
-}
-
-/** Matriz de rotacao em Z. */
-void MatrizRotacaoZ(GLfloat angulo, GLfloat m[16]) {
-  float s = sinf(angulo * GRAUS_PARA_RAD);
-  float c = cosf(angulo * GRAUS_PARA_RAD);
-  m[0+4*0] = c; m[0+4*1] = -s; m[0+4*2] = 0; m[0+4*3] = 0;
-  m[1+4*0] = s; m[1+4*1] = c;  m[1+4*2] = 0; m[1+4*3] = 0;
-  m[2+4*0] = 0; m[2+4*1] = 0;  m[2+4*2] = 1; m[2+4*3] = 0;
-  m[3+4*0] = 0; m[3+4*1] = 0;  m[3+4*2] = 0; m[3+4*3] = 1;
-}
-
-/* Multiplica a matriz openGL matriz pelo vetor. A matriz OpenGL tem formato col x linha (column major), portanto,
-* ao inves de multiplicar matriz (4x4) pelo vetor (4x1), fazemos a inversao: vetor (1x4) pela matriz (4x4).
-*/
-void MultiplicaMatrizVetor(const float m[16], float vetor[4]) {
-  GLfloat res[4];
-  res[0] = vetor[0] * m[0] + vetor[1] * m[4] + vetor[2] * m[8]  + vetor[3] * m[12];
-  res[1] = vetor[0] * m[1] + vetor[1] * m[5] + vetor[2] * m[9]  + vetor[3] * m[13];
-  res[2] = vetor[0] * m[2] + vetor[1] * m[6] + vetor[2] * m[10] + vetor[3] * m[14];
-  res[3] = vetor[0] * m[3] + vetor[1] * m[7] + vetor[2] * m[11] + vetor[3] * m[15];
-  memcpy(vetor, res, sizeof(res));
-}
-
 /*
 ** Invert 4x4 matrix.
 ** Contributed by David Moore (See Mesa bug #6748)
