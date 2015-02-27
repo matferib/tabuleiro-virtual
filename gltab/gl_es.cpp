@@ -481,7 +481,8 @@ void DesempilhaNome() {
     return;
   }
   if (g_contexto->bit_pilha == 0) {
-    LOG(ERROR) << "Bit da pilha passou do limite inferior.";
+    // No jeito novo, isso nao eh mais erro.
+    //LOG(ERROR) << "Bit da pilha passou do limite inferior.";
     return;
   }
   VLOG(1) << "Desempilhando bit pilha: " << g_contexto->bit_pilha;
