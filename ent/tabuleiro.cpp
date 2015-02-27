@@ -2621,7 +2621,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
       LOG(ERROR) << "Retornando lixo";
       return false;
     }
-    // Equacao parametrica do raio.
+    // Equacao parametrica do raio. Substituindo os p1* por x0, y0 e z0 e os p2* por x, y e z, temos:
     // x = x0 + at
     // y = y0 + bt
     // z = z0 + ct
@@ -2633,7 +2633,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
     if (e == nullptr) {
       return false;
     }
-    // Cria um plano perpendicular a linha de visao para o objeto.
+    // Cria um plano perpendicular a linha de visao para o objeto e com o plano XY.
     // Equacao do olho para o objeto. a_olho_obj * x + b_olho_obj = y.
     // Equacao da perdicular: a_perpendicular * x + b_perpendicular = y.
     //                         onde a_perpendicular = -1 / a_olho_obj.
@@ -2641,12 +2641,21 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
         0.0f : (-1.0f / (olho_.pos().y() - e->Y()) / (olho_.pos().x() - e->X()));
     float b_perpendicular = e->Y() - e->X() * a_perpendicular;
 
-    // Valor do t da intersecao. Onde a equacao perpendicular encontra com o plano.
-    // (para simplicar, p = a_perpendicular, q = b_perpendicular).
+    // Valor do t da intersecao.: onde a equacao perpendicular encontra com o plano.
+    // (para simplicar nomenclatura, p = a_perpendicular, q = b_perpendicular, a = a_raio, b = b_raio).
+    // (x0 = p1x, y0 = p1y, z0 = p1z).
     // y = y0 + bt = px + q;
-    // t = (px + q - y0) / b.
-    // Substituindo t na equacao: x = x0 + at, temos que valor do X da intersecao do raio com o plano:
-    // x = (aq - ay0 + bx0) / (b -ap)
+    // t = (px + q - y0) / b. (1)
+    // Como: x = x0 + at,
+    // entao t = (x - x0) / a. (2)
+    // Igualando (1) e (2):
+    // (px + q - y0) / b = (x - x0) / a;
+    // apx + aq - ay0 = bx - bx0;
+    // apx - bx = ay0 - aq - bx0;
+    // x (ap - b) = ay0 - aq - bx0;
+    // Portanto, o x da intercessao eh (tanto faz, eh so multiplicar acima por -1 dos dois lados):
+    // x = (ay0 - aq - bx0) / (ap - b) ou
+    // x = (aq - ay0 + bx0) / (b - ap)
     if (fabs(b_raio - a_raio * a_perpendicular) < 0.0001f) {
       return false;
     }
