@@ -11,7 +11,11 @@ namespace gl {
 bool ImprimeSeErro() {
   auto erro = glGetError();
   if (erro != GL_NO_ERROR) {
+#if USAR_OPENGL_ES
+    LOG(ERROR) << "OpenGL Erro: " << erro;
+#else
     LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
+#endif
     return true;
   }
   return false;

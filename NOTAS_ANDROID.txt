@@ -26,7 +26,7 @@ ou
 ${ANDROID_NDK}/ndk-build V=1 NEXUS7=1
 
 -- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
-export ANTROOT=
+export ANTROOT=/Users/mribeiro/Downloads/apache-ant-1.9.4
 $ANTROOT/bin/ant debug
 
 -- Instalacao:
