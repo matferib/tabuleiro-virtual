@@ -317,6 +317,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Altera o modo da camera entre isometrica e perspectiva. */
   void AlteraModoCamera(bool isometrica);
 
+  /** Alterna a visao de jogador para o mestre. */
+  void AlternaVisaoJogador() { visao_jogador_ = !visao_jogador_; }
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
@@ -568,6 +571,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
 
+  /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
+  bool VisaoMestre() const { return modo_mestre_ && !visao_jogador_; }
+
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVbo();
 
@@ -651,6 +657,7 @@ class Tabuleiro : public ntf::Receptor {
 #endif
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
+  bool visao_jogador_ = false;  // Para o mestre poder ver na visao do jogador.
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
 
 #if !USAR_QT
