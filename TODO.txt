@@ -1,4 +1,5 @@
 Versao 1.8.1
+- Transmissao de texturas do mestre para jogadores.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Ao colar, dar um jeito de ficar proximo ao campo de visao ou do quadrado selecionado.
 - Vbos de entidades.

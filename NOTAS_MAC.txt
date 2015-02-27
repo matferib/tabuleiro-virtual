@@ -25,7 +25,7 @@ libgflags.2.dylib
 libprotobuf.9.dylib
 
 2- Usar o pkgbuild para gerar o pacote (rodar do diretorio do tabuleiro).
-pkgbuild --identifier com.matferib.TabuleiroVirtual --version 1.7.4 --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-1.7.4.pkg
+pkgbuild --identifier com.matferib.TabuleiroVirtual --version 1.8.1 --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-1.8.1.pkg
 
 OBS:
 Nao vi utilidade em usar o plist. De qualquer forma, a versao para criar o arquivo padrao:
