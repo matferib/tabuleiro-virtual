@@ -490,7 +490,83 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
   }
 }
 
-void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits) {
+void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
+  if (estado_ != ETAB_ENTS_SELECIONADAS) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* n = grupo_notificacoes.add_notificacao();
+    auto* entidade_selecionada = BuscaEntidade(id);
+    const auto& proto_original = entidade_selecionada->Proto();
+    // Para desfazer.
+    auto* proto_antes = n->mutable_entidade_antes();
+    auto* proto_depois = n->mutable_entidade();
+    if ((bits & BIT_VISIBILIDADE) > 0 && (modo_mestre_ || proto_original.selecionavel_para_jogador())) {
+      // Apenas modo mestre ou para selecionaveis.
+      proto_antes->set_visivel(proto_original.visivel());
+      proto_depois->set_visivel(valor);
+    }
+    if ((bits & BIT_ILUMINACAO) > 0) {
+      // Luz eh tricky pq nao eh um bit. Mas tem que setar pra um valor para mostrar que o ha atualizacao no campo.
+      if (proto_original.has_luz()) {
+        proto_antes->mutable_luz()->CopyFrom(proto_original.luz());
+        if (valor) {
+          proto_depois->mutable_luz()->CopyFrom(proto_original.luz());
+        } else {
+          auto* luz_depois = proto_depois->mutable_luz()->mutable_cor();
+          luz_depois->set_r(0);
+          luz_depois->set_g(0);
+          luz_depois->set_b(0);
+        }
+      } else {
+        auto* luz_antes = proto_antes->mutable_luz()->mutable_cor();
+        luz_antes->set_r(0);
+        luz_antes->set_g(0);
+        luz_antes->set_b(0);
+        if (valor) {
+          auto* luz = proto_depois->mutable_luz()->mutable_cor();
+          luz->set_r(1.0f);
+          luz->set_g(1.0f);
+          luz->set_b(1.0f);
+        } else {
+          proto_depois->mutable_luz()->CopyFrom(proto_antes->luz());
+        }
+
+      }
+    }
+    if ((bits & BIT_VOO) > 0) {
+      proto_antes->set_voadora(proto_original.voadora());
+      proto_depois->set_voadora(valor);
+    }
+    if (bits & BIT_CAIDA) {
+      proto_antes->set_caida(proto_original.caida());
+      proto_depois->set_caida(valor);
+    }
+    if (bits & BIT_MORTA) {
+      proto_antes->set_morta(proto_original.morta());
+      proto_depois->set_morta(valor);
+    }
+    if (bits & BIT_SELECIONAVEL) {
+      proto_antes->set_selecionavel_para_jogador(proto_original.selecionavel_para_jogador());
+      proto_depois->set_selecionavel_para_jogador(valor);
+    }
+    if (bits & BIT_FIXA) {
+      proto_antes->set_fixa(proto_original.fixa());
+      proto_depois->set_fixa(valor);
+    }
+    proto_antes->set_id(id);
+    proto_depois->set_id(id);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   if (estado_ != ETAB_ENTS_SELECIONADAS) {
     VLOG(1) << "Não há entidade selecionada.";
     return;
@@ -1678,52 +1754,7 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.iluminacao()) {
     gl::Habilita(GL_LIGHTING);
-    GLfloat cor_luz_ambiente[] = { proto_.luz_ambiente().r(),
-                                   proto_.luz_ambiente().g(),
-                                   proto_.luz_ambiente().b(),
-                                   proto_.luz_ambiente().a()};
-    if (VisaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
-      // Adiciona luz pro mestre ver melhor.
-      cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
-      cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
-      cor_luz_ambiente[2] = std::max(0.65f, cor_luz_ambiente[2]);
-    }
-    gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
-
-    // Iluminação distante direcional.
-    {
-      gl::MatrizEscopo salva_matriz;
-      // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
-      GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
-      // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-      gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-      gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-      gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
-    }
-    // A cor da luz direcional.
-    GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
-                          proto_.luz_direcional().cor().g(),
-                          proto_.luz_direcional().cor().b(),
-                          proto_.luz_direcional().cor().a() };
-    gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
-    gl::Habilita(GL_LIGHT0);
-
-    if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa() &&
-        (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
-      gl::Habilita(GL_FOG);
-      gl::ModoNevoa(GL_LINEAR);
-      gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
-      gl::Nevoa(GL_FOG_END, proto_.nevoa().distancia_maxima());
-      gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
-    } else {
-      gl::Desabilita(GL_FOG);
-    }
-
-    // Posiciona as luzes dinâmicas.
-    for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-      auto* e = it->second.get();
-      e->DesenhaLuz(&parametros_desenho_);
-    }
+    DesenhaLuzes();
   } else {
     gl::Desabilita(GL_LIGHTING);
   }
@@ -3690,6 +3721,14 @@ void Tabuleiro::TrataComandoRefazer() {
   ++evento_corrente_;
 }
 
+void Tabuleiro::SelecionaTudo() {
+  std::vector<unsigned int> ids;
+  for (const auto& id_ent : entidades_) {
+    ids.push_back(id_ent.first);
+  }
+  SelecionaEntidades(ids);
+}
+
 void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
   const auto& proto = notificacao.entidade();
   auto* entidade = BuscaEntidade(proto.id());
@@ -3870,6 +3909,55 @@ void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
                              proto_.has_info_textura_ceu(), proto_.mutable_info_textura_ceu(),
                              central_)) {
     proto_.clear_info_textura_ceu();
+  }
+}
+
+void Tabuleiro::DesenhaLuzes() {
+  GLfloat cor_luz_ambiente[] = { proto_.luz_ambiente().r(),
+                                 proto_.luz_ambiente().g(),
+                                 proto_.luz_ambiente().b(),
+                                 proto_.luz_ambiente().a()};
+  if (VisaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
+    // Adiciona luz pro mestre ver melhor.
+    cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
+    cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
+    cor_luz_ambiente[2] = std::max(0.65f, cor_luz_ambiente[2]);
+  }
+  gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
+
+  // Iluminação distante direcional.
+  {
+    gl::MatrizEscopo salva_matriz;
+    // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
+    GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
+    // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
+    gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+    gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+  }
+  // A cor da luz direcional.
+  GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
+                        proto_.luz_direcional().cor().g(),
+                        proto_.luz_direcional().cor().b(),
+                        proto_.luz_direcional().cor().a() };
+  gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
+  gl::Habilita(GL_LIGHT0);
+
+  if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa() &&
+      (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
+    gl::Habilita(GL_FOG);
+    gl::ModoNevoa(GL_LINEAR);
+    gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
+    gl::Nevoa(GL_FOG_END, proto_.nevoa().distancia_maxima());
+    gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
+  } else {
+    gl::Desabilita(GL_FOG);
+  }
+
+  // Posiciona as luzes dinâmicas.
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    auto* e = it->second.get();
+    e->DesenhaLuz(&parametros_desenho_);
   }
 }
 
@@ -4167,9 +4255,7 @@ Entidade* Tabuleiro::EntidadeSelecionada() {
 }
 
 void Tabuleiro::AlternaModoDebug() {
-#if USAR_OPENGL_ES
   gl::AlternaModoDebug();
-#endif
   modo_debug_ = !modo_debug_;
 }
 

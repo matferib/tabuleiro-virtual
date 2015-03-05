@@ -155,7 +155,7 @@ message EntidadeProto {
 
 // Alguns estados são mantidos nesta variável.
 message ParametrosDesenho {
-  // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente.
+  // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.
   optional int32 luz_corrente = 1 [default=1];
   // OpenGL permite até 8 luzes simultaneas.
   optional int32 max_num_luzes = 2 [default=8];

@@ -93,6 +93,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Move uma entidade notificando clientes. */
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
+  /** Seleciona todas as entidades do tabuleiro. */
+  void SelecionaTudo();
+
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
@@ -109,7 +112,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
   */
-  void AtualizaBitsEntidadeNotificando(int bits);
+  void AlternaBitsEntidadeNotificando(int bits);
+  void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
   void TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida);
@@ -355,6 +359,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
+
+  /** Desenha as luzes do tabuleiro. */
+  void DesenhaLuzes();
 
   /** Desenha o skybox ao redor da camera. */
   void DesenhaCaixaCeu();

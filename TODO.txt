@@ -1,4 +1,5 @@
-Versao 1.8.1
+Versao 1.8.2
+- Mudar a espessura do desenho.
 - Transmissao de texturas do mestre para jogadores.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Ao colar, dar um jeito de ficar proximo ao campo de visao ou do quadrado selecionado.
@@ -18,7 +19,7 @@ Versao 1.8.1
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.8.2
+Versao 1.8.3
 - VBO em entidades.
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.

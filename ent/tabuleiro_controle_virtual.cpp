@@ -104,16 +104,16 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       AlternaUltimoPontoVidaListaPontosVida();
       break;
     case CONTROLE_LUZ:
-      AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
       break;
     case CONTROLE_QUEDA:
-      AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
       break;
     case CONTROLE_VOO:
-      AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
     case CONTROLE_VISIBILIDADE:
-      AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
       break;
     case CONTROLE_DESFAZER:
       if (!alterna_selecao) {

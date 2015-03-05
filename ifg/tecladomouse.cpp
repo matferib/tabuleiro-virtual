@@ -203,7 +203,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       }
       return;
     case Tecla_F:
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FIXA);
+      tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FIXA);
       return;
     case Tecla_F1:
     case Tecla_F2:
@@ -221,15 +221,19 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_V:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->ColaEntidadesSelecionadas();
+      } else if (modificadores == Modificador_Alt) {
+        tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE, true);
+      } else if (modificadores == Modificador_Shift) {
+        tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE, false);
       } else {
-        tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
+        tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
       }
       return;
     case Tecla_I:
       tabuleiro_->TrataBotaoAlternarIluminacaoMestre();
       return;
     case Tecla_L:
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
+      tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
       return;
     case Tecla_Y:
       if (modificadores == Modificador_Ctrl) {
@@ -242,12 +246,16 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->TrataComandoDesfazer();
         return;
       }
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
+      tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       return;
     case Tecla_Q:
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
+      tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
       return;
     case Tecla_A:
+      if (modificadores == Modificador_Ctrl) {
+        tabuleiro_->SelecionaTudo();
+        return;
+      }
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
@@ -284,7 +292,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         central_->AdicionaNotificacao(notificacao);
         return;
       }
-      tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
+      tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       return;
     case Tecla_R:
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);

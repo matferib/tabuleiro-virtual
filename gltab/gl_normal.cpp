@@ -19,6 +19,7 @@ struct ContextoInterno {
   PROC pglDeleteBuffers;
   PROC pglBufferData;
 #endif
+  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
 } g_contexto;
 
 bool ImprimeSeErro();
@@ -156,5 +157,9 @@ void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum u
   ((PFNGLBUFFERDATAPROC)g_contexto.pglBufferData)(target, size, data, usage);
 }
 #endif
+
+void AlternaModoDebug() {
+  g_contexto.depurar_selecao_por_cor = !g_contexto.depurar_selecao_por_cor;
+}
 
 }  // namespace gl.

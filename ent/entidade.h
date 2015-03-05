@@ -163,17 +163,17 @@ class Entidade {
 
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
-    VariaveisDerivadas() : angulo_disco_selecao_graus(0), angulo_disco_voo_rad(0), angulo_disco_queda_graus(0), texturas(nullptr) { }
+    VariaveisDerivadas() { }
     // Como esse estado é local e não precisa ser salvo, fica aqui.
-    float angulo_disco_selecao_graus;
+    float angulo_disco_selecao_graus = 0.0f;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
-    float angulo_disco_voo_rad;
+    float angulo_disco_voo_rad = 0.0f;
     // Entidades em queda caem progressivamente ate 90 graus.
-    float angulo_disco_queda_graus;
+    float angulo_disco_queda_graus = 0.0f;
     // Oscilacao da luz.
-    float angulo_disco_luz_rad;
+    float angulo_disco_luz_rad = 0.0f;
     // As texturas da entidade.
-    const Texturas* texturas;
+    const Texturas* texturas = nullptr;
   };
 
   friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, ntf::CentralNotificacoes*);

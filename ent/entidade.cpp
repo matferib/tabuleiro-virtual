@@ -86,9 +86,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
     }
   }
   // Evitar oscilacoes juntas.
-  if (proto_.has_luz()) {
-    vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
-  }
+  vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
 }
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
@@ -604,7 +602,6 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
     gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
     gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f + sinf(vd_.angulo_disco_luz_rad) * 0.1);
-    //gl::Luz(GL_LIGHT0 + id_luz, GL_LINEAR_ATTENUATION, -0.53f);
     gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
     gl::Habilita(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
