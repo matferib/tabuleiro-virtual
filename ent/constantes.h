@@ -45,6 +45,8 @@
 #define OBJ_CONTROLE_VIRTUAL 4
 #define OBJ_EVENTO_ENTIDADE 5
 
+// Nao ha um ENTIDADE_ID_INVALIDO pq a constante esta no proto: Entidade::IdInvalido.
+
 namespace ent {
 
 extern const float SEN_60;

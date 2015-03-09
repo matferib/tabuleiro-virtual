@@ -362,7 +362,7 @@ void Tabuleiro::EstadoInicial() {
 void Tabuleiro::ConfiguraProjecao() {
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
-    // o tamanho do vetor 
+    // o tamanho do vetor
     float dif_x = alvo.x() - olho_.pos().x();
     float dif_y = alvo.y() - olho_.pos().y();
     float fator_zoom = sqrt(dif_x * dif_x + dif_y * dif_y);
@@ -382,7 +382,7 @@ void Tabuleiro::ConfiguraOlhar() {
     if (e == nullptr) {
       AlternaCameraPresa();
     } else {
-      olho_.mutable_alvo()->CopyFrom(e->Pos());
+      olho_.mutable_destino()->CopyFrom(e->Pos());
       AtualizaOlho(true  /*forcar*/);
     }
   }
@@ -1290,6 +1290,9 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_DESLIZANDO: {
+      if (camera_presa_) {
+        return;
+      }
       // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
       //gl::ModoMatriz(GL_MODELVIEW);
       gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
