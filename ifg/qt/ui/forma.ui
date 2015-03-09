@@ -416,7 +416,7 @@
     <rect>
      <x>190</x>
      <y>430</y>
-     <width>259</width>
+     <width>221</width>
      <height>41</height>
     </rect>
    </property>
@@ -427,7 +427,7 @@
        <enum>Qt::RightToLeft</enum>
       </property>
       <property name="text">
-       <string>Possui Luz</string>
+       <string>Luz</string>
       </property>
      </widget>
     </item>
