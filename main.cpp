@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
   tex::Texturas texturas(&central);
   ent::Tabuleiro tabuleiro(&texturas, &central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &central));
-  if (argc == 2 && argv[1][0] != '-') {
+  if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
     auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     n->set_endereco(argv[1]);
