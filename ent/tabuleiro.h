@@ -324,6 +324,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna a visao de jogador para o mestre. */
   void AlternaVisaoJogador() { visao_jogador_ = !visao_jogador_; }
 
+  /** Alterna a camera presa a entidade. */
+  void AlternaCameraPresa();
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
@@ -665,6 +668,8 @@ class Tabuleiro : public ntf::Receptor {
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
   bool visao_jogador_ = false;  // Para o mestre poder ver na visao do jogador.
+  bool camera_presa_ = false;
+  unsigned int id_camera_presa_;  // A qual entidade a camera esta presa.
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
 
 #if !USAR_QT

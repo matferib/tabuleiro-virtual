@@ -7,6 +7,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Demônio Bebilith'
+  entidade {
+    dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
+    rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
+    tamanho: TM_ENORME
+  }
+}
+modelo {
   id: 'Carniçal'
   entidade {
     dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
@@ -31,6 +39,10 @@ modelo {
 modelo {
   id: 'Demônio Babau'
   entidade { dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
+}
+modelo {
+  id: 'Demônio Dretch'
+  entidade { dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 } }
 }
 modelo {
   id: 'Elemental do Ar (Pequeno)'
@@ -137,6 +149,10 @@ modelo {
 modelo {
   id: 'Orc Capitão'
   entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
+}
+modelo {
+  id: 'Demônio Súcubo'
+  entidade { dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 } }
 }
 modelo {
   id: 'Troll'

@@ -8,6 +8,9 @@ sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
   modelo { id: 'Demônio Vrock' texto: 'Vrock' }
+  modelo { id: 'Demônio Dretch' texto: 'Dretch' }
+  modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
+  modelo { id: 'Demônio Súcubo' texto: 'Súcubo' }
 }
 modelo { id: 'Elemental do Ar (Pequeno)' }
 modelo { id: 'Enxame (centopéias)' }

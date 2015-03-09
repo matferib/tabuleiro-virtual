@@ -377,6 +377,15 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
+  if (camera_presa_) {
+    const auto* e = BuscaEntidade(id_camera_presa_);
+    if (e == nullptr) {
+      AlternaCameraPresa();
+    } else {
+      olho_.mutable_alvo()->CopyFrom(e->Pos());
+      AtualizaOlho(true  /*forcar*/);
+    }
+  }
   const Posicao& alvo = olho_.alvo();
   if (camera_isometrica_) {
     gl::OlharPara(
@@ -1239,6 +1248,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     case ETAB_ENTS_PRESSIONADAS: {
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
+      camera_presa_ = false;  // temporariamente.
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
@@ -3024,6 +3034,10 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       estado_ = estado_anterior_;
       return;
     case ETAB_ENTS_PRESSIONADAS: {
+      if (!camera_presa_ && id_camera_presa_ != Entidade::IdInvalido) {
+        // Restaura camera presa antes do movimento.
+        camera_presa_ = true;
+      }
       if (primeiro_x_3d_ == ultimo_x_3d_ &&
           primeiro_y_3d_ == ultimo_y_3d_) {
         // Nao houve movimento.
@@ -4413,6 +4427,20 @@ void Tabuleiro::ReiniciaCamera() {
 
 void Tabuleiro::AlteraModoCamera(bool isometrica) {
   camera_isometrica_ = isometrica;
+}
+
+void Tabuleiro::AlternaCameraPresa() {
+  if (camera_presa_) {
+    camera_presa_ = false;
+    id_camera_presa_ = Entidade::IdInvalido;
+    LOG(INFO) << "Camera solta.";
+  } else if (ids_entidades_selecionadas_.size() == 1) {
+    camera_presa_ = true;
+    id_camera_presa_ = *ids_entidades_selecionadas_.begin();
+    LOG(INFO) << "Camera presa.";
+  } else {
+    LOG(INFO) << "Sem entidade selecionada.";
+  }
 }
 
 void Tabuleiro::DesativaWatchdog() {

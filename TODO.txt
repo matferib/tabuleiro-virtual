@@ -1,4 +1,7 @@
 Versao 1.8.2
+- Camera presa.
+- Atualizacao de Z por mouse para clientes.
+- Adicionar alguma propriedade de entidade no ipad.
 - Mudar a espessura do desenho.
 - Transmissao de texturas do mestre para jogadores.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.

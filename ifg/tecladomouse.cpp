@@ -166,6 +166,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
     return;
   }
+  LOG(INFO) << "AQUI TECLA: " << (void*)tecla;
   switch (tecla) {
     case Tecla_Backspace:
     case Tecla_Delete:
@@ -206,8 +207,11 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FIXA);
       return;
     case Tecla_F1:
+      tabuleiro_->AlternaCameraPresa();
+      return;
     case Tecla_F2:
-      tabuleiro_->AlteraModoCamera(tecla == Tecla_F2);
+    case Tecla_F3:
+      tabuleiro_->AlteraModoCamera(tecla == Tecla_F2  /*isometrica*/);
       return;
     case Tecla_F4:
       tabuleiro_->AlternaVisaoJogador();
