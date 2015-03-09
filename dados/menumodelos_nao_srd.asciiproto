@@ -17,3 +17,4 @@ sub_menu {
   modelo { id: 'Verde' }
 }
 modelo { id: 'Guarda de Bane' }
+modelo { id: 'Morto de Bane' }
