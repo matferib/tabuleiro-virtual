@@ -166,7 +166,6 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
     return;
   }
-  LOG(INFO) << "AQUI TECLA: " << (void*)tecla;
   switch (tecla) {
     case Tecla_Backspace:
     case Tecla_Delete:
