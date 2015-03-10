@@ -4428,8 +4428,8 @@ void Tabuleiro::ReiniciaCamera() {
   AtualizaOlho(true  /*forcar*/);
 }
 
-void Tabuleiro::AlteraModoCamera(bool isometrica) {
-  camera_isometrica_ = isometrica;
+void Tabuleiro::AlternaCameraIsometrica() {
+  camera_isometrica_ = !camera_isometrica_;
 }
 
 void Tabuleiro::AlternaCameraPresa() {

@@ -209,11 +209,11 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->AlternaCameraPresa();
       return;
     case Tecla_F2:
-    case Tecla_F3:
-      tabuleiro_->AlteraModoCamera(tecla == Tecla_F2  /*isometrica*/);
+      tabuleiro_->AlternaCameraIsometrica();
       return;
     case Tecla_F4:
       tabuleiro_->AlternaVisaoJogador();
+      return;
     case Tecla_G:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->AgrupaEntidadesSelecionadas();

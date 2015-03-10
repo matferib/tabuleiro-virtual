@@ -318,8 +318,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Apaga os eventos que estao zerados para a entidade. */
   void ApagaEventosZeradosDeEntidadeNotificando(unsigned int id);
 
-  /** Altera o modo da camera entre isometrica e perspectiva. */
-  void AlteraModoCamera(bool isometrica);
+  /** Alterna o modo da camera entre isometrica e perspectiva. */
+  void AlternaCameraIsometrica();
 
   /** Alterna a visao de jogador para o mestre. */
   void AlternaVisaoJogador() { visao_jogador_ = !visao_jogador_; }
