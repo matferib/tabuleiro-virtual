@@ -1,4 +1,6 @@
 Versao 1.8.2
+- Versao android.
+- Versao IPAD testar performance.
 - Camera presa.
 - Atualizacao de Z por mouse para clientes.
 - Adicionar alguma propriedade de entidade no ipad.

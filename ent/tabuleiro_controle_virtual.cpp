@@ -46,6 +46,12 @@ const int CONTROLE_VISIBILIDADE = 12;
 const int CONTROLE_QUEDA = 13;
 const int CONTROLE_LUZ = 14;
 const int CONTROLE_RODADA = 15;
+const int CONTROLE_CAMERA_ISOMETRICA = 16;
+const int CONTROLE_CAMERA_PRESA = 17;
+const int CONTROLE_CIMA = 18;
+const int CONTROLE_BAIXO = 19;
+const int CONTROLE_ESQUERDA = 20;
+const int CONTROLE_DIREITA = 21;
 
 // Texturas do controle virtual.
 const char* TEXTURA_ACAO = "icon_sword.png";
@@ -78,6 +84,18 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
   switch (id) {
     case CONTROLE_ACAO:
       AlternaModoAcao();
+      break;
+    case CONTROLE_CIMA:
+      TrataMovimentoEntidadesSelecionadas(true, 1.0f);
+      break;
+    case CONTROLE_BAIXO:
+      TrataMovimentoEntidadesSelecionadas(true, -1.0f);
+      break;
+    case CONTROLE_ESQUERDA:
+      TrataMovimentoEntidadesSelecionadas(false, -1.0f);
+      break;
+    case CONTROLE_DIREITA:
+      TrataMovimentoEntidadesSelecionadas(false, 1.0f);
       break;
     case CONTROLE_ACAO_ANTERIOR:
       AcaoAnterior();
@@ -145,6 +163,16 @@ void Tabuleiro::DesenhaControleVirtual() {
   cor_ativa[0] = 0.4f;
   cor_ativa[1] = 0.4f;
   cor_ativa[2] = 0.4f;
+
+  int fonte_x_int, fonte_y_int;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
+  const float fonte_x = fonte_x_int;
+  const float fonte_y = fonte_y_int;
+  const float botao_y = fonte_y * 2.5f;
+  //const float botao_x = botao_y;  // botoes quadrados. Era: fonte_x * 3.0f;
+  const float botao_x = fonte_x * 3.0f;
+  const float padding = fonte_x / 2;
+
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
   struct DadosBotao {
     int tamanho;  // 1 eh base, 2 eh duas vezes maior.
@@ -157,50 +185,50 @@ void Tabuleiro::DesenhaControleVirtual() {
     bool alternavel;
     int num_lados_botao;  // numero de lados do botao,.
     float rotacao_graus;  // Rotacao do botao.
+    float translacao_x;  // Translacao do desenho em fator de escala da fonte (botao_x * translacao_x)
+    float translacao_y;  // Translacao do desenho em fator de escala da fonte (botao_y * translacao_x).
   };
-  std::vector<DadosBotao> dados_botoes = {
+  const std::vector<DadosBotao> dados_botoes = {
     // Botoes grandes.
     // Acao.
-    { 2, 0, 0, "A", nullptr, TEXTURA_ACAO, CONTROLE_ACAO, true, 4, 0.0f },
+    { 2, 0, 0, "A", nullptr, TEXTURA_ACAO, CONTROLE_ACAO, true, 4, 0.0f, 0.0f, 0.0f },
     // Linha de cima.
     // Alterna acao para tras.
-    { 1, 1, 2, "<", nullptr, "", CONTROLE_ACAO_ANTERIOR, false, 4, 0.0f },
+    { 1, 1, 2, "<", nullptr, "", CONTROLE_ACAO_ANTERIOR, false, 4, 0.0f, 0.0f, 0.0f },
     // Alterna acao para frente.
-    { 1, 1, 3, ">", nullptr, "", CONTROLE_ACAO_PROXIMA, false, 4, 0.0f },
+    { 1, 1, 3, ">", nullptr, "", CONTROLE_ACAO_PROXIMA, false, 4, 0.0f, 0.0f, 0.0f },
     // Alterna cura.
-    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, "", CONTROLE_ALTERNA_CURA, false, 4, 0.0f },
+    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, "", CONTROLE_ALTERNA_CURA, false, 4, 0.0f, 0.0f, 0.0f },
     // Linha de baixo
     // Adiciona dano +1.
-    { 1, 0, 2, "1", nullptr, "", CONTROLE_ADICIONA_1, false, 4, 0.0f },
+    { 1, 0, 2, "1", nullptr, "", CONTROLE_ADICIONA_1, false, 4, 0.0f, 0.0f, 0.0f },
     // Adiciona dano +5
-    { 1, 0, 3, "5", nullptr, "", CONTROLE_ADICIONA_5, false, 4, 0.0f },
+    { 1, 0, 3, "5", nullptr, "", CONTROLE_ADICIONA_5, false, 4, 0.0f, 0.0f, 0.0f },
     // Adiciona dano +10.
-    { 1, 0, 4, "10", nullptr, "", CONTROLE_ADICIONA_10, false, 4, 0.0f },
+    { 1, 0, 4, "10", nullptr, "", CONTROLE_ADICIONA_10, false, 4, 0.0f, 0.0f, 0.0f },
     // Confirma dano.
-    { 1, 0, 5, "v", COR_AZUL, "", CONTROLE_CONFIRMA_DANO, false, 4, 0.0f },
+    { 1, 0, 5, "v", COR_AZUL, "", CONTROLE_CONFIRMA_DANO, false, 4, 0.0f, 0.0f, 0.0f },
     // Apaga dano.
-    { 1, 0, 6, "x", nullptr, "", CONTROLE_APAGA_DANO, false, 4, 0.0f },
+    { 1, 0, 6, "x", nullptr, "", CONTROLE_APAGA_DANO, false, 4, 0.0f, 0.0f, 0.0f },
 
     // Status.
-    { 1, 0, 8, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ, false, 4, 0.0f },
-    { 1, 0, 9, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA, false, 4, 0.0f },
-    { 1, 1, 8, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO, false, 4, 0.0f },
-    { 1, 1, 9, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, false, 4, 0.0f },
+    { 1, 0, 8, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ, false, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 9, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA, false, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 8, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO, false, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 9, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, false, 4, 0.0f, 0.0f, 0.0f },
+
+    // Setas.
+    { 1, 1, 12, "", COR_AMARELA, TEXTURA_LUZ, CONTROLE_CIMA, false, 3, 90.0f, 0.0f, 0.0f },
+    { 1, 0, 12, "", COR_AMARELA, TEXTURA_LUZ, CONTROLE_BAIXO, false, 3, -90.0f, 0.0f, 0.0f },
+    { 1, 0, 11, "", COR_AMARELA, TEXTURA_LUZ, CONTROLE_ESQUERDA, false, 3, 180.0f, 0.0f, 0.5f },
+    { 1, 0, 13, "", COR_AMARELA, TEXTURA_LUZ, CONTROLE_DIREITA, false, 3, 0.0f, 0.0f, 0.5f },
 
     // Desfazer.
-    { 2, 0, 11, "<=", COR_VERMELHA, "", CONTROLE_DESFAZER, false, 3, 30.0f },
+    { 2, 0, 15, "<=", COR_VERMELHA, "", CONTROLE_DESFAZER, false, 3, 30.0f, 0.0f, 0.0f },
 
     // Contador de rodadas.
-    { 2, 0, 14, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, false, 8, 0.0f },
+    { 2, 0, 17, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, false, 8, 0.0f, 0.0f, 0.0f },
   };
-  int fonte_x_int, fonte_y_int;
-  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
-  const float fonte_x = fonte_x_int;
-  const float fonte_y = fonte_y_int;
-  const float botao_y = fonte_y * 2.5f;
-  //const float botao_x = botao_y;  // botoes quadrados. Era: fonte_x * 3.0f;
-  const float botao_x = fonte_x * 3.0f;
-  const float padding = fonte_x / 2;
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 
@@ -265,7 +293,8 @@ void Tabuleiro::DesenhaControleVirtual() {
         gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
         gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
       } else {
-        gl::Translada((xi + xf) / 2.0f, (yi + yf) / 2.0f, 0.0f);
+        gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x * botao_x),
+                      ((yi + yf) / 2.0f) + (db.translacao_y * botao_y), 0.0f);
         gl::Roda(db.rotacao_graus, 0.0f, 0.0f, 1.0f);
         DesenhaDisco((xf - xi) / 2.0f, db.num_lados_botao);
       }
