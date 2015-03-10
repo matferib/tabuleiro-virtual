@@ -62,7 +62,9 @@ const char* TEXTURA_LUZ = "icon_light.png";
 const char* TEXTURA_QUEDA = "icon_slide.png";
 const char* TEXTURA_CAMERA_ISOMETRICA = "icon_isometric_camera.png";
 const char* TEXTURA_CAMERA_PRESA = "icon_tracking_camera.png";
-const std::vector<std::string> g_texturas = { TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA };
+const char* TEXTURA_DESFAZER = "icon_undo.png";
+const std::vector<std::string> g_texturas = { TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA,
+                                              TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA, TEXTURA_DESFAZER };
 
 // Para botoes sem estado.
 bool RetornaFalse() {
@@ -238,11 +240,11 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 0, 12, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, 0.0f,  -0.2f, 0.5f },
 
     // Cameras.
-    { 1, 0, 13, "Is", nullptr, "", CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 13, "Pr", nullptr, "", CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },  4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 13, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 13, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },      4, 0.0f, 0.0f, 0.0f },
 
     // Desfazer.
-    { 2, 0, 15, "<=", COR_VERMELHA, "", CONTROLE_DESFAZER, RetornaFalse, 3, 30.0f, 0.0f, 0.0f },
+    { 2, 0, 15, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
 
     // Contador de rodadas.
     { 2, 0, 17, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
