@@ -175,28 +175,29 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->DetalharTodasEntidades(true);
       return;
     case Tecla_Cima:
-      if (modificadores == Modificador_Shift) {
+      // Nao pode usar == pq a seta tambem aplica modificador de keypad.
+      if ((modificadores & Modificador_Shift) != 0) {
         tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(0.1f);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       }
       return;
     case Tecla_Baixo:
-      if (modificadores == Modificador_Shift) {
+      if ((modificadores & Modificador_Shift) != 0) {
         tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(-0.1f);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1.0f);
       }
       return;
     case Tecla_Esquerda:
-      if (modificadores == Modificador_Shift) {
+      if ((modificadores & Modificador_Shift) != 0) {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -0.1f);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1.0f);
       }
       return;
     case Tecla_Direita:
-      if (modificadores == Modificador_Shift) {
+      if ((modificadores & Modificador_Shift) != 0) {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 0.1f);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1.0f);
