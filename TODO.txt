@@ -1,4 +1,5 @@
-Versao 1.8.2
+Versao 1.8.3
+- Formas usando o mesmo VBO escalado de forma diferente.
 - Versao android.
 - Versao IPAD testar performance.
 - Adicionar alguma propriedade de entidade no ipad.
@@ -22,7 +23,7 @@ Versao 1.8.2
 - Texturas faltantes.
 - Textura em outras formas.
 
-Versao 1.8.3
+Versao 1.8.4
 - VBO em entidades.
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.

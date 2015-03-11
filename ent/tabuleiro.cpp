@@ -1770,6 +1770,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaLuzes();
   } else {
     gl::Desabilita(GL_LIGHTING);
+    gl::Desabilita(GL_FOG);
   }
 
   //ceu_.desenha(parametros_desenho_);
