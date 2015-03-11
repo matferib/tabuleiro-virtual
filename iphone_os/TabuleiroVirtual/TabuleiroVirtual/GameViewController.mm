@@ -15,6 +15,8 @@ const int TAG_AURA = 4;
 const int TAG_TEXTO_AURA = 5;
 const int TAG_TAMANHO = 6;
 const int TAG_TEXTO_TAMANHO = 7;
+const int TAG_PONTOS_VIDA = 8;
+const int TAG_MAX_PONTOS_VIDA = 9;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -344,6 +346,11 @@ const int TAG_BOTAO_CANCELA = 101;
     texto_slider_tamanho_ = (UITextField*)[view viewWithTag:TAG_TEXTO_TAMANHO];
     [texto_slider_tamanho_ setText:[self tamanhoParaString:n.entidade().tamanho()]];
     
+    pontos_vida_ = (UITextField*)[view viewWithTag:TAG_PONTOS_VIDA];
+    [pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().pontos_vida()]];
+    max_pontos_vida_ = (UITextField*)[view viewWithTag:TAG_MAX_PONTOS_VIDA];
+    [max_pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().max_pontos_vida()]];
+    
     [self presentModalViewController:vc_entidade_ animated:TRUE];
     return true;
   }
@@ -406,6 +413,12 @@ const int TAG_BOTAO_CANCELA = 101;
   {
     int valor_slider_tamanho = (int)[slider_tamanho_ value];
     notificacao_->mutable_entidade()->set_tamanho((ent::TamanhoEntidade)valor_slider_tamanho);
+  }
+  {
+    int pontos_vida = (int)[[pontos_vida_ text] intValue];
+    notificacao_->mutable_entidade()->set_pontos_vida(pontos_vida);
+    int max_pontos_vida = (int)[[max_pontos_vida_ text] intValue];
+    notificacao_->mutable_entidade()->set_max_pontos_vida(max_pontos_vida);
   }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);

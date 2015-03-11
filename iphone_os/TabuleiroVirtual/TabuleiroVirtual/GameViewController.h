@@ -25,6 +25,8 @@ class Notificacao;
     UITextField* texto_slider_;  // ditto.
     UISlider* slider_tamanho_;  // para dialogo de propriedade de entidade.
     UITextField* texto_slider_tamanho_;  // ditto.
+    UITextField* pontos_vida_;
+    UITextField* max_pontos_vida_;
     
     @public
     NSString* id_cliente_;
