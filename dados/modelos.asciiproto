@@ -171,6 +171,10 @@ modelo {
   entidade { dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
 }
 modelo {
+  id: 'Worg'
+  entidade { dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 } }
+}
+modelo {
   id: 'Árvore (pinheiro)'
   entidade {
     tipo: TE_COMPOSTA

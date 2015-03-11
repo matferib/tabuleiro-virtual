@@ -52,6 +52,7 @@ sub_menu {
   modelo { id: 'Zumbi (humano)' }
   modelo { id: 'Zumbi (kobold)' }
 }
+modelo { id: 'Worg' }
 sub_menu {
   id: 'Formas'
   modelo { id: 'Árvore (pinheiro)' }
