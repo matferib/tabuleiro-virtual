@@ -13,8 +13,8 @@ modelo { id: 'Peryton' }
 modelo { id: 'Soldado do Horror' }
 sub_menu {
   id: 'Slaads'
-  modelo { id: 'Vermelho' }
-  modelo { id: 'Verde' }
+  modelo { id: 'Slaad Vermelho' texto: 'Vermelho' }
+  modelo { id: 'Slaad Verde' texto: 'Verde' }
 }
 modelo { id: 'Guarda de Bane' }
 modelo { id: 'Morto de Bane' }
