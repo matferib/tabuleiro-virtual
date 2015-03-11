@@ -494,7 +494,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Eventos entidades.
   std::string eventos;
   for (const auto& evento : entidade.evento()) {
-    eventos += evento.descricao() + ": " + to_string(evento.rodadas()) + "\n";
+    eventos += evento.descricao() + ": " + net::to_string(evento.rodadas()) + "\n";
   }
   gerador.lista_eventos->appendPlainText(eventos.c_str());
 
