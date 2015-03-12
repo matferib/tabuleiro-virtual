@@ -2618,7 +2618,6 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
     LOG(ERROR) << "Retornando lixo";
     return false;
   }
-  LOG(INFO) << "p2z - p1z = " << (p2z - p1z);
   float mult = (parametros_desenho_.offset_terreno() - p1z) / (p2z - p1z);
   *x3d = p1x + (p2x - p1x) * mult;
   *y3d = p1y + (p2y - p1y) * mult;
