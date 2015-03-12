@@ -2618,6 +2618,7 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
     LOG(ERROR) << "Retornando lixo";
     return false;
   }
+  LOG(INFO) << "p2z - p1z = " << (p2z - p1z);
   float mult = (parametros_desenho_.offset_terreno() - p1z) / (p2z - p1z);
   *x3d = p1x + (p2x - p1x) * mult;
   *y3d = p1y + (p2y - p1y) * mult;
@@ -2660,6 +2661,13 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
     // Raio que sai do pixel.
     float p1x, p1y, p1z;
     gl::Desprojeta(x, y, -1.0f, modelview, projection, viewport, &p1x, &p1y, &p1z);
+    if (camera_isometrica_) {
+      *x3d = p1x;
+      *y3d = p1y;
+      *z3d = 0.0f;
+      return true;
+    }
+
     float p2x, p2y, p2z;
     gl::Desprojeta(x, y, 1.0f, modelview, projection, viewport, &p2x, &p2y, &p2z);
     if (p2z - p1z == 0) {
@@ -2676,6 +2684,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
 
     auto* e = BuscaEntidade(id);
     if (e == nullptr) {
+      LOG(ERROR) << "Retornando lixo porque nao achei a entidade";
       return false;
     }
     // Cria um plano perpendicular a linha de visao para o objeto e com o plano XY.
@@ -2702,7 +2711,11 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
     // x = (ay0 - aq - bx0) / (ap - b) ou
     // x = (aq - ay0 + bx0) / (b - ap)
     if (fabs(b_raio - a_raio * a_perpendicular) < 0.0001f) {
-      return false;
+      LOG(WARNING) << "Projecao praticamente perpendicular, retornando valores simples";
+      *x3d = p1x;
+      *y3d = p1y;
+      *z3d = 0.0f;
+      return true;
     }
     float x_inter = (a_raio * b_perpendicular - a_raio * p1y + b_raio * p1x) / (b_raio - a_raio * a_perpendicular);
     // Valor do t para interceptar o plano perpendicular
