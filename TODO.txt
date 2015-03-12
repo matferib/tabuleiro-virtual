@@ -1,4 +1,6 @@
 Versao 1.8.3
+- Deserializacao de entidades proximo a camera.
+- Objetos compostos com transparencia.
 - Formas usando o mesmo VBO escalado de forma diferente.
 - Versao android.
 - Versao IPAD testar performance.
@@ -34,14 +36,13 @@ Versao 1.8.4
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
-- Instalador windows, rpm linux e ??? MAC.
 
 Versao 2.0
+- Shader.
 - Visao primeira pessoa.
 - Joystick no android.
 - Registro correto dos diretorios para funcionar de qualquer diretorio.
 - Botao de aplicar mudancas nos dialogos.
-- Shader.
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
 - Outros tipos de acoes (perfurante, concussao).

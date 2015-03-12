@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>428</width>
-    <height>604</height>
+    <width>553</width>
+    <height>687</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>180</x>
      <y>10</y>
      <width>181</width>
      <height>41</height>
@@ -42,8 +42,8 @@
   <widget class="QDialogButtonBox" name="botoes">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>550</y>
+     <x>90</x>
+     <y>650</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -58,8 +58,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>350</y>
+     <x>240</x>
+     <y>450</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -97,8 +97,8 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>340</y>
+     <x>70</x>
+     <y>440</y>
      <width>161</width>
      <height>141</height>
     </rect>
@@ -203,8 +203,8 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>110</y>
+     <x>70</x>
+     <y>240</y>
      <width>271</width>
      <height>131</height>
     </rect>
@@ -304,8 +304,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>390</y>
+     <x>240</x>
+     <y>490</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -350,7 +350,7 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>140</x>
      <y>70</y>
      <width>277</width>
      <height>26</height>
@@ -414,8 +414,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_4">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>430</y>
+     <x>240</x>
+     <y>530</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -446,8 +446,8 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>300</x>
-     <y>110</y>
+     <x>350</x>
+     <y>240</y>
      <width>111</width>
      <height>141</height>
     </rect>
@@ -518,8 +518,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_5">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>270</y>
+     <x>80</x>
+     <y>390</y>
      <width>361</width>
      <height>41</height>
     </rect>
@@ -547,8 +547,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_6">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>480</y>
+     <x>70</x>
+     <y>580</y>
      <width>401</width>
      <height>51</height>
     </rect>
@@ -584,6 +584,41 @@
       </property>
       <property name="text">
        <string>Visível</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_2">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>100</y>
+     <width>370</width>
+     <height>131</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_18">
+    <item>
+     <widget class="QLabel" name="label_11">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Rótulos Especial</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="lista_rotulos">
+      <property name="toolTip">
+       <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
       </property>
      </widget>
     </item>

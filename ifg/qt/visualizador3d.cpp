@@ -303,6 +303,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   // Pontos de vida.
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
+  // Rotulos especiais.
+  std::string rotulos_especiais;
+  for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
+    rotulos_especiais += rotulo_especial + "\n";
+  }
+  gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -408,6 +414,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     } else {
       proto_retornado->clear_max_pontos_vida();
       proto_retornado->clear_pontos_vida();
+    }
+    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    for (const auto& rotulo : lista_rotulos) {
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());

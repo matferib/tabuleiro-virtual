@@ -3330,13 +3330,32 @@ ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
 void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  float media_x = 0.0f;
+  float media_y = 0.0f;
+  int num = 0;
   for (const auto& e : n.tabuleiro().entidade()) {
     if (e.selecionavel_para_jogador()) {
+      ++num;
       ntf::Notificacao* n_adicao = grupo_notificacoes.add_notificacao();
       n_adicao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
       n_adicao->mutable_entidade()->CopyFrom(e);
+      media_x += e.pos().x();
+      media_y += e.pos().y();
     }
   }
+  if (num == 0) {
+    return;
+  }
+  // Poe entidades onde a camera olha.
+  media_x /= num;
+  media_y /= num;
+  for (auto& n : *grupo_notificacoes.mutable_notificacao()) {
+    float x_original = n.entidade().pos().x();
+    float y_original = n.entidade().pos().y();
+    n.mutable_entidade()->mutable_pos()->set_x(x_original - media_x + olho_.alvo().x());
+    n.mutable_entidade()->mutable_pos()->set_y(y_original - media_y + olho_.alvo().y());
+  }
+
   // Hack para entidades aparecerem visiveis e selecionaveis.
   bool modo_mestre_anterior = modo_mestre_;
   modo_mestre_ = false;
