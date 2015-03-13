@@ -187,7 +187,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float botao_y = fonte_y * 2.5f;
   //const float botao_x = botao_y;  // botoes quadrados. Era: fonte_x * 3.0f;
   const float botao_x = fonte_x * 3.0f;
-  const float padding = fonte_x / 2;
+  const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 2;
 
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
   struct DadosBotao {
@@ -294,12 +294,14 @@ void Tabuleiro::DesenhaControleVirtual() {
       yi = db.linha * botao_y;
       yf = yi + db.tamanho * botao_y;
       gl::MatrizEscopo salva;
-      if (db.num_lados_botao == 4) {
+      if (db.num_lados_botao == 4 || parametros_desenho_.has_picking_x()) {
+        float trans_x = (db.translacao_x * botao_x);
+        float trans_y = (db.translacao_y * botao_y);
         InfoVerticeTabuleiro vertice_controle_virtual[] = {
-          { xi + padding, yi + padding, 0.0f, 1.0f },
-          { xf - padding, yi + padding, 1.0f, 1.0f },
-          { xf - padding, yf - padding, 1.0f, 0.0f },
-          { xi + padding, yf - padding, 0.0f, 0.0f },
+          { xi + padding + trans_x, yi + padding + trans_y, 0.0f, 1.0f },
+          { xf - padding + trans_x, yi + padding + trans_y, 1.0f, 1.0f },
+          { xf - padding + trans_x, yf - padding + trans_y, 1.0f, 0.0f },
+          { xi + padding + trans_x, yf - padding + trans_y, 0.0f, 0.0f },
         };
         unsigned short ponteiro_vertices[] = { 0, 1, 2, 3 };
         unsigned int id_textura = db.textura.empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura);
