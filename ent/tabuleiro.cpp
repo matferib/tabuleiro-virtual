@@ -476,6 +476,17 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
       auto* entidade = NovaEntidade(modelo, texturas_, central_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
+      // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
+      for (const auto id : ids_entidades_selecionadas_) {
+        auto* e_selecionada = BuscaEntidade(id);
+        if (e_selecionada == nullptr) {
+          continue;
+        }
+        if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
+          DeselecionaEntidades();
+          break;
+        }
+      }
       AdicionaEntidadesSelecionadas({ entidade->Id() });
       {
         // Para desfazer.
