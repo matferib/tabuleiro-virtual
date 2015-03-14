@@ -1227,6 +1227,12 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->AlteraTranslacaoZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
         }
+        // Atualiza clientes.
+        auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+        n->mutable_entidade()->set_id(e->Id());
+        n->mutable_entidade()->set_translacao_z(e->TranslacaoZ());
+        n->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
+        central_->AdicionaNotificacaoRemota(n);
       }
       ultimo_x_ = x;
       ultimo_y_ = y;
@@ -3034,17 +3040,19 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
         for (unsigned int id : ids_entidades_selecionadas_) {
           auto* entidade = BuscaEntidade(id);
-          if (entidade == nullptr || entidade->Tipo() == TE_ENTIDADE) {
+          if (entidade == nullptr) {
             continue;
           }
           auto* n = grupo_notificacoes.add_notificacao();
-          n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+          n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
           auto* e_antes = n->mutable_entidade_antes();
-          e_antes->CopyFrom(entidade->Proto());
+          e_antes->set_id(entidade->Id());
           e_antes->set_translacao_z(translacoes_rotacoes_antes_[entidade->Id()].first);
           e_antes->set_rotacao_z_graus(translacoes_rotacoes_antes_[entidade->Id()].second);
           // A entidade ja foi alterada durante a rotacao.
-          n->mutable_entidade()->CopyFrom(entidade->Proto());
+          n->mutable_entidade()->set_id(entidade->Id());
+          n->mutable_entidade()->set_translacao_z(entidade->TranslacaoZ());
+          n->mutable_entidade()->set_rotacao_z_graus(entidade->RotacaoZGraus());
         }
         // Vai ser um nop, mas envia as notificacoes para os clientes.
         TrataNotificacao(grupo_notificacoes);
