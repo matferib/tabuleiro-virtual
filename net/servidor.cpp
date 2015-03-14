@@ -26,7 +26,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
-        std::string porta(std::to_string(PortaPadrao()));
+        std::string porta(to_string(PortaPadrao()));
         anunciante_->async_send_to(
             boost::asio::buffer(porta),
             boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), 11224),
@@ -178,7 +178,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
         if (ec.value() == boost::asio::error::eof) {
           erro += "Conexao fechada pela outra ponta.";
         } else {
-          erro += std::to_string(ec.value()) + ": " + ec.message();
+          erro += to_string(ec.value()) + ": " + ec.message();
         }
         n->set_erro(erro);
         central_->AdicionaNotificacao(n);

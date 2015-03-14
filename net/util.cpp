@@ -20,7 +20,7 @@ unsigned int DecodificaTamanho(const std::vector<char>::iterator& buffer) {
 }
 
 const std::string to_string(int numero) {
-#if 0 && WIN32 || ANDROID
+#if WIN32
   char buffer[51];
   snprintf(buffer, 51, "%d", numero);
   return std::string(buffer);

@@ -17,8 +17,9 @@ else:
 # qt
 env['QT_MOCHSUFFIX'] = '.cpp'
 if sistema == 'win32':
-  env['QTDIR'] = 'c:/Qt/4.8.5/'
-  env['QT_LIBPATH'] = 'win32/lib'
+  env['QTDIR'] = 'd:/Qt/'
+  #env['QT_LIBPATH'] = 'win32/lib'
+  env['QT_LIBPATH'] = 'd:/Qt/lib'
   env['QT_LIB'] = ['QtOpenGL', 'QtGui', 'QtCore']
 elif sistema == 'apple':
   env['FRAMEWORKPATH'] = ['/usr/local/lib/']
@@ -40,10 +41,10 @@ print 'Usando debug: %r' % debug
 if sistema == 'win32':
   env['CPPPATH'] += ['./', 'win32/include']
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'WIN32_LEAN_AND_MEAN': 1, 'WIN32': 1, '_WINDOWS': 1, '_CRT_SECURE_NO_WARNINGS': 1, '_WIN32_WINNT': 0x0601, 'WINVER': 0x0601, 'FREEGLUT_STATIC': 1, 'QT_STATIC_BUILD': 1}
-  env['CXXFLAGS'] += ['-std=c++11', '-Wall', '-Wfatal-errors']
+  env['CXXFLAGS'] = ['-std=c++11', '-Wall', '-Wfatal-errors']
   env['LIBS'] += ['freeglut_static', 'glu32', 'opengl32', 'protobuf', 'boost_filesystem-mgw48-mt-1_55', 'boost_system-mgw48-mt-1_55', 'boost_timer-mgw48-mt-1_55', 'boost_chrono-mgw48-mt-1_55', 'ws2_32', 'Mswsock', 'Gdi32', 'Winmm', 'ole32', 'Oleacc', 'OleAut32', 'libuuid', 'Comdlg32', 'imm32', 'Winspool']
   env['LIBPATH'] += [ 'win32/lib' ]
-  env['LINKFLAGS'] += ['-Wl,--subsystem,windows']
+  env['LINKFLAGS'] = ['-Wl,--subsystem,windows']
 elif sistema == 'apple':
   env['CPPPATH'] += ['./',
                      '/usr/local/lib/QtGui.framework/Headers',

@@ -23,6 +23,7 @@
 #include "ifg/qt/ui/opcoes.h"
 #include "ifg/qt/visualizador3d.h"
 #include "log/log.h"
+#include "net/util.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/texturas.h"
 
@@ -503,7 +504,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Eventos entidades.
   std::string eventos;
   for (const auto& evento : entidade.evento()) {
-    eventos += evento.descricao() + ": " + std::to_string(evento.rodadas()) + "\n";
+    eventos += evento.descricao() + ": " + net::to_string(evento.rodadas()) + "\n";
   }
   gerador.lista_eventos->appendPlainText(eventos.c_str());
 
