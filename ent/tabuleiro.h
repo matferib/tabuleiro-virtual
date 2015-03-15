@@ -543,7 +543,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Carrega as texturas do controle virtual. */
   void CarregaTexturasControleVirtual();
 
-  /** Carrega as texturas do controle virtual. */
+  /** Libera as texturas do controle virtual. */
   void LiberaTexturasControleVirtual();
 
   /** Desenha a grade do tabuleiro. */
@@ -585,7 +585,7 @@ class Tabuleiro : public ntf::Receptor {
   bool VisaoMestre() const { return modo_mestre_ && !visao_jogador_; }
 
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
-  void RegeraVbo();
+  void RegeraVboTabuleiro();
 
   /** Gera o Vbo da caixa do ceu, chamado uma vez apenas. */
   void GeraVboCaixaCeu();
@@ -732,6 +732,7 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<unsigned short> indices_grade_;
   // TODO VBO dessas coisas aqui em cima.
   gl::Vbo vbo_caixa_ceu_;
+  gl::Vbo vbo_cubo_;
 
   bool gl_iniciado_ = false;
 

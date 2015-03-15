@@ -113,11 +113,14 @@ void DesenhaDisco(float raio, int num_faces) {
   unsigned int num_vertices = 2 + (num_faces + 1) * 2;
   float vertices[num_vertices];
   unsigned short indices[num_vertices];
-  vertices[0] = vertices[1] = 0.0f;
-  for (int i = 0; i <= num_faces; ++i) {
-    float angulo = i * 2 * M_PI / num_faces;
-    vertices[2 + i * 2] = cosf(angulo) * raio;
-    vertices[2 + i * 2 + 1] = sinf(angulo) * raio;
+  vertices[0] = 0.0f;
+  vertices[1] = raio;
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_faces;
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
+  for (int i = 2; i < num_vertices; i += 2) {
+    vertices[i] = vertices[i - 2] * cos_fatia - vertices[i - 1] * sen_fatia; 
+    vertices[i + 1] = vertices[i - 2] * sen_fatia + vertices[i - 1] * cos_fatia;
   }
   for (unsigned int i = 0; i < num_vertices; ++i) {
     indices[i] = i;

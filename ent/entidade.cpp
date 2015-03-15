@@ -675,7 +675,7 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
 std::vector<gl::Vbo> Entidade::g_vbos;
 
 void Entidade::IniciaGl() {
-  g_vbos.resize(3);
+  g_vbos.resize(NUM_VBOS);
 
   // Vbo peao.
   {
@@ -717,6 +717,27 @@ void Entidade::IniciaGl() {
     vbo.AtribuiTexturas(coordenadas_textura);
     vbo.AtribuiIndices(indices, 4);
     vbo.Nomeia("tela de textura");
+  }
+
+  // Cubo.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_CUBO];
+    vbo = gl::VboCuboSolido(1.0f);
+    vbo.Nomeia("cubo unitario");
+  }
+
+  // Esfera.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_ESFERA];
+    vbo = gl::VboEsferaSolida(0.5f, 24, 12);
+    vbo.Nomeia("Esfera unitaria");
+  }
+
+  // Piramide.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_PIRAMIDE];
+    vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+    vbo.Nomeia("Piramide");
   }
 
   // Gera os Vbos.

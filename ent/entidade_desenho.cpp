@@ -174,6 +174,13 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gl::CilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, num_faces, num_tocos);
+      {
+        gl::MatrizEscopo salva;
+        gl::Escala(-1.0f, 1.0f, -1.0f);
+        DesenhaDisco(0.5f, num_faces);
+      }
+      gl::Translada(0.0f, 0.0f, 1.0f);
+      DesenhaDisco(0.5f, num_faces);
     }
     break;
     case TF_CONE: {
@@ -186,13 +193,13 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Translada(0, 0, proto.escala().z() / 2.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::CuboSolido(1.0f);
+      gl::DesenhaVbo(g_vbos[VBO_CUBO]);
     }
     break;
     case TF_PIRAMIDE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::PiramideSolida(1.0f, 1.0f);
+      gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE]);
     }
     break;
     case TF_RETANGULO: {
@@ -212,7 +219,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       // Usar x como base para achatamento.
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::EsferaSolida(0.5f  /*raio*/,  num_faces, num_tocos);
+      gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
     }
     break;
     case TF_LIVRE: {

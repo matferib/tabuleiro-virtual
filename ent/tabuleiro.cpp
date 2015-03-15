@@ -355,7 +355,7 @@ void Tabuleiro::EstadoInicial() {
   // Modo de acao.
   modo_acao_ = false;
   if (gl_iniciado_) {
-    RegeraVbo();
+    RegeraVboTabuleiro();
   }
 }
 
@@ -1661,7 +1661,7 @@ void Tabuleiro::IniciaGL() {
   if (glGetError() != GL_NO_ERROR) {
     LOG(WARNING) << "Erro no GL_FOG_HINT";
   }
-  RegeraVbo();
+  RegeraVboTabuleiro();
   GeraVboCaixaCeu();
   gl_iniciado_ = true;
 
@@ -1954,7 +1954,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
   gl::GravaVbo(&vbo_caixa_ceu_);
 }
 
-void Tabuleiro::RegeraVbo() {
+void Tabuleiro::RegeraVboTabuleiro() {
   // TODO quando limpar essa flag.
   // TODO limite de tamanho de tabuleiro.
   indices_tabuleiro_.clear();
@@ -3242,7 +3242,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
     proto_.clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
-  RegeraVbo();
+  RegeraVboTabuleiro();
 }
 
 ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
@@ -3298,7 +3298,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   proto_.clear_manter_entidades();  // Os clientes nao devem receber isso.
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
-  RegeraVbo();
+  RegeraVboTabuleiro();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.

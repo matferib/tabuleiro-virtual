@@ -1,7 +1,6 @@
 Versao 1.8.3
-- Deserializacao de entidades proximo a camera.
-- Objetos compostos com transparencia.
 - Formas usando o mesmo VBO escalado de forma diferente.
+- Objetos compostos com transparencia.
 - Versao android.
 - Versao IPAD testar performance.
 - Adicionar alguma propriedade de entidade no ipad.
