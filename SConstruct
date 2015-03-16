@@ -122,6 +122,8 @@ cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cTabuleiroControleVirtual = env.Object('ent/tabuleiro_controle_virtual.cpp')
 cTabuleiroPicking = env.Object('ent/tabuleiro_picking.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
+cEntidadeComposta = env.Object('ent/entidade_composta.cpp')
+cEntidadeForma = env.Object('ent/entidade_forma.cpp')
 cAcoes = env.Object('ent/acoes.cpp')
 cConstantes = env.Object('ent/constantes.cpp')
 cEntUtil = env.Object('ent/util.cpp')
@@ -166,7 +168,7 @@ objetos = [
     cTexturas, cTexturasLode,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking,
-    cEntidade, cAcoes, cConstantes, cEntUtil, cEntDesenho,
+    cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar,
     # arq

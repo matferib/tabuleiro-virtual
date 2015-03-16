@@ -34,9 +34,9 @@ Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* e = new Entidade(texturas, central);
-      e->Inicializa(proto);
-      return e;
+      auto* entidade = new Entidade(texturas, central);
+      entidade->Inicializa(proto);
+      return entidade;
     }
     default:
       std::ostringstream oss;
@@ -118,27 +118,6 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
     proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
   } else {
     proto_atual->clear_info_textura();
-  }
-}
-
-void Entidade::AtualizaTexturasEntidadesCompostasProto(
-    const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
-  // Libera todas.
-  if (novo_proto.sub_forma_size() != proto_atual->sub_forma_size()) {
-    // Libera todos antigos e deixa do mesmo tamanho do novo.
-    EntidadeProto dummy;
-    for (auto& forma_velha : *proto_atual->mutable_sub_forma()) {
-      VLOG(2) << "Liberando textura de sub forma para entidade composta";
-      AtualizaTexturasProto(dummy, &forma_velha, central);
-    }
-    proto_atual->clear_sub_forma();
-    for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
-      proto_atual->add_sub_forma();
-    }
-  }
-  for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
-    VLOG(2) << "Atualizando textura de sub forma para entidade composta";
-    AtualizaTexturasProto(novo_proto.sub_forma(i), proto_atual->mutable_sub_forma(i), central);
   }
 }
 

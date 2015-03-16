@@ -45,7 +45,7 @@ class Entidade {
   void Atualiza();
 
   /** Destroi a entidade. */
-  virtual ~Entidade();
+  ~Entidade();
 
   /** @return o identificador da entidade que deve ser unico globalmente. */
   unsigned int Id() const { return proto_.id(); }
@@ -156,6 +156,10 @@ class Entidade {
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
+ protected:
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, ntf::CentralNotificacoes*);
+  Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central);
+
  private:
   // Nome dos buffers de VBO.
   constexpr static unsigned short NUM_VBOS = 11;
@@ -176,9 +180,6 @@ class Entidade {
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
   };
-
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, ntf::CentralNotificacoes*);
-  Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
