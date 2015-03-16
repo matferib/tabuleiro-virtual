@@ -694,6 +694,7 @@ void DesenhaVbo(const Vbo& vbo, GLenum modo) {
 
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 
 void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo) {

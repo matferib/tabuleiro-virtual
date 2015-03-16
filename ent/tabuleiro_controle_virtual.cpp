@@ -187,7 +187,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float botao_y = fonte_y * 2.5f;
   //const float botao_x = botao_y;  // botoes quadrados. Era: fonte_x * 3.0f;
   const float botao_x = fonte_x * 3.0f;
-  const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 2;
+  const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
   struct DadosBotao {
@@ -234,8 +234,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 1, 9, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
 
     // Setas.
-    { 1, 1, 11, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.2f },
-    { 1, 0, 11, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, 180.0f, 0.0f,  0.2f },
+    { 1, 1, 11, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.1f },
+    { 1, 0, 11, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, 180.0f, 0.0f,  0.1f },
     { 1, 0, 10, "", nullptr, "", CONTROLE_ESQUERDA, RetornaFalse, 3, 90.0f,  0.4f,  0.5f },
     { 1, 0, 12, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, -90.0f, -0.4f, 0.5f },
 
@@ -297,26 +297,17 @@ void Tabuleiro::DesenhaControleVirtual() {
       if (db.num_lados_botao == 4 || parametros_desenho_.has_picking_x()) {
         float trans_x = (db.translacao_x * botao_x);
         float trans_y = (db.translacao_y * botao_y);
-        InfoVerticeTabuleiro vertice_controle_virtual[] = {
-          { xi + padding + trans_x, yi + padding + trans_y, 0.0f, 1.0f },
-          { xf - padding + trans_x, yi + padding + trans_y, 1.0f, 1.0f },
-          { xf - padding + trans_x, yf - padding + trans_y, 1.0f, 0.0f },
-          { xi + padding + trans_x, yf - padding + trans_y, 0.0f, 0.0f },
-        };
-        unsigned short ponteiro_vertices[] = { 0, 1, 2, 3 };
         unsigned int id_textura = db.textura.empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura);
         if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
           gl::Habilita(GL_TEXTURE_2D);
-          gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
           glBindTexture(GL_TEXTURE_2D, id_textura);
-          gl::PonteiroVerticesTexturas(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)&vertice_controle_virtual[0].s0);
         }
-        gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-        gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)vertice_controle_virtual);
-        gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, (void*)ponteiro_vertices);
+        float tam_x = xf - (2.0f * padding) - xi;
+        float tam_y = yf - (2.0f * padding) - yi;
+        gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f);
+        gl::Escala(tam_x, tam_y, 1.0f);
+        gl::Retangulo(1.0f);
         gl::Desabilita(GL_TEXTURE_2D);
-        gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-        gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
       } else {
         gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x * botao_x),
                       ((yi + yf) / 2.0f) + (db.translacao_y * botao_y), 0.0f);

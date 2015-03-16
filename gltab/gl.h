@@ -403,6 +403,7 @@ inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {
   DesenhaVboNaoGravado(VboPiramideSolida(tam_lado, altura));
 }
 
+// Retangulo cercando a origem.
 const Vbo VboRetangulo(GLfloat tam_lado);
 inline void Retangulo(GLfloat tam_lado) {
   DesenhaVboNaoGravado(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);

@@ -1,24 +1,20 @@
 Versao 1.8.3
+- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Objetos compostos com transparencia.
+- Textura em outras formas.
 - Transmissao de texturas do mestre para jogadores.
-- Mais formas usando o mesmo VBO escalado de forma diferente.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Vbos de entidades.
 - Separar Vbo gravado do nao gravado.
-- Passar outras formas para gl (disco, triangulo).
-- Comparar benchmarks com e sem VBO.
 - Credito para atribuicoes.
 - Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
   Problema eh que o controle de voo da entidade eh feito pelo z.
-- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Transicao para coisas opensource e coisas privadas.
 - Mais teclado global.
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
-- Interface de mouse generico para tablets (suporte a multitap).
 - Texturas faltantes.
-- Textura em outras formas.
 
 Versao 1.8.4
 - VBO em entidades.
@@ -34,6 +30,7 @@ Versao 1.8.4
 
 Versao 2.0
 - Shader.
+- Interface de mouse generico para tablets (suporte a multitap).
 - Visao primeira pessoa.
 - Joystick no android.
 - Registro correto dos diretorios para funcionar de qualquer diretorio.
