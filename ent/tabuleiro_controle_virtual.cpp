@@ -74,19 +74,19 @@ bool RetornaFalse() {
 }  // namespace.
 
 void Tabuleiro::CarregaTexturasControleVirtual() {
+  auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
   for (const std::string& textura : g_texturas) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    n->mutable_info_textura()->set_id(textura);
-    central_->AdicionaNotificacao(n);
+    n->add_info_textura()->set_id(textura);
   }
+  central_->AdicionaNotificacao(n);
 }
 
 void Tabuleiro::LiberaTexturasControleVirtual() {
+  auto* n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
   for (const std::string& textura : g_texturas) {
-    auto* n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    n->mutable_info_textura()->set_id(textura);
-    central_->AdicionaNotificacao(n);
+    n->add_info_textura()->set_id(textura);
   }
+  central_->AdicionaNotificacao(n);
 }
 
 void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {

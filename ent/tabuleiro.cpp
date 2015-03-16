@@ -304,7 +304,7 @@ void Tabuleiro::LiberaTextura() {
   if (proto_.has_info_textura()) {
     VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->set_id(proto_.info_textura().id());
+    nl->add_info_textura()->set_id(proto_.info_textura().id());
     central_->AdicionaNotificacao(nl);
   }
 }
@@ -3712,14 +3712,14 @@ bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
   if (velho_tem && velho_proto->id() != novo_proto.id()) {
     VLOG(2) << "Liberando textura: " << velho_proto->id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->CopyFrom(*velho_proto);
+    nl->add_info_textura()->CopyFrom(*velho_proto);
     central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_tem && novo_proto.id() != velho_proto->id()) {
     VLOG(2) << "Carregando textura: " << novo_proto.id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->mutable_info_textura()->CopyFrom(novo_proto);
+    nc->add_info_textura()->CopyFrom(novo_proto);
     central->AdicionaNotificacao(nc);
   }
 

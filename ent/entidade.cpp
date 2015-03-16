@@ -104,14 +104,14 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   if (proto_atual->has_info_textura() && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->set_id(proto_atual->info_textura().id());
+    nl->add_info_textura()->set_id(proto_atual->info_textura().id());
     central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
     VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
+    nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
     central->AdicionaNotificacao(nc);
   }
   if (novo_proto.has_info_textura()) {

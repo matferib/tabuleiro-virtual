@@ -82,10 +82,14 @@ Texturas::~Texturas() {}
 bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_CARREGAR_TEXTURA:
-      CarregaTextura(notificacao.info_textura());
+      for (const auto& info_textura : notificacao.info_textura()) {
+        CarregaTextura(info_textura);
+      }
       return true;
     case ntf::TN_DESCARREGAR_TEXTURA:
-      DescarregaTextura(notificacao.info_textura());
+      for (const auto& info_textura : notificacao.info_textura()) {
+        DescarregaTextura(info_textura);
+      }
       return true;
     default: ;
   }
