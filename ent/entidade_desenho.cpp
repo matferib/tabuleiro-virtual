@@ -157,8 +157,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
-  int num_faces = std::max(4, static_cast<int>((proto.escala().x() + proto.escala().y()) * 2));
-  int num_tocos = std::max(2, static_cast<int>(proto.escala().z() * 2));
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {
@@ -167,26 +165,26 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
-      DesenhaDisco(0.5f, 12);
+      gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
     }
     break;
     case TF_CILINDRO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::CilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, num_faces, num_tocos);
+      gl::DesenhaVbo(g_vbos[VBO_CILINDRO]);
       {
         gl::MatrizEscopo salva;
         gl::Escala(-1.0f, 1.0f, -1.0f);
-        DesenhaDisco(0.5f, num_faces);
+        gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
       }
       gl::Translada(0.0f, 0.0f, 1.0f);
-      DesenhaDisco(0.5f, num_faces);
+      gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
     }
     break;
     case TF_CONE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      gl::ConeSolido(0.5f, 1.0f, num_faces, num_tocos);
+      gl::DesenhaVbo(g_vbos[VBO_CONE]);
     }
     break;
     case TF_CUBO: {
@@ -212,7 +210,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         gl::Habilita(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, id_textura);
       }
-      gl::Retangulo(1.0f);
+      gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
+      gl::Desabilita(GL_TEXTURE_2D);
     }
     break;
     case TF_ESFERA: {

@@ -158,8 +158,8 @@ class Entidade {
 
  private:
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 6;
-  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5;
+  constexpr static unsigned short NUM_VBOS = 11;
+  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10;
   static std::vector<gl::Vbo> g_vbos;
 
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.

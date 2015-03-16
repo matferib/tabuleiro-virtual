@@ -596,6 +596,54 @@ const Vbo VboRetangulo(GLfloat tam_lado) {
   return vbo;
 }
 
+const Vbo VboDisco(GLfloat raio, GLfloat num_faces) {
+  gl::Normal(0.0f, 0.0f, 1.0f);
+  unsigned short num_vertices = num_faces + 2;
+  const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
+  std::vector<float> coordenadas(num_coordenadas);
+  std::vector<float> normais(num_coordenadas);
+  std::vector<unsigned short> indices(num_coordenadas);
+  coordenadas[0] = 0.0f;
+  coordenadas[1] = raio;
+  normais[2] = 1.0f;
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_faces;
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
+  for (int i = 3; i < num_coordenadas; i += 3) {
+    coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia; 
+    coordenadas[i + 1] = coordenadas[i - 3] * sen_fatia + coordenadas[i - 2] * cos_fatia;
+    normais[i + 2] = 1.0f;
+  }
+  for (unsigned int i = 0; i < num_vertices; ++i) {
+    indices[i] = i;
+  }
+  Vbo vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());
+  vbo.AtribuiNormais(normais.data());
+  //vbo.AtribuiTexturas(coordenadas_texel);
+  vbo.AtribuiIndices(indices.data(), indices.size());
+  return vbo;
+}
+
+const Vbo VboTriangulo(GLfloat lado) {
+  unsigned short indices[] = { 0, 1, 2 };
+  GLfloat coordenadas[9] = { 0.0f };
+  coordenadas[0] = 0.0f;
+  coordenadas[1] = 0.86602540378f * lado;
+  coordenadas[3] = -lado / 2.0f;
+  coordenadas[4] = 0.0f;
+  coordenadas[6] = lado / 2.0f;
+  coordenadas[7] = 0.0f;
+  GLfloat normais[9] = { 0.0f };
+  normais[2] = normais[5] = normais[8] = 1.0f;
+  Vbo vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, 9);
+  vbo.AtribuiNormais(normais);
+  //vbo.AtribuiTexturas(coordenadas_texel);
+  vbo.AtribuiIndices(indices, 3);
+  return vbo;
+}
+
 void GravaVbo(Vbo* vbo) {
   // Gera o buffer.
   gl::GeraBuffers(1, &vbo->nome_coordenadas);

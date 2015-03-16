@@ -1,13 +1,9 @@
 Versao 1.8.3
-- Formas usando o mesmo VBO escalado de forma diferente.
 - Objetos compostos com transparencia.
-- Versao android.
-- Versao IPAD testar performance.
-- Adicionar alguma propriedade de entidade no ipad.
-- Mudar a espessura do desenho.
 - Transmissao de texturas do mestre para jogadores.
+- Mais formas usando o mesmo VBO escalado de forma diferente.
+- Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
-- Ao colar, dar um jeito de ficar proximo ao campo de visao ou do quadrado selecionado.
 - Vbos de entidades.
 - Separar Vbo gravado do nao gravado.
 - Passar outras formas para gl (disco, triangulo).

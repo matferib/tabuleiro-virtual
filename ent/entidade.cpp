@@ -740,6 +740,41 @@ void Entidade::IniciaGl() {
     vbo.Nomeia("Piramide");
   }
 
+  // Cilindro.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_CILINDRO];
+    vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
+    vbo.Nomeia("Cilindro");
+  }
+
+  // Disco.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_DISCO];
+    vbo = gl::VboDisco(0.5f  /*raio*/, 12);
+    vbo.Nomeia("Disco");
+  }
+
+  // Retangulo.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_RETANGULO];
+    vbo = gl::VboRetangulo(1.0f);
+    vbo.Nomeia("Retangulo");
+  }
+
+  // Triangulo.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_TRIANGULO];
+    vbo = gl::VboTriangulo(1.0f);
+    vbo.Nomeia("Triangulo");
+  }
+
+  // Cone.
+  {
+    gl::Vbo& vbo = g_vbos[VBO_CONE];
+    vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
+    vbo.Nomeia("Cone");
+  }
+
   // Gera os Vbos.
   for (gl::Vbo& vbo : g_vbos) {
     gl::GravaVbo(&vbo);

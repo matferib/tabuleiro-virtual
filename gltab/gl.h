@@ -408,6 +408,17 @@ inline void Retangulo(GLfloat tam_lado) {
   DesenhaVboNaoGravado(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);
 }
 
+const Vbo VboDisco(GLfloat raio, GLfloat num_faces);
+inline void Disco(GLfloat raio, GLfloat num_faces) {
+  DesenhaVboNaoGravado(VboDisco(raio, num_faces), GL_TRIANGLE_FAN);
+}
+
+// Triangulo equilatero, pico para eixo y.
+const Vbo VboTriangulo(float lado);
+inline void Triangulo(GLfloat lado) {
+  DesenhaVboNaoGravado(VboTriangulo(lado));
+}
+
 /** Raster. */
 #if !USAR_OPENGL_ES
 inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { glRasterPos3f(x, y, z); }

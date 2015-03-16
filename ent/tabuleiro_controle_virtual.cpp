@@ -234,10 +234,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 1, 9, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
 
     // Setas.
-    { 1, 1, 11, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 90.0f,  0.0f, 0.0f },
-    { 1, 0, 11, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, -90.0f, 0.0f, 0.0f },
-    { 1, 0, 10, "", nullptr, "", CONTROLE_ESQUERDA, RetornaFalse, 3, 180.0f, 0.2f, 0.5f },
-    { 1, 0, 12, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, 0.0f,  -0.2f, 0.5f },
+    { 1, 1, 11, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.2f },
+    { 1, 0, 11, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, 180.0f, 0.0f,  0.2f },
+    { 1, 0, 10, "", nullptr, "", CONTROLE_ESQUERDA, RetornaFalse, 3, 90.0f,  0.4f,  0.5f },
+    { 1, 0, 12, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, -90.0f, -0.4f, 0.5f },
 
     // Cameras.
     { 1, 0, 13, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
@@ -321,7 +321,11 @@ void Tabuleiro::DesenhaControleVirtual() {
         gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x * botao_x),
                       ((yi + yf) / 2.0f) + (db.translacao_y * botao_y), 0.0f);
         gl::Roda(db.rotacao_graus, 0.0f, 0.0f, 1.0f);
-        DesenhaDisco((xf - xi) / 2.0f, db.num_lados_botao);
+        if (db.num_lados_botao == 3) {
+          gl::Triangulo(xf - xi);
+        } else {
+          gl::Disco((xf - xi) / 2.0f, db.num_lados_botao);
+        }
       }
     }
   }
