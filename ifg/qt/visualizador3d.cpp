@@ -79,7 +79,8 @@ const QString TamanhoParaTexto(int tamanho) {
 // Carrega os dados de uma textura local pro proto 'info_textura'.
 bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
   try {
-    tex::Texturas::LeDecodificaImagem(false  /*global*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
+    tex::Texturas::LeDecodificaImagem(
+        false  /*global*/, false  /*forcar_bits_crus*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
     return true;
   } catch (...) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();

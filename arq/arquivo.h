@@ -19,6 +19,7 @@ namespace arq {
 
 enum tipo_e {
   TIPO_TEXTURA,
+  TIPO_TEXTURA_BAIXADA,
   TIPO_TEXTURA_LOCAL,
   TIPO_DADOS,
   TIPO_TABULEIRO,
@@ -31,6 +32,7 @@ void Inicializa(JNIEnv* env, jobject assets);
 #endif
 
 // Interface de escrita.
+void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados);
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 

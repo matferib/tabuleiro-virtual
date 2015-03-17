@@ -24,8 +24,8 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo). */
   void Recarrega();
 
-  /** Le e decodifica uma imagem. */
-  static void LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura);
+  /** Le e decodifica uma imagem. Os bits crus so seram preenchidos se nao for global ou se forcar. */
+  static void LeDecodificaImagem(bool global, bool forcar_bits_crus, const std::string& caminho, ent::InfoTextura* info_textura);
 
  private:
   struct InfoTexturaInterna;

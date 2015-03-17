@@ -1,3 +1,8 @@
+#if __APPLE__
+#include "TargetConditionals.h"
+#endif
+
+#include <cstdlib>
 #include <fstream>
 #include <stdexcept>
 #include "arq/arquivo.h"
@@ -11,6 +16,8 @@
 #include <android/log.h>
 #endif
 
+#include "log/log.h"
+
 namespace arq {
 
 namespace {
@@ -19,6 +26,7 @@ namespace {
 const std::string TipoParaDiretorio(tipo_e tipo) {
   switch (tipo) {
     case TIPO_TEXTURA: return "texturas";
+    case TIPO_TEXTURA_BAIXADA: return "texturas_baixadas";
 #if !ANDROID
     // Android nao tem textura local.
     case TIPO_TEXTURA_LOCAL: return "texturas_locais";
@@ -32,11 +40,29 @@ const std::string TipoParaDiretorio(tipo_e tipo) {
   }
 }
 
+// Diretorio de dados de aplicacao do usuario, incluindo / terminal se houver.
+const std::string DiretorioAppsUsuario() {
+  // TODO.
+#if __APPLE__ && TARGET_OS_MAC
+  std::string home(getenv("HOME"));
+  if (home.empty()) {
+    return "";
+  }
+  return home + "/Library/Application Support/TabVirt/";
+#else
+  return "";
+#endif
+}
 
 // Retorna o caminho para um tipo de arquivo.
 const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
-  std::string diretorio(TipoParaDiretorio(tipo));
-  return diretorio + "/" + arquivo;
+  std::string diretorio;
+  // TODO fazer isso com tabuleiros salvos e entidades salvas.
+  if ((tipo == TIPO_TEXTURA_BAIXADA) ||
+      (tipo == TIPO_TEXTURA_LOCAL)) {
+    diretorio.assign(DiretorioAppsUsuario());
+  }
+  return diretorio + TipoParaDiretorio(tipo) + "/" + arquivo;
 }
 
 }  // namespace
@@ -52,6 +78,10 @@ void Inicializa(JNIEnv* env, jobject assets) {
 }
 
 // Escrita.
+void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {
+  throw std::logic_error(std::string("Não implementado"));
+}
+
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
   throw std::logic_error(std::string("Não implementado"));
 }
@@ -106,6 +136,13 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
 #else
 
 // Escrita.
+void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {
+  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
+  std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
+  arquivo.write(dados.data(), dados.size());
+  arquivo.close();
+}
+
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
   std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
   std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
@@ -126,6 +163,7 @@ void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const 
 // Leitura.
 void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
   std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
+  LOG(INFO) << "Lendo: " << caminho_arquivo;
   std::ifstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
   dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
 }

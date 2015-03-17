@@ -16,6 +16,7 @@
 #include "ent/watchdog.h"
 #endif
 #include "ntf/notificacao.h"
+#include "tex/texturas.h"
 
 namespace ntf {
 class Notificacao;
@@ -61,7 +62,7 @@ typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(const Texturas* texturas, ntf::CentralNotificacoes* central);
+  explicit Tabuleiro(tex::Texturas* texturas, ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -661,7 +662,8 @@ class Tabuleiro : public ntf::Receptor {
   MapaIdAcao mapa_acoes_;
   std::vector<std::string> id_acoes_;
 
-  const Texturas* texturas_;
+  tex::Texturas* texturas_;
+
 #if USAR_WATCHDOG
   Watchdog watchdog_;
 #endif
