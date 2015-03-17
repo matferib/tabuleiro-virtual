@@ -74,6 +74,7 @@ struct Texturas::InfoTexturaInterna {
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
   central_ = central;
   central_->RegistraReceptor(this);
+  //central_->RegistraReceptorRemoto(this);
 }
 
 Texturas::~Texturas() {}
@@ -81,16 +82,45 @@ Texturas::~Texturas() {}
 // Interface de ent::Texturas.
 bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
-    case ntf::TN_CARREGAR_TEXTURA:
+    case ntf::TN_CARREGAR_TEXTURA: {
       for (const auto& info_textura : notificacao.info_textura()) {
         CarregaTextura(info_textura);
       }
       return true;
-    case ntf::TN_DESCARREGAR_TEXTURA:
+    }
+    case ntf::TN_DESCARREGAR_TEXTURA: {
       for (const auto& info_textura : notificacao.info_textura()) {
         DescarregaTextura(info_textura);
       }
       return true;
+    }
+    case ntf::TN_REQUISITAR_ID_TEXTURAS: {
+      return false;
+#if 0
+      // Nao funciona pq texturas_ sao apenas as carregadas. Tem que iterar nos arquivos.
+      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS);
+      for (const auto& id_tex : texturas_) {
+        n->add_info_textura()->set_id(id_tex.first);
+      }
+      central_->AdicionaNotificacaoRemota(n);
+      return true;
+#endif
+    }
+    case ntf::TN_ENVIAR_ID_TEXTURAS: {
+      return false;
+#if 0
+      // Envia as texturas faltantes para o cliente.
+      std::unordered_set<std::string> texturas_cliente;
+      for (const auto& info : notificacao.info_textura()) {
+        texturas_cliente.insert(info.id());
+      }
+      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TEXTURAS);
+      for (const auto& id_tex : texturas_) {
+      }
+      central_->AdicionaNotificacaoRemota(n);
+      return true;
+#endif
+    }
     default: ;
   }
   return false;

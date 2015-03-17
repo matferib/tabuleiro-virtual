@@ -6,6 +6,7 @@
 
 namespace net {
 
+// Protocolo de conexao no servidor.
 class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
   // Nao possui os parametros.

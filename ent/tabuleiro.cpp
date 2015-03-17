@@ -861,6 +861,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           auto* ni = ntf::NovaNotificacao(ntf::TN_INFO);
           ni->set_erro(std::string("Conectado ao servidor"));
           central_->AdicionaNotificacao(ni);
+          // Requisita texturas do servidor. Texturas vai preencher isso e enviar.
+          //central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REQUISITAR_ID_TEXTURAS));
         } else {
           AlterarModoMestre(true);  // volta modo mestre.
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
