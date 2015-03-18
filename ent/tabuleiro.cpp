@@ -862,9 +862,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           ni->set_erro(std::string("Conectado ao servidor"));
           central_->AdicionaNotificacao(ni);
           // texturas cuidara disso.
-#if 0
+#if 1
           // Aqui comeca o fluxo de envio de texturas de servidor para cliente. Nessa primeira mensagem
           // o cliente envia seus ids para o servidor.
+          LOG(INFO) << "Enviando TN_ENVIAR_ID_TEXTURAS local";
           central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS));
 #endif
         } else {
@@ -875,25 +876,6 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         }
       }
       return true;
-    }
-    case ntf::TN_ENVIAR_ID_TEXTURAS: {
-      if (notificacao.local()) {
-        // Aqui so recebe a remota.
-        return false;
-      }
-      // Envia para texturas cuidar disso.
-      auto* n = new ntf::Notificacao(notificacao);
-      n->set_tipo(ntf::TN_ENVIAR_TEXTURAS);
-      central_->AdicionaNotificacao(n);
-    }
-    case ntf::TN_ENVIAR_TEXTURAS: {
-      if (notificacao.local()) {
-        // Aqui so recebe remota.
-        return false;
-      }
-      // Repassa para as texturas.
-      texturas_->TrataNotificacao(notificacao);
-      break;
     }
     case ntf::TN_ADICIONAR_ENTIDADE:
       AdicionaEntidadeNotificando(notificacao);

@@ -97,60 +97,82 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ENVIAR_ID_TEXTURAS: {
-      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS);
-      // TODO Percorre arquivos globais.
-      for (const std::string& id : { "goblin.png" } ) {
+      // Primeira notificacao eh local;
+      if (!notificacao.local()) {
+        return false;
+      }
+      // Notificacao local: envia os ids de texturas locais para o servidor.
+      auto* n = ntf::NovaNotificacao(ntf::TN_REQUISITAR_TEXTURAS);
+      // Percorre arquivos globais.
+      std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
+      for (const std::string& id : globais ) {
+        if (id.size() < 4 || id.find(".png") == std::string::npos) {
+          continue;
+        }
         n->add_info_textura()->set_id(id);
       }
-      // TODO Percorre arquivos baixados.
-      for (const std::string& id : { "orc.png" } ) {
+      // Percorre arquivos baixados.
+      std::vector<std::string> baixadas(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA));
+      for (const std::string& id : baixadas) {
         n->add_info_textura()->set_id(id);
       }
       // Envia para o servidor.
+      LOG(INFO) << "Enviando remoto TN_REQUISITAR_TEXTURAS: " << n->DebugString();
+      central_->AdicionaNotificacaoRemota(n);
+      return true;
+    }
+    case ntf::TN_REQUISITAR_TEXTURAS: {
+      // Servidor recebendo de cliente.
+      if (notificacao.local()) {
+        return false;
+      }
+      LOG(INFO) << "Recebendo de cliente TN_REQUISITAR_TEXTURAS: " << notificacao.DebugString();
+      std::unordered_set<std::string> ids;
+      // Percorre arquivos globais.
+      std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
+      ids.insert(globais.begin(), globais.end());
+      // Percorre arquivos baixados.
+      std::vector<std::string> baixadas(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA));
+      ids.insert(baixadas.begin(), baixadas.end());
+      std::set<std::string> ids_cliente;
+      std::vector<std::string> ids_faltantes;
+      for (const auto& info : notificacao.info_textura()) {
+        ids_cliente.insert(info.id());
+      }
+      for (const auto& id : ids) {
+        if (id.size() < 4 || id.find(".png") == std::string::npos) {
+          continue;
+        }
+        if (ids_cliente.find(id) == ids_cliente.end()) {
+          LOG(INFO) << "Faltando textura para cliente: " << id;
+          ids_faltantes.push_back(id);
+        }
+      }
+      if (ids_faltantes.empty()) {
+        LOG(INFO) << "Cliente tem todas as texuras.";
+        return true;
+      }
+      // Compara os arquivos recebidos com os baixados.
+      // Envia para o servidor.
+      auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TEXTURAS);
+      for (const auto& id : ids_faltantes) {
+        auto* info = n->add_info_textura();
+        LeDecodificaImagem(true  /*global*/, true  /*forcar_bits_crus*/, id, info);
+        info->set_id(id);
+      }
+      LOG(INFO) << "Enviando texturas faltantes a cliente.";
       central_->AdicionaNotificacaoRemota(n);
       return true;
     }
     case ntf::TN_ENVIAR_TEXTURAS: {
+      // Cliente recebdo texturas de servidor.
       if (notificacao.local()) {
-        // Local: servidor recebendo de cliente.
-        std::unordered_set<std::string> ids;
-        // TODO Percorre arquivos globais.
-        for (const std::string& id : { "goblin.png" } ) {
-          ids.insert(id);
-        }
-        // TODO Percorre arquivos baixados.
-        for (const std::string& id : { "orc.png" } ) {
-          ids.insert(id);
-        }
-        std::vector<std::string> ids_faltantes;
-        for (const auto& info : notificacao.info_textura()) {
-          if (ids.find(info.id()) != ids.end()) {
-            // Encontrou o id no cliente.
-            continue;
-          }
-          ids_faltantes.push_back(info.id());
-        }
-        if (ids_faltantes.empty()) {
-          VLOG(1) << "Cliente tem todas as texuras.";
-          return true;
-        }
-        VLOG(1) << "Enviando texturas faltantes a cliente.";
-        // Compara os arquivos recebidos com os baixados.
-        // Envia para o servidor.
-        auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TEXTURAS);
-        for (const auto& id : ids_faltantes) {
-          auto* info = n->add_info_textura();
-          LeDecodificaImagem(true  /*global*/, true  /*forcar_bits_crus*/, id, info);
-          info->set_id(id);
-        }
-        central_->AdicionaNotificacaoRemota(n);
-        return true;
-      } else {
-        // Remota: cliente recebendo de servidor.
-        for (const auto& info : notificacao.info_textura()) {
-          // TODO salva bits crus em texturas_baixadas com id da textura.
-          arq::EscreveArquivo(arq::TIPO_TEXTURA_BAIXADA, info.id(), info.bits_crus());
-        }
+        return false;
+      }
+      LOG(INFO) << "Recebendo TN_ENVIAR_TEXTURAS do servidor";
+      for (const auto& info : notificacao.info_textura()) {
+        // Salva bits crus em texturas_baixadas com id da textura.
+        arq::EscreveArquivo(arq::TIPO_TEXTURA_BAIXADA, info.id(), info.bits_crus());
       }
     }
     default: ;

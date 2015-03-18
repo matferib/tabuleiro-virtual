@@ -34,6 +34,9 @@ void Inicializa(JNIEnv* env, jobject assets);
 void Inicializa();
 #endif
 
+// Retorna conteudo de um diretorio.
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo);
+
 // Interface de escrita.
 void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados);
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);

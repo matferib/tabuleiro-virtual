@@ -62,15 +62,20 @@ const std::string DiretorioAppsUsuario() {
 #endif
 }
 
-// Retorna o caminho para um tipo de arquivo.
-const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
+// Retorna o diretorio do tipo passado, sem a "/" final.
+const std::string Diretorio(tipo_e tipo) {
   std::string diretorio;
   // TODO fazer isso com tabuleiros salvos e entidades salvas.
   if ((tipo == TIPO_TEXTURA_BAIXADA) ||
       (tipo == TIPO_TEXTURA_LOCAL)) {
     diretorio.assign(DiretorioAppsUsuario());
   }
-  return diretorio + TipoParaDiretorio(tipo) + "/" + arquivo;
+  return diretorio + TipoParaDiretorio(tipo);
+}
+
+// Retorna o caminho para um tipo de arquivo.
+const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
+  return Diretorio(tipo) + "/" + arquivo;
 }
 
 }  // namespace
@@ -157,6 +162,14 @@ void Inicializa() {
   }
 }
 
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
+  std::vector<std::string> ret;
+  for (boost::filesystem::directory_iterator it(Diretorio(tipo)); it != boost::filesystem::directory_iterator(); ++it) {
+    ret.push_back(it->path().filename().string());
+  }
+  return ret;
+}
+
 // Escrita.
 void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {
   std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
@@ -185,7 +198,7 @@ void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const 
 // Leitura.
 void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
   std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  LOG(INFO) << "Lendo: " << caminho_arquivo;
+  //LOG(INFO) << "Lendo: " << caminho_arquivo;
   std::ifstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
   dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
 }
