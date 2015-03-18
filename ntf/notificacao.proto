@@ -56,8 +56,9 @@ message Notificacao {
   optional bool clientes_pendentes = 2 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
-  // Identificacao propria do cliente no formato de string.
-  optional string id = 15;
+  // Identificacao propria do cliente no formato de string. Mensagens enviadas do servidor com este campo atribuido 
+  // serao enviadas apenas para o cliente especificado.
+  optional string id_rede = 15;
   // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
   // Muitas vezes usada para evitar repeticao de mensagens (cliente recebe e repassa ao servidor
   // que processa e repassa ao cliente infinitamente). Quando usada assim, a ausencia de endereco

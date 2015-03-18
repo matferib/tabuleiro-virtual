@@ -1,9 +1,9 @@
 Versao 1.9.0
 
+- Implementar a interface de escrita e iteracao de arquivos para ipad e android.
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Objetos compostos com transparencia.
 - Textura em outras formas.
-- Transmissao de texturas do mestre para jogadores.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Vbos de entidades.

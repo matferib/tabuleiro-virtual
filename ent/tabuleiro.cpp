@@ -824,12 +824,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (ModoMestre()) {
         // cliente desconectado.
         for (auto it : clientes_) {
-          if (it.second == notificacao.id()) {
+          if (it.second == notificacao.id_rede()) {
             clientes_.erase(it.first);
             return true;
           }
         }
-        LOG(ERROR) << "Nao encontrei cliente desconectado: '" << notificacao.id() << "'";
+        LOG(ERROR) << "Nao encontrei cliente desconectado: '" << notificacao.id_rede() << "'";
         return true;
       } else {
         if (notificacao.has_erro()) {
@@ -862,12 +862,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           ni->set_erro(std::string("Conectado ao servidor"));
           central_->AdicionaNotificacao(ni);
           // texturas cuidara disso.
-#if 1
           // Aqui comeca o fluxo de envio de texturas de servidor para cliente. Nessa primeira mensagem
           // o cliente envia seus ids para o servidor.
-          LOG(INFO) << "Enviando TN_ENVIAR_ID_TEXTURAS local";
-          central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS));
-#endif
+          auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS);
+          nit->set_id_rede(notificacao.id_rede());
+          VLOG(1) << "Enviando TN_ENVIAR_ID_TEXTURAS: " << nit->DebugString();
+          central_->AdicionaNotificacao(nit);
         } else {
           AlterarModoMestre(true);  // volta modo mestre.
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -949,9 +949,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         if (notificacao.clientes_pendentes()) {
           try {
             // Estamos enviando para um novo cliente.
-            nt_tabuleiro->set_id(notificacao.id());
+            nt_tabuleiro->set_id_rede(notificacao.id_rede());
             int id_tab = GeraIdTabuleiro();
-            clientes_.insert(std::make_pair(id_tab, notificacao.id()));
+            clientes_.insert(std::make_pair(id_tab, notificacao.id_rede()));
             nt_tabuleiro->mutable_tabuleiro()->set_id_cliente(id_tab);
           } catch (const std::logic_error& e) {
             auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -959,7 +959,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
             // Envia para os clientes pendentes tb.
             auto* copia_ne = new ntf::Notificacao(*ne);
             copia_ne->set_clientes_pendentes(true);
-            copia_ne->set_id(notificacao.id());
+            copia_ne->set_id_rede(notificacao.id_rede());
             central_->AdicionaNotificacao(ne);
             central_->AdicionaNotificacaoRemota(copia_ne);
             return true;

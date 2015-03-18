@@ -53,12 +53,12 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
     // Envia o tabuleiro para o cliente correto.
     Cliente* cliente_pendente = nullptr;
     for (auto* c : clientes_pendentes_) {
-      if (c->id == notificacao.id()) {
+      if (c->id == notificacao.id_rede()) {
         cliente_pendente = c;
       }
     }
     if (cliente_pendente == nullptr) {
-      LOG(ERROR) << "Nao encontrei cliente pendente: '" << notificacao.id() << "'";
+      LOG(ERROR) << "Nao encontrei cliente pendente: '" << notificacao.id_rede() << "'";
       return true;
     }
     if (notificacao.tipo() == ntf::TN_ERRO) {
@@ -71,6 +71,10 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
     clientes_.insert(cliente_pendente);
   } else {
     for (auto* c : clientes_) {
+      if (notificacao.has_id_rede() && c->id != notificacao.id_rede()) {
+        VLOG(1) << "Dropando notificacao pq id cliente diferente: " << notificacao.id_rede() << " x " << c->id;
+        continue;
+      }
       VLOG(1) << "Enviando notificacao para cliente";
       EnviaDadosCliente(c->socket.get(), ns);
     }
@@ -158,7 +162,7 @@ void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const st
 void Servidor::DesconectaCliente(Cliente* cliente) {
   // Notifica interessados na desconexao.
   std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESCONECTADO));
-  n->set_id(cliente->id);
+  n->set_id_rede(cliente->id);
   central_->AdicionaNotificacao(n.release());
 
   // Apaga o cliente.
@@ -245,21 +249,21 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           if (notificacao->tipo() == ntf::TN_RESPOSTA_CONEXAO) {
             bool ja_existe = false;
             for (const auto& c : clientes_pendentes_) {
-              if (c->id == notificacao->id()) {
+              if (c->id == notificacao->id_rede()) {
                 ja_existe = true;
               }
             }
             if (ja_existe) {
               DesconectaCliente(cliente);
               auto* erro = ntf::NovaNotificacao(ntf::TN_ERRO);
-              erro->set_erro(std::string("Id de cliente repetido: '") + notificacao->id() + "'");
+              erro->set_erro(std::string("Id de cliente repetido: '") + notificacao->id_rede() + "'");
               central_->AdicionaNotificacao(erro);
               return;
             }
-            cliente->id = notificacao->id();
+            cliente->id = notificacao->id_rede();
             auto* resposta = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
             resposta->set_clientes_pendentes(true);
-            resposta->set_id(cliente->id);
+            resposta->set_id_rede(cliente->id);
             central_->AdicionaNotificacao(resposta);
           }
           // Envia a notificacao para os outros clientes.

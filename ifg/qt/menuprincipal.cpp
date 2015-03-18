@@ -303,7 +303,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
       notificacao = new ntf::Notificacao;
       notificacao->set_tipo(ntf::TN_CONECTAR);
-      notificacao->set_id(nome_le->text().toStdString());
+      notificacao->set_id_rede(nome_le->text().toStdString());
       notificacao->set_endereco(ip_le->text().toStdString());
       qd->accept();
     });

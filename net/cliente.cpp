@@ -45,9 +45,9 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     return true;
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
     if (notificacao.endereco().empty()) {
-      AutoConecta(notificacao.id());
+      AutoConecta(notificacao.id_rede());
     } else {
-      Conecta(notificacao.id(), notificacao.endereco());
+      Conecta(notificacao.id_rede(), notificacao.endereco());
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_DESCONECTAR) {
@@ -147,7 +147,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     // Handler de leitura.
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
-    notificacao->set_id(id);
+    notificacao->set_id_rede(id);
     central_->AdicionaNotificacao(notificacao);
     central_->RegistraReceptorRemoto(this);
     auto* copia = new ntf::Notificacao(*notificacao);

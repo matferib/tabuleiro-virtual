@@ -116,8 +116,9 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       for (const std::string& id : baixadas) {
         n->add_info_textura()->set_id(id);
       }
+      n->set_id_rede(notificacao.id_rede());
       // Envia para o servidor.
-      LOG(INFO) << "Enviando remoto TN_REQUISITAR_TEXTURAS: " << n->DebugString();
+      VLOG(1) << "Enviando remoto TN_REQUISITAR_TEXTURAS: " << n->DebugString();
       central_->AdicionaNotificacaoRemota(n);
       return true;
     }
@@ -126,7 +127,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.local()) {
         return false;
       }
-      LOG(INFO) << "Recebendo de cliente TN_REQUISITAR_TEXTURAS: " << notificacao.DebugString();
+      VLOG(1) << "Recebendo de cliente TN_REQUISITAR_TEXTURAS: " << notificacao.DebugString();
       std::unordered_set<std::string> ids;
       // Percorre arquivos globais.
       std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
@@ -144,12 +145,12 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
           continue;
         }
         if (ids_cliente.find(id) == ids_cliente.end()) {
-          LOG(INFO) << "Faltando textura para cliente: " << id;
+          VLOG(1) << "Faltando textura para cliente: " << id;
           ids_faltantes.push_back(id);
         }
       }
       if (ids_faltantes.empty()) {
-        LOG(INFO) << "Cliente tem todas as texuras.";
+        VLOG(1) << "Cliente tem todas as texuras.";
         return true;
       }
       // Compara os arquivos recebidos com os baixados.
@@ -160,7 +161,8 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
         LeDecodificaImagem(true  /*global*/, true  /*forcar_bits_crus*/, id, info);
         info->set_id(id);
       }
-      LOG(INFO) << "Enviando texturas faltantes a cliente.";
+      n->set_id_rede(notificacao.id_rede());
+      VLOG(1) << "Enviando texturas faltantes a cliente.";
       central_->AdicionaNotificacaoRemota(n);
       return true;
     }
@@ -169,7 +171,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.local()) {
         return false;
       }
-      LOG(INFO) << "Recebendo TN_ENVIAR_TEXTURAS do servidor";
+      VLOG(1) << "Recebendo TN_ENVIAR_TEXTURAS do servidor";
       for (const auto& info : notificacao.info_textura()) {
         // Salva bits crus em texturas_baixadas com id da textura.
         arq::EscreveArquivo(arq::TIPO_TEXTURA_BAIXADA, info.id(), info.bits_crus());
