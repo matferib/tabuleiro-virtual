@@ -2,13 +2,15 @@
 #include "TargetConditionals.h"
 #endif
 
+#include <boost/filesystem.hpp>
 #include <cstdlib>
 #include <fstream>
 #include <stdexcept>
-#include "arq/arquivo.h"
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/text_format.h>
+#include <stdexcept>
+#include "arq/arquivo.h"
 
 #if ANDROID
 #include <cstring>
@@ -48,7 +50,13 @@ const std::string DiretorioAppsUsuario() {
   if (home.empty()) {
     return "";
   }
-  return home + "/Library/Application Support/TabVirt/";
+  return home + "/Library/Application Support/TabuleiroVirtual/";
+#elif WIN32
+  std::string appdata(getenv("localappdata"));
+  if (appdata.empty()) {
+    return "";
+  }
+  return appdata + "/TabuleiroVirtual/";
 #else
   return "";
 #endif
@@ -134,6 +142,16 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
 }
 
 #else
+
+void Inicializa() {
+  // TODO cria os diretorios locais.
+  std::string dir_apps_usuario(DiretorioAppsUsuario());
+  try {
+    boost::filesystem::create_directory(dir_apps_usuario);
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Falha ao criar diretorio de usuario: " << e.what();
+  }
+}
 
 // Escrita.
 void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {

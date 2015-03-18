@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include <boost/asio.hpp>
+#include "arq/arquivo.h"
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "net/cliente.h"
@@ -19,6 +20,7 @@ using namespace std;
 int main(int argc, char** argv) {
   meulog::Inicializa(&argc, &argv);
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
+  arq::Inicializa();
   boost::asio::io_service servico_io;
   ntf::CentralNotificacoes central;
   net::Servidor servidor(&servico_io, &central);

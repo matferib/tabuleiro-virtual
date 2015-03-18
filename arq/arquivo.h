@@ -27,8 +27,11 @@ enum tipo_e {
   TIPO_SHADER,
 };
 
+// Cria os diretorios locais.
 #if ANDROID
 void Inicializa(JNIEnv* env, jobject assets);
+#else
+void Inicializa();
 #endif
 
 // Interface de escrita.

@@ -21,6 +21,7 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 [Dirs]
 Name: {app}\texturas_locais
 Name: {app}\tabuleiros_salvos
+Name: {localappdata}\TabuleiroVirtual
 
 [Files]
 Source: ..\tabvirt.exe; Destdir: {app};
