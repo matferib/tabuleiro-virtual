@@ -148,6 +148,10 @@ void Inicializa() {
   std::string dir_apps_usuario(DiretorioAppsUsuario());
   try {
     boost::filesystem::create_directory(dir_apps_usuario);
+    boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_BAIXADA));
+    boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_LOCAL));
+    boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TABULEIRO));
+    boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_ENTIDADES));
   } catch (const std::exception& e) {
     LOG(ERROR) << "Falha ao criar diretorio de usuario: " << e.what();
   }
