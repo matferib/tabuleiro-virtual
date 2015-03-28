@@ -27,7 +27,7 @@ ${ANDROID_NDK}/ndk-build V=1 NEXUS7=1
 
 -- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
 export ANTROOT=/Users/mribeiro/Downloads/apache-ant-1.9.4
-$ANTROOT/bin/ant debug
+${ANTROOT}/bin/ant debug
 
 -- Instalacao:
 Colocar o dispositivo em USB debug mode.
@@ -54,7 +54,7 @@ export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
 export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
 export CFLAGS="-fPIC -DANDROID -nostdlib"
-export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-3/arch-arm/usr/lib/"
+export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/"
 export CPPFLAGS="-I$ANDROID_NDK/platforms/android-19/arch-arm/usr/include/"
 export LIBS="-lc "
 ./configure --host=arm-*-eabi
