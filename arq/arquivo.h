@@ -1,4 +1,5 @@
 #include <string>
+#include <vector>
 
 #if ANDROID
 #include <android/asset_manager_jni.h>
@@ -29,7 +30,7 @@ enum tipo_e {
 
 // Cria os diretorios locais.
 #if ANDROID
-void Inicializa(JNIEnv* env, jobject assets);
+void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados);
 #else
 void Inicializa();
 #endif

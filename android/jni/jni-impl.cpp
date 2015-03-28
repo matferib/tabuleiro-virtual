@@ -98,6 +98,14 @@ const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
   return ntf_tabuleiro;
 }
 
+// Converte string java para C++. A jstr nao eh const por causa da alocacao de objetos.
+const std::string ConverteString(JNIEnv* env, jstring jstr) {
+  const char* cstr = env->GetStringUTFChars(jstr, 0);
+  std::string cppstr(cstr);
+  env->ReleaseStringUTFChars(jstr, cstr);
+  return cppstr;
+}
+
 // Contexto nativo.
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<tex::Texturas> g_texturas;
@@ -113,7 +121,7 @@ extern "C" {
 
 // Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
-    JNIEnv* env, jobject thisz, jstring nome, jstring endereco, jobject assets) {
+    JNIEnv* env, jobject thisz, jstring nome, jstring endereco, jobject assets, jstring dir_dados) {
   std::string nome_nativo;
   {
     const char* nome_nativo_c = env->GetStringUTFChars(nome, 0);
@@ -128,7 +136,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
 
   __android_log_print(
       ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: '%s'", nome_nativo.c_str(), endereco_nativo.c_str());
-  arq::Inicializa(env, assets);
+  arq::Inicializa(env, assets, ConverteString(env, dir_dados));
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
@@ -155,7 +163,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     g_receptor->TrataNotificacao(ninfo);
   }*/
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_id(nome_nativo);
+  n->set_id_rede(nome_nativo);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }

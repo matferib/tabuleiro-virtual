@@ -45,7 +45,8 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
-        getResources().getAssets());
+        getResources().getAssets(),
+        (android.content.Context)this);
     view_.requestFocus();
   }
 
@@ -122,7 +123,7 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
   static {
     System.loadLibrary("tabuleiro");
   }
-  private native void nativeCreate(String nome, String endereco, Object assets);
+  private native void nativeCreate(String nome, String endereco, Object assets, String dir);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;
