@@ -864,10 +864,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           // texturas cuidara disso.
           // Aqui comeca o fluxo de envio de texturas de servidor para cliente. Nessa primeira mensagem
           // o cliente envia seus ids para o servidor.
-          auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS);
-          nit->set_id_rede(notificacao.id_rede());
-          VLOG(1) << "Enviando TN_ENVIAR_ID_TEXTURAS: " << nit->DebugString();
-          central_->AdicionaNotificacao(nit);
+          //auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS);
+          //nit->set_id_rede(notificacao.id_rede());
+          //VLOG(1) << "Enviando TN_ENVIAR_ID_TEXTURAS: " << nit->DebugString();
+          //central_->AdicionaNotificacao(nit);
         } else {
           AlterarModoMestre(true);  // volta modo mestre.
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -3815,6 +3815,11 @@ void Tabuleiro::DesenhaLuzes() {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+  GLuint id_textura = texturas_->Textura(proto_.info_textura_ceu().id());
+  if (id_textura == GL_INVALID_VALUE) {
+    // Se a textura for invalida, sai aqui e evita um monte de coisas (e bugs tb).
+    return;
+  }
   // Desliga luzes pontuais.
   //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
@@ -3825,10 +3830,6 @@ void Tabuleiro::DesenhaCaixaCeu() {
   MudaCor(COR_BRANCA);
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::FaceNula(GL_FRONT);
-  GLuint id_textura = texturas_->Textura(proto_.info_textura_ceu().id());
-  if (id_textura == GL_INVALID_VALUE) {
-    return;
-  }
   gl::Habilita(GL_TEXTURE_2D);
   gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
   glBindTexture(GL_TEXTURE_2D, id_textura);
