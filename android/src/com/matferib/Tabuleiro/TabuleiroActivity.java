@@ -46,7 +46,7 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
         getResources().getAssets(),
-        (android.content.Context)this);
+        ((android.content.Context)this).getFilesDir().getAbsolutePath());
     view_.requestFocus();
   }
 
