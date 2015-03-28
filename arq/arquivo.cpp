@@ -71,6 +71,7 @@ void CriaDiretoriosUsuario() {
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_LOCAL));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TABULEIRO));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_ENTIDADES));
+    LOG(INFO) << "Diretorios de usuario criados em " << dir_apps_usuario;
   } catch (const std::exception& e) {
     LOG(ERROR) << "Falha ao criar diretorio de usuario: " << e.what();
   }
@@ -164,6 +165,35 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
   }
 }
 
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
+  std::vector<std::string> ret;
+  if (EhAsset(tipo)) {
+    std::string caminho_asset(Diretorio(tipo));
+    AAssetDir* asset_dir = nullptr;
+    try {
+      asset_dir = AAssetManager_openDir(g_aman, caminho_asset.c_str());
+      if (asset_dir == nullptr) {
+        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset dir: %s", caminho_asset.c_str());
+        throw 1;
+      }
+      for (const char* nome = AAssetDir_getNextFileName(asset_dir);
+           nome != nullptr;
+           nome = AAssetDir_getNextFileName(asset_dir)) {
+        ret.push_back(nome);
+      }
+    } catch (...) {
+    }
+    if (asset_dir != nullptr) {
+      AAssetDir_close(asset_dir);
+    }
+  } else {
+    for (boost::filesystem::directory_iterator it(Diretorio(tipo)); it != boost::filesystem::directory_iterator(); ++it) {
+      ret.push_back(it->path().filename().string());
+    }
+  }
+  return ret;
+}
+
 #else
 
 void Inicializa() {
@@ -220,8 +250,6 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
   }
 }
 
-#endif
-
 const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
   std::vector<std::string> ret;
   for (boost::filesystem::directory_iterator it(Diretorio(tipo)); it != boost::filesystem::directory_iterator(); ++it) {
@@ -229,6 +257,8 @@ const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
   }
   return ret;
 }
+
+#endif
 
 namespace {
 const std::string DiretorioAppsUsuario() {
@@ -246,7 +276,7 @@ const std::string DiretorioAppsUsuario() {
   }
   return appdata + "/TabuleiroVirtual/";
 #elif ANDROID
-  return g_dir_dados;
+  return g_dir_dados + "/";
 #else
   return "";
 #endif
