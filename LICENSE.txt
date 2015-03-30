@@ -1,0 +1,3 @@
+This code is open sourced and free for sharing. The only thing I do not allow is commercial use of this work. Otherwise you are free to copy it, compile, package etc, except selling it.
+
+And please, if you use it or part of it, attribution is really appreciated.
