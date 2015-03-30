@@ -65,6 +65,7 @@ std::unique_ptr<TratadorDialogos> g_tratador_dialogos;
 }  // namespace native
 
 void nativeCreate(void* view) {
+  arq::Inicializa();
   g_view = (__bridge GameViewController*)view;
   std::string nome_nativo([g_view->id_cliente_ UTF8String]);
   std::string endereco_nativo([g_view->endereco_servidor_ UTF8String]);
@@ -86,7 +87,7 @@ void nativeCreate(void* view) {
   g_texturas->Recarrega();
   
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_id(nome_nativo);
+  n->set_id_rede(nome_nativo);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }

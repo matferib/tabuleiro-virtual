@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		EA06FA2E1A5B858B008ABF75 /* tabuleiros_salvos in Resources */ = {isa = PBXBuildFile; fileRef = EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */; };
+		EA31EFDF1AC9D5A70067BA40 /* entidade_composta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */; };
+		EA31EFE01AC9D5A70067BA40 /* entidade_forma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */; };
+		EA31EFE11AC9D5A70067BA40 /* tabuleiro_picking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */; };
 		EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253D91A6A2B43007EF810 /* gl_es.cpp */; };
 		EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */; };
 		EA9253DE1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */; };
@@ -92,6 +95,9 @@
 
 /* Begin PBXFileReference section */
 		EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tabuleiros_salvos; sourceTree = "<group>"; };
+		EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entidade_composta.cpp; path = ../../../../ent/entidade_composta.cpp; sourceTree = "<group>"; };
+		EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entidade_forma.cpp; path = ../../../../ent/entidade_forma.cpp; sourceTree = "<group>"; };
+		EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_picking.cpp; path = ../../../../ent/tabuleiro_picking.cpp; sourceTree = "<group>"; };
 		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
 		EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_comum.cpp; path = ../../../../gltab/gl_comum.cpp; sourceTree = "<group>"; };
 		EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_controle_virtual.cpp; path = ../../../../ent/tabuleiro_controle_virtual.cpp; sourceTree = "<group>"; };
@@ -353,6 +359,9 @@
 		EACF26EC1A58D95D0052E95A /* ent */ = {
 			isa = PBXGroup;
 			children = (
+				EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */,
+				EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */,
+				EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */,
 				EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */,
 				EACF26ED1A58D95D0052E95A /* acoes.cpp */,
 				EACF26EE1A58D95D0052E95A /* acoes.h */,
@@ -676,9 +685,11 @@
 				EACF27211A58D95D0052E95A /* entidade.pb.cc in Sources */,
 				EACF27201A58D95D0052E95A /* entidade.cpp in Sources */,
 				EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */,
+				EA31EFDF1AC9D5A70067BA40 /* entidade_composta.cpp in Sources */,
 				EACF27A81A58D9AA0052E95A /* message_lite.cc in Sources */,
 				EACF27311A58D95D0052E95A /* picopng.cpp in Sources */,
 				EACF27A31A58D9AA0052E95A /* tokenizer.cc in Sources */,
+				EA31EFE11AC9D5A70067BA40 /* tabuleiro_picking.cpp in Sources */,
 				EACF27AF1A58D9AA0052E95A /* common.cc in Sources */,
 				EACF27A51A58D9AA0052E95A /* zero_copy_stream_impl.cc in Sources */,
 				EACF27A01A58D9AA0052E95A /* gzip_stream.cc in Sources */,
@@ -717,6 +728,7 @@
 				EACF265F1A58C6DA0052E95A /* main.m in Sources */,
 				EACF279D1A58D9AA0052E95A /* generated_message_util.cc in Sources */,
 				EACF27271A58D95D0052E95A /* watchdog.cpp in Sources */,
+				EA31EFE01AC9D5A70067BA40 /* entidade_forma.cpp in Sources */,
 				EACF27B21A58D9AA0052E95A /* structurally_valid.cc in Sources */,
 				EACF27291A58D95D0052E95A /* gl_char.cpp in Sources */,
 				EACF27B01A58D9AA0052E95A /* once.cc in Sources */,
