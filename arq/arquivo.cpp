@@ -12,59 +12,59 @@
 #include <stdexcept>
 #include "arq/arquivo.h"
 
-#if ANDROID
-#include <cstring>
-#include <android/asset_manager_jni.h>
-#include <android/log.h>
-#include <android/native_activity.h>
-#endif
-
 #include "log/log.h"
 
 namespace arq {
 
-namespace {
+// ---------------------------------------------------------
+// Declaracao de funcoes internas especificas de plataforma.
+// ---------------------------------------------------------
+namespace plat {
 
-// Converte um tipo para o diretorio correto.
+// Le arquivos readonly.
+void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* dados);
+
+// Diretorio de dados de aplicacao do usuario, incluindo / terminal.
+const std::string DiretorioAppsUsuario();
+
+// Retorna o conteudo do tipo passado.
+const std::vector<std::string> ConteudoDiretorioAsset(tipo_e tipo);
+
+}  // namespace plat
+
+
+// ------------------------
+// Funcoes internas comums.
+// ------------------------
+namespace interno {
+
 const std::string TipoParaDiretorio(tipo_e tipo) {
   switch (tipo) {
     case TIPO_TEXTURA: return "texturas";
     case TIPO_TEXTURA_BAIXADA: return "texturas_baixadas";
-#if !ANDROID
-    // Android nao tem textura local.
     case TIPO_TEXTURA_LOCAL: return "texturas_locais";
-#endif
     case TIPO_TABULEIRO: return "tabuleiros_salvos";
     case TIPO_DADOS: return "dados";
     case TIPO_SHADER: return "shaders";
     case TIPO_ENTIDADES: return "entidades_salvas";
+    case TIPO_TESTE: return "teste";
     default:
       throw std::logic_error("Tipo de arquivo invalido.");
   }
 }
 
-// Diretorio de dados de aplicacao do usuario, incluindo / terminal se houver.
-const std::string DiretorioAppsUsuario();
-
-// Retorna o diretorio do tipo passado, sem a "/" final.
-const std::string Diretorio(tipo_e tipo) {
-  std::string diretorio;
-  // TODO fazer isso com tabuleiros salvos e entidades salvas.
-  if ((tipo == TIPO_TEXTURA_BAIXADA) ||
-      (tipo == TIPO_TEXTURA_LOCAL)) {
-    diretorio.assign(DiretorioAppsUsuario());
-  }
-  return diretorio + TipoParaDiretorio(tipo);
+bool EhAsset(tipo_e tipo) {
+  return tipo == TIPO_TEXTURA ||
+         tipo == TIPO_DADOS ||
+         tipo == TIPO_SHADER;
 }
 
-// Retorna o caminho para um tipo de arquivo.
 const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
   return Diretorio(tipo) + "/" + arquivo;
 }
 
-// Cria a estrutura de diretorios para conteudo do usuario.
 void CriaDiretoriosUsuario() {
-  std::string dir_apps_usuario(DiretorioAppsUsuario());
+  std::string dir_apps_usuario(plat::DiretorioAppsUsuario());
   try {
     boost::filesystem::create_directory(dir_apps_usuario);
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_BAIXADA));
@@ -77,35 +77,54 @@ void CriaDiretoriosUsuario() {
   }
 }
 
-}  // namespace
-
-#if ANDROID
-
-namespace {
-AAssetManager* g_aman = nullptr;
-std::string g_dir_dados;
-}  // namespace
-
-void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados) {
-  g_aman = AAssetManager_fromJava(env, assets);
-  g_dir_dados = dir_dados;
-  CriaDiretoriosUsuario();
-}
-
-// Retorna true se o tipo de arquivo eh asset (ou seja, READ ONLY).
-bool EhAsset(tipo_e tipo) {
-  return tipo != TIPO_TEXTURA_BAIXADA;
-}
-
-// Escrita.
-void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {
-  if (EhAsset(tipo)) {
-    throw std::logic_error(std::string("Não implementado"));
-  }
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
+void EscreveArquivoNormal(const std::string& nome_arquivo, const std::string& dados) {
+  std::ofstream arquivo(nome_arquivo, std::ios::out | std::ios::binary);
   arquivo.write(dados.data(), dados.size());
   arquivo.close();
+}
+
+void LeArquivoNormal(const std::string& nome_arquivo, std::string* dados) {
+  std::ifstream arquivo(nome_arquivo, std::ios::in | std::ios::binary);
+  dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
+}
+
+const std::vector<std::string> ConteudoDiretorioNormal(const std::string& diretorio) {
+  std::vector<std::string> ret;
+  for (boost::filesystem::directory_iterator it(diretorio); it != boost::filesystem::directory_iterator(); ++it) {
+    ret.push_back(it->path().filename().string());
+  }
+  return ret;
+}
+
+}  // namespace interno
+
+// ---------------------
+// Funcoes da interface.
+// ---------------------
+
+const std::string Diretorio(tipo_e tipo) {
+  if (interno::EhAsset(tipo)) {
+    return interno::TipoParaDiretorio(tipo);
+  } else {
+    return std::string(plat::DiretorioAppsUsuario()) + interno::TipoParaDiretorio(tipo);
+  }
+}
+
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
+  if (interno::EhAsset(tipo)) {
+    return plat::ConteudoDiretorioAsset(tipo);
+  } else {
+    return interno::ConteudoDiretorioNormal(Diretorio(tipo));
+  }
+}
+
+// Escrita: funciona para todas as plataformas, desde que a funcao caminho arquivo funcione.
+void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {
+  if (interno::EhAsset(tipo)) {
+    throw std::logic_error(std::string("Não implementado"));
+  }
+  std::string caminho_arquivo(interno::CaminhoArquivo(tipo, nome_arquivo));
+  interno::EscreveArquivoNormal(caminho_arquivo, dados);
 }
 
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
@@ -116,36 +135,12 @@ void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const 
   EscreveArquivo(tipo, nome_arquivo, mensagem.SerializeAsString());
 }
 
-// Leitura.
+// Leitura: a parte de assets eh especifica de plataforma. Caminho arquivo tem que funcionar tambem.
 void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
-  if (EhAsset(tipo)) {
-    std::string caminho_asset(CaminhoArquivo(tipo, nome_arquivo));
-    AAsset* asset = nullptr;
-    try {
-      asset = AAssetManager_open(g_aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
-      if (asset == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
-        throw 1;
-      }
-      off_t tam = AAsset_getLength(asset);
-      if (tam <= 0) {
-        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha com tamanho do asset: %ld", tam);
-        throw 2;
-      }
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido '%s', tamnho '%ld'", nome_arquivo.c_str(), tam);
-      std::vector<char> vetor_dados;
-      vetor_dados.resize(tam);
-      memcpy(vetor_dados.data(), AAsset_getBuffer(asset), tam);
-      dados->assign(vetor_dados.begin(), vetor_dados.end());
-    } catch (...) {
-    }
-    if (asset != nullptr) {
-      AAsset_close(asset);
-    }
+  if (interno::EhAsset(tipo)) {
+    plat::LeArquivoAsset(tipo, nome_arquivo, dados);
   } else {
-    std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-    std::ifstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
-    dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
+    interno::LeArquivoNormal(interno::CaminhoArquivo(tipo, nome_arquivo), dados);
   }
 }
 
@@ -164,123 +159,5 @@ void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::pro
     throw std::logic_error(std::string("Erro de parse do arquivo ") + nome_arquivo);
   }
 }
-
-const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
-  std::vector<std::string> ret;
-  if (EhAsset(tipo)) {
-    std::string caminho_asset(Diretorio(tipo));
-    AAssetDir* asset_dir = nullptr;
-    try {
-      asset_dir = AAssetManager_openDir(g_aman, caminho_asset.c_str());
-      if (asset_dir == nullptr) {
-        __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset dir: %s", caminho_asset.c_str());
-        throw 1;
-      }
-      for (const char* nome = AAssetDir_getNextFileName(asset_dir);
-           nome != nullptr;
-           nome = AAssetDir_getNextFileName(asset_dir)) {
-        ret.push_back(nome);
-      }
-    } catch (...) {
-    }
-    if (asset_dir != nullptr) {
-      AAssetDir_close(asset_dir);
-    }
-  } else {
-    for (boost::filesystem::directory_iterator it(Diretorio(tipo)); it != boost::filesystem::directory_iterator(); ++it) {
-      ret.push_back(it->path().filename().string());
-    }
-  }
-  return ret;
-}
-
-#else
-
-void Inicializa() {
-  CriaDiretoriosUsuario();
-}
-
-// Escrita.
-void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados) {
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
-  arquivo.write(dados.data(), dados.size());
-  arquivo.close();
-}
-
-void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
-  google::protobuf::io::OstreamOutputStream zos(&arquivo);
-  if (!google::protobuf::TextFormat::Print(mensagem, &zos)) {
-    throw std::logic_error(std::string("Erro escrevendo arquivo: ") + caminho_arquivo);
-  }
-}
-
-void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem) {
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ofstream arquivo(caminho_arquivo, std::ios::out | std::ios::binary);
-  if (!mensagem.SerializeToOstream(&arquivo)) {
-    throw std::logic_error(std::string("Erro escrevendo arquivo: ") + caminho_arquivo);
-  }
-}
-
-// Leitura.
-void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  //LOG(INFO) << "Lendo: " << caminho_arquivo;
-  std::ifstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
-  dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
-}
-
-void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ifstream arquivo(caminho_arquivo);
-  google::protobuf::io::IstreamInputStream zis(&arquivo);
-  if (!google::protobuf::TextFormat::Parse(&zis, mensagem)) {
-    throw std::logic_error(std::string("Erro lendo arquivo: ") + caminho_arquivo);
-  }
-}
-
-void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem) {
-  std::string caminho_arquivo(CaminhoArquivo(tipo, nome_arquivo));
-  std::ifstream arquivo(caminho_arquivo, std::ios::in | std::ios::binary);
-  if (!mensagem->ParseFromIstream(&arquivo)) {
-    throw std::logic_error(std::string("Erro lendo arquivo: ") + caminho_arquivo);
-  }
-}
-
-const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
-  std::vector<std::string> ret;
-  for (boost::filesystem::directory_iterator it(Diretorio(tipo)); it != boost::filesystem::directory_iterator(); ++it) {
-    ret.push_back(it->path().filename().string());
-  }
-  return ret;
-}
-
-#endif
-
-namespace {
-const std::string DiretorioAppsUsuario() {
-  // TODO.
-#if __APPLE__ && TARGET_OS_MAC
-  std::string home(getenv("HOME"));
-  if (home.empty()) {
-    return "";
-  }
-  return home + "/Library/Application Support/TabuleiroVirtual/";
-#elif WIN32
-  std::string appdata(getenv("localappdata"));
-  if (appdata.empty()) {
-    return "";
-  }
-  return appdata + "/TabuleiroVirtual/";
-#elif ANDROID
-  return g_dir_dados + "/";
-#else
-  return "";
-#endif
-}
-}  // namespace
 
 }  // namespace arq

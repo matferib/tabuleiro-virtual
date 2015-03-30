@@ -328,7 +328,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QString file_str = QFileDialog::getSaveFileName(
         qobject_cast<QWidget*>(parent()),
         tr("Salvar entidades selecionáveis"),
-        tr(DIR_ENTIDADES));
+        tr(arq::Diretorio(arq::TIPO_ENTIDADES).c_str()));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de salvar cancelada.";
       return;
@@ -338,7 +338,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                     tr("Abrir entidades selecionáveis"),
-                                                    DIR_ENTIDADES);
+                                                    arq::Diretorio(arq::TIPO_ENTIDADES).c_str());
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de restaurar cancelada.";
       return;
@@ -361,7 +361,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QString file_str = QFileDialog::getSaveFileName(
         qobject_cast<QWidget*>(parent()),
         tr("Salvar tabuleiro"),
-        tr(DIR_TABULEIROS));
+        tr(arq::Diretorio(arq::TIPO_TABULEIRO).c_str()));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de salvar cancelada.";
       return;
@@ -372,7 +372,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
              acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                     tr("Abrir tabuleiro"),
-                                                    DIR_TABULEIROS);
+                                                    arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de restaurar cancelada.";
       return;

@@ -137,6 +137,7 @@ ent_proto = env.Protoc(
 
 # arq
 cArq = env.Object('arq/arquivo.cpp')
+cArqPc = env.Object('arq/arquivo_pc.cpp')
 
 # net
 cNetServidor = env.Object('net/servidor.cpp')
@@ -172,7 +173,7 @@ objetos = [
     # gl.
     cGlComum, cGl, cGlChar,
     # arq
-    cArq,
+    cArq, cArqPc,
 ] + ([ cEntWatchdog ] if sistema == 'linux' else [])
 
 
@@ -195,6 +196,9 @@ if compilar_testes:
   env.Program(
       target = 'teste_modelos',
       source = ['ifg/modelos_test.cpp', ] + objetos)
+  env.Program(
+      target = 'teste_arquivo',
+      source = ['arq/arquivo_test.cpp', ] + objetos)
 
 rodar_benchmark = (ARGUMENTS.get('benchmark', '0') == '1')
 print 'benchmark : %r' % rodar_benchmark
