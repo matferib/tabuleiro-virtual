@@ -77,17 +77,24 @@ void CriaDiretoriosUsuario() {
     LOG(INFO) << "Diretorios de usuario criados em " << dir_apps_usuario;
   } catch (const std::exception& e) {
     LOG(ERROR) << "Falha ao criar diretorio de usuario: " << e.what();
+    throw;
   }
 }
 
 void EscreveArquivoNormal(const std::string& nome_arquivo, const std::string& dados) {
   std::ofstream arquivo(nome_arquivo, std::ios::out | std::ios::binary);
+  if (!arquivo) {
+    throw std::logic_error(std::string("Arquivo invalido para escrita: ") + nome_arquivo);
+  }
   arquivo.write(dados.data(), dados.size());
   arquivo.close();
 }
 
 void LeArquivoNormal(const std::string& nome_arquivo, std::string* dados) {
   std::ifstream arquivo(nome_arquivo, std::ios::in | std::ios::binary);
+  if (!arquivo) {
+    throw std::logic_error(std::string("Arquivo invalido: ") + nome_arquivo);
+  }
   dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
 }
 

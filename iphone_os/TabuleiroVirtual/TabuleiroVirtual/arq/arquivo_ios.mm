@@ -35,7 +35,7 @@ const std::string DiretorioAssets() {
 }
 
 void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
-  LOG(INFO) << "Lendo asset: " << interno::CaminhoArquivo(tipo, nome_arquivo);
+  //LOG(INFO) << "Lendo asset: " << interno::CaminhoArquivo(tipo, nome_arquivo);
   std::ifstream arquivo(interno::CaminhoArquivo(tipo, nome_arquivo), std::ios::in | std::ios::binary);
   dados->assign(std::istreambuf_iterator<char>(arquivo), std::istreambuf_iterator<char>());
 }
