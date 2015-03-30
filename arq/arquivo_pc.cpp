@@ -41,6 +41,10 @@ const std::string DiretorioAppsUsuario() {
 #endif
 }
 
+const std::string DiretorioAssets() {
+  return "";
+}
+
 void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
   std::string caminho_asset(interno::CaminhoArquivo(tipo, nome_arquivo));
   interno::LeArquivoNormal(caminho_asset, dados);
@@ -50,7 +54,7 @@ const std::vector<std::string> ConteudoDiretorioAsset(tipo_e tipo) {
   return interno::ConteudoDiretorioNormal(Diretorio(tipo));
 }
 
-}  // namespace interno.
+}  // namespace plat.
 
 
 } // namespace

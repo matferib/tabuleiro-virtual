@@ -27,6 +27,9 @@ void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* d
 // Diretorio de dados de aplicacao do usuario, incluindo / terminal.
 const std::string DiretorioAppsUsuario();
 
+// Diretorio que contem os assets da aplicacao, incluindo / terminal, se nao for vazio.
+const std::string DiretorioAssets();
+
 // Retorna o conteudo do tipo passado.
 const std::vector<std::string> ConteudoDiretorioAsset(tipo_e tipo);
 
@@ -104,9 +107,9 @@ const std::vector<std::string> ConteudoDiretorioNormal(const std::string& direto
 
 const std::string Diretorio(tipo_e tipo) {
   if (interno::EhAsset(tipo)) {
-    return interno::TipoParaDiretorio(tipo);
+    return plat::DiretorioAssets() + interno::TipoParaDiretorio(tipo);
   } else {
-    return std::string(plat::DiretorioAppsUsuario()) + interno::TipoParaDiretorio(tipo);
+    return plat::DiretorioAppsUsuario() + interno::TipoParaDiretorio(tipo);
   }
 }
 

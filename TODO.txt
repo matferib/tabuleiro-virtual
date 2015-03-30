@@ -1,5 +1,6 @@
 Versao 1.9.0
 
+- Copia de texturas no ios.
 - Android: usar a funcao de conversao jstr para c++ str.
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
 - Criar os diretorios na inicializacao da app android.

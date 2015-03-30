@@ -11,6 +11,8 @@
 		EA31EFDF1AC9D5A70067BA40 /* entidade_composta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */; };
 		EA31EFE01AC9D5A70067BA40 /* entidade_forma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */; };
 		EA31EFE11AC9D5A70067BA40 /* tabuleiro_picking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */; };
+		EA31EFE41AC9F5B80067BA40 /* arquivo_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE21AC9F5B80067BA40 /* arquivo_ios.mm */; };
+		EA31EFE51AC9F5B80067BA40 /* arquivo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE31AC9F5B80067BA40 /* arquivo.cpp */; };
 		EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253D91A6A2B43007EF810 /* gl_es.cpp */; };
 		EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */; };
 		EA9253DE1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */; };
@@ -24,7 +26,6 @@
 		EACF26941A58D0720052E95A /* native.mm in Sources */ = {isa = PBXBuildFile; fileRef = EACF26921A58D0720052E95A /* native.mm */; };
 		EACF26D61A58D7000052E95A /* boost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EACF26D51A58D7000052E95A /* boost.framework */; };
 		EACF26D81A58D8930052E95A /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EACF26D71A58D8930052E95A /* GLKit.framework */; };
-		EACF271C1A58D95D0052E95A /* arquivo.mm in Sources */ = {isa = PBXBuildFile; fileRef = EACF26EB1A58D95D0052E95A /* arquivo.mm */; };
 		EACF271D1A58D95D0052E95A /* acoes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF26ED1A58D95D0052E95A /* acoes.cpp */; };
 		EACF271E1A58D95D0052E95A /* acoes.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EACF26EF1A58D95D0052E95A /* acoes.pb.cc */; };
 		EACF271F1A58D95D0052E95A /* constantes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF26F11A58D95D0052E95A /* constantes.cpp */; };
@@ -98,6 +99,8 @@
 		EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entidade_composta.cpp; path = ../../../../ent/entidade_composta.cpp; sourceTree = "<group>"; };
 		EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entidade_forma.cpp; path = ../../../../ent/entidade_forma.cpp; sourceTree = "<group>"; };
 		EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_picking.cpp; path = ../../../../ent/tabuleiro_picking.cpp; sourceTree = "<group>"; };
+		EA31EFE21AC9F5B80067BA40 /* arquivo_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = arquivo_ios.mm; sourceTree = "<group>"; };
+		EA31EFE31AC9F5B80067BA40 /* arquivo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arquivo.cpp; path = ../../../../arq/arquivo.cpp; sourceTree = "<group>"; };
 		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
 		EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_comum.cpp; path = ../../../../gltab/gl_comum.cpp; sourceTree = "<group>"; };
 		EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_controle_virtual.cpp; path = ../../../../ent/tabuleiro_controle_virtual.cpp; sourceTree = "<group>"; };
@@ -119,7 +122,6 @@
 		EACF26D51A58D7000052E95A /* boost.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = boost.framework; path = boost/ios/framework/boost.framework; sourceTree = "<group>"; };
 		EACF26D71A58D8930052E95A /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		EACF26EA1A58D95D0052E95A /* arquivo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arquivo.h; sourceTree = "<group>"; };
-		EACF26EB1A58D95D0052E95A /* arquivo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = arquivo.mm; sourceTree = "<group>"; };
 		EACF26ED1A58D95D0052E95A /* acoes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = acoes.cpp; sourceTree = "<group>"; };
 		EACF26EE1A58D95D0052E95A /* acoes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = acoes.h; sourceTree = "<group>"; };
 		EACF26EF1A58D95D0052E95A /* acoes.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = acoes.pb.cc; sourceTree = "<group>"; };
@@ -350,8 +352,9 @@
 		EACF26E91A58D95D0052E95A /* arq */ = {
 			isa = PBXGroup;
 			children = (
+				EA31EFE21AC9F5B80067BA40 /* arquivo_ios.mm */,
+				EA31EFE31AC9F5B80067BA40 /* arquivo.cpp */,
 				EACF26EA1A58D95D0052E95A /* arquivo.h */,
-				EACF26EB1A58D95D0052E95A /* arquivo.mm */,
 			);
 			path = arq;
 			sourceTree = "<group>";
@@ -679,6 +682,8 @@
 				EACF27301A58D95D0052E95A /* lodepng.cpp in Sources */,
 				EACF27241A58D95D0052E95A /* tabuleiro.pb.cc in Sources */,
 				EACF271F1A58D95D0052E95A /* constantes.cpp in Sources */,
+				EA31EFE41AC9F5B80067BA40 /* arquivo_ios.mm in Sources */,
+				EA31EFE51AC9F5B80067BA40 /* arquivo.cpp in Sources */,
 				EACF272B1A58D95D0052E95A /* cliente.cpp in Sources */,
 				EACF27AA1A58D9AA0052E95A /* repeated_field.cc in Sources */,
 				EACF27991A58D9AA0052E95A /* dynamic_message.cc in Sources */,
@@ -708,7 +713,6 @@
 				EACF27231A58D95D0052E95A /* tabuleiro.cpp in Sources */,
 				EACF27B51A58D9AA0052E95A /* text_format.cc in Sources */,
 				EACF26871A58C77B0052E95A /* GameViewController.mm in Sources */,
-				EACF271C1A58D95D0052E95A /* arquivo.mm in Sources */,
 				EACF272E1A58D95D0052E95A /* notificacao.cpp in Sources */,
 				EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */,
 				EACF27B31A58D9AA0052E95A /* strutil.cc in Sources */,
