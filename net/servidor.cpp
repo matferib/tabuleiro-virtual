@@ -91,7 +91,8 @@ bool Servidor::Ligado() const {
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
-    proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
+    auto* socket_cliente = new boost::asio::ip::tcp::socket(*servico_io_);
+    proximo_cliente_.reset(new Cliente(socket_cliente));
     aceitador_.reset(new boost::asio::ip::tcp::acceptor(
         *servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PortaPadrao())));
     central_->RegistraReceptorRemoto(this);
@@ -139,6 +140,17 @@ void Servidor::EsperaCliente() {
       VLOG(1) << "Recebendo cliente...";
       Cliente* cliente_pendente = proximo_cliente_.release();
       clientes_pendentes_.insert(cliente_pendente);
+      boost::asio::socket_base::receive_buffer_size option;
+      cliente_pendente->socket->get_option(option);
+      LOG(INFO) << "Buffer recepcao: " << option.value();
+      boost::asio::socket_base::receive_low_watermark option2;
+      cliente_pendente->socket->get_option(option2);
+      LOG(INFO) << "Buffer recepcao watermark: " << option2.value();
+      boost::asio::socket_base::send_low_watermark option3(1);
+      cliente_pendente->socket->set_option(option3);
+      cliente_pendente->socket->get_option(option3);
+      LOG(INFO) << "Buffer envio watermark: " << option3.value();
+
       proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
       RecebeDadosCliente(cliente_pendente);
       EsperaCliente();

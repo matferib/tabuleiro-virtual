@@ -6,6 +6,8 @@
 #include <string>
 
 #include "ent/constantes.h"
+// para depurar android
+#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/cliente.h"
 #include "net/util.h"
@@ -40,7 +42,10 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       servico_io_->poll_one();
     } else if (Ligado()) {
-      servico_io_->poll();
+      auto n = servico_io_->poll();
+      if (n > 0) {
+        VLOG(1) << "polled: " << n;
+      }
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
@@ -144,6 +149,20 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     boost::asio::ip::tcp::resolver resolver(*servico_io_);
     auto endereco_resolvido = resolver.resolve({endereco_porta[0], endereco_porta[1]});
     boost::asio::connect(*socket_, endereco_resolvido);
+    //boost::asio::socket_base::receive_buffer_size option(50000);
+    boost::asio::socket_base::receive_buffer_size option;
+    //socket_->set_option(option);
+    socket_->get_option(option);
+    LOG(INFO) << "Valor buffer recepcao: " << option.value();
+    boost::asio::socket_base::receive_low_watermark option2;
+    //socket_->set_option(option);
+    socket_->get_option(option2);
+    LOG(INFO) << "Valor buffer recepcao watermark: " << option2.value();
+    boost::asio::socket_base::send_low_watermark option3(1);
+    //socket_->set_option(option3);
+    socket_->get_option(option3);
+    LOG(INFO) << "Valor buffer envio watermark: " << option3.value();
+
     // Handler de leitura.
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
@@ -189,6 +208,7 @@ void Cliente::RecebeDados() {
   socket_->async_receive(
     boost::asio::buffer(buffer_),
     [this](boost::system::error_code ec, std::size_t bytes_recebidos) {
+      VLOG(1) << "Funcao de recepcao chamada de volta";
       if (ec) {
         std::string erro;
         erro = "Erro recebendo dados: " + ec.message();
