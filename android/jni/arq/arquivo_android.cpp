@@ -49,7 +49,7 @@ void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* d
     memcpy(vetor_dados.data(), AAsset_getBuffer(asset), tam);
     dados->assign(vetor_dados.begin(), vetor_dados.end());
   } catch (...) {
-    // nada.
+    throw std::logic_error(std::string("Falha lendo asset: ") + nome_arquivo);
   }
   if (asset != nullptr) {
     AAsset_close(asset);

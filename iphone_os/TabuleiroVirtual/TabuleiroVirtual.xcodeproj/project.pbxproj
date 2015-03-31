@@ -39,7 +39,6 @@
 		EACF27291A58D95D0052E95A /* gl_char.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF27041A58D95D0052E95A /* gl_char.cpp */; };
 		EACF272A1A58D95D0052E95A /* tecladomouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF27061A58D95D0052E95A /* tecladomouse.cpp */; };
 		EACF272B1A58D95D0052E95A /* cliente.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF270B1A58D95D0052E95A /* cliente.cpp */; };
-		EACF272C1A58D95D0052E95A /* servidor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF270D1A58D95D0052E95A /* servidor.cpp */; };
 		EACF272D1A58D95D0052E95A /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF270F1A58D95D0052E95A /* util.cpp */; };
 		EACF272E1A58D95D0052E95A /* notificacao.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACF27121A58D95D0052E95A /* notificacao.cpp */; };
 		EACF272F1A58D95D0052E95A /* notificacao.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EACF27141A58D95D0052E95A /* notificacao.pb.cc */; };
@@ -148,7 +147,6 @@
 		EACF27091A58D95D0052E95A /* log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = log.h; sourceTree = "<group>"; };
 		EACF270B1A58D95D0052E95A /* cliente.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cliente.cpp; sourceTree = "<group>"; };
 		EACF270C1A58D95D0052E95A /* cliente.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cliente.h; sourceTree = "<group>"; };
-		EACF270D1A58D95D0052E95A /* servidor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = servidor.cpp; sourceTree = "<group>"; };
 		EACF270E1A58D95D0052E95A /* servidor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = servidor.h; sourceTree = "<group>"; };
 		EACF270F1A58D95D0052E95A /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		EACF27101A58D95D0052E95A /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
@@ -422,7 +420,6 @@
 			children = (
 				EACF270B1A58D95D0052E95A /* cliente.cpp */,
 				EACF270C1A58D95D0052E95A /* cliente.h */,
-				EACF270D1A58D95D0052E95A /* servidor.cpp */,
 				EACF270E1A58D95D0052E95A /* servidor.h */,
 				EACF270F1A58D95D0052E95A /* util.cpp */,
 				EACF27101A58D95D0052E95A /* util.h */,
@@ -705,7 +702,6 @@
 				EACF279A1A58D9AA0052E95A /* extension_set.cc in Sources */,
 				EACF27A21A58D9AA0052E95A /* strtod.cc in Sources */,
 				EACF27B11A58D9AA0052E95A /* stringprintf.cc in Sources */,
-				EACF272C1A58D95D0052E95A /* servidor.cpp in Sources */,
 				EACF27A91A58D9AA0052E95A /* reflection_ops.cc in Sources */,
 				EA9253DE1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp in Sources */,
 				EACF27321A58D95D0052E95A /* texturas.cpp in Sources */,

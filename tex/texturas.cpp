@@ -158,7 +158,9 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_TEXTURAS);
       for (const auto& id : ids_faltantes) {
         auto* info = n->add_info_textura();
-        LeDecodificaImagem(true  /*global*/, true  /*forcar_bits_crus*/, id, info);
+        std::vector<unsigned char> dados;
+        LeImagem(true  /*global*/, id, &dados);
+        info->mutable_bits_crus()->append(dados.begin(), dados.end());
         info->set_id(id);
       }
       n->set_id_rede(notificacao.id_rede());
@@ -263,10 +265,20 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
 void Texturas::LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados) {
   boost::filesystem::path caminho(arquivo);
   std::string dados_str;
-  arq::LeArquivo(global ? arq::TIPO_TEXTURA : arq::TIPO_TEXTURA_LOCAL, caminho.filename().string(), &dados_str);
-  if (global && dados_str.empty()) {
-    // Fallback de texturas baixadas.
-    arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, caminho.filename().string(), &dados_str);
+  try {
+    arq::LeArquivo(global ? arq::TIPO_TEXTURA : arq::TIPO_TEXTURA_LOCAL, caminho.filename().string(), &dados_str);
+  } catch (const std::exception& e) {
+    if (global) {
+      // Fallback de texturas baixadas.
+      try {
+        LOG(INFO) << "Tentando fallback de " << arquivo << ", global";
+        arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, caminho.filename().string(), &dados_str);
+      } catch (...) {
+        LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", global";
+      }
+    } else {
+      LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", nao global";
+    }
   }
   dados->assign(dados_str.begin(), dados_str.end());
 }

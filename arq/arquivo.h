@@ -43,11 +43,13 @@ const std::vector<std::string> ConteudoDiretorio(tipo_e tipo);
 const std::string Diretorio(tipo_e tipo);
 
 // Interface de escrita.
+// @throws std::logic_error caso nao consiga escrever arquivo.
 void EscreveArquivo(tipo_e tipo, const std::string& nome_arquivo, const std::string& dados);
 void EscreveArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 void EscreveArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, const google::protobuf::Message& mensagem);
 
-// Interface de leitura. Lancam std::logic_error em caso de erro.
+// Interface de leitura.
+// @throws std::logic_error caso nao consiga ler o arquivo.
 void LeArquivo(tipo_e tipo, const std::string& nome_arquivo, std::string* dados);
 void LeArquivoAsciiProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);
 void LeArquivoBinProto(tipo_e tipo, const std::string& nome_arquivo, google::protobuf::Message* mensagem);

@@ -137,7 +137,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   }
   if (endereco_porta.size() == 1) {
     // Porta padrao.
-    endereco_porta.push_back("11223");
+    endereco_porta.push_back(to_string(PortaPadrao()));
   }
   try {
     socket_.reset(new boost::asio::ip::tcp::socket(*servico_io_));
@@ -160,7 +160,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
     notificacao->set_erro(e.what());
     central_->AdicionaNotificacao(notificacao);
-    VLOG(1) << "Falha de conexão";
+    VLOG(1) << "Falha de conexão com " << endereco_porta[0] << ":" << endereco_porta[1];
     return;
   }
 }

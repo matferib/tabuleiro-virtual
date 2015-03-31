@@ -825,6 +825,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // cliente desconectado.
         for (auto it : clientes_) {
           if (it.second == notificacao.id_rede()) {
+            LOG(INFO) << "Removendo cliente: " << notificacao.id_rede();
             clientes_.erase(it.first);
             return true;
           }
