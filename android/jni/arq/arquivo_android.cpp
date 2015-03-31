@@ -24,13 +24,13 @@ std::string g_dir_dados;
 void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados) {
   g_aman = AAssetManager_fromJava(env, assets);
   g_dir_dados = dir_dados;
-  CriaDiretoriosUsuario();
+  interno::CriaDiretoriosUsuario();
 }
 
 namespace plat {
 // Leitura.
 void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* dados) {
-  std::string caminho_asset(CaminhoArquivo(tipo, nome_arquivo));
+  std::string caminho_asset(interno::CaminhoArquivo(tipo, nome_arquivo));
   AAsset* asset = nullptr;
   try {
     asset = AAssetManager_open(g_aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
@@ -83,7 +83,7 @@ const std::string DiretorioAppsUsuario() {
   return g_dir_dados + "/";
 }
 
-const std::string DiretorioAppsUsuario() {
+const std::string DiretorioAssets() {
   return "";
 }
 
