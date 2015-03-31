@@ -1,5 +1,6 @@
 #include <boost/asio.hpp>
 #include <memory>
+#include <queue>
 #include <set>
 #include <vector>
 #include "ntf/notificacao.h"
@@ -53,6 +54,8 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
     // Buffer de cada notificacao recebida no buffer acima.
     std::string buffer_notificacao;
     int a_receber_;
+    // Dados para enviar.
+    std::queue<std::vector<char>> dados_enviar;
   };
 
   // Liga o servidor e chama EsperaCliente.
@@ -68,8 +71,8 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   void EsperaCliente();
   // Chama a funcao de recepcao de dados de forma assincrona para o cliente.
   void RecebeDadosCliente(Cliente* cliente);
-  // Envia dados para o cliente.
-  void EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados);
+  // Envia ou enfileira dados a serem enviados para um cliente. Assincrono. Se sem dados for true, envia a primeira mensagem enfileirada.
+  void EnviaDadosCliente(Cliente* cliente, const std::string& dados, bool sem_dados = false);
   // Desconecta um cliente do servidor, efetivamente destruindo sua estrutura e deletando o ponteiro.
   void DesconectaCliente(Cliente* cliente);
 

@@ -40,7 +40,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       servico_io_->poll_one();
     } else if (Ligado()) {
-      servico_io_->poll_one();
+      servico_io_->poll();
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
@@ -185,7 +185,7 @@ bool Cliente::Ligado() const {
 }
 
 void Cliente::RecebeDados() {
-  VLOG(2) << "Cliente::RecebeDados";
+  VLOG(1) << "Cliente::RecebeDados";
   socket_->async_receive(
     boost::asio::buffer(buffer_),
     [this](boost::system::error_code ec, std::size_t bytes_recebidos) {
@@ -208,12 +208,12 @@ void Cliente::RecebeDados() {
           }
           a_receber_ = DecodificaTamanho(buffer_inicio);
           buffer_inicio += 4;
-          VLOG(2) << "Recebendo notificacao tamanho a receber: " << a_receber_ << ", total: " << bytes_recebidos;
+          VLOG(1) << "Recebendo notificacao tamanho a receber: " << a_receber_ << ", total: " << bytes_recebidos;
         } else {
-          VLOG(2) << "Continuando recepcao de notificao tamanho: " << a_receber_ << ", total: " << bytes_recebidos;
+          VLOG(1) << "Continuando recepcao de notificao tamanho: " << a_receber_ << ", total: " << bytes_recebidos;
         }
         if (buffer_fim - buffer_inicio >= a_receber_) {
-          VLOG(2) << "Recebendo notificacao completa";
+          VLOG(1) << "Recebendo notificacao completa";
           // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
           buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_inicio, buffer_inicio + a_receber_);
           // Decodifica mensagem e poe na central.
@@ -240,7 +240,7 @@ void Cliente::RecebeDados() {
           buffer_inicio = buffer_fim;
         }
       } while (buffer_inicio != buffer_fim);
-      VLOG(2) << "Tudo recebido";
+      VLOG(1) << "Tudo recebido";
       RecebeDados();
     }
   );

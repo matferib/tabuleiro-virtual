@@ -34,7 +34,8 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
     }
     if (Ligado()) {
-      servico_io_->poll_one();
+      VLOG(3) << "Polling";
+      servico_io_->poll();
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
@@ -67,7 +68,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
       return true;
     }
     VLOG(1) << "Enviando primeira notificacao para cliente pendente";
-    EnviaDadosCliente(cliente_pendente->socket.get(), ns);
+    EnviaDadosCliente(cliente_pendente, ns);
     clientes_.insert(cliente_pendente);
   } else {
     for (auto* c : clientes_) {
@@ -76,7 +77,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
         continue;
       }
       VLOG(1) << "Enviando notificacao para cliente";
-      EnviaDadosCliente(c->socket.get(), ns);
+      EnviaDadosCliente(c, ns);
     }
   }
 
@@ -147,20 +148,32 @@ void Servidor::EsperaCliente() {
   });
 }
 
-void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
-  std::vector<char> dados_codificados(CodificaDados(dados));
-  //size_t bytes_enviados = cliente->send(boost::asio::buffer(dados_codificados));
-  try {
-    size_t bytes_enviados = boost::asio::write(*cliente, boost::asio::buffer(dados_codificados));
-    if (bytes_enviados != dados_codificados.size()) {
-      LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados << " de " << dados_codificados.size();
-    } else {
-      VLOG(2) << "Enviei " << dados.size() << " bytes pro cliente.";
+void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, bool sem_dados) {
+  if (!sem_dados) {
+    cliente->dados_enviar.push(CodificaDados(dados));
+    if (cliente->dados_enviar.size() > 1) {
+      VLOG(1) << "Enfileirando dados, fila nao vazia";
+      return;
     }
-  } catch (const std::exception& e) {
-    // Faz nada aqui que provavalmente o receive vai receber o erro.
-    LOG(ERROR) << "Erro enviando dados: " << e.what();
   }
+  try {
+    boost::asio::async_write(*cliente->socket.get(), boost::asio::buffer(cliente->dados_enviar.front()),
+                             [this, cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+      if (ec) {
+        // Importante nao usar cliente aqui, pois o ponteiro pode estar dangling.
+        LOG(ERROR) << "Erro enviando dados, mensagem: " << ec.message();
+        return;
+      }
+      cliente->dados_enviar.pop();
+      VLOG(1) << "Enviei " << bytes_enviados << " bytes pro cliente.";
+      if (!cliente->dados_enviar.empty()) {
+        EnviaDadosCliente(cliente, "", true  /*sem_dados*/);
+      }
+    });
+ } catch (const std::exception& e) {
+   // Faz nada aqui que provavalmente o receive vai receber o erro.
+   LOG(ERROR) << "Erro enviando dados: " << e.what();
+ }
 }
 
 // deve ser usada apenas na funcao de RecebeDadosCliente.
@@ -277,7 +290,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
               // Nao envia para o cliente original.
               continue;
             }
-            EnviaDadosCliente(c->socket.get(), cliente->buffer_notificacao);
+            EnviaDadosCliente(c, cliente->buffer_notificacao);
           }
           // Processa localmente.
           notificacao->set_local(false);

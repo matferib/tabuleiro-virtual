@@ -9,10 +9,10 @@ namespace net {
 const std::vector<char> CodificaDados(const std::string& dados);
 
 // Porta para aceitar conexoes http.
-inline int PortaPadrao() { return 11223; }
+inline int PortaPadrao() { return 22113; }
 
 // Porta de anuncio (broadcast) do endereco do servidor.
-inline int PortaAnuncio() { return 11224; }
+inline int PortaAnuncio() { return 22114; }
 
 unsigned int DecodificaTamanho(const std::vector<char>::iterator& buffer);
 
