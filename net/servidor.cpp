@@ -96,7 +96,7 @@ void Servidor::Liga() {
     central_->RegistraReceptorRemoto(this);
     EsperaCliente();
     VLOG(1) << "Servidor ligado.";
-  } catch(std::exception& e) {
+  } catch (const std::exception& e) {
     LOG(ERROR) << "Erro ligando servidor: " << e.what();
     // TODO fazer o tipo de erro e tratar notificacao em algum lugar.
     auto* notificacao = new ntf::Notificacao;
@@ -150,11 +150,16 @@ void Servidor::EsperaCliente() {
 void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
   std::vector<char> dados_codificados(CodificaDados(dados));
   //size_t bytes_enviados = cliente->send(boost::asio::buffer(dados_codificados));
-  size_t bytes_enviados = boost::asio::write(*cliente, boost::asio::buffer(dados_codificados));
-  if (bytes_enviados != dados_codificados.size()) {
-    LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados << " de " << dados_codificados.size();
-  } else {
-    VLOG(2) << "Enviei " << dados.size() << " bytes pro cliente.";
+  try {
+    size_t bytes_enviados = boost::asio::write(*cliente, boost::asio::buffer(dados_codificados));
+    if (bytes_enviados != dados_codificados.size()) {
+      LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados << " de " << dados_codificados.size();
+    } else {
+      VLOG(2) << "Enviei " << dados.size() << " bytes pro cliente.";
+    }
+  } catch (const std::exception& e) {
+    // Faz nada aqui que provavalmente o receive vai receber o erro.
+    LOG(ERROR) << "Erro enviando dados: " << e.what();
   }
 }
 
