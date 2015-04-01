@@ -149,9 +149,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   }
   try {
     socket_.reset(new Socket(sincronizador_));
-    boost::asio::ip::tcp::resolver resolver(*sincronizador_->Servico());
-    auto endereco_resolvido = resolver.resolve({endereco_porta[0], endereco_porta[1]});
-    boost::asio::connect(*socket_->Boost(), endereco_resolvido);
+    socket_->Conecta(endereco_porta[0], endereco_porta[1]);
 #if 0
     //boost::asio::socket_base::receive_buffer_size option(50000);
     boost::asio::socket_base::receive_buffer_size option;

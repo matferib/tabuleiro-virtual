@@ -56,8 +56,19 @@ class SocketBroadcast {
 // Abstracao do socket.
 class Socket {
  public:
-  explicit Socket(Sincronizador* sincronizador) : socket_(new boost::asio::ip::tcp::socket(*sincronizador->Servico())) {}
+  explicit Socket(Sincronizador* sincronizador) 
+      : sincronizador_(sincronizador),
+        socket_(new boost::asio::ip::tcp::socket(*sincronizador->Servico())) {}
   ~Socket() {}
+
+  // Conecta o socket a um endereco.
+  // Endereco pode ser IP: XXX.XXX.XXX.XXX ou dominio: www.teste.com. Porta eh a representacao string de um numero.
+  // @throws std::exception em caso de erro.
+  void Conecta(const std::string& endereco, const std::string& porta) {
+    boost::asio::ip::tcp::resolver resolver(*sincronizador_->Servico());
+    auto endereco_resolvido = resolver.resolve({endereco, porta});
+    boost::asio::connect(*socket_, endereco_resolvido);
+  }
 
   void Fecha() {
     socket_->close();
@@ -87,6 +98,7 @@ class Socket {
   boost::asio::ip::tcp::socket* Boost() { return socket_.get(); }
 
  private:
+  Sincronizador* sincronizador_;
   std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
 };
 
