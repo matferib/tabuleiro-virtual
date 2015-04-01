@@ -30,17 +30,15 @@ Sincronizador::~Sincronizador() {}
 
 int Sincronizador::Roda() { return interno_->servico_io->poll(); }
 
-boost::asio::io_service* Sincronizador::Servico() { return interno_->servico_io; }
-
 //----------
 // SocketUdp
 //----------
 SocketUdp::SocketUdp(Sincronizador* sincronizador)
-    : socket_(new boost::asio::ip::udp::socket(*sincronizador->Servico())) {}
+    : socket_(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io)) {}
 
 SocketUdp::SocketUdp(Sincronizador* sincronizador, int porta) : SocketUdp(sincronizador) {
   boost::asio::ip::udp::endpoint endereco(boost::asio::ip::udp::v4(), porta);
-  socket_.reset(new boost::asio::ip::udp::socket(*sincronizador->Servico(), endereco));
+  socket_.reset(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io, endereco));
 }
 
 SocketUdp::~SocketUdp() {}
@@ -83,12 +81,12 @@ void SocketUdp::Recebe(
 //-------
 Socket::Socket(Sincronizador* sincronizador)
     : sincronizador_(sincronizador),
-      socket_(new boost::asio::ip::tcp::socket(*sincronizador->Servico())) {}
+      socket_(new boost::asio::ip::tcp::socket(*sincronizador->interno_->servico_io)) {}
 
 Socket::~Socket() {}
 
 void Socket::Conecta(const std::string& endereco, const std::string& porta) {
-  boost::asio::ip::tcp::resolver resolver(*sincronizador_->Servico());
+  boost::asio::ip::tcp::resolver resolver(*sincronizador_->interno_->servico_io);
   auto endereco_resolvido = resolver.resolve({endereco, porta});
   boost::asio::connect(*socket_, endereco_resolvido);
 }
@@ -122,7 +120,7 @@ bool Aceitador::Liga(int porta,
           Socket* socket_cliente,
           CallbackConexaoCliente callback_conexao_cliente) {
   aceitador_.reset(new boost::asio::ip::tcp::acceptor(
-      *sincronizador_->Servico(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
+      *sincronizador_->interno_->servico_io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
   // Quando um cliente for recebido, CallbackConexao sera chamado.
   aceitador_->async_accept(
       *socket_cliente->socket_.get(),

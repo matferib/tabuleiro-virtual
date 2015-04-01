@@ -43,8 +43,6 @@ class Sincronizador {
   // Roda o que houver para rodar, retornando o numero de tarefas executadas.
   int Roda();
 
-  boost::asio::io_service* Servico();
-
  private:
   friend class SocketUdp;
   friend class Socket;
