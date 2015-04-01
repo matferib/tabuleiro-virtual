@@ -46,10 +46,10 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  private:
   struct Cliente {
     // tamanho maximo da mensagem: 1MB.
-    Cliente(boost::asio::ip::tcp::socket* socket) : socket(socket), buffer(1024 * 1024), a_receber_(0) {}
+    Cliente(Socket* socket) : socket(socket), buffer(1024 * 1024), a_receber_(0) {}
     Cliente() : Cliente(nullptr) {}
     std::string id;
-    std::unique_ptr<boost::asio::ip::tcp::socket> socket;
+    std::unique_ptr<Socket> socket;
     // Buffer de recepcao dos dados, controlado pelo boost.
     std::vector<char> buffer;
     // Buffer de cada notificacao recebida no buffer acima.

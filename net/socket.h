@@ -23,8 +23,12 @@ class Sincronizador {
 // Abstracao do socket.
 class Socket {
  public:
-  explicit Socket(Sincronizador* sincronizador);
-  ~Socket();
+  explicit Socket(Sincronizador* sincronizador) : socket_(new boost::asio::ip::tcp::socket(*sincronizador->Servico())) {}
+  ~Socket() {}
+
+  void Fecha() {
+    socket_->close();
+  }
 
   // Funcao assincrona para enviar dados atraves do socket.
   void Envia(std::function<void(const std::string& dados, bool erro)>);
@@ -43,19 +47,19 @@ class Aceitador {
   explicit Aceitador(Sincronizador* sincronizador) : sincronizador_(sincronizador) {}
   ~Aceitador() {}
 
-  // Callback do cliente deve receber um codigo de erro e retornar um socket.
-  typedef std::function<boost::asio::ip::tcp::socket*(boost::system::error_code ec)> CallbackConexaoCliente;
+  // Callback do cliente deve receber um codigo de erro e retornar um socket. Este NAO eh de responsabilidade do aceitador.
+  typedef std::function<Socket*(boost::system::error_code ec)> CallbackConexaoCliente;
 
   // Inicia o aceitador, de forma que sempre que uma conexao acontecer, callback_conexao sera chamado. O socket novo
   // retornado sera usado para esperar mais clientes.
   bool Liga(int porta,
-            boost::asio::ip::tcp::socket* socket_cliente,
+            Socket* socket_cliente,
             CallbackConexaoCliente callback_conexao_cliente) {
     aceitador_.reset(new boost::asio::ip::tcp::acceptor(
         *sincronizador_->Servico(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
     // Quando um cliente for recebido, CallbackConexao sera chamado.
     aceitador_->async_accept(
-        *socket_cliente,
+        *socket_cliente->Boost(),
         std::bind(&Aceitador::CallbackConexao,
                   std::placeholders::_1,  // ec, a ser preenchido.
                   aceitador_.get(),
@@ -76,11 +80,11 @@ class Aceitador {
       boost::asio::ip::tcp::acceptor* aceitador,
       CallbackConexaoCliente callback_conexao_cliente) {
     // Chama callback do cliente com erro recebido.
-    boost::asio::ip::tcp::socket* novo_socket_cliente = callback_conexao_cliente(ec);
+    Socket* novo_socket_cliente = callback_conexao_cliente(ec);
     if (novo_socket_cliente != nullptr) {
       // Se recebeu socket, chama de novo.
       aceitador->async_accept(
-          *novo_socket_cliente,
+          *novo_socket_cliente->Boost(),
           std::bind(CallbackConexao,
                     std::placeholders::_1,  // ec, a ser preenchido.
                     aceitador,

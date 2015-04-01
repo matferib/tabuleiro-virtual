@@ -69,7 +69,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
     }
     if (notificacao.tipo() == ntf::TN_ERRO) {
       LOG(ERROR) << "Conexao com cliente rejeitada, provavelmente servidor nao conseguiu gerar id.";
-      cliente_pendente->socket->close();
+      cliente_pendente->socket->Fecha();
       return true;
     }
     VLOG(1) << "Enviando primeira notificacao para cliente pendente";
@@ -96,11 +96,10 @@ bool Servidor::Ligado() const {
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
-    auto* socket_cliente = new boost::asio::ip::tcp::socket(*sincronizador_->Servico());
-    proximo_cliente_.reset(new Cliente(socket_cliente));
+    proximo_cliente_.reset(new Cliente(new Socket(sincronizador_)));
     central_->RegistraReceptorRemoto(this);
     aceitador_->Liga(PortaPadrao(), proximo_cliente_->socket.get(),
-                     [this](boost::system::error_code ec) -> boost::asio::ip::tcp::socket* {
+                     [this](boost::system::error_code ec) -> Socket* {
       if (ec) {
         LOG(ERROR) << "Recebendo erro..." << ec.message();
         return nullptr;
@@ -109,6 +108,7 @@ void Servidor::Liga() {
       VLOG(1) << "Recebendo cliente...";
       Cliente* cliente_pendente = proximo_cliente_.release();
       clientes_pendentes_.insert(cliente_pendente);
+#if 0
       boost::asio::socket_base::receive_buffer_size option;
       cliente_pendente->socket->get_option(option);
       LOG(INFO) << "Buffer recepcao: " << option.value();
@@ -119,8 +119,9 @@ void Servidor::Liga() {
       cliente_pendente->socket->set_option(option3);
       cliente_pendente->socket->get_option(option3);
       LOG(INFO) << "Buffer envio watermark: " << option3.value();
+#endif
       // Proximo cliente.
-      proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*sincronizador_->Servico())));
+      proximo_cliente_.reset(new Cliente(new Socket(sincronizador_)));
       RecebeDadosCliente(cliente_pendente);
       return proximo_cliente_->socket.get();
     });
@@ -170,7 +171,7 @@ void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, boo
     }
   }
   try {
-    boost::asio::async_write(*cliente->socket.get(), boost::asio::buffer(cliente->dados_enviar.front()),
+    boost::asio::async_write(*cliente->socket->Boost(), boost::asio::buffer(cliente->dados_enviar.front()),
                              [this, cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
       if (ec) {
         // Importante nao usar cliente aqui, pois o ponteiro pode estar dangling.
@@ -203,7 +204,7 @@ void Servidor::DesconectaCliente(Cliente* cliente) {
 }
 
 void Servidor::RecebeDadosCliente(Cliente* cliente) {
-  cliente->socket->async_receive(
+  cliente->socket->Boost()->async_receive(
     boost::asio::buffer(cliente->buffer),
     [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
       if (ec) {
