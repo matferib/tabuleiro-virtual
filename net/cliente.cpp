@@ -74,10 +74,10 @@ void Cliente::EnviaDados(const std::string& dados, bool sem_dados) {
       return;
     }
   }
-  socket_->Envia(fifo_envio_.front(), [this] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+  socket_->Envia(fifo_envio_.front(), [this] (const Erro& erro, std::size_t bytes_enviados) {
     // Importante nao usar o socket aqui em caso de erro, pode estar dangling.
-    if (ec) {
-      LOG(ERROR) << "Erro enviando: " << ec.message() << ", enviado: " << bytes_enviados;
+    if (erro) {
+      LOG(ERROR) << "Erro enviando: " << erro.mensagem() << ", enviado: " << bytes_enviados;
       return;
     }
     fifo_envio_.pop();
@@ -216,12 +216,12 @@ void Cliente::RecebeDados() {
   VLOG(1) << "Cliente::RecebeDados";
   socket_->Recebe(
     &buffer_,
-    [this](const boost::system::error_code ec, std::size_t bytes_recebidos) {
+    [this](const Erro& erro, std::size_t bytes_recebidos) {
       VLOG(1) << "Funcao de recepcao chamada de volta";
-      if (ec) {
-        std::string erro;
-        erro = "Erro recebendo dados: " + ec.message();
-        Desconecta(erro);
+      if (erro) {
+        std::string erro_str;
+        erro_str = "Erro recebendo dados: " + erro.mensagem();
+        Desconecta(erro_str);
         return;
       }
       auto buffer_inicio = buffer_.begin();
@@ -229,10 +229,10 @@ void Cliente::RecebeDados() {
       do {
         if (a_receber_ == 0) {
           if (bytes_recebidos < 4) {
-            std::string erro;
-            erro = "Erro recebendo tamanho de dados do servidor, bytes recebidos: " +
+            std::string erro_str;
+            erro_str = "Erro recebendo tamanho de dados do servidor, bytes recebidos: " +
                    to_string(bytes_recebidos);
-            Desconecta(erro);
+            Desconecta(erro_str);
             return;
           }
           a_receber_ = DecodificaTamanho(buffer_inicio);
@@ -248,11 +248,11 @@ void Cliente::RecebeDados() {
           // Decodifica mensagem e poe na central.
           auto* notificacao = new ntf::Notificacao;
           if (!notificacao->ParseFromString(buffer_notificacao_)) {
-            std::string erro;
-            erro = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " +
+            std::string erro_str;
+            erro_str = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " +
                     to_string(buffer_notificacao_.size());
             delete notificacao;
-            Desconecta(erro);
+            Desconecta(erro_str);
             return;
           }
           notificacao->set_local(false);

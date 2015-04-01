@@ -12,9 +12,13 @@ namespace net {
 // Classe de erro.
 class Erro {
  public:
-  explicit Erro(const boost::system::error_code& ec) : erro_(ec), msg_(ec.message()) {}
+  explicit Erro(const boost::system::error_code& ec) : ec_(ec), erro_(ec), msg_(ec.message()) {}
   explicit Erro(const std::string& msg) : erro_(true), msg_(msg) {}
   Erro() : erro_(false) {}
+
+  bool ConexaoFechada() const {
+    return ec_.value() == boost::asio::error::eof;
+  }
 
   // Verificacao de erro.
   operator bool() const { return erro_; }
@@ -22,6 +26,7 @@ class Erro {
   const std::string& mensagem() const { return msg_; }
 
  private:
+  const boost::system::error_code ec_;
   bool erro_;
   const std::string msg_;
 };
@@ -126,23 +131,28 @@ class Socket {
   }
 
   // Ao terminar o envio, recebera codigo de erro e numero de bytes enviados.
-  typedef std::function<void(const boost::system::error_code& ec, std::size_t bytes_enviados)> CallbackEnvio;
+  typedef std::function<void(const Erro& erro, std::size_t bytes_enviados)> CallbackEnvio;
 
   // Funcao assincrona para enviar dados atraves do socket. Parametros 'dados' deve viver ate o fim.
   // Lanca std::exception em caso de erro.
   void Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
     boost::asio::async_write(*socket_.get(),
                              boost::asio::buffer(dados),
-                             callback_envio_cliente);
+                             [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+     callback_envio_cliente(Erro(ec), bytes_enviados);
+   });
   }
 
-  typedef std::function<void(const boost::system::error_code& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
+  typedef std::function<void(const Erro& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
 
   // Funcao assincrona para receber dados do socket.
   // Parametro 'dados' deve viver ate o fim e sera alterado para o tamanho certo.
   // Lanca std::exception em caso de erro.
   void Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente) {
-    socket_->async_receive(boost::asio::buffer(*dados), callback_recepcao_cliente);
+    socket_->async_receive(boost::asio::buffer(*dados),
+        [callback_recepcao_cliente](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
+      callback_recepcao_cliente(Erro(ec), bytes_recebidos);
+    });
   }
 
   // Retorna o socket boost.
@@ -159,7 +169,7 @@ class Aceitador {
   ~Aceitador() {}
 
   // Callback do cliente deve receber um codigo de erro e retornar um socket. Este NAO eh de responsabilidade do aceitador.
-  typedef std::function<Socket*(boost::system::error_code ec)> CallbackConexaoCliente;
+  typedef std::function<Socket*(const Erro& erro)> CallbackConexaoCliente;
 
   // Inicia o aceitador, de forma que sempre que uma conexao acontecer, callback_conexao sera chamado. O socket novo
   // retornado sera usado para esperar mais clientes.
@@ -191,7 +201,7 @@ class Aceitador {
       boost::asio::ip::tcp::acceptor* aceitador,
       CallbackConexaoCliente callback_conexao_cliente) {
     // Chama callback do cliente com erro recebido.
-    Socket* novo_socket_cliente = callback_conexao_cliente(ec);
+    Socket* novo_socket_cliente = callback_conexao_cliente(Erro(ec));
     if (novo_socket_cliente != nullptr) {
       // Se recebeu socket, chama de novo.
       aceitador->async_accept(

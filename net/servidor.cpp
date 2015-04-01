@@ -96,9 +96,9 @@ void Servidor::Liga() {
     proximo_cliente_.reset(new Cliente(new Socket(sincronizador_)));
     central_->RegistraReceptorRemoto(this);
     aceitador_->Liga(PortaPadrao(), proximo_cliente_->socket.get(),
-                     [this](boost::system::error_code ec) -> Socket* {
-      if (ec) {
-        LOG(ERROR) << "Recebendo erro..." << ec.message();
+                     [this](const Erro& erro) -> Socket* {
+      if (erro) {
+        LOG(ERROR) << "Recebendo erro..." << erro.mensagem();
         return nullptr;
       }
       // Cria cliente pendente.
@@ -173,10 +173,10 @@ void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, boo
   try {
     cliente->socket->Envia(
         cliente->dados_enviar.front(),
-        [this, cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-      if (ec) {
+        [this, cliente] (const Erro& erro, std::size_t bytes_enviados) {
+      if (erro) {
         // Importante nao usar cliente aqui, pois o ponteiro pode estar dangling.
-        LOG(ERROR) << "Erro enviando dados, mensagem: " << ec.message();
+        LOG(ERROR) << "Erro enviando dados, mensagem: " << erro.mensagem();
         return;
       }
       cliente->dados_enviar.pop();
@@ -207,17 +207,17 @@ void Servidor::DesconectaCliente(Cliente* cliente) {
 void Servidor::RecebeDadosCliente(Cliente* cliente) {
   cliente->socket->Recebe(
     &cliente->buffer,
-    [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
-      if (ec) {
+    [this, cliente](const Erro& erro, std::size_t bytes_recebidos) {
+      if (erro) {
         // remove o cliente.
         auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        std::string erro(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
-        if (ec.value() == boost::asio::error::eof) {
-          erro += "Conexao fechada pela outra ponta.";
+        std::string erro_str(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
+        if (erro.ConexaoFechada()) {
+          erro_str += "Conexao fechada pela outra ponta.";
         } else {
-          erro += to_string(ec.value()) + ": " + ec.message();
+          erro_str += ": " + erro.mensagem();
         }
-        n->set_erro(erro);
+        n->set_erro(erro_str);
         central_->AdicionaNotificacao(n);
         DesconectaCliente(cliente);
         return;
