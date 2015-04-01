@@ -73,7 +73,7 @@ bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
 void Cliente::EnviaDados(const std::string& dados) {
   auto dados_codificados(CodificaDados(dados));
   // Tem que usar write ao inves de send pra mandar tudo.
-  size_t bytes_enviados = boost::asio::write(*socket_, boost::asio::buffer(dados_codificados));
+  size_t bytes_enviados = boost::asio::write(*socket_->Boost(), boost::asio::buffer(dados_codificados));
   if (bytes_enviados != dados_codificados.size()) {
     LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
   } else {
@@ -148,10 +148,11 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     endereco_porta.push_back(to_string(PortaPadrao()));
   }
   try {
-    socket_.reset(new boost::asio::ip::tcp::socket(*sincronizador_->Servico()));
+    socket_.reset(new Socket(sincronizador_));
     boost::asio::ip::tcp::resolver resolver(*sincronizador_->Servico());
     auto endereco_resolvido = resolver.resolve({endereco_porta[0], endereco_porta[1]});
-    boost::asio::connect(*socket_, endereco_resolvido);
+    boost::asio::connect(*socket_->Boost(), endereco_resolvido);
+#if 0
     //boost::asio::socket_base::receive_buffer_size option(50000);
     boost::asio::socket_base::receive_buffer_size option;
     //socket_->set_option(option);
@@ -165,6 +166,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     //socket_->set_option(option3);
     socket_->get_option(option3);
     LOG(INFO) << "Valor buffer envio watermark: " << option3.value();
+#endif
 
     // Handler de leitura.
     auto* notificacao = new ntf::Notificacao;
@@ -191,7 +193,7 @@ void Cliente::Desconecta(const std::string& erro) {
   if (!Ligado()) {
     return;
   }
-  socket_->close();
+  socket_->Fecha();
   socket_.reset();
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
@@ -208,9 +210,9 @@ bool Cliente::Ligado() const {
 
 void Cliente::RecebeDados() {
   VLOG(1) << "Cliente::RecebeDados";
-  socket_->async_receive(
-    boost::asio::buffer(buffer_),
-    [this](boost::system::error_code ec, std::size_t bytes_recebidos) {
+  socket_->Recebe(
+    &buffer_,
+    [this](const boost::system::error_code ec, std::size_t bytes_recebidos) {
       VLOG(1) << "Funcao de recepcao chamada de volta";
       if (ec) {
         std::string erro;
