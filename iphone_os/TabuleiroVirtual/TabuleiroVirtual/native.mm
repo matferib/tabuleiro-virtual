@@ -16,6 +16,7 @@
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
+#include "net/socket.h"
 #include "tex/texturas.h"
 
 namespace {
@@ -24,6 +25,7 @@ std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<tex::Texturas> g_texturas;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
+std::unique_ptr<net::Sincronizador> g_sincronizador;
 std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 GameViewController* g_view;  // ponteiro para o view principal.
@@ -74,7 +76,8 @@ void nativeCreate(void* view) {
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
-  g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
+  g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
+  g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
   g_teclado_mouse.reset(
       new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
   g_carregador.reset(new CarregadorTabuleiro(g_central.get()));

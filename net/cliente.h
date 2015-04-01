@@ -1,7 +1,11 @@
+#ifndef NET_CLIENTE_H
+#define NET_CLIENTE_H
+
 #include <boost/asio.hpp>
 #include <memory>
 #include <string>
 #include <vector>
+#include "net/socket.h"
 #include "ntf/notificacao.h"
 
 namespace net {
@@ -10,7 +14,7 @@ namespace net {
 class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
   // Nao possui os parametros.
-  explicit Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
+  explicit Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central);
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
   virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
@@ -36,7 +40,7 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   bool Ligado() const;
 
   ntf::CentralNotificacoes* central_;
-  boost::asio::io_service* servico_io_;
+  Sincronizador* sincronizador_;
   std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
   int a_receber_;  // bytes a receber.
   std::vector<char> buffer_;  // Buffer de recepcao.
@@ -49,3 +53,5 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
 };
 
 }  // namespace net
+
+#endif

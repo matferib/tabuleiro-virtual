@@ -1,3 +1,6 @@
+#ifndef NET_SERVIDOR_H
+#define NET_SERVIDOR_H
+
 #include <memory>
 #include <queue>
 #include <set>
@@ -86,3 +89,5 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
 };
 
 }  // namespace net
+
+#endif

@@ -1,3 +1,6 @@
+#ifndef NET_SOCKET_H
+#define NET_SOCKET_H
+
 // Representacao da interface de socket independente de plataforma. Interface assincrona por callbacks.
 // O sincronizador garantira que todos os callbacks serao chamados na mesma thread onde Roda eh chamado.
 #include <functional>
@@ -142,3 +145,5 @@ class Aceitador {
 };
 
 }  // namespace
+
+#endif

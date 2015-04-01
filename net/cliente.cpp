@@ -18,8 +18,8 @@ using boost::asio::ip::tcp;
 
 namespace net {
 
-Cliente::Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central) {
-  servico_io_ = servico_io;
+Cliente::Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
+  sincronizador_ = sincronizador;
   central_ = central;
   central_->RegistraReceptor(this);
   // TODO fazer alguma verificacao disso.
@@ -32,6 +32,7 @@ Cliente::Cliente(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* 
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
+    int n = 0;
     if (socket_descobrimento_.get() != nullptr) {
       if (++timer_descobrimento_ * INTERVALO_NOTIFICACAO_MS > 3000) {
         //LOG(INFO) << "Timer: " << timer_descobrimento_;
@@ -40,12 +41,14 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
           //LOG(INFO) << "erro close: " << ec;
         }
       }
-      servico_io_->poll_one();
+      n = sincronizador_->Roda();
     } else if (Ligado()) {
-      auto n = servico_io_->poll();
-      if (n > 0) {
-        VLOG(1) << "polled: " << n;
-      }
+      n = sincronizador_->Roda();
+    }
+    if (n > 0) {
+      VLOG(2) << "polled: " << n;
+    } else {
+      VLOG(3) << "polled: 0";
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_CONECTAR) {
@@ -88,7 +91,7 @@ void Cliente::AutoConecta(const std::string& id) {
   }
   //LOG(INFO) << "recriando socket";
   boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), PortaAnuncio());
-  socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
+  socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*sincronizador_->Servico(), endereco_anuncio));
   if (!socket_descobrimento_->is_open()) {
     socket_descobrimento_.reset();
     auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
@@ -145,8 +148,8 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     endereco_porta.push_back(to_string(PortaPadrao()));
   }
   try {
-    socket_.reset(new boost::asio::ip::tcp::socket(*servico_io_));
-    boost::asio::ip::tcp::resolver resolver(*servico_io_);
+    socket_.reset(new boost::asio::ip::tcp::socket(*sincronizador_->Servico()));
+    boost::asio::ip::tcp::resolver resolver(*sincronizador_->Servico());
     auto endereco_resolvido = resolver.resolve({endereco_porta[0], endereco_porta[1]});
     boost::asio::connect(*socket_, endereco_resolvido);
     //boost::asio::socket_base::receive_buffer_size option(50000);

@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
   net::Sincronizador sincronizador(&servico_io);
   ntf::CentralNotificacoes central;
   net::Servidor servidor(&sincronizador, &central);
-  net::Cliente cliente(&servico_io, &central);
+  net::Cliente cliente(&sincronizador, &central);
   tex::Texturas texturas(&central);
   ent::Tabuleiro tabuleiro(&texturas, &central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &central));
