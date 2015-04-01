@@ -3,6 +3,7 @@
 
 #include <boost/asio.hpp>
 #include <memory>
+#include <queue>
 #include <string>
 #include <vector>
 #include "net/socket.h"
@@ -33,8 +34,8 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   // Recebe dados da conexao continuamente.
   void RecebeDados();
 
-  // Envia dados pela conexao continuamente.
-  void EnviaDados(const std::string& dados);
+  // Envia dados pela conexao de forma assincrona. Se sem dados for true, ignora dados e envia o primeiro da fifo_envio_.
+  void EnviaDados(const std::string& dados, bool sem_dados = false);
 
   // Retorna se o cliente esta conectado ou nao.
   bool Ligado() const;
@@ -45,6 +46,7 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   int a_receber_;  // bytes a receber.
   std::vector<char> buffer_;  // Buffer de recepcao.
   std::string buffer_notificacao_;  // Armazena o objeto lido.
+  std::queue<std::vector<char>> fifo_envio_;  // FIFO para envio.
 
   std::unique_ptr<boost::asio::ip::udp::socket> socket_descobrimento_;
   std::vector<char> buffer_descobrimento_;

@@ -70,15 +70,25 @@ bool Cliente::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   return true;
 }
 
-void Cliente::EnviaDados(const std::string& dados) {
-  auto dados_codificados(CodificaDados(dados));
-  // Tem que usar write ao inves de send pra mandar tudo.
-  size_t bytes_enviados = boost::asio::write(*socket_->Boost(), boost::asio::buffer(dados_codificados));
-  if (bytes_enviados != dados_codificados.size()) {
-    LOG(ERROR) << "Erro enviando dados, enviado: " << bytes_enviados;
-  } else {
-    VLOG(1) << "Enviei " << dados.size() << " bytes pro servidor.";
+void Cliente::EnviaDados(const std::string& dados, bool sem_dados) {
+  if (!sem_dados) {
+    fifo_envio_.push(CodificaDados(dados));
+    if (fifo_envio_.size() > 1) {
+      return;
+    }
   }
+  socket_->Envia(fifo_envio_.front(), [this] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+    // Importante nao usar o socket aqui em caso de erro, pode estar dangling.
+    if (ec) {
+      LOG(ERROR) << "Erro enviando: " << ec.message() << ", enviado: " << bytes_enviados;
+      return;
+    }
+    fifo_envio_.pop();
+    VLOG(1) << "Enviei " << bytes_enviados << " bytes pro servidor.";
+    if (!fifo_envio_.empty()) {
+      EnviaDados("", true);
+    }
+  });
 }
 
 void Cliente::AutoConecta(const std::string& id) {
