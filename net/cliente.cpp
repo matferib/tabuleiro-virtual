@@ -109,7 +109,7 @@ void Cliente::AutoConecta(const std::string& id) {
   socket_descobrimento_->Recebe(
       &buffer_descobrimento_,
       &endereco_descoberto_,
-      [this, id] (const boost::system::error_code& erro, std::size_t num_bytes) {
+      [this, id] (const Erro& erro, std::size_t num_bytes) {
         //LOG(INFO) << "zerando socket";
         socket_descobrimento_.reset();
         if (erro) {

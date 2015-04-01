@@ -9,6 +9,23 @@
 
 namespace net {
 
+// Classe de erro.
+class Erro {
+ public:
+  explicit Erro(const boost::system::error_code& ec) : erro_(ec), msg_(ec.message()) {}
+  explicit Erro(const std::string& msg) : erro_(true), msg_(msg) {}
+  Erro() : erro_(false) {}
+
+  // Verificacao de erro.
+  operator bool() const { return erro_; }
+  // Mesagem de erro.
+  const std::string& mensagem() const { return msg_; }
+
+ private:
+  bool erro_;
+  const std::string msg_;
+};
+
 class Sincronizador {
  public:
   explicit Sincronizador(boost::asio::io_service* servico_io) : servico_io_(servico_io) {}
@@ -55,18 +72,20 @@ class SocketUdp {
     socket_->close(ec);
   }
 
-  typedef std::function<void(const boost::system::error_code& error, std::size_t bytes_enviados)> CallbackEnvio;
+  typedef std::function<void(const Erro& erro, std::size_t bytes_enviados)> CallbackEnvio;
 
   // Envio de broadcast assincrono. Dados deve viver ate o fim.
   void Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
     socket_->async_send_to(
         boost::asio::buffer(dados),
         boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
-        callback_envio_cliente);
+        [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+      callback_envio_cliente(Erro(ec), bytes_enviados);
+    });
   }
 
   // Callback de recepcao da recepcao UDP.
-  typedef std::function<void(const boost::system::error_code& error, std::size_t bytes_recebidos)> CallbackRecepcao;
+  typedef std::function<void(const Erro& erro, std::size_t bytes_recebidos)> CallbackRecepcao;
 
   // Recebe dados na conexao UDP de forma assincrona e NAO continua. Preenche dados e endereco de quem enviou,
   // chamando callback_recepcao_cliente.
@@ -76,7 +95,9 @@ class SocketUdp {
     socket_->async_receive_from(
         boost::asio::buffer(*dados),
         *endereco,
-        callback_recepcao_cliente);
+        [callback_recepcao_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+      callback_recepcao_cliente(Erro(ec), bytes_enviados);
+    });
   }
 
  private:
@@ -86,7 +107,7 @@ class SocketUdp {
 // Abstracao do socket.
 class Socket {
  public:
-  explicit Socket(Sincronizador* sincronizador) 
+  explicit Socket(Sincronizador* sincronizador)
       : sincronizador_(sincronizador),
         socket_(new boost::asio::ip::tcp::socket(*sincronizador->Servico())) {}
   ~Socket() {}

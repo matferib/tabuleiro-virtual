@@ -28,7 +28,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
         anunciante_->Envia(PortaAnuncio(), std::vector<char>(buffer_porta_.begin(), buffer_porta_.end()),
-                           [] (const boost::system::error_code& error, std::size_t bytes_transferred) {});
+                           [] (const Erro& erro, std::size_t bytes_transferred) {});
       }
     }
     if (Ligado()) {
