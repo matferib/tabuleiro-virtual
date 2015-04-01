@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include <boost/asio.hpp>
 #include <vector>
 #include <string>
 
@@ -13,8 +12,6 @@
 #include "net/util.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
-
-using boost::asio::ip::tcp;
 
 namespace net {
 

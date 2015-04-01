@@ -1,6 +1,4 @@
 #include <algorithm>
-#include <boost/asio.hpp>
-#include <boost/asio/error.hpp>
 
 #include "ent/constantes.h"
 #include "log/log.h"

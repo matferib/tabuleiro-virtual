@@ -143,6 +143,7 @@ cArqPc = env.Object('arq/arquivo_pc.cpp')
 cNetServidor = env.Object('net/servidor.cpp')
 cNetCliente = env.Object('net/cliente.cpp')
 cNetUtil = env.Object('net/util.cpp')
+cNetSocket = env.Object('net/socket.cpp')
 
 # Notificacoes.
 cNtf = env.Object('ntf/notificacao.cpp')
@@ -158,7 +159,7 @@ cGlChar = env.Object('gltab/gl_char.cpp')
 
 objetos = [
     # net.
-    cNetServidor, cNetCliente, cNetUtil,
+    cNetServidor, cNetCliente, cNetUtil, cNetSocket,
     # notificacoes.
     ntf_proto[0], cNtf,
     # interface.

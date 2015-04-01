@@ -49,61 +49,33 @@ class Sincronizador {
 class SocketUdp {
  public:
   // Cria socket fechado.
-  explicit SocketUdp(Sincronizador* sincronizador)
-      : socket_(new boost::asio::ip::udp::socket(*sincronizador->Servico())) {
-  }
+  explicit SocketUdp(Sincronizador* sincronizador);
 
   // Cria socket aberto para recepcao na porta.
-  SocketUdp(Sincronizador* sincronizador, int porta) : SocketUdp(sincronizador) {
-    boost::asio::ip::udp::endpoint endereco(boost::asio::ip::udp::v4(), porta);
-    socket_.reset(new boost::asio::ip::udp::socket(*sincronizador->Servico(), endereco));
-  }
+  SocketUdp(Sincronizador* sincronizador, int porta);
 
-  ~SocketUdp() {}
+  ~SocketUdp();
 
   // Abre o socket para broadcast. Da excecao em caso de falha.
-  void Abre() {
-    boost::system::error_code erro;
-    socket_->open(boost::asio::ip::udp::v4(), erro);
-    boost::asio::socket_base::broadcast option(true);
-    socket_->set_option(option);
-  }
+  void Abre();
 
   // Retorna se o socket esta aberto.
-  bool Aberto() const { return socket_->is_open(); }
+  bool Aberto() const;
 
-  void Fecha() {
-    boost::system::error_code ec;
-    socket_->close(ec);
-  }
-
-  typedef std::function<void(const Erro& erro, std::size_t bytes_enviados)> CallbackEnvio;
+  // Fecha o socket.
+  void Fecha();
 
   // Envio de broadcast assincrono. Dados deve viver ate o fim.
-  void Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
-    socket_->async_send_to(
-        boost::asio::buffer(dados),
-        boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
-        [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-      callback_envio_cliente(Erro(ec), bytes_enviados);
-    });
-  }
+  typedef std::function<void(const Erro& erro, std::size_t bytes_enviados)> CallbackEnvio;
+  void Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente);
 
-  // Callback de recepcao da recepcao UDP.
-  typedef std::function<void(const Erro& erro, std::size_t bytes_recebidos)> CallbackRecepcao;
 
   // Recebe dados na conexao UDP de forma assincrona e NAO continua. Preenche dados e endereco de quem enviou,
   // chamando callback_recepcao_cliente.
   // @throws std::exception em caso de erro.
+  typedef std::function<void(const Erro& erro, std::size_t bytes_recebidos)> CallbackRecepcao;
   void Recebe(
-      std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente) {
-    socket_->async_receive_from(
-        boost::asio::buffer(*dados),
-        *endereco,
-        [callback_recepcao_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-      callback_recepcao_cliente(Erro(ec), bytes_enviados);
-    });
-  }
+      std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente);
 
  private:
   std::unique_ptr<boost::asio::ip::udp::socket> socket_;
