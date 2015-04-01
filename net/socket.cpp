@@ -20,12 +20,17 @@ bool Erro::ConexaoFechada() const {
 //--------------
 // Sincronizador
 //--------------
-Sincronizador::Sincronizador(boost::asio::io_service* servico_io) : servico_io_(servico_io) {}
+struct Sincronizador::Interno {
+  Interno(void* depende_plataforma) : servico_io((boost::asio::io_service*)depende_plataforma) {}
+
+  boost::asio::io_service* servico_io = nullptr;
+};
+Sincronizador::Sincronizador(void* depende_plataforma) : interno_(new Interno(depende_plataforma)) {}
 Sincronizador::~Sincronizador() {}
 
-int Sincronizador::Roda() { return servico_io_->poll(); }
+int Sincronizador::Roda() { return interno_->servico_io->poll(); }
 
-boost::asio::io_service* Sincronizador::Servico() { return servico_io_; }
+boost::asio::io_service* Sincronizador::Servico() { return interno_->servico_io; }
 
 //----------
 // SocketUdp

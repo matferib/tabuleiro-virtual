@@ -36,7 +36,8 @@ class Erro {
 // Classe usada para realizar tarefas assincronas (em background) e chamar o callback na thread principal.
 class Sincronizador {
  public:
-  explicit Sincronizador(boost::asio::io_service* servico_io); 
+  // Constroi o sincronizador com dados internos passados. A implemetacao devera saber como usar interno.
+  explicit Sincronizador(void* depende_plataforma); 
   ~Sincronizador();
 
   // Roda o que houver para rodar, retornando o numero de tarefas executadas.
@@ -45,7 +46,13 @@ class Sincronizador {
   boost::asio::io_service* Servico();
 
  private:
-  boost::asio::io_service* servico_io_ = nullptr;
+  friend class SocketUdp;
+  friend class Socket;
+  friend class Aceitador;
+
+  // Dados internos.
+  struct Interno;
+  std::unique_ptr<Interno> interno_;
 };
 
 // Abstracao para socket UDP broadcast.
