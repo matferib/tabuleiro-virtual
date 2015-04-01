@@ -4,6 +4,7 @@
 #include <set>
 #include <vector>
 #include "ntf/notificacao.h"
+#include "net/socket.h"
 
 namespace net {
 
@@ -36,7 +37,7 @@ namespace net {
 class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
   // Nao possui os parametros.
-  Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
+  Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central);
   virtual ~Servidor();
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -58,7 +59,8 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
     std::queue<std::vector<char>> dados_enviar;
   };
 
-  // Liga o servidor e chama EsperaCliente.
+  // Liga o aceitador para receber clientes de forma assincrona e renova automaticamente sempre que um cliente aparece.
+  // Para cada cliente, chama RecebeDadosCliente e nao bloca.
   void Liga();
   // Desliga o servidor.
   void Desliga();
@@ -66,9 +68,6 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   // Retorna se o servidor esta ligado.
   bool Ligado() const;
 
-  // Funcao que espera um cliente de forma assincrona e renova automaticamente sempre que um cliente aparece.
-  // Para cada cliente, chama RecebeDadosCliente e Nao bloca.
-  void EsperaCliente();
   // Chama a funcao de recepcao de dados de forma assincrona para o cliente.
   void RecebeDadosCliente(Cliente* cliente);
   // Envia ou enfileira dados a serem enviados para um cliente. Assincrono. Se sem dados for true, envia a primeira mensagem enfileirada.
@@ -77,8 +76,8 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   void DesconectaCliente(Cliente* cliente);
 
   ntf::CentralNotificacoes* central_;
-  boost::asio::io_service* servico_io_;
-  std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
+  Sincronizador* sincronizador_;
+  std::unique_ptr<Aceitador> aceitador_;
   std::unique_ptr<boost::asio::ip::udp::socket> anunciante_;
   int timer_anuncio_ = 0;
   std::unique_ptr<Cliente> proximo_cliente_;

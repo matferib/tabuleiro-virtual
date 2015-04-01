@@ -11,8 +11,9 @@
 
 namespace net {
 
-Servidor::Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central) {
-  servico_io_ = servico_io;
+Servidor::Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
+  sincronizador_ = sincronizador;
+  aceitador_.reset(new Aceitador(sincronizador));
   central_ = central;
   central_->RegistraReceptor(this);
 }
@@ -34,8 +35,12 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
     }
     if (Ligado()) {
-      VLOG(3) << "Polling";
-      servico_io_->poll();
+      auto n = sincronizador_->Roda();
+      if (n > 0) {
+        VLOG(2) << "Rodei " << n << " eventos";
+      } else {
+        VLOG(3) << "Nada rodado";
+      }
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
@@ -85,58 +90,22 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
 }
 
 bool Servidor::Ligado() const {
-  return aceitador_ != nullptr;
+  return aceitador_->Ligado();
 }
 
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
-    auto* socket_cliente = new boost::asio::ip::tcp::socket(*servico_io_);
+    auto* socket_cliente = new boost::asio::ip::tcp::socket(*sincronizador_->Servico());
     proximo_cliente_.reset(new Cliente(socket_cliente));
-    aceitador_.reset(new boost::asio::ip::tcp::acceptor(
-        *servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PortaPadrao())));
     central_->RegistraReceptorRemoto(this);
-    EsperaCliente();
-    VLOG(1) << "Servidor ligado.";
-  } catch (const std::exception& e) {
-    LOG(ERROR) << "Erro ligando servidor: " << e.what();
-    // TODO fazer o tipo de erro e tratar notificacao em algum lugar.
-    auto* notificacao = new ntf::Notificacao;
-    notificacao->set_tipo(ntf::TN_ERRO);
-    notificacao->set_erro(e.what());
-    central_->AdicionaNotificacao(notificacao);
-    return;
-  }
-
-  // Aqui eh so pro anunciante do jogo.
-  anunciante_.reset(new boost::asio::ip::udp::socket(*servico_io_));
-  boost::system::error_code erro;
-  anunciante_->open(boost::asio::ip::udp::v4(), erro);
-  boost::asio::socket_base::broadcast option(true);
-  anunciante_->set_option(option);
-}
-
-void Servidor::Desliga() {
-  VLOG(1) << "Desligando servidor.";
-  if (!Ligado()) {
-    LOG(ERROR) << "Servidor ja está desligado.";
-    return;
-  }
-  central_->DesregistraReceptorRemoto(this);
-  aceitador_.reset();
-  anunciante_.reset();
-  for (auto* c : clientes_) {
-    delete c;
-  }
-  for (auto* c : clientes_pendentes_) {
-    delete c;
-  }
-  VLOG(1) << "Servidor desligado.";
-}
-
-void Servidor::EsperaCliente() {
-  aceitador_->async_accept(*proximo_cliente_->socket.get(), [this](boost::system::error_code ec) {
-    if (!ec) {
+    aceitador_->Liga(PortaPadrao(), proximo_cliente_->socket.get(),
+                     [this](boost::system::error_code ec) -> boost::asio::ip::tcp::socket* {
+      if (ec) {
+        LOG(ERROR) << "Recebendo erro..." << ec.message();
+        return nullptr;
+      }
+      // Cria cliente pendente.
       VLOG(1) << "Recebendo cliente...";
       Cliente* cliente_pendente = proximo_cliente_.release();
       clientes_pendentes_.insert(cliente_pendente);
@@ -150,14 +119,46 @@ void Servidor::EsperaCliente() {
       cliente_pendente->socket->set_option(option3);
       cliente_pendente->socket->get_option(option3);
       LOG(INFO) << "Buffer envio watermark: " << option3.value();
-
-      proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
+      // Proximo cliente.
+      proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*sincronizador_->Servico())));
       RecebeDadosCliente(cliente_pendente);
-      EsperaCliente();
-    } else {
-      LOG(ERROR) << "Recebendo erro..." << ec.message();
-    }
-  });
+      return proximo_cliente_->socket.get();
+    });
+    VLOG(1) << "Servidor ligado.";
+  } catch (const std::exception& e) {
+    LOG(ERROR) << "Erro ligando servidor: " << e.what();
+    // TODO fazer o tipo de erro e tratar notificacao em algum lugar.
+    auto* notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_ERRO);
+    notificacao->set_erro(e.what());
+    central_->AdicionaNotificacao(notificacao);
+    return;
+  }
+
+  // Aqui eh so pro anunciante do jogo.
+  anunciante_.reset(new boost::asio::ip::udp::socket(*sincronizador_->Servico()));
+  boost::system::error_code erro;
+  anunciante_->open(boost::asio::ip::udp::v4(), erro);
+  boost::asio::socket_base::broadcast option(true);
+  anunciante_->set_option(option);
+}
+
+void Servidor::Desliga() {
+  VLOG(1) << "Desligando servidor.";
+  if (!Ligado()) {
+    LOG(ERROR) << "Servidor ja está desligado.";
+    return;
+  }
+  central_->DesregistraReceptorRemoto(this);
+  aceitador_->Desliga();
+  anunciante_.reset();
+  for (auto* c : clientes_) {
+    delete c;
+  }
+  for (auto* c : clientes_pendentes_) {
+    delete c;
+  }
+  VLOG(1) << "Servidor desligado.";
 }
 
 void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, bool sem_dados) {

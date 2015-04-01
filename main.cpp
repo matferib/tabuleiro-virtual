@@ -22,8 +22,9 @@ int main(int argc, char** argv) {
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   arq::Inicializa();
   boost::asio::io_service servico_io;
+  net::Sincronizador sincronizador(&servico_io);
   ntf::CentralNotificacoes central;
-  net::Servidor servidor(&servico_io, &central);
+  net::Servidor servidor(&sincronizador, &central);
   net::Cliente cliente(&servico_io, &central);
   tex::Texturas texturas(&central);
   ent::Tabuleiro tabuleiro(&texturas, &central);
