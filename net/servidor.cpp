@@ -171,8 +171,9 @@ void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, boo
     }
   }
   try {
-    boost::asio::async_write(*cliente->socket->Boost(), boost::asio::buffer(cliente->dados_enviar.front()),
-                             [this, cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+    cliente->socket->Envia(
+        cliente->dados_enviar.front(),
+        [this, cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
       if (ec) {
         // Importante nao usar cliente aqui, pois o ponteiro pode estar dangling.
         LOG(ERROR) << "Erro enviando dados, mensagem: " << ec.message();

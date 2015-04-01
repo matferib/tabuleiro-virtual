@@ -30,8 +30,15 @@ class Socket {
     socket_->close();
   }
 
-  // Funcao assincrona para enviar dados atraves do socket.
-  void Envia(std::function<void(const std::string& dados, bool erro)>);
+  typedef std::function<void(const boost::system::error_code& ec, std::size_t bytes_enviados)> CallbackEnvio;
+
+  // Funcao assincrona para enviar dados atraves do socket. Lanca std::exception em caso de erro.
+  void Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
+    boost::asio::async_write(*socket_.get(),
+                             boost::asio::buffer(dados),
+                             callback_envio_cliente);
+  }
+
   // Funcao assincrona para receber dados do socket.
   void Recebe(std::function<void(const std::string* dados, bool erro)>);
 
