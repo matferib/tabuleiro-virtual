@@ -12,13 +12,15 @@ namespace net {
 // Classe de erro.
 class Erro {
  public:
-  explicit Erro(const boost::system::error_code& ec) : ec_(ec), erro_(ec), msg_(ec.message()) {}
-  explicit Erro(const std::string& msg) : erro_(true), msg_(msg) {}
-  Erro() : erro_(false) {}
+  // Erro boost.
+  explicit Erro(const boost::system::error_code& ec);
+  // Constroi objeto de erro com a mensagem passada.
+  explicit Erro(const std::string& msg);
+  // Constroi objeto representando sucesso (erro_ = false).
+  Erro();
 
-  bool ConexaoFechada() const {
-    return ec_.value() == boost::asio::error::eof;
-  }
+  // Retorna true se o erro for de conexao fechada.
+  bool ConexaoFechada() const;
 
   // Verificacao de erro.
   operator bool() const { return erro_; }
@@ -27,19 +29,20 @@ class Erro {
 
  private:
   const boost::system::error_code ec_;
-  bool erro_;
-  const std::string msg_;
+  bool erro_;  // Ha erro?
+  const std::string msg_;  // Mensagem de erro.
 };
 
+// Classe usada para realizar tarefas assincronas (em background) e chamar o callback na thread principal.
 class Sincronizador {
  public:
-  explicit Sincronizador(boost::asio::io_service* servico_io) : servico_io_(servico_io) {}
-  ~Sincronizador() {}
+  explicit Sincronizador(boost::asio::io_service* servico_io); 
+  ~Sincronizador();
 
   // Roda o que houver para rodar, retornando o numero de tarefas executadas.
-  int Roda() { return servico_io_->poll(); }
+  int Roda();
 
-  boost::asio::io_service* Servico() { return servico_io_; }
+  boost::asio::io_service* Servico();
 
  private:
   boost::asio::io_service* servico_io_ = nullptr;

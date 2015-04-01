@@ -6,6 +6,27 @@
 
 namespace net {
 
+//-----
+// Erro
+//-----
+Erro::Erro(const boost::system::error_code& ec) : ec_(ec), erro_(ec), msg_(ec.message()) {}
+Erro::Erro(const std::string& msg) : erro_(true), msg_(msg) {}
+Erro::Erro() : erro_(false) {}
+
+bool Erro::ConexaoFechada() const {
+  return ec_.value() == boost::asio::error::eof;
+}
+
+//--------------
+// Sincronizador
+//--------------
+Sincronizador::Sincronizador(boost::asio::io_service* servico_io) : servico_io_(servico_io) {}
+Sincronizador::~Sincronizador() {}
+
+int Sincronizador::Roda() { return servico_io_->poll(); }
+
+boost::asio::io_service* Sincronizador::Servico() { return servico_io_; }
+
 //----------
 // SocketUdp
 //----------
