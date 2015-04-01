@@ -52,4 +52,84 @@ void SocketUdp::Recebe(
   });
 }
 
+//-------
+// Socket
+//-------
+Socket::Socket(Sincronizador* sincronizador)
+    : sincronizador_(sincronizador),
+      socket_(new boost::asio::ip::tcp::socket(*sincronizador->Servico())) {}
+
+Socket::~Socket() {}
+
+void Socket::Conecta(const std::string& endereco, const std::string& porta) {
+  boost::asio::ip::tcp::resolver resolver(*sincronizador_->Servico());
+  auto endereco_resolvido = resolver.resolve({endereco, porta});
+  boost::asio::connect(*socket_, endereco_resolvido);
+}
+
+void Socket::Fecha() {
+  socket_->close();
+}
+
+void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
+  boost::asio::async_write(*socket_.get(),
+                           boost::asio::buffer(dados),
+                           [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+   callback_envio_cliente(Erro(ec), bytes_enviados);
+ });
+}
+
+void Socket::Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente) {
+  socket_->async_receive(boost::asio::buffer(*dados),
+      [callback_recepcao_cliente](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
+    callback_recepcao_cliente(Erro(ec), bytes_recebidos);
+  });
+}
+
+//----------
+// Aceitador
+//----------
+Aceitador::Aceitador(Sincronizador* sincronizador) : sincronizador_(sincronizador) {}
+Aceitador::~Aceitador() {}
+
+bool Aceitador::Liga(int porta,
+          Socket* socket_cliente,
+          CallbackConexaoCliente callback_conexao_cliente) {
+  aceitador_.reset(new boost::asio::ip::tcp::acceptor(
+      *sincronizador_->Servico(), boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
+  // Quando um cliente for recebido, CallbackConexao sera chamado.
+  aceitador_->async_accept(
+      *socket_cliente->socket_.get(),
+      std::bind(&Aceitador::CallbackConexao,
+                std::placeholders::_1,  // ec, a ser preenchido.
+                aceitador_.get(),
+                callback_conexao_cliente)
+  );
+  return true;
+}
+
+bool Aceitador::Ligado() const { return aceitador_ != nullptr; }
+
+void Aceitador::Desliga() {
+  aceitador_.reset();
+}
+
+// static
+void Aceitador::CallbackConexao(
+    boost::system::error_code ec,
+    boost::asio::ip::tcp::acceptor* aceitador,
+    CallbackConexaoCliente callback_conexao_cliente) {
+  // Chama callback do cliente com erro recebido.
+  Socket* novo_socket_cliente = callback_conexao_cliente(Erro(ec));
+  if (novo_socket_cliente != nullptr) {
+    // Se recebeu socket, chama de novo.
+    aceitador->async_accept(
+        *novo_socket_cliente->socket_.get(),
+        std::bind(CallbackConexao,
+                  std::placeholders::_1,  // ec, a ser preenchido.
+                  aceitador,
+                  callback_conexao_cliente));
+  }
+}
+
 }  // namespace net
