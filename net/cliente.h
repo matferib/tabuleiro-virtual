@@ -1,7 +1,6 @@
 #ifndef NET_CLIENTE_H
 #define NET_CLIENTE_H
 
-#include <boost/asio.hpp>
 #include <memory>
 #include <queue>
 #include <string>
