@@ -33,32 +33,38 @@ int Sincronizador::Roda() { return interno_->servico_io->poll(); }
 //----------
 // SocketUdp
 //----------
-SocketUdp::SocketUdp(Sincronizador* sincronizador)
-    : socket_(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io)) {}
+struct SocketUdp::Interno {
+  Interno(boost::asio::ip::udp::socket* socket) : socket(socket) {}
 
-SocketUdp::SocketUdp(Sincronizador* sincronizador, int porta) : SocketUdp(sincronizador) {
+  std::unique_ptr<boost::asio::ip::udp::socket> socket;
+};
+
+SocketUdp::SocketUdp(Sincronizador* sincronizador)
+    : interno_(new Interno(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io))) {}
+
+SocketUdp::SocketUdp(Sincronizador* sincronizador, int porta) {
   boost::asio::ip::udp::endpoint endereco(boost::asio::ip::udp::v4(), porta);
-  socket_.reset(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io, endereco));
+  interno_.reset(new Interno(new boost::asio::ip::udp::socket(*sincronizador->interno_->servico_io, endereco)));
 }
 
 SocketUdp::~SocketUdp() {}
 
 void SocketUdp::Abre() {
   boost::system::error_code erro;
-  socket_->open(boost::asio::ip::udp::v4(), erro);
+  interno_->socket->open(boost::asio::ip::udp::v4(), erro);
   boost::asio::socket_base::broadcast option(true);
-  socket_->set_option(option);
+  interno_->socket->set_option(option);
 }
 
-bool SocketUdp::Aberto() const { return socket_->is_open(); }
+bool SocketUdp::Aberto() const { return interno_->socket->is_open(); }
 
 void SocketUdp::Fecha() {
   boost::system::error_code ec;
-  socket_->close(ec);
+  interno_->socket->close(ec);
 }
 
 void SocketUdp::Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
-  socket_->async_send_to(
+  interno_->socket->async_send_to(
       boost::asio::buffer(dados),
       boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
       [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
@@ -68,7 +74,7 @@ void SocketUdp::Envia(int porta, const std::vector<char>& dados, CallbackEnvio c
 
 void SocketUdp::Recebe(
     std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente) {
-  socket_->async_receive_from(
+  interno_->socket->async_receive_from(
       boost::asio::buffer(*dados),
       *endereco,
       [callback_recepcao_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {

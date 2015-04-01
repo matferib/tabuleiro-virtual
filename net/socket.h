@@ -86,7 +86,12 @@ class SocketUdp {
       std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente);
 
  private:
-  std::unique_ptr<boost::asio::ip::udp::socket> socket_;
+  // Sem construtor padrao e copia.
+  SocketUdp();
+  SocketUdp(const SocketUdp&);
+
+  struct Interno;
+  std::unique_ptr<Interno> interno_;
 };
 
 // Abstracao do socket.
