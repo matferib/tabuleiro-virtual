@@ -135,7 +135,7 @@ void Servidor::Liga() {
 
   // Aqui eh so pro anunciante do jogo.
   buffer_porta_ = to_string(PortaPadrao());
-  anunciante_.reset(new SocketBroadcast(sincronizador_));
+  anunciante_.reset(new SocketUdp(sincronizador_));
   try {
     anunciante_->Abre();
   } catch (const std::exception& e) {

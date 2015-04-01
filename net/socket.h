@@ -24,19 +24,35 @@ class Sincronizador {
 };
 
 // Abstracao para socket UDP broadcast.
-class SocketBroadcast {
+class SocketUdp {
  public:
-  explicit SocketBroadcast(Sincronizador* sincronizador)
+  // Cria socket fechado.
+  explicit SocketUdp(Sincronizador* sincronizador)
       : socket_(new boost::asio::ip::udp::socket(*sincronizador->Servico())) {
   }
-  ~SocketBroadcast() {}
 
-  // Abre o socket. Da excecao em caso de falha.
+  // Cria socket aberto para recepcao na porta.
+  SocketUdp(Sincronizador* sincronizador, int porta) : SocketUdp(sincronizador) {
+    boost::asio::ip::udp::endpoint endereco(boost::asio::ip::udp::v4(), porta);
+    socket_.reset(new boost::asio::ip::udp::socket(*sincronizador->Servico(), endereco));
+  }
+
+  ~SocketUdp() {}
+
+  // Abre o socket para broadcast. Da excecao em caso de falha.
   void Abre() {
     boost::system::error_code erro;
     socket_->open(boost::asio::ip::udp::v4(), erro);
     boost::asio::socket_base::broadcast option(true);
     socket_->set_option(option);
+  }
+
+  // Retorna se o socket esta aberto.
+  bool Aberto() const { return socket_->is_open(); }
+
+  void Fecha() {
+    boost::system::error_code ec;
+    socket_->close(ec);
   }
 
   typedef std::function<void(const boost::system::error_code& error, std::size_t bytes_enviados)> CallbackEnvio;
@@ -47,6 +63,20 @@ class SocketBroadcast {
         boost::asio::buffer(dados),
         boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
         callback_envio_cliente);
+  }
+
+  // Callback de recepcao da recepcao UDP.
+  typedef std::function<void(const boost::system::error_code& error, std::size_t bytes_recebidos)> CallbackRecepcao;
+
+  // Recebe dados na conexao UDP de forma assincrona e NAO continua. Preenche dados e endereco de quem enviou,
+  // chamando callback_recepcao_cliente.
+  // @throws std::exception em caso de erro.
+  void Recebe(
+      std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente) {
+    socket_->async_receive_from(
+        boost::asio::buffer(*dados),
+        *endereco,
+        callback_recepcao_cliente);
   }
 
  private:

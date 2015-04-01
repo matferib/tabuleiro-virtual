@@ -36,10 +36,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (socket_descobrimento_.get() != nullptr) {
       if (++timer_descobrimento_ * INTERVALO_NOTIFICACAO_MS > 3000) {
         //LOG(INFO) << "Timer: " << timer_descobrimento_;
-        boost::system::error_code ec;
-        if (socket_descobrimento_->close(ec)) {
-          //LOG(INFO) << "erro close: " << ec;
-        }
+        socket_descobrimento_->Fecha();
       }
       n = sincronizador_->Roda();
     } else if (Ligado()) {
@@ -100,9 +97,8 @@ void Cliente::AutoConecta(const std::string& id) {
     return;
   }
   //LOG(INFO) << "recriando socket";
-  boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), PortaAnuncio());
-  socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*sincronizador_->Servico(), endereco_anuncio));
-  if (!socket_descobrimento_->is_open()) {
+  socket_descobrimento_.reset(new SocketUdp(sincronizador_, PortaAnuncio()));
+  if (!socket_descobrimento_->Aberto()) {
     socket_descobrimento_.reset();
     auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
     n->set_erro("Nao consegui abrir socket de auto conexao.");
@@ -110,9 +106,9 @@ void Cliente::AutoConecta(const std::string& id) {
     return;
   }
   buffer_descobrimento_.resize(100);
-  socket_descobrimento_->async_receive_from(
-      boost::asio::buffer(buffer_descobrimento_, buffer_descobrimento_.size()),
-      endereco_descoberto_,
+  socket_descobrimento_->Recebe(
+      &buffer_descobrimento_,
+      &endereco_descoberto_,
       [this, id] (const boost::system::error_code& erro, std::size_t num_bytes) {
         //LOG(INFO) << "zerando socket";
         socket_descobrimento_.reset();

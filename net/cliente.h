@@ -48,7 +48,7 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   std::string buffer_notificacao_;  // Armazena o objeto lido.
   std::queue<std::vector<char>> fifo_envio_;  // FIFO para envio.
 
-  std::unique_ptr<boost::asio::ip::udp::socket> socket_descobrimento_;
+  std::unique_ptr<SocketUdp> socket_descobrimento_;
   std::vector<char> buffer_descobrimento_;
   boost::asio::ip::udp::endpoint endereco_descoberto_;
   int timer_descobrimento_;

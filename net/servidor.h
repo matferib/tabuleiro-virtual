@@ -81,7 +81,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   Sincronizador* sincronizador_;
   std::unique_ptr<Aceitador> aceitador_;
   std::string buffer_porta_;  // usado para anunciar a porta do servidor.
-  std::unique_ptr<SocketBroadcast> anunciante_;
+  std::unique_ptr<SocketUdp> anunciante_;
   int timer_anuncio_ = 0;
   std::unique_ptr<Cliente> proximo_cliente_;
   std::set<Cliente*> clientes_pendentes_;
