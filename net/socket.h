@@ -73,7 +73,8 @@ class Socket {
 
   typedef std::function<void(const boost::system::error_code& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
 
-  // Funcao assincrona para receber dados do socket. Parametro 'dados' deve viver ate o fim.
+  // Funcao assincrona para receber dados do socket.
+  // Parametro 'dados' deve viver ate o fim e sera alterado para o tamanho certo.
   // Lanca std::exception em caso de erro.
   void Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente) {
     socket_->async_receive(boost::asio::buffer(*dados), callback_recepcao_cliente);

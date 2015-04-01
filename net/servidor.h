@@ -1,4 +1,3 @@
-#include <boost/asio.hpp>
 #include <memory>
 #include <queue>
 #include <set>
@@ -50,7 +49,7 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
     Cliente() : Cliente(nullptr) {}
     std::string id;
     std::unique_ptr<Socket> socket;
-    // Buffer de recepcao dos dados, controlado pelo boost.
+    // Buffer de recepcao dos dados.
     std::vector<char> buffer;
     // Buffer de cada notificacao recebida no buffer acima.
     std::string buffer_notificacao;
