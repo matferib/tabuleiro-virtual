@@ -20,6 +20,36 @@ class Sincronizador {
   boost::asio::io_service* servico_io_ = nullptr;
 };
 
+// Abstracao para socket UDP broadcast.
+class SocketBroadcast {
+ public:
+  explicit SocketBroadcast(Sincronizador* sincronizador)
+      : socket_(new boost::asio::ip::udp::socket(*sincronizador->Servico())) {
+  }
+  ~SocketBroadcast() {}
+
+  // Abre o socket. Da excecao em caso de falha.
+  void Abre() {
+    boost::system::error_code erro;
+    socket_->open(boost::asio::ip::udp::v4(), erro);
+    boost::asio::socket_base::broadcast option(true);
+    socket_->set_option(option);
+  }
+
+  typedef std::function<void(const boost::system::error_code& error, std::size_t bytes_enviados)> CallbackEnvio;
+
+  // Envio de broadcast assincrono. Dados deve viver ate o fim.
+  void Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
+    socket_->async_send_to(
+        boost::asio::buffer(dados),
+        boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
+        callback_envio_cliente);
+  }
+
+ private:
+  std::unique_ptr<boost::asio::ip::udp::socket> socket_;
+};
+
 // Abstracao do socket.
 class Socket {
  public:
@@ -30,17 +60,24 @@ class Socket {
     socket_->close();
   }
 
+  // Ao terminar o envio, recebera codigo de erro e numero de bytes enviados.
   typedef std::function<void(const boost::system::error_code& ec, std::size_t bytes_enviados)> CallbackEnvio;
 
-  // Funcao assincrona para enviar dados atraves do socket. Lanca std::exception em caso de erro.
+  // Funcao assincrona para enviar dados atraves do socket. Parametros 'dados' deve viver ate o fim.
+  // Lanca std::exception em caso de erro.
   void Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
     boost::asio::async_write(*socket_.get(),
                              boost::asio::buffer(dados),
                              callback_envio_cliente);
   }
 
-  // Funcao assincrona para receber dados do socket.
-  void Recebe(std::function<void(const std::string* dados, bool erro)>);
+  typedef std::function<void(const boost::system::error_code& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
+
+  // Funcao assincrona para receber dados do socket. Parametro 'dados' deve viver ate o fim.
+  // Lanca std::exception em caso de erro.
+  void Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente) {
+    socket_->async_receive(boost::asio::buffer(*dados), callback_recepcao_cliente);
+  }
 
   // Retorna o socket boost.
   boost::asio::ip::tcp::socket* Boost() { return socket_.get(); }

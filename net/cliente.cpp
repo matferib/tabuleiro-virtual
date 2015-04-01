@@ -87,7 +87,7 @@ void Cliente::AutoConecta(const std::string& id) {
     return;
   }
   //LOG(INFO) << "recriando socket";
-  boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), 11224);
+  boost::asio::ip::udp::endpoint endereco_anuncio(boost::asio::ip::udp::v4(), PortaAnuncio());
   socket_descobrimento_.reset(new boost::asio::ip::udp::socket(*servico_io_, endereco_anuncio));
   if (!socket_descobrimento_->is_open()) {
     socket_descobrimento_.reset();

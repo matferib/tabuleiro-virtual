@@ -27,11 +27,8 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
-        std::string porta(to_string(PortaPadrao()));
-        anunciante_->async_send_to(
-            boost::asio::buffer(porta),
-            boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), 11224),
-            [] (const boost::system::error_code& error, std::size_t bytes_transferred) {});
+        anunciante_->Envia(PortaAnuncio(), std::vector<char>(buffer_porta_.begin(), buffer_porta_.end()),
+                           [] (const boost::system::error_code& error, std::size_t bytes_transferred) {});
       }
     }
     if (Ligado()) {
@@ -137,11 +134,14 @@ void Servidor::Liga() {
   }
 
   // Aqui eh so pro anunciante do jogo.
-  anunciante_.reset(new boost::asio::ip::udp::socket(*sincronizador_->Servico()));
-  boost::system::error_code erro;
-  anunciante_->open(boost::asio::ip::udp::v4(), erro);
-  boost::asio::socket_base::broadcast option(true);
-  anunciante_->set_option(option);
+  buffer_porta_ = to_string(PortaPadrao());
+  anunciante_.reset(new SocketBroadcast(sincronizador_));
+  try {
+    anunciante_->Abre();
+  } catch (const std::exception& e) {
+    anunciante_.reset();
+    LOG(ERROR) << "Falha abrindo socket de broadcast: " << e.what();
+  }
 }
 
 void Servidor::Desliga() {
@@ -205,8 +205,8 @@ void Servidor::DesconectaCliente(Cliente* cliente) {
 }
 
 void Servidor::RecebeDadosCliente(Cliente* cliente) {
-  cliente->socket->Boost()->async_receive(
-    boost::asio::buffer(cliente->buffer),
+  cliente->socket->Recebe(
+    &cliente->buffer,
     [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
       if (ec) {
         // remove o cliente.
