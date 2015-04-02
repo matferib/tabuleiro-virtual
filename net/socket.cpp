@@ -88,24 +88,30 @@ void SocketUdp::Recebe(
 //-------
 // Socket
 //-------
+struct Socket::Interno {
+  explicit Interno(boost::asio::ip::tcp::socket* socket) : socket(socket) {}
+
+  std::unique_ptr<boost::asio::ip::tcp::socket> socket;
+};
+
 Socket::Socket(Sincronizador* sincronizador)
     : sincronizador_(sincronizador),
-      socket_(new boost::asio::ip::tcp::socket(*sincronizador->interno_->servico_io)) {}
+      interno_(new Interno(new boost::asio::ip::tcp::socket(*sincronizador->interno_->servico_io))) {}
 
 Socket::~Socket() {}
 
 void Socket::Conecta(const std::string& endereco, const std::string& porta) {
   boost::asio::ip::tcp::resolver resolver(*sincronizador_->interno_->servico_io);
   auto endereco_resolvido = resolver.resolve({endereco, porta});
-  boost::asio::connect(*socket_, endereco_resolvido);
+  boost::asio::connect(*interno_->socket, endereco_resolvido);
 }
 
 void Socket::Fecha() {
-  socket_->close();
+  interno_->socket->close();
 }
 
 void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
-  boost::asio::async_write(*socket_.get(),
+  boost::asio::async_write(*interno_->socket.get(),
                            boost::asio::buffer(dados),
                            [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
    callback_envio_cliente(Erro(ec), bytes_enviados);
@@ -113,7 +119,7 @@ void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_
 }
 
 void Socket::Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente) {
-  socket_->async_receive(boost::asio::buffer(*dados),
+  interno_->socket->async_receive(boost::asio::buffer(*dados),
       [callback_recepcao_cliente](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
     callback_recepcao_cliente(Erro(ec), bytes_recebidos);
   });
@@ -132,7 +138,7 @@ bool Aceitador::Liga(int porta,
       *sincronizador_->interno_->servico_io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
   // Quando um cliente for recebido, CallbackConexao sera chamado.
   aceitador_->async_accept(
-      *socket_cliente->socket_.get(),
+      *socket_cliente->interno_->socket.get(),
       std::bind(&Aceitador::CallbackConexao,
                 std::placeholders::_1,  // ec, a ser preenchido.
                 aceitador_.get(),
@@ -157,7 +163,7 @@ void Aceitador::CallbackConexao(
   if (novo_socket_cliente != nullptr) {
     // Se recebeu socket, chama de novo.
     aceitador->async_accept(
-        *novo_socket_cliente->socket_.get(),
+        *novo_socket_cliente->interno_->socket.get(),
         std::bind(CallbackConexao,
                   std::placeholders::_1,  // ec, a ser preenchido.
                   aceitador,

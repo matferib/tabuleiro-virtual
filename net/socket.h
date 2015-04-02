@@ -123,12 +123,13 @@ class Socket {
  private:
   friend class Aceitador;
   Sincronizador* sincronizador_;
-  std::unique_ptr<boost::asio::ip::tcp::socket> socket_;
+  struct Interno;
+  std::unique_ptr<Interno> interno_;
 };
 
 class Aceitador {
  public:
-  explicit Aceitador(Sincronizador* sincronizador); 
+  explicit Aceitador(Sincronizador* sincronizador);
   ~Aceitador();
 
   // Inicia o aceitador, de forma que sempre que uma conexao acontecer, callback_conexao sera chamado. O socket novo
@@ -139,7 +140,7 @@ class Aceitador {
             CallbackConexaoCliente callback_conexao_cliente);
 
   // Retorna se o aceitador esta ligado.
-  bool Ligado() const; 
+  bool Ligado() const;
 
   // Desliga o aceitador.
   void Desliga();
