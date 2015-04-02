@@ -4,19 +4,18 @@
 // Representacao da interface de socket independente de plataforma. Interface assincrona por callbacks.
 // O sincronizador garantira que todos os callbacks serao chamados na mesma thread onde Roda eh chamado.
 #include <functional>
-#include <boost/asio/error.hpp>
 
 namespace net {
 
 // Classe de erro.
 class Erro {
  public:
-  // Erro boost.
-  explicit Erro(const boost::system::error_code& ec);
+  // Erro dependente de plataforma.
+  explicit Erro(void* depende_plataforma);
   // Constroi objeto de erro com a mensagem passada.
   explicit Erro(const std::string& msg);
   // Constroi objeto representando sucesso (erro_ = false).
-  Erro();
+  Erro(bool erro = false);
 
   // Retorna true se o erro for de conexao fechada.
   bool ConexaoFechada() const;
@@ -27,9 +26,10 @@ class Erro {
   const std::string& mensagem() const { return msg_; }
 
  private:
-  const boost::system::error_code ec_;
+  struct Interno;
+  std::unique_ptr<Interno> interno_;
   bool erro_;  // Ha erro?
-  const std::string msg_;  // Mensagem de erro.
+  std::string msg_;  // Mensagem de erro.
 };
 
 // Classe usada para realizar tarefas assincronas (em background) e chamar o callback na thread principal.

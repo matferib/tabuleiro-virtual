@@ -9,12 +9,21 @@ namespace net {
 //-----
 // Erro
 //-----
-Erro::Erro(const boost::system::error_code& ec) : ec_(ec), erro_(ec), msg_(ec.message()) {}
-Erro::Erro(const std::string& msg) : erro_(true), msg_(msg) {}
-Erro::Erro() : erro_(false) {}
+struct Erro::Interno {
+  boost::system::error_code ec;
+};
+Erro::Erro(void* dependente_plataforma) : Erro() {
+  interno_->ec = *((boost::system::error_code*)dependente_plataforma);
+  erro_ = interno_->ec;
+  msg_ = interno_->ec.message();
+}
+Erro::Erro(const std::string& msg) : Erro(true) {
+  msg_ = msg;
+}
+Erro::Erro(bool erro) : interno_(new Interno), erro_(erro) {}
 
 bool Erro::ConexaoFechada() const {
-  return ec_.value() == boost::asio::error::eof;
+  return interno_->ec.value() == boost::asio::error::eof;
 }
 
 //--------------
