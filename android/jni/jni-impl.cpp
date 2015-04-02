@@ -6,6 +6,7 @@
 #include <time.h>
 #include <android/asset_manager_jni.h>
 #include <android/log.h>
+#include <boost/asio.hpp>
 #include <stdint.h>
 #include "arq/arquivo.h"
 #include "ent/entidade.h"
