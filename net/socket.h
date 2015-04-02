@@ -4,7 +4,6 @@
 // Representacao da interface de socket independente de plataforma. Interface assincrona por callbacks.
 // O sincronizador garantira que todos os callbacks serao chamados na mesma thread onde Roda eh chamado.
 #include <functional>
-#include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
 
 namespace net {
@@ -146,12 +145,6 @@ class Aceitador {
   void Desliga();
 
  private:
-  // Usado para o aceitador se chamar recursivamente.
-  static void CallbackConexao(
-      boost::system::error_code ec,
-      boost::asio::ip::tcp::acceptor* aceitador,
-      CallbackConexaoCliente callback_conexao_cliente);
-
   Sincronizador* sincronizador_ = nullptr;
 
   struct Interno;

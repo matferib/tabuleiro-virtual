@@ -131,7 +131,9 @@ void Socket::Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao
 struct Aceitador::Interno {
   std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador;
 };
-Aceitador::Aceitador(Sincronizador* sincronizador) : sincronizador_(sincronizador), interno_(new Interno) {}
+Aceitador::Aceitador(Sincronizador* sincronizador) : sincronizador_(sincronizador), interno_(new Interno) {
+
+}
 Aceitador::~Aceitador() {}
 
 bool Aceitador::Liga(int porta,
@@ -139,12 +141,30 @@ bool Aceitador::Liga(int porta,
           CallbackConexaoCliente callback_conexao_cliente) {
   interno_->aceitador.reset(new boost::asio::ip::tcp::acceptor(
       *sincronizador_->interno_->servico_io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
+  // Funcao recursiva para ser chamada a cada conexao.
+  // Primeiro a gente cria o objeto para poder passa-lo para ele mesmo no lambda.
+  auto* callback_conexao = new std::function<void(boost::system::error_code, CallbackConexaoCliente)>;
+  (*callback_conexao) = [this, callback_conexao] (boost::system::error_code ec,
+                                                  CallbackConexaoCliente callback_conexao_cliente) {
+    // Chama callback do cliente com erro recebido.
+    Socket* novo_socket_cliente = callback_conexao_cliente(Erro(ec));
+    if (novo_socket_cliente != nullptr) {
+      // Se recebeu socket, chama de novo.
+      interno_->aceitador->async_accept(
+          *novo_socket_cliente->interno_->socket.get(),
+          std::bind(*callback_conexao,
+                    std::placeholders::_1,  // ec, a ser preenchido.
+                    callback_conexao_cliente));
+    } else {
+      delete callback_conexao;
+    }
+  };
+
   // Quando um cliente for recebido, CallbackConexao sera chamado.
   interno_->aceitador->async_accept(
       *socket_cliente->interno_->socket.get(),
-      std::bind(&Aceitador::CallbackConexao,
+      std::bind(*callback_conexao,
                 std::placeholders::_1,  // ec, a ser preenchido.
-                interno_->aceitador.get(),
                 callback_conexao_cliente)
   );
   return true;
@@ -154,24 +174,6 @@ bool Aceitador::Ligado() const { return interno_->aceitador.get() != nullptr; }
 
 void Aceitador::Desliga() {
   interno_->aceitador.reset();
-}
-
-// static
-void Aceitador::CallbackConexao(
-    boost::system::error_code ec,
-    boost::asio::ip::tcp::acceptor* aceitador,
-    CallbackConexaoCliente callback_conexao_cliente) {
-  // Chama callback do cliente com erro recebido.
-  Socket* novo_socket_cliente = callback_conexao_cliente(Erro(ec));
-  if (novo_socket_cliente != nullptr) {
-    // Se recebeu socket, chama de novo.
-    aceitador->async_accept(
-        *novo_socket_cliente->interno_->socket.get(),
-        std::bind(CallbackConexao,
-                  std::placeholders::_1,  // ec, a ser preenchido.
-                  aceitador,
-                  callback_conexao_cliente));
-  }
 }
 
 }  // namespace net
