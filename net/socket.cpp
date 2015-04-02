@@ -128,29 +128,32 @@ void Socket::Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao
 //----------
 // Aceitador
 //----------
-Aceitador::Aceitador(Sincronizador* sincronizador) : sincronizador_(sincronizador) {}
+struct Aceitador::Interno {
+  std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador;
+};
+Aceitador::Aceitador(Sincronizador* sincronizador) : sincronizador_(sincronizador), interno_(new Interno) {}
 Aceitador::~Aceitador() {}
 
 bool Aceitador::Liga(int porta,
           Socket* socket_cliente,
           CallbackConexaoCliente callback_conexao_cliente) {
-  aceitador_.reset(new boost::asio::ip::tcp::acceptor(
+  interno_->aceitador.reset(new boost::asio::ip::tcp::acceptor(
       *sincronizador_->interno_->servico_io, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), porta)));
   // Quando um cliente for recebido, CallbackConexao sera chamado.
-  aceitador_->async_accept(
+  interno_->aceitador->async_accept(
       *socket_cliente->interno_->socket.get(),
       std::bind(&Aceitador::CallbackConexao,
                 std::placeholders::_1,  // ec, a ser preenchido.
-                aceitador_.get(),
+                interno_->aceitador.get(),
                 callback_conexao_cliente)
   );
   return true;
 }
 
-bool Aceitador::Ligado() const { return aceitador_ != nullptr; }
+bool Aceitador::Ligado() const { return interno_->aceitador.get() != nullptr; }
 
 void Aceitador::Desliga() {
-  aceitador_.reset();
+  interno_->aceitador.reset();
 }
 
 // static

@@ -118,7 +118,7 @@ class Socket {
   // Parametro 'dados' deve viver ate o fim e sera alterado para o tamanho certo.
   // Lanca std::exception em caso de erro.
   typedef std::function<void(const Erro& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
-  void Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente); 
+  void Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente);
 
  private:
   friend class Aceitador;
@@ -153,7 +153,9 @@ class Aceitador {
       CallbackConexaoCliente callback_conexao_cliente);
 
   Sincronizador* sincronizador_ = nullptr;
-  std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
+
+  struct Interno;
+  std::unique_ptr<Interno> interno_;
 };
 
 }  // namespace
