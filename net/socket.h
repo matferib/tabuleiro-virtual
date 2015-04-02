@@ -37,7 +37,7 @@ class Erro {
 class Sincronizador {
  public:
   // Constroi o sincronizador com dados internos passados. A implemetacao devera saber como usar interno.
-  explicit Sincronizador(void* depende_plataforma); 
+  explicit Sincronizador(void* depende_plataforma);
   ~Sincronizador();
 
   // Roda o que houver para rodar, retornando o numero de tarefas executadas.
@@ -80,10 +80,11 @@ class SocketUdp {
 
   // Recebe dados na conexao UDP de forma assincrona e NAO continua. Preenche dados e endereco de quem enviou,
   // chamando callback_recepcao_cliente.
+  // Parametros endereco recebera o IP do servidor fazendo broadcast (sem porta, que vira dentro da mensagem).
   // @throws std::exception em caso de erro.
   typedef std::function<void(const Erro& erro, std::size_t bytes_recebidos)> CallbackRecepcao;
   void Recebe(
-      std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente);
+      std::vector<char>* dados, std::string* endereco, CallbackRecepcao callback_recepcao_cliente);
 
  private:
   // Sem construtor padrao e copia.

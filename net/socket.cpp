@@ -73,11 +73,14 @@ void SocketUdp::Envia(int porta, const std::vector<char>& dados, CallbackEnvio c
 }
 
 void SocketUdp::Recebe(
-    std::vector<char>* dados, boost::asio::ip::udp::endpoint* endereco, CallbackRecepcao callback_recepcao_cliente) {
+    std::vector<char>* dados, std::string* endereco, CallbackRecepcao callback_recepcao_cliente) {
+  auto* endpoint = new boost::asio::ip::udp::endpoint;
   interno_->socket->async_receive_from(
       boost::asio::buffer(*dados),
-      *endereco,
-      [callback_recepcao_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+      *endpoint,
+      [endpoint, endereco, callback_recepcao_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+    endereco->assign(endpoint->address().to_string());
+    delete endpoint;
     callback_recepcao_cliente(Erro(ec), bytes_enviados);
   });
 }
