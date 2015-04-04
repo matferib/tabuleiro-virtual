@@ -139,6 +139,7 @@ inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glView
 
 // Texturas.
 inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
+inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
 inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
 inline void ImagemTextura2d(

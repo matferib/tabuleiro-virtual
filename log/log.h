@@ -43,8 +43,12 @@ class StringLogger {
 #else
 // TODO dar um jeito de anular essas macros se nao tiver log.
 #include <iostream>
+// Arquivos querendo VLOG devem definir esse VLOG_NIVEL no android.
+#ifndef VLOG_NIVEL
+#define VLOG_NIVEL 0
+#endif
 #define LOG(X) if (true) std::cout << std::endl
-#define VLOG(X) if (false) std::cout << std::endl
+#define VLOG(X) if (X <= VLOG_NIVEL) std::cout << std::endl
 #endif
 
 namespace meulog {

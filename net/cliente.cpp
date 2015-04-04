@@ -5,8 +5,8 @@
 #include <string>
 
 #include "ent/constantes.h"
-// para depurar android
-#define VLOG_NIVEL 1
+// para depurar android e ios.
+//#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/cliente.h"
 #include "net/util.h"

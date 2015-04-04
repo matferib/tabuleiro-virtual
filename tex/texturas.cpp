@@ -6,6 +6,7 @@
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
+#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/lodepng.h"
@@ -17,6 +18,7 @@ namespace {
 
 /** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho.
 * Caso local, a textura sera local ao jogador. Caso contrario, eh uma textura global (da aplicacao).
+* @throws std::exception em caso de erro na leitura.
 */
 void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados) {
   boost::filesystem::path caminho(arquivo);
@@ -31,9 +33,11 @@ void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char
         arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, caminho.filename().string(), &dados_str);
       } catch (...) {
         LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", global";
+        throw;
       }
     } else {
       LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", nao global";
+      throw;
     }
   }
   dados->assign(dados_str.begin(), dados_str.end());
@@ -84,13 +88,15 @@ int TipoImagem() {
 
 class Texturas::InfoTexturaInterna {
  public:
-  explicit InfoTexturaInterna(const std::string& id_mapa) : contador_(1), id_(GL_INVALID_VALUE), formato_(FormatoImagem()) {
+  explicit InfoTexturaInterna(const std::string& id_mapa, bool global) : global_(global), contador_(1), id_(GL_INVALID_VALUE), formato_(FormatoImagem()) {
     VLOG(1) << "InfoTexturaInterna falsa criada: id: '" << id_mapa << "'";
+    imagem_.set_id(id_mapa);
   }
 
-  InfoTexturaInterna(const std::string& id_mapa, const ent::InfoTextura& info_textura)
-      : contador_(1), id_(GL_INVALID_VALUE), formato_(FormatoImagem()) {
+  InfoTexturaInterna(const std::string& id_mapa, bool global, const ent::InfoTextura& info_textura)
+      : global_(global), contador_(1), id_(GL_INVALID_VALUE), formato_(FormatoImagem()) {
     imagem_ = info_textura;
+    imagem_.set_id(id_mapa);
     // Decodifica.
     std::vector<unsigned char> bits_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
     try {
@@ -116,8 +122,7 @@ class Texturas::InfoTexturaInterna {
     if (id_ == GL_INVALID_VALUE) {
       return;
     }
-    GLuint tex_name = id_;
-    glDeleteTextures(1, &tex_name);
+    ApagaTexturaOpengl();
   }
 
   // Retorna id opengl da textura.
@@ -126,6 +131,35 @@ class Texturas::InfoTexturaInterna {
   // Incremento e decremento de contador de refencia.
   int Ref() { return ++contador_; }
   int Deref() { return --contador_; }
+
+  // Rele a textura se for global (locais nao sao recarregadas).
+  void Rele() {
+    if (!global_) {
+      // So as globais sao relidas.
+      return;
+    }
+    // Textura global.
+    VLOG(1) << "Relendo textura global, id: '" << imagem_.id() << "'.";
+    ent::InfoTextura info_lido;
+    try {
+      std::vector<unsigned char> lido;
+      LeImagem(true  /*global*/, imagem_.id(), &lido);
+      imagem_.mutable_bits_crus()->resize(lido.size());
+      imagem_.mutable_bits_crus()->assign((char*)lido.data(), (char*)(lido.data() + lido.size()));
+      //imagem_.mutable_bits_crus()->insert(imagem_.bits_crus().begin(), lido.begin(), lido.end());
+      if (FormatoImagem() == -1) {
+        throw std::logic_error("formato invalido");
+      }
+      DecodificaImagem(imagem_);
+    } catch (const std::exception& e) {
+      LOG(ERROR) << "Textura inválida: " << imagem_.ShortDebugString() << " para releitura, excecao: " << e.what();
+    }
+  }
+
+  // Apaga a textura OpenGL. Publica para recarregar.
+  void ApagaTexturaOpengl() {
+    gl::ApagaTexturas(1, &id_);
+  }
 
   // Cria a textura openGL. Publica para Recarregar poder acessar tambem.
   void CriaTexturaOpenGl() {
@@ -153,6 +187,7 @@ class Texturas::InfoTexturaInterna {
   }
 
  private:
+  bool global_;  // indica se a textura eh global ou local (para recarregamento).
   // Contador de referencia.
   int contador_;
 
@@ -269,8 +304,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Salva bits crus em texturas_baixadas com id da textura.
         arq::EscreveArquivo(arq::TIPO_TEXTURA_BAIXADA, info.id(), info.bits_crus());
       }
-      // TODO
-      //Recarrega();
+      Recarrega(true  /*rele*/);
     }
     default: ;
   }
@@ -289,8 +323,9 @@ unsigned int Texturas::Textura(const std::string& id) const {
 void Texturas::Recarrega(bool rele) {
   for (auto& cv : texturas_) {
     if (rele) {
-      // TODO
+      cv.second->Rele();
     }
+    cv.second->ApagaTexturaOpengl();
     cv.second->CriaTexturaOpenGl();
   }
 }
@@ -321,28 +356,31 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   // Carrega a textura.
   if (info_textura.has_bits_crus()) {
     VLOG(1) << "Carregando textura local com bits crus, id: '" << info_textura.id() << "'.";
-    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_textura)));
+    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), false  /*global*/, info_textura)));
   } else if (info_textura.has_deprecated_bits()) {
     // Este caso era quando armazenava a textura por bits decodificados nao compactados. Gera arquivos muito grandes.
     // Deprecated.
     LOG(WARNING) << "WARNING: Carregando textura local com bits, id: '" << info_textura.id() << "'.";
-    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_textura)));
+    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), false  /*global*/, info_textura)));
   } else {
     // Textura global.
     VLOG(1) << "Carregando textura global, id: '" << info_textura.id() << "'.";
-    ent::InfoTextura info_lido;
     try {
+      ent::InfoTextura info_lido;
       std::vector<unsigned char> lido;
       LeImagem(true  /*global*/, info_textura.id(), &lido);
-      info_lido.mutable_bits_crus()->insert(info_lido.bits_crus().begin(), lido.begin(), lido.end());
+      info_lido.set_id(info_textura.id());
+      info_lido.mutable_bits_crus()->resize(lido.size());
+      info_lido.mutable_bits_crus()->assign((char*)lido.data(), (char*)(lido.data() + lido.size()));
+      if (FormatoImagem() == -1) {
+        throw std::logic_error("formato invalido");
+      }
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/, info_lido)));
     } catch (const std::exception& e) {
       LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
-      return;
+      // Cria textura fake.
+      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/)));
     }
-    if (FormatoImagem() == -1) {
-      return;
-    }
-    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_lido)));
   }
 }
 
