@@ -26,10 +26,11 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   void Recarrega(bool rele = false);
 
-  /** Le uma imagem, preenchendo os bits crus de info_textura.
+  /** Le e decodifica uma imagem, preenchendo os bits crus de info_textura e retornando as dimensoes.
   * @throw std::logic_error caso a leitura da imagem falhe.
   */
-  static void LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura);
+  static void LeDecodificaImagem(
+      bool global, const std::string& caminho, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura);
 
  private:
   class InfoTexturaInterna;

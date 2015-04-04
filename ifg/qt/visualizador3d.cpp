@@ -76,11 +76,19 @@ const QString TamanhoParaTexto(int tamanho) {
   return QObject::tr("desconhecido");
 }
 
-// Carrega os dados de uma textura local pro proto 'info_textura'.
-bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
+// Carrega os dados de uma textura pro proto 'info_textura' e tambem preenche plargura e paltura.
+bool PreencheProtoTextura(
+    const QFileInfo& info_arquivo, bool global, ent::InfoTextura* info_textura, unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
+  unsigned int largura = 0, altura = 0;
+  if (plargura == nullptr) {
+    plargura = &largura;
+  }
+  if (paltura == nullptr) {
+    paltura = &altura;
+  }
   try {
     tex::Texturas::LeDecodificaImagem(
-        false  /*global*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
+        global, info_arquivo.absoluteFilePath().toStdString(), info_textura, plargura, paltura);
     return true;
   } catch (...) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
@@ -89,15 +97,22 @@ bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_
 }
 
 // Retorna o caminho para o id de textura.
-const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id) {
+const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id, bool* pglobal = nullptr) {
+  bool global = false;
+  if (pglobal == nullptr) {
+    pglobal = &global;
+  }
   // Encontra o caminho para o arquivo.
   auto pos = id.find("0:");  // pode assumir id zero, ja que so o mestre pode criar.
   QFileInfo fileinfo;
   if (pos == std::string::npos) {
-    // Caminho relativo ao DIR_TEXTURAS
+    // Textura global.
     fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS), QString::fromStdString(id));
+    *pglobal = true;
   } else {
+    // Textura local.
     fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS_LOCAIS), QString::fromStdString(id.substr(pos)));
+    *pglobal = false;
   }
   LOG(INFO) << "Caminho para texturas: " << fileinfo.fileName().toStdString();
   return fileinfo;
@@ -460,7 +475,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
           proto_retornado->mutable_info_textura()->set_id(id.toStdString());
           // Usa o id para evitar conflito de textura local com texturas globais.
           // Enviar a textura toda.
-          PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+          PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
         } else {
           proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
         }
@@ -648,7 +663,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
           proto_retornado->mutable_info_textura()->set_id(id.toStdString());
           // Usa o id para evitar conflito de textura local com texturas globais.
           // Enviar a textura toda.
-          PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+          PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
         } else {
           proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
         }
@@ -840,7 +855,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         proto_retornado->mutable_info_textura()->set_id(id.toStdString());
         // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
-        PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+        PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
       } else {
         proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
@@ -870,20 +885,21 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         proto_retornado->mutable_info_textura_ceu()->set_id(id.toStdString());
         // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
-        PreencheProtoTextura(info, proto_retornado->mutable_info_textura_ceu());
+        PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura_ceu());
       } else {
         proto_retornado->mutable_info_textura_ceu()->set_id(info.fileName().toStdString());
       }
     }
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
-      // Busca tamanho da textura.
+      // Busca tamanho da textura. Copia o objeto aqui porque a funcao PreencheProtoTextura o modifica.
       ent::InfoTextura textura = proto_retornado->info_textura();
-      if (!textura.has_deprecated_altura() || !textura.has_deprecated_largura()) {
-        PreencheProtoTextura(IdTexturaParaCaminhoArquivo(textura.id()), &textura);
-      }
-      proto_retornado->set_largura(textura.deprecated_largura() / 8);
-      proto_retornado->set_altura(textura.deprecated_altura() / 8);
+      unsigned int largura = 0, altura = 0;
+      bool global;
+      auto caminho = IdTexturaParaCaminhoArquivo(textura.id(), &global);
+      PreencheProtoTextura(caminho, global, &textura, &largura, &altura);
+      proto_retornado->set_largura(largura / 8);
+      proto_retornado->set_altura(altura / 8);
     } else {
       // Converte da entrada.
       bool ok = true;

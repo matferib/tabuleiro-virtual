@@ -39,6 +39,37 @@ void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char
   dados->assign(dados_str.begin(), dados_str.end());
 }
 
+/** Decodifica os dados crus de info_textura, devolvendo altura, largura e os bits decodificados. */
+void DecodificaImagem(
+    const ent::InfoTextura& info_textura, unsigned int* plargura, unsigned int* paltura, std::vector<unsigned char>* bits) {
+  std::vector<unsigned char> dados_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
+  std::vector<unsigned char> dados;
+  lodepng::State estado;
+  unsigned int largura = 0, altura = 0;
+  unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_crus);
+  *plargura = largura;
+  *paltura = altura;
+  if (error != 0) {
+    throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
+  }
+  const LodePNGColorMode& color = estado.info_png.color;
+  VLOG(2) << "Color type: " << color.colortype;
+  VLOG(2) << "Bit depth: " << color.bitdepth;
+  VLOG(2) << "Bits per pixel: " << lodepng_get_bpp(&color);
+  VLOG(2) << "Channels per pixel: " << lodepng_get_channels(&color);
+  VLOG(2) << "Is greyscale type: " << lodepng_is_greyscale_type(&color);
+  VLOG(2) << "Can have alpha: " << lodepng_can_have_alpha(&color);
+  VLOG(2) << "Palette size: " << color.palettesize;
+  VLOG(2) << "Has color key: " << color.key_defined;
+  if (color.key_defined) {
+    VLOG(2) << "Color key r: " << color.key_r;
+    VLOG(2) << "Color key g: " << color.key_g;
+    VLOG(2) << "Color key b: " << color.key_b;
+  }
+  bits->clear();
+  bits->insert(bits->begin(), dados.begin(), dados.end());
+}
+
 /** Retorna o formato OpenGL de uma imagem, por exemplo: GL_BGRA. */
 int FormatoImagem() {
   return GL_RGBA;
@@ -118,32 +149,7 @@ class Texturas::InfoTexturaInterna {
  private:
   /** Decodifica os dados_crus, preenchendo info_textura. */
   void DecodificaImagem(const ent::InfoTextura& info_textura) {
-    unsigned int largura, altura;
-    std::vector<unsigned char> dados_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
-    std::vector<unsigned char> dados;
-    lodepng::State estado;
-    unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_crus);
-    if (error != 0) {
-      throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
-    }
-    const LodePNGColorMode& color = estado.info_png.color;
-    VLOG(2) << "Color type: " << color.colortype;
-    VLOG(2) << "Bit depth: " << color.bitdepth;
-    VLOG(2) << "Bits per pixel: " << lodepng_get_bpp(&color);
-    VLOG(2) << "Channels per pixel: " << lodepng_get_channels(&color);
-    VLOG(2) << "Is greyscale type: " << lodepng_is_greyscale_type(&color);
-    VLOG(2) << "Can have alpha: " << lodepng_can_have_alpha(&color);
-    VLOG(2) << "Palette size: " << color.palettesize;
-    VLOG(2) << "Has color key: " << color.key_defined;
-    if (color.key_defined) {
-      VLOG(2) << "Color key r: " << color.key_r;
-      VLOG(2) << "Color key g: " << color.key_g;
-      VLOG(2) << "Color key b: " << color.key_b;
-    }
-    bits_.clear();
-    bits_.insert(bits_.begin(), dados.begin(), dados.end());
-    largura_ = largura;
-    altura_ = altura;
+    tex::DecodificaImagem(info_textura, &largura_, &altura_, &bits_);
   }
 
  private:
@@ -152,8 +158,8 @@ class Texturas::InfoTexturaInterna {
 
   ent::InfoTextura imagem_;
   GLuint id_;
-  int largura_;
-  int altura_;
+  unsigned int largura_;
+  unsigned int altura_;
   int formato_;
   std::vector<unsigned char> bits_;
 };
@@ -357,13 +363,17 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
 }
 
 // static
-void Texturas::LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura) {
+void Texturas::LeDecodificaImagem(
+    bool global, const std::string& caminho, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura) {
   std::vector<unsigned char> dados_arquivo;
   LeImagem(global, caminho, &dados_arquivo);
   if (dados_arquivo.size() <= 0) {
     throw std::logic_error(std::string("Erro lendo imagem: ") + caminho);
   }
+  info_textura->clear_bits_crus();
   info_textura->mutable_bits_crus()->append(dados_arquivo.begin(), dados_arquivo.end());
+  std::vector<unsigned char> nao_usado;
+  DecodificaImagem(*info_textura, largura, altura, &nao_usado);
 }
 
 }  // namespace tex
