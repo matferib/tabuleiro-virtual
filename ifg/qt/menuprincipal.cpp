@@ -419,7 +419,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"
-           "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
+           "Autor: Matheus Ribeiro <mfribeiro+matferib@gmail.com>"));
   }
 
   if (notificacao != nullptr) {
