@@ -47,14 +47,6 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   int GeraIdTextura();
 
-  /** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho.
-  * Caso local, a textura sera local ao jogador. Caso contrario, eh uma textura global (da aplicacao).
-  */
-  static void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados);
-
-  /** Decodifica os dados_crus, preenchendo info_textura. */
-  static void DecodificaImagem(const std::vector<unsigned char>& dados_crus, ent::InfoTextura* info_textura);
-
  private:
   // Nao possui.
   ntf::CentralNotificacoes* central_;

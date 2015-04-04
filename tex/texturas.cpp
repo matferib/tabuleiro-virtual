@@ -15,6 +15,59 @@ namespace tex {
 
 namespace {
 
+/** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho.
+* Caso local, a textura sera local ao jogador. Caso contrario, eh uma textura global (da aplicacao).
+*/
+void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados) {
+  boost::filesystem::path caminho(arquivo);
+  std::string dados_str;
+  try {
+    arq::LeArquivo(global ? arq::TIPO_TEXTURA : arq::TIPO_TEXTURA_LOCAL, caminho.filename().string(), &dados_str);
+  } catch (const std::exception& e) {
+    if (global) {
+      // Fallback de texturas baixadas.
+      try {
+        LOG(INFO) << "Tentando fallback de " << arquivo << ", global";
+        arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, caminho.filename().string(), &dados_str);
+      } catch (...) {
+        LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", global";
+      }
+    } else {
+      LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", nao global";
+    }
+  }
+  dados->assign(dados_str.begin(), dados_str.end());
+}
+
+/** Decodifica os dados_crus, preenchendo info_textura. */
+void DecodificaImagem(const std::vector<unsigned char>& dados_crus, ent::InfoTextura* info_textura) {
+  unsigned int largura, altura;
+  std::vector<unsigned char> dados;
+  lodepng::State estado;
+  unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_crus);
+  if (error != 0) {
+    throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
+  }
+  const LodePNGColorMode& color = estado.info_png.color;
+  VLOG(2) << "Color type: " << color.colortype;
+  VLOG(2) << "Bit depth: " << color.bitdepth;
+  VLOG(2) << "Bits per pixel: " << lodepng_get_bpp(&color);
+  VLOG(2) << "Channels per pixel: " << lodepng_get_channels(&color);
+  VLOG(2) << "Is greyscale type: " << lodepng_is_greyscale_type(&color);
+  VLOG(2) << "Can have alpha: " << lodepng_can_have_alpha(&color);
+  VLOG(2) << "Palette size: " << color.palettesize;
+  VLOG(2) << "Has color key: " << color.key_defined;
+  if (color.key_defined) {
+    VLOG(2) << "Color key r: " << color.key_r;
+    VLOG(2) << "Color key g: " << color.key_g;
+    VLOG(2) << "Color key b: " << color.key_b;
+  }
+  info_textura->mutable_bits()->append(dados.begin(), dados.end());
+  info_textura->set_largura(largura);
+  info_textura->set_altura(altura);
+}
+
+
 /** Retorna o formato OpenGL de uma imagem, por exemplo: GL_BGRA. */
 int FormatoImagem() {
   return GL_RGBA;
@@ -28,6 +81,11 @@ int TipoImagem() {
 }  // namespace
 
 struct Texturas::InfoTexturaInterna {
+  explicit InfoTexturaInterna(const std::string& id_mapa) : contador(1) {
+    id = GL_INVALID_VALUE;
+    VLOG(1) << "InfoTexturaInterna falsa criada: id: '" << id_mapa << "'";
+  }
+
   InfoTexturaInterna(const std::string& id_mapa, const ent::InfoTextura& imagem) : contador(1) {
     imagem_ = imagem;
     try {
@@ -37,7 +95,7 @@ struct Texturas::InfoTexturaInterna {
       LOG(ERROR) << "Erro gerando nome para textura";
       return;
     }
-    VLOG(1) << "Textura criada: id: '" << id_mapa << "', id OpenGL: '" << id
+    VLOG(1) << "InfoTexturaInterna criada: id: '" << id_mapa << "', id OpenGL: '" << id
             << "', " << imagem.largura() << "x" << imagem.altura()
             << ", format: " << FormatoImagem();
   }
@@ -55,22 +113,26 @@ struct Texturas::InfoTexturaInterna {
     if (id == GL_INVALID_VALUE) {
       throw std::logic_error("Erro criando textura (glGenTextures)");
     }
-    glBindTexture(GL_TEXTURE_2D, id);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id);
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     // Carrega a textura.
-    glTexImage2D(GL_TEXTURE_2D,
-                 0, GL_RGBA,
-                 imagem_.largura(), imagem_.altura(),
-                 0, FormatoImagem(), TipoImagem(),
-                 imagem_.bits().c_str());
-    glDisable(GL_TEXTURE_2D);
+    gl::ImagemTextura2d(GL_TEXTURE_2D,
+                        0, GL_RGBA,
+                        imagem_.largura(), imagem_.altura(),
+                        0, FormatoImagem(), TipoImagem(),
+                        imagem_.bits().c_str());
+    gl::Desabilita(GL_TEXTURE_2D);
   }
 
   ent::InfoTextura imagem_;
   int contador;
   GLuint id;
+  int largura;
+  int altura;
+  int formato;
+  std::vector<char> bits;
 };
 
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
@@ -178,6 +240,8 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Salva bits crus em texturas_baixadas com id da textura.
         arq::EscreveArquivo(arq::TIPO_TEXTURA_BAIXADA, info.id(), info.bits_crus());
       }
+      // TODO
+      //Recarrega();
     }
     default: ;
   }
@@ -193,8 +257,11 @@ unsigned int Texturas::Textura(const std::string& id) const {
 }
 // Fim da interface ent::Texturas.
 
-void Texturas::Recarrega() {
+void Texturas::Recarrega(bool rele) {
   for (auto& cv : texturas_) {
+    if (rele) {
+      // TODO
+    }
     cv.second->CriaTexturaOpenGl();
   }
 }
@@ -222,7 +289,12 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
       VLOG(1) << "Carregando textura local com bits crus, id: '" << info_textura.id() << "'.";
       ent::InfoTextura info_lido(info_textura);
       std::vector<unsigned char> bits_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
-      DecodificaImagem(bits_crus, &info_lido);
+      try {
+        DecodificaImagem(bits_crus, &info_lido);
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
+        return;
+      }
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), info_lido)));
     } else if (info_textura.has_bits()) {
       VLOG(1) << "Carregando textura local com bits, id: '" << info_textura.id() << "'.";
@@ -262,54 +334,7 @@ void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   }
 }
 
-void Texturas::LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados) {
-  boost::filesystem::path caminho(arquivo);
-  std::string dados_str;
-  try {
-    arq::LeArquivo(global ? arq::TIPO_TEXTURA : arq::TIPO_TEXTURA_LOCAL, caminho.filename().string(), &dados_str);
-  } catch (const std::exception& e) {
-    if (global) {
-      // Fallback de texturas baixadas.
-      try {
-        LOG(INFO) << "Tentando fallback de " << arquivo << ", global";
-        arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, caminho.filename().string(), &dados_str);
-      } catch (...) {
-        LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", global";
-      }
-    } else {
-      LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", nao global";
-    }
-  }
-  dados->assign(dados_str.begin(), dados_str.end());
-}
-
-void Texturas::DecodificaImagem(const std::vector<unsigned char>& dados_crus, ent::InfoTextura* info_textura) {
-  unsigned int largura, altura;
-  std::vector<unsigned char> dados;
-  lodepng::State estado;
-  unsigned int error = lodepng::decode(dados, largura, altura, estado, dados_crus);
-  if (error != 0) {
-    throw std::logic_error(std::string("Erro decodificando: ") + lodepng_error_text(error));
-  }
-  const LodePNGColorMode& color = estado.info_png.color;
-  VLOG(2) << "Color type: " << color.colortype;
-  VLOG(2) << "Bit depth: " << color.bitdepth;
-  VLOG(2) << "Bits per pixel: " << lodepng_get_bpp(&color);
-  VLOG(2) << "Channels per pixel: " << lodepng_get_channels(&color);
-  VLOG(2) << "Is greyscale type: " << lodepng_is_greyscale_type(&color);
-  VLOG(2) << "Can have alpha: " << lodepng_can_have_alpha(&color);
-  VLOG(2) << "Palette size: " << color.palettesize;
-  VLOG(2) << "Has color key: " << color.key_defined;
-  if (color.key_defined) {
-    VLOG(2) << "Color key r: " << color.key_r;
-    VLOG(2) << "Color key g: " << color.key_g;
-    VLOG(2) << "Color key b: " << color.key_b;
-  }
-  info_textura->mutable_bits()->append(dados.begin(), dados.end());
-  info_textura->set_largura(largura);
-  info_textura->set_altura(altura);
-}
-
+// static
 void Texturas::LeDecodificaImagem(bool global, bool forcar_bits_crus, const std::string& caminho, ent::InfoTextura* info_textura) {
   std::vector<unsigned char> dados_arquivo;
   LeImagem(global, caminho, &dados_arquivo);
