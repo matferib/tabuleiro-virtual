@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>553</width>
-    <height>687</height>
+    <width>525</width>
+    <height>697</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -205,7 +205,7 @@
     <rect>
      <x>70</x>
      <y>240</y>
-     <width>271</width>
+     <width>181</width>
      <height>131</height>
     </rect>
    </property>
@@ -258,9 +258,9 @@
    <widget class="QDoubleSpinBox" name="spin_translacao">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>80</x>
       <y>60</y>
-      <width>160</width>
+      <width>91</width>
       <height>24</height>
      </rect>
     </property>
@@ -277,7 +277,7 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>80</x>
       <y>40</y>
       <width>111</width>
       <height>16</height>
@@ -446,8 +446,8 @@
   <widget class="QGroupBox" name="groupBox_3">
    <property name="geometry">
     <rect>
-     <x>350</x>
-     <y>240</y>
+     <x>250</x>
+     <y>230</y>
      <width>111</width>
      <height>141</height>
     </rect>
@@ -624,6 +624,92 @@
     </item>
    </layout>
   </widget>
+  <widget class="QGroupBox" name="groupBox_4">
+   <property name="geometry">
+    <rect>
+     <x>360</x>
+     <y>230</y>
+     <width>111</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Rotação em X</string>
+   </property>
+   <widget class="QDial" name="dial_rotacao_x">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>20</y>
+      <width>71</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Rotação do objeto ao redor do eixo Y.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>360</number>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+    <property name="sliderPosition">
+     <number>0</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+    <property name="invertedAppearance">
+     <bool>true</bool>
+    </property>
+    <property name="invertedControls">
+     <bool>true</bool>
+    </property>
+    <property name="wrapping">
+     <bool>true</bool>
+    </property>
+    <property name="notchTarget">
+     <double>45.000000000000000</double>
+    </property>
+    <property name="notchesVisible">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QSpinBox" name="spin_rotacao_x">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>100</y>
+      <width>51</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>-180</number>
+    </property>
+    <property name="maximum">
+     <number>180</number>
+    </property>
+   </widget>
+  </widget>
+  <zorder>horizontalLayoutWidget</zorder>
+  <zorder>botoes</zorder>
+  <zorder>horizontalLayoutWidget_2</zorder>
+  <zorder>groupBox</zorder>
+  <zorder>groupBox_2</zorder>
+  <zorder>horizontalLayoutWidget_3</zorder>
+  <zorder>layoutWidget</zorder>
+  <zorder>horizontalLayoutWidget_4</zorder>
+  <zorder>groupBox_3</zorder>
+  <zorder>horizontalLayoutWidget_5</zorder>
+  <zorder>horizontalLayoutWidget_6</zorder>
+  <zorder>layoutWidget_2</zorder>
+  <zorder>groupBox_4</zorder>
+  <zorder>dial_rotacao_x</zorder>
  </widget>
  <resources/>
  <connections>

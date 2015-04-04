@@ -26,6 +26,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
+  gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0);
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {

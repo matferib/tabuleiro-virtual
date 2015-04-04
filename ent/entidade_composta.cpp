@@ -43,6 +43,7 @@ void Entidade::DesenhaObjetoCompostoProto(
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
+  gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0);
   gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   for (const auto& forma : proto.sub_forma()) {
     DesenhaObjetoProto(forma, vd, pd, nullptr);

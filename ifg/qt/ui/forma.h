@@ -95,12 +95,15 @@ public:
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_11;
     QPlainTextEdit *lista_rotulos;
+    QGroupBox *groupBox_4;
+    QDial *dial_rotacao_x;
+    QSpinBox *spin_rotacao_x;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(553, 687);
+        ifg__qt__DialogoForma->resize(525, 697);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(180, 10, 181, 41));
@@ -218,7 +221,7 @@ public:
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(70, 240, 271, 131));
+        groupBox_2->setGeometry(QRect(70, 240, 181, 131));
         dial_rotacao = new QDial(groupBox_2);
         dial_rotacao->setObjectName(QString::fromUtf8("dial_rotacao"));
         dial_rotacao->setGeometry(QRect(10, 20, 71, 71));
@@ -234,13 +237,13 @@ public:
         dial_rotacao->setNotchesVisible(true);
         spin_translacao = new QDoubleSpinBox(groupBox_2);
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
-        spin_translacao->setGeometry(QRect(100, 60, 160, 24));
+        spin_translacao->setGeometry(QRect(80, 60, 91, 24));
         spin_translacao->setDecimals(1);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);
         label_2 = new QLabel(groupBox_2);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(100, 40, 111, 16));
+        label_2->setGeometry(QRect(80, 40, 111, 16));
         spin_rotacao = new QSpinBox(groupBox_2);
         spin_rotacao->setObjectName(QString::fromUtf8("spin_rotacao"));
         spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
@@ -335,7 +338,7 @@ public:
 
         groupBox_3 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(350, 240, 111, 141));
+        groupBox_3->setGeometry(QRect(250, 230, 111, 141));
         dial_rotacao_y = new QDial(groupBox_3);
         dial_rotacao_y->setObjectName(QString::fromUtf8("dial_rotacao_y"));
         dial_rotacao_y->setGeometry(QRect(20, 20, 71, 71));
@@ -420,6 +423,41 @@ public:
 
         horizontalLayout_18->addWidget(lista_rotulos);
 
+        groupBox_4 = new QGroupBox(ifg__qt__DialogoForma);
+        groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
+        groupBox_4->setGeometry(QRect(360, 230, 111, 141));
+        dial_rotacao_x = new QDial(groupBox_4);
+        dial_rotacao_x->setObjectName(QString::fromUtf8("dial_rotacao_x"));
+        dial_rotacao_x->setGeometry(QRect(20, 20, 71, 71));
+        dial_rotacao_x->setMinimum(0);
+        dial_rotacao_x->setMaximum(360);
+        dial_rotacao_x->setValue(0);
+        dial_rotacao_x->setSliderPosition(0);
+        dial_rotacao_x->setOrientation(Qt::Horizontal);
+        dial_rotacao_x->setInvertedAppearance(true);
+        dial_rotacao_x->setInvertedControls(true);
+        dial_rotacao_x->setWrapping(true);
+        dial_rotacao_x->setNotchTarget(45);
+        dial_rotacao_x->setNotchesVisible(true);
+        spin_rotacao_x = new QSpinBox(groupBox_4);
+        spin_rotacao_x->setObjectName(QString::fromUtf8("spin_rotacao_x"));
+        spin_rotacao_x->setGeometry(QRect(30, 100, 51, 24));
+        spin_rotacao_x->setMinimum(-180);
+        spin_rotacao_x->setMaximum(180);
+        horizontalLayoutWidget->raise();
+        botoes->raise();
+        horizontalLayoutWidget_2->raise();
+        groupBox->raise();
+        groupBox_2->raise();
+        horizontalLayoutWidget_3->raise();
+        layoutWidget->raise();
+        horizontalLayoutWidget_4->raise();
+        groupBox_3->raise();
+        horizontalLayoutWidget_5->raise();
+        horizontalLayoutWidget_6->raise();
+        layoutWidget_2->raise();
+        groupBox_4->raise();
+        dial_rotacao_x->raise();
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -463,6 +501,10 @@ public:
         label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o em X", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        dial_rotacao_x->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 

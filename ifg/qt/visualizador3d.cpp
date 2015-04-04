@@ -416,6 +416,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.spin_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
     gerador.dial_rotacao_y->setValue(-gerador.spin_rotacao_y->value() - 180);
   });
+  // Rotacao em X.
+  gerador.dial_rotacao_x->setSliderPosition(-entidade.rotacao_x_graus() - 180.0f);
+  gerador.spin_rotacao_x->setValue(entidade.rotacao_x_graus());
+  lambda_connect(gerador.dial_rotacao_x, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.spin_rotacao_x->setValue(180 - gerador.dial_rotacao_x->value());
+  });
+  lambda_connect(gerador.spin_rotacao_x, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.dial_rotacao_x->setValue(-gerador.spin_rotacao_x->value() - 180);
+  });
+
 
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());
@@ -453,6 +463,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_fixa(fixa);
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
+    proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->set_translacao_z(gerador.spin_translacao->value());
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
