@@ -137,6 +137,17 @@ inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glViewport(x, y, largura, altura); }
 
+// Texturas.
+inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
+inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
+inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
+inline void ImagemTextura2d(
+    GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda, 
+    GLenum formato, GLenum tipo, const GLvoid* dados) {
+  glTexImage2D(alvo, nivel, formato_interno, largura, altura, borda, formato, tipo, dados);
+}
+
+
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers);
