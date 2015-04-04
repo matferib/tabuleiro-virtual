@@ -3,6 +3,8 @@
 #include "native.h"
 #import "GameViewController.h"
 
+#include <boost/asio.hpp>
+#include <boost/asio/error.hpp>
 #include <memory>
 #include <stdlib.h>
 #include <sys/time.h>
