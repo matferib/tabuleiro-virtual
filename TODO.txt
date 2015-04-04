@@ -1,6 +1,5 @@
 Versao 1.9.0
 
-- Interface de socket generica (sem expor boost).
 - Entender tilt do nexus 10 (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Reler texturas carregadas apos recebe-las do mestre.
 - Copia de texturas no ios.

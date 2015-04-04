@@ -66,13 +66,13 @@ message InfoTextura {
 
   // Deprecated: isso eh de uso interno apenas.
   // Largura em pixels.
-  optional int32 largura = 2 [deprecated=true];
+  optional int32 deprecated_largura = 2 [deprecated=true];
   // Altura em pixels.
-  optional int32 altura = 3 [deprecated=true];
+  optional int32 deprecated_altura = 3 [deprecated=true];
   // Formato QT da textura.
-  optional int32 formato = 4 [deprecated=true];
+  optional int32 deprecated_formato = 4 [deprecated=true];
   // Os bits da textura.
-  optional bytes bits = 5 [deprecated=true];
+  optional bytes deprecated_bits = 5 [deprecated=true];
 }
 
 // A escala nos tres eixos.

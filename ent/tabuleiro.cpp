@@ -3039,7 +3039,7 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     t->CopyFrom(proto_);
     if (t->info_textura().has_bits_crus()) {
       // Serializa apenas os bits crus.
-      t->mutable_info_textura()->clear_bits();
+      t->mutable_info_textura()->clear_deprecated_bits();
     }
     t->clear_entidade();  // As entidades vem do mapa de entidades.
     for (const auto& id_ent : entidades_) {

@@ -80,7 +80,7 @@ const QString TamanhoParaTexto(int tamanho) {
 bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
   try {
     tex::Texturas::LeDecodificaImagem(
-        false  /*global*/, false  /*forcar_bits_crus*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
+        false  /*global*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
     return true;
   } catch (...) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
@@ -879,11 +879,11 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
       // Busca tamanho da textura.
       ent::InfoTextura textura = proto_retornado->info_textura();
-      if (!textura.has_altura() || !textura.has_largura()) {
+      if (!textura.has_deprecated_altura() || !textura.has_deprecated_largura()) {
         PreencheProtoTextura(IdTexturaParaCaminhoArquivo(textura.id()), &textura);
       }
-      proto_retornado->set_largura(textura.largura() / 8);
-      proto_retornado->set_altura(textura.altura() / 8);
+      proto_retornado->set_largura(textura.deprecated_largura() / 8);
+      proto_retornado->set_altura(textura.deprecated_altura() / 8);
     } else {
       // Converte da entrada.
       bool ok = true;

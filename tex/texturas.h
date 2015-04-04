@@ -26,11 +26,13 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   void Recarrega(bool rele = false);
 
-  /** Le e decodifica uma imagem. Os bits crus so seram preenchidos se nao for global ou se forcar. */
-  static void LeDecodificaImagem(bool global, bool forcar_bits_crus, const std::string& caminho, ent::InfoTextura* info_textura);
+  /** Le uma imagem, preenchendo os bits crus de info_textura.
+  * @throw std::logic_error caso a leitura da imagem falhe.
+  */
+  static void LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura);
 
  private:
-  struct InfoTexturaInterna;
+  class InfoTexturaInterna;
 
   /** Auxiliar para retornar informacao de textura. @return nullptr se nao houver. */
   InfoTexturaInterna* InfoInterna(const std::string& id);
