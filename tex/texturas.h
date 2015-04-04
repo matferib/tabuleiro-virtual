@@ -21,8 +21,10 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Retorna uma textura. */
   virtual unsigned int Textura(const std::string& id) const override;
 
-  /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo). */
-  void Recarrega();
+  /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo).
+  * @param rele tambem realiza a releitura dos bits crus, decodificando-os.
+  */
+  void Recarrega(bool rele = false);
 
   /** Le e decodifica uma imagem. Os bits crus so seram preenchidos se nao for global ou se forcar. */
   static void LeDecodificaImagem(bool global, bool forcar_bits_crus, const std::string& caminho, ent::InfoTextura* info_textura);
@@ -56,6 +58,7 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
  private:
   // Nao possui.
   ntf::CentralNotificacoes* central_;
+  // Mapeia id da textura para sua informacao interna.
   std::unordered_map<std::string, InfoTexturaInterna*> texturas_;
 };
 
