@@ -72,34 +72,6 @@ class ReceptorErro : public ntf::Receptor {
   jobject thisz_ = nullptr;
 };
 
-// Teste
-const ntf::Notificacao LeTabuleiro(JNIEnv* env, jobject assets) {
-  AAssetManager* aman = AAssetManager_fromJava(env, assets);
-  ntf::Notificacao ntf_tabuleiro;
-  AAsset* asset = nullptr;
-  //std::string caminho_asset("tabuleiros_salvos/deck_matheus.binproto");
-  std::string caminho_asset("tabuleiros_salvos/castelo.binproto");
-  asset = AAssetManager_open(aman, caminho_asset.c_str(), AASSET_MODE_BUFFER);
-  if (asset == nullptr) {
-    __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha abrindo asset: %s", caminho_asset.c_str());
-    throw 1;
-  }
-  off_t tam = AAsset_getLength(asset);
-  if (tam <= 0) {
-    __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha com tamanho do asset: %ld", tam);
-    throw 2;
-  }
-  std::string dados;
-  dados.resize(tam);
-  memcpy(&dados[0], AAsset_getBuffer(asset), tam);
-  if (asset != nullptr) {
-    AAsset_close(asset);
-  }
-  ntf_tabuleiro.ParseFromString(dados);
-  __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido: tam %ld, dados: %s", tam, ntf_tabuleiro.ShortDebugString().c_str());
-  return ntf_tabuleiro;
-}
-
 // Converte string java para C++. A jstr nao eh const por causa da alocacao de objetos.
 const std::string ConverteString(JNIEnv* env, jstring jstr) {
   const char* cstr = env->GetStringUTFChars(jstr, 0);
@@ -152,9 +124,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
 
   // TESTE
   try {
-    ntf::Notificacao* ntf_tab = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    auto tab_lido = LeTabuleiro(env, assets);
-    ntf_tab->Swap(&tab_lido);
+    auto* ntf_tab = new ntf::Notificacao;
+    arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "castelo.binproto", ntf_tab);
     ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     g_central->AdicionaNotificacao(ntf_tab);
   } catch (...) {

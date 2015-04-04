@@ -47,6 +47,7 @@ const std::string TipoParaDiretorio(tipo_e tipo) {
     case TIPO_TEXTURA_BAIXADA: return "texturas_baixadas";
     case TIPO_TEXTURA_LOCAL: return "texturas_locais";
     case TIPO_TABULEIRO: return "tabuleiros_salvos";
+    case TIPO_TABULEIRO_ESTATICO: return "tabuleiros_salvos";
     case TIPO_DADOS: return "dados";
     case TIPO_SHADER: return "shaders";
     case TIPO_ENTIDADES: return "entidades_salvas";
@@ -57,7 +58,8 @@ const std::string TipoParaDiretorio(tipo_e tipo) {
 }
 
 bool EhAsset(tipo_e tipo) {
-  return tipo == TIPO_TEXTURA ||
+  return tipo == TIPO_TABULEIRO_ESTATICO ||
+         tipo == TIPO_TEXTURA ||
          tipo == TIPO_DADOS ||
          tipo == TIPO_SHADER;
 }

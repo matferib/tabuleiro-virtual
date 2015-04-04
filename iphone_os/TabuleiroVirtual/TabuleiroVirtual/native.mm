@@ -42,9 +42,10 @@ class CarregadorTabuleiro : public ntf::Receptor {
     if (n.tipo() == ntf::TN_RESPOSTA_CONEXAO) {
       if (n.has_erro()) {
         // Carrega tab.
-        auto* cn = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-        cn->set_endereco("castelo.binproto");
-        g_central->AdicionaNotificacao(cn);
+        auto* ntf_tab = new ntf::Notificacao;
+        arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "castelo.binproto", ntf_tab);
+        ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+        g_central->AdicionaNotificacao(ntf_tab);
       }
       g_central->DesregistraReceptor(this);
     }
