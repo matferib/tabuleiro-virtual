@@ -353,21 +353,24 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     tabuleiro_->TrataComandoRefazer();
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
-  } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
-    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-    notificacao->set_endereco("");  // Endereco vazio para sinalizar o uso do corrente.
-  } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_COMO]) {
-    // Abre dialogo de arquivo.
-    QString file_str = QFileDialog::getSaveFileName(
-        qobject_cast<QWidget*>(parent()),
-        tr("Salvar tabuleiro"),
-        tr(arq::Diretorio(arq::TIPO_TABULEIRO).c_str()));
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de salvar cancelada.";
-      return;
+  } else if ((acao == acoes_[ME_TABULEIRO][MI_SALVAR]) ||
+             (acao == acoes_[ME_TABULEIRO][MI_SALVAR_COMO])) {
+    if (acao == acoes_[ME_TABULEIRO][MI_SALVAR] && tabuleiro_->TemNome()) {
+      notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      notificacao->set_endereco("");  // Endereco vazio para sinalizar o uso do corrente.
+    } else {
+      // Abre dialogo de arquivo.
+      QString file_str = QFileDialog::getSaveFileName(
+          qobject_cast<QWidget*>(parent()),
+          tr("Salvar tabuleiro"),
+          tr(arq::Diretorio(arq::TIPO_TABULEIRO).c_str()));
+      if (file_str.isEmpty()) {
+        VLOG(1) << "Operação de salvar cancelada.";
+        return;
+      }
+      notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      notificacao->set_endereco(file_str.toStdString());
     }
-    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-    notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR] ||
              acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),

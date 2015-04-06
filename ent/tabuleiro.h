@@ -242,6 +242,9 @@ class Tabuleiro : public ntf::Receptor {
     return mapa_modelos_;
   }
 
+  /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
+  bool TemNome() const { return !proto_.nome().empty(); }
+
   /** Seleciona a acao para as entidades selecionadas através do identificador. */
   void SelecionaAcao(const std::string& id_acao);
   void ProximaAcao();
