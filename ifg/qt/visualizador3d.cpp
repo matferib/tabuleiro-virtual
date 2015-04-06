@@ -12,6 +12,7 @@
 #include <QMouseEvent>
 #include <QString>
 
+#include "arq/arquivo.h"
 #include "ent/tabuleiro.h"
 #include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
@@ -186,6 +187,27 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       break;
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
+      if (!notificacao.tabuleiro().has_nome() && tabuleiro_->TemNome()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
+        central_->AdicionaNotificacao(n);
+        break;
+      }
+      // Abre dialogo de arquivo.
+      QString file_str = QFileDialog::getSaveFileName(
+          qobject_cast<QWidget*>(parent()),
+          tr("Salvar tabuleiro"),
+          tr(arq::Diretorio(arq::TIPO_TABULEIRO).c_str()));
+      if (file_str.isEmpty()) {
+        VLOG(1) << "Operação de salvar cancelada.";
+        return false;
+      }
+      auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      n->set_endereco(file_str.toStdString());
+      central_->AdicionaNotificacao(n);
+      break;
+    }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
         return false;

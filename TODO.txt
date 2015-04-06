@@ -1,7 +1,6 @@
 Versao 1.9.0
 
 - Modelos 3d para entidades.
-- Salvar quando nao houver nome chamar salvar como (terminar).
 - Entender tilt do nexus 10 (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: usar a funcao de conversao jstr para c++ str.
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.

@@ -291,9 +291,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     }
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
-        auto* notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-        notificacao->set_endereco("");  // Endereco vazio para sinalizar o uso do corrente.
-        central_->AdicionaNotificacao(notificacao);
+        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
         return;
       }
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
