@@ -148,7 +148,6 @@ inline void ImagemTextura2d(
   glTexImage2D(alvo, nivel, formato_interno, largura, altura, borda, formato, tipo, dados);
 }
 
-
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers);

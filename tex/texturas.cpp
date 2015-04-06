@@ -29,7 +29,7 @@ void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char
     if (global) {
       // Fallback de texturas baixadas.
       try {
-        LOG(INFO) << "Tentando fallback de " << arquivo << ", global";
+        VLOG(1) << "Tentando fallback de " << arquivo << ", global";
         arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, caminho.filename().string(), &dados_str);
       } catch (...) {
         LOG(ERROR) << "Falha lendo arquivo " << arquivo << ", global";
@@ -158,12 +158,19 @@ class Texturas::InfoTexturaInterna {
 
   // Apaga a textura OpenGL. Publica para recarregar.
   void ApagaTexturaOpengl() {
+    VLOG(1) << "Apagando textura para: " << imagem_.id() << ", id openGL: " << id_;
     gl::ApagaTexturas(1, &id_);
+    id_ = GL_INVALID_VALUE;
   }
 
   // Cria a textura openGL. Publica para Recarregar poder acessar tambem.
   void CriaTexturaOpenGl() {
+    // So cria se a textura tiver bits.
+    if (bits_.empty()) {
+      return;
+    }
     gl::GeraTexturas(1, &id_);
+    VLOG(1) << "Criando textura para: " << imagem_.id() << ", id openGL: " << id_;
     if (id_ == GL_INVALID_VALUE) {
       throw std::logic_error("Erro criando textura (glGenTextures)");
     }
@@ -321,6 +328,11 @@ unsigned int Texturas::Textura(const std::string& id) const {
 // Fim da interface ent::Texturas.
 
 void Texturas::Recarrega(bool rele) {
+  // Apaga todas as texturas primeiro para garantir que nao havera repeticoes de ids.
+  for (auto& cv : texturas_) {
+    cv.second->ApagaTexturaOpengl();
+  }
+  // Agora recria.
   for (auto& cv : texturas_) {
     if (rele) {
       cv.second->Rele();
