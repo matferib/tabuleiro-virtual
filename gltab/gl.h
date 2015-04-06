@@ -1,6 +1,7 @@
 #ifndef GLTAB_GL_H
 #define GLTAB_GL_H
 
+#include <cmath>
 #include <string>
 #include <stdexcept>
 #if USAR_OPENGL_ES && !BENCHMARK
@@ -256,7 +257,7 @@ void DesenhaVbo(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
 void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
 
 
-/** Objetos GLU e GLUT. */
+/** Vertex Buffer Objects. */
 class Vbo {
  public:
   explicit Vbo(const std::string& nome = "") : nome_(nome) {}
@@ -265,6 +266,14 @@ class Vbo {
   void Nomeia(const std::string& nome) {
     nome_ = nome;
   }
+
+  // Transformacao do vbo.
+  void Escala(GLfloat x, GLfloat y, GLfloat z);
+  void Translada(GLfloat x, GLfloat y, GLfloat z);
+  void RodaX(GLfloat angulo_graus);
+  void RodaY(GLfloat angulo_graus);
+  void RodaZ(GLfloat angulo_graus);
+  // Fim transformacoes vbo.
 
   void AtribuiIndices(const unsigned short* dados, unsigned short num_indices) {
     indices_.clear();

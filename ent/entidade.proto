@@ -75,6 +75,11 @@ message InfoTextura {
   optional bytes deprecated_bits = 5 [deprecated=true];
 }
 
+message Modelo3d {
+  // Identificador do modelo 3d.
+  optional string id = 1;
+}
+
 // A escala nos tres eixos.
 message Escala {
   optional float x = 1 [default=1.0];
@@ -124,6 +129,8 @@ message EntidadeProto {
   optional IluminacaoPontual luz = 7;
   // Textura.
   optional InfoTextura info_textura = 8;
+  // Modelo 3d.
+  optional Modelo3d modelo_3d = 34;
 
   // BITS DAS ENTIDADE.
   // Aura em quadrados.

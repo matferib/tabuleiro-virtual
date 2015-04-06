@@ -19,6 +19,7 @@ class Message;
 namespace arq {
 
 enum tipo_e {
+  TIPO_MODELO_3D,
   TIPO_TEXTURA,
   TIPO_TEXTURA_BAIXADA,
   TIPO_TEXTURA_LOCAL,

@@ -13,6 +13,11 @@
 
 namespace ent {
 
+const gl::Vbo Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
+  // TODO
+  return gl::Vbo();
+} 
+
 void Entidade::AtualizaTexturasEntidadesCompostasProto(
     const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
   // Libera todas.

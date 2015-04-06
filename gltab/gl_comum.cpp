@@ -61,6 +61,62 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical)
   interno::DesenhaStringAlinhado(str, 1, inverte_vertical);
 }
 
+//----
+// VBO
+//----
+void Vbo::Escala(GLfloat x, GLfloat y, GLfloat z) {
+  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+    coordenadas_[i] *= x;
+    coordenadas_[i + 1] *= y;
+    if (num_dimensoes_ == 3) {
+      coordenadas_[i + 2] *= z;
+    }
+  }
+}
+
+void Vbo::Translada(GLfloat x, GLfloat y, GLfloat z) {
+  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+    coordenadas_[i] += x;
+    coordenadas_[i + 1] += y;
+    if (num_dimensoes_ == 3) {
+      coordenadas_[i + 2] += z;
+    }
+  }
+}
+
+void Vbo::RodaX(GLfloat angulo_graus) {
+  GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
+  GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
+  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+    GLfloat y = coordenadas_[i + 1];
+    GLfloat z = coordenadas_[i + 2];
+    coordenadas_[i + 1] = y * c + z * -s;
+    coordenadas_[i + 2] = y * s + z * c;
+  }
+}
+
+void Vbo::RodaY(GLfloat angulo_graus) {
+  GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
+  GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
+  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+    GLfloat x = coordenadas_[i];
+    GLfloat z = coordenadas_[i + 2];
+    coordenadas_[i] = x * c + z * s;
+    coordenadas_[i + 2] = x * -s + z * c;
+  }
+}
+
+void Vbo::RodaZ(GLfloat angulo_graus) {
+  GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
+  GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
+  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+    GLfloat x = coordenadas_[i];
+    GLfloat y = coordenadas_[i + 1];
+    coordenadas_[i] = x * c + y * -s;
+    coordenadas_[i + 1] = x * s + y * c;
+  }
+}
+
 const Vbo VboConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
   return VboTroncoConeSolido(base, 0.0f, altura, num_fatias, num_tocos);
 }

@@ -8,6 +8,7 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
+#include "m3d/m3d.h"
 
 namespace gl {
 bool ImprimeSeErro();
@@ -57,7 +58,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   AjustaCor(proto, pd);
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
-  if (!proto.has_info_textura()) {
+  if (!proto.has_info_textura() && !proto.has_modelo_3d()) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto, vd, pd, matriz_shear);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
@@ -75,6 +76,17 @@ void Entidade::DesenhaObjetoEntidadeProto(
     }
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
+
+#if 0
+  if (proto_.has_modelo_3d()) {
+    const auto* vbo = m3d::Modelo(proto_.modelo_3d());
+    if (vbo != nullptr) {
+      // TODO vbo gravado
+      gl::DesenhaVboNaoGravado(*vbo);
+      return;
+    }
+  }
+#endif
 
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();

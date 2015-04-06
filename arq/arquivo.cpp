@@ -43,6 +43,7 @@ namespace interno {
 
 const std::string TipoParaDiretorio(tipo_e tipo) {
   switch (tipo) {
+    case TIPO_MODELO_3D: return "modelos3d";
     case TIPO_TEXTURA: return "texturas";
     case TIPO_TEXTURA_BAIXADA: return "texturas_baixadas";
     case TIPO_TEXTURA_LOCAL: return "texturas_locais";

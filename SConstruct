@@ -117,6 +117,9 @@ cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 cTexturasLode = env.Object('tex/lodepng.cpp')
 cTexturas = env.Object('tex/texturas.cpp')
 
+# Modelos 3d.
+cModelos3d = env.Object('m3d/m3d.cpp')
+
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cTabuleiroControleVirtual = env.Object('ent/tabuleiro_controle_virtual.cpp')
@@ -168,6 +171,8 @@ objetos = [
     cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # Texturas
     cTexturas, cTexturasLode,
+    # Modelos3d.
+    cModelos3d,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
