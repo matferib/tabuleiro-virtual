@@ -47,6 +47,7 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/entidade.cpp ent/entidade_desenho.cpp ent/entidade_composta.cpp ent/entidade_forma.cpp ent/tabuleiro.cpp ent/tabuleiro_controle_virtual.cpp ent/tabuleiro_picking.cpp ent/acoes.cpp ent/util.cpp \
                    ifg/tecladomouse.cpp \
                    tex/texturas.cpp tex/lodepng.cpp \
+									 m3d/m3d.cpp \
 									 arq/arquivo.cpp arq/arquivo_android.cpp
 
 # Flags de performance.
