@@ -298,12 +298,14 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
             central_->AdicionaNotificacao(resposta);
           }
           // Envia a notificacao para os outros clientes.
-          for (auto* c : clientes_) {
-            if (c == cliente) {
-              // Nao envia para o cliente original.
-              continue;
+          if (!notificacao->servidor_apenas()) {
+            for (auto* c : clientes_) {
+              if (c == cliente) {
+                // Nao envia para o cliente original.
+                continue;
+              }
+              EnviaDadosCliente(c, cliente->buffer_notificacao);
             }
-            EnviaDadosCliente(c, cliente->buffer_notificacao);
           }
           // Processa localmente.
           notificacao->set_local(false);

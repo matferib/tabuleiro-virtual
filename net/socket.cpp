@@ -129,7 +129,8 @@ void Socket::Fecha() {
 }
 
 void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
-  interno_->socket->async_send(
+  boost::asio::async_write(
+      *interno_->socket.get(),
       boost::asio::buffer(dados),
       [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
    callback_envio_cliente(Erro(ec), bytes_enviados);
