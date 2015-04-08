@@ -250,6 +250,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
         n->add_info_textura()->set_id(id);
       }
       n->set_id_rede(notificacao.id_rede());
+      n->set_servidor_apenas(true);
       // Envia para o servidor.
       VLOG(1) << "Enviando remoto TN_REQUISITAR_TEXTURAS: " << n->DebugString();
       central_->AdicionaNotificacaoRemota(n);
@@ -302,7 +303,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ENVIAR_TEXTURAS: {
-      // Cliente recebdo texturas de servidor.
+      // Cliente recebendo texturas de servidor.
       if (notificacao.local()) {
         return false;
       }
