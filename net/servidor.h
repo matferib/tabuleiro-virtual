@@ -4,7 +4,6 @@
 #include <memory>
 #include <queue>
 #include <set>
-#include <vector>
 #include "ntf/notificacao.h"
 #include "net/socket.h"
 
@@ -48,17 +47,17 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  private:
   struct Cliente {
     // tamanho maximo da mensagem: 1MB.
-    Cliente(Socket* socket) : socket(socket), buffer(1024 * 1024), a_receber_(0) {}
+    Cliente(Socket* socket) : socket(socket), buffer(1024 * 1024, '\0'), a_receber_(0) {}
     Cliente() : Cliente(nullptr) {}
     std::string id;
     std::unique_ptr<Socket> socket;
     // Buffer de recepcao dos dados.
-    std::vector<char> buffer;
+    std::string buffer;
     // Buffer de cada notificacao recebida no buffer acima.
     std::string buffer_notificacao;
-    int a_receber_;
+    unsigned int a_receber_;
     // Dados para enviar.
-    std::queue<std::vector<char>> dados_enviar;
+    std::queue<std::string> dados_enviar;
   };
 
   // Liga o aceitador para receber clientes de forma assincrona e renova automaticamente sempre que um cliente aparece.

@@ -4,7 +4,6 @@
 #include <memory>
 #include <queue>
 #include <string>
-#include <vector>
 #include "net/socket.h"
 #include "ntf/notificacao.h"
 
@@ -43,9 +42,9 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   Sincronizador* sincronizador_;
   std::unique_ptr<Socket> socket_;
   int a_receber_;  // bytes a receber.
-  std::vector<char> buffer_;  // Buffer de recepcao.
+  std::string buffer_;  // Buffer de recepcao.
   std::string buffer_notificacao_;  // Armazena o objeto lido.
-  std::queue<std::vector<char>> fifo_envio_;  // FIFO para envio.
+  std::queue<std::string> fifo_envio_;  // FIFO para envio.
 
   std::unique_ptr<SocketUdp> socket_descobrimento_;
   std::vector<char> buffer_descobrimento_;

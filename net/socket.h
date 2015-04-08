@@ -111,13 +111,13 @@ class Socket {
   // Funcao assincrona para enviar dados atraves do socket. Parametros 'dados' deve viver ate o fim.
   // Lanca std::exception em caso de erro.
   typedef std::function<void(const Erro& erro, std::size_t bytes_enviados)> CallbackEnvio;
-  void Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente);
+  void Envia(const std::string& dados, CallbackEnvio callback_envio_cliente);
 
   // Funcao assincrona para receber dados do socket.
   // Parametro 'dados' deve viver ate o fim e sera alterado para o tamanho certo.
   // Lanca std::exception em caso de erro.
   typedef std::function<void(const Erro& ec, std::size_t bytes_recebidos)> CallbackRecepcao;
-  void Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente);
+  void Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente);
 
  private:
   friend class Aceitador;

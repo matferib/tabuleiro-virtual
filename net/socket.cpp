@@ -128,7 +128,7 @@ void Socket::Fecha() {
   interno_->socket->close();
 }
 
-void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
+void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_cliente) {
   boost::asio::async_write(
       *interno_->socket.get(),
       boost::asio::buffer(dados),
@@ -137,8 +137,9 @@ void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_
  });
 }
 
-void Socket::Recebe(std::vector<char>* dados, CallbackRecepcao callback_recepcao_cliente) {
-  interno_->socket->async_receive(boost::asio::buffer(*dados),
+void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente) {
+  interno_->socket->async_receive(
+      boost::asio::buffer(&(*dados)[0], dados->size()),
       [callback_recepcao_cliente](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
     callback_recepcao_cliente(Erro(ec), bytes_recebidos);
   });
