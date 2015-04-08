@@ -73,7 +73,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
   } else {
     for (auto* c : clientes_) {
       if (notificacao.has_id_rede() && c->id != notificacao.id_rede()) {
-        VLOG(1) << "Dropando notificacao pq id cliente diferente: " << notificacao.id_rede() << " x " << c->id;
+        LOG(INFO) << "Dropando notificacao por causa id cliente diferente. Destino: " << notificacao.id_rede() << " x cliente: " << c->id;
         continue;
       }
       VLOG(1) << "Enviando notificacao para cliente";
@@ -239,7 +239,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
           }
           cliente->a_receber_ = DecodificaTamanho(buffer_inicio);
           if (cliente->a_receber_ > 1024 * 1024) {
-            LOG(ERROR) << "recebendo mensagem maior que 1MB, impossivel. Algum problema podera acontecer. "
+            LOG(ERROR) << "recebendo mensagem maior que 1 MB, algum problema podera acontecer. "
                 << "Cliente: " << cliente->id << " "
                 << ", a_receber: " << cliente->a_receber_
                 << ", bytes_recebidos: " << bytes_recebidos
