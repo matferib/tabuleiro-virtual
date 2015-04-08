@@ -14,6 +14,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ifg/tecladomouse.h"
+#include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
@@ -25,6 +26,7 @@ namespace {
 // Contexto nativo.
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<tex::Texturas> g_texturas;
+std::unique_ptr<m3d::Modelos3d> g_modelos3d;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Sincronizador> g_sincronizador;
@@ -77,7 +79,7 @@ void nativeCreate(void* view) {
 
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
-  g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
+  g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
