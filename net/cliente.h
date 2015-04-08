@@ -26,8 +26,8 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   // Descobre o endereco do servidor e conecta.
   void AutoConecta(const std::string& id);
 
-  // Desconecta o cliente. Envia uma notificacao do tipo TN_DESCONECTADO. Se erro nao for vazio, 
-  // o campo erro da notificacao sera preenchido. 
+  // Desconecta o cliente. Envia uma notificacao do tipo TN_DESCONECTADO. Se erro nao for vazio,
+  // o campo erro da notificacao sera preenchido.
   void Desconecta(const std::string& erro);
 
   // Recebe dados da conexao continuamente.
