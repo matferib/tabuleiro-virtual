@@ -13,6 +13,44 @@ namespace ent {
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
 
 const gl::Vbo Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
+  gl::Vbo vbo;
+  switch (proto.sub_tipo()) {
+    case TF_CIRCULO: {
+    }
+    break;
+    case TF_CILINDRO: {
+    }
+    break;
+    case TF_CONE: {
+    }
+    break;
+    case TF_CUBO: {
+      vbo = gl::VboCuboSolido(1.0f);
+      vbo.Translada(0, 0, 0.5f);
+    }
+    break;
+    case TF_PIRAMIDE: {
+    }
+    break;
+    case TF_RETANGULO: {
+    }
+    break;
+    case TF_ESFERA: {
+    }
+    break;
+    case TF_LIVRE: {
+    }
+    break;
+    default:
+      LOG(ERROR) << "Forma de desenho invalida";
+  }
+  vbo.RodaX(proto.rotacao_x_graus());
+  vbo.RodaY(proto.rotacao_y_graus());
+  vbo.RodaZ(proto.rotacao_z_graus());
+  vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  // Mundo.
+  vbo.Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z());
+
   // TODO
   return gl::Vbo();
 }
@@ -28,10 +66,10 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   if (matriz_shear != nullptr) {
     gl::MultiplicaMatriz(matriz_shear);
   }
-  //gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
-  //gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
-  //gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
-  //gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0);
+  gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
+  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
+  gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0);
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {
@@ -64,18 +102,9 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     break;
     case TF_CUBO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      //gl::Translada(0, 0, proto.escala().z() / 2.0f);
-      //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      //gl::DesenhaVbo(g_vbos[VBO_CUBO]);
-      auto vbo = gl::VboCuboSolido(1.0f);
-      vbo.Translada(0, 0, 0.5f);
-      vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-      vbo.RodaX(proto.rotacao_x_graus());
-      vbo.RodaY(proto.rotacao_y_graus());
-      vbo.RodaZ(proto.rotacao_z_graus());
-      // Mundo.
-      vbo.Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z());
-      gl::DesenhaVboNaoGravado(vbo);
+      gl::Translada(0, 0, proto.escala().z() / 2.0f);
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::DesenhaVbo(g_vbos[VBO_CUBO]);
     }
     break;
     case TF_PIRAMIDE: {

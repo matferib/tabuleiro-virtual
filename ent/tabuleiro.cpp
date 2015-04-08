@@ -219,10 +219,11 @@ void PreencheNotificacaoDeltaPontosVida(
 
 }  // namespace.
 
-Tabuleiro::Tabuleiro(tex::Texturas* texturas, ntf::CentralNotificacoes* central) :
+Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) :
     id_cliente_(0),
     proximo_id_cliente_(1),
     texturas_(texturas),
+    m3d_(m3d),
     central_(central),
     modo_mestre_(true) {
   central_->RegistraReceptor(this);
@@ -474,7 +475,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      auto* entidade = NovaEntidade(modelo, texturas_, central_);
+      auto* entidade = NovaEntidade(modelo, texturas_, m3d_, central_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
       for (const auto id : ids_entidades_selecionadas_) {
@@ -500,7 +501,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       central_->AdicionaNotificacaoRemota(n);
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade(), texturas_, central_);
+      auto* entidade = NovaEntidade(notificacao.entidade(), texturas_, m3d_, central_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
@@ -3114,7 +3115,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       // senao pode dar conflito.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
-    auto* e = NovaEntidade(ep, texturas_, central_);
+    auto* e = NovaEntidade(ep, texturas_, m3d_, central_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }

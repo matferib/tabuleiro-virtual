@@ -270,6 +270,7 @@ class Vbo {
   // Transformacao do vbo.
   void Escala(GLfloat x, GLfloat y, GLfloat z);
   void Translada(GLfloat x, GLfloat y, GLfloat z);
+  // TODO rodar as normais.
   void RodaX(GLfloat angulo_graus);
   void RodaY(GLfloat angulo_graus);
   void RodaZ(GLfloat angulo_graus);

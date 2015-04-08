@@ -3,6 +3,7 @@
 
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
+#include "m3d/m3d.h"
 
 namespace ntf {
 class CentralNotificacoes;
@@ -28,7 +29,7 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf::CentralNotificacoes* central);
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -160,8 +161,8 @@ class Entidade {
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
  protected:
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, ntf::CentralNotificacoes*);
-  Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central);
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*);
+  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
 
  private:
   // Nome dos buffers de VBO.
@@ -182,6 +183,7 @@ class Entidade {
     float angulo_disco_luz_rad = 0.0f;
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
+    const m3d::Modelos3d* m3d = nullptr;
   };
 
   // Extracao de VBO por tipo.

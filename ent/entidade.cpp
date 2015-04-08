@@ -29,12 +29,12 @@ const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 }  // namespace
 
 // Factory.
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf::CentralNotificacoes* central) {
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(texturas, central);
+      auto* entidade = new Entidade(texturas, m3d, central);
       entidade->Inicializa(proto);
       return entidade;
     }
@@ -46,8 +46,9 @@ Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf
 }
 
 // Entidade
-Entidade::Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central) {
+Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
   vd_.texturas = texturas;
+  vd_.m3d = m3d;
   central_ = central;
 }
 

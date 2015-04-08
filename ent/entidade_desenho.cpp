@@ -77,16 +77,16 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
-#if 0
-  if (proto_.has_modelo_3d()) {
-    const auto* vbo = m3d::Modelo(proto_.modelo_3d());
+  if (proto.has_modelo_3d()) {
+    const auto* vbo = vd.m3d->Modelo(proto.modelo_3d().id());
     if (vbo != nullptr) {
       // TODO vbo gravado
       gl::DesenhaVboNaoGravado(*vbo);
       return;
+    } else {
+      LOG(INFO) << "Modelo3d invalido: " << proto.modelo_3d().id();
     }
   }
-#endif
 
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();

@@ -27,7 +27,8 @@ int main(int argc, char** argv) {
   net::Servidor servidor(&sincronizador, &central);
   net::Cliente cliente(&sincronizador, &central);
   tex::Texturas texturas(&central);
-  ent::Tabuleiro tabuleiro(&texturas, &central);
+  m3d::Modelos3d modelos3d;
+  ent::Tabuleiro tabuleiro(&texturas, &modelos3d, &central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &central));
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
