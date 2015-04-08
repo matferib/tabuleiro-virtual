@@ -52,9 +52,11 @@ enum Tipo {
 message Notificacao {
   optional Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
-  // devera ser acompanhada do do do cliente.
-  //Caso contrario, enviado para todos.
+  // devera ser acompanhada do id do cliente.
+  // Caso contrario, enviado para todo pendentes.
   optional bool clientes_pendentes = 2 [default=false];
+  // Se verdadeira, indica que o servidor nao deve repassar a mensagem para outros clientes.
+  optional bool servidor_apenas = 17 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
   // Identificacao propria do cliente no formato de string. Mensagens enviadas do servidor com este campo atribuido 
