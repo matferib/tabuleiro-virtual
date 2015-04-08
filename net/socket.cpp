@@ -2,6 +2,7 @@
 #include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
 
+#include "log/log.h"
 #include "net/socket.h"
 
 namespace net {
@@ -105,7 +106,15 @@ struct Socket::Interno {
 
 Socket::Socket(Sincronizador* sincronizador)
     : sincronizador_(sincronizador),
-      interno_(new Interno(new boost::asio::ip::tcp::socket(*sincronizador->interno_->servico_io))) {}
+      interno_(new Interno(new boost::asio::ip::tcp::socket(*sincronizador->interno_->servico_io))) {
+  try {
+    boost::asio::ip::tcp::no_delay option(true);
+    interno_->socket->set_option(option);
+    LOG(INFO) << "No delay setado com sucesso";
+  } catch (const std::exception& e) {
+    LOG(WARNING) << "Nao consegui setar no_delay, realtime pode ser comprometido";
+  }
+}
 
 Socket::~Socket() {}
 
@@ -120,9 +129,9 @@ void Socket::Fecha() {
 }
 
 void Socket::Envia(const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
-  boost::asio::async_write(*interno_->socket.get(),
-                           boost::asio::buffer(dados),
-                           [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+  interno_->socket->async_send(
+      boost::asio::buffer(dados),
+      [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
    callback_envio_cliente(Erro(ec), bytes_enviados);
  });
 }
