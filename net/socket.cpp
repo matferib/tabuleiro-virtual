@@ -85,7 +85,7 @@ void SocketUdp::Envia(int porta, const std::string& dados, CallbackEnvio callbac
       boost::asio::buffer(dados),
       boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
       [callback_envio_cliente, &dados] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-    VLOG(1) << "UDP Enviados: " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
+    VLOG(2) << "UDP Enviados: " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
     callback_envio_cliente(ConverteErro(ec), bytes_enviados);
   });
 }
@@ -97,7 +97,7 @@ void SocketUdp::Recebe(
       boost::asio::buffer(&(*dados)[0], dados->size()),
       *endpoint,
       [endpoint, endereco, callback_recepcao_cliente, dados] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-    VLOG(1) << "UDP Recebidos: " << bytes_enviados << ", buffer: " << dados->size() << ", erro? " << ec.message();
+    VLOG(2) << "UDP Recebidos: " << bytes_enviados << ", buffer: " << dados->size() << ", erro? " << ec.message();
     endereco->assign(endpoint->address().to_string());
     delete endpoint;
     callback_recepcao_cliente(ConverteErro(ec), bytes_enviados);
