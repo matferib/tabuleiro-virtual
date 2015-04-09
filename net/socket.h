@@ -74,7 +74,7 @@ class SocketUdp {
 
   // Envio de broadcast assincrono. Dados deve viver ate o fim.
   typedef std::function<void(const Erro& erro, std::size_t bytes_enviados)> CallbackEnvio;
-  void Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente);
+  void Envia(int porta, const std::string& dados, CallbackEnvio callback_envio_cliente);
 
 
   // Recebe dados na conexao UDP de forma assincrona e NAO continua. Preenche dados e endereco de quem enviou,
@@ -83,7 +83,7 @@ class SocketUdp {
   // @throws std::exception em caso de erro.
   typedef std::function<void(const Erro& erro, std::size_t bytes_recebidos)> CallbackRecepcao;
   void Recebe(
-      std::vector<char>* dados, std::string* endereco, CallbackRecepcao callback_recepcao_cliente);
+      std::string* dados, std::string* endereco, CallbackRecepcao callback_recepcao_cliente);
 
  private:
   // Sem construtor padrao e copia.

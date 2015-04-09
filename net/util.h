@@ -6,7 +6,10 @@
 
 namespace net {
 
+// Codifica tamanho da mensagem em 4 bytes e usa de prefixo.
 const std::string CodificaDados(const std::string& dados);
+// Decodifica tamanho (lendo 4 bytes do iterador).
+unsigned int DecodificaTamanho(const std::string::iterator& string);
 
 // Porta para aceitar conexoes http.
 inline int PortaPadrao() { return 22113; }
@@ -14,7 +17,6 @@ inline int PortaPadrao() { return 22113; }
 // Porta de anuncio (broadcast) do endereco do servidor.
 inline int PortaAnuncio() { return 22114; }
 
-unsigned int DecodificaTamanho(const std::string::iterator& string);
 
 // Conversao de numero para string independente de plataforma.
 const std::string to_string(int numero);

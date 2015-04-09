@@ -4,6 +4,7 @@
 
 #include "log/log.h"
 #include "net/socket.h"
+#include "net/util.h"
 
 namespace net {
 
@@ -13,15 +14,21 @@ namespace net {
 struct Erro::Interno {
   boost::system::error_code ec;
 };
+
+const Erro ConverteErro(const boost::system::error_code& ec) {
+  return Erro((void*)&ec);
+}
+
 Erro::Erro(void* dependente_plataforma) : Erro() {
   interno_->ec = *((boost::system::error_code*)dependente_plataforma);
-  erro_ = interno_->ec;
+  erro_ = *interno_->ec;
   msg_ = interno_->ec.message();
 }
 Erro::Erro(const std::string& msg) : Erro(true) {
   msg_ = msg;
 }
-Erro::Erro(bool erro) : interno_(new Interno), erro_(erro) {}
+Erro::Erro(bool erro) : interno_(new Interno), erro_(erro) {
+}
 
 bool Erro::ConexaoFechada() const {
   return interno_->ec.value() == boost::asio::error::eof;
@@ -73,25 +80,27 @@ void SocketUdp::Fecha() {
   interno_->socket->close(ec);
 }
 
-void SocketUdp::Envia(int porta, const std::vector<char>& dados, CallbackEnvio callback_envio_cliente) {
+void SocketUdp::Envia(int porta, const std::string& dados, CallbackEnvio callback_envio_cliente) {
   interno_->socket->async_send_to(
       boost::asio::buffer(dados),
       boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), porta),
-      [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-    callback_envio_cliente(Erro(ec), bytes_enviados);
+      [callback_envio_cliente, &dados] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+    VLOG(1) << "UDP Enviados: " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
+    callback_envio_cliente(ConverteErro(ec), bytes_enviados);
   });
 }
 
 void SocketUdp::Recebe(
-    std::vector<char>* dados, std::string* endereco, CallbackRecepcao callback_recepcao_cliente) {
+    std::string* dados, std::string* endereco, CallbackRecepcao callback_recepcao_cliente) {
   auto* endpoint = new boost::asio::ip::udp::endpoint;
   interno_->socket->async_receive_from(
-      boost::asio::buffer(*dados),
+      boost::asio::buffer(&(*dados)[0], dados->size()),
       *endpoint,
-      [endpoint, endereco, callback_recepcao_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+      [endpoint, endereco, callback_recepcao_cliente, dados] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+    VLOG(1) << "UDP Recebidos: " << bytes_enviados << ", buffer: " << dados->size() << ", erro? " << ec.message();
     endereco->assign(endpoint->address().to_string());
     delete endpoint;
-    callback_recepcao_cliente(Erro(ec), bytes_enviados);
+    callback_recepcao_cliente(ConverteErro(ec), bytes_enviados);
   });
 }
 
@@ -132,16 +141,19 @@ void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_client
   boost::asio::async_write(
       *interno_->socket.get(),
       boost::asio::buffer(dados),
-      [callback_envio_cliente] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-   callback_envio_cliente(Erro(ec), bytes_enviados);
+      [callback_envio_cliente, &dados] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+   VLOG(1) << "TCP Enviados " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
+   callback_envio_cliente(ConverteErro(ec), bytes_enviados);
  });
 }
 
 void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente) {
-  interno_->socket->async_receive(
+  boost::asio::async_read(
+      *interno_->socket.get(),
       boost::asio::buffer(&(*dados)[0], dados->size()),
-      [callback_recepcao_cliente](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
-    callback_recepcao_cliente(Erro(ec), bytes_recebidos);
+      [callback_recepcao_cliente, dados](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
+   VLOG(1) << "TCP Recebidos " << bytes_recebidos << ", buffer: " << dados->size() << ", erro? " << ec.message();
+    callback_recepcao_cliente(ConverteErro(ec), bytes_recebidos);
   });
 }
 
@@ -167,7 +179,7 @@ bool Aceitador::Liga(int porta,
   (*callback_conexao) = [this, callback_conexao] (boost::system::error_code ec,
                                                   CallbackConexaoCliente callback_conexao_cliente) {
     // Chama callback do cliente com erro recebido.
-    Socket* novo_socket_cliente = callback_conexao_cliente(Erro(ec));
+    Socket* novo_socket_cliente = callback_conexao_cliente(Erro(&ec));
     if (novo_socket_cliente != nullptr) {
       // Se recebeu socket, chama de novo.
       interno_->aceitador->async_accept(

@@ -41,13 +41,12 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   ntf::CentralNotificacoes* central_;
   Sincronizador* sincronizador_;
   std::unique_ptr<Socket> socket_;
-  int a_receber_;  // bytes a receber.
+  std::string buffer_tamanho_;  // Buffer para receber tamanho dos dados.
   std::string buffer_;  // Buffer de recepcao.
-  std::string buffer_notificacao_;  // Armazena o objeto lido.
   std::queue<std::string> fifo_envio_;  // FIFO para envio.
 
   std::unique_ptr<SocketUdp> socket_descobrimento_;
-  std::vector<char> buffer_descobrimento_;
+  std::string buffer_descobrimento_;
   std::string endereco_descoberto_;
   int timer_descobrimento_;
 };

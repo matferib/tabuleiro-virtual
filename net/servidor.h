@@ -16,8 +16,8 @@ namespace net {
 // - Servidor espera conexao HTTP na porta PortaPadrao. Servidor espera na PortaPadrao de forma assincrona
 // na funcao EsperaCliente.
 // - Cliente conecta na PortaPadrao e envia imediatamente uma notificacao TN_RESPOSTA_CONEXAO contendo seu
-// identificador local (cliente_bla). Notificacao eh enviada localmente tambem para o cliente mostrar a
-// notificacao.
+// identificador local (cliente_bla). Notificacao eh enviada localmente tambem para que o id do cliente seja
+// conhecido pelo tabuleiro.
 // - Servidor na funcao EsperaCliente cria o cliente como cliente pendente e espera novos clientes. Dados do
 // cliente serao recebidos na funcao RecebeDadosCliente.
 // - Servidor na funcao RecebeDadosCliente recebe TN_RESPOSTA_CONEXAO e atribui o id do cliente na camada net.
@@ -47,17 +47,16 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  private:
   struct Cliente {
     // tamanho maximo da mensagem: 1MB.
-    Cliente(Socket* socket) : socket(socket), buffer(1024 * 1024, '\0'), a_receber_(0) {}
+    Cliente(Socket* socket) : socket(socket), buffer_tamanho(4, '\0') {}
     Cliente() : Cliente(nullptr) {}
     std::string id;
     std::unique_ptr<Socket> socket;
+    // Buffer para receber tamanho dos dados.
+    std::string buffer_tamanho;
     // Buffer de recepcao dos dados.
-    std::string buffer;
-    // Buffer de cada notificacao recebida no buffer acima.
-    std::string buffer_notificacao;
-    unsigned int a_receber_;
+    std::string buffer_recepcao;
     // Dados para enviar.
-    std::queue<std::string> dados_enviar;
+    std::queue<std::string> fifo_envio;
   };
 
   // Liga o aceitador para receber clientes de forma assincrona e renova automaticamente sempre que um cliente aparece.

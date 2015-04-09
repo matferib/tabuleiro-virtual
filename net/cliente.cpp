@@ -19,12 +19,10 @@ Cliente::Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central
   sincronizador_ = sincronizador;
   central_ = central;
   central_->RegistraReceptor(this);
+  buffer_tamanho_.resize(4);
   // TODO fazer alguma verificacao disso.
   // tamanho maximo da mensagem: 1MB.
   buffer_.resize(1 * 1024 * 1024);
-  // Tamanho maximo da notificacao: 10MB.
-  buffer_notificacao_.reserve(10 * 1024 * 1024);
-  a_receber_ = 0;
 }
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -102,17 +100,18 @@ void Cliente::AutoConecta(const std::string& id) {
     central_->AdicionaNotificacao(n);
     return;
   }
-  buffer_descobrimento_.resize(100);
+  buffer_descobrimento_.resize(10);
   socket_descobrimento_->Recebe(
       &buffer_descobrimento_,
       &endereco_descoberto_,
       [this, id] (const Erro& erro, std::size_t num_bytes) {
-        //LOG(INFO) << "zerando socket";
         socket_descobrimento_.reset();
         if (erro) {
+          std::string erro_str("Tempo de espera expirado para autoconexão");
           auto* n = ntf::NovaNotificacao(ntf::TN_RESPOSTA_CONEXAO);
-          n->set_erro("Tempo de espera expirado para autoconexão");
+          n->set_erro(erro_str);
           central_->AdicionaNotificacao(n);
+          LOG(ERROR) << erro_str;
           return;
         }
         LOG(INFO) << "RECEBI de: " << endereco_descoberto_
@@ -211,65 +210,65 @@ bool Cliente::Ligado() const {
 
 void Cliente::RecebeDados() {
   VLOG(1) << "Cliente::RecebeDados";
-  socket_->Recebe(
-    &buffer_,
-    [this](const Erro& erro, std::size_t bytes_recebidos) {
-      VLOG(1) << "Funcao de recepcao chamada de volta";
-      if (erro) {
-        std::string erro_str;
+  // Funcao para recebimento de dados.
+  std::function<void(const Erro&, std::size_t)> funcao_recebe_dados =
+      [this](const Erro& erro, std::size_t bytes_recebidos) {
+    VLOG(1) << "lambda funcao_recebe_dados";
+    if (erro) {
+      std::string erro_str;
+      if (erro.ConexaoFechada()) {
+        erro_str = "Erro recebendo dados: conexao fechada pela outra ponta";
+      } else {
         erro_str = "Erro recebendo dados: " + erro.mensagem();
-        Desconecta(erro_str);
-        return;
+        LOG(ERROR) << erro_str;
       }
-      auto buffer_inicio = buffer_.begin();
-      auto buffer_fim = buffer_inicio + bytes_recebidos;
-      do {
-        if (a_receber_ == 0) {
-          if (bytes_recebidos < 4) {
-            std::string erro_str;
-            erro_str = "Erro recebendo tamanho de dados do servidor, bytes recebidos: " +
-                   to_string(bytes_recebidos);
-            Desconecta(erro_str);
-            return;
-          }
-          a_receber_ = DecodificaTamanho(buffer_inicio);
-          buffer_inicio += 4;
-          VLOG(1) << "Recebendo notificacao tamanho a receber: " << a_receber_ << ", total: " << bytes_recebidos;
-        } else {
-          VLOG(1) << "Continuando recepcao de notificao tamanho: " << a_receber_ << ", total: " << bytes_recebidos;
-        }
-        if (buffer_fim - buffer_inicio >= a_receber_) {
-          VLOG(1) << "Recebendo notificacao completa";
-          // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
-          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_inicio, buffer_inicio + a_receber_);
-          // Decodifica mensagem e poe na central.
-          auto* notificacao = new ntf::Notificacao;
-          if (!notificacao->ParseFromString(buffer_notificacao_)) {
-            std::string erro_str;
-            erro_str = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " +
-                    to_string(buffer_notificacao_.size());
-            delete notificacao;
-            Desconecta(erro_str);
-            return;
-          }
-          notificacao->set_local(false);
-          central_->AdicionaNotificacao(notificacao);
-          buffer_notificacao_.clear();
-          buffer_inicio += a_receber_;
-          a_receber_ = 0;
-        } else {
-          VLOG(2) << "Recebendo notificacao parcial";
-          // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
-          // e sai.
-          buffer_notificacao_.insert(buffer_notificacao_.end(), buffer_inicio, buffer_fim);
-          a_receber_ -= (buffer_fim - buffer_inicio);
-          buffer_inicio = buffer_fim;
-        }
-      } while (buffer_inicio != buffer_fim);
-      VLOG(1) << "Tudo recebido";
-      RecebeDados();
+      Desconecta(erro_str);
+      return;
     }
-  );
+    // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
+    // Decodifica mensagem e poe na central.
+    auto* notificacao = new ntf::Notificacao;
+    if (!notificacao->ParseFromString(buffer_)) {
+      std::string erro_str;
+      erro_str = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " + to_string(buffer_.size());
+      delete notificacao;
+      Desconecta(erro_str);
+      return;
+    }
+    notificacao->set_local(false);
+    central_->AdicionaNotificacao(notificacao);
+    VLOG(1) << "Tudo recebido";
+    RecebeDados();
+  };
+
+  // Recebe o tamanho e chama recebe dados.
+  socket_->Recebe(
+      &buffer_tamanho_,
+      [this, funcao_recebe_dados] (const Erro& erro, std::size_t bytes_recebidos) {
+    VLOG(1) << "lambda funcao_recebe_tamanho";
+    if (erro || (bytes_recebidos < 4)) {
+      std::string erro_str;
+      if (erro.ConexaoFechada()) {
+        erro_str = "Erro recebendo mensagem do servidor: conexao fechada pela outra ponta.";
+      } else {
+        erro_str = "Erro recebendo tamanho de dados do servidor msg menor que 4.";
+        LOG(ERROR) << erro_str;
+      }
+      LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
+      Desconecta(erro_str);
+      return;
+    }
+    unsigned int tamanho = DecodificaTamanho(buffer_tamanho_.begin());
+    // TODO verificar tamanho.
+    if (tamanho > 50 * 1024 * 1024) {
+      LOG(WARNING) << "TAMANHO GIGANTE!! " << tamanho;
+    }
+    VLOG(1) << "Vou Receber: " << tamanho << " bytes";
+    buffer_.resize(tamanho);
+    socket_->Recebe(
+        &buffer_,
+        funcao_recebe_dados);
+  });
 }
 
 }  // namespace net
