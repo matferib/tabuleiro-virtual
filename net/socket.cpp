@@ -142,8 +142,8 @@ void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_client
       *interno_->socket.get(),
       boost::asio::buffer(dados),
       [callback_envio_cliente, &dados] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
-   VLOG(1) << "TCP Enviados " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
-   callback_envio_cliente(ConverteErro(ec), bytes_enviados);
+    VLOG(1) << "TCP Enviados " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
+    callback_envio_cliente(ConverteErro(ec), bytes_enviados);
  });
 }
 
@@ -152,7 +152,7 @@ void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_clien
       *interno_->socket.get(),
       boost::asio::buffer(&(*dados)[0], dados->size()),
       [callback_recepcao_cliente, dados](const boost::system::error_code& ec, std::size_t bytes_recebidos) {
-   VLOG(1) << "TCP Recebidos " << bytes_recebidos << ", buffer: " << dados->size() << ", erro? " << ec.message();
+    VLOG(1) << "TCP Recebidos " << bytes_recebidos << ", buffer: " << dados->size() << ", erro? " << ec.message();
     callback_recepcao_cliente(ConverteErro(ec), bytes_recebidos);
   });
 }
