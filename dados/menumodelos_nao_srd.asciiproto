@@ -1,6 +1,10 @@
 # Este arquivo é uma representação texto do proto ifg::Modelos.
 modelo { id: 'Aarakocra' }
 modelo { id: 'Aranha Armadeira' }
+sub_menu {
+  id: 'Demônio'
+  modelo { id: 'Demônio Flecha' texto: 'Flecha' }
+}
 modelo { id: 'Dragontino' }
 modelo { id: 'Garra de Ossos' }
 modelo { id: 'Gigante da Montanha' }

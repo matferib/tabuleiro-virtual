@@ -8,6 +8,10 @@ modelo {
   entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
 }
 modelo {
+  id: 'Demônio Flecha'  # MM3
+  entidade { dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' }
+}
+modelo {
 	id: 'Dragontino'  # Monstros de faerun.
 	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
