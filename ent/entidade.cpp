@@ -90,7 +90,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
 }
 
-const gl::Vbo Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
+gl::Vbo Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
   if (proto.tipo() == TE_ENTIDADE) {
     // TODO: retornar peao?
     throw std::logic_error("Apenas entidades forma e composta podem gerar VBO.");

@@ -54,7 +54,7 @@ class Entidade {
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static const gl::Vbo ExtraiVbo(const ent::EntidadeProto& proto);
+  static gl::Vbo ExtraiVbo(const ent::EntidadeProto& proto);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -187,8 +187,8 @@ class Entidade {
   };
 
   // Extracao de VBO por tipo.
-  static const gl::Vbo ExtraiVboForma(const ent::EntidadeProto& proto);
-  static const gl::Vbo ExtraiVboComposta(const ent::EntidadeProto& proto);
+  static gl::Vbo ExtraiVboForma(const ent::EntidadeProto& proto);
+  static gl::Vbo ExtraiVboComposta(const ent::EntidadeProto& proto);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
