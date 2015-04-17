@@ -62,7 +62,8 @@ bool EhAsset(tipo_e tipo) {
   return tipo == TIPO_TABULEIRO_ESTATICO ||
          tipo == TIPO_TEXTURA ||
          tipo == TIPO_DADOS ||
-         tipo == TIPO_SHADER;
+         tipo == TIPO_SHADER ||
+         tipo == TIPO_MODELO_3D;
 }
 
 const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
