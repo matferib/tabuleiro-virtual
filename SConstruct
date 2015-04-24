@@ -159,6 +159,7 @@ ntf_proto = env.Protoc(
 cGl = env.Object('gltab/gl_es.cpp') if usar_opengl_es else env.Object('gltab/gl_normal.cpp')
 cGlComum = env.Object('gltab/gl_comum.cpp')
 cGlChar = env.Object('gltab/gl_char.cpp')
+cGlVbo = env.Object('gltab/gl_vbo.cpp')
 
 objetos = [
     # net.
@@ -177,7 +178,7 @@ objetos = [
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
-    cGlComum, cGl, cGlChar,
+    cGlComum, cGl, cGlChar, cGlVbo,
     # arq
     cArq, cArqPc,
 ] + ([ cEntWatchdog ] if sistema == 'linux' else [])

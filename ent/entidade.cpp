@@ -90,7 +90,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
 }
 
-gl::Vbo Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
+gl::VboNaoGravado Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
   if (proto.tipo() == TE_ENTIDADE) {
     // TODO: retornar peao?
     throw std::logic_error("Apenas entidades forma e composta podem gerar VBO.");
@@ -664,16 +664,16 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
 }
 
 // Nome dos buffers de VBO.
-std::vector<gl::Vbo> Entidade::g_vbos;
+std::vector<gl::VboGravado> Entidade::g_vbos;
 
 void Entidade::IniciaGl() {
-  g_vbos.resize(NUM_VBOS);
 
+  std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // Vbo peao.
   {
-    gl::Vbo& vbo = g_vbos[VBO_PEAO];
+    auto& vbo = vbos_nao_gravados[VBO_PEAO];
     vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-    gl::Vbo vbo_esfera(gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
+    auto vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
     // Translada todos os Z da esfera em ALTURA.
     for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.num_dimensoes()) {
       vbo_esfera.coordenadas()[i] += ALTURA;
@@ -684,7 +684,7 @@ void Entidade::IniciaGl() {
 
   // Vbo tijolo da base.
   {
-    gl::Vbo& vbo = g_vbos[VBO_TIJOLO_BASE];
+    auto& vbo = vbos_nao_gravados[VBO_TIJOLO_BASE];
     vbo = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
     vbo.Nomeia("tijolo da base");
   }
@@ -704,7 +704,7 @@ void Entidade::IniciaGl() {
       1.0f, 0.0f,
       0.0f, 0.0f,
     };
-    gl::Vbo& vbo = g_vbos[VBO_TELA_TEXTURA];
+    auto& vbo = vbos_nao_gravados[VBO_TELA_TEXTURA];
     vbo.AtribuiCoordenadas(3, coordenadas, 12);
     vbo.AtribuiTexturas(coordenadas_textura);
     vbo.AtribuiIndices(indices, 4);
@@ -713,63 +713,64 @@ void Entidade::IniciaGl() {
 
   // Cubo.
   {
-    gl::Vbo& vbo = g_vbos[VBO_CUBO];
+    auto& vbo = vbos_nao_gravados[VBO_CUBO];
     vbo = gl::VboCuboSolido(1.0f);
     vbo.Nomeia("cubo unitario");
   }
 
   // Esfera.
   {
-    gl::Vbo& vbo = g_vbos[VBO_ESFERA];
+    auto& vbo = vbos_nao_gravados[VBO_ESFERA];
     vbo = gl::VboEsferaSolida(0.5f, 24, 12);
     vbo.Nomeia("Esfera unitaria");
   }
 
   // Piramide.
   {
-    gl::Vbo& vbo = g_vbos[VBO_PIRAMIDE];
+    auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE];
     vbo = gl::VboPiramideSolida(1.0f, 1.0f);
     vbo.Nomeia("Piramide");
   }
 
   // Cilindro.
   {
-    gl::Vbo& vbo = g_vbos[VBO_CILINDRO];
+    auto& vbo = vbos_nao_gravados[VBO_CILINDRO];
     vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
     vbo.Nomeia("Cilindro");
   }
 
   // Disco.
   {
-    gl::Vbo& vbo = g_vbos[VBO_DISCO];
+    auto& vbo = vbos_nao_gravados[VBO_DISCO];
     vbo = gl::VboDisco(0.5f  /*raio*/, 12);
     vbo.Nomeia("Disco");
   }
 
   // Retangulo.
   {
-    gl::Vbo& vbo = g_vbos[VBO_RETANGULO];
+    auto& vbo = vbos_nao_gravados[VBO_RETANGULO];
     vbo = gl::VboRetangulo(1.0f);
     vbo.Nomeia("Retangulo");
   }
 
   // Triangulo.
   {
-    gl::Vbo& vbo = g_vbos[VBO_TRIANGULO];
+    auto& vbo = vbos_nao_gravados[VBO_TRIANGULO];
     vbo = gl::VboTriangulo(1.0f);
     vbo.Nomeia("Triangulo");
   }
 
   // Cone.
   {
-    gl::Vbo& vbo = g_vbos[VBO_CONE];
+    auto& vbo = vbos_nao_gravados[VBO_CONE];
     vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
     vbo.Nomeia("Cone");
   }
 
   // Gera os Vbos.
-  for (gl::Vbo& vbo : g_vbos) {
-    gl::GravaVbo(&vbo);
+  g_vbos.resize(NUM_VBOS);
+  for (int i = 0; i < NUM_VBOS; ++i) {
+    g_vbos[i].Grava(vbos_nao_gravados[i]);
   }
 }
 

@@ -1923,7 +1923,7 @@ void Tabuleiro::DesenhaCena() {
 }
 
 void Tabuleiro::GeraVboCaixaCeu() {
-  vbo_caixa_ceu_ = gl::VboCuboSolido(10.0f);
+  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(10.0f));
   // Valores de referencia:
   // imagem 4x3.
   // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
@@ -1960,8 +1960,8 @@ void Tabuleiro::GeraVboCaixaCeu() {
     0.50f, 0.66f,
     0.50f, 1.0f,
   };
-  vbo_caixa_ceu_.AtribuiTexturas(texturas);
-  gl::GravaVbo(&vbo_caixa_ceu_);
+  vbo.AtribuiTexturas(texturas);
+  vbo_caixa_ceu_.Grava(vbo);
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {

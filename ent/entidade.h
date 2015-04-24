@@ -2,7 +2,7 @@
 #define ENT_ENTIDADE_H
 
 #include "ent/entidade.pb.h"
-#include "gltab/gl.h"
+#include "gltab/gl_vbo.h"
 #include "m3d/m3d.h"
 
 namespace ntf {
@@ -54,7 +54,7 @@ class Entidade {
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static gl::Vbo ExtraiVbo(const ent::EntidadeProto& proto);
+  static gl::VboNaoGravado ExtraiVbo(const ent::EntidadeProto& proto);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -168,7 +168,7 @@ class Entidade {
   // Nome dos buffers de VBO.
   constexpr static unsigned short NUM_VBOS = 11;
   constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10;
-  static std::vector<gl::Vbo> g_vbos;
+  static std::vector<gl::VboGravado> g_vbos;
 
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
@@ -187,8 +187,8 @@ class Entidade {
   };
 
   // Extracao de VBO por tipo.
-  static gl::Vbo ExtraiVboForma(const ent::EntidadeProto& proto);
-  static gl::Vbo ExtraiVboComposta(const ent::EntidadeProto& proto);
+  static gl::VboNaoGravado ExtraiVboForma(const ent::EntidadeProto& proto);
+  static gl::VboNaoGravado ExtraiVboComposta(const ent::EntidadeProto& proto);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);

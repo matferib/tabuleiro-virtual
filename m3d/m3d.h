@@ -4,7 +4,7 @@
 #include <memory>
 
 namespace gl {
-class Vbo;
+class VboNaoGravado;
 }  // namespace gltab
 
 namespace m3d {
@@ -14,7 +14,7 @@ class Modelos3d {
   Modelos3d();
   ~Modelos3d();
 
-  const gl::Vbo* Modelo(const std::string& id) const;
+  const gl::VboNaoGravado* Modelo(const std::string& id) const;
 
  private:
   struct Interno;

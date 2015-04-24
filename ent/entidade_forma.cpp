@@ -12,8 +12,8 @@ namespace ent {
 
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
 
-const gl::Vbo Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
-  gl::Vbo vbo;
+gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
+  gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
     }
@@ -25,7 +25,7 @@ const gl::Vbo Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_CUBO: {
-      vbo = gl::VboCuboSolido(1.0f);
+      vbo = std::move(gl::VboCuboSolido(1.0f));
       vbo.Translada(0, 0, 0.5f);
     }
     break;
@@ -51,8 +51,7 @@ const gl::Vbo Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   // Mundo.
   vbo.Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z());
 
-  // TODO
-  return gl::Vbo();
+  return vbo;
 }
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,

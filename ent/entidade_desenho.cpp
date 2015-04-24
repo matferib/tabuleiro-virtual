@@ -81,7 +81,9 @@ void Entidade::DesenhaObjetoEntidadeProto(
     const auto* vbo = vd.m3d->Modelo(proto.modelo_3d().id());
     if (vbo != nullptr) {
       // TODO vbo gravado
-      gl::DesenhaVboNaoGravado(*vbo);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto, vd, pd, matriz_shear);
+      gl::DesenhaVbo(*vbo);
       return;
     } else {
       LOG(INFO) << "Modelo3d invalido: " << proto.modelo_3d().id();

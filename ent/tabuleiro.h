@@ -15,6 +15,7 @@
 #if USAR_WATCHDOG
 #include "ent/watchdog.h"
 #endif
+#include "gltab/gl_vbo.h"
 #include "ntf/notificacao.h"
 #include "tex/texturas.h"
 
@@ -737,8 +738,8 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<float> vertices_grade_;
   std::vector<unsigned short> indices_grade_;
   // TODO VBO dessas coisas aqui em cima.
-  gl::Vbo vbo_caixa_ceu_;
-  gl::Vbo vbo_cubo_;
+  gl::VboGravado vbo_caixa_ceu_;
+  gl::VboGravado vbo_cubo_;
 
   bool gl_iniciado_ = false;
 

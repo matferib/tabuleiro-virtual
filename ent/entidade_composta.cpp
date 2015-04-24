@@ -8,14 +8,15 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "gltab/gl_vbo.h"
 
 #include "log/log.h"
 
 namespace ent {
 
-const gl::Vbo Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
+gl::VboNaoGravado Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
   // TODO
-  return gl::Vbo();
+  return gl::VboNaoGravado();
 } 
 
 void Entidade::AtualizaTexturasEntidadesCompostasProto(
