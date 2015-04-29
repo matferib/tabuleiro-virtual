@@ -36,6 +36,7 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_ESFERA: {
+      vbo = std::move(gl::VboEsferaSolida(0.5f, 24, 12));
     }
     break;
     case TF_LIVRE: {
@@ -127,7 +128,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     }
     break;
     case TF_ESFERA: {
-      // Usar x como base para achatamento.
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
       gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
