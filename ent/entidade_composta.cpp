@@ -15,9 +15,24 @@
 namespace ent {
 
 gl::VboNaoGravado Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
-  // TODO
-  return gl::VboNaoGravado();
-} 
+  gl::VboNaoGravado vbo;
+  gl::VboNaoGravado sub_vbo;
+  for (const auto& sub : proto.sub_forma()) {
+    if (sub.tipo() == TE_COMPOSTA) {
+      sub_vbo = std::move(ExtraiVboComposta(sub));
+    } else if (sub.tipo() == TE_FORMA) {
+      sub_vbo = std::move(ExtraiVboForma(sub));
+    }
+    vbo.Concatena(sub_vbo);
+  }
+  vbo.RodaX(proto.rotacao_x_graus());
+  vbo.RodaY(proto.rotacao_y_graus());
+  vbo.RodaZ(proto.rotacao_z_graus());
+  vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  // Mundo.
+  vbo.Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z());
+  return vbo;
+}
 
 void Entidade::AtualizaTexturasEntidadesCompostasProto(
     const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
