@@ -384,6 +384,7 @@ void Tabuleiro::ConfiguraOlhar() {
       AlternaCameraPresa();
     } else {
       olho_.mutable_destino()->CopyFrom(e->Pos());
+      olho_.mutable_destino()->set_z(e->TranslacaoZ());
       AtualizaOlho(true  /*forcar*/);
     }
   }
@@ -2432,7 +2433,7 @@ void Tabuleiro::AtualizaOlho(bool forcar) {
   Posicao* pos_olho = olho_.mutable_pos();;
   pos_olho->set_x(pos_alvo->x() + cosf(olho_.rotacao_rad()) * olho_.raio());
   pos_olho->set_y(pos_alvo->y() + sinf(olho_.rotacao_rad()) * olho_.raio());
-  pos_olho->set_z(olho_.altura());
+  pos_olho->set_z(pos_alvo->z() + olho_.altura());
 }
 
 void Tabuleiro::AtualizaRaioOlho(float raio) {
