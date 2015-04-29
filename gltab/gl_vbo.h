@@ -9,10 +9,8 @@ namespace gl {
 class VboNaoGravado {
  public:
   explicit VboNaoGravado(const std::string& nome = "") : nome_(nome) {}
-  VboNaoGravado(VboNaoGravado&& rhs) = default;
-  ~VboNaoGravado() {}
-  VboNaoGravado& operator=(VboNaoGravado&& vbo) = default;
 
+  // Um nome para identificacao do VBO.
   void Nomeia(const std::string& nome) {
     nome_ = nome;
   }
@@ -52,41 +50,13 @@ class VboNaoGravado {
   }
 
   // Concatena um vbo a outro, ajustando os indices.
-  void Concatena(const VboNaoGravado& rhs) {
-    // Coordenadas do primeiro indice apos o ultimo, onde serao inseridos os novos.
-    const unsigned short num_coordenadas_inicial = coordenadas_.size() / num_dimensoes_;
-    coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
-    normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
-    for (const auto indice : rhs.indices_) {
-      indices_.push_back(indice + num_coordenadas_inicial);
-    }
-  }
+  // @throw caso os objetos nao sejam compativeis.
+  void Concatena(const VboNaoGravado& rhs);
 
   // TODO: destruir os dados para liberar memoria.
   std::vector<float> GeraBufferUnico(unsigned int* deslocamento_normais,
                                      unsigned int* deslocamento_cores,
-                                     unsigned int* deslocamento_texturas) const {
-    std::vector<float> buffer_unico;
-    buffer_unico.clear();
-    buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
-    buffer_unico.insert(buffer_unico.end(), normais_.begin(), normais_.end());
-    buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
-    buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
-    unsigned int pos_final = coordenadas_.size() * sizeof(float);
-    if (tem_normais_) {
-      *deslocamento_normais = pos_final;
-      pos_final += normais_.size() * sizeof(float);
-    }
-    if (tem_cores_) {
-      *deslocamento_cores = pos_final;
-      pos_final += cores_.size() * sizeof(float);
-    }
-    if (tem_texturas_) {
-      *deslocamento_texturas = pos_final;
-      pos_final += texturas_.size() * sizeof(float);
-    }
-    return buffer_unico;
-  }
+                                     unsigned int* deslocamento_texturas) const;
 
   unsigned short NumVertices() const {
     return indices_.size();
@@ -94,6 +64,10 @@ class VboNaoGravado {
 
   unsigned short num_dimensoes() const {
     return num_dimensoes_;
+  }
+
+  std::string ParaString() const {
+    return std::string("vbo: ") + nome_ + ", num indices: " + std::to_string(indices_.size());
   }
 
   bool tem_normais() const { return tem_normais_; }

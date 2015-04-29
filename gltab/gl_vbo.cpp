@@ -63,6 +63,53 @@ void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
   }
 }
 
+void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
+  if (num_dimensoes_ == 0) {
+    *this = rhs;
+    return;
+  }
+  if (num_dimensoes_ != rhs.num_dimensoes_) {
+    throw std::logic_error("Nao eh possivel concatenar, objetos incompativeis");
+  }
+  // Coordenadas do primeiro indice apos o ultimo, onde serao inseridos os novos.
+  const unsigned short num_coordenadas_inicial = coordenadas_.size() / num_dimensoes_;
+  if (num_coordenadas_inicial + (rhs.coordenadas_.size() / num_dimensoes_) >
+          std::numeric_limits<unsigned short>::max()) {
+    throw std::logic_error("Nao eh possivel concatenar, limite de tamanho alcancado");
+  }
+  coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
+  normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
+  for (const auto indice : rhs.indices_) {
+    indices_.push_back(indice + num_coordenadas_inicial);
+  }
+}
+
+std::vector<float> VboNaoGravado::GeraBufferUnico(
+    unsigned int* deslocamento_normais,
+    unsigned int* deslocamento_cores,
+    unsigned int* deslocamento_texturas) const {
+  std::vector<float> buffer_unico;
+  buffer_unico.clear();
+  buffer_unico.insert(buffer_unico.end(), coordenadas_.begin(), coordenadas_.end());
+  buffer_unico.insert(buffer_unico.end(), normais_.begin(), normais_.end());
+  buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
+  buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
+  unsigned int pos_final = coordenadas_.size() * sizeof(float);
+  if (tem_normais_) {
+    *deslocamento_normais = pos_final;
+    pos_final += normais_.size() * sizeof(float);
+  }
+  if (tem_cores_) {
+    *deslocamento_cores = pos_final;
+    pos_final += cores_.size() * sizeof(float);
+  }
+  if (tem_texturas_) {
+    *deslocamento_texturas = pos_final;
+    pos_final += texturas_.size() * sizeof(float);
+  }
+  return buffer_unico;
+}
+
 //-----------
 // VboGravado
 //-----------
