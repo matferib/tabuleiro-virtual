@@ -19,9 +19,11 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_CILINDRO: {
+      vbo = std::move(gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6));
     }
     break;
     case TF_CONE: {
+      vbo = std::move(gl::VboConeSolido(0.5f, 1.0f, 12, 6));
     }
     break;
     case TF_CUBO: {
@@ -30,6 +32,7 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_PIRAMIDE: {
+      vbo = std::move(gl::VboPiramideSolida(1.0f, 1.0f));
     }
     break;
     case TF_RETANGULO: {
