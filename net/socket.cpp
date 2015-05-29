@@ -19,16 +19,19 @@
 namespace net {
 
 namespace {
-struct DadosParaEnviar {
+struct DadosParaEnviarTcp {
   int desc;
   std::string dados;
   Socket::CallbackEnvio callback;
+  Erro erro;
 };
 
 // O que deve ser recebido.
-struct DadosParaReceber {
+struct DadosParaReceberTcp {
   int desc;
   std::string* dados;
+  Erro erro;
+  int socket_cliente;
   Socket::CallbackRecepcao callback;
 };
 
@@ -108,38 +111,57 @@ struct Sincronizador::Interno {
     std::lock_guard<std::mutex> lock(mutex_);
     if (!recebidos_udp_.empty()) {
       auto* recebido = recebidos_udp_.front();
-      LOG(INFO) << "Retornando erro? '" << recebido->erro.mensagem() << "', endereco: " << *recebido->endereco;
+      LOG(INFO) << "Retornando erro udp? '" << recebido->erro.mensagem() << "', endereco: " << *recebido->endereco;
       recebido->callback(recebido->erro, recebido->erro ? 0 : recebido->dados->size());
       recebidos_udp_.pop();
       delete recebido;
+    }
+    if (!recebidos_tcp_.empty()) {
+      auto* recebido = recebidos_tcp_.front();
+      LOG(INFO) << "Retornando erro tcp? '" << recebido->erro.mensagem();
+      recebido->callback(recebido->erro, recebido->erro ? 0 : recebido->dados->size());
+      recebidos_tcp_.pop();
+      delete recebido;
+    }
+    if (!enviados_tcp_.empty()) {
+      auto* enviado = enviados_tcp_.front();
+      LOG(INFO) << "Retornando erro envio tcp? '" << enviado->erro.mensagem();
+      enviado->callback(enviado->erro, enviado->erro ? 0 : enviado->dados.size());
+      enviados_tcp_.pop();
+      delete enviado;
     }
     return 1;
   }
 
   // TCP.
-  void EnfileiraDadosEnvio(const DadosParaEnviar& d) {
+  void EnfileiraDadosEnvioTcp(const DadosParaEnviarTcp& d) {
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      a_enviar_tcp_.push(d);
+      auto* cd = new DadosParaEnviarTcp;
+      cd->desc = d.desc;
+      cd->dados = d.dados;
+      cd->callback = d.callback;
+      a_enviar_tcp_.push(cd);
     }
     cond_.notify_one();
   }
 
-  void EnfileiraDadosRecepcao(const DadosParaReceber &d) {
+  void EnfileiraDadosRecepcaoTcp(const DadosParaReceberTcp &dtcp) {
     {
       std::lock_guard<std::mutex> lock(mutex_);
-      a_receber_tcp_.push(d);
+      DadosSocket ds;
+      ds.dados_tcp.reset(new DadosParaReceberTcp);
+      ds.dados_tcp->dados = dtcp.dados;
+      ds.dados_tcp->socket_cliente = dtcp.socket_cliente;
+      ds.dados_tcp->callback = dtcp.callback;
+      sockets_.insert(std::make_pair(dtcp.socket_cliente, std::move(ds)));
     }
     cond_.notify_one();
   }
 
   // UDP.
   void EnfileiraDadosBroadcastUdp(const DadosParaBroadcastUdp& d) {
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      broadcast_udp_.push(d);
-    }
-    cond_.notify_one();
+    d.callback(Erro("NAO IMPLEMENTADO"), 0);
   }
 
   void EnfileiraDadosRecepcaoUdp(const DadosParaReceberUdp& dudp) {
@@ -157,36 +179,24 @@ struct Sincronizador::Interno {
   }
 
   // Aceitador.
-  void EnfileiraDadosParaConexao(const DadosParaConexao& d) {
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      a_receber_conexao_.push(d);
-    }
-    cond_.notify_one();
-  }
 
   boost::asio::io_service* servico_io = nullptr;
   std::thread thread_;
   bool terminar_ = false;
 
  private:
-  std::queue<DadosParaEnviar> a_enviar_tcp_;
-  std::queue<DadosParaEnviar> enviados_tcp_;
+  std::queue<DadosParaEnviarTcp*> a_enviar_tcp_;
+  std::queue<DadosParaEnviarTcp*> enviados_tcp_;
 
-  std::queue<DadosParaReceber> a_receber_tcp_;
-  std::queue<DadosParaReceber> recebidos_tcp_;
-
-  std::queue<DadosParaBroadcastUdp> broadcast_udp_;
-
+  std::queue<DadosParaReceberTcp*> recebidos_tcp_;
   std::queue<DadosParaReceberUdp*> recebidos_udp_;
 
-  std::queue<DadosParaConexao> a_receber_conexao_;
   std::condition_variable cond_;
   std::mutex mutex_;
 
   // Para select.
   struct DadosSocket {
-    std::unique_ptr<DadosParaReceber> dados_tcp;
+    std::unique_ptr<DadosParaReceberTcp> dados_tcp;
     std::unique_ptr<DadosParaReceberUdp> dados_udp;
   };
   std::map<int, DadosSocket> sockets_;  // para recepcao.
@@ -245,11 +255,18 @@ void Socket::Conecta(const std::string& endereco, const std::string& porta) {
   if (getaddrinfo(endereco.c_str(), porta.c_str(), &hints, &res) != 0) {
     throw std::logic_error(std::string("Nao consegui converter endereco: ") + endereco + ":" + porta);
   }
-  int erro = connect(interno_->socket_, res->ai_addr, res->ai_addrlen);
-  freeaddrinfo(res);
-  if (erro == -1) {
-    throw std::logic_error("Falha ao conectar ao servidor");
+  bool conectou = false;
+  for (auto* rp = res; rp != nullptr; rp = rp->ai_next) {
+    if (connect(interno_->socket_, rp->ai_addr, rp->ai_addrlen) == -1) {
+      continue;
+    }
+    conectou = true;
   }
+  freeaddrinfo(res);
+  if (!conectou) {
+    throw std::logic_error(std::string("Falha ao conectar ao servidor em: ") + endereco + ":" + porta);
+  }
+  LOG(INFO) << "CONECTADO AO SERVIDOR";
 }
 
 void Socket::Fecha() {
@@ -258,23 +275,19 @@ void Socket::Fecha() {
 }
 
 void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_cliente) {
-  callback_envio_cliente(Erro("NAO IMPLEMENTADO"), 0);
-  return;
-  DadosParaEnviar d;
+  DadosParaEnviarTcp d;
   d.desc = interno_->socket_;
   d.dados = dados;
   d.callback = callback_envio_cliente;
-  sincronizador_->interno_->EnfileiraDadosEnvio(d);
+  sincronizador_->interno_->EnfileiraDadosEnvioTcp(d);
 }
 
 void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente) {
-  callback_recepcao_cliente(Erro("NAO IMPLEMENTADO"), 0);
-  return;
-  DadosParaReceber d;
+  DadosParaReceberTcp d;
   d.desc = interno_->socket_;
   d.dados = dados;
   d.callback = callback_recepcao_cliente;
-  sincronizador_->interno_->EnfileiraDadosRecepcao(d);
+  sincronizador_->interno_->EnfileiraDadosRecepcaoTcp(d);
 }
 
 
@@ -382,6 +395,8 @@ Aceitador::~Aceitador() {}
 bool Aceitador::Liga(int porta,
                      Socket* socket_cliente,
                      CallbackConexaoCliente callback_conexao_cliente) {
+  return false;
+  /*
   interno_->socket_.Ouve(porta);
 
   // now accept an incoming connection.
@@ -389,8 +404,7 @@ bool Aceitador::Liga(int porta,
   d.socket_cliente = socket_cliente;
   d.socket_servidor = &interno_->socket_;
   d.callback = callback_conexao_cliente;
-  sincronizador_->interno_->EnfileiraDadosParaConexao(d);
-  return true;
+  return true;*/
 }
 
 bool Aceitador::Ligado() const { return interno_->socket_.interno_->socket_ != -1; }
@@ -405,16 +419,33 @@ void Sincronizador::Interno::Loop(Interno* thiz) {
   std::unique_lock<std::mutex> ulock(thiz->mutex_);
   while (!thiz->terminar_) {
     thiz->cond_.wait_for(ulock, std::chrono::milliseconds(100));
-    LOG(INFO) << "Num sockets: " << thiz->sockets_.size();
+    //LOG(INFO) << "Num sockets: " << thiz->sockets_.size();
     std::vector<int> a_remover;
     for (auto& par : thiz->sockets_) {
       DadosSocket& ds = par.second;
       if (ds.dados_tcp.get() != nullptr) {
-        // TODO Leu dado TCP.
-      } else {
+        LOG(INFO) << "RECEBENDO TCP";
         char buf[100];
+        ssize_t ret = recv(par.first, buf, sizeof(buf), MSG_DONTWAIT);
+        auto tipo_erro = errno;
+        if (ret == -1 && (tipo_erro == EAGAIN || tipo_erro == EWOULDBLOCK)) {
+          continue;
+        }
+        a_remover.push_back(par.first);
+        if (ret == -1) {
+          LOG(ERROR) << "RECEBENDO ERRO TCP";
+          ds.dados_tcp->erro = Erro("Erro recebendo TCP");
+        } else {
+          LOG(INFO) << "DADO TCP RECEBIDO";
+          auto* dtcp = ds.dados_tcp.get();
+          dtcp->dados->assign(buf, ret);
+        }
+        thiz->recebidos_tcp_.push(ds.dados_tcp.release());
+      } else {
+        LOG(INFO) << "RECEBENDO UDP";
+        char buf[1000];
         struct sockaddr from;
-        socklen_t from_len;
+        socklen_t from_len = sizeof(from);
         ssize_t ret = recvfrom(par.first, buf, sizeof(buf), MSG_DONTWAIT, &from, &from_len);
         auto tipo_erro = errno;
         if (ret == -1 && (tipo_erro == EAGAIN || tipo_erro == EWOULDBLOCK)) {
@@ -422,10 +453,10 @@ void Sincronizador::Interno::Loop(Interno* thiz) {
         }
         a_remover.push_back(par.first);
         if (ret == -1) {
-          LOG(INFO) << "RECEBENDO ERRO";
+          LOG(INFO) << "RECEBENDO ERRO UDP";
           ds.dados_udp->erro = Erro("Erro recebendo UDP");
         } else {
-          LOG(INFO) << "RECEBENDO DADO";
+          LOG(INFO) << "DADO UDP RECEBIDO";
           auto* dudp = ds.dados_udp.get();
           dudp->endereco->assign(inet_ntoa(((sockaddr_in*)&from)->sin_addr));
           dudp->dados->assign(buf, ret);
@@ -434,25 +465,26 @@ void Sincronizador::Interno::Loop(Interno* thiz) {
       }
     }
     for_each(a_remover.begin(), a_remover.end(), [thiz] (int chave) { thiz->sockets_.erase(chave); } );
-  }
-#if 0
-    if (!thiz->a_enviar_.empty()) {
-      // TODO tratar isso no nivel do net/servidor e net/cliente ou tirar do callback.
-      const auto& de = thiz->a_enviar_.front();
-
+    // Envio
+    while (!thiz->a_enviar_tcp_.empty()) {
+      auto* de = thiz->a_enviar_tcp_.front();
       int total_sent = 0;
-      while (total_sent < de.dados.size()) {
-        int sent = send(de.desc, de.dados.c_str() + total_sent, de.dados.size() - total_sent, 0);
+      LOG(INFO) << "ENVIANDO TCP";
+      while (total_sent < de->dados.size()) {
+        int sent = send(de->desc, de->dados.c_str() + total_sent, de->dados.size() - total_sent, 0);
         if (sent == -1) {
-          de.callback(Erro("Erro enviando"), 0);
+          LOG(ERROR) << "Erro enviando TCP";
+          de->erro = Erro("Erro enviando TCP");
           break;
         }
         total_sent += sent;
       }
-      de.callback(Erro(false), total_sent);
-      de.callback(Erro("NAO IMPLEMENTADO"), 0);
-      thiz->a_enviar_.pop();
+      LOG(INFO) << "ENVIADO TCP: " << total_sent;
+      thiz->enviados_tcp_.push(de);
+      thiz->a_enviar_tcp_.pop();
     }
+  }
+#if 0
     if (!thiz->a_receber_.empty()) {
       const auto& dr = thiz->a_receber_.front();
       // TODO

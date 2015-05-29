@@ -79,7 +79,8 @@ class SocketUdp {
 
   // Recebe dados na conexao UDP de forma assincrona e NAO continua. Preenche dados e endereco de quem enviou,
   // chamando callback_recepcao_cliente.
-  // Parametros endereco recebera o IP do servidor fazendo broadcast (sem porta, que vira dentro da mensagem).
+  // Parametros endereco recebera o IP do servidor fazendo broadcast (sem porta, que vira dentro da mensagem)
+  // e deverao sobreviver ate o callback ser chamado.
   // @throws std::exception em caso de erro.
   typedef std::function<void(const Erro& erro, std::size_t bytes_recebidos)> CallbackRecepcao;
   void Recebe(
@@ -90,6 +91,7 @@ class SocketUdp {
   SocketUdp();
   SocketUdp(const SocketUdp&);
 
+  Sincronizador* sincronizador_;
   struct Interno;
   std::unique_ptr<Interno> interno_;
 };
@@ -99,6 +101,11 @@ class Socket {
  public:
   explicit Socket(Sincronizador* sincronizador);
   ~Socket();
+
+#if ANDROID
+  // Faz o socket ouvir em determinada porta.
+  void Ouve(int porta);
+#endif
 
   // Conecta o socket a um endereco.
   // Endereco pode ser IP: XXX.XXX.XXX.XXX ou dominio: www.teste.com. Porta eh a representacao string de um numero.
@@ -121,6 +128,7 @@ class Socket {
 
  private:
   friend class Aceitador;
+  friend class Sincronizador;
   Sincronizador* sincronizador_;
   struct Interno;
   std::unique_ptr<Interno> interno_;
