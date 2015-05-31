@@ -19,6 +19,18 @@
 namespace net {
 
 namespace {
+struct ScopedPrint {
+  explicit ScopedPrint(const std::string& p) {
+    LOG(INFO) << "Entrando " << p;
+    p_ = p;
+  }
+  ~ScopedPrint() {
+    LOG(INFO) << "Saindo " << p_;
+  }
+
+  std::string p_;
+};
+
 struct DadosParaEnviarTcp {
   int desc;
   std::string dados;
@@ -31,7 +43,6 @@ struct DadosParaReceberTcp {
   int desc;
   std::string* dados;
   Erro erro;
-  int socket_cliente;
   Socket::CallbackRecepcao callback;
 };
 
@@ -101,14 +112,14 @@ struct Sincronizador::Interno {
 
   // Loop do sincronizador.
   static void Loop(Interno* thiz);
+  static void LoopRecepcaoTcp(Interno* thiz, std::vector<int>* a_remover);
+  static void LoopRecepcaoUdp(Interno* thiz, std::vector<int>* a_remover);
+  static void LoopEnvioTcp(Interno* thiz);
+
 
   int Roda() {
-    static int contador = 99;
-    if (++contador == 100) {
-      LOG(INFO) << "RODA!!!!!!!!!";
-      contador = 0;
-    }
-    std::lock_guard<std::mutex> lock(mutex_);
+    //ScopedPrint sp("Roda");
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!recebidos_udp_.empty()) {
       auto* recebido = recebidos_udp_.front();
       LOG(INFO) << "Retornando erro udp? '" << recebido->erro.mensagem() << "', endereco: " << *recebido->endereco;
@@ -118,14 +129,16 @@ struct Sincronizador::Interno {
     }
     if (!recebidos_tcp_.empty()) {
       auto* recebido = recebidos_tcp_.front();
-      LOG(INFO) << "Retornando erro tcp? '" << recebido->erro.mensagem();
+      LOG(INFO) << "Retornando erro tcp? " << ((bool)recebido->erro)
+                << ", mensagem: '" << recebido->erro.mensagem() << "'";
       recebido->callback(recebido->erro, recebido->erro ? 0 : recebido->dados->size());
       recebidos_tcp_.pop();
       delete recebido;
     }
     if (!enviados_tcp_.empty()) {
       auto* enviado = enviados_tcp_.front();
-      LOG(INFO) << "Retornando erro envio tcp? '" << enviado->erro.mensagem();
+      LOG(INFO) << "Retornando erro envio tcp? " << ((bool)enviado->erro)
+                << "', mensagem: " << enviado->erro.mensagem();
       enviado->callback(enviado->erro, enviado->erro ? 0 : enviado->dados.size());
       enviados_tcp_.pop();
       delete enviado;
@@ -135,8 +148,9 @@ struct Sincronizador::Interno {
 
   // TCP.
   void EnfileiraDadosEnvioTcp(const DadosParaEnviarTcp& d) {
+    ScopedPrint sp("EnfileiraDadosEnvioTcp");
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
       auto* cd = new DadosParaEnviarTcp;
       cd->desc = d.desc;
       cd->dados = d.dados;
@@ -147,14 +161,15 @@ struct Sincronizador::Interno {
   }
 
   void EnfileiraDadosRecepcaoTcp(const DadosParaReceberTcp &dtcp) {
+    ScopedPrint sp("EnfileiraDadosRecepcaoTcp");
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
       DadosSocket ds;
       ds.dados_tcp.reset(new DadosParaReceberTcp);
       ds.dados_tcp->dados = dtcp.dados;
-      ds.dados_tcp->socket_cliente = dtcp.socket_cliente;
+      ds.dados_tcp->desc = dtcp.desc;
       ds.dados_tcp->callback = dtcp.callback;
-      sockets_.insert(std::make_pair(dtcp.socket_cliente, std::move(ds)));
+      sockets_.insert(std::make_pair(dtcp.desc, std::move(ds)));
     }
     cond_.notify_one();
   }
@@ -165,8 +180,9 @@ struct Sincronizador::Interno {
   }
 
   void EnfileiraDadosRecepcaoUdp(const DadosParaReceberUdp& dudp) {
+    ScopedPrint sp("EnfileiraDadosRecepcaoUdp");
     {
-      std::lock_guard<std::mutex> lock(mutex_);
+      std::lock_guard<std::recursive_mutex> lock(mutex_);
       DadosSocket ds;
       ds.dados_udp.reset(new DadosParaReceberUdp);
       ds.dados_udp->endereco = dudp.endereco;
@@ -191,8 +207,8 @@ struct Sincronizador::Interno {
   std::queue<DadosParaReceberTcp*> recebidos_tcp_;
   std::queue<DadosParaReceberUdp*> recebidos_udp_;
 
-  std::condition_variable cond_;
-  std::mutex mutex_;
+  std::condition_variable_any cond_;
+  std::recursive_mutex mutex_;
 
   // Para select.
   struct DadosSocket {
@@ -414,124 +430,124 @@ void Aceitador::Desliga() {
 
 // Impls.
 /*static*/
-void Sincronizador::Interno::Loop(Interno* thiz) {
-  LOG(INFO) << "LOOP INICIADO!!!!!!!!!";
-  std::unique_lock<std::mutex> ulock(thiz->mutex_);
-  while (!thiz->terminar_) {
-    thiz->cond_.wait_for(ulock, std::chrono::milliseconds(100));
-    //LOG(INFO) << "Num sockets: " << thiz->sockets_.size();
-    std::vector<int> a_remover;
-    for (auto& par : thiz->sockets_) {
-      DadosSocket& ds = par.second;
-      if (ds.dados_tcp.get() != nullptr) {
-        LOG(INFO) << "RECEBENDO TCP";
-        char buf[100];
-        ssize_t ret = recv(par.first, buf, sizeof(buf), MSG_DONTWAIT);
-        auto tipo_erro = errno;
-        if (ret == -1 && (tipo_erro == EAGAIN || tipo_erro == EWOULDBLOCK)) {
-          continue;
-        }
-        a_remover.push_back(par.first);
-        if (ret == -1) {
-          LOG(ERROR) << "RECEBENDO ERRO TCP";
-          ds.dados_tcp->erro = Erro("Erro recebendo TCP");
-        } else {
-          LOG(INFO) << "DADO TCP RECEBIDO";
-          auto* dtcp = ds.dados_tcp.get();
-          dtcp->dados->assign(buf, ret);
-        }
-        thiz->recebidos_tcp_.push(ds.dados_tcp.release());
-      } else {
-        LOG(INFO) << "RECEBENDO UDP";
-        char buf[1000];
-        struct sockaddr from;
-        socklen_t from_len = sizeof(from);
-        ssize_t ret = recvfrom(par.first, buf, sizeof(buf), MSG_DONTWAIT, &from, &from_len);
-        auto tipo_erro = errno;
-        if (ret == -1 && (tipo_erro == EAGAIN || tipo_erro == EWOULDBLOCK)) {
-          continue;
-        }
-        a_remover.push_back(par.first);
-        if (ret == -1) {
-          LOG(INFO) << "RECEBENDO ERRO UDP";
-          ds.dados_udp->erro = Erro("Erro recebendo UDP");
-        } else {
-          LOG(INFO) << "DADO UDP RECEBIDO";
-          auto* dudp = ds.dados_udp.get();
-          dudp->endereco->assign(inet_ntoa(((sockaddr_in*)&from)->sin_addr));
-          dudp->dados->assign(buf, ret);
-        }
-        thiz->recebidos_udp_.push(ds.dados_udp.release());
+void Sincronizador::Interno::LoopEnvioTcp(Interno* thiz) {
+  while (!thiz->a_enviar_tcp_.empty()) {
+    auto* de = thiz->a_enviar_tcp_.front();
+    int total_enviado = 0;
+    LOG(INFO) << "Enviando TCP";
+    while (total_enviado < de->dados.size()) {
+      int enviado = send(de->desc, de->dados.c_str() + total_enviado, de->dados.size() - total_enviado, 0);
+      int tipo_erro = errno;
+      if (enviado == -1) {
+        LOG(ERROR) << "Erro enviando TCP: " << strerror(tipo_erro);
+        de->erro = Erro("Erro enviando TCP");
+        break;
       }
+      total_enviado += enviado;
     }
-    for_each(a_remover.begin(), a_remover.end(), [thiz] (int chave) { thiz->sockets_.erase(chave); } );
-    // Envio
-    while (!thiz->a_enviar_tcp_.empty()) {
-      auto* de = thiz->a_enviar_tcp_.front();
-      int total_sent = 0;
-      LOG(INFO) << "ENVIANDO TCP";
-      while (total_sent < de->dados.size()) {
-        int sent = send(de->desc, de->dados.c_str() + total_sent, de->dados.size() - total_sent, 0);
-        if (sent == -1) {
-          LOG(ERROR) << "Erro enviando TCP";
-          de->erro = Erro("Erro enviando TCP");
-          break;
-        }
-        total_sent += sent;
+    LOG(INFO) << "Enviado TCP: " << total_enviado;
+    thiz->enviados_tcp_.push(de);
+    thiz->a_enviar_tcp_.pop();
+  }
+}
+
+/*static*/
+void Sincronizador::Interno::LoopRecepcaoUdp(Interno* thiz, std::vector<int>* a_remover) {
+  int nudp = 0;
+  for (auto& par : thiz->sockets_) {
+    DadosSocket& ds = par.second;
+    if (ds.dados_udp.get() != nullptr) {
+      LOG(INFO) << "Recebendo UDP";
+      ++nudp;
+      char buf[100];
+      struct sockaddr from;
+      socklen_t from_len = sizeof(from);
+      ssize_t ret = recvfrom(par.first, buf, sizeof(buf), MSG_DONTWAIT, &from, &from_len);
+      auto tipo_erro = errno;
+      if (ret == -1 && (tipo_erro == EAGAIN || tipo_erro == EWOULDBLOCK)) {
+        continue;
       }
-      LOG(INFO) << "ENVIADO TCP: " << total_sent;
-      thiz->enviados_tcp_.push(de);
-      thiz->a_enviar_tcp_.pop();
+      a_remover->push_back(par.first);
+      if (ret == -1) {
+        LOG(INFO) << "Recebi erro UDP";
+        ds.dados_udp->erro = Erro("Erro recebendo UDP");
+      } else {
+        LOG(INFO) << "Recebi dados UDP, tam: " << ds.dados_udp->dados->size();
+        auto* dudp = ds.dados_udp.get();
+        dudp->endereco->assign(inet_ntoa(((sockaddr_in*)&from)->sin_addr));
+        dudp->dados->assign(buf, ret);
+      }
+      thiz->recebidos_udp_.push(ds.dados_udp.release());
     }
   }
-#if 0
-    if (!thiz->a_receber_.empty()) {
-      const auto& dr = thiz->a_receber_.front();
-      // TODO
-      dr.callback(Erro("NAO IMPLEMENTADO"), 0);
-      thiz->a_receber_.pop();
+}
+
+/*static*/
+void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz, std::vector<int>* a_remover) {
+  fd_set conjunto_tcp;
+  FD_ZERO(&conjunto_tcp);
+  int maior = -1;
+  int ntcp = 0;
+  for (auto& par : thiz->sockets_) {
+    DadosSocket& ds = par.second;
+    if (ds.dados_tcp.get() != nullptr) {
+      ++ntcp;
+      FD_SET(par.first, &conjunto_tcp);
+      maior = std::max(maior, par.first);
     }
-    if (!thiz->broadcast_udp_.empty()) {
-      const auto& de = thiz->broadcast_udp_.front();
-      struct hostent* he = gethostbyname("255.255.255.255");
-      struct sockaddr_in their_addr;
-      their_addr.sin_family = AF_INET;     // host byte order
-      their_addr.sin_port = htons(de.porta); // short, network byte order
-      their_addr.sin_addr = *((struct in_addr *)he->h_addr);
-      memset(their_addr.sin_zero, '\0', sizeof(their_addr.sin_zero));
-      int numbytes = 0;
-      if ((numbytes = sendto(de.desc, de.dados.c_str(), de.dados.size(), 0,
-                             (struct sockaddr *)&their_addr, sizeof(their_addr))) == -1) {
-        de.callback(Erro("Erro broadcast"), 0);
+  }
+  if (maior == -1) {
+    LOG(INFO) << "Nada a receber TCP";
+    return;
+  }
+  LOG(INFO) << "Maior: " << maior;
+
+  struct timeval tv;
+  tv.tv_sec = 0;
+  tv.tv_usec = 0;
+  int select_ret = select(maior + 1, &conjunto_tcp, nullptr, nullptr, &tv);
+  if (select_ret == -1) {
+    LOG(INFO) << "Erro no select: " << strerror(select_ret);
+    return;
+  }
+  if (select_ret == 0) {
+    LOG(INFO) << "Timeout select";
+    return;
+  }
+  LOG(INFO) << "Select ret: " << select_ret;
+  for (auto& par : thiz->sockets_) {
+    DadosSocket& ds = par.second;
+    if (ds.dados_tcp.get() != nullptr && FD_ISSET(par.first, &conjunto_tcp)) {
+      a_remover->push_back(par.first);
+      LOG(INFO) << "Recebendo TCP pos select";
+      char buf[2000];
+      ssize_t ret = recv(par.first, buf, sizeof(buf), 0);
+      auto tipo_erro = errno;
+      if (ret == -1) {
+        LOG(ERROR) << "Erro recebendo TCP pos select: " << strerror(tipo_erro);
+        ds.dados_tcp->erro = Erro("Erro recebendo TCP");
       } else {
-        de.callback(Erro(false), de.dados.size());
+        LOG(INFO) << "Recebido pos select, tam: " << ret;
+        auto* dtcp = ds.dados_tcp.get();
+        dtcp->dados->assign(buf, ret);
       }
-      free(he);
-      // TODO
-      thiz->broadcast_udp_.pop();
+      thiz->recebidos_tcp_.push(ds.dados_tcp.release());
     }
-    if (!thiz->a_receber_udp_.empty()) {
-      const auto& dr = thiz->a_receber_udp_.front();
-      dr.callback(Erro("NAO IMPLEMENTADO"), 0);
-      // TODO
-      thiz->a_receber_udp_.pop();
-    }
-    if (!thiz->a_receber_conexao_.empty()) {
-      auto& dc = thiz->a_receber_conexao_.front();
-      struct sockaddr addr;
-      socklen_t addrlen;
-      int ret = accept(dc.socket_servidor->interno_->socket_, &addr, &addrlen);
-      if (ret == -1 && errno != EWOULDBLOCK) {
-        // TODO
-        dc.callback(Erro("Erro conectando recebendo conexao"));
-        thiz->a_receber_conexao_.pop();
-      } else if (ret > 0) {
-         dc.socket_cliente->interno_->socket_ = ret;
-         dc.socket_cliente = dc.callback(Erro(false));
-      }
-      dc.callback(Erro("NAO IMPLEMENTADO"));
-    }
-#endif
+  }
+}
+
+/*static*/
+void Sincronizador::Interno::Loop(Interno* thiz) {
+  ScopedPrint sp("Loop");
+  std::unique_lock<std::recursive_mutex> ulock(thiz->mutex_);
+  while (!thiz->terminar_) {
+    thiz->cond_.wait_for(ulock, std::chrono::milliseconds(100));
+    std::vector<int> a_remover;
+    LoopRecepcaoUdp(thiz, &a_remover);
+    LoopRecepcaoTcp(thiz, &a_remover);
+    for_each(a_remover.begin(), a_remover.end(), [thiz] (int chave) { thiz->sockets_.erase(chave); } );
+    LoopEnvioTcp(thiz);
+  }
 }
 
 

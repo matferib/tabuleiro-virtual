@@ -6,7 +6,7 @@
 
 #include "ent/constantes.h"
 // para depurar android e ios.
-//#define VLOG_NIVEL 1
+#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/cliente.h"
 #include "net/util.h"
@@ -263,7 +263,7 @@ void Cliente::RecebeDados() {
     if (tamanho > 50 * 1024 * 1024) {
       LOG(WARNING) << "TAMANHO GIGANTE!! " << tamanho;
     }
-    VLOG(1) << "Vou Receber: " << tamanho << " bytes";
+    VLOG(1) << "Vou receber: " << tamanho << " bytes";
     buffer_.resize(tamanho);
     socket_->Recebe(
         &buffer_,
