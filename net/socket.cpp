@@ -45,6 +45,7 @@ struct DadosParaEnviarTcp {
 // O que deve ser recebido.
 struct DadosParaReceberTcp {
   int desc;
+  int recebido;
   std::string* dados;
   Erro erro;
   Socket::CallbackRecepcao callback;
@@ -129,7 +130,7 @@ struct Sincronizador::Interno {
     if (!recebidos_tcp_.empty()) {
       auto* recebido = recebidos_tcp_.front().get();
       LOG(INFO) << "Retornando erro tcp? " << ((bool)recebido->erro)
-                << ", mensagem: '" << recebido->erro.mensagem() << "'";
+                << ", mensagem: '" << recebido->erro.mensagem() << "', tam: " << recebido->dados->size();
       recebido->callback(recebido->erro, recebido->erro ? 0 : recebido->dados->size());
       recebidos_tcp_.pop();
     }
@@ -279,6 +280,7 @@ void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_client
 
 void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente) {
   auto* dtcp = new DadosParaReceberTcp;
+  dtcp->recebido = 0;
   dtcp->desc = interno_->socket_;
   dtcp->dados = dados;
   dtcp->callback = callback_recepcao_cliente;
@@ -486,8 +488,8 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
     if (!FD_ISSET(par.first, &conjunto_tcp)) {
       continue;
     }
-    LOG(INFO) << "Recebendo TCP pos select, esperando " << dtcp->dados->size();
-    ssize_t ret = recv(par.first, &(*dtcp->dados)[0], dtcp->dados->size(), 0);
+    LOG(INFO) << "Recebendo TCP pos select, esperando " << dtcp->dados->size() - dtcp->recebido;
+    ssize_t ret = recv(par.first, &(*dtcp->dados)[dtcp->recebido], dtcp->dados->size(), 0);
     auto tipo_erro = errno;
     if (ret == -1) {
       LOG(ERROR) << "Erro recebendo TCP pos select: " << strerror(tipo_erro);
@@ -495,8 +497,12 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
     } else if (ret >  (int)dtcp->dados->size()) {
       LOG(ERROR) << "Erro recebendo TCP pos select: dados maior que buffer";
       dtcp->erro = Erro("Erro recebendo TCP");
+    } else if (ret < (int)dtcp->dados->size()) {
+      dtcp->recebido += ret;
+      continue;
     } else {
       VLOG(1) << "Recebido pos select, tam: " << ret;
+      dtcp->dados->resize(ret);
     }
     thiz->recebidos_tcp_.push(std::unique_ptr<DadosParaReceberTcp>(par.second.release()));
     a_remover.push_back(par.first);
