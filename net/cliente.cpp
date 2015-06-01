@@ -242,6 +242,7 @@ void Cliente::RecebeDados() {
   };
 
   // Recebe o tamanho e chama recebe dados.
+  buffer_tamanho_.resize(4);
   socket_->Recebe(
       &buffer_tamanho_,
       [this, funcao_recebe_dados] (const Erro& erro, std::size_t bytes_recebidos) {

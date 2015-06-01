@@ -1,6 +1,7 @@
 #include <unordered_set>
 
 #include <boost/filesystem.hpp>
+#include <set>
 #include <stdexcept>
 #include "arq/arquivo.h"
 #include "ent/entidade.h"

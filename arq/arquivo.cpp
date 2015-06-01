@@ -80,7 +80,7 @@ void CriaDiretoriosUsuario() {
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_ENTIDADES));
     LOG(INFO) << "Diretorios de usuario criados em " << dir_apps_usuario;
   } catch (const std::exception& e) {
-    LOG(ERROR) << "Falha ao criar diretorio de usuario: " << e.what();
+    LOG(ERROR) << "Falha ao criar diretorio de usuario '" << dir_apps_usuario << "': " << e.what();
     throw;
   }
 }
