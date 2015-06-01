@@ -488,21 +488,22 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
     if (!FD_ISSET(par.first, &conjunto_tcp)) {
       continue;
     }
-    LOG(INFO) << "Recebendo TCP pos select, esperando " << dtcp->dados->size() - dtcp->recebido;
-    ssize_t ret = recv(par.first, &(*dtcp->dados)[dtcp->recebido], dtcp->dados->size(), 0);
+    int a_receber = dtcp->dados->size() - dtcp->recebido;
+    LOG(INFO) << "Recebendo TCP pos select, esperando " << a_receber;
+    ssize_t ret = recv(par.first, &(*dtcp->dados)[dtcp->recebido], a_receber, 0);
     auto tipo_erro = errno;
     if (ret == -1) {
       LOG(ERROR) << "Erro recebendo TCP pos select: " << strerror(tipo_erro);
       dtcp->erro = Erro("Erro recebendo TCP");
-    } else if (ret >  (int)dtcp->dados->size()) {
+    } else if (ret >  a_receber) {
       LOG(ERROR) << "Erro recebendo TCP pos select: dados maior que buffer";
       dtcp->erro = Erro("Erro recebendo TCP");
-    } else if (ret < (int)dtcp->dados->size()) {
+    } else if (ret < a_receber) {
+      VLOG(1) << "Recebido pos select parcial, tam: " << ret;
       dtcp->recebido += ret;
       continue;
     } else {
       VLOG(1) << "Recebido pos select, tam: " << ret;
-      dtcp->dados->resize(ret);
     }
     thiz->recebidos_tcp_.push(std::unique_ptr<DadosParaReceberTcp>(par.second.release()));
     a_remover.push_back(par.first);
