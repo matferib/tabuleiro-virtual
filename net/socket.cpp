@@ -122,22 +122,22 @@ struct Sincronizador::Interno {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!recebidos_udp_.empty()) {
       auto* recebido = recebidos_udp_.front().get();
-      LOG(INFO) << "Retornando erro udp? " << ((bool)recebido->erro)
-                << ", mensagem: '" << recebido->erro.mensagem() << "', endereco: " << *recebido->endereco;
+      VLOG(1) << "Retornando erro udp? " << ((bool)recebido->erro)
+              << ", mensagem: '" << recebido->erro.mensagem() << "', endereco: " << *recebido->endereco;
       recebido->callback(recebido->erro, recebido->erro ? 0 : recebido->dados->size());
       recebidos_udp_.pop();
     }
     if (!recebidos_tcp_.empty()) {
       auto* recebido = recebidos_tcp_.front().get();
-      LOG(INFO) << "Retornando erro tcp? " << ((bool)recebido->erro)
-                << ", mensagem: '" << recebido->erro.mensagem() << "', tam: " << recebido->dados->size();
+      VLOG(1) << "Retornando erro tcp? " << ((bool)recebido->erro)
+              << ", mensagem: '" << recebido->erro.mensagem() << "', tam: " << recebido->dados->size();
       recebido->callback(recebido->erro, recebido->erro ? 0 : recebido->dados->size());
       recebidos_tcp_.pop();
     }
     if (!enviados_tcp_.empty()) {
       auto* enviado = enviados_tcp_.front().get();
-      LOG(INFO) << "Retornando erro envio tcp? " << ((bool)enviado->erro)
-                << ", mensagem: " << enviado->erro.mensagem();
+      VLOG(1) << "Retornando erro envio tcp? " << ((bool)enviado->erro)
+              << ", mensagem: " << enviado->erro.mensagem();
       enviado->callback(enviado->erro, enviado->erro ? 0 : enviado->dados.size());
       enviados_tcp_.pop();
     }
@@ -262,7 +262,7 @@ void Socket::Conecta(const std::string& endereco, const std::string& porta) {
   if (!conectou) {
     throw std::logic_error(std::string("Falha ao conectar ao servidor em: ") + endereco + ":" + porta);
   }
-  LOG(INFO) << "CONECTADO AO SERVIDOR";
+  VLOG(1) << "Conectado ao servidor";
 }
 
 void Socket::Fecha() {
