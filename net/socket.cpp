@@ -1,4 +1,4 @@
-#if 1 || ANDROID
+#if ANDROID
 #include <algorithm>
 #include <cstring>
 #include <condition_variable>
@@ -16,6 +16,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <unistd.h>
+#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/socket.h"
 #include "net/util.h"
@@ -35,6 +36,7 @@ struct ScopedPrint {
   std::string p_;
 };
 
+// Estado do envio TCP.
 struct DadosParaEnviarTcp {
   int desc;
   std::string dados;
@@ -42,7 +44,7 @@ struct DadosParaEnviarTcp {
   Erro erro;
 };
 
-// O que deve ser recebido.
+// Estado da recepcao TCP.
 struct DadosParaReceberTcp {
   int desc;
   int recebido;
@@ -51,27 +53,13 @@ struct DadosParaReceberTcp {
   Socket::CallbackRecepcao callback;
 };
 
-// UDP.
-// Envio broadcast para uma porta.
-struct DadosParaBroadcastUdp {
-  int desc;
-  int porta;
-  std::string dados;
-  SocketUdp::CallbackEnvio callback;
-};
-
+// Estado da recepcao UDP.
 struct DadosParaReceberUdp {
   int desc;
   std::string* endereco;
   std::string* dados;
   Erro erro;
   SocketUdp::CallbackRecepcao callback;
-};
-
-struct DadosParaConexao {
-  Socket* socket_servidor;
-  Socket* socket_cliente;
-  Aceitador::CallbackConexaoCliente callback;
 };
 
 }  // namespace
@@ -164,10 +152,6 @@ struct Sincronizador::Interno {
   }
 
   // UDP.
-  void EnfileiraDadosBroadcastUdp(const DadosParaBroadcastUdp& d) {
-    d.callback(Erro("NAO IMPLEMENTADO"), 0);
-  }
-
   void EnfileiraDadosRecepcaoUdp(DadosParaReceberUdp* dudp) {
     ScopedPrint sp("EnfileiraDadosRecepcaoUdp");
     {
@@ -409,7 +393,7 @@ void Sincronizador::Interno::LoopEnvioTcp(Interno* thiz) {
   while (!thiz->a_enviar_tcp_.empty()) {
     auto* de = thiz->a_enviar_tcp_.front().get();
     unsigned int total_enviado = 0;
-    LOG(INFO) << "Enviando TCP";
+    VLOG(1) << "Enviando TCP";
     while (total_enviado < de->dados.size()) {
       int enviado = send(de->desc, de->dados.c_str() + total_enviado, de->dados.size() - total_enviado, 0);
       int tipo_erro = errno;
@@ -420,7 +404,7 @@ void Sincronizador::Interno::LoopEnvioTcp(Interno* thiz) {
       }
       total_enviado += enviado;
     }
-    LOG(INFO) << "Enviado TCP: " << total_enviado;
+    VLOG(1) << "Enviado TCP: " << total_enviado;
     thiz->enviados_tcp_.push(std::move(thiz->a_enviar_tcp_.front()));
     thiz->a_enviar_tcp_.pop();
   }
@@ -431,7 +415,7 @@ void Sincronizador::Interno::LoopRecepcaoUdp(Interno* thiz) {
   std::vector<int> a_remover;
   for (auto& par : thiz->sockets_udp_) {
     DadosParaReceberUdp* dudp = par.second.get();
-    LOG(INFO) << "Recebendo UDP";
+    VLOG(1) << "Recebendo UDP";
     char buf[100];
     struct sockaddr from;
     socklen_t from_len = sizeof(from);
@@ -442,10 +426,10 @@ void Sincronizador::Interno::LoopRecepcaoUdp(Interno* thiz) {
     }
     a_remover.push_back(par.first);
     if (ret == -1) {
-      LOG(INFO) << "Recebi erro UDP";
+      LOG(ERROR) << "Recebi erro UDP";
       dudp->erro = Erro("Erro recebendo UDP");
     } else {
-      LOG(INFO) << "Recebi dados UDP, tam: " << dudp->dados->size();
+      VLOG(1) << "Recebi dados UDP, tam: " << dudp->dados->size();
       dudp->endereco->assign(inet_ntoa(((sockaddr_in*)&from)->sin_addr));
       dudp->dados->assign(buf, ret);
     }
@@ -471,14 +455,14 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
 
   struct timeval tv;
   tv.tv_sec = 0;
-  tv.tv_usec = 0;
+  tv.tv_usec = 1000;
   int select_ret = select(maior + 1, &conjunto_tcp, nullptr, nullptr, &tv);
   if (select_ret == -1) {
-    LOG(INFO) << "Erro no select: " << strerror(select_ret);
+    LOG(ERROR) << "Erro no select: " << strerror(select_ret);
     return;
   }
   if (select_ret == 0) {
-    VLOG(2) << "Timeout select";
+    VLOG(1) << "Timeout select";
     return;
   }
   VLOG(1) << "Select ret: " << select_ret;
@@ -513,10 +497,10 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
 
 /*static*/
 void Sincronizador::Interno::Loop(Interno* thiz) {
-  ScopedPrint sp("Loop");
   std::unique_lock<std::recursive_mutex> ulock(thiz->mutex_);
   while (!thiz->terminar_) {
     thiz->cond_.wait_for(ulock, std::chrono::milliseconds(100));
+    ScopedPrint sp("Loop");
     LoopRecepcaoUdp(thiz);
     LoopRecepcaoTcp(thiz);
     LoopEnvioTcp(thiz);
@@ -668,6 +652,8 @@ void Socket::Fecha() {
 }
 
 void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_cliente) {
+#if 1
+  // Write envia tudo em uma so chamada.
   boost::asio::async_write(
       *interno_->socket.get(),
       boost::asio::buffer(dados),
@@ -675,6 +661,24 @@ void Socket::Envia(const std::string& dados, CallbackEnvio callback_envio_client
     VLOG(1) << "TCP Enviados " << bytes_enviados << ", buffer: " << dados.size() << ", erro? " << ec.message();
     callback_envio_cliente(ConverteErro(ec), bytes_enviados);
  });
+#else
+  // Send tem que enviar cada parte.
+  int* enviado = new int(0);
+  auto* callback_send = new std::function<void(const boost::system::error_code& ec, std::size_t bytes_enviados)>;
+  (*callback_send) = [this, callback_envio_cliente, &dados, enviado, callback_send] (const boost::system::error_code& ec, std::size_t bytes_enviados) {
+    *enviado += bytes_enviados;
+    if (*enviado < dados.size() && !ec) {
+      VLOG(1) << "TCP parcialmente enviado: " << *enviado << " de buffer tamanho: " << dados.size();
+      interno_->socket->async_send(boost::asio::buffer(dados.data() + (*enviado), dados.size() - *enviado), *callback_send);
+    } else {
+      VLOG(1) << "TCP finalizado, enviado " << *enviado << " de buffer: " << dados.size() << ", erro? " << ec.message();
+      callback_envio_cliente(ConverteErro(ec), bytes_enviados);
+      delete callback_send;
+      delete enviado;
+    }
+  };
+  interno_->socket->async_send(boost::asio::buffer(dados), *callback_send);
+#endif
 }
 
 void Socket::Recebe(std::string* dados, CallbackRecepcao callback_recepcao_cliente) {
