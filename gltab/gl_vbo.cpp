@@ -1,3 +1,4 @@
+#include <limits>
 #include "gltab/gl.h"
 #include "gltab/gl_vbo.h"
 
@@ -68,8 +69,12 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
     *this = rhs;
     return;
   }
+  if (rhs.num_dimensoes_ == 0) {
+    //LOG(WARNING) << "ignorando rhs com 0 dimensoes";
+    return;
+  }
   if (num_dimensoes_ != rhs.num_dimensoes_) {
-    throw std::logic_error("Nao eh possivel concatenar, objetos incompativeis");
+    throw std::logic_error(std::string("Nao eh possivel concatenar, objetos incompativeis: ") + nome() + " e " + rhs.nome());
   }
   // Coordenadas do primeiro indice apos o ultimo, onde serao inseridos os novos.
   const unsigned short num_coordenadas_inicial = coordenadas_.size() / num_dimensoes_;
@@ -79,9 +84,11 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
   }
   coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
   normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
-  for (const auto indice : rhs.indices_) {
+  for (const auto& indice : rhs.indices_) {
     indices_.push_back(indice + num_coordenadas_inicial);
   }
+  cores_.insert(cores_.end(), rhs.cores_.begin(), rhs.cores_.end());
+  Nomeia(nome_ + "+" + rhs.nome_);
 }
 
 std::vector<float> VboNaoGravado::GeraBufferUnico(
@@ -284,11 +291,12 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   }
 #endif
 
-  VboNaoGravado ret;
-  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
-  ret.AtribuiNormais(normais);
-  ret.AtribuiIndices(indices, num_indices_total);
-  return ret;
+  VboNaoGravado vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
+  vbo.AtribuiNormais(normais);
+  vbo.AtribuiIndices(indices, num_indices_total);
+  vbo.Nomeia("troncocone");
+  return vbo;
 }
 
 VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
@@ -393,11 +401,12 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
-  VboNaoGravado ret;
-  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
-  ret.AtribuiNormais(coordenadas);  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
-  ret.AtribuiIndices(indices, num_indices_total);
-  return ret;
+  VboNaoGravado vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
+  vbo.AtribuiNormais(coordenadas);  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
+  vbo.AtribuiIndices(indices, num_indices_total);
+  vbo.Nomeia("esfera");
+  return vbo;
 }
 
 VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, GLint num_tocos) {
@@ -510,11 +519,12 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   //            << coordenadas[i] << ", " << coordenadas[i + 1] << ", " << coordenadas[i + 2];
   //}
 
-  VboNaoGravado ret;
-  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
-  ret.AtribuiNormais(normais);
-  ret.AtribuiIndices(indices, num_indices_total);
-  return ret;
+  VboNaoGravado vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
+  vbo.AtribuiNormais(normais);
+  vbo.AtribuiIndices(indices, num_indices_total);
+  vbo.Nomeia("cilindro");
+  return vbo;
 }
 
 VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
@@ -594,11 +604,12 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     meio_lado, -meio_lado, -meio_lado,
   };
 
-  VboNaoGravado ret;
-  ret.AtribuiCoordenadas(3, coordenadas, num_coordenadas);
-  ret.AtribuiNormais(normais);
-  ret.AtribuiIndices(indices, num_indices);
-  return ret;
+  VboNaoGravado vbo;
+  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas);
+  vbo.AtribuiNormais(normais);
+  vbo.AtribuiIndices(indices, num_indices);
+  vbo.Nomeia("cubo");
+  return vbo;
 }
 
 VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
@@ -662,6 +673,7 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
   vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
   vbo.AtribuiIndices(indices, 12);
   vbo.AtribuiNormais(normais);
+  vbo.Nomeia("piramide");
   return vbo;
 }
 
@@ -691,11 +703,11 @@ VboNaoGravado VboRetangulo(GLfloat tam_lado) {
   vbo.AtribuiNormais(normais);
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 4);
+  vbo.Nomeia("retangulo");
   return vbo;
 }
 
 VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
-  gl::Normal(0.0f, 0.0f, 1.0f);
   unsigned short num_vertices = num_faces + 2;
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
@@ -720,6 +732,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   vbo.AtribuiNormais(normais.data());
   //vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices.data(), indices.size());
+  vbo.Nomeia("disco");
   return vbo;
 }
 
@@ -739,6 +752,7 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   vbo.AtribuiNormais(normais);
   //vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 3);
+  vbo.Nomeia("triangulo");
   return vbo;
 }
 
@@ -763,6 +777,7 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
@@ -774,11 +789,16 @@ void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo) {
     PonteiroNormais(GL_FLOAT, vbo.normais().data());
   }
   if (vbo.tem_texturas()) {
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, vbo.texturas().data());
+    HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    PonteiroVerticesTexturas(2, GL_FLOAT, 0, vbo.texturas().data());
+  }
+  if (vbo.tem_cores()) {
+    HabilitaEstadoCliente(GL_COLOR_ARRAY);
+    PonteiroCores(4, 0, vbo.cores().data());
   }
   PonteiroVertices(vbo.num_dimensoes(), GL_FLOAT, vbo.coordenadas().data());
   DesenhaElementos(modo, vbo.indices().size(), GL_UNSIGNED_SHORT, vbo.indices().data());
+  DesabilitaEstadoCliente(GL_COLOR_ARRAY);
   DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
