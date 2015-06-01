@@ -132,7 +132,7 @@ modelo {
 }
 modelo {
   id: 'Orc'
-  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
+  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} modelo_3d: { id: 'orc' } cor { g: 1.0 } }
 }
 modelo {
   id: 'Orc Lanceiro'

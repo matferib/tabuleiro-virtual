@@ -230,7 +230,8 @@ void Cliente::RecebeDados() {
     auto* notificacao = new ntf::Notificacao;
     if (!notificacao->ParseFromString(buffer_)) {
       std::string erro_str;
-      erro_str = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " + to_string(buffer_.size());
+      erro_str = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " +
+                 to_string(buffer_.size());
       delete notificacao;
       Desconecta(erro_str);
       return;
@@ -242,6 +243,7 @@ void Cliente::RecebeDados() {
   };
 
   // Recebe o tamanho e chama recebe dados.
+  buffer_tamanho_.resize(4);
   socket_->Recebe(
       &buffer_tamanho_,
       [this, funcao_recebe_dados] (const Erro& erro, std::size_t bytes_recebidos) {

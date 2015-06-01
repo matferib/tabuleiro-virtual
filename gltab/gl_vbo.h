@@ -49,6 +49,16 @@ class VboNaoGravado {
     tem_texturas_ = true;
   }
 
+  void AtribuiCor(float r, float g, float b, float a) {
+    for (int i = 0; i < indices_.size(); ++i) {
+      cores_.push_back(r);
+      cores_.push_back(g);
+      cores_.push_back(b);
+      cores_.push_back(a);
+    }
+    tem_cores_ = true;
+  }
+
   // Concatena um vbo a outro, ajustando os indices.
   // @throw caso os objetos nao sejam compativeis.
   void Concatena(const VboNaoGravado& rhs);
@@ -67,7 +77,11 @@ class VboNaoGravado {
   }
 
   std::string ParaString() const {
+#if WIN32 || ANDROID
+    return std::string("vbo: ") + nome_;
+#else
     return std::string("vbo: ") + nome_ + ", num indices: " + std::to_string(indices_.size());
+#endif
   }
 
   bool tem_normais() const { return tem_normais_; }
@@ -78,9 +92,11 @@ class VboNaoGravado {
   std::vector<float>& coordenadas() { return coordenadas_; }
   std::vector<float>& normais() { return normais_; }
   std::vector<float>& texturas() { return texturas_; }
+  std::vector<float>& cores() { return cores_; }
   const std::vector<float>& coordenadas() const { return coordenadas_; }
   const std::vector<float>& normais() const { return normais_; }
   const std::vector<float>& texturas() const { return texturas_; }
+  const std::vector<float>& cores() const { return cores_; }
 
  private:
   std::vector<float> coordenadas_;

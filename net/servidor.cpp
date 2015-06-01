@@ -76,7 +76,7 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
         LOG(INFO) << "Dropando notificacao por causa id cliente diferente. Destino: " << notificacao.id_rede() << " x cliente: " << c->id;
         continue;
       }
-      VLOG(1) << "Enviando notificacao para cliente";
+      VLOG(1) << "Enviando notificacao para cliente, tam: " << ns.size();
       EnviaDadosCliente(c, ns);
     }
   }

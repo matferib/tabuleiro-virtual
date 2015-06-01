@@ -21,6 +21,7 @@ Modelos3d::Modelos3d() : interno_(new Interno) {
     arq::LeArquivoBinProto(arq::TIPO_MODELO_3D, "orc.binproto", &n);
     LOG(INFO) << "orc: " << n.DebugString();
     interno_->vbos["orc"] = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0)));
+    LOG(INFO) << interno_->vbos["orc"].ParaString();
   } catch (const std::exception& e) {
     LOG(ERROR) << "Falha carregando orc: " << e.what();
   }

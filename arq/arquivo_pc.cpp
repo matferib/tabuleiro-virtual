@@ -37,7 +37,7 @@ const std::string DiretorioAppsUsuario() {
   }
   return appdata + "/TabuleiroVirtual/";
 #else
-  return "";
+  return "./";
 #endif
 }
 

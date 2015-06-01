@@ -1,3 +1,4 @@
+#include <cstring>
 #include <limits>
 #include "gltab/gl.h"
 #include "gltab/gl_vbo.h"
@@ -12,7 +13,7 @@ bool ImprimeSeErro();
 // VboNaoGravado
 //--------------
 void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+  for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
     coordenadas_[i] *= x;
     coordenadas_[i + 1] *= y;
     if (num_dimensoes_ == 3) {
@@ -22,7 +23,7 @@ void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
 }
 
 void VboNaoGravado::Translada(GLfloat x, GLfloat y, GLfloat z) {
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+  for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
     coordenadas_[i] += x;
     coordenadas_[i + 1] += y;
     if (num_dimensoes_ == 3) {
@@ -56,7 +57,7 @@ void VboNaoGravado::RodaY(GLfloat angulo_graus) {
 void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
   GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
   GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+  for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
     GLfloat x = coordenadas_[i];
     GLfloat y = coordenadas_[i + 1];
     coordenadas_[i] = x * c + y * -s;

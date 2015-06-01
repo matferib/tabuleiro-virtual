@@ -182,6 +182,7 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
 inline void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) { glNormalPointer(tipo, passo, normais);  }
+inline void PonteiroCores(GLint tam_por_coordenada, GLsizei passo, const GLvoid* cores) { glColorPointer(tam_por_coordenada, GL_FLOAT, passo, cores); }
 #if USAR_OPENGL_ES
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 #else

@@ -867,10 +867,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           // texturas cuidara disso.
           // Aqui comeca o fluxo de envio de texturas de servidor para cliente. Nessa primeira mensagem
           // o cliente envia seus ids para o servidor.
+#if 0
           auto* nit = ntf::NovaNotificacao(ntf::TN_ENVIAR_ID_TEXTURAS);
           nit->set_id_rede(notificacao.id_rede());
           VLOG(1) << "Enviando TN_ENVIAR_ID_TEXTURAS: " << nit->DebugString();
           central_->AdicionaNotificacao(nit);
+#endif
         } else {
           AlterarModoMestre(true);  // volta modo mestre.
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);

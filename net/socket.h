@@ -102,7 +102,7 @@ class Socket {
   explicit Socket(Sincronizador* sincronizador);
   ~Socket();
 
-#if ANDROID
+#if ANDROID || 1
   // Faz o socket ouvir em determinada porta.
   void Ouve(int porta);
 #endif

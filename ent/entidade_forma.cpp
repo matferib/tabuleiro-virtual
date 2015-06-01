@@ -16,6 +16,7 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
+      vbo = std::move(gl::VboDisco(0.5f, 12));
     }
     break;
     case TF_CILINDRO: {
@@ -36,6 +37,7 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_RETANGULO: {
+      vbo = std::move(gl::VboRetangulo(1.0f));
     }
     break;
     case TF_ESFERA: {
@@ -48,6 +50,8 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
+  const auto& c = proto.cor();
+  vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
   vbo.RodaX(proto.rotacao_x_graus());
   vbo.RodaY(proto.rotacao_y_graus());
   vbo.RodaZ(proto.rotacao_z_graus());
