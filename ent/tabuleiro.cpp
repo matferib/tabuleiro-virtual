@@ -2058,64 +2058,105 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // e feito durante o desenho da cena.
   const int x_2 = TamanhoX() / 2;
   const int y_2 = TamanhoY() / 2;
-  const float tamanho_y_2 = (TamanhoY() / 2.0f) * TAMANHO_LADO_QUADRADO;
-  const float tamanho_x_2 = (TamanhoX() / 2.0f) * TAMANHO_LADO_QUADRADO;
+  const float tamanho_y = TamanhoY() * TAMANHO_LADO_QUADRADO;
+  const float tamanho_y_2 = tamanho_y / 2.0f;
+  const float tamanho_x = TamanhoX() * TAMANHO_LADO_QUADRADO;
+  const float tamanho_x_2 = tamanho_x / 2.0f;
 
   // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
   // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
   // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
   // inferior eh onde comeca a desenhar a linha.
 
-  // Linhas verticais (S-N).
-  int limite_inferior = -x_2;
-  float incremento = 0.0f;
-  if (TamanhoX() % 2 != 0) {
-    --limite_inferior;
-    incremento = TAMANHO_LADO_QUADRADO_2;
-  }
   indice = 0;
-  for (int i = limite_inferior; i <= x_2; ++i) {
-    float x = i * TAMANHO_LADO_QUADRADO + incremento;
-    vertices_grade_.push_back(x - EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(-tamanho_y_2);
-    vertices_grade_.push_back(x + EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(-tamanho_y_2);
-    vertices_grade_.push_back(x + EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(tamanho_y_2);
-    vertices_grade_.push_back(x - EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(tamanho_y_2);
-    indices_grade_.push_back(indice);
-    indices_grade_.push_back(indice + 1);
-    indices_grade_.push_back(indice + 2);
-    indices_grade_.push_back(indice);
-    indices_grade_.push_back(indice + 2);
-    indices_grade_.push_back(indice + 3);
-    indice += 4;
+  const int kTamanhoPedaco = 30;
+  // Linhas verticais (S-N).
+  {
+    int limite_inferior = -x_2;
+    float incremento = 0.0f;
+    if (TamanhoX() % 2 != 0) {
+      --limite_inferior;
+      incremento = TAMANHO_LADO_QUADRADO_2;
+    }
+    // TODO verificar indice maior que tamanho maximo.
+    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
+    int num_pedacos_verticais = tamanho_y / kTamanhoPedaco;
+    float ultimo_pedaco_vertical = fmod(tamanho_y, kTamanhoPedaco);
+    if (ultimo_pedaco_vertical > 0.0f) {
+      ++num_pedacos_verticais;
+    }
+    for (int i = limite_inferior; i <= x_2; ++i) {
+      float x = i * TAMANHO_LADO_QUADRADO + incremento;
+      float x_inicial = x - EXPESSURA_LINHA_2;
+      float x_final = x + EXPESSURA_LINHA_2;
+      for (int j = 0; j < num_pedacos_verticais; ++j) {
+        int j_tam = j * kTamanhoPedaco;
+        float y_inicial = -tamanho_y_2 + j_tam;
+        float incremento_vertical = kTamanhoPedaco;
+        if ((j == num_pedacos_verticais - 1) && (ultimo_pedaco_vertical > 0.0f)) {
+          incremento_vertical = ultimo_pedaco_vertical;
+        }
+        float y_final = y_inicial + incremento_vertical;
+        vertices_grade_.push_back(x_inicial);
+        vertices_grade_.push_back(y_inicial);
+        vertices_grade_.push_back(x_final);
+        vertices_grade_.push_back(y_inicial);
+        vertices_grade_.push_back(x_final);
+        vertices_grade_.push_back(y_final);
+        vertices_grade_.push_back(x_inicial);
+        vertices_grade_.push_back(y_final);
+        indices_grade_.push_back(indice);
+        indices_grade_.push_back(indice + 1);
+        indices_grade_.push_back(indice + 2);
+        indices_grade_.push_back(indice);
+        indices_grade_.push_back(indice + 2);
+        indices_grade_.push_back(indice + 3);
+        indice += 4;
+      }
+    }
   }
-  // Linhas horizontais (W-E).
-  limite_inferior = -y_2;
-  incremento = 0.0f;
-  if (TamanhoY() % 2 != 0) {
-    --limite_inferior;
-    incremento = TAMANHO_LADO_QUADRADO_2;
-  }
-  for (int i = limite_inferior; i <= y_2; ++i) {
-    float y = i * TAMANHO_LADO_QUADRADO + incremento;
-    vertices_grade_.push_back(-tamanho_x_2);
-    vertices_grade_.push_back(y - EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(tamanho_x_2);
-    vertices_grade_.push_back(y - EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(tamanho_x_2);
-    vertices_grade_.push_back(y + EXPESSURA_LINHA_2);
-    vertices_grade_.push_back(-tamanho_x_2);
-    vertices_grade_.push_back(y + EXPESSURA_LINHA_2);
-    indices_grade_.push_back(indice);
-    indices_grade_.push_back(indice + 1);
-    indices_grade_.push_back(indice + 2);
-    indices_grade_.push_back(indice);
-    indices_grade_.push_back(indice + 2);
-    indices_grade_.push_back(indice + 3);
-    indice += 4;
+  {
+    // Linhas horizontais (W-E).
+    int limite_inferior = -y_2;
+    float incremento = 0.0f;
+    if (TamanhoY() % 2 != 0) {
+      --limite_inferior;
+      incremento = TAMANHO_LADO_QUADRADO_2;
+    }
+    int num_pedacos_horizontais = tamanho_x / kTamanhoPedaco;
+    float ultimo_pedaco_horizontal = fmod(tamanho_x, kTamanhoPedaco);
+    if (ultimo_pedaco_horizontal > 0.0f) {
+      ++num_pedacos_horizontais;
+    }
+    for (int i = limite_inferior; i <= y_2; ++i) {
+      float y = i * TAMANHO_LADO_QUADRADO + incremento;
+      float y_inicial = y - EXPESSURA_LINHA_2;
+      float y_final = y + EXPESSURA_LINHA_2;
+      for (int j = 0; j < num_pedacos_horizontais; ++j) {
+        int j_tam = j * kTamanhoPedaco;
+        float x_inicial = -tamanho_x_2 + j_tam;
+        float incremento_horizontal = kTamanhoPedaco;
+        if ((j == num_pedacos_horizontais - 1) && (ultimo_pedaco_horizontal > 0.0f)) {
+          incremento_horizontal = ultimo_pedaco_horizontal;
+        }
+        float x_final = x_inicial + incremento_horizontal;
+        vertices_grade_.push_back(x_inicial);
+        vertices_grade_.push_back(y_inicial);
+        vertices_grade_.push_back(x_final);
+        vertices_grade_.push_back(y_inicial);
+        vertices_grade_.push_back(x_final);
+        vertices_grade_.push_back(y_final);
+        vertices_grade_.push_back(x_inicial);
+        vertices_grade_.push_back(y_final);
+        indices_grade_.push_back(indice);
+        indices_grade_.push_back(indice + 1);
+        indices_grade_.push_back(indice + 2);
+        indices_grade_.push_back(indice);
+        indices_grade_.push_back(indice + 2);
+        indices_grade_.push_back(indice + 3);
+        indice += 4;
+      }
+    }
   }
   gl::GeraBuffers(1, &nome_buffer_grade_);
   gl::GeraBuffers(1, &nome_buffer_indice_grade_);
@@ -3848,6 +3889,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
 }
 
 void Tabuleiro::DesenhaGrade() {
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   MudaCor(COR_PRETA);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
