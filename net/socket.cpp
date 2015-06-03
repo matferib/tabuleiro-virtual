@@ -1,4 +1,4 @@
-#if ANDROID
+#if 0 && ANDROID
 #include <algorithm>
 #include <cstring>
 #include <condition_variable>
@@ -473,7 +473,7 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
       continue;
     }
     int a_receber = dtcp->dados->size() - dtcp->recebido;
-    LOG(INFO) << "Recebendo TCP pos select, esperando " << a_receber;
+    VLOG(1) << "Recebendo TCP pos select, esperando " << a_receber;
     ssize_t ret = recv(par.first, &(*dtcp->dados)[dtcp->recebido], a_receber, 0);
     auto tipo_erro = errno;
     if (ret == -1) {
@@ -499,7 +499,7 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
 void Sincronizador::Interno::Loop(Interno* thiz) {
   std::unique_lock<std::recursive_mutex> ulock(thiz->mutex_);
   while (!thiz->terminar_) {
-    thiz->cond_.wait_for(ulock, std::chrono::milliseconds(100));
+    thiz->cond_.wait_for(ulock, std::chrono::milliseconds(20));
     ScopedPrint sp("Loop");
     LoopRecepcaoUdp(thiz);
     LoopRecepcaoTcp(thiz);
