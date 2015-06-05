@@ -465,6 +465,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       proto_retornado->clear_pontos_vida();
     }
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }

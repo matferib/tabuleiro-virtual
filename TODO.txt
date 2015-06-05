@@ -1,7 +1,8 @@
 Versao 1.9.0
-- Terminar socket.
-- Temporizar movimento, se ficar ocioso envia atualizacao de posicao tb.
 - Terminar a exportacao de formas e compostas.
+- Terminar socket.
+- Sub tabuleiros.
+- Temporizar movimento, se ficar ocioso envia atualizacao de posicao tb.
 - Unit teste dos glVbo roda.
 - Modelos 3d para entidades.
 - Entender tilt do nexus 10 (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
