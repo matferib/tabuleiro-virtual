@@ -497,6 +497,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns estados podem ser interrompidos por outros. Esta funcao finaliza o corrente antes de mudar para um novo. */
   void FinalizaEstadoCorrente();
 
+  /** Envia atualizacoes de movimento apos um intervalo de tempo. */
+  void RefrescaMovimentosParciais();
+
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
 
@@ -648,6 +651,9 @@ class Tabuleiro : public ntf::Receptor {
   float primeiro_x_3d_;
   float primeiro_y_3d_;
   float primeiro_z_3d_;
+
+  /** Quantos ciclos faltam para atualizar posicoes parciais. Atualiza em zero. -1 desliga. */
+  int ciclos_para_atualizar_;
 
   /** Dimensoes do viewport. */
   int largura_;

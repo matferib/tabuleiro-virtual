@@ -332,6 +332,7 @@ void Tabuleiro::EstadoInicial() {
   ultimo_x_ = ultimo_y_ = 0;
   ultimo_x_3d_ = ultimo_y_3d_ = ultimo_z_3d_ = 0;
   primeiro_x_3d_ = primeiro_y_3d_ = primeiro_z_3d_ = 0;
+  ciclos_para_atualizar_ = -1;
   // Mapa de entidades e acoes vazios.
   entidades_.clear();
   acoes_.clear();
@@ -904,6 +905,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaOlho();
       AtualizaEntidades();
       AtualizaAcoes();
+      if (ciclos_para_atualizar_ == 0) {
+        RefrescaMovimentosParciais();
+        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+      } else if (ciclos_para_atualizar_ > 0) {
+        --ciclos_para_atualizar_;
+      }
 #if USAR_WATCHDOG
       watchdog_.Refresca();
 #endif
@@ -1104,6 +1111,38 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
+void Tabuleiro::RefrescaMovimentosParciais() {
+  if (estado_ == ETAB_ENTS_PRESSIONADAS) {
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* e = BuscaEntidade(id);
+      if (e == nullptr) {
+        continue;
+      }
+      Posicao pos;
+      pos.set_x(e->X());
+      pos.set_y(e->Y());
+      pos.set_z(ZChao(pos.x(), pos.y()));
+      auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+      n->mutable_entidade()->set_id(id);
+      n->mutable_entidade()->mutable_destino()->CopyFrom(pos);
+      central_->AdicionaNotificacaoRemota(n);
+    }
+  } else if (estado_ == ETAB_ENTS_TRANSLACAO_ROTACAO) {
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* e = BuscaEntidade(id);
+      if (e == nullptr) {
+        continue;
+      }
+      // Atualiza clientes quando delta passar de algum valor.
+      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n->mutable_entidade()->set_id(e->Id());
+      n->mutable_entidade()->set_translacao_z(e->TranslacaoZ());
+      n->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
+      central_->AdicionaNotificacaoRemota(n);
+    }
+  }
+}
+
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
   switch (tecla) {
     default:
@@ -1222,11 +1261,13 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
           ultimo_y_ = y;
           return;
         }
+        // Se chegou aqui eh pq mudou de estado. Comeca a temporizar.
+        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
       }
       // Deltas desde o ultimo movimento.
       float delta_x = (x - ultimo_x_);
       float delta_y = (y - ultimo_y_);
-      // Realiza rotacao da entidade.
+      // Realiza rotacao/translacao da entidade.
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* e = BuscaEntidade(id);
         if (e == nullptr) {
@@ -1238,12 +1279,6 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->AlteraTranslacaoZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
         }
-        // Atualiza clientes.
-        auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-        n->mutable_entidade()->set_id(e->Id());
-        n->mutable_entidade()->set_translacao_z(e->TranslacaoZ());
-        n->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
-        central_->AdicionaNotificacaoRemota(n);
       }
       ultimo_x_ = x;
       ultimo_y_ = y;
@@ -1304,11 +1339,6 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
             pos.set_x(vp.back().x());
           }
           vp.push_back(pos);
-          auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
-          auto* e = n->mutable_entidade();
-          e->set_id(id);
-          e->mutable_destino()->CopyFrom(pos);
-          central_->AdicionaNotificacaoRemota(n);
         }
       }
       ultimo_x_ = x;
@@ -2630,6 +2660,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         pos.set_z(ZChao(pos.x(), pos.y()));
         rastros_movimento_[id].push_back(pos);
       }
+      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
       estado_ = ETAB_ENTS_PRESSIONADAS;
     }
   } else if (pos_pilha == OBJ_ROLAGEM) {
@@ -2682,6 +2713,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
       if (entidade == nullptr) {
         continue;
       }
+      // Neste caso, usa o X para rotacao e o Z para translacao.
       translacoes_rotacoes_antes_.insert(
           std::make_pair(entidade->Id(),
                          std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
@@ -2862,6 +2894,7 @@ void Tabuleiro::MudaEstadoAposSelecao() {
 void Tabuleiro::FinalizaEstadoCorrente() {
   switch (estado_) {
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
+      ciclos_para_atualizar_ = -1;
       if (translacao_rotacao_ == TR_NENHUM) {
         // Nada a fazer.
       } else {
@@ -2898,6 +2931,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       estado_ = estado_anterior_;
       return;
     case ETAB_ENTS_PRESSIONADAS: {
+      ciclos_para_atualizar_ = -1;
       if (!camera_presa_ && id_camera_presa_ != Entidade::IdInvalido) {
         // Restaura camera presa antes do movimento.
         camera_presa_ = true;

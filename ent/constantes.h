@@ -35,6 +35,9 @@
 // Converte a velocidade por segundo para distancia por atualizacao.
 #define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
 
+// Taxa de envio de movimentos parciais para clientes.
+#define CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS (ATUALIZACOES_POR_SEGUNDO / 3)
+
 // Por quantos frames um botao fica pressionado. 240ms.
 #define ATUALIZACOES_BOTAO_PRESSIONADO (static_cast<int>(ATUALIZACOES_POR_SEGUNDO * 0.240f))
 
