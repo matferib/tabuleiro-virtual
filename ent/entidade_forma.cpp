@@ -50,12 +50,12 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
-  const auto& c = proto.cor();
-  vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  //const auto& c = proto.cor();
+  //vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   vbo.RodaX(proto.rotacao_x_graus());
   vbo.RodaY(proto.rotacao_y_graus());
   vbo.RodaZ(proto.rotacao_z_graus());
-  vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   // Mundo.
   vbo.Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z());
 

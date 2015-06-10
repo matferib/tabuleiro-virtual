@@ -1,5 +1,5 @@
 Versao 1.9.0
-- Terminar a exportacao de formas e compostas.
+- Terminar a exportacao de formas e compostas (CORES).
 - SUMIR COM TRANSLACAO Z.
 - Nevoa nao aparece na camera isometrica.
 - Regua de distancia.

@@ -62,3 +62,8 @@ sub_menu {
   modelo { id: 'Baú (madeira)' }
   modelo { id: 'Barras' }
 }
+sub_menu {
+  id: 'Teste'
+  modelo { id: 'teste orc' }
+  modelo { id: 'teste geo' }
+}

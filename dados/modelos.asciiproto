@@ -132,7 +132,7 @@ modelo {
 }
 modelo {
   id: 'Orc'
-  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} modelo_3d: { id: 'orc' } cor { g: 1.0 } }
+  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
 }
 modelo {
   id: 'Orc Lanceiro'
@@ -173,6 +173,14 @@ modelo {
 modelo {
   id: 'Worg'
   entidade { dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 } }
+}
+modelo {
+  id: 'teste geo'
+  entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'geo' } }
+}
+modelo {
+  id: 'teste orc'
+  entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'orc' } }
 }
 modelo {
   id: 'Árvore (pinheiro)'
