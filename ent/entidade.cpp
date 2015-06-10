@@ -368,10 +368,12 @@ void Entidade::MontaMatriz(bool em_voo,
   }
   if (matriz_shear == nullptr) {
     gl::Translada(pos.x(), pos.y(), translacao_z);
+    gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   } else {
     gl::Translada(pos.x(), pos.y(), 0);
     gl::MultiplicaMatriz(matriz_shear);
     gl::Translada(0, 0, translacao_z);
+    gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   }
   if (achatar && !proto.has_info_textura()) {
     // Achata cone.

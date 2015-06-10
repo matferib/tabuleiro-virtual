@@ -1,9 +1,9 @@
 Versao 1.9.0
+- Terminar a exportacao de formas e compostas.
 - SUMIR COM TRANSLACAO Z.
 - Nevoa nao aparece na camera isometrica.
 - Regua de distancia.
 - Fazer rotacao e translacao Z serem suavizadas como destino do movimento.
-- Terminar a exportacao de formas e compostas.
 - Terminar socket.
 - Sub tabuleiros.
 - Temporizar movimento, se ficar ocioso envia atualizacao de posicao tb.

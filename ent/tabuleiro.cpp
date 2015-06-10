@@ -1273,8 +1273,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (e == nullptr) {
           continue;
         }
-        if (translacao_rotacao_ == TR_ROTACAO && e->Tipo() != TE_ENTIDADE) {
-          // Rotacao nao se aplica a entidades.
+        if (translacao_rotacao_ == TR_ROTACAO) {
           e->AlteraRotacaoZ(delta_x);
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->AlteraTranslacaoZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
