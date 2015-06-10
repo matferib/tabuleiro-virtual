@@ -741,7 +741,7 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   unsigned short indices[] = { 0, 1, 2 };
   GLfloat coordenadas[9] = { 0.0f };
   coordenadas[0] = 0.0f;
-  coordenadas[1] = 0.86602540378f * lado;
+  coordenadas[1] = 0.86602540378f * lado;  // sen 60.
   coordenadas[3] = -lado / 2.0f;
   coordenadas[4] = 0.0f;
   coordenadas[6] = lado / 2.0f;
