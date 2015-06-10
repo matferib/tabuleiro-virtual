@@ -212,7 +212,7 @@ class Entidade {
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
-  * @param translacao_z se verdadeiro, considera a translacao no eixo z.
+  * @param transladar_z se verdadeiro, considera a translacao no eixo z.
   */
   static void MontaMatriz(bool em_voo,
                           bool queda,
