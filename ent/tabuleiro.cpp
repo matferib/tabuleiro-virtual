@@ -2106,7 +2106,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
       --limite_inferior;
       incremento = TAMANHO_LADO_QUADRADO_2;
     }
-    // TODO verificar indice maior que tamanho maximo.
     // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
     int num_pedacos_verticais = tamanho_y / kTamanhoPedaco;
     float ultimo_pedaco_vertical = fmod(tamanho_y, kTamanhoPedaco);
