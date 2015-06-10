@@ -1,6 +1,6 @@
 Versao 1.9.0
 - Regua de distancia.
-- Movimentacao verticao por quadrado.
+- Movimentacao vertical por quadrado para tablets.
 - Fazer rotacao e translacao Z serem suavizadas como destino do movimento.
 - Terminar a exportacao de formas e compostas.
 - Terminar socket.

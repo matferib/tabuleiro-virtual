@@ -174,35 +174,35 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_AltEsquerdo:
       tabuleiro_->DetalharTodasEntidades(true);
       return;
-    case Tecla_Cima:
+    case Tecla_Cima: {
       // Nao pode usar == pq a seta tambem aplica modificador de keypad.
-      if ((modificadores & Modificador_Shift) != 0) {
-        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(0.1f);
+      float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
+      if ((modificadores & Modificador_Ctrl) != 0) {
+        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(incremento);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, 1.0f);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, incremento);
       }
       return;
-    case Tecla_Baixo:
-      if ((modificadores & Modificador_Shift) != 0) {
-        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(-0.1f);
+    }
+    case Tecla_Baixo: {
+      float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
+      if ((modificadores & Modificador_Ctrl) != 0) {
+        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(incremento);
       } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, -1.0f);
+        tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, incremento);
       }
       return;
-    case Tecla_Esquerda:
-      if ((modificadores & Modificador_Shift) != 0) {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -0.1f);
-      } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, -1.0f);
-      }
+    }
+    case Tecla_Esquerda: {
+      float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
+      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, incremento);
       return;
-    case Tecla_Direita:
-      if ((modificadores & Modificador_Shift) != 0) {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 0.1f);
-      } else {
-        tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, 1.0f);
-      }
+    }
+    case Tecla_Direita: {
+      float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
+      tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, incremento);
       return;
+    }
     case Tecla_F:
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FIXA);
       return;
