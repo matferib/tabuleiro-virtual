@@ -193,13 +193,13 @@ void Entidade::Atualiza() {
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
-    if (vd_.altura_voo >= ALTURA_VOO) {
-      // Restaura Z antes do voo.
-      proto_.mutable_pos()->set_z(vd_.z_antes_voo);
-    }
     if (vd_.altura_voo > 0) {
       // Nao eh voadora e esta suspensa. Pousando.
       vd_.altura_voo -= ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
+      if (vd_.altura_voo <= 0) {
+        // Restaura Z antes do voo.
+        proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+      }
     } else {
       vd_.altura_voo = 0;
     }
@@ -350,7 +350,7 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z, proto_, vd_);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*z*/, proto_, vd_);
   if (!proto_.achatado()) {
     gl::Translada(0.0f, 0.0f, ALTURA);
   }
@@ -376,7 +376,7 @@ float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
 
 void Entidade::MontaMatriz(bool em_voo,
                            bool queda,
-                           translacaoz_e tipo_translacao_z,
+                           bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
                            const ParametrosDesenho* pd,
@@ -384,7 +384,7 @@ void Entidade::MontaMatriz(bool em_voo,
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida();
   float translacao_z = ZChao(pos.x(), pos.y());
-  if (tipo_translacao_z != TZ_NENHUMA) {
+  if (transladar_z) {
     translacao_z += proto.pos().z();
   }
   if (em_voo) {
@@ -474,7 +474,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*em_voo*/, true  /*queda*/,
-                proto_.voadora() ? TZ_NENHUMA : TZ_POS_Z_APENAS,
+                (vd_.altura_voo == 0.0f)  /*z*/,  // so desloca disco se nao estiver voando mais.
                 proto_, vd_, pd);
     MudaCor(proto_.cor());
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
@@ -494,7 +494,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 #endif
 
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
     {
       gl::MatrizEscopo salva_matriz;
@@ -535,7 +535,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::DesabilitaEscopo de(GL_LIGHTING);
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(true  /*em_voo*/, false  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z, proto_, vd_, pd);
+      MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*z*/, proto_, vd_, pd);
       gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
       gl::EsferaSolida(0.2f, 4, 2);
       gl::Translada(0.0f, 0.0f, 0.3f);
@@ -556,7 +556,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
     MudaCor(COR_AMARELA);
     if (pd->desenha_rotulo()) {
@@ -604,7 +604,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // So translada para a posicao do objeto.
     gl::Translada(X(), Y(), Z());
   } else {
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z, proto_, vd_, pd);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*z*/, proto_, vd_, pd);
   }
   // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
   Posicao vetor_camera_objeto;
