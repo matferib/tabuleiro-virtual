@@ -212,15 +212,13 @@ class Entidade {
   void DesenhaDecoracoes(ParametrosDesenho* pd);
 
   /** Auxiliar para montar a matriz de desenho do objeto.
-  * @param em_voo se verdadeiro, incluir delta de voo.
   * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
   * @param translacao_z se verdadeiro, transladar para posicao vertical do objeto.
   * @param proto da entidade.
   * @param pd os parametros de desenho.
   * @param matriz_shear se nao null, eh porque esta desenhando sombra.
   */
-  static void MontaMatriz(bool em_voo,
-                          bool queda,
+  static void MontaMatriz(bool queda,
                           bool transladar_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
