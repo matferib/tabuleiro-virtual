@@ -154,16 +154,16 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
 
-  // mantem o tipo.
-  ent::EntidadeProto copia_proto(proto_);
+  // mantem o id, posicao e destino.
+  ent::EntidadeProto proto_original(proto_);
   proto_.CopyFrom(novo_proto);
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
-  proto_.set_id(copia_proto.id());
-  proto_.mutable_pos()->Swap(copia_proto.mutable_pos());
-  if (copia_proto.has_destino()) {
-    proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
+  proto_.set_id(proto_original.id());
+  proto_.mutable_pos()->Swap(proto_original.mutable_pos());
+  if (proto_original.has_destino()) {
+    proto_.mutable_destino()->Swap(proto_original.mutable_destino());
   }
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }

@@ -1121,7 +1121,7 @@ void Tabuleiro::RefrescaMovimentosParciais() {
       Posicao pos;
       pos.set_x(e->X());
       pos.set_y(e->Y());
-      pos.set_z(ZChao(pos.x(), pos.y()));
+      pos.set_z(e->Z());
       auto* n = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
       n->mutable_entidade()->set_id(id);
       n->mutable_entidade()->mutable_destino()->CopyFrom(pos);
@@ -1134,11 +1134,18 @@ void Tabuleiro::RefrescaMovimentosParciais() {
         continue;
       }
       // Atualiza clientes quando delta passar de algum valor.
-      auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-      n->mutable_entidade()->set_id(e->Id());
-      n->mutable_entidade()->mutable_pos()->set_z(e->Z());
-      n->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
-      central_->AdicionaNotificacaoRemota(n);
+      auto* nr = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      nr->mutable_entidade()->set_id(e->Id());
+      nr->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
+      central_->AdicionaNotificacaoRemota(nr);
+      Posicao pos;
+      pos.set_x(e->X());
+      pos.set_y(e->Y());
+      pos.set_z(e->Z());
+      auto* nm = ntf::NovaNotificacao(ntf::TN_MOVER_ENTIDADE);
+      nm->mutable_entidade()->set_id(e->Id());
+      nm->mutable_entidade()->mutable_destino()->CopyFrom(pos);
+      central_->AdicionaNotificacaoRemota(nm);
     }
   }
 }
@@ -3511,12 +3518,13 @@ void Tabuleiro::TrataTranslacaoZEntidadesSelecionadas(float delta) {
     }
     // Salva para desfazer.
     auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
-    auto* e_antes = n->mutable_entidade_antes();
-    e_antes->CopyFrom(entidade_selecionada->Proto());
+    n->set_tipo(ntf::TN_MOVER_ENTIDADE);
+    auto* e = n->mutable_entidade();
+    e->set_id(entidade_selecionada->Id());
+    e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
     // Altera a translacao em Z.
     entidade_selecionada->IncrementaZ(delta);
-    n->mutable_entidade()->CopyFrom(entidade_selecionada->Proto());
+    e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
   }
   // Nop mas envia para os clientes.
   TrataNotificacao(grupo_notificacoes);
@@ -3579,7 +3587,8 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     case ntf::TN_MOVER_ENTIDADE:
       if (!n_original.entidade().has_pos() || !n_original.entidade().has_id()) {
-        LOG(ERROR) << "Impossivel inverter ntf::TN_MOVER_ENTIDADE sem a posicao original ou ID.";
+        LOG(ERROR) << "Impossivel inverter ntf::TN_MOVER_ENTIDADE sem a posicao original ou ID: "
+                   << n_original.entidade().ShortDebugString();
         break;
       }
       n_inversa.set_tipo(ntf::TN_MOVER_ENTIDADE);
