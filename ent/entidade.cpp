@@ -178,18 +178,25 @@ void Entidade::Atualiza() {
   const float DURACAO_LUZ_SEGUNDOS = 3.0f;
   const float DELTA_LUZ = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_LUZ_SEGUNDOS;
   if (proto_.has_luz()) {
-    vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI); 
+    vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
   if (proto_.voadora()) {
     if (vd_.altura_voo < ALTURA_VOO) {
+      if (vd_.altura_voo == 0.0f) {
+        vd_.angulo_disco_voo_rad = 0.0f;
+        vd_.z_antes_voo = Z();
+      }
       // Decolando, ate chegar na altura do voo.
       vd_.altura_voo += ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
-      vd_.angulo_disco_voo_rad = 0.0f;
     } else {
       // Chegou na altura do voo, flutua.
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
+    if (vd_.altura_voo >= ALTURA_VOO) {
+      // Restaura Z antes do voo.
+      proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+    }
     if (vd_.altura_voo > 0) {
       // Nao eh voadora e esta suspensa. Pousando.
       vd_.altura_voo -= ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;

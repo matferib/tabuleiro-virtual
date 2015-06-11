@@ -175,6 +175,8 @@ class Entidade {
     float angulo_disco_selecao_graus = 0.0f;
     // Qual a altura do voo da entidade.
     float altura_voo = 0.0f;
+    // Salva z antes do voo para restaurar depois.
+    float z_antes_voo = 0.0f;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
     float angulo_disco_voo_rad = 0.0f;
     // Entidades em queda caem progressivamente ate 90 graus.
