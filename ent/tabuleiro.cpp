@@ -385,7 +385,7 @@ void Tabuleiro::ConfiguraOlhar() {
       AlternaCameraPresa();
     } else {
       olho_.mutable_destino()->CopyFrom(e->Pos());
-      olho_.mutable_destino()->set_z(e->TranslacaoZ());
+      olho_.mutable_destino()->set_z(e->Z());
       AtualizaOlho(true  /*forcar*/);
     }
   }
@@ -1136,7 +1136,7 @@ void Tabuleiro::RefrescaMovimentosParciais() {
       // Atualiza clientes quando delta passar de algum valor.
       auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
       n->mutable_entidade()->set_id(e->Id());
-      n->mutable_entidade()->set_translacao_z(e->TranslacaoZ());
+      n->mutable_entidade()->mutable_pos()->set_z(e->Z());
       n->mutable_entidade()->set_rotacao_z_graus(e->RotacaoZGraus());
       central_->AdicionaNotificacaoRemota(n);
     }
@@ -1276,7 +1276,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (translacao_rotacao_ == TR_ROTACAO) {
           e->AlteraRotacaoZ(delta_x);
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
-          e->AlteraTranslacaoZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
+          e->IncrementaZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
         }
       }
       ultimo_x_ = x;
@@ -2714,7 +2714,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
       // Neste caso, usa o X para rotacao e o Z para translacao.
       translacoes_rotacoes_antes_.insert(
           std::make_pair(entidade->Id(),
-                         std::make_pair(entidade->TranslacaoZ(), entidade->RotacaoZGraus())));
+                         std::make_pair(entidade->Z(), entidade->RotacaoZGraus())));
     }
   } else {
     estado_anterior_ = estado_;
@@ -2907,11 +2907,11 @@ void Tabuleiro::FinalizaEstadoCorrente() {
           n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
           auto* e_antes = n->mutable_entidade_antes();
           e_antes->set_id(entidade->Id());
-          e_antes->set_translacao_z(translacoes_rotacoes_antes_[entidade->Id()].first);
+          e_antes->mutable_pos()->set_z(translacoes_rotacoes_antes_[entidade->Id()].first);
           e_antes->set_rotacao_z_graus(translacoes_rotacoes_antes_[entidade->Id()].second);
           // A entidade ja foi alterada durante a rotacao.
           n->mutable_entidade()->set_id(entidade->Id());
-          n->mutable_entidade()->set_translacao_z(entidade->TranslacaoZ());
+          n->mutable_entidade()->mutable_pos()->set_z(entidade->Z());
           n->mutable_entidade()->set_rotacao_z_graus(entidade->RotacaoZGraus());
         }
         // Vai ser um nop, mas envia as notificacoes para os clientes.
@@ -3515,7 +3515,7 @@ void Tabuleiro::TrataTranslacaoZEntidadesSelecionadas(float delta) {
     auto* e_antes = n->mutable_entidade_antes();
     e_antes->CopyFrom(entidade_selecionada->Proto());
     // Altera a translacao em Z.
-    entidade_selecionada->AlteraTranslacaoZ(delta);
+    entidade_selecionada->IncrementaZ(delta);
     n->mutable_entidade()->CopyFrom(entidade_selecionada->Proto());
   }
   // Nop mas envia para os clientes.
@@ -4084,7 +4084,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
         for (const auto& id_entidade_destino : entidades_) {
           const Entidade* entidade_destino = id_entidade_destino.second.get();
           Posicao pos_entidade(entidade_destino->Pos());
-          pos_entidade.set_z(pos_entidade.z() + entidade_destino->TranslacaoZ());
+          pos_entidade.set_z(pos_entidade.z() + entidade_destino->Z());
           float d2 = DistanciaQuadrado(pos_para_computar, pos_entidade);
           if (d2 <= powf(acao.raio_area() * TAMANHO_LADO_QUADRADO, 2)) {
             VLOG(1) << "Adicionando id: " << id_entidade_destino.first;

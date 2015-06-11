@@ -57,7 +57,7 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   vbo.RodaY(proto.rotacao_y_graus());
   vbo.RodaZ(proto.rotacao_z_graus());
   // Mundo.
-  vbo.Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z());
+  vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
 
   return vbo;
 }
@@ -73,7 +73,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   if (matriz_shear != nullptr) {
     gl::MultiplicaMatriz(matriz_shear);
   }
-  gl::Translada(proto.pos().x(), proto.pos().y(), proto.translacao_z() + 0.01f);
+  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
   gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0);

@@ -428,7 +428,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Translacao em Z.
-  gerador.spin_translacao->setValue(entidade.translacao_z());
+  gerador.spin_translacao->setValue(entidade.pos().z());
   // Rotacao em Y.
   gerador.dial_rotacao_y->setSliderPosition(-entidade.rotacao_y_graus() - 180.0f);
   gerador.spin_rotacao_y->setValue(entidade.rotacao_y_graus());
@@ -487,7 +487,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
-    proto_retornado->set_translacao_z(gerador.spin_translacao->value());
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
+    proto_retornado->set_translacao_z_deprecated(0);
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
@@ -633,7 +634,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Morta.
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
-  gerador.spin_translacao->setValue(entidade.translacao_z());
+  gerador.spin_translacao->setValue(entidade.pos().z());
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
@@ -719,11 +720,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
-    if (gerador.spin_translacao->value() > 0) {
-      proto_retornado->set_translacao_z(gerador.spin_translacao->value());
-    } else {
-      proto_retornado->clear_translacao_z();
-    }
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
+    proto_retornado->set_translacao_z_deprecated(0);
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.

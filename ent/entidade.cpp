@@ -57,6 +57,20 @@ Entidade::~Entidade() {
   AtualizaTexturas(dummy);
 }
 
+namespace {
+// A variavei translacao_z foi deprecada e nao devera mais ser utilizada. Esta funcao a converte para possiveis
+// modelos que venham a aparecer com ela.
+void CorrigeTranslacaoDeprecated(EntidadeProto* proto) {
+  if (proto->has_translacao_z_deprecated()) {
+    proto->mutable_pos()->set_z(proto->pos().z() + proto->translacao_z_deprecated());
+    proto->clear_translacao_z_deprecated();
+  }
+  for (auto& proto_filho : *proto->mutable_sub_forma()) {
+    CorrigeTranslacaoDeprecated(&proto_filho);
+  }
+}
+}  // namespace
+
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
   proto_.set_tipo(novo_proto.tipo());
@@ -88,6 +102,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
   // Evitar oscilacoes juntas.
   vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
+
+  CorrigeTranslacaoDeprecated(&proto_);
 }
 
 gl::VboNaoGravado Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
@@ -161,23 +177,24 @@ void Entidade::Atualiza() {
   const float DELTA_VOO = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_VOO_SEGUNDOS;
   const float DURACAO_LUZ_SEGUNDOS = 3.0f;
   const float DELTA_LUZ = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_LUZ_SEGUNDOS;
-  float z_chao = ZChao(X(), Y());
   if (proto_.has_luz()) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI); 
   }
   if (proto_.voadora()) {
-    if (Z() < z_chao + ALTURA_VOO) {
+    if (vd_.altura_voo < ALTURA_VOO) {
       // Decolando, ate chegar na altura do voo.
-      po->set_z(po->z() + ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
+      vd_.altura_voo += ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
       vd_.angulo_disco_voo_rad = 0.0f;
     } else {
       // Chegou na altura do voo, flutua.
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
-    if (Z() > z_chao) {
+    if (vd_.altura_voo > 0) {
       // Nao eh voadora e esta suspensa. Pousando.
-      po->set_z(po->z() - ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
+      vd_.altura_voo -= ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
+    } else {
+      vd_.altura_voo = 0;
     }
     vd_.angulo_disco_voo_rad = 0.0f;
   }
@@ -191,10 +208,6 @@ void Entidade::Atualiza() {
     if (vd_.angulo_disco_queda_graus > 0) {
       vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
     }
-  }
-  // Nunca fica abaixo do solo.
-  if (Z() < z_chao) {
-    po->set_z(z_chao);
   }
 
   // Daqui pra baixo, tratamento de destino.
@@ -250,8 +263,9 @@ void Entidade::Destino(const Posicao& pos) {
   proto_.mutable_destino()->CopyFrom(pos);
 }
 
-void Entidade::AlteraTranslacaoZ(float delta) {
-  proto_.set_translacao_z(proto_.translacao_z() + delta);
+void Entidade::IncrementaZ(float delta) {
+  //proto_.set_translacao_z(proto_.translacao_z() + delta);
+  proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
 }
 
 void Entidade::AlteraRotacaoZ(float delta) {
@@ -350,7 +364,7 @@ const Posicao Entidade::PosicaoAcao() const {
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
-  return vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f;
+  return vd.altura_voo + (vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f);
 }
 
 void Entidade::MontaMatriz(bool em_voo,
@@ -363,11 +377,8 @@ void Entidade::MontaMatriz(bool em_voo,
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida();
   float translacao_z = ZChao(pos.x(), pos.y());
-  if ((tipo_translacao_z & TZ_TRANSLACAO_Z_APENAS) != 0) {
-    translacao_z += proto.translacao_z();
-  }
-  if ((tipo_translacao_z & TZ_POS_Z_APENAS) != 0) {
-    translacao_z += pos.z();
+  if (tipo_translacao_z != TZ_NENHUMA) {
+    translacao_z += proto.pos().z();
   }
   if (em_voo) {
     translacao_z += DeltaVoo(vd);
@@ -455,7 +466,9 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_APENAS, proto_, vd_, pd);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/,
+                proto_.voadora() ? TZ_NENHUMA : TZ_POS_Z_APENAS,
+                proto_, vd_, pd);
     MudaCor(proto_.cor());
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);

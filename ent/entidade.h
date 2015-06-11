@@ -66,10 +66,8 @@ class Entidade {
   /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
   void Destino(const Posicao& pos);
 
-  /** Altera a translacao em Z da entidade. */
-  void AlteraTranslacaoZ(float delta_translacao);
-
-  float TranslacaoZ() const { return proto_.translacao_z(); }
+  /** Incrementa Z da entidade por um delta. */
+  void IncrementaZ(float delta_z);
 
   /** Altera a rotacao em Z da entidade. */
   void AlteraRotacaoZ(float delta_rotacao_graus);
@@ -85,7 +83,7 @@ class Entidade {
   /** @return a coordenada (y). */
   float Y() const;
 
-  /** @return a coordenada (z). Se delta == true, aplica o delta de voo se a entidade estiver voando. */
+  /** @return a coordenada (z). */
   float Z() const;
 
   /** Retorna as coordenadas do objeto como posicao. */
@@ -175,6 +173,8 @@ class Entidade {
     VariaveisDerivadas() { }
     // Como esse estado é local e não precisa ser salvo, fica aqui.
     float angulo_disco_selecao_graus = 0.0f;
+    // Qual a altura do voo da entidade.
+    float altura_voo = 0.0f;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
     float angulo_disco_voo_rad = 0.0f;
     // Entidades em queda caem progressivamente ate 90 graus.
