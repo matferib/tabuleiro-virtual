@@ -209,14 +209,31 @@ class Entidade {
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao. */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
 
+  /** Tipos de translacao Z que pode-se querer para montar a matriz.
+  * TZ_NENHUMA normalmente eh para desenhar coisas no chao.
+  * TZ_POS_Z_APENAS utiliza apenas pos.Z, nao tem utilidade.
+  * TZ_TRANSLACAO_Z_APENAS utiliza apenas a translacao Z do objeto.
+  * TZ_TRANSLACAO_Z_E_POS_Z utiliza translacao Z + pos Z.
+  */
+  // Note que TZ_TRANSLACAO_Z_E_POS_Z eh um OR das outras duas.
+  enum translacaoz_e {
+    TZ_NENHUMA = 0,
+    TZ_TRANSLACAO_Z_APENAS = 1,
+    TZ_POS_Z_APENAS = 2,
+    TZ_TRANSLACAO_Z_E_POS_Z = 3,
+  };
+
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
   * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
-  * @param transladar_z se verdadeiro, considera a translacao no eixo z.
+  * @param tipo_translacao_z ver translacaoz_e.
+  * @param proto da entidade.
+  * @param pd os parametros de desenho.
+  * @param matriz_shear se nao null, eh porque esta desenhando sombra.
   */
   static void MontaMatriz(bool em_voo,
                           bool queda,
-                          bool transladar_z,
+                          translacaoz_e tipo_translacao_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
                           const ParametrosDesenho* pd = nullptr,

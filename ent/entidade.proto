@@ -110,7 +110,8 @@ message EntidadeProto {
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.
   optional bool achatado = 17 [default=false];
-  // Posicao atual da entidade.
+  // Posicao atual da entidade. Note que o Z eh quanto a criatura esta acima da translacao. A real posicao dela
+  // esta em pos.z + translacao.z.
   optional Posicao pos = 4;
   // Para formas (exceto translacao).
   repeated Posicao ponto = 21;
@@ -118,7 +119,7 @@ message EntidadeProto {
   optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
   optional float rotacao_y_graus = 29;  // rotacao do objeto ao redor de Y em graus.
   optional float rotacao_x_graus = 33;  // rotacao do objeto ao redor de X em graus.
-  optional float translacao_z = 24;  // translacao do objeto em Z.
+  optional float translacao_z = 24;  // translacao do objeto em Z. Normalmente eh usado para colocar o objeto sobre algo.
   repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
 
   // Destino da entidade.

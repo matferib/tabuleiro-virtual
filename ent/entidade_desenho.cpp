@@ -60,7 +60,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   const auto& pos = proto.pos();
   if (!proto.has_info_textura() && !proto.has_modelo_3d()) {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(true  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z, proto, vd, pd, matriz_shear);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
     return;
   }
@@ -68,7 +68,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, false  /*tz*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(false  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_APENAS, proto, vd, pd, matriz_shear);
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
     gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
     if (pd->entidade_selecionada()) {
@@ -82,7 +82,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     if (vbo != nullptr) {
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz;
-      MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto, vd, pd, matriz_shear);
+      MontaMatriz(true  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z,proto, vd, pd, matriz_shear);
       gl::DesenhaVbo(*vbo);
       return;
     } else {
@@ -93,7 +93,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   gl::MatrizEscopo salva_matriz;
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto, vd, pd, matriz_shear);
+  MontaMatriz(true  /*em_voo*/, true  /*queda*/, TZ_TRANSLACAO_Z_E_POS_Z,proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
