@@ -49,15 +49,8 @@ class VboNaoGravado {
     tem_texturas_ = true;
   }
 
-  void AtribuiCor(float r, float g, float b, float a) {
-    for (int i = 0; i < indices_.size(); ++i) {
-      cores_.push_back(r);
-      cores_.push_back(g);
-      cores_.push_back(b);
-      cores_.push_back(a);
-    }
-    tem_cores_ = true;
-  }
+  // Atribui a mesma cor a todas coordenadas.
+  void AtribuiCor(float r, float g, float b, float a);
 
   // Concatena um vbo a outro, ajustando os indices.
   // @throw caso os objetos nao sejam compativeis.
@@ -80,7 +73,10 @@ class VboNaoGravado {
 #if WIN32 || ANDROID
     return std::string("vbo: ") + nome_;
 #else
-    return std::string("vbo: ") + nome_ + ", num indices: " + std::to_string(indices_.size());
+    return std::string("vbo: ") + nome_ + ", num indices: " + std::to_string(indices_.size()) +
+           ", cores_size: " + std::to_string(tem_cores_ ? cores_.size() : 0) +
+           ", normais_size: " + std::to_string(normais_.size()) +
+           ", coordenadas_size: " + std::to_string(coordenadas_.size());
 #endif
   }
 
@@ -144,7 +140,15 @@ class VboGravado {
     }
     return deslocamento_texturas_;
   }
-  
+
+  // Deslocamento em bytes para a primeira coordenada de cores.
+  unsigned short DeslocamentoCores() const {
+    if (!tem_cores_) {
+      throw std::logic_error(std::string("VBO '") + nome_ + "' sem cores");
+    }
+    return deslocamento_cores_;
+  }
+
   const std::vector<unsigned short> indices() const { return indices_; }
 
   GLuint nome_coordenadas() const { return nome_coordenadas_; }
