@@ -182,7 +182,7 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
 inline void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) { glNormalPointer(tipo, passo, normais);  }
-inline void PonteiroCores(GLint tam_por_coordenada, GLsizei passo, const GLvoid* cores) { glColorPointer(tam_por_coordenada, GL_FLOAT, passo, cores); }
+inline void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) { glColorPointer(num_componentes, GL_FLOAT, passo, cores); }
 #if USAR_OPENGL_ES
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 #else
@@ -340,8 +340,8 @@ void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
 /** Mudanca de cor. */
 #if !USAR_OPENGL_ES
 inline void MudaCor(float r, float g, float b, float a) {
-  GLfloat cor[4] = { r, g, b, a };
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
+  //GLfloat cor[4] = { r, g, b, a };
+  //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
 }
 #else

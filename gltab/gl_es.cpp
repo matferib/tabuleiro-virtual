@@ -494,9 +494,9 @@ void MudaCor(float r, float g, float b, float a) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
-  GLfloat cor[4] = { r, g, b, a };
+  //GLfloat cor[4] = { r, g, b, a };
   // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
+  //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
 }
 
