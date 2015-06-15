@@ -1,8 +1,10 @@
 Versao 1.9.0
+- Terminar cilindro: porque os discos nao aparecem.
+- Transparencias de vbo compostos.
 - Terminar a exportacao de formas e compostas (CORES).
 - Nevoa nao aparece na camera isometrica.
 - Regua de distancia.
-- Fazer rotacao e translacao Z serem suavizadas como destino do movimento.
+- Fazer rotacao Z ser suavizada como destino do movimento.
 - Terminar socket.
 - Sub tabuleiros.
 - Temporizar movimento, se ficar ocioso envia atualizacao de posicao tb.
