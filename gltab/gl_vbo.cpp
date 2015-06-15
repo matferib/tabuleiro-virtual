@@ -725,7 +725,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
   std::vector<float> normais(num_coordenadas);
-  std::vector<unsigned short> indices(num_coordenadas);
+  std::vector<unsigned short> indices(num_vertices);
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
   normais[2] = 1.0f;
