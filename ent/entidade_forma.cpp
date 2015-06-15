@@ -20,7 +20,15 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_CILINDRO: {
-      vbo = std::move(gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6));
+      vbo = std::move(gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/));
+      {
+        gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+        vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+        vbo.Concatena(vbo_disco);
+      }
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Translada(0.0f, 0.0f, 1.0f);
+      vbo.Concatena(vbo_disco);
     }
     break;
     case TF_CONE: {
@@ -50,8 +58,8 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
-  //const auto& c = proto.cor();
-  //vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+  const auto& c = proto.cor();
+  vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
   vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   vbo.RodaX(proto.rotacao_x_graus());
   vbo.RodaY(proto.rotacao_y_graus());
