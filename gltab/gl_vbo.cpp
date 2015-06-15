@@ -2,6 +2,7 @@
 #include <limits>
 #include "gltab/gl.h"
 #include "gltab/gl_vbo.h"
+#include "log/log.h"
 
 namespace gl {
 
@@ -90,6 +91,17 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
   }
   cores_.insert(cores_.end(), rhs.cores_.begin(), rhs.cores_.end());
   Nomeia(nome_ + "+" + rhs.nome_);
+}
+
+void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
+  int num_coordenadas = coordenadas_.size() / num_dimensoes_;
+  for (int i = 0; i < num_coordenadas; ++i) {
+    cores_.push_back(r);
+    cores_.push_back(g);
+    cores_.push_back(b);
+    cores_.push_back(a);
+  }      
+  tem_cores_ = true;
 }
 
 std::vector<float> VboNaoGravado::GeraBufferUnico(
@@ -769,6 +781,10 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<char*>(0) + vbo.DeslocamentoTexturas());
   }
+  if (vbo.tem_cores()) {
+    gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
+    gl::PonteiroCores(4, 0, static_cast<char*>(0) + vbo.DeslocamentoCores());
+  }
 
   gl::PonteiroVertices(3, GL_FLOAT, 0, (void*)0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
@@ -794,6 +810,8 @@ void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo) {
     PonteiroVerticesTexturas(2, GL_FLOAT, 0, vbo.texturas().data());
   }
   if (vbo.tem_cores()) {
+    //auto& cs = vbo.cores();
+    //LOG(INFO) << "cores: " << cs[0] << ", " << cs[1] << ", " << cs[2] << ", " << cs[3];
     HabilitaEstadoCliente(GL_COLOR_ARRAY);
     PonteiroCores(4, 0, vbo.cores().data());
   }
