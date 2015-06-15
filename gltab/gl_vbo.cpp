@@ -100,7 +100,7 @@ void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
     cores_.push_back(g);
     cores_.push_back(b);
     cores_.push_back(a);
-  }      
+  }
   tem_cores_ = true;
 }
 
@@ -721,11 +721,10 @@ VboNaoGravado VboRetangulo(GLfloat tam_lado) {
 }
 
 VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
-  unsigned short num_vertices = num_faces + 2;
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
   std::vector<float> normais(num_coordenadas);
-  std::vector<unsigned short> indices(num_vertices);
+  std::vector<unsigned short> indices;
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
   normais[2] = 1.0f;
@@ -737,8 +736,10 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
     coordenadas[i + 1] = coordenadas[i - 3] * sen_fatia + coordenadas[i - 2] * cos_fatia;
     normais[i + 2] = 1.0f;
   }
-  for (unsigned int i = 0; i < num_vertices; ++i) {
-    indices[i] = i;
+  for (unsigned int i = 0; i < num_faces; ++i) {
+    indices.push_back(0);
+    indices.push_back(i);
+    indices.push_back(i + 1);
   }
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());

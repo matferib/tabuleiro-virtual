@@ -93,7 +93,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
-      gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
+      gl::DesenhaVbo(g_vbos[VBO_DISCO]);
     }
     break;
     case TF_CILINDRO: {
