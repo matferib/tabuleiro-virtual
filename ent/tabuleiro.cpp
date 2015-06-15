@@ -1693,6 +1693,8 @@ void Tabuleiro::IniciaGL() {
   gl::Desabilita(GL_DITHER);
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
+  // Faz com que AMBIENTE e DIFFUSE sigam as cores.
+  gl::Habilita(GL_COLOR_MATERIAL);
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
