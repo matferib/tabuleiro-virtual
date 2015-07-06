@@ -18,6 +18,13 @@ bool ImprimeSeErro();
 
 namespace ent {
 
+namespace {
+// Tamanho da barra de vida.
+const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
+const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
+
+}  // namespace
+
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
   const auto& cp = proto.cor();
   float cor[4] = { cp.r(), cp.g(), cp.b(), 1.0f };
@@ -143,5 +150,208 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::Desabilita(GL_TEXTURE_2D);
   }
 }
+
+void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
+  if (proto_.tipo() != TE_ENTIDADE) {
+    // Apenas entidades tem decoracoes.
+    return;
+  }
+  if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
+    // Volta pro chao.
+    gl::MatrizEscopo salva_matriz;
+    MontaMatriz(true  /*queda*/,
+                (vd_.altura_voo == 0.0f)  /*z*/,  // so desloca disco se nao estiver voando mais.
+                proto_, vd_, pd);
+    MudaCor(proto_.cor());
+    gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
+  }
+  // Desenha a barra de vida.
+  if (pd->desenha_barra_vida()) {
+#if 0
+    // Codigo para iluminar barra de vida.
+    gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
+    // Luz no olho apontando para a barra.
+    const Posicao& pos_olho = pd->pos_olho();
+    gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
+    const auto& pos = proto_.pos();
+    GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
+    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+#endif
+
+    gl::MatrizEscopo salva_matriz;
+    MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
+    {
+      gl::MatrizEscopo salva_matriz;
+      gl::Escala(0.2f, 0.2f, 1.0f);
+      MudaCor(COR_VERMELHA);
+      gl::CuboSolido(TAMANHO_BARRA_VIDA);
+    }
+    if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
+      float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
+      float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
+      float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
+      gl::Translada(0, 0, delta);
+      gl::Escala(0.3f, 0.3f, porcentagem);
+      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
+      gl::DesvioProfundidade(0, -25.0);
+      MudaCor(COR_VERDE);
+      gl::CuboSolido(TAMANHO_BARRA_VIDA);
+    }
+  }
+
+  if (pd->desenha_eventos_entidades()) {
+    bool ha_evento = false;
+    std::string descricao;
+    int num_descricoes = 0;
+    for (auto& e : *proto_.mutable_evento()) {
+      if (e.rodadas() == 0) {
+        ha_evento = true;
+        if (!e.descricao().empty()) {
+          descricao += e.descricao() + "\n";
+          ++num_descricoes;
+        }
+      }
+    }
+    if (ha_evento) {
+      // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
+      gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
+      gl::CarregaNome(Id());
+      gl::DesabilitaEscopo de(GL_LIGHTING);
+      MudaCor(COR_AMARELA);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::EsferaSolida(0.2f, 4, 2);
+      gl::Translada(0.0f, 0.0f, 0.3f);
+      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
+      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
+      gl::EsferaSolida(0.2f, 4, 2);
+      // Descricao (so quando nao for picking).
+      if (!pd->has_picking_x() && !descricao.empty()) {
+        int l, a;
+        gl::TamanhoFonte(&l, &a);
+        gl::Translada(0.0f, 0.0f, 0.4f);
+        gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+        gl::DesenhaString(descricao, true  /*inverte vertical*/);
+      }
+    }
+  }
+
+  if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
+    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+    gl::MatrizEscopo salva_matriz;
+    MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
+    MudaCor(COR_AMARELA);
+    if (pd->desenha_rotulo()) {
+      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+      gl::DesenhaString(proto_.rotulo());
+    }
+    if (pd->desenha_rotulo_especial()) {
+      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
+      std::string rotulo;
+      for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
+        rotulo += std::string("\n") + rotulo_especial;
+      }
+      if (proto_.proxima_salvacao() != RS_FALHOU) {
+        rotulo += "\nprox. salv.: ";
+        switch (proto_.proxima_salvacao()) {
+          case RS_MEIO:
+            rotulo += "1/2";
+            break;
+          case RS_QUARTO:
+            rotulo += "1/4";
+            break;
+          case RS_ANULOU:
+            rotulo += "ANULA";
+            break;
+          default:
+            rotulo += "VALOR INVALIDO";
+        }
+      }
+      gl::DesenhaString(rotulo);
+    }
+  }
+}
+
+void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
+  if (!pd->iluminacao() || !proto_.has_luz()) {
+    return;
+  }
+  if (!proto_.visivel() && !pd->modo_mestre()) {
+    return;
+  }
+
+  bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
+  gl::MatrizEscopo salva_matriz;
+  if (achatado) {
+    // So translada para a posicao do objeto.
+    gl::Translada(X(), Y(), Z());
+  } else {
+    MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
+  }
+  // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
+  Posicao vetor_camera_objeto;
+  ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
+  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
+
+  // Um para direcao da camera para luz iluminar o proprio objeto.
+  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+
+  int id_luz = pd->luz_corrente();
+  if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
+    LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
+  } else {
+    // Objeto de luz. O quarto componente indica que a luz é posicional.
+    // Se for 0, a luz é direcional e os componentes indicam sua direção.
+    GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
+    gl::Luz(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
+    const ent::Cor& cor = proto_.luz().cor();
+    GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
+    gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f + sinf(vd_.angulo_disco_luz_rad) * 0.1);
+    gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
+    gl::Habilita(GL_LIGHT0 + id_luz);
+    pd->set_luz_corrente(id_luz + 1);
+  }
+}
+
+void Entidade::DesenhaAura(ParametrosDesenho* pd) {
+  if (!proto_.visivel() && !pd->modo_mestre()) {
+    return;
+  }
+  if (!pd->desenha_aura() || !proto_.has_aura() || proto_.aura() == 0) {
+    return;
+  }
+  gl::MatrizEscopo salva_matriz;
+  gl::Translada(X(), Y(), Z() + DeltaVoo(vd_));
+  const auto& cor = proto_.cor();
+  gl::MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
+  float ent_quadrados = MultiplicadorTamanho();
+  if (ent_quadrados < 1.0f) {
+    ent_quadrados = 1.0f;
+  }
+  // A aura estende alem do tamanho da entidade.
+  gl::EsferaSolida(
+      TAMANHO_LADO_QUADRADO_2 * ent_quadrados + TAMANHO_LADO_QUADRADO * proto_.aura(),
+      NUM_FACES, NUM_FACES);
+}
+
+void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
+  if (!proto_.visivel() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
+    return;
+  }
+  gl::Habilita(GL_POLYGON_OFFSET_FILL);
+  gl::DesvioProfundidade(-1.0f, -60.0f);
+  DesenhaObjeto(pd, matriz_shear);
+  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
+}
+
+float Entidade::MultiplicadorTamanho() const {
+  return CalculaMultiplicador(proto_.tamanho());
+}
+
 
 }  // namespace ent
