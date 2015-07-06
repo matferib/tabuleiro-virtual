@@ -526,8 +526,9 @@ namespace interno {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
-  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-  gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
+  // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 
