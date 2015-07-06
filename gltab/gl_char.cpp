@@ -73,6 +73,13 @@ const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres
       Q(I(4, 2), I(6, 2), I(6, 7), I(4, 7)),  // SN
     },
   }, {
+    '^', {
+      Q(I(1, 4), I(3, 4) ,I(6, 9), I(4, 9)) ,  // W
+      Q(I(6, 9), I(4, 9), I(7, 4), I(9, 4)),   // E
+      //I(2, 6), I(5, 7), I(5, 9),
+      //I(5, 7), I(8, 6), I(5, 9),
+    },
+  }, {
     '<', {
       Q(I(1, 3), I(4, 3), I(4, 4), I(1, 4)),  // Meio
       Q(I(1, 3), I(9, 1), I(9, 2), I(4, 3)),  // S
