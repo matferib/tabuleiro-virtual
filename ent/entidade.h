@@ -208,7 +208,7 @@ class Entidade {
   /** Realiza o desenho do objeto. */
   void DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
-  /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao. */
+  /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao). */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
 
   /** Auxiliar para montar a matriz de desenho do objeto.

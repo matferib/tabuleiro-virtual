@@ -2280,6 +2280,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                    (proto_.nevoa().distancia_maxima() - proto_.nevoa().distancia_minima()) * 0.7f;
     limite_quad = pow(limite, 2);
   }
+  //LOG(INFO) << "LOOP";
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
     if (entidade == nullptr) {
@@ -2307,6 +2308,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
     parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
+    //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
   }
   parametros_desenho_.set_entidade_selecionada(false);
