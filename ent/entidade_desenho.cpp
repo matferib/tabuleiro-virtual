@@ -25,6 +25,7 @@ const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 
 }  // namespace
 
+// Eh usada em outros arquivos tambem.
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
   const auto& cp = proto.cor();
   float cor[4] = { cp.r(), cp.g(), cp.b(), 1.0f };
@@ -39,6 +40,46 @@ void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
   }
   MudaCorAlfa(cor);
 }
+
+void Entidade::Desenha(ParametrosDesenho* pd) {
+  if (!proto_.visivel() || proto_.cor().a() < 1.0f) {
+    // Sera desenhado translucido.
+    return;
+  }
+  DesenhaObjetoComDecoracoes(pd);
+}
+
+void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
+  if (proto_.visivel()) {
+    // Visivel so eh desenhado aqui se a cor for transparente e mesmo assim,
+    // nos casos de picking para os jogadores, so se a unidade for selecionavel.
+    if (proto_.cor().a() == 1.0f ||
+        (pd->has_picking_x() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador())) {
+      return;
+    }
+  } else {
+    // Invisivel, so desenha para o mestre independente da cor (sera translucido).
+    // Para jogador desenha se for selecionavel.
+    if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
+      return;
+    }
+  }
+  DesenhaObjetoComDecoracoes(pd);
+}
+
+void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
+  DesenhaObjetoProto(proto_, vd_, pd, matriz_shear);
+}
+
+void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
+  gl::CarregaNome(Id());
+  // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
+  gl::Habilita(GL_NORMALIZE);
+  DesenhaObjeto(pd);
+  DesenhaDecoracoes(pd);
+  gl::Desabilita(GL_NORMALIZE);
+}
+
 
 void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {
   DesenhaObjetoProto(proto, VariaveisDerivadas(), pd, matriz_shear);
@@ -156,6 +197,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     // Apenas entidades tem decoracoes.
     return;
   }
+  // Disco da entidade.
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
@@ -166,6 +208,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
     DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
   }
+
   // Desenha a barra de vida.
   if (pd->desenha_barra_vida()) {
 #if 0
@@ -201,6 +244,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
+  // Eventos.
   if (pd->desenha_eventos_entidades()) {
     bool ha_evento = false;
     std::string descricao;
@@ -239,6 +283,14 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
+  // Efeitos.
+  if (pd->desenha_efeitos_entidades()) {
+    static ComplementoEfeito dummy;
+    for (const auto& efeito : proto_.evento()) {
+      DesenhaEfeito(pd, efeito, dummy);
+    }
+  }
+
   if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
@@ -273,6 +325,67 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       }
       gl::DesenhaString(rotulo);
     }
+  }
+}
+
+// static
+Entidade::efeitos_e Entidade::StringParaEfeito(const std::string& s) {
+  static std::unordered_map<std::string, efeitos_e> mapa = {
+    { "borrar", EFEITO_BORRAR },
+    { "reflexos", EFEITO_REFLEXOS },
+  };
+  const auto& ret = mapa.find(s);
+  return ret == mapa.end() ? EFEITO_INVALIDO : ret->second;
+}
+
+void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& efeito_proto, const ComplementoEfeito& complemento) {
+  efeitos_e efeito = StringParaEfeito(efeito_proto.descricao()); 
+  if (efeito == EFEITO_INVALIDO) {
+    return;
+  }
+  switch (efeito) {
+    case EFEITO_BORRAR: {
+      // Desenha a entidade maior e translucida.
+      gl::MatrizEscopo salva_matriz;
+      bool tem_alfa = pd->has_alfa_translucidos();
+      if (!tem_alfa) {
+        pd->set_alfa_translucidos(0.5f);
+      }
+      auto* escala_efeito = pd->mutable_escala_efeito();
+      escala_efeito->set_x(1.2);
+      escala_efeito->set_y(1.2);
+      escala_efeito->set_z(1.2);
+      DesenhaObjetoProto(proto_, vd_, pd, nullptr);
+      if (!tem_alfa) {
+        pd->clear_alfa_translucidos();
+      }
+      pd->clear_escala_efeito();
+    }
+    break;
+    case EFEITO_REFLEXOS: {
+      // Desenha a entidade maior e translucida.
+      gl::MatrizEscopo salva_matriz;
+      bool tem_alfa = pd->has_alfa_translucidos();
+      if (!tem_alfa) {
+        pd->set_alfa_translucidos(0.5f);
+      }
+      // TODO colocar o numero certo por complemento.
+      const int num_imagens = efeito_proto.has_complemento() ? efeito_proto.complemento() : 3;
+      const float inc_angulo_graus = 360.0 / num_imagens;
+      for (int i = 0; i < num_imagens; ++i) {
+        pd->mutable_rotacao_efeito()->set_z(i * inc_angulo_graus);
+        pd->mutable_translacao_efeito()->set_x(1.0f);
+        DesenhaObjetoProto(proto_, vd_, pd, nullptr);
+      }
+      if (!tem_alfa) {
+        pd->clear_alfa_translucidos();
+      }
+      pd->clear_rotacao_efeito();
+      pd->clear_translacao_efeito();
+    }
+    break;
+    default:
+      ;
   }
 }
 

@@ -160,6 +160,7 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
+    optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;
 }
@@ -200,6 +201,10 @@ message ParametrosDesenho {
   optional bool modo_mestre = 14 [default=true];
   // Alfa para translucidos.
   optional float alfa_translucidos = 15 [default=0.5];
+  // Alguns efeitos usam escala e translacao pos transformacoes para desenharem. Sao aplicados na ordem que aparecem abaixo.
+  optional Posicao escala_efeito = 50;
+  optional Posicao rotacao_efeito = 51;  // nesse caso, o angulo esta no eixo.
+  optional Posicao translacao_efeito = 52;
   // Caso verdadeiro, a textura sempre ficara de frente para a camera.
   optional bool texturas_sempre_de_frente = 16 [default=true];
   // Posicao do olho.
@@ -238,6 +243,8 @@ message ParametrosDesenho {
   optional bool desenha_rotulo_especial = 34 [default=false];
   // Desenha sinalizacao de eventos.
   optional bool desenha_eventos_entidades = 35 [default=true];
+  // Efeitos das entidades.
+  optional bool desenha_efeitos_entidades = 36 [default=true];
 }
 
 // Para copiar e colar.

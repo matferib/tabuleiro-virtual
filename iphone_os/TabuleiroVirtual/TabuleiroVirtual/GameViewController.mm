@@ -318,6 +318,11 @@ const int TAG_BOTAO_CANCELA = 101;
     std::string eventos_str;
     for (const auto& evento : n.entidade().evento()) {
       eventos_str.append(evento.descricao());
+      if (evento.has_complemento()) {
+        eventos_str.append(" (");
+        eventos_str.append(std::to_string(evento.complemento()));
+        eventos_str.append(") ");
+      }
       eventos_str.append(": ");
       eventos_str.append(std::to_string(evento.rodadas()) + "\n");
     }
@@ -376,16 +381,22 @@ const int TAG_BOTAO_CANCELA = 101;
         notificacao_->mutable_entidade()->clear_evento();
         // Break string.
         for (NSString* str in [eventos_str componentsSeparatedByString:@"\n"]) {
-          NSArray* desc_rodadas = [str componentsSeparatedByString:@":"];
-          if ([desc_rodadas count] != 2) {
+          NSArray* desc_rodadas = [str componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@":()"]];
+          if ([[str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] == 0 || [desc_rodadas count] == 0) {
             continue;
           }
           ent::EntidadeProto_Evento evento;
           std::string evento_str(
-              [[[desc_rodadas firstObject]
-                  stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
-                      cStringUsingEncoding:NSUTF8StringEncoding]);
+                                 [[[desc_rodadas firstObject]
+                                   stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                                  cStringUsingEncoding:NSUTF8StringEncoding]);
           evento.set_descricao(evento_str);
+          for (int i = 1; i < [desc_rodadas count] - 1; ++i) {
+            // encontra o elemento nao vazio
+            if ([[desc_rodadas[i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] > 0) {
+              evento.set_complemento([desc_rodadas[i] intValue]);
+            }
+          }
           evento.set_rodadas([[desc_rodadas lastObject] intValue]);
           notificacao_->mutable_entidade()->add_evento()->Swap(&evento);
         }

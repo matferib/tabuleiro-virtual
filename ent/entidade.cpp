@@ -168,6 +168,8 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
 void Entidade::Atualiza() {
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+  // Efeitos.
+
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL = 1.0f;
   const float DURACAO_VOO_SEGUNDOS = 4.0f;
@@ -417,45 +419,24 @@ void Entidade::MontaMatriz(bool queda,
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
   gl::Escala(multiplicador, multiplicador, multiplicador);
-}
-
-void Entidade::Desenha(ParametrosDesenho* pd) {
-  if (!proto_.visivel() || proto_.cor().a() < 1.0f) {
-    // Sera desenhado translucido.
-    return;
+  if (pd->has_escala_efeito()) {
+    const auto& ee = pd->escala_efeito();
+    gl::Escala(ee.x(), ee.y(), ee.z());
   }
-  DesenhaObjetoComDecoracoes(pd);
-}
-
-void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
-  if (proto_.visivel()) {
-    // Visivel so eh desenhado aqui se a cor for transparente e mesmo assim,
-    // nos casos de picking para os jogadores, so se a unidade for selecionavel.
-    if (proto_.cor().a() == 1.0f ||
-        (pd->has_picking_x() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador())) {
-      return;
-    }
-  } else {
-    // Invisivel, so desenha para o mestre independente da cor (sera translucido).
-    // Para jogador desenha se for selecionavel.
-    if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
-      return;
+  if (pd->has_rotacao_efeito()) {
+    const auto& re = pd->rotacao_efeito();
+    if (re.has_x()) {
+      gl::Roda(re.x(), 1.0f, 0.0f, 0.0f);
+    } else if (re.has_y()) {
+      gl::Roda(re.y(), 0.0f, 1.0f, 0.0f);
+    } else if (re.has_z()) {
+      gl::Roda(re.z(), 0.0f, 0.0f, 1.0f);
     }
   }
-  DesenhaObjetoComDecoracoes(pd);
-}
-
-void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
-  DesenhaObjetoProto(proto_, vd_, pd, matriz_shear);
-}
-
-void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
-  gl::CarregaNome(Id());
-  // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
-  gl::Habilita(GL_NORMALIZE);
-  DesenhaObjeto(pd);
-  DesenhaDecoracoes(pd);
-  gl::Desabilita(GL_NORMALIZE);
+  if (pd->has_translacao_efeito()) {
+    const auto& te = pd->translacao_efeito();
+    gl::Translada(te.x(), te.y(), te.z());
+  }
 }
 
 void Entidade::AtualizaProximaSalvacao(ResultadoSalvacao rs) {

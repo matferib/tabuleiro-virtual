@@ -555,7 +555,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Eventos entidades.
   std::string eventos;
   for (const auto& evento : entidade.evento()) {
-    eventos += evento.descricao() + ": " + net::to_string(evento.rodadas()) + "\n";
+    eventos += evento.descricao();
+    if (evento.has_complemento()) {
+      eventos += " (";
+      eventos += net::to_string(evento.complemento());
+      eventos += ")";
+    }
+    eventos += ": " + net::to_string(evento.rodadas()) + "\n";
   }
   gerador.lista_eventos->appendPlainText(eventos.c_str());
 
@@ -664,7 +670,23 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
         LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
         continue;
       }
-      evento.set_descricao(desc_rodadas_quebrado[0].trimmed().toStdString());
+      // Se tiver complemento, quebra tambem.
+      QStringList descricao_quebrada = desc_rodadas_quebrado[0].split("(", QString::SkipEmptyParts);
+      if (descricao_quebrada.empty()) {
+        evento.set_descricao("");
+      } else {
+        evento.set_descricao(descricao_quebrada[0].trimmed().toStdString());
+        if (descricao_quebrada.size() > 1) {
+          QStringList complemento_quebrado = descricao_quebrada[1].split(")");
+          if (!complemento_quebrado.empty()) {
+            bool ok = false;
+            evento.set_complemento(complemento_quebrado[0].toInt(&ok));
+            if (!ok) {
+              evento.clear_complemento();
+            }
+          }
+        }
+      }
       bool ok = false;
       evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
       if (!ok) {
