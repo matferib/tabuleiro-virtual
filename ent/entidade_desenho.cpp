@@ -50,27 +50,35 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
     return;
   }
   DesenhaObjetoComDecoracoes(pd);
+  DesenhaEfeitos(pd);
 }
 
 void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   if (vd_.nao_desenhar && !pd->has_picking_x()) {
     return;
   }
+  bool desenhar_objeto = true;
   if (proto_.visivel()) {
     // Visivel so eh desenhado aqui se a cor for transparente e mesmo assim,
     // nos casos de picking para os jogadores, so se a unidade for selecionavel.
     if (proto_.cor().a() == 1.0f ||
         (pd->has_picking_x() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador())) {
-      return;
+      desenhar_objeto = false;
     }
   } else {
     // Invisivel, so desenha para o mestre independente da cor (sera translucido).
     // Para jogador desenha se for selecionavel.
     if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
-      return;
+      desenhar_objeto = false;
     }
   }
-  DesenhaObjetoComDecoracoes(pd);
+  // Os efeitos translucidos devem ser desenhados independente do objeto ter cor solida.
+  if (desenhar_objeto || (proto_.visivel() && proto_.cor().a() == 1.0f)) {
+    DesenhaEfeitos(pd);
+  }
+  if (desenhar_objeto) {
+    DesenhaObjetoComDecoracoes(pd);
+  }
 }
 
 void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
@@ -291,12 +299,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 
   // Efeitos.
   if (pd->desenha_efeitos_entidades()) {
-    for (const auto& efeito : proto_.evento()) {
-      if (!efeito.has_id_efeito() || efeito.id_efeito() == EFEITO_INVALIDO) {
-        continue;
-      }
-      DesenhaEfeito(pd, efeito, vd_.complementos_efeitos[efeito.id_efeito()]);
-    }
+    DesenhaEfeitos(pd);
   }
 
   if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
@@ -336,6 +339,15 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
 }
 
+void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
+  for (const auto& efeito : proto_.evento()) {
+    if (!efeito.has_id_efeito() || efeito.id_efeito() == EFEITO_INVALIDO) {
+      continue;
+    }
+    DesenhaEfeito(pd, efeito, vd_.complementos_efeitos[efeito.id_efeito()]);
+  }
+}
+
 void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& efeito_proto, const ComplementoEfeito& complemento) {
   efeitos_e efeito = static_cast<efeitos_e>(efeito_proto.id_efeito());
   if (efeito == EFEITO_INVALIDO) {
@@ -343,6 +355,9 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
   }
   switch (efeito) {
     case EFEITO_BORRAR: {
+      if (!pd->has_alfa_translucidos()) {
+        return;
+      }
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz;
       bool tem_alfa = pd->has_alfa_translucidos();
@@ -361,6 +376,9 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     }
     break;
     case EFEITO_REFLEXOS: {
+      if (!pd->has_alfa_translucidos()) {
+        return;
+      }
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz;
       bool tem_alfa = pd->has_alfa_translucidos();

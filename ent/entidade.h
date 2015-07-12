@@ -228,6 +228,10 @@ class Entidade {
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao). */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
 
+  /** Desenha os efeitos do objeto. Sera chamado uma vez para solido e outra para translucido. Cada efeito devera
+  * saber o que e quando desenhar (usando pd->alfa_translucidos para diferenciar).
+  */
+  void DesenhaEfeitos(ParametrosDesenho* pd);
   /** Desenha o efeito de uma entidade. */
   void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
 
