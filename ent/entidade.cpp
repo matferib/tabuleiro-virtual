@@ -226,11 +226,13 @@ void Entidade::Atualiza() {
     }
   } else {
     if (vd_.altura_voo > 0) {
-      // Nao eh voadora e esta suspensa. Pousando.
-      vd_.altura_voo -= ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
-      if (vd_.altura_voo <= 0) {
-        // Restaura Z antes do voo.
+      const float DECREMENTO = ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
+      if (Z() > vd_.z_antes_voo) {
+        proto_.mutable_pos()->set_z(Z() - DECREMENTO);
+      } else {
         proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+        // Nao eh voadora e esta suspensa. Pousando.
+        vd_.altura_voo -= DECREMENTO;
       }
     } else {
       vd_.altura_voo = 0;
