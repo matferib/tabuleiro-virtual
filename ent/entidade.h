@@ -3,6 +3,7 @@
 
 #include <unordered_map>
 #include "ent/entidade.pb.h"
+#include "ent/util.h"
 #include "gltab/gl_vbo.h"
 #include "m3d/m3d.h"
 
@@ -169,16 +170,9 @@ class Entidade {
   constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10;
   static std::vector<gl::VboGravado> g_vbos;
 
-  // Tipos de efeitos possiveis.
-  enum efeitos_e {
-    EFEITO_INVALIDO = -1,
-    EFEITO_BORRAR = 0,
-    EFEITO_REFLEXOS = 1,  // complemento: numero de imagens.
-  };
-
   // Alguns efeitos tem complementos.
   struct ComplementoEfeito {
-    int quantidade;  // quantidade de imagens, por exemplo.
+    int quantidade = 0;  // quantidade de imagens, por exemplo.
     std::vector<float> posicoes;
   };
 
@@ -198,19 +192,22 @@ class Entidade {
     // Oscilacao da luz.
     float angulo_disco_luz_rad = 0.0f;
     // Efeitos da criatura e algum complemento.
-    std::unordered_map<int, std::unique_ptr<ComplementoEfeito>> efeitos;
+    std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
+    // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
+    bool nao_desenhar = false;
 
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
     const m3d::Modelos3d* m3d = nullptr;
   };
 
-  /** Converte uma string para um tipo de efeito. */
-  static efeitos_e StringParaEfeito(const std::string& s);
-
   // Extracao de VBO por tipo.
   static gl::VboNaoGravado ExtraiVboForma(const ent::EntidadeProto& proto);
   static gl::VboNaoGravado ExtraiVboComposta(const ent::EntidadeProto& proto);
+
+  /** Atualiza os efeitos para o frame. */
+  void AtualizaEfeitos();
+  void AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complemento);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);

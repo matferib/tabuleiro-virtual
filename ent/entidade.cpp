@@ -165,11 +165,44 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
+void Entidade::AtualizaEfeitos() {
+  // Efeitos.
+  vd_.nao_desenhar = false;
+  std::unordered_set<int> a_remover;
+  for (auto& efeito_vd : vd_.complementos_efeitos) {
+    a_remover.insert(efeito_vd.first);
+  }
+  for (const auto& evento : proto_.evento()) {
+    if (!evento.has_id_efeito()) {
+      continue;
+    }
+    AtualizaEfeito(static_cast<efeitos_e>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
+    a_remover.erase(evento.id_efeito());
+  }
+  for (const auto& id_remocao : a_remover) {
+    vd_.complementos_efeitos.erase(id_remocao);
+  }
+}
+
+void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complemento) {
+  switch (id_efeito) {
+    case EFEITO_PISCAR:
+      if (++complemento->quantidade >= 40) {
+        vd_.nao_desenhar = true;
+        if (complemento->quantidade >= 60) {
+          complemento->quantidade = 0;
+        }
+      }
+      break;
+    default:
+      ;
+  }
+}
+
 void Entidade::Atualiza() {
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
-  // Efeitos.
-
+  AtualizaEfeitos();
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL = 1.0f;
   const float DURACAO_VOO_SEGUNDOS = 4.0f;

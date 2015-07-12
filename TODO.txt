@@ -1,4 +1,5 @@
 Versao 1.9.0
+- UI de entidade para android.
 - Outros eventos, animacoes de eventos.
 - Transparencias de vbo compostos.
 - Terminar a exportacao de formas e compostas (CORES).

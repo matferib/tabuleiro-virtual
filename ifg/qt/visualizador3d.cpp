@@ -14,6 +14,7 @@
 
 #include "arq/arquivo.h"
 #include "ent/tabuleiro.h"
+#include "ent/util.h"
 #include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/ui/entidade.h"
@@ -689,6 +690,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       }
       bool ok = false;
       evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
+      ent::efeitos_e id_efeito = ent::StringParaEfeito(evento.descricao());
+      if (id_efeito != ent::EFEITO_INVALIDO) {
+        evento.set_id_efeito(id_efeito);
+      }
       if (!ok) {
         continue;
       }

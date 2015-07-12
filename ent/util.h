@@ -104,6 +104,17 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 /** Posicionamento do raster em 2d. */
 void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
 
+// Tipos de efeitos possiveis.
+enum efeitos_e {
+  EFEITO_INVALIDO = -1,
+  EFEITO_BORRAR = 0,
+  EFEITO_REFLEXOS = 1,  // complemento: numero de imagens.
+  EFEITO_PISCAR = 2,  
+};
+
+/** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
+efeitos_e StringParaEfeito(const std::string& s);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

@@ -7,6 +7,7 @@
 #include <google/protobuf/repeated_field.h>
 #include <stdexcept>
 #include <random>
+#include <unordered_map>
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
@@ -431,6 +432,16 @@ void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
   gl::CarregaIdentidade();
   gl::PosicaoRaster(x, y);
+}
+
+efeitos_e StringParaEfeito(const std::string& s) {
+  static std::unordered_map<std::string, efeitos_e> mapa = {
+    { "borrar", EFEITO_BORRAR },
+    { "reflexos", EFEITO_REFLEXOS },
+    { "piscar", EFEITO_PISCAR },
+  };
+  const auto& ret = mapa.find(s);
+  return ret == mapa.end() ? EFEITO_INVALIDO : ret->second;
 }
 
 }  // namespace ent

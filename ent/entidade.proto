@@ -160,6 +160,7 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
+    optional int32 id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. Ids validos em nt/util.h. 
     optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;

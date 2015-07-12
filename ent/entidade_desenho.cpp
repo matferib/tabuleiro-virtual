@@ -42,6 +42,9 @@ void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd) {
 }
 
 void Entidade::Desenha(ParametrosDesenho* pd) {
+  if (vd_.nao_desenhar && !pd->has_picking_x()) {
+    return;
+  }
   if (!proto_.visivel() || proto_.cor().a() < 1.0f) {
     // Sera desenhado translucido.
     return;
@@ -50,6 +53,9 @@ void Entidade::Desenha(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
+  if (vd_.nao_desenhar && !pd->has_picking_x()) {
+    return;
+  }
   if (proto_.visivel()) {
     // Visivel so eh desenhado aqui se a cor for transparente e mesmo assim,
     // nos casos de picking para os jogadores, so se a unidade for selecionavel.
@@ -285,9 +291,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 
   // Efeitos.
   if (pd->desenha_efeitos_entidades()) {
-    static ComplementoEfeito dummy;
     for (const auto& efeito : proto_.evento()) {
-      DesenhaEfeito(pd, efeito, dummy);
+      if (!efeito.has_id_efeito() || efeito.id_efeito() == EFEITO_INVALIDO) {
+        continue;
+      }
+      DesenhaEfeito(pd, efeito, vd_.complementos_efeitos[efeito.id_efeito()]);
     }
   }
 
@@ -328,18 +336,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
 }
 
-// static
-Entidade::efeitos_e Entidade::StringParaEfeito(const std::string& s) {
-  static std::unordered_map<std::string, efeitos_e> mapa = {
-    { "borrar", EFEITO_BORRAR },
-    { "reflexos", EFEITO_REFLEXOS },
-  };
-  const auto& ret = mapa.find(s);
-  return ret == mapa.end() ? EFEITO_INVALIDO : ret->second;
-}
-
 void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& efeito_proto, const ComplementoEfeito& complemento) {
-  efeitos_e efeito = StringParaEfeito(efeito_proto.descricao()); 
+  efeitos_e efeito = static_cast<efeitos_e>(efeito_proto.id_efeito());
   if (efeito == EFEITO_INVALIDO) {
     return;
   }
@@ -453,6 +451,9 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
+  if (vd_.nao_desenhar && !pd->has_picking_x()) {
+    return;
+  }
   if (!proto_.visivel() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
     return;
   }
