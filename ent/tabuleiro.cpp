@@ -4262,14 +4262,14 @@ void Tabuleiro::PassaUmaRodadaNotificando() {
     proto_antes.mutable_evento()->CopyFrom(entidade->Proto().evento());
     // Novo proto.
     proto_depois.set_id(id_entidade.first);
-    for (const auto& e : entidade->Proto().evento()) {
-      int rodadas = e.rodadas();
+    for (const auto& evento_antes : entidade->Proto().evento()) {
+      int rodadas = evento_antes.rodadas();
       if (rodadas > 0) {
         --rodadas;
       }
       auto* evento_depois = proto_depois.add_evento();
+      *evento_depois = evento_antes;
       evento_depois->set_rodadas(rodadas);
-      evento_depois->set_descricao(e.descricao());
     }
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
