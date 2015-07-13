@@ -35,40 +35,55 @@ class ReceptorErro : public ntf::Receptor {
   void setEnvThisz(JNIEnv* env, jobject thisz) { env_ = env; thisz_ = thisz; }
 
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override {
-    if (notificacao.tipo() != ntf::TN_ERRO && notificacao.tipo() != ntf::TN_INFO) {
-      return true;
-    }
-    if (notificacao.tipo() == ntf::TN_ERRO) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", notificacao.erro().c_str());
-    }
-    if (notificacao.tipo() == ntf::TN_INFO) {
-      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "%s", notificacao.erro().c_str());
-    }
     if (env_ == nullptr) {
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "env invalido");
       return true;
     }
-    jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroRenderer");
-    if (classe == nullptr) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "classe invalida");
-      return true;
+    try {
+      switch (notificacao.tipo()) {
+        case ntf::TN_ERRO:
+        case ntf::TN_INFO:
+          TrataNotificacaoInfoErro(notificacao);
+          break;
+        case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
+          break;
+        default:
+          return false;
+      }
+    } catch (const std::exception& e) {
+      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", e.what());
     }
-    jmethodID metodo = env_->GetMethodID(classe, "mensagem", "(ZLjava/lang/String;)V");
-    if (metodo == nullptr) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "metodo invalido");
-      return true;
-    }
-    jstring msg = env_->NewStringUTF(notificacao.erro().c_str());
-    if (msg == nullptr) {
-      __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "%s", "String de msg nullptr");
-      return true;
-    }
-    env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
-    env_->DeleteLocalRef(msg);
     return true;
   }
 
  private:
+  jmethodID Metodo(const char* nome_metodo, const char* assinatura_metodo) {
+    jclass classe = env_->FindClass("com/matferib/Tabuleiro/TabuleiroRenderer");
+    if (classe == nullptr) {
+      throw std::logic_error("classe invalida");
+    }
+    jmethodID metodo = env_->GetMethodID(classe, "mensagem", "(ZLjava/lang/String;)V");
+    if (metodo == nullptr) {
+      throw std::logic_error("metodo invalido");
+    }
+    return metodo;
+  }
+
+  void TrataNotificacaoInfoErro(const ntf::Notificacao& notificacao) {
+    if (notificacao.tipo() == ntf::TN_ERRO) {
+      __android_log_print(
+          notificacao.tipo() == ntf::TN_ERRO ? ANDROID_LOG_ERROR : ANDROID_LOG_INFO,
+          "Tabuleiro", "%s", notificacao.erro().c_str());
+    }
+    jmethodID metodo = Metodo("mensagem", "(ZLjava/lang/String;)V");
+    jstring msg = env_->NewStringUTF(notificacao.erro().c_str());
+    if (msg == nullptr) {
+      throw std::logic_error("falha alocando string de mensagem");
+    }
+    env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
+    env_->DeleteLocalRef(msg);
+  }
+
   JNIEnv* env_ = nullptr;
   jobject thisz_ = nullptr;
 };

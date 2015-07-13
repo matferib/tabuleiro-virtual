@@ -16,7 +16,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <unistd.h>
-#define VLOG_NIVEL 1
+//#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/socket.h"
 #include "net/util.h"
@@ -134,7 +134,7 @@ struct Sincronizador::Interno {
 
   // TCP.
   void EnfileiraDadosEnvioTcp(DadosParaEnviarTcp* dtcp) {
-    ScopedPrint sp("EnfileiraDadosEnvioTcp");
+    //ScopedPrint sp("EnfileiraDadosEnvioTcp");
     {
       std::lock_guard<std::recursive_mutex> lock(mutex_);
       a_enviar_tcp_.push(std::unique_ptr<DadosParaEnviarTcp>(dtcp));
@@ -143,7 +143,7 @@ struct Sincronizador::Interno {
   }
 
   void EnfileiraDadosRecepcaoTcp(DadosParaReceberTcp* dtcp) {
-    ScopedPrint sp("EnfileiraDadosRecepcaoTcp");
+    //ScopedPrint sp("EnfileiraDadosRecepcaoTcp");
     {
       std::lock_guard<std::recursive_mutex> lock(mutex_);
       sockets_tcp_.insert(std::make_pair(dtcp->desc, std::unique_ptr<DadosParaReceberTcp>(dtcp)));
@@ -153,7 +153,7 @@ struct Sincronizador::Interno {
 
   // UDP.
   void EnfileiraDadosRecepcaoUdp(DadosParaReceberUdp* dudp) {
-    ScopedPrint sp("EnfileiraDadosRecepcaoUdp");
+    //ScopedPrint sp("EnfileiraDadosRecepcaoUdp");
     {
       std::lock_guard<std::recursive_mutex> lock(mutex_);
       sockets_udp_.insert(std::make_pair(dudp->desc, std::unique_ptr<DadosParaReceberUdp>(dudp)));
@@ -500,7 +500,7 @@ void Sincronizador::Interno::Loop(Interno* thiz) {
   std::unique_lock<std::recursive_mutex> ulock(thiz->mutex_);
   while (!thiz->terminar_) {
     thiz->cond_.wait_for(ulock, std::chrono::milliseconds(20));
-    ScopedPrint sp("Loop");
+    //ScopedPrint sp("Loop");
     LoopRecepcaoUdp(thiz);
     LoopRecepcaoTcp(thiz);
     LoopEnvioTcp(thiz);
