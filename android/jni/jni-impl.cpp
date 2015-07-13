@@ -46,6 +46,7 @@ class ReceptorErro : public ntf::Receptor {
           TrataNotificacaoInfoErro(notificacao);
           break;
         case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
+          TrataNotificacaoAbrirDialogoEntidade(notificacao);
           break;
         default:
           return false;
@@ -62,7 +63,7 @@ class ReceptorErro : public ntf::Receptor {
     if (classe == nullptr) {
       throw std::logic_error("classe invalida");
     }
-    jmethodID metodo = env_->GetMethodID(classe, "mensagem", "(ZLjava/lang/String;)V");
+    jmethodID metodo = env_->GetMethodID(classe, nome_metodo, assinatura_metodo);
     if (metodo == nullptr) {
       throw std::logic_error("metodo invalido");
     }
@@ -82,6 +83,15 @@ class ReceptorErro : public ntf::Receptor {
     }
     env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
     env_->DeleteLocalRef(msg);
+  }
+
+  void TrataNotificacaoAbrirDialogoEntidade(const ntf::Notificacao& notificacao) {
+    jmethodID metodo = Metodo("abreDialogoEntidade", "([B)V");
+    const std::string nstr = notificacao.entidade().SerializeAsString();
+    jbyteArray java_nstr = env_->NewByteArray(nstr.size());
+    env_->SetByteArrayRegion(java_nstr, 0, nstr.size(), (const jbyte*)nstr.c_str());
+    env_->CallVoidMethod(thisz_, metodo, java_nstr);
+    env_->DeleteLocalRef(java_nstr);
   }
 
   JNIEnv* env_ = nullptr;

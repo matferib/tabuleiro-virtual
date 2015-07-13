@@ -1,6 +1,7 @@
 import "ent/entidade.proto";
 
 package ent;
+option java_package = "com.matferib.Tabuleiro.ent";
 
 message IluminacaoDirecional {
   // Cor da luz ambiente.

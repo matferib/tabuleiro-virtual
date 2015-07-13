@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ScaleGestureDetector;
@@ -30,6 +31,9 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.widget.EditText;
+import com.squareup.wire.Wire;
+import com.matferib.Tabuleiro.ent.EntidadeProto;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
 public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener,
@@ -318,6 +322,57 @@ class TabuleiroRenderer
         });
         AlertDialog caixa = builder.create();
         caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        caixa.show();
+      }
+    });
+  }
+
+  /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
+  public void abreDialogoEntidade(final byte[] mensagem) {
+    //Log.d(TAG, "abreDialogoEntidade: ");
+    Wire wire = new Wire();
+    final EntidadeProto proto;
+    try {
+      proto = wire.parseFrom(mensagem, EntidadeProto.class);
+    } catch (Exception e) {
+      Log.e(TAG, "Falha deserializando mensagem: " + e.getMessage());
+      return;
+    }
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Entidade");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_entidade, null);
+        // Preenche campos.
+        EditText max_pv = (EditText)view.findViewById(R.id.max_pontos_vida);
+        if (max_pv == null) {
+          Log.e(TAG, "max_pv null");
+          return;
+        }
+        EditText pv = (EditText)view.findViewById(R.id.pontos_vida);
+        if (pv == null) {
+          Log.e(TAG, "pv_null");
+          return;
+        }
+        max_pv.setText(String.valueOf(proto.max_pontos_vida));
+        pv.setText(String.valueOf(proto.pontos_vida));
+
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
         caixa.show();
       }
     });

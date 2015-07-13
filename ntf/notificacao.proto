@@ -3,6 +3,7 @@ import "ent/entidade.proto";
 import "ent/tabuleiro.proto";
 
 package ntf;
+option java_package = "com.matferib.Tabuleiro.ntf";
 
 enum Tipo {
   TN_SAIR = 1;

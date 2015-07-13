@@ -1,4 +1,5 @@
 package ent;
+option java_package = "com.matferib.Tabuleiro.ent";
 
 enum TipoEntidade {
   TE_ENTIDADE = 0;

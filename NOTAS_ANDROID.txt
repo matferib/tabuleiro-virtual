@@ -111,6 +111,21 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
 - Analisar:
 ${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
 
+==========================
+Protocol buffer in Android
+==========================
+
+Baixar wire compiler (prot enxuto). https://github.com/square/wire
+java -jar wire-compiler/target/wire-compiler-VERSION-jar-with-dependencies.jar \
+  --java_out=java_out caminho/para/proto.
+
+Mover os protos gerados para src/com/matferib/Tabuleiro/.
+
+Baixar runtime:
+wire https://github.com/square/wire/blob/master/README.md
+okio: https://github.com/square/okio/blob/master/README.md
+
+Coloca-los no diretorio libs do android.
 
 ===========
  Problemas
