@@ -663,42 +663,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
-    QStringList lista_eventos = gerador.lista_eventos->toPlainText().split("\n", QString::SkipEmptyParts);
-    for (const auto& desc_rodadas : lista_eventos) {
-      ent::EntidadeProto_Evento evento;
-      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::KeepEmptyParts);
-      if (desc_rodadas_quebrado.size() != 2) {
-        LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
-        continue;
-      }
-      // Se tiver complemento, quebra tambem.
-      QStringList descricao_quebrada = desc_rodadas_quebrado[0].split("(", QString::SkipEmptyParts);
-      if (descricao_quebrada.empty()) {
-        evento.set_descricao("");
-      } else {
-        evento.set_descricao(descricao_quebrada[0].trimmed().toStdString());
-        if (descricao_quebrada.size() > 1) {
-          QStringList complemento_quebrado = descricao_quebrada[1].split(")");
-          if (!complemento_quebrado.empty()) {
-            bool ok = false;
-            evento.set_complemento(complemento_quebrado[0].toInt(&ok));
-            if (!ok) {
-              evento.clear_complemento();
-            }
-          }
-        }
-      }
-      bool ok = false;
-      evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
-      ent::efeitos_e id_efeito = ent::StringParaEfeito(evento.descricao());
-      if (id_efeito != ent::EFEITO_INVALIDO) {
-        evento.set_id_efeito(id_efeito);
-      }
-      if (!ok) {
-        continue;
-      }
-      proto_retornado->add_evento()->Swap(&evento);
-    }
+    google::protobuf::RepeatedPtrField<ent::EntidadeProto::Evento> eventos = ent::LeEventos(gerador.lista_eventos->toPlainText().toStdString());
+    proto_retornado->mutable_evento()->Swap(&eventos);
 
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());

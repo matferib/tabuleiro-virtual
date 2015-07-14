@@ -3,4 +3,5 @@
     <string name="app_name">Tabuleiro</string>
     <string name="max_pontos_vida">Max Pontos Vida</string>
     <string name="pontos_vida">Pontos Vida</string>
+    <string name="eventos">Eventos</string>
 </resources>

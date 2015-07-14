@@ -344,26 +344,44 @@ class TabuleiroRenderer
         // Preenche campos.
         final EditText max_pv = (EditText)view.findViewById(R.id.max_pontos_vida);
         if (max_pv == null) {
-          Log.e(TAG, "max_pv null");
+          Log.e(TAG, "max_pv == null");
           return;
         }
         final EditText pv = (EditText)view.findViewById(R.id.pontos_vida);
         if (pv == null) {
-          Log.e(TAG, "pv_null");
+          Log.e(TAG, "pv == null");
+          return;
+        }
+        final EditText eventos = (EditText)view.findViewById(R.id.eventos);
+        if (eventos == null) {
+          Log.e(TAG, "eventos == null");
           return;
         }
         max_pv.setText(String.valueOf(proto.max_pontos_vida));
         pv.setText(String.valueOf(proto.pontos_vida));
+        String evento_str = new String();
+        for (EntidadeProto.Evento e : proto.evento) {
+          evento_str += e.descricao;
+          if (e.complemento != null) {
+            evento_str += " (" + String.valueOf(e.complemento) + ")";
+          }
+          evento_str += ": " + String.valueOf(e.rodadas) + "\n";
+        }
+        eventos.setText(evento_str);
 
         // Termina a janela de dialogo.
         builder.setView(view)
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
               try {
+                // Hack: eventos sera todos colocados em uma string e decodificados no codigo nativo.
+                Vector<EntidadeProto.Evento> evento_hack = new Vector<EntidadeProto.Evento>();
+                evento_hack.add(new EntidadeProto.Evento(0, eventos.getText().toString(), 0, 0));
                 EntidadeProto proto_modificado = new EntidadeProto.Builder()
                     .id(proto.id)
                     .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
                     .pontos_vida(Integer.parseInt(pv.getText().toString()))
+                    .evento(evento_hack)
                     .build();
                 Log.d(TAG, "OK proto: " + proto_modificado.toString());
                 nativeUpdateEntity(proto_modificado.toByteArray());

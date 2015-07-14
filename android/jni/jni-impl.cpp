@@ -11,6 +11,7 @@
 #include "arq/arquivo.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
+#include "ent/util.h"
 #include "ifg/tecladomouse.h"
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"
@@ -297,6 +298,13 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   env->GetByteArrayRegion(mensagem, 0, tam_mensagem, (jbyte*)&mensagem_str[0]);
   auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
   n->mutable_entidade()->ParseFromString(mensagem_str);
+  // Desfaz o hack de eventos
+  auto evento_deshackeado(ent::LeEventos(n->entidade().evento(0).descricao()));
+  if (evento_deshackeado.size() == 0) {
+    // Dummy sem rodadas so pra atualizacao parcial entender que eh pra limpar.
+    evento_deshackeado.Add();
+  }
+  n->mutable_entidade()->mutable_evento()->Swap(&evento_deshackeado);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Proto: %s", n->DebugString().c_str());
   g_central->AdicionaNotificacao(n);
 }
