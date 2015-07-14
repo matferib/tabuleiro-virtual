@@ -699,11 +699,17 @@ void Tabuleiro::AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notif
     VLOG(1) << "Entidade '" << notificacao.entidade().id() << "' invalida para notificacao de atualizacao parcial";
     return;
   }
-  entidade->AtualizaParcial(notificacao.entidade());
   if (notificacao.local()) {
     auto* n_remota = new ntf::Notificacao(notificacao);
     central_->AdicionaNotificacaoRemota(n_remota);
+    // Para desfazer. O if eh so uma otimizacao de performance, pois a funcao AdicionaNotificacaoListaEventos faz o mesmo.
+    if (!processando_grupo_ && !ignorar_lista_eventos_) {
+      ntf::Notificacao n_desfazer(notificacao);
+      n_desfazer.mutable_entidade_antes()->CopyFrom(entidade->Proto());
+      AdicionaNotificacaoListaEventos(n_desfazer);
+    }
   }
+  entidade->AtualizaParcial(notificacao.entidade());
 }
 
 void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id_entidade, int delta_pontos_vida) {
