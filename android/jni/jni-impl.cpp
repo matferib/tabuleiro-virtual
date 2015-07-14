@@ -289,4 +289,16 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobj
   g_central->Notifica();
 }
 
+// Atualizacao de entidade.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* env, jobject thiz, jbyteArray mensagem) {
+  int tam_mensagem = env->GetArrayLength(mensagem);
+  std::string mensagem_str;
+  mensagem_str.resize(tam_mensagem);
+  env->GetByteArrayRegion(mensagem, 0, tam_mensagem, (jbyte*)&mensagem_str[0]);
+  auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  n->mutable_entidade()->ParseFromString(mensagem_str);
+  __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Proto: %s", n->DebugString().c_str());
+  g_central->AdicionaNotificacao(n);
+}
+
 }  // extern "C"

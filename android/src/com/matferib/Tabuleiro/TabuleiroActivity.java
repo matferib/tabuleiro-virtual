@@ -346,12 +346,12 @@ class TabuleiroRenderer
         LayoutInflater inflater = activity_.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialogo_entidade, null);
         // Preenche campos.
-        EditText max_pv = (EditText)view.findViewById(R.id.max_pontos_vida);
+        final EditText max_pv = (EditText)view.findViewById(R.id.max_pontos_vida);
         if (max_pv == null) {
           Log.e(TAG, "max_pv null");
           return;
         }
-        EditText pv = (EditText)view.findViewById(R.id.pontos_vida);
+        final EditText pv = (EditText)view.findViewById(R.id.pontos_vida);
         if (pv == null) {
           Log.e(TAG, "pv_null");
           return;
@@ -363,7 +363,17 @@ class TabuleiroRenderer
         builder.setView(view)
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-              dialog.dismiss();
+              try {
+                EntidadeProto proto_modificado = new EntidadeProto.Builder()
+                    .id(proto.id)
+                    .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
+                    .pontos_vida(Integer.parseInt(pv.getText().toString()))
+                    .build();
+                Log.d(TAG, "OK proto: " + proto_modificado.toString());
+                nativeUpdateEntity(proto_modificado.toByteArray());
+                dialog.dismiss();
+              } catch (Exception e) {
+              }
             }
           })
           .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
@@ -750,6 +760,7 @@ class TabuleiroRenderer
   private static native void nativeTilt(float delta);
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
+  private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;
   private GLSurfaceView parent_;
