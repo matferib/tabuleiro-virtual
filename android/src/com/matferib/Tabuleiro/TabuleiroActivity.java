@@ -36,14 +36,12 @@ import com.squareup.wire.Wire;
 import com.matferib.Tabuleiro.ent.EntidadeProto;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
-public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener,
-                                                           View.OnSystemUiVisibilityChangeListener {
+public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    Log.d("TabuleiroActivity", "onCreate");
     super.onCreate(savedInstanceState);
+    Log.d("TabuleiroActivity", "onCreate");
     view_ = new TabuleiroSurfaceView(this);
-    view_.setOnFocusChangeListener(this);
     view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
     nativeCreate(
@@ -58,28 +56,26 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
     Log.d("TabuleiroActivity", "hideUi");
     if (Build.VERSION.SDK_INT >= 19) {
       Log.d("TabuleiroActivity", "hideUiInside");
-      getWindow().getDecorView().setSystemUiVisibility(
-          View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-          | View.SYSTEM_UI_FLAG_FULLSCREEN
-          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-    }
-  }
-
-  @Override
-  public void onFocusChange(View v, boolean hasFocus) {
-    Log.d("TabuleiroActivity", "onFocusChanged: " + hasFocus);
-    if (hasFocus) {
-      hideUi();
+      // Por causa de algum bug bizarro do android, tem que esperar um pouquinho para mudar a visibilidade
+      // da barra do sistema.
+      view_.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+      }, 500);
     }
   }
 
   @Override
   public void onSystemUiVisibilityChange(int visibility) {
-    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
-    hideUi();
+    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange: " + visibility/*, new Exception()*/);
   }
 
   @Override
