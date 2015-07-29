@@ -454,11 +454,11 @@ void Entidade::MontaMatriz(bool queda,
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
   gl::Escala(multiplicador, multiplicador, multiplicador);
-  if (pd->has_escala_efeito()) {
+  if (pd != nullptr && pd->has_escala_efeito()) {
     const auto& ee = pd->escala_efeito();
     gl::Escala(ee.x(), ee.y(), ee.z());
   }
-  if (pd->has_rotacao_efeito()) {
+  if (pd != nullptr && pd->has_rotacao_efeito()) {
     const auto& re = pd->rotacao_efeito();
     if (re.has_x()) {
       gl::Roda(re.x(), 1.0f, 0.0f, 0.0f);
@@ -468,7 +468,7 @@ void Entidade::MontaMatriz(bool queda,
       gl::Roda(re.z(), 0.0f, 0.0f, 1.0f);
     }
   }
-  if (pd->has_translacao_efeito()) {
+  if (pd != nullptr && pd->has_translacao_efeito()) {
     const auto& te = pd->translacao_efeito();
     gl::Translada(te.x(), te.y(), te.z());
   }
