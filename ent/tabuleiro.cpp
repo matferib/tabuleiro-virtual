@@ -356,6 +356,7 @@ void Tabuleiro::EstadoInicial() {
   tempos_renderizacao_.clear();
   // Modo de acao.
   modo_acao_ = false;
+  cenario_corrente_ = -1;
   if (gl_iniciado_) {
     RegeraVboTabuleiro();
   }
@@ -2293,6 +2294,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       LOG(ERROR) << "Entidade nao existe.";
       continue;
     }
+    if (entidade->Pos().id_cenario() != cenario_corrente_) {
+      continue;
+    }
     if (sombra && proto_.has_nevoa()) {
       // Distancia para camera. So desenha se estiver fora da nevoa.
       float distancia_quad = pow(entidade->X() - olho_.pos().x(), 2) +
@@ -3274,6 +3278,10 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+}
+
+void Tabuleiro::CarregaCenario(int id_cenario) {
+  cenario_corrente_ = id_cenario;
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {

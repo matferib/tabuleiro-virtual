@@ -332,6 +332,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna a camera presa a entidade. */
   void AlternaCameraPresa();
 
+  /** Carrega um cenario do tabuleiro.
+  * @param id do cenario. -1 para principal.
+  */
+  void CarregaCenario(int id);
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
@@ -746,6 +751,9 @@ class Tabuleiro : public ntf::Receptor {
   // TODO VBO dessas coisas aqui em cima.
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
+
+  // Sub cenarios. -1 para o principal.
+  int cenario_corrente_ = -1;
 
   bool gl_iniciado_ = false;
 

@@ -43,6 +43,7 @@ message Posicao {
   optional float x = 3;
   optional float y = 4;
   optional float z = 5;
+  optional int32 id_cenario = 6 [default=-1];
 }
 
 message Cor {
