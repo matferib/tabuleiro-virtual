@@ -1,6 +1,4 @@
 Versao 1.9.0
-- Fix da UI quando o teclado aparece no dialogo.
-- UI de entidade para android: fazer o caminho de volta apos edicao do jogador.
 - Efeitos para mestre.
 - Outros eventos, animacoes de eventos.
 - Transparencias de vbo compostos.
