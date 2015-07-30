@@ -281,9 +281,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
-    //case Tecla_M:
+    case Tecla_M: {
+      static int id = 0;
+      tabuleiro_->CarregaCenario((++id  % 2) - 1);
     //  tabuleiro_->AlternaModoMestre();
-    //  return;
+      return;
+    }
     case Tecla_P: {
       auto* n = ntf::NovaNotificacao(ntf::TN_PASSAR_UMA_RODADA);
       central_->AdicionaNotificacao(n);

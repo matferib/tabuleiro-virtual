@@ -302,10 +302,10 @@ Tabuleiro::~Tabuleiro() {
 }
 
 void Tabuleiro::LiberaTextura() {
-  if (proto_.has_info_textura()) {
-    VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
+  if (proto_corrente_->has_info_textura()) {
+    VLOG(2) << "Liberando textura: " << proto_corrente_->info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->add_info_textura()->set_id(proto_.info_textura().id());
+    nl->add_info_textura()->set_id(proto_corrente_->info_textura().id());
     central_->AdicionaNotificacao(nl);
   }
 }
@@ -314,17 +314,10 @@ void Tabuleiro::EstadoInicial() {
   // Proto do tabuleiro.
   LiberaTextura();
   proto_.Clear();
-  // Iluminacao ambiente inicial.
-  proto_.mutable_luz_ambiente()->set_r(0.5f);
-  proto_.mutable_luz_ambiente()->set_g(0.5f);
-  proto_.mutable_luz_ambiente()->set_b(0.5f);
-  // Iluminacao direcional inicial.
-  proto_.mutable_luz_direcional()->mutable_cor()->set_r(0.5f);
-  proto_.mutable_luz_direcional()->mutable_cor()->set_g(0.5f);
-  proto_.mutable_luz_direcional()->mutable_cor()->set_b(0.5f);
-  // Vinda de 45 graus leste.
-  proto_.mutable_luz_direcional()->set_posicao_graus(0.0f);
-  proto_.mutable_luz_direcional()->set_inclinacao_graus(45.0f);
+  cenario_corrente_ = -1;
+  proto_corrente_ = &proto_;
+  // Iluminacao.
+  ReiniciaIluminacao();
   // Olho.
   ReiniciaCamera();
 
@@ -356,7 +349,6 @@ void Tabuleiro::EstadoInicial() {
   tempos_renderizacao_.clear();
   // Modo de acao.
   modo_acao_ = false;
-  cenario_corrente_ = -1;
   if (gl_iniciado_) {
     RegeraVboTabuleiro();
   }
@@ -460,6 +452,9 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         modelo.mutable_pos()->set_x(x);
         modelo.mutable_pos()->set_y(y);
         modelo.mutable_pos()->set_z(z);
+        modelo.mutable_pos()->set_id_cenario(cenario_corrente_);
+      } else {
+        modelo.mutable_pos()->set_id_cenario(cenario_corrente_);
       }
       unsigned int id_entidade = GeraIdEntidade(id_cliente_);
       if (processando_grupo_) {
@@ -1819,10 +1814,10 @@ void Tabuleiro::DesenhaCena() {
   gl::IniciaNomes();
 
   gl::Habilita(GL_DEPTH_TEST);
-  gl::CorLimpeza(proto_.luz_ambiente().r(),
-                 proto_.luz_ambiente().g(),
-                 proto_.luz_ambiente().b(),
-                 proto_.luz_ambiente().a());
+  gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
+                 proto_corrente_->luz_ambiente().g(),
+                 proto_corrente_->luz_ambiente().b(),
+                 proto_corrente_->luz_ambiente().a());
   gl::Limpa(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -1847,7 +1842,7 @@ void Tabuleiro::DesenhaCena() {
   }
 
   //ceu_.desenha(parametros_desenho_);
-  if (!parametros_desenho_.has_picking_x() && parametros_desenho_.desenha_texturas() && proto_.has_info_textura_ceu()) {
+  if (!parametros_desenho_.has_picking_x() && parametros_desenho_.desenha_texturas() && proto_corrente_->has_info_textura_ceu()) {
     DesenhaCaixaCeu();
   }
 
@@ -1857,7 +1852,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaTabuleiro();
     if (parametros_desenho_.desenha_grade() &&
         opcoes_.desenha_grade() &&
-        (proto_.desenha_grade() || (!VisaoMestre() && proto_.textura_mestre_apenas()))) {
+        (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
@@ -1900,8 +1895,8 @@ void Tabuleiro::DesenhaCena() {
 
   // Sombras.
   if (parametros_desenho_.desenha_sombras() &&
-      proto_.luz_direcional().inclinacao_graus() > 5.0 &&
-      proto_.luz_direcional().inclinacao_graus() < 180.0f) {
+      proto_corrente_->luz_direcional().inclinacao_graus() > 5.0 &&
+      proto_corrente_->luz_direcional().inclinacao_graus() < 180.0f) {
     bool desenha_texturas = parametros_desenho_.desenha_texturas();
     parametros_desenho_.set_desenha_texturas(false);
     DesenhaSombras();
@@ -2012,14 +2007,13 @@ void Tabuleiro::GeraVboCaixaCeu() {
 
 void Tabuleiro::RegeraVboTabuleiro() {
   // TODO quando limpar essa flag.
-  // TODO limite de tamanho de tabuleiro.
   indices_tabuleiro_.clear();
   vertices_tabuleiro_.resize(TamanhoY() * TamanhoX() * 4 * 2);  // 4 vertices por quadrado, cada um dois pontos.
   unsigned short indice = 0;
   float x = 0, y = 0;
   float tamanho_texel_h;
   float tamanho_texel_v;
-  if (proto_.ladrilho()) {
+  if (proto_corrente_->ladrilho()) {
     tamanho_texel_h = 1.0f;
     tamanho_texel_v = 1.0f;
   } else {
@@ -2031,7 +2025,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
       LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoX() << "x" << TamanhoY();
       break;
     }
-    float inicio_texel_v = proto_.ladrilho() ? 0.0f : (TamanhoY() - y_tab) * tamanho_texel_v;
+    float inicio_texel_v = proto_corrente_->ladrilho() ? 0.0f : (TamanhoY() - y_tab) * tamanho_texel_v;
     float inicio_texel_h = 0.0f;
     for (int x_tab = 0; x_tab < TamanhoX(); ++x_tab) {
       if (indice + 4 > USHRT_MAX) {
@@ -2063,7 +2057,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
       indices_tabuleiro_.push_back(indice + 3);
       indice += 4;
       x += TAMANHO_LADO_QUADRADO;
-      if (!proto_.ladrilho()) {
+      if (!proto_corrente_->ladrilho()) {
         inicio_texel_h += tamanho_texel_h;
       }
     }
@@ -2225,7 +2219,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   // TODO transformar offsets em constantes.
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(2.0f, 20.0f);
-  MudaCor(proto_.has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
+  MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
                 parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
@@ -2234,9 +2228,9 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_);
   gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)0);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
-                      proto_.has_info_textura() &&
-                      (!proto_.textura_mestre_apenas() || VisaoMestre()) ?
-      texturas_->Textura(proto_.info_textura().id()) : GL_INVALID_VALUE;
+                      proto_corrente_->has_info_textura() &&
+                      (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
+      texturas_->Textura(proto_corrente_->info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
@@ -2257,7 +2251,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 
   // Desenha quadrado selecionado.
-  if (quadrado_selecionado_ != -1 && proto_.desenha_grade()) {
+  if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade()) {
     //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
     const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
@@ -2464,9 +2458,9 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
 }
 
 void Tabuleiro::DesenhaSombras() {
-  const float kAnguloInclinacao = proto_.luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
-  const float kAnguloPosicao = proto_.luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
-  float fator_shear = proto_.luz_direcional().inclinacao_graus() == 90.0f ?
+  const float kAnguloInclinacao = proto_corrente_->luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
+  const float kAnguloPosicao = proto_corrente_->luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
+  float fator_shear = proto_corrente_->luz_direcional().inclinacao_graus() == 90.0f ?
       0.0f : 1.0f / tanf(kAnguloInclinacao);
   // A sombra nao pode ser totalmente solida..
   float alfa_sombra = std::min(0.5f, sinf(kAnguloInclinacao));
@@ -3087,22 +3081,22 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
   tabuleiro->set_id_cliente(id_cliente_);
-  tabuleiro->mutable_luz_ambiente()->CopyFrom(proto_.luz_ambiente());
-  tabuleiro->mutable_luz_direcional()->CopyFrom(proto_.luz_direcional());
-  if (proto_.has_info_textura()) {
-    tabuleiro->mutable_info_textura()->CopyFrom(proto_.info_textura());
-    tabuleiro->set_ladrilho(proto_.ladrilho());
-    tabuleiro->set_textura_mestre_apenas(proto_.textura_mestre_apenas());
+  tabuleiro->mutable_luz_ambiente()->CopyFrom(proto_corrente_->luz_ambiente());
+  tabuleiro->mutable_luz_direcional()->CopyFrom(proto_corrente_->luz_direcional());
+  if (proto_corrente_->has_info_textura()) {
+    tabuleiro->mutable_info_textura()->CopyFrom(proto_corrente_->info_textura());
+    tabuleiro->set_ladrilho(proto_corrente_->ladrilho());
+    tabuleiro->set_textura_mestre_apenas(proto_corrente_->textura_mestre_apenas());
   }
-  if (proto_.has_info_textura_ceu()) {
-    tabuleiro->mutable_info_textura_ceu()->CopyFrom(proto_.info_textura_ceu());
+  if (proto_corrente_->has_info_textura_ceu()) {
+    tabuleiro->mutable_info_textura_ceu()->CopyFrom(proto_corrente_->info_textura_ceu());
   }
-  if (proto_.has_nevoa()) {
-    tabuleiro->mutable_nevoa()->CopyFrom(proto_.nevoa());
+  if (proto_corrente_->has_nevoa()) {
+    tabuleiro->mutable_nevoa()->CopyFrom(proto_corrente_->nevoa());
   }
-  tabuleiro->set_largura(proto_.largura());
-  tabuleiro->set_altura(proto_.altura());
-  tabuleiro->set_desenha_grade(proto_.desenha_grade());
+  tabuleiro->set_largura(proto_corrente_->largura());
+  tabuleiro->set_altura(proto_corrente_->altura());
+  tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
   return notificacao;
 }
 
@@ -3114,15 +3108,15 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
 
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
-  proto_.mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
-  proto_.mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
-  proto_.set_largura(novo_proto.largura());
-  proto_.set_altura(novo_proto.altura());
-  proto_.set_desenha_grade(novo_proto.desenha_grade());
+  proto_corrente_->mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
+  proto_corrente_->mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
+  proto_corrente_->set_largura(novo_proto.largura());
+  proto_corrente_->set_altura(novo_proto.altura());
+  proto_corrente_->set_desenha_grade(novo_proto.desenha_grade());
   if (novo_proto.has_nevoa()) {
-    proto_.mutable_nevoa()->CopyFrom(novo_proto.nevoa());
+    proto_corrente_->mutable_nevoa()->CopyFrom(novo_proto.nevoa());
   } else {
-    proto_.clear_nevoa();
+    proto_corrente_->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
   RegeraVboTabuleiro();
@@ -3134,9 +3128,16 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     notificacao->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
     auto* t = notificacao->mutable_tabuleiro();
     t->CopyFrom(proto_);
-    if (t->info_textura().has_bits_crus()) {
-      // Serializa apenas os bits crus.
-      t->mutable_info_textura()->clear_deprecated_bits();
+    std::vector<TabuleiroProto*> cenarios;
+    cenarios.push_back(t);
+    for (auto& sub_cenario : *t->mutable_sub_cenario()) {
+      cenarios.push_back(&sub_cenario);
+    }
+    for (auto* cenario : cenarios) {
+      if (cenario->info_textura().has_bits_crus()) {
+        // Serializa apenas os bits crus.
+        cenario->mutable_info_textura()->clear_deprecated_bits();
+      }
     }
     t->clear_entidade();  // As entidades vem do mapa de entidades.
     for (const auto& id_ent : entidades_) {
@@ -3282,6 +3283,29 @@ void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
 
 void Tabuleiro::CarregaCenario(int id_cenario) {
   cenario_corrente_ = id_cenario;
+  TabuleiroProto* cenario = nullptr;
+  if (id_cenario != -1) {
+    // Algum sub cenario.
+    for (auto& sub_cenario : *proto_.mutable_sub_cenario()) {
+      if (sub_cenario.id_cenario() == id_cenario) {
+        cenario = &sub_cenario;
+        break;
+      }
+    }
+    if (cenario == nullptr) {
+      // Cria o cenario.
+      cenario = proto_.add_sub_cenario();
+      cenario->set_id_cenario(id_cenario);
+      proto_corrente_ = cenario;  // para reiniciar iluminacao.
+      ReiniciaIluminacao();
+    }
+  } else {
+    // Cenario principal.
+    cenario = &proto_;
+  }
+  DeselecionaEntidades();
+  proto_corrente_ = cenario;
+  RegeraVboTabuleiro();
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -3853,27 +3877,27 @@ bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
 
 void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   if (ent::AtualizaTexturas(novo_proto.has_info_textura(), novo_proto.info_textura(),
-                            proto_.has_info_textura(), proto_.mutable_info_textura(),
+                            proto_corrente_->has_info_textura(), proto_corrente_->mutable_info_textura(),
                             central_)) {
-    proto_.set_ladrilho(novo_proto.ladrilho());
-    proto_.set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
+    proto_corrente_->set_ladrilho(novo_proto.ladrilho());
+    proto_corrente_->set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
   } else {
-    proto_.clear_info_textura();
-    proto_.clear_ladrilho();
-    proto_.clear_textura_mestre_apenas();
+    proto_corrente_->clear_info_textura();
+    proto_corrente_->clear_ladrilho();
+    proto_corrente_->clear_textura_mestre_apenas();
   }
   if (!ent::AtualizaTexturas(novo_proto.has_info_textura_ceu(), novo_proto.info_textura_ceu(),
-                             proto_.has_info_textura_ceu(), proto_.mutable_info_textura_ceu(),
+                             proto_corrente_->has_info_textura_ceu(), proto_corrente_->mutable_info_textura_ceu(),
                              central_)) {
-    proto_.clear_info_textura_ceu();
+    proto_corrente_->clear_info_textura_ceu();
   }
 }
 
 void Tabuleiro::DesenhaLuzes() {
-  GLfloat cor_luz_ambiente[] = { proto_.luz_ambiente().r(),
-                                 proto_.luz_ambiente().g(),
-                                 proto_.luz_ambiente().b(),
-                                 proto_.luz_ambiente().a()};
+  GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
+                                 proto_corrente_->luz_ambiente().g(),
+                                 proto_corrente_->luz_ambiente().b(),
+                                 proto_corrente_->luz_ambiente().a()};
   if (VisaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
     // Adiciona luz pro mestre ver melhor.
     cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
@@ -3888,24 +3912,24 @@ void Tabuleiro::DesenhaLuzes() {
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-    gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+    gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
   }
   // A cor da luz direcional.
-  GLfloat cor_luz[] = { proto_.luz_direcional().cor().r(),
-                        proto_.luz_direcional().cor().g(),
-                        proto_.luz_direcional().cor().b(),
-                        proto_.luz_direcional().cor().a() };
+  GLfloat cor_luz[] = { proto_corrente_->luz_direcional().cor().r(),
+                        proto_corrente_->luz_direcional().cor().g(),
+                        proto_corrente_->luz_direcional().cor().b(),
+                        proto_corrente_->luz_direcional().cor().a() };
   gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
   gl::Habilita(GL_LIGHT0);
 
-  if (parametros_desenho_.desenha_nevoa() && proto_.has_nevoa() &&
+  if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
     gl::ModoNevoa(GL_LINEAR);
-    gl::Nevoa(GL_FOG_START, proto_.nevoa().distancia_minima());
-    gl::Nevoa(GL_FOG_END, proto_.nevoa().distancia_maxima());
+    gl::Nevoa(GL_FOG_START, proto_corrente_->nevoa().distancia_minima());
+    gl::Nevoa(GL_FOG_END, proto_corrente_->nevoa().distancia_maxima());
     gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
   } else {
     gl::Desabilita(GL_FOG);
@@ -3919,7 +3943,7 @@ void Tabuleiro::DesenhaLuzes() {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
-  GLuint id_textura = texturas_->Textura(proto_.info_textura_ceu().id());
+  GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
   if (id_textura == GL_INVALID_VALUE) {
     // Se a textura for invalida, sai aqui e evita um monte de coisas (e bugs tb).
     return;
@@ -4368,6 +4392,20 @@ void Tabuleiro::ReiniciaCamera() {
     olho_.clear_destino();
   }
   AtualizaOlho(true  /*forcar*/);
+}
+
+void Tabuleiro::ReiniciaIluminacao() {
+  // Iluminacao ambiente inicial.
+  proto_corrente_->mutable_luz_ambiente()->set_r(0.5f);
+  proto_corrente_->mutable_luz_ambiente()->set_g(0.5f);
+  proto_corrente_->mutable_luz_ambiente()->set_b(0.5f);
+  // Iluminacao direcional inicial.
+  proto_corrente_->mutable_luz_direcional()->mutable_cor()->set_r(0.5f);
+  proto_corrente_->mutable_luz_direcional()->mutable_cor()->set_g(0.5f);
+  proto_corrente_->mutable_luz_direcional()->mutable_cor()->set_b(0.5f);
+  // Vinda de 45 graus leste.
+  proto_corrente_->mutable_luz_direcional()->set_posicao_graus(0.0f);
+  proto_corrente_->mutable_luz_direcional()->set_inclinacao_graus(45.0f);
 }
 
 void Tabuleiro::AlternaCameraIsometrica() {

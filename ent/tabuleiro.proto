@@ -47,8 +47,8 @@ message OpcoesProto {
 
 // Mensagem enviada para os clientes de um jogo.
 message TabuleiroProto {
-  // Identificador do tabuleiro. Um jogo pode ser composto por varios tabuleiros. O tabuleiro principal sera sempre o -1.
-  optional int32 id_tabuleiro = 17 [default = -1];
+  // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
+  optional int32 id_cenario = 17 [default = -1];
   // Quando o tabuleiro eh salvo, ele ganha um nome para a operacao de salvar.
   optional string nome = 12;
   // Identificador do cliente.
@@ -82,7 +82,7 @@ message TabuleiroProto {
   // Sub cenarios do tabuleiro. Deve ser populado apenas para o tabuleiro pai.
   // Os sub cenarios nao possuem entidades. Cada entidade possui informacao sobre
   // qual tabuleiro ela esta localizada.
-  repeated TabuleiroProto sub_cenarios = 18;
+  repeated TabuleiroProto sub_cenario = 18;
 }
 
 // TODO sumir com isso.

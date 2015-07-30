@@ -69,10 +69,10 @@ class Tabuleiro : public ntf::Receptor {
   virtual ~Tabuleiro();
 
   /** @return numero de quadrados no eixo E-W. */
-  inline int TamanhoX() const { return proto_.largura(); }
+  inline int TamanhoX() const { return proto_corrente_->largura(); }
 
   /** @return numero de quadrados no eixo N-S. */
-  inline int TamanhoY() const { return proto_.altura(); }
+  inline int TamanhoY() const { return proto_corrente_->altura(); }
 
   /** adiciona a entidade ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
   * for local.
@@ -589,6 +589,9 @@ class Tabuleiro : public ntf::Receptor {
   /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
   void ReiniciaCamera();
 
+  /** Ao limpar o proto, a iluminacao vai a zero. Esta funcao restaura os valores que dao visibilidade ao tabuleiro. */
+  void ReiniciaIluminacao();
+
   /** Configura a matriz de projecao de acordo com o tipo de camera. */
   void ConfiguraProjecao();
   /** Configura o olho, de acordo com o tipo de camera. */
@@ -754,6 +757,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = -1;
+  TabuleiroProto* proto_corrente_ = &proto_;
 
   bool gl_iniciado_ = false;
 
