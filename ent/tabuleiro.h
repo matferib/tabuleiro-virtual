@@ -733,7 +733,16 @@ class Tabuleiro : public ntf::Receptor {
   bool detalhar_todas_entidades_ = false;
 
   // Controle virtual.
-  bool modo_acao_ = false;  // Poe o tabuleiro no modo acao, onde o clique eh considerado uma acao.
+  // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
+  // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
+  // No MODO_DESENHO, o clique desenhara.
+  enum modo_clique_e {
+    MODO_NORMAL,
+    MODO_ACAO,      // executa acoes no clique.
+    MODO_DESENHO,   // reservado.
+    MODO_TRANSICAO, // executa transicao no clique.
+  };
+  modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<int, int> contador_pressao_por_controle_;

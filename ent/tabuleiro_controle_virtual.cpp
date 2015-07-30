@@ -215,7 +215,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   const std::vector<DadosBotao> dados_botoes = {
     // Botoes grandes.
     // Acao.
-    { 2, 0, 0, "A", nullptr, TEXTURA_ACAO, CONTROLE_ACAO, [this] () { return modo_acao_; } , 4, 0.0f, 0.0f, 0.0f },
+    { 2, 0, 0, "A", nullptr, TEXTURA_ACAO, CONTROLE_ACAO, [this] () { return modo_clique_ == MODO_ACAO; } , 4, 0.0f, 0.0f, 0.0f },
     // Linha de cima.
     // Alterna acao para tras.
     { 1, 1, 2, "<", nullptr, "", CONTROLE_ACAO_ANTERIOR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },

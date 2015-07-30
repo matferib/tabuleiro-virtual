@@ -27,8 +27,8 @@
 #include "gltab/gl.h"
 #include "log/log.h"
 #include "net/util.h"  // hack to_string
+#include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
-
 
 namespace ent {
 
@@ -348,7 +348,7 @@ void Tabuleiro::EstadoInicial() {
   // Tempo renderizacao.
   tempos_renderizacao_.clear();
   // Modo de acao.
-  modo_acao_ = false;
+  modo_clique_ = MODO_NORMAL;
   if (gl_iniciado_) {
     RegeraVboTabuleiro();
   }
@@ -2303,7 +2303,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
-    bool detalhar_tudo = detalhar_todas_entidades_ || modo_acao_;
+    bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
                               (entidade->Id() == id_entidade_detalhada_);
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada || detalhar_tudo);
@@ -2624,9 +2624,9 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 }
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
-  if (modo_acao_) {
+  if (modo_clique_ == MODO_ACAO) {
     TrataBotaoAcaoPressionado(false, x, y);
-    modo_acao_ = false;
+    modo_clique_ = MODO_NORMAL;
     return;
   }
   ultimo_x_ = x;
@@ -3300,7 +3300,7 @@ void Tabuleiro::CarregaCenario(int id_cenario) {
         proto_corrente_ = cenario;  // para reiniciar iluminacao.
         ReiniciaIluminacao();
       } else {
-        auto* n = new ntf::NovaNotificacao(ntf::TN_ERRO);
+        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
         n->set_erro("Cenario nao existente: " + net::to_string(id_cenario));
         central_->AdicionaNotificacao(n);
       }
@@ -4374,7 +4374,11 @@ void Tabuleiro::ApagaEventosZeradosDeEntidadeNotificando(unsigned int id) {
 }
 
 void Tabuleiro::AlternaModoAcao() {
-  modo_acao_ = !modo_acao_;
+  if (modo_clique_ == MODO_ACAO) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_ACAO;
+  }
 }
 
 void Tabuleiro::SalvaCameraInicial() {
