@@ -1,4 +1,7 @@
 Versao 1.9.0
+- Geracao de terrenos.
+- Pontos de transicao de cenarios.
+- Testar multiplos cenarios em rede.
 - Efeitos para mestre.
 - Outros eventos, animacoes de eventos.
 - Transparencias de vbo compostos.

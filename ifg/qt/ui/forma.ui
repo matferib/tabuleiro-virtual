@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>525</width>
-    <height>697</height>
+    <width>526</width>
+    <height>713</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -42,8 +42,8 @@
   <widget class="QDialogButtonBox" name="botoes">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>650</y>
+     <x>0</x>
+     <y>680</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -696,20 +696,28 @@
     </property>
    </widget>
   </widget>
-  <zorder>horizontalLayoutWidget</zorder>
-  <zorder>botoes</zorder>
-  <zorder>horizontalLayoutWidget_2</zorder>
-  <zorder>groupBox</zorder>
-  <zorder>groupBox_2</zorder>
-  <zorder>horizontalLayoutWidget_3</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>horizontalLayoutWidget_4</zorder>
-  <zorder>groupBox_3</zorder>
-  <zorder>horizontalLayoutWidget_5</zorder>
-  <zorder>horizontalLayoutWidget_6</zorder>
-  <zorder>layoutWidget_2</zorder>
-  <zorder>groupBox_4</zorder>
-  <zorder>dial_rotacao_x</zorder>
+  <widget class="QWidget" name="horizontalLayoutWidget_7">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>630</y>
+     <width>401</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_14">
+    <item>
+     <widget class="QCheckBox" name="checkbox_transicao_cenario">
+      <property name="text">
+       <string>Transição de cenário?</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="linha_transicao_cenario"/>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <resources/>
  <connections>

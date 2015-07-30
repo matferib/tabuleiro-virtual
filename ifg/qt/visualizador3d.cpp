@@ -449,11 +449,22 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.dial_rotacao_x->setValue(-gerador.spin_rotacao_x->value() - 180);
   });
 
-
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());
   gerador.spin_escala_y->setValue(entidade.escala().y());
   gerador.spin_escala_z->setValue(entidade.escala().z());
+
+  // Transicao de cenario.
+  lambda_connect(gerador.checkbox_transicao_cenario, SIGNAL(stateChanged(int)), [gerador] {
+    gerador.linha_transicao_cenario->setEnabled(gerador.checkbox_transicao_cenario->checkState() == Qt::Checked);
+  });
+  if (!entidade.has_transicao_cenario()) {
+    gerador.checkbox_transicao_cenario->setCheckState(Qt::Unchecked);
+    gerador.linha_transicao_cenario->setEnabled(false);
+  } else {
+    gerador.checkbox_transicao_cenario->setCheckState(Qt::Checked);
+    gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario()));
+  }
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
@@ -493,6 +504,18 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
+    if (gerador.checkbox_transicao_cenario->checkState() == Qt::Checked) {
+      bool ok = false;
+      int val = gerador.linha_transicao_cenario->text().toInt(&ok);
+      if (!ok) {
+        LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
+      }
+      proto_retornado->set_transicao_cenario(ok ? val : -2);
+    } else {
+      // Valor especial para denotar ausencia.
+      proto_retornado->set_transicao_cenario(-2);
+    }
+
     if (!gerador.linha_textura->text().isEmpty()) {
       if (gerador.linha_textura->text().toStdString() == entidade.info_textura().id()) {
         // Textura igual a anterior.

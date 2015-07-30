@@ -3293,11 +3293,17 @@ void Tabuleiro::CarregaCenario(int id_cenario) {
       }
     }
     if (cenario == nullptr) {
-      // Cria o cenario.
-      cenario = proto_.add_sub_cenario();
-      cenario->set_id_cenario(id_cenario);
-      proto_corrente_ = cenario;  // para reiniciar iluminacao.
-      ReiniciaIluminacao();
+      if (ModoMestre()) {
+        // Cria o cenario.
+        cenario = proto_.add_sub_cenario();
+        cenario->set_id_cenario(id_cenario);
+        proto_corrente_ = cenario;  // para reiniciar iluminacao.
+        ReiniciaIluminacao();
+      } else {
+        auto* n = new ntf::NovaNotificacao(ntf::TN_ERRO);
+        n->set_erro("Cenario nao existente: " + net::to_string(id_cenario));
+        central_->AdicionaNotificacao(n);
+      }
     }
   } else {
     // Cenario principal.

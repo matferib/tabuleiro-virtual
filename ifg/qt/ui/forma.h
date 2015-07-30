@@ -98,12 +98,16 @@ public:
     QGroupBox *groupBox_4;
     QDial *dial_rotacao_x;
     QSpinBox *spin_rotacao_x;
+    QWidget *horizontalLayoutWidget_7;
+    QHBoxLayout *horizontalLayout_14;
+    QCheckBox *checkbox_transicao_cenario;
+    QLineEdit *linha_transicao_cenario;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(525, 697);
+        ifg__qt__DialogoForma->resize(526, 713);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
         horizontalLayoutWidget->setGeometry(QRect(180, 10, 181, 41));
@@ -123,7 +127,7 @@ public:
 
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(90, 650, 341, 32));
+        botoes->setGeometry(QRect(0, 680, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
@@ -444,20 +448,22 @@ public:
         spin_rotacao_x->setGeometry(QRect(30, 100, 51, 24));
         spin_rotacao_x->setMinimum(-180);
         spin_rotacao_x->setMaximum(180);
-        horizontalLayoutWidget->raise();
-        botoes->raise();
-        horizontalLayoutWidget_2->raise();
-        groupBox->raise();
-        groupBox_2->raise();
-        horizontalLayoutWidget_3->raise();
-        layoutWidget->raise();
-        horizontalLayoutWidget_4->raise();
-        groupBox_3->raise();
-        horizontalLayoutWidget_5->raise();
-        horizontalLayoutWidget_6->raise();
-        layoutWidget_2->raise();
-        groupBox_4->raise();
-        dial_rotacao_x->raise();
+        horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoForma);
+        horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
+        horizontalLayoutWidget_7->setGeometry(QRect(70, 630, 401, 41));
+        horizontalLayout_14 = new QHBoxLayout(horizontalLayoutWidget_7);
+        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
+        horizontalLayout_14->setContentsMargins(0, 0, 0, 0);
+        checkbox_transicao_cenario = new QCheckBox(horizontalLayoutWidget_7);
+        checkbox_transicao_cenario->setObjectName(QString::fromUtf8("checkbox_transicao_cenario"));
+
+        horizontalLayout_14->addWidget(checkbox_transicao_cenario);
+
+        linha_transicao_cenario = new QLineEdit(horizontalLayoutWidget_7);
+        linha_transicao_cenario->setObjectName(QString::fromUtf8("linha_transicao_cenario"));
+
+        horizontalLayout_14->addWidget(linha_transicao_cenario);
+
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -506,6 +512,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         dial_rotacao_x->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        checkbox_transicao_cenario->setText(QApplication::translate("ifg::qt::DialogoForma", "Transi\303\247\303\243o de cen\303\241rio?", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
