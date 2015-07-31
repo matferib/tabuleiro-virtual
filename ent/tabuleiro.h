@@ -306,6 +306,9 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo acao, cada clique gera uma acao. Usado especialmente no tablet. */
   void AlternaModoAcao();
 
+  /** No modo transicao, cada clique causa uma transicao de cenario. */
+  void AlternaModoTransicao();
+
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
   bool ModoMestre() const { return modo_mestre_; }
   // Debug.
@@ -425,6 +428,13 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza as acoes do tabuleiro, removendo as finalizadas. */
   void AtualizaAcoes();
 
+  /** Similar a TrataBotaoAcaoPressionado, mas pos operacao de picking. */
+  void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
+
+  /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
+  * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */
+  void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
+
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
   * desta funcao.
@@ -542,6 +552,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Adiciona as entidades selecionaveis da notificacao ao tabuleiro. */
   void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);
 
+  /** Cria um novo sub cenario no tabuleiro. */
+  void CriaSubCenario(int id_cenario);
+
+  /** @return o proto do sub cenario, ou nullptr se nao houver. */
+  TabuleiroProto* BuscaSubCenario(int id_cenario);
+
   /** @return um id unico de entidade para um cliente. Lanca excecao se nao houver mais id livre. */
   unsigned int GeraIdEntidade(int id_cliente);
 
@@ -590,7 +606,7 @@ class Tabuleiro : public ntf::Receptor {
   void ReiniciaCamera();
 
   /** Ao limpar o proto, a iluminacao vai a zero. Esta funcao restaura os valores que dao visibilidade ao tabuleiro. */
-  void ReiniciaIluminacao();
+  void ReiniciaIluminacao(TabuleiroProto* sub_cenario);
 
   /** Configura a matriz de projecao de acordo com o tipo de camera. */
   void ConfiguraProjecao();

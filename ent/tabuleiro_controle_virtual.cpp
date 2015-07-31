@@ -55,6 +55,7 @@ const int CONTROLE_ESQUERDA = 20;
 const int CONTROLE_DIREITA = 21;
 const int CONTROLE_CIMA_VERTICAL = 22;
 const int CONTROLE_BAIXO_VERTICAL = 23;
+const int CONTROLE_TRANSICAO = 24;
 
 // Texturas do controle virtual.
 const char* TEXTURA_ACAO = "icon_sword.png";
@@ -65,8 +66,9 @@ const char* TEXTURA_QUEDA = "icon_slide.png";
 const char* TEXTURA_CAMERA_ISOMETRICA = "icon_isometric_camera.png";
 const char* TEXTURA_CAMERA_PRESA = "icon_tracking_camera.png";
 const char* TEXTURA_DESFAZER = "icon_undo.png";
+const char* TEXTURA_TRANSICAO = "icon_enter.png";
 const std::vector<std::string> g_texturas = { TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA,
-                                              TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA, TEXTURA_DESFAZER };
+                                              TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA, TEXTURA_DESFAZER, TEXTURA_TRANSICAO };
 
 // Para botoes sem estado.
 bool RetornaFalse() {
@@ -96,6 +98,9 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
   switch (id) {
     case CONTROLE_ACAO:
       AlternaModoAcao();
+      break;
+    case CONTROLE_TRANSICAO:
+      AlternaModoTransicao();
       break;
     case CONTROLE_CAMERA_ISOMETRICA:
       AlternaCameraIsometrica();
@@ -213,7 +218,6 @@ void Tabuleiro::DesenhaControleVirtual() {
     float translacao_y;  // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
   };
   const std::vector<DadosBotao> dados_botoes = {
-    // Botoes grandes.
     // Acao.
     { 2, 0, 0, "A", nullptr, TEXTURA_ACAO, CONTROLE_ACAO, [this] () { return modo_clique_ == MODO_ACAO; } , 4, 0.0f, 0.0f, 0.0f },
     // Linha de cima.
@@ -235,31 +239,34 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Apaga dano.
     { 1, 0, 6, "x", nullptr, "", CONTROLE_APAGA_DANO, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
 
+    // Transicao.
+    { 2, 0, 8, "T", nullptr, TEXTURA_TRANSICAO, CONTROLE_TRANSICAO, [this] () { return modo_clique_ == MODO_TRANSICAO; } , 4, 0.0f, 0.0f, 0.0f },
+
     // Status.
-    { 1, 0, 8, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 9, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 8, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 9, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 10, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 11, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 10, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 11, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
 
     // Setas.
-    { 1, 1, 11, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.1f },
-    { 1, 0, 11, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, 180.0f, 0.0f,  0.1f },
-    { 1, 0, 10, "", nullptr, "", CONTROLE_ESQUERDA, RetornaFalse, 3, 90.0f,  0.4f,  0.5f },
-    { 1, 0, 12, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, -90.0f, -0.4f, 0.5f },
+    { 1, 1, 13, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.1f },
+    { 1, 0, 13, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, 180.0f, 0.0f,  0.1f },
+    { 1, 0, 12, "", nullptr, "", CONTROLE_ESQUERDA, RetornaFalse, 3, 90.0f,  0.4f,  0.5f },
+    { 1, 0, 14, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, -90.0f, -0.4f, 0.5f },
 
     // Setas verticais.
-    { 1, 1, 13, "^", nullptr, "", CONTROLE_CIMA_VERTICAL,  RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
-    { 1, 0, 13, "v", nullptr, "", CONTROLE_BAIXO_VERTICAL, RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
+    { 1, 1, 15, "^", nullptr, "", CONTROLE_CIMA_VERTICAL,  RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
+    { 1, 0, 15, "v", nullptr, "", CONTROLE_BAIXO_VERTICAL, RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
 
     // Cameras.
-    { 1, 0, 14, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 14, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },      4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 16, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 16, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },      4, 0.0f, 0.0f, 0.0f },
 
     // Desfazer.
-    { 2, 0, 15, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
+    { 2, 0, 17, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
 
     // Contador de rodadas.
-    { 2, 0, 17, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
+    { 2, 0, 19, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
   };
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);

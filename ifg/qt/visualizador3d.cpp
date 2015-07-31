@@ -765,6 +765,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
 ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
+  proto_retornado->set_id_cenario(notificacao.tabuleiro().id_cenario());
   ifg::qt::Ui::DialogoIluminacao gerador;
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);

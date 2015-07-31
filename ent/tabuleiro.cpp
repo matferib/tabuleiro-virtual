@@ -317,7 +317,7 @@ void Tabuleiro::EstadoInicial() {
   cenario_corrente_ = -1;
   proto_corrente_ = &proto_;
   // Iluminacao.
-  ReiniciaIluminacao();
+  ReiniciaIluminacao(&proto_);
   // Olho.
   ReiniciaCamera();
 
@@ -1007,6 +1007,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_CRIAR_CENARIO: {
+      CriaSubCenario(notificacao.tabuleiro().id_cenario());
+      if (notificacao.local()) {
+        ntf::Notificacao* copia = new ntf::Notificacao(notificacao);
+        central_->AdicionaNotificacaoRemota(copia);
+      }
+      return true;
+    }
     case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
       std::unique_ptr<ntf::Notificacao> n(SerializaEntidadesSelecionaveis());
       try {
@@ -1059,6 +1067,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
         return false;
       }
+      // Preenche o tabuleiro e envia para ifg tratar.
       central_->AdicionaNotificacao(SerializaPropriedades());
       return true;
     }
@@ -1458,17 +1467,21 @@ void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
 
 void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   // Preenche os dados comuns.
-  unsigned int id, pos_pilha;
+  unsigned int id, tipo_objeto;
   float profundidade;
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
-  if (pos_pilha > 2) {
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
+  TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
+}
+
+void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
+  if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE)) {
     // invalido.
     return;
   }
   // Primeiro, entidades.
   unsigned int id_entidade_destino = Entidade::IdInvalido;
   Posicao pos_entidade;
-  if (pos_pilha == OBJ_ENTIDADE) {
+  if (tipo_objeto == OBJ_ENTIDADE) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
     id_entidade_destino = id;
@@ -1483,10 +1496,10 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     pos_entidade.set_z(z3d);
     // Depois tabuleiro.
     parametros_desenho_.set_desenha_entidades(false);
-    BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+    BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   }
   Posicao pos_tabuleiro;
-  if (pos_pilha == OBJ_TABULEIRO) {
+  if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
     MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
     unsigned int id_quadrado = IdQuadrado(x3d, y3d);
@@ -1613,6 +1626,25 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
     AdicionaNotificacaoListaEventos(grupo_desfazer);
   }
 }
+
+void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
+  if (tipo_objeto != OBJ_ENTIDADE) {
+    // invalido.
+    LOG(INFO) << "Transicao so funciona em entidades";
+    return;
+  }
+  Entidade* entidade = BuscaEntidade(id);
+  if (entidade == nullptr) {
+    LOG(ERROR) << "Entidade " << id << " nao encontrada";
+    return;
+  }
+  if (!entidade->Proto().has_transicao_cenario()) {
+    LOG(INFO) << "Entidade " << id << " nao possui transicao de cenario";
+    return;
+  }
+  CarregaCenario(entidade->Proto().transicao_cenario());
+}
+
 
 void Tabuleiro::TrataBotaoLiberado() {
   FinalizaEstadoCorrente();
@@ -2624,11 +2656,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 }
 
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
-  if (modo_clique_ == MODO_ACAO) {
-    TrataBotaoAcaoPressionado(false, x, y);
-    modo_clique_ = MODO_NORMAL;
-    return;
-  }
   ultimo_x_ = x;
   ultimo_y_ = y;
 
@@ -2641,12 +2668,31 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 #else
   MousePara3dComId(x, y, id, pos_pilha, &x3d, &y3d, &z3d);
 #endif
+  // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
+  if (modo_clique_ != MODO_NORMAL && pos_pilha != OBJ_CONTROLE_VIRTUAL) {
+    switch (modo_clique_) {
+      case MODO_ACAO:
+        // TODO passar as informacoes de picking aqui.
+        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, pos_pilha, profundidade);
+        modo_clique_ = MODO_NORMAL;
+        break;
+      case MODO_TRANSICAO:
+        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, pos_pilha);
+        modo_clique_ = MODO_NORMAL;
+        break;
+      default:
+        ;
+    }
+    return;
+  }
+
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
   ultimo_z_3d_ = z3d;
   primeiro_x_3d_ = x3d;
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
+
   if (pos_pilha == OBJ_TABULEIRO) {
     // Tabuleiro.
     // Converte x3d y3d para id quadrado.
@@ -3080,6 +3126,7 @@ void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y,
 ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO);
   auto* tabuleiro = notificacao->mutable_tabuleiro();
+  tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
   tabuleiro->set_id_cliente(id_cliente_);
   tabuleiro->mutable_luz_ambiente()->CopyFrom(proto_corrente_->luz_ambiente());
   tabuleiro->mutable_luz_direcional()->CopyFrom(proto_corrente_->luz_direcional());
@@ -3108,15 +3155,20 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
 
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
-  proto_corrente_->mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
-  proto_corrente_->mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
-  proto_corrente_->set_largura(novo_proto.largura());
-  proto_corrente_->set_altura(novo_proto.altura());
-  proto_corrente_->set_desenha_grade(novo_proto.desenha_grade());
+  TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
+  if (proto_a_atualizar == nullptr) {
+    LOG(ERROR) << "Sub cenario " << novo_proto.id_cenario() << " nao existe";
+    return;
+  }
+  proto_a_atualizar->mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
+  proto_a_atualizar->mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
+  proto_a_atualizar->set_largura(novo_proto.largura());
+  proto_a_atualizar->set_altura(novo_proto.altura());
+  proto_a_atualizar->set_desenha_grade(novo_proto.desenha_grade());
   if (novo_proto.has_nevoa()) {
-    proto_corrente_->mutable_nevoa()->CopyFrom(novo_proto.nevoa());
+    proto_a_atualizar->mutable_nevoa()->CopyFrom(novo_proto.nevoa());
   } else {
-    proto_corrente_->clear_nevoa();
+    proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
   RegeraVboTabuleiro();
@@ -3277,6 +3329,24 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
   }
 }
 
+TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) {
+  if (id_cenario == -1) {
+    return &proto_;
+  }
+  for (auto& sub_cenario : *proto_.mutable_sub_cenario()) {
+    if (sub_cenario.id_cenario() == id_cenario) {
+      return &sub_cenario;
+    }
+  }
+  return nullptr;
+}
+
+void Tabuleiro::CriaSubCenario(int id_cenario) {
+  auto* cenario = proto_.add_sub_cenario();
+  cenario->set_id_cenario(id_cenario);
+  ReiniciaIluminacao(cenario);
+}
+
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
 }
@@ -3295,14 +3365,20 @@ void Tabuleiro::CarregaCenario(int id_cenario) {
     if (cenario == nullptr) {
       if (ModoMestre()) {
         // Cria o cenario.
-        cenario = proto_.add_sub_cenario();
-        cenario->set_id_cenario(id_cenario);
-        proto_corrente_ = cenario;  // para reiniciar iluminacao.
-        ReiniciaIluminacao();
+        ntf::Notificacao n;
+        n.set_tipo(ntf::TN_CRIAR_CENARIO);
+        n.mutable_tabuleiro()->set_id_cenario(id_cenario);
+        TrataNotificacao(n);  // enviara notificacao aos clientes ao ser tratada localmente.
+        cenario = BuscaSubCenario(id_cenario);
+        if (cenario == nullptr) {
+          LOG(ERROR) << "Falha ao buscar cenario criado.";
+          return;
+        }
       } else {
         auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
         n->set_erro("Cenario nao existente: " + net::to_string(id_cenario));
         central_->AdicionaNotificacao(n);
+        return;
       }
     }
   } else {
@@ -3312,6 +3388,7 @@ void Tabuleiro::CarregaCenario(int id_cenario) {
   DeselecionaEntidades();
   proto_corrente_ = cenario;
   RegeraVboTabuleiro();
+  // TODO Caixa do ceu.
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -3882,20 +3959,25 @@ bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
 }  // namespace
 
 void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
+  TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
+  if (proto_a_atualizar == nullptr) {
+    LOG(ERROR) << "Sub cenario " << novo_proto.id_cenario() << " nao existe para atualizacao de texturas";
+    return;
+  }
   if (ent::AtualizaTexturas(novo_proto.has_info_textura(), novo_proto.info_textura(),
-                            proto_corrente_->has_info_textura(), proto_corrente_->mutable_info_textura(),
+                            proto_a_atualizar->has_info_textura(), proto_a_atualizar->mutable_info_textura(),
                             central_)) {
-    proto_corrente_->set_ladrilho(novo_proto.ladrilho());
-    proto_corrente_->set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
+    proto_a_atualizar->set_ladrilho(novo_proto.ladrilho());
+    proto_a_atualizar->set_textura_mestre_apenas(novo_proto.textura_mestre_apenas());
   } else {
-    proto_corrente_->clear_info_textura();
-    proto_corrente_->clear_ladrilho();
-    proto_corrente_->clear_textura_mestre_apenas();
+    proto_a_atualizar->clear_info_textura();
+    proto_a_atualizar->clear_ladrilho();
+    proto_a_atualizar->clear_textura_mestre_apenas();
   }
   if (!ent::AtualizaTexturas(novo_proto.has_info_textura_ceu(), novo_proto.info_textura_ceu(),
-                             proto_corrente_->has_info_textura_ceu(), proto_corrente_->mutable_info_textura_ceu(),
+                             proto_a_atualizar->has_info_textura_ceu(), proto_a_atualizar->mutable_info_textura_ceu(),
                              central_)) {
-    proto_corrente_->clear_info_textura_ceu();
+    proto_a_atualizar->clear_info_textura_ceu();
   }
 }
 
@@ -4381,6 +4463,14 @@ void Tabuleiro::AlternaModoAcao() {
   }
 }
 
+void Tabuleiro::AlternaModoTransicao() {
+  if (modo_clique_ == MODO_TRANSICAO) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_TRANSICAO;
+  }
+}
+
 void Tabuleiro::SalvaCameraInicial() {
   proto_.mutable_camera_inicial()->CopyFrom(olho_);
   // Destino é para movimento.
@@ -4404,18 +4494,18 @@ void Tabuleiro::ReiniciaCamera() {
   AtualizaOlho(true  /*forcar*/);
 }
 
-void Tabuleiro::ReiniciaIluminacao() {
+void Tabuleiro::ReiniciaIluminacao(TabuleiroProto* sub_cenario) {
   // Iluminacao ambiente inicial.
-  proto_corrente_->mutable_luz_ambiente()->set_r(0.5f);
-  proto_corrente_->mutable_luz_ambiente()->set_g(0.5f);
-  proto_corrente_->mutable_luz_ambiente()->set_b(0.5f);
+  sub_cenario->mutable_luz_ambiente()->set_r(0.5f);
+  sub_cenario->mutable_luz_ambiente()->set_g(0.5f);
+  sub_cenario->mutable_luz_ambiente()->set_b(0.5f);
   // Iluminacao direcional inicial.
-  proto_corrente_->mutable_luz_direcional()->mutable_cor()->set_r(0.5f);
-  proto_corrente_->mutable_luz_direcional()->mutable_cor()->set_g(0.5f);
-  proto_corrente_->mutable_luz_direcional()->mutable_cor()->set_b(0.5f);
+  sub_cenario->mutable_luz_direcional()->mutable_cor()->set_r(0.5f);
+  sub_cenario->mutable_luz_direcional()->mutable_cor()->set_g(0.5f);
+  sub_cenario->mutable_luz_direcional()->mutable_cor()->set_b(0.5f);
   // Vinda de 45 graus leste.
-  proto_corrente_->mutable_luz_direcional()->set_posicao_graus(0.0f);
-  proto_corrente_->mutable_luz_direcional()->set_inclinacao_graus(45.0f);
+  sub_cenario->mutable_luz_direcional()->set_posicao_graus(0.0f);
+  sub_cenario->mutable_luz_direcional()->set_inclinacao_graus(45.0f);
 }
 
 void Tabuleiro::AlternaCameraIsometrica() {
