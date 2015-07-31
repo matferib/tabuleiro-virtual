@@ -1,7 +1,8 @@
 Versao 1.9.0
+- Undo de criacao de cenarios.
+- Remocao de cenarios.
+- Descricao de cenarios (melhorar UI com drop down).
 - Geracao de terrenos.
-- Pontos de transicao de cenarios.
-- Testar multiplos cenarios em rede.
 - Efeitos para mestre.
 - Outros eventos, animacoes de eventos.
 - Transparencias de vbo compostos.

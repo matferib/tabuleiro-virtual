@@ -566,6 +566,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   int GeraIdTabuleiro();
 
+  /** Recarrega todas as texturas, incluindo sub cenarios. */
+  void AtualizaTexturasIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal);
+
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
 
@@ -619,7 +622,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVboTabuleiro();
 
-  /** Gera o Vbo da caixa do ceu, chamado uma vez apenas. */
+  /** Regera o Vbo da caixa do ceu, chamado apenas uma vez ja que o objeto da caixa nao muda (apenas a textura pode mudar). */
   void GeraVboCaixaCeu();
 
  private:

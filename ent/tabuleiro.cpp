@@ -1642,7 +1642,26 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(INFO) << "Entidade " << id << " nao possui transicao de cenario";
     return;
   }
-  CarregaCenario(entidade->Proto().transicao_cenario());
+  int id_cenario = entidade->Proto().transicao_cenario();
+  if (!ids_entidades_selecionadas_.empty()) {
+    ntf::Notificacao grupo;
+    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade_movendo = BuscaEntidade(id);
+      if (entidade_movendo == nullptr) {
+        continue;
+      }
+      auto* n = grupo.add_notificacao();
+      n->set_tipo(ntf::TN_MOVER_ENTIDADE);
+      n->mutable_entidade()->set_id(id);
+      n->mutable_entidade()->mutable_pos()->CopyFrom(entidade_movendo->Pos());
+      n->mutable_entidade()->mutable_destino()->CopyFrom(entidade_movendo->Pos());
+      n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+    }
+    TrataNotificacao(grupo);
+    AdicionaNotificacaoListaEventos(grupo);
+  }
+  CarregaCenario(id_cenario);
 }
 
 
@@ -2672,7 +2691,6 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   if (modo_clique_ != MODO_NORMAL && pos_pilha != OBJ_CONTROLE_VIRTUAL) {
     switch (modo_clique_) {
       case MODO_ACAO:
-        // TODO passar as informacoes de picking aqui.
         TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, pos_pilha, profundidade);
         modo_clique_ = MODO_NORMAL;
         break;
@@ -3226,7 +3244,12 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacao(n);
     return;
   }
-  AtualizaTexturas(tabuleiro);
+  // Cria os sub cenarios dummy para atualizacao de textura funcionar, caso contrario ela dira que o sub cenario nao existe e nao funcionara.
+  for (auto& sub_cenario : tabuleiro.sub_cenario()) {
+    auto* cenario_dummy = proto_.add_sub_cenario();
+    cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
+  }
+  AtualizaTexturasIncluindoSubCenarios(tabuleiro);
   proto_.CopyFrom(tabuleiro);
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
@@ -3388,7 +3411,7 @@ void Tabuleiro::CarregaCenario(int id_cenario) {
   DeselecionaEntidades();
   proto_corrente_ = cenario;
   RegeraVboTabuleiro();
-  // TODO Caixa do ceu.
+  // A caixa do ceu nao precisa porque o objeto dela eh fixo.
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -3957,6 +3980,13 @@ bool AtualizaTexturas(bool novo_tem, const ent::InfoTextura& novo_proto,
   return false;
 }
 }  // namespace
+
+void Tabuleiro::AtualizaTexturasIncluindoSubCenarios(const ent::TabuleiroProto& proto_principal) {
+  AtualizaTexturas(proto_principal);
+  for (const auto& sub_cenario : proto_principal.sub_cenario()) {
+    AtualizaTexturas(sub_cenario);
+  }
+}
 
 void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
   TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
