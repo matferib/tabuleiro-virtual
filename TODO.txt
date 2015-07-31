@@ -1,9 +1,9 @@
-Versao 1.9.0
+Versao 1.10.0
 - Undo de criacao de cenarios.
 - Remocao de cenarios.
 - Descricao de cenarios (melhorar UI com drop down).
 - Geracao de terrenos.
-- Efeitos para mestre.
+- Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
 - Transparencias de vbo compostos.
 - Terminar a exportacao de formas e compostas (CORES).
@@ -15,7 +15,7 @@ Versao 1.9.0
 - Temporizar movimento, se ficar ocioso envia atualizacao de posicao tb.
 - Unit teste dos glVbo roda.
 - Modelos 3d para entidades.
-- Entender tilt do nexus 10 (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
+- Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: usar a funcao de conversao jstr para c++ str.
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
@@ -24,22 +24,18 @@ Versao 1.9.0
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Vbos de entidades.
-- Separar Vbo gravado do nao gravado.
 - Credito para atribuicoes.
-- Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
-  Problema eh que o controle de voo da entidade eh feito pelo z.
 - Transicao para coisas opensource e coisas privadas.
 - Mais teclado global.
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 1.9.1
+Versao 1.10.1
 - VBO em entidades.
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
-- Terminar camada de arquivo para funcionar em diversos dispositivos.
 - Android e ipad: voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
@@ -51,7 +47,6 @@ Versao 2.0
 - Interface de mouse generico para tablets (suporte a multitap).
 - Visao primeira pessoa.
 - Joystick no android.
-- Registro correto dos diretorios para funcionar de qualquer diretorio.
 - Botao de aplicar mudancas nos dialogos.
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
