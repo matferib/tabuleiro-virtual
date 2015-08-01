@@ -211,6 +211,355 @@ modelo {
   }
 }
 modelo {
+  id: 'Árvore (seca)'
+  entidade {
+  tipo: TE_COMPOSTA
+  pos {
+    x: -0.47868297
+    y: -4.9519219
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.055871278
+      y: 0.099030018
+      z: 2.9802322e-07
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 1.1
+      y: 1.5
+      z: 4
+    }
+    rotacao_z_graus: 1
+    rotacao_y_graus: 0
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.64478195
+      y: 0.21715832
+      z: 2.9600022
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 229
+    rotacao_y_graus: 65
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 0.077452511
+      y: 0.13638067
+      z: 1.6000005
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.59969538
+      y: 0.7796039
+      z: 2.0989337
+    }
+    rotacao_z_graus: 1
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.058860749
+      y: 0.030168533
+      z: 2.0800011
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.5
+      y: 0.5
+      z: 1.8
+    }
+    rotacao_z_graus: 259
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.070486754
+      y: 0.0272398
+      z: 2.5600019
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.3164784
+      y: 0.41142181
+      z: 1.1076742
+    }
+    rotacao_z_graus: 54
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.13993075
+      y: 0.080719948
+      z: 2.5600019
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.3164784
+      y: 0.41142181
+      z: 1.1076742
+    }
+    rotacao_z_graus: 166
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 0.5140475
+      y: 0.17648268
+      z: 2.0000026
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 3
+    rotacao_y_graus: 0
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.2528207
+      y: 0.25219297
+      z: 2.0000026
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 197
+    rotacao_y_graus: 65
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.027335316
+      y: 0.33316278
+      z: 2.0000026
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 74
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.26016966
+      y: -0.31811666
+      z: 2.4000034
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.07744
+      y: 0.07744
+      z: 0.3872
+    }
+    rotacao_z_graus: 197
+    rotacao_y_graus: 65
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.060005695
+      y: 0.15080309
+      z: 3.3600025
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 74
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 1.1740516
+      y: 0.19602633
+      z: 2.4800024
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.088
+      y: 0.088
+      z: 0.44
+    }
+    rotacao_z_graus: 229
+    rotacao_y_graus: -22
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.22047004
+      y: -0.87257147
+      z: 2.8000038
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.088
+      y: 0.088
+      z: 0.44
+    }
+    rotacao_z_graus: -44
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.27684155
+      y: -0.926054
+      z: 2.8000038
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.088
+      y: 0.088
+      z: 0.44
+    }
+    rotacao_z_graus: -138
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 0.30202225
+      y: 0.41737366
+      z: 2.9600034
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 74
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+}
+
+}
+modelo {
   id: 'Casa (8x7)'
   entidade {
     tipo: TE_COMPOSTA
