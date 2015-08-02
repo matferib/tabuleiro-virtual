@@ -48,6 +48,10 @@
 #define OBJ_CONTROLE_VIRTUAL 4
 #define OBJ_EVENTO_ENTIDADE 5
 
+// Constantes de cenario.
+#define CENARIO_PRINCIPAL -1
+#define CENARIO_INVALIDO -2
+
 // Nao ha um ENTIDADE_ID_INVALIDO pq a constante esta no proto: Entidade::IdInvalido.
 
 namespace ent {

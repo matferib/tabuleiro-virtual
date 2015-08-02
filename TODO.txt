@@ -1,4 +1,5 @@
 Versao 1.10.0
+- Bug da translacao quando muda para um cenario menor que a origem.
 - Undo de criacao de cenarios.
 - Remocao de cenarios.
 - Descricao de cenarios (melhorar UI com drop down).

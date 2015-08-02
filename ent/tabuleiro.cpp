@@ -314,7 +314,7 @@ void Tabuleiro::EstadoInicial() {
   // Proto do tabuleiro.
   LiberaTextura();
   proto_.Clear();
-  cenario_corrente_ = -1;
+  cenario_corrente_ = CENARIO_PRINCIPAL;
   proto_corrente_ = &proto_;
   // Iluminacao.
   ReiniciaIluminacao(&proto_);
@@ -1015,6 +1015,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_REMOVER_CENARIO: {
+      RemoveSubCenario(notificacao.tabuleiro().has_id_cenario() ? notificacao.tabuleiro().id_cenario() : proto_corrente_->id_cenario());
+      if (notificacao.local()) {
+        ntf::Notificacao* copia = new ntf::Notificacao(notificacao);
+        central_->AdicionaNotificacaoRemota(copia);
+      }
+      return true;
+    }
     case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
       std::unique_ptr<ntf::Notificacao> n(SerializaEntidadesSelecionaveis());
       try {
@@ -1386,6 +1394,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float novo_x = p->x() - delta_x;
       float novo_y = p->y() - delta_y;
       if (novo_x < -TamanhoX() || novo_x > TamanhoX() || novo_y < -TamanhoY() || novo_y > TamanhoY()) {
+        LOG(INFO) << "Olho fora do tabuleiro";
         return;
       }
       p->set_x(novo_x);
@@ -3353,7 +3362,7 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
 }
 
 TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) {
-  if (id_cenario == -1) {
+  if (id_cenario == CENARIO_PRINCIPAL) {
     return &proto_;
   }
   for (auto& sub_cenario : *proto_.mutable_sub_cenario()) {
@@ -3365,9 +3374,39 @@ TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) {
 }
 
 void Tabuleiro::CriaSubCenario(int id_cenario) {
+  if (BuscaSubCenario(id_cenario) != nullptr) {
+    LOG(ERROR) << "Cenario ja existe";
+    return;
+  }
   auto* cenario = proto_.add_sub_cenario();
   cenario->set_id_cenario(id_cenario);
   ReiniciaIluminacao(cenario);
+}
+
+void Tabuleiro::RemoveSubCenario(int id_cenario) {
+  if (id_cenario == -1) {
+    LOG(ERROR) << "Nao eh possivel remover o cenario principal.";
+    return;
+  }
+  if (proto_corrente_->id_cenario() == id_cenario) {
+    // Carrega o cenario principal antes de remover o corrente.
+    LOG(INFO) << "Carregando cenario principal porque o removido eh o corrente.";
+    CarregaCenario(-1);
+  }
+  LOG(INFO) << "Tam sub cenario antes: " << proto_.sub_cenario_size();
+  for (int i = 0; i < proto_.sub_cenario_size(); ++i) {
+    const auto& sub_cenario = proto_.sub_cenario(i);
+    if (sub_cenario.id_cenario() == id_cenario) {
+      // Descarrega as texturas.
+      TabuleiroProto dummy;
+      dummy.set_id_cenario(id_cenario);
+      AtualizaTexturas(dummy);
+      proto_.mutable_sub_cenario()->DeleteSubrange(i, 1);
+      LOG(INFO) << "Tam sub cenario depois: " << proto_.sub_cenario_size();
+      return;
+    }
+  }
+  LOG(ERROR) << "Cenario nao encontrado";
 }
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
@@ -3988,7 +4027,7 @@ void Tabuleiro::AtualizaTexturasIncluindoSubCenarios(const ent::TabuleiroProto& 
   }
 }
 
-void Tabuleiro::AtualizaTexturas(const ent::TabuleiroProto& novo_proto) {
+void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
   TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
   if (proto_a_atualizar == nullptr) {
     LOG(ERROR) << "Sub cenario " << novo_proto.id_cenario() << " nao existe para atualizacao de texturas";

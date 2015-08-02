@@ -552,8 +552,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Adiciona as entidades selecionaveis da notificacao ao tabuleiro. */
   void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);
 
-  /** Cria um novo sub cenario no tabuleiro. */
+  /** Cria um novo sub cenario no tabuleiro. O id deve ser unico caso contrario nao faz nada. */
   void CriaSubCenario(int id_cenario);
+
+  /** Remove um sub cenario do tabuleiro. Nao eh possivel remover o cenario principal. */
+  void RemoveSubCenario(int id_cenario);
 
   /** @return o proto do sub cenario, ou nullptr se nao houver. */
   TabuleiroProto* BuscaSubCenario(int id_cenario);

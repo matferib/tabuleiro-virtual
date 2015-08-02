@@ -13,6 +13,7 @@
 #include <QString>
 
 #include "arq/arquivo.h"
+#include "ent/constantes.h"
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
@@ -510,10 +511,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       if (!ok) {
         LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
       }
-      proto_retornado->set_transicao_cenario(ok ? val : -2);
+      proto_retornado->set_transicao_cenario(ok ? val : CENARIO_INVALIDO);
     } else {
       // Valor especial para denotar ausencia.
-      proto_retornado->set_transicao_cenario(-2);
+      proto_retornado->set_transicao_cenario(CENARIO_INVALIDO);
     }
 
     if (!gerador.linha_textura->text().isEmpty()) {

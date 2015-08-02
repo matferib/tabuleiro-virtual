@@ -162,7 +162,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (proto_original.has_destino()) {
     proto_.mutable_destino()->Swap(proto_original.mutable_destino());
   }
-  if (proto_.transicao_cenario() == -2) {
+  if (proto_.transicao_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
   }
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
