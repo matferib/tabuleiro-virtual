@@ -337,8 +337,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Carrega um cenario do tabuleiro. O cenario deve existir.
   * @param id do cenario. Use CENARIO_PRINCIPAL para principal.
+  * @param camera a posicao da camera no cenario carregado.
   */
-  void CarregaSubCenario(int id);
+  void CarregaSubCenario(int id, const Posicao& camera);
 
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();

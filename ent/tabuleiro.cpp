@@ -1390,7 +1390,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float novo_x = p->x() - delta_x;
       float novo_y = p->y() - delta_y;
       if (novo_x < -TamanhoX() || novo_x > TamanhoX() || novo_y < -TamanhoY() || novo_y > TamanhoY()) {
-        LOG(INFO) << "Olho fora do tabuleiro";
+        VLOG(1) << "Olho fora do tabuleiro";
         return;
       }
       p->set_x(novo_x);
@@ -1691,7 +1691,15 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     TrataNotificacao(grupo_notificacoes);
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
-  CarregaSubCenario(id_cenario);
+  // A camera vai para a posicao de transicao ou para a posicao do objeto no outro cenario.
+  Posicao pos_olho;
+  if (entidade->Proto().transicao_cenario().has_x()) {
+    pos_olho.CopyFrom(entidade->Proto().transicao_cenario());
+  } else {
+    pos_olho.CopyFrom(entidade->Pos());
+    pos_olho.set_id_cenario(id_cenario);
+  }
+  CarregaSubCenario(id_cenario, pos_olho);
 }
 
 
@@ -3428,7 +3436,8 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
   if (proto_corrente_->id_cenario() == id_cenario) {
     // Carrega o cenario principal antes de remover o corrente.
     LOG(INFO) << "Carregando cenario principal porque o removido eh o corrente.";
-    CarregaSubCenario(CENARIO_PRINCIPAL);
+    // Dificil saber para onde voltar, entao volta para camera principal do cenario principal.
+    CarregaSubCenario(CENARIO_PRINCIPAL, proto_.camera_inicial().alvo());
   }
   LOG(INFO) << "Tam sub cenario antes: " << proto_.sub_cenario_size();
   bool removeu = false;
@@ -3487,7 +3496,7 @@ void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
 }
 
-void Tabuleiro::CarregaSubCenario(int id_cenario) {
+void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   cenario_corrente_ = id_cenario;
   TabuleiroProto* cenario = BuscaSubCenario(id_cenario);
   if (cenario == nullptr) {
@@ -3498,6 +3507,10 @@ void Tabuleiro::CarregaSubCenario(int id_cenario) {
   proto_corrente_ = cenario;
   RegeraVboTabuleiro();
   // A caixa do ceu nao precisa porque o objeto dela eh fixo.
+
+  olho_.mutable_alvo()->CopyFrom(camera);
+  olho_.clear_destino();
+  AtualizaOlho(true  /*forcar*/);
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
