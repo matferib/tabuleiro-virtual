@@ -1670,8 +1670,14 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       n->mutable_entidade()->set_id(id);
       n->mutable_entidade()->mutable_pos()->CopyFrom(entidade_movendo->Pos());
-      n->mutable_entidade()->mutable_destino()->CopyFrom(entidade_movendo->Pos());
-      n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+      if (entidade->Proto().transicao_cenario().has_x()) {
+        // Usa a posicao da entidade de transicao.
+        n->mutable_entidade()->mutable_destino()->CopyFrom(entidade->Proto().transicao_cenario());
+      } else {
+        // Usa a posicao original.
+        n->mutable_entidade()->mutable_destino()->CopyFrom(entidade_movendo->Pos());
+        n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+      }
     }
   }
   // Criacao vem por ultimo para a inversao do desfazer funcionar, pois se a remocao for feita antes de mover as entidades de volta,

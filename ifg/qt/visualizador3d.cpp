@@ -457,14 +457,31 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   // Transicao de cenario.
   lambda_connect(gerador.checkbox_transicao_cenario, SIGNAL(stateChanged(int)), [gerador] {
-    gerador.linha_transicao_cenario->setEnabled(gerador.checkbox_transicao_cenario->checkState() == Qt::Checked);
+    bool habilitado = gerador.checkbox_transicao_cenario->checkState() == Qt::Checked;
+    gerador.linha_transicao_cenario->setEnabled(habilitado);
+    gerador.checkbox_transicao_posicao->setEnabled(habilitado);
+    gerador.spin_trans_x->setEnabled(habilitado);
+    gerador.spin_trans_y->setEnabled(habilitado);
+    gerador.spin_trans_z->setEnabled(habilitado);
   });
   if (!entidade.transicao_cenario().has_id_cenario()) {
     gerador.checkbox_transicao_cenario->setCheckState(Qt::Unchecked);
     gerador.linha_transicao_cenario->setEnabled(false);
+    gerador.checkbox_transicao_posicao->setEnabled(false);
+    gerador.spin_trans_x->setEnabled(false);
+    gerador.spin_trans_y->setEnabled(false);
+    gerador.spin_trans_z->setEnabled(false);
   } else {
     gerador.checkbox_transicao_cenario->setCheckState(Qt::Checked);
     gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
+    if (entidade.transicao_cenario().has_x()) {
+      gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
+      gerador.spin_trans_x->setValue(entidade.transicao_cenario().x());
+      gerador.spin_trans_y->setValue(entidade.transicao_cenario().y());
+      gerador.spin_trans_z->setValue(entidade.transicao_cenario().z());
+    } else {
+      gerador.checkbox_transicao_posicao->setCheckState(Qt::Unchecked);
+    }
   }
 
   // Ao aceitar o diálogo, aplica as mudancas.
@@ -512,6 +529,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
         LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
       }
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(ok ? val : CENARIO_INVALIDO);
+      if (ok) {
+        if (gerador.checkbox_transicao_posicao->checkState() == Qt::Checked) {
+          proto_retornado->mutable_transicao_cenario()->set_x(gerador.spin_trans_x->value());
+          proto_retornado->mutable_transicao_cenario()->set_y(gerador.spin_trans_y->value());
+          proto_retornado->mutable_transicao_cenario()->set_z(gerador.spin_trans_z->value());
+        } else {
+          proto_retornado->mutable_transicao_cenario()->clear_x();
+          proto_retornado->mutable_transicao_cenario()->clear_y();
+          proto_retornado->mutable_transicao_cenario()->clear_z();
+        }
+      }
     } else {
       // Valor especial para denotar ausencia.
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);

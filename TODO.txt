@@ -1,5 +1,6 @@
 Versao 1.10.0
-- Pontos de entrada no cenario.
+- Camera nos pontos de entrada do cenario.
+- Entidades ao redor do ponto de entrada do cenario.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Undo de criacao de cenarios.
 - Remocao de cenarios.
