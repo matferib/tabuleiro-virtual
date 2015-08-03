@@ -1,5 +1,4 @@
 Versao 1.10.0
-- Testar em rede.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Undo de criacao de cenarios.
 - Remocao de cenarios.

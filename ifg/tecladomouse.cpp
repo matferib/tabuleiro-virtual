@@ -283,7 +283,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     case Tecla_M: {
       //tabuleiro_->AlternaModoMestre();
-      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO));
+      //central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO));
       return;
     }
     case Tecla_P: {

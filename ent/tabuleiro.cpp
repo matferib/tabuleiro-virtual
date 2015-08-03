@@ -1652,6 +1652,10 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
     return;
   }
+  if (BuscaSubCenario(id_cenario) == nullptr && !ModoMestre()) {
+    LOG(WARNING) << "Apenas o mestre pode criar cenarios";
+    return;
+  }
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
