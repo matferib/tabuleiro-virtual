@@ -453,7 +453,8 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
         modelo.mutable_pos()->set_y(y);
         modelo.mutable_pos()->set_z(z);
         modelo.mutable_pos()->set_id_cenario(cenario_corrente_);
-      } else {
+      } else if (!Desfazendo()) {
+        // Se nao estiver desfazendo, poe a entidade no cenario corrente.
         modelo.mutable_pos()->set_id_cenario(cenario_corrente_);
       }
       unsigned int id_entidade = GeraIdEntidade(id_cliente_);
@@ -462,7 +463,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
       // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
       // se a entidade eh visivel e selecionavel para os jogadores.
-      if (!ignorar_lista_eventos_) {
+      if (!Desfazendo()) {
         modelo.set_visivel(!modo_mestre_);
         modelo.set_selecionavel_para_jogador(!modo_mestre_);
         modelo.set_id(id_entidade);
@@ -475,19 +476,22 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
       auto* entidade = NovaEntidade(modelo, texturas_, m3d_, central_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
-      // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
-      for (const auto id : ids_entidades_selecionadas_) {
-        auto* e_selecionada = BuscaEntidade(id);
-        if (e_selecionada == nullptr) {
-          continue;
+      // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
+      if (!Desfazendo()) {
+        // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
+        for (const auto id : ids_entidades_selecionadas_) {
+          auto* e_selecionada = BuscaEntidade(id);
+          if (e_selecionada == nullptr) {
+            continue;
+          }
+          if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
+            DeselecionaEntidades();
+            break;
+          }
         }
-        if (e_selecionada->Tipo() == TE_ENTIDADE && entidade->Tipo() == TE_FORMA) {
-          DeselecionaEntidades();
-          break;
-        }
+        AdicionaEntidadesSelecionadas({ entidade->Id() });
       }
-      AdicionaEntidadesSelecionadas({ entidade->Id() });
-      {
+      if (!Desfazendo()) {
         // Para desfazer.
         ntf::Notificacao n_desfazer(notificacao);
         n_desfazer.mutable_entidade()->CopyFrom(modelo);
@@ -1008,19 +1012,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_CRIAR_CENARIO: {
-      CriaSubCenario(notificacao.tabuleiro().id_cenario());
-      if (notificacao.local()) {
-        ntf::Notificacao* copia = new ntf::Notificacao(notificacao);
-        central_->AdicionaNotificacaoRemota(copia);
-      }
+      CriaSubCenarioNotificando(notificacao);
       return true;
     }
     case ntf::TN_REMOVER_CENARIO: {
-      RemoveSubCenario(notificacao.tabuleiro().has_id_cenario() ? notificacao.tabuleiro().id_cenario() : proto_corrente_->id_cenario());
-      if (notificacao.local()) {
-        ntf::Notificacao* copia = new ntf::Notificacao(notificacao);
-        central_->AdicionaNotificacaoRemota(copia);
-      }
+      RemoveSubCenarioNotificando(notificacao);
       return true;
     }
     case ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS: {
@@ -1652,25 +1648,40 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     return;
   }
   int id_cenario = entidade->Proto().transicao_cenario();
+  if (id_cenario < CENARIO_PRINCIPAL) {
+    LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
+    return;
+  }
+
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+
   if (!ids_entidades_selecionadas_.empty()) {
-    ntf::Notificacao grupo;
-    grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     for (unsigned int id : ids_entidades_selecionadas_) {
       auto* entidade_movendo = BuscaEntidade(id);
       if (entidade_movendo == nullptr) {
         continue;
       }
-      auto* n = grupo.add_notificacao();
+      auto* n = grupo_notificacoes.add_notificacao();
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       n->mutable_entidade()->set_id(id);
       n->mutable_entidade()->mutable_pos()->CopyFrom(entidade_movendo->Pos());
       n->mutable_entidade()->mutable_destino()->CopyFrom(entidade_movendo->Pos());
       n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
     }
-    TrataNotificacao(grupo);
-    AdicionaNotificacaoListaEventos(grupo);
   }
-  CarregaCenario(id_cenario);
+  // Criacao vem por ultimo para a inversao do desfazer funcionar, pois se a remocao for feita antes de mover as entidades de volta,
+  // ao mover as entidades vao ter sido removidas.
+  if (BuscaSubCenario(id_cenario) == nullptr) {
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_CRIAR_CENARIO);
+    n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+  }
+  if (grupo_notificacoes.notificacao_size() > 0) {
+    TrataNotificacao(grupo_notificacoes);
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  }
+  CarregaSubCenario(id_cenario);
 }
 
 
@@ -3373,79 +3384,105 @@ TabuleiroProto* Tabuleiro::BuscaSubCenario(int id_cenario) {
   return nullptr;
 }
 
-void Tabuleiro::CriaSubCenario(int id_cenario) {
+void Tabuleiro::CriaSubCenarioNotificando(const ntf::Notificacao& notificacao) {
+  int id_cenario = notificacao.tabuleiro().id_cenario();
   if (BuscaSubCenario(id_cenario) != nullptr) {
     LOG(ERROR) << "Cenario ja existe";
     return;
   }
   auto* cenario = proto_.add_sub_cenario();
   cenario->set_id_cenario(id_cenario);
-  ReiniciaIluminacao(cenario);
+  if (notificacao.tabuleiro().has_luz_ambiente()) {
+    // Notificacao possui campos de tabuleiro, deserializa.
+    DeserializaPropriedades(notificacao.tabuleiro());
+  } else {
+    // Padrao, apenas reinicia a iluminacao para nao ficar tudo escuro.
+    ReiniciaIluminacao(cenario);
+  }
+  LOG(INFO) << "Cenario criado";
+  if (!notificacao.local()) {
+    return;
+  }
+  // Envia para clientes.
+  central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(notificacao);
 }
 
-void Tabuleiro::RemoveSubCenario(int id_cenario) {
-  if (id_cenario == -1) {
+void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao) {
+  int id_cenario = notificacao.tabuleiro().has_id_cenario() ? notificacao.tabuleiro().id_cenario() : proto_corrente_->id_cenario();
+  if (id_cenario == CENARIO_PRINCIPAL) {
     LOG(ERROR) << "Nao eh possivel remover o cenario principal.";
     return;
   }
   if (proto_corrente_->id_cenario() == id_cenario) {
     // Carrega o cenario principal antes de remover o corrente.
     LOG(INFO) << "Carregando cenario principal porque o removido eh o corrente.";
-    CarregaCenario(-1);
+    CarregaSubCenario(CENARIO_PRINCIPAL);
   }
   LOG(INFO) << "Tam sub cenario antes: " << proto_.sub_cenario_size();
+  bool removeu = false;
+  TabuleiroProto cenario_para_desfazer;
   for (int i = 0; i < proto_.sub_cenario_size(); ++i) {
     const auto& sub_cenario = proto_.sub_cenario(i);
     if (sub_cenario.id_cenario() == id_cenario) {
       // Descarrega as texturas.
+      cenario_para_desfazer.CopyFrom(sub_cenario);
       TabuleiroProto dummy;
       dummy.set_id_cenario(id_cenario);
       AtualizaTexturas(dummy);
       proto_.mutable_sub_cenario()->DeleteSubrange(i, 1);
       LOG(INFO) << "Tam sub cenario depois: " << proto_.sub_cenario_size();
-      return;
+      removeu = true;
+      break;
     }
   }
-  LOG(ERROR) << "Cenario nao encontrado";
+  if (!removeu) {
+    LOG(INFO) << "Sub cenario nao encontrado";
+    return;
+  }
+  LOG(INFO) << "Cenario removido";
+  if (!notificacao.local()) {
+    // A remocao das entidades vira pela rede.
+    return;
+  }
+  central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+
+  // Remove entidades do cenario.
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (const auto& par_id_ent : entidades_) {
+    const auto* e = par_id_ent.second.get();
+    if (e->Pos().id_cenario() != id_cenario ||
+        (e->Proto().has_destino() && (e->Proto().destino().id_cenario() != id_cenario))) {
+      // Se a entidade estiver em outro cenario, ou estiver indo para outro cenario, nao remove.
+      // O destino pode estar setado e a posical estar em outro cenario ainda se a entidade ainda nao foi atualizada.
+      // Isso acontece durante desfazer.
+      continue;
+    }
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_REMOVER_ENTIDADE);
+    n->mutable_entidade()->CopyFrom(e->Proto());
+  }
+  TrataNotificacao(grupo_notificacoes);
+
+  // Para desfazer.
+  auto* n = grupo_notificacoes.add_notificacao();
+  n->set_tipo(ntf::TN_REMOVER_CENARIO);
+  n->mutable_tabuleiro()->Swap(&cenario_para_desfazer);
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
 }
 
-void Tabuleiro::CarregaCenario(int id_cenario) {
+void Tabuleiro::CarregaSubCenario(int id_cenario) {
   cenario_corrente_ = id_cenario;
-  TabuleiroProto* cenario = nullptr;
-  if (id_cenario != -1) {
-    // Algum sub cenario.
-    for (auto& sub_cenario : *proto_.mutable_sub_cenario()) {
-      if (sub_cenario.id_cenario() == id_cenario) {
-        cenario = &sub_cenario;
-        break;
-      }
-    }
-    if (cenario == nullptr) {
-      if (ModoMestre()) {
-        // Cria o cenario.
-        ntf::Notificacao n;
-        n.set_tipo(ntf::TN_CRIAR_CENARIO);
-        n.mutable_tabuleiro()->set_id_cenario(id_cenario);
-        TrataNotificacao(n);  // enviara notificacao aos clientes ao ser tratada localmente.
-        cenario = BuscaSubCenario(id_cenario);
-        if (cenario == nullptr) {
-          LOG(ERROR) << "Falha ao buscar cenario criado.";
-          return;
-        }
-      } else {
-        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        n->set_erro("Cenario nao existente: " + net::to_string(id_cenario));
-        central_->AdicionaNotificacao(n);
-        return;
-      }
-    }
-  } else {
-    // Cenario principal.
-    cenario = &proto_;
+  TabuleiroProto* cenario = BuscaSubCenario(id_cenario);
+  if (cenario == nullptr) {
+    LOG(ERROR) << "Cenario " << id_cenario << " nao existe";
+    return;
   }
   DeselecionaEntidades();
   proto_corrente_ = cenario;
@@ -3747,10 +3784,29 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
     // Tipos de notificacao que podem ser desfeitas.
     case ntf::TN_GRUPO_NOTIFICACOES:
       n_inversa.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+      // TODO inverter a ordem das notificacoes.
       for (const auto& n : n_original.notificacao()) {
         n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
       }
       break;
+    case ntf::TN_CRIAR_CENARIO: {
+      if (!n_original.tabuleiro().has_id_cenario()) {
+        LOG(ERROR) << "Nao eh possivel inverter TN_CRIAR_CENARIO sem id de cenario";
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_REMOVER_CENARIO);
+      n_inversa.mutable_tabuleiro()->CopyFrom(n_original.tabuleiro());
+      break;
+    }
+    case ntf::TN_REMOVER_CENARIO: {
+      if (!n_original.has_tabuleiro()) {
+        LOG(ERROR) << "Nao eh possivel inverter TN_REMOVER_CENARIO sem tabuleiro";
+        break;
+      }
+      n_inversa.set_tipo(ntf::TN_CRIAR_CENARIO);
+      n_inversa.mutable_tabuleiro()->CopyFrom(n_original.tabuleiro());
+      break;
+    }
     case ntf::TN_ATUALIZAR_RODADAS:
       VLOG(1) << "Invertendo TN_ATUALIZAR_RODADAS";
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_RODADAS);
@@ -3829,6 +3885,7 @@ void Tabuleiro::TrataComandoDesfazer() {
   }
   ignorar_lista_eventos_ = false;
   VLOG(1) << "Notificacao desfeita: " << n_original.ShortDebugString() << ", tamanho lista: " << lista_eventos_.size();
+  VLOG(1) << "Notificacao inversa: " << n_inversa.ShortDebugString();
 }
 
 void Tabuleiro::TrataComandoRefazer() {

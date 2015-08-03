@@ -335,10 +335,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna a camera presa a entidade. */
   void AlternaCameraPresa();
 
-  /** Carrega um cenario do tabuleiro.
-  * @param id do cenario. -1 para principal.
+  /** Carrega um cenario do tabuleiro. O cenario deve existir.
+  * @param id do cenario. Use CENARIO_PRINCIPAL para principal.
   */
-  void CarregaCenario(int id);
+  void CarregaSubCenario(int id);
 
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
@@ -553,10 +553,10 @@ class Tabuleiro : public ntf::Receptor {
   void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);
 
   /** Cria um novo sub cenario no tabuleiro. O id deve ser unico caso contrario nao faz nada. */
-  void CriaSubCenario(int id_cenario);
+  void CriaSubCenarioNotificando(const ntf::Notificacao& notificacao);
 
   /** Remove um sub cenario do tabuleiro. Nao eh possivel remover o cenario principal. */
-  void RemoveSubCenario(int id_cenario);
+  void RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao);
 
   /** @return o proto do sub cenario, ou nullptr se nao houver. */
   TabuleiroProto* BuscaSubCenario(int id_cenario);
@@ -627,6 +627,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Regera o Vbo da caixa do ceu, chamado apenas uma vez ja que o objeto da caixa nao muda (apenas a textura pode mudar). */
   void GeraVboCaixaCeu();
+
+  /** @return true se estiver executando o comando de desfazer/refazer. */
+  bool Desfazendo() const { return ignorar_lista_eventos_; }
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

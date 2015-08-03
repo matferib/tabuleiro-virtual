@@ -508,7 +508,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     if (gerador.checkbox_transicao_cenario->checkState() == Qt::Checked) {
       bool ok = false;
       int val = gerador.linha_transicao_cenario->text().toInt(&ok);
-      if (!ok) {
+      if (!ok || (val < CENARIO_PRINCIPAL)) {
         LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
       }
       proto_retornado->set_transicao_cenario(ok ? val : CENARIO_INVALIDO);
