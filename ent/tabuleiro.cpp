@@ -1643,11 +1643,11 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
     return;
   }
-  if (!entidade->Proto().has_transicao_cenario()) {
+  if (!entidade->Proto().transicao_cenario().has_id_cenario()) {
     LOG(INFO) << "Entidade " << id << " nao possui transicao de cenario";
     return;
   }
-  int id_cenario = entidade->Proto().transicao_cenario();
+  int id_cenario = entidade->Proto().transicao_cenario().id_cenario();
   if (id_cenario < CENARIO_PRINCIPAL) {
     LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
     return;

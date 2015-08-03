@@ -162,7 +162,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (proto_original.has_destino()) {
     proto_.mutable_destino()->Swap(proto_original.mutable_destino());
   }
-  if (proto_.transicao_cenario() == CENARIO_INVALIDO) {
+  if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
   }
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
@@ -370,7 +370,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
   }
-  if (proto_parcial.transicao_cenario() == -2) {
+  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
   }
 

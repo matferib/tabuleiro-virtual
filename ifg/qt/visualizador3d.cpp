@@ -459,12 +459,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.checkbox_transicao_cenario, SIGNAL(stateChanged(int)), [gerador] {
     gerador.linha_transicao_cenario->setEnabled(gerador.checkbox_transicao_cenario->checkState() == Qt::Checked);
   });
-  if (!entidade.has_transicao_cenario()) {
+  if (!entidade.transicao_cenario().has_id_cenario()) {
     gerador.checkbox_transicao_cenario->setCheckState(Qt::Unchecked);
     gerador.linha_transicao_cenario->setEnabled(false);
   } else {
     gerador.checkbox_transicao_cenario->setCheckState(Qt::Checked);
-    gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario()));
+    gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
   }
 
   // Ao aceitar o diálogo, aplica as mudancas.
@@ -511,10 +511,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       if (!ok || (val < CENARIO_PRINCIPAL)) {
         LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
       }
-      proto_retornado->set_transicao_cenario(ok ? val : CENARIO_INVALIDO);
+      proto_retornado->mutable_transicao_cenario()->set_id_cenario(ok ? val : CENARIO_INVALIDO);
     } else {
       // Valor especial para denotar ausencia.
-      proto_retornado->set_transicao_cenario(CENARIO_INVALIDO);
+      proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
     }
 
     if (!gerador.linha_textura->text().isEmpty()) {

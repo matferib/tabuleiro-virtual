@@ -125,7 +125,7 @@ message EntidadeProto {
   repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
   // Algumas formas permitem a transicao de um cenario para outro. Quando presente, esta forma tera a capacidade de transitar
   // entidades e a camera para outro cenario. Valor de -1 eh usado para cenario principal e -2 eh reservado para limpar a transicao.
-  optional int32 transicao_cenario = 35;
+  optional Posicao transicao_cenario = 35;
 
   // Destino da entidade.
   optional Posicao destino = 5;

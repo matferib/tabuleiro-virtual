@@ -1,4 +1,5 @@
 Versao 1.10.0
+- Pontos de entrada no cenario.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Undo de criacao de cenarios.
 - Remocao de cenarios.
