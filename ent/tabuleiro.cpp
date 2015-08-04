@@ -4298,7 +4298,7 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
 }
 
 void Tabuleiro::DesenhaCoordenadas() {
-  if (!ModoMestre() || (estado_ != ETAB_QUAD_PRESSIONADO && estado_ != ETAB_QUAD_SELECIONADO)) {
+  if (!VisaoMestre() || (estado_ != ETAB_QUAD_PRESSIONADO && estado_ != ETAB_QUAD_SELECIONADO)) {
     return;
   }
   char coordenadas[101] = { '\0' };
