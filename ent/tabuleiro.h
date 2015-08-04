@@ -337,7 +337,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Carrega um cenario do tabuleiro. O cenario deve existir.
   * @param id do cenario. Use CENARIO_PRINCIPAL para principal.
-  * @param camera a posicao da camera no cenario carregado.
+  * @param camera a posicao para onde a camera olha (alvo).
   */
   void CarregaSubCenario(int id, const Posicao& camera);
 
@@ -612,7 +612,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Salva a camera inicial. */
   void SalvaCameraInicial();
 
-  /** As vezes, a camera fica em posicoes estranhas por algum bug. Este comando a centraliza. */
+  /** Reinicia a camera para a posicao especificada no proto_.camera_inicial(). Caso nao haja, usa a posicao inicial. Pode carregar um cenario. */
   void ReiniciaCamera();
 
   /** Ao limpar o proto, a iluminacao vai a zero. Esta funcao restaura os valores que dao visibilidade ao tabuleiro. */

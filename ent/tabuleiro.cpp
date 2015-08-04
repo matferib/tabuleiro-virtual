@@ -4674,12 +4674,16 @@ void Tabuleiro::AlternaModoTransicao() {
 
 void Tabuleiro::SalvaCameraInicial() {
   proto_.mutable_camera_inicial()->CopyFrom(olho_);
+  proto_.mutable_camera_inicial()->mutable_pos()->set_id_cenario(proto_corrente_->id_cenario());
   // Destino é para movimento.
   proto_.mutable_camera_inicial()->clear_destino();
 }
 
 void Tabuleiro::ReiniciaCamera() {
   if (proto_.has_camera_inicial()) {
+    if (proto_.camera_inicial().pos().has_id_cenario() && proto_.camera_inicial().pos().id_cenario() != proto_corrente_->id_cenario()) {
+      CarregaSubCenario(proto_.camera_inicial().pos().id_cenario(), proto_.camera_inicial().alvo());
+    }
     olho_.CopyFrom(proto_.camera_inicial());
   } else {
     auto* pos = olho_.mutable_alvo();
