@@ -1,5 +1,5 @@
 Versao 1.10.0
-- Entidades ao redor do ponto de entrada do cenario.
+- Restauracao de camera em outros cenarios.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Undo de criacao de cenarios.
 - Remocao de cenarios.

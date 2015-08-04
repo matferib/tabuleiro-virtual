@@ -1662,6 +1662,26 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 
   if (!ids_entidades_selecionadas_.empty()) {
+    // Computa a posicao centro das entidades.
+    Posicao centro;
+    float x_centro = 0, y_centro = 0;
+    int n_entidades = 0;
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade_movendo = BuscaEntidade(id);
+      if (entidade_movendo == nullptr) {
+        continue;
+      }
+      x_centro += entidade_movendo->X();
+      y_centro += entidade_movendo->Y();
+      ++n_entidades;
+    }
+    if (n_entidades > 0) {
+      x_centro /= n_entidades;
+      y_centro /= n_entidades;
+    }
+
+    // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
+    Posicao pos_destino(entidade->Proto().transicao_cenario().has_x() ? entidade->Proto().transicao_cenario() : entidade->Pos());
     for (unsigned int id : ids_entidades_selecionadas_) {
       auto* entidade_movendo = BuscaEntidade(id);
       if (entidade_movendo == nullptr) {
@@ -1670,15 +1690,13 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       auto* n = grupo_notificacoes.add_notificacao();
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       n->mutable_entidade()->set_id(id);
-      n->mutable_entidade()->mutable_pos()->CopyFrom(entidade_movendo->Pos());
-      if (entidade->Proto().transicao_cenario().has_x()) {
-        // Usa a posicao da entidade de transicao.
-        n->mutable_entidade()->mutable_destino()->CopyFrom(entidade->Proto().transicao_cenario());
-      } else {
-        // Usa a posicao original.
-        n->mutable_entidade()->mutable_destino()->CopyFrom(entidade_movendo->Pos());
-        n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
-      }
+      n->mutable_entidade()->mutable_pos()->CopyFrom(entidade_movendo->Pos());  // Para desfazer.
+      float dx = entidade_movendo->X() - x_centro;
+      float dy = entidade_movendo->Y() - y_centro;
+      n->mutable_entidade()->mutable_destino()->set_x(pos_destino.x() + dx);
+      n->mutable_entidade()->mutable_destino()->set_y(pos_destino.y() + dy);
+      n->mutable_entidade()->mutable_destino()->set_z(entidade->Proto().transicao_cenario().z() + entidade_movendo->Z());
+      n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
     }
   }
   // Criacao vem por ultimo para a inversao do desfazer funcionar, pois se a remocao for feita antes de mover as entidades de volta,

@@ -258,11 +258,19 @@ void Entidade::Atualiza() {
   if (!proto_.has_destino()) {
     return;
   }
+  const auto& pd = proto_.destino();
   if (proto_.destino().has_id_cenario()) {
+    bool mudou_cenario = proto_.destino().id_cenario() != proto_.pos().id_cenario();
     proto_.mutable_pos()->set_id_cenario(proto_.destino().id_cenario());
+    if (mudou_cenario) {
+      po->set_x(pd.x());
+      po->set_y(pd.y());
+      po->set_z(pd.z());
+      proto_.clear_destino();
+      return;
+    }
   }
   double origens[] = { po->x(), po->y(), po->z() };
-  const auto& pd = proto_.destino();
   double destinos[] = { pd.x(), pd.y(), pd.z() };
 
   bool chegou = true;
