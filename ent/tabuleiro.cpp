@@ -430,6 +430,7 @@ void Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_forma_selecionada(false);
     parametros_desenho_.set_desenha_rosa_dos_ventos(false);
     parametros_desenho_.set_desenha_nevoa(false);
+    parametros_desenho_.set_desenha_coordenadas(false);
   }
   DesenhaCena();
 }
@@ -2044,6 +2045,9 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_id_acao()) {
     DesenhaIdAcaoEntidade();
   }
+  if (parametros_desenho_.desenha_coordenadas()) {
+    DesenhaCoordenadas();
+  }
 
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
@@ -2701,6 +2705,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_detalhes(false);
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_desenha_coordenadas(false);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -4289,6 +4294,35 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
     gl::PosicaoRaster(raster_x, raster_y);
     MudaCor(COR_BRANCA);
     gl::DesenhaString(id_acao);
+  }
+}
+
+void Tabuleiro::DesenhaCoordenadas() {
+  if (!ModoMestre() || (estado_ != ETAB_QUAD_PRESSIONADO && estado_ != ETAB_QUAD_SELECIONADO)) {
+    return;
+  }
+  char coordenadas[101] = { '\0' };
+  float x, y, z;
+  CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
+  snprintf(coordenadas, 100, "x: %.1f, y: %.1f, z: %.1f", x, y, z);
+
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  // Modo 2d: eixo com origem embaixo esquerda.
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+
+  {
+    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::CarregaIdentidade();
+    int largura_fonte, altura_fonte;
+    gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+
+    int raster_y = altura_ - (2 * altura_fonte);
+    int raster_x = largura_ / 2;
+    gl::PosicaoRaster(raster_x, raster_y);
+    MudaCor(COR_BRANCA);
+    gl::DesenhaString(coordenadas);
   }
 }
 

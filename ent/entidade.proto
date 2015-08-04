@@ -239,6 +239,8 @@ message ParametrosDesenho {
   optional bool desenha_controle_virtual = 31 [default=true];
   // Se false, os detalhes nao serao desenhados.
   optional bool desenha_detalhes = 33 [default=true];
+  // Se false, desenha as coordenadas do quadrado selecionado.
+  optional bool desenha_coordenadas = 37 [default=true];
 
   // Opcoes por entidade.
   // Se verdadeiro, desenha a barra de vida da entidade.

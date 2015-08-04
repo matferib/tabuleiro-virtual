@@ -591,6 +591,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha o identificador de acao da entidade selecionada. */
   void DesenhaIdAcaoEntidade();
 
+  /** Desenha as coordenadas na tela, abaixo das acoes. */
+  void DesenhaCoordenadas();
+
   /** Desenha o controle virtual. */
   void DesenhaControleVirtual();
 
