@@ -1,7 +1,7 @@
 Versao 1.10.0
+- Geracao de terrenos.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Descricao de cenarios (melhorar UI com drop down).
-- Geracao de terrenos.
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
 - Transparencias de vbo compostos.
