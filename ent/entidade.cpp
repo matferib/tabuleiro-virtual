@@ -343,6 +343,10 @@ float Entidade::Z() const {
   return proto_.pos().z();
 }
 
+int Entidade::IdCenario() const {
+  return proto_.pos().id_cenario();
+}
+
 void Entidade::MataEntidade() {
   proto_.set_morta(true);
   proto_.set_caida(true);

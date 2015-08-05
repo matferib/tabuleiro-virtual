@@ -1421,7 +1421,8 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       for (const auto& eit : entidades_) {
         ids_entidades_selecionadas_.clear();
         const Entidade& e = *eit.second;
-        if (PontoDentroQuadrado(e.X(), e.Y(), primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_)) {
+        if (e.IdCenario() == proto_corrente_->id_cenario() &&
+            PontoDentroQuadrado(e.X(), e.Y(), primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_)) {
           es.push_back(e.Id());
         }
       }
@@ -2454,6 +2455,9 @@ void Tabuleiro::DesenhaAuras() {
   if (parametros_desenho_.desenha_aura()) {
     for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
       Entidade* entidade = it->second.get();
+      if (entidade->IdCenario() != proto_corrente_->id_cenario()) {
+        continue;
+      }
       entidade->DesenhaAura(&parametros_desenho_);
     }
   }

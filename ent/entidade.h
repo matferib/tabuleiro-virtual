@@ -88,6 +88,9 @@ class Entidade {
   /** @return a coordenada (z). */
   float Z() const;
 
+  /** @return o id de cenario da entidade. */
+  int IdCenario() const;
+
   /** Retorna as coordenadas do objeto como posicao. */
   const Posicao& Pos() const { return proto_.pos(); }
 
