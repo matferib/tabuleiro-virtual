@@ -372,16 +372,6 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
-  if (camera_presa_) {
-    const auto* e = BuscaEntidade(id_camera_presa_);
-    if (e == nullptr) {
-      AlternaCameraPresa();
-    } else {
-      olho_.mutable_destino()->CopyFrom(e->Pos());
-      olho_.mutable_destino()->set_z(e->Z());
-      AtualizaOlho(true  /*forcar*/);
-    }
-  }
   const Posicao& alvo = olho_.alvo();
   if (camera_isometrica_) {
     gl::OlharPara(
@@ -2600,6 +2590,27 @@ void Tabuleiro::DesenhaSombras() {
 }
 
 void Tabuleiro::AtualizaOlho(bool forcar) {
+  if (camera_presa_) {
+    const auto* e = BuscaEntidade(id_camera_presa_);
+    if (e == nullptr) {
+      AlternaCameraPresa();
+    } else {
+      bool cenario_diferente = e->Pos().id_cenario() != proto_corrente_->id_cenario();
+      if (cenario_diferente) {
+        // Pode acontecer da entidade estar se movendo para o cenario novo.
+        if (e->Destino().has_id_cenario() && (e->Destino().id_cenario() == proto_corrente_->id_cenario())) {
+          cenario_diferente = false;
+        }
+      }
+      if (cenario_diferente) {
+        AlternaCameraPresa();
+      } else {
+        olho_.mutable_destino()->CopyFrom(e->Pos());
+        olho_.mutable_destino()->set_z(e->Z());
+      }
+    }
+  }
+
   if (!forcar && !olho_.has_destino()) {
     return;
   }

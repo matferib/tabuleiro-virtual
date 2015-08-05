@@ -65,6 +65,9 @@ class Entidade {
   /** Move a entidade uma quantidade em cada eixo. Limpa destino. */
   void MoveDelta(float dx, float dy, float dz);
 
+  /** @return o destino da entidade. */
+  const Posicao& Destino() const { return proto_.destino(); }
+
   /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
   void Destino(const Posicao& pos);
 
