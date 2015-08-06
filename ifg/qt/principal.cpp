@@ -10,14 +10,18 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QLayout>
+#include <QLibraryInfo>
+#include <QLocale>
 #include <QTextCodec>
 #include <QTimer>
+#include <QTranslator>
 
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/qt/visualizador3d.h"
 #include "ent/constantes.h"
+#include "log/log.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "ent/tabuleiro.h"
@@ -32,6 +36,17 @@ using namespace std;
 Principal* Principal::Cria(int& argc, char** argv,
                            ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ntf::CentralNotificacoes* central) {
   auto* q_app = new QApplication(argc, argv);
+  static QTranslator* tradutor_qt = new QTranslator();
+  bool carregou = tradutor_qt->load("qt_" + QLocale::system().name(),
+                                    QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+  LOG(INFO) << "Traducao QT carregada? " << carregou;
+  q_app->installTranslator(tradutor_qt);
+  static QTranslator* tradutor_meu = new QTranslator;
+  carregou = tradutor_meu->load("tabuleiro_" + QLocale::system().name(), "traducoes", "_", ".qm");
+  LOG(INFO) << "Traducao minha carregada? " << carregou;
+  LOG(INFO) << "Arquivo: tabuleiro." << QLocale::system().name().toStdString();
+  q_app->installTranslator(tradutor_meu);
+
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
   return new Principal(argc, argv, tabuleiro, texturas, central, q_app);
 }

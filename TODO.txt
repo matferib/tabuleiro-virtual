@@ -1,4 +1,5 @@
 Versao 1.10.0
+- Manter selecao de objetos ao transitar?
 - Geracao de terrenos.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Descricao de cenarios (melhorar UI com drop down).

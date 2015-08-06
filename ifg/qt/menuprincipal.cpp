@@ -39,18 +39,21 @@ const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Ações", "
 // Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
 const char* g_menuitem_strs[] = {
   // jogo
-  "&Iniciar jogo mestre", "&Conectar no jogo mestre", nullptr, "&Sair", g_fim,
+  QT_TR_NOOP("&Iniciar jogo mestre"), QT_TR_NOOP("&Conectar no jogo mestre"), nullptr, QT_TR_NOOP("&Sair"), g_fim,
   // Tabuleiro.
-  "Desfazer (Ctrl + Z)", "Refazer (Ctrl + Y)", nullptr, "&Opções", "&Propriedades", nullptr,
-      "&Reiniciar", "&Salvar (Ctrl + S)",  "S&alvar Como", "R&estaurar", "Res&taurar mantendo Entidades", "Salvar &Câmera", "Re&iniciar Câmera", g_fim,
+  QT_TR_NOOP("Desfazer (Ctrl + Z)"), QT_TR_NOOP("Refazer (Ctrl + Y)"), nullptr, QT_TR_NOOP("&Opções"), QT_TR_NOOP("&Propriedades"), nullptr,
+      QT_TR_NOOP("&Reiniciar"), QT_TR_NOOP("&Salvar (Ctrl + S)"),  QT_TR_NOOP("S&alvar Como"), QT_TR_NOOP("R&estaurar"),
+      QT_TR_NOOP("Res&taurar mantendo Entidades"), QT_TR_NOOP("Salvar &Câmera"), QT_TR_NOOP("Re&iniciar Câmera"), g_fim,
   // Entidades.
-  "&Selecionar modelo", "&Propriedades", nullptr, "&Adicionar", "&Remover", nullptr, "Salvar selecionáveis", "Restaurar selecionáveis", g_fim,
+  QT_TR_NOOP("&Selecionar modelo"), QT_TR_NOOP("&Propriedades"), nullptr, QT_TR_NOOP("&Adicionar"), QT_TR_NOOP("&Remover"), nullptr,
+      QT_TR_NOOP("Salvar selecionáveis"), QT_TR_NOOP("Restaurar selecionáveis"), g_fim,
   // Acoes.
   g_fim,
   // Desenho.
-  "&Cilindro", "Cí&rculo", "C&one", "C&ubo", "&Esfera", "&Livre", "&Pirâmide", "&Retângulo", nullptr, "&Selecionar Cor", g_fim,
+  QT_TR_NOOP("&Cilindro"), QT_TR_NOOP("Cí&rculo"), QT_TR_NOOP("C&one"), QT_TR_NOOP("C&ubo"), QT_TR_NOOP("&Esfera"), QT_TR_NOOP("&Livre"),
+      QT_TR_NOOP("&Pirâmide"), QT_TR_NOOP("&Retângulo"), nullptr, QT_TR_NOOP("&Selecionar Cor"), g_fim,
   // Sobre
-  "&Tabuleiro virtual", g_fim,
+  QT_TR_NOOP("&Tabuleiro virtual"), g_fim,
 };
 
 // Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
