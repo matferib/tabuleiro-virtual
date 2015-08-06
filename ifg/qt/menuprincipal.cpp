@@ -39,21 +39,28 @@ const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Ações", "
 // Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
 const char* g_menuitem_strs[] = {
   // jogo
-  QT_TR_NOOP("&Iniciar jogo mestre"), QT_TR_NOOP("&Conectar no jogo mestre"), nullptr, QT_TR_NOOP("&Sair"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Iniciar jogo mestre"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Conectar no jogo mestre"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Sair"), g_fim,
   // Tabuleiro.
-  QT_TR_NOOP("Desfazer (Ctrl + Z)"), QT_TR_NOOP("Refazer (Ctrl + Y)"), nullptr, QT_TR_NOOP("&Opções"), QT_TR_NOOP("&Propriedades"), nullptr,
-      QT_TR_NOOP("&Reiniciar"), QT_TR_NOOP("&Salvar (Ctrl + S)"),  QT_TR_NOOP("S&alvar Como"), QT_TR_NOOP("R&estaurar"),
-      QT_TR_NOOP("Res&taurar mantendo Entidades"), QT_TR_NOOP("Salvar &Câmera"), QT_TR_NOOP("Re&iniciar Câmera"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Opções"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Reiniciar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Salvar (Ctrl + S)"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "S&alvar Como"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "R&estaurar"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Res&taurar mantendo Entidades"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
-  QT_TR_NOOP("&Selecionar modelo"), QT_TR_NOOP("&Propriedades"), nullptr, QT_TR_NOOP("&Adicionar"), QT_TR_NOOP("&Remover"), nullptr,
-      QT_TR_NOOP("Salvar selecionáveis"), QT_TR_NOOP("Restaurar selecionáveis"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Adicionar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Remover"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionáveis"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar selecionáveis"), g_fim,
   // Acoes.
   g_fim,
   // Desenho.
-  QT_TR_NOOP("&Cilindro"), QT_TR_NOOP("Cí&rculo"), QT_TR_NOOP("C&one"), QT_TR_NOOP("C&ubo"), QT_TR_NOOP("&Esfera"), QT_TR_NOOP("&Livre"),
-      QT_TR_NOOP("&Pirâmide"), QT_TR_NOOP("&Retângulo"), nullptr, QT_TR_NOOP("&Selecionar Cor"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Cilindro"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Cí&rculo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "C&one"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "C&ubo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Esfera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Livre"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Pirâmide"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Retângulo"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar Cor"), g_fim,
   // Sobre
-  QT_TR_NOOP("&Tabuleiro virtual"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Tabuleiro virtual"), g_fim,
 };
 
 // Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
