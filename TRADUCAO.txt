@@ -1,0 +1,3 @@
+Gerar o arquivo XML
+lupdate ifg/qt/ -ts traducoes/tabuleiro_en.ts
+lrelease traducoes/tabuleiro_en.ts -qm traducoes/tabuleiro_en.qm (melhor usar o QLinguistic)

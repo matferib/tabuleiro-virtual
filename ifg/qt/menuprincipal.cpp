@@ -34,7 +34,12 @@ namespace {
 const char* g_fim = "FIM";
 
 // Strs de cada menu.
-const char* g_menu_strs[] = { "&Jogo", "&Tabuleiro", "&Entidades", "&Ações", "&Desenho", "&Sobre" };
+const char* g_menu_strs[] = { QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Jogo"),
+                              QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Tabuleiro"),
+                              QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Entidades"),
+                              QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Ações"),
+                              QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Desenho"),
+                              QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Sobre") };
 
 // Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
 const char* g_menuitem_strs[] = {
@@ -148,13 +153,13 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
           MenuModelos este_menu_modelos_proto;
           try {
             arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
-            VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString(); 
+            VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
             MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
           } catch (const std::logic_error& erro) {
             LOG(ERROR) << erro.what();
           }
         }
-        VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString(); 
+        VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString();
         PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
         connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
       } else {
@@ -176,6 +181,21 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
     ++controle_item;  // pula o FIM.
     // Tratamento especifico de menus.
     if (controle_menu == ME_ACOES) {
+      static const char* strings_acoes[] = {
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Ácido"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Ataque Corpo a Corpo"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Ataque a Distância"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Bola de Fogo"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Cone de Gelo"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Feitiço de Toque"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Fogo Grego"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Mãos Flamejantes"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Míssil Mágico"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Pedrada (gigante)"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Raio"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Relâmpago"),
+        QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Sinalização") };
+      VLOG(1) << "Compiler happy: " << strings_acoes[0];
       // Esse menu tem tratamento especial.
       std::vector<std::pair<std::string, const ent::AcaoProto*>> acoes_ordenadas;
       for (const auto& acao_it : tabuleiro_->MapaAcoes()) {
@@ -296,14 +316,14 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
     qd->setModal(true);
     QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
-    auto* nome_rotulo = new QLabel("Nome do jogador:");
+    auto* nome_rotulo = new QLabel(tr("Nome do jogador:"));
     auto* nome_le = new QLineEdit();
     std::string nome_completo(boost::asio::ip::host_name());
     std::string nome_simples = nome_completo.substr(0, nome_completo.find("."));
     nome_le->setText(tr(nome_simples.c_str()));
     ql->addWidget(nome_rotulo);
     ql->addWidget(nome_le);
-    auto* ip_rotulo = new QLabel("IP:");
+    auto* ip_rotulo = new QLabel(tr("IP:"));
     auto* ip_le = new QLineEdit();
     ip_le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
     ql->addWidget(ip_rotulo);

@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <google/protobuf/text_format.h>
+#else
 #endif
 #include <algorithm>
 #include <boost/filesystem.hpp>
