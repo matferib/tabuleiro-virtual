@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <string>
+#include "arq/arquivo.h"
 #include "gltab/gl.h"
 #include "log/log.h"
 
@@ -20,11 +21,33 @@ struct ContextoInterno {
   PROC pglBufferData;
 #endif
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
+#if USAR_SHADER
+  GLuint programa_luz;
+  GLuint programa_cor;
+  GLuint vs_luz;
+  GLuint vs_cor;
+  GLuint fs;
+#endif
 } g_contexto;
 
 bool ImprimeSeErro();
+bool ImprimeSeShaderErro(GLuint shader) {
+  GLint success = 0;
+  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  if (success) {
+    return false;
+  }
+  GLint log_size = 0;
+  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
+  std::string info_log;
+  info_log.resize(log_size);
+  glGetShaderInfoLog(shader, log_size, &log_size, &info_log[0]);
+  LOG(ERROR) << "Erro de shader: " << info_log;
+  return true;
+}
 
 #define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
+#define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
 #if WIN32
@@ -50,43 +73,85 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-  /*
+#if USAR_SHADER
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
-  GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-  V_ERRO();
-  GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-  V_ERRO();
-  std::string codigo_v_shader_str;
-  arq::LeArquivo(arq::TIPO_SHADER, "vert.c", &codigo_v_shader_str);
-  const char* codigo_v_shader = codigo_v_shader_str.c_str();
-  glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-  V_ERRO();
-  std::string codigo_f_shader_str;
-  arq::LeArquivo(arq::TIPO_SHADER, "frag.c", &codigo_f_shader_str);
-  const char* codigo_f_shader = codigo_f_shader_str.c_str();
-  glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-  V_ERRO();
-  glCompileShader(v_shader);
-  V_ERRO();
-  glCompileShader(f_shader);
-  V_ERRO();
-  GLuint p = glCreateProgram();
-  V_ERRO();
-  glAttachShader(p, v_shader);
-  V_ERRO();
-  glAttachShader(p, f_shader);
-  V_ERRO();
-  glLinkProgram(p);
-  V_ERRO();
-  glUseProgram(p);
-  V_ERRO();
-  */
+  // Programa de luz.
+  {
+    GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
+    V_ERRO();
+    GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    V_ERRO();
+    std::string codigo_v_shader_str;
+    arq::LeArquivo(arq::TIPO_SHADER, "vert_luz.c", &codigo_v_shader_str);
+    const char* codigo_v_shader = codigo_v_shader_str.c_str();
+    glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
+    V_ERRO();
+    std::string codigo_f_shader_str;
+    arq::LeArquivo(arq::TIPO_SHADER, "frag.c", &codigo_f_shader_str);
+    const char* codigo_f_shader = codigo_f_shader_str.c_str();
+    glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
+    V_ERRO();
+    glCompileShader(v_shader);
+    V_ERRO();
+    V_ERRO_SHADER(v_shader);
+    glCompileShader(f_shader);
+    V_ERRO();
+    V_ERRO_SHADER(f_shader);
+    GLuint p = glCreateProgram();
+    V_ERRO();
+    glAttachShader(p, v_shader);
+    V_ERRO();
+    glAttachShader(p, f_shader);
+    V_ERRO();
+    glLinkProgram(p);
+    V_ERRO();
+    glUseProgram(p);
+    V_ERRO();
+    g_contexto.programa_luz = p;
+    g_contexto.vs_luz = v_shader;
+    g_contexto.fs = f_shader;
+  }
+
+  // Programa de cor.
+  {
+    GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
+    V_ERRO();
+    std::string codigo_v_shader_str;
+    arq::LeArquivo(arq::TIPO_SHADER, "vert_cor.c", &codigo_v_shader_str);
+    const char* codigo_v_shader = codigo_v_shader_str.c_str();
+    glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
+    V_ERRO();
+    glCompileShader(v_shader);
+    V_ERRO();
+    GLuint p = glCreateProgram();
+    V_ERRO();
+    glAttachShader(p, v_shader);
+    V_ERRO();
+    glAttachShader(p, g_contexto.fs);
+    V_ERRO();
+    glLinkProgram(p);
+    V_ERRO();
+    g_contexto.programa_cor = p;
+    g_contexto.vs_cor = v_shader;
+  }
+#endif
 }
 #undef V_ERRO
 
 void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
+#endif
+#if USAR_SHADER
+  glDetachShader(g_contexto.programa_luz, g_contexto.vs_luz);
+  glDetachShader(g_contexto.programa_cor, g_contexto.vs_cor);
+  glDetachShader(g_contexto.programa_luz, g_contexto.fs);
+  glDetachShader(g_contexto.programa_cor, g_contexto.fs);
+  glDeleteProgram(g_contexto.programa_luz);
+  glDeleteProgram(g_contexto.programa_cor);
+  glDeleteShader(g_contexto.vs_luz);
+  glDeleteShader(g_contexto.vs_cor);
+  glDeleteShader(g_contexto.fs);
 #endif
 }
 
@@ -160,6 +225,26 @@ void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum u
 
 void AlternaModoDebug() {
   g_contexto.depurar_selecao_por_cor = !g_contexto.depurar_selecao_por_cor;
+}
+
+void Habilita(GLenum cap) {
+#if USAR_SHADER
+  if (cap == GL_LIGHTING) {
+    glUseProgram(g_contexto.programa_luz);
+    return;
+  }
+#endif
+  glEnable(cap);
+}
+
+void Desabilita(GLenum cap) {
+#if USAR_SHADER
+  if (cap == GL_LIGHTING) {
+    glUseProgram(g_contexto.programa_cor);
+    return;
+  }
+#endif
+  glDisable(cap);
 }
 
 }  // namespace gl.

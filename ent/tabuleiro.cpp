@@ -362,7 +362,7 @@ void Tabuleiro::EstadoInicial() {
 void Tabuleiro::ConfiguraProjecao() {
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
-    // o tamanho do vetor 
+    // o tamanho do vetor
     float dif_x = alvo.x() - olho_.pos().x();
     float dif_y = alvo.y() - olho_.pos().y();
     float fator_zoom = sqrt(dif_x * dif_x + dif_y * dif_y);
@@ -2566,7 +2566,7 @@ void Tabuleiro::BuscaHitMaisProximo(
     *profundidade = menor_profundidade;
   }
   VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
-          << ", tipo_objeto: " << tipo_objeto_menor 
+          << ", tipo_objeto: " << tipo_objeto_menor
           << ", id: " << id_menor;
 }
 
@@ -3927,12 +3927,20 @@ void Tabuleiro::DesenhaLuzes() {
 
   // Iluminação distante direcional.
   {
-    gl::MatrizEscopo salva_matriz;
-    // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
-    GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
-    // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-    gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    float modelview[16];
+    {
+      gl::MatrizEscopo salva_matriz;
+      // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
+      gl::CarregaIdentidade();
+      gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+      gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+      gl::Le(GL_MODELVIEW_MATRIX, modelview);
+    }
+    // O vetor inicial esta no leste (origem da luz). O quarto elemento indica uma luz no infinito.
+    GLfloat pos_luz[4] = { 1.0, 0.0f, 0.0f, 1.0f };
+    MultiplicaMatrizVetor(modelview, pos_luz);
+    pos_luz[3] = 0.0f;
+    //LOG_EVERY_N(INFO, 10) << "luz x: " << pos_luz[0] << ", y: " << pos_luz[1] << ", z: " << pos_luz[2];
     gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
   }
   // A cor da luz direcional.

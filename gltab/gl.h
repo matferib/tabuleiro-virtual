@@ -117,11 +117,11 @@ inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_paramet
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
-inline void Habilita(GLenum cap) { glEnable(cap); }
 #else
 void Habilita(GLenum cap);
 #endif
-inline void Desabilita(GLenum cap) { glDisable(cap); }
+void Habilita(GLenum cap);
+void Desabilita(GLenum cap);
 inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
 inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
@@ -534,8 +534,8 @@ class DesligaEscritaProfundidadeEscopo {
 /** Habilita uma caracteristica pelo escopo. Ver glEnable. */
 class HabilitaEscopo {
  public:
-  HabilitaEscopo(GLenum cap) : cap_(cap) { glEnable(cap_); }
-  ~HabilitaEscopo() { glDisable(cap_); }
+  HabilitaEscopo(GLenum cap) : cap_(cap) { Habilita(cap_); }
+  ~HabilitaEscopo() { Desabilita(cap_); }
  private:
   GLenum cap_;
 };
@@ -546,11 +546,11 @@ class DesabilitaEscopo {
   DesabilitaEscopo(GLenum cap) : cap_(cap) {
     //Le(cap, &valor_anterior_);
     valor_anterior_ = EstaHabilitado(cap);
-    glDisable(cap_);
+    Desabilita(cap_);
   }
   ~DesabilitaEscopo() {
     if (valor_anterior_) {
-      glEnable(cap_);
+      Habilita(cap_);
     }
   }
  private:
