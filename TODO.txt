@@ -1,4 +1,6 @@
 Versao 1.10.0
+- Mais traducoes.
+- Traducoes ANDROID e IOS.
 - Manter selecao de objetos ao transitar?
 - Geracao de terrenos.
 - Bug da translacao quando muda para um cenario menor que a origem.

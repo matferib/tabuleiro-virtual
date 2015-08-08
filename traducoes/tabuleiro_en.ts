@@ -58,7 +58,7 @@
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="319"/>
         <source>Nome do jogador:</source>
-        <translation type="unfinished">Player name:</translation>
+        <translation>Player name:</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="326"/>
@@ -1112,71 +1112,67 @@ Author: Matheus Ribeiro &lt;mfribeiro+tabuleiro@gmail.com&gt;</translation>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="185"/>
         <source>Ãcido</source>
-        <translation type="unfinished">Acid</translation>
+        <translation>Acid</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="186"/>
         <source>Ataque Corpo a Corpo</source>
-        <translation type="unfinished">Melee Attack</translation>
+        <translation>Melee Attack</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="187"/>
         <source>Ataque a DistÃ¢ncia</source>
-        <translation type="unfinished">Ranged Attack</translation>
+        <translation>Ranged Attack</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="188"/>
         <source>Bola de Fogo</source>
-        <translation type="unfinished">Fireball</translation>
+        <translation>Fireball</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="189"/>
         <source>Cone de Gelo</source>
-        <translation type="unfinished">Cone of Cold</translation>
+        <translation>Cone of Cold</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="190"/>
         <source>FeitiÃ§o de Toque</source>
-        <translation type="unfinished">Touch Spell</translation>
+        <translation>Touch Spell</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="191"/>
         <source>Fogo Grego</source>
-        <translation type="unfinished">Alchemical Fire</translation>
+        <translation>Alchemical Fire</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="192"/>
         <source>MÃ£os Flamejantes</source>
-        <translation type="unfinished">Burning Hands</translation>
+        <translation>Burning Hands</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="193"/>
         <source>MÃ­ssil MÃ¡gico</source>
-        <translation type="unfinished">Magic Missile</translation>
+        <translation>Magic Missile</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="194"/>
         <source>Pedrada (gigante)</source>
-        <translation type="unfinished">Stone Throw (giant)</translation>
+        <translation>Stone Throw (giant)</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="195"/>
         <source>Raio</source>
-        <translation type="unfinished">Ray</translation>
+        <translation>Ray</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="196"/>
         <source>RelÃ¢mpago</source>
-        <translation type="unfinished">Lightning</translation>
+        <translation>Lightning</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="197"/>
         <source>SinalizaÃ§Ã£o</source>
-        <translation type="unfinished">Signal</translation>
-    </message>
-    <message>
-        <source>Nome do jogador:</source>
-        <translation type="obsolete">Player name:</translation>
+        <translation>Signal</translation>
     </message>
 </context>
 </TS>
