@@ -1041,7 +1041,7 @@ Author: Matheus Ribeiro &lt;mfribeiro+tabuleiro@gmail.com&gt;</translation>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="58"/>
         <source>&amp;Adicionar</source>
-        <translation>&amp;ADd</translation>
+        <translation>&amp;Add</translation>
     </message>
     <message>
         <location filename="../ifg/qt/menuprincipal.cpp" line="58"/>
