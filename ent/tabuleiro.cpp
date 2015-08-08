@@ -3193,6 +3193,10 @@ void Tabuleiro::DeselecionaEntidade(unsigned int id) {
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
+  if (id_quadrado < 0) {
+    LOG(WARNING) << "Id do quadrado invalido: " << id_quadrado;
+    //return;
+  }
   quadrado_selecionado_ = id_quadrado;
   ids_entidades_selecionadas_.clear();
   estado_ = ETAB_QUAD_PRESSIONADO;
@@ -3203,14 +3207,14 @@ unsigned int Tabuleiro::IdQuadrado(float x, float y) {
   float delta_x_float = x - inicio_x;
   int delta_x = delta_x_float / TAMANHO_LADO_QUADRADO;
   if (delta_x < 0 || delta_x >= TamanhoX()) {
-    LOG(ERROR) << "Posicao invalida para tabuleiro, x: " << x;
+    VLOG(1) << "Posicao invalida para tabuleiro, x: " << x;
     return -1;
   }
   float inicio_y = -(TamanhoY() * TAMANHO_LADO_QUADRADO) / 2.0f;
   float delta_y_float = y - inicio_y;
   int delta_y = delta_y_float / TAMANHO_LADO_QUADRADO;
   if (delta_y >= TamanhoY()) {
-    LOG(ERROR) << "Posicao invalida para tabuleiro, y: " << y;
+    VLOG(1) << "Posicao invalida para tabuleiro, y: " << y;
     return -1;
   }
   return delta_y * TamanhoX() + delta_x;
