@@ -1,7 +1,8 @@
-Versao 1.10.0
+Versao 1.10.2
+- Geracao de terrenos.
+- Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
-- Geracao de terrenos.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Descricao de cenarios (melhorar UI com drop down).
 - Efeitos apenas para mestre.
