@@ -1,7 +1,7 @@
 Versao 1.10.0
+- Nao consegue fazer selecao arrastando sobre objetos fixos.
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
-- Manter selecao de objetos ao transitar?
 - Geracao de terrenos.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Descricao de cenarios (melhorar UI com drop down).

@@ -3542,7 +3542,18 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
     LOG(ERROR) << "Cenario " << id_cenario << " nao existe";
     return;
   }
-  DeselecionaEntidades();
+  // Deseleciona entidades que nao transitaram.
+  std::vector<unsigned int> ids_a_deselecionar;
+  for (auto id : ids_entidades_selecionadas_) {
+    auto* e = BuscaEntidade(id);
+    if (e == nullptr ||
+        ((e->Pos().id_cenario() != id_cenario) && (e->Destino().id_cenario() != id_cenario))) {
+      ids_a_deselecionar.push_back(e->Id());
+    }
+  }
+  for (auto id : ids_a_deselecionar) {
+    DeselecionaEntidade(id);
+  }
   proto_corrente_ = cenario;
   RegeraVboTabuleiro();
   // A caixa do ceu nao precisa porque o objeto dela eh fixo.
