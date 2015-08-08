@@ -1,5 +1,4 @@
 Versao 1.10.0
-- Nao consegue fazer selecao arrastando sobre objetos fixos.
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Geracao de terrenos.

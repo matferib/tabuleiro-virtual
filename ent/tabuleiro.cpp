@@ -2802,7 +2802,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         // Se nao estava selecionada, so ela.
         SelecionaEntidade(id);
       }
-      // Se nao, pode mover mais.
+      bool ha_entidades_selecionadas = !ids_entidades_selecionadas_.empty();
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -2815,8 +2815,19 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         pos.set_z(ZChao(pos.x(), pos.y()));
         rastros_movimento_[id].push_back(pos);
       }
-      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
-      estado_ = ETAB_ENTS_PRESSIONADAS;
+      if (ha_entidades_selecionadas) {
+        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        estado_ = ETAB_ENTS_PRESSIONADAS;
+      } else {
+        MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+        ultimo_x_3d_ = x3d;
+        ultimo_y_3d_ = y3d;
+        ultimo_z_3d_ = z3d;
+        primeiro_x_3d_ = x3d;
+        primeiro_y_3d_ = y3d;
+        primeiro_z_3d_ = z3d;
+        SelecionaQuadrado(IdQuadrado(x3d, y3d));
+      }
     }
   } else if (pos_pilha == OBJ_ROLAGEM) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
