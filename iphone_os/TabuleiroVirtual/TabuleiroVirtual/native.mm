@@ -156,6 +156,10 @@ void nativeDoubleClick(int x, int y) {
   g_teclado_mouse->TrataDuploCliqueMouse(ifg::Botao_Esquerdo, 0, x, y);
 }
 
+void nativeTilt(float delta) {
+  g_tabuleiro->TrataInclinacaoPorDelta(delta);
+}
+
 ntf::CentralNotificacoes* nativeCentral() {
   return g_central.get();
 }

@@ -1,4 +1,5 @@
 Versao 1.10.2
+- Inclinacao da camera para IPAD.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
 - Mais traducoes.

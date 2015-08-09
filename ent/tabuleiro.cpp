@@ -1257,8 +1257,8 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   switch (estado_) {
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
       if (translacao_rotacao_ == TR_NENHUM) {
-        int abs_delta_x = fabs(primeiro_x_ - x);
-        int abs_delta_y = fabs(primeiro_y_ - y);
+        int abs_delta_x = abs(primeiro_x_ - x);
+        int abs_delta_y = abs(primeiro_y_ - y);
         // Ve se ja da pra decidir.
         if (abs_delta_x > DELTA_MINIMO_TRANSLACAO_ROTACAO && abs_delta_y > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
           // Usa o maior delta.
@@ -2354,7 +2354,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 
   // Desenha quadrado selecionado.
-  if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade()) {
+  if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
     //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
     const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };

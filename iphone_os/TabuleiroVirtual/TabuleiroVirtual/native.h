@@ -17,6 +17,7 @@ void nativeTouchReleased();
 void nativeDoubleClick(int x, int y);
 void nativeScale(float scale);
 void nativeRotate(float rad);
+void nativeTilt(float delta);
 ntf::CentralNotificacoes* nativeCentral();
 
 // Teclado.

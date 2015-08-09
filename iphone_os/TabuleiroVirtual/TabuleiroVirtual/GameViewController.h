@@ -9,6 +9,7 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import <CoreMotion/CoreMotion.h>
 
 namespace ntf {
 class Notificacao;
@@ -27,6 +28,7 @@ class Notificacao;
     UITextField* texto_slider_tamanho_;  // ditto.
     UITextField* pontos_vida_;
     UITextField* max_pontos_vida_;
+    CMMotionManager* motion_manager_;
     
     @public
     NSString* id_cliente_;
