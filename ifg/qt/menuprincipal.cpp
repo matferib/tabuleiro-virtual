@@ -303,7 +303,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
       notificacao = new ntf::Notificacao;
       notificacao->set_tipo(ntf::TN_CONECTAR);
-      notificacao->set_id(nome_le->text().toStdString());
+      notificacao->set_id_rede(nome_le->text().toStdString());
       notificacao->set_endereco(ip_le->text().toStdString());
       qd->accept();
     });
@@ -328,7 +328,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QString file_str = QFileDialog::getSaveFileName(
         qobject_cast<QWidget*>(parent()),
         tr("Salvar entidades selecionáveis"),
-        tr(DIR_ENTIDADES));
+        tr(arq::Diretorio(arq::TIPO_ENTIDADES).c_str()));
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de salvar cancelada.";
       return;
@@ -338,7 +338,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                     tr("Abrir entidades selecionáveis"),
-                                                    DIR_ENTIDADES);
+                                                    arq::Diretorio(arq::TIPO_ENTIDADES).c_str());
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de restaurar cancelada.";
       return;
@@ -354,25 +354,15 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
-    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-    notificacao->set_endereco("");  // Endereco vazio para sinalizar o uso do corrente.
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_COMO]) {
-    // Abre dialogo de arquivo.
-    QString file_str = QFileDialog::getSaveFileName(
-        qobject_cast<QWidget*>(parent()),
-        tr("Salvar tabuleiro"),
-        tr(DIR_TABULEIROS));
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de salvar cancelada.";
-      return;
-    }
-    notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-    notificacao->set_endereco(file_str.toStdString());
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
+    notificacao->mutable_tabuleiro()->set_nome("");  // nome vazio: deversa ser definido.
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR] ||
              acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                     tr("Abrir tabuleiro"),
-                                                    DIR_TABULEIROS);
+                                                    arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
     if (file_str.isEmpty()) {
       VLOG(1) << "Operação de restaurar cancelada.";
       return;
@@ -415,10 +405,11 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 1.8.1\n"
+        tr("Tabuleiro virtual versão 1.10.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
-           "Ícones: http://www.flaticon.com/\n"
-           "Autor: Matheus Ribeiro <mfribeiro@gmail.com>"));
+           "Ícones: origem http://www.flaticon.com/\n"
+           "- Designed by Freepik\n"
+           "Autor: Matheus Ribeiro <mfribeiro+tabuleiro@gmail.com>"));
   }
 
   if (notificacao != nullptr) {

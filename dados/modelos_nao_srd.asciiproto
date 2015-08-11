@@ -8,6 +8,10 @@ modelo {
   entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
 }
 modelo {
+  id: 'Demônio Flecha'  # MM3
+  entidade { dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' }
+}
+modelo {
 	id: 'Dragontino'  # Monstros de faerun.
 	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
@@ -20,8 +24,16 @@ modelo {
   entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.427 g: 0.222 b: 0.076 } }
 }
 modelo {
+  id: 'Guarda de Bane'  # Monstros de Faerun
+  entidade { dados_vida: '4d12' info_textura { id: 'baneguard.png' } cor: { r: 0 g: 0 b: 0 } }
+}
+modelo {
   id: 'Morcego (Caçador Noturno)'  # Monstros de faerun
   entidade { max_pontos_vida: 13 tamanho: TM_MEDIO voadora: true info_textura { id: 'bat_deep_hunter.png' } cor { r: 0 g: 0 b: 0 } }
+}
+modelo {
+  id: 'Morto de Bane'
+  entidade { dados_vida: '6d12' tamanho: TM_MEDIO info_textura { id: 'banedead.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
 modelo {
   id: 'Humano Bruxo'  # Complete arcane.
@@ -30,6 +42,14 @@ modelo {
 modelo {
   id: 'Peryton'  # Monstros de faerun.
   entidade { dados_vida: '5d10+5' voadora: true info_textura { id: 'peryton.png'} cor { r: 0.5 g: 0.5 b: 0.0  } }
+}
+modelo {
+  id: 'Slaad Vermelho'  # Manual dos Monstros mas nao SRD.
+  entidade { dados_vida: '7d8+21' tamanho: TM_GRANDE info_textura { id: 'red_slaad.png' } cor { r: 1.0 g: 0.1 b: 0.1 }  }
+}
+modelo {
+  id: 'Slaad Verde'  # Manual dos Monstros mas nao SRD.
+  entidade { dados_vida: '9d8+21' tamanho: TM_GRANDE info_textura { id: 'green_slaad.png' } cor { r: 0.1 g: 1.0 b: 0.1 }  }
 }
 modelo {
   id: 'Soldado do Horror' # monstros de faerun.

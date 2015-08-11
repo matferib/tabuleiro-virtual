@@ -1,8 +1,10 @@
 #ifndef GLTAB_GL_H
 #define GLTAB_GL_H
 
+#include <cmath>
 #include <string>
 #include <stdexcept>
+#include <vector>
 #if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
   #include "TargetConditionals.h"
@@ -61,7 +63,7 @@ class MatrizEscopo {
   /** Salva a matriz corrente pelo escopo. */
   MatrizEscopo() : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { glPushMatrix(); }
 
-  /** Muda matriz para matriz do modo e a salva pelo escopo. Ao terminar, retorna para a matriz anterior. */
+  /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
   explicit MatrizEscopo(GLenum modo) : modo_(modo) {
     glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo_anterior_);
     glMatrixMode(modo_);
@@ -137,6 +139,17 @@ inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glViewport(x, y, largura, altura); }
 
+// Texturas.
+inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
+inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
+inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
+inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
+inline void ImagemTextura2d(
+    GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda, 
+    GLenum formato, GLenum tipo, const GLvoid* dados) {
+  glTexImage2D(alvo, nivel, formato_interno, largura, altura, borda, formato, tipo, dados);
+}
+
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers);
@@ -169,6 +182,7 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
 inline void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) { glNormalPointer(tipo, passo, normais);  }
+inline void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) { glColorPointer(num_componentes, GL_FLOAT, passo, cores); }
 #if USAR_OPENGL_ES
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 #else
@@ -232,181 +246,6 @@ inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
 
 /** Funcoes de normais. */
 inline void Normal(GLfloat x, GLfloat y, GLfloat z) { glNormal3f(x, y, z); }
-
-class Vbo;
-
-// Grava o VBO na memoria de video.
-void GravaVbo(Vbo* vbo);
-void DesgravaVbo(Vbo* vbo);
-// Desenha o vbo, assumindo que ele ja tenha sido gravado.
-void DesenhaVbo(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
-// Desenha o vbo, assumindo que ele nao tenha sido gravado (funciona para
-// gravados tb, mas eh mais lento).
-void DesenhaVboNaoGravado(const Vbo& vbo, GLenum modo = GL_TRIANGLES);
-
-
-/** Objetos GLU e GLUT. */
-class Vbo {
- public:
-  explicit Vbo(const std::string& nome = "") : nome_(nome) {}
-  ~Vbo() { DesgravaVbo(this); }
-
-  void Nomeia(const std::string& nome) {
-    nome_ = nome;
-  }
-
-  void AtribuiIndices(const unsigned short* dados, unsigned short num_indices) {
-    indices_.clear();
-    indices_.insert(indices_.end(), dados, dados + num_indices);
-  }
-
-  void AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned short num_coordenadas) {
-    coordenadas_.clear();
-    coordenadas_.insert(coordenadas_.end(), dados, dados + num_coordenadas);
-    num_dimensoes_ = num_dimensoes;
-  }
-
-  void AtribuiNormais(const float* dados) {
-    normais_.clear();
-    normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
-    tem_normais_ = true;
-  }
-
-  void AtribuiTexturas(const float* dados) {
-    texturas_.clear();
-    texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
-    tem_texturas_ = true;
-  }
-
-  // Concatena um vbo a outro, ajustando os indices.
-  void Concatena(const Vbo& rhs) {
-    // Coordenadas do primeiro indice apos o ultimo, onde serao inseridos os novos.
-    const unsigned short num_coordenadas_inicial = coordenadas_.size() / num_dimensoes_;
-    coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
-    normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
-    for (const auto indice : rhs.indices_) {
-      indices_.push_back(indice + num_coordenadas_inicial);
-    }
-  }
-
-  // Deslocamento em bytes para a primeira coordenada de normal.
-  unsigned short DeslocamentoNormais() const {
-    if (!tem_normais_) {
-      throw std::logic_error(std::string("VBO '") + nome_ + "' sem normal");
-    }
-    return deslocamento_normais_;
-  }
-  // Deslocamento em bytes para a primeira coordenada de textura.
-  unsigned short DeslocamentoTexturas() const {
-    if (!tem_texturas_) {
-      throw std::logic_error(std::string("VBO '") + nome_ + "' sem textura");
-    }
-    return deslocamento_texturas_;
-  }
-
-  // TODO: destruir os dados para liberar memoria.
-  void GeraBufferUnico() {
-    buffer_unico_.clear();
-    buffer_unico_.insert(buffer_unico_.end(), coordenadas_.begin(), coordenadas_.end());
-    buffer_unico_.insert(buffer_unico_.end(), normais_.begin(), normais_.end());
-    buffer_unico_.insert(buffer_unico_.end(), cores_.begin(), cores_.end());
-    buffer_unico_.insert(buffer_unico_.end(), texturas_.begin(), texturas_.end());
-    unsigned int pos_final = coordenadas_.size() * sizeof(float);
-    if (tem_normais_) {
-      deslocamento_normais_ = pos_final;
-      pos_final += normais_.size() * sizeof(float);
-    }
-    if (tem_cores_) {
-      deslocamento_cores_ = pos_final;
-      pos_final += cores_.size() * sizeof(float);
-    }
-    if (tem_texturas_) {
-      deslocamento_texturas_ = pos_final;
-      pos_final += texturas_.size() * sizeof(float);
-    }
-  }
-
-  void ApagaBufferUnico() {
-    buffer_unico_.clear();
-  }
-
-  unsigned short NumVertices() const {
-    return indices_.size();
-  }
-
-  unsigned short num_dimensoes() const {
-    return num_dimensoes_;
-  }
-
-  bool tem_normais() const { return tem_normais_; }
-  bool tem_cores() const { return tem_cores_; }
-  bool tem_texturas() const { return tem_texturas_; }
-
-  const std::vector<unsigned short> indices() const { return indices_; }
-  const std::vector<float>& buffer_unico() const { return buffer_unico_; }
-  std::vector<float>& coordenadas() { return coordenadas_; }
-  std::vector<float>& normais() { return normais_; }
-  std::vector<float>& texturas() { return texturas_; }
-  const std::vector<float>& coordenadas() const { return coordenadas_; }
-  const std::vector<float>& normais() const { return normais_; }
-  const std::vector<float>& texturas() const { return texturas_; }
-
-  // Buffers.
-  GLuint nome_coordenadas = 0;
-  GLuint nome_indices = 0;
-
- private:
-  std::vector<float> buffer_unico_;  // Buffer unico com coordenadas, normais, cores e texturas. Valido apenas apos geracao.
-  unsigned int deslocamento_normais_ = 0;
-  unsigned int deslocamento_cores_ = 0;
-  unsigned int deslocamento_texturas_ = 0;
-
-  std::vector<float> coordenadas_;
-  std::vector<float> normais_;
-  std::vector<float> cores_;
-  std::vector<float> texturas_;
-  std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
-  std::string nome_;
-  unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
-  bool tem_normais_ = false;
-  bool tem_cores_ = false;
-  bool tem_texturas_ = false;
-};
-
-const Vbo VboCilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
-inline void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
-  DesenhaVboNaoGravado(VboCilindroSolido(raio, altura, fatias, tocos));
-}
-
-const Vbo VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos);
-inline void TroncoConeSolido(GLfloat raio_base, GLfloat raio_topo, GLfloat altura, GLint fatias, GLint tocos) {
-  DesenhaVboNaoGravado(VboTroncoConeSolido(raio_base, raio_topo, altura, fatias, tocos));
-}
-
-const Vbo VboConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos);
-inline void ConeSolido(GLfloat base, GLfloat altura, GLint num_fatias, GLint num_tocos) {
-  DesenhaVboNaoGravado(VboConeSolido(base, altura, num_fatias, num_tocos));
-}
-
-const Vbo VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos);
-inline void EsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
-  DesenhaVboNaoGravado(VboEsferaSolida(raio, num_fatias, num_tocos));
-}
-
-const Vbo VboCuboSolido(GLfloat tam_lado);
-inline void CuboSolido(GLfloat tam_lado) {
-  DesenhaVboNaoGravado(VboCuboSolido(tam_lado));
-}
-
-const Vbo VboPiramideSolida(GLfloat tam_lado, GLfloat altura);
-inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {
-  DesenhaVboNaoGravado(VboPiramideSolida(tam_lado, altura));
-}
-
-const Vbo VboRetangulo(GLfloat tam_lado);
-inline void Retangulo(GLfloat tam_lado) {
-  DesenhaVboNaoGravado(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);
-}
 
 /** Raster. */
 #if !USAR_OPENGL_ES
@@ -501,8 +340,8 @@ void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
 /** Mudanca de cor. */
 #if !USAR_OPENGL_ES
 inline void MudaCor(float r, float g, float b, float a) {
-  GLfloat cor[4] = { r, g, b, a };
-  glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
+  //GLfloat cor[4] = { r, g, b, a };
+  //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
 }
 #else

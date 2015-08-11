@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include <boost/asio.hpp>
+#include "arq/arquivo.h"
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "net/cliente.h"
@@ -19,14 +20,17 @@ using namespace std;
 int main(int argc, char** argv) {
   meulog::Inicializa(&argc, &argv);
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
+  arq::Inicializa();
   boost::asio::io_service servico_io;
+  net::Sincronizador sincronizador(&servico_io);
   ntf::CentralNotificacoes central;
-  net::Servidor servidor(&servico_io, &central);
-  net::Cliente cliente(&servico_io, &central);
+  net::Servidor servidor(&sincronizador, &central);
+  net::Cliente cliente(&sincronizador, &central);
   tex::Texturas texturas(&central);
-  ent::Tabuleiro tabuleiro(&texturas, &central);
+  m3d::Modelos3d modelos3d;
+  ent::Tabuleiro tabuleiro(&texturas, &modelos3d, &central);
   std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &central));
-  if (argc == 2) {
+  if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
     auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     n->set_endereco(argv[1]);

@@ -3,6 +3,8 @@
 #include "native.h"
 #import "GameViewController.h"
 
+#include <boost/asio.hpp>
+#include <boost/asio/error.hpp>
 #include <memory>
 #include <stdlib.h>
 #include <sys/time.h>
@@ -12,18 +14,22 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ifg/tecladomouse.h"
+#include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
+#include "net/socket.h"
 #include "tex/texturas.h"
 
 namespace {
 // Contexto nativo.
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<tex::Texturas> g_texturas;
+std::unique_ptr<m3d::Modelos3d> g_modelos3d;
 std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
+std::unique_ptr<net::Sincronizador> g_sincronizador;
 std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 GameViewController* g_view;  // ponteiro para o view principal.
@@ -38,9 +44,10 @@ class CarregadorTabuleiro : public ntf::Receptor {
     if (n.tipo() == ntf::TN_RESPOSTA_CONEXAO) {
       if (n.has_erro()) {
         // Carrega tab.
-        auto* cn = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-        cn->set_endereco("castelo.binproto");
-        g_central->AdicionaNotificacao(cn);
+        auto* ntf_tab = new ntf::Notificacao;
+        arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "castelo.binproto", ntf_tab);
+        ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+        g_central->AdicionaNotificacao(ntf_tab);
       }
       g_central->DesregistraReceptor(this);
     }
@@ -65,15 +72,17 @@ std::unique_ptr<TratadorDialogos> g_tratador_dialogos;
 }  // namespace native
 
 void nativeCreate(void* view) {
+  arq::Inicializa();
   g_view = (__bridge GameViewController*)view;
   std::string nome_nativo([g_view->id_cliente_ UTF8String]);
   std::string endereco_nativo([g_view->endereco_servidor_ UTF8String]);
 
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
-  g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_central.get()));
+  g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
-  g_cliente.reset(new net::Cliente(g_servico_io.get(), g_central.get()));
+  g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
+  g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
   g_teclado_mouse.reset(
       new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
   g_carregador.reset(new CarregadorTabuleiro(g_central.get()));
@@ -86,7 +95,7 @@ void nativeCreate(void* view) {
   g_texturas->Recarrega();
   
   auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_id(nome_nativo);
+  n->set_id_rede(nome_nativo);
   n->set_endereco(endereco_nativo);
   g_central->AdicionaNotificacao(n);
 }

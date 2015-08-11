@@ -3,6 +3,7 @@ import "ent/entidade.proto";
 import "ent/tabuleiro.proto";
 
 package ntf;
+option java_package = "com.matferib.Tabuleiro.ntf";
 
 enum Tipo {
   TN_SAIR = 1;
@@ -25,12 +26,15 @@ enum Tipo {
   TN_TEMPORIZADOR = 16;
   TN_SERIALIZAR_TABULEIRO = 17;
   TN_DESERIALIZAR_TABULEIRO = 18;
+  TN_CRIAR_CENARIO = 41;
+  TN_REMOVER_CENARIO = 42;
   TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS = 32;
   TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS = 33;
   TN_MOVER_ENTIDADE = 19;
   TN_ABRIR_DIALOGO_ENTIDADE = 20;
   TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO = 21;
   TN_ABRIR_DIALOGO_OPCOES = 22;
+  TN_ABRIR_DIALOGO_SALVAR_TABULEIRO = 40;
   TN_CARREGAR_TEXTURA = 24;
   TN_DESCARREGAR_TEXTURA = 25;
   TN_ADICIONAR_ACAO = 26;
@@ -39,6 +43,10 @@ enum Tipo {
   TN_SALVAR_CAMERA = 31;
   TN_PASSAR_UMA_RODADA = 34;  // Modo mestre: atualiza todas as entidades e notifica.
   TN_ATUALIZAR_RODADAS = 35;  // Notifica clientes sobre atualizacao de rodadas.
+  TN_REQUISITAR_ID_TEXTURAS = 36;  // Requisicao local para enviar as texturas.
+  TN_ENVIAR_ID_TEXTURAS = 37;   // Local: pendido para texturas enviar os ids locais para servidor.
+  TN_REQUISITAR_TEXTURAS = 38;  // Remota: cliente pedindo texturas para servidor, incluindo as que ja tem.
+  TN_ENVIAR_TEXTURAS = 39;      // Servidor enviando texturas para cliente.
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
 }
@@ -47,13 +55,16 @@ enum Tipo {
 message Notificacao {
   optional Tipo tipo = 1;
   // Se verdadeiro, indica que deve ser enviada apenas para clientes pendentes. Toda notificacao deste tipo
-  // devera ser acompanhada do do do cliente.
-  //Caso contrario, enviado para todos.
+  // devera ser acompanhada do id do cliente.
+  // Caso contrario, enviado para todo pendentes.
   optional bool clientes_pendentes = 2 [default=false];
+  // Se verdadeira, indica que o servidor nao deve repassar a mensagem para outros clientes.
+  optional bool servidor_apenas = 17 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
-  // Identificacao propria do cliente no formato de string.
-  optional string id = 15;
+  // Identificacao propria do cliente no formato de string. Mensagens enviadas do servidor com este campo atribuido 
+  // serao enviadas apenas para o cliente especificado.
+  optional string id_rede = 15;
   // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
   // Muitas vezes usada para evitar repeticao de mensagens (cliente recebe e repassa ao servidor
   // que processa e repassa ao cliente infinitamente). Quando usada assim, a ausencia de endereco
@@ -72,10 +83,11 @@ message Notificacao {
   // Opcoes.
   optional ent.OpcoesProto opcoes = 8;
   // Informacao sobre textura para carregamento e descarregamento.
-  optional ent.InfoTextura info_textura = 9;
+  repeated ent.InfoTextura info_textura = 9;
   // Indica se o jogo esta em modo mestre ou nao.
   optional bool modo_mestre = 10;
   // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
+  // Este campo eh preenchido para false durante recebimento de notificacoes pela rede.
   optional bool local = 11 [default=true];
   // Para notificacoes do tipo TN_GRUPO_NOTIFICACOES. Apenas alguns tipos de notificacoes sao suportadas.
   repeated Notificacao notificacao = 14;

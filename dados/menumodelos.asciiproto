@@ -8,6 +8,9 @@ sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
   modelo { id: 'Demônio Vrock' texto: 'Vrock' }
+  modelo { id: 'Demônio Dretch' texto: 'Dretch' }
+  modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
+  modelo { id: 'Demônio Súcubo' texto: 'Súcubo' }
 }
 modelo { id: 'Elemental do Ar (Pequeno)' }
 modelo { id: 'Enxame (centopéias)' }
@@ -49,12 +52,19 @@ sub_menu {
   modelo { id: 'Zumbi (humano)' }
   modelo { id: 'Zumbi (kobold)' }
 }
+modelo { id: 'Worg' }
 sub_menu {
   id: 'Formas'
-  modelo { id: 'Árvore (pinheiro)' }
   modelo { id: 'Árvore (genérica)' }
+  modelo { id: 'Árvore (pinheiro)' }
+  modelo { id: 'Árvore (seca)' }
   modelo { id: 'Casa (8x7)' }
   modelo { id: 'Moedas' }
   modelo { id: 'Baú (madeira)' }
   modelo { id: 'Barras' }
+}
+sub_menu {
+  id: 'Teste'
+  modelo { id: 'teste orc' }
+  modelo { id: 'teste geo' }
 }

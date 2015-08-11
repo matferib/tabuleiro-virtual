@@ -6,9 +6,10 @@
 ${ANDROID_DEV_TOOLKIT}/sdk/tools/android list targets
 
 -- Lendo logs da aplicacao (http://developer.android.com/tools/debugging/debugging-log.html):
+// Imprime debug pra cima pra Tabuleiro ou TabuleiroRenderer e suprime o resto.
 // *:S so deixa passar o primeiro filtro. Suppress all.
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat Tabuleiro:I *:S
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat TabuleiroRenderer:I *:S
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat Tabuleiro:D *:S
+${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb logcat TabuleiroRenderer:D *:S
 
 
 =======
@@ -27,7 +28,7 @@ ${ANDROID_NDK}/ndk-build V=1 NEXUS7=1
 
 -- Compilacao do java integrado com codigo nativo (do diretorio contendo build.xml):
 export ANTROOT=/Users/mribeiro/Downloads/apache-ant-1.9.4
-$ANTROOT/bin/ant debug
+${ANTROOT}/bin/ant debug
 
 -- Instalacao:
 Colocar o dispositivo em USB debug mode.
@@ -54,7 +55,7 @@ export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
 export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
 export CFLAGS="-fPIC -DANDROID -nostdlib"
-export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-3/arch-arm/usr/lib/"
+export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/"
 export CPPFLAGS="-I$ANDROID_NDK/platforms/android-19/arch-arm/usr/include/"
 export LIBS="-lc "
 ./configure --host=arm-*-eabi
@@ -111,6 +112,21 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
 - Analisar:
 ${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
 
+==========================
+Protocol buffer in Android
+==========================
+
+Baixar wire compiler (prot enxuto). https://github.com/square/wire
+java -jar wire-compiler/target/wire-compiler-VERSION-jar-with-dependencies.jar \
+  --java_out=java_out caminho/para/proto.
+
+Mover os protos gerados para src/com/matferib/Tabuleiro/.
+
+Baixar runtime:
+wire https://github.com/square/wire/blob/master/README.md
+okio: https://github.com/square/okio/blob/master/README.md
+
+Coloca-los no diretorio libs do android.
 
 ===========
  Problemas
@@ -133,3 +149,8 @@ ${ANDROID_NDK}/ndk-gdb --adb=${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb
 As chaves sao diferentes nas maquinas. Uma solucao eh copiar o ~/.android/debug.keystore de uma maquina pra outra.
 Senao, tem que desinstalar com adb e instalar de novo.
 ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb uninstall com.matferib.Tabuleiro
+
+
+-- Delay gigante em relacao ao servidor:
+
+O app do Banco do Brasil da conflito com o tabuleiro.

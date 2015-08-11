@@ -1,0 +1,55 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+  <!-- max pontos de vida -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:orientation="horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+    <TextView android:id="@+id/rotulo_max_pontos_vida"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/max_pontos_vida" />
+    <EditText
+        android:id="@+id/max_pontos_vida"
+        android:maxLength="4"
+        android:minEms="4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone" />
+  </LinearLayout>
+  <!-- pontos de vida -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:orientation="horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+    <TextView android:id="@+id/rotulo_pontos_vida"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/pontos_vida" />
+    <EditText
+        android:id="@+id/pontos_vida"
+        android:maxLength="4"
+        android:minEms="4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="phone" />
+  </LinearLayout>
+  <!-- eventos -->
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:orientation="horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+    <TextView android:id="@+id/rotulo_eventos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/eventos" />
+    <EditText
+        android:id="@+id/eventos"
+        android:minEms="20"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:minLines="5"/>
+  </LinearLayout>
+</LinearLayout>

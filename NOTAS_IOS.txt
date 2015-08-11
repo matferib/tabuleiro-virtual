@@ -1,0 +1,22 @@
+Diretório iphone_os.
+
+- Criar um Projeto XCode ali (TabuleiroVirtual, ira criar TabuleiroVirtual/TabuleiroVirtual*). Considerando TabuleiroVirtual/TabuleiroVirtual como DIRBASE e o pai como PROJECTBASE (variaveis nao sao do xcode).
+
+- Baixar protobuffer 2.6.0 e descompactar em $DIRBASE, gerando DIRBASE/protobuf-2.6.0.
+-- Compilar uma vez local para gerar uns config.h que aparentemente precisa.
+-- Adicionar os arquivos fonte diretamente no projeto, sera compilado sob demanda. Tirar quaisquer referencias a testes.
+-- Do src:
+---- Remover os binarios: find . | grep -E '\.lo$|\.o$|\.la$|\.libs$' | xargs rm
+---- Remover os testes: rm -rf google/protobuf/testing google/protobuf/testdata google/protobuf/test_util*
+---- Remover compiler: rm -rf google/protobuf/compiler
+---- Remover os deps: find . | grep deps$ | xargs rm -rf
+-- Incluir o src/google no projeto. Vao sobrar algumas coisinhas ainda faceis de tirar na mao.
+-- Adicionar a libz como dependencia do projeto.
+
+
+- Criar um diretorio boost no diretorio base (PROJECTBASE).
+-- Baixar a biblioteca do boost: https://gist.github.com/faithfracture/c629ae4c7168216a9856. Compilar com chrono filesystem system timer. Adicionar o framework gerado.
+-- Adicionar o bundle de IOS ao projeto.
+
+
+OBS: para mudar o target do projeto deve-se clicar no nome do projeto e ir no Info (não deve ser o target, esse é uma zona e não permite mudar).

@@ -29,6 +29,8 @@ enum teclas_e {
   Tecla_F2 = 0x01000031,
   Tecla_F3 = 0x01000032,
   Tecla_F4 = 0x01000033,
+  Tecla_F5 = 0x01000034,
+  Tecla_F6 = 0x01000035,
   Tecla_Espaco = 0x20,
   Tecla_Esc = 0x01000000,
   Tecla_EnterKeypad = 0x01000005,

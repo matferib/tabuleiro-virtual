@@ -1,13 +1,24 @@
 # Este arquivo é uma representação texto do proto ifg::Modelos.
-modelo { id: 'Aarakocra' } # Monstros de faerun.
-modelo { id: 'Aranha Armadeira' } # Monstros de faerun.
-modelo { id: 'Dragontino' }  # Monstros de faerun.
-modelo { id: 'Garra de Ossos' } # Manual dos monstros 3.
-modelo { id: 'Gigante da Montanha' } # http://www.dandwiki.com/wiki/Mountain_Giant_(3.5e_Creature)
-modelo { id: 'Morcego (Caçador Noturno)' } # Monstros de faerun
+modelo { id: 'Aarakocra' }
+modelo { id: 'Aranha Armadeira' }
+sub_menu {
+  id: 'Demônio'
+  modelo { id: 'Demônio Flecha' texto: 'Flecha' }
+}
+modelo { id: 'Dragontino' }
+modelo { id: 'Garra de Ossos' }
+modelo { id: 'Gigante da Montanha' }
+modelo { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
   id: 'Humanos'
-  modelo { id: 'Humano Bruxo' } # Complete arcane.
+  modelo { id: 'Humano Bruxo' }
 }
-modelo { id: 'Peryton' } # Monstros de faerun.
-modelo { id: 'Soldado do Horror' } # monstros de faerun.
+modelo { id: 'Peryton' }
+modelo { id: 'Soldado do Horror' }
+sub_menu {
+  id: 'Slaads'
+  modelo { id: 'Slaad Vermelho' texto: 'Vermelho' }
+  modelo { id: 'Slaad Verde' texto: 'Verde' }
+}
+modelo { id: 'Guarda de Bane' }
+modelo { id: 'Morto de Bane' }

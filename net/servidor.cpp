@@ -1,6 +1,4 @@
 #include <algorithm>
-#include <boost/asio.hpp>
-#include <boost/asio/error.hpp>
 
 #include "ent/constantes.h"
 #include "log/log.h"
@@ -11,8 +9,9 @@
 
 namespace net {
 
-Servidor::Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central) {
-  servico_io_ = servico_io;
+Servidor::Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central) {
+  sincronizador_ = sincronizador;
+  aceitador_.reset(new Aceitador(sincronizador));
   central_ = central;
   central_->RegistraReceptor(this);
 }
@@ -26,15 +25,17 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
-        std::string porta(std::to_string(PortaPadrao()));
-        anunciante_->async_send_to(
-            boost::asio::buffer(porta),
-            boost::asio::ip::udp::endpoint(boost::asio::ip::address::from_string("255.255.255.255"), 11224),
-            [] (const boost::system::error_code& error, std::size_t bytes_transferred) {});
+        anunciante_->Envia(PortaAnuncio(), buffer_porta_,
+                           [] (const Erro& erro, std::size_t bytes_transferred) {});
       }
     }
     if (Ligado()) {
-      servico_io_->poll_one();
+      auto n = sincronizador_->Roda();
+      if (n > 0) {
+        VLOG(2) << "Rodei " << n << " eventos";
+      } else {
+        VLOG(3) << "Nada rodado";
+      }
     }
     return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
@@ -53,26 +54,30 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
     // Envia o tabuleiro para o cliente correto.
     Cliente* cliente_pendente = nullptr;
     for (auto* c : clientes_pendentes_) {
-      if (c->id == notificacao.id()) {
+      if (c->id == notificacao.id_rede()) {
         cliente_pendente = c;
       }
     }
     if (cliente_pendente == nullptr) {
-      LOG(ERROR) << "Nao encontrei cliente pendente: '" << notificacao.id() << "'";
+      LOG(ERROR) << "Nao encontrei cliente pendente: '" << notificacao.id_rede() << "'";
       return true;
     }
     if (notificacao.tipo() == ntf::TN_ERRO) {
       LOG(ERROR) << "Conexao com cliente rejeitada, provavelmente servidor nao conseguiu gerar id.";
-      cliente_pendente->socket->close();
+      cliente_pendente->socket->Fecha();
       return true;
     }
     VLOG(1) << "Enviando primeira notificacao para cliente pendente";
-    EnviaDadosCliente(cliente_pendente->socket.get(), ns);
+    EnviaDadosCliente(cliente_pendente, ns);
     clientes_.insert(cliente_pendente);
   } else {
     for (auto* c : clientes_) {
-      VLOG(1) << "Enviando notificacao para cliente";
-      EnviaDadosCliente(c->socket.get(), ns);
+      if (notificacao.has_id_rede() && c->id != notificacao.id_rede()) {
+        LOG(INFO) << "Dropando notificacao por causa id cliente diferente. Destino: " << notificacao.id_rede() << " x cliente: " << c->id;
+        continue;
+      }
+      VLOG(1) << "Enviando notificacao para cliente, tam: " << ns.size();
+      EnviaDadosCliente(c, ns);
     }
   }
 
@@ -80,19 +85,43 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
 }
 
 bool Servidor::Ligado() const {
-  return aceitador_ != nullptr;
+  return aceitador_->Ligado();
 }
 
 void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
-    proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
-    aceitador_.reset(new boost::asio::ip::tcp::acceptor(
-        *servico_io_, boost::asio::ip::tcp::endpoint(boost::asio::ip::tcp::v4(), PortaPadrao())));
+    proximo_cliente_.reset(new Cliente(new Socket(sincronizador_)));
     central_->RegistraReceptorRemoto(this);
-    EsperaCliente();
+    aceitador_->Liga(PortaPadrao(), proximo_cliente_->socket.get(),
+                     [this](const Erro& erro) -> Socket* {
+      if (erro) {
+        LOG(ERROR) << "Recebendo erro..." << erro.mensagem();
+        return nullptr;
+      }
+      // Cria cliente pendente.
+      VLOG(1) << "Recebendo cliente...";
+      Cliente* cliente_pendente = proximo_cliente_.release();
+      clientes_pendentes_.insert(cliente_pendente);
+#if 0
+      boost::asio::socket_base::receive_buffer_size option;
+      cliente_pendente->socket->get_option(option);
+      LOG(INFO) << "Buffer recepcao: " << option.value();
+      boost::asio::socket_base::receive_low_watermark option2;
+      cliente_pendente->socket->get_option(option2);
+      LOG(INFO) << "Buffer recepcao watermark: " << option2.value();
+      boost::asio::socket_base::send_low_watermark option3(1);
+      cliente_pendente->socket->set_option(option3);
+      cliente_pendente->socket->get_option(option3);
+      LOG(INFO) << "Buffer envio watermark: " << option3.value();
+#endif
+      // Proximo cliente.
+      proximo_cliente_.reset(new Cliente(new Socket(sincronizador_)));
+      RecebeDadosCliente(cliente_pendente);
+      return proximo_cliente_->socket.get();
+    });
     VLOG(1) << "Servidor ligado.";
-  } catch(std::exception& e) {
+  } catch (const std::exception& e) {
     LOG(ERROR) << "Erro ligando servidor: " << e.what();
     // TODO fazer o tipo de erro e tratar notificacao em algum lugar.
     auto* notificacao = new ntf::Notificacao;
@@ -103,11 +132,14 @@ void Servidor::Liga() {
   }
 
   // Aqui eh so pro anunciante do jogo.
-  anunciante_.reset(new boost::asio::ip::udp::socket(*servico_io_));
-  boost::system::error_code erro;
-  anunciante_->open(boost::asio::ip::udp::v4(), erro);
-  boost::asio::socket_base::broadcast option(true);
-  anunciante_->set_option(option);
+  buffer_porta_ = to_string(PortaPadrao());
+  anunciante_.reset(new SocketUdp(sincronizador_));
+  try {
+    anunciante_->Abre();
+  } catch (const std::exception& e) {
+    anunciante_.reset();
+    LOG(ERROR) << "Falha abrindo socket de broadcast: " << e.what();
+  }
 }
 
 void Servidor::Desliga() {
@@ -117,7 +149,7 @@ void Servidor::Desliga() {
     return;
   }
   central_->DesregistraReceptorRemoto(this);
-  aceitador_.reset();
+  aceitador_->Desliga();
   anunciante_.reset();
   for (auto* c : clientes_) {
     delete c;
@@ -128,37 +160,40 @@ void Servidor::Desliga() {
   VLOG(1) << "Servidor desligado.";
 }
 
-void Servidor::EsperaCliente() {
-  aceitador_->async_accept(*proximo_cliente_->socket.get(), [this](boost::system::error_code ec) {
-    if (!ec) {
-      VLOG(1) << "Recebendo cliente...";
-      Cliente* cliente_pendente = proximo_cliente_.release();
-      clientes_pendentes_.insert(cliente_pendente);
-      proximo_cliente_.reset(new Cliente(new boost::asio::ip::tcp::socket(*servico_io_)));
-      RecebeDadosCliente(cliente_pendente);
-      EsperaCliente();
-    } else {
-      LOG(ERROR) << "Recebendo erro..." << ec.message();
+void Servidor::EnviaDadosCliente(Cliente* cliente, const std::string& dados, bool sem_dados) {
+  if (!sem_dados) {
+    cliente->fifo_envio.push(CodificaDados(dados));
+    if (cliente->fifo_envio.size() > 1) {
+      VLOG(1) << "Enfileirando dados, fila nao vazia";
+      return;
     }
-  });
-}
-
-void Servidor::EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados) {
-  std::vector<char> dados_codificados(CodificaDados(dados));
-  //size_t bytes_enviados = cliente->send(boost::asio::buffer(dados_codificados));
-  size_t bytes_enviados = boost::asio::write(*cliente, boost::asio::buffer(dados_codificados));
-  if (bytes_enviados != dados_codificados.size()) {
-    LOG(ERROR) << "Erro enviando dados, enviados: " << bytes_enviados << " de " << dados_codificados.size();
-  } else {
-    VLOG(2) << "Enviei " << dados.size() << " bytes pro cliente.";
   }
+  try {
+    cliente->socket->Envia(
+        cliente->fifo_envio.front(),
+        [this, cliente] (const Erro& erro, std::size_t bytes_enviados) {
+      if (erro) {
+        // Importante nao usar cliente aqui, pois o ponteiro pode estar dangling.
+        LOG(ERROR) << "Erro enviando dados, mensagem: " << erro.mensagem();
+        return;
+      }
+      cliente->fifo_envio.pop();
+      VLOG(1) << "Enviei " << bytes_enviados << " bytes pro cliente.";
+      if (!cliente->fifo_envio.empty()) {
+        EnviaDadosCliente(cliente, "", true  /*sem_dados*/);
+      }
+    });
+ } catch (const std::exception& e) {
+   // Faz nada aqui que provavalmente o receive vai receber o erro.
+   LOG(ERROR) << "Erro enviando dados: " << e.what();
+ }
 }
 
 // deve ser usada apenas na funcao de RecebeDadosCliente.
 void Servidor::DesconectaCliente(Cliente* cliente) {
   // Notifica interessados na desconexao.
   std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_DESCONECTADO));
-  n->set_id(cliente->id);
+  n->set_id_rede(cliente->id);
   central_->AdicionaNotificacao(n.release());
 
   // Apaga o cliente.
@@ -168,134 +203,107 @@ void Servidor::DesconectaCliente(Cliente* cliente) {
 }
 
 void Servidor::RecebeDadosCliente(Cliente* cliente) {
-  cliente->socket->async_receive(
-    boost::asio::buffer(cliente->buffer),
-    [this, cliente](boost::system::error_code ec, std::size_t bytes_recebidos) {
-      if (ec) {
-        // remove o cliente.
-        auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-        std::string erro(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
-        if (ec.value() == boost::asio::error::eof) {
-          erro += "Conexao fechada pela outra ponta.";
-        } else {
-          erro += std::to_string(ec.value()) + ": " + ec.message();
+  // Funcao que recebe o dado de tamanho certinho.
+  std::function<void(const Erro& erro, std::size_t bytes_recebidos)> funcao_recebe_dados =
+      [this, cliente] (const Erro& erro, std::size_t bytes_recebidos) {
+    if (erro || (bytes_recebidos < cliente->buffer_recepcao.size())) {
+      // remove o cliente.
+      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      std::string erro_str(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
+      if (erro.ConexaoFechada()) {
+        erro_str += "Conexao fechada pela outra ponta.";
+      } else {
+        erro_str += ": " + erro.mensagem() + ", esperava: " + to_string(cliente->buffer_recepcao.size()) + ", recebi: " + to_string(bytes_recebidos);
+      }
+      n->set_erro(erro_str);
+      central_->AdicionaNotificacao(n);
+      DesconectaCliente(cliente);
+      return;
+    }
+    VLOG(1) << "Recebi " << bytes_recebidos << " bytes do cliente " << cliente->id;
+
+    // Decodifica mensagem e poe na central.
+    std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
+    if (!notificacao->ParseFromString(cliente->buffer_recepcao)) {
+      std::string erro_str(std::string("Erro ParseFromString recebendo dados do cliente '") + cliente->id + "'");
+      LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
+      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      n->set_erro(erro_str);
+      central_->AdicionaNotificacao(n);
+      DesconectaCliente(cliente);
+      return;
+    }
+    // Notificacao de identificacao eh tratada neste nivel tambem. Aqui eh o unico local onde se tem o objeto do cliente
+    // e a notificacao.
+    if (notificacao->tipo() == ntf::TN_RESPOSTA_CONEXAO) {
+      bool ja_existe = false;
+      for (const auto& c : clientes_pendentes_) {
+        if (c->id == notificacao->id_rede()) {
+          ja_existe = true;
         }
-        n->set_erro(erro);
-        central_->AdicionaNotificacao(n);
+      }
+      if (ja_existe) {
         DesconectaCliente(cliente);
+        auto* erro = ntf::NovaNotificacao(ntf::TN_ERRO);
+        erro->set_erro(std::string("Id de cliente repetido: '") + notificacao->id_rede() + "'");
+        central_->AdicionaNotificacao(erro);
         return;
       }
-      VLOG(2) << "Recebi " << bytes_recebidos << " bytes do cliente " << cliente->id;
-      auto buffer_inicio = cliente->buffer.begin();
-      auto buffer_fim = buffer_inicio + bytes_recebidos;
-      std::size_t bytes_faltando = bytes_recebidos;
-      do {
-        if (cliente->a_receber_ == 0) {
-          if (bytes_faltando < 4) {
-            std::string erro(std::string("Erro recebendo dados do cliente '") + cliente->id + "' , msg menor que tamanho.");
-            LOG(ERROR) << erro
-                       << ", bytes_recebidos: " << bytes_recebidos
-                       << ", bytes_faltando: " << bytes_faltando;
-            auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-            n->set_erro(erro);
-            central_->AdicionaNotificacao(n);
-            DesconectaCliente(cliente);
-            return;
-          }
-          cliente->a_receber_ = DecodificaTamanho(buffer_inicio);
-          if (cliente->a_receber_ > 1024 * 1024) {
-            LOG(ERROR) << "recebendo mensagem maior que 1MB, impossivel. Algum problema podera acontecer. "
-                << "Cliente: " << cliente->id << " "
-                << ", a_receber: " << cliente->a_receber_
-                << ", bytes_recebidos: " << bytes_recebidos
-                << ", bytes_faltando: " << bytes_faltando;
-          }
-          buffer_inicio += 4;
-          bytes_faltando -= 4;
-        }
-        if ((buffer_fim - buffer_inicio) >= cliente->a_receber_) {
-          VLOG(2) << "Recebendo notificacao inteira de "
-                  << cliente->id << " "
-                  << ", buffer_fim: " << (int)(buffer_fim - cliente->buffer.begin())
-                  << ", buffer_inicio: " << (int)(buffer_inicio - cliente->buffer.begin())
-                  << ", a_receber: " << cliente->a_receber_
-                  << ", bytes_recebidos: " << bytes_recebidos
-                  << ", bytes_faltando: " << bytes_faltando;
-
-          // Quantidade de dados recebida eh maior ou igual ao esperado (por exemplo, ao receber duas mensagens juntas).
-          cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_inicio + cliente->a_receber_);
-          // Decodifica mensagem e poe na central.
-          std::unique_ptr<ntf::Notificacao> notificacao(new ntf::Notificacao);
-          if (!notificacao->ParseFromString(cliente->buffer_notificacao)) {
-            std::string erro(std::string("Erro ParseFromString recebendo dados do cliente '") + cliente->id + "'");
-            LOG(ERROR) << erro
-                       << ", buffer_fim: " << (int)(buffer_fim - cliente->buffer.begin())
-                       << ", buffer_inicio: " << (int)(buffer_inicio - cliente->buffer.begin())
-                       << ", a_receber: " << cliente->a_receber_
-                       << ", bytes_recebidos: " << bytes_recebidos
-                       << ", bytes_faltando: " << bytes_faltando;
-            auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
-            n->set_erro(erro);
-            central_->AdicionaNotificacao(n);
-            DesconectaCliente(cliente);
-            return;
-          }
-          // Notificacao de identificacao eh tratada neste nivel tambem. Aqui eh o unico local onde se tem o objeto do cliente
-          // e a notificacao.
-          if (notificacao->tipo() == ntf::TN_RESPOSTA_CONEXAO) {
-            bool ja_existe = false;
-            for (const auto& c : clientes_pendentes_) {
-              if (c->id == notificacao->id()) {
-                ja_existe = true;
-              }
-            }
-            if (ja_existe) {
-              DesconectaCliente(cliente);
-              auto* erro = ntf::NovaNotificacao(ntf::TN_ERRO);
-              erro->set_erro(std::string("Id de cliente repetido: '") + notificacao->id() + "'");
-              central_->AdicionaNotificacao(erro);
-              return;
-            }
-            cliente->id = notificacao->id();
-            auto* resposta = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-            resposta->set_clientes_pendentes(true);
-            resposta->set_id(cliente->id);
-            central_->AdicionaNotificacao(resposta);
-          }
-          // Envia a notificacao para os outros clientes.
-          for (auto* c : clientes_) {
-            if (c == cliente) {
-              // Nao envia para o cliente original.
-              continue;
-            }
-            EnviaDadosCliente(c->socket.get(), cliente->buffer_notificacao);
-          }
-          // Processa localmente.
-          notificacao->set_local(false);
-          central_->AdicionaNotificacao(notificacao.release());
-          cliente->buffer_notificacao.clear();
-          buffer_inicio += cliente->a_receber_;
-          bytes_faltando -= cliente->a_receber_;
-          cliente->a_receber_ = 0;
-        } else {
-          VLOG(2) << "Recebendo notificacao parcial de "
-                  << cliente->id << " "
-                  << ", buffer_fim: " << (int)(buffer_fim - cliente->buffer.begin())
-                  << ", buffer_inicio: " << (int)(buffer_inicio - cliente->buffer.begin())
-                  << ", a_receber: " << cliente->a_receber_
-                  << ", bytes_recebidos: " << bytes_recebidos
-                  << ", bytes_faltando: " << bytes_faltando;
-          // Quantidade de dados recebida eh menor que o esperado. Poe no buffer
-          // e sai.
-          cliente->buffer_notificacao.insert(cliente->buffer_notificacao.end(), buffer_inicio, buffer_fim);
-          cliente->a_receber_ -= (buffer_fim - buffer_inicio);
-          buffer_inicio = buffer_fim;
-        }
-      } while (buffer_inicio != buffer_fim);
-      VLOG(2) << "Tudo recebido de cliente " << cliente->id;
-      RecebeDadosCliente(cliente);
+      LOG(INFO) << "Recebi TN_RESPOSTA_CONEXAO de cliente: " << notificacao->id_rede();
+      cliente->id = notificacao->id_rede();
+      auto* resposta = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      resposta->set_clientes_pendentes(true);
+      resposta->set_id_rede(cliente->id);
+      central_->AdicionaNotificacao(resposta);
     }
-  );
+    // Envia a notificacao para os outros clientes.
+    if (!notificacao->servidor_apenas()) {
+      for (auto* c : clientes_) {
+        if (c == cliente) {
+          // Nao envia para o cliente original.
+          continue;
+        }
+        EnviaDadosCliente(c, cliente->buffer_recepcao);
+      }
+    }
+    // Processa localmente.
+    notificacao->set_local(false);
+    central_->AdicionaNotificacao(notificacao.release());
+    VLOG(1) << "Tudo recebido de cliente " << cliente->id;
+    RecebeDadosCliente(cliente);
+  };
+
+  // Recebe o tamanho dos dados e chama recebe dados.
+  std::function<void(const Erro& erro, std::size_t bytes_recebidos)> funcao_recebe_tamanho =
+      [this, cliente, funcao_recebe_dados] (const Erro& erro, std::size_t bytes_recebidos) {
+    if (erro || (bytes_recebidos < 4)) {
+      std::string erro_str;
+      if (erro.ConexaoFechada()) {
+        erro_str = std::string("Conexao fechada pela outra ponta");
+      } else {
+        erro_str = std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "', msg menor que 4.";
+      }
+      LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
+      auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+      n->set_erro(erro_str);
+      central_->AdicionaNotificacao(n);
+      DesconectaCliente(cliente);
+      return;
+    }
+    unsigned int tamanho = DecodificaTamanho(cliente->buffer_tamanho.begin());
+    // TODO verificar tamanho.
+    if (tamanho > 50 * 1024 * 1024) {
+      LOG(WARNING) << "TAMANHO GIGANTE!! " << tamanho;
+    }
+    VLOG(1) << "Vou Receber: " << tamanho << " bytes";
+    cliente->buffer_recepcao.resize(tamanho);
+    cliente->socket->Recebe(
+        &cliente->buffer_recepcao,
+        funcao_recebe_dados);
+  };
+
+  // Aqui comeca tudo. Chama o recebe tamanho.
+  cliente->socket->Recebe(&cliente->buffer_tamanho, funcao_recebe_tamanho);
 }
 
 }  // namespace net

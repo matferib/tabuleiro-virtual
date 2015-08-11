@@ -2,6 +2,7 @@
 import "ent/entidade.proto";
 
 package ent;
+option java_package = "com.matferib.Tabuleiro.ent";
 
 enum TipoAcao {
   ACAO_PROJETIL = 1;

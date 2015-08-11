@@ -5,13 +5,17 @@
 #include <cctype>
 #include <cstdlib>
 #include <google/protobuf/repeated_field.h>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <random>
+#include <unordered_map>
 #include "ent/constantes.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"  // TODO remover e passar desenhos para para gl
 #include "log/log.h"
+#include "net/util.h"
 
 namespace ent {
 
@@ -113,11 +117,14 @@ void DesenhaDisco(float raio, int num_faces) {
   unsigned int num_vertices = 2 + (num_faces + 1) * 2;
   float vertices[num_vertices];
   unsigned short indices[num_vertices];
-  vertices[0] = vertices[1] = 0.0f;
-  for (int i = 0; i <= num_faces; ++i) {
-    float angulo = i * 2 * M_PI / num_faces;
-    vertices[2 + i * 2] = cosf(angulo) * raio;
-    vertices[2 + i * 2 + 1] = sinf(angulo) * raio;
+  vertices[0] = 0.0f;
+  vertices[1] = raio;
+  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_faces;
+  float cos_fatia = cosf(angulo_fatia);
+  float sen_fatia = sinf(angulo_fatia);
+  for (int i = 2; i < num_vertices; i += 2) {
+    vertices[i] = vertices[i - 2] * cos_fatia - vertices[i - 1] * sen_fatia; 
+    vertices[i + 1] = vertices[i - 2] * sen_fatia + vertices[i - 1] * cos_fatia;
   }
   for (unsigned int i = 0; i < num_vertices; ++i) {
     indices[i] = i;
@@ -428,6 +435,53 @@ void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
   gl::CarregaIdentidade();
   gl::PosicaoRaster(x, y);
+}
+
+efeitos_e StringParaEfeito(const std::string& s) {
+  static std::unordered_map<std::string, efeitos_e> mapa = {
+    { "borrar", EFEITO_BORRAR },
+    { "reflexos", EFEITO_REFLEXOS },
+    { "piscar", EFEITO_PISCAR },
+  };
+  const auto& ret = mapa.find(s);
+  return ret == mapa.end() ? EFEITO_INVALIDO : ret->second;
+}
+
+google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str) {
+  google::protobuf::RepeatedPtrField<EntidadeProto::Evento> ret;
+  std::istringstream ss(eventos_str);
+  while (1) {
+    std::string linha;
+    if (!std::getline(ss, linha)) {
+      break;
+    }
+    // Cada linha.
+    size_t pos_dois_pontos = linha.find(':');
+    if (pos_dois_pontos == std::string::npos) {
+      LOG(ERROR) << "Ignorando evento: " << linha;
+      continue;
+    }
+    std::string descricao(linha.substr(0, pos_dois_pontos));
+    std::string complemento;
+    size_t pos_par = descricao.find("(");
+    if (pos_par != std::string::npos) {
+      complemento = descricao.substr(pos_par + 1);
+      descricao = descricao.substr(0, pos_par);
+    }
+    std::string rodadas(linha.substr(pos_dois_pontos + 1));
+    EntidadeProto::Evento evento;
+    evento.set_descricao(ent::trim(descricao));
+    evento.set_rodadas(atoi(rodadas.c_str()));
+    if (!complemento.empty()) {
+      evento.set_complemento(atoi(complemento.c_str()));
+    }
+    efeitos_e id_efeito = StringParaEfeito(evento.descricao());
+    if (id_efeito != EFEITO_INVALIDO) {
+      evento.set_id_efeito(id_efeito);
+    }
+    ret.Add()->Swap(&evento);
+  }
+  return ret;
 }
 
 }  // namespace ent

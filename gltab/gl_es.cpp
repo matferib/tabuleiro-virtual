@@ -494,9 +494,9 @@ void MudaCor(float r, float g, float b, float a) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
-  GLfloat cor[4] = { r, g, b, a };
+  //GLfloat cor[4] = { r, g, b, a };
   // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
+  //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
 }
 
@@ -526,8 +526,9 @@ namespace interno {
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
-  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-  gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
+  // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 

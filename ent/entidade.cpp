@@ -22,21 +22,18 @@ namespace ent {
 namespace {
 
 const double DURACAO_QUEDA_SEGUNDOS = 0.5f;
-// Tamanho da barra de vida.
-const float TAMANHO_BARRA_VIDA = TAMANHO_LADO_QUADRADO_2;
-const float TAMANHO_BARRA_VIDA_2 = TAMANHO_BARRA_VIDA / 2.0f;
 
 }  // namespace
 
 // Factory.
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf::CentralNotificacoes* central) {
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* e = new Entidade(texturas, central);
-      e->Inicializa(proto);
-      return e;
+      auto* entidade = new Entidade(texturas, m3d, central);
+      entidade->Inicializa(proto);
+      return entidade;
     }
     default:
       std::ostringstream oss;
@@ -46,8 +43,9 @@ Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf
 }
 
 // Entidade
-Entidade::Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central) {
+Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
   vd_.texturas = texturas;
+  vd_.m3d = m3d;
   central_ = central;
 }
 
@@ -55,6 +53,20 @@ Entidade::~Entidade() {
   EntidadeProto dummy;
   AtualizaTexturas(dummy);
 }
+
+namespace {
+// A variavei translacao_z foi deprecada e nao devera mais ser utilizada. Esta funcao a converte para possiveis
+// modelos que venham a aparecer com ela.
+void CorrigeTranslacaoDeprecated(EntidadeProto* proto) {
+  if (proto->has_translacao_z_deprecated()) {
+    proto->mutable_pos()->set_z(proto->pos().z() + proto->translacao_z_deprecated());
+    proto->clear_translacao_z_deprecated();
+  }
+  for (auto& proto_filho : *proto->mutable_sub_forma()) {
+    CorrigeTranslacaoDeprecated(&proto_filho);
+  }
+}
+}  // namespace
 
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
@@ -87,6 +99,20 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
   // Evitar oscilacoes juntas.
   vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
+
+  CorrigeTranslacaoDeprecated(&proto_);
+}
+
+gl::VboNaoGravado Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
+  if (proto.tipo() == TE_ENTIDADE) {
+    // TODO: retornar peao?
+    throw std::logic_error("Apenas entidades forma e composta podem gerar VBO.");
+  }
+  if (proto.tipo() == TE_COMPOSTA) {
+    return ExtraiVboComposta(proto);
+  } else {
+    return ExtraiVboForma(proto);
+  }
 }
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
@@ -104,14 +130,14 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   if (proto_atual->has_info_textura() && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->mutable_info_textura()->set_id(proto_atual->info_textura().id());
+    nl->add_info_textura()->set_id(proto_atual->info_textura().id());
     central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
   if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
     VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-    nc->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
+    nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
     central->AdicionaNotificacao(nc);
   }
   if (novo_proto.has_info_textura()) {
@@ -121,71 +147,98 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   }
 }
 
-void Entidade::AtualizaTexturasEntidadesCompostasProto(
-    const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
-  // Libera todas.
-  if (novo_proto.sub_forma_size() != proto_atual->sub_forma_size()) {
-    // Libera todos antigos e deixa do mesmo tamanho do novo.
-    EntidadeProto dummy;
-    for (auto& forma_velha : *proto_atual->mutable_sub_forma()) {
-      VLOG(2) << "Liberando textura de sub forma para entidade composta";
-      AtualizaTexturasProto(dummy, &forma_velha, central);
-    }
-    proto_atual->clear_sub_forma();
-    for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
-      proto_atual->add_sub_forma();
-    }
-  }
-  for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
-    VLOG(2) << "Atualizando textura de sub forma para entidade composta";
-    AtualizaTexturasProto(novo_proto.sub_forma(i), proto_atual->mutable_sub_forma(i), central);
-  }
-}
-
 void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
 
-  // mantem o tipo.
-  ent::EntidadeProto copia_proto(proto_);
+  // mantem o id, posicao e destino.
+  ent::EntidadeProto proto_original(proto_);
   proto_.CopyFrom(novo_proto);
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
-  proto_.set_id(copia_proto.id());
-  proto_.mutable_pos()->Swap(copia_proto.mutable_pos());
-  if (copia_proto.has_destino()) {
-    proto_.mutable_destino()->Swap(copia_proto.mutable_destino());
+  proto_.set_id(proto_original.id());
+  proto_.mutable_pos()->Swap(proto_original.mutable_pos());
+  if (proto_original.has_destino()) {
+    proto_.mutable_destino()->Swap(proto_original.mutable_destino());
+  }
+  if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
+    proto_.clear_transicao_cenario();
   }
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
+}
+
+void Entidade::AtualizaEfeitos() {
+  // Efeitos.
+  vd_.nao_desenhar = false;
+  std::unordered_set<int> a_remover;
+  for (auto& efeito_vd : vd_.complementos_efeitos) {
+    a_remover.insert(efeito_vd.first);
+  }
+  for (const auto& evento : proto_.evento()) {
+    if (!evento.has_id_efeito()) {
+      continue;
+    }
+    AtualizaEfeito(static_cast<efeitos_e>(evento.id_efeito()), &vd_.complementos_efeitos[evento.id_efeito()]);
+    a_remover.erase(evento.id_efeito());
+  }
+  for (const auto& id_remocao : a_remover) {
+    vd_.complementos_efeitos.erase(id_remocao);
+  }
+}
+
+void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complemento) {
+  switch (id_efeito) {
+    case EFEITO_PISCAR:
+      if (++complemento->quantidade >= 40) {
+        vd_.nao_desenhar = true;
+        if (complemento->quantidade >= 60) {
+          complemento->quantidade = 0;
+        }
+      }
+      break;
+    default:
+      ;
+  }
 }
 
 void Entidade::Atualiza() {
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+  AtualizaEfeitos();
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL = 1.0f;
   const float DURACAO_VOO_SEGUNDOS = 4.0f;
   const float DELTA_VOO = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_VOO_SEGUNDOS;
   const float DURACAO_LUZ_SEGUNDOS = 3.0f;
   const float DELTA_LUZ = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_LUZ_SEGUNDOS;
-  float z_chao = ZChao(X(), Y());
   if (proto_.has_luz()) {
-    vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI); 
+    vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
   if (proto_.voadora()) {
-    if (Z() < z_chao + ALTURA_VOO) {
+    if (vd_.altura_voo < ALTURA_VOO) {
+      if (vd_.altura_voo == 0.0f) {
+        vd_.angulo_disco_voo_rad = 0.0f;
+        vd_.z_antes_voo = Z();
+      }
       // Decolando, ate chegar na altura do voo.
-      po->set_z(po->z() + ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
-      vd_.angulo_disco_voo_rad = 0.0f;
+      vd_.altura_voo += ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
     } else {
       // Chegou na altura do voo, flutua.
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
-    if (Z() > z_chao) {
-      // Nao eh voadora e esta suspensa. Pousando.
-      po->set_z(po->z() - ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL);
+    if (vd_.altura_voo > 0) {
+      const float DECREMENTO = ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
+      if (Z() > vd_.z_antes_voo) {
+        proto_.mutable_pos()->set_z(Z() - DECREMENTO);
+      } else {
+        proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+        // Nao eh voadora e esta suspensa. Pousando.
+        vd_.altura_voo -= DECREMENTO;
+      }
+    } else {
+      vd_.altura_voo = 0;
     }
     vd_.angulo_disco_voo_rad = 0.0f;
   }
@@ -200,17 +253,24 @@ void Entidade::Atualiza() {
       vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
     }
   }
-  // Nunca fica abaixo do solo.
-  if (Z() < z_chao) {
-    po->set_z(z_chao);
-  }
 
   // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
     return;
   }
-  double origens[] = { po->x(), po->y(), po->z() };
   const auto& pd = proto_.destino();
+  if (proto_.destino().has_id_cenario()) {
+    bool mudou_cenario = proto_.destino().id_cenario() != proto_.pos().id_cenario();
+    proto_.mutable_pos()->set_id_cenario(proto_.destino().id_cenario());
+    if (mudou_cenario) {
+      po->set_x(pd.x());
+      po->set_y(pd.y());
+      po->set_z(pd.z());
+      proto_.clear_destino();
+      return;
+    }
+  }
+  double origens[] = { po->x(), po->y(), po->z() };
   double destinos[] = { pd.x(), pd.y(), pd.z() };
 
   bool chegou = true;
@@ -258,8 +318,9 @@ void Entidade::Destino(const Posicao& pos) {
   proto_.mutable_destino()->CopyFrom(pos);
 }
 
-void Entidade::AlteraTranslacaoZ(float delta) {
-  proto_.set_translacao_z(proto_.translacao_z() + delta);
+void Entidade::IncrementaZ(float delta) {
+  //proto_.set_translacao_z(proto_.translacao_z() + delta);
+  proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
 }
 
 void Entidade::AlteraRotacaoZ(float delta) {
@@ -280,6 +341,10 @@ float Entidade::Y() const {
 
 float Entidade::Z() const {
   return proto_.pos().z();
+}
+
+int Entidade::IdCenario() const {
+  return proto_.pos().id_cenario();
 }
 
 void Entidade::MataEntidade() {
@@ -317,6 +382,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
   }
+  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
+    proto_.clear_transicao_cenario();
+  }
 
   // Casos especiais.
   auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
@@ -337,7 +405,7 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/,proto_, vd_);
+  MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_);
   if (!proto_.achatado()) {
     gl::Translada(0.0f, 0.0f, ALTURA);
   }
@@ -358,11 +426,10 @@ const Posicao Entidade::PosicaoAcao() const {
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
-  return vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f;
+  return vd.altura_voo + (vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f);
 }
 
-void Entidade::MontaMatriz(bool em_voo,
-                           bool queda,
+void Entidade::MontaMatriz(bool queda,
                            bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
@@ -370,9 +437,9 @@ void Entidade::MontaMatriz(bool em_voo,
                            const float* matriz_shear) {
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida();
-  float translacao_z = ZChao(pos.x(), pos.y()) + (transladar_z ? pos.z() + proto.translacao_z() : 0);
-  if (em_voo) {
-    translacao_z += DeltaVoo(vd);
+  float translacao_z = ZChao(pos.x(), pos.y());
+  if (transladar_z) {
+    translacao_z += proto.pos().z() + DeltaVoo(vd);
   }
   if (matriz_shear == nullptr) {
     gl::Translada(pos.x(), pos.y(), translacao_z);
@@ -381,6 +448,10 @@ void Entidade::MontaMatriz(bool em_voo,
     gl::MultiplicaMatriz(matriz_shear);
     gl::Translada(0, 0, translacao_z);
   }
+  if (proto.has_modelo_3d()) {
+    gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+  }
+
   if (achatar && !proto.has_info_textura()) {
     // Achata cone.
     gl::Escala(1.0f, 1.0f, 0.1f);
@@ -404,243 +475,24 @@ void Entidade::MontaMatriz(bool em_voo,
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
   gl::Escala(multiplicador, multiplicador, multiplicador);
-}
-
-void Entidade::Desenha(ParametrosDesenho* pd) {
-  if (!proto_.visivel() || proto_.cor().a() < 1.0f) {
-    // Sera desenhado translucido.
-    return;
+  if (pd != nullptr && pd->has_escala_efeito()) {
+    const auto& ee = pd->escala_efeito();
+    gl::Escala(ee.x(), ee.y(), ee.z());
   }
-  DesenhaObjetoComDecoracoes(pd);
-}
-
-void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
-  if (proto_.visivel()) {
-    // Visivel so eh desenhado aqui se a cor for transparente.
-    if (proto_.cor().a() == 1.0f) {
-      return;
-    }
-  } else {
-    // Invisivel, so desenha para o mestre independente da cor (sera translucido).
-    // Para jogador desenha se for selecionavel.
-    if (!pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
-      return;
+  if (pd != nullptr && pd->has_rotacao_efeito()) {
+    const auto& re = pd->rotacao_efeito();
+    if (re.has_x()) {
+      gl::Roda(re.x(), 1.0f, 0.0f, 0.0f);
+    } else if (re.has_y()) {
+      gl::Roda(re.y(), 0.0f, 1.0f, 0.0f);
+    } else if (re.has_z()) {
+      gl::Roda(re.z(), 0.0f, 0.0f, 1.0f);
     }
   }
-  DesenhaObjetoComDecoracoes(pd);
-}
-
-void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
-  DesenhaObjetoProto(proto_, vd_, pd, matriz_shear);
-}
-
-void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
-  gl::CarregaNome(Id());
-  // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
-  gl::Habilita(GL_NORMALIZE);
-  DesenhaObjeto(pd);
-  DesenhaDecoracoes(pd);
-  gl::Desabilita(GL_NORMALIZE);
-}
-
-void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
-  if (proto_.tipo() != TE_ENTIDADE) {
-    // Apenas entidades tem decoracoes.
-    return;
+  if (pd != nullptr && pd->has_translacao_efeito()) {
+    const auto& te = pd->translacao_efeito();
+    gl::Translada(te.x(), te.y(), te.z());
   }
-  if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
-    // Volta pro chao.
-    gl::MatrizEscopo salva_matriz;
-    MontaMatriz(false  /*em_voo*/, true  /*queda*/, false /*tz*/, proto_, vd_, pd);
-    MudaCor(proto_.cor());
-    gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
-    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
-  }
-  // Desenha a barra de vida.
-  if (pd->desenha_barra_vida()) {
-#if 0
-    // Codigo para iluminar barra de vida.
-    gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
-    // Luz no olho apontando para a barra.
-    const Posicao& pos_olho = pd->pos_olho();
-    gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
-    const auto& pos = proto_.pos();
-    GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
-    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
-#endif
-
-    gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
-    gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
-    {
-      gl::MatrizEscopo salva_matriz;
-      gl::Escala(0.2f, 0.2f, 1.0f);
-      MudaCor(COR_VERMELHA);
-      gl::CuboSolido(TAMANHO_BARRA_VIDA);
-    }
-    if (proto_.max_pontos_vida() > 0 && proto_.pontos_vida() > 0) {
-      float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
-      float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
-      float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
-      gl::Translada(0, 0, delta);
-      gl::Escala(0.3f, 0.3f, porcentagem);
-      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
-      gl::DesvioProfundidade(0, -25.0);
-      MudaCor(COR_VERDE);
-      gl::CuboSolido(TAMANHO_BARRA_VIDA);
-    }
-  }
-
-  if (pd->desenha_eventos_entidades()) {
-    bool ha_evento = false;
-    std::string descricao;
-    int num_descricoes = 0;
-    for (auto& e : *proto_.mutable_evento()) {
-      if (e.rodadas() == 0) {
-        ha_evento = true;
-        if (!e.descricao().empty()) {
-          descricao += e.descricao() + "\n";
-          ++num_descricoes;
-        }
-      }
-    }
-    if (ha_evento) {
-      // Eventos na quinta posicao da pilha (ja tem tabuleiro e entidades aqui).
-      gl::TipoEscopo nomes_eventos(OBJ_EVENTO_ENTIDADE, OBJ_ENTIDADE);
-      gl::CarregaNome(Id());
-      gl::DesabilitaEscopo de(GL_LIGHTING);
-      MudaCor(COR_AMARELA);
-      gl::MatrizEscopo salva_matriz;
-      MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
-      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
-      gl::EsferaSolida(0.2f, 4, 2);
-      gl::Translada(0.0f, 0.0f, 0.3f);
-      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
-      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
-      gl::EsferaSolida(0.2f, 4, 2);
-      // Descricao (so quando nao for picking).
-      if (!pd->has_picking_x() && !descricao.empty()) {
-        int l, a;
-        gl::TamanhoFonte(&l, &a);
-        gl::Translada(0.0f, 0.0f, 0.4f);
-        gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-        gl::DesenhaString(descricao, true  /*inverte vertical*/);
-      }
-    }
-  }
-
-  if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
-    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
-    gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*em_voo*/, false  /*queda*/, true  /*tz*/, proto_, vd_, pd);
-    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
-    MudaCor(COR_AMARELA);
-    if (pd->desenha_rotulo()) {
-      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      gl::DesenhaString(proto_.rotulo());
-    }
-    if (pd->desenha_rotulo_especial()) {
-      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      std::string rotulo;
-      for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
-        rotulo += std::string("\n") + rotulo_especial;
-      }
-      if (proto_.proxima_salvacao() != RS_FALHOU) {
-        rotulo += "\nprox. salv.: ";
-        switch (proto_.proxima_salvacao()) {
-          case RS_MEIO:
-            rotulo += "1/2";
-            break;
-          case RS_QUARTO:
-            rotulo += "1/4";
-            break;
-          case RS_ANULOU:
-            rotulo += "ANULA";
-            break;
-          default:
-            rotulo += "VALOR INVALIDO";
-        }
-      }
-      gl::DesenhaString(rotulo);
-    }
-  }
-}
-
-void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
-  if (!pd->iluminacao() || !proto_.has_luz()) {
-    return;
-  }
-  if (!proto_.visivel() && !pd->modo_mestre()) {
-    return;
-  }
-
-  bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
-  gl::MatrizEscopo salva_matriz;
-  if (achatado) {
-    // So translada para a posicao do objeto.
-    gl::Translada(X(), Y(), Z());
-  } else {
-    MontaMatriz(true  /*em_voo*/, true  /*queda*/, true  /*tz*/, proto_, vd_, pd);
-  }
-  // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
-  Posicao vetor_camera_objeto;
-  ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
-  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
-
-  // Um para direcao da camera para luz iluminar o proprio objeto.
-  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
-
-  int id_luz = pd->luz_corrente();
-  if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
-    LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
-  } else {
-    // Objeto de luz. O quarto componente indica que a luz é posicional.
-    // Se for 0, a luz é direcional e os componentes indicam sua direção.
-    GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
-    gl::Luz(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
-    const ent::Cor& cor = proto_.luz().cor();
-    GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
-    gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-    gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f + sinf(vd_.angulo_disco_luz_rad) * 0.1);
-    gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
-    gl::Habilita(GL_LIGHT0 + id_luz);
-    pd->set_luz_corrente(id_luz + 1);
-  }
-}
-
-void Entidade::DesenhaAura(ParametrosDesenho* pd) {
-  if (!proto_.visivel() && !pd->modo_mestre()) {
-    return;
-  }
-  if (!pd->desenha_aura() || !proto_.has_aura() || proto_.aura() == 0) {
-    return;
-  }
-  gl::MatrizEscopo salva_matriz;
-  gl::Translada(X(), Y(), Z() + DeltaVoo(vd_));
-  const auto& cor = proto_.cor();
-  gl::MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
-  float ent_quadrados = MultiplicadorTamanho();
-  if (ent_quadrados < 1.0f) {
-    ent_quadrados = 1.0f;
-  }
-  // A aura estende alem do tamanho da entidade.
-  gl::EsferaSolida(
-      TAMANHO_LADO_QUADRADO_2 * ent_quadrados + TAMANHO_LADO_QUADRADO * proto_.aura(),
-      NUM_FACES, NUM_FACES);
-}
-
-void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
-  if (!proto_.visivel() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
-    return;
-  }
-  gl::Habilita(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(-1.0f, -60.0f);
-  DesenhaObjeto(pd, matriz_shear);
-  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
-}
-
-float Entidade::MultiplicadorTamanho() const {
-  return CalculaMultiplicador(proto_.tamanho());
 }
 
 void Entidade::AtualizaProximaSalvacao(ResultadoSalvacao rs) {
@@ -672,16 +524,16 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
 }
 
 // Nome dos buffers de VBO.
-std::vector<gl::Vbo> Entidade::g_vbos;
+std::vector<gl::VboGravado> Entidade::g_vbos;
 
 void Entidade::IniciaGl() {
-  g_vbos.resize(3);
 
+  std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // Vbo peao.
   {
-    gl::Vbo& vbo = g_vbos[VBO_PEAO];
+    auto& vbo = vbos_nao_gravados[VBO_PEAO];
     vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
-    gl::Vbo vbo_esfera(gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f));
+    auto vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
     // Translada todos os Z da esfera em ALTURA.
     for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.num_dimensoes()) {
       vbo_esfera.coordenadas()[i] += ALTURA;
@@ -692,7 +544,7 @@ void Entidade::IniciaGl() {
 
   // Vbo tijolo da base.
   {
-    gl::Vbo& vbo = g_vbos[VBO_TIJOLO_BASE];
+    auto& vbo = vbos_nao_gravados[VBO_TIJOLO_BASE];
     vbo = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
     vbo.Nomeia("tijolo da base");
   }
@@ -712,16 +564,73 @@ void Entidade::IniciaGl() {
       1.0f, 0.0f,
       0.0f, 0.0f,
     };
-    gl::Vbo& vbo = g_vbos[VBO_TELA_TEXTURA];
+    auto& vbo = vbos_nao_gravados[VBO_TELA_TEXTURA];
     vbo.AtribuiCoordenadas(3, coordenadas, 12);
     vbo.AtribuiTexturas(coordenadas_textura);
     vbo.AtribuiIndices(indices, 4);
     vbo.Nomeia("tela de textura");
   }
 
+  // Cubo.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CUBO];
+    vbo = gl::VboCuboSolido(1.0f);
+    vbo.Nomeia("cubo unitario");
+  }
+
+  // Esfera.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_ESFERA];
+    vbo = gl::VboEsferaSolida(0.5f, 24, 12);
+    vbo.Nomeia("Esfera unitaria");
+  }
+
+  // Piramide.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE];
+    vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+    vbo.Nomeia("Piramide");
+  }
+
+  // Cilindro.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CILINDRO];
+    vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
+    vbo.Nomeia("Cilindro");
+  }
+
+  // Disco.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_DISCO];
+    vbo = gl::VboDisco(0.5f  /*raio*/, 12);
+    vbo.Nomeia("Disco");
+  }
+
+  // Retangulo.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_RETANGULO];
+    vbo = gl::VboRetangulo(1.0f);
+    vbo.Nomeia("Retangulo");
+  }
+
+  // Triangulo.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_TRIANGULO];
+    vbo = gl::VboTriangulo(1.0f);
+    vbo.Nomeia("Triangulo");
+  }
+
+  // Cone.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CONE];
+    vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
+    vbo.Nomeia("Cone");
+  }
+
   // Gera os Vbos.
-  for (gl::Vbo& vbo : g_vbos) {
-    gl::GravaVbo(&vbo);
+  g_vbos.resize(NUM_VBOS);
+  for (int i = 0; i < NUM_VBOS; ++i) {
+    g_vbos[i].Grava(vbos_nao_gravados[i]);
   }
 }
 

@@ -1,8 +1,11 @@
 #ifndef ENT_ENTIDADE_H
 #define ENT_ENTIDADE_H
 
+#include <unordered_map>
 #include "ent/entidade.pb.h"
-#include "gltab/gl.h"
+#include "ent/util.h"
+#include "gltab/gl_vbo.h"
+#include "m3d/m3d.h"
 
 namespace ntf {
 class CentralNotificacoes;
@@ -28,7 +31,7 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, ntf::CentralNotificacoes* central);
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -45,12 +48,15 @@ class Entidade {
   void Atualiza();
 
   /** Destroi a entidade. */
-  virtual ~Entidade();
+  ~Entidade();
 
   /** @return o identificador da entidade que deve ser unico globalmente. */
   unsigned int Id() const { return proto_.id(); }
 
   TipoEntidade Tipo() const { return proto_.tipo(); }
+
+  /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
+  static gl::VboNaoGravado ExtraiVbo(const ent::EntidadeProto& proto);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -59,13 +65,14 @@ class Entidade {
   /** Move a entidade uma quantidade em cada eixo. Limpa destino. */
   void MoveDelta(float dx, float dy, float dz);
 
+  /** @return o destino da entidade. */
+  const Posicao& Destino() const { return proto_.destino(); }
+
   /** Atribui um destino a entidade. A cada atualizacao ela se movera em direcao ao destino. */
   void Destino(const Posicao& pos);
 
-  /** Altera a translacao em Z da entidade. */
-  void AlteraTranslacaoZ(float delta_translacao);
-
-  float TranslacaoZ() const { return proto_.translacao_z(); }
+  /** Incrementa Z da entidade por um delta. */
+  void IncrementaZ(float delta_z);
 
   /** Altera a rotacao em Z da entidade. */
   void AlteraRotacaoZ(float delta_rotacao_graus);
@@ -81,8 +88,11 @@ class Entidade {
   /** @return a coordenada (y). */
   float Y() const;
 
-  /** @return a coordenada (z). Se delta == true, aplica o delta de voo se a entidade estiver voando. */
+  /** @return a coordenada (z). */
   float Z() const;
+
+  /** @return o id de cenario da entidade. */
+  int IdCenario() const;
 
   /** Retorna as coordenadas do objeto como posicao. */
   const Posicao& Pos() const { return proto_.pos(); }
@@ -156,28 +166,54 @@ class Entidade {
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
+ protected:
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*);
+  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+
  private:
   // Nome dos buffers de VBO.
-  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2;
-  static std::vector<gl::Vbo> g_vbos;
+  constexpr static unsigned short NUM_VBOS = 11;
+  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10;
+  static std::vector<gl::VboGravado> g_vbos;
+
+  // Alguns efeitos tem complementos.
+  struct ComplementoEfeito {
+    int quantidade = 0;  // quantidade de imagens, por exemplo.
+    std::vector<float> posicoes;
+  };
 
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
     VariaveisDerivadas() { }
     // Como esse estado é local e não precisa ser salvo, fica aqui.
     float angulo_disco_selecao_graus = 0.0f;
+    // Qual a altura do voo da entidade.
+    float altura_voo = 0.0f;
+    // Salva z antes do voo para restaurar depois.
+    float z_antes_voo = 0.0f;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
     float angulo_disco_voo_rad = 0.0f;
     // Entidades em queda caem progressivamente ate 90 graus.
     float angulo_disco_queda_graus = 0.0f;
     // Oscilacao da luz.
     float angulo_disco_luz_rad = 0.0f;
+    // Efeitos da criatura e algum complemento.
+    std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
+    // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
+    bool nao_desenhar = false;
+
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
+    const m3d::Modelos3d* m3d = nullptr;
   };
 
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, ntf::CentralNotificacoes*);
-  Entidade(const Texturas* texturas, ntf::CentralNotificacoes* central);
+  // Extracao de VBO por tipo.
+  static gl::VboNaoGravado ExtraiVboForma(const ent::EntidadeProto& proto);
+  static gl::VboNaoGravado ExtraiVboComposta(const ent::EntidadeProto& proto);
+
+  /** Atualiza os efeitos para o frame. */
+  void AtualizaEfeitos();
+  void AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complemento);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
@@ -195,16 +231,24 @@ class Entidade {
   /** Realiza o desenho do objeto. */
   void DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear = nullptr);
 
-  /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao. */
+  /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao). */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
 
-  /** Auxiliar para montar a matriz de desenho do objeto.
-  * @param em_voo se verdadeiro, posiciona matriz no ar, caso contrario no solo.
-  * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
-  * @param translacao_z se verdadeiro, considera a translacao no eixo z.
+  /** Desenha os efeitos do objeto. Sera chamado uma vez para solido e outra para translucido. Cada efeito devera
+  * saber o que e quando desenhar (usando pd->alfa_translucidos para diferenciar).
   */
-  static void MontaMatriz(bool em_voo,
-                          bool queda,
+  void DesenhaEfeitos(ParametrosDesenho* pd);
+  /** Desenha o efeito de uma entidade. */
+  void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
+
+  /** Auxiliar para montar a matriz de desenho do objeto.
+  * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
+  * @param translacao_z se verdadeiro, transladar para posicao vertical do objeto.
+  * @param proto da entidade.
+  * @param pd os parametros de desenho.
+  * @param matriz_shear se nao null, eh porque esta desenhando sombra.
+  */
+  static void MontaMatriz(bool queda,
                           bool transladar_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,

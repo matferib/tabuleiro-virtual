@@ -1,8 +1,11 @@
-#include <boost/asio.hpp>
+#ifndef NET_SERVIDOR_H
+#define NET_SERVIDOR_H
+
 #include <memory>
+#include <queue>
 #include <set>
-#include <vector>
 #include "ntf/notificacao.h"
+#include "net/socket.h"
 
 namespace net {
 
@@ -13,8 +16,8 @@ namespace net {
 // - Servidor espera conexao HTTP na porta PortaPadrao. Servidor espera na PortaPadrao de forma assincrona
 // na funcao EsperaCliente.
 // - Cliente conecta na PortaPadrao e envia imediatamente uma notificacao TN_RESPOSTA_CONEXAO contendo seu
-// identificador local (cliente_bla). Notificacao eh enviada localmente tambem para o cliente mostrar a
-// notificacao.
+// identificador local (cliente_bla). Notificacao eh enviada localmente tambem para que o id do cliente seja
+// conhecido pelo tabuleiro.
 // - Servidor na funcao EsperaCliente cria o cliente como cliente pendente e espera novos clientes. Dados do
 // cliente serao recebidos na funcao RecebeDadosCliente.
 // - Servidor na funcao RecebeDadosCliente recebe TN_RESPOSTA_CONEXAO e atribui o id do cliente na camada net.
@@ -35,7 +38,7 @@ namespace net {
 class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  public:
   // Nao possui os parametros.
-  Servidor(boost::asio::io_service* servico_io, ntf::CentralNotificacoes* central);
+  Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central);
   virtual ~Servidor();
 
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -44,18 +47,20 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
  private:
   struct Cliente {
     // tamanho maximo da mensagem: 1MB.
-    Cliente(boost::asio::ip::tcp::socket* socket) : socket(socket), buffer(1024 * 1024), a_receber_(0) {}
+    Cliente(Socket* socket) : socket(socket), buffer_tamanho(4, '\0') {}
     Cliente() : Cliente(nullptr) {}
     std::string id;
-    std::unique_ptr<boost::asio::ip::tcp::socket> socket;
-    // Buffer de recepcao dos dados, controlado pelo boost.
-    std::vector<char> buffer;
-    // Buffer de cada notificacao recebida no buffer acima.
-    std::string buffer_notificacao;
-    int a_receber_;
+    std::unique_ptr<Socket> socket;
+    // Buffer para receber tamanho dos dados.
+    std::string buffer_tamanho;
+    // Buffer de recepcao dos dados.
+    std::string buffer_recepcao;
+    // Dados para enviar.
+    std::queue<std::string> fifo_envio;
   };
 
-  // Liga o servidor e chama EsperaCliente.
+  // Liga o aceitador para receber clientes de forma assincrona e renova automaticamente sempre que um cliente aparece.
+  // Para cada cliente, chama RecebeDadosCliente e nao bloca.
   void Liga();
   // Desliga o servidor.
   void Desliga();
@@ -63,20 +68,18 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
   // Retorna se o servidor esta ligado.
   bool Ligado() const;
 
-  // Funcao que espera um cliente de forma assincrona e renova automaticamente sempre que um cliente aparece.
-  // Para cada cliente, chama RecebeDadosCliente e Nao bloca.
-  void EsperaCliente();
   // Chama a funcao de recepcao de dados de forma assincrona para o cliente.
   void RecebeDadosCliente(Cliente* cliente);
-  // Envia dados para o cliente.
-  void EnviaDadosCliente(boost::asio::ip::tcp::socket* cliente, const std::string& dados);
+  // Envia ou enfileira dados a serem enviados para um cliente. Assincrono. Se sem dados for true, envia a primeira mensagem enfileirada.
+  void EnviaDadosCliente(Cliente* cliente, const std::string& dados, bool sem_dados = false);
   // Desconecta um cliente do servidor, efetivamente destruindo sua estrutura e deletando o ponteiro.
   void DesconectaCliente(Cliente* cliente);
 
   ntf::CentralNotificacoes* central_;
-  boost::asio::io_service* servico_io_;
-  std::unique_ptr<boost::asio::ip::tcp::acceptor> aceitador_;
-  std::unique_ptr<boost::asio::ip::udp::socket> anunciante_;
+  Sincronizador* sincronizador_;
+  std::unique_ptr<Aceitador> aceitador_;
+  std::string buffer_porta_;  // usado para anunciar a porta do servidor.
+  std::unique_ptr<SocketUdp> anunciante_;
   int timer_anuncio_ = 0;
   std::unique_ptr<Cliente> proximo_cliente_;
   std::set<Cliente*> clientes_pendentes_;
@@ -84,3 +87,5 @@ class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
 };
 
 }  // namespace net
+
+#endif

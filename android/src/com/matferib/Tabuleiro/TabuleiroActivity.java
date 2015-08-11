@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ScaleGestureDetector;
@@ -30,22 +31,24 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.widget.EditText;
+import com.squareup.wire.Wire;
+import com.matferib.Tabuleiro.ent.EntidadeProto;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
-public class TabuleiroActivity extends Activity implements View.OnFocusChangeListener,
-                                                           View.OnSystemUiVisibilityChangeListener {
+public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    Log.d("TabuleiroActivity", "onCreate");
     super.onCreate(savedInstanceState);
+    Log.d("TabuleiroActivity", "onCreate");
     view_ = new TabuleiroSurfaceView(this);
-    view_.setOnFocusChangeListener(this);
     view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
-        getResources().getAssets());
+        getResources().getAssets(),
+        ((android.content.Context)this).getFilesDir().getAbsolutePath());
     view_.requestFocus();
   }
 
@@ -53,28 +56,26 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
     Log.d("TabuleiroActivity", "hideUi");
     if (Build.VERSION.SDK_INT >= 19) {
       Log.d("TabuleiroActivity", "hideUiInside");
-      getWindow().getDecorView().setSystemUiVisibility(
-          View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-          | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-          | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-          | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-          | View.SYSTEM_UI_FLAG_FULLSCREEN
-          | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-    }
-  }
-
-  @Override
-  public void onFocusChange(View v, boolean hasFocus) {
-    Log.d("TabuleiroActivity", "onFocusChanged: " + hasFocus);
-    if (hasFocus) {
-      hideUi();
+      // Por causa de algum bug bizarro do android, tem que esperar um pouquinho para mudar a visibilidade
+      // da barra do sistema.
+      view_.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          getWindow().getDecorView().setSystemUiVisibility(
+            View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_FULLSCREEN
+            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        }
+      }, 500);
     }
   }
 
   @Override
   public void onSystemUiVisibilityChange(int visibility) {
-    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange");
-    hideUi();
+    Log.d("TabuleiroActivity", "onSystemUiVisibilityChange: " + visibility/*, new Exception()*/);
   }
 
   @Override
@@ -122,7 +123,7 @@ public class TabuleiroActivity extends Activity implements View.OnFocusChangeLis
   static {
     System.loadLibrary("tabuleiro");
   }
-  private native void nativeCreate(String nome, String endereco, Object assets);
+  private native void nativeCreate(String nome, String endereco, Object assets, String dir);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;
@@ -317,6 +318,85 @@ class TabuleiroRenderer
         });
         AlertDialog caixa = builder.create();
         caixa.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+        caixa.show();
+      }
+    });
+  }
+
+  /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
+  public void abreDialogoEntidade(final byte[] mensagem) {
+    //Log.d(TAG, "abreDialogoEntidade: ");
+    Wire wire = new Wire();
+    final EntidadeProto proto;
+    try {
+      proto = wire.parseFrom(mensagem, EntidadeProto.class);
+    } catch (Exception e) {
+      Log.e(TAG, "Falha deserializando mensagem: " + e.getMessage());
+      return;
+    }
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Entidade");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_entidade, null);
+        // Preenche campos.
+        final EditText max_pv = (EditText)view.findViewById(R.id.max_pontos_vida);
+        if (max_pv == null) {
+          Log.e(TAG, "max_pv == null");
+          return;
+        }
+        final EditText pv = (EditText)view.findViewById(R.id.pontos_vida);
+        if (pv == null) {
+          Log.e(TAG, "pv == null");
+          return;
+        }
+        final EditText eventos = (EditText)view.findViewById(R.id.eventos);
+        if (eventos == null) {
+          Log.e(TAG, "eventos == null");
+          return;
+        }
+        max_pv.setText(String.valueOf(proto.max_pontos_vida));
+        pv.setText(String.valueOf(proto.pontos_vida));
+        String evento_str = new String();
+        for (EntidadeProto.Evento e : proto.evento) {
+          evento_str += e.descricao;
+          if (e.complemento != null) {
+            evento_str += " (" + String.valueOf(e.complemento) + ")";
+          }
+          evento_str += ": " + String.valueOf(e.rodadas) + "\n";
+        }
+        eventos.setText(evento_str);
+
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              try {
+                // Hack: eventos sera todos colocados em uma string e decodificados no codigo nativo.
+                Vector<EntidadeProto.Evento> evento_hack = new Vector<EntidadeProto.Evento>();
+                evento_hack.add(new EntidadeProto.Evento(0, eventos.getText().toString(), 0, 0));
+                EntidadeProto proto_modificado = new EntidadeProto.Builder()
+                    .id(proto.id)
+                    .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
+                    .pontos_vida(Integer.parseInt(pv.getText().toString()))
+                    .evento(evento_hack)
+                    .build();
+                Log.d(TAG, "OK proto: " + proto_modificado.toString());
+                nativeUpdateEntity(proto_modificado.toByteArray());
+                dialog.dismiss();
+              } catch (Exception e) {
+              }
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
         caixa.show();
       }
     });
@@ -694,6 +774,7 @@ class TabuleiroRenderer
   private static native void nativeTilt(float delta);
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
+  private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;
   private GLSurfaceView parent_;

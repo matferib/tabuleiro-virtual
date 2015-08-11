@@ -15,6 +15,8 @@ const int TAG_AURA = 4;
 const int TAG_TEXTO_AURA = 5;
 const int TAG_TAMANHO = 6;
 const int TAG_TEXTO_TAMANHO = 7;
+const int TAG_PONTOS_VIDA = 8;
+const int TAG_MAX_PONTOS_VIDA = 9;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -33,7 +35,7 @@ const int TAG_BOTAO_CANCELA = 101;
 {
   [super viewDidLoad];
   GLKView *view = (GLKView *)self.view;
-  
+
   // Tap.
   UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]
       initWithTarget:self action:@selector(handleTapGesture:)];
@@ -57,7 +59,7 @@ const int TAG_BOTAO_CANCELA = 101;
   if (!self.context_) {
     NSLog(@"Failed to create ES context");
   }
-  
+
   view.context = self.context_;
   view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
   view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
@@ -304,7 +306,7 @@ const int TAG_BOTAO_CANCELA = 101;
     vc_entidade_.modalTransitionStyle = UIModalTransitionStyleFlipHorizontal;
     //vc.modalPresentationStyle = UIModalPresentationStyle.UIModalPresentationPopover;
     UIView* view = [vc_entidade_ view];
-    
+
     UITextField* texto_id = (UITextField*)[view viewWithTag:TAG_ID];
     [texto_id setText: [NSString stringWithFormat: @"%d", n.entidade().id()]];
 
@@ -316,6 +318,11 @@ const int TAG_BOTAO_CANCELA = 101;
     std::string eventos_str;
     for (const auto& evento : n.entidade().evento()) {
       eventos_str.append(evento.descricao());
+      if (evento.has_complemento()) {
+        eventos_str.append(" (");
+        eventos_str.append(std::to_string(evento.complemento()));
+        eventos_str.append(") ");
+      }
       eventos_str.append(": ");
       eventos_str.append(std::to_string(evento.rodadas()) + "\n");
     }
@@ -329,27 +336,32 @@ const int TAG_BOTAO_CANCELA = 101;
 
     UITextField* texto_rotulo = (UITextField*)[view viewWithTag:TAG_ROTULO];
     [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
-    
+
     slider_ = (UISlider*)[view viewWithTag:TAG_AURA];
     [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
     [slider_ setValue:n.entidade().aura()];
-    
+
     texto_slider_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];
     [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
-    
+
     slider_tamanho_ = (UISlider*)[view viewWithTag:TAG_TAMANHO];
     [slider_tamanho_ addTarget:self action:@selector(arredondaTamanho) forControlEvents:UIControlEventValueChanged];
     [slider_tamanho_ setValue:n.entidade().tamanho()];
-    
+
     texto_slider_tamanho_ = (UITextField*)[view viewWithTag:TAG_TEXTO_TAMANHO];
     [texto_slider_tamanho_ setText:[self tamanhoParaString:n.entidade().tamanho()]];
-    
+
+    pontos_vida_ = (UITextField*)[view viewWithTag:TAG_PONTOS_VIDA];
+    [pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().pontos_vida()]];
+    max_pontos_vida_ = (UITextField*)[view viewWithTag:TAG_MAX_PONTOS_VIDA];
+    [max_pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().max_pontos_vida()]];
+
     [self presentModalViewController:vc_entidade_ animated:TRUE];
     return true;
   }
   return false;
 }
-           
+
 -(void)fechaViewEntidade
 {
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
@@ -369,16 +381,22 @@ const int TAG_BOTAO_CANCELA = 101;
         notificacao_->mutable_entidade()->clear_evento();
         // Break string.
         for (NSString* str in [eventos_str componentsSeparatedByString:@"\n"]) {
-          NSArray* desc_rodadas = [str componentsSeparatedByString:@":"];
-          if ([desc_rodadas count] != 2) {
+          NSArray* desc_rodadas = [str componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@":()"]];
+          if ([[str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] == 0 || [desc_rodadas count] == 0) {
             continue;
           }
           ent::EntidadeProto_Evento evento;
           std::string evento_str(
-              [[[desc_rodadas firstObject]
-                  stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
-                      cStringUsingEncoding:NSUTF8StringEncoding]);
+                                 [[[desc_rodadas firstObject]
+                                   stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                                  cStringUsingEncoding:NSUTF8StringEncoding]);
           evento.set_descricao(evento_str);
+          for (int i = 1; i < [desc_rodadas count] - 1; ++i) {
+            // encontra o elemento nao vazio
+            if ([[desc_rodadas[i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] > 0) {
+              evento.set_complemento([desc_rodadas[i] intValue]);
+            }
+          }
           evento.set_rodadas([[desc_rodadas lastObject] intValue]);
           notificacao_->mutable_entidade()->add_evento()->Swap(&evento);
         }
@@ -406,6 +424,12 @@ const int TAG_BOTAO_CANCELA = 101;
   {
     int valor_slider_tamanho = (int)[slider_tamanho_ value];
     notificacao_->mutable_entidade()->set_tamanho((ent::TamanhoEntidade)valor_slider_tamanho);
+  }
+  {
+    int pontos_vida = (int)[[pontos_vida_ text] intValue];
+    notificacao_->mutable_entidade()->set_pontos_vida(pontos_vida);
+    int max_pontos_vida = (int)[[max_pontos_vida_ text] intValue];
+    notificacao_->mutable_entidade()->set_max_pontos_vida(max_pontos_vida);
   }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);

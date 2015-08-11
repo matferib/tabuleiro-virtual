@@ -41,7 +41,7 @@ const std::vector<float> g_vertices_caracteres = []() {
   return coordenadas;
 }();
 
-// Quadrado de triangulos de coordendadas
+// Quadrado de triangulos de coordenadas
 #define Q(V1, V2, V3, V4) V1, V2, V3, V1, V3, V4
 
 // Letras deslocadas em 3 pixels.
@@ -71,6 +71,11 @@ const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres
     '+', {
       Q(I(1, 4), I(9, 4), I(9, 5), I(1, 5)),  // WE
       Q(I(4, 2), I(6, 2), I(6, 7), I(4, 7)),  // SN
+    },
+  }, {
+    '^', {
+      Q(I(1, 4), I(3, 4) ,I(6, 9), I(4, 9)) ,  // W
+      Q(I(6, 9), I(4, 9), I(7, 4), I(9, 4)),   // E
     },
   }, {
     '<', {

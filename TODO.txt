@@ -1,43 +1,53 @@
-Versao 1.8.2
-- Mudar a espessura do desenho.
-- Transmissao de texturas do mestre para jogadores.
-- Bug da transparencia quando um retangulo com textura transparente eh colocado.
-- Ao colar, dar um jeito de ficar proximo ao campo de visao ou do quadrado selecionado.
-- Vbos de entidades.
-- Separar Vbo gravado do nao gravado.
-- Passar outras formas para gl (disco, triangulo).
-- Comparar benchmarks com e sem VBO.
-- Credito para atribuicoes.
-- Arrumar um jeito da translacao Z ficar transparente fora da entidade de forma que so seja necessario ler o Z dela.
-  Problema eh que o controle de voo da entidade eh feito pelo z.
+Versao 1.10.0
+- Bug da camera presa deslizando entidade (picking parece errado).
+- Geracao de terrenos.
+- Bug da translacao quando muda para um cenario menor que a origem.
+- Descricao de cenarios (melhorar UI com drop down).
+- Efeitos apenas para mestre.
+- Outros eventos, animacoes de eventos.
+- Transparencias de vbo compostos.
+- Terminar a exportacao de formas e compostas (CORES).
+- Nevoa nao aparece na camera isometrica.
+- Regua de distancia.
+- Fazer rotacao Z ser suavizada como destino do movimento.
+- Terminar socket.
+- Sub tabuleiros.
+- Temporizar movimento, se ficar ocioso envia atualizacao de posicao tb.
+- Unit teste dos glVbo roda.
+- Modelos 3d para entidades.
+- Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
+- Android: usar a funcao de conversao jstr para c++ str.
+- Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
+- Objetos compostos com transparencia.
+- Textura em outras formas.
+- Mudar a espessura do desenho.
+- Bug da transparencia quando um retangulo com textura transparente eh colocado.
+- Vbos de entidades.
+- Credito para atribuicoes.
 - Transicao para coisas opensource e coisas privadas.
 - Mais teclado global.
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
-- Interface de mouse generico para tablets (suporte a multitap).
 - Texturas faltantes.
-- Textura em outras formas.
 
-Versao 1.8.3
+Versao 1.10.1
 - VBO em entidades.
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
-- Terminar camada de arquivo para funcionar em diversos dispositivos.
 - Android e ipad: voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).
 - Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
-- Instalador windows, rpm linux e ??? MAC.
 
 Versao 2.0
+- Shader.
+- Interface de mouse generico para tablets (suporte a multitap).
 - Visao primeira pessoa.
 - Joystick no android.
-- Registro correto dos diretorios para funcionar de qualquer diretorio.
 - Botao de aplicar mudancas nos dialogos.
-- Shader.
 - Outros bits de status (dormindo, paralizado).
 - Outros tipos de efeito das acoes nas entidades (tremer).
 - Outros tipos de acoes (perfurante, concussao).

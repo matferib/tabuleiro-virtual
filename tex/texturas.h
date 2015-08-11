@@ -21,14 +21,19 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   /** Retorna uma textura. */
   virtual unsigned int Textura(const std::string& id) const override;
 
-  /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo). */
-  void Recarrega();
+  /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo).
+  * @param rele tambem realiza a releitura dos bits crus, decodificando-os.
+  */
+  void Recarrega(bool rele = false);
 
-  /** Le e decodifica uma imagem. */
-  static void LeDecodificaImagem(bool global, const std::string& caminho, ent::InfoTextura* info_textura);
+  /** Le e decodifica uma imagem, preenchendo os bits crus de info_textura e retornando as dimensoes.
+  * @throw std::logic_error caso a leitura da imagem falhe.
+  */
+  static void LeDecodificaImagem(
+      bool global, const std::string& caminho, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura);
 
  private:
-  struct InfoTexturaInterna;
+  class InfoTexturaInterna;
 
   /** Auxiliar para retornar informacao de textura. @return nullptr se nao houver. */
   InfoTexturaInterna* InfoInterna(const std::string& id);
@@ -45,17 +50,10 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   int GeraIdTextura();
 
-  /** Realiza a leitura da imagem de um caminho, preenchendo dados com conteudo do arquivo no caminho.
-  * Caso local, a textura sera local ao jogador. Caso contrario, eh uma textura global (da aplicacao).
-  */
-  static void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char>* dados);
-
-  /** Decodifica os dados_crus, preenchendo info_textura. */
-  static void DecodificaImagem(const std::vector<unsigned char>& dados_crus, ent::InfoTextura* info_textura);
-
  private:
   // Nao possui.
   ntf::CentralNotificacoes* central_;
+  // Mapeia id da textura para sua informacao interna.
   std::unordered_map<std::string, InfoTexturaInterna*> texturas_;
 };
 

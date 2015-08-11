@@ -4,10 +4,10 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{A9966132-260A-4314-9480-BBCA4BCA5C8F}
 AppName=Instalador Tabuleiro Virtual
-AppVerName=Tabuleiro Virtual 1.8.1
+AppVerName=Tabuleiro Virtual 1.10.0
 AppPublisher=Matferib
 OutputDir=output
-OutputBaseFilename=TabuleiroVirtual-1.8.1
+OutputBaseFilename=TabuleiroVirtual-1.10.0
 Compression=lzma
 SolidCompression=yes
 DefaultDirName={pf32}\TabuleiroVirtual
@@ -21,6 +21,7 @@ Name: "brazilianportuguese"; MessagesFile: "compiler:Languages\BrazilianPortugue
 [Dirs]
 Name: {app}\texturas_locais
 Name: {app}\tabuleiros_salvos
+Name: {localappdata}\TabuleiroVirtual
 
 [Files]
 Source: ..\tabvirt.exe; Destdir: {app};

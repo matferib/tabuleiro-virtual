@@ -12,7 +12,10 @@
 #include <QMouseEvent>
 #include <QString>
 
+#include "arq/arquivo.h"
+#include "ent/constantes.h"
 #include "ent/tabuleiro.h"
+#include "ent/util.h"
 #include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/ui/entidade.h"
@@ -23,6 +26,7 @@
 #include "ifg/qt/ui/opcoes.h"
 #include "ifg/qt/visualizador3d.h"
 #include "log/log.h"
+#include "net/util.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/texturas.h"
 
@@ -75,10 +79,19 @@ const QString TamanhoParaTexto(int tamanho) {
   return QObject::tr("desconhecido");
 }
 
-// Carrega os dados de uma textura local pro proto 'info_textura'.
-bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_textura) {
+// Carrega os dados de uma textura pro proto 'info_textura' e tambem preenche plargura e paltura.
+bool PreencheProtoTextura(
+    const QFileInfo& info_arquivo, bool global, ent::InfoTextura* info_textura, unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
+  unsigned int largura = 0, altura = 0;
+  if (plargura == nullptr) {
+    plargura = &largura;
+  }
+  if (paltura == nullptr) {
+    paltura = &altura;
+  }
   try {
-    tex::Texturas::LeDecodificaImagem(false  /*global*/, info_arquivo.absoluteFilePath().toStdString(), info_textura);
+    tex::Texturas::LeDecodificaImagem(
+        global, info_arquivo.absoluteFilePath().toStdString(), info_textura, plargura, paltura);
     return true;
   } catch (...) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
@@ -87,15 +100,22 @@ bool PreencheProtoTextura(const QFileInfo& info_arquivo, ent::InfoTextura* info_
 }
 
 // Retorna o caminho para o id de textura.
-const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id) {
+const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id, bool* pglobal = nullptr) {
+  bool global = false;
+  if (pglobal == nullptr) {
+    pglobal = &global;
+  }
   // Encontra o caminho para o arquivo.
   auto pos = id.find("0:");  // pode assumir id zero, ja que so o mestre pode criar.
   QFileInfo fileinfo;
   if (pos == std::string::npos) {
-    // Caminho relativo ao DIR_TEXTURAS
+    // Textura global.
     fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS), QString::fromStdString(id));
+    *pglobal = true;
   } else {
+    // Textura local.
     fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS_LOCAIS), QString::fromStdString(id.substr(pos)));
+    *pglobal = false;
   }
   LOG(INFO) << "Caminho para texturas: " << fileinfo.fileName().toStdString();
   return fileinfo;
@@ -169,6 +189,27 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       break;
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
+      if (!notificacao.tabuleiro().has_nome() && tabuleiro_->TemNome()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
+        central_->AdicionaNotificacao(n);
+        break;
+      }
+      // Abre dialogo de arquivo.
+      QString file_str = QFileDialog::getSaveFileName(
+          qobject_cast<QWidget*>(parent()),
+          tr("Salvar tabuleiro"),
+          tr(arq::Diretorio(arq::TIPO_TABULEIRO).c_str()));
+      if (file_str.isEmpty()) {
+        VLOG(1) << "Operação de salvar cancelada.";
+        return false;
+      }
+      auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+      n->set_endereco(file_str.toStdString());
+      central_->AdicionaNotificacao(n);
+      break;
+    }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
         return false;
@@ -303,6 +344,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   // Pontos de vida.
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
+  // Rotulos especiais.
+  std::string rotulos_especiais;
+  for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
+    rotulos_especiais += rotulo_especial + "\n";
+  }
+  gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -383,7 +430,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Translacao em Z.
-  gerador.spin_translacao->setValue(entidade.translacao_z());
+  gerador.spin_translacao->setValue(entidade.pos().z());
   // Rotacao em Y.
   gerador.dial_rotacao_y->setSliderPosition(-entidade.rotacao_y_graus() - 180.0f);
   gerador.spin_rotacao_y->setValue(entidade.rotacao_y_graus());
@@ -393,11 +440,49 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.spin_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
     gerador.dial_rotacao_y->setValue(-gerador.spin_rotacao_y->value() - 180);
   });
+  // Rotacao em X.
+  gerador.dial_rotacao_x->setSliderPosition(-entidade.rotacao_x_graus() - 180.0f);
+  gerador.spin_rotacao_x->setValue(entidade.rotacao_x_graus());
+  lambda_connect(gerador.dial_rotacao_x, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.spin_rotacao_x->setValue(180 - gerador.dial_rotacao_x->value());
+  });
+  lambda_connect(gerador.spin_rotacao_x, SIGNAL(valueChanged(int)), [gerador] {
+    gerador.dial_rotacao_x->setValue(-gerador.spin_rotacao_x->value() - 180);
+  });
 
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());
   gerador.spin_escala_y->setValue(entidade.escala().y());
   gerador.spin_escala_z->setValue(entidade.escala().z());
+
+  // Transicao de cenario.
+  lambda_connect(gerador.checkbox_transicao_cenario, SIGNAL(stateChanged(int)), [gerador] {
+    bool habilitado = gerador.checkbox_transicao_cenario->checkState() == Qt::Checked;
+    gerador.linha_transicao_cenario->setEnabled(habilitado);
+    gerador.checkbox_transicao_posicao->setEnabled(habilitado);
+    gerador.spin_trans_x->setEnabled(habilitado);
+    gerador.spin_trans_y->setEnabled(habilitado);
+    gerador.spin_trans_z->setEnabled(habilitado);
+  });
+  if (!entidade.transicao_cenario().has_id_cenario()) {
+    gerador.checkbox_transicao_cenario->setCheckState(Qt::Unchecked);
+    gerador.linha_transicao_cenario->setEnabled(false);
+    gerador.checkbox_transicao_posicao->setEnabled(false);
+    gerador.spin_trans_x->setEnabled(false);
+    gerador.spin_trans_y->setEnabled(false);
+    gerador.spin_trans_z->setEnabled(false);
+  } else {
+    gerador.checkbox_transicao_cenario->setCheckState(Qt::Checked);
+    gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
+    if (entidade.transicao_cenario().has_x()) {
+      gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
+      gerador.spin_trans_x->setValue(entidade.transicao_cenario().x());
+      gerador.spin_trans_y->setValue(entidade.transicao_cenario().y());
+      gerador.spin_trans_z->setValue(entidade.transicao_cenario().z());
+    } else {
+      gerador.checkbox_transicao_posicao->setCheckState(Qt::Unchecked);
+    }
+  }
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
@@ -408,6 +493,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     } else {
       proto_retornado->clear_max_pontos_vida();
       proto_retornado->clear_pontos_vida();
+    }
+    QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    proto_retornado->clear_rotulo_especial();
+    for (const auto& rotulo : lista_rotulos) {
+      proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
@@ -426,10 +516,35 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_fixa(fixa);
     proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
-    proto_retornado->set_translacao_z(gerador.spin_translacao->value());
+    proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
+    proto_retornado->set_translacao_z_deprecated(0);
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
+    if (gerador.checkbox_transicao_cenario->checkState() == Qt::Checked) {
+      bool ok = false;
+      int val = gerador.linha_transicao_cenario->text().toInt(&ok);
+      if (!ok || (val < CENARIO_PRINCIPAL)) {
+        LOG(WARNING) << "Ignorando valor de transicao: " << gerador.linha_transicao_cenario->text().toStdString();
+      }
+      proto_retornado->mutable_transicao_cenario()->set_id_cenario(ok ? val : CENARIO_INVALIDO);
+      if (ok) {
+        if (gerador.checkbox_transicao_posicao->checkState() == Qt::Checked) {
+          proto_retornado->mutable_transicao_cenario()->set_x(gerador.spin_trans_x->value());
+          proto_retornado->mutable_transicao_cenario()->set_y(gerador.spin_trans_y->value());
+          proto_retornado->mutable_transicao_cenario()->set_z(gerador.spin_trans_z->value());
+        } else {
+          proto_retornado->mutable_transicao_cenario()->clear_x();
+          proto_retornado->mutable_transicao_cenario()->clear_y();
+          proto_retornado->mutable_transicao_cenario()->clear_z();
+        }
+      }
+    } else {
+      // Valor especial para denotar ausencia.
+      proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
+    }
+
     if (!gerador.linha_textura->text().isEmpty()) {
       if (gerador.linha_textura->text().toStdString() == entidade.info_textura().id()) {
         // Textura igual a anterior.
@@ -448,7 +563,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
           proto_retornado->mutable_info_textura()->set_id(id.toStdString());
           // Usa o id para evitar conflito de textura local com texturas globais.
           // Enviar a textura toda.
-          PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+          PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
         } else {
           proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
         }
@@ -493,7 +608,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Eventos entidades.
   std::string eventos;
   for (const auto& evento : entidade.evento()) {
-    eventos += evento.descricao() + ": " + std::to_string(evento.rodadas()) + "\n";
+    eventos += evento.descricao();
+    if (evento.has_complemento()) {
+      eventos += " (";
+      eventos += net::to_string(evento.complemento());
+      eventos += ")";
+    }
+    eventos += ": " + net::to_string(evento.rodadas()) + "\n";
   }
   gerador.lista_eventos->appendPlainText(eventos.c_str());
 
@@ -572,7 +693,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Morta.
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
-  gerador.spin_translacao->setValue(entidade.translacao_z());
+  gerador.spin_translacao->setValue(entidade.pos().z());
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
@@ -594,22 +715,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
-    QStringList lista_eventos = gerador.lista_eventos->toPlainText().split("\n", QString::SkipEmptyParts);
-    for (const auto& desc_rodadas : lista_eventos) {
-      ent::EntidadeProto_Evento evento;
-      QStringList desc_rodadas_quebrado = desc_rodadas.split(":", QString::KeepEmptyParts);
-      if (desc_rodadas_quebrado.size() != 2) {
-        LOG(ERROR) << "Ignorando linha: " << desc_rodadas.toStdString();
-        continue;
-      }
-      evento.set_descricao(desc_rodadas_quebrado[0].trimmed().toStdString());
-      bool ok = false;
-      evento.set_rodadas(desc_rodadas_quebrado[1].toInt(&ok));
-      if (!ok) {
-        continue;
-      }
-      proto_retornado->add_evento()->Swap(&evento);
-    }
+    google::protobuf::RepeatedPtrField<ent::EntidadeProto::Evento> eventos = ent::LeEventos(gerador.lista_eventos->toPlainText().toStdString());
+    proto_retornado->mutable_evento()->Swap(&eventos);
 
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
@@ -636,7 +743,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
           proto_retornado->mutable_info_textura()->set_id(id.toStdString());
           // Usa o id para evitar conflito de textura local com texturas globais.
           // Enviar a textura toda.
-          PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+          PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
         } else {
           proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
         }
@@ -658,11 +765,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
-    if (gerador.spin_translacao->value() > 0) {
-      proto_retornado->set_translacao_z(gerador.spin_translacao->value());
-    } else {
-      proto_retornado->clear_translacao_z();
-    }
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
+    proto_retornado->set_translacao_z_deprecated(0);
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
@@ -690,6 +794,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
 ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
+  proto_retornado->set_id_cenario(notificacao.tabuleiro().id_cenario());
   ifg::qt::Ui::DialogoIluminacao gerador;
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
@@ -828,7 +933,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         proto_retornado->mutable_info_textura()->set_id(id.toStdString());
         // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
-        PreencheProtoTextura(info, proto_retornado->mutable_info_textura());
+        PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
       } else {
         proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
       }
@@ -858,20 +963,21 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
         proto_retornado->mutable_info_textura_ceu()->set_id(id.toStdString());
         // Usa o id para evitar conflito de textura local com texturas globais.
         // Enviar a textura toda.
-        PreencheProtoTextura(info, proto_retornado->mutable_info_textura_ceu());
+        PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura_ceu());
       } else {
         proto_retornado->mutable_info_textura_ceu()->set_id(info.fileName().toStdString());
       }
     }
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
-      // Busca tamanho da textura.
+      // Busca tamanho da textura. Copia o objeto aqui porque a funcao PreencheProtoTextura o modifica.
       ent::InfoTextura textura = proto_retornado->info_textura();
-      if (!textura.has_altura() || !textura.has_largura()) {
-        PreencheProtoTextura(IdTexturaParaCaminhoArquivo(textura.id()), &textura);
-      }
-      proto_retornado->set_largura(textura.largura() / 8);
-      proto_retornado->set_altura(textura.altura() / 8);
+      unsigned int largura = 0, altura = 0;
+      bool global;
+      auto caminho = IdTexturaParaCaminhoArquivo(textura.id(), &global);
+      PreencheProtoTextura(caminho, global, &textura, &largura, &altura);
+      proto_retornado->set_largura(largura / 8);
+      proto_retornado->set_altura(altura / 8);
     } else {
       // Converte da entrada.
       bool ok = true;

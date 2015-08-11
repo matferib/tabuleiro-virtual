@@ -1,4 +1,5 @@
 package ent;
+option java_package = "com.matferib.Tabuleiro.ent";
 
 enum TipoEntidade {
   TE_ENTIDADE = 0;
@@ -37,11 +38,12 @@ enum ResultadoSalvacao {
   RS_ANULOU = 3;
 }
 
-// Tambem conhecido como vetor.
+// Tambem usado como vetor.
 message Posicao {
   optional float x = 3;
   optional float y = 4;
   optional float z = 5;
+  optional int32 id_cenario = 6 [default=-1];
 }
 
 message Cor {
@@ -60,17 +62,24 @@ message IluminacaoPontual {
 message InfoTextura {
   // Identificador da textura. Normalmente o nome do arquivo.
   optional string id = 1;
-  // Os campos abaixo so sao usados para texturas nao globais.
-  // Largura em pixels.
-  optional int32 largura = 2;
-  // Altura em pixels.
-  optional int32 altura = 3;
-  // Formato QT da textura.
-  optional int32 formato = 4;
-  // Os bits da textura.
-  optional bytes bits = 5;
-  // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas locais.
+  // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
+  // dentro de tabuleiros.
   optional bytes bits_crus = 6;
+
+  // Deprecated: isso eh de uso interno apenas.
+  // Largura em pixels.
+  optional int32 deprecated_largura = 2 [deprecated=true];
+  // Altura em pixels.
+  optional int32 deprecated_altura = 3 [deprecated=true];
+  // Formato QT da textura.
+  optional int32 deprecated_formato = 4 [deprecated=true];
+  // Os bits da textura.
+  optional bytes deprecated_bits = 5 [deprecated=true];
+}
+
+message Modelo3d {
+  // Identificador do modelo 3d.
+  optional string id = 1;
 }
 
 // A escala nos tres eixos.
@@ -103,15 +112,20 @@ message EntidadeProto {
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.
   optional bool achatado = 17 [default=false];
-  // Posicao atual da entidade.
+  // Posicao atual da entidade. Note que o Z eh quanto a criatura esta acima da translacao. A real posicao dela
+  // esta em pos.z + translacao.z.
   optional Posicao pos = 4;
   // Para formas (exceto translacao).
   repeated Posicao ponto = 21;
   optional Escala escala = 22;
   optional float rotacao_z_graus = 23;  // rotacao do objeto ao redor de Z em graus.
   optional float rotacao_y_graus = 29;  // rotacao do objeto ao redor de Y em graus.
-  optional float translacao_z = 24;  // translacao do objeto em Z.
+  optional float rotacao_x_graus = 33;  // rotacao do objeto ao redor de X em graus.
+  optional float translacao_z_deprecated = 24 [deprecated=true];
   repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
+  // Algumas formas permitem a transicao de um cenario para outro. Quando presente, esta forma tera a capacidade de transitar
+  // entidades e a camera para outro cenario. Valor de -1 eh usado para cenario principal e -2 eh reservado para limpar a transicao.
+  optional Posicao transicao_cenario = 35;
 
   // Destino da entidade.
   optional Posicao destino = 5;
@@ -121,6 +135,8 @@ message EntidadeProto {
   optional IluminacaoPontual luz = 7;
   // Textura.
   optional InfoTextura info_textura = 8;
+  // Modelo 3d.
+  optional Modelo3d modelo_3d = 34;
 
   // BITS DAS ENTIDADE.
   // Aura em quadrados.
@@ -149,6 +165,8 @@ message EntidadeProto {
   message Evento {
     optional int32 rodadas = 1;
     optional string descricao = 2;
+    optional int32 id_efeito = 4;    // Se o evento for reconhecido como algum efeito, o id estara aqui. Ids validos em nt/util.h. 
+    optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;
 }
@@ -162,7 +180,7 @@ message ParametrosDesenho {
   // Usado para fazer sliding: a gente cria um plano na altura do click inicial para fazer o movimento
   // paralelo ao plano XY.
   optional float offset_terreno = 3 [default=0];
-  // Coordenadas de picking.
+  // Coordenadas de picking. A presenca de qualquer um destes campos indica picking.
   optional int32 picking_x = 28;
   optional int32 picking_y = 29;
   // Verdadeiro quando se esta desenhando a entidade selecionada.
@@ -189,6 +207,10 @@ message ParametrosDesenho {
   optional bool modo_mestre = 14 [default=true];
   // Alfa para translucidos.
   optional float alfa_translucidos = 15 [default=0.5];
+  // Alguns efeitos usam escala e translacao pos transformacoes para desenharem. Sao aplicados na ordem que aparecem abaixo.
+  optional Posicao escala_efeito = 50;
+  optional Posicao rotacao_efeito = 51;  // nesse caso, o angulo esta no eixo.
+  optional Posicao translacao_efeito = 52;
   // Caso verdadeiro, a textura sempre ficara de frente para a camera.
   optional bool texturas_sempre_de_frente = 16 [default=true];
   // Posicao do olho.
@@ -217,6 +239,8 @@ message ParametrosDesenho {
   optional bool desenha_controle_virtual = 31 [default=true];
   // Se false, os detalhes nao serao desenhados.
   optional bool desenha_detalhes = 33 [default=true];
+  // Se false, desenha as coordenadas do quadrado selecionado.
+  optional bool desenha_coordenadas = 37 [default=true];
 
   // Opcoes por entidade.
   // Se verdadeiro, desenha a barra de vida da entidade.
@@ -227,6 +251,8 @@ message ParametrosDesenho {
   optional bool desenha_rotulo_especial = 34 [default=false];
   // Desenha sinalizacao de eventos.
   optional bool desenha_eventos_entidades = 35 [default=true];
+  // Efeitos das entidades.
+  optional bool desenha_efeitos_entidades = 36 [default=true];
 }
 
 // Para copiar e colar.

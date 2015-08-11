@@ -1,6 +1,7 @@
 import "ent/entidade.proto";
 
 package ent;
+option java_package = "com.matferib.Tabuleiro.ent";
 
 message IluminacaoDirecional {
   // Cor da luz ambiente.
@@ -46,6 +47,10 @@ message OpcoesProto {
 
 // Mensagem enviada para os clientes de um jogo.
 message TabuleiroProto {
+  // Identificador do cenario. Um tabuleiro pode ser composto por varios cenarios. O principal sera sempre o -1.
+  optional int32 id_cenario = 17 [default = -1];
+  // Uma breve descricao do cenario.
+  optional string descricao_cenario = 19;
   // Quando o tabuleiro eh salvo, ele ganha um nome para a operacao de salvar.
   optional string nome = 12;
   // Identificador do cliente.
@@ -62,7 +67,7 @@ message TabuleiroProto {
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
   optional uint32 altura = 6 [default=20];
-  // Se verdadeiro, nao usa entidades do proto e mantem as correntes.
+  // Se verdadeiro, nao usa entidades do proto e mantem as correntes. Usado para deserializacao.
   optional bool manter_entidades = 8 [default=false];
   // Entidades do tabuleiro.
   repeated EntidadeProto entidade = 2;
@@ -76,6 +81,10 @@ message TabuleiroProto {
   optional Olho camera_inicial = 14;
   // Contador simples de rodadas.
   optional int32 contador_rodadas = 15;
+  // Sub cenarios do tabuleiro. Deve ser populado apenas para o tabuleiro pai.
+  // Os sub cenarios nao possuem entidades. Cada entidade possui informacao sobre
+  // qual tabuleiro ela esta localizada.
+  repeated TabuleiroProto sub_cenario = 18;
 }
 
 // TODO sumir com isso.
