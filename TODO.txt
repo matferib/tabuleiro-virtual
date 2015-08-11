@@ -1,5 +1,6 @@
 Versao 1.10.2
-- Inclinacao da camera para IPAD.
+- Gerar item de transicao no destino com mesmo formato do original. Nao trazer o original se selecionado (muito comum esse caso).
+- Entidade com efeito sumindo em outros cenarios.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
 - Mais traducoes.
