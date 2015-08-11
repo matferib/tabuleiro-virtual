@@ -74,6 +74,11 @@ if usar_opengl_es:
   if sistema != 'apple':
     env['LIBS'] += ['GLESv1_CM']
 
+usar_shader = (ARGUMENTS.get('usar_shader', '0') == '1')
+print 'usar_shader : %r' % usar_shader
+if usar_shader:
+  env['CPPDEFINES']['USAR_SHADER'] = 1
+
 gerar_profile = (ARGUMENTS.get('gerar_profile', '0') == '1')
 if gerar_profile:
   env['CXXFLAGS'] += ['-pg']
