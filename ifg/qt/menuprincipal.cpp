@@ -1,6 +1,12 @@
 /** @file ifg/qt/MenuPrincipal.cpp implementacao do menu principal. */
 
+/*
+TRANSLATOR ifg::qt::MenuPrincipal
+Necessary for lupdate.
+*/
+
 #include <stack>
+#include <set>
 #include <QActionGroup>
 #include <QBoxLayout>
 #include <QColor>
@@ -70,25 +76,35 @@ const char* g_menuitem_strs[] = {
 
 // Preenche o menu recursivamente atraves do proto de menus. O menu ficara ordenado alfabeticamente.
 void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* grupo) {
-  std::map<std::string, std::pair<std::string, const MenuModelos*>> mapa;
+  struct DadosMenu {
+    DadosMenu(const std::string& id, const QString& str) : id(id), str_menu(str), sub_menu(nullptr) {}
+    DadosMenu(const QString& str, const MenuModelos* menu) : str_menu(str), sub_menu(menu) {}
+    std::string id;        // sem traducao, pois tem que bater com outro arquivo.
+    QString str_menu;  // traduzido.
+    const MenuModelos* sub_menu;  // submenus.
+    bool operator<(const DadosMenu& rhs) const {
+      return str_menu < rhs.str_menu;
+    }
+  };
+  std::set<DadosMenu> conjunto;
   for (const auto& m : menu_modelos.modelo()) {
-    mapa.insert(std::make_pair(m.id(), std::make_pair(m.texto(), nullptr)));
+    conjunto.insert(DadosMenu(m.id(), ifg::qt::MenuPrincipal::tr((m.texto().empty() ? m.id() : m.texto()).c_str())));
   }
   for (const auto& s : menu_modelos.sub_menu()) {
-    mapa.insert(std::make_pair(s.id(), std::make_pair(s.id(), &s)));
+    conjunto.insert(DadosMenu(ifg::qt::MenuPrincipal::tr(s.id().c_str()), &s));
   }
   // Agora preenche os menus.
-  for (const auto& id_par_texto_menu : mapa) {
-    const std::string& id = id_par_texto_menu.first;
-    const std::string& texto = id_par_texto_menu.second.first.empty() ? id : id_par_texto_menu.second.first;
-    const MenuModelos* modelo = id_par_texto_menu.second.second;
+  for (const auto& dado : conjunto) {
+    const std::string& id = dado.id;
+    const QString& texto = dado.str_menu;
+    const MenuModelos* modelo = dado.sub_menu;
     if (modelo == nullptr) {
-      QAction* acao = menu->addAction(QObject::tr(texto.c_str()));
+      QAction* acao = menu->addAction(texto);
       acao->setCheckable(true);
       grupo->addAction(acao);
       acao->setData(QVariant::fromValue(QString(id.c_str())));
     } else {
-      PreencheMenu(*modelo, menu->addMenu(QObject::tr(texto.c_str())), grupo);
+      PreencheMenu(*modelo, menu->addMenu(texto), grupo);
     }
   }
 }
