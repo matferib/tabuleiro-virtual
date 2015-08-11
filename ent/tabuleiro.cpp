@@ -1631,16 +1631,16 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(INFO) << "Transicao so funciona em entidades";
     return;
   }
-  Entidade* entidade = BuscaEntidade(id);
-  if (entidade == nullptr) {
+  Entidade* entidade_transicao = BuscaEntidade(id);
+  if (entidade_transicao == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
     return;
   }
-  if (!entidade->Proto().transicao_cenario().has_id_cenario()) {
+  if (!entidade_transicao->Proto().transicao_cenario().has_id_cenario()) {
     LOG(INFO) << "Entidade " << id << " nao possui transicao de cenario";
     return;
   }
-  int id_cenario = entidade->Proto().transicao_cenario().id_cenario();
+  int id_cenario = entidade_transicao->Proto().transicao_cenario().id_cenario();
   if (id_cenario < CENARIO_PRINCIPAL) {
     LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
     return;
@@ -1649,10 +1649,16 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(WARNING) << "Apenas o mestre pode criar cenarios";
     return;
   }
+  if (EntidadeEstaSelecionada(entidade_transicao->Id())) {
+    // Este caso eh muito irritante e acontece com frequencia. A entidade de transicao esta selecionada e vai para o novo cenario.
+    DeselecionaEntidade(entidade_transicao->Id());
+  }
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 
+  // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
+  Posicao pos_destino(entidade_transicao->Proto().transicao_cenario().has_x() ? entidade_transicao->Proto().transicao_cenario() : entidade_transicao->Pos());
   if (!ids_entidades_selecionadas_.empty()) {
     // Computa a posicao centro das entidades.
     Posicao centro;
@@ -1672,8 +1678,6 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       y_centro /= n_entidades;
     }
 
-    // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
-    Posicao pos_destino(entidade->Proto().transicao_cenario().has_x() ? entidade->Proto().transicao_cenario() : entidade->Pos());
     for (unsigned int id : ids_entidades_selecionadas_) {
       auto* entidade_movendo = BuscaEntidade(id);
       if (entidade_movendo == nullptr) {
@@ -1687,27 +1691,48 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       float dy = entidade_movendo->Y() - y_centro;
       n->mutable_entidade()->mutable_destino()->set_x(pos_destino.x() + dx);
       n->mutable_entidade()->mutable_destino()->set_y(pos_destino.y() + dy);
-      n->mutable_entidade()->mutable_destino()->set_z(entidade->Proto().transicao_cenario().z() + entidade_movendo->Z());
+      n->mutable_entidade()->mutable_destino()->set_z(entidade_transicao->Proto().transicao_cenario().z() + entidade_movendo->Z());
       n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
     }
   }
   // Criacao vem por ultimo para a inversao do desfazer funcionar, pois se a remocao for feita antes de mover as entidades de volta,
   // ao mover as entidades vao ter sido removidas.
   if (BuscaSubCenario(id_cenario) == nullptr) {
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_CRIAR_CENARIO);
-    n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+    {
+      // Cria uma entidade igual a de transicao no cenario destino.
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n->mutable_entidade()->CopyFrom(entidade_transicao->Proto());
+      n->mutable_entidade()->clear_id();
+      n->mutable_entidade()->mutable_destino()->CopyFrom(pos_destino);
+      n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+      // A volta, posicao do objeto de origem.
+      n->mutable_entidade()->mutable_transicao_cenario()->CopyFrom(entidade_transicao->Pos());
+      n->mutable_entidade()->mutable_transicao_cenario()->set_id_cenario(proto_corrente_->id_cenario());
+    }
+    {
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_CRIAR_CENARIO);
+      n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+    }
   }
   if (grupo_notificacoes.notificacao_size() > 0) {
     TrataNotificacao(grupo_notificacoes);
+    if (ids_adicionados_.size() == 1) {
+      for (auto& n : *grupo_notificacoes.mutable_notificacao()) {
+        if (n.tipo() == ntf::TN_ADICIONAR_ENTIDADE) {
+          n.mutable_entidade()->set_id(ids_adicionados_[0]);
+        }
+      }
+    }
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
   // A camera vai para a posicao de transicao ou para a posicao do objeto no outro cenario.
   Posicao pos_olho;
-  if (entidade->Proto().transicao_cenario().has_x()) {
-    pos_olho.CopyFrom(entidade->Proto().transicao_cenario());
+  if (entidade_transicao->Proto().transicao_cenario().has_x()) {
+    pos_olho.CopyFrom(entidade_transicao->Proto().transicao_cenario());
   } else {
-    pos_olho.CopyFrom(entidade->Pos());
+    pos_olho.CopyFrom(entidade_transicao->Pos());
     pos_olho.set_id_cenario(id_cenario);
   }
   CarregaSubCenario(id_cenario, pos_olho);
