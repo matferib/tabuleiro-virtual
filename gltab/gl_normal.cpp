@@ -228,7 +228,7 @@ void AlternaModoDebug() {
 }
 
 void Habilita(GLenum cap) {
-#if USAR_SHADER
+#if 0 && USAR_SHADER
   if (cap == GL_LIGHTING) {
     glUseProgram(g_contexto.programa_luz);
     return;
@@ -238,7 +238,7 @@ void Habilita(GLenum cap) {
 }
 
 void Desabilita(GLenum cap) {
-#if USAR_SHADER
+#if 0 && USAR_SHADER
   if (cap == GL_LIGHTING) {
     glUseProgram(g_contexto.programa_cor);
     return;
