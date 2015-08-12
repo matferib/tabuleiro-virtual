@@ -1,4 +1,8 @@
 #import "GameViewController.h"
+#define USAR_GIROSCOPIO 1
+#if USAR_GIROSCOPIO
+#import <CoreMotion/CoreMotion.h>
+#endif
 #import <OpenGLES/ES2/glext.h>
 #import <QuartzCore/QuartzCore.h>
 #import <UIKit/UIKit.h>
@@ -36,6 +40,11 @@ const int TAG_BOTAO_CANCELA = 101;
   [super viewDidLoad];
   GLKView *view = (GLKView *)self.view;
 
+#if USAR_GIROSCOPIO
+  // Gyroscope.
+  motion_manager_ = [[CMMotionManager alloc] init];
+  [motion_manager_ setGyroUpdateInterval:0.1];
+#endif
   // Tap.
   UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc]
       initWithTarget:self action:@selector(handleTapGesture:)];
@@ -71,6 +80,16 @@ const int TAG_BOTAO_CANCELA = 101;
   [self setupGL];
 }
 
+- (void)viewDidUnload
+{
+  [self tearDownGL];
+  [super viewDidUnload];
+  
+  if ([EAGLContext currentContext] == self.context_) {
+    [EAGLContext setCurrentContext:nil];
+  }
+}
+
 -(void)viewDidAppear:(BOOL)animated
 {
   CGFloat scale = [[UIScreen mainScreen] scale];
@@ -78,16 +97,6 @@ const int TAG_BOTAO_CANCELA = 101;
   GLKView *view = (GLKView *)self.view;
   nativeResize(view.bounds.size.width * scale,
                view.bounds.size.height * scale);
-}
-
-- (void)viewDidUnload
-{
-  [self tearDownGL];
-  [super viewDidUnload];
-    
-  if ([EAGLContext currentContext] == self.context_) {
-    [EAGLContext setCurrentContext:nil];
-  }
 }
 
 - (void)didReceiveMemoryWarning
@@ -190,6 +199,24 @@ const int TAG_BOTAO_CANCELA = 101;
       false,  // toggle
       point.x * scale,
       (view.bounds.size.height - point.y) * scale);
+#if USAR_GIROSCOPIO
+  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  if ([all_touches count] == 2) {
+    [motion_manager_ startGyroUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:^(CMGyroData *gyro, NSError *error) {
+      float delta;
+      if (orientation == UIInterfaceOrientationLandscapeLeft) {
+        delta = gyro.rotationRate.y;
+      } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+        delta = -gyro.rotationRate.y;
+      } else if (orientation == UIInterfaceOrientationPortrait) {
+        delta = gyro.rotationRate.x;
+      } else {
+        delta = -gyro.rotationRate.x;
+      }
+      nativeTilt(delta);
+    }];
+  }
+#endif
 }
 
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -221,6 +248,9 @@ const int TAG_BOTAO_CANCELA = 101;
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
   nativeTouchReleased();
+#if USAR_GIROSCOPIO
+  [motion_manager_ stopGyroUpdates];
+#endif
   one_finger_ = true;
 }
 

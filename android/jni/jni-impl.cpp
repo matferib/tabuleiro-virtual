@@ -258,9 +258,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTranslation(
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTilt(
-    JNIEnv* env, jobject thiz, jfloat delta) {
+    JNIEnv* env, jobject thiz, jfloat delta_rad) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTilt: %f", delta);
-  g_tabuleiro->TrataInclinacaoPorDelta(delta);
+  g_tabuleiro->TrataInclinacaoPorDelta(delta_rad);
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeKeyboard(

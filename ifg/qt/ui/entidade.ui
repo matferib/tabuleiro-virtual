@@ -15,7 +15,7 @@
    <string>Propriedades da Entidade</string>
   </property>
   <property name="toolTip">
-   <string>Visível apenas para o mestre e, caso a entidade seja selecionável, para os jogadores.</string>
+   <string/>
   </property>
   <property name="styleSheet">
    <string notr="true"/>

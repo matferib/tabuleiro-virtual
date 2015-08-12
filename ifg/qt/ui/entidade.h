@@ -449,7 +449,7 @@ public:
     {
         ifg__qt__DialogoEntidade->setWindowTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Propriedades da Entidade", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        ifg__qt__DialogoEntidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\255vel apenas para o mestre e, caso a entidade seja selecion\303\241vel, para os jogadores.", 0, QApplication::UnicodeUTF8));
+        ifg__qt__DialogoEntidade->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
         label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", 0, QApplication::UnicodeUTF8));

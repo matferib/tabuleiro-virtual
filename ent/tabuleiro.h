@@ -95,8 +95,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Move uma entidade notificando clientes. */
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Seleciona todas as entidades do tabuleiro. */
-  void SelecionaTudo();
+  /** Seleciona todas as entidades do cenario corrente.
+  * @param fixas se as entidades fixas devem ser selecionadas.
+  */
+  void SelecionaTudo(bool fixas);
 
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
@@ -163,7 +165,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
 
-  /** Trata evento de inclinacao por delta. */
+  /** Trata evento de inclinacao por delta radianos. */
   void TrataInclinacaoPorDelta(float delta_rad);
 
   /** Trata um evento de translacao do tabuleiro isoladamente. Parametros x, y sao as coordenadas originais,

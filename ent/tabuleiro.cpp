@@ -2,6 +2,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <google/protobuf/text_format.h>
+#else
 #endif
 #include <algorithm>
 #include <boost/filesystem.hpp>
@@ -358,14 +359,13 @@ void Tabuleiro::ConfiguraProjecao() {
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
-    float dif_x = alvo.x() - olho_.pos().x();
-    float dif_y = alvo.y() - olho_.pos().y();
-    float fator_zoom = sqrt(dif_x * dif_x + dif_y * dif_y);
-    const float tam_base = 3.0f;
-    float largura = tam_base * Aspecto() * fator_zoom;
-    float altura = tam_base * fator_zoom;
+    float dif_z = alvo.z() - olho_.pos().z();
+    float distancia = 1.5f + fabs(dif_z);
+    const float largura = distancia * Aspecto() / 2.0f;
+    const float altura = distancia / 2.0f;
+    //LOG_EVERY_N(INFO, 30) << "Distancia: " << distancia;
     gl::Ortogonal(-largura, largura, -altura, altura,
-                  DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+                  0.0f /*DISTANCIA_PLANO_CORTE_PROXIMO*/, distancia * 1.2f);
   } else {
     gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
   }
@@ -1190,8 +1190,12 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     // Para desfazer.
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   } else {
-    // move o olho no eixo Z de acordo com o eixo Y do movimento
-    AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
+    if (camera_isometrica_) {
+      TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
+    } else {
+      // move o olho no eixo Z de acordo com o eixo Y do movimento
+      AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
+    }
   }
 }
 
@@ -1256,8 +1260,8 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   switch (estado_) {
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
       if (translacao_rotacao_ == TR_NENHUM) {
-        int abs_delta_x = fabs(primeiro_x_ - x);
-        int abs_delta_y = fabs(primeiro_y_ - y);
+        int abs_delta_x = abs(primeiro_x_ - x);
+        int abs_delta_y = abs(primeiro_y_ - y);
         // Ve se ja da pra decidir.
         if (abs_delta_x > DELTA_MINIMO_TRANSLACAO_ROTACAO && abs_delta_y > DELTA_MINIMO_TRANSLACAO_ROTACAO) {
           // Usa o maior delta.
@@ -1630,16 +1634,16 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(INFO) << "Transicao so funciona em entidades";
     return;
   }
-  Entidade* entidade = BuscaEntidade(id);
-  if (entidade == nullptr) {
+  Entidade* entidade_transicao = BuscaEntidade(id);
+  if (entidade_transicao == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
     return;
   }
-  if (!entidade->Proto().transicao_cenario().has_id_cenario()) {
+  if (!entidade_transicao->Proto().transicao_cenario().has_id_cenario()) {
     LOG(INFO) << "Entidade " << id << " nao possui transicao de cenario";
     return;
   }
-  int id_cenario = entidade->Proto().transicao_cenario().id_cenario();
+  int id_cenario = entidade_transicao->Proto().transicao_cenario().id_cenario();
   if (id_cenario < CENARIO_PRINCIPAL) {
     LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
     return;
@@ -1648,10 +1652,16 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(WARNING) << "Apenas o mestre pode criar cenarios";
     return;
   }
+  if (EntidadeEstaSelecionada(entidade_transicao->Id())) {
+    // Este caso eh muito irritante e acontece com frequencia. A entidade de transicao esta selecionada e vai para o novo cenario.
+    DeselecionaEntidade(entidade_transicao->Id());
+  }
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
 
+  // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
+  Posicao pos_destino(entidade_transicao->Proto().transicao_cenario().has_x() ? entidade_transicao->Proto().transicao_cenario() : entidade_transicao->Pos());
   if (!ids_entidades_selecionadas_.empty()) {
     // Computa a posicao centro das entidades.
     Posicao centro;
@@ -1671,8 +1681,6 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       y_centro /= n_entidades;
     }
 
-    // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
-    Posicao pos_destino(entidade->Proto().transicao_cenario().has_x() ? entidade->Proto().transicao_cenario() : entidade->Pos());
     for (unsigned int id : ids_entidades_selecionadas_) {
       auto* entidade_movendo = BuscaEntidade(id);
       if (entidade_movendo == nullptr) {
@@ -1686,27 +1694,48 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       float dy = entidade_movendo->Y() - y_centro;
       n->mutable_entidade()->mutable_destino()->set_x(pos_destino.x() + dx);
       n->mutable_entidade()->mutable_destino()->set_y(pos_destino.y() + dy);
-      n->mutable_entidade()->mutable_destino()->set_z(entidade->Proto().transicao_cenario().z() + entidade_movendo->Z());
+      n->mutable_entidade()->mutable_destino()->set_z(entidade_transicao->Proto().transicao_cenario().z() + entidade_movendo->Z());
       n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
     }
   }
   // Criacao vem por ultimo para a inversao do desfazer funcionar, pois se a remocao for feita antes de mover as entidades de volta,
   // ao mover as entidades vao ter sido removidas.
   if (BuscaSubCenario(id_cenario) == nullptr) {
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_CRIAR_CENARIO);
-    n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+    {
+      // Cria uma entidade igual a de transicao no cenario destino.
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+      n->mutable_entidade()->CopyFrom(entidade_transicao->Proto());
+      n->mutable_entidade()->clear_id();
+      n->mutable_entidade()->mutable_destino()->CopyFrom(pos_destino);
+      n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+      // A volta, posicao do objeto de origem.
+      n->mutable_entidade()->mutable_transicao_cenario()->CopyFrom(entidade_transicao->Pos());
+      n->mutable_entidade()->mutable_transicao_cenario()->set_id_cenario(proto_corrente_->id_cenario());
+    }
+    {
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_CRIAR_CENARIO);
+      n->mutable_tabuleiro()->set_id_cenario(id_cenario);
+    }
   }
   if (grupo_notificacoes.notificacao_size() > 0) {
     TrataNotificacao(grupo_notificacoes);
+    if (ids_adicionados_.size() == 1) {
+      for (auto& n : *grupo_notificacoes.mutable_notificacao()) {
+        if (n.tipo() == ntf::TN_ADICIONAR_ENTIDADE) {
+          n.mutable_entidade()->set_id(ids_adicionados_[0]);
+        }
+      }
+    }
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
   // A camera vai para a posicao de transicao ou para a posicao do objeto no outro cenario.
   Posicao pos_olho;
-  if (entidade->Proto().transicao_cenario().has_x()) {
-    pos_olho.CopyFrom(entidade->Proto().transicao_cenario());
+  if (entidade_transicao->Proto().transicao_cenario().has_x()) {
+    pos_olho.CopyFrom(entidade_transicao->Proto().transicao_cenario());
   } else {
-    pos_olho.CopyFrom(entidade->Pos());
+    pos_olho.CopyFrom(entidade_transicao->Pos());
     pos_olho.set_id_cenario(id_cenario);
   }
   CarregaSubCenario(id_cenario, pos_olho);
@@ -2353,7 +2382,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 
   // Desenha quadrado selecionado.
-  if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade()) {
+  if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
     //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
     const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
@@ -2378,9 +2407,9 @@ void Tabuleiro::DesenhaTabuleiro() {
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
   float limite_quad = 0.0f;
-  if (sombra && proto_.has_nevoa()) {
-    float limite = proto_.nevoa().distancia_minima() +
-                   (proto_.nevoa().distancia_maxima() - proto_.nevoa().distancia_minima()) * 0.7f;
+  if (sombra && proto_corrente_->has_nevoa()) {
+    float limite = proto_corrente_->nevoa().distancia_minima() +
+                   (proto_corrente_->nevoa().distancia_maxima() - proto_corrente_->nevoa().distancia_minima()) * 0.7f;
     limite_quad = pow(limite, 2);
   }
   //LOG(INFO) << "LOOP";
@@ -2393,7 +2422,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (sombra && proto_.has_nevoa()) {
+    if (sombra && proto_corrente_->has_nevoa()) {
       // Distancia para camera. So desenha se estiver fora da nevoa.
       float distancia_quad = pow(entidade->X() - olho_.pos().x(), 2) +
                              pow(entidade->Y() - olho_.pos().y(), 2) +
@@ -2801,7 +2830,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         // Se nao estava selecionada, so ela.
         SelecionaEntidade(id);
       }
-      // Se nao, pode mover mais.
+      bool ha_entidades_selecionadas = !ids_entidades_selecionadas_.empty();
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -2814,8 +2843,19 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         pos.set_z(ZChao(pos.x(), pos.y()));
         rastros_movimento_[id].push_back(pos);
       }
-      ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
-      estado_ = ETAB_ENTS_PRESSIONADAS;
+      if (ha_entidades_selecionadas) {
+        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        estado_ = ETAB_ENTS_PRESSIONADAS;
+      } else {
+        MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+        ultimo_x_3d_ = x3d;
+        ultimo_y_3d_ = y3d;
+        ultimo_z_3d_ = z3d;
+        primeiro_x_3d_ = x3d;
+        primeiro_y_3d_ = y3d;
+        primeiro_z_3d_ = z3d;
+        SelecionaQuadrado(IdQuadrado(x3d, y3d));
+      }
     }
   } else if (pos_pilha == OBJ_ROLAGEM) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
@@ -3181,6 +3221,10 @@ void Tabuleiro::DeselecionaEntidade(unsigned int id) {
 }
 
 void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
+  if (id_quadrado < 0) {
+    LOG(WARNING) << "Id do quadrado invalido: " << id_quadrado;
+    //return;
+  }
   quadrado_selecionado_ = id_quadrado;
   ids_entidades_selecionadas_.clear();
   estado_ = ETAB_QUAD_PRESSIONADO;
@@ -3191,14 +3235,14 @@ unsigned int Tabuleiro::IdQuadrado(float x, float y) {
   float delta_x_float = x - inicio_x;
   int delta_x = delta_x_float / TAMANHO_LADO_QUADRADO;
   if (delta_x < 0 || delta_x >= TamanhoX()) {
-    LOG(ERROR) << "Posicao invalida para tabuleiro, x: " << x;
+    VLOG(1) << "Posicao invalida para tabuleiro, x: " << x;
     return -1;
   }
   float inicio_y = -(TamanhoY() * TAMANHO_LADO_QUADRADO) / 2.0f;
   float delta_y_float = y - inicio_y;
   int delta_y = delta_y_float / TAMANHO_LADO_QUADRADO;
   if (delta_y >= TamanhoY()) {
-    LOG(ERROR) << "Posicao invalida para tabuleiro, y: " << y;
+    VLOG(1) << "Posicao invalida para tabuleiro, y: " << y;
     return -1;
   }
   return delta_y * TamanhoX() + delta_x;
@@ -3541,7 +3585,18 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
     LOG(ERROR) << "Cenario " << id_cenario << " nao existe";
     return;
   }
-  DeselecionaEntidades();
+  // Deseleciona entidades que nao transitaram.
+  std::vector<unsigned int> ids_a_deselecionar;
+  for (auto id : ids_entidades_selecionadas_) {
+    auto* e = BuscaEntidade(id);
+    if (e == nullptr ||
+        ((e->Pos().id_cenario() != id_cenario) && (e->Destino().id_cenario() != id_cenario))) {
+      ids_a_deselecionar.push_back(e->Id());
+    }
+  }
+  for (auto id : ids_a_deselecionar) {
+    DeselecionaEntidade(id);
+  }
   proto_corrente_ = cenario;
   RegeraVboTabuleiro();
   // A caixa do ceu nao precisa porque o objeto dela eh fixo.
@@ -3965,9 +4020,16 @@ void Tabuleiro::TrataComandoRefazer() {
   ++evento_corrente_;
 }
 
-void Tabuleiro::SelecionaTudo() {
+void Tabuleiro::SelecionaTudo(bool fixas) {
   std::vector<unsigned int> ids;
   for (const auto& id_ent : entidades_) {
+    const Entidade* entidade = id_ent.second.get();
+    if (entidade == nullptr ||
+        entidade->IdCenario() != proto_corrente_->id_cenario() ||
+        (!fixas && entidade->Fixa()) ||
+        (!ModoMestre() && !entidade->SelecionavelParaJogador())) {
+      continue;
+    }
     ids.push_back(id_ent.first);
   }
   SelecionaEntidades(ids);
@@ -4232,6 +4294,9 @@ void Tabuleiro::DesenhaLuzes() {
   // Posiciona as luzes dinâmicas.
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* e = it->second.get();
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario()) {
+      continue;
+    }
     e->DesenhaLuz(&parametros_desenho_);
   }
 }
