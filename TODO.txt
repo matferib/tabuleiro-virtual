@@ -1,5 +1,5 @@
 Versao 1.10.2
-- Nevoa nao aparece na camera isometrica.
+- Informacoes de cenario para o mestre, incluindo entidades.
 - Entidade com efeito sumindo em outros cenarios.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.

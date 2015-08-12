@@ -95,8 +95,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Move uma entidade notificando clientes. */
   void MoveEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Seleciona todas as entidades do tabuleiro. */
-  void SelecionaTudo();
+  /** Seleciona todas as entidades do cenario corrente.
+  * @param fixas se as entidades fixas devem ser selecionadas.
+  */
+  void SelecionaTudo(bool fixas);
 
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);

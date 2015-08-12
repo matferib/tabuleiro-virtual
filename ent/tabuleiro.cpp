@@ -359,14 +359,13 @@ void Tabuleiro::ConfiguraProjecao() {
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
-    float dif_x = alvo.x() - olho_.pos().x();
-    float dif_y = alvo.y() - olho_.pos().y();
-    float fator_zoom = sqrt(dif_x * dif_x + dif_y * dif_y);
-    const float tam_base = 3.0f;
-    float largura = tam_base * Aspecto() * fator_zoom;
-    float altura = tam_base * fator_zoom;
+    float dif_z = alvo.z() - olho_.pos().z();
+    float distancia = 1.5f + fabs(dif_z);
+    const float largura = distancia * Aspecto() / 2.0f;
+    const float altura = distancia / 2.0f;
+    //LOG_EVERY_N(INFO, 30) << "Distancia: " << distancia;
     gl::Ortogonal(-largura, largura, -altura, altura,
-                  DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+                  0.0f /*DISTANCIA_PLANO_CORTE_PROXIMO*/, distancia * 1.2f);
   } else {
     gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
   }
@@ -1191,8 +1190,12 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     // Para desfazer.
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   } else {
-    // move o olho no eixo Z de acordo com o eixo Y do movimento
-    AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
+    if (camera_isometrica_) {
+      TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
+    } else {
+      // move o olho no eixo Z de acordo com o eixo Y do movimento
+      AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
+    }
   }
 }
 
@@ -2404,9 +2407,9 @@ void Tabuleiro::DesenhaTabuleiro() {
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
   float limite_quad = 0.0f;
-  if (sombra && proto_.has_nevoa()) {
-    float limite = proto_.nevoa().distancia_minima() +
-                   (proto_.nevoa().distancia_maxima() - proto_.nevoa().distancia_minima()) * 0.7f;
+  if (sombra && proto_corrente_->has_nevoa()) {
+    float limite = proto_corrente_->nevoa().distancia_minima() +
+                   (proto_corrente_->nevoa().distancia_maxima() - proto_corrente_->nevoa().distancia_minima()) * 0.7f;
     limite_quad = pow(limite, 2);
   }
   //LOG(INFO) << "LOOP";
@@ -2419,7 +2422,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (sombra && proto_.has_nevoa()) {
+    if (sombra && proto_corrente_->has_nevoa()) {
       // Distancia para camera. So desenha se estiver fora da nevoa.
       float distancia_quad = pow(entidade->X() - olho_.pos().x(), 2) +
                              pow(entidade->Y() - olho_.pos().y(), 2) +
@@ -4017,9 +4020,16 @@ void Tabuleiro::TrataComandoRefazer() {
   ++evento_corrente_;
 }
 
-void Tabuleiro::SelecionaTudo() {
+void Tabuleiro::SelecionaTudo(bool fixas) {
   std::vector<unsigned int> ids;
   for (const auto& id_ent : entidades_) {
+    const Entidade* entidade = id_ent.second.get();
+    if (entidade == nullptr ||
+        entidade->IdCenario() != proto_corrente_->id_cenario() ||
+        (!fixas && entidade->Fixa()) ||
+        (!ModoMestre() && !entidade->SelecionavelParaJogador())) {
+      continue;
+    }
     ids.push_back(id_ent.first);
   }
   SelecionaEntidades(ids);
@@ -4265,6 +4275,9 @@ void Tabuleiro::DesenhaLuzes() {
   // Posiciona as luzes dinâmicas.
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* e = it->second.get();
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario()) {
+      continue;
+    }
     e->DesenhaLuz(&parametros_desenho_);
   }
 }

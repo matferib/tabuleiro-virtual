@@ -256,8 +256,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
       return;
     case Tecla_A:
+      if (modificadores == (Modificador_Ctrl | Modificador_Shift)) {
+        tabuleiro_->SelecionaTudo(true  /*fixas*/);
+        return;
+      }
       if (modificadores == Modificador_Ctrl) {
-        tabuleiro_->SelecionaTudo();
+        tabuleiro_->SelecionaTudo(false  /*fixas*/);
         return;
       }
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
