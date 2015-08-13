@@ -4245,7 +4245,7 @@ void Tabuleiro::DesenhaLuzes() {
 
   // Iluminação distante direcional.
   {
-#if USAR_SHADER
+#if 0 && USAR_SHADER
     float modelview[16];
     {
       gl::MatrizEscopo salva_matriz;
