@@ -1,3 +1,4 @@
+#version 120
 // uniform: variaveis que nao variam durante primitiva.
 // attribute: variaveis que variam por vertice.
 

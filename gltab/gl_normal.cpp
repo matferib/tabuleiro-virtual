@@ -228,20 +228,20 @@ void AlternaModoDebug() {
 }
 
 void Habilita(GLenum cap) {
-#if 0 && USAR_SHADER
+#if USAR_SHADER
   if (cap == GL_LIGHTING) {
     glUseProgram(g_contexto.programa_luz);
-    return;
+    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
   }
 #endif
   glEnable(cap);
 }
 
 void Desabilita(GLenum cap) {
-#if 0 && USAR_SHADER
+#if USAR_SHADER
   if (cap == GL_LIGHTING) {
     glUseProgram(g_contexto.programa_cor);
-    return;
+    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
   }
 #endif
   glDisable(cap);

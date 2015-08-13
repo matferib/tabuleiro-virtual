@@ -32,6 +32,12 @@ Versao com Vbo:
 - Objetos compostos com transparencia.
 - Terminar a exportacao de formas e compostas (CORES).
 
+Versao com Shader:
+- Texturas.
+- Raster funcionar.
+- Demais luzes.
+- Neblina.
+
 
 Versao 1.10.3
 - VBO em entidades.
@@ -45,7 +51,6 @@ Versao 1.10.3
 - Adicionar texturas globais.
 
 Versao 2.0
-- Shader.
 - Interface de mouse generico para tablets (suporte a multitap).
 - Visao primeira pessoa.
 - Joystick no android.

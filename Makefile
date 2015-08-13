@@ -24,7 +24,7 @@ windows:
 	scons sistema=win32
 
 apple:
-	scons sistema=apple debug=0
+	scons sistema=apple debug=0 usar_shader=1
 
 apple_opengles:
 	scons sistema=apple debug=0 usar_opengl_es=1

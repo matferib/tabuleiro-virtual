@@ -4245,31 +4245,13 @@ void Tabuleiro::DesenhaLuzes() {
 
   // Iluminação distante direcional.
   {
-#if 0 && USAR_SHADER
-    float modelview[16];
-    {
-      gl::MatrizEscopo salva_matriz;
-      // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-      gl::CarregaIdentidade();
-      gl::Roda(proto_.luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
-      gl::Roda(proto_.luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-      gl::Le(GL_MODELVIEW_MATRIX, modelview);
-    }
-    {
-      gl::MatrizEscopo salva_matriz;
-      gl::CarregaIdentidade();
-      GLfloat pos_luz[4] = { 1.0, 0.0f, 0.0f, 1.0f };
-      MultiplicaMatrizVetor(modelview, pos_luz);
-      LOG_EVERY_N(INFO, 10) << "luz x: " << pos_luz[0] << ", y: " << pos_luz[1] << ", z: " << pos_luz[2];
-    }
-#else
     gl::MatrizEscopo salva_matriz;
+    //gl::CarregaIdentidade();
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
     gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
     gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-#endif
     gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
   }
   // A cor da luz direcional.
