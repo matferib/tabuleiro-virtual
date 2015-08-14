@@ -4403,7 +4403,11 @@ void Tabuleiro::DesenhaCoordenadas() {
   char coordenadas[101] = { '\0' };
   float x, y, z;
   CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
-  snprintf(coordenadas, 100, "x: %.1f, y: %.1f, z: %.1f", x, y, z);
+  char descricao[51] = { '\0' };
+  if (!proto_corrente_->descricao_cenario().empty()) {
+    snprintf(descricao, 50, "%s", proto_corrente_->descricao_cenario().c_str());
+  }
+  snprintf(coordenadas, 100, "cenario: %d%s, x: %.1f, y: %.1f, z: %.1f", proto_corrente_->id_cenario(), descricao, x, y, z);
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
