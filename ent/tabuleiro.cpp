@@ -3303,6 +3303,11 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   proto_a_atualizar->set_largura(novo_proto.largura());
   proto_a_atualizar->set_altura(novo_proto.altura());
   proto_a_atualizar->set_desenha_grade(novo_proto.desenha_grade());
+  if (novo_proto.has_descricao_cenario()) {
+    proto_a_atualizar->set_descricao_cenario(novo_proto.descricao_cenario());
+  } else {
+    proto_a_atualizar->clear_descricao_cenario();
+  }
   if (novo_proto.has_nevoa()) {
     proto_a_atualizar->mutable_nevoa()->CopyFrom(novo_proto.nevoa());
   } else {
@@ -4405,7 +4410,7 @@ void Tabuleiro::DesenhaCoordenadas() {
   CoordenadaQuadrado(quadrado_selecionado_, &x, &y, &z);
   char descricao[51] = { '\0' };
   if (!proto_corrente_->descricao_cenario().empty()) {
-    snprintf(descricao, 50, "%s", proto_corrente_->descricao_cenario().c_str());
+    snprintf(descricao, 50, " (%s)", proto_corrente_->descricao_cenario().c_str());
   }
   snprintf(coordenadas, 100, "cenario: %d%s, x: %.1f, y: %.1f, z: %.1f", proto_corrente_->id_cenario(), descricao, x, y, z);
 

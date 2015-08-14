@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>515</width>
-    <height>670</height>
+    <width>517</width>
+    <height>704</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>130</x>
-     <y>630</y>
+     <y>660</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -33,7 +33,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>370</y>
+     <y>400</y>
      <width>461</width>
      <height>80</height>
     </rect>
@@ -82,7 +82,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>530</y>
+     <y>560</y>
      <width>461</width>
      <height>80</height>
     </rect>
@@ -112,6 +112,12 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="toolTip">
        <string>largura</string>
       </property>
@@ -140,6 +146,12 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>16777215</height>
+       </size>
       </property>
       <property name="toolTip">
        <string>altura</string>
@@ -188,7 +200,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>70</y>
+     <y>100</y>
      <width>421</width>
      <height>221</height>
     </rect>
@@ -464,14 +476,20 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>299</y>
-     <width>461</width>
+     <y>329</y>
+     <width>221</width>
      <height>71</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
      <widget class="QCheckBox" name="checkbox_nevoa">
+      <property name="maximumSize">
+       <size>
+        <width>80</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="text">
        <string>Névoa</string>
       </property>
@@ -479,6 +497,12 @@
     </item>
     <item>
      <widget class="QLabel" name="label_12">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="text">
        <string>Min</string>
       </property>
@@ -489,6 +513,12 @@
       <property name="enabled">
        <bool>false</bool>
       </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="toolTip">
        <string>Distância mínma da névoa, em m.</string>
       </property>
@@ -496,6 +526,12 @@
     </item>
     <item>
      <widget class="QLabel" name="label_13">
+      <property name="maximumSize">
+       <size>
+        <width>30</width>
+        <height>16777215</height>
+       </size>
+      </property>
       <property name="text">
        <string>Max</string>
       </property>
@@ -505,6 +541,12 @@
      <widget class="QLineEdit" name="linha_nevoa_max">
       <property name="enabled">
        <bool>false</bool>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>16777215</height>
+       </size>
       </property>
       <property name="toolTip">
        <string>Distância onde o efeito máximo da névoa é aplicado.</string>
@@ -517,7 +559,7 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>450</y>
+     <y>480</y>
      <width>461</width>
      <height>80</height>
     </rect>
@@ -537,6 +579,55 @@
      <widget class="QPushButton" name="botao_textura_ceu">
       <property name="text">
        <string>Escolher</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_5">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>50</y>
+     <width>421</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_5">
+    <item alignment="Qt::AlignRight">
+     <widget class="QLabel" name="label_15">
+      <property name="text">
+       <string>Id</string>
+      </property>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignLeft">
+     <widget class="QLineEdit" name="campo_id">
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLabel" name="label_16">
+      <property name="text">
+       <string>Descrição</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QLineEdit" name="campo_descricao">
+      <property name="readOnly">
+       <bool>false</bool>
+      </property>
+      <property name="placeholderText">
+       <string>Descrição do cenário</string>
       </property>
      </widget>
     </item>

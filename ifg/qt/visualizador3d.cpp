@@ -22,7 +22,7 @@
 #include "ifg/qt/texturas.h"
 #include "ifg/qt/util.h"
 #include "ifg/qt/ui/forma.h"
-#include "ifg/qt/ui/iluminacao.h"
+#include "ifg/qt/ui/cenario.h"
 #include "ifg/qt/ui/opcoes.h"
 #include "ifg/qt/visualizador3d.h"
 #include "log/log.h"
@@ -231,7 +231,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
-      auto* tabuleiro = AbreDialogoTabuleiro(notificacao);
+      auto* tabuleiro = AbreDialogoCenario(notificacao);
       if (tabuleiro == nullptr) {
         VLOG(1) << "Alterações de iluminação descartadas";
         break;
@@ -791,7 +791,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoEntidade(
   return nullptr;
 }
 
-ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
+ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     const ntf::Notificacao& notificacao) {
   auto* proto_retornado = new ent::TabuleiroProto;
   proto_retornado->set_id_cenario(notificacao.tabuleiro().id_cenario());
@@ -801,6 +801,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
   const auto& tab_proto = notificacao.tabuleiro();
   VLOG(1) << "Modificando tabuleiro: " << tab_proto.ShortDebugString();
 
+  // Id.
+  gerador.campo_id->setText(QString::number(notificacao.tabuleiro().id_cenario()));
+  gerador.campo_descricao->setText(notificacao.tabuleiro().descricao_cenario().c_str());
   // Cor ambiente.
   ent::Cor cor_ambiente_proto(tab_proto.luz_ambiente());
   gerador.botao_cor_ambiente->setStyleSheet(CorParaEstilo(cor_ambiente_proto));
@@ -914,6 +917,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoTabuleiro(
     } else {
       proto_retornado->clear_nevoa();
     }
+    // Descricao.
+    proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Textura.
     if (gerador.linha_textura->text().isEmpty()) {
       VLOG(2) << "Textura vazia.";
