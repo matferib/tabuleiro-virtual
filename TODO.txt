@@ -1,5 +1,5 @@
 Versao 1.10.2
-- Informacoes de cenario para o mestre, incluindo entidades.
+- Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).
 - Entidade com efeito sumindo em outros cenarios.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
