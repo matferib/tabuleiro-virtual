@@ -22,6 +22,7 @@ struct ContextoInterno {
 #endif
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
 #if USAR_SHADER
+  GLuint programa_corrente;  // indica qual programa esta sendo usado.
   GLuint programa_luz;
   GLuint programa_cor;
   GLuint vs_luz;
@@ -108,6 +109,7 @@ void IniciaGl(int* argcp, char** argv) {
     glUseProgram(p);
     V_ERRO();
     g_contexto.programa_luz = p;
+    g_contexto.programa_corrente = p;
     g_contexto.vs_luz = v_shader;
     g_contexto.fs = f_shader;
   }
@@ -231,7 +233,16 @@ void Habilita(GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
     glUseProgram(g_contexto.programa_luz);
+    g_contexto.programa_corrente = g_contexto.programa_luz;
     // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
+  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
+    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, "gltab_luzes");
+    if (loc != -1) {
+      GLint gltab_luzes[8];
+      glGetUniformiv(g_contexto.programa_corrente, loc, gltab_luzes);
+      gltab_luzes[cap - GL_LIGHT0] = 1;
+      glUniform1iv(loc, 8, gltab_luzes);
+    }
   }
 #endif
   glEnable(cap);
@@ -241,7 +252,16 @@ void Desabilita(GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
     glUseProgram(g_contexto.programa_cor);
+    g_contexto.programa_corrente = g_contexto.programa_cor;
     // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
+  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
+    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, "gltab_luzes");
+    if (loc != -1) {
+      GLint gltab_luzes[8];
+      glGetUniformiv(g_contexto.programa_corrente, loc, gltab_luzes);
+      gltab_luzes[cap - GL_LIGHT0] = 0;
+      glUniform1iv(loc, 8, gltab_luzes);
+    }
   }
 #endif
   glDisable(cap);

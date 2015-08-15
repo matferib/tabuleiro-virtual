@@ -119,8 +119,6 @@ inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_paramet
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
-#else
-void Habilita(GLenum cap);
 #endif
 void Habilita(GLenum cap);
 void Desabilita(GLenum cap);
