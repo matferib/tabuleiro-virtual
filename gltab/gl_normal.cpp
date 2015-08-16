@@ -88,7 +88,7 @@ void IniciaGl(int* argcp, char** argv) {
     glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
     V_ERRO();
     std::string codigo_f_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, "frag.c", &codigo_f_shader_str);
+    arq::LeArquivo(arq::TIPO_SHADER, "frag_luz.c", &codigo_f_shader_str);
     const char* codigo_f_shader = codigo_f_shader_str.c_str();
     glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
     V_ERRO();
@@ -138,7 +138,7 @@ void IniciaGl(int* argcp, char** argv) {
   }
 #endif
 }
-#undef V_ERRO
+//#undef V_ERRO
 
 void FinalizaGl() {
 #if WIN32
@@ -235,13 +235,14 @@ void Habilita(GLenum cap) {
     glUseProgram(g_contexto.programa_luz);
     g_contexto.programa_corrente = g_contexto.programa_luz;
     // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, "gltab_luzes");
+  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7 && g_contexto.programa_corrente == g_contexto.programa_luz) {
+    char nome_var[21];
+    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
+    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, nome_var);
     if (loc != -1) {
-      GLint gltab_luzes[8];
-      glGetUniformiv(g_contexto.programa_corrente, loc, gltab_luzes);
-      gltab_luzes[cap - GL_LIGHT0] = 1;
-      glUniform1iv(loc, 8, gltab_luzes);
+      glUniform1i(loc, 1);
+    } else {
+      LOG_EVERY_N(ERROR, 30) << "Uniform gltab_luzes nao encontrado.";
     }
   }
 #endif
@@ -254,17 +255,23 @@ void Desabilita(GLenum cap) {
     glUseProgram(g_contexto.programa_cor);
     g_contexto.programa_corrente = g_contexto.programa_cor;
     // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, "gltab_luzes");
+  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7 && g_contexto.programa_corrente == g_contexto.programa_luz) {
+    char nome_var[21];
+    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
+    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, nome_var);
     if (loc != -1) {
-      GLint gltab_luzes[8];
-      glGetUniformiv(g_contexto.programa_corrente, loc, gltab_luzes);
-      gltab_luzes[cap - GL_LIGHT0] = 0;
-      glUniform1iv(loc, 8, gltab_luzes);
+      glUniform1i(loc, 0);
+    } else {
+      LOG_EVERY_N(ERROR, 30) << "Uniform gltab_luzes nao encontrado.";
     }
   }
 #endif
   glDisable(cap);
 }
 
+#if USAR_SHADER
+GLint Uniforme(const char* id) {
+  return glGetUniformLocation(g_contexto.programa_corrente, id);
+}
+#endif
 }  // namespace gl.

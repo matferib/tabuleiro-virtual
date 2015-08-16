@@ -34,7 +34,6 @@ Versao com Vbo:
 
 Versao com Shader:
 - Texturas.
-- Demais luzes.
 - Neblina.
 
 

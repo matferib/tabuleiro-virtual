@@ -4236,6 +4236,14 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::DesenhaLuzes() {
+#if USAR_SHADER
+  GLint id_viewport = gl::Uniforme("gltab_viewport");
+  if (id_viewport != -1) {
+    glUniform4i(id_viewport, 0, 0, largura_, altura_);
+  } else {
+    LOG_EVERY_N(ERROR, 30) << "Uniform gltab_viewport nao encontrado.";
+  }
+#endif
   GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
                                  proto_corrente_->luz_ambiente().g(),
                                  proto_corrente_->luz_ambiente().b(),

@@ -417,6 +417,11 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
   glStencilOp(falha_stencil, falha_profundidade, sucesso);
 }
 
+#if USAR_SHADER
+/** Uniforms. */
+GLint Uniforme(const char* id);
+#endif
+
 /** debugging. */
 void AlternaModoDebug();
 

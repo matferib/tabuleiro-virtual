@@ -76,8 +76,8 @@ public:
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_15;
     QLineEdit *campo_id;
-    QLabel *label_16;
     QLineEdit *campo_descricao;
+    QLabel *label_16;
 
     void setupUi(QDialog *ifg__qt__DialogoIluminacao)
     {
@@ -174,7 +174,7 @@ public:
 
         botao_cor_ambiente = new QPushButton(ifg__qt__DialogoIluminacao);
         botao_cor_ambiente->setObjectName(QString::fromUtf8("botao_cor_ambiente"));
-        botao_cor_ambiente->setGeometry(QRect(130, 20, 176, 27));
+        botao_cor_ambiente->setGeometry(QRect(130, 70, 176, 27));
         groupBox = new QGroupBox(ifg__qt__DialogoIluminacao);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         groupBox->setGeometry(QRect(20, 100, 421, 221));
@@ -318,7 +318,7 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(20, 50, 421, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(20, 20, 421, 41));
         horizontalLayout_5 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         horizontalLayout_5->setContentsMargins(0, 0, 0, 0);
@@ -334,16 +334,16 @@ public:
 
         horizontalLayout_5->addWidget(campo_id, 0, Qt::AlignLeft);
 
-        label_16 = new QLabel(horizontalLayoutWidget_5);
-        label_16->setObjectName(QString::fromUtf8("label_16"));
-
-        horizontalLayout_5->addWidget(label_16);
-
         campo_descricao = new QLineEdit(horizontalLayoutWidget_5);
         campo_descricao->setObjectName(QString::fromUtf8("campo_descricao"));
         campo_descricao->setReadOnly(false);
 
         horizontalLayout_5->addWidget(campo_descricao);
+
+        label_16 = new QLabel(horizontalLayoutWidget_5);
+        label_16->setObjectName(QString::fromUtf8("label_16"));
+
+        horizontalLayout_5->addWidget(label_16);
 
 
         retranslateUi(ifg__qt__DialogoIluminacao);
@@ -412,8 +412,8 @@ public:
         label_14->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", 0, QApplication::UnicodeUTF8));
         botao_textura_ceu->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Escolher", 0, QApplication::UnicodeUTF8));
         label_15->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Id", 0, QApplication::UnicodeUTF8));
-        label_16->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", 0, QApplication::UnicodeUTF8));
         campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", 0, QApplication::UnicodeUTF8));
+        label_16->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
