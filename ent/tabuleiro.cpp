@@ -2071,7 +2071,10 @@ void Tabuleiro::DesenhaCena() {
     }
   }
 
-
+  //-------------
+  // DESENHOS 2D.
+  //-------------
+  gl::Desabilita(GL_FOG);
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
@@ -4274,6 +4277,23 @@ void Tabuleiro::DesenhaLuzes() {
     gl::Nevoa(GL_FOG_START, proto_corrente_->nevoa().distancia_minima());
     gl::Nevoa(GL_FOG_END, proto_corrente_->nevoa().distancia_maxima());
     gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
+#if USAR_SHADER
+    GLint loc = gl::Uniforme("gltab_referencia_nevoa");
+    if (loc != -1) {
+      GLfloat modelview[16];
+      float pos[4] = { 0, 0, 0, 1 };
+      auto* e = BuscaEntidade(id_camera_presa_);
+      gl::Le(GL_MODELVIEW_MATRIX, modelview);
+      if (e != nullptr) {
+        const Posicao& epos = e->Pos(); 
+        pos[0] = epos.x();
+        pos[1] = epos.y();
+        pos[2] = epos.z();
+        MultiplicaMatrizVetor(modelview, pos);
+      }
+      glUniform4f(loc, pos[0], pos[1], pos[2], pos[3]);
+    }
+#endif
   } else {
     gl::Desabilita(GL_FOG);
   }
@@ -4318,7 +4338,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
 }
 
 void Tabuleiro::DesenhaGrade() {
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   MudaCor(COR_PRETA);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);

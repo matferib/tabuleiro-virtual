@@ -224,6 +224,12 @@ void Habilita(GLenum cap) {
       glUniform1i(loc, 0);
       V_ERRO();
     }
+  } else if (cap == GL_FOG) {
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_nevoa");
+    if (loc != -1) {
+      glUniform1i(loc, 1);
+      V_ERRO();
+    }
   }
 #endif
   glEnable(cap);
@@ -249,6 +255,12 @@ void Desabilita(GLenum cap) {
     GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_textura");
     if (loc != -1) {
       glUniform1i(loc, 0);
+    }
+  } else if (cap == GL_FOG) {
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_nevoa");
+    if (loc != -1) {
+      glUniform1i(loc, 0);
+      V_ERRO();
     }
   }
 #endif
