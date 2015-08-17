@@ -426,7 +426,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
   gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
 
-  // Um para direcao da camera para luz iluminar o proprio objeto.
+  // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
   gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
 
   int id_luz = pd->luz_corrente();

@@ -22,11 +22,8 @@ struct ContextoInterno {
 #endif
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
 #if USAR_SHADER
-  GLuint programa_corrente;  // indica qual programa esta sendo usado.
   GLuint programa_luz;
-  GLuint programa_cor;
-  GLuint vs_luz;
-  GLuint vs_cor;
+  GLuint vs;
   GLuint fs;
 #endif
 } g_contexto;
@@ -109,32 +106,8 @@ void IniciaGl(int* argcp, char** argv) {
     glUseProgram(p);
     V_ERRO();
     g_contexto.programa_luz = p;
-    g_contexto.programa_corrente = p;
-    g_contexto.vs_luz = v_shader;
+    g_contexto.vs = v_shader;
     g_contexto.fs = f_shader;
-  }
-
-  // Programa de cor.
-  {
-    GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-    V_ERRO();
-    std::string codigo_v_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, "vert_cor.c", &codigo_v_shader_str);
-    const char* codigo_v_shader = codigo_v_shader_str.c_str();
-    glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-    V_ERRO();
-    glCompileShader(v_shader);
-    V_ERRO();
-    GLuint p = glCreateProgram();
-    V_ERRO();
-    glAttachShader(p, v_shader);
-    V_ERRO();
-    glAttachShader(p, g_contexto.fs);
-    V_ERRO();
-    glLinkProgram(p);
-    V_ERRO();
-    g_contexto.programa_cor = p;
-    g_contexto.vs_cor = v_shader;
   }
 #endif
 }
@@ -145,14 +118,10 @@ void FinalizaGl() {
   // Apagar o contexto_interno
 #endif
 #if USAR_SHADER
-  glDetachShader(g_contexto.programa_luz, g_contexto.vs_luz);
-  glDetachShader(g_contexto.programa_cor, g_contexto.vs_cor);
+  glDetachShader(g_contexto.programa_luz, g_contexto.vs);
   glDetachShader(g_contexto.programa_luz, g_contexto.fs);
-  glDetachShader(g_contexto.programa_cor, g_contexto.fs);
   glDeleteProgram(g_contexto.programa_luz);
-  glDeleteProgram(g_contexto.programa_cor);
-  glDeleteShader(g_contexto.vs_luz);
-  glDeleteShader(g_contexto.vs_cor);
+  glDeleteShader(g_contexto.vs);
   glDeleteShader(g_contexto.fs);
 #endif
 }
@@ -232,13 +201,14 @@ void AlternaModoDebug() {
 void Habilita(GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
-    glUseProgram(g_contexto.programa_luz);
-    g_contexto.programa_corrente = g_contexto.programa_luz;
-    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7 && g_contexto.programa_corrente == g_contexto.programa_luz) {
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_luz");
+    if (loc != -1) {
+      glUniform1i(loc, 1);
+    }
+  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
     char nome_var[21];
     snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
-    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, nome_var);
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, nome_var);
     if (loc != -1) {
       glUniform1i(loc, 1);
     } else {
@@ -252,17 +222,17 @@ void Habilita(GLenum cap) {
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
-    glUseProgram(g_contexto.programa_cor);
-    g_contexto.programa_corrente = g_contexto.programa_cor;
-    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7 && g_contexto.programa_corrente == g_contexto.programa_luz) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
-    GLint loc = glGetUniformLocation(g_contexto.programa_corrente, nome_var);
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_luz");
     if (loc != -1) {
       glUniform1i(loc, 0);
-    } else {
-      LOG_EVERY_N(ERROR, 30) << "Uniform gltab_luzes nao encontrado.";
+    }
+    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
+  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
+    char nome_var[21];
+    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, nome_var);
+    if (loc != -1) {
+      glUniform1i(loc, 0);
     }
   }
 #endif
@@ -271,7 +241,11 @@ void Desabilita(GLenum cap) {
 
 #if USAR_SHADER
 GLint Uniforme(const char* id) {
-  return glGetUniformLocation(g_contexto.programa_corrente, id);
+  GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
+  if (ret == -1) {
+    LOG_EVERY_N(INFO, 100) << "Uniforme nao encontrada: " << id;
+  }
+  return ret;
 }
 #endif
 }  // namespace gl.
