@@ -33,8 +33,9 @@ Versao com Vbo:
 - Terminar a exportacao de formas e compostas (CORES).
 
 Versao com Shader:
-- Texturas.
+- OpenGL ES
 - Neblina.
+- Skybox.
 
 
 Versao 1.10.3

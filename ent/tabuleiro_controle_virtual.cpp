@@ -319,7 +319,7 @@ void Tabuleiro::DesenhaControleVirtual() {
         unsigned int id_textura = db.textura.empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura);
         if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
           gl::Habilita(GL_TEXTURE_2D);
-          glBindTexture(GL_TEXTURE_2D, id_textura);
+          gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
         }
         float tam_x = xf - (2.0f * padding) - xi;
         float tam_y = yf - (2.0f * padding) - yi;

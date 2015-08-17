@@ -211,8 +211,18 @@ void Habilita(GLenum cap) {
     GLint loc = glGetUniformLocation(g_contexto.programa_luz, nome_var);
     if (loc != -1) {
       glUniform1i(loc, 1);
-    } else {
-      LOG_EVERY_N(ERROR, 30) << "Uniform gltab_luzes nao encontrado.";
+    }
+  } else if (cap == GL_TEXTURE_2D) {
+    //LOG_EVERY_N(INFO, 100) << "Ligando GL_TEXTURE_2D";
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_textura");
+    if (loc != -1) {
+      glUniform1i(loc, 1);
+    }
+    // Apenas a unidade zero eh usada atualmente.
+    loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_unidade_textura");
+    if (loc != -1) {
+      glUniform1i(loc, 0);
+      V_ERRO();
     }
   }
 #endif
@@ -231,6 +241,12 @@ void Desabilita(GLenum cap) {
     char nome_var[21];
     snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
     GLint loc = glGetUniformLocation(g_contexto.programa_luz, nome_var);
+    if (loc != -1) {
+      glUniform1i(loc, 0);
+    }
+  } else if (cap == GL_TEXTURE_2D) {
+    //LOG_EVERY_N(INFO, 100) << "Desligando GL_TEXTURE_2D";
+    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_textura");
     if (loc != -1) {
       glUniform1i(loc, 0);
     }

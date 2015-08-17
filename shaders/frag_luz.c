@@ -1,11 +1,15 @@
 #version 120
 
+// Varying sao interpoladas da saida do vertex.
 varying vec4 v_Color;
 varying vec3 v_Normal;
 varying vec4 v_Pos;
-uniform bool gltab_luz;
-uniform int[gl_MaxLights] gltab_luzes;
-uniform ivec4 gltab_viewport;
+
+// Uniforms sao constantes durante desenho, setadas no codigo nativo.
+uniform bool gltab_luz;                  // Iluminacao ligada?
+uniform bool[gl_MaxLights] gltab_luzes;  // Luzes habilitadas.
+uniform bool gltab_textura;              // Textura ligada?
+uniform sampler2D gltab_unidade_textura; // handler da textura.
 
 void main() {
   vec4 cor_final = vec4(0);
@@ -26,7 +30,7 @@ void main() {
     vec4 frag_xyz = v_Pos;
 
     for (int i = 1; i < gl_MaxLights; ++i) {
-      if (gltab_luzes[i] == 0) continue;
+      if (!gltab_luzes[i]) continue;
       float atenuacao = 1.0f;
       // Vetor objeto luz.
       vec3 objeto_luz = vec3(gl_LightSource[i].position - frag_xyz);
@@ -48,6 +52,10 @@ void main() {
     gl_FragColor = clamp(cor_final, 0, 1);   // Pass the color directly through the pipeline.
     //gl_FragColor = vec4(gltab_luzes[0], gltab_luzes[1], gltab_luzes[2], 1);
   } else {
-    gl_FragColor = v_Color;
+    cor_final = v_Color;
   }
+  if (gltab_textura) {
+    cor_final *= texture2D(gltab_unidade_textura, gl_TexCoord[0].st);
+  }
+  gl_FragColor = cor_final;
 }
