@@ -409,7 +409,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   if (!pd->iluminacao() || !proto_.has_luz()) {
     return;
   }
-  if (!proto_.visivel() && !pd->modo_mestre()) {
+  if (!proto_.visivel() && !proto_.selecionavel_para_jogador() && !pd->modo_mestre()) {
     return;
   }
 
