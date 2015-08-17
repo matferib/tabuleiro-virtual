@@ -35,7 +35,6 @@ Versao com Vbo:
 Versao com Shader:
 - OpenGL ES
 - Neblina.
-- Skybox.
 
 
 Versao 1.10.3

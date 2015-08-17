@@ -16,13 +16,15 @@ void main() {
   if (gltab_luz) {
     // luz ambiente.
     cor_final += v_Color * gl_LightModel.ambient;
-    // Converte normal para coordenadas de olho.
-    // A luz direcional ja vem em coordenadas de olho.
-    vec3 direcao_luz = vec3(normalize(gl_LightSource[0].position));
-    // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-    float cos_com_normal = dot(v_Normal, direcao_luz);
-    if (cos_com_normal > 0.0) {
-      cor_final += (v_Color * gl_LightSource[0].diffuse) * cos_com_normal;
+    if (gltab_luzes[0]) {
+      // Converte normal para coordenadas de olho.
+      // A luz direcional ja vem em coordenadas de olho.
+      vec3 direcao_luz = vec3(normalize(gl_LightSource[0].position));
+      // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
+      float cos_com_normal = dot(v_Normal, direcao_luz);
+      if (cos_com_normal > 0.0) {
+        cor_final += (v_Color * gl_LightSource[0].diffuse) * cos_com_normal;
+      }
     }
 
     // Outras luzes.

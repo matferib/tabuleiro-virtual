@@ -4294,11 +4294,12 @@ void Tabuleiro::DesenhaCaixaCeu() {
     // Se a textura for invalida, sai aqui e evita um monte de coisas (e bugs tb).
     return;
   }
-  // Desliga luzes pontuais.
-  //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  // Desliga luzes direcionais e pontuais.
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
+  // Desliga luz direcional.
+
   gl::MatrizEscopo salva_mv(GL_MODELVIEW);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
   MudaCor(COR_BRANCA);
@@ -4306,7 +4307,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::FaceNula(GL_FRONT);
   gl::Habilita(GL_TEXTURE_2D);
   gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-  glBindTexture(GL_TEXTURE_2D, id_textura);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   gl::DesenhaVbo(vbo_caixa_ceu_);
   gl::Desabilita(GL_TEXTURE_2D);
   // Religa luzes.
