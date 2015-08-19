@@ -357,12 +357,8 @@ void Limpa(GLbitfield mascara);
 inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
 class DesligaEscritaProfundidadeEscopo {
  public:
-  DesligaEscritaProfundidadeEscopo() {
-    // Nao funciona com glIsEnabled.
-    Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
-    MascaraProfundidade(false);
-  }
-  ~DesligaEscritaProfundidadeEscopo() { MascaraProfundidade(valor_anterior_); }
+  DesligaEscritaProfundidadeEscopo();
+  ~DesligaEscritaProfundidadeEscopo();
 
  private:
   GLboolean valor_anterior_;

@@ -5,6 +5,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <google/protobuf/repeated_field.h>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -171,6 +172,31 @@ void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
   DesenhaLinha3dBase(pontos, largura);
 }
 
+void LimitesLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura, float* xi, float* yi, float *xs, float *ys) {
+  *xi = std::numeric_limits<float>::max();
+  *xs = std::numeric_limits<float>::lowest();
+  *yi = std::numeric_limits<float>::max();
+  *ys = std::numeric_limits<float>::lowest();
+  for (const auto& p : pontos) {
+    if (p.x() < *xi) {
+      *xi = p.x();
+    }
+    if (p.x() > *xs) {
+      *xs = p.x();
+    }
+    if (p.y() < *yi) {
+      *yi = p.y();
+    }
+    if (p.y() > *ys) {
+      *ys = p.y();
+    }
+  }
+  *xi -= largura;
+  *xs += largura;
+  *yi -= largura;
+  *ys += largura;
+}
+
 void LigaStencil() {
   gl::Habilita(GL_STENCIL_TEST);  // Habilita stencil.
   gl::Limpa(GL_STENCIL_BUFFER_BIT);  // stencil zerado.
@@ -179,12 +205,12 @@ void LigaStencil() {
   gl::MascaraCor(false);  // Para nao desenhar nada de verdade, apenas no stencil.
 }
 
-void DesenhaStencil(const Cor& cor) {
+void DesenhaStencil2d(const Cor& cor) {
   const float cor_float[] = { cor.r(), cor.g(), cor.b(), cor.a() };
-  DesenhaStencil(cor_float);
+  DesenhaStencil2d(cor_float);
 }
 
-void DesenhaStencil(const float* cor) {
+void DesenhaStencil2d(const float* cor) {
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   int largura = viewport[2], altura = viewport[3];
@@ -205,12 +231,41 @@ void DesenhaStencil(const float* cor) {
       if (cor != nullptr) {
         MudaCorAlfa(cor);
       }
-      //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_teste_profundidade_escopo;
       // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda).
       // Operacoes de picking nao devem usar stencil.
       gl::Retangulo(0.0f, 0.0f, largura, altura);
     }
+  }
+  // Desliga stencil.
+  gl::Desabilita(GL_STENCIL_TEST);
+}
+
+void DesenhaStencil3d(float tam_x, float tam_y, const Cor& cor) {
+  const float cor_float[] = { cor.r(), cor.g(), cor.b(), cor.a() };
+  DesenhaStencil3d(tam_x, tam_y, cor_float);
+}
+
+void DesenhaStencil3d(float tam_x, float tam_y, const float* cor) {
+  float tam_x_2 = tam_x / 2.0f;
+  float tam_y_2 = tam_y / 2.0f;
+  DesenhaStencil3d(-tam_x_2, -tam_y_2, tam_x_2, tam_y_2, cor);
+}
+
+void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor) {
+  // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
+  gl::MascaraCor(true);
+  gl::FuncaoStencil(GL_EQUAL, 0xFF, 0xFF);  // So passara no teste quem tiver 0xFF.
+  gl::OperacaoStencil(GL_KEEP, GL_KEEP, GL_KEEP);  // Mantem os valores do stencil.
+  // Desenha uma chapa na tela toda, preenchera so os buracos do stencil.
+  {
+    if (cor != nullptr) {
+      MudaCorAlfa(cor);
+    }
+    gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+    gl::DesligaEscritaProfundidadeEscopo desliga_teste_profundidade_escopo;
+    gl::Retangulo(xi, yi, xs, ys);
   }
   // Desliga stencil.
   gl::Desabilita(GL_STENCIL_TEST);

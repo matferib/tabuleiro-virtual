@@ -1,4 +1,5 @@
 Versao 1.10.2
+- Tirar tesselizacao da grade agora que o shader ta funcionando.
 - Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).
 - Entidade com efeito sumindo em outros cenarios.
 - Geracao de terrenos.
@@ -34,7 +35,7 @@ Versao com Vbo:
 
 Versao com Shader:
 - OpenGL ES
-- Neblina.
+- Neblina com alfa.
 
 
 Versao 1.10.3

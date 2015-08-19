@@ -12,6 +12,8 @@ uniform bool gltab_textura;              // Textura ligada?
 uniform sampler2D gltab_unidade_textura; // handler da textura.
 uniform bool gltab_nevoa;                // Nevoa ligada?
 uniform vec4 gltab_referencia_nevoa;     // Ponto de referencia para computar distancia da nevoa.
+//uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
+//uniform bool gltab_stencil;              // Stencil ligado?
 
 void main() {
   vec4 cor_final = vec4(0, 0, 0, 0);

@@ -50,12 +50,17 @@ void DesenhaDisco(float raio, int num_faces);
 /** Desenha uma linha 3d com a largura passada, passando pelos pontos. Em cada ponto, sera desenhado um disco para conectar. */
 void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura);
 void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura);
+void LimitesLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura, float* xi, float* yi, float *xs, float *ys);
 
 /** Funcoes para ligar o stencil e depois desenhar a cor passada (ou a corrente) onde o stencil foi marcado. */
 // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
 void LigaStencil();
-void DesenhaStencil(const float* cor = nullptr);
-void DesenhaStencil(const Cor& cor);
+void DesenhaStencil2d(const float* cor = nullptr);
+void DesenhaStencil2d(const Cor& cor);
+/** O stencil 3d desenha um retangulo sobre o tabuleiro (paralelo). */
+void DesenhaStencil3d(float tam_x, float tam_y, const Cor& cor);
+void DesenhaStencil3d(float tam_x, float tam_y, const float* cor = nullptr);
+void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor = nullptr);
 
 /** Gera um aleatorio de 1 a nfaces. */
 int RolaDado(unsigned int nfaces);

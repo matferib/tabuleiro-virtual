@@ -2035,7 +2035,9 @@ void Tabuleiro::DesenhaCena() {
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     LigaStencil();
     DesenhaRastros();
-    DesenhaStencil(COR_AZUL_ALFA);
+    float tam_x = proto_.largura() * TAMANHO_LADO_QUADRADO;
+    float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
+    DesenhaStencil3d(tam_x, tam_y, COR_AZUL_ALFA);
   }
 
   if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
@@ -2618,7 +2620,9 @@ void Tabuleiro::DesenhaSombras() {
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
   //gl::HabilitaEscopo habilita_blend(GL_BLEND);
-  DesenhaStencil(cor_sombra);
+  float tam_x = proto_.largura() * TAMANHO_LADO_QUADRADO;
+  float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
+  DesenhaStencil3d(tam_x, tam_y, cor_sombra);
 }
 
 void Tabuleiro::AtualizaOlho(bool forcar) {

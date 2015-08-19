@@ -48,6 +48,21 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
 }  // interno
 
+// DesligaEscritaProfundidadeEscopo.
+DesligaEscritaProfundidadeEscopo::DesligaEscritaProfundidadeEscopo() {
+  // Nao funciona com glIsEnabled.
+  Le(GL_DEPTH_WRITEMASK, &valor_anterior_);
+  MascaraProfundidade(false);
+  GLboolean valor_mudado;
+  Le(GL_DEPTH_WRITEMASK, &valor_mudado);
+}
+
+DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
+  MascaraProfundidade(valor_anterior_);
+  GLboolean valor_mudado;
+  Le(GL_DEPTH_WRITEMASK, &valor_mudado);
+}
+
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.
 void DesenhaString(const std::string& str, bool inverte_vertical) {
   interno::DesenhaStringAlinhado(str, 0, inverte_vertical);
