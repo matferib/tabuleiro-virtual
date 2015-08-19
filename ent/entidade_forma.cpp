@@ -165,7 +165,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       if (transparencias) {
         float xi, yi, xs, ys;
         LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
-        LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
+        //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
         DesenhaStencil3d(xi, yi, xs, ys);
       }
     }

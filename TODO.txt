@@ -1,7 +1,8 @@
 Versao 1.10.2
+- Regua de distancia.
 - Tirar tesselizacao da grade agora que o shader ta funcionando.
 - Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).
-- Entidade com efeito sumindo em outros cenarios.
+- Entidade com efeito sumindo em outros cenarios: tentar reproduzir o reflexos que nao aparecia.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
 - Mais traducoes.
@@ -10,7 +11,6 @@ Versao 1.10.2
 - Descricao de cenarios (melhorar UI com drop down).
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
-- Regua de distancia.
 - Fazer rotacao Z ser suavizada como destino do movimento.
 - Terminar socket.
 - Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
@@ -35,7 +35,6 @@ Versao com Vbo:
 
 Versao com Shader:
 - OpenGL ES
-- Neblina com alfa.
 
 
 Versao 1.10.3

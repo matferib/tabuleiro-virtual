@@ -2411,12 +2411,6 @@ void Tabuleiro::DesenhaTabuleiro() {
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
-  float limite_quad = 0.0f;
-  if (sombra && proto_corrente_->has_nevoa()) {
-    float limite = proto_corrente_->nevoa().distancia_minima() +
-                   (proto_corrente_->nevoa().distancia_maxima() - proto_corrente_->nevoa().distancia_minima()) * 0.7f;
-    limite_quad = pow(limite, 2);
-  }
   //LOG(INFO) << "LOOP";
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
@@ -2426,15 +2420,6 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     }
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
-    }
-    if (sombra && proto_corrente_->has_nevoa()) {
-      // Distancia para camera. So desenha se estiver fora da nevoa.
-      float distancia_quad = pow(entidade->X() - olho_.pos().x(), 2) +
-                             pow(entidade->Y() - olho_.pos().y(), 2) +
-                             pow(entidade->Z() - olho_.pos().z(), 2);
-      if (distancia_quad >= limite_quad) {
-        continue;
-      }
     }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
