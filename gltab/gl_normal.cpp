@@ -11,6 +11,12 @@
 #include "log/log.h"
 
 namespace gl {
+namespace interno {
+void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs);
+void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
+void HabilitaComShader(GLuint programa_luz, GLenum cap);
+void DesabilitaComShader(GLuint programa_luz, GLenum cap);
+}  // namespace interno
 
 struct ContextoInterno {
  public:
@@ -21,28 +27,14 @@ struct ContextoInterno {
   PROC pglBufferData;
 #endif
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
-#if USAR_SHADER
+  // Shader.
   GLuint programa_luz;
   GLuint vs;
   GLuint fs;
-#endif
 } g_contexto;
 
 bool ImprimeSeErro();
-bool ImprimeSeShaderErro(GLuint shader) {
-  GLint success = 0;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (success) {
-    return false;
-  }
-  GLint log_size = 0;
-  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
-  std::string info_log;
-  info_log.resize(log_size);
-  glGetShaderInfoLog(shader, log_size, &log_size, &info_log[0]);
-  LOG(ERROR) << "Erro de shader: " << info_log;
-  return true;
-}
+bool ImprimeSeShaderErro(GLuint shader);
 
 #define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
@@ -71,45 +63,7 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-#if USAR_SHADER
-  LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
-  // Programa de luz.
-  {
-    GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-    V_ERRO();
-    GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    V_ERRO();
-    std::string codigo_v_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, "vert_luz.c", &codigo_v_shader_str);
-    const char* codigo_v_shader = codigo_v_shader_str.c_str();
-    glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-    V_ERRO();
-    std::string codigo_f_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, "frag_luz.c", &codigo_f_shader_str);
-    const char* codigo_f_shader = codigo_f_shader_str.c_str();
-    glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-    V_ERRO();
-    glCompileShader(v_shader);
-    V_ERRO();
-    V_ERRO_SHADER(v_shader);
-    glCompileShader(f_shader);
-    V_ERRO();
-    V_ERRO_SHADER(f_shader);
-    GLuint p = glCreateProgram();
-    V_ERRO();
-    glAttachShader(p, v_shader);
-    V_ERRO();
-    glAttachShader(p, f_shader);
-    V_ERRO();
-    glLinkProgram(p);
-    V_ERRO();
-    glUseProgram(p);
-    V_ERRO();
-    g_contexto.programa_luz = p;
-    g_contexto.vs = v_shader;
-    g_contexto.fs = f_shader;
-  }
-#endif
+  interno::IniciaShaders(&g_contexto.programa_luz, &g_contexto.vs, &g_contexto.fs);
 }
 //#undef V_ERRO
 
@@ -117,13 +71,7 @@ void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
 #endif
-#if USAR_SHADER
-  glDetachShader(g_contexto.programa_luz, g_contexto.vs);
-  glDetachShader(g_contexto.programa_luz, g_contexto.fs);
-  glDeleteProgram(g_contexto.programa_luz);
-  glDeleteShader(g_contexto.vs);
-  glDeleteShader(g_contexto.fs);
-#endif
+  interno::FinalizaShaders(g_contexto.programa_luz, g_contexto.vs, g_contexto.fs);
 }
 
 namespace interno {
@@ -199,82 +147,13 @@ void AlternaModoDebug() {
 }
 
 void Habilita(GLenum cap) {
-#if USAR_SHADER
-  if (cap == GL_LIGHTING) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_luz");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-    }
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, nome_var);
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-    }
-  } else if (cap == GL_TEXTURE_2D) {
-    //LOG_EVERY_N(INFO, 100) << "Ligando GL_TEXTURE_2D";
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_textura");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-    }
-    // Apenas a unidade zero eh usada atualmente.
-    loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_unidade_textura");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-      V_ERRO();
-    }
-  } else if (cap == GL_FOG) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_nevoa");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-      V_ERRO();
-    }
-  } else if (cap == GL_STENCIL_TEST) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_stencil");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-      V_ERRO();
-    }
-  }
-#endif
+  interno::HabilitaComShader(g_contexto.programa_luz, cap);
   glEnable(cap);
 }
 
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
-  if (cap == GL_LIGHTING) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_luz");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
-    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, nome_var);
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
-  } else if (cap == GL_TEXTURE_2D) {
-    //LOG_EVERY_N(INFO, 100) << "Desligando GL_TEXTURE_2D";
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_textura");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
-  } else if (cap == GL_FOG) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_nevoa");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-      V_ERRO();
-    }
-  } else if (cap == GL_STENCIL_TEST) {
-    GLint loc = glGetUniformLocation(g_contexto.programa_luz, "gltab_stencil");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-      V_ERRO();
-    }
-  }
+  interno::DesabilitaComShader(g_contexto.programa_luz, cap);
 #endif
   glDisable(cap);
 }

@@ -194,26 +194,28 @@ struct ContextoInterno {
   float raster_y = 0.0f;
   int max_pilha_mv = 0.0f;
   int max_pilha_pj = 0.0f;
+  // Shader.
+  GLuint programa_luz;
+  GLuint vs;
+  GLuint fs;
 
   inline bool UsarSelecaoPorCor() const {
     return modo_renderizacao == MR_SELECT || depurar_selecao_por_cor ;
   }
-};
-
-ContextoInterno* g_contexto = nullptr;
+} g_contexto;
 
 // Gera um proximo ID.
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
-  unsigned int id_mapeado = g_contexto->proximo_id | (g_contexto->bit_pilha << 21);
-  g_contexto->ids.insert(std::make_pair(id_mapeado, id));
-  if (g_contexto->proximo_id == ((1 << 21) - 1)) {
+  unsigned int id_mapeado = g_contexto.proximo_id | (g_contexto.bit_pilha << 21);
+  g_contexto.ids.insert(std::make_pair(id_mapeado, id));
+  if (g_contexto.proximo_id == ((1 << 21) - 1)) {
     LOG(ERROR) << "Limite de ids alcancado";
   } else {
-    if (g_contexto->depurar_selecao_por_cor) {
+    if (g_contexto.depurar_selecao_por_cor) {
       // Mais facil de ver.
-      g_contexto->proximo_id += 5;
+      g_contexto.proximo_id += 5;
     } else {
-      ++g_contexto->proximo_id;
+      ++g_contexto.proximo_id;
     }
   }
   rgb[0] = (id_mapeado & 0xFF);
@@ -223,33 +225,50 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
 
 }  // namespace
 
+// Para funcoes comuns.
+namespace interno {
+void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs);
+void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
+}  // namespace interno
+
 void IniciaGl(int* argcp, char** argv) {
-  g_contexto = new ContextoInterno;
-  gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &g_contexto->max_pilha_pj);
-  gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &g_contexto->max_pilha_mv);
-  LOG(INFO) << "Max pilha mv: " << g_contexto->max_pilha_mv;
-  LOG(INFO) << "Max pilha pj: " << g_contexto->max_pilha_pj;
+  gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &g_contexto.max_pilha_pj);
+  gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &g_contexto.max_pilha_mv);
+  LOG(INFO) << "Max pilha mv: " << g_contexto.max_pilha_mv;
+  LOG(INFO) << "Max pilha pj: " << g_contexto.max_pilha_pj;
+  interno::IniciaShaders(&g_contexto.programa_luz, &g_contexto.vs, &g_contexto.fs);
 }
 
 void FinalizaGl() {
-  delete g_contexto;
+  interno::FinalizaShaders(g_contexto.programa_luz, g_contexto.vs, g_contexto.fs);
 }
 
 void InicioCena() {
-  if (g_contexto->UsarSelecaoPorCor()) {
-    g_contexto->proximo_id = 0;
-    g_contexto->bit_pilha = 0;
-    g_contexto->ids.clear();
+  if (g_contexto.UsarSelecaoPorCor()) {
+    g_contexto.proximo_id = 0;
+    g_contexto.bit_pilha = 0;
+    g_contexto.ids.clear();
   }
 }
 
 void Habilita(GLenum cap) {
-  if (g_contexto->UsarSelecaoPorCor() && (cap == GL_LIGHTING)) {
-    // Sem luz no modo de selecao.
-    glDisable(cap);
+  if (g_contexto.UsarSelecaoPorCor()) {
+    if (cap == GL_LIGHTING) {
+      return;
+      // Sem luz no modo de selecao.
+      //glDisable(cap);
+    }
   } else {
+    interno::HabilitaShader(g_contexto.programa_luz, cap);
     glEnable(cap);
   }
+}
+
+void Desabilita(GLenum cap) {
+#if USAR_SHADER
+  interno::DesabilitaComShader(g_contexto.programa_luz, cap);
+#endif
+  glDisable(cap);
 }
 
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
@@ -387,11 +406,11 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
 }
 
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
-  if (g_contexto->modo_renderizacao == modo) {
+  if (g_contexto.modo_renderizacao == modo) {
     VLOG(1) << "Nao houve mudanca no modo de renderizacao";
     return 0;
   }
-  g_contexto->modo_renderizacao = modo;
+  g_contexto.modo_renderizacao = modo;
   switch (modo) {
     case MR_SELECT:
       return 0;
@@ -417,22 +436,22 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         LOG(ERROR) << "Tipo objeto invalido: " << tipo_objeto;
         return 0;
       }
-      auto it = g_contexto->ids.find(id_mapeado);
-      if (it == g_contexto->ids.end()) {
+      auto it = g_contexto.ids.find(id_mapeado);
+      if (it == g_contexto.ids.end()) {
         LOG(ERROR) << "Id nao mapeado: " << (void*)id_mapeado;
         return 0;
       }
 #pragma GCC diagnostic pop
       unsigned int id_original = it->second;
       VLOG(1) << "Id original: " << id_original;
-      GLuint* ptr = g_contexto->buffer_selecao;
+      GLuint* ptr = g_contexto.buffer_selecao;
       ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
       ptr[1] = 0;  // zmin.
       ptr[2] = 0;  // zmax
       ptr[3] = tipo_objeto;
       ptr[4] = id_original;
-      g_contexto->buffer_selecao = nullptr;
-      g_contexto->tam_buffer = 0;
+      g_contexto.buffer_selecao = nullptr;
+      g_contexto.tam_buffer = 0;
       return 1;  // Numero de hits: so pode ser 0 ou 1.
     }
     default:
@@ -441,8 +460,8 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
 }
 
 void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) {
-  g_contexto->buffer_selecao = buffer;
-  g_contexto->tam_buffer = tam_buffer;
+  g_contexto.buffer_selecao = buffer;
+  g_contexto.tam_buffer = tam_buffer;
 }
 
 // Nomes
@@ -450,7 +469,7 @@ void IniciaNomes() {
 }
 
 void EmpilhaNome(GLuint id) {
-  if (!g_contexto->UsarSelecaoPorCor()) {
+  if (!g_contexto.UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
@@ -458,39 +477,39 @@ void EmpilhaNome(GLuint id) {
     LOG(ERROR) << "Bit da pilha passou do limite superior.";
     return;
   }
-  g_contexto->bit_pilha = id;
-  VLOG(1) << "Empilhando bit pilha: " << g_contexto->bit_pilha;
+  g_contexto.bit_pilha = id;
+  VLOG(1) << "Empilhando bit pilha: " << g_contexto.bit_pilha;
 }
 
 void CarregaNome(GLuint id) {
-  if (!g_contexto->UsarSelecaoPorCor()) {
+  if (!g_contexto.UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
   GLubyte rgb[3];
   MapeiaId(id, rgb);
-  VLOG(2) << "Mapeando " << id << ", bit pilha " << g_contexto->bit_pilha
+  VLOG(2) << "Mapeando " << id << ", bit pilha " << g_contexto.bit_pilha
           << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
   // Muda a cor para a mapeada.
   glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 }
 
 void DesempilhaNome() {
-  if (!g_contexto->UsarSelecaoPorCor()) {
+  if (!g_contexto.UsarSelecaoPorCor()) {
     // So muda no modo de selecao.
     return;
   }
-  if (g_contexto->bit_pilha == 0) {
+  if (g_contexto.bit_pilha == 0) {
     // No jeito novo, isso nao eh mais erro.
     //LOG(ERROR) << "Bit da pilha passou do limite inferior.";
     return;
   }
-  VLOG(1) << "Desempilhando bit pilha: " << g_contexto->bit_pilha;
-  g_contexto->bit_pilha = 0;
+  VLOG(1) << "Desempilhando bit pilha: " << g_contexto.bit_pilha;
+  g_contexto.bit_pilha = 0;
 }
 
 void MudaCor(float r, float g, float b, float a) {
-  if (g_contexto->UsarSelecaoPorCor()) {
+  if (g_contexto.UsarSelecaoPorCor()) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
@@ -501,7 +520,7 @@ void MudaCor(float r, float g, float b, float a) {
 }
 
 void Limpa(GLbitfield mascara) {
-  if (g_contexto->UsarSelecaoPorCor()) {
+  if (g_contexto.UsarSelecaoPorCor()) {
     if ((mascara & GL_COLOR_BUFFER_BIT) != 0) {
       // Preto nao eh valido no color picking.
       glClearColor(0, 0, 0, 1.0f);
@@ -522,8 +541,6 @@ void TamanhoFonte(int* largura, int* altura) {
   TamanhoFonte(viewport[2], viewport[3], largura, altura);
 }
 
-namespace interno {
-
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
   // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
@@ -542,8 +559,8 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   int altura_fonte;
   TamanhoFonte(&largura_fonte, &altura_fonte);
 
-  float x2d = g_contexto->raster_x;
-  float y2d = g_contexto->raster_y;
+  float x2d = g_contexto.raster_x;
+  float y2d = g_contexto.raster_y;
   gl::Translada(x2d, y2d, 0.0f);
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
@@ -576,8 +593,8 @@ void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   if (!gluProject(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
     return;
   }
-  g_contexto->raster_x = x2d;
-  g_contexto->raster_y = y2d;
+  g_contexto.raster_x = x2d;
+  g_contexto.raster_y = y2d;
   //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
 }
 
@@ -586,7 +603,7 @@ void PosicaoRaster(GLint x, GLint y) {
 }
 
 void AlternaModoDebug() {
-  g_contexto->depurar_selecao_por_cor = !g_contexto->depurar_selecao_por_cor;
+  g_contexto.depurar_selecao_por_cor = !g_contexto.depurar_selecao_por_cor;
 }
 
 }  // namespace gl

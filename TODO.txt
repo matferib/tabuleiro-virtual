@@ -35,6 +35,8 @@ Versao com Vbo:
 
 Versao com Shader:
 - OpenGL ES
+- Shadow mapping.
+- Propriedade das luzes pontuais (distancia, cintilacao).
 
 
 Versao 1.10.3
