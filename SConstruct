@@ -166,6 +166,9 @@ cGlComum = env.Object('gltab/gl_comum.cpp')
 cGlChar = env.Object('gltab/gl_char.cpp')
 cGlVbo = env.Object('gltab/gl_vbo.cpp')
 
+# Matrix
+cMatrix = env.Object('matrix/matrices.cpp')
+
 objetos = [
     # net.
     cNetServidor, cNetCliente, cNetUtil, cNetSocket,
@@ -186,6 +189,8 @@ objetos = [
     cGlComum, cGl, cGlChar, cGlVbo,
     # arq
     cArq, cArqPc,
+    # matrix
+    cMatrix,
 ] + ([ cEntWatchdog ] if sistema == 'linux' else [])
 
 
