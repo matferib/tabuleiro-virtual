@@ -19,14 +19,14 @@ Modelos3d::Modelos3d() : interno_(new Interno) {
   try {
     ntf::Notificacao n;
     arq::LeArquivoBinProto(arq::TIPO_MODELO_3D, "orc.binproto", &n);
-    LOG(INFO) << "orc: " << n.DebugString();
+    //LOG(INFO) << "orc: " << n.DebugString();
     interno_->vbos["orc"] = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0)));
-    LOG(INFO) << interno_->vbos["orc"].ParaString();
+    //LOG(INFO) << interno_->vbos["orc"].ParaString();
     n.Clear();
     arq::LeArquivoBinProto(arq::TIPO_MODELO_3D, "geo.binproto", &n);
-    LOG(INFO) << "geo: " << n.DebugString();
+    //LOG(INFO) << "geo: " << n.DebugString();
     interno_->vbos["geo"] = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0)));
-    LOG(INFO) << interno_->vbos["geo"].ParaString();
+    //LOG(INFO) << interno_->vbos["geo"].ParaString();
   } catch (const std::exception& e) {
     LOG(ERROR) << "Falha carregando orc ou geo: " << e.what();
   }
