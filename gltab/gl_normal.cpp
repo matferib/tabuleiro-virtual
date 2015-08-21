@@ -12,7 +12,8 @@
 
 namespace gl {
 
-struct ContextoInterno {
+namespace interno {
+struct ContextoDesktop : public ContextoDependente {
  public:
 #if WIN32
   PROC pglGenBuffers;
@@ -20,12 +21,12 @@ struct ContextoInterno {
   PROC pglDeleteBuffers;
   PROC pglBufferData;
 #endif
-  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
-  // Shader.
-  GLuint programa_luz;
-  GLuint vs;
-  GLuint fs;
-} g_contexto;
+};
+}  // namespace interno
+
+namespace {
+interno::Contexto g_contexto(new interno::ContextoDesktop);
+}  // namespace
 
 bool ImprimeSeErro();
 bool ImprimeSeShaderErro(GLuint shader);
@@ -36,21 +37,21 @@ void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
 #if WIN32
   LOG(INFO) << "pegando ponteiros";
-  g_contexto.pglGenBuffers = wglGetProcAddress("glGenBuffers");
+  g_contexto.interno->pglGenBuffers = wglGetProcAddress("glGenBuffers");
   std::string erro;
-  if (g_contexto.pglGenBuffers == nullptr) {
+  if (g_context.interno->pglGenBuffers == nullptr) {
     erro = "null glGenBuffers";
   }
-  g_contexto.pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
-  if (g_contexto.pglDeleteBuffers == nullptr) {
+  g_contexto.interno->pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
+  if (g_contexto.interno->pglDeleteBuffers == nullptr) {
     erro = "null glDeleteBuffers";
   }
-  g_contexto.pglBufferData = wglGetProcAddress("glBufferData");
-  if (g_contexto.pglBufferData == nullptr) {
+  g_contexto.interno->pglBufferData = wglGetProcAddress("glBufferData");
+  if (g_contexto.interno->pglBufferData == nullptr) {
     erro = "null glBufferData";
   }
-  g_contexto.pglBindBuffer = wglGetProcAddress("glBindBuffer");
-  if (g_contexto.pglBindBuffer == nullptr) {
+  g_contexto.interno->pglBindBuffer = wglGetProcAddress("glBindBuffer");
+  if (g_contexto.interno->pglBindBuffer == nullptr) {
     erro = "null glBindBuffer";
   }
   if (!erro.empty()) {
@@ -120,19 +121,19 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
 #if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers) {
-  ((PFNGLGENBUFFERSPROC)g_contexto.pglGenBuffers)(n, buffers);
+  ((PFNGLGENBUFFERSPROC)g_contexto.interno->pglGenBuffers)(n, buffers);
 }
 
 void LigacaoComBuffer(GLenum target, GLuint buffer) {
-  ((PFNGLBINDBUFFERPROC)g_contexto.pglBindBuffer)(target, buffer);
+  ((PFNGLBINDBUFFERPROC)g_contexto.interno->pglBindBuffer)(target, buffer);
 }
 
 void ApagaBuffers(GLsizei n, const GLuint* buffers) {
-  ((PFNGLDELETEBUFFERSPROC)g_contexto.pglDeleteBuffers)(n, buffers);
+  ((PFNGLDELETEBUFFERSPROC)g_contexto.interno->pglDeleteBuffers)(n, buffers);
 }
 
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
-  ((PFNGLBUFFERDATAPROC)g_contexto.pglBufferData)(target, size, data, usage);
+  ((PFNGLBUFFERDATAPROC)g_contexto.interno->pglBufferData)(target, size, data, usage);
 }
 #endif
 

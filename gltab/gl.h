@@ -54,11 +54,26 @@ namespace gl {
 void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
+// Nao deveria ser visivel, apenas para facilitar implementacao.
+namespace interno {
+// Depende de plataforma.
+struct ContextoDependente {
+  virtual ~ContextoDependente() {}
+};
 class Contexto {
  public:
-  Contexto(int* argcp, char** argv) { IniciaGl(argcp, argv); }
-  ~Contexto() { FinalizaGl(); }
+  Contexto(ContextoDependente* cd) : interno(cd) {}
+  ~Contexto() {}
+
+  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
+  // Shader.
+  GLuint programa_luz;
+  GLuint vs;
+  GLuint fs;
+  std::unique_ptr<ContextoDependente> interno;
 };
+}  // namespace interno
+
 
 #if USAR_SHADER
 #define ATUALIZA_MATRIZES() AtualizaMatrizes()
