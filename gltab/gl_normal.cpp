@@ -11,12 +11,6 @@
 #include "log/log.h"
 
 namespace gl {
-namespace interno {
-void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs);
-void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
-void HabilitaComShader(GLuint programa_luz, GLenum cap);
-void DesabilitaComShader(GLuint programa_luz, GLenum cap);
-}  // namespace interno
 
 struct ContextoInterno {
  public:
@@ -158,13 +152,17 @@ void Desabilita(GLenum cap) {
   glDisable(cap);
 }
 
-#if USAR_SHADER
 GLint Uniforme(const char* id) {
+#if USAR_SHADER
   GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
   if (ret == -1) {
     LOG_EVERY_N(INFO, 100) << "Uniforme nao encontrada: " << id;
   }
   return ret;
-}
+#else
+  return -1;
 #endif
+}
+
+
 }  // namespace gl.

@@ -5,6 +5,7 @@
 #include "gltab/gl.h"
 #include "arq/arquivo.h"
 #include "log/log.h"
+#include "matrix/matrices.h"
 
 // Comum.
 namespace gl {
@@ -48,6 +49,7 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical);
 
 bool ImprimeSeShaderErro(GLuint shader) {
+#if USAR_SHADER
   GLint success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (success) {
@@ -59,6 +61,7 @@ bool ImprimeSeShaderErro(GLuint shader) {
   info_log.resize(log_size);
   glGetShaderInfoLog(shader, log_size, &log_size, &info_log[0]);
   LOG(ERROR) << "Erro de shader: " << info_log;
+#endif
   return true;
 }
 
@@ -70,35 +73,50 @@ void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs) {
   // Programa de luz.
   {
     GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-    V_ERRO();
+    if (v_shader == 0) {
+      LOG(ERROR) << "Erro criando vertex shader";
+      V_ERRO();
+      return;
+    }
+    //V_ERRO();
     GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    V_ERRO();
+    if (f_shader == 0) {
+      LOG(ERROR) << "Erro criando fragment shader";
+      V_ERRO();
+      return;
+    }
+    //V_ERRO();
     std::string codigo_v_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, "vert_luz.c", &codigo_v_shader_str);
     const char* codigo_v_shader = codigo_v_shader_str.c_str();
     glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-    V_ERRO();
+    //V_ERRO();
     std::string codigo_f_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, "frag_luz.c", &codigo_f_shader_str);
     const char* codigo_f_shader = codigo_f_shader_str.c_str();
     glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-    V_ERRO();
+    //V_ERRO();
     glCompileShader(v_shader);
-    V_ERRO();
+    //V_ERRO();
     V_ERRO_SHADER(v_shader);
     glCompileShader(f_shader);
-    V_ERRO();
+    //V_ERRO();
     V_ERRO_SHADER(f_shader);
     GLuint p = glCreateProgram();
-    V_ERRO();
+    if (p == 0) {
+      LOG(ERROR) << "Erro criando programa de shader.";
+      V_ERRO();
+      return;
+    }
+    //V_ERRO();
     glAttachShader(p, v_shader);
-    V_ERRO();
+    //V_ERRO();
     glAttachShader(p, f_shader);
-    V_ERRO();
+    //V_ERRO();
     glLinkProgram(p);
-    V_ERRO();
+    //V_ERRO();
     glUseProgram(p);
-    V_ERRO();
+    //V_ERRO();
     *programa_luz = p;
     *vs = v_shader;
     *fs = f_shader;
@@ -140,19 +158,19 @@ void HabilitaComShader(GLuint programa_luz, GLenum cap) {
     loc = glGetUniformLocation(programa_luz, "gltab_unidade_textura");
     if (loc != -1) {
       glUniform1i(loc, 0);
-      V_ERRO();
+      //V_ERRO();
     }
   } else if (cap == GL_FOG) {
     GLint loc = glGetUniformLocation(programa_luz, "gltab_nevoa");
     if (loc != -1) {
       glUniform1i(loc, 1);
-      V_ERRO();
+      //V_ERRO();
     }
   } else if (cap == GL_STENCIL_TEST) {
     GLint loc = glGetUniformLocation(programa_luz, "gltab_stencil");
     if (loc != -1) {
       glUniform1i(loc, 1);
-      V_ERRO();
+      //V_ERRO();
     }
   }
 #endif
@@ -183,13 +201,11 @@ void DesabilitaComShader(GLuint programa_luz, GLenum cap) {
     GLint loc = glGetUniformLocation(programa_luz, "gltab_nevoa");
     if (loc != -1) {
       glUniform1i(loc, 0);
-      V_ERRO();
     }
   } else if (cap == GL_STENCIL_TEST) {
     GLint loc = glGetUniformLocation(programa_luz, "gltab_stencil");
     if (loc != -1) {
       glUniform1i(loc, 0);
-      V_ERRO();
     }
   }
 #endif
@@ -223,6 +239,62 @@ void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical
 
 void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical) {
   interno::DesenhaStringAlinhado(str, 1, inverte_vertical);
+}
+
+void AtualizaMatrizes() {
+  GLenum modo;
+  glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo);
+  GLuint mloc = (modo == GL_MODELVIEW) ? gl::Uniforme("gltab_mvm") : gl::Uniforme("gltab_prm");
+  if (mloc == -1) {
+    return;
+  }
+  float m[16];
+  gl::Le(modo == GL_MODELVIEW ? GL_MODELVIEW_MATRIX : GL_PROJECTION_MATRIX, m);
+  glUniformMatrix4fv(mloc, 1, false, m);
+  if (modo == GL_PROJECTION) {
+#if 0
+    static int done = 0;
+    if (++done < 10) {
+      LOG(INFO) << "mopengl: \n" <<
+        m[0] << " "  << m[1] << " " << m[2]   << " " << m[3] << "\n" <<
+        m[4] << " "  << m[5] << " " << m[6]   << " " << m[7] << "\n" <<
+        m[8] << " "  << m[9] << " " << m[10]  << " " << m[11] << "\n" <<
+        m[12] << " " << m[13] << " " << m[14] << " " << m[15] << "\n";
+
+      /*
+      LOG(INFO) << "mmatrices: \n" <<
+        m[0] << " "  << m[1] << " " << m[2]   << " " m[3] << "\n" <<
+        m[4] << " "  << m[5] << " " << m[6]   << " " m[7] << "\n" <<
+        m[8] << " "  << m[9] << " " << m[10]  << " " m[11] << "\n" <<
+        m[12] << " " << m[13] << " " << m[14] << " " m[15] << "\n";
+        */
+    }
+#endif
+    return;
+  }
+
+  // Normal matrix.
+  //mat4 normalMatrix = transpose(inverse(modelView));
+  Matrix3 normal(m[0], m[1], m[2],
+                 m[4], m[5], m[6],
+                 m[8], m[9], m[10]);
+  normal.invert().transpose();
+  GLuint nmloc = gl::Uniforme("gltab_nm");
+  if (nmloc == -1) {
+    return;
+  }
+  glUniformMatrix3fv(nmloc, 1, false, normal.get());
+}
+
+void DebugaMatrizes() {
+  float mv[16];
+  gl::Le(GL_MODELVIEW_MATRIX, mv);
+  Matrix3 normal(mv[0], mv[1], mv[2],
+                 mv[4], mv[5], mv[6],
+                 mv[8], mv[9], mv[10]);
+  normal.invert().transpose();
+  LOG_EVERY_N(INFO, 300) << "MV: \n" << Matrix4(mv)
+                          << ", NM: \n" << normal;
 }
 
 }  // namespace gl

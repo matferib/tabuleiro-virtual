@@ -1953,6 +1953,7 @@ void Tabuleiro::DesenhaCena() {
   gl::ModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+  //gl::DebugaMatrizes();
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (camera_isometrica_ || (olho_.altura() > (2 * olho_.raio()))) {

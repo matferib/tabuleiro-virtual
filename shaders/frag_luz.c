@@ -1,9 +1,10 @@
-//#version 110
+//#version 120
 
 // Varying sao interpoladas da saida do vertex.
 varying vec4 v_Color;
 varying vec3 v_Normal;
 varying vec4 v_Pos;  // Posicao do pixel do fragmento.
+varying vec2 v_Tex;  // coordenada texel.
 
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
 uniform bool gltab_luz;                  // Iluminacao ligada?
@@ -59,7 +60,7 @@ void main() {
     cor_final = v_Color;
   }
   if (gltab_textura) {
-    cor_final *= texture2D(gltab_unidade_textura, gl_TexCoord[0].st);
+    cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
   if (gltab_nevoa) {
     float distancia = length(v_Pos - gltab_referencia_nevoa);

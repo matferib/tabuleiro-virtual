@@ -64,7 +64,7 @@ const int TAG_BOTAO_CANCELA = 101;
   [rotationRecognizer setCancelsTouchesInView:NO];
   [rotationRecognizer setDelegate:self];
 
-  self.context_ = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+  self.context_ = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
   if (!self.context_) {
     NSLog(@"Failed to create ES context");
   }

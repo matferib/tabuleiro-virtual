@@ -37,12 +37,16 @@ void ProdutoVetorial(GLfloat v1[3], GLfloat v2[3], GLfloat result[3]) {
   result[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
+}  // namespace
+
+// Funcoes extraidas do GluES. Originalmente chamadas de glu*.
+namespace glu {
+
 /*
 ** Invert 4x4 matrix.
 ** Contributed by David Moore (See Mesa bug #6748)
 */
-static int __gluInvertMatrixf(const GLfloat m[16], GLfloat invOut[16])
-{
+static int InvertMatrixf(const GLfloat m[16], GLfloat invOut[16]) {
     GLfloat inv[16], det;
     int i;
 
@@ -91,9 +95,7 @@ static int __gluInvertMatrixf(const GLfloat m[16], GLfloat invOut[16])
     return GL_TRUE;
 }
 
-static void __gluMultMatrixVecf(const GLfloat matrix[16], const GLfloat in[4],
-                                GLfloat out[4])
-{
+void MultMatrixVecf(const GLfloat matrix[16], const GLfloat in[4], GLfloat out[4]) {
     int i;
 
     for (i=0; i<4; i++)
@@ -105,7 +107,7 @@ static void __gluMultMatrixVecf(const GLfloat matrix[16], const GLfloat in[4],
     }
 }
 
-static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16], GLfloat r[16]) {
+void MultMatricesf(const GLfloat a[16], const GLfloat b[16], GLfloat r[16]) {
     int i, j;
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
@@ -117,7 +119,7 @@ static void __gluMultMatricesf(const GLfloat a[16], const GLfloat b[16], GLfloat
     }
 }
 
-GLint gluProject(
+GLint Project(
     GLfloat objx,
     GLfloat objy,
     GLfloat objz,
@@ -134,34 +136,13 @@ GLint gluProject(
   in[1]=objy;
   in[2]=objz;
   in[3]=1.0;
-  __gluMultMatrixVecf(modelMatrix, in, out);
-  __gluMultMatrixVecf(projMatrix, out, in);
+  MultMatrixVecf(modelMatrix, in, out);
+  MultMatrixVecf(projMatrix, out, in);
 
-  /*
-  int max;
-  gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &max);
-  LOG(INFO) << "Maximo pilha PJ: " << max;
-  gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &max);
-  LOG(INFO) << "Maximo pilha MV: " << max;
-  for (int i = 0; i < 16; ++i) {
-    LOG(INFO) << "proj[" << i << "]: " << projMatrix[i];
-  }
-  for (int i = 0; i < 16; ++i) {
-    LOG(INFO) << "mv[" << i << "]: " << modelMatrix[i];
-  }
-  */
   if (in[3] == 0.0) {
     LOG(ERROR) << "Projecao falhou";
-    //int max;
-    //gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &max);
-    //LOG(INFO) << "Maximo pilha PJ: " << max;
-    //gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &max);
-    //LOG(INFO) << "Maximo pilha MV: " << max;
     return GL_FALSE;
   }
-  /*
-  LOG(INFO) << "Projecao ok";
-  */
 
   in[0] /= in[3];
   in[1] /= in[3];
@@ -180,6 +161,54 @@ GLint gluProject(
   *winz = in[2];
   return GL_TRUE;
 }
+
+GLint Unproject(GLfloat winx, GLfloat winy, GLfloat winz,
+                const GLfloat modelMatrix[16],
+                const GLfloat projMatrix[16],
+                const GLint viewport[4],
+                GLfloat* objx, GLfloat* objy, GLfloat* objz) {
+  GLfloat finalMatrix[16];
+  GLfloat in[4];
+  GLfloat out[4];
+
+  glu::MultMatricesf(modelMatrix, projMatrix, finalMatrix);
+  if (!glu::InvertMatrixf(finalMatrix, finalMatrix))
+  {
+      return(GL_FALSE);
+  }
+
+  in[0]=winx;
+  in[1]=winy;
+  in[2]=winz;
+  in[3]=1.0;
+
+  /* Map x and y from window coordinates */
+  in[0] = (in[0] - viewport[0]) / viewport[2];
+  in[1] = (in[1] - viewport[1]) / viewport[3];
+
+  /* Map to range -1 to 1 */
+  in[0] = in[0] * 2 - 1;
+  in[1] = in[1] * 2 - 1;
+  in[2] = in[2] * 2 - 1;
+
+  glu::MultMatrixVecf(finalMatrix, in, out);
+  if (out[3] == 0.0)
+  {
+      return(GL_FALSE);
+  }
+
+  out[0] /= out[3];
+  out[1] /= out[3];
+  out[2] /= out[3];
+  *objx = out[0];
+  *objy = out[1];
+  *objz = out[2];
+
+  return(GL_TRUE);
+}
+
+}  // namespace glu.
+
 struct ContextoInterno {
   // Mapeia um ID para a cor RGB em 21 bits (os dois mais significativos sao para a pilha).
   std::unordered_map<unsigned int, unsigned int> ids;
@@ -202,7 +231,10 @@ struct ContextoInterno {
   inline bool UsarSelecaoPorCor() const {
     return modo_renderizacao == MR_SELECT || depurar_selecao_por_cor ;
   }
-} g_contexto;
+};
+ContextoInterno g_contexto;
+
+namespace {
 
 // Gera um proximo ID.
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
@@ -224,12 +256,6 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
 }
 
 }  // namespace
-
-// Para funcoes comuns.
-namespace interno {
-void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs);
-void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
-}  // namespace interno
 
 void IniciaGl(int* argcp, char** argv) {
   gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &g_contexto.max_pilha_pj);
@@ -259,7 +285,7 @@ void Habilita(GLenum cap) {
       //glDisable(cap);
     }
   } else {
-    interno::HabilitaShader(g_contexto.programa_luz, cap);
+    interno::HabilitaComShader(g_contexto.programa_luz, cap);
     glEnable(cap);
   }
 }
@@ -347,6 +373,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
 
   glMultMatrixf(&m[0][0]);
   glTranslatef(-eyex, -eyey, -eyez);
+  ATUALIZA_MATRIZES();
 }
 
 GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
@@ -354,44 +381,7 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
                  const GLfloat projMatrix[16],
                  const GLint viewport[4],
                  GLfloat* objx, GLfloat* objy, GLfloat* objz) {
-  GLfloat finalMatrix[16];
-  GLfloat in[4];
-  GLfloat out[4];
-
-  __gluMultMatricesf(modelMatrix, projMatrix, finalMatrix);
-  if (!__gluInvertMatrixf(finalMatrix, finalMatrix))
-  {
-      return(GL_FALSE);
-  }
-
-  in[0]=winx;
-  in[1]=winy;
-  in[2]=winz;
-  in[3]=1.0;
-
-  /* Map x and y from window coordinates */
-  in[0] = (in[0] - viewport[0]) / viewport[2];
-  in[1] = (in[1] - viewport[1]) / viewport[3];
-
-  /* Map to range -1 to 1 */
-  in[0] = in[0] * 2 - 1;
-  in[1] = in[1] * 2 - 1;
-  in[2] = in[2] * 2 - 1;
-
-  __gluMultMatrixVecf(finalMatrix, in, out);
-  if (out[3] == 0.0)
-  {
-      return(GL_FALSE);
-  }
-
-  out[0] /= out[3];
-  out[1] /= out[3];
-  out[2] /= out[3];
-  *objx = out[0];
-  *objy = out[1];
-  *objz = out[2];
-
-  return(GL_TRUE);
+  return glu::Unproject(winx, winy, winz, modelMatrix, projMatrix, viewport, objx, objy, objz);
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
@@ -541,6 +531,43 @@ void TamanhoFonte(int* largura, int* altura) {
   TamanhoFonte(viewport[2], viewport[3], largura, altura);
 }
 
+void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
+  float matriz_mv[16];
+  float matriz_pr[16];
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
+  gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
+  float x2d, y2d, z2d;
+  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
+    return;
+  }
+  g_contexto.raster_x = x2d;
+  g_contexto.raster_y = y2d;
+  //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
+}
+
+void PosicaoRaster(GLint x, GLint y) {
+  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
+}
+
+void AlternaModoDebug() {
+  g_contexto.depurar_selecao_por_cor = !g_contexto.depurar_selecao_por_cor;
+}
+
+GLint Uniforme(const char* id) {
+#if USAR_SHADER
+  GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
+  if (ret == -1) {
+    LOG(INFO) << "Uniforme nao encontrada: " << id;
+  }
+  return ret;
+#else
+  return -1;
+#endif
+}
+
+namespace interno {
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
   // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
@@ -580,30 +607,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   }
 }
 
-}  // namespace
+}  // namespace interno
 
-void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
-  float matriz_mv[16];
-  float matriz_pr[16];
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-  gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
-  gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
-  float x2d, y2d, z2d;
-  if (!gluProject(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
-    return;
-  }
-  g_contexto.raster_x = x2d;
-  g_contexto.raster_y = y2d;
-  //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
-}
-
-void PosicaoRaster(GLint x, GLint y) {
-  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
-}
-
-void AlternaModoDebug() {
-  g_contexto.depurar_selecao_por_cor = !g_contexto.depurar_selecao_por_cor;
-}
 
 }  // namespace gl

@@ -48,6 +48,7 @@ class StringLogger {
 #define VLOG_NIVEL 0
 #endif
 #define LOG(X) if (true) std::cout << std::endl
+#define LOG_EVERY_N(X, N) if (true) std::cout << std::endl
 #define VLOG(X) if (X <= VLOG_NIVEL) std::cout << std::endl
 #endif
 

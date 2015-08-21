@@ -9,9 +9,11 @@
 #if __APPLE__
   #include "TargetConditionals.h"
   #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
-    // iOS device
-    #include <OpenGLES/ES1/gl.h>
+    #include <OpenGLES/ES2/glext.h>
+    #include <OpenGLES/ES2/gl.h>
+   // iOS device
     #include <OpenGLES/ES1/glext.h>
+    #include <OpenGLES/ES1/gl.h>
   #elif TARGET_OS_MAC
     // Other kinds of Mac OS
     #include <OpenGL/gl.h>
@@ -22,6 +24,7 @@
 #include <GLES/glext.h>
 //#include <GLES/egl.h>  Da problema com o simbolo None definido no X11/X.h, uma enum do Qt em qstyleoption.h usa None tambem.
 #include <GLES/glplatform.h>
+#include <GLES2/gl2.h>
 #endif
 #elif __APPLE__
 #include <OpenGL/gl.h>
@@ -57,6 +60,15 @@ class Contexto {
   ~Contexto() { FinalizaGl(); }
 };
 
+#if USAR_SHADER
+#define ATUALIZA_MATRIZES() AtualizaMatrizes()
+// Atualiza as matrizes do shader.
+void AtualizaMatrizes();
+void DebugaMatrizes();
+#else
+#define ATUALIZA_MATRIZES()
+#endif
+
 /** Salva a matriz corrente durante escopo da classe. Ou muda o modo de matriz e a salva, retornando ao modo anterior ao fim do escopo. */
 class MatrizEscopo {
  public:
@@ -76,6 +88,7 @@ class MatrizEscopo {
       glMatrixMode(modo_);
     }
     glPopMatrix();
+    ATUALIZA_MATRIZES();
     if (modo_anterior_ != GL_INVALID_ENUM) {
       glMatrixMode(modo_anterior_);
     }
@@ -125,8 +138,14 @@ void Desabilita(GLenum cap);
 inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
 inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
-inline void CarregaIdentidade() { glLoadIdentity(); }
-inline void MultiplicaMatriz(const GLfloat* matriz) { glMultMatrixf(matriz); }
+inline void CarregaIdentidade() {
+  glLoadIdentity();
+  ATUALIZA_MATRIZES();
+}
+inline void MultiplicaMatriz(const GLfloat* matriz) {
+  glMultMatrixf(matriz);
+  ATUALIZA_MATRIZES();
+}
 inline void ModoMatriz(GLenum modo) { glMatrixMode(modo); }
 #if !USAR_OPENGL_ES
 inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
@@ -135,7 +154,10 @@ inline void DesempilhaAtributo() { glPopAttrib(); }
 #endif
 inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
-inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) { glViewport(x, y, largura, altura); }
+inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) {
+  glViewport(x, y, largura, altura);
+  ATUALIZA_MATRIZES();
+}
 
 // Texturas.
 inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
@@ -143,7 +165,7 @@ inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(
 inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
 inline void ImagemTextura2d(
-    GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda, 
+    GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda,
     GLenum formato, GLenum tipo, const GLvoid* dados) {
   glTexImage2D(alvo, nivel, formato_interno, largura, altura, borda, formato, tipo, dados);
 }
@@ -228,9 +250,18 @@ class TipoEscopo {
 };
 
 /** Funcoes de escala, translacao e rotacao. */
-inline void Escala(GLfloat x, GLfloat y, GLfloat z) { glScalef(x, y, z); }
-inline void Translada(GLfloat x, GLfloat y, GLfloat z) { glTranslatef(x, y, z); }
-inline void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) { glRotatef(angulo_graus, x, y, z); }
+inline void Escala(GLfloat x, GLfloat y, GLfloat z) {
+  glScalef(x, y, z);
+  ATUALIZA_MATRIZES();
+}
+inline void Translada(GLfloat x, GLfloat y, GLfloat z) {
+  glTranslatef(x, y, z);
+  ATUALIZA_MATRIZES();
+}
+inline void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
+  glRotatef(angulo_graus, x, y, z);
+  ATUALIZA_MATRIZES();
+}
 
 /** Funcoes de iluminacao. */
 inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
@@ -273,15 +304,20 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte = false);
 #if !USAR_OPENGL_ES
 inline void Perspectiva(GLdouble angulo_y, GLdouble aspecto, GLdouble z_perto, GLdouble z_longe) {
   gluPerspective(angulo_y, aspecto, z_perto, z_longe);
+  ATUALIZA_MATRIZES();
 }
+inline void Ortogonal(GLdouble esquerda, GLdouble direita, GLdouble baixo, GLdouble cima, GLdouble proximo, GLdouble distante) {
+  glOrtho(esquerda, direita, baixo, cima, proximo, distante);
+  ATUALIZA_MATRIZES();
+}
+
 inline void OlharPara(GLdouble olho_x, GLdouble olho_y, GLdouble olho_z,
                GLdouble centro_x, GLdouble centro_y, GLdouble centro_z,
                GLdouble cima_x, GLdouble cima_y, GLdouble cima_z) {
   gluLookAt(olho_x, olho_y, olho_z, centro_x, centro_y, centro_z, cima_x, cima_y, cima_z);
+  ATUALIZA_MATRIZES();
 }
-inline void Ortogonal(GLdouble esquerda, GLdouble direita, GLdouble baixo, GLdouble cima, GLdouble proximo, GLdouble distante) {
-  glOrtho(esquerda, direita, baixo, cima, proximo, distante);
-}
+
 inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
                         const GLdouble* model, const GLdouble* proj, const GLint* view,
                         GLfloat* x3d, GLfloat* y3d, GLfloat* z3d) {
@@ -292,6 +328,7 @@ inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundid
 }
 inline void MatrizPicking(GLdouble x, GLdouble y, GLdouble delta_x, GLdouble delta_y, GLint *viewport) {
   gluPickMatrix(x, y, delta_x, delta_y, viewport);
+  ATUALIZA_MATRIZES();
 }
 #else
 void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
@@ -413,10 +450,8 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
   glStencilOp(falha_stencil, falha_profundidade, sucesso);
 }
 
-#if USAR_SHADER
 /** Uniforms. */
 GLint Uniforme(const char* id);
-#endif
 
 /** debugging. */
 void AlternaModoDebug();
@@ -425,6 +460,10 @@ void AlternaModoDebug();
 namespace interno {
 // Quebra uma string em varias.
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
+void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs);
+void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
+void HabilitaComShader(GLuint programa_luz, GLenum cap);
+void DesabilitaComShader(GLuint programa_luz, GLenum cap);
 }  // namespace internal
 
 }  // namespace gl

@@ -59,7 +59,7 @@ ifneq ($(NEXUS7),)
 	LOCAL_CPPFLAGS += -DZBUFFER_16_BITS
 endif
 LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt boost-filesystem-prebuilt
-LOCAL_LDLIBS := -lGLESv1_CM -llog -landroid
+LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -landroid
 LOCAL_CPP_FEATURES := rtti exceptions
 
 ifneq ($(PROFILER_LIGADO),)

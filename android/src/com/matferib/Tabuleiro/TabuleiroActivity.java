@@ -133,6 +133,7 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
 class TabuleiroSurfaceView extends GLSurfaceView {
   public TabuleiroSurfaceView(Activity activity) {
     super(activity);
+    setEGLContextClientVersion(2);
     renderer_ = new TabuleiroRenderer(activity, this, getResources(), OrientacaoPadrao(activity));
     detectorEventos_ = new GestureDetector(activity, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
@@ -403,13 +404,13 @@ class TabuleiroRenderer
   }
 
   @Override
-  public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-    gl.glDisable(GL10.GL_DITHER);
+  public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+    //gl.glDisable(GL10.GL_DITHER);
     nativeInitGl();
   }
 
   @Override
-  public void onSurfaceChanged(GL10 gl, int w, int h) {
+  public void onSurfaceChanged(GL10 unused, int w, int h) {
     nativeResize(w, h);
   }
 
@@ -448,7 +449,7 @@ class TabuleiroRenderer
 
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   @Override
-  public void onDrawFrame(GL10 gl) {
+  public void onDrawFrame(GL10 unused) {
     //Log.d(TAG, "DrawFrame");
     nativeTimer();
     //Log.d(TAG, "Tam Evento Antes: " + eventos_.size());
