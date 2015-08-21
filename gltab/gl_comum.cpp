@@ -133,7 +133,9 @@ void IniciaShaders(interno::Contexto* contexto) {
           {"gltab_textura", &contexto->uni_gltab_textura },
           {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
           {"gltab_nevoa", &contexto->uni_gltab_nevoa },
-          {"gltab_stencil", &contexto->uni_gltab_stencil }}) {
+          {"gltab_stencil", &contexto->uni_gltab_stencil },
+          {"gltab_cor", &contexto->uni_gltab_cor },
+  }) {
     *par.second = glGetUniformLocation(*programa_luz, par.first.c_str());
     if (*par.second == -1) {
       LOG(ERROR) << "Erro lendo uniforme " << par.first;

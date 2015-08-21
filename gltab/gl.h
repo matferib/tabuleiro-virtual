@@ -368,15 +368,7 @@ void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
 #endif
 
 /** Mudanca de cor. */
-#if !USAR_OPENGL_ES
-inline void MudaCor(float r, float g, float b, float a) {
-  //GLfloat cor[4] = { r, g, b, a };
-  //glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor4f(r, g, b, a);
-}
-#else
 void MudaCor(float r, float g, float b, float a);
-#endif
 inline void MascaraCor(GLboolean mascara) { glColorMask(mascara, mascara, mascara, mascara); }
 
 inline void CorLimpeza(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glClearColor(r, g, b, a); }
@@ -475,6 +467,7 @@ class Contexto {
   GLint uni_gltab_unidade_textura;
   GLint uni_gltab_nevoa;
   GLint uni_gltab_stencil;
+  GLint uni_gltab_cor;
   std::unique_ptr<ContextoDependente> interno;
 };
 

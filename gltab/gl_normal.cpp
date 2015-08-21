@@ -153,6 +153,11 @@ void Desabilita(GLenum cap) {
   glDisable(cap);
 }
 
+void MudaCor(float r, float g, float b, float a) {
+  glColor4f(r, g, b, a);
+  glUniform4f(g_contexto.uni_gltab_cor, r, g, b, a);
+}
+
 GLint Uniforme(const char* id) {
 #if USAR_SHADER
   GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
