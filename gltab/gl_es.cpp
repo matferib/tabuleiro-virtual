@@ -260,7 +260,7 @@ void IniciaGl(int* argcp, char** argv) {
   gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &g_contexto.interno->max_pilha_mv);
   LOG(INFO) << "Max pilha mv: " << g_contexto.interno->max_pilha_mv;
   LOG(INFO) << "Max pilha pj: " << g_contexto.interno->max_pilha_pj;
-  interno::IniciaShaders(&g_contexto.programa_luz, &g_contexto.vs, &g_contexto.fs);
+  interno::IniciaShaders(&g_contexto);
 }
 
 void FinalizaGl() {
@@ -283,14 +283,14 @@ void Habilita(GLenum cap) {
       //glDisable(cap);
     }
   } else {
-    interno::HabilitaComShader(g_contexto.programa_luz, cap);
+    interno::HabilitaComShader(&g_contexto, cap);
     glEnable(cap);
   }
 }
 
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
-  interno::DesabilitaComShader(g_contexto.programa_luz, cap);
+  interno::DesabilitaComShader(&g_contexto, cap);
 #endif
   glDisable(cap);
 }

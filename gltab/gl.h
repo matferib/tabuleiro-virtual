@@ -54,26 +54,6 @@ namespace gl {
 void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
-// Nao deveria ser visivel, apenas para facilitar implementacao.
-namespace interno {
-// Depende de plataforma.
-struct ContextoDependente {
-  virtual ~ContextoDependente() {}
-};
-class Contexto {
- public:
-  Contexto(ContextoDependente* cd) : interno(cd) {}
-  ~Contexto() {}
-
-  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
-  // Shader.
-  GLuint programa_luz;
-  GLuint vs;
-  GLuint fs;
-  std::unique_ptr<ContextoDependente> interno;
-};
-}  // namespace interno
-
 
 #if USAR_SHADER
 #define ATUALIZA_MATRIZES() AtualizaMatrizes()
@@ -473,12 +453,39 @@ void AlternaModoDebug();
 
 // Namespace para utilidades internas, nem deveria estar aqui.
 namespace interno {
+
+// Depende de plataforma.
+struct ContextoDependente {
+  virtual ~ContextoDependente() {}
+};
+class Contexto {
+ public:
+  Contexto(ContextoDependente* cd) : interno(cd) {}
+  ~Contexto() {}
+
+  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
+  // Shader.
+  GLuint programa_luz;
+  GLuint vs;
+  GLuint fs;
+  // Variaveis uniformes dos shaders.
+  GLint uni_gltab_luz;
+  GLint uni_gltab_luzes[8];
+  GLint uni_gltab_textura;
+  GLint uni_gltab_unidade_textura;
+  GLint uni_gltab_nevoa;
+  GLint uni_gltab_stencil;
+  std::unique_ptr<ContextoDependente> interno;
+};
+
+void IniciaShaders(interno::Contexto* contexto);
+void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
+void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
+void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
+
 // Quebra uma string em varias.
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
-void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs);
-void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
-void HabilitaComShader(GLuint programa_luz, GLenum cap);
-void DesabilitaComShader(GLuint programa_luz, GLenum cap);
+
 }  // namespace internal
 
 }  // namespace gl

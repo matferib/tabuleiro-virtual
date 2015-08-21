@@ -58,7 +58,7 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-  interno::IniciaShaders(&g_contexto.programa_luz, &g_contexto.vs, &g_contexto.fs);
+  interno::IniciaShaders(&g_contexto);
 }
 //#undef V_ERRO
 
@@ -142,13 +142,13 @@ void AlternaModoDebug() {
 }
 
 void Habilita(GLenum cap) {
-  interno::HabilitaComShader(g_contexto.programa_luz, cap);
+  interno::HabilitaComShader(&g_contexto, cap);
   glEnable(cap);
 }
 
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
-  interno::DesabilitaComShader(g_contexto.programa_luz, cap);
+  interno::DesabilitaComShader(&g_contexto, cap);
 #endif
   glDisable(cap);
 }

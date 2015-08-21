@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstring>
 #include <string>
+#include <utility>
 #include <vector>
 #include "gltab/gl.h"
 #include "arq/arquivo.h"
@@ -67,8 +68,12 @@ bool ImprimeSeShaderErro(GLuint shader) {
 
 #define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
-void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs) {
+void IniciaShaders(interno::Contexto* contexto) {
 #if USAR_SHADER
+  GLuint* programa_luz = &contexto->programa_luz;
+  GLuint* vs = &contexto->vs;
+  GLuint* fs = &contexto->fs;
+
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   // Programa de luz.
   {
@@ -121,6 +126,28 @@ void IniciaShaders(GLuint* programa_luz, GLuint* vs, GLuint* fs) {
     *vs = v_shader;
     *fs = f_shader;
   }
+
+  // Variaveis uniformes.
+  for (const auto& par : std::vector<std::pair<std::string, GLint*>> {
+          {"gltab_luz", &contexto->uni_gltab_luz },
+          {"gltab_textura", &contexto->uni_gltab_textura },
+          {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
+          {"gltab_nevoa", &contexto->uni_gltab_nevoa },
+          {"gltab_stencil", &contexto->uni_gltab_stencil }}) {
+    *par.second = glGetUniformLocation(*programa_luz, par.first.c_str());
+    if (*par.second == -1) {
+      LOG(ERROR) << "Erro lendo uniforme " << par.first;
+    }
+  }
+  // Luzes.
+  for (int i = 0; i < 8; ++i) {
+    char nome_var[21];
+    snprintf(nome_var, 20, "gltab_luzes[%d]", i);
+    contexto->uni_gltab_luzes[i] = glGetUniformLocation(*programa_luz, nome_var);
+    if (contexto->uni_gltab_luzes[i] == -1) {
+      LOG(ERROR) << "Erro lendo uniforme " << nome_var;
+    }
+  }
 #endif
 }
 
@@ -134,79 +161,35 @@ void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs) {
 #endif
 }
 
-void HabilitaComShader(GLuint programa_luz, GLenum cap) {
+void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_luz");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-    }
+     glUniform1i(contexto->uni_gltab_luz, 1);
   } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
-    GLint loc = glGetUniformLocation(programa_luz, nome_var);
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-    }
+    glUniform1i(contexto->uni_gltab_luzes[cap - GL_LIGHT0], 1);
   } else if (cap == GL_TEXTURE_2D) {
-    //LOG_EVERY_N(INFO, 100) << "Ligando GL_TEXTURE_2D";
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_textura");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-    }
-    // Apenas a unidade zero eh usada atualmente.
-    loc = glGetUniformLocation(programa_luz, "gltab_unidade_textura");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-      //V_ERRO();
-    }
+    glUniform1i(contexto->uni_gltab_textura, 1);
+    glUniform1i(contexto->uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
   } else if (cap == GL_FOG) {
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_nevoa");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-      //V_ERRO();
-    }
+    glUniform1i(contexto->uni_gltab_nevoa, 1);
   } else if (cap == GL_STENCIL_TEST) {
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_stencil");
-    if (loc != -1) {
-      glUniform1i(loc, 1);
-      //V_ERRO();
-    }
+    glUniform1i(contexto->uni_gltab_stencil, 1);
   }
 #endif
 }
 
-void DesabilitaComShader(GLuint programa_luz, GLenum cap) {
+void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_luz");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
-    // Nao pode retornar aqui senao a funcao EstaHabilitado falha.
+     glUniform1i(contexto->uni_gltab_luz, 0);
   } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", cap - GL_LIGHT0);
-    GLint loc = glGetUniformLocation(programa_luz, nome_var);
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
+    glUniform1i(contexto->uni_gltab_luzes[cap - GL_LIGHT0], 0);
   } else if (cap == GL_TEXTURE_2D) {
-    //LOG_EVERY_N(INFO, 100) << "Desligando GL_TEXTURE_2D";
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_textura");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
+    glUniform1i(contexto->uni_gltab_textura, 0);
   } else if (cap == GL_FOG) {
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_nevoa");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
+    glUniform1i(contexto->uni_gltab_nevoa, 0);
   } else if (cap == GL_STENCIL_TEST) {
-    GLint loc = glGetUniformLocation(programa_luz, "gltab_stencil");
-    if (loc != -1) {
-      glUniform1i(loc, 0);
-    }
+    glUniform1i(contexto->uni_gltab_stencil, 0);
   }
 #endif
 }
