@@ -14,7 +14,7 @@ uniform mat3 gltab_nm;     // normal matrix
 uniform vec4 gltab_cor;    // Cor.
 
 void main() {
-  v_Normal = gltab_nm * normalize(gl_Normal);
+  v_Normal = normalize(gltab_nm * gl_Normal);
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gl_Vertex;
   v_Tex.st = gl_MultiTexCoord0.st;
