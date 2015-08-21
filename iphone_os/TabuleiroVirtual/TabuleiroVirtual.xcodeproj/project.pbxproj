@@ -21,6 +21,7 @@
 		EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253D91A6A2B43007EF810 /* gl_es.cpp */; };
 		EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */; };
 		EA9253DE1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */; };
+		EA99CC2C1B86D27D009E759C /* matrices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA99CC2A1B86D27D009E759C /* matrices.cpp */; };
 		EACF265F1A58C6DA0052E95A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF265E1A58C6DA0052E95A /* main.m */; };
 		EACF26621A58C6DA0052E95A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = EACF26611A58C6DA0052E95A /* AppDelegate.mm */; };
 		EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EACF266A1A58C6DA0052E95A /* Main.storyboard */; };
@@ -115,6 +116,9 @@
 		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
 		EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_comum.cpp; path = ../../../../gltab/gl_comum.cpp; sourceTree = "<group>"; };
 		EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_controle_virtual.cpp; path = ../../../../ent/tabuleiro_controle_virtual.cpp; sourceTree = "<group>"; };
+		EA99CC291B86D27D009E759C /* vectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vectors.h; path = ../../../matrix/vectors.h; sourceTree = "<group>"; };
+		EA99CC2A1B86D27D009E759C /* matrices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matrices.cpp; path = ../../../matrix/matrices.cpp; sourceTree = "<group>"; };
+		EA99CC2B1B86D27D009E759C /* matrices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matrices.h; path = ../../../matrix/matrices.h; sourceTree = "<group>"; };
 		EACF26591A58C6DA0052E95A /* TabuleiroVirtual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TabuleiroVirtual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EACF265D1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF265E1A58C6DA0052E95A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -292,6 +296,16 @@
 			name = m3d;
 			sourceTree = "<group>";
 		};
+		EA99CC2D1B86D28D009E759C /* matrix */ = {
+			isa = PBXGroup;
+			children = (
+				EA99CC291B86D27D009E759C /* vectors.h */,
+				EA99CC2A1B86D27D009E759C /* matrices.cpp */,
+				EA99CC2B1B86D27D009E759C /* matrices.h */,
+			);
+			name = matrix;
+			sourceTree = "<group>";
+		};
 		EACF26501A58C6DA0052E95A = {
 			isa = PBXGroup;
 			children = (
@@ -321,6 +335,7 @@
 		EACF265B1A58C6DA0052E95A /* TabuleiroVirtual */ = {
 			isa = PBXGroup;
 			children = (
+				EA99CC2D1B86D28D009E759C /* matrix */,
 				EA38B72A1AD4C93300D66E95 /* m3d */,
 				EACF27331A58D9AA0052E95A /* google */,
 				EACF26E91A58D95D0052E95A /* arq */,
@@ -752,6 +767,7 @@
 				EACF272A1A58D95D0052E95A /* tecladomouse.cpp in Sources */,
 				EACF272D1A58D95D0052E95A /* util.cpp in Sources */,
 				EACF27A41A58D9AA0052E95A /* zero_copy_stream.cc in Sources */,
+				EA99CC2C1B86D27D009E759C /* matrices.cpp in Sources */,
 				EACF27A11A58D9AA0052E95A /* printer.cc in Sources */,
 				EACF26941A58D0720052E95A /* native.mm in Sources */,
 				EA38B72D1AD4C95600D66E95 /* m3d.cpp in Sources */,
