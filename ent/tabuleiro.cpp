@@ -288,12 +288,6 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
   LiberaTexturasControleVirtual();
-  if (nome_buffer_grade_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_grade_);
-  }
-  if (nome_buffer_indice_grade_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_indice_grade_);
-  }
 }
 
 void Tabuleiro::LiberaTextura() {
@@ -2137,8 +2131,9 @@ void Tabuleiro::GeraVboCaixaCeu() {
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
-  // TODO quando limpar essa flag.
-  gl::VboNaoGravado vbo_nao_gravado("tabuleiro_nao_gravado");
+  struct InfoVerticeTabuleiro {
+    float x, y, s0, t0;
+  };
   std::vector<InfoVerticeTabuleiro> vertices_tabuleiro(TamanhoY() * TamanhoX() * 4 * 2);  // 4 vertices por quadrado, cada um dois pontos.
   std::vector<unsigned short> indices_tabuleiro;
 
@@ -2198,7 +2193,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
     x = 0;
     y += TAMANHO_LADO_QUADRADO;
   }
-  vbo_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
+  gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
+  tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   std::vector<float> coordenadas, texturas;
   for (int i = 0; i < indices_tabuleiro.size(); ++i) {
     coordenadas.push_back(vertices_tabuleiro[i].x);
@@ -2206,20 +2202,14 @@ void Tabuleiro::RegeraVboTabuleiro() {
     texturas.push_back(vertices_tabuleiro[i].s0);
     texturas.push_back(vertices_tabuleiro[i].t0);
   }
-  vbo_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
-  vbo_nao_gravado.AtribuiCoordenadas(2, coordenadas.data(), coordenadas.size());
-  vbo_nao_gravado.AtribuiTexturas(texturas.data());
-  vbo_tabuleiro_.Grava(vbo_nao_gravado);
+  tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
+  tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas.data(), coordenadas.size());
+  tabuleiro_nao_gravado.AtribuiTexturas(texturas.data());
+  vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
 
   // Regera a grade.
-  if (nome_buffer_grade_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_grade_);
-  }
-  if (nome_buffer_indice_grade_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_indice_grade_);
-  }
-  vertices_grade_.clear();
-  indices_grade_.clear();
+  std::vector<float> coordenadas_grade;
+  std::vector<unsigned short> indices_grade;
   // A grade sera regerada independente dos valores do proto, ja que o controle se ela devera ser desenha ou nao
   // e feito durante o desenho da cena.
   const int x_2 = TamanhoX() / 2;
@@ -2262,20 +2252,20 @@ void Tabuleiro::RegeraVboTabuleiro() {
           incremento_vertical = ultimo_pedaco_vertical;
         }
         float y_final = y_inicial + incremento_vertical;
-        vertices_grade_.push_back(x_inicial);
-        vertices_grade_.push_back(y_inicial);
-        vertices_grade_.push_back(x_final);
-        vertices_grade_.push_back(y_inicial);
-        vertices_grade_.push_back(x_final);
-        vertices_grade_.push_back(y_final);
-        vertices_grade_.push_back(x_inicial);
-        vertices_grade_.push_back(y_final);
-        indices_grade_.push_back(indice);
-        indices_grade_.push_back(indice + 1);
-        indices_grade_.push_back(indice + 2);
-        indices_grade_.push_back(indice);
-        indices_grade_.push_back(indice + 2);
-        indices_grade_.push_back(indice + 3);
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_final);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 1);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice + 3);
         indice += 4;
       }
     }
@@ -2305,31 +2295,28 @@ void Tabuleiro::RegeraVboTabuleiro() {
           incremento_horizontal = ultimo_pedaco_horizontal;
         }
         float x_final = x_inicial + incremento_horizontal;
-        vertices_grade_.push_back(x_inicial);
-        vertices_grade_.push_back(y_inicial);
-        vertices_grade_.push_back(x_final);
-        vertices_grade_.push_back(y_inicial);
-        vertices_grade_.push_back(x_final);
-        vertices_grade_.push_back(y_final);
-        vertices_grade_.push_back(x_inicial);
-        vertices_grade_.push_back(y_final);
-        indices_grade_.push_back(indice);
-        indices_grade_.push_back(indice + 1);
-        indices_grade_.push_back(indice + 2);
-        indices_grade_.push_back(indice);
-        indices_grade_.push_back(indice + 2);
-        indices_grade_.push_back(indice + 3);
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_final);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 1);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice + 3);
         indice += 4;
       }
     }
   }
-  gl::GeraBuffers(1, &nome_buffer_grade_);
-  gl::GeraBuffers(1, &nome_buffer_indice_grade_);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
-  gl::BufferizaDados(GL_ARRAY_BUFFER, sizeof(float) * vertices_grade_.size(), vertices_grade_.data(), GL_STATIC_DRAW);
-  // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
-  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_grade_.size(), indices_grade_.data(), GL_STATIC_DRAW);
+  gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
+  grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
+  grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
+  vbo_grade_.Grava(grade_nao_gravada);
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -4311,14 +4298,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
 void Tabuleiro::DesenhaGrade() {
   //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   MudaCor(COR_PRETA);
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_grade_);
-  gl::PonteiroVertices(2, GL_FLOAT, (void*)0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_grade_);
-  gl::DesenhaElementos(GL_TRIANGLES, indices_grade_.size(), GL_UNSIGNED_SHORT, (void*)0);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
 }
 
 void Tabuleiro::DesenhaListaPontosVida() {

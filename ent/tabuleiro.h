@@ -778,16 +778,8 @@ class Tabuleiro : public ntf::Receptor {
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<int, int> contador_pressao_por_controle_;
 
-  // Renderizacao por VBO.
-  struct InfoVerticeTabuleiro {
-    float x, y;
-    float s0, t0;
-  };
-  unsigned int nome_buffer_grade_ = 0;
-  unsigned int nome_buffer_indice_grade_ = 0;
-  std::vector<float> vertices_grade_;
-  std::vector<unsigned short> indices_grade_;
   gl::VboGravado vbo_tabuleiro_;
+  gl::VboGravado vbo_grade_;
   // TODO VBO dessas coisas aqui em cima.
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
