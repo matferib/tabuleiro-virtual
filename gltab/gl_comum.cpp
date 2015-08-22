@@ -11,19 +11,19 @@
 // Comum.
 namespace gl {
 
-bool ImprimeSeErro() {
+bool ImprimeSeErro(const char* mais) {
   auto erro = glGetError();
   if (erro != GL_NO_ERROR) {
 #if USAR_OPENGL_ES
-    LOG(ERROR) << "OpenGL Erro: " << erro;
+    LOG(ERROR) << "OpenGL erro " << (mais == nullptr ? "" : mais) << ": " << erro;
 #else
-    LOG(ERROR) << "OpenGL Erro: " << gluErrorString(erro);
+    LOG(ERROR) << "OpenGL erro " << (mais == nullptr ? "" : mais) << ": " << gluErrorString(erro);
 #endif
     return true;
   }
   return false;
 }
-#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
+#define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
 
 namespace interno {
 
@@ -66,7 +66,6 @@ bool ImprimeSeShaderErro(GLuint shader) {
   return true;
 }
 
-#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 void IniciaShaders(interno::Contexto* contexto) {
 #if USAR_SHADER
@@ -223,7 +222,7 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 }
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-#if USAR_SHADER
+#if 0 && USAR_SHADER
   glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
   //glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
 #else

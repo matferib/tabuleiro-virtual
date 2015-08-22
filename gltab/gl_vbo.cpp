@@ -6,9 +6,10 @@
 
 namespace gl {
 
-bool ImprimeSeErro();
+bool ImprimeSeErro(const char* mais = nullptr);
 
-#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
+#define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
+#define V_ERRO_ARG(X) do { if (ImprimeSeErro(X)) return; } while (0)
 
 //--------------
 // VboNaoGravado
@@ -138,10 +139,10 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   Desgrava();
   // Gera o buffer.
   gl::GeraBuffers(1, &nome_coordenadas_);
-  V_ERRO();
+  V_ERRO_ARG("ao gerar buffer coordenadas");
   // Associa coordenadas com ARRAY_BUFFER.
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
-  V_ERRO();
+  V_ERRO_ARG("na ligacao com buffer");
   deslocamento_normais_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
@@ -154,15 +155,15 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
                      sizeof(GL_FLOAT) * buffer_unico_.size(),
                      buffer_unico_.data(),
                      GL_STATIC_DRAW);
-  V_ERRO();
+  V_ERRO_ARG("ao bufferizar");
   // Buffer de indices.
   gl::GeraBuffers(1, &nome_indices_);
-  V_ERRO();
+  V_ERRO_ARG("ao gerar buffer indices");
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indices_);
-  V_ERRO();
+  V_ERRO_ARG("na ligacao com buffer 2");
   indices_ = vbo_nao_gravado.indices();
   gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
-  V_ERRO();
+  V_ERRO_ARG("ao bufferizar elementos");
   nome_ = vbo_nao_gravado.nome();
   gravado_ = true;
 }
@@ -779,7 +780,7 @@ void DesenhaVbo(GLenum modo,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
 #if USAR_SHADER
-  glEnableVertexAttribArray(0);
+  //glEnableVertexAttribArray(0);
 #else
 #endif
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);

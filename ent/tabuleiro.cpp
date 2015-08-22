@@ -2131,10 +2131,8 @@ void Tabuleiro::GeraVboCaixaCeu() {
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
-  struct InfoVerticeTabuleiro {
-    float x, y, s0, t0;
-  };
-  std::vector<InfoVerticeTabuleiro> vertices_tabuleiro(TamanhoY() * TamanhoX() * 4 * 2);  // 4 vertices por quadrado, cada um dois pontos.
+  std::vector<float> coordenadas_tabuleiro;
+  std::vector<float> coordenadas_textura;
   std::vector<unsigned short> indices_tabuleiro;
 
   unsigned short indice = 0;
@@ -2160,22 +2158,23 @@ void Tabuleiro::RegeraVboTabuleiro() {
         break;
       }
       // desenha quadrado
-      vertices_tabuleiro[indice + 0].x = x;
-      vertices_tabuleiro[indice + 0].y = y;
-      vertices_tabuleiro[indice + 0].s0 = inicio_texel_h;
-      vertices_tabuleiro[indice + 0].t0 = inicio_texel_v;
-      vertices_tabuleiro[indice + 1].x = x + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro[indice + 1].y = y;
-      vertices_tabuleiro[indice + 1].s0 = inicio_texel_h + tamanho_texel_h;
-      vertices_tabuleiro[indice + 1].t0 = inicio_texel_v;
-      vertices_tabuleiro[indice + 2].x = x + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro[indice + 2].y = y + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro[indice + 2].s0 = inicio_texel_h + tamanho_texel_h;
-      vertices_tabuleiro[indice + 2].t0 = inicio_texel_v - tamanho_texel_v;
-      vertices_tabuleiro[indice + 3].x = x;
-      vertices_tabuleiro[indice + 3].y = y + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro[indice + 3].s0 = inicio_texel_h;
-      vertices_tabuleiro[indice + 3].t0 = inicio_texel_v - tamanho_texel_v;
+      coordenadas_tabuleiro.push_back(x);
+      coordenadas_tabuleiro.push_back(y);
+      coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(y);
+      coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(x);
+      coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
+
+      coordenadas_textura.push_back(inicio_texel_h);
+      coordenadas_textura.push_back(inicio_texel_v);
+      coordenadas_textura.push_back(inicio_texel_h + tamanho_texel_h);
+      coordenadas_textura.push_back(inicio_texel_v);
+      coordenadas_textura.push_back(inicio_texel_h + tamanho_texel_h);
+      coordenadas_textura.push_back(inicio_texel_v - tamanho_texel_v);
+      coordenadas_textura.push_back(inicio_texel_h);
+      coordenadas_textura.push_back(inicio_texel_v - tamanho_texel_v);
 
       indices_tabuleiro.push_back(indice);
       indices_tabuleiro.push_back(indice + 1);
@@ -2195,16 +2194,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
   }
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
-  std::vector<float> coordenadas, texturas;
-  for (int i = 0; i < indices_tabuleiro.size(); ++i) {
-    coordenadas.push_back(vertices_tabuleiro[i].x);
-    coordenadas.push_back(vertices_tabuleiro[i].y);
-    texturas.push_back(vertices_tabuleiro[i].s0);
-    texturas.push_back(vertices_tabuleiro[i].t0);
-  }
-  tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
-  tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas.data(), coordenadas.size());
-  tabuleiro_nao_gravado.AtribuiTexturas(texturas.data());
+  tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
+  tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
 
   // Regera a grade.
