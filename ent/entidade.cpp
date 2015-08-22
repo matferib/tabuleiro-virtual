@@ -535,7 +535,7 @@ void Entidade::IniciaGl() {
     vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     auto vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
     // Translada todos os Z da esfera em ALTURA.
-    for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.num_dimensoes()) {
+    for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.NumDimensoes()) {
       vbo_esfera.coordenadas()[i] += ALTURA;
     }
     vbo.Concatena(vbo_esfera);

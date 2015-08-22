@@ -609,6 +609,10 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   }
 }
 
+Contexto* BuscaContexto() {
+  return &g_contexto;
+}
+
 }  // namespace interno
 
 

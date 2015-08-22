@@ -141,6 +141,15 @@ void IniciaShaders(interno::Contexto* contexto) {
       LOG(ERROR) << "Erro lendo uniforme " << par.first;
     }
   }
+  // Variaveis atributos.
+  for (const auto& par : std::vector<std::pair<std::string, GLint*>> {
+          {"gltab_vertice", &contexto->atr_gltab_vertice},
+  }) {
+    *par.second = glGetAttribLocation(*programa_luz, par.first.c_str());
+    if (*par.second == -1) {
+      LOG(ERROR) << "Erro lendo atributo " << par.first;
+    }
+  }
   // Luzes.
   for (int i = 0; i < 8; ++i) {
     char nome_var[21];
@@ -211,6 +220,15 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
   MascaraProfundidade(valor_anterior_);
   GLboolean valor_mudado;
   Le(GL_DEPTH_WRITEMASK, &valor_mudado);
+}
+
+void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
+#if USAR_SHADER
+  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  //glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+#else
+#endif
+  glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
 }
 
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.

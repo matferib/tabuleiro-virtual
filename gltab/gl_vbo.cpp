@@ -135,6 +135,7 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
 //-----------
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
+  Desgrava();
   // Gera o buffer.
   gl::GeraBuffers(1, &nome_coordenadas_);
   V_ERRO();
@@ -145,6 +146,7 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
   buffer_unico_ = std::move(vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_));
+  num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
   tem_normais_ = (deslocamento_normais_ != -1);
   tem_cores_ = (deslocamento_cores_ != -1);
   tem_texturas_ = (deslocamento_texturas_ != -1);
@@ -770,58 +772,64 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   return vbo;
 }
 
-void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
-  // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
+namespace {
+void DesenhaVbo(GLenum modo,
+                int num_vertices, int num_dimensoes, const void* indices, const void* dados,
+                bool tem_normais, const void* normais, int d_normais,
+                bool tem_texturas, const void* texturas, int d_texturas,
+                bool tem_cores, const void* cores, int d_cores) {
+#if USAR_SHADER
+  glEnableVertexAttribArray(0);
+#else
+#endif
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
-  if (vbo.tem_normais()) {
+  if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-    gl::PonteiroNormais(GL_FLOAT, static_cast<char*>(0) + vbo.DeslocamentoNormais());
+    gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais == nullptr ? dados : normais) + d_normais);
   }
-  if (vbo.tem_texturas()) {
+  if (tem_texturas) {
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<char*>(0) + vbo.DeslocamentoTexturas());
+    gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas == nullptr ? dados : texturas) + d_texturas);
   }
-  if (vbo.tem_cores()) {
+  if (tem_cores) {
     gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
-    gl::PonteiroCores(4, 0, static_cast<char*>(0) + vbo.DeslocamentoCores());
+    gl::PonteiroCores(4, 0, static_cast<const char*>(cores == nullptr ? dados : cores) + d_cores);
   }
 
-  gl::PonteiroVertices(3, GL_FLOAT, 0, (void*)0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
-  gl::DesenhaElementos(modo, vbo.NumVertices(), GL_UNSIGNED_SHORT, (void*)0);
-
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
+  gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
 
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
+#if USAR_SHADER
+  glDisableVertexAttribArray(0);
+#else
+#endif
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 
+}  // namespace
+
+void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
+  // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());
+
+  DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
+             vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
+             vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
+             vbo.tem_cores(), nullptr, vbo.DeslocamentoCores());
+
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo) {
-  HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  if (vbo.tem_normais()) {
-    HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-    PonteiroNormais(GL_FLOAT, vbo.normais().data());
-  }
-  if (vbo.tem_texturas()) {
-    HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    PonteiroVerticesTexturas(2, GL_FLOAT, 0, vbo.texturas().data());
-  }
-  if (vbo.tem_cores()) {
-    //auto& cs = vbo.cores();
-    //LOG(INFO) << "cores: " << cs[0] << ", " << cs[1] << ", " << cs[2] << ", " << cs[3];
-    HabilitaEstadoCliente(GL_COLOR_ARRAY);
-    PonteiroCores(4, 0, vbo.cores().data());
-  }
-  PonteiroVertices(vbo.num_dimensoes(), GL_FLOAT, vbo.coordenadas().data());
-  DesenhaElementos(modo, vbo.indices().size(), GL_UNSIGNED_SHORT, vbo.indices().data());
-  DesabilitaEstadoCliente(GL_COLOR_ARRAY);
-  DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+  DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
+             vbo.tem_normais(), vbo.normais().data(), 0,
+             vbo.tem_texturas(), vbo.texturas().data(), 0,
+             vbo.tem_cores(), vbo.cores().data(), 0);
 }
 
 }  // namespace gl

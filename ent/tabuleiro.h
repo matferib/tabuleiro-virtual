@@ -779,18 +779,15 @@ class Tabuleiro : public ntf::Receptor {
   std::map<int, int> contador_pressao_por_controle_;
 
   // Renderizacao por VBO.
-  unsigned int nome_buffer_ = 0;
-  unsigned int nome_buffer_indice_ = 0;
-  std::vector<unsigned short> indices_tabuleiro_;
   struct InfoVerticeTabuleiro {
     float x, y;
     float s0, t0;
   };
-  std::vector<InfoVerticeTabuleiro> vertices_tabuleiro_;
   unsigned int nome_buffer_grade_ = 0;
   unsigned int nome_buffer_indice_grade_ = 0;
   std::vector<float> vertices_grade_;
   std::vector<unsigned short> indices_grade_;
+  gl::VboGravado vbo_tabuleiro_;
   // TODO VBO dessas coisas aqui em cima.
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;

@@ -65,7 +65,7 @@ class VboNaoGravado {
     return indices_.size();
   }
 
-  unsigned short num_dimensoes() const {
+  unsigned short NumDimensoes() const {
     return num_dimensoes_;
   }
 
@@ -122,30 +122,34 @@ class VboGravado {
     return indices_.size();
   }
 
+  unsigned short NumDimensoes() const {
+    return num_dimensoes_;
+  }
+
   void ApagaBufferUnico() {
     buffer_unico_.clear();
   }
 
   // Deslocamento em bytes para a primeira coordenada de normal.
   unsigned short DeslocamentoNormais() const {
-    if (!tem_normais_) {
-      throw std::logic_error(std::string("VBO '") + nome_ + "' sem normal");
-    }
+    //if (!tem_normais_) {
+      //throw std::logic_error(std::string("VBO '") + nome_ + "' sem normal");
+    //}
     return deslocamento_normais_;
   }
   // Deslocamento em bytes para a primeira coordenada de textura.
   unsigned short DeslocamentoTexturas() const {
-    if (!tem_texturas_) {
-      throw std::logic_error(std::string("VBO '") + nome_ + "' sem textura");
-    }
+    //if (!tem_texturas_) {
+      //throw std::logic_error(std::string("VBO '") + nome_ + "' sem textura");
+    //}
     return deslocamento_texturas_;
   }
 
   // Deslocamento em bytes para a primeira coordenada de cores.
   unsigned short DeslocamentoCores() const {
-    if (!tem_cores_) {
-      throw std::logic_error(std::string("VBO '") + nome_ + "' sem cores");
-    }
+    //if (!tem_cores_) {
+      //throw std::logic_error(std::string("VBO '") + nome_ + "' sem cores");
+    //}
     return deslocamento_cores_;
   }
 
@@ -173,6 +177,7 @@ class VboGravado {
   unsigned int deslocamento_normais_ = 0;
   unsigned int deslocamento_cores_ = 0;
   unsigned int deslocamento_texturas_ = 0;
+  unsigned short num_dimensoes_ = 0;
 
   bool tem_normais_ = false;
   bool tem_cores_ = false;

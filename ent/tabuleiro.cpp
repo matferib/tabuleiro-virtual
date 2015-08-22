@@ -288,12 +288,6 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
   LiberaTexturasControleVirtual();
-  if (nome_buffer_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_);
-  }
-  if (nome_buffer_indice_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_indice_);
-  }
   if (nome_buffer_grade_ != 0) {
     gl::ApagaBuffers(1, &nome_buffer_grade_);
   }
@@ -2144,8 +2138,10 @@ void Tabuleiro::GeraVboCaixaCeu() {
 
 void Tabuleiro::RegeraVboTabuleiro() {
   // TODO quando limpar essa flag.
-  indices_tabuleiro_.clear();
-  vertices_tabuleiro_.resize(TamanhoY() * TamanhoX() * 4 * 2);  // 4 vertices por quadrado, cada um dois pontos.
+  gl::VboNaoGravado vbo_nao_gravado("tabuleiro_nao_gravado");
+  std::vector<InfoVerticeTabuleiro> vertices_tabuleiro(TamanhoY() * TamanhoX() * 4 * 2);  // 4 vertices por quadrado, cada um dois pontos.
+  std::vector<unsigned short> indices_tabuleiro;
+
   unsigned short indice = 0;
   float x = 0, y = 0;
   float tamanho_texel_h;
@@ -2169,29 +2165,29 @@ void Tabuleiro::RegeraVboTabuleiro() {
         break;
       }
       // desenha quadrado
-      vertices_tabuleiro_[indice + 0].x = x;
-      vertices_tabuleiro_[indice + 0].y = y;
-      vertices_tabuleiro_[indice + 0].s0 = inicio_texel_h;
-      vertices_tabuleiro_[indice + 0].t0 = inicio_texel_v;
-      vertices_tabuleiro_[indice + 1].x = x + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro_[indice + 1].y = y;
-      vertices_tabuleiro_[indice + 1].s0 = inicio_texel_h + tamanho_texel_h;
-      vertices_tabuleiro_[indice + 1].t0 = inicio_texel_v;
-      vertices_tabuleiro_[indice + 2].x = x + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro_[indice + 2].y = y + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro_[indice + 2].s0 = inicio_texel_h + tamanho_texel_h;
-      vertices_tabuleiro_[indice + 2].t0 = inicio_texel_v - tamanho_texel_v;
-      vertices_tabuleiro_[indice + 3].x = x;
-      vertices_tabuleiro_[indice + 3].y = y + TAMANHO_LADO_QUADRADO;
-      vertices_tabuleiro_[indice + 3].s0 = inicio_texel_h;
-      vertices_tabuleiro_[indice + 3].t0 = inicio_texel_v - tamanho_texel_v;
+      vertices_tabuleiro[indice + 0].x = x;
+      vertices_tabuleiro[indice + 0].y = y;
+      vertices_tabuleiro[indice + 0].s0 = inicio_texel_h;
+      vertices_tabuleiro[indice + 0].t0 = inicio_texel_v;
+      vertices_tabuleiro[indice + 1].x = x + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro[indice + 1].y = y;
+      vertices_tabuleiro[indice + 1].s0 = inicio_texel_h + tamanho_texel_h;
+      vertices_tabuleiro[indice + 1].t0 = inicio_texel_v;
+      vertices_tabuleiro[indice + 2].x = x + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro[indice + 2].y = y + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro[indice + 2].s0 = inicio_texel_h + tamanho_texel_h;
+      vertices_tabuleiro[indice + 2].t0 = inicio_texel_v - tamanho_texel_v;
+      vertices_tabuleiro[indice + 3].x = x;
+      vertices_tabuleiro[indice + 3].y = y + TAMANHO_LADO_QUADRADO;
+      vertices_tabuleiro[indice + 3].s0 = inicio_texel_h;
+      vertices_tabuleiro[indice + 3].t0 = inicio_texel_v - tamanho_texel_v;
 
-      indices_tabuleiro_.push_back(indice);
-      indices_tabuleiro_.push_back(indice + 1);
-      indices_tabuleiro_.push_back(indice + 2);
-      indices_tabuleiro_.push_back(indice);
-      indices_tabuleiro_.push_back(indice + 2);
-      indices_tabuleiro_.push_back(indice + 3);
+      indices_tabuleiro.push_back(indice);
+      indices_tabuleiro.push_back(indice + 1);
+      indices_tabuleiro.push_back(indice + 2);
+      indices_tabuleiro.push_back(indice);
+      indices_tabuleiro.push_back(indice + 2);
+      indices_tabuleiro.push_back(indice + 3);
       indice += 4;
       x += TAMANHO_LADO_QUADRADO;
       if (!proto_corrente_->ladrilho()) {
@@ -2202,22 +2198,18 @@ void Tabuleiro::RegeraVboTabuleiro() {
     x = 0;
     y += TAMANHO_LADO_QUADRADO;
   }
-  // Cria o ID do VBO.
-  if (nome_buffer_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_);
+  vbo_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
+  std::vector<float> coordenadas, texturas;
+  for (int i = 0; i < indices_tabuleiro.size(); ++i) {
+    coordenadas.push_back(vertices_tabuleiro[i].x);
+    coordenadas.push_back(vertices_tabuleiro[i].y);
+    texturas.push_back(vertices_tabuleiro[i].s0);
+    texturas.push_back(vertices_tabuleiro[i].t0);
   }
-  gl::GeraBuffers(1, &nome_buffer_);
-  // Associa vertices com ARRAY_BUFFER.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_);
-  gl::BufferizaDados(GL_ARRAY_BUFFER, sizeof(InfoVerticeTabuleiro) * vertices_tabuleiro_.size(), vertices_tabuleiro_.data(), GL_STATIC_DRAW);
-  // Cria buffer de indices.
-  if (nome_buffer_indice_ != 0) {
-    gl::ApagaBuffers(1, &nome_buffer_indice_);
-  }
-  gl::GeraBuffers(1, &nome_buffer_indice_);
-  // Associa indices com GL_ELEMENT_ARRAY_BUFFER.
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
-  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_tabuleiro_.size(), indices_tabuleiro_.data(), GL_STATIC_DRAW);
+  vbo_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
+  vbo_nao_gravado.AtribuiCoordenadas(2, coordenadas.data(), coordenadas.size());
+  vbo_nao_gravado.AtribuiTexturas(texturas.data());
+  vbo_tabuleiro_.Grava(vbo_nao_gravado);
 
   // Regera a grade.
   if (nome_buffer_grade_ != 0) {
@@ -2360,32 +2352,18 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
                 parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  // Usa os vertices de VBO.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_buffer_);
-  gl::PonteiroVertices(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)0);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_corrente_->has_info_textura() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
       texturas_->Textura(proto_corrente_->info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-    glBindTexture(GL_TEXTURE_2D, id_textura);
-    gl::PonteiroVerticesTexturas(2, GL_FLOAT, sizeof(InfoVerticeTabuleiro), (void*)8);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   }
-  // Usa os indices de VBO.
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_buffer_indice_);
-  gl::DesenhaElementos(GL_TRIANGLES, indices_tabuleiro_.size(), GL_UNSIGNED_SHORT, (void*)0);
-
+  gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
-
-  // Volta ao normal.
-  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
-  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   gl::Desabilita(GL_TEXTURE_2D);
-  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 
   // Desenha quadrado selecionado.
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
@@ -2408,6 +2386,9 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
 
   // Desliga vertex array.
+#if USAR_SHADER
+#else
+#endif
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
@@ -4275,7 +4256,7 @@ void Tabuleiro::DesenhaLuzes() {
       auto* e = BuscaEntidade(id_camera_presa_);
       gl::Le(GL_MODELVIEW_MATRIX, modelview);
       if (e != nullptr) {
-        const Posicao& epos = e->Pos(); 
+        const Posicao& epos = e->Pos();
         pos[0] = epos.x();
         pos[1] = epos.y();
         pos[2] = epos.z();

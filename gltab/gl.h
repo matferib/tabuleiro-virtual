@@ -183,17 +183,17 @@ inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, G
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
   glDrawElements(modo, num_vertices, tipo, indices);
 }
+// Vertices.
+void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices);
 inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
-  glVertexPointer(vertices_por_coordenada, tipo, 0, vertices);
+  PonteiroVertices(vertices_por_coordenada, tipo, 0, vertices);
 }
-inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-  glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+// Vertices textura.
+inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
+  glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 }
 inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
   glTexCoordPointer(vertices_por_coordenada, tipo, 0, vertices);
-}
-inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-  glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 }
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
 inline void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) { glNormalPointer(tipo, passo, normais);  }
@@ -468,8 +468,11 @@ class Contexto {
   GLint uni_gltab_nevoa;
   GLint uni_gltab_stencil;
   GLint uni_gltab_cor;
+  // Atributos do vertex shader.
+  GLint atr_gltab_vertice;
   std::unique_ptr<ContextoDependente> interno;
 };
+Contexto* BuscaContexto();
 
 void IniciaShaders(interno::Contexto* contexto);
 void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);

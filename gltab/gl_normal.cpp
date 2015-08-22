@@ -28,6 +28,12 @@ namespace {
 interno::Contexto g_contexto(new interno::ContextoDesktop);
 }  // namespace
 
+namespace interno {
+Contexto* BuscaContexto() {
+    return &g_contexto;
+}
+}  // namespace interno
+
 bool ImprimeSeErro();
 bool ImprimeSeShaderErro(GLuint shader);
 
@@ -169,6 +175,5 @@ GLint Uniforme(const char* id) {
   return -1;
 #endif
 }
-
 
 }  // namespace gl.
