@@ -2197,6 +2197,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  LOG(ERROR) << "REGERANDO " << vbo_tabuleiro_.ParaString();
 
   // Regera a grade.
   std::vector<float> coordenadas_grade;

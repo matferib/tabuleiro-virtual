@@ -162,6 +162,17 @@ class VboGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
 
+  std::string ParaString() const {
+#if WIN32 || ANDROID
+    return std::string("vbo: ") + nome_;
+#else
+    return std::string("vbo: ") + nome_ + ", num indices: " + std::to_string(indices_.size()) +
+           ", tem_cores: " + (tem_cores_ ? "true" : "false") +
+           ", tem_normais: " + (tem_normais_ ? "true" : "false") +
+           ", buffer_unico: " + std::to_string(buffer_unico_.size());
+#endif
+  }
+
  private:
   friend class VboNaoGravado;
 

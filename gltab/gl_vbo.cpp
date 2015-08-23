@@ -169,7 +169,7 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
 }
 
 void VboGravado::Desgrava() {
-  if (gravado_) {
+  if (!gravado_) {
     return;
   }
   gl::ApagaBuffers(1, &nome_coordenadas_);
@@ -803,7 +803,7 @@ void DesenhaVbo(GLenum modo,
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
 #if USAR_SHADER
-  glDisableVertexAttribArray(0);
+  //glDisableVertexAttribArray(0);
 #else
 #endif
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
