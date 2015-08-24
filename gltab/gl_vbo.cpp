@@ -131,6 +131,46 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   return buffer_unico;
 }
 
+void VboNaoGravado::AtribuiIndices(const unsigned short* dados, unsigned int num_indices) {
+  indices_.clear();
+  indices_.insert(indices_.end(), dados, dados + num_indices);
+}
+
+void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned int num_coordenadas) {
+  if ((num_coordenadas / num_dimensoes) > USHRT_MAX) {
+    LOG(WARNING) << "Nao eh possivel indexar mais que " << USHRT_MAX << " coordenadas";
+  }
+  coordenadas_.clear();
+  coordenadas_.insert(coordenadas_.end(), dados, dados + num_coordenadas);
+  num_dimensoes_ = num_dimensoes;
+}
+
+void VboNaoGravado::AtribuiNormais(const float* dados) {
+  normais_.clear();
+  normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
+  tem_normais_ = true;
+}
+
+void VboNaoGravado::AtribuiTexturas(const float* dados) {
+  texturas_.clear();
+  texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
+  tem_texturas_ = true;
+}
+
+std::string VboNaoGravado::ParaString() const {
+#if WIN32 || ANDROID
+  return std::string("vbo: ") + nome_;
+#else
+  return std::string("vbo: ") + nome_ + ", dimensoes: " + std::to_string(NumDimensoes()) +
+         ", num indices: " + std::to_string(indices_.size()) +
+         ", cores_size: " + std::to_string(tem_cores_ ? cores_.size() : 0) +
+         ", normais_size: " + std::to_string(normais_.size()) +
+         ", texturas_size: " + std::to_string(texturas_.size()) +
+         ", coordenadas_size: " + std::to_string(coordenadas_.size());
+#endif
+}
+
+
 //-----------
 // VboGravado
 //-----------

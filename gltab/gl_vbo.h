@@ -26,28 +26,13 @@ class VboNaoGravado {
   void RodaZ(GLfloat angulo_graus);
   // Fim transformacoes vbo.
 
-  void AtribuiIndices(const unsigned short* dados, unsigned short num_indices) {
-    indices_.clear();
-    indices_.insert(indices_.end(), dados, dados + num_indices);
-  }
+  void AtribuiIndices(const unsigned short* dados, unsigned int num_indices);
 
-  void AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned short num_coordenadas) {
-    coordenadas_.clear();
-    coordenadas_.insert(coordenadas_.end(), dados, dados + num_coordenadas);
-    num_dimensoes_ = num_dimensoes;
-  }
+  void AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned int num_coordenadas);
 
-  void AtribuiNormais(const float* dados) {
-    normais_.clear();
-    normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
-    tem_normais_ = true;
-  }
+  void AtribuiNormais(const float* dados);
 
-  void AtribuiTexturas(const float* dados) {
-    texturas_.clear();
-    texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
-    tem_texturas_ = true;
-  }
+  void AtribuiTexturas(const float* dados);
 
   // Atribui a mesma cor a todas coordenadas.
   void AtribuiCor(float r, float g, float b, float a);
@@ -61,7 +46,7 @@ class VboNaoGravado {
                                      unsigned int* deslocamento_cores,
                                      unsigned int* deslocamento_texturas) const;
 
-  unsigned short NumVertices() const {
+  unsigned int NumVertices() const {
     return indices_.size();
   }
 
@@ -69,16 +54,7 @@ class VboNaoGravado {
     return num_dimensoes_;
   }
 
-  std::string ParaString() const {
-#if WIN32 || ANDROID
-    return std::string("vbo: ") + nome_;
-#else
-    return std::string("vbo: ") + nome_ + ", num indices: " + std::to_string(indices_.size()) +
-           ", cores_size: " + std::to_string(tem_cores_ ? cores_.size() : 0) +
-           ", normais_size: " + std::to_string(normais_.size()) +
-           ", coordenadas_size: " + std::to_string(coordenadas_.size());
-#endif
-  }
+  std::string ParaString() const;
 
   bool tem_normais() const { return tem_normais_; }
   bool tem_cores() const { return tem_cores_; }
@@ -118,40 +94,20 @@ class VboGravado {
   // Desgrava se gravado.
   void Desgrava();
 
-  unsigned short NumVertices() const {
-    return indices_.size();
-  }
+  unsigned int NumVertices() const { return indices_.size(); }
 
-  unsigned short NumDimensoes() const {
-    return num_dimensoes_;
-  }
+  unsigned short NumDimensoes() const { return num_dimensoes_; }
 
   void ApagaBufferUnico() {
     buffer_unico_.clear();
   }
 
   // Deslocamento em bytes para a primeira coordenada de normal.
-  unsigned short DeslocamentoNormais() const {
-    //if (!tem_normais_) {
-      //throw std::logic_error(std::string("VBO '") + nome_ + "' sem normal");
-    //}
-    return deslocamento_normais_;
-  }
+  unsigned int DeslocamentoNormais() const { return deslocamento_normais_; }
   // Deslocamento em bytes para a primeira coordenada de textura.
-  unsigned short DeslocamentoTexturas() const {
-    //if (!tem_texturas_) {
-      //throw std::logic_error(std::string("VBO '") + nome_ + "' sem textura");
-    //}
-    return deslocamento_texturas_;
-  }
-
+  unsigned int  DeslocamentoTexturas() const { return deslocamento_texturas_; }
   // Deslocamento em bytes para a primeira coordenada de cores.
-  unsigned short DeslocamentoCores() const {
-    //if (!tem_cores_) {
-      //throw std::logic_error(std::string("VBO '") + nome_ + "' sem cores");
-    //}
-    return deslocamento_cores_;
-  }
+  unsigned int DeslocamentoCores() const { return deslocamento_cores_; }
 
   const std::vector<unsigned short> indices() const { return indices_; }
 

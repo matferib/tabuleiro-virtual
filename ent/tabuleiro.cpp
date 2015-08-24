@@ -2155,6 +2155,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
     float inicio_texel_h = 0.0f;
     for (int x_tab = 0; x_tab < TamanhoX(); ++x_tab) {
       if (indice + 4 > USHRT_MAX) {
+        LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoY() << "y" << TamanhoY();
         break;
       }
       // desenha quadrado
@@ -2192,12 +2193,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
     x = 0;
     y += TAMANHO_LADO_QUADRADO;
   }
+  LOG(ERROR) << "TamX: " << TamanhoX() << ", TamY: " << TamanhoY() << ", x*y: " << TamanhoX() * TamanhoY();
+  LOG(ERROR) << "indicesantes: " << indices_tabuleiro.size();
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
-  LOG(ERROR) << "REGERANDO " << vbo_tabuleiro_.ParaString();
+  LOG(ERROR) << "REGERANDO ng: " << tabuleiro_nao_gravado.ParaString();
+  LOG(ERROR) << "REGERANDO g: " << vbo_tabuleiro_.ParaString();
+  LOG(ERROR) << "indices: " << indices_tabuleiro.size();
 
   // Regera a grade.
   std::vector<float> coordenadas_grade;
