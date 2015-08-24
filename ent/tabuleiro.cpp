@@ -2345,6 +2345,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::Desabilita(GL_TEXTURE_2D);
 
   // Desenha quadrado selecionado.
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
     //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
@@ -2363,11 +2364,6 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::PonteiroVertices(3, GL_FLOAT, vertices_s);
     gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices_s);
   }
-
-  // Desliga vertex array.
-#if USAR_SHADER
-#else
-#endif
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
