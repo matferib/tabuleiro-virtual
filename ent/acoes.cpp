@@ -507,25 +507,10 @@ class AcaoCorpoCorpo : public Acao {
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
     gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
-    gl::Roda(rotacao_graus_, 0.0f, 1.0f, 0.0f);
-#if 0
-    glBegin(GL_POLYGON);
-    glVertex3f(0.0f, 0.0f, 0.0f);
-    glVertex3f(0.2f, 0.0f, 0.0f);
-    glVertex3f(0.0f, 0.0f, distancia_);
-    glEnd();
-#else
-    const float vertices[] = {
-      0.0f, 0.0f, 0.0f,
-      0.2, 0.0f, 0.0f,
-      0.0f, 0.0f, distancia_,
-    };
-    const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-    gl::PonteiroVertices(3, GL_FLOAT, vertices);
-    gl::DesenhaElementos(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
-    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-#endif
+    gl::Roda(90.0f, 1.0f, 0.0f,  0.0f);  // o triangulo eh no Y, entao traz ele pro Z.
+    gl::Roda(rotacao_graus_, 0.0f, 0.0f, -1.0f);
+    gl::Escala(0.2f, distancia_, 0.2f);
+    gl::Triangulo(1.0f);
   }
 
   void AtualizaAposAtraso() {
@@ -571,6 +556,7 @@ class AcaoCorpoCorpo : public Acao {
     dy_ = pos_d.y() - pos_o.y();
     dz_ = pos_d.z() - pos_o.z();
     direcao_graus_ = VetorParaRotacaoGraus(dx_, dy_, &distancia_);
+    distancia_ = sqrt(distancia_ * distancia_ + dz_ * dz_);
     // O fator 8 é só para atenuar o delta do impacto, já que o d* aqui sao usados apenas para atualizar o alvo.
     dx_ /= distancia_ * 8;
     dy_ /= distancia_ * 8;
