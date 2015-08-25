@@ -2506,7 +2506,6 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 }
 
 void Tabuleiro::DesenhaRosaDosVentos() {
-  return;
   // Modo 2d.
   gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
   gl::CarregaIdentidade();
