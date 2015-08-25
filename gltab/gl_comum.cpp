@@ -249,6 +249,7 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical)
   interno::DesenhaStringAlinhado(str, 1, inverte_vertical);
 }
 
+#if USAR_SHADER
 void AtualizaMatrizes() {
   GLenum modo;
   glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo);
@@ -304,5 +305,6 @@ void DebugaMatrizes() {
   LOG_EVERY_N(INFO, 300) << "MV: \n" << Matrix4(mv)
                           << ", NM: \n" << normal;
 }
+#endif
 
 }  // namespace gl

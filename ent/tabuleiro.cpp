@@ -1923,6 +1923,11 @@ void Tabuleiro::AcaoAnterior() {
 
 // privadas
 void Tabuleiro::DesenhaCena() {
+  if (glGetError() != GL_NO_ERROR) {
+    LOG_EVERY_N(ERROR, 1000) << "ha algum erro no opengl, investigue";
+    return;
+  }
+
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
   // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
   TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
@@ -1964,6 +1969,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaCaixaCeu();
   }
 
+
   // desenha tabuleiro do sul para o norte.
   {
     gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
@@ -1972,11 +1978,11 @@ void Tabuleiro::DesenhaCena() {
         opcoes_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
+
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
     }
   }
-
   // Algumas verificacoes.
   GLint depth = 0;
   gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
@@ -2378,6 +2384,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   } else {
     gl::Habilita(GL_CULL_FACE);
   }
+
   // Desenha o chao mais pro fundo.
   // TODO transformar offsets em constantes.
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
@@ -2394,6 +2401,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   }
+
   gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
@@ -4236,11 +4244,6 @@ void Tabuleiro::DesenhaLuzes() {
 
   if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
-    gl::Habilita(GL_FOG);
-    gl::ModoNevoa(GL_LINEAR);
-    gl::Nevoa(GL_FOG_START, proto_corrente_->nevoa().distancia_minima());
-    gl::Nevoa(GL_FOG_END, proto_corrente_->nevoa().distancia_maxima());
-    gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
 #if USAR_SHADER
     GLint loc = gl::Uniforme("gltab_referencia_nevoa");
     if (loc != -1) {
@@ -4257,6 +4260,12 @@ void Tabuleiro::DesenhaLuzes() {
       }
       glUniform4f(loc, pos[0], pos[1], pos[2], pos[3]);
     }
+#else
+    gl::Habilita(GL_FOG);
+    gl::ModoNevoa(GL_LINEAR);
+    gl::Nevoa(GL_FOG_START, proto_corrente_->nevoa().distancia_minima());
+    gl::Nevoa(GL_FOG_END, proto_corrente_->nevoa().distancia_maxima());
+    gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
 #endif
   } else {
     gl::Desabilita(GL_FOG);

@@ -213,7 +213,9 @@ void VboGravado::Desgrava() {
     return;
   }
   gl::ApagaBuffers(1, &nome_coordenadas_);
+  nome_coordenadas_ = 0;
   gl::ApagaBuffers(1, &nome_indices_);
+  nome_indices_ = 0;
   ApagaBufferUnico();
 }
 
