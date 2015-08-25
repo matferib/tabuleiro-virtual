@@ -631,8 +631,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVboTabuleiro();
 
-  /** Regera o Vbo da caixa do ceu, chamado apenas uma vez ja que o objeto da caixa nao muda (apenas a textura pode mudar). */
+  /** Ggera o Vbo da caixa do ceu, chamado apenas uma vez ja que o objeto da caixa nao muda (apenas a textura pode mudar). */
   void GeraVboCaixaCeu();
+
+  /** Gera o vbo da rosa dos ventos, chamado apenas uma vez. */
+  void GeraVboRosaDosVentos();
 
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
@@ -780,9 +783,9 @@ class Tabuleiro : public ntf::Receptor {
 
   gl::VboGravado vbo_tabuleiro_;
   gl::VboGravado vbo_grade_;
-  // TODO VBO dessas coisas aqui em cima.
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
+  gl::VboGravado vbo_rosa_;
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = -1;

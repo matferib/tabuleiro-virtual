@@ -1830,6 +1830,7 @@ void Tabuleiro::IniciaGL() {
   }
   RegeraVboTabuleiro();
   GeraVboCaixaCeu();
+  GeraVboRosaDosVentos();
   gl_iniciado_ = true;
 
   Entidade::IniciaGl();
@@ -2086,6 +2087,55 @@ void Tabuleiro::DesenhaCena() {
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
     DesenhaControleVirtual();
   }
+}
+
+void Tabuleiro::GeraVboRosaDosVentos() {
+  const static float kRaioRosa = 20.0f;
+  const static float kLarguraSeta = 5.0f;
+  const static float kTamanhoSeta = kRaioRosa * 0.8f;
+
+  gl::VboNaoGravado vbo_disco = std::move(gl::VboDisco(kRaioRosa, 8  /*faces*/));
+  vbo_disco.AtribuiCor(1.0f, 1.0f, 1.0f, 1.0f);
+  gl::VboNaoGravado vbo_seta("seta");
+  {
+    // Deixa espaco para o N.
+    // Desenha seta.
+    //MudaCor(COR_VERMELHA);
+    unsigned short indices_seta[] = { 0, 1, 2 };
+    vbo_seta.AtribuiIndices(indices_seta, 3);
+    float coordenadas[] = {
+      -kLarguraSeta, 0.0f, 0.1f,
+      kLarguraSeta, 0.0f, 0.1f,
+      0.0f, kTamanhoSeta, 0.1f,
+    };
+    vbo_seta.AtribuiCoordenadas(3, coordenadas, 9);
+    vbo_seta.AtribuiCor(1.0f, 0.0f, 0.0f, 1.0f);
+  }
+
+  gl::VboNaoGravado vbo_n("n");
+  unsigned short indices_n[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+  float coordenadas_n[] = {
+    // Primeira perna N.
+    -4.0f, 0.0f + kRaioRosa, 0.1f,
+    -1.0f, 0.0f + kRaioRosa, 0.1f,
+    -4.0f, 13.0f + kRaioRosa , 0.1f,
+    // Segunda.
+    -4.0f, 13.0f + kRaioRosa , 0.1f,
+    -4.0f, 8.0f + kRaioRosa , 0.1f,
+    4.0f, 0.0f + kRaioRosa , 0.1f,
+    // Terceira.
+    4.0f, 0.0f + kRaioRosa , 0.1f,
+    4.0f, 13.0f + kRaioRosa , 0.1f,
+    1.0f, 13.0f + kRaioRosa , 0.1f,
+  };
+  vbo_n.AtribuiIndices(indices_n, 9);
+  vbo_n.AtribuiCoordenadas(3, coordenadas_n, 27);
+  vbo_n.AtribuiCor(1.0f, 0.0f, 0.0f, 1.0f);
+
+  vbo_disco.Concatena(vbo_seta);
+  vbo_disco.Concatena(vbo_n);
+
+  vbo_rosa_.Grava(vbo_disco);
 }
 
 void Tabuleiro::GeraVboCaixaCeu() {
@@ -2448,6 +2498,7 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 }
 
 void Tabuleiro::DesenhaRosaDosVentos() {
+  return;
   // Modo 2d.
   gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -2457,54 +2508,16 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   gl::CarregaIdentidade();
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
   gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
-  const static float kRaioRosa = 20.0f;
+  const float kRaioRosa = 20.0f;
   // Deixa espaco para o N.
   gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f);
-  MudaCor(COR_BRANCA);
-  // Desenha fundo da rosa.
-  DesenhaDisco(kRaioRosa, 8  /*faces*/);
-  // Desenha seta.
-  const static float kLarguraSeta = 5.0f;
-  const static float kTamanhoSeta = kRaioRosa * 0.8f;
-  MudaCor(COR_VERMELHA);
-  unsigned short indices[] = { 0, 1, 2 };
-  float vertices[] = {
-    -kLarguraSeta, 0.0f,
-    kLarguraSeta, 0.0f,
-    0.0f, kTamanhoSeta,
-  };
-  unsigned short indices_n[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-  float vertices_n[] = {
-    // Primeira perna N.
-    -4.0f, 0.0f,
-    -1.0f, 0.0f,
-    -4.0f, 13.0f,
-    // Segunda.
-    -4.0f, 13.0f,
-    -4.0f, 8.0f,
-    4.0f, 0.0f,
-    // Terceira.
-    4.0f, 0.0f,
-    4.0f, 13.0f,
-    1.0f, 13.0f,
-  };
-
   // Roda pra posicao correta.
   Posicao direcao;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &direcao);
   // A diferenca eh em relacao ao leste e o norte esta a 90 graus. Quanto maior a diferenca, mais proximo do norte (ate 90.0f).
   float diferenca_graus = 90.0f - VetorParaRotacaoGraus(direcao.x(), direcao.y());
-
-  // Seta.
   gl::Roda(diferenca_graus, 0.0f, 0.0f, 1.0f);
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::PonteiroVertices(2, GL_FLOAT, vertices);
-  gl::DesenhaElementos(GL_TRIANGLE_FAN, 3, GL_UNSIGNED_SHORT, indices);
-  // N.
-  gl::Translada(0.0f, kRaioRosa + 2.0f, 0.0f);
-  gl::PonteiroVertices(2, GL_FLOAT, vertices_n);
-  gl::DesenhaElementos(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices_n);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesenhaVbo(vbo_rosa_, GL_TRIANGLES);
 }
 
 void Tabuleiro::DesenhaPontosRolagem() {

@@ -95,8 +95,8 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
 }
 
 void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
-  int num_coordenadas = coordenadas_.size() / num_dimensoes_;
-  for (int i = 0; i < num_coordenadas; ++i) {
+  int num_vertices = coordenadas_.size() / num_dimensoes_;
+  for (int i = 0; i < num_vertices; ++i) {
     cores_.push_back(r);
     cores_.push_back(g);
     cores_.push_back(b);
@@ -820,10 +820,10 @@ void DesenhaVbo(GLenum modo,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
 #if USAR_SHADER
-  glEnableVertexAttribArray(0);
+  //glEnableVertexAttribArray(0);
 #else
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #endif
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais == nullptr ? dados : normais) + d_normais);
@@ -843,10 +843,10 @@ void DesenhaVbo(GLenum modo,
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
 #if USAR_SHADER
-  glDisableVertexAttribArray(0);
+  //glDisableVertexAttribArray(0);
 #else
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 #endif
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 
