@@ -93,6 +93,7 @@ class VboGravado {
   void Grava(const VboNaoGravado& vbo);
   // Desgrava se gravado.
   void Desgrava();
+  bool Gravado() const { return gravado_; }
 
   unsigned int NumVertices() const { return indices_.size(); }
 

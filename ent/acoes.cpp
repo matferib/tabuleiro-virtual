@@ -7,6 +7,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "gltab/gl_vbo.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
@@ -45,22 +46,8 @@ class AcaoSinalizacao : public Acao {
     if (!acao_proto_.has_pos_tabuleiro()) {
       estado_ = -1.0f;
     }
-  }
-
-  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-    gl::HabilitaEscopo normalizacao_escopo(GL_NORMALIZE);
-    gl::Normal(0, 0, 1.0f);
-    gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-    gl::DesvioProfundidade(-3.0, -30.0f);
-    MudaCor(COR_BRANCA);
-
-    const Posicao& pos = acao_proto_.pos_tabuleiro();
-    {
-      gl::MatrizEscopo salva_matriz;
-      gl::Translada(pos.x(), pos.y(), pos.z());
-      gl::Escala(estado_, estado_, 0.0f);
-      const float vertices[] = {
+    if (!vbo_.Gravado()) {
+      const float coordenadas[] = {
         // Primeiro triangulo.
         COS_30 * 0.3f, SEN_30 * 0.2f,
         1.0f, 0.0f,
@@ -77,10 +64,27 @@ class AcaoSinalizacao : public Acao {
       const unsigned short indices[] = {
         0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
       };
-      gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-      gl::PonteiroVertices(2, GL_FLOAT, vertices);
-      gl::DesenhaElementos(GL_TRIANGLES, 9, GL_UNSIGNED_SHORT, indices);
-      gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+      gl::VboNaoGravado vbong("acao_sinalizacao");
+      vbong.AtribuiIndices(indices, 18);
+      vbong.AtribuiCoordenadas(2, coordenadas, 18);
+      vbo_.Grava(vbong);
+    }
+  }
+
+  void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+    gl::HabilitaEscopo normalizacao_escopo(GL_NORMALIZE);
+    gl::Normal(0, 0, 1.0f);
+    gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
+    gl::DesvioProfundidade(-3.0, -30.0f);
+    MudaCor(COR_BRANCA);
+
+    const Posicao& pos = acao_proto_.pos_tabuleiro();
+    {
+      gl::MatrizEscopo salva_matriz;
+      gl::Translada(pos.x(), pos.y(), pos.z());
+      gl::Escala(estado_, estado_, 0.0f);
+      gl::DesenhaVbo(vbo_, GL_TRIANGLES);
     }
   }
 
@@ -95,7 +99,9 @@ class AcaoSinalizacao : public Acao {
 
  private:
   double estado_;
+  static gl::VboGravado vbo_;
 };
+gl::VboGravado AcaoSinalizacao::vbo_;
 
 // Sobe um numero verde ou vermelho de acordo com o dano causado.
 // TODO: centralizar o texto
@@ -421,16 +427,10 @@ class AcaoRaio : public Acao {
     if (acao_proto_.has_distancia()) {
       tam = acao_proto_.distancia() * TAMANHO_LADO_QUADRADO;
     }
-    const float vertices[] = {
-      0.0f, -0.2, 0.0f,
-      tam, 0.0f, dz,
-      0.0f, 0.2, 0.0f,
-    };
-    const unsigned short indices[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
-    gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-    gl::PonteiroVertices(3, GL_FLOAT, vertices);
-    gl::DesenhaElementos(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, indices);
-    gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+    float tam2 = 0;
+    //LOG(INFO) << "ang: " << VetorParaRotacaoGraus(dz, tam, &tam2) << ", tam2: " << tam2 << ", pos_d.z(): " << pos_d.z();
+    gl::Roda(VetorParaRotacaoGraus(dz, tam, &tam2), 0.0f, 1.0f, 0.0f);
+    gl::ConeSolido(0.2f, tam2, 6  /*fatias*/, 1  /*tocos*/);
   }
 
   void AtualizaAposAtraso() {

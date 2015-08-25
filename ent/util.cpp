@@ -97,6 +97,12 @@ float VetorParaRotacaoGraus(const Posicao& vetor, float* tamanho) {
 
 float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   float tam = sqrt(x * x + y * y);
+  if (tam == 0) {
+    if (tamanho != nullptr) {
+      *tamanho = 0;
+    }
+    return 0;
+  }
   float angulo = acosf(x / tam) * RAD_PARA_GRAUS;
   if (tamanho != nullptr) {
     *tamanho = tam;
