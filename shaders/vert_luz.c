@@ -20,8 +20,9 @@ attribute vec4 gltab_normal;
 void main() {
   v_Normal = normalize(gltab_nm * gl_Normal);
   v_Color = gltab_cor;
-  //v_Pos = gltab_mvm * gltab_vertice;
-  v_Pos = gltab_mvm * gl_Vertex;
+  v_Pos = gltab_mvm * gltab_vertice;
+  //v_Pos = gltab_mvm * gl_Vertex;
   v_Tex.st = gl_MultiTexCoord0.st;
+  //gl_Position = gltab_prm * gltab_mvm * gl_Vertex;
   gl_Position = gltab_prm * gltab_mvm * gl_Vertex;
 }

@@ -141,13 +141,20 @@ void IniciaShaders(interno::Contexto* contexto) {
     }
   }
   // Variaveis atributos.
-  for (const auto& par : std::vector<std::pair<std::string, GLint*>> {
-          {"gltab_vertice", &contexto->atr_gltab_vertice},
+  struct DadosAtributo {
+    std::string nome;
+    GLint* var;
+    int indice;
+  };
+  for (const auto& d : std::vector<DadosAtributo> {
+          {"gltab_vertice", &contexto->atr_gltab_vertice, 0},
   }) {
-    *par.second = glGetAttribLocation(*programa_luz, par.first.c_str());
-    if (*par.second == -1) {
-      LOG(ERROR) << "Erro lendo atributo " << par.first;
+    *d.var = glGetAttribLocation(*programa_luz, d.nome.c_str());
+    if (*d.var == -1) {
+      LOG(ERROR) << "Erro lendo atributo " << d.nome;
+      continue;
     }
+    glBindAttribLocation(*programa_luz, d.indice, d.nome.c_str());
   }
   // Luzes.
   for (int i = 0; i < 8; ++i) {
@@ -222,12 +229,11 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 }
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-#if 0 && USAR_SHADER
-  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
-  //glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+#if USAR_SHADER
+  glVertexAttribPointer(0, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
 #else
-#endif
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+#endif
 }
 
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.
