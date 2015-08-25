@@ -2407,7 +2407,6 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::Desabilita(GL_TEXTURE_2D);
 
   // Desenha quadrado selecionado.
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
     //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
@@ -2416,17 +2415,9 @@ void Tabuleiro::DesenhaTabuleiro() {
     int linha = quadrado_selecionado_ / TamanhoX();
     int coluna = quadrado_selecionado_ % TamanhoX();
     float x3d = coluna * TAMANHO_LADO_QUADRADO, y3d = linha * TAMANHO_LADO_QUADRADO;
-    const float vertices_s[] = {
-      x3d, y3d, 0.05f,
-      x3d + TAMANHO_LADO_QUADRADO, y3d, 0.05f,
-      x3d + TAMANHO_LADO_QUADRADO, y3d + TAMANHO_LADO_QUADRADO, 0.05f,
-      x3d, y3d + TAMANHO_LADO_QUADRADO, 0.05f,
-    };
-    unsigned short indices_s[] = { 0, 1, 2, 3 };
-    gl::PonteiroVertices(3, GL_FLOAT, vertices_s);
-    gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices_s);
+    gl::Translada(x3d + TAMANHO_LADO_QUADRADO_2, y3d + TAMANHO_LADO_QUADRADO_2, 0.05f);
+    gl::Retangulo(TAMANHO_LADO_QUADRADO);
   }
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
