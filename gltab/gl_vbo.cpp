@@ -822,10 +822,10 @@ void DesenhaVbo(GLenum modo,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
 #if USAR_SHADER
-  //glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(0);
 #else
-#endif
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#endif
   if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais == nullptr ? dados : normais) + d_normais);
@@ -845,10 +845,10 @@ void DesenhaVbo(GLenum modo,
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
 #if USAR_SHADER
-  //glDisableVertexAttribArray(0);
+  glDisableVertexAttribArray(0);
 #else
-#endif
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#endif
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }
 

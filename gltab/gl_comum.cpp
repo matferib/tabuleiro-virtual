@@ -230,10 +230,10 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  //glVertexAttribPointer(0, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  glVertexAttribPointer(0, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
 #else
-#endif
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+#endif
 }
 
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.
