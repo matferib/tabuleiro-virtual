@@ -2106,7 +2106,6 @@ void Tabuleiro::GeraVboRosaDosVentos() {
   {
     // Deixa espaco para o N.
     // Desenha seta.
-    //MudaCor(COR_VERMELHA);
     unsigned short indices_seta[] = { 0, 1, 2 };
     vbo_seta.AtribuiIndices(indices_seta, 3);
     float coordenadas[] = {
