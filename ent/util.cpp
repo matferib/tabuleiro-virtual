@@ -15,6 +15,7 @@
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"  // TODO remover e passar desenhos para para gl
+#include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
 #include "log/log.h"
 #include "net/util.h"
 
@@ -113,29 +114,6 @@ void RodaVetor2d(float graus, Posicao* vetor) {
   vetor->set_y(y);
 }
 
-void DesenhaDisco(float raio, int num_faces) {
-  gl::Normal(0.0f, 0.0f, 1.0f);
-  unsigned int num_vertices = 2 + (num_faces + 1) * 2;
-  float vertices[num_vertices];
-  unsigned short indices[num_vertices];
-  vertices[0] = 0.0f;
-  vertices[1] = raio;
-  float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_faces;
-  float cos_fatia = cosf(angulo_fatia);
-  float sen_fatia = sinf(angulo_fatia);
-  for (int i = 2; i < num_vertices; i += 2) {
-    vertices[i] = vertices[i - 2] * cos_fatia - vertices[i - 1] * sen_fatia; 
-    vertices[i + 1] = vertices[i - 2] * sen_fatia + vertices[i - 1] * cos_fatia;
-  }
-  for (unsigned int i = 0; i < num_vertices; ++i) {
-    indices[i] = i;
-  }
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::PonteiroVertices(2, GL_FLOAT, vertices);
-  gl::DesenhaElementos(GL_TRIANGLE_FAN, num_vertices / 2, GL_UNSIGNED_SHORT, indices);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-}
-
 namespace {
 template<class T>
 void DesenhaLinha3dBase(const T& pontos, float largura) {
@@ -148,7 +126,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     gl::MatrizEscopo salva_matriz;
     gl::Translada(ponto.x(), ponto.y(), ponto.z());
     // Disco do ponto corrente.
-    DesenhaDisco(largura / 2.0f, 12);
+    gl::Disco(largura / 2.0f, 12);
     // Reta ate proximo ponto.
     const auto& proximo_ponto = *(++it);
     float tam;
@@ -159,7 +137,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   const auto& ponto = *(pontos.end() - 1);
   gl::MatrizEscopo salva_matriz;
   gl::Translada(ponto.x(), ponto.y(), ponto.z());
-  DesenhaDisco(largura / 2.0f, 12);
+  gl::Disco(largura / 2.0f, 12);
 }
 
 }  // namespace

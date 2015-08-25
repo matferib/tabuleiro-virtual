@@ -220,7 +220,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
                 proto_, vd_, pd);
     MudaCor(proto_.cor());
     gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
-    DesenhaDisco(TAMANHO_LADO_QUADRADO_2, 6);
+    gl::Disco(TAMANHO_LADO_QUADRADO_2, 6);
   }
 
   // Desenha a barra de vida.

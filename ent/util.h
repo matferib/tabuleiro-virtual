@@ -44,9 +44,6 @@ inline float ZChao(float x3d, float y3d) {
   return 0;
 }
 
-/** Desenha um disco no eixo x-y, com um determinado numero de faces. */
-void DesenhaDisco(float raio, int num_faces);
-
 /** Desenha uma linha 3d com a largura passada, passando pelos pontos. Em cada ponto, sera desenhado um disco para conectar. */
 void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura);
 void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura);
