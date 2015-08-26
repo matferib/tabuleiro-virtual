@@ -34,7 +34,7 @@ Versao com Vbo:
 - Terminar a exportacao de formas e compostas (CORES).
 
 Versao com Shader:
-- OpenGL ES
+- OpenGL ES: eliminar as variaveis de Fog e Luz.
 - Shadow mapping.
 - Propriedade das luzes pontuais (distancia, cintilacao).
 

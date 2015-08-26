@@ -74,6 +74,7 @@ void IniciaShaders(interno::Contexto* contexto) {
   GLuint* vs = &contexto->vs;
   GLuint* fs = &contexto->fs;
 
+  V_ERRO_MAIS("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   // Programa de luz.
   {
@@ -112,23 +113,36 @@ void IniciaShaders(interno::Contexto* contexto) {
 
   // Variaveis do shader.
   struct DadosVariavel {
-    std::string nome;
+    const char* nome;
     GLint* var;
   };
 
   // Variaveis uniformes.
   for (const auto& d : std::vector<DadosVariavel> {
           {"gltab_luz", &contexto->uni_gltab_luz },
+          {"gltab_luz_ambiente", &contexto->uni_gltab_luz_ambiente_cor },
+          {"gltab_luz_direcional.cor", &contexto->uni_gltab_luz_direcional_cor },
+          {"gltab_luz_direcional.pos", &contexto->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &contexto->uni_gltab_textura },
           {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
           {"gltab_nevoa", &contexto->uni_gltab_nevoa },
           {"gltab_stencil", &contexto->uni_gltab_stencil },
   }) {
-    *d.var = glGetUniformLocation(*programa_luz, d.nome.c_str());
+    *d.var = glGetUniformLocation(*programa_luz, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo uniforme " << d.nome;
     }
   }
+  // Uniformes array.
+  for (int i = 1; i < 8; ++i) {
+    char nome_var[21];
+    snprintf(nome_var, 20, "gltab_luzes[%d]", i);
+    contexto->uni_gltab_luzes[i] = glGetUniformLocation(*programa_luz, nome_var);
+    if (contexto->uni_gltab_luzes[i] == -1) {
+      LOG(ERROR) << "Erro lendo uniforme " << nome_var;
+    }
+  }
+
   // Variaveis atributos.
   for (const auto& d : std::vector<DadosVariavel> {
           {"gltab_vertice", &contexto->atr_gltab_vertice},
@@ -136,21 +150,12 @@ void IniciaShaders(interno::Contexto* contexto) {
           {"gltab_cor", &contexto->atr_gltab_cor},
           {"gltab_textura", &contexto->atr_gltab_textura},
   }) {
-    *d.var = glGetAttribLocation(*programa_luz, d.nome.c_str());
+    *d.var = glGetAttribLocation(*programa_luz, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo atributo " << d.nome;
       continue;
     }
-    LOG(INFO) << "Atributo " << d.nome.c_str() << " na posicao " << *d.var;
-  }
-  // Luzes.
-  for (int i = 0; i < 8; ++i) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", i);
-    contexto->uni_gltab_luzes[i] = glGetUniformLocation(*programa_luz, nome_var);
-    if (contexto->uni_gltab_luzes[i] == -1) {
-      LOG(ERROR) << "Erro lendo uniforme " << nome_var;
-    }
+    LOG(INFO) << "Atributo " << d.nome << " na posicao " << *d.var;
   }
 #endif
 }
@@ -169,7 +174,7 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
      glUniform1i(contexto->uni_gltab_luz, 1);
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
+  } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     glUniform1i(contexto->uni_gltab_luzes[cap - GL_LIGHT0], 1);
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1i(contexto->uni_gltab_textura, 1);
@@ -186,7 +191,9 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
      glUniform1i(contexto->uni_gltab_luz, 0);
-  } else if (cap >= GL_LIGHT0 && cap <= GL_LIGHT7) {
+  } else if (cap == GL_LIGHT0) {
+    glUniform4f(contexto->uni_gltab_luz_direcional_cor, 0.0f, 0.0f, 0.0f, 0.0f);
+  } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     glUniform1i(contexto->uni_gltab_luzes[cap - GL_LIGHT0], 0);
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1i(contexto->uni_gltab_textura, 0);
@@ -268,6 +275,15 @@ void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical
 
 void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical) {
   interno::DesenhaStringAlinhado(str, 1, inverte_vertical);
+}
+
+void LuzAmbiente(float r, float g, float b) {
+#if USAR_SHADER
+  glUniform4f(interno::BuscaContexto()->uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
+#else
+  GLfloat glparams[4] = { params[0], params[1], params[2], 1.0f };
+  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, glparams);
+#endif
 }
 
 #if USAR_SHADER

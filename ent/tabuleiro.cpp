@@ -4210,7 +4210,7 @@ void Tabuleiro::DesenhaLuzes() {
     cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
     cor_luz_ambiente[2] = std::max(0.65f, cor_luz_ambiente[2]);
   }
-  gl::ModeloLuz(GL_LIGHT_MODEL_AMBIENT, cor_luz_ambiente);
+  gl::LuzAmbiente(cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2]);
 
   // Iluminação distante direcional.
   {

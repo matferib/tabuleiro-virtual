@@ -11,6 +11,10 @@
 
 namespace gl {
 
+bool ImprimeSeErro(const char* mais);
+#define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
+#define V_ERRO_MAIS(X) do { if (ImprimeSeErro(X)) return; } while (0)
+
 #define __glPi 3.14159265358979323846
 namespace {
 
@@ -260,10 +264,12 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
 void IniciaGl(int* argcp, char** argv) {
   g_contexto_interno = reinterpret_cast<interno::ContextoEs*>(g_contexto.interno.get());
   g_contexto_interno->depurar_selecao_por_cor = &g_contexto.depurar_selecao_por_cor;
+#if !USAR_SHADER
   gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &g_contexto_interno->max_pilha_pj);
   gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &g_contexto_interno->max_pilha_mv);
   LOG(INFO) << "Max pilha mv: " << g_contexto_interno->max_pilha_mv;
   LOG(INFO) << "Max pilha pj: " << g_contexto_interno->max_pilha_pj;
+#endif
   interno::IniciaShaders(&g_contexto);
 }
 
@@ -299,20 +305,6 @@ void Desabilita(GLenum cap) {
   glDisable(cap);
 }
 
-void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  const unsigned short indices[] = { 0, 1, 2, 3 };
-  const float vertices[] = {
-    x1, y1,
-    x2, y1,
-    x2, y2,
-    x1, y2,
-  };
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::PonteiroVertices(2, GL_FLOAT, vertices);
-  gl::DesenhaElementos(GL_TRIANGLE_FAN, 4, GL_UNSIGNED_SHORT, indices);
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-}
-
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   // Copiado do glues.
   GLfloat m[4][4];
@@ -334,7 +326,7 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   m[2][3] = -1.0f;
   m[3][2] = -2.0f * zNear * zFar / deltaZ;
   m[3][3] = 0;
-  glMultMatrixf(&m[0][0]);
+  MultiplicaMatriz(&m[0][0]);
 }
 
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
@@ -383,7 +375,9 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
                  const GLfloat projMatrix[16],
                  const GLint viewport[4],
                  GLfloat* objx, GLfloat* objy, GLfloat* objz) {
-  return glu::Unproject(winx, winy, winz, modelMatrix, projMatrix, viewport, objx, objy, objz);
+  auto ret = glu::Unproject(winx, winy, winz, modelMatrix, projMatrix, viewport, objx, objy, objz);
+  ATUALIZA_MATRIZES();
+  return ret;
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
@@ -395,6 +389,7 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
   glTranslatef((viewport[2] - 2 * (x - viewport[0])) / delta_x,
                (viewport[3] - 2 * (y - viewport[1])) / delta_y, 0);
   glScalef(viewport[2] / delta_x, viewport[3] / delta_y, 1.0);
+  ATUALIZA_MATRIZES();
 }
 
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
@@ -508,7 +503,11 @@ void MudaCor(float r, float g, float b, float a) {
   //GLfloat cor[4] = { r, g, b, a };
   // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
   //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
+#if USAR_SHADER
+  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, r, g, b, a);
+#else
   glColor4f(r, g, b, a);
+#endif
 }
 
 void Limpa(GLbitfield mascara) {

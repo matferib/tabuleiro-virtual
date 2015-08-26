@@ -253,7 +253,7 @@ inline void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
 /** Funcoes de iluminacao. */
 inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
 inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
-inline void ModeloLuz(GLenum nome_param, const GLfloat* params) { glLightModelfv(nome_param, params); }
+void LuzAmbiente(float r, float g, float b);
 
 /** Funcoes de nevoa. */
 inline void Nevoa(GLenum param, GLfloat valor) { glFogf(param, valor); }
@@ -453,8 +453,12 @@ class Contexto {
   GLuint vs;
   GLuint fs;
   // Variaveis uniformes dos shaders.
-  GLint uni_gltab_luz;
-  GLint uni_gltab_luzes[8];
+  GLint uni_gltab_luz;                  // Iluminacao ligada?
+  GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente.
+  GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
+  GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional.
+  //GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4).
+  GLint uni_gltab_luzes[8];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4).
   GLint uni_gltab_textura;
   GLint uni_gltab_unidade_textura;
   GLint uni_gltab_nevoa;

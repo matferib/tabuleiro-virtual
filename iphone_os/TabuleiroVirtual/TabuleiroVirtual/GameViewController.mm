@@ -68,6 +68,7 @@ const int TAG_BOTAO_CANCELA = 101;
   if (!self.context_) {
     NSLog(@"Failed to create ES context");
   }
+  NSLog(@"erro: %i", glGetError());
 
   view.context = self.context_;
   view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
