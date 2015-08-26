@@ -148,6 +148,7 @@ void IniciaShaders(interno::Contexto* contexto) {
   };
   for (const auto& d : std::vector<DadosAtributo> {
           {"gltab_vertice", &contexto->atr_gltab_vertice, 0},
+          {"gltab_normal", &contexto->atr_gltab_normal, 1},
   }) {
     *d.var = glGetAttribLocation(*programa_luz, d.nome.c_str());
     if (*d.var == -1) {
@@ -230,9 +231,25 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(0, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  glVertexAttribPointer(0  /*vertices*/, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
 #else
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
+#endif
+}
+
+void PonteiroVerticesNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
+#if USAR_SHADER
+  glVertexAttribPointer(1  /*normais*/, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
+#else
+  glNormalPointer(tipo, passo, normais);
+#endif
+}
+
+void Normal(GLfloat x, GLfloat y, GLfloat z) {
+#if USAR_SHADER
+  glVertexAttrib3f(1, x, y, z);
+#else
+  glNormal3f(x, y, z);
 #endif
 }
 
