@@ -162,7 +162,7 @@ void Desabilita(GLenum cap) {
 void MudaCor(float r, float g, float b, float a) {
   glColor4f(r, g, b, a);
 #if USAR_SHADER
-  glUniform4f(g_contexto.uni_gltab_cor, r, g, b, a);
+  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, r, g, b, a);
 #endif
 }
 

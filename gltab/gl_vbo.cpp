@@ -841,20 +841,25 @@ void DesenhaVbo(GLenum modo,
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   }
   if (tem_cores) {
+#if USAR_SHADER
+    glEnableVertexAttribArray(c->atr_gltab_cor);
+#else
     gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
+#endif
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   }
 
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
 
-  gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
 #if USAR_SHADER
   glDisableVertexAttribArray(c->atr_gltab_vertice);
   glDisableVertexAttribArray(c->atr_gltab_normal);
+  glDisableVertexAttribArray(c->atr_gltab_cor);
 #else
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
 #endif
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
 }

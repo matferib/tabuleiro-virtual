@@ -123,7 +123,6 @@ void IniciaShaders(interno::Contexto* contexto) {
           {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
           {"gltab_nevoa", &contexto->uni_gltab_nevoa },
           {"gltab_stencil", &contexto->uni_gltab_stencil },
-          {"gltab_cor", &contexto->uni_gltab_cor },
   }) {
     *d.var = glGetUniformLocation(*programa_luz, d.nome.c_str());
     if (*d.var == -1) {
@@ -134,6 +133,8 @@ void IniciaShaders(interno::Contexto* contexto) {
   for (const auto& d : std::vector<DadosVariavel> {
           {"gltab_vertice", &contexto->atr_gltab_vertice},
           {"gltab_normal", &contexto->atr_gltab_normal},
+          {"gltab_cor", &contexto->atr_gltab_cor},
+          {"gltab_textura", &contexto->atr_gltab_textura},
   }) {
     *d.var = glGetAttribLocation(*programa_luz, d.nome.c_str());
     if (*d.var == -1) {
@@ -236,8 +237,16 @@ void Normal(GLfloat x, GLfloat y, GLfloat z) {
 #if USAR_SHADER
   glVertexAttrib3f(interno::BuscaContexto()->atr_gltab_normal, x, y, z);
 #else
-#endif
   glNormal3f(x, y, z);
+#endif
+}
+
+void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
+#if USAR_SHADER
+  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+#else
+  glColorPointer(num_componentes, GL_FLOAT, passo, cores);
+#endif
 }
 
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.
