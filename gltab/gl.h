@@ -200,14 +200,6 @@ inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormai
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 
-#if USAR_OPENGL_ES
-void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
-#else
-inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  glRectf(x1, y1, x2, y2);
-}
-#endif
-
 /** Funcoes de nomes. */
 #if !USAR_OPENGL_ES
 inline void IniciaNomes() { glInitNames(); }

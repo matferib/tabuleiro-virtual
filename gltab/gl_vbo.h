@@ -194,6 +194,12 @@ VboNaoGravado VboRetangulo(GLfloat tam_lado);
 inline void Retangulo(GLfloat tam_lado) {
   DesenhaVbo(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);
 }
+inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
+  gl::MatrizEscopo salva_matriz;
+  gl::Translada((x1 + x2) / 2.0f, (y1 + y2) / 2.0f, 0.0f);
+  gl::Escala(fabs(x1 - x2), fabs(y1 - y2), 1.0f);
+  Retangulo(1.0f);
+}
 
 VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces);
 inline void Disco(GLfloat raio, GLfloat num_faces) {
