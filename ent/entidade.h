@@ -16,13 +16,6 @@ class Entidade;
 class DesenhoBase;
 class IluminacaoDirecional;
 
-/** Informacao sobre vertices para VBO. */
-struct InfoVertice {
-  float x, y, z;     // Vertex.
-  float nx, ny, nz;  // Normal.
-  float s0, t0;      // Textura.
-};
-
 /** Interface de texturas para entidades. */
 class Texturas {
  public:

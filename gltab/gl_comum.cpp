@@ -24,6 +24,7 @@ bool ImprimeSeErro(const char* mais) {
   return false;
 }
 #define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
+#define V_ERRO_MAIS(X) do { if (ImprimeSeErro(X)) return; } while (0)
 
 namespace interno {
 
@@ -77,57 +78,46 @@ void IniciaShaders(interno::Contexto* contexto) {
   // Programa de luz.
   {
     GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-    if (v_shader == 0) {
-      LOG(ERROR) << "Erro criando vertex shader";
-      V_ERRO();
-      return;
-    }
-    //V_ERRO();
+    V_ERRO_MAIS("criando vertex shader");
     GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    if (f_shader == 0) {
-      LOG(ERROR) << "Erro criando fragment shader";
-      V_ERRO();
-      return;
-    }
-    //V_ERRO();
+    V_ERRO_MAIS("criando fragment shader");
     std::string codigo_v_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, "vert_luz.c", &codigo_v_shader_str);
     const char* codigo_v_shader = codigo_v_shader_str.c_str();
     glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-    //V_ERRO();
+    V_ERRO_MAIS("shader source vertex");
     std::string codigo_f_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, "frag_luz.c", &codigo_f_shader_str);
     const char* codigo_f_shader = codigo_f_shader_str.c_str();
     glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-    //V_ERRO();
+    V_ERRO_MAIS("shader source fragment");
     glCompileShader(v_shader);
-    //V_ERRO();
     V_ERRO_SHADER(v_shader);
     glCompileShader(f_shader);
-    //V_ERRO();
     V_ERRO_SHADER(f_shader);
     GLuint p = glCreateProgram();
-    if (p == 0) {
-      LOG(ERROR) << "Erro criando programa de shader.";
-      V_ERRO();
-      return;
-    }
-    //V_ERRO();
+    V_ERRO_MAIS("criando programa shader");
     glAttachShader(p, v_shader);
-    //V_ERRO();
+    V_ERRO_MAIS("atachando vertex no programa shader");
     glAttachShader(p, f_shader);
-    //V_ERRO();
+    V_ERRO_MAIS("atachando fragment no programa shader");
     glLinkProgram(p);
-    //V_ERRO();
+    V_ERRO_MAIS("linkando programa shader");
     glUseProgram(p);
-    //V_ERRO();
+    V_ERRO_MAIS("usando programa shader");
     *programa_luz = p;
     *vs = v_shader;
     *fs = f_shader;
   }
 
+  // Variaveis do shader.
+  struct DadosVariavel {
+    std::string nome;
+    GLint* var;
+  };
+
   // Variaveis uniformes.
-  for (const auto& par : std::vector<std::pair<std::string, GLint*>> {
+  for (const auto& d : std::vector<DadosVariavel> {
           {"gltab_luz", &contexto->uni_gltab_luz },
           {"gltab_textura", &contexto->uni_gltab_textura },
           {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
@@ -135,27 +125,22 @@ void IniciaShaders(interno::Contexto* contexto) {
           {"gltab_stencil", &contexto->uni_gltab_stencil },
           {"gltab_cor", &contexto->uni_gltab_cor },
   }) {
-    *par.second = glGetUniformLocation(*programa_luz, par.first.c_str());
-    if (*par.second == -1) {
-      LOG(ERROR) << "Erro lendo uniforme " << par.first;
+    *d.var = glGetUniformLocation(*programa_luz, d.nome.c_str());
+    if (*d.var == -1) {
+      LOG(ERROR) << "Erro lendo uniforme " << d.nome;
     }
   }
   // Variaveis atributos.
-  struct DadosAtributo {
-    std::string nome;
-    GLint* var;
-    int indice;
-  };
-  for (const auto& d : std::vector<DadosAtributo> {
-          {"gltab_vertice", &contexto->atr_gltab_vertice, 0},
-          {"gltab_normal", &contexto->atr_gltab_normal, 1},
+  for (const auto& d : std::vector<DadosVariavel> {
+          {"gltab_vertice", &contexto->atr_gltab_vertice},
+          {"gltab_normal", &contexto->atr_gltab_normal},
   }) {
     *d.var = glGetAttribLocation(*programa_luz, d.nome.c_str());
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo atributo " << d.nome;
       continue;
     }
-    glBindAttribLocation(*programa_luz, d.indice, d.nome.c_str());
+    LOG(INFO) << "Atributo " << d.nome.c_str() << " na posicao " << *d.var;
   }
   // Luzes.
   for (int i = 0; i < 8; ++i) {
@@ -231,26 +216,28 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(0  /*vertices*/, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  //V_ERRO_MAIS("pointeiro vertices");
 #else
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
 }
 
-void PonteiroVerticesNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
+void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
 #if USAR_SHADER
-  glVertexAttribPointer(1  /*normais*/, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
+  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
+  //V_ERRO_MAIS("pointeiro normais");
 #else
-  glNormalPointer(tipo, passo, normais);
 #endif
+  glNormalPointer(tipo, passo, normais);
 }
 
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
 #if USAR_SHADER
-  glVertexAttrib3f(1, x, y, z);
+  glVertexAttrib3f(interno::BuscaContexto()->atr_gltab_normal, x, y, z);
 #else
-  glNormal3f(x, y, z);
 #endif
+  glNormal3f(x, y, z);
 }
 
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.

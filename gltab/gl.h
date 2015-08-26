@@ -195,8 +195,8 @@ inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo,
 inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
   glTexCoordPointer(vertices_por_coordenada, tipo, 0, vertices);
 }
-inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { glNormalPointer(tipo, 0, normais);  }
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais);
+inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormais(tipo, 0, normais);  }
 inline void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) { glColorPointer(num_componentes, GL_FLOAT, passo, cores); }
 #if USAR_OPENGL_ES
 void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
@@ -471,7 +471,6 @@ class Contexto {
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
-  GLint atr_gltab_cor;
   std::unique_ptr<ContextoDependente> interno;
 };
 Contexto* BuscaContexto();

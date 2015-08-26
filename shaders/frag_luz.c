@@ -17,6 +17,7 @@ uniform vec4 gltab_referencia_nevoa;     // Ponto de referencia para computar di
 //uniform bool gltab_stencil;              // Stencil ligado?
 
 void main() {
+  //gl_FragColor = vec4(clamp(v_Normal, 0.0, 1.0), 1.0);
   vec4 cor_final = vec4(0, 0, 0, 0);
   float peso_nevoa = 0.0;
   if (gltab_luz) {
@@ -55,7 +56,6 @@ void main() {
     }
     cor_final.a = v_Color.a;
     gl_FragColor = clamp(cor_final, 0.0, 1.0);   // Pass the color directly through the pipeline.
-    //gl_FragColor = vec4(gltab_luzes[0], gltab_luzes[1], gltab_luzes[2], 1);
   } else {
     cor_final = v_Color;
   }
