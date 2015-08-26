@@ -837,7 +837,11 @@ void DesenhaVbo(GLenum modo,
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
   }
   if (tem_texturas) {
+#if USAR_SHADER
+    glEnableVertexAttribArray(c->atr_gltab_textura);
+#else
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+#endif
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   }
   if (tem_cores) {
@@ -856,6 +860,7 @@ void DesenhaVbo(GLenum modo,
   glDisableVertexAttribArray(c->atr_gltab_vertice);
   glDisableVertexAttribArray(c->atr_gltab_normal);
   glDisableVertexAttribArray(c->atr_gltab_cor);
+  glDisableVertexAttribArray(c->atr_gltab_textura);
 #else
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);

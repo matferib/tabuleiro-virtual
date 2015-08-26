@@ -189,11 +189,9 @@ inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const G
   PonteiroVertices(vertices_por_coordenada, tipo, 0, vertices);
 }
 // Vertices textura.
-inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-  glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
-}
+void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices);
 inline void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
-  glTexCoordPointer(vertices_por_coordenada, tipo, 0, vertices);
+  PonteiroVerticesTexturas(vertices_por_coordenada, tipo, 0, vertices);
 }
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais);
 inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormais(tipo, 0, normais);  }

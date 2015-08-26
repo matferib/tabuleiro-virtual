@@ -14,12 +14,13 @@ uniform mat3 gltab_nm;     // normal matrix
 // Atributos variam por vertice.
 attribute vec4 gltab_vertice;
 attribute vec3 gltab_normal;
-attribute vec4 gltab_cor;    // Cor.
+attribute vec4 gltab_cor;
+attribute vec2 gltab_textura;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
-  v_Tex.st = gl_MultiTexCoord0.st;
+  v_Tex.st = gltab_textura;
   gl_Position = gltab_prm * gltab_mvm * gltab_vertice;
 }

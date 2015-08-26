@@ -249,6 +249,14 @@ void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 #endif
 }
 
+void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
+#if USAR_SHADER
+  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_textura, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+#else
+  glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
+#endif
+}
+
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.
 void DesenhaString(const std::string& str, bool inverte_vertical) {
   interno::DesenhaStringAlinhado(str, 0, inverte_vertical);
