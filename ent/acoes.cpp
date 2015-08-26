@@ -62,10 +62,10 @@ class AcaoSinalizacao : public Acao {
         COS_60, -SEN_60
       };
       const unsigned short indices[] = {
-        0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
       };
       gl::VboNaoGravado vbong("acao_sinalizacao");
-      vbong.AtribuiIndices(indices, 18);
+      vbong.AtribuiIndices(indices, 9);
       vbong.AtribuiCoordenadas(2, coordenadas, 18);
       vbo_.Grava(vbong);
     }
