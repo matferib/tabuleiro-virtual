@@ -254,6 +254,7 @@ inline void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
 inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
 inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
 void LuzAmbiente(float r, float g, float b);
+void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 
 /** Funcoes de nevoa. */
 inline void Nevoa(GLenum param, GLfloat valor) { glFogf(param, valor); }

@@ -286,6 +286,27 @@ void LuzAmbiente(float r, float g, float b) {
 #endif
 }
 
+void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  glUniform4f(c->uni_gltab_luz_direcional_cor, r, g, b, 1.0f);
+  // Transforma o vetor em coordenadas da camera.
+  float m[16];
+  gl::Le(GL_MODELVIEW_MATRIX, m);
+  Matrix3 nm(m[0], m[1], m[2],
+             m[4], m[5], m[6],
+             m[8], m[9], m[10]);
+  nm.invert().transpose();
+  Vector3 vp(pos[0], pos[1], pos[2]);
+  vp = nm * vp;
+  //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
+  glUniform4f(c->uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
+#else
+  glLightfv(GL_LIGHT0, GL_POSITION, pos);
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, {r, g, b, 1.0f});
+#endif
+}
+
 #if USAR_SHADER
 void AtualizaMatrizes() {
   GLenum modo;

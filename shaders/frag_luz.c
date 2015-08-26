@@ -30,7 +30,7 @@ uniform bool gltab_luz;                  // Iluminacao ligada?
 uniform vec4 gltab_luz_ambiente;         // Cor da luz ambiente.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 //uniform InfoLuzPontual gltab_luzes[7];   // Luzes pontuais.
-uniform bool gltab_luzes[7];   // Luzes pontuais.
+uniform bool gltab_luzes[8];   // Luzes pontuais.
 uniform bool gltab_textura;              // Textura ligada?
 uniform sampler2D gltab_unidade_textura; // handler da textura.
 uniform bool gltab_nevoa;                // Nevoa ligada?
@@ -39,7 +39,7 @@ uniform vec4 gltab_referencia_nevoa;     // Ponto de referencia para computar di
 //uniform bool gltab_stencil;              // Stencil ligado?
 
 void main() {
-  //gl_FragColor = vec4(clamp(v_Normal, 0.0, 1.0), 1.0);
+  //gl_FragColor = gltab_luz_direcional.pos;
   vec4 cor_final = vec4(0, 0, 0, 0);
   float peso_nevoa = 0.0;
   if (gltab_luz) {

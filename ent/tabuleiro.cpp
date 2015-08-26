@@ -4221,15 +4221,15 @@ void Tabuleiro::DesenhaLuzes() {
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
     gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
     gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+    // A cor da luz direcional.
+    GLfloat cor_luz[] = {
+        proto_corrente_->luz_direcional().cor().r(),
+        proto_corrente_->luz_direcional().cor().g(),
+        proto_corrente_->luz_direcional().cor().b(),
+        proto_corrente_->luz_direcional().cor().a() };
+    gl::LuzDirecional(pos_luz, cor_luz[0], cor_luz[1], cor_luz[2]);
+    gl::Habilita(GL_LIGHT0);
   }
-  // A cor da luz direcional.
-  GLfloat cor_luz[] = { proto_corrente_->luz_direcional().cor().r(),
-                        proto_corrente_->luz_direcional().cor().g(),
-                        proto_corrente_->luz_direcional().cor().b(),
-                        proto_corrente_->luz_direcional().cor().a() };
-  gl::Luz(GL_LIGHT0, GL_DIFFUSE, cor_luz);
-  gl::Habilita(GL_LIGHT0);
 
   if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
