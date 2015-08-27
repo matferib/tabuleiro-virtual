@@ -148,15 +148,19 @@ void AlternaModoDebug() {
 }
 
 void Habilita(GLenum cap) {
+#if USAR_SHADER
   interno::HabilitaComShader(&g_contexto, cap);
+#else
   glEnable(cap);
+#endif
 }
 
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
   interno::DesabilitaComShader(&g_contexto, cap);
-#endif
+#else
   glDisable(cap);
+#endif
 }
 
 void MudaCor(float r, float g, float b, float a) {

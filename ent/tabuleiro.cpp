@@ -1818,16 +1818,6 @@ void Tabuleiro::IniciaGL() {
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
 
-  // Isso aqui nao funciona, mas vai que funciona em algum dispositivo...
-  gl::Habilita(GL_LINE_SMOOTH);
-  glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-  if (glGetError() != GL_NO_ERROR) {
-    LOG(WARNING) << "Erro no GL_LINE_SMOOTH_HINT";
-  }
-  glHint(GL_FOG_HINT, GL_NICEST);
-  if (glGetError() != GL_NO_ERROR) {
-    LOG(WARNING) << "Erro no GL_FOG_HINT";
-  }
   RegeraVboTabuleiro();
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
@@ -1922,16 +1912,22 @@ void Tabuleiro::AcaoAnterior() {
 }
 
 // privadas
+#if USAR_OPENGL_ES
+#define V_ERRO_STRING(e) ""
+#else
+#define V_ERRO_STRING(e) gluErrorString(e)
+#endif
 #define V_ERRO(X) \
   do { \
     auto e = glGetError(); \
     if (e != GL_NO_ERROR) { \
-        LOG_EVERY_N(ERROR, 1000) << "erro " << X << ", codigo: " << e << ", " << gluErrorString(e); \
+        LOG_EVERY_N(ERROR, 1000) << "erro " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); \
           return;\
         } \
   } while (0)
 
 void Tabuleiro::DesenhaCena() {
+  if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.

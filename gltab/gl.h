@@ -121,17 +121,18 @@ void InicioCena();
 #endif
 
 /** Funcoes gerais. */
-inline bool EstaHabilitado(GLenum nome_parametro) { return glIsEnabled(nome_parametro); }
+bool EstaHabilitado(GLenum cap);
+void Habilita(GLenum cap);
+void Desabilita(GLenum cap);
+inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
+inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
+
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
 #if !USAR_OPENGL_ES
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
 #endif
-void Habilita(GLenum cap);
-void Desabilita(GLenum cap);
-inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
-inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
 inline void CarregaIdentidade() {
   glLoadIdentity();

@@ -289,20 +289,24 @@ void Habilita(GLenum cap) {
   if (g_contexto_interno->UsarSelecaoPorCor()) {
     if (cap == GL_LIGHTING) {
       return;
-      // Sem luz no modo de selecao.
-      //glDisable(cap);
     }
   } else {
+#if USAR_SHADER
     interno::HabilitaComShader(&g_contexto, cap);
+#else
     glEnable(cap);
+#endif
   }
 }
 
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
   interno::DesabilitaComShader(&g_contexto, cap);
-#endif
+  V_ERRO_MAIS("aqui");
+#else
   glDisable(cap);
+  V_ERRO_MAIS("acola");
+#endif
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {

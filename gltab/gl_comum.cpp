@@ -90,6 +90,7 @@ type_set [] = {
   {GL_FLOAT_MAT2,                                "mat2" },
   {GL_FLOAT_MAT3,                                "mat3" },
   {GL_FLOAT_MAT4,                                "mat4" },
+#if !USAR_OPENGL_ES
   {GL_FLOAT_MAT2x3,                              "mat2x3" },
   {GL_FLOAT_MAT2x4,                              "mat2x4" },
   {GL_FLOAT_MAT3x2,                              "mat3x2" },
@@ -97,11 +98,16 @@ type_set [] = {
   {GL_FLOAT_MAT4x2,                              "mat4x2" },
   {GL_FLOAT_MAT4x3,                              "mat4x3" },
   {GL_SAMPLER_1D,                                "sampler1D" },
+#endif
   {GL_SAMPLER_2D,                                "sampler2D" },
+#if !USAR_OPENGL_ES
   {GL_SAMPLER_3D,                                "sampler3D" },
+#endif
   {GL_SAMPLER_CUBE,                              "samplerCube" },
+#if !USAR_OPENGL_ES
   {GL_SAMPLER_1D_SHADOW,                         "sampler1DShadow" },
   {GL_SAMPLER_2D_SHADOW,                         "sampler2DShadow" },
+#endif
 };
 void print_uniforms(GLuint program) {
   GLint uniform_count;
@@ -288,6 +294,8 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     GLfloat cor[4];
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
+  } else {
+    return glEnable(cap);
   }
 #endif
 }
@@ -313,6 +321,8 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     GLfloat cor[4];
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
+  } else {
+    glDisable(cap);
   }
 #endif
 }
@@ -375,6 +385,39 @@ void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsize
   glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
 }
+
+bool EstaHabilitado(GLenum cap) {
+#if USAR_SHADER
+  auto* contexto = interno::BuscaContexto();
+  GLint ret = 0;
+  if (cap == GL_LIGHTING) {
+    glGetUniformiv(contexto->programa_luz, contexto->uni_gltab_luz, &ret);
+    return ret;
+  } else if (cap == GL_LIGHT0) {
+    GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    return cor[3] > 0;
+  } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
+    GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    return cor[3] > 0;
+  } else if (cap == GL_TEXTURE_2D) {
+    glGetUniformiv(contexto->programa_luz, contexto->uni_gltab_textura, &ret);
+    return ret;
+  } else if (cap == GL_FOG) {
+    GLint uniforme = contexto->uni_gltab_nevoa_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    return cor[3] > 0;
+  }
+  return glIsEnabled(cap);
+#else
+  return glIsEnabled(cap);
+#endif
+}
+
 
 // Sao funcoes iguais dos dois lados que dependem de implementacoes diferentes.
 void DesenhaString(const std::string& str, bool inverte_vertical) {
