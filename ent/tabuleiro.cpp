@@ -386,7 +386,7 @@ void Tabuleiro::Desenha() {
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
   parametros_desenho_.set_modo_mestre(VisaoMestre());
-  gl::ModoMatriz(GL_PROJECTION);
+  gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   // Aplica opcoes do jogador.
@@ -1927,7 +1927,7 @@ void Tabuleiro::AcaoAnterior() {
   } while (0)
 
 void Tabuleiro::DesenhaCena() {
-  if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
+  //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
@@ -1949,7 +1949,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::ModoMatriz(GL_MODELVIEW);
+  gl::MudarModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
@@ -2709,7 +2709,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   gl::ModoRenderizacao(gl::MR_SELECT);
 
-  gl::ModoMatriz(GL_PROJECTION);
+  gl::MudarModoMatriz(GL_PROJECTION);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
@@ -2745,7 +2745,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   *numero_hits = gl::ModoRenderizacao(gl::MR_RENDER);
 
   // Restaura projecao manualmente por causa da pilha pequena.
-  gl::ModoMatriz(GL_PROJECTION);
+  gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
 }

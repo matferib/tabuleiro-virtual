@@ -165,6 +165,7 @@ cGl = env.Object('gltab/gl_es.cpp') if usar_opengl_es else env.Object('gltab/gl_
 cGlComum = env.Object('gltab/gl_comum.cpp')
 cGlChar = env.Object('gltab/gl_char.cpp')
 cGlVbo = env.Object('gltab/gl_vbo.cpp')
+cGlues = env.Object('gltab/glues.cpp')
 
 # Matrix
 cMatrix = env.Object('matrix/matrices.cpp')
@@ -186,7 +187,7 @@ objetos = [
     ent_proto[0], ent_proto[2], ent_proto[4], cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
-    cGlComum, cGl, cGlChar, cGlVbo,
+    cGlComum, cGl, cGlChar, cGlVbo, cGlues,
     # arq
     cArq, cArqPc,
     # matrix

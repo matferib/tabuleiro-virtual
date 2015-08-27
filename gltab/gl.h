@@ -5,6 +5,7 @@
 #include <string>
 #include <stdexcept>
 #include <vector>
+#include <stack>
 #if USAR_OPENGL_ES && !BENCHMARK
 #if __APPLE__
   #include "TargetConditionals.h"
@@ -40,6 +41,7 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #endif
+#include "matrix/matrices.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -64,28 +66,34 @@ void DebugaMatrizes();
 #define ATUALIZA_MATRIZES()
 #endif
 
+// Operacoes de matriz. Melhor usar MatrizEscopo.
+void EmpilhaMatriz();
+void DesempilhaMatriz();
+GLenum ModoMatrizCorrente();
+void MudarModoMatriz(GLenum modo);
+
 /** Salva a matriz corrente durante escopo da classe. Ou muda o modo de matriz e a salva, retornando ao modo anterior ao fim do escopo. */
 class MatrizEscopo {
  public:
   /** Salva a matriz corrente pelo escopo. */
-  MatrizEscopo() : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { glPushMatrix(); }
+  MatrizEscopo() : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(); }
 
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
   explicit MatrizEscopo(GLenum modo) : modo_(modo) {
-    glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo_anterior_);
-    glMatrixMode(modo_);
-    glPushMatrix();
+    modo_anterior_ = ModoMatrizCorrente();
+    MudarModoMatriz(modo_);
+    EmpilhaMatriz();
   }
 
   /** Restaura matriz anterior ao escopo para o modo escolhido. */
   ~MatrizEscopo() {
     if (modo_ != GL_INVALID_ENUM) {
-      glMatrixMode(modo_);
+      MudarModoMatriz(modo_);
     }
-    glPopMatrix();
+    DesempilhaMatriz();
     ATUALIZA_MATRIZES();
     if (modo_anterior_ != GL_INVALID_ENUM) {
-      glMatrixMode(modo_anterior_);
+      MudarModoMatriz(modo_anterior_);
     }
   }
 
@@ -134,15 +142,9 @@ inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_par
 inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
 #endif
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
-inline void CarregaIdentidade() {
-  glLoadIdentity();
-  ATUALIZA_MATRIZES();
-}
-inline void MultiplicaMatriz(const GLfloat* matriz) {
-  glMultMatrixf(matriz);
-  ATUALIZA_MATRIZES();
-}
-inline void ModoMatriz(GLenum modo) { glMatrixMode(modo); }
+
+void CarregaIdentidade();
+void MultiplicaMatriz(const GLfloat* matriz);
 #if !USAR_OPENGL_ES
 inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
@@ -238,18 +240,9 @@ class TipoEscopo {
 };
 
 /** Funcoes de escala, translacao e rotacao. */
-inline void Escala(GLfloat x, GLfloat y, GLfloat z) {
-  glScalef(x, y, z);
-  ATUALIZA_MATRIZES();
-}
-inline void Translada(GLfloat x, GLfloat y, GLfloat z) {
-  glTranslatef(x, y, z);
-  ATUALIZA_MATRIZES();
-}
-inline void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
-  glRotatef(angulo_graus, x, y, z);
-  ATUALIZA_MATRIZES();
-}
+void Escala(GLfloat x, GLfloat y, GLfloat z);
+void Translada(GLfloat x, GLfloat y, GLfloat z);
+void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z);
 
 /** Funcoes de iluminacao. */
 inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
@@ -288,24 +281,16 @@ void DesenhaString(const std::string& str, bool inverte_vertical = false);
 void DesenhaStringAlinhadoEsquerda(const std::string& str, bool inverte_vertical = false);
 void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte = false);
 
-/** Matriz de olho e perspectiva e picking. */
+/** Transformacao de camera. */
+void OlharPara(float olho_x, float olho_y, float olho_z,
+               float centro_x, float centro_y, float centro_z,
+               float cima_x, float cima_y, float cima_z);
+
+/** Transformacao de projecao. */
+void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
+void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante);
+
 #if !USAR_OPENGL_ES
-inline void Perspectiva(GLdouble angulo_y, GLdouble aspecto, GLdouble z_perto, GLdouble z_longe) {
-  gluPerspective(angulo_y, aspecto, z_perto, z_longe);
-  ATUALIZA_MATRIZES();
-}
-inline void Ortogonal(GLdouble esquerda, GLdouble direita, GLdouble baixo, GLdouble cima, GLdouble proximo, GLdouble distante) {
-  glOrtho(esquerda, direita, baixo, cima, proximo, distante);
-  ATUALIZA_MATRIZES();
-}
-
-inline void OlharPara(GLdouble olho_x, GLdouble olho_y, GLdouble olho_z,
-               GLdouble centro_x, GLdouble centro_y, GLdouble centro_z,
-               GLdouble cima_x, GLdouble cima_y, GLdouble cima_z) {
-  gluLookAt(olho_x, olho_y, olho_z, centro_x, centro_y, centro_z, cima_x, cima_y, cima_z);
-  ATUALIZA_MATRIZES();
-}
-
 inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
                         const GLdouble* model, const GLdouble* proj, const GLint* view,
                         GLfloat* x3d, GLfloat* y3d, GLfloat* z3d) {
@@ -319,23 +304,6 @@ inline void MatrizPicking(GLdouble x, GLdouble y, GLdouble delta_x, GLdouble del
   ATUALIZA_MATRIZES();
 }
 #else
-void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
-void OlharPara(float olho_x, float olho_y, float olho_z,
-               float centro_x, float centro_y, float centro_z,
-               float cima_x, float cima_y, float cima_z);
-inline void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
-  // glOrthof ta bugada no linux.
-  //glOrthof(esquerda, direita, baixo, cima, proximo, distante);
-  float tx = - ((direita + esquerda) / (direita - esquerda));
-  float ty = - ((cima + baixo) / (cima - baixo));
-  float tz = - ((distante + proximo) / (distante - proximo));
-  GLfloat m[16];
-  m[0] = 2.0f / (direita - esquerda); m[4] = 0; m[8] = 0; m[12] = tx;
-  m[1] = 0; m[5] = 2.0f / (cima - baixo); m[9] = 0; m[13] = ty;
-  m[2] = 0; m[6] = 0; m[10] = -2.0f / (distante - proximo); m[14] = tz;
-  m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
-  glMultMatrixf(m);
-}
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
                  GLfloat* x3d, float* y3d, float* z3d);
@@ -470,10 +438,15 @@ class Contexto {
   GLint atr_gltab_cor;
   GLint atr_gltab_textura;
   std::unique_ptr<ContextoDependente> interno;
+
+  // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
+  std::stack<Matrix4> pilha_mvm;
+  std::stack<Matrix4> pilha_prj;
+  std::stack<Matrix4>* pilha_corrente = nullptr;
 };
 Contexto* BuscaContexto();
 
-void IniciaShaders(interno::Contexto* contexto);
+void IniciaComum(interno::Contexto* contexto);
 void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);

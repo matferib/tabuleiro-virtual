@@ -64,7 +64,7 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-  interno::IniciaShaders(&g_contexto);
+  interno::IniciaComum(&g_contexto);
 }
 //#undef V_ERRO
 

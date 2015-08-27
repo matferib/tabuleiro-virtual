@@ -4,6 +4,7 @@
 #include <utility>
 #include <vector>
 #include "gltab/gl.h"
+#include "gltab/glues.h"
 #include "arq/arquivo.h"
 #include "log/log.h"
 #include "matrix/matrices.h"
@@ -163,7 +164,7 @@ int IndiceLuzAtributos(int id_luz) {
 #endif
 
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
-void IniciaShaders(interno::Contexto* contexto) {
+void IniciaComum(interno::Contexto* contexto) {
 #if USAR_SHADER
   GLuint* programa_luz = &contexto->programa_luz;
   GLuint* vs = &contexto->vs;
@@ -260,6 +261,9 @@ void IniciaShaders(interno::Contexto* contexto) {
     LOG(INFO) << "Atributo " << d.nome << " na posicao " << *d.var;
   }
 #endif
+  contexto->pilha_mvm.push(Matrix4());
+  contexto->pilha_prj.push(Matrix4());
+  contexto->pilha_corrente = &contexto->pilha_mvm;
 }
 
 void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs) {
@@ -329,6 +333,96 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 
 }  // interno
 
+void EmpilhaMatriz() {
+  glPushMatrix();
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  Matrix4 m(c->pilha_corrente->top());
+  c->pilha_corrente->push(m);
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+
+void DesempilhaMatriz() {
+  glPopMatrix();
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  c->pilha_corrente->pop();
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+
+GLenum ModoMatrizCorrente() {
+  GLenum ret;
+  glGetIntegerv(GL_MATRIX_MODE, (GLint*)&ret);
+  return ret;
+#if USAR_SHADER
+  //auto* c = interno::BuscaContexto();
+  //return (c->pilha_corrente == &c->pilha_mvm) ? GL_MODELVIEW : GL_PROJECTION;
+#else
+#endif
+}
+
+void MudarModoMatriz(GLenum modo) {
+  glMatrixMode(modo);
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  if (modo == GL_MODELVIEW) {
+    c->pilha_corrente = &c->pilha_mvm;
+  } else {
+    c->pilha_corrente = &c->pilha_prj;
+  }
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+
+void CarregaIdentidade() {
+  glLoadIdentity();
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  c->pilha_corrente->top().identity();
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+
+void MultiplicaMatriz(const GLfloat* matriz) {
+  glMultMatrixf(matriz);
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  Matrix4 m(matriz);
+  auto& corrente = c->pilha_corrente->top();
+  corrente = m * corrente;  // TODO verificar a ordem.
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+
+void Escala(GLfloat x, GLfloat y, GLfloat z) {
+  glScalef(x, y, z);
+#if USAR_SHADER
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+void Translada(GLfloat x, GLfloat y, GLfloat z) {
+  glTranslatef(x, y, z);
+#if USAR_SHADER
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
+  glRotatef(angulo_graus, x, y, z);
+#if USAR_SHADER
+  ATUALIZA_MATRIZES();
+#else
+#endif
+}
+
 // DesligaEscritaProfundidadeEscopo.
 DesligaEscritaProfundidadeEscopo::DesligaEscritaProfundidadeEscopo() {
   // Nao funciona com glIsEnabled.
@@ -347,7 +441,6 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
   glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
-  //V_ERRO_MAIS("pointeiro vertices");
 #else
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
@@ -506,6 +599,86 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
   GLfloat cor[] = { r, g, b, 1.0f };
   glFogfv(GL_FOG_COLOR, cor);
 #endif
+}
+
+void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
+  // Copiado do glues.
+  GLfloat m[4][4];
+  GLfloat sine, cotangent, deltaZ;
+  GLfloat radians = (GLfloat)(fovy / 2.0f * __glPi /180.0f);
+
+  deltaZ=zFar-zNear;
+  sine=(GLfloat)sinf(radians);
+  if ((deltaZ==0.0f) || (sine==0.0f) || (aspect==0.0f))
+  {
+      return;
+  }
+  cotangent=(GLfloat)(cos(radians)/sine);
+
+  glu::PreencheIdentidade(&m[0][0]);
+  m[0][0] = cotangent / aspect;
+  m[1][1] = cotangent;
+  m[2][2] = -(zFar + zNear) / deltaZ;
+  m[2][3] = -1.0f;
+  m[3][2] = -2.0f * zNear * zFar / deltaZ;
+  m[3][3] = 0;
+  MultiplicaMatriz(&m[0][0]);
+}
+
+void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
+               GLfloat centery, GLfloat centerz,
+               GLfloat upx, GLfloat upy, GLfloat upz) {
+  GLfloat forward[3], side[3], up[3];
+  GLfloat m[4][4];
+
+  forward[0] = centerx - eyex;
+  forward[1] = centery - eyey;
+  forward[2] = centerz - eyez;
+
+  up[0] = upx;
+  up[1] = upy;
+  up[2] = upz;
+
+  glu::Normaliza(forward);
+
+  /* Side = forward x up */
+  glu::ProdutoVetorial(forward, up, side);
+  glu::Normaliza(side);
+
+  /* Recompute up as: up = side x forward */
+  glu::ProdutoVetorial(side, forward, up);
+
+  glu::PreencheIdentidade(&m[0][0]);
+  m[0][0] = side[0];
+  m[1][0] = side[1];
+  m[2][0] = side[2];
+
+  m[0][1] = up[0];
+  m[1][1] = up[1];
+  m[2][1] = up[2];
+
+  m[0][2] = -forward[0];
+  m[1][2] = -forward[1];
+  m[2][2] = -forward[2];
+
+  glMultMatrixf(&m[0][0]);
+  glTranslatef(-eyex, -eyey, -eyez);
+  ATUALIZA_MATRIZES();
+}
+
+void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
+  // glOrthof ta bugada no linux.
+  //glOrthof(esquerda, direita, baixo, cima, proximo, distante);
+  float tx = - ((direita + esquerda) / (direita - esquerda));
+  float ty = - ((cima + baixo) / (cima - baixo));
+  float tz = - ((distante + proximo) / (distante - proximo));
+  GLfloat m[16];
+  m[0] = 2.0f / (direita - esquerda); m[4] = 0; m[8] = 0; m[12] = tx;
+  m[1] = 0; m[5] = 2.0f / (cima - baixo); m[9] = 0; m[13] = ty;
+  m[2] = 0; m[6] = 0; m[10] = -2.0f / (distante - proximo); m[14] = tz;
+  m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
+  glMultMatrixf(m);
+  ATUALIZA_MATRIZES();
 }
 
 #if USAR_SHADER
