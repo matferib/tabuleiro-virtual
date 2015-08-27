@@ -225,6 +225,9 @@ void IniciaComum(interno::Contexto* contexto) {
           {"gltab_nevoa_dados", &contexto->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &contexto->uni_gltab_nevoa_cor},
           {"gltab_nevoa_referencia", &contexto->uni_gltab_nevoa_referencia },
+          {"gltab_mvm", &contexto->uni_gltab_mvm },
+          {"gltab_prm", &contexto->uni_gltab_prm },
+          {"gltab_nm", &contexto->uni_gltab_nm },
   }) {
     *d.var = glGetUniformLocation(*programa_luz, d.nome);
     if (*d.var == -1) {
@@ -628,13 +631,10 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
                GLfloat centery, GLfloat centerz,
                GLfloat upx, GLfloat upy, GLfloat upz) {
-  GLfloat forward[3], side[3], up[3];
-  GLfloat m[4][4];
-
+  GLfloat forward[3], up[3];
   forward[0] = centerx - eyex;
   forward[1] = centery - eyey;
   forward[2] = centerz - eyez;
-
   up[0] = upx;
   up[1] = upy;
   up[2] = upz;
@@ -642,33 +642,57 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   glu::Normaliza(forward);
 
   /* Side = forward x up */
+  GLfloat side[3];
   glu::ProdutoVetorial(forward, up, side);
   glu::Normaliza(side);
 
   /* Recompute up as: up = side x forward */
   glu::ProdutoVetorial(side, forward, up);
 
+  GLfloat m[4][4];
   glu::PreencheIdentidade(&m[0][0]);
   m[0][0] = side[0];
   m[1][0] = side[1];
   m[2][0] = side[2];
-
   m[0][1] = up[0];
   m[1][1] = up[1];
   m[2][1] = up[2];
-
   m[0][2] = -forward[0];
   m[1][2] = -forward[1];
   m[2][2] = -forward[2];
 
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  Matrix4& topo = c->pilha_corrente->top();
+  topo *= Matrix4(&m[0][0]);
+  topo *= Matrix4().translate(-eyex, -eyey, -eyez);
+  glLoadMatrixf(topo.get());
+  ATUALIZA_MATRIZES();
+#else
   glMultMatrixf(&m[0][0]);
   glTranslatef(-eyex, -eyey, -eyez);
-  ATUALIZA_MATRIZES();
+#endif
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
-  // glOrthof ta bugada no linux.
-  //glOrthof(esquerda, direita, baixo, cima, proximo, distante);
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  float tx = - ((direita + esquerda) / (direita - esquerda));
+  float ty = - ((cima + baixo) / (cima - baixo));
+  float tz = - ((distante + proximo) / (distante - proximo));
+  GLfloat glm[16];
+  glm[0] = 2.0f / (direita - esquerda); glm[4] = 0; glm[8] = 0; glm[12] = tx;
+  glm[1] = 0; glm[5] = 2.0f / (cima - baixo); glm[9] = 0; glm[13] = ty;
+  glm[2] = 0; glm[6] = 0; glm[10] = -2.0f / (distante - proximo); glm[14] = tz;
+  glm[3] = 0; glm[7] = 0; glm[11] = 0; glm[15] = 1;
+  Matrix4 topo = c->pilha_corrente->top();
+  Matrix4 m(glm);
+  // Nao tenho certeza qual a ordem certa. No caso das ortogonais quase sempre a matriz corrente eh identidade, entao
+  // da na mesma.
+  //c->pilha_corrente->top() = m * topo;
+  c->pilha_corrente->top() = topo * m;
+  ATUALIZA_MATRIZES_NOVO();
+#else
   float tx = - ((direita + esquerda) / (direita - esquerda));
   float ty = - ((cima + baixo) / (cima - baixo));
   float tz = - ((distante + proximo) / (distante - proximo));
@@ -678,53 +702,46 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   m[2] = 0; m[6] = 0; m[10] = -2.0f / (distante - proximo); m[14] = tz;
   m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
   glMultMatrixf(m);
-  ATUALIZA_MATRIZES();
+#endif
 }
 
 #if USAR_SHADER
 void AtualizaMatrizes() {
+  auto* c = interno::BuscaContexto();
   GLenum modo;
   glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo);
-  GLuint mloc = (modo == GL_MODELVIEW) ? gl::Uniforme("gltab_mvm") : gl::Uniforme("gltab_prm");
-  if (mloc == -1) {
-    return;
-  }
+  GLuint mloc = (modo == GL_MODELVIEW) ? c->uni_gltab_mvm : c->uni_gltab_prm;
   float m[16];
   gl::Le(modo == GL_MODELVIEW ? GL_MODELVIEW_MATRIX : GL_PROJECTION_MATRIX, m);
   glUniformMatrix4fv(mloc, 1, false, m);
   if (modo == GL_PROJECTION) {
-#if 0
-    static int done = 0;
-    if (++done < 10) {
-      LOG(INFO) << "mopengl: \n" <<
-        m[0] << " "  << m[1] << " " << m[2]   << " " << m[3] << "\n" <<
-        m[4] << " "  << m[5] << " " << m[6]   << " " << m[7] << "\n" <<
-        m[8] << " "  << m[9] << " " << m[10]  << " " << m[11] << "\n" <<
-        m[12] << " " << m[13] << " " << m[14] << " " << m[15] << "\n";
-
-      /*
-      LOG(INFO) << "mmatrices: \n" <<
-        m[0] << " "  << m[1] << " " << m[2]   << " " m[3] << "\n" <<
-        m[4] << " "  << m[5] << " " << m[6]   << " " m[7] << "\n" <<
-        m[8] << " "  << m[9] << " " << m[10]  << " " m[11] << "\n" <<
-        m[12] << " " << m[13] << " " << m[14] << " " m[15] << "\n";
-        */
-    }
-#endif
     return;
   }
 
-  // Normal matrix.
-  //mat4 normalMatrix = transpose(inverse(modelView));
+  // Normal matrix, apenas para modelview.
   Matrix3 normal(m[0], m[1], m[2],
                  m[4], m[5], m[6],
                  m[8], m[9], m[10]);
   normal.invert().transpose();
-  GLuint nmloc = gl::Uniforme("gltab_nm");
-  if (nmloc == -1) {
+  glUniformMatrix3fv(c->uni_gltab_nm, 1, false, normal.get());
+}
+
+void AtualizaMatrizesNovo() {
+  auto* c = interno::BuscaContexto();
+  bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
+  GLuint mloc = modo_mv ? c->uni_gltab_mvm : c->uni_gltab_prm;
+  glUniformMatrix4fv(mloc, 1, false, c->pilha_corrente->top().get());
+  if (!modo_mv) {
     return;
   }
-  glUniformMatrix3fv(nmloc, 1, false, normal.get());
+
+  // Normal matrix, apenas para modelview.
+  const auto& m = c->pilha_corrente->top();
+  Matrix3 normal(m[0], m[1], m[2],
+                 m[4], m[5], m[6],
+                 m[8], m[9], m[10]);
+  normal.invert().transpose();
+  glUniformMatrix3fv(c->uni_gltab_nm, 1, false, normal.get());
 }
 
 void DebugaMatrizes() {

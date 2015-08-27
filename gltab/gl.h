@@ -59,11 +59,14 @@ void FinalizaGl();
 
 #if USAR_SHADER
 #define ATUALIZA_MATRIZES() AtualizaMatrizes()
+#define ATUALIZA_MATRIZES_NOVO() AtualizaMatrizesNovo()
 // Atualiza as matrizes do shader.
 void AtualizaMatrizes();
+void AtualizaMatrizesNovo();
 void DebugaMatrizes();
 #else
 #define ATUALIZA_MATRIZES()
+#define ATUALIZA_MATRIZES_NOVO()
 #endif
 
 // Operacoes de matriz. Melhor usar MatrizEscopo.
@@ -432,6 +435,9 @@ class Contexto {
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
+  GLint uni_gltab_mvm;                  // Matrix modelview.
+  GLint uni_gltab_nm;                   // Matrix de normais.
+  GLint uni_gltab_prm;                  // Matrix projecao.
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
