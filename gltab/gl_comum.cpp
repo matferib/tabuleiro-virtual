@@ -215,8 +215,9 @@ void IniciaShaders(interno::Contexto* contexto) {
           {"gltab_luz_direcional.pos", &contexto->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &contexto->uni_gltab_textura },
           {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
-          {"gltab_nevoa", &contexto->uni_gltab_nevoa },
-          //{"gltab_stencil", &contexto->uni_gltab_stencil },
+          {"gltab_nevoa_dados", &contexto->uni_gltab_nevoa_dados },
+          {"gltab_nevoa_cor", &contexto->uni_gltab_nevoa_cor},
+          {"gltab_nevoa_referencia", &contexto->uni_gltab_nevoa_referencia },
   }) {
     *d.var = glGetUniformLocation(*programa_luz, d.nome);
     if (*d.var == -1) {
@@ -283,7 +284,10 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     glUniform1i(contexto->uni_gltab_textura, 1);
     glUniform1i(contexto->uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
   } else if (cap == GL_FOG) {
-    glUniform1i(contexto->uni_gltab_nevoa, 1);
+    GLint uniforme = contexto->uni_gltab_nevoa_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
   }
 #endif
 }
@@ -305,7 +309,10 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1i(contexto->uni_gltab_textura, 0);
   } else if (cap == GL_FOG) {
-    glUniform1i(contexto->uni_gltab_nevoa, 0);
+    GLint uniforme = contexto->uni_gltab_nevoa_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
   }
 #endif
 }
@@ -435,6 +442,25 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenu
   gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
   gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
   gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
+#endif
+}
+
+void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia) {
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  GLfloat glm[16];
+  gl::Le(GL_MODELVIEW_MATRIX, glm);
+  Matrix4 m(glm);
+  Vector4 v(pos_referencia[0], pos_referencia[1], pos_referencia[2], 1.0f);
+  v = m * v;
+  glUniform4f(c->uni_gltab_nevoa_referencia, v.x, v.y, v.z, 1.0f);
+  glUniform4f(c->uni_gltab_nevoa_dados, inicio, fim, 0.0f  /*nao usado*/, (1.0f / (fim - inicio))  /*escala*/);
+  glUniform4f(c->uni_gltab_nevoa_cor, r, g, b, 1.0f);
+#else
+  glFogf(GL_FOG_MODE, GL_LINEAR);
+  glFogf(GL_FOG_START, inicio);
+  glFogf(GL_FOG_END, fim);
+  Nevoa(GL_FOG_COLOR, { r, g, b, 1.0f});
 #endif
 }
 

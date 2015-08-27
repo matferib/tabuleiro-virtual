@@ -4244,29 +4244,18 @@ void Tabuleiro::DesenhaLuzes() {
 
   if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
-#if USAR_SHADER
-    GLint loc = gl::Uniforme("gltab_referencia_nevoa");
-    if (loc != -1) {
-      GLfloat modelview[16];
-      float pos[4] = { 0, 0, 0, 1 };
-      auto* e = BuscaEntidade(id_camera_presa_);
-      gl::Le(GL_MODELVIEW_MATRIX, modelview);
-      if (e != nullptr) {
-        const Posicao& epos = e->Pos();
-        pos[0] = epos.x();
-        pos[1] = epos.y();
-        pos[2] = epos.z();
-        MultiplicaMatrizVetor(modelview, pos);
-      }
-      glUniform4f(loc, pos[0], pos[1], pos[2], pos[3]);
-    }
-#else
     gl::Habilita(GL_FOG);
-    gl::ModoNevoa(GL_LINEAR);
-    gl::Nevoa(GL_FOG_START, proto_corrente_->nevoa().distancia_minima());
-    gl::Nevoa(GL_FOG_END, proto_corrente_->nevoa().distancia_maxima());
-    gl::Nevoa(GL_FOG_COLOR, cor_luz_ambiente);
-#endif
+    float pos[4] = { 0, 0, 0, 1 };
+    auto* e = BuscaEntidade(id_camera_presa_);
+    if (e != nullptr) {
+      // So funciona com shader.
+      const Posicao& epos = e->Pos();
+      pos[0] = epos.x();
+      pos[1] = epos.y();
+      pos[2] = epos.z();
+    }
+    gl::Nevoa(proto_corrente_->nevoa().distancia_minima(), proto_corrente_->nevoa().distancia_maxima(),
+              cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2], pos);
   } else {
     gl::Desabilita(GL_FOG);
   }

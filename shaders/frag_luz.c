@@ -25,27 +25,22 @@ struct InfoLuzPontual {
   vec4 atributos;  // r=raio, g=?, b=?, a=?
 };
 
+
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
-uniform bool gltab_luz;                  // Iluminacao ligada?
-uniform vec4 gltab_luz_ambiente;         // Cor da luz ambiente.
+uniform bool gltab_luz;                    // Iluminacao ligada?
+uniform vec4 gltab_luz_ambiente;           // Cor da luz ambiente.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
-uniform InfoLuzPontual gltab_luzes[7];   // Luzes pontuais.
-uniform bool gltab_textura;              // Textura ligada?
-uniform sampler2D gltab_unidade_textura; // handler da textura.
-uniform bool gltab_nevoa;                // Nevoa ligada?
-uniform vec4 gltab_referencia_nevoa;     // Ponto de referencia para computar distancia da nevoa.
+uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
+uniform bool gltab_textura;                // Textura ligada?
+uniform sampler2D gltab_unidade_textura;   // handler da textura.
+uniform vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
+uniform vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
+uniform vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
 //uniform bool gltab_stencil;              // Stencil ligado?
 
 void main() {
-  //if (gltab_luzes[0].cor.a > 0.0) {
-  //  gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-  //  return;
-  //}
-
-  //gl_FragColor = gltab_luz_direcional.pos;
   vec4 cor_final = vec4(0, 0, 0, 0);
-  float peso_nevoa = 0.0;
   if (gltab_luz) {
     // luz ambiente.
     cor_final += v_Color * gltab_luz_ambiente;
@@ -88,14 +83,16 @@ void main() {
   if (gltab_textura) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
-  if (gltab_nevoa) {
-    float distancia = length(v_Pos - gltab_referencia_nevoa);
-    if (distancia > gl_Fog.end) {
-      gl_FragColor = gl_Fog.color;
+  if (gltab_nevoa_cor.a > 0.0) {
+    float distancia = length(v_Pos - gltab_nevoa_referencia);
+    if (distancia > gltab_nevoa_dados.y) {
+      // muito longe, totalmente obfuscado.
+      gl_FragColor = gltab_nevoa_cor;
       return;
-    } else if (distancia > gl_Fog.start) {
-      float s = (distancia - gl_Fog.start) * gl_Fog.scale;
-      gl_FragColor = (cor_final * (1.0 - s)) + (gl_Fog.color * s);
+    } else if (distancia > gltab_nevoa_dados.x) {
+      // entre inicio e fim. Media ponderada da cor da nevoa com a do objeto.
+      float s = (distancia - gltab_nevoa_dados.x) * gltab_nevoa_dados.w;
+      gl_FragColor = (cor_final * (1.0 - s)) + (gltab_nevoa_cor * s);
       return;
     }
   }

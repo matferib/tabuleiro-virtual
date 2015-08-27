@@ -258,9 +258,7 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenuacao_constante, float atenuacao_quadratica);
 
 /** Funcoes de nevoa. */
-inline void Nevoa(GLenum param, GLfloat valor) { glFogf(param, valor); }
-inline void Nevoa(GLenum param, const GLfloat* valor) { glFogfv(param, valor); }
-inline void ModoNevoa(GLint modo) { glFogf(GL_FOG_MODE, modo); }
+void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);
@@ -462,7 +460,9 @@ class Contexto {
   GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
   GLint uni_gltab_textura;
   GLint uni_gltab_unidade_textura;
-  GLint uni_gltab_nevoa;
+  GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
+  GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
+  GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
