@@ -393,7 +393,7 @@ void LuzAmbiente(float r, float g, float b) {
 #if USAR_SHADER
   glUniform4f(interno::BuscaContexto()->uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
 #else
-  GLfloat glparams[4] = { params[0], params[1], params[2], 1.0f };
+  GLfloat glparams[4] = { r, g, b, 1.0f };
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, glparams);
 #endif
 }
@@ -415,7 +415,8 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   glUniform4f(c->uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
 #else
   glLightfv(GL_LIGHT0, GL_POSITION, pos);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, {r, g, b, 1.0f});
+  GLfloat cor[] = { r, g, b, 1.0f };
+  glLightfv(GL_LIGHT0, GL_DIFFUSE, cor);
 #endif
 }
 
@@ -436,12 +437,11 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenu
   glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
   glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], 6.0f  /*raio*/, 0, 0, 0);
 #else
-  GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
   gl::Luz(GL_LIGHT0 + luz, GL_POSITION, pos);
   GLfloat cor_luz[] = { r, g, b, 1.0f };
-  gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-  gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
-  gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
+  gl::Luz(GL_LIGHT0 + luz, GL_DIFFUSE, cor_luz);
+  gl::Luz(GL_LIGHT0 + luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
+  gl::Luz(GL_LIGHT0 + luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
 #endif
 }
 
@@ -460,7 +460,8 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
   glFogf(GL_FOG_MODE, GL_LINEAR);
   glFogf(GL_FOG_START, inicio);
   glFogf(GL_FOG_END, fim);
-  Nevoa(GL_FOG_COLOR, { r, g, b, 1.0f});
+  GLfloat cor[] = { r, g, b, 1.0f };
+  glFogfv(GL_FOG_COLOR, cor);
 #endif
 }
 
