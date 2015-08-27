@@ -67,6 +67,95 @@ bool ImprimeSeShaderErro(GLuint shader) {
   return true;
 }
 
+#if USAR_SHADER
+struct glsl_type_set {
+  GLenum      type;
+  const char* name;
+}
+type_set [] = {
+  {GL_INVALID_ENUM,                              "invalid" },
+  {GL_FLOAT,                                     "float" },
+  {GL_FLOAT_VEC2,                                "vec2" },
+  {GL_FLOAT_VEC3,                                "vec3" },
+  {GL_FLOAT_VEC4,                                "vec4" },
+  {GL_INT,                                       "int" },
+  {GL_INT_VEC2,                                  "ivec2" },
+  {GL_INT_VEC3,                                  "ivec3" },
+  {GL_INT_VEC4,                                  "ivec4" },
+  {GL_UNSIGNED_INT,                              "unsigned int" },
+  {GL_BOOL,                                      "bool" },
+  {GL_BOOL_VEC2,                                 "bvec2" },
+  {GL_BOOL_VEC3,                                 "bvec3" },
+  {GL_BOOL_VEC4,                                 "bvec4" },
+  {GL_FLOAT_MAT2,                                "mat2" },
+  {GL_FLOAT_MAT3,                                "mat3" },
+  {GL_FLOAT_MAT4,                                "mat4" },
+  {GL_FLOAT_MAT2x3,                              "mat2x3" },
+  {GL_FLOAT_MAT2x4,                              "mat2x4" },
+  {GL_FLOAT_MAT3x2,                              "mat3x2" },
+  {GL_FLOAT_MAT3x4,                              "mat3x4" },
+  {GL_FLOAT_MAT4x2,                              "mat4x2" },
+  {GL_FLOAT_MAT4x3,                              "mat4x3" },
+  {GL_SAMPLER_1D,                                "sampler1D" },
+  {GL_SAMPLER_2D,                                "sampler2D" },
+  {GL_SAMPLER_3D,                                "sampler3D" },
+  {GL_SAMPLER_CUBE,                              "samplerCube" },
+  {GL_SAMPLER_1D_SHADOW,                         "sampler1DShadow" },
+  {GL_SAMPLER_2D_SHADOW,                         "sampler2DShadow" },
+};
+void print_uniforms(GLuint program) {
+  GLint uniform_count;
+  glGetProgramiv (program, GL_ACTIVE_UNIFORMS, &uniform_count);
+
+  GLchar name [256];
+
+  for (GLint i = 0; i < uniform_count; i++) {
+    memset (name, '\0', 256);
+    GLint  size;
+    GLenum type;
+
+    glGetActiveUniform (program, i, 255, NULL, &size, &type, name);
+
+    GLint location = glGetUniformLocation (program, name);
+
+    for (int j = 0; j < sizeof (type_set) / sizeof (glsl_type_set); j++) {
+      if (type_set [j].type != type)
+        continue;
+
+      const char* type_name = type_set [j].name;
+
+      if (size > 1)
+        printf ( "Uniform %d (loc=%d):\t%20s %-20s <Size: %d>\n",
+                   i, location, type_name, name, size );
+      else
+        printf ( "Uniform %d (loc=%d):\t%20s %-20s\n",
+                   i, location, type_name, name );
+
+      break;
+    }
+
+    if (i == (uniform_count - 1))
+      printf ("\n");
+  }
+}
+#endif
+
+#if USAR_SHADER
+// Funcoes para buscar o indice do uniforme uni_gltab_luzes.
+// id_luz [0, 7].
+int IndiceLuzPos(int id_luz) {
+  return id_luz * 3;
+}
+
+int IndiceLuzCor(int id_luz) {
+  return id_luz * 3 + 1;
+}
+
+int IndiceLuzAtributos(int id_luz) {
+  return id_luz * 3 + 2;
+}
+#endif
+
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 void IniciaShaders(interno::Contexto* contexto) {
 #if USAR_SHADER
@@ -111,6 +200,7 @@ void IniciaShaders(interno::Contexto* contexto) {
     *fs = f_shader;
   }
 
+  print_uniforms(*programa_luz);
   // Variaveis do shader.
   struct DadosVariavel {
     const char* nome;
@@ -126,7 +216,7 @@ void IniciaShaders(interno::Contexto* contexto) {
           {"gltab_textura", &contexto->uni_gltab_textura },
           {"gltab_unidade_textura", &contexto->uni_gltab_unidade_textura },
           {"gltab_nevoa", &contexto->uni_gltab_nevoa },
-          {"gltab_stencil", &contexto->uni_gltab_stencil },
+          //{"gltab_stencil", &contexto->uni_gltab_stencil },
   }) {
     *d.var = glGetUniformLocation(*programa_luz, d.nome);
     if (*d.var == -1) {
@@ -134,12 +224,17 @@ void IniciaShaders(interno::Contexto* contexto) {
     }
   }
   // Uniformes array.
-  for (int i = 1; i < 8; ++i) {
-    char nome_var[21];
-    snprintf(nome_var, 20, "gltab_luzes[%d]", i);
-    contexto->uni_gltab_luzes[i] = glGetUniformLocation(*programa_luz, nome_var);
-    if (contexto->uni_gltab_luzes[i] == -1) {
-      LOG(ERROR) << "Erro lendo uniforme " << nome_var;
+  for (int i = 0; i < 7; ++i) {
+    int j = 0;
+    for (const char* sub_var : std::vector<const char*>{"pos", "cor", "atributos"}) {
+      int pos = i * 3 + j;
+      char nome_var[100];
+      snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
+      contexto->uni_gltab_luzes[pos] = glGetUniformLocation(*programa_luz, nome_var);
+      if (contexto->uni_gltab_luzes[pos] == -1) {
+        LOG(ERROR) << "Erro lendo uniforme " << nome_var;
+      }
+      ++j;
     }
   }
 
@@ -174,15 +269,21 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
      glUniform1i(contexto->uni_gltab_luz, 1);
+  } else if (cap == GL_LIGHT0) {
+    GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
-    glUniform1i(contexto->uni_gltab_luzes[cap - GL_LIGHT0], 1);
+    GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1i(contexto->uni_gltab_textura, 1);
     glUniform1i(contexto->uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
   } else if (cap == GL_FOG) {
     glUniform1i(contexto->uni_gltab_nevoa, 1);
-  } else if (cap == GL_STENCIL_TEST) {
-    glUniform1i(contexto->uni_gltab_stencil, 1);
   }
 #endif
 }
@@ -192,15 +293,19 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   if (cap == GL_LIGHTING) {
      glUniform1i(contexto->uni_gltab_luz, 0);
   } else if (cap == GL_LIGHT0) {
-    glUniform4f(contexto->uni_gltab_luz_direcional_cor, 0.0f, 0.0f, 0.0f, 0.0f);
+    GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
-    glUniform1i(contexto->uni_gltab_luzes[cap - GL_LIGHT0], 0);
+    GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1i(contexto->uni_gltab_textura, 0);
   } else if (cap == GL_FOG) {
     glUniform1i(contexto->uni_gltab_nevoa, 0);
-  } else if (cap == GL_STENCIL_TEST) {
-    glUniform1i(contexto->uni_gltab_stencil, 0);
   }
 #endif
 }
@@ -304,6 +409,32 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
 #else
   glLightfv(GL_LIGHT0, GL_POSITION, pos);
   glLightfv(GL_LIGHT0, GL_DIFFUSE, {r, g, b, 1.0f});
+#endif
+}
+
+void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenuacao_constante, float atenuacao_quadratica) {
+#if USAR_SHADER
+  if (luz <= 0 || luz > 8) {
+    LOG(ERROR) << "Luz invalida: " << luz;
+    return;
+  }
+  auto* c = interno::BuscaContexto();
+  // Transforma a posicao em coordenadas da camera.
+  float glm[16];
+  gl::Le(GL_MODELVIEW_MATRIX, glm);
+  Matrix4 m(glm);
+  Vector4 vp(pos[0], pos[1], pos[2], 1.0f);
+  vp = m * vp;
+  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
+  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
+  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], 6.0f  /*raio*/, 0, 0, 0);
+#else
+  GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
+  gl::Luz(GL_LIGHT0 + luz, GL_POSITION, pos);
+  GLfloat cor_luz[] = { r, g, b, 1.0f };
+  gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
+  gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
+  gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
 #endif
 }
 

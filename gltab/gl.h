@@ -255,6 +255,7 @@ inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, no
 inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
 void LuzAmbiente(float r, float g, float b);
 void LuzDirecional(const GLfloat* pos, float r, float g, float b);
+void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenuacao_constante, float atenuacao_quadratica);
 
 /** Funcoes de nevoa. */
 inline void Nevoa(GLenum param, GLfloat valor) { glFogf(param, valor); }
@@ -457,13 +458,11 @@ class Contexto {
   GLint uni_gltab_luz;                  // Iluminacao ligada?
   GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente.
   GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
-  GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional.
-  //GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4).
-  GLint uni_gltab_luzes[8];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4).
+  GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional ().
+  GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
   GLint uni_gltab_textura;
   GLint uni_gltab_unidade_textura;
   GLint uni_gltab_nevoa;
-  GLint uni_gltab_stencil;
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;

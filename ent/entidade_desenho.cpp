@@ -11,10 +11,10 @@
 #include "m3d/m3d.h"
 
 namespace gl {
-bool ImprimeSeErro();
+bool ImprimeSeErro(const char*);
 }  // namespace gl
 
-#define V_ERRO() do { gl::ImprimeSeErro(); } while (0)
+#define V_ERRO(X) do { gl::ImprimeSeErro(X); } while (0)
 
 namespace ent {
 
@@ -436,12 +436,8 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // Objeto de luz. O quarto componente indica que a luz é posicional.
     // Se for 0, a luz é direcional e os componentes indicam sua direção.
     GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
-    gl::Luz(GL_LIGHT0 + id_luz, GL_POSITION, pos_luz);
     const ent::Cor& cor = proto_.luz().cor();
-    GLfloat cor_luz[] = { cor.r(), cor.g(), cor.b(), cor.a() };
-    gl::Luz(GL_LIGHT0 + id_luz, GL_DIFFUSE, cor_luz);
-    gl::Luz(GL_LIGHT0 + id_luz, GL_CONSTANT_ATTENUATION, 0.5f + sinf(vd_.angulo_disco_luz_rad) * 0.1);
-    gl::Luz(GL_LIGHT0 + id_luz, GL_QUADRATIC_ATTENUATION, 0.02f);
+    gl::LuzPontual(id_luz, pos_luz, cor.r(), cor.g(), cor.b(), 0.5f + sinf(vd_.angulo_disco_luz_rad) * 0.1, 0.02f);
     gl::Habilita(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }

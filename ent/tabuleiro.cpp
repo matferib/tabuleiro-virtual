@@ -1922,11 +1922,17 @@ void Tabuleiro::AcaoAnterior() {
 }
 
 // privadas
+#define V_ERRO(X) \
+  do { \
+    auto e = glGetError(); \
+    if (e != GL_NO_ERROR) { \
+        LOG_EVERY_N(ERROR, 1000) << "erro " << X << ", codigo: " << e << ", " << gluErrorString(e); \
+          return;\
+        } \
+  } while (0)
+
 void Tabuleiro::DesenhaCena() {
-  if (glGetError() != GL_NO_ERROR) {
-    LOG_EVERY_N(ERROR, 1000) << "ha algum erro no opengl, investigue";
-    return;
-  }
+  V_ERRO("ha algum erro no opengl, investigue");
 
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
   // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
@@ -1941,13 +1947,15 @@ void Tabuleiro::DesenhaCena() {
                  proto_corrente_->luz_ambiente().b(),
                  proto_corrente_->luz_ambiente().a());
   gl::Limpa(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
+  V_ERRO("desabilitando luzes");
+
   gl::ModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
-  //gl::DebugaMatrizes();
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (camera_isometrica_ || (olho_.altura() > (2 * olho_.raio()))) {
@@ -1955,6 +1963,7 @@ void Tabuleiro::DesenhaCena() {
   } else {
     parametros_desenho_.set_desenha_texturas_para_cima(false);
   }
+  V_ERRO("configurando olhar");
 
   if (parametros_desenho_.iluminacao()) {
     gl::Habilita(GL_LIGHTING);
@@ -1963,12 +1972,12 @@ void Tabuleiro::DesenhaCena() {
     gl::Desabilita(GL_LIGHTING);
     gl::Desabilita(GL_FOG);
   }
+  V_ERRO("desenhando luzes");
 
-  //ceu_.desenha(parametros_desenho_);
   if (!parametros_desenho_.has_picking_x() && parametros_desenho_.desenha_texturas() && proto_corrente_->has_info_textura_ceu()) {
     DesenhaCaixaCeu();
   }
-
+  V_ERRO("desenhando caixa do ceu");
 
   // desenha tabuleiro do sul para o norte.
   {
@@ -1978,11 +1987,12 @@ void Tabuleiro::DesenhaCena() {
         opcoes_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
-
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
     }
   }
+  V_ERRO("desenhando tabuleiro");
+
   // Algumas verificacoes.
   GLint depth = 0;
   gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
@@ -2012,10 +2022,12 @@ void Tabuleiro::DesenhaCena() {
     // na hora do picking.
     DesenhaEntidades();
   }
+  V_ERRO("desenhando entidades");
 
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
   }
+  V_ERRO("desenhando acoes");
 
   // Sombras.
   if (parametros_desenho_.desenha_sombras() &&
@@ -2026,6 +2038,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaSombras();
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
   }
+  V_ERRO("desenhando sombras");
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
@@ -2035,6 +2048,7 @@ void Tabuleiro::DesenhaCena() {
     float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
     DesenhaStencil3d(tam_x, tam_y, COR_AZUL_ALFA);
   }
+  V_ERRO("desenhando stencil sombras");
 
   if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
     DesenhaFormaSelecionada();
@@ -2068,6 +2082,7 @@ void Tabuleiro::DesenhaCena() {
       DesenhaEntidadesTranslucidas();
     }
   }
+  V_ERRO("desenhando entidades alfa");
 
   //-------------
   // DESENHOS 2D.
@@ -2248,16 +2263,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
     x = 0;
     y += TAMANHO_LADO_QUADRADO;
   }
-  LOG(ERROR) << "TamX: " << TamanhoX() << ", TamY: " << TamanhoY() << ", x*y: " << TamanhoX() * TamanhoY();
-  LOG(ERROR) << "indicesantes: " << indices_tabuleiro.size();
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
-  LOG(ERROR) << "REGERANDO ng: " << tabuleiro_nao_gravado.ParaString();
-  LOG(ERROR) << "REGERANDO g: " << vbo_tabuleiro_.ParaString();
-  LOG(ERROR) << "indices: " << indices_tabuleiro.size();
 
   // Regera a grade.
   std::vector<float> coordenadas_grade;
@@ -2574,6 +2584,7 @@ void Tabuleiro::DesenhaSombras() {
   DesenhaEntidadesBase(
       std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear),
       true);
+
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
   //gl::HabilitaEscopo habilita_blend(GL_BLEND);
