@@ -130,6 +130,8 @@ class VboGravado {
 #endif
   }
 
+  const std::string& nome() const { return nome_; }
+
  private:
   friend class VboNaoGravado;
 

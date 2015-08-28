@@ -13,8 +13,6 @@
 namespace gl {
 
 bool ImprimeSeErro(const char* mais);
-#define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
-#define V_ERRO_MAIS(X) do { if (ImprimeSeErro(X)) return; } while (0)
 
 namespace interno {
 struct ContextoEs : public ContextoDependente {
@@ -33,7 +31,7 @@ struct ContextoEs : public ContextoDependente {
   bool* depurar_selecao_por_cor;
 
   inline bool UsarSelecaoPorCor() const {
-    return modo_renderizacao == MR_SELECT || depurar_selecao_por_cor ;
+    return modo_renderizacao == MR_SELECT || *depurar_selecao_por_cor;
   }
 };
 }  // namespace interno
@@ -50,7 +48,7 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   if (g_contexto_interno->proximo_id == ((1 << 21) - 1)) {
     LOG(ERROR) << "Limite de ids alcancado";
   } else {
-    if (g_contexto_interno->depurar_selecao_por_cor) {
+    if (*g_contexto_interno->depurar_selecao_por_cor) {
       // Mais facil de ver.
       g_contexto_interno->proximo_id += 5;
     } else {
@@ -105,10 +103,10 @@ void Habilita(GLenum cap) {
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
   interno::DesabilitaComShader(&g_contexto, cap);
-  V_ERRO_MAIS((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
+  V_ERRO((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
 #else
   glDisable(cap);
-  V_ERRO_MAIS("acola");
+  V_ERRO("acola");
 #endif
 }
 

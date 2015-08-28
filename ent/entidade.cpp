@@ -15,9 +15,6 @@ namespace gl {
 bool ImprimeSeErro();
 }  // namespace gl
 
-#define V_ERRO() do { if (gl::ImprimeSeErro()) return; } while (0)
-
-
 namespace ent {
 namespace {
 

@@ -24,8 +24,6 @@ bool ImprimeSeErro(const char* mais) {
   }
   return false;
 }
-#define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
-#define V_ERRO_MAIS(X) do { if (ImprimeSeErro(X)) return; } while (0)
 
 namespace interno {
 
@@ -170,38 +168,38 @@ void IniciaComum(interno::Contexto* contexto) {
   GLuint* vs = &contexto->vs;
   GLuint* fs = &contexto->fs;
 
-  V_ERRO_MAIS("antes vertex shader");
+  V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   // Programa de luz.
   {
     GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-    V_ERRO_MAIS("criando vertex shader");
+    V_ERRO("criando vertex shader");
     GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    V_ERRO_MAIS("criando fragment shader");
+    V_ERRO("criando fragment shader");
     std::string codigo_v_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, "vert_luz.c", &codigo_v_shader_str);
     const char* codigo_v_shader = codigo_v_shader_str.c_str();
     glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-    V_ERRO_MAIS("shader source vertex");
+    V_ERRO("shader source vertex");
     std::string codigo_f_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, "frag_luz.c", &codigo_f_shader_str);
     const char* codigo_f_shader = codigo_f_shader_str.c_str();
     glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-    V_ERRO_MAIS("shader source fragment");
+    V_ERRO("shader source fragment");
     glCompileShader(v_shader);
     V_ERRO_SHADER(v_shader);
     glCompileShader(f_shader);
     V_ERRO_SHADER(f_shader);
     GLuint p = glCreateProgram();
-    V_ERRO_MAIS("criando programa shader");
+    V_ERRO("criando programa shader");
     glAttachShader(p, v_shader);
-    V_ERRO_MAIS("atachando vertex no programa shader");
+    V_ERRO("atachando vertex no programa shader");
     glAttachShader(p, f_shader);
-    V_ERRO_MAIS("atachando fragment no programa shader");
+    V_ERRO("atachando fragment no programa shader");
     glLinkProgram(p);
-    V_ERRO_MAIS("linkando programa shader");
+    V_ERRO("linkando programa shader");
     glUseProgram(p);
-    V_ERRO_MAIS("usando programa shader");
+    V_ERRO("usando programa shader");
     *programa_luz = p;
     *vs = v_shader;
     *fs = f_shader;
@@ -301,6 +299,8 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     GLfloat cor[4];
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
+  } else if (cap == GL_NORMALIZE) {
+    // Shader ja normaliza tudo.
   } else {
     return glEnable(cap);
   }
@@ -328,6 +328,8 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     GLfloat cor[4];
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
+  } else if (cap == GL_NORMALIZE) {
+    // Shader ja normaliza tudo.
   } else {
     glDisable(cap);
   }
@@ -341,7 +343,7 @@ void EmpilhaMatriz() {
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
-  ATUALIZA_MATRIZES_NOVO();
+  //ATUALIZA_MATRIZES_NOVO();
 #else
   glPushMatrix();
 #endif
