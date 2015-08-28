@@ -821,35 +821,17 @@ void DesenhaVbo(GLenum modo,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
-#if USAR_SHADER
-  auto* c = interno::BuscaContexto();
-  glEnableVertexAttribArray(c->atr_gltab_vertice);
-#else
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-#endif
-
   if (tem_normais) {
-#if USAR_SHADER
-    glEnableVertexAttribArray(c->atr_gltab_normal);
-#else
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
-#endif
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
   }
   if (tem_texturas) {
-#if USAR_SHADER
-    glEnableVertexAttribArray(c->atr_gltab_textura);
-#else
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-#endif
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   }
   if (tem_cores) {
-#if USAR_SHADER
-    glEnableVertexAttribArray(c->atr_gltab_cor);
-#else
     gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
-#endif
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   }
 
@@ -857,17 +839,10 @@ void DesenhaVbo(GLenum modo,
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
   V_ERRO_ARG("9");
 
-#if USAR_SHADER
-  glDisableVertexAttribArray(c->atr_gltab_vertice);
-  glDisableVertexAttribArray(c->atr_gltab_normal);
-  glDisableVertexAttribArray(c->atr_gltab_cor);
-  glDisableVertexAttribArray(c->atr_gltab_textura);
-#else
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-#endif
 }
 
 }  // namespace
