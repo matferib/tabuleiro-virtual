@@ -749,34 +749,27 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
   return ret;
 }
 
+void Le(GLenum nome_parametro, GLfloat* valor) {
 #if USAR_SHADER
-void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();
-  GLenum modo;
-  glGetIntegerv(GL_MATRIX_MODE, (GLint*)&modo);
-  GLuint mloc = (modo == GL_MODELVIEW) ? c->uni_gltab_mvm : c->uni_gltab_prm;
-  float m[16];
-  gl::Le(modo == GL_MODELVIEW ? GL_MODELVIEW_MATRIX : GL_PROJECTION_MATRIX, m);
-  glUniformMatrix4fv(mloc, 1, false, m);
-  c->pilha_corrente->top().set(m);
-  if (modo == GL_PROJECTION) {
-    return;
+  if (nome_parametro == GL_MODELVIEW_MATRIX) {
+    memcpy(valor, c->pilha_mvm.top().get(), 16 * sizeof(float));
+  } else if (nome_parametro == GL_PROJECTION_MATRIX) {
+    memcpy(valor, c->pilha_prj.top().get(), 16 * sizeof(float));
+  } else {
+    glGetFloatv(nome_parametro, valor);
   }
-
-  // Normal matrix, apenas para modelview.
-  Matrix3 normal(m[0], m[1], m[2],
-                 m[4], m[5], m[6],
-                 m[8], m[9], m[10]);
-  normal.invert().transpose();
-  glUniformMatrix3fv(c->uni_gltab_nm, 1, false, normal.get());
+#else
+  glGetFloatv(nome_parametro, valor);
+#endif
 }
 
+#if USAR_SHADER
 void AtualizaMatrizesNovo() {
   auto* c = interno::BuscaContexto();
   bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
   GLuint mloc = modo_mv ? c->uni_gltab_mvm : c->uni_gltab_prm;
   glUniformMatrix4fv(mloc, 1, false, c->pilha_corrente->top().get());
-  glLoadMatrixf(c->pilha_corrente->top().get());
   if (!modo_mv) {
     return;
   }

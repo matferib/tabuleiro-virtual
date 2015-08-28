@@ -58,14 +58,12 @@ void FinalizaGl();
 
 
 #if USAR_SHADER
-#define ATUALIZA_MATRIZES() AtualizaMatrizes()
 #define ATUALIZA_MATRIZES_NOVO() AtualizaMatrizesNovo()
 // Atualiza as matrizes do shader.
 void AtualizaMatrizes();
 void AtualizaMatrizesNovo();
 void DebugaMatrizes();
 #else
-#define ATUALIZA_MATRIZES()
 #define ATUALIZA_MATRIZES_NOVO()
 #endif
 
@@ -138,11 +136,8 @@ inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
 inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
 
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
-inline void Le(GLenum nome_parametro, GLfloat* valor) { glGetFloatv(nome_parametro, valor); }
+void Le(GLenum nome_parametro, GLfloat* valor);
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
-#if !USAR_OPENGL_ES
-inline void Le(GLenum nome_parametro, GLdouble* valor) { glGetDoublev(nome_parametro, valor); }
-#endif
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
 
 void CarregaIdentidade();
