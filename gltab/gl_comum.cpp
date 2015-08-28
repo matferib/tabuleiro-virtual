@@ -763,6 +763,44 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
 #endif
 }
 
+void HabilitaEstadoCliente(GLenum cap) {
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  if (cap == GL_VERTEX_ARRAY) {
+    glEnableVertexAttribArray(c->atr_gltab_vertice);
+  } else if (cap == GL_NORMAL_ARRAY) {
+    glEnableVertexAttribArray(c->atr_gltab_normal);
+  } else if (cap == GL_COLOR_ARRAY) {
+    glEnableVertexAttribArray(c->atr_gltab_cor);
+  } else if (cap == GL_TEXTURE_COORD_ARRAY) {
+    glEnableVertexAttribArray(c->atr_gltab_textura);
+  } else {
+    glEnableClientState(cap);
+  }
+#else
+  glEnableClientState(cap);
+#endif
+}
+
+void DesabilitaEstadoCliente(GLenum cap) {
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  if (cap == GL_VERTEX_ARRAY) {
+    glDisableVertexAttribArray(c->atr_gltab_vertice);
+  } else if (cap == GL_NORMAL_ARRAY) {
+    glDisableVertexAttribArray(c->atr_gltab_normal);
+  } else if (cap == GL_COLOR_ARRAY) {
+    glDisableVertexAttribArray(c->atr_gltab_cor);
+  } else if (cap == GL_TEXTURE_COORD_ARRAY) {
+    glDisableVertexAttribArray(c->atr_gltab_textura);
+  } else {
+    glDisableClientState(cap);
+  }
+#else
+  glDisableClientState(cap);
+#endif
+}
+
 #if USAR_SHADER
 void AtualizaMatrizesNovo() {
   auto* c = interno::BuscaContexto();

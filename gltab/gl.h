@@ -132,8 +132,8 @@ void InicioCena();
 bool EstaHabilitado(GLenum cap);
 void Habilita(GLenum cap);
 void Desabilita(GLenum cap);
-inline void HabilitaEstadoCliente(GLenum cap) { glEnableClientState(cap); }
-inline void DesabilitaEstadoCliente(GLenum cap) { glDisableClientState(cap); }
+void HabilitaEstadoCliente(GLenum cap);
+void DesabilitaEstadoCliente(GLenum cap);
 
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 void Le(GLenum nome_parametro, GLfloat* valor);
