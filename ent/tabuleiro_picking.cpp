@@ -77,10 +77,10 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
   *numero_hits = gl::ModoRenderizacao(gl::MR_RENDER);
-  auto e = glGetError();
-  if (e != GL_NO_ERROR) {
-    LOG(ERROR) << "Erro de picking: " << gluErrorString(e);
-  }
+  //auto e = glGetError();
+  //if (e != GL_NO_ERROR) {
+  //  LOG(ERROR) << "Erro de picking: " << gluErrorString(e);
+  //}
 
   // Restaura projecao manualmente por causa da pilha pequena.
   gl::MudarModoMatriz(GL_PROJECTION);

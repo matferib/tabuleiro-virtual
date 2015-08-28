@@ -105,7 +105,7 @@ void Habilita(GLenum cap) {
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
   interno::DesabilitaComShader(&g_contexto, cap);
-  V_ERRO_MAIS("aqui");
+  V_ERRO_MAIS((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
 #else
   glDisable(cap);
   V_ERRO_MAIS("acola");
@@ -198,7 +198,11 @@ void CarregaNome(GLuint id) {
   VLOG(2) << "Mapeando " << id << ", bit pilha " << g_contexto_interno->bit_pilha
           << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
   // Muda a cor para a mapeada.
+#if USAR_SHADER
+  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+#else
   glColor4ub(rgb[0], rgb[1], rgb[2], 255);
+#endif
 }
 
 void DesempilhaNome() {

@@ -457,8 +457,8 @@ void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
 #if USAR_SHADER
   glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
 #else
-#endif
   glNormalPointer(tipo, passo, normais);
+#endif
 }
 
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
