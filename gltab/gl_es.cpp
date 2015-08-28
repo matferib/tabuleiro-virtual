@@ -112,17 +112,6 @@ void Desabilita(GLenum cap) {
 #endif
 }
 
-
-GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
-                 const GLfloat modelMatrix[16],
-                 const GLfloat projMatrix[16],
-                 const GLint viewport[4],
-                 GLfloat* objx, GLfloat* objy, GLfloat* objz) {
-  auto ret = glu::Unproject(winx, winy, winz, modelMatrix, projMatrix, viewport, objx, objy, objz);
-  ATUALIZA_MATRIZES();
-  return ret;
-}
-
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
   if (g_contexto_interno->modo_renderizacao == modo) {
     VLOG(1) << "Nao houve mudanca no modo de renderizacao";

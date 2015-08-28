@@ -180,11 +180,7 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
 
 bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
   // Intersecao de reta com plano z=0.
-#if !USAR_OPENGL_ES
-  GLdouble modelview[16], projection[16];
-#else
   GLfloat modelview[16], projection[16];
-#endif
   GLint viewport[4];
   gl::Le(GL_MODELVIEW_MATRIX, modelview);
   gl::Le(GL_PROJECTION_MATRIX, projection);
@@ -207,7 +203,7 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
 
 #if !USAR_OPENGL_ES
 bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
-  GLdouble modelview[16], projection[16];
+  GLfloat modelview[16], projection[16];
   GLint viewport[4];
   gl::Le(GL_MODELVIEW_MATRIX, modelview);
   gl::Le(GL_PROJECTION_MATRIX, projection);

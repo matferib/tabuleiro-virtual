@@ -94,7 +94,6 @@ class MatrizEscopo {
       MudarModoMatriz(modo_);
     }
     DesempilhaMatriz();
-    ATUALIZA_MATRIZES();
     if (modo_anterior_ != GL_INVALID_ENUM) {
       MudarModoMatriz(modo_anterior_);
     }
@@ -157,7 +156,6 @@ inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) {
   glViewport(x, y, largura, altura);
-  ATUALIZA_MATRIZES();
 }
 
 // Texturas.
@@ -293,21 +291,9 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
 void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante);
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport);
-
-#if !USAR_OPENGL_ES
-inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
-                        const GLdouble* model, const GLdouble* proj, const GLint* view,
-                        GLfloat* x3d, GLfloat* y3d, GLfloat* z3d) {
-  double x3dd, y3dd, z3dd;
-  GLint ret = gluUnProject(x_janela, y_janela, profundidade_3d, model, proj, view, &x3dd, &y3dd, &z3dd);
-  *x3d = x3dd; *y3d = y3dd; *z3d = z3dd;
-  return ret;
-}
-#else
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
                  GLfloat* x3d, float* y3d, float* z3d);
-#endif
 
 /** Picking. */
 #if !USAR_OPENGL_ES

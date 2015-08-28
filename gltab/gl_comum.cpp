@@ -609,9 +609,6 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
-#if USAR_SHADER
-#else
-#endif
   // Copiado do glues.
   GLfloat m[4][4];
   GLfloat sine, cotangent, deltaZ;
@@ -632,8 +629,13 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   m[2][3] = -1.0f;
   m[3][2] = -2.0f * zNear * zFar / deltaZ;
   m[3][3] = 0;
+#if USAR_SHADER
+  Matrix4& topo = interno::BuscaContexto()->pilha_corrente->top();
+  topo *= Matrix4(&m[0][0]);
+  ATUALIZA_MATRIZES_NOVO();
+#else
   MultiplicaMatriz(&m[0][0]);
-  ATUALIZA_MATRIZES();
+#endif
 }
 
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
@@ -674,8 +676,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   Matrix4& topo = c->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
   topo *= Matrix4().translate(-eyex, -eyey, -eyez);
-  glLoadMatrixf(topo.get());
-  ATUALIZA_MATRIZES();
+  ATUALIZA_MATRIZES_NOVO();
 #else
   glMultMatrixf(&m[0][0]);
   glTranslatef(-eyex, -eyey, -eyez);
@@ -719,15 +720,33 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
     return;
   }
 
+  Matrix4& topo = interno::BuscaContexto()->pilha_corrente->top();
+  Matrix4 mt;
+  mt.scale(viewport[2] / delta_x, viewport[3] / delta_y, 1.0).translate(
+      (viewport[2] - 2 * (x - viewport[0])) / delta_x,
+      (viewport[3] - 2 * (y - viewport[1])) / delta_y,
+      0);
+  topo *= mt;
+  ATUALIZA_MATRIZES_NOVO();
+#else
+  if (delta_x <= 0 || delta_y <= 0) {
+    return;
+  }
+
   /* Translate and scale the picked region to the entire window */
   glTranslatef((viewport[2] - 2 * (x - viewport[0])) / delta_x,
                (viewport[3] - 2 * (y - viewport[1])) / delta_y, 0);
   glScalef(viewport[2] / delta_x, viewport[3] / delta_y, 1.0);
-  ATUALIZA_MATRIZES();
-#else
-  gluPickMatrix(x, y, delta_x, delta_y, viewport);
-  ATUALIZA_MATRIZES();
 #endif
+}
+
+GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
+                 const GLfloat modelMatrix[16],
+                 const GLfloat projMatrix[16],
+                 const GLint viewport[4],
+                 GLfloat* objx, GLfloat* objy, GLfloat* objz) {
+  auto ret = glu::Unproject(winx, winy, winz, modelMatrix, projMatrix, viewport, objx, objy, objz);
+  return ret;
 }
 
 #if USAR_SHADER
