@@ -292,6 +292,7 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
 /** Transformacao de projecao. */
 void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante);
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport);
 
 #if !USAR_OPENGL_ES
 inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundidade_3d,
@@ -302,15 +303,10 @@ inline GLint Desprojeta(GLdouble x_janela, GLdouble y_janela, GLdouble profundid
   *x3d = x3dd; *y3d = y3dd; *z3d = z3dd;
   return ret;
 }
-inline void MatrizPicking(GLdouble x, GLdouble y, GLdouble delta_x, GLdouble delta_y, GLint *viewport) {
-  gluPickMatrix(x, y, delta_x, delta_y, viewport);
-  ATUALIZA_MATRIZES();
-}
 #else
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
                  GLfloat* x3d, float* y3d, float* z3d);
-void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport);
 #endif
 
 /** Picking. */

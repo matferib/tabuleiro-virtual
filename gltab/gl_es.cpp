@@ -123,18 +123,6 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
   return ret;
 }
 
-void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
-  if (delta_x <= 0 || delta_y <= 0) {
-      return;
-  }
-
-  /* Translate and scale the picked region to the entire window */
-  glTranslatef((viewport[2] - 2 * (x - viewport[0])) / delta_x,
-               (viewport[3] - 2 * (y - viewport[1])) / delta_y, 0);
-  glScalef(viewport[2] / delta_x, viewport[3] / delta_y, 1.0);
-  ATUALIZA_MATRIZES();
-}
-
 GLint ModoRenderizacao(modo_renderizacao_e modo) {
   if (g_contexto_interno->modo_renderizacao == modo) {
     VLOG(1) << "Nao houve mudanca no modo de renderizacao";

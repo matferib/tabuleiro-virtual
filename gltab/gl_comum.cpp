@@ -406,22 +406,33 @@ void MultiplicaMatriz(const GLfloat* matriz) {
 
 void Escala(GLfloat x, GLfloat y, GLfloat z) {
   glScalef(x, y, z);
-#if USAR_SHADER
   ATUALIZA_MATRIZES();
+  return;
+#if USAR_SHADER
+  auto& topo = interno::BuscaContexto()->pilha_corrente->top();
+  topo *= Matrix4().scale(x, y, z);
+  ATUALIZA_MATRIZES_NOVO();
 #else
 #endif
 }
+
 void Translada(GLfloat x, GLfloat y, GLfloat z) {
-  glTranslatef(x, y, z);
+  //glTranslatef(x, y, z);
 #if USAR_SHADER
-  ATUALIZA_MATRIZES();
+  auto& topo = interno::BuscaContexto()->pilha_corrente->top();
+  topo *= Matrix4().translate(x, y, z);
+  ATUALIZA_MATRIZES_NOVO();
 #else
 #endif
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
   glRotatef(angulo_graus, x, y, z);
-#if USAR_SHADER
   ATUALIZA_MATRIZES();
+  return;
+#if USAR_SHADER
+  auto& topo = interno::BuscaContexto()->pilha_corrente->top();
+  topo *= Matrix4().rotate(angulo_graus, x, y, z);
+  ATUALIZA_MATRIZES_NOVO();
 #else
 #endif
 }
@@ -605,18 +616,21 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
+#if USAR_SHADER
+#else
+#endif
   // Copiado do glues.
   GLfloat m[4][4];
   GLfloat sine, cotangent, deltaZ;
   GLfloat radians = (GLfloat)(fovy / 2.0f * __glPi /180.0f);
 
-  deltaZ=zFar-zNear;
-  sine=(GLfloat)sinf(radians);
+  deltaZ= zFar - zNear;
+  sine= (GLfloat)sinf(radians);
   if ((deltaZ==0.0f) || (sine==0.0f) || (aspect==0.0f))
   {
       return;
   }
-  cotangent=(GLfloat)(cos(radians)/sine);
+  cotangent= (GLfloat)(cos(radians)/sine);
 
   glu::PreencheIdentidade(&m[0][0]);
   m[0][0] = cotangent / aspect;
@@ -626,6 +640,7 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   m[3][2] = -2.0f * zNear * zFar / deltaZ;
   m[3][3] = 0;
   MultiplicaMatriz(&m[0][0]);
+  ATUALIZA_MATRIZES();
 }
 
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
@@ -705,6 +720,23 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
 #endif
 }
 
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
+#if USAR_SHADER
+  if (delta_x <= 0 || delta_y <= 0) {
+    return;
+  }
+
+  /* Translate and scale the picked region to the entire window */
+  glTranslatef((viewport[2] - 2 * (x - viewport[0])) / delta_x,
+               (viewport[3] - 2 * (y - viewport[1])) / delta_y, 0);
+  glScalef(viewport[2] / delta_x, viewport[3] / delta_y, 1.0);
+  ATUALIZA_MATRIZES();
+#else
+  gluPickMatrix(x, y, delta_x, delta_y, viewport);
+  ATUALIZA_MATRIZES();
+#endif
+}
+
 #if USAR_SHADER
 void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();
@@ -714,6 +746,7 @@ void AtualizaMatrizes() {
   float m[16];
   gl::Le(modo == GL_MODELVIEW ? GL_MODELVIEW_MATRIX : GL_PROJECTION_MATRIX, m);
   glUniformMatrix4fv(mloc, 1, false, m);
+  c->pilha_corrente->top().set(m);
   if (modo == GL_PROJECTION) {
     return;
   }
@@ -731,6 +764,7 @@ void AtualizaMatrizesNovo() {
   bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
   GLuint mloc = modo_mv ? c->uni_gltab_mvm : c->uni_gltab_prm;
   glUniformMatrix4fv(mloc, 1, false, c->pilha_corrente->top().get());
+  glLoadMatrixf(c->pilha_corrente->top().get());
   if (!modo_mv) {
     return;
   }

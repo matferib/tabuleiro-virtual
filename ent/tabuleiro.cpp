@@ -2698,58 +2698,6 @@ void Tabuleiro::AtualizaAcoes() {
   VLOG(3) << "Numero de acoes ativas: " << acoes_.size();
 }
 
-// Esta operacao se chama PICKING. Mais informacoes podem ser encontradas no capitulo 11-6 do livro verde
-// ou entao aqui http://gpwiki.org/index.php/OpenGL:Tutorials:Picking
-// basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
-// profundidade de quem o acertou.
-void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
-
-  // inicia o buffer de picking (selecao)
-  gl::BufferSelecao(100, buffer_hits);
-  // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
-  gl::ModoRenderizacao(gl::MR_SELECT);
-
-  gl::MudarModoMatriz(GL_PROJECTION);
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-  gl::CarregaIdentidade();
-  gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
-  ConfiguraProjecao();
-
-  // desenha a cena sem firulas.
-  parametros_desenho_.set_picking_x(x);
-  parametros_desenho_.set_picking_y(y);
-  parametros_desenho_.set_iluminacao(false);
-  parametros_desenho_.set_desenha_texturas(false);
-  parametros_desenho_.set_desenha_grade(false);
-  parametros_desenho_.set_desenha_fps(false);
-  parametros_desenho_.set_desenha_aura(false);
-  parametros_desenho_.set_desenha_sombras(false);
-  parametros_desenho_.set_limpa_fundo(false);
-  parametros_desenho_.set_transparencias(false);
-  parametros_desenho_.set_desenha_acoes(false);
-  parametros_desenho_.set_desenha_lista_pontos_vida(false);
-  parametros_desenho_.set_desenha_quadrado_selecao(false);
-  parametros_desenho_.set_desenha_rastro_movimento(false);
-  parametros_desenho_.set_desenha_forma_selecionada(false);
-  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
-  parametros_desenho_.set_desenha_nevoa(false);
-  parametros_desenho_.set_desenha_id_acao(false);
-  parametros_desenho_.set_desenha_detalhes(false);
-  parametros_desenho_.set_desenha_eventos_entidades(false);
-  parametros_desenho_.set_desenha_efeitos_entidades(false);
-  parametros_desenho_.set_desenha_coordenadas(false);
-  DesenhaCena();
-
-  // Volta pro modo de desenho, retornando quanto pegou no SELECT.
-  *numero_hits = gl::ModoRenderizacao(gl::MR_RENDER);
-
-  // Restaura projecao manualmente por causa da pilha pequena.
-  gl::MudarModoMatriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  ConfiguraProjecao();
-}
-
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
   ultimo_x_ = x;
   ultimo_y_ = y;
