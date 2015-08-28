@@ -855,6 +855,7 @@ void DesenhaVbo(GLenum modo,
 
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
+  V_ERRO_ARG("9");
 
 #if USAR_SHADER
   glDisableVertexAttribArray(c->atr_gltab_vertice);
@@ -865,8 +866,8 @@ void DesenhaVbo(GLenum modo,
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
-#endif
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+#endif
 }
 
 }  // namespace
