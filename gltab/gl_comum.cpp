@@ -342,7 +342,7 @@ void EmpilhaMatriz() {
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
-  ATUALIZA_MATRIZES();
+  ATUALIZA_MATRIZES_NOVO();
 #else
 #endif
 }
@@ -352,19 +352,19 @@ void DesempilhaMatriz() {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   c->pilha_corrente->pop();
-  ATUALIZA_MATRIZES();
+  ATUALIZA_MATRIZES_NOVO();
 #else
 #endif
 }
 
 GLenum ModoMatrizCorrente() {
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
+  return (c->pilha_corrente == &c->pilha_mvm) ? GL_MODELVIEW : GL_PROJECTION;
+#else
   GLenum ret;
   glGetIntegerv(GL_MATRIX_MODE, (GLint*)&ret);
   return ret;
-#if USAR_SHADER
-  //auto* c = interno::BuscaContexto();
-  //return (c->pilha_corrente == &c->pilha_mvm) ? GL_MODELVIEW : GL_PROJECTION;
-#else
 #endif
 }
 
@@ -377,63 +377,56 @@ void MudarModoMatriz(GLenum modo) {
   } else {
     c->pilha_corrente = &c->pilha_prj;
   }
-  ATUALIZA_MATRIZES();
+  ATUALIZA_MATRIZES_NOVO();
 #else
 #endif
 }
 
 void CarregaIdentidade() {
-  glLoadIdentity();
 #if USAR_SHADER
-  auto* c = interno::BuscaContexto();
-  c->pilha_corrente->top().identity();
-  ATUALIZA_MATRIZES();
+  interno::BuscaContexto()->pilha_corrente->top().identity();
+  ATUALIZA_MATRIZES_NOVO();
 #else
+  glLoadIdentity();
 #endif
 }
 
 void MultiplicaMatriz(const GLfloat* matriz) {
-  glMultMatrixf(matriz);
 #if USAR_SHADER
-  auto* c = interno::BuscaContexto();
-  Matrix4 m(matriz);
-  auto& corrente = c->pilha_corrente->top();
-  corrente = m * corrente;  // TODO verificar a ordem.
-  ATUALIZA_MATRIZES();
+  auto& topo = interno::BuscaContexto()->pilha_corrente->top();
+  topo *= Matrix4(matriz);
+  ATUALIZA_MATRIZES_NOVO();
 #else
+  glMultMatrixf(matriz);
 #endif
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z) {
-  glScalef(x, y, z);
-  ATUALIZA_MATRIZES();
-  return;
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().scale(x, y, z);
   ATUALIZA_MATRIZES_NOVO();
 #else
+  glScalef(x, y, z);
 #endif
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z) {
-  //glTranslatef(x, y, z);
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().translate(x, y, z);
   ATUALIZA_MATRIZES_NOVO();
 #else
+  glTranslatef(x, y, z);
 #endif
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
-  glRotatef(angulo_graus, x, y, z);
-  ATUALIZA_MATRIZES();
-  return;
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().rotate(angulo_graus, x, y, z);
   ATUALIZA_MATRIZES_NOVO();
 #else
+  glRotatef(angulo_graus, x, y, z);
 #endif
 }
 
