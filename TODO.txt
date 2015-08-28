@@ -34,7 +34,7 @@ Versao com Vbo:
 - Terminar a exportacao de formas e compostas (CORES).
 
 Versao com Shader:
-- OpenGL ES: matrizes proprias. fazer funcionar. Duplicar as funcionalidades para poder conferir cada uma.
+- OpenGL ES: desempenho, como tirar as chamadas de uniforme.
 - Shadow mapping.
 - Propriedade das luzes pontuais (distancia, cintilacao). Multiplicador de luz.
 

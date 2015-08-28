@@ -50,6 +50,24 @@
 #define RAD_PARA_GRAUS (180.0f / M_PI)
 #define GRAUS_PARA_RAD (M_PI / 180.0f)
 
+#if USAR_OPENGL_ES
+#define V_ERRO_STRING(e) ""
+#else
+#define V_ERRO_STRING(e) gluErrorString(e)
+#endif
+#if DEBUG
+#define V_ERRO(X)\
+  do {\
+    auto e = glGetError();\
+    if (e != GL_NO_ERROR) {\
+      LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e);\
+      return;\
+    }\
+  } while (0)
+#else
+#define V_ERRO(X)
+#endif
+
 namespace gl {
 
 // Inicializacao e finalizacao da parte grafica. Inicializacao lanca excecao std::logic_error em caso de erro.
@@ -60,7 +78,6 @@ void FinalizaGl();
 #if USAR_SHADER
 #define ATUALIZA_MATRIZES_NOVO() AtualizaMatrizesNovo()
 // Atualiza as matrizes do shader.
-void AtualizaMatrizes();
 void AtualizaMatrizesNovo();
 void DebugaMatrizes();
 #else

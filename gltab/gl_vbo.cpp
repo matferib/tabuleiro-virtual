@@ -176,7 +176,10 @@ std::string VboNaoGravado::ParaString() const {
 //-----------
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
+  V_ERRO_ARG("antes tudo gravar");
   Desgrava();
+  V_ERRO_ARG("depois desgravar");
+  nome_ = vbo_nao_gravado.nome();
   // Gera o buffer.
   gl::GeraBuffers(1, &nome_coordenadas_);
   V_ERRO_ARG("ao gerar buffer coordenadas");
@@ -204,7 +207,6 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   indices_ = vbo_nao_gravado.indices();
   gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
   V_ERRO_ARG("ao bufferizar elementos");
-  nome_ = vbo_nao_gravado.nome();
   gravado_ = true;
 }
 
@@ -836,18 +838,25 @@ void DesenhaVbo(GLenum modo,
   }
 
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
+  if (glGetError() != GL_NO_ERROR) {
+    LOG(INFO) << "AQUI";
+  }
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
-  V_ERRO_ARG("9");
 
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+  V_ERRO_ARG("10");
 }
 
 }  // namespace
 
 void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
+  if (!vbo.Gravado()) {
+    LOG(WARNING) << "ignorando vbo nao gravado: " << vbo.nome();
+    return;
+  }
   // Os casts de char* 0 sao para evitar warning de conversao de short pra void*.
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, vbo.nome_coordenadas());
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo.nome_indices());

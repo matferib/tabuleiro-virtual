@@ -63,8 +63,10 @@ else:
 
 if (debug == '1'):
   env['CXXFLAGS'] += ['-g']
+  env['CPPDEFINES']['DEBUG'] = '1'
 else:
   env['CXXFLAGS'] += ['-O2']
+  env['CPPDEFINES']['RELEASE'] = '1'
 
 usar_opengl_es = (ARGUMENTS.get('usar_opengl_es', '0') == '1')
 print 'usar_opengl_es : %r' % usar_opengl_es

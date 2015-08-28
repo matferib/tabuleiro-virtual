@@ -264,7 +264,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
 
   opcoes_.set_desenha_controle_virtual(true);
 
-  EstadoInicial();
+  //EstadoInicial();
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
@@ -300,15 +300,19 @@ void Tabuleiro::LiberaTextura() {
 }
 
 void Tabuleiro::EstadoInicial() {
+  V_ERRO("estado inicial");
   // Proto do tabuleiro.
   LiberaTextura();
+  V_ERRO("estado inicial pos textura");
   proto_.Clear();
   cenario_corrente_ = CENARIO_PRINCIPAL;
   proto_corrente_ = &proto_;
   // Iluminacao.
   ReiniciaIluminacao(&proto_);
+  V_ERRO("estado inicial pos iluminacao");
   // Olho.
   ReiniciaCamera();
+  V_ERRO("estado inicial pos camera");
 
   // Valores iniciais.
   ultimo_x_ = ultimo_y_ = 0;
@@ -341,6 +345,7 @@ void Tabuleiro::EstadoInicial() {
   if (gl_iniciado_) {
     RegeraVboTabuleiro();
   }
+  V_ERRO("estado inicial pos regerar");
 }
 
 void Tabuleiro::ConfiguraProjecao() {
@@ -1812,7 +1817,9 @@ void Tabuleiro::IniciaGL() {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
+#if !USAR_SHADER
   gl::Habilita(GL_COLOR_MATERIAL);
+#endif
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
@@ -1823,6 +1830,7 @@ void Tabuleiro::IniciaGL() {
   GeraVboRosaDosVentos();
   gl_iniciado_ = true;
 
+  EstadoInicial();
   Entidade::IniciaGl();
 }
 
@@ -1912,20 +1920,6 @@ void Tabuleiro::AcaoAnterior() {
 }
 
 // privadas
-#if USAR_OPENGL_ES
-#define V_ERRO_STRING(e) ""
-#else
-#define V_ERRO_STRING(e) gluErrorString(e)
-#endif
-#define V_ERRO(X) \
-  do { \
-    auto e = glGetError(); \
-    if (e != GL_NO_ERROR) { \
-        LOG_EVERY_N(ERROR, 1000) << "erro " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); \
-          return;\
-        } \
-  } while (0)
-
 void Tabuleiro::DesenhaCena() {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
@@ -1989,6 +1983,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando tabuleiro");
 
+#if 0
   // Algumas verificacoes.
   GLint depth = 0;
   gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
@@ -2004,6 +1999,7 @@ void Tabuleiro::DesenhaCena() {
   if (depth > 2) {
     LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento: " << depth;
   }
+#endif
 #endif
 
   if (VisaoMestre() && parametros_desenho_.desenha_pontos_rolagem()) {
@@ -2197,6 +2193,7 @@ void Tabuleiro::GeraVboCaixaCeu() {
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
+  V_ERRO("RegeraVboTabuleiro inicio");
   std::vector<float> coordenadas_tabuleiro;
   std::vector<float> coordenadas_textura;
   std::vector<unsigned short> indices_tabuleiro;
@@ -2263,7 +2260,9 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
+  V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
   std::vector<float> coordenadas_grade;
@@ -2375,6 +2374,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
   grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
   vbo_grade_.Grava(grade_nao_gravada);
+  V_ERRO("RegeraVboTabuleiro fim");
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -2398,6 +2398,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   // TODO transformar offsets em constantes.
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   gl::DesvioProfundidade(2.0f, 20.0f);
+  V_ERRO("GL_POLYGON_OFFSET_FILL e desvio");
   MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
@@ -2410,11 +2411,14 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   }
+  V_ERRO("textura");
 
   gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
+  V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
   gl::Desabilita(GL_TEXTURE_2D);
+  V_ERRO("depois vbo_tabuleiro_");
 
   // Desenha quadrado selecionado.
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
