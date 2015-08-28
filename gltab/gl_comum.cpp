@@ -337,23 +337,23 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }  // interno
 
 void EmpilhaMatriz() {
-  glPushMatrix();
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
   ATUALIZA_MATRIZES_NOVO();
 #else
+  glPushMatrix();
 #endif
 }
 
 void DesempilhaMatriz() {
-  glPopMatrix();
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   c->pilha_corrente->pop();
   ATUALIZA_MATRIZES_NOVO();
 #else
+  glPopMatrix();
 #endif
 }
 
@@ -369,7 +369,6 @@ GLenum ModoMatrizCorrente() {
 }
 
 void MudarModoMatriz(GLenum modo) {
-  glMatrixMode(modo);
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   if (modo == GL_MODELVIEW) {
@@ -379,6 +378,7 @@ void MudarModoMatriz(GLenum modo) {
   }
   ATUALIZA_MATRIZES_NOVO();
 #else
+  glMatrixMode(modo);
 #endif
 }
 
@@ -456,7 +456,6 @@ void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo,
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
 #if USAR_SHADER
   glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
-  //V_ERRO_MAIS("pointeiro normais");
 #else
 #endif
   glNormalPointer(tipo, passo, normais);
@@ -791,7 +790,7 @@ void DebugaMatrizes() {
                  mv[8], mv[9], mv[10]);
   normal.invert().transpose();
   LOG_EVERY_N(INFO, 300) << "MV: \n" << Matrix4(mv)
-                          << ", NM: \n" << normal;
+                         << ", NM: \n" << normal;
 }
 #endif
 
