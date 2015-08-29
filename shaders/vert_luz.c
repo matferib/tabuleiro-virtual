@@ -22,5 +22,5 @@ void main() {
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
   v_Tex.st = gltab_textura;
-  gl_Position = gltab_prm * gltab_mvm * gltab_vertice;
+  gl_Position = gltab_prm * v_Pos;
 }
