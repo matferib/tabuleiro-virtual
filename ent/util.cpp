@@ -130,19 +130,19 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     gl::MatrizEscopo salva_matriz;
-    gl::Translada(ponto.x(), ponto.y(), ponto.z());
+    gl::Translada(ponto.x(), ponto.y(), ponto.z(), false);
     // Disco do ponto corrente.
     gl::Disco(largura / 2.0f, 12);
     // Reta ate proximo ponto.
     const auto& proximo_ponto = *(++it);
     float tam;
     float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
-    gl::Roda(graus, 0.0f, 0.0f, 1.0f);
+    gl::Roda(graus, 0.0f, 0.0f, 1.0f, false);
     gl::Retangulo(0, -largura / 2.0f, tam, largura / 2.0f);
   }
   const auto& ponto = *(pontos.end() - 1);
   gl::MatrizEscopo salva_matriz;
-  gl::Translada(ponto.x(), ponto.y(), ponto.z());
+  gl::Translada(ponto.x(), ponto.y(), ponto.z(), false);
   gl::Disco(largura / 2.0f, 12);
 }
 

@@ -57,15 +57,15 @@ void Entidade::AtualizaTexturasEntidadesCompostasProto(
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
-  gl::MatrizEscopo salva_matriz;
+  gl::MatrizEscopo salva_matriz(false);
   if (matriz_shear != nullptr) {
-    gl::MultiplicaMatriz(matriz_shear);
+    gl::MultiplicaMatriz(matriz_shear, false);
   }
-  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f);
-  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
-  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
-  gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0);
-  gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
+  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
+  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
+  gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0, false);
+  gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
   for (const auto& forma : proto.sub_forma()) {
     DesenhaObjetoProto(forma, vd, pd, nullptr);
   }

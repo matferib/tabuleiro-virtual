@@ -214,7 +214,6 @@ void IniciaComum(interno::Contexto* contexto) {
 
   // Variaveis uniformes.
   for (const auto& d : std::vector<DadosVariavel> {
-          {"gltab_luz", &contexto->uni_gltab_luz },
           {"gltab_luz_ambiente", &contexto->uni_gltab_luz_ambiente_cor },
           {"gltab_luz_direcional.cor", &contexto->uni_gltab_luz_direcional_cor },
           {"gltab_luz_direcional.pos", &contexto->uni_gltab_luz_direcional_pos },
@@ -280,7 +279,10 @@ void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs) {
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
-     glUniform1i(contexto->uni_gltab_luz, 1);
+    GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(uniforme, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
@@ -310,7 +312,10 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_LIGHTING) {
-     glUniform1i(contexto->uni_gltab_luz, 0);
+    GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glUniform4f(uniforme, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
@@ -338,22 +343,22 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 
 }  // interno
 
-void EmpilhaMatriz() {
+void EmpilhaMatriz(bool atualizar) {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
-  //ATUALIZA_MATRIZES_NOVO();
+  //if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glPushMatrix();
 #endif
 }
 
-void DesempilhaMatriz() {
+void DesempilhaMatriz(bool atualizar) {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   c->pilha_corrente->pop();
-  ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glPopMatrix();
 #endif
@@ -384,49 +389,49 @@ void MudarModoMatriz(GLenum modo) {
 #endif
 }
 
-void CarregaIdentidade() {
+void CarregaIdentidade(bool atualizar) {
 #if USAR_SHADER
   interno::BuscaContexto()->pilha_corrente->top().identity();
-  ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glLoadIdentity();
 #endif
 }
 
-void MultiplicaMatriz(const GLfloat* matriz) {
+void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4(matriz);
-  ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glMultMatrixf(matriz);
 #endif
 }
 
-void Escala(GLfloat x, GLfloat y, GLfloat z) {
+void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().scale(x, y, z);
-  ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glScalef(x, y, z);
 #endif
 }
 
-void Translada(GLfloat x, GLfloat y, GLfloat z) {
+void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().translate(x, y, z);
-  ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glTranslatef(x, y, z);
 #endif
 }
-void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
+void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
 #if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().rotate(angulo_graus, x, y, z);
-  ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glRotatef(angulo_graus, x, y, z);
 #endif
@@ -492,8 +497,10 @@ bool EstaHabilitado(GLenum cap) {
   auto* contexto = interno::BuscaContexto();
   GLint ret = 0;
   if (cap == GL_LIGHTING) {
-    glGetUniformiv(contexto->programa_luz, contexto->uni_gltab_luz, &ret);
-    return ret;
+    GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
+    GLfloat cor[4];
+    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    return cor[3] > 0.0f;
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
@@ -819,7 +826,10 @@ void AtualizaMatrizesNovo() {
                  m[4], m[5], m[6],
                  m[8], m[9], m[10]);
   normal.invert().transpose();
-  glUniformMatrix3fv(c->uni_gltab_nm, 1, false, normal.get());
+  if (normal != c->matriz_normal) {
+    c->matriz_normal = normal;
+    glUniformMatrix3fv(c->uni_gltab_nm, 1, false, normal.get());
+  }
 }
 
 void DebugaMatrizes() {
@@ -829,8 +839,8 @@ void DebugaMatrizes() {
                  mv[4], mv[5], mv[6],
                  mv[8], mv[9], mv[10]);
   normal.invert().transpose();
-  LOG_EVERY_N(INFO, 300) << "MV: \n" << Matrix4(mv)
-                         << ", NM: \n" << normal;
+  //LOG_EVERY_N(INFO, 300) << "MV: \n" << Matrix4(mv)
+  //                       << ", NM: \n" << normal;
 }
 #endif
 

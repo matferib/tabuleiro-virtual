@@ -404,7 +404,7 @@ const Posicao Entidade::PosicaoAcao() const {
   gl::CarregaIdentidade();
   MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_);
   if (!proto_.achatado()) {
-    gl::Translada(0.0f, 0.0f, ALTURA);
+    gl::Translada(0.0f, 0.0f, ALTURA, false);
   }
   GLfloat matriz[16];
   gl::Le(GL_MODELVIEW_MATRIX, matriz);
@@ -439,19 +439,19 @@ void Entidade::MontaMatriz(bool queda,
     translacao_z += proto.pos().z() + DeltaVoo(vd);
   }
   if (matriz_shear == nullptr) {
-    gl::Translada(pos.x(), pos.y(), translacao_z);
+    gl::Translada(pos.x(), pos.y(), translacao_z, false);
   } else {
-    gl::Translada(pos.x(), pos.y(), 0);
-    gl::MultiplicaMatriz(matriz_shear);
-    gl::Translada(0, 0, translacao_z);
+    gl::Translada(pos.x(), pos.y(), 0, false);
+    gl::MultiplicaMatriz(matriz_shear, false);
+    gl::Translada(0, 0, translacao_z, false);
   }
   if (proto.has_modelo_3d()) {
-    gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
+    gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   }
 
   if (achatar && !proto.has_info_textura()) {
     // Achata cone.
-    gl::Escala(1.0f, 1.0f, 0.1f);
+    gl::Escala(1.0f, 1.0f, 0.1f, false);
   }
 
   // So roda entidades nao achatadas.
@@ -463,32 +463,32 @@ void Entidade::MontaMatriz(bool queda,
     if (dq.x() != 0.0f || dq.y() != 0) {
       // Como a queda é sobre o eixo X, subtrai 90 para a direcao ficar certa.
       float direcao_queda_graus = VetorParaRotacaoGraus(dq) - 90.0f;
-      gl::Roda(direcao_queda_graus, 0.0f, 0.0f, 1.0f);
+      gl::Roda(direcao_queda_graus, 0.0f, 0.0f, 1.0f, false);
     }
     if (!achatar) {
       // Roda sobre o eixo X negativo para cair com a face para cima.
-      gl::Roda(vd.angulo_disco_queda_graus, -1.0f, 0, 0);
+      gl::Roda(vd.angulo_disco_queda_graus, -1.0f, 0, 0, false);
     }
   }
   float multiplicador = CalculaMultiplicador(proto.tamanho());
-  gl::Escala(multiplicador, multiplicador, multiplicador);
+  gl::Escala(multiplicador, multiplicador, multiplicador, false);
   if (pd != nullptr && pd->has_escala_efeito()) {
     const auto& ee = pd->escala_efeito();
-    gl::Escala(ee.x(), ee.y(), ee.z());
+    gl::Escala(ee.x(), ee.y(), ee.z(), false);
   }
   if (pd != nullptr && pd->has_rotacao_efeito()) {
     const auto& re = pd->rotacao_efeito();
     if (re.has_x()) {
-      gl::Roda(re.x(), 1.0f, 0.0f, 0.0f);
+      gl::Roda(re.x(), 1.0f, 0.0f, 0.0f, false);
     } else if (re.has_y()) {
-      gl::Roda(re.y(), 0.0f, 1.0f, 0.0f);
+      gl::Roda(re.y(), 0.0f, 1.0f, 0.0f, false);
     } else if (re.has_z()) {
-      gl::Roda(re.z(), 0.0f, 0.0f, 1.0f);
+      gl::Roda(re.z(), 0.0f, 0.0f, 1.0f, false);
     }
   }
   if (pd != nullptr && pd->has_translacao_efeito()) {
     const auto& te = pd->translacao_efeito();
-    gl::Translada(te.x(), te.y(), te.z());
+    gl::Translada(te.x(), te.y(), te.z(), false);
   }
 }
 

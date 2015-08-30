@@ -312,7 +312,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       xf = xi + db.tamanho * largura_botao;
       yi = db.linha * altura_botao;
       yf = yi + db.tamanho * altura_botao;
-      gl::MatrizEscopo salva;
+      gl::MatrizEscopo salva(false);
       if (db.num_lados_botao == 4 || parametros_desenho_.has_picking_x()) {
         float trans_x = (db.translacao_x * largura_botao);
         float trans_y = (db.translacao_y * altura_botao);
@@ -323,14 +323,14 @@ void Tabuleiro::DesenhaControleVirtual() {
         }
         float tam_x = xf - (2.0f * padding) - xi;
         float tam_y = yf - (2.0f * padding) - yi;
-        gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f);
-        gl::Escala(tam_x, tam_y, 1.0f);
+        gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f, false);
+        gl::Escala(tam_x, tam_y, 1.0f, false);
         gl::Retangulo(1.0f);
         gl::Desabilita(GL_TEXTURE_2D);
       } else {
         gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x * largura_botao),
-                      ((yi + yf) / 2.0f) + (db.translacao_y * altura_botao), 0.0f);
-        gl::Roda(db.rotacao_graus, 0.0f, 0.0f, 1.0f);
+                      ((yi + yf) / 2.0f) + (db.translacao_y * altura_botao), 0.0f, false);
+        gl::Roda(db.rotacao_graus, 0.0f, 0.0f, 1.0f, false);
         if (db.num_lados_botao == 3) {
           gl::Triangulo(xf - xi);
         } else {

@@ -2402,7 +2402,8 @@ void Tabuleiro::DesenhaTabuleiro() {
   MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
-                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f);
+                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f,
+                false);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_corrente_->has_info_textura() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
@@ -2429,7 +2430,7 @@ void Tabuleiro::DesenhaTabuleiro() {
     int linha = quadrado_selecionado_ / TamanhoX();
     int coluna = quadrado_selecionado_ % TamanhoX();
     float x3d = coluna * TAMANHO_LADO_QUADRADO, y3d = linha * TAMANHO_LADO_QUADRADO;
-    gl::Translada(x3d + TAMANHO_LADO_QUADRADO_2, y3d + TAMANHO_LADO_QUADRADO_2, 0.05f);
+    gl::Translada(x3d + TAMANHO_LADO_QUADRADO_2, y3d + TAMANHO_LADO_QUADRADO_2, 0.05f, false);
     gl::Retangulo(TAMANHO_LADO_QUADRADO);
   }
 }
@@ -2516,18 +2517,18 @@ void Tabuleiro::DesenhaRosaDosVentos() {
   // Eixo com origem embaixo esquerda.
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
   gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
   gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
   const float kRaioRosa = 20.0f;
   // Deixa espaco para o N.
-  gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f);
+  gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f, false);
   // Roda pra posicao correta.
   Posicao direcao;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &direcao);
   // A diferenca eh em relacao ao leste e o norte esta a 90 graus. Quanto maior a diferenca, mais proximo do norte (ate 90.0f).
   float diferenca_graus = 90.0f - VetorParaRotacaoGraus(direcao.x(), direcao.y());
-  gl::Roda(diferenca_graus, 0.0f, 0.0f, 1.0f);
+  gl::Roda(diferenca_graus, 0.0f, 0.0f, 1.0f, false);
   gl::DesenhaVbo(vbo_rosa_, GL_TRIANGLES);
 }
 
@@ -4312,12 +4313,12 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
 
   {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-    gl::CarregaIdentidade();
+    gl::CarregaIdentidade(false);
     int largura_fonte, altura_fonte;
     gl::TamanhoFonte(&largura_fonte, &altura_fonte);
 

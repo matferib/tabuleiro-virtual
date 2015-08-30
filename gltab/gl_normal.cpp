@@ -37,7 +37,6 @@ Contexto* BuscaContexto() {
 bool ImprimeSeErro();
 bool ImprimeSeShaderErro(GLuint shader);
 
-#define V_ERRO() do { if (ImprimeSeErro()) return; } while (0)
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
@@ -97,7 +96,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
   // Muda para projecao 2D.
   gl::MatrizEscopo salva_matriz_2(GL_PROJECTION);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   gl::Ortogonal(0, largura, 0, altura, 0, 1);
   gl::MatrizEscopo salva_matriz_3(GL_MODELVIEW);
   gl::CarregaIdentidade();
@@ -117,7 +116,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
       break;
     }
     for (const char c : str_linha) {
-     gl::DesenhaCaractere(c);
+      gl::DesenhaCaractere(c);
     }
     y -= (altura_fonte + 1) * (inverte_vertical ? -1 : 1);
   }

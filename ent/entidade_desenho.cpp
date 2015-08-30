@@ -14,8 +14,6 @@ namespace gl {
 bool ImprimeSeErro(const char*);
 }  // namespace gl
 
-#define V_ERRO(X) do { gl::ImprimeSeErro(X); } while (0)
-
 namespace ent {
 
 namespace {
@@ -121,7 +119,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
   if (!proto.has_info_textura() && !proto.has_modelo_3d()) {
-    gl::MatrizEscopo salva_matriz;
+    gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
     return;
@@ -129,14 +127,14 @@ void Entidade::DesenhaObjetoEntidadeProto(
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
-    gl::MatrizEscopo salva_matriz;
+    gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,
                 (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
                 proto, vd, pd, matriz_shear);
-    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2);
-    gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2, false);
+    gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2, false);
     if (pd->entidade_selecionada()) {
-      gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
+      gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f, false);
     }
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
@@ -145,7 +143,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     const auto* vbo = vd.m3d->Modelo(proto.modelo_3d().id());
     if (vbo != nullptr) {
       // TODO vbo gravado
-      gl::MatrizEscopo salva_matriz;
+      gl::MatrizEscopo salva_matriz(false);
       MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
       gl::DesenhaVbo(*vbo);
       return;
@@ -156,19 +154,19 @@ void Entidade::DesenhaObjetoEntidadeProto(
 
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
-  gl::MatrizEscopo salva_matriz;
+  gl::MatrizEscopo salva_matriz(false);
   MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
-    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
+    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
     //if (pd->entidade_selecionada()) {
     //  gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
     //}
-    gl::Roda(90.0f, -1.0f, 0.0f, 0.0f);
-    gl::Escala(0.8f, 1.0f, 0.8f);
+    gl::Roda(90.0f, -1.0f, 0.0f, 0.0f, false);
+    gl::Escala(0.8f, 1.0f, 0.8f, false);
   } else {
     // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
-    gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
+    gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10, false);
     float angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
     if (pd->texturas_sempre_de_frente() && !proto.caida()) {
@@ -181,10 +179,10 @@ void Entidade::DesenhaObjetoEntidadeProto(
         // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
         angulo = -angulo;
       }
-      gl::Roda(angulo - 90.0f, 0, 0, 1.0);
+      gl::Roda(angulo - 90.0f, 0, 0, 1.0, false);
     }
-    gl::MatrizEscopo salva_matriz;
-    gl::Escala(1.0f, 0.1f, 1.0f);
+    gl::MatrizEscopo salva_matriz(false);
+    gl::Escala(1.0f, 0.1f, 1.0f, false);
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
@@ -214,12 +212,12 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   // Disco da entidade.
   if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
     // Volta pro chao.
-    gl::MatrizEscopo salva_matriz;
+    gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,
                 (vd_.altura_voo == 0.0f)  /*z*/,  // so desloca disco se nao estiver voando mais.
                 proto_, vd_, pd);
     MudaCor(proto_.cor());
-    gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f, false);
     gl::Disco(TAMANHO_LADO_QUADRADO_2, 6);
   }
 
@@ -236,9 +234,9 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
 #endif
 
-    gl::MatrizEscopo salva_matriz;
+    gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-    gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
+    gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f), false);
     {
       gl::MatrizEscopo salva_matriz;
       gl::Escala(0.2f, 0.2f, 1.0f);
@@ -249,8 +247,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       float porcentagem = static_cast<float>(proto_.pontos_vida()) / proto_.max_pontos_vida();
       float tamanho_barra = TAMANHO_BARRA_VIDA * porcentagem;
       float delta = -TAMANHO_BARRA_VIDA_2 + (tamanho_barra / 2.0f);
-      gl::Translada(0, 0, delta);
-      gl::Escala(0.3f, 0.3f, porcentagem);
+      gl::Translada(0, 0, delta, false);
+      gl::Escala(0.3f, 0.3f, porcentagem, false);
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(0, -25.0);
       MudaCor(COR_VERDE);
@@ -280,11 +278,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f, false);
       gl::EsferaSolida(0.2f, 4, 2);
-      gl::Translada(0.0f, 0.0f, 0.3f);
+      gl::Translada(0.0f, 0.0f, 0.3f, false);
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
-      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA);
+      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA, false);
       gl::EsferaSolida(0.2f, 4, 2);
       // Descricao (so quando nao for picking).
       if (!pd->has_picking_x() && !descricao.empty()) {
@@ -359,7 +357,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
         return;
       }
       // Desenha a entidade maior e translucida.
-      gl::MatrizEscopo salva_matriz;
+      gl::MatrizEscopo salva_matriz(false);
       bool tem_alfa = pd->has_alfa_translucidos();
       if (!tem_alfa) {
         pd->set_alfa_translucidos(0.5f);
@@ -380,7 +378,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
         return;
       }
       // Desenha a entidade maior e translucida.
-      gl::MatrizEscopo salva_matriz;
+      gl::MatrizEscopo salva_matriz(false);
       bool tem_alfa = pd->has_alfa_translucidos();
       if (!tem_alfa) {
         pd->set_alfa_translucidos(0.5f);
@@ -414,20 +412,20 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
   }
 
   bool achatado = (pd != nullptr && pd->desenha_texturas_para_cima()) || proto_.achatado();
-  gl::MatrizEscopo salva_matriz;
+  gl::MatrizEscopo salva_matriz(false);
   if (achatado) {
     // So translada para a posicao do objeto.
-    gl::Translada(X(), Y(), Z());
+    gl::Translada(X(), Y(), Z(), false);
   } else {
     MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_, pd);
   }
   // Obtem vetor da camera para o objeto e roda para o objeto ficar de frente para camera.
   Posicao vetor_camera_objeto;
   ComputaDiferencaVetor(Pos(), pd->pos_olho(), &vetor_camera_objeto);
-  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f);
+  gl::Roda(VetorParaRotacaoGraus(vetor_camera_objeto), 0.0f, 0.0f, 1.0f, false);
 
   // Um quadrado para direcao da camera para luz iluminar o proprio objeto.
-  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2);
+  gl::Translada(-TAMANHO_LADO_QUADRADO_2, 0.0f, ALTURA + TAMANHO_LADO_QUADRADO_2, false);
 
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
@@ -450,8 +448,8 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!pd->desenha_aura() || !proto_.has_aura() || proto_.aura() == 0) {
     return;
   }
-  gl::MatrizEscopo salva_matriz;
-  gl::Translada(X(), Y(), Z() + DeltaVoo(vd_));
+  gl::MatrizEscopo salva_matriz(false);
+  gl::Translada(X(), Y(), Z() + DeltaVoo(vd_), false);
   const auto& cor = proto_.cor();
   gl::MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
   float ent_quadrados = MultiplicadorTamanho();
