@@ -77,8 +77,7 @@ void main() {
     cor_luz += CorLuzPontual(v_Normal, gltab_luzes[4]);
     cor_luz += CorLuzPontual(v_Normal, gltab_luzes[5]);
     cor_luz += CorLuzPontual(v_Normal, gltab_luzes[6]);
-    clamp(cor_luz, 0.0, 1.0);
-    cor_final *= cor_luz;
+    cor_final *= clamp(cor_luz, 0.0, 1.0);
   }
 
   if (gltab_textura) {
@@ -90,4 +89,6 @@ void main() {
   highp float distancia = length(v_Pos - gltab_nevoa_referencia);
   lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
   gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
+
+  gl_FragColor = cor_final;
 }

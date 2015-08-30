@@ -83,8 +83,7 @@ void main() {
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[4]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[5]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[6]);
-    clamp(cor_luz, 0.0, 1.0);
-    cor_final *= cor_luz;
+    cor_final *= clamp(cor_luz, 0.0, 1.0);
   }
   v_Normal = normal;
   v_Color = cor_final;
