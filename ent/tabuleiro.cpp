@@ -395,7 +395,8 @@ void Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   // Aplica opcoes do jogador.
-  parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
+  //parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
+  parametros_desenho_.set_desenha_fps(true);
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   if (modo_debug_) {
     parametros_desenho_.set_iluminacao(false);
@@ -1926,7 +1927,7 @@ void Tabuleiro::DesenhaCena() {
 
   // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
   // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
-  TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
+  TimerEscopo timer_escopo(this, parametros_desenho_.desenha_fps() || opcoes_.mostra_fps());
 
   gl::InicioCena();
   gl::IniciaNomes();
@@ -2083,23 +2084,29 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
+  V_ERRO("desenhando rosa dos ventos");
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
   }
+  V_ERRO("desenhando lista pontos de vida");
 
   if (parametros_desenho_.desenha_id_acao()) {
     DesenhaIdAcaoEntidade();
   }
+  V_ERRO("desenhando id_acao");
+
   if (parametros_desenho_.desenha_coordenadas()) {
     DesenhaCoordenadas();
   }
+  V_ERRO("desenhando coordenadas");
 
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
     DesenhaControleVirtual();
   }
+  V_ERRO("desenhando controle virtual");
 }
 
 void Tabuleiro::GeraVboRosaDosVentos() {
@@ -4311,23 +4318,21 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
   id_acao = StringSemUtf8(id_acao);
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  // Modo 2d: eixo com origem embaixo esquerda.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade(false);
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-
   {
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
     gl::CarregaIdentidade(false);
+    // Modo 2d: eixo com origem embaixo esquerda.
+    gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
+    gl::CarregaIdentidade(false);
+    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
     int largura_fonte, altura_fonte;
     gl::TamanhoFonte(&largura_fonte, &altura_fonte);
-
     int raster_y = altura_ - altura_fonte;
     int raster_x = largura_ / 2;
     gl::PosicaoRaster(raster_x, raster_y);
-    MudaCor(COR_BRANCA);
-    gl::DesenhaString(id_acao);
   }
+  MudaCor(COR_BRANCA);
+  gl::DesenhaString(id_acao);
 }
 
 void Tabuleiro::DesenhaCoordenadas() {
@@ -4345,27 +4350,27 @@ void Tabuleiro::DesenhaCoordenadas() {
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-
   {
-    gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz(GL_PROJECTION);
     gl::CarregaIdentidade();
+    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
     int largura_fonte, altura_fonte;
     gl::TamanhoFonte(&largura_fonte, &altura_fonte);
-
     int raster_y = altura_ - (2 * altura_fonte);
     int raster_x = largura_ / 2;
     gl::PosicaoRaster(raster_x, raster_y);
+  }
+
+  {
     MudaCor(COR_BRANCA);
     gl::DesenhaString(coordenadas);
   }
 }
 
+// Chamado pelo TimerEscopo no tabuleiro.h.
 void Tabuleiro::DesenhaTempoRenderizacao() {
-  glFlush();
-  timer_.stop();
   auto cpu_times = timer_.elapsed();
   uint64_t tempo_ms = (cpu_times.user + cpu_times.system) / 1000000ULL;
   if (tempos_renderizacao_.size() == kMaximoTamTemposRenderizacao) {
@@ -4384,6 +4389,11 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
       maior_tempo_ms = tempo_ms;
     }
   }
+  gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  int largura_fonte, altura_fonte;
+  gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
+
 #if ANDROID || WIN32
   std::string tempo_str;
   while (maior_tempo_ms > 0) {
@@ -4398,22 +4408,23 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }
+
   // Modo 2d.
-  gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
-  gl::CarregaIdentidade();
+  {
+    gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
+    gl::CarregaIdentidade();
+    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+    MudaCor(COR_PRETA);
+    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::CarregaIdentidade();
+    gl::Retangulo(0.0f, altura_ - altura_fonte - 2.0f, tempo_str.size() * largura_fonte + 2.0f, altura_);
+  }
+
   // Eixo com origem embaixo esquerda.
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-  int largura_fonte, altura_fonte;
-  gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
-  gl::PosicaoRaster(2, altura_ - altura_fonte - 2);
-  MudaCor(COR_PRETA);
-  gl::Retangulo(0.0f, altura_ - 15.0f, tempo_str.size() * 8.0f + 2.0f, altura_);
+  PosicionaRaster2d(2, altura_ - altura_fonte - 2, largura_, altura_);
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
+  V_ERRO("tempo de renderizacao");
 }
 
 double Tabuleiro::Aspecto() const {
