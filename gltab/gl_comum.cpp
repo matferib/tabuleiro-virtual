@@ -162,7 +162,7 @@ int IndiceLuzAtributos(int id_luz) {
 #endif
 
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
-void IniciaComum(interno::Contexto* contexto) {
+void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
 #if USAR_SHADER
   GLuint* programa_luz = &contexto->programa_luz;
   GLuint* vs = &contexto->vs;
@@ -176,13 +176,15 @@ void IniciaComum(interno::Contexto* contexto) {
     V_ERRO("criando vertex shader");
     GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
     V_ERRO("criando fragment shader");
+    const char* nome_v_shader = luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c";
+    const  char* nome_f_shader = luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c";
     std::string codigo_v_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, "vert_luz.c", &codigo_v_shader_str);
+    arq::LeArquivo(arq::TIPO_SHADER, nome_v_shader, &codigo_v_shader_str);
     const char* codigo_v_shader = codigo_v_shader_str.c_str();
     glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
     V_ERRO("shader source vertex");
     std::string codigo_f_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, "frag_luz.c", &codigo_f_shader_str);
+    arq::LeArquivo(arq::TIPO_SHADER, nome_f_shader, &codigo_f_shader_str);
     const char* codigo_f_shader = codigo_f_shader_str.c_str();
     glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
     V_ERRO("shader source fragment");
@@ -251,7 +253,7 @@ void IniciaComum(interno::Contexto* contexto) {
           {"gltab_vertice", &contexto->atr_gltab_vertice},
           {"gltab_normal", &contexto->atr_gltab_normal},
           {"gltab_cor", &contexto->atr_gltab_cor},
-          {"gltab_textura", &contexto->atr_gltab_textura},
+          {"gltab_texel", &contexto->atr_gltab_texel},
   }) {
     *d.var = glGetAttribLocation(*programa_luz, d.nome);
     if (*d.var == -1) {
@@ -341,7 +343,16 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #endif
 }
 
-}  // interno
+bool LuzPorVertice(int argc, const char* const* argv) {
+  for (int i = 0; i < argc; ++i) {
+    if (std::string(argv[i]) == "--luz_por_vertice") {
+      return true;
+    }
+  }
+  return false;
+}
+
+}  // namespace interno
 
 void EmpilhaMatriz(bool atualizar) {
 #if USAR_SHADER
@@ -486,7 +497,7 @@ void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_textura, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
 #else
   glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
@@ -782,7 +793,7 @@ void HabilitaEstadoCliente(GLenum cap) {
   } else if (cap == GL_COLOR_ARRAY) {
     glEnableVertexAttribArray(c->atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    glEnableVertexAttribArray(c->atr_gltab_textura);
+    glEnableVertexAttribArray(c->atr_gltab_texel);
   } else {
     glEnableClientState(cap);
   }
@@ -801,7 +812,7 @@ void DesabilitaEstadoCliente(GLenum cap) {
   } else if (cap == GL_COLOR_ARRAY) {
     glDisableVertexAttribArray(c->atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    glDisableVertexAttribArray(c->atr_gltab_textura);
+    glDisableVertexAttribArray(c->atr_gltab_texel);
   } else {
     glDisableClientState(cap);
   }

@@ -291,9 +291,8 @@ class AcaoProjetil : public Acao {
     gl::AtributosEscopo salva_atributos(gl::BIT_LUZ);
     // Luz da camera apontando para a bola.
     const Posicao& pos_olho = pd->pos_olho();
-    gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
     GLfloat pos_luz[] = { pos_olho.x() - pos_.x(), pos_olho.y() - pos_.y(), pos_olho.z() - pos_.z(), 0.0f };
-    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
+    gl::LuzPontual(0, pos_luz, COR_BRANCA[0], COR_BRANCA[1], COR_BRANCA[2], 0.5f, 0.02f);
 #else
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
 #endif

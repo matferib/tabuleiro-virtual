@@ -63,7 +63,7 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-  interno::IniciaComum(&g_contexto);
+  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), &g_contexto);
 }
 //#undef V_ERRO
 

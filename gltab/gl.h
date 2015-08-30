@@ -442,7 +442,7 @@ class Contexto {
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
   GLint atr_gltab_cor;
-  GLint atr_gltab_textura;
+  GLint atr_gltab_texel;
   std::unique_ptr<ContextoDependente> interno;
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
@@ -453,7 +453,8 @@ class Contexto {
 };
 Contexto* BuscaContexto();
 
-void IniciaComum(interno::Contexto* contexto);
+bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
+void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
 void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
@@ -461,7 +462,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
 // Quebra uma string em varias.
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
 
-}  // namespace internal
+}  // namespace interno
 
 }  // namespace gl
 

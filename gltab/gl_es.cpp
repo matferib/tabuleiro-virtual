@@ -71,7 +71,7 @@ void IniciaGl(int* argcp, char** argv) {
   LOG(INFO) << "Max pilha mv: " << g_contexto_interno->max_pilha_mv;
   LOG(INFO) << "Max pilha pj: " << g_contexto_interno->max_pilha_pj;
 #endif
-  interno::IniciaComum(&g_contexto);
+  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), &g_contexto);
 }
 
 void FinalizaGl() {
