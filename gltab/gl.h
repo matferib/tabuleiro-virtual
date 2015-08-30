@@ -2,6 +2,7 @@
 #define GLTAB_GL_H
 
 #include <cmath>
+#include <memory>
 #include <string>
 #include <stdexcept>
 #include <vector>
@@ -85,8 +86,8 @@ void DebugaMatrizes();
 #endif
 
 // Operacoes de matriz. Melhor usar MatrizEscopo.
-void EmpilhaMatriz();
-void DesempilhaMatriz();
+void EmpilhaMatriz(bool atualizar = true);
+void DesempilhaMatriz(bool atualizar = true);
 GLenum ModoMatrizCorrente();
 void MudarModoMatriz(GLenum modo);
 
@@ -94,13 +95,14 @@ void MudarModoMatriz(GLenum modo);
 class MatrizEscopo {
  public:
   /** Salva a matriz corrente pelo escopo. */
-  MatrizEscopo() : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(); }
+  MatrizEscopo(bool atualizar = true)
+      : atualizar_(atualizar), modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(atualizar_); }
 
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
-  explicit MatrizEscopo(GLenum modo) : modo_(modo) {
+  explicit MatrizEscopo(int modo, bool atualizar = true) : atualizar_(atualizar), modo_(modo) {
     modo_anterior_ = ModoMatrizCorrente();
     MudarModoMatriz(modo_);
-    EmpilhaMatriz();
+    EmpilhaMatriz(atualizar_);
   }
 
   /** Restaura matriz anterior ao escopo para o modo escolhido. */
@@ -108,13 +110,14 @@ class MatrizEscopo {
     if (modo_ != GL_INVALID_ENUM) {
       MudarModoMatriz(modo_);
     }
-    DesempilhaMatriz();
+    DesempilhaMatriz(atualizar_);
     if (modo_anterior_ != GL_INVALID_ENUM) {
       MudarModoMatriz(modo_anterior_);
     }
   }
 
  private:
+  bool atualizar_;
   GLenum modo_anterior_;
   // O valor GL_INVALID_ENUM indica que nao eh para restaurar a matriz.
   GLenum modo_;
@@ -157,8 +160,8 @@ void Le(GLenum nome_parametro, GLfloat* valor);
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
 
-void CarregaIdentidade();
-void MultiplicaMatriz(const GLfloat* matriz);
+void CarregaIdentidade(bool atualizar = true);
+void MultiplicaMatriz(const GLfloat* matriz, bool atualizar = true);
 #if !USAR_OPENGL_ES
 inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
@@ -253,13 +256,15 @@ class TipoEscopo {
 };
 
 /** Funcoes de escala, translacao e rotacao. */
-void Escala(GLfloat x, GLfloat y, GLfloat z);
-void Translada(GLfloat x, GLfloat y, GLfloat z);
-void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z);
+void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
+void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
+void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
 
 /** Funcoes de iluminacao. */
+#if !USAR_SHADER
 inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
 inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
+#endif
 void LuzAmbiente(float r, float g, float b);
 void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenuacao_constante, float atenuacao_quadratica);
@@ -373,6 +378,7 @@ class DesabilitaEscopo {
   GLboolean valor_anterior_;
 };
 
+#if !USAR_SHADER
 class ModeloLuzEscopo {
  public:
   ModeloLuzEscopo(const GLfloat* luz) {
@@ -386,6 +392,7 @@ class ModeloLuzEscopo {
  private:
   GLfloat luz_antes[4];
 };
+#endif
 
 
 /** Stencil. */
@@ -419,8 +426,7 @@ class Contexto {
   GLuint vs;
   GLuint fs;
   // Variaveis uniformes dos shaders.
-  GLint uni_gltab_luz;                  // Iluminacao ligada?
-  GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente.
+  GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente. Alfa indica se iluminacao geral esta ligada.
   GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
   GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional ().
   GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
@@ -443,6 +449,7 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm;
   std::stack<Matrix4> pilha_prj;
   std::stack<Matrix4>* pilha_corrente = nullptr;
+  Matrix3 matriz_normal;  // Computada da mvm corrente.
 };
 Contexto* BuscaContexto();
 

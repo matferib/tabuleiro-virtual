@@ -1,102 +1,93 @@
 //#version 120
 
 #if defined(GL_ES)
-precision mediump float;
+//precision highp float;
+//#define lowp highp
+//#define mediump highp
 #else
+#define lowp
+#define highp
+#define mediump
 #endif
 
 // Varying sao interpoladas da saida do vertex.
-varying vec4 v_Color;
-varying vec3 v_Normal;
-varying vec4 v_Pos;  // Posicao do pixel do fragmento.
-varying vec2 v_Tex;  // coordenada texel.
+varying lowp vec4 v_Color;
+varying lowp vec3 v_Normal;
+varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
+varying lowp vec2 v_Tex;  // coordenada texel.
+uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
-  vec4 pos;
-  vec4 cor;  // alfa indica se esta ligada.
+  lowp vec4 pos;
+  lowp vec4 cor;  // alfa indica se esta ligada.
 };
 
 // Informacao sobre luzes pontuais. Os atributos sao colocados em vec4 para melhor aproveitamento
 // dos uniformes.
 struct InfoLuzPontual {
-  vec4 pos;  // posicao.
-  vec4 cor;  // alfa usado para indicar se esta ligada.
-  vec4 atributos;  // r=raio, g=?, b=?, a=?
+  highp vec4 pos;  // posicao.
+  lowp vec4 cor;  // alfa usado para indicar se esta ligada.
+  mediump vec4 atributos;  // r=raio, g=?, b=?, a=?
 };
 
-
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
-uniform bool gltab_luz;                    // Iluminacao ligada?
-uniform vec4 gltab_luz_ambiente;           // Cor da luz ambiente.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform bool gltab_textura;                // Textura ligada?
-uniform sampler2D gltab_unidade_textura;   // handler da textura.
-uniform vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
-uniform vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
-uniform vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
+uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
+uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
+uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
+uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
 //uniform bool gltab_stencil;              // Stencil ligado?
 
+lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcional) {
+  // Converte normal para coordenadas de olho.
+  // A luz direcional ja vem em coordenadas de olho.
+  lowp vec3 direcao_luz = vec3(normalize(luz_direcional.pos));
+  // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
+  lowp float cos_com_normal = dot(normal, direcao_luz);
+  lowp vec4 cor_final = clamp(luz_direcional.cor * cos_com_normal, 0.0, 1.0);
+  return cor_final * step(0.1, luz_direcional.cor.a);
+}
+
+lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
+  if (luz.cor.a == 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
+  // Vetor objeto luz.
+  highp vec3 objeto_luz = vec3(luz.pos - v_Pos);
+  highp float tam = length(objeto_luz);
+  lowp float atenuacao = 0.5 * step(tam, luz.atributos.r);
+  atenuacao += 0.5 * step(tam, luz.atributos.r * 2.0);
+  lowp float cos_com_normal = dot(normal, normalize(objeto_luz));
+  return clamp(luz.cor * cos_com_normal, 0.0, 1.0) * atenuacao;
+}
+
 void main() {
-  vec4 cor_final = vec4(0, 0, 0, 0);
-  if (gltab_luz) {
-    // luz ambiente.
-    cor_final += v_Color * gltab_luz_ambiente;
-    if (gltab_luz_direcional.cor.a > 0.0) {
-      // Converte normal para coordenadas de olho.
-      // A luz direcional ja vem em coordenadas de olho.
-      vec3 direcao_luz = vec3(normalize(gltab_luz_direcional.pos));
-      // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-      float cos_com_normal = dot(v_Normal, direcao_luz);
-      if (cos_com_normal > 0.0) {
-        cor_final += (v_Color * gltab_luz_direcional.cor) * cos_com_normal;
-      }
-    }
+  lowp vec4 cor_final = v_Color;
+  // luz ambiente.
+  if (gltab_luz_ambiente.a > 0.0) {
+    lowp vec4 cor_luz = gltab_luz_ambiente + CorLuzDirecional(v_Normal, gltab_luz_direcional);
 
-    // Outras luzes.
-    for (int i = 0; i < 7; ++i) {
-      if (gltab_luzes[i].cor.a == 0.0) continue;
-      float atenuacao = 1.0;
-      // Vetor objeto luz.
-      vec3 objeto_luz = vec3(gltab_luzes[i].pos - v_Pos);
-      float tam = length(objeto_luz);
-      if (tam > (gltab_luzes[i].atributos.r * 2.0)) {
-        continue;
-      }
-      if (tam > gltab_luzes[i].atributos.r) {
-        atenuacao = 0.5;
-      }
-
-      float cos_com_normal = dot(v_Normal, normalize(objeto_luz));
-      if (cos_com_normal > 0.0) {
-        vec4 c = (v_Color * gltab_luzes[i].cor) * cos_com_normal;
-        cor_final += c * atenuacao;
-      }
-    }
-    cor_final.a = v_Color.a;
-    gl_FragColor = clamp(cor_final, 0.0, 1.0);   // Pass the color directly through the pipeline.
-  } else {
-    cor_final = v_Color;
+    // Outras luzes. O for eh ineficiente.
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[0]);
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[1]);
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[2]);
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[3]);
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[4]);
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[5]);
+    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[6]);
+    clamp(cor_luz, 0.0, 1.0);
+    cor_final *= cor_luz;
   }
+
   if (gltab_textura) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
-  if (gltab_nevoa_cor.a > 0.0) {
-    float distancia = length(v_Pos - gltab_nevoa_referencia);
-    if (distancia > gltab_nevoa_dados.y) {
-      // muito longe, totalmente obfuscado.
-      gl_FragColor = gltab_nevoa_cor;
-      return;
-    } else if (distancia > gltab_nevoa_dados.x) {
-      // entre inicio e fim. Media ponderada da cor da nevoa com a do objeto.
-      float s = (distancia - gltab_nevoa_dados.x) * gltab_nevoa_dados.w;
-      gl_FragColor = (cor_final * (1.0 - s)) + (gltab_nevoa_cor * s);
-      return;
-    }
-  }
-  gl_FragColor = cor_final;
+  //cor_final = mix(cor_final, texture2D(gltab_unidade_textura, v_Tex.st) * cor_final, step(0.5, float(gltab_textura)));
 
-  //gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+  // Nevoa.
+  highp float distancia = length(v_Pos - gltab_nevoa_referencia);
+  lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
+  gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
 }

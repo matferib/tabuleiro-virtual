@@ -2,20 +2,31 @@
 // uniform: variaveis que nao variam durante primitiva.
 // attribute: variaveis que variam por vertice.
 
+#if defined(GL_ES)
+//precision highp float;
+//#define lowp highp
+//#define mediump highp
+#else
+#define lowp
+#define highp
+#define mediump
+#endif
+
 // Output pro frag shader, interpolado dos vertices.
-varying vec4 v_Color;
-varying vec3 v_Normal;
-varying vec4 v_Pos;  // posicao em coordenada de olho.
-varying vec2 v_Tex;  // coordenada texel.
+varying lowp vec4 v_Color;
+varying lowp vec3 v_Normal;
+varying highp vec4 v_Pos;  // posicao em coordenada de olho.
+varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
-uniform mat4 gltab_prm;    // projecao.
-uniform mat4 gltab_mvm;    // modelview.
-uniform mat3 gltab_nm;     // normal matrix
+uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
+uniform highp mat4 gltab_prm;    // projecao.
+uniform highp mat4 gltab_mvm;    // modelview.
+uniform highp mat3 gltab_nm;     // normal matrix
 // Atributos variam por vertice.
-attribute vec4 gltab_vertice;
-attribute vec3 gltab_normal;
-attribute vec4 gltab_cor;
-attribute vec2 gltab_textura;
+attribute highp vec4 gltab_vertice;
+attribute mediump vec3 gltab_normal;
+attribute lowp vec4 gltab_cor;
+attribute lowp vec2 gltab_textura;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);

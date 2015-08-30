@@ -77,14 +77,14 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   bool transparencias = pd->transparencias() &&
                         ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   AjustaCor(proto, pd);
-  gl::MatrizEscopo salva_matriz;
+  gl::MatrizEscopo salva_matriz(false);
   if (matriz_shear != nullptr) {
-    gl::MultiplicaMatriz(matriz_shear);
+    gl::MultiplicaMatriz(matriz_shear, false);
   }
-  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f);
-  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f);
-  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0);
-  gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0);
+  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
+  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
+  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
+  gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0, false);
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {
@@ -92,51 +92,51 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       }
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
-      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
       gl::DesenhaVbo(g_vbos[VBO_DISCO]);
     }
     break;
     case TF_CILINDRO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
       gl::DesenhaVbo(g_vbos[VBO_CILINDRO]);
       {
-        gl::MatrizEscopo salva;
-        gl::Escala(-1.0f, 1.0f, -1.0f);
+        gl::MatrizEscopo salva(false);
+        gl::Escala(-1.0f, 1.0f, -1.0f, false);
         gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
       }
-      gl::Translada(0.0f, 0.0f, 1.0f);
+      gl::Translada(0.0f, 0.0f, 1.0f, false);
       gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
     }
     break;
     case TF_CONE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
       gl::DesenhaVbo(g_vbos[VBO_CONE]);
     }
     break;
     case TF_CUBO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Translada(0, 0, proto.escala().z() / 2.0f);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Translada(0, 0, proto.escala().z() / 2.0f, false);
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
       gl::DesenhaVbo(g_vbos[VBO_CUBO]);
     }
     break;
     case TF_PIRAMIDE: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
       gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE]);
     }
     break;
     case TF_RETANGULO: {
       gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
       gl::DesvioProfundidade(-1.0f, -40.0f);
-      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
       GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
           vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
       if (id_textura != GL_INVALID_VALUE) {
         gl::Habilita(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, id_textura);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
       }
       gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
       gl::Desabilita(GL_TEXTURE_2D);
@@ -144,7 +144,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     break;
     case TF_ESFERA: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
       gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
     }
     break;

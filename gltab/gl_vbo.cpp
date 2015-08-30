@@ -8,9 +8,6 @@ namespace gl {
 
 bool ImprimeSeErro(const char* mais = nullptr);
 
-#define V_ERRO() do { if (ImprimeSeErro(nullptr)) return; } while (0)
-#define V_ERRO_ARG(X) do { if (ImprimeSeErro(X)) return; } while (0)
-
 //--------------
 // VboNaoGravado
 //--------------
@@ -176,16 +173,16 @@ std::string VboNaoGravado::ParaString() const {
 //-----------
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
-  V_ERRO_ARG("antes tudo gravar");
+  V_ERRO("antes tudo gravar");
   Desgrava();
-  V_ERRO_ARG("depois desgravar");
+  V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer.
   gl::GeraBuffers(1, &nome_coordenadas_);
-  V_ERRO_ARG("ao gerar buffer coordenadas");
+  V_ERRO("ao gerar buffer coordenadas");
   // Associa coordenadas com ARRAY_BUFFER.
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
-  V_ERRO_ARG("na ligacao com buffer");
+  V_ERRO("na ligacao com buffer");
   deslocamento_normais_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
@@ -198,15 +195,15 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
                      sizeof(GL_FLOAT) * buffer_unico_.size(),
                      buffer_unico_.data(),
                      GL_STATIC_DRAW);
-  V_ERRO_ARG("ao bufferizar");
+  V_ERRO("ao bufferizar");
   // Buffer de indices.
   gl::GeraBuffers(1, &nome_indices_);
-  V_ERRO_ARG("ao gerar buffer indices");
+  V_ERRO("ao gerar buffer indices");
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indices_);
-  V_ERRO_ARG("na ligacao com buffer 2");
+  V_ERRO("na ligacao com buffer 2");
   indices_ = vbo_nao_gravado.indices();
   gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
-  V_ERRO_ARG("ao bufferizar elementos");
+  V_ERRO("ao bufferizar elementos");
   gravado_ = true;
 }
 
@@ -823,6 +820,7 @@ void DesenhaVbo(GLenum modo,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
+  ATUALIZA_MATRIZES_NOVO();
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
@@ -838,16 +836,13 @@ void DesenhaVbo(GLenum modo,
   }
 
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
-  if (glGetError() != GL_NO_ERROR) {
-    LOG(INFO) << "AQUI";
-  }
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
 
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
   gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-  V_ERRO_ARG("10");
+  V_ERRO("DesenhaVBO");
 }
 
 }  // namespace
