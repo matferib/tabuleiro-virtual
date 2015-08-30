@@ -295,11 +295,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
-  // Efeitos.
-  if (pd->desenha_efeitos_entidades()) {
-    DesenhaEfeitos(pd);
-  }
-
   if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
@@ -338,6 +333,9 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 }
 
 void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
+  if (!pd->desenha_efeitos_entidades()) {
+    return;
+  }
   for (const auto& efeito : proto_.evento()) {
     if (!efeito.has_id_efeito() || efeito.id_efeito() == EFEITO_INVALIDO) {
       continue;
