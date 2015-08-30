@@ -65,13 +65,13 @@ void MapeiaId(unsigned int id, GLubyte rgb[3]) {
 void IniciaGl(int* argcp, char** argv) {
   g_contexto_interno = reinterpret_cast<interno::ContextoEs*>(g_contexto.interno.get());
   g_contexto_interno->depurar_selecao_por_cor = &g_contexto.depurar_selecao_por_cor;
-#if !USAR_SHADER
+#if 0
   gl::Le(GL_MAX_PROJECTION_STACK_DEPTH, &g_contexto_interno->max_pilha_pj);
   gl::Le(GL_MAX_MODELVIEW_STACK_DEPTH, &g_contexto_interno->max_pilha_mv);
   LOG(INFO) << "Max pilha mv: " << g_contexto_interno->max_pilha_mv;
   LOG(INFO) << "Max pilha pj: " << g_contexto_interno->max_pilha_pj;
 #endif
-  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), &g_contexto);
+  interno::IniciaComum(interno::LuzPorVertice(argcp == nullptr ? 0 : *argcp, argv), &g_contexto);
 }
 
 void FinalizaGl() {
@@ -317,9 +317,11 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::Escala(largura_fonte, altura_fonte, 1.0f);
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   for (const std::string& str_linha : str_linhas) {
-    float translacao_x = -static_cast<float>(str_linha.size());
-    if (alinhamento == 0) {
-      translacao_x /= 2.0f;
+    float translacao_x = 0;
+    if (alinhamento == 1) {  // direita.
+      translacao_x = -static_cast<float>(str_linha.size());
+    } if (alinhamento == 0) {  // central.
+      translacao_x = -static_cast<float>(str_linha.size()) / 2.0f;
     }
     gl::Translada(translacao_x, 0.0f, 0.0f);
     for (const char c : str_linha) {
