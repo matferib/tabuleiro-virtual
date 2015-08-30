@@ -373,14 +373,11 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
     break;
     case EFEITO_REFLEXOS: {
       if (!pd->has_alfa_translucidos()) {
+        // So desenha translucido.
         return;
       }
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz(false);
-      bool tem_alfa = pd->has_alfa_translucidos();
-      if (!tem_alfa) {
-        pd->set_alfa_translucidos(0.5f);
-      }
       // TODO colocar o numero certo por complemento.
       const int num_imagens = efeito_proto.has_complemento() ? efeito_proto.complemento() : 3;
       const float inc_angulo_graus = 360.0 / num_imagens;
@@ -388,9 +385,6 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
         pd->mutable_rotacao_efeito()->set_z(i * inc_angulo_graus);
         pd->mutable_translacao_efeito()->set_x(1.0f);
         DesenhaObjetoProto(proto_, vd_, pd, nullptr);
-      }
-      if (!tem_alfa) {
-        pd->clear_alfa_translucidos();
       }
       pd->clear_rotacao_efeito();
       pd->clear_translacao_efeito();

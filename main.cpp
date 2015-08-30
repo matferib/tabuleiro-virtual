@@ -13,7 +13,6 @@
 #include "ntf/notificacao.h"
 #include "log/log.h"
 #include "tex/texturas.h"
-//#include "ifg/qt/texturas.h"
 
 using namespace std;
 

@@ -9,6 +9,8 @@
 #include "log/log.h"
 #include "matrix/matrices.h"
 
+DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
+
 // Comum.
 namespace gl {
 
@@ -159,11 +161,11 @@ int IndiceLuzCor(int id_luz) {
 int IndiceLuzAtributos(int id_luz) {
   return id_luz * 3 + 2;
 }
-#endif
 
+namespace {
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
-void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
-#if USAR_SHADER
+void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
+  LOG(INFO) << "Tentando iniciar com shaders, luz por fragmento? " << !luz_por_vertice;
   GLuint* programa_luz = &contexto->programa_luz;
   GLuint* vs = &contexto->vs;
   GLuint* fs = &contexto->fs;
@@ -262,6 +264,15 @@ void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
     }
     LOG(INFO) << "Atributo " << d.nome << " na posicao " << *d.var;
   }
+}
+
+}  // namespace
+#endif
+
+
+void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
+#if USAR_SHADER
+  IniciaShaders(luz_por_vertice, contexto);
 #endif
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
@@ -344,12 +355,15 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }
 
 bool LuzPorVertice(int argc, const char* const* argv) {
+  return FLAGS_luz_por_vertice;
+#if 0
   for (int i = 0; i < argc; ++i) {
     if (std::string(argv[i]) == "--luz_por_vertice") {
       return true;
     }
   }
   return false;
+#endif
 }
 
 }  // namespace interno
