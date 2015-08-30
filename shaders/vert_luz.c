@@ -26,12 +26,12 @@ uniform highp mat3 gltab_nm;     // normal matrix
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
 attribute lowp vec4 gltab_cor;
-attribute lowp vec2 gltab_textura;
+attribute lowp vec2 gltab_texel;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
-  v_Tex.st = gltab_textura;
+  v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * v_Pos;
 }
