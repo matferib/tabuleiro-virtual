@@ -405,7 +405,6 @@ class TabuleiroRenderer
 
   @Override
   public void onSurfaceCreated(GL10 unused, EGLConfig config) {
-    //gl.glDisable(GL10.GL_DITHER);
     nativeInitGl();
   }
 
