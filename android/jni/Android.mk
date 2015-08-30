@@ -41,7 +41,7 @@ include $(PREBUILT_STATIC_LIBRARY)
 include $(CLEAR_VARS)         # Limpa todas variaveis LOCAL_* exceto LOCAL_PATH.
 LOCAL_MODULE := tabuleiro     # Modulo definido por este Android.mk.
 LOCAL_SRC_FILES := jni-impl.cpp \
-	                 gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl_vbo.cpp \
+	                 gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl_vbo.cpp gltab/glues.cpp \
 									 matrix/matrices.cpp \
 									 net/util.cpp net/cliente.cpp net/socket.cpp \
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
