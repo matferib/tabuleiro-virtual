@@ -191,7 +191,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, id_textura);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::Normal(0.0f, -1.0f, 0.0f);
     Cor c;
     c.set_r(1.0f);
@@ -227,8 +227,8 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f), false);
     {
-      gl::MatrizEscopo salva_matriz;
-      gl::Escala(0.2f, 0.2f, 1.0f);
+      gl::MatrizEscopo salva_matriz(false);
+      gl::Escala(0.2f, 0.2f, 1.0f, false);
       MudaCor(COR_VERMELHA);
       gl::CuboSolido(TAMANHO_BARRA_VIDA);
     }
@@ -265,7 +265,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::CarregaNome(Id());
       gl::DesabilitaEscopo de(GL_LIGHTING);
       MudaCor(COR_AMARELA);
-      gl::MatrizEscopo salva_matriz;
+      gl::MatrizEscopo salva_matriz(false);
       MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
       gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f, false);
       gl::EsferaSolida(0.2f, 4, 2);

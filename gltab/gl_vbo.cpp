@@ -768,7 +768,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
   std::vector<float> normais(num_coordenadas);
-  std::vector<unsigned short> indices;
+  std::vector<unsigned short> indices(num_faces * 3);
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
   normais[2] = 1.0f;
@@ -781,9 +781,10 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
     normais[i + 2] = 1.0f;
   }
   for (unsigned int i = 0; i < num_faces; ++i) {
-    indices.push_back(0);
-    indices.push_back(i);
-    indices.push_back(i + 1);
+    int ind = i * 3;
+    indices[ind] = 0;
+    indices[ind + 1] = i;
+    indices[ind + 2] = i + 1;
   }
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());

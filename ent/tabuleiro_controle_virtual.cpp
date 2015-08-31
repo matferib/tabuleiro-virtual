@@ -307,7 +307,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   {
     // Modo 2d: eixo com origem embaixo esquerda.
     gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-    gl::CarregaIdentidade();
+    gl::CarregaIdentidade(false);
     if (parametros_desenho_.has_picking_x()) {
       // Modo de picking faz a matriz de picking para projecao ortogonal.
       gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
