@@ -262,7 +262,7 @@ void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar 
 
 /** Funcoes de iluminacao. */
 #if !USAR_SHADER
-inline void Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
+inline void  Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
 inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
 #endif
 void LuzAmbiente(float r, float g, float b);

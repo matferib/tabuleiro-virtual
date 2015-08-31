@@ -617,11 +617,11 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenu
   glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
   glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], 6.0f  /*raio*/, 0, 0, 0);
 #else
-  gl::Luz(GL_LIGHT0 + luz, GL_POSITION, pos);
+  glLightfv(GL_LIGHT0 + luz, GL_POSITION, pos);
   GLfloat cor_luz[] = { r, g, b, 1.0f };
-  gl::Luz(GL_LIGHT0 + luz, GL_DIFFUSE, cor_luz);
-  gl::Luz(GL_LIGHT0 + luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
-  gl::Luz(GL_LIGHT0 + luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
+  glLightfv(GL_LIGHT0 + luz, GL_DIFFUSE, cor_luz);
+  glLightf(GL_LIGHT0 + luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
+  glLightf(GL_LIGHT0 + luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
 #endif
 }
 
