@@ -323,10 +323,10 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
     } if (alinhamento == 0) {  // central.
       translacao_x = -static_cast<float>(str_linha.size()) / 2.0f;
     }
-    gl::Translada(translacao_x, 0.0f, 0.0f);
+    gl::Translada(translacao_x, 0.0f, 0.0f, false);
     for (const char c : str_linha) {
       gl::DesenhaCaractere(c);
-      gl::Translada(1.0f, 0.0f, 0.0f);
+      gl::Translada(1.0f, 0.0f, 0.0f, false);
     }
     gl::Translada(-(translacao_x + static_cast<float>(str_linha.size())), inverte_vertical ? 1.0f : -1.0f, 0.0f, false);
   }

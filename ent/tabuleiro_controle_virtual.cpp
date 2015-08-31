@@ -273,7 +273,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       [this]() {
         if (ids_entidades_selecionadas_.size() == 1) {
           auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-          return e != nullptr && e->Proto().visivel();
+          return e != nullptr && !e->Proto().visivel();
         }
         return false;
       },

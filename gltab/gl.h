@@ -200,6 +200,7 @@ inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, G
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
+  ATUALIZA_MATRIZES_NOVO();
   glDrawElements(modo, num_vertices, tipo, indices);
 }
 // Vertices.

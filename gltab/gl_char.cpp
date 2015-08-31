@@ -440,9 +440,9 @@ void DesenhaCaractere(char c) {
   if (caractere_it == g_indices_caracteres.end()) {
     return;
   }
-  gl::MatrizEscopo salva_matriz;
+  gl::MatrizEscopo salva_matriz(false);
   if (g_caracteres_baixos.find(caractere_it->first) != g_caracteres_baixos.end()) {
-    gl::Translada(0.0f, -0.3f, 0.0f);
+    gl::Translada(0.0f, -0.3f, 0.0f, false);
   }
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::PonteiroVertices(2, GL_FLOAT, &g_vertices_caracteres[0]);
