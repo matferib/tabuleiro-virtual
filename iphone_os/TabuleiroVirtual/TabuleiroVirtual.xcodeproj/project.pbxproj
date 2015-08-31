@@ -151,7 +151,6 @@
 		EACF26F61A58D95D0052E95A /* entidade.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = entidade.pb.h; sourceTree = "<group>"; };
 		EACF26F71A58D95D0052E95A /* entidade_desenho.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = entidade_desenho.cpp; sourceTree = "<group>"; };
 		EACF26F81A58D95D0052E95A /* tabuleiro.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabuleiro.cpp; sourceTree = "<group>"; };
-		EACF26F91A58D95D0052E95A /* tabuleiro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tabuleiro.h; sourceTree = "<group>"; };
 		EACF26FA1A58D95D0052E95A /* tabuleiro.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tabuleiro.pb.cc; sourceTree = "<group>"; };
 		EACF26FB1A58D95D0052E95A /* tabuleiro.pb.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tabuleiro.pb.h; sourceTree = "<group>"; };
 		EACF26FC1A58D95D0052E95A /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
@@ -417,7 +416,6 @@
 				EACF26F61A58D95D0052E95A /* entidade.pb.h */,
 				EACF26F71A58D95D0052E95A /* entidade_desenho.cpp */,
 				EACF26F81A58D95D0052E95A /* tabuleiro.cpp */,
-				EACF26F91A58D95D0052E95A /* tabuleiro.h */,
 				EACF26FA1A58D95D0052E95A /* tabuleiro.pb.cc */,
 				EACF26FB1A58D95D0052E95A /* tabuleiro.pb.h */,
 				EACF26FC1A58D95D0052E95A /* util.cpp */,
