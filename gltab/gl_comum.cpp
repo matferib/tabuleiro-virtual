@@ -9,7 +9,9 @@
 #include "log/log.h"
 #include "matrix/matrices.h"
 
+#if !USAR_OPENGL_ES
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
+#endif
 
 // Comum.
 namespace gl {
@@ -355,8 +357,10 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }
 
 bool LuzPorVertice(int argc, const char* const* argv) {
+#if !USAR_OPENGL_ES
   return FLAGS_luz_por_vertice;
-#if 0
+#else
+  return true;
   for (int i = 0; i < argc; ++i) {
     if (std::string(argv[i]) == "--luz_por_vertice") {
       return true;
