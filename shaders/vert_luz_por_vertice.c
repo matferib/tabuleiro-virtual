@@ -12,17 +12,17 @@ precision mediump float;
 
 // Output pro frag shader, interpolado dos vertices.
 varying lowp vec4 v_Color;
-varying vec3 v_Normal;
-varying vec4 v_Pos;  // posicao em coordenada de olho.
+varying lowp vec3 v_Normal;
+varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
-uniform mat4 gltab_prm;    // projecao.
-uniform mat4 gltab_mvm;    // modelview.
-uniform mat3 gltab_nm;     // normal matrix
+uniform highp mat4 gltab_prm;    // projecao.
+uniform highp mat4 gltab_mvm;    // modelview.
+uniform mediump mat3 gltab_nm;     // normal matrix
 // Atributos variam por vertice.
-attribute vec4 gltab_vertice;
-attribute vec3 gltab_normal;
+attribute highp vec4 gltab_vertice;
+attribute mediump vec3 gltab_normal;
 attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
 
