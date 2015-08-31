@@ -820,7 +820,6 @@ void DesenhaVbo(GLenum modo,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
-  ATUALIZA_MATRIZES_NOVO();
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
