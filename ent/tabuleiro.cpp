@@ -2086,6 +2086,11 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando rosa dos ventos");
 
+  if (ModoMestre()) {
+    DesenhaListaObjetos();
+  }
+  V_ERRO("desenhando lista de objetos");
+
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
   }
@@ -2542,7 +2547,7 @@ void Tabuleiro::DesenhaRosaDosVentos() {
 void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
   float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
@@ -4185,12 +4190,12 @@ void Tabuleiro::DesenhaLuzes() {
 
   // Iluminação distante direcional.
   {
-    gl::MatrizEscopo salva_matriz;
+    gl::MatrizEscopo salva_matriz(false);
     //gl::CarregaIdentidade();
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
+    gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
     gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     // A cor da luz direcional.
     GLfloat cor_luz[] = {
@@ -4242,8 +4247,8 @@ void Tabuleiro::DesenhaCaixaCeu() {
   }
   // Desliga luz direcional.
 
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
-  gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+  gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
+  gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
   MudaCor(COR_BRANCA);
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::FaceNula(GL_FRONT);
@@ -4289,6 +4294,60 @@ void Tabuleiro::DesenhaListaPontosVida() {
     char str[4];
     snprintf(str, 4, "%d", abs(pv));
     gl::DesenhaStringAlinhadoDireita(str);
+  }
+}
+
+void Tabuleiro::DesenhaListaObjetos() {
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  // Modo 2d: eixo com origem embaixo esquerda.
+  int raster_x = 0, raster_y = 0;
+  int largura_fonte, altura_fonte;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+  raster_y = altura_ - altura_fonte;
+  raster_x = largura_ - 2;
+  if (!parametros_desenho_.has_picking_x()) {
+    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+  }
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+
+  MudaCor(COR_BRANCA);
+  if (!parametros_desenho_.has_picking_x()) {
+    std::string titulo("Lista Objetos");
+    gl::DesenhaStringAlinhadoDireita(titulo);
+  }
+  raster_y -= (altura_fonte + 2);
+  gl::TipoEscopo tipo(OBJ_ENTIDADE);
+  for (const auto& it : entidades_) {
+    const auto* e = it.second.get();
+    if (e->IdCenario() != cenario_corrente_) {
+      continue;
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+    }
+    char str[100];
+    snprintf(str, 100, "%d->%s:%s",
+             e->Id(), TipoEntidade_Name(e->Proto().tipo()).c_str(),
+             e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
+    gl::CarregaNome(e->Id());
+    {
+      gl::MatrizEscopo salva(GL_PROJECTION);
+      gl::CarregaIdentidade();
+      if (parametros_desenho_.has_picking_x()) {
+        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+      }
+      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+      gl::MatrizEscopo salva_2(GL_MODELVIEW);
+      gl::CarregaIdentidade(false);
+      MudaCor(COR_BRANCA);
+      gl::Retangulo(raster_x - (strlen(str) * largura_fonte), raster_y, raster_x, raster_y + altura_fonte);
+    }
+    MudaCor(COR_AZUL);
+    if (!parametros_desenho_.has_picking_x()) {
+      gl::DesenhaStringAlinhadoDireita(str);
+    }
+    raster_y -= (altura_fonte + 2);
   }
 }
 

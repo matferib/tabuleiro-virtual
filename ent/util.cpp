@@ -129,7 +129,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   gl::Normal(0.0f, 0.0f, 1.0f);
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
-    gl::MatrizEscopo salva_matriz;
+    gl::MatrizEscopo salva_matriz(false);
     gl::Translada(ponto.x(), ponto.y(), ponto.z(), false);
     // Disco do ponto corrente.
     gl::Disco(largura / 2.0f, 12);
@@ -141,7 +141,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     gl::Retangulo(0, -largura / 2.0f, tam, largura / 2.0f);
   }
   const auto& ponto = *(pontos.end() - 1);
-  gl::MatrizEscopo salva_matriz;
+  gl::MatrizEscopo salva_matriz(false);
   gl::Translada(ponto.x(), ponto.y(), ponto.z(), false);
   gl::Disco(largura / 2.0f, 12);
 }
@@ -468,7 +468,7 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 // Posiciona o raster no pixel.
 void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   gl::Ortogonal(0, largura_vp, 0, altura_vp, 0, 1);
 
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);

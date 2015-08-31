@@ -590,6 +590,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a lista de pontos de vida a direita. */
   void DesenhaListaPontosVida();
 
+  /** Para debugar, desenha uma lista de objetos. */
+  void DesenhaListaObjetos();
+
   /** Desenha o identificador de acao da entidade selecionada. */
   void DesenhaIdAcaoEntidade();
 

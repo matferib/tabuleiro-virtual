@@ -27,6 +27,7 @@ Versao 1.10.2
 - Texturas faltantes.
 
 Versao com Vbo:
+- EXTRACAO DE LINHAS 3D. Ta sendo o mais caro pelo profile.
 - Modelos 3d para entidades.
 - Vbos de entidades.
 - Unit teste dos glVbo roda.
