@@ -223,17 +223,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
 
   // Desenha a barra de vida.
   if (pd->desenha_barra_vida()) {
-#if 0
-    // Codigo para iluminar barra de vida.
-    gl::AtributosEscopo salva_attributos(GL_LIGHTING_BIT | GL_ENABLE_BIT);
-    // Luz no olho apontando para a barra.
-    const Posicao& pos_olho = pd->pos_olho();
-    gl::Luz(GL_LIGHT0, GL_DIFFUSE, COR_BRANCA);
-    const auto& pos = proto_.pos();
-    GLfloat pos_luz[] = { pos_olho.x() - pos.x(), pos_olho.y() - pos.y(), pos_olho.z() - pos.z(), 0.0f };
-    gl::Luz(GL_LIGHT0, GL_POSITION, pos_luz);
-#endif
-
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f), false);
