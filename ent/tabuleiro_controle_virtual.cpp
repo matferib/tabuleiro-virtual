@@ -243,10 +243,41 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 2, 0, 8, "T", nullptr, TEXTURA_TRANSICAO, CONTROLE_TRANSICAO, [this] () { return modo_clique_ == MODO_TRANSICAO; } , 4, 0.0f, 0.0f, 0.0f },
 
     // Status.
-    { 1, 0, 10, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 11, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 10, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 11, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 10, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ,
+      [this]() {
+        if (ids_entidades_selecionadas_.size() == 1) {
+          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
+          return e != nullptr && e->Proto().has_luz();
+        }
+        return false;
+      }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 11, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA,
+      [this]() {
+        if (ids_entidades_selecionadas_.size() == 1) {
+          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
+          return e != nullptr && e->Proto().caida();
+        }
+        return false;
+      },
+      4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 10, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO,
+      [this]() {
+        if (ids_entidades_selecionadas_.size() == 1) {
+          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
+          return e != nullptr && e->Proto().voadora();
+        }
+        return false;
+      },
+      4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 11, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE,
+      [this]() {
+        if (ids_entidades_selecionadas_.size() == 1) {
+          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
+          return e != nullptr && e->Proto().visivel();
+        }
+        return false;
+      },
+      4, 0.0f, 0.0f, 0.0f },
 
     // Setas.
     { 1, 1, 13, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.1f },
