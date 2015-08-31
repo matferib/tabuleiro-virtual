@@ -10,17 +10,17 @@ precision mediump float;
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
-varying vec3 v_Normal;
-varying vec4 v_Pos;  // Posicao do pixel do fragmento.
+varying mediump vec3 v_Normal;
+varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
 uniform bool gltab_textura;                // Textura ligada?
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
-uniform vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
+uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
-uniform vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
+uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
 
 void main() {
   lowp vec4 cor_final = v_Color;
