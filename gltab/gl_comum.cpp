@@ -412,7 +412,7 @@ void MudarModoMatriz(GLenum modo) {
   } else {
     c->pilha_corrente = &c->pilha_prj;
   }
-  ATUALIZA_MATRIZES_NOVO();
+  //ATUALIZA_MATRIZES_NOVO();
 #else
   glMatrixMode(modo);
 #endif
