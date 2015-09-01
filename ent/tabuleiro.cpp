@@ -59,7 +59,7 @@ const double SENSIBILIDADE_ROTACAO_X = 0.01;
 /** sensibilidade da altura do olho. */
 const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 
-/** expessura da linha do tabuleiro. */
+/** expessura da linha da grade do tabuleiro. */
 const float EXPESSURA_LINHA = 0.2f;
 const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
@@ -69,7 +69,7 @@ const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) 
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
 /** Distancia minima entre pontos no desenho livre. */
-const float DELTA_MINIMO_DESENHO_LIVRE = 0.2;
+const float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
 
 /** A Translacao e a rotacao de objetos so ocorre depois que houver essa distancia de pixels percorrida pelo mouse. */
 const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
