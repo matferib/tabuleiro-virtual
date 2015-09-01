@@ -132,7 +132,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
     gl::MatrizEscopo salva_matriz(false);
     gl::Translada(ponto.x(), ponto.y(), ponto.z(), false);
     // Disco do ponto corrente.
-    gl::Disco(largura / 2.0f, 12);
+    gl::Disco(largura / 2.0f, 8);
     // Reta ate proximo ponto.
     const auto& proximo_ponto = *(++it);
     float tam;
@@ -143,7 +143,7 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
   const auto& ponto = *(pontos.end() - 1);
   gl::MatrizEscopo salva_matriz(false);
   gl::Translada(ponto.x(), ponto.y(), ponto.z(), false);
-  gl::Disco(largura / 2.0f, 12);
+  gl::Disco(largura / 2.0f, 8);
 }
 
 }  // namespace
