@@ -41,12 +41,13 @@
 // Por quantos frames um botao fica pressionado. 240ms.
 #define ATUALIZACOES_BOTAO_PRESSIONADO (static_cast<int>(ATUALIZACOES_POR_SEGUNDO * 0.240f))
 
-// Constantes para picking do tabuleiro.
+// Constantes para picking do tabuleiro. Limite: TODO
 #define OBJ_TABULEIRO 1
 #define OBJ_ENTIDADE 2
-#define OBJ_ROLAGEM 3
-#define OBJ_CONTROLE_VIRTUAL 4
-#define OBJ_EVENTO_ENTIDADE 5
+#define OBJ_ENTIDADE_LISTA 3
+#define OBJ_ROLAGEM 4
+#define OBJ_CONTROLE_VIRTUAL 5
+#define OBJ_EVENTO_ENTIDADE 6
 
 // Constantes de cenario.
 #define CENARIO_PRINCIPAL -1

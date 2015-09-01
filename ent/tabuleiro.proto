@@ -43,6 +43,7 @@ message OpcoesProto {
   optional bool anti_aliasing = 5 [default=false];
   optional bool desenha_grade = 6 [default=true];
   optional bool desenha_controle_virtual = 7 [default=false];
+  optional bool mostra_lista_objetos = 8 [default=false];
 }
 
 // Mensagem enviada para os clientes de um jogo.

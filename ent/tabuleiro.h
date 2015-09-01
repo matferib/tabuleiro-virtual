@@ -315,6 +315,8 @@ class Tabuleiro : public ntf::Receptor {
   bool ModoMestre() const { return modo_mestre_; }
   // Debug.
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
+  // debug.
+  void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); }
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
@@ -650,6 +652,7 @@ class Tabuleiro : public ntf::Receptor {
   TabuleiroProto proto_;
   // Opcoes do usuario.
   OpcoesProto opcoes_;
+  int pagina_lista_objetos_ = 0;
 
   /** Cada cliente possui um identificador diferente. */
   int id_cliente_;
