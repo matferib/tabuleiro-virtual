@@ -33,6 +33,9 @@
 
 namespace ent {
 
+extern const int CONTROLE_PAGINACAO_CIMA;
+extern const int CONTROLE_PAGINACAO_BAIXO;
+
 namespace {
 
 /** campo de visao vertical em graus. */
@@ -342,6 +345,8 @@ void Tabuleiro::EstadoInicial() {
   tempos_renderizacao_.clear();
   // Modo de acao.
   modo_clique_ = MODO_NORMAL;
+  // Lista objetos.
+  pagina_lista_objetos_ = 0;
   if (gl_iniciado_) {
     RegeraVboTabuleiro();
   }
@@ -395,6 +400,7 @@ void Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   // Aplica opcoes do jogador.
+  parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   //parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
   parametros_desenho_.set_desenha_fps(true);
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
@@ -2086,7 +2092,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando rosa dos ventos");
 
-  if (ModoMestre()) {
+  if (parametros_desenho_.desenha_lista_objetos() && ModoMestre()) {
     DesenhaListaObjetos();
   }
   V_ERRO("desenhando lista de objetos");
@@ -2723,24 +2729,24 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   ultimo_x_ = x;
   ultimo_y_ = y;
 
-  unsigned int id, pos_pilha;
+  unsigned int id, tipo_objeto;
   float profundidade;
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
 #if !USAR_OPENGL_ES
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
 #else
-  MousePara3dComId(x, y, id, pos_pilha, &x3d, &y3d, &z3d);
+  MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
 #endif
   // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
-  if (modo_clique_ != MODO_NORMAL && pos_pilha != OBJ_CONTROLE_VIRTUAL) {
+  if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
     switch (modo_clique_) {
       case MODO_ACAO:
-        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, pos_pilha, profundidade);
+        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
         modo_clique_ = MODO_NORMAL;
         break;
       case MODO_TRANSICAO:
-        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, pos_pilha);
+        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
         modo_clique_ = MODO_NORMAL;
         break;
       default:
@@ -2756,11 +2762,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
 
-  if (pos_pilha == OBJ_TABULEIRO) {
+  if (tipo_objeto == OBJ_TABULEIRO) {
     // Tabuleiro.
     // Converte x3d y3d para id quadrado.
     SelecionaQuadrado(IdQuadrado(x3d, y3d));
-  } else if (pos_pilha == OBJ_ENTIDADE) {
+  } else if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
@@ -2768,7 +2774,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     } else {
       if (!EntidadeEstaSelecionada(id)) {
         // Se nao estava selecionada, so ela.
-        SelecionaEntidade(id);
+        SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
       }
       bool ha_entidades_selecionadas = !ids_entidades_selecionadas_.empty();
       for (unsigned int id : ids_entidades_selecionadas_) {
@@ -2797,13 +2803,13 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         SelecionaQuadrado(IdQuadrado(x3d, y3d));
       }
     }
-  } else if (pos_pilha == OBJ_ROLAGEM) {
+  } else if (tipo_objeto == OBJ_ROLAGEM) {
     VLOG(1) << "Picking em ponto de rolagem id " << id;
     TrataRolagem(static_cast<dir_rolagem_e>(id));
-  } else if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
+  } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
     PickingControleVirtual(alterna_selecao, id);
-  } else if (pos_pilha == OBJ_EVENTO_ENTIDADE) {
+  } else if (tipo_objeto == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
   } else {
@@ -2913,7 +2919,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     TrataNotificacao(notificacao);
-  } else if (pos_pilha == OBJ_ENTIDADE) {
+  } else if (pos_pilha == OBJ_ENTIDADE || pos_pilha == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     if (SelecionaEntidade(id, true  /*forcar_fixa*/)) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
@@ -4298,8 +4304,27 @@ void Tabuleiro::DesenhaListaPontosVida() {
 }
 
 void Tabuleiro::DesenhaListaObjetos() {
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  std::vector<const Entidade*> entidades_cenario;
+  for (const auto& it : entidades_) {
+    const auto* e = it.second.get();
+    if (e->IdCenario() != cenario_corrente_) {
+      continue;
+    }
+    entidades_cenario.push_back(e);
+  }
+
+  const int n_objetos = entidades_cenario.size();
+  const int objs_por_pagina = 10;
+  const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
+  const int pagina_corrente = (pagina_lista_objetos_ >= num_paginas) ? num_paginas : pagina_lista_objetos_;
+  const int objeto_inicial = pagina_corrente * objs_por_pagina;
+  const int objeto_final = (pagina_corrente == num_paginas - 1) ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui ultimo.
+  if (pagina_lista_objetos_ > num_paginas - 1) {
+    pagina_lista_objetos_ = num_paginas - 1;
+  }
+
   // Modo 2d: eixo com origem embaixo esquerda.
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   int raster_x = 0, raster_y = 0;
   int largura_fonte, altura_fonte;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte);
@@ -4317,19 +4342,46 @@ void Tabuleiro::DesenhaListaObjetos() {
     gl::DesenhaStringAlinhadoDireita(titulo);
   }
   raster_y -= (altura_fonte + 2);
-  gl::TipoEscopo tipo(OBJ_ENTIDADE);
-  for (const auto& it : entidades_) {
-    const auto* e = it.second.get();
-    if (e->IdCenario() != cenario_corrente_) {
-      continue;
+  // Paginacao inicial.
+  if (pagina_corrente > 0) {
+    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
+    gl::CarregaNome(CONTROLE_PAGINACAO_CIMA);
+    {
+      gl::MatrizEscopo salva(GL_PROJECTION);
+      gl::CarregaIdentidade();
+      if (parametros_desenho_.has_picking_x()) {
+        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+      }
+      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+      gl::MatrizEscopo salva_2(GL_MODELVIEW);
+      gl::CarregaIdentidade(false);
+      MudaCor(COR_BRANCA);
+      gl::Retangulo(raster_x - (3 * largura_fonte), raster_y, raster_x, raster_y + altura_fonte);
     }
+    if (!parametros_desenho_.has_picking_x()) {
+      MudaCor(COR_AZUL);
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      std::string page_up("^^^");
+      gl::DesenhaStringAlinhadoDireita(page_up);
+    }
+  }
+  // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
+  raster_y -= (altura_fonte + 2);
+
+  // Lista de objetos.
+  for (int i = objeto_inicial; i < objeto_final; ++i) {
+    const auto* e = entidades_cenario[i];
     if (!parametros_desenho_.has_picking_x()) {
       PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
     }
+    char rotulo[10];
+    snprintf(rotulo, 10, "%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str());
     char str[100];
-    snprintf(str, 100, "%d->%s:%s",
-             e->Id(), TipoEntidade_Name(e->Proto().tipo()).c_str(),
+    snprintf(str, 100, "%d%s->%s:%s",
+             e->Id(), rotulo,
+             TipoEntidade_Name(e->Proto().tipo()).c_str(),
              e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
+    gl::TipoEscopo tipo(OBJ_ENTIDADE_LISTA);
     gl::CarregaNome(e->Id());
     {
       gl::MatrizEscopo salva(GL_PROJECTION);
@@ -4346,6 +4398,31 @@ void Tabuleiro::DesenhaListaObjetos() {
     MudaCor(COR_AZUL);
     if (!parametros_desenho_.has_picking_x()) {
       gl::DesenhaStringAlinhadoDireita(str);
+    }
+    raster_y -= (altura_fonte + 2);
+  }
+
+  // Paginacao final.
+  if (pagina_corrente < (num_paginas - 1)) {
+    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
+    gl::CarregaNome(CONTROLE_PAGINACAO_BAIXO);
+    {
+      gl::MatrizEscopo salva(GL_PROJECTION);
+      gl::CarregaIdentidade();
+      if (parametros_desenho_.has_picking_x()) {
+        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+      }
+      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+      gl::MatrizEscopo salva_2(GL_MODELVIEW);
+      gl::CarregaIdentidade(false);
+      MudaCor(COR_BRANCA);
+      gl::Retangulo(raster_x - (3 * largura_fonte), raster_y, raster_x, raster_y + altura_fonte);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      MudaCor(COR_AZUL);
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      std::string page_down("vvv");
+      gl::DesenhaStringAlinhadoDireita(page_down);
     }
     raster_y -= (altura_fonte + 2);
   }

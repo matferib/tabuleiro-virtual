@@ -30,7 +30,6 @@
 namespace ent {
 
 namespace {
-
 // Constantes do controle virtual.
 const int CONTROLE_ACAO = 1;
 const int CONTROLE_ACAO_ANTERIOR = 2;
@@ -56,7 +55,13 @@ const int CONTROLE_DIREITA = 21;
 const int CONTROLE_CIMA_VERTICAL = 22;
 const int CONTROLE_BAIXO_VERTICAL = 23;
 const int CONTROLE_TRANSICAO = 24;
+}
 
+// Preciso desses valores fora do arquivo.
+extern const int CONTROLE_PAGINACAO_CIMA = 25;  // paginacao de lista de objetos, nao esta aqui.
+extern const int CONTROLE_PAGINACAO_BAIXO = 26;  // ditto.
+
+namespace {
 // Texturas do controle virtual.
 const char* TEXTURA_ACAO = "icon_sword.png";
 const char* TEXTURA_VOO = "icon_feather.png";
@@ -175,6 +180,12 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       } else {
         ZeraRodadasNotificando();
       }
+      break;
+    case CONTROLE_PAGINACAO_CIMA:
+      --pagina_lista_objetos_;
+      break;
+    case CONTROLE_PAGINACAO_BAIXO:
+      ++pagina_lista_objetos_;
       break;
     default:
       LOG(WARNING) << "Controle invalido: " << id;
