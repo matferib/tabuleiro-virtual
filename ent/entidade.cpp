@@ -96,6 +96,11 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
   // Evitar oscilacoes juntas.
   vd_.angulo_disco_luz_rad = ((RolaDado(360) - 1.0f) / 180.0f) * M_PI;
+  if (proto_.tipo() == TE_FORMA) {
+    InicializaForma(proto_, &vd_);
+  } else if (proto_.tipo() == TE_COMPOSTA) {
+    InicializaComposta(proto_, &vd_);
+  }
 
   CorrigeTranslacaoDeprecated(&proto_);
 }

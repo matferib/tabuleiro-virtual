@@ -887,7 +887,7 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
     vbo_retangulo = std::move(gl::VboRetangulo(0.0f, -largura_2, tam, largura_2));
     vbo_retangulo.RodaZ(graus);
     vbo_retangulo.Translada(ponto.first, ponto.second, 0.0f);
-    //vbo.Concatena(vbo_retangulo);
+    vbo.Concatena(vbo_retangulo);
   }
   const auto& ponto = *pontos.rbegin();
   vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));

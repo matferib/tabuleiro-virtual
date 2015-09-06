@@ -14,6 +14,9 @@
 
 namespace ent {
 
+void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
+}
+
 gl::VboNaoGravado Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
   gl::VboNaoGravado vbo;
   gl::VboNaoGravado sub_vbo;
