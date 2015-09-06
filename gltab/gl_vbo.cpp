@@ -735,13 +735,17 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
 }
 
 VboNaoGravado VboRetangulo(GLfloat tam_lado) {
-  const unsigned short indices[] = { 0, 1, 2, 3 };
   float m = tam_lado / 2.0f;
+  return VboRetangulo(-m, -m, m, m);
+}
+
+VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
+  const unsigned short indices[] = { 0, 1, 2, 3 };
   const float coordenadas[] = {
-    -m, -m, 0.0f,
-    m,  -m, 0.0f,
-    m,  m,  0.0f,
-    -m, m,  0.0f,
+    x1, y1, 0.0f,
+    x2,  y1, 0.0f,
+    x2,  y2,  0.0f,
+    x1, y2,  0.0f,
   };
   const float normais[] = {
     0.0f, 0.0f, 1.0f,
@@ -812,6 +816,31 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   //vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 3);
   vbo.Nomeia("triangulo");
+  return vbo;
+}
+
+VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura) {
+  VboNaoGravado vbo;
+  vbo.Nomeia("livre");
+  if (pontos.size() == 0) {
+    return vbo;
+  }
+  gl::VboNaoGravado vbo_disco;
+  for (auto it = pontos.begin(); it != pontos.end() - 1;) {
+    const auto& ponto = *it;
+    // Disco do ponto corrente.
+    vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));
+    vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
+    vbo.Concatena(vbo_disco);
+
+    // Reta ate proximo ponto.
+    //const auto& proximo_ponto = *(++it);
+    //float tam;
+    //float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
+    //gl::Roda(graus, 0.0f, 0.0f, 1.0f, false);
+    //gl::Retangulo(0, -largura / 2.0f, tam, largura / 2.0f);
+    ++it;
+  }
   return vbo;
 }
 
