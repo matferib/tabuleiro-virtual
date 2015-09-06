@@ -1,4 +1,5 @@
 Versao 1.10.2
+- Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
 - Tirar tesselizacao da grade agora que o shader ta funcionando.
 - Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).

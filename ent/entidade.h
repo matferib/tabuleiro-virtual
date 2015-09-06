@@ -194,11 +194,17 @@ class Entidade {
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
+    // algumas formas possuem VBO.
+    std::unique_ptr<gl::VboNaoGravado> vbo;
 
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
     const m3d::Modelos3d* m3d = nullptr;
   };
+
+  // Inicializacao por subtipo.
+  static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+  static void InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
 
   // Extracao de VBO por tipo.
   static gl::VboNaoGravado ExtraiVboForma(const ent::EntidadeProto& proto);

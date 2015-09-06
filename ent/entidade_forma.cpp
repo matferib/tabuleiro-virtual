@@ -12,6 +12,18 @@ namespace ent {
 
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
 
+void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
+  if (proto.sub_tipo() == TF_LIVRE) {
+    // Extrai o VBO da forma livre.
+    try {
+      vd->vbo.reset(new gl::VboNaoGravado(ExtraiVboForma(proto)));
+    } catch (...) {
+      LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
+      // sem VBO, vai desenhar na marra.
+    }
+  }
+}
+
 gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
@@ -53,6 +65,11 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_LIVRE: {
+      std::vector<std::pair<float, float>> v;
+      for (const auto& p : proto.ponto()) {
+        v.push_back(std::make_pair(p.x() - proto.pos().x(), p.y() - proto.pos().y()));
+      }
+      vbo = std::move(gl::VboLivre(v, 1.0f));
     }
     break;
     default:
@@ -160,7 +177,15 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         // Portanto escopo deve terminar aqui.
         gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
         gl::DesvioProfundidade(-1.0, -40.0f);
-        DesenhaLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z());
+        if (vd.vbo.get() != nullptr) {
+          gl::DesenhaVbo(*vd.vbo.get());
+        } else {
+          std::vector<std::pair<float, float>> v;
+          for (const auto& p : proto.ponto()) {
+            v.push_back(std::make_pair(p.x(), p.y()));
+          }
+          gl::Livre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
+        }
       }
       if (transparencias) {
         float xi, yi, xs, ys;
