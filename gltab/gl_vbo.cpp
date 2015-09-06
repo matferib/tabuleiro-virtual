@@ -8,6 +8,26 @@ namespace gl {
 
 bool ImprimeSeErro(const char* mais = nullptr);
 
+namespace {
+
+// retorna o angulo do vetor formado por x,y, alem de seu tamanho.
+float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
+  float tam = sqrt(x * x + y * y);
+  if (tam == 0) {
+    if (tamanho != nullptr) {
+      *tamanho = 0;
+    }
+    return 0;
+  }
+  float angulo = acosf(x / tam) * RAD_PARA_GRAUS;
+  if (tamanho != nullptr) {
+    *tamanho = tam;
+  }
+  return (y >= 0 ? angulo : -angulo);
+}
+
+}  // namespace
+
 //--------------
 // VboNaoGravado
 //--------------
@@ -740,11 +760,13 @@ VboNaoGravado VboRetangulo(GLfloat tam_lado) {
 }
 
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  const unsigned short indices[] = { 0, 1, 2, 3 };
+  const unsigned short indices[] = { 0, 1, 2, 3, 4, 5 };
   const float coordenadas[] = {
     x1, y1, 0.0f,
     x2,  y1, 0.0f,
     x2,  y2,  0.0f,
+    x1, y1, 0.0f,
+    x2, y2, 0.0f,
     x1, y2,  0.0f,
   };
   const float normais[] = {
@@ -752,18 +774,22 @@ VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
     0.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f,
     0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
+    0.0f, 0.0f, 1.0f,
   };
   const float coordenadas_texel[] = {
-    0.0f, 1.0f,
-    1.0f, 1.0f,
-    1.0f, 0.0f,
-    0.0f, 0.0f,
+    0.0f, 1.0f,  // x1, y1
+    1.0f, 1.0f,  // x2, y1
+    1.0f, 0.0f,  // x2, y2
+    0.0f, 1.0f,  // x1, y1
+    1.0f, 0.0f,  // x2, y2
+    0.0f, 0.0f,  // x1, y2
   };
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
   vbo.AtribuiNormais(normais);
   vbo.AtribuiTexturas(coordenadas_texel);
-  vbo.AtribuiIndices(indices, 4);
+  vbo.AtribuiIndices(indices, sizeof(indices) / sizeof(unsigned short));
   vbo.Nomeia("retangulo");
   return vbo;
 }
@@ -821,11 +847,12 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
 
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura) {
   VboNaoGravado vbo;
-  vbo.Nomeia("livre");
   if (pontos.size() == 0) {
+    vbo.Nomeia("livre");
     return vbo;
   }
   gl::VboNaoGravado vbo_disco;
+  gl::VboNaoGravado vbo_retangulo;
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     // Disco do ponto corrente.
@@ -834,13 +861,22 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
     vbo.Concatena(vbo_disco);
 
     // Reta ate proximo ponto.
-    //const auto& proximo_ponto = *(++it);
-    //float tam;
-    //float graus = VetorParaRotacaoGraus(proximo_ponto.x() - ponto.x(), proximo_ponto.y() - ponto.y(), &tam);
-    //gl::Roda(graus, 0.0f, 0.0f, 1.0f, false);
-    //gl::Retangulo(0, -largura / 2.0f, tam, largura / 2.0f);
-    ++it;
+    const auto& proximo_ponto = *(++it);
+    float tam;
+    const float graus = VetorParaRotacaoGraus(proximo_ponto.first - ponto.first, proximo_ponto.second - ponto.second, &tam);
+    const float largura_2 = largura / 2.0f;
+    vbo_retangulo = std::move(gl::VboRetangulo(0.0f, -largura_2, tam, largura_2));
+    vbo_retangulo.RodaZ(graus);
+    vbo_retangulo.Translada(ponto.first, ponto.second, 0.0f);
+    vbo.Concatena(vbo_retangulo);
   }
+  const auto& ponto = *pontos.rbegin();
+  vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));
+  vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
+  vbo.Concatena(vbo_disco);
+  char nome[50];
+  snprintf(nome, 49, "livre:%lup", pontos.size());
+  vbo.Nomeia(nome);
   return vbo;
 }
 
