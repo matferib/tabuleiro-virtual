@@ -1,4 +1,6 @@
 Versao 1.10.2
+- Posicao dos numeros de cura e dano estao errados.
+- Arrumar escala Livre com VBO.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
 - Tirar tesselizacao da grade agora que o shader ta funcionando.

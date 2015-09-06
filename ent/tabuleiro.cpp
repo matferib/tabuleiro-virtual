@@ -208,6 +208,7 @@ void PreencheNotificacaoDeltaPontosVida(
   entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
 
   if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
     n_desfazer->mutable_entidade()->CopyFrom(*entidade_depois);
     auto* entidade_antes = n_desfazer->mutable_entidade_antes();
     entidade_antes->set_id(entidade.Id());
