@@ -111,17 +111,6 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
   Nomeia(nome_ + "+" + rhs.nome_);
 }
 
-void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
-  int num_vertices = coordenadas_.size() / num_dimensoes_;
-  for (int i = 0; i < num_vertices; ++i) {
-    cores_.push_back(r);
-    cores_.push_back(g);
-    cores_.push_back(b);
-    cores_.push_back(a);
-  }
-  tem_cores_ = true;
-}
-
 std::vector<float> VboNaoGravado::GeraBufferUnico(
     unsigned int* deslocamento_normais,
     unsigned int* deslocamento_cores,
@@ -172,6 +161,24 @@ void VboNaoGravado::AtribuiTexturas(const float* dados) {
   texturas_.clear();
   texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
   tem_texturas_ = true;
+}
+
+void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
+  cores_.clear();
+  int num_vertices = coordenadas_.size() / num_dimensoes_;
+  for (int i = 0; i < num_vertices; ++i) {
+    cores_.push_back(r);
+    cores_.push_back(g);
+    cores_.push_back(b);
+    cores_.push_back(a);
+  }
+  tem_cores_ = true;
+}
+
+void VboNaoGravado::AtribuiCores(const float* cores) {
+  cores_.clear();
+  cores_.insert(cores_.end(), cores, cores + (coordenadas_.size() * 4) / num_dimensoes_);
+  tem_cores_ = true;
 }
 
 std::string VboNaoGravado::ParaString() const {
@@ -798,6 +805,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   const unsigned short num_coordenadas = 3 + (num_faces + 1) * 3;
   std::vector<float> coordenadas(num_coordenadas);
   std::vector<float> normais(num_coordenadas);
+  //std::vector<float> cores((num_coordenadas / 3) * 4);
   std::vector<unsigned short> indices(num_faces * 3);
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
@@ -805,10 +813,20 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_faces;
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
+  //cores[0] = 0;
+  //cores[1] = 0;
+  //cores[2] = 0;
+  //cores[3] = 1.0f;
+
   for (int i = 3; i < num_coordenadas; i += 3) {
     coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia; 
     coordenadas[i + 1] = coordenadas[i - 3] * sen_fatia + coordenadas[i - 2] * cos_fatia;
     normais[i + 2] = 1.0f;
+    //int ic = (i / 3) * 4;
+    //cores[ic] = ic * 0.1;
+    //cores[ic+1] = ic * 0.1;
+    //cores[ic+2] = ic * 0.1;
+    //cores[ic+3] = 1.0f;
   }
   for (unsigned int i = 0; i < num_faces; ++i) {
     int ind = i * 3;
@@ -819,6 +837,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());
   vbo.AtribuiNormais(normais.data());
+  //vbo.AtribuiCores(cores.data());
   //vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices.data(), indices.size());
   vbo.Nomeia("disco");
@@ -868,7 +887,7 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
     vbo_retangulo = std::move(gl::VboRetangulo(0.0f, -largura_2, tam, largura_2));
     vbo_retangulo.RodaZ(graus);
     vbo_retangulo.Translada(ponto.first, ponto.second, 0.0f);
-    vbo.Concatena(vbo_retangulo);
+    //vbo.Concatena(vbo_retangulo);
   }
   const auto& ponto = *pontos.rbegin();
   vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));

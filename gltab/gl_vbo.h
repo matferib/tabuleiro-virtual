@@ -38,6 +38,8 @@ class VboNaoGravado {
 
   // Atribui a mesma cor a todas coordenadas.
   void AtribuiCor(float r, float g, float b, float a);
+  // Cores independentes.
+  void AtribuiCores(const float* cores);
 
   // Concatena um vbo a outro, ajustando os indices.
   // @throw caso os objetos nao sejam compativeis.
@@ -163,6 +165,9 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo = GL_TRIANGLES);
 // Desenha o vbo, assumindo que ele nao tenha sido gravado.
 void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo = GL_TRIANGLES);
 
+//---------------------------------------------------------------------------
+// Todos VBOs retornados serao em modo triangulo, para permitir concatenacao.
+//---------------------------------------------------------------------------
 VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos);
 inline void CilindroSolido(GLfloat raio, GLfloat altura, GLint fatias, GLint tocos) {
   DesenhaVbo(VboCilindroSolido(raio, altura, fatias, tocos));
@@ -196,16 +201,16 @@ inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {
 // Retangulo cercando a origem.
 VboNaoGravado VboRetangulo(GLfloat tam_lado);
 inline void Retangulo(GLfloat tam_lado) {
-  DesenhaVbo(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);
+  DesenhaVbo(VboRetangulo(tam_lado));
 }
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  DesenhaVbo(VboRetangulo(x1, y1, x2, y2), GL_TRIANGLE_FAN);
+  DesenhaVbo(VboRetangulo(x1, y1, x2, y2));
 }
 
 VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces);
 inline void Disco(GLfloat raio, GLfloat num_faces) {
-  DesenhaVbo(VboDisco(raio, num_faces), GL_TRIANGLE_FAN);
+  DesenhaVbo(VboDisco(raio, num_faces));
 }
 
 // Triangulo equilatero, pico para eixo y.
@@ -216,7 +221,7 @@ inline void Triangulo(GLfloat lado) {
 
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura);
 inline void Livre(const std::vector<std::pair<float, float>>& pontos, float largura) {
-  DesenhaVbo(VboLivre(pontos, largura), GL_TRIANGLES);
+  DesenhaVbo(VboLivre(pontos, largura));
 }
 
 }  // namespace gl
