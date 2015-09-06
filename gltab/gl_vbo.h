@@ -1,6 +1,8 @@
 #ifndef GLTAB_GL_VBO_H
 #define GLTAB_GL_VBO_H
 
+#include <utility>
+#include <vector>
 #include "gltab/gl.h"
 
 namespace gl {
@@ -196,11 +198,9 @@ VboNaoGravado VboRetangulo(GLfloat tam_lado);
 inline void Retangulo(GLfloat tam_lado) {
   DesenhaVbo(VboRetangulo(tam_lado), GL_TRIANGLE_FAN);
 }
+VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
-  gl::MatrizEscopo salva_matriz(false);
-  gl::Translada((x1 + x2) / 2.0f, (y1 + y2) / 2.0f, 0.0f, false);
-  gl::Escala(fabs(x1 - x2), fabs(y1 - y2), 1.0f, false);
-  Retangulo(1.0f);
+  DesenhaVbo(VboRetangulo(x1, y1, x2, y2), GL_TRIANGLE_FAN);
 }
 
 VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces);
@@ -212,6 +212,11 @@ inline void Disco(GLfloat raio, GLfloat num_faces) {
 VboNaoGravado VboTriangulo(float lado);
 inline void Triangulo(GLfloat lado) {
   DesenhaVbo(VboTriangulo(lado));
+}
+
+VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura);
+inline void Livre(const std::vector<std::pair<float, float>>& pontos, float largura) {
+  DesenhaVbo(VboLivre(pontos, largura));
 }
 
 }  // namespace gl
