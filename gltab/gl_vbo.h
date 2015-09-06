@@ -216,7 +216,7 @@ inline void Triangulo(GLfloat lado) {
 
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura);
 inline void Livre(const std::vector<std::pair<float, float>>& pontos, float largura) {
-  DesenhaVbo(VboLivre(pontos, largura));
+  DesenhaVbo(VboLivre(pontos, largura), GL_TRIANGLES);
 }
 
 }  // namespace gl
