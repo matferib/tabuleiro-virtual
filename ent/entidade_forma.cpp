@@ -178,6 +178,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
         gl::DesvioProfundidade(-1.0, -40.0f);
         if (vd.vbo.get() != nullptr) {
+          //gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+          //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
           gl::DesenhaVbo(*vd.vbo.get());
         } else {
           std::vector<std::pair<float, float>> v;
