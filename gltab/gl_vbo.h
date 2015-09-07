@@ -64,7 +64,7 @@ class VboNaoGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
 
-  const std::vector<unsigned short> indices() const { return indices_; }
+  const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
   std::vector<float>& normais() { return normais_; }
   std::vector<float>& texturas() { return texturas_; }
@@ -114,7 +114,7 @@ class VboGravado {
   // Deslocamento em bytes para a primeira coordenada de cores.
   unsigned int DeslocamentoCores() const { return deslocamento_cores_; }
 
-  const std::vector<unsigned short> indices() const { return indices_; }
+  const std::vector<unsigned short>& indices() const { return indices_; }
 
   GLuint nome_coordenadas() const { return nome_coordenadas_; }
   GLuint nome_indices() const { return nome_indices_; }
