@@ -16,7 +16,7 @@ void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivad
   if (proto.sub_tipo() == TF_LIVRE) {
     // Extrai o VBO da forma livre.
     try {
-      vd->vbo.reset(new gl::VboNaoGravado(ExtraiVboForma(proto)));
+      vd->vbos.emplace_back(std::move(gl::VboNaoGravado(ExtraiVboForma(proto))));
     } catch (...) {
       LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
       // sem VBO, vai desenhar na marra.
@@ -27,10 +27,10 @@ void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivad
 void Entidade::AtualizaProtoForma(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
   if (proto_novo.sub_tipo() == TF_LIVRE) {
-    if (vd->vbo.get() != nullptr) {
+    if (!vd->vbos.empty()) {
       // Extrai o VBO da forma livre.
       try {
-        vd->vbo.reset(new gl::VboNaoGravado(ExtraiVboForma(proto_novo)));
+        vd->vbos[0] = std::move(gl::VboNaoGravado(ExtraiVboForma(proto_novo)));
       } catch (...) {
         LOG(WARNING) << "Falha atualizando VBO de forma LIVRE, renderizacao sera custosa.";
         // sem VBO, vai desenhar na marra.
@@ -202,10 +202,10 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         // Portanto escopo deve terminar aqui.
         gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
         gl::DesvioProfundidade(-1.0, -40.0f);
-        if (vd.vbo.get() != nullptr) {
+        if (!vd.vbos.empty()) {
           //gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
           //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-          gl::DesenhaVbo(*vd.vbo.get());
+          gl::DesenhaVbo(vd.vbos[0]);
         } else {
           std::vector<std::pair<float, float>> v;
           for (const auto& p : proto.ponto()) {
