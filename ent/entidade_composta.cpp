@@ -15,7 +15,12 @@
 namespace ent {
 
 void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
-  for (const auto& forma : proto.sub_forma()) {
+  try {
+    vd->vbos = std::move(ExtraiVbo(proto));
+    CorrigeVboRaiz(proto, vd);
+  } catch (...) {
+    LOG(WARNING) << "Nao consegui extrair VBO de objeto composto: " << proto.id() << ", renderizacao sera lenta";
+    vd->vbos.clear();
   }
 }
 

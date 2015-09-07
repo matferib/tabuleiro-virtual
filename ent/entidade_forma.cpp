@@ -13,14 +13,13 @@ namespace ent {
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
 
 void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
-  if (proto.sub_tipo() == TF_LIVRE) {
-    // Extrai o VBO da forma livre.
-    try {
-      vd->vbos = std::move(ExtraiVboForma(proto));
-    } catch (...) {
-      LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
-      // sem VBO, vai desenhar na marra.
-    }
+  // Extrai o VBO da forma livre.
+  try {
+    vd->vbos = std::move(ExtraiVboForma(proto));
+    CorrigeVboRaiz(proto, vd);
+  } catch (...) {
+    LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
+    // sem VBO, vai desenhar na marra.
   }
 }
 
@@ -31,6 +30,7 @@ void Entidade::AtualizaProtoForma(
       // Extrai o VBO da forma livre.
       try {
         vd->vbos = std::move(ExtraiVboForma(proto_novo));
+        CorrigeVboRaiz(proto_novo, vd);
       } catch (...) {
         LOG(WARNING) << "Falha atualizando VBO de forma LIVRE, renderizacao sera custosa.";
         // sem VBO, vai desenhar na marra.
@@ -84,7 +84,7 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
       // outros tipos de objeto. Por enquanto, fica assim.
       std::vector<std::pair<float, float>> v;
       for (const auto& p : proto.ponto()) {
-        v.push_back(std::make_pair(p.x() - proto.pos().x(), p.y() - proto.pos().y()));
+        v.push_back(std::make_pair(p.x(), p.y()));
       }
       vbo = std::move(gl::VboLivre(v, TAMANHO_LADO_QUADRADO * proto.escala().z()));
       const auto& c = proto.cor();
@@ -195,10 +195,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     }
     break;
     case TF_LIVRE: {
-      if (matriz_shear != nullptr) {
-        break;
-      }
-      if (transparencias) {
+      bool usar_stencil = (matriz_shear == nullptr) && transparencias;
+      if (usar_stencil) {
         LigaStencil();
       }
       {
@@ -209,7 +207,9 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         if (!vd.vbos.empty()) {
           //gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
           //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-          gl::DesenhaVbo(vd.vbos[0]);
+          for (const auto& vbo : vd.vbos) {
+            gl::DesenhaVbo(vbo);
+          }
         } else {
           std::vector<std::pair<float, float>> v;
           for (const auto& p : proto.ponto()) {
@@ -218,7 +218,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
           gl::Livre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
         }
       }
-      if (transparencias) {
+      if (usar_stencil) {
         float xi, yi, xs, ys;
         LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
         //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
