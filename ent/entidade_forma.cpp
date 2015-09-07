@@ -86,7 +86,7 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
       for (const auto& p : proto.ponto()) {
         v.push_back(std::make_pair(p.x() - proto.pos().x(), p.y() - proto.pos().y()));
       }
-      vbo = std::move(gl::VboLivre(v, proto.escala().z()));
+      vbo = std::move(gl::VboLivre(v, TAMANHO_LADO_QUADRADO * proto.escala().z()));
       const auto& c = proto.cor();
       vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
       vbo.RodaX(proto.rotacao_x_graus());
