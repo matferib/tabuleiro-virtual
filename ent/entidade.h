@@ -202,9 +202,15 @@ class Entidade {
     const m3d::Modelos3d* m3d = nullptr;
   };
 
-  // Inicializacao por subtipo.
+  // Inicializacao por tipo.
   static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
   static void InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+
+  // Atualizacao por tipo.
+  static void AtualizaProtoForma(
+      const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
+  static void AtualizaProtoComposta(
+      const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
 
   // Extracao de VBO por tipo.
   static gl::VboNaoGravado ExtraiVboForma(const ent::EntidadeProto& proto);

@@ -167,6 +167,12 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
   }
+  if (proto_.tipo() == TE_FORMA) {
+    AtualizaProtoForma(proto_original, proto_, &vd_);
+  } else if (proto_.tipo() == TE_COMPOSTA) {
+    AtualizaProtoComposta(proto_original, proto_, &vd_);
+  }
+
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 

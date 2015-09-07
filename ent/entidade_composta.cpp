@@ -17,6 +17,10 @@ namespace ent {
 void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
 }
 
+void Entidade::AtualizaProtoComposta(
+    const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
+}
+
 gl::VboNaoGravado Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
   gl::VboNaoGravado vbo;
   gl::VboNaoGravado sub_vbo;
