@@ -24,6 +24,21 @@ void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivad
   }
 }
 
+void Entidade::AtualizaProtoForma(
+    const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
+  if (proto_novo.sub_tipo() == TF_LIVRE) {
+    if (vd->vbo.get() != nullptr) {
+      // Extrai o VBO da forma livre.
+      try {
+        vd->vbo.reset(new gl::VboNaoGravado(ExtraiVboForma(proto_novo)));
+      } catch (...) {
+        LOG(WARNING) << "Falha atualizando VBO de forma LIVRE, renderizacao sera custosa.";
+        // sem VBO, vai desenhar na marra.
+      }
+    }
+  }
+}
+
 gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
