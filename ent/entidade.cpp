@@ -65,6 +65,18 @@ void CorrigeTranslacaoDeprecated(EntidadeProto* proto) {
 }
 }  // namespace
 
+void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
+  for (auto& vbo : vd->vbos) {
+    vbo.Translada(-proto.pos().x(), -proto.pos().y(), -proto.pos().z());
+    vbo.RodaZ(-proto.rotacao_z_graus());
+    vbo.RodaY(-proto.rotacao_y_graus());
+    vbo.RodaX(-proto.rotacao_x_graus());
+    if (proto.tipo() != TE_FORMA || proto.sub_tipo() != TF_LIVRE) {
+      vbo.Escala(1.0f / proto.escala().x(), 1.0f / proto.escala().y(), 1.0f / proto.escala().z());
+    }
+  }
+}
+
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
   proto_.set_tipo(novo_proto.tipo());

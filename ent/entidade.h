@@ -203,6 +203,10 @@ class Entidade {
     const m3d::Modelos3d* m3d = nullptr;
   };
 
+  // Correcao de VBO: corrige o VBO da entidade raiz. As transformadas do objeto raiz devem ser desfeitas
+  // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.
+  static void CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
+
   // Inicializacao por tipo.
   static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
   static void InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
