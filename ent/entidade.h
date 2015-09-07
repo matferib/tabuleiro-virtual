@@ -195,7 +195,7 @@ class Entidade {
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
     // algumas formas possuem VBO.
-    std::unique_ptr<gl::VboNaoGravado> vbo;
+    std::vector<gl::VboNaoGravado> vbos;
 
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
