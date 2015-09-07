@@ -80,11 +80,21 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
     }
     break;
     case TF_LIVRE: {
+      // Livre eh um pouco diferente por causa da escala. Isso vai dar problema de se concatenar com
+      // outros tipos de objeto. Por enquanto, fica assim.
       std::vector<std::pair<float, float>> v;
       for (const auto& p : proto.ponto()) {
         v.push_back(std::make_pair(p.x() - proto.pos().x(), p.y() - proto.pos().y()));
       }
-      vbo = std::move(gl::VboLivre(v, 1.0f));
+      vbo = std::move(gl::VboLivre(v, proto.escala().z()));
+      const auto& c = proto.cor();
+      vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
+      vbo.RodaX(proto.rotacao_x_graus());
+      vbo.RodaY(proto.rotacao_y_graus());
+      vbo.RodaZ(proto.rotacao_z_graus());
+      // Mundo.
+      vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
+      return vbo;
     }
     break;
     default:
