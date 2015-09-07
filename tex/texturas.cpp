@@ -185,7 +185,9 @@ class Texturas::InfoTexturaInterna {
                         largura_, altura_,
                         0, FormatoImagem(), TipoImagem(),
                         bits_.data());
+    glGenerateMipmap(GL_TEXTURE_2D);
     gl::Desabilita(GL_TEXTURE_2D);
+    V_ERRO("CriaTexturaOpenGl");
   }
 
  private:
