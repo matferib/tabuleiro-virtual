@@ -105,7 +105,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   CorrigeTranslacaoDeprecated(&proto_);
 }
 
-gl::VboNaoGravado Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
+const std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
   if (proto.tipo() == TE_ENTIDADE) {
     // TODO: retornar peao?
     throw std::logic_error("Apenas entidades forma e composta podem gerar VBO.");

@@ -15,30 +15,34 @@
 namespace ent {
 
 void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
+  for (const auto& forma : proto.sub_forma()) {
+  }
 }
 
 void Entidade::AtualizaProtoComposta(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
 }
 
-gl::VboNaoGravado Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
-  gl::VboNaoGravado vbo;
-  gl::VboNaoGravado sub_vbo;
+const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
+  std::vector<gl::VboNaoGravado> vbos(1);
+  std::vector<gl::VboNaoGravado> sub_vbos;
   for (const auto& sub : proto.sub_forma()) {
     if (sub.tipo() == TE_COMPOSTA) {
-      sub_vbo = std::move(ExtraiVboComposta(sub));
+      sub_vbos = std::move(ExtraiVboComposta(sub));
     } else if (sub.tipo() == TE_FORMA) {
-      sub_vbo = std::move(ExtraiVboForma(sub));
+      sub_vbos = std::move(ExtraiVboForma(sub));
     }
-    vbo.Concatena(sub_vbo);
+    for (const auto& svbo : sub_vbos) {
+      vbos[0].Concatena(svbo);
+    }
   }
-  vbo.RodaX(proto.rotacao_x_graus());
-  vbo.RodaY(proto.rotacao_y_graus());
-  vbo.RodaZ(proto.rotacao_z_graus());
-  vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  vbos[0].RodaX(proto.rotacao_x_graus());
+  vbos[0].RodaY(proto.rotacao_y_graus());
+  vbos[0].RodaZ(proto.rotacao_z_graus());
+  vbos[0].Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   // Mundo.
-  vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
-  return vbo;
+  vbos[0].Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
+  return vbos;
 }
 
 void Entidade::AtualizaTexturasEntidadesCompostasProto(
@@ -73,8 +77,14 @@ void Entidade::DesenhaObjetoCompostoProto(
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
   gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0, false);
   gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-  for (const auto& forma : proto.sub_forma()) {
-    DesenhaObjetoProto(forma, vd, pd, nullptr);
+  if (!vd.vbos.empty()) {
+    for (const auto& vbo : vd.vbos) {
+      gl::DesenhaVbo(vbo);
+    }
+  } else {
+    for (const auto& forma : proto.sub_forma()) {
+      DesenhaObjetoProto(forma, vd, pd, nullptr);
+    }
   }
 }
 

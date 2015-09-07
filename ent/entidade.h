@@ -2,6 +2,7 @@
 #define ENT_ENTIDADE_H
 
 #include <unordered_map>
+#include <vector>
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
@@ -49,7 +50,7 @@ class Entidade {
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static gl::VboNaoGravado ExtraiVbo(const ent::EntidadeProto& proto);
+  static const std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -213,8 +214,8 @@ class Entidade {
       const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
 
   // Extracao de VBO por tipo.
-  static gl::VboNaoGravado ExtraiVboForma(const ent::EntidadeProto& proto);
-  static gl::VboNaoGravado ExtraiVboComposta(const ent::EntidadeProto& proto);
+  static const std::vector<gl::VboNaoGravado> ExtraiVboForma(const ent::EntidadeProto& proto);
+  static const std::vector<gl::VboNaoGravado> ExtraiVboComposta(const ent::EntidadeProto& proto);
 
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();

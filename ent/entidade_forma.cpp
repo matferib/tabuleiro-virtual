@@ -16,7 +16,7 @@ void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivad
   if (proto.sub_tipo() == TF_LIVRE) {
     // Extrai o VBO da forma livre.
     try {
-      vd->vbos.emplace_back(std::move(gl::VboNaoGravado(ExtraiVboForma(proto))));
+      vd->vbos = std::move(ExtraiVboForma(proto));
     } catch (...) {
       LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
       // sem VBO, vai desenhar na marra.
@@ -30,7 +30,7 @@ void Entidade::AtualizaProtoForma(
     if (!vd->vbos.empty()) {
       // Extrai o VBO da forma livre.
       try {
-        vd->vbos[0] = std::move(gl::VboNaoGravado(ExtraiVboForma(proto_novo)));
+        vd->vbos = std::move(ExtraiVboForma(proto_novo));
       } catch (...) {
         LOG(WARNING) << "Falha atualizando VBO de forma LIVRE, renderizacao sera custosa.";
         // sem VBO, vai desenhar na marra.
@@ -39,7 +39,7 @@ void Entidade::AtualizaProtoForma(
   }
 }
 
-gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
+const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
@@ -94,7 +94,9 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
       vbo.RodaZ(proto.rotacao_z_graus());
       // Mundo.
       vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
-      return vbo;
+      std::vector<gl::VboNaoGravado> vbos;
+      vbos.emplace_back(std::move(vbo));
+      return vbos;
     }
     break;
     default:
@@ -109,7 +111,9 @@ gl::VboNaoGravado Entidade::ExtraiVboForma(const ent::EntidadeProto& proto) {
   // Mundo.
   vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
 
-  return vbo;
+  std::vector<gl::VboNaoGravado> vbos;
+  vbos.emplace_back(std::move(vbo));
+  return vbos;
 }
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
