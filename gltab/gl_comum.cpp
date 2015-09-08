@@ -600,7 +600,7 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
 #endif
 }
 
-void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenuacao_constante, float atenuacao_quadratica) {
+void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio) {
 #if USAR_SHADER
   if (luz <= 0 || luz > 8) {
     LOG(ERROR) << "Luz invalida: " << luz;
@@ -615,13 +615,18 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float atenu
   vp = m * vp;
   glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
   glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
-  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], 6.0f  /*raio*/, 0, 0, 0);
+  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], raio, 0, 0, 0);
 #else
   glLightfv(GL_LIGHT0 + luz, GL_POSITION, pos);
   GLfloat cor_luz[] = { r, g, b, 1.0f };
   glLightfv(GL_LIGHT0 + luz, GL_DIFFUSE, cor_luz);
-  glLightf(GL_LIGHT0 + luz, GL_CONSTANT_ATTENUATION, atenuacao_constante);
-  glLightf(GL_LIGHT0 + luz, GL_QUADRATIC_ATTENUATION, atenuacao_quadratica);
+  // Equacao: y = 1 / (c + q * d ^ 2)
+  // valores c = 0.2 e q = 0.02 dao 0.5 em y = 6 (4 quadrados), equivalente a tocha.
+  // o modificador sera aplicado aos dois de forma inversa ao raio. Ou seja, um raio de 12 divide
+  // os coeficientes por 2, o que reduz o decaimento de 50% pela metade. Eh apenas uma aproximacao.
+  float mod = 6.0f / raio;
+  glLightf(GL_LIGHT0 + luz, GL_CONSTANT_ATTENUATION, 0.2f * mod);
+  glLightf(GL_LIGHT0 + luz, GL_QUADRATIC_ATTENUATION, 0.02f * mod);
 #endif
 }
 

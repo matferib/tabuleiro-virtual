@@ -287,16 +287,7 @@ class AcaoProjetil : public Acao {
       return;
     }
     // TODO desenha impacto.
-#if !USAR_OPENGL_ES
-    gl::AtributosEscopo salva_atributos(gl::BIT_LUZ);
-    // Luz da camera apontando para a bola.
-    const Posicao& pos_olho = pd->pos_olho();
-    GLfloat pos_luz[] = { pos_olho.x() - pos_.x(), pos_olho.y() - pos_.y(), pos_olho.z() - pos_.z(), 0.0f };
-    gl::LuzPontual(0, pos_luz, COR_BRANCA[0], COR_BRANCA[1], COR_BRANCA[2], 0.5f, 0.02f);
-#else
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-#endif
-
     gl::MatrizEscopo salva_matriz;
     MudaCorProto(acao_proto_.cor());
     gl::Translada(pos_.x(), pos_.y(), pos_.z());
