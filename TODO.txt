@@ -1,5 +1,4 @@
 Versao 1.10.2
-- Posicao dos numeros de cura e dano estao errados.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
 - Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).

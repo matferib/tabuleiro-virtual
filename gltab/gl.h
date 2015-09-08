@@ -278,7 +278,10 @@ void Normal(GLfloat x, GLfloat y, GLfloat z);
 
 /** Raster. */
 #if !USAR_OPENGL_ES
-inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) { glRasterPos3f(x, y, z); }
+inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
+  ATUALIZA_MATRIZES_NOVO();
+  glRasterPos3f(x, y, z);
+}
 inline void PosicaoRaster(GLint x, GLint y) { glRasterPos2i(x, y); }
 inline void DesenhaCaractere(char c) { glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c); }
 /** Retorna o tamanho da fonte. Sempre fixo. */
