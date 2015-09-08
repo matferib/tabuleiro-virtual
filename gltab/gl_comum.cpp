@@ -309,7 +309,7 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    glUniform1i(contexto->uni_gltab_textura, 1);
+    glUniform1f(contexto->uni_gltab_textura, 1.0f);
     glUniform1i(contexto->uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
@@ -342,7 +342,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    glUniform1i(contexto->uni_gltab_textura, 0);
+    glUniform1f(contexto->uni_gltab_textura, 0.0f);
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
@@ -524,7 +524,6 @@ void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsize
 bool EstaHabilitado(GLenum cap) {
 #if USAR_SHADER
   auto* contexto = interno::BuscaContexto();
-  GLint ret = 0;
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
@@ -541,8 +540,9 @@ bool EstaHabilitado(GLenum cap) {
     glGetUniformfv(contexto->programa_luz, uniforme, cor);
     return cor[3] > 0;
   } else if (cap == GL_TEXTURE_2D) {
-    glGetUniformiv(contexto->programa_luz, contexto->uni_gltab_textura, &ret);
-    return ret;
+    GLfloat fret;
+    glGetUniformfv(contexto->programa_luz, contexto->uni_gltab_textura, &fret);
+    return fret;
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];

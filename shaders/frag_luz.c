@@ -34,7 +34,7 @@ struct InfoLuzPontual {
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
-uniform bool gltab_textura;                // Textura ligada?
+uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
@@ -53,7 +53,7 @@ lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcio
 }
 
 lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
-  if (luz.cor.a == 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
+  if (luz.cor.a == 0.0) return vec4(0.0);
   // Vetor objeto luz.
   highp vec3 objeto_luz = vec3(luz.pos - v_Pos);
   highp float tam = length(objeto_luz);
@@ -80,15 +80,13 @@ void main() {
     cor_final *= clamp(cor_luz, 0.0, 1.0);
   }
 
-  if (gltab_textura) {
-    cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
-  }
-  //cor_final = mix(cor_final, texture2D(gltab_unidade_textura, v_Tex.st) * cor_final, step(0.5, float(gltab_textura)));
+  //if (gltab_textura) {
+  //  cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
+  //}
+  cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
 
   // Nevoa.
   highp float distancia = length(v_Pos - gltab_nevoa_referencia);
   lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
   gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
-
-  gl_FragColor = cor_final;
 }

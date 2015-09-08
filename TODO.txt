@@ -38,7 +38,7 @@ Versao com Vbo:
 - Terminar a exportacao de formas e compostas (CORES).
 
 Versao com Shader:
-- OpenGL ES: windows, desempenho.
+- OpenGL ES: windows.
 - Shadow mapping.
 - Propriedade das luzes pontuais (distancia, cintilacao). Multiplicador de luz.
 
