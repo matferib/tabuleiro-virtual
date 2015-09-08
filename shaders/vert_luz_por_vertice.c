@@ -51,28 +51,35 @@ uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para com
 lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcional) {
   // Converte normal para coordenadas de olho.
   // A luz direcional ja vem em coordenadas de olho.
-  lowp vec3 direcao_luz = vec3(normalize(luz_direcional.pos));
+  lowp vec3 direcao_luz = vec3(luz_direcional.pos);
   // dot(v1 v2) = cos(angulo) * |v1| * |v2|.
-  lowp float cos_com_normal = dot(normal, direcao_luz);
-  lowp vec4 cor_final = clamp(luz_direcional.cor * cos_com_normal, 0.0, 1.0);
-  return cor_final * step(0.1, luz_direcional.cor.a);
+  lowp float cos_com_normal = clamp(dot(normal, direcao_luz), 0.0, 1.0);
+  lowp vec4 cor_final = cos_com_normal * luz_direcional.cor;
+  return step(0.1, luz_direcional.cor.a) * cor_final;
 }
 
 lowp vec4 CorLuzPontual(in highp vec4 pos, in lowp vec3 normal, in InfoLuzPontual luz) {
-  if (luz.cor.a == 0.0) return vec4(0.0, 0.0, 0.0, 0.0);
+  // Se eu assumir o pior caso e remover esse if, adicionando step no final, da um ganho de 1% no pior caso,
+  // mas fica bem custoso pra casos onde ha menos luzes.
+  if (luz.cor.a == 0.0) return vec4(0.0);
   // Vetor objeto luz.
   highp vec3 objeto_luz = vec3(luz.pos - pos);
-  highp float tam = length(objeto_luz);
-  lowp float atenuacao = 0.5 * step(tam, luz.atributos.r);
-  atenuacao += 0.5 * step(tam, luz.atributos.r * 2.0);
-  lowp float cos_com_normal = dot(normal, normalize(objeto_luz));
-  return clamp(luz.cor * cos_com_normal, 0.0, 1.0) * atenuacao;
+  highp float distancia = length(objeto_luz);
+  // Esse if salva ~6%  de renderizacao com 8 luzes.
+  if (distancia > luz.atributos.r * 2.0) {
+    return vec4(0.0);
+  }
+  step(distancia, luz.atributos.r);
+  //lowp float atenuacao = (step(distancia, luz.atributos.r) / 2.0) + 0.5;
+  lowp float atenuacao = (clamp(step(distancia, luz.atributos.r), 0.0, 0.5)) + 0.5;
+  lowp float cos_com_normal = clamp(dot(normal, normalize(objeto_luz)), 0.0, 1.0);
+  return cos_com_normal * luz.cor * atenuacao;
 }
 
 void main() {
   v_Pos = gltab_mvm * gltab_vertice;
   lowp vec3 normal  = normalize(gltab_nm * gltab_normal);
-  lowp vec4 cor_final = gltab_cor;
+  lowp vec4 cor_vertice = gltab_cor;
   if (gltab_luz_ambiente.a > 0.0) {
     lowp vec4 cor_luz = gltab_luz_ambiente + CorLuzDirecional(normal, gltab_luz_direcional);
     // Outras luzes. O for eh ineficiente.
@@ -83,10 +90,10 @@ void main() {
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[4]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[5]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[6]);
-    cor_final *= clamp(cor_luz, 0.0, 1.0);
+    cor_vertice *= clamp(cor_luz, 0.0, 1.0);
   }
   v_Normal = normal;
-  v_Color = cor_final;
+  v_Color = cor_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * v_Pos;
 }

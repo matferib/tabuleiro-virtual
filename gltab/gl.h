@@ -431,7 +431,7 @@ class Contexto {
   GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
   GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional ().
   GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
-  GLint uni_gltab_textura;
+  GLint uni_gltab_textura;              // Ha textura: 1, nao ha: 0.
   GLint uni_gltab_unidade_textura;
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
