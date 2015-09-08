@@ -1,9 +1,7 @@
 Versao 1.10.2
 - Posicao dos numeros de cura e dano estao errados.
-- Arrumar escala Livre com VBO.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
-- Tirar tesselizacao da grade agora que o shader ta funcionando.
 - Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).
 - Entidade com efeito sumindo em outros cenarios: tentar reproduzir o reflexos que nao aparecia.
 - Geracao de terrenos.
