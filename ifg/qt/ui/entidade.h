@@ -49,6 +49,9 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QCheckBox *checkbox_luz;
     QPushButton *botao_luz;
+    QHBoxLayout *horizontalLayout_14;
+    QLabel *label_12;
+    QDoubleSpinBox *spin_raio;
     QWidget *horizontalLayoutWidget_4;
     QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout_5;
@@ -173,6 +176,24 @@ public:
         botao_luz->setStyleSheet(QString::fromUtf8(""));
 
         horizontalLayout_3->addWidget(botao_luz);
+
+        horizontalLayout_14 = new QHBoxLayout();
+        horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
+        label_12 = new QLabel(horizontalLayoutWidget_3);
+        label_12->setObjectName(QString::fromUtf8("label_12"));
+        label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_14->addWidget(label_12);
+
+        spin_raio = new QDoubleSpinBox(horizontalLayoutWidget_3);
+        spin_raio->setObjectName(QString::fromUtf8("spin_raio"));
+        spin_raio->setDecimals(1);
+        spin_raio->setSingleStep(0.5);
+
+        horizontalLayout_14->addWidget(spin_raio);
+
+
+        horizontalLayout_3->addLayout(horizontalLayout_14);
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
@@ -462,6 +483,7 @@ public:
 #endif // QT_NO_TOOLTIP
         checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Possui Luz", 0, QApplication::UnicodeUTF8));
         botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
+        label_12->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -501,6 +523,9 @@ public:
 #endif // QT_NO_TOOLTIP
         checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_aura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade, em metros.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o em Z", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_translacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para colocar a entidade acima do plano do tabuleiro.", 0, QApplication::UnicodeUTF8));

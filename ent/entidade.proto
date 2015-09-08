@@ -38,6 +38,12 @@ enum ResultadoSalvacao {
   RS_ANULOU = 3;
 }
 
+enum TipoVisao {
+  VISAO_NORMAL = 0;
+  VISAO_BAIXA_LUMINOSIDADE = 1;
+  VISAO_ESCURO = 2;
+}
+
 // Tambem usado como vetor.
 message Posicao {
   optional float x = 3;
@@ -56,7 +62,7 @@ message Cor {
 message IluminacaoPontual {
   optional Cor cor = 1;
   optional float raio = 2;
-  optional float atenuacao = 3;
+  optional float atenuacao = 3 [deprecated=true];
 }
 
 message InfoTextura {
@@ -153,6 +159,8 @@ message EntidadeProto {
   optional bool selecionavel_para_jogador = 16 [default=true];
   // Se verdadeiro, o mestre nao conseguira selecionar a entidade. Ela sera apenas editavel com duplo clique.
   optional bool fixa = 32 [default=false];
+  // Tipo de visao da entidade.
+  optional TipoVisao tipo_visao = 36;
 
   // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
@@ -241,6 +249,8 @@ message ParametrosDesenho {
   optional bool desenha_detalhes = 33 [default=true];
   // Se false, desenha as coordenadas do quadrado selecionado.
   optional bool desenha_coordenadas = 37 [default=true];
+  // Tipo de visao da entidade presa.
+  optional TipoVisao tipo_visao = 39;
 
   // Opcoes por entidade.
   // Se verdadeiro, desenha a barra de vida da entidade.

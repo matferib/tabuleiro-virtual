@@ -140,6 +140,33 @@
       </property>
      </widget>
     </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_14">
+      <item>
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>Raio</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDoubleSpinBox" name="spin_raio">
+        <property name="toolTip">
+         <string>Raio da luz, em metros.</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="singleStep">
+         <double>0.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_4">
@@ -409,7 +436,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spin_aura"/>
+       <widget class="QSpinBox" name="spin_aura">
+        <property name="toolTip">
+         <string>Aura da entidade, em metros.</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>

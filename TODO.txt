@@ -1,7 +1,7 @@
 Versao 1.10.2
+- Rotulo de acao sumiu no topo.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
-- Informacoes de cenario para o mestre: entidades (com possibilidade de remocao).
 - Entidade com efeito sumindo em outros cenarios: tentar reproduzir o reflexos que nao aparecia.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
@@ -27,7 +27,6 @@ Versao 1.10.2
 - Texturas faltantes.
 
 Versao com Vbo:
-- EXTRACAO DE LINHAS 3D. Ta sendo o mais caro pelo profile.
 - Modelos 3d para entidades.
 - Vbos de entidades.
 - Unit teste dos glVbo roda.

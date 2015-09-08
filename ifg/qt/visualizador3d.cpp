@@ -651,6 +651,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_luz()) {
     luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
     gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
+    gerador.spin_raio->setValue(entidade.luz().has_raio() ? entidade.luz().raio() : 6.0f);
   } else {
     ent::Cor branco;
     branco.set_r(1.0f);
@@ -658,6 +659,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     branco.set_b(1.0f);
     luz_cor.mutable_cor()->CopyFrom(branco);
     gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
+    gerador.spin_raio->setValue(0.0f);
   }
   gerador.checkbox_luz->setCheckState(entidade.has_luz() ? Qt::Checked : Qt::Unchecked);
   lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
@@ -722,6 +724,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.checkbox_luz->checkState() == Qt::Checked) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
+      proto_retornado->mutable_luz()->set_raio(gerador.spin_raio->value());
     } else {
       proto_retornado->clear_luz();
     }
