@@ -2299,7 +2299,74 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
   // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
   // inferior eh onde comeca a desenhar a linha.
-
+#if USAR_SHADER
+  // Com shader nao precisa tesselizar, pois a nevoa eh por pixel.
+  indice = 0;
+  // Linhas verticais (S-N).
+  {
+    int limite_inferior = -x_2;
+    float incremento = 0.0f;
+    if (TamanhoX() % 2 != 0) {
+      --limite_inferior;
+      incremento = TAMANHO_LADO_QUADRADO_2;
+    }
+    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
+    for (int i = limite_inferior; i <= x_2; ++i) {
+      float x = i * TAMANHO_LADO_QUADRADO + incremento;
+      float x_inicial = x - EXPESSURA_LINHA_2;
+      float x_final = x + EXPESSURA_LINHA_2;
+      float y_inicial = -tamanho_y_2;
+      float y_final = y_inicial + tamanho_y;
+      coordenadas_grade.push_back(x_inicial);
+      coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(x_final);
+      coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(x_final);
+      coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(x_inicial);
+      coordenadas_grade.push_back(y_final);
+      indices_grade.push_back(indice);
+      indices_grade.push_back(indice + 1);
+      indices_grade.push_back(indice + 2);
+      indices_grade.push_back(indice);
+      indices_grade.push_back(indice + 2);
+      indices_grade.push_back(indice + 3);
+      indice += 4;
+    }
+  }
+  {
+    // Linhas horizontais (W-E).
+    int limite_inferior = -y_2;
+    float incremento = 0.0f;
+    if (TamanhoY() % 2 != 0) {
+      --limite_inferior;
+      incremento = TAMANHO_LADO_QUADRADO_2;
+    }
+    for (int i = limite_inferior; i <= y_2; ++i) {
+      float y = i * TAMANHO_LADO_QUADRADO + incremento;
+      float y_inicial = y - EXPESSURA_LINHA_2;
+      float y_final = y + EXPESSURA_LINHA_2;
+      float x_inicial = -tamanho_x_2;
+      float x_final = x_inicial + tamanho_x;
+      coordenadas_grade.push_back(x_inicial);
+      coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(x_final);
+      coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(x_final);
+      coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(x_inicial);
+      coordenadas_grade.push_back(y_final);
+      indices_grade.push_back(indice);
+      indices_grade.push_back(indice + 1);
+      indices_grade.push_back(indice + 2);
+      indices_grade.push_back(indice);
+      indices_grade.push_back(indice + 2);
+      indices_grade.push_back(indice + 3);
+      indice += 4;
+    }
+  }
+#else
+  // Sem shader, tesseliza.
   indice = 0;
   const int kTamanhoPedaco = 30;
   // Linhas verticais (S-N).
@@ -2389,6 +2456,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
       }
     }
   }
+#endif
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
   grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
   grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
