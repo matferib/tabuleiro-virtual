@@ -416,9 +416,11 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // Se for 0, a luz é direcional e os componentes indicam sua direção.
     GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
     const ent::Cor& cor = proto_.luz().cor();
-    gl::LuzPontual(
-        id_luz, pos_luz, cor.r(), cor.g(), cor.b(),
-        (proto_.luz().has_raio() ? proto_.luz().raio() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02);
+    float raio = (proto_.luz().has_raio() ? proto_.luz().raio() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
+    if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+      raio *= 2.0;
+    }
+    gl::LuzPontual(id_luz, pos_luz, cor.r(), cor.g(), cor.b(), raio);
     gl::Habilita(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }

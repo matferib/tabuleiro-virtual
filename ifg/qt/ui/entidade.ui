@@ -118,29 +118,6 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_3">
     <item>
-     <widget class="QCheckBox" name="checkbox_luz">
-      <property name="toolTip">
-       <string>Se marcado, entidade possuirá luz da cor escolhida.</string>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::RightToLeft</enum>
-      </property>
-      <property name="text">
-       <string>Possui Luz</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="botao_luz">
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="text">
-       <string>Escolher Cor da Luz</string>
-      </property>
-     </widget>
-    </item>
-    <item>
      <layout class="QHBoxLayout" name="horizontalLayout_14">
       <item>
        <widget class="QLabel" name="label_12">
@@ -162,6 +139,16 @@
         </property>
         <property name="singleStep">
          <double>0.500000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="botao_luz">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Escolher Cor da Luz</string>
         </property>
        </widget>
       </item>
@@ -450,16 +437,16 @@
    <property name="geometry">
     <rect>
      <x>20</x>
-     <y>410</y>
-     <width>351</width>
-     <height>80</height>
+     <y>430</y>
+     <width>361</width>
+     <height>31</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_13">
     <item>
      <widget class="QLabel" name="label_7">
       <property name="text">
-       <string>Translação em Z</string>
+       <string>Deslocamento Vertical</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -489,7 +476,7 @@
     <rect>
      <x>20</x>
      <y>460</y>
-     <width>351</width>
+     <width>361</width>
      <height>31</height>
     </rect>
    </property>
@@ -633,6 +620,50 @@
       <property name="toolTip">
        <string>Cada linha deve conter um evento com formato &lt;descricao:rodadas&gt; sem as &lt;&gt;.</string>
       </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_11">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>400</y>
+     <width>361</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_20">
+    <item>
+     <widget class="QLabel" name="label_13">
+      <property name="text">
+       <string>Tipo de Visão</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="combo_visao">
+      <property name="toolTip">
+       <string>Tipo de visão da entidade.</string>
+      </property>
+      <item>
+       <property name="text">
+        <string>Normal</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Visão na Penumbra</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Visão no Escuro</string>
+       </property>
+      </item>
      </widget>
     </item>
    </layout>

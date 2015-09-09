@@ -661,7 +661,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
     gerador.spin_raio->setValue(0.0f);
   }
-  gerador.checkbox_luz->setCheckState(entidade.has_luz() ? Qt::Checked : Qt::Unchecked);
   lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
     QColor cor =
         QColorDialog::getColor(ProtoParaCor(luz_cor.cor()), dialogo, QObject::tr("Cor da luz"));
@@ -670,7 +669,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
     luz_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
     gerador.botao_luz->setStyleSheet(CorParaEstilo(cor));
-    gerador.checkbox_luz->setCheckState(Qt::Checked);
+    if (gerador.spin_raio->value() == 0.0) {
+      gerador.spin_raio->setValue(6.0f);
+    }
   });
   // Textura do objeto.
   gerador.linha_textura->setText(entidade.info_textura().id().c_str());
@@ -700,6 +701,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
 
+  // Tipo de visao.
+  gerador.combo_visao->setCurrentIndex((int)entidade.tipo_visao());
+
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
     proto_retornado->mutable_direcao_queda()->CopyFrom(entidade.direcao_queda());
@@ -722,7 +726,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
-    if (gerador.checkbox_luz->checkState() == Qt::Checked) {
+    if (gerador.spin_raio->value() > 0.0f) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
       proto_retornado->mutable_luz()->set_raio(gerador.spin_raio->value());
     } else {
@@ -771,6 +775,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
     proto_retornado->set_translacao_z_deprecated(0);
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
+    proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
