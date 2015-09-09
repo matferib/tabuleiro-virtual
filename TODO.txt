@@ -1,5 +1,4 @@
 Versao 1.10.2
-- Rotulo de acao sumiu no topo.
 - Passar aura para metros ao inves de quadrados.
 - Verificar se picking esta mais lento no shader.
 - Refatorar projecao ortogonal para usar matriz picking.

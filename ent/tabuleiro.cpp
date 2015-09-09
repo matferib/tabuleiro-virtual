@@ -4530,19 +4530,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
   id_acao = StringSemUtf8(id_acao);
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  {
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
-    gl::CarregaIdentidade(false);
-    // Modo 2d: eixo com origem embaixo esquerda.
-    gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
-    gl::CarregaIdentidade(false);
-    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    int largura_fonte, altura_fonte;
-    gl::TamanhoFonte(&largura_fonte, &altura_fonte);
-    int raster_y = altura_ - altura_fonte;
-    int raster_x = largura_ / 2;
-    gl::PosicaoRaster(raster_x, raster_y);
-  }
+  int largura_fonte, altura_fonte;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+  PosicionaRaster2d(largura_ / 2, altura_ - altura_fonte, largura_, altura_);
   MudaCor(COR_BRANCA);
   gl::DesenhaString(id_acao);
 }
