@@ -21,7 +21,7 @@ benchmark:
 	scons debug=0 benchmark=1 benchmark
 
 windows:
-	scons sistema=win32
+	scons sistema=win32 usar_shader=1 -j 4
 
 apple:
 	scons sistema=apple debug=0 usar_shader=1 -j 4

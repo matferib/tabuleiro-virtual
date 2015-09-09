@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstring>
 #include <limits>
 #include "gltab/gl.h"
@@ -143,8 +144,8 @@ void VboNaoGravado::AtribuiIndices(const unsigned short* dados, unsigned int num
 }
 
 void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned int num_coordenadas) {
-  if ((num_coordenadas / num_dimensoes) > USHRT_MAX) {
-    LOG(WARNING) << "Nao eh possivel indexar mais que " << USHRT_MAX << " coordenadas";
+  if ((num_coordenadas / num_dimensoes) > std::numeric_limits<unsigned short>::max()) {
+    LOG(WARNING) << "Nao eh possivel indexar mais que " <<  std::numeric_limits<unsigned short>::max() << " coordenadas";
   }
   coordenadas_.clear();
   coordenadas_.insert(coordenadas_.end(), dados, dados + num_coordenadas);

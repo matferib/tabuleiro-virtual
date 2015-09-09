@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <string>
 #include <utility>
@@ -9,7 +10,7 @@
 #include "log/log.h"
 #include "matrix/matrices.h"
 
-#if !USAR_OPENGL_ES
+#if !USAR_OPENGL_ES && !WIN32
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
 #endif
 
@@ -56,15 +57,15 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 bool ImprimeSeShaderErro(GLuint shader) {
 #if USAR_SHADER
   GLint success = 0;
-  glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+  ShaderLeParam(shader, GL_COMPILE_STATUS, &success);
   if (success) {
     return false;
   }
   GLint log_size = 0;
-  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_size);
+  ShaderLeParam(shader, GL_INFO_LOG_LENGTH, &log_size);
   std::string info_log;
   info_log.resize(log_size);
-  glGetShaderInfoLog(shader, log_size, &log_size, &info_log[0]);
+  ShaderInfoLog(shader, log_size, &log_size, &info_log[0]);
   LOG(ERROR) << "Erro de shader: " << info_log;
 #endif
   return true;
@@ -114,7 +115,7 @@ type_set [] = {
 };
 void print_uniforms(GLuint program) {
   GLint uniform_count;
-  glGetProgramiv (program, GL_ACTIVE_UNIFORMS, &uniform_count);
+  ProgramaLeParam(program, GL_ACTIVE_UNIFORMS, &uniform_count);
 
   GLchar name [256];
 
@@ -125,7 +126,7 @@ void print_uniforms(GLuint program) {
 
     glGetActiveUniform (program, i, 255, NULL, &size, &type, name);
 
-    GLint location = glGetUniformLocation (program, name);
+    GLint location = LocalUniforme (program, name);
 
     for (int j = 0; j < sizeof (type_set) / sizeof (glsl_type_set); j++) {
       if (type_set [j].type != type)
@@ -232,7 +233,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
           {"gltab_prm", &contexto->uni_gltab_prm },
           {"gltab_nm", &contexto->uni_gltab_nm },
   }) {
-    *d.var = glGetUniformLocation(*programa_luz, d.nome);
+    *d.var = LocalUniforme(*programa_luz, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo uniforme " << d.nome;
     }
@@ -244,7 +245,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       int pos = i * 3 + j;
       char nome_var[100];
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
-      contexto->uni_gltab_luzes[pos] = glGetUniformLocation(*programa_luz, nome_var);
+      contexto->uni_gltab_luzes[pos] = LocalUniforme(*programa_luz, nome_var);
       if (contexto->uni_gltab_luzes[pos] == -1) {
         LOG(ERROR) << "Erro lendo uniforme " << nome_var;
       }
@@ -357,7 +358,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }
 
 bool LuzPorVertice(int argc, const char* const* argv) {
-#if !USAR_OPENGL_ES
+#if !USAR_OPENGL_ES && !WIN32
   return FLAGS_luz_por_vertice;
 #else
   return true;

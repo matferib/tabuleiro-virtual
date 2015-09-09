@@ -185,7 +185,10 @@ class Texturas::InfoTexturaInterna {
                         largura_, altura_,
                         0, FormatoImagem(), TipoImagem(),
                         bits_.data());
+#if !WIN32
+    // Tem que fazer o wrapper.
     glGenerateMipmap(GL_TEXTURE_2D);
+#endif
     gl::Desabilita(GL_TEXTURE_2D);
     V_ERRO("CriaTexturaOpenGl");
   }

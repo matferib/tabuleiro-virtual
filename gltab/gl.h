@@ -190,11 +190,19 @@ void GeraBuffers(GLsizei n, GLuint* buffers);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
+void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
+void ShaderLeParam(GLuint shader, GLenum pname, GLint *params);
+void ProgramaLeParam(GLuint program, GLenum pname, GLint *params);
+GLint LocalUniforme(GLuint program, const GLchar *name);
 #else
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
+void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glShaderInfoLog(shader, maxLength, length, infolog); }
+void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) { glGetShaderiv(shader, pname, params); }
+void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) { glGetProgramiv(program, pname, params); }
+GLint LocalUniforme(GLuint program, const GLchar *name) { return glUniformLocation(program, name); }
 #endif
 
 
