@@ -161,6 +161,8 @@ message EntidadeProto {
   optional bool fixa = 32 [default=false];
   // Tipo de visao da entidade.
   optional TipoVisao tipo_visao = 36;
+  // Alcance da visao no escuro.
+  optional float alcance_visao = 37;
 
   // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;

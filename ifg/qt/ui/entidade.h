@@ -47,11 +47,10 @@ public:
     QPushButton *botao_cor;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
-    QCheckBox *checkbox_luz;
-    QPushButton *botao_luz;
     QHBoxLayout *horizontalLayout_14;
     QLabel *label_12;
     QDoubleSpinBox *spin_raio;
+    QPushButton *botao_luz;
     QWidget *horizontalLayoutWidget_4;
     QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout_5;
@@ -102,6 +101,10 @@ public:
     QHBoxLayout *horizontalLayout_19;
     QLabel *label_11;
     QPlainTextEdit *lista_eventos;
+    QWidget *horizontalLayoutWidget_11;
+    QHBoxLayout *horizontalLayout_20;
+    QLabel *label_13;
+    QComboBox *combo_visao;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -165,18 +168,6 @@ public:
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
-        checkbox_luz = new QCheckBox(horizontalLayoutWidget_3);
-        checkbox_luz->setObjectName(QString::fromUtf8("checkbox_luz"));
-        checkbox_luz->setLayoutDirection(Qt::RightToLeft);
-
-        horizontalLayout_3->addWidget(checkbox_luz);
-
-        botao_luz = new QPushButton(horizontalLayoutWidget_3);
-        botao_luz->setObjectName(QString::fromUtf8("botao_luz"));
-        botao_luz->setStyleSheet(QString::fromUtf8(""));
-
-        horizontalLayout_3->addWidget(botao_luz);
-
         horizontalLayout_14 = new QHBoxLayout();
         horizontalLayout_14->setObjectName(QString::fromUtf8("horizontalLayout_14"));
         label_12 = new QLabel(horizontalLayoutWidget_3);
@@ -191,6 +182,12 @@ public:
         spin_raio->setSingleStep(0.5);
 
         horizontalLayout_14->addWidget(spin_raio);
+
+        botao_luz = new QPushButton(horizontalLayoutWidget_3);
+        botao_luz->setObjectName(QString::fromUtf8("botao_luz"));
+        botao_luz->setStyleSheet(QString::fromUtf8(""));
+
+        horizontalLayout_14->addWidget(botao_luz);
 
 
         horizontalLayout_3->addLayout(horizontalLayout_14);
@@ -356,7 +353,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(20, 410, 351, 80));
+        horizontalLayoutWidget_6->setGeometry(QRect(20, 430, 361, 31));
         horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -376,7 +373,7 @@ public:
 
         horizontalLayoutWidget_10 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_10->setObjectName(QString::fromUtf8("horizontalLayoutWidget_10"));
-        horizontalLayoutWidget_10->setGeometry(QRect(20, 460, 351, 31));
+        horizontalLayoutWidget_10->setGeometry(QRect(20, 460, 361, 31));
         horizontalLayout_16 = new QHBoxLayout(horizontalLayoutWidget_10);
         horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
         horizontalLayout_16->setContentsMargins(0, 0, 0, 0);
@@ -458,6 +455,23 @@ public:
 
         horizontalLayout_19->addWidget(lista_eventos);
 
+        horizontalLayoutWidget_11 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_11->setObjectName(QString::fromUtf8("horizontalLayoutWidget_11"));
+        horizontalLayoutWidget_11->setGeometry(QRect(20, 400, 361, 31));
+        horizontalLayout_20 = new QHBoxLayout(horizontalLayoutWidget_11);
+        horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
+        horizontalLayout_20->setContentsMargins(0, 0, 0, 0);
+        label_13 = new QLabel(horizontalLayoutWidget_11);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
+        label_13->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_20->addWidget(label_13);
+
+        combo_visao = new QComboBox(horizontalLayoutWidget_11);
+        combo_visao->setObjectName(QString::fromUtf8("combo_visao"));
+
+        horizontalLayout_20->addWidget(combo_visao);
+
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
@@ -478,12 +492,11 @@ public:
         botao_cor->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cor da entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        checkbox_luz->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade possuir\303\241 luz da cor escolhida.", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Possui Luz", 0, QApplication::UnicodeUTF8));
-        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_raio->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da luz, em metros.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_luz->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Cor da Luz", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -526,7 +539,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_aura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade, em metros.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Transla\303\247\303\243o em Z", 0, QApplication::UnicodeUTF8));
+        label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Deslocamento Vertical", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_translacao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Para colocar a entidade acima do plano do tabuleiro.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -549,6 +562,16 @@ public:
         label_11->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Lista de Eventos", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         lista_eventos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cada linha deve conter um evento com formato <descricao:rodadas> sem as <>.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_13->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de Vis\303\243o", 0, QApplication::UnicodeUTF8));
+        combo_visao->clear();
+        combo_visao->insertItems(0, QStringList()
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Normal", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o na Penumbra", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Vis\303\243o no Escuro", 0, QApplication::UnicodeUTF8)
+        );
+#ifndef QT_NO_TOOLTIP
+        combo_visao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de vis\303\243o da entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 

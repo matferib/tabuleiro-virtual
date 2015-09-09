@@ -267,6 +267,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
+  opcoes_.set_mostra_fps(true);  // TODO temp.
 
   //EstadoInicial();
 #if USAR_WATCHDOG
@@ -402,8 +403,7 @@ void Tabuleiro::Desenha() {
   ConfiguraProjecao();
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
-  //parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
-  parametros_desenho_.set_desenha_fps(true);
+  parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   if (modo_debug_) {
     parametros_desenho_.set_iluminacao(false);
@@ -4282,6 +4282,13 @@ void Tabuleiro::DesenhaLuzes() {
     gl::Habilita(GL_LIGHT0);
   }
 
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  if (camera_presa_) {
+    auto* e = BuscaEntidade(id_camera_presa_);
+    if (e != nullptr) {
+      parametros_desenho_.set_tipo_visao(e->Proto().tipo_visao());
+    }
+  }
   if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
