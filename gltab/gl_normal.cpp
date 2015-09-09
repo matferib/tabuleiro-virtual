@@ -12,6 +12,8 @@
 
 namespace gl {
 
+#define INTERNO dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get())
+
 namespace interno {
 struct ContextoDesktop : public ContextoDependente {
  public:
@@ -20,6 +22,12 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglBindBuffer;
   PROC pglDeleteBuffers;
   PROC pglBufferData;
+
+  PROC pglGetShader;
+  PROC pglGetShaderInfoLog;
+  PROC pglGetProgram;
+  PROC pglGetActiveUniform;
+  PROC pglGetUniformLocation;
 #endif
 };
 }  // namespace interno
@@ -41,24 +49,37 @@ bool ImprimeSeShaderErro(GLuint shader);
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
 #if WIN32
+#define PGL_ERRO(x) if (interno->x == nullptr) { erro = "null"#x; }
   LOG(INFO) << "pegando ponteiros";
-  g_contexto.interno->pglGenBuffers = wglGetProcAddress("glGenBuffers");
+  auto* interno = dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get());
+  interno->pglGenBuffers = wglGetProcAddress("glGenBuffers");
   std::string erro;
-  if (g_context.interno->pglGenBuffers == nullptr) {
+  if (interno->pglGenBuffers == nullptr) {
     erro = "null glGenBuffers";
   }
-  g_contexto.interno->pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
-  if (g_contexto.interno->pglDeleteBuffers == nullptr) {
+  interno->pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
+  if (interno->pglDeleteBuffers == nullptr) {
     erro = "null glDeleteBuffers";
   }
-  g_contexto.interno->pglBufferData = wglGetProcAddress("glBufferData");
-  if (g_contexto.interno->pglBufferData == nullptr) {
+  interno->pglBufferData = wglGetProcAddress("glBufferData");
+  if (interno->pglBufferData == nullptr) {
     erro = "null glBufferData";
   }
-  g_contexto.interno->pglBindBuffer = wglGetProcAddress("glBindBuffer");
-  if (g_contexto.interno->pglBindBuffer == nullptr) {
+  interno->pglBindBuffer = wglGetProcAddress("glBindBuffer");
+  if (interno->pglBindBuffer == nullptr) {
     erro = "null glBindBuffer";
   }
+  interno->pglGetShader =  wglGetProcAddress("glGetShaderiv");
+  PGL_ERRO(pglGetShader);
+  interno->pglGetShaderInfoLog = wglGetProcAddress("glGetShaderInfoLog");
+  PGL_ERRO(pglGetShaderInfoLog);
+  interno->pglGetProgram = wglGetProcAddress("glGetProgram");
+  PGL_ERRO(pglGetProgram);
+  interno->pglGetActiveUniform = wglGetProcAddress("glGetActiveUniform");
+  PGL_ERRO(pglGetActiveUniform);
+  interno->pglGetUniformLocation = wglGetProcAddress("glGetUniformLocation");
+  PGL_ERRO(pglGetUniformLocation);
+
   if (!erro.empty()) {
     throw std::logic_error(erro);
   }
@@ -126,20 +147,35 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
 #if WIN32
 void GeraBuffers(GLsizei n, GLuint* buffers) {
-  ((PFNGLGENBUFFERSPROC)g_contexto.interno->pglGenBuffers)(n, buffers);
+  ((PFNGLGENBUFFERSPROC)INTERNO->pglGenBuffers)(n, buffers);
 }
 
 void LigacaoComBuffer(GLenum target, GLuint buffer) {
-  ((PFNGLBINDBUFFERPROC)g_contexto.interno->pglBindBuffer)(target, buffer);
+  ((PFNGLBINDBUFFERPROC)INTERNO->pglBindBuffer)(target, buffer);
 }
 
 void ApagaBuffers(GLsizei n, const GLuint* buffers) {
-  ((PFNGLDELETEBUFFERSPROC)g_contexto.interno->pglDeleteBuffers)(n, buffers);
+  ((PFNGLDELETEBUFFERSPROC)INTERNO->pglDeleteBuffers)(n, buffers);
 }
 
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
-  ((PFNGLBUFFERDATAPROC)g_contexto.interno->pglBufferData)(target, size, data, usage);
+  ((PFNGLBUFFERDATAPROC)INTERNO->pglBufferData)(target, size, data, usage);
 }
+
+void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) {
+  ((PFNGLGETSHADERINFOLOGPROC)INTERNO->pglGetShaderInfoLog)(shader, maxLength, length, infoLog);
+}
+
+void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) {
+  ((PFNGLGETSHADERIVPROC)INTERNO->pglGetShader)(shader, pname, params);
+}
+void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) {
+  ((PFNGLGETPROGRAMIVPROC)INTERNO->pglGetProgram)(program, pname, params);
+}
+GLint LocalUniforme(GLuint program, const GLchar *name) {
+  return ((PFNGLGETUNIFORMLOCATIONPROC)INTERNO->pglGetUniformLocation)(program, name);
+}
+
 #endif
 
 void AlternaModoDebug() {
@@ -172,7 +208,7 @@ void MudaCor(float r, float g, float b, float a) {
 
 GLint Uniforme(const char* id) {
 #if USAR_SHADER
-  GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
+  GLint ret = LocalUniforme(g_contexto.programa_luz, id);
   if (ret == -1) {
     LOG_EVERY_N(INFO, 100) << "Uniforme nao encontrada: " << id;
   }

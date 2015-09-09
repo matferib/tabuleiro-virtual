@@ -28,4 +28,4 @@ Source: ..\tabvirt.exe; Destdir: {app};
 Source: ..\win32\lib\*.dll; Destdir: {app};
 Source: ..\texturas\*.png; Destdir: {app}\texturas;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados;
-
+Source: ..\shaders\*.c; Destdir: {app}\shaders;
