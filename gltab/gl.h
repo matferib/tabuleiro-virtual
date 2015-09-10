@@ -194,15 +194,76 @@ void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* in
 void ShaderLeParam(GLuint shader, GLenum pname, GLint *params);
 void ProgramaLeParam(GLuint program, GLenum pname, GLint *params);
 GLint LocalUniforme(GLuint program, const GLchar *name);
+void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2);
+void HabilitaVetorAtributosVertice(GLuint index);
+void DesabilitaVetorAtributosVertice(GLuint index);
+void Uniforme(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
+void Uniforme(GLint location, GLfloat v0, GLfloat v1, GLfloat v2);
+void Uniforme(GLint location, GLfloat v0, GLfloat v1);
+void Uniforme(GLint location, GLfloat v0);
+void Uniforme(GLint location, GLint v0);
+void LeUniforme(GLuint program, GLint location, GLfloat* params);
+void LeUniforme(GLuint program, GLint location, GLint* params);
+GLuint CriaShader(GLenum shaderType);
+void DestroiShader(GLuint shader);
+void CompilaShader(GLuint shader);
+void AnexaShader(GLuint program, GLuint shader);
+void DesanexaShader(GLuint program, GLuint shader);
+void FonteShader(GLuint shader, GLsizei count, const GLchar **string, const GLint *length);
+void LinkaPrograma(GLuint program);
+void UsaPrograma(GLuint program);
+GLuint CriaPrograma();
+void DestroiPrograma(GLuint program);
+void LeUniformeAtivo(GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name);
+GLint LeLocalAtributo(GLuint program, const GLchar* name);
+void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer);
+void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
+void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 #else
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
-void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glShaderInfoLog(shader, maxLength, length, infolog); }
-void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) { glGetShaderiv(shader, pname, params); }
-void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) { glGetProgramiv(program, pname, params); }
+inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glShaderInfoLog(shader, maxLength, length, infolog); }
+inline void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) { glGetShaderiv(shader, pname, params); }
+inline void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) { glGetProgramiv(program, pname, params); }
 GLint LocalUniforme(GLuint program, const GLchar *name) { return glUniformLocation(program, name); }
+inline void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(index, v0, v1, v2, v3); }
+inline void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(index, v0, v1, v2); }
+inline void HabilitaVetorAtributosVertice(GLuint index) { glEnableVertexAttribArray(index); }
+inline void DesabilitaVetorAtributosVertice(GLuint index) { glDisableVertexAttribArray(index); }
+inline void Uniforme(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glUniform4f(location, v0, v1, v2, v3); }
+inline void Uniforme(GLint location, GLfloat v0, GLfloat v1, GLfloat v2) { glUniform3f(location, v0, v1, v2); }
+inline void Uniforme(GLint location, GLfloat v0, GLfloat v1) { glUniform2f(location, v0, v1); }
+inline void Uniforme(GLint location, GLfloat v0) { glUniform1f(location, v0); }
+inline void Uniforme(GLint location, GLint v0) { glUniform1i(location, v0); }
+inline void LeUniforme(GLuint program, GLint location, GLfloat* params) { glGetUniformfv(program, location, params); }
+inline void LeUniforme(GLuint program, GLint location, GLint* params) { glGetUniformfi(program, location, params); }
+inline GLuint CriaShader(GLenum shaderType) { return glCreateShader(shaderType); }
+inline void DestroiShader(GLuint shader) { glDeleteShader(shader); }
+inline void CompilaShader(GLuint shader) { glCompileShader(shader); }
+inline void AnexaShader(GLuint program, GLuint shader) { glAttachShader(program, shader); }
+inline void DesanexaShader(GLuint program, GLuint shader) { glDetachShader(program, shader); }
+inline void FonteShader(GLuint shader, GLsizei count, const GLchar **s, const GLint *length) { glShaderSource(shader, count, s, length); }
+inline void LinkaPrograma(GLuint program) { glLinkProgram(program); }
+inline void UsaPrograma(GLuint program) { glUseProgram(program); }
+inline GLuint CriaPrograma() { return glCreateProgram(); }
+inline void DestroiPrograma(GLuint program) { glDeleteProgram(program); }
+inline void LeUniformeAtivo(GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name) {
+  glGetActiveUniform(program, index, bufSize, length, size, type, name);
+}
+inline GLint LeLocalAtributo(GLuint program, const GLchar* name) { return glGetAttribLocation(program, name); }
+inline void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer){
+  glVertexAttribPointer(index, size, type, normalized, stride, pointer);
+}
+inline void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
+  glUniformMatrix3fv(location, count, transpose, value);
+}
+inline void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
+  glUniformMatrix4fv(location, count, transpose, value);
+}
+
 #endif
 
 

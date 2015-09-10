@@ -124,7 +124,7 @@ void print_uniforms(GLuint program) {
     GLint  size;
     GLenum type;
 
-    glGetActiveUniform (program, i, 255, NULL, &size, &type, name);
+    LeUniformeAtivo(program, i, 255, NULL, &size, &type, name);
 
     GLint location = LocalUniforme (program, name);
 
@@ -177,35 +177,35 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   // Programa de luz.
   {
-    GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
+    GLuint v_shader = CriaShader(GL_VERTEX_SHADER);
     V_ERRO("criando vertex shader");
-    GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    GLuint f_shader = CriaShader(GL_FRAGMENT_SHADER);
     V_ERRO("criando fragment shader");
     const char* nome_v_shader = luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c";
     const  char* nome_f_shader = luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c";
     std::string codigo_v_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, nome_v_shader, &codigo_v_shader_str);
     const char* codigo_v_shader = codigo_v_shader_str.c_str();
-    glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
+    FonteShader(v_shader, 1, &codigo_v_shader, nullptr);
     V_ERRO("shader source vertex");
     std::string codigo_f_shader_str;
     arq::LeArquivo(arq::TIPO_SHADER, nome_f_shader, &codigo_f_shader_str);
     const char* codigo_f_shader = codigo_f_shader_str.c_str();
-    glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
+    FonteShader(f_shader, 1, &codigo_f_shader, nullptr);
     V_ERRO("shader source fragment");
-    glCompileShader(v_shader);
+    CompilaShader(v_shader);
     V_ERRO_SHADER(v_shader);
-    glCompileShader(f_shader);
+    CompilaShader(f_shader);
     V_ERRO_SHADER(f_shader);
-    GLuint p = glCreateProgram();
+    GLuint p = CriaPrograma();
     V_ERRO("criando programa shader");
-    glAttachShader(p, v_shader);
+    AnexaShader(p, v_shader);
     V_ERRO("atachando vertex no programa shader");
-    glAttachShader(p, f_shader);
+    AnexaShader(p, f_shader);
     V_ERRO("atachando fragment no programa shader");
-    glLinkProgram(p);
+    LinkaPrograma(p);
     V_ERRO("linkando programa shader");
-    glUseProgram(p);
+    UsaPrograma(p);
     V_ERRO("usando programa shader");
     *programa_luz = p;
     *vs = v_shader;
@@ -260,7 +260,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
           {"gltab_cor", &contexto->atr_gltab_cor},
           {"gltab_texel", &contexto->atr_gltab_texel},
   }) {
-    *d.var = glGetAttribLocation(*programa_luz, d.nome);
+    *d.var = LeLocalAtributo(*programa_luz, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo atributo " << d.nome;
       continue;
@@ -284,11 +284,11 @@ void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
 
 void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs) {
 #if USAR_SHADER
-  glDetachShader(programa_luz, vs);
-  glDetachShader(programa_luz, fs);
-  glDeleteProgram(programa_luz);
-  glDeleteShader(vs);
-  glDeleteShader(fs);
+  DesanexaShader(programa_luz, vs);
+  DesanexaShader(programa_luz, fs);
+  DestroiPrograma(programa_luz);
+  DestroiShader(vs);
+  DestroiShader(fs);
 #endif
 }
 
@@ -297,26 +297,26 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(uniforme, cor[0], cor[1], cor[2], 1.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(uniforme, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 1.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    glUniform1f(contexto->uni_gltab_textura, 1.0f);
-    glUniform1i(contexto->uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
+    Uniforme(contexto->uni_gltab_textura, 1.0f);
+    Uniforme(contexto->uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_NORMALIZE) {
     // Shader ja normaliza tudo.
   } else {
@@ -330,25 +330,25 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(uniforme, cor[0], cor[1], cor[2], 0.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(uniforme, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 0.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    glUniform1f(contexto->uni_gltab_textura, 0.0f);
+    Uniforme(contexto->uni_gltab_textura, 0.0f);
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
-    glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
+    Uniforme(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_NORMALIZE) {
     // Shader ja normaliza tudo.
   } else {
@@ -484,7 +484,7 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  PonteiroAtributosVertices(interno::BuscaContexto()->atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
 #else
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
@@ -492,7 +492,7 @@ void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo,
 
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
+  PonteiroAtributosVertices(interno::BuscaContexto()->atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
 #else
   glNormalPointer(tipo, passo, normais);
 #endif
@@ -500,7 +500,7 @@ void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
 
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
 #if USAR_SHADER
-  glVertexAttrib3f(interno::BuscaContexto()->atr_gltab_normal, x, y, z);
+  AtributoVertice(interno::BuscaContexto()->atr_gltab_normal, x, y, z);
 #else
   glNormal3f(x, y, z);
 #endif
@@ -508,7 +508,7 @@ void Normal(GLfloat x, GLfloat y, GLfloat z) {
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+  PonteiroAtributosVertices(interno::BuscaContexto()->atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
 #else
   glColorPointer(num_componentes, GL_FLOAT, passo, cores);
 #endif
@@ -516,7 +516,7 @@ void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaContexto()->atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  PonteiroAtributosVertices(interno::BuscaContexto()->atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
 #else
   glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
@@ -528,26 +528,26 @@ bool EstaHabilitado(GLenum cap) {
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
     return cor[3] > 0.0f;
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
     return cor[3] > 0;
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
     return cor[3] > 0;
   } else if (cap == GL_TEXTURE_2D) {
     GLfloat fret;
-    glGetUniformfv(contexto->programa_luz, contexto->uni_gltab_textura, &fret);
+    LeUniforme(contexto->programa_luz, contexto->uni_gltab_textura, &fret);
     return fret;
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    LeUniforme(contexto->programa_luz, uniforme, cor);
     return cor[3] > 0;
   }
   return glIsEnabled(cap);
@@ -572,7 +572,7 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical)
 
 void LuzAmbiente(float r, float g, float b) {
 #if USAR_SHADER
-  glUniform4f(interno::BuscaContexto()->uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
+  Uniforme(interno::BuscaContexto()->uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
 #else
   GLfloat glparams[4] = { r, g, b, 1.0f };
   glLightModelfv(GL_LIGHT_MODEL_AMBIENT, glparams);
@@ -582,7 +582,7 @@ void LuzAmbiente(float r, float g, float b) {
 void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
-  glUniform4f(c->uni_gltab_luz_direcional_cor, r, g, b, 1.0f);
+  Uniforme(c->uni_gltab_luz_direcional_cor, r, g, b, 1.0f);
   // Transforma o vetor em coordenadas da camera.
   float m[16];
   gl::Le(GL_MODELVIEW_MATRIX, m);
@@ -593,7 +593,7 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   Vector3 vp(pos[0], pos[1], pos[2]);
   vp = nm * vp;
   //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
-  glUniform4f(c->uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
+  Uniforme(c->uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
 #else
   glLightfv(GL_LIGHT0, GL_POSITION, pos);
   GLfloat cor[] = { r, g, b, 1.0f };
@@ -614,9 +614,9 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
   Matrix4 m(glm);
   Vector4 vp(pos[0], pos[1], pos[2], 1.0f);
   vp = m * vp;
-  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
-  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
-  glUniform4f(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], raio, 0, 0, 0);
+  Uniforme(c->uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
+  Uniforme(c->uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
+  Uniforme(c->uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], raio, 0, 0, 0);
 #else
   glLightfv(GL_LIGHT0 + luz, GL_POSITION, pos);
   GLfloat cor_luz[] = { r, g, b, 1.0f };
@@ -639,9 +639,9 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
   Matrix4 m(glm);
   Vector4 v(pos_referencia[0], pos_referencia[1], pos_referencia[2], 1.0f);
   v = m * v;
-  glUniform4f(c->uni_gltab_nevoa_referencia, v.x, v.y, v.z, 1.0f);
-  glUniform4f(c->uni_gltab_nevoa_dados, inicio, fim, 0.0f  /*nao usado*/, (1.0f / (fim - inicio))  /*escala*/);
-  glUniform4f(c->uni_gltab_nevoa_cor, r, g, b, 1.0f);
+  Uniforme(c->uni_gltab_nevoa_referencia, v.x, v.y, v.z, 1.0f);
+  Uniforme(c->uni_gltab_nevoa_dados, inicio, fim, 0.0f  /*nao usado*/, (1.0f / (fim - inicio))  /*escala*/);
+  Uniforme(c->uni_gltab_nevoa_cor, r, g, b, 1.0f);
 #else
   glFogf(GL_FOG_MODE, GL_LINEAR);
   glFogf(GL_FOG_START, inicio);
@@ -811,13 +811,13 @@ void HabilitaEstadoCliente(GLenum cap) {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   if (cap == GL_VERTEX_ARRAY) {
-    glEnableVertexAttribArray(c->atr_gltab_vertice);
+    HabilitaVetorAtributosVertice(c->atr_gltab_vertice);
   } else if (cap == GL_NORMAL_ARRAY) {
-    glEnableVertexAttribArray(c->atr_gltab_normal);
+    HabilitaVetorAtributosVertice(c->atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    glEnableVertexAttribArray(c->atr_gltab_cor);
+    HabilitaVetorAtributosVertice(c->atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    glEnableVertexAttribArray(c->atr_gltab_texel);
+    HabilitaVetorAtributosVertice(c->atr_gltab_texel);
   } else {
     glEnableClientState(cap);
   }
@@ -830,13 +830,13 @@ void DesabilitaEstadoCliente(GLenum cap) {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
   if (cap == GL_VERTEX_ARRAY) {
-    glDisableVertexAttribArray(c->atr_gltab_vertice);
+    DesabilitaVetorAtributosVertice(c->atr_gltab_vertice);
   } else if (cap == GL_NORMAL_ARRAY) {
-    glDisableVertexAttribArray(c->atr_gltab_normal);
+    DesabilitaVetorAtributosVertice(c->atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    glDisableVertexAttribArray(c->atr_gltab_cor);
+    DesabilitaVetorAtributosVertice(c->atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    glDisableVertexAttribArray(c->atr_gltab_texel);
+    DesabilitaVetorAtributosVertice(c->atr_gltab_texel);
   } else {
     glDisableClientState(cap);
   }
@@ -850,7 +850,7 @@ void AtualizaMatrizesNovo() {
   auto* c = interno::BuscaContexto();
   bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
   GLuint mloc = modo_mv ? c->uni_gltab_mvm : c->uni_gltab_prm;
-  glUniformMatrix4fv(mloc, 1, false, c->pilha_corrente->top().get());
+  Matriz4Uniforme(mloc, 1, false, c->pilha_corrente->top().get());
   if (!modo_mv) {
     return;
   }
@@ -863,7 +863,7 @@ void AtualizaMatrizesNovo() {
   normal.invert().transpose();
   if (normal != c->matriz_normal) {
     c->matriz_normal = normal;
-    glUniformMatrix3fv(c->uni_gltab_nm, 1, false, normal.get());
+    Matriz3Uniforme(c->uni_gltab_nm, 1, false, normal.get());
   }
 }
 
