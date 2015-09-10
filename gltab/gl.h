@@ -168,6 +168,7 @@ inline void DesempilhaAtributo() { glPopAttrib(); }
 #else
 #endif
 inline void FaceNula(GLenum modo) { glCullFace(modo); }
+inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) {
   glViewport(x, y, largura, altura);

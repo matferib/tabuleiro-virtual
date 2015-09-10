@@ -2073,9 +2073,11 @@ void Tabuleiro::DesenhaCena() {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);
+      gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
