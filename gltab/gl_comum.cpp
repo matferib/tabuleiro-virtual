@@ -165,59 +165,74 @@ int IndiceLuzAtributos(int id_luz) {
 }
 
 namespace {
-#define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
+#define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return false; } while (0)
+bool IniciaShader(const char* nome_vs, const char* nome_fs,
+                  GLuint* programa, GLuint* vs, GLuint* fs) {
+  GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
+  V_ERRO_RET("criando vertex shader");
+  GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  V_ERRO_RET("criando fragment shader");
+  std::string codigo_v_shader_str;
+  arq::LeArquivo(arq::TIPO_SHADER, nome_vs, &codigo_v_shader_str);
+  const char* codigo_v_shader = codigo_v_shader_str.c_str();
+  glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
+  V_ERRO_RET("shader source vertex");
+  std::string codigo_f_shader_str;
+  arq::LeArquivo(arq::TIPO_SHADER, nome_fs, &codigo_f_shader_str);
+  const char* codigo_f_shader = codigo_f_shader_str.c_str();
+  glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
+  V_ERRO_RET("shader source fragment");
+  glCompileShader(v_shader);
+  V_ERRO_SHADER(v_shader);
+  glCompileShader(f_shader);
+  V_ERRO_SHADER(f_shader);
+  GLuint p = glCreateProgram();
+  V_ERRO_RET("criando programa shader");
+  glAttachShader(p, v_shader);
+  V_ERRO_RET("atachando vertex no programa shader");
+  glAttachShader(p, f_shader);
+  V_ERRO_RET("atachando fragment no programa shader");
+  glLinkProgram(p);
+  V_ERRO_RET("linkando programa shader");
+  *programa = p;
+  *vs = v_shader;
+  *fs = f_shader;
+  return true;
+}
+
 void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
   LOG(INFO) << "Tentando iniciar com shaders, luz por fragmento? " << !luz_por_vertice;
-  GLuint* programa_luz = &contexto->programa_luz;
-  GLuint* vs = &contexto->vs;
-  GLuint* fs = &contexto->fs;
 
   V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
-  // Programa de luz.
-  {
-    GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
-    V_ERRO("criando vertex shader");
-    GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    V_ERRO("criando fragment shader");
-    const char* nome_v_shader = luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c";
-    const  char* nome_f_shader = luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c";
-    std::string codigo_v_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, nome_v_shader, &codigo_v_shader_str);
-    const char* codigo_v_shader = codigo_v_shader_str.c_str();
-    glShaderSource(v_shader, 1, &codigo_v_shader, nullptr);
-    V_ERRO("shader source vertex");
-    std::string codigo_f_shader_str;
-    arq::LeArquivo(arq::TIPO_SHADER, nome_f_shader, &codigo_f_shader_str);
-    const char* codigo_f_shader = codigo_f_shader_str.c_str();
-    glShaderSource(f_shader, 1, &codigo_f_shader, nullptr);
-    V_ERRO("shader source fragment");
-    glCompileShader(v_shader);
-    V_ERRO_SHADER(v_shader);
-    glCompileShader(f_shader);
-    V_ERRO_SHADER(f_shader);
-    GLuint p = glCreateProgram();
-    V_ERRO("criando programa shader");
-    glAttachShader(p, v_shader);
-    V_ERRO("atachando vertex no programa shader");
-    glAttachShader(p, f_shader);
-    V_ERRO("atachando fragment no programa shader");
-    glLinkProgram(p);
-    V_ERRO("linkando programa shader");
-    glUseProgram(p);
-    V_ERRO("usando programa shader");
-    *programa_luz = p;
-    *vs = v_shader;
-    *fs = f_shader;
-  }
+  struct Shaders {
+    std::string nome_vs;
+    std::string nome_fs;
+    GLuint* pp;
+    GLuint* pvs;
+    GLuint* pfs;
+  };
+  std::vector<Shaders> shaders = {
+    { luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c",
+      luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
+      &contexto->programa_luz, &contexto->vs, &contexto->fs },
+    { "vert_simples.c", "frag_simples.c", &contexto->programa_simples, &contexto->vs_simples, &contexto->fs_simples }
+  };
 
-  print_uniforms(*programa_luz);
+  for (const auto s : shaders) {
+    if (!IniciaShader(s.nome_vs.c_str(), s.nome_fs.c_str(), s.pp, s.pvs, s.pfs)) {
+      LOG(ERROR) << "Erro carregando programa com " << s.nome_vs.c_str() << " e " << s.nome_fs.c_str();
+    }
+  }
+  glUseProgram(contexto->programa_luz);
+  V_ERRO("usando programa shader");
+
+  print_uniforms(contexto->programa_luz);
   // Variaveis do shader.
   struct DadosVariavel {
     const char* nome;
     GLint* var;
   };
-
   // Variaveis uniformes.
   for (const auto& d : std::vector<DadosVariavel> {
           {"gltab_luz_ambiente", &contexto->uni_gltab_luz_ambiente_cor },
@@ -232,7 +247,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
           {"gltab_prm", &contexto->uni_gltab_prm },
           {"gltab_nm", &contexto->uni_gltab_nm },
   }) {
-    *d.var = glGetUniformLocation(*programa_luz, d.nome);
+    *d.var = glGetUniformLocation(contexto->programa_luz, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo uniforme " << d.nome;
     }
@@ -244,7 +259,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       int pos = i * 3 + j;
       char nome_var[100];
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
-      contexto->uni_gltab_luzes[pos] = glGetUniformLocation(*programa_luz, nome_var);
+      contexto->uni_gltab_luzes[pos] = glGetUniformLocation(contexto->programa_luz, nome_var);
       if (contexto->uni_gltab_luzes[pos] == -1) {
         LOG(ERROR) << "Erro lendo uniforme " << nome_var;
       }
@@ -259,7 +274,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
           {"gltab_cor", &contexto->atr_gltab_cor},
           {"gltab_texel", &contexto->atr_gltab_texel},
   }) {
-    *d.var = glGetAttribLocation(*programa_luz, d.nome);
+    *d.var = glGetAttribLocation(contexto->programa_luz, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo atributo " << d.nome;
       continue;

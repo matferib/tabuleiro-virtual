@@ -122,6 +122,7 @@ class VboGravado {
   bool tem_normais() const { return tem_normais_; }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
+  void forca_texturas(bool tem) { tem_texturas_ = tem; }
 
   std::string ParaString() const {
 #if WIN32 || ANDROID

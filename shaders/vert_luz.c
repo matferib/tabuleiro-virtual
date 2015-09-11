@@ -30,6 +30,8 @@ attribute lowp vec2 gltab_texel;
 
 void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
+  //float cor = (gltab_cor.r + gltab_cor.g + gltab_cor.b) / 3.0;
+  //v_Color = vec4(cor, cor, cor, gltab_cor.a);
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
   v_Tex.st = gltab_texel;
