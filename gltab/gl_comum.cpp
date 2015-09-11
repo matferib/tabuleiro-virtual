@@ -13,6 +13,8 @@
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
 #endif
 
+using gl::interno::TSH_LUZ;
+
 // Comum.
 namespace gl {
 
@@ -215,8 +217,8 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
   std::vector<Shaders> shaders = {
     { luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c",
       luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
-      &contexto->programa_luz, &contexto->vs, &contexto->fs },
-    { "vert_simples.c", "frag_simples.c", &contexto->programa_simples, &contexto->vs_simples, &contexto->fs_simples }
+      &contexto->shaders[TSH_LUZ].programa, &contexto->shaders[TSH_LUZ].vs, &contexto->shaders[TSH_LUZ].fs },
+    { "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES].programa, &contexto->shaders[TSH_SIMPLES].vs, &contexto->shaders[TSH_SIMPLES].fs }
   };
 
   for (const auto s : shaders) {
@@ -224,10 +226,10 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       LOG(ERROR) << "Erro carregando programa com " << s.nome_vs.c_str() << " e " << s.nome_fs.c_str();
     }
   }
-  glUseProgram(contexto->programa_luz);
+  glUseProgram(contexto->shaders[TSH_LUZ].programa);
   V_ERRO("usando programa shader");
 
-  print_uniforms(contexto->programa_luz);
+  print_uniforms(contexto->shaders[TSH_LUZ].programa);
   // Variaveis do shader.
   struct DadosVariavel {
     const char* nome;
@@ -247,7 +249,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
           {"gltab_prm", &contexto->uni_gltab_prm },
           {"gltab_nm", &contexto->uni_gltab_nm },
   }) {
-    *d.var = glGetUniformLocation(contexto->programa_luz, d.nome);
+    *d.var = glGetUniformLocation(contexto->shaders[TSH_LUZ].programa, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo uniforme " << d.nome;
     }
@@ -259,7 +261,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       int pos = i * 3 + j;
       char nome_var[100];
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
-      contexto->uni_gltab_luzes[pos] = glGetUniformLocation(contexto->programa_luz, nome_var);
+      contexto->uni_gltab_luzes[pos] = glGetUniformLocation(contexto->shaders[TSH_LUZ].programa, nome_var);
       if (contexto->uni_gltab_luzes[pos] == -1) {
         LOG(ERROR) << "Erro lendo uniforme " << nome_var;
       }
@@ -274,7 +276,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
           {"gltab_cor", &contexto->atr_gltab_cor},
           {"gltab_texel", &contexto->atr_gltab_texel},
   }) {
-    *d.var = glGetAttribLocation(contexto->programa_luz, d.nome);
+    *d.var = glGetAttribLocation(contexto->shaders[TSH_LUZ].programa, d.nome);
     if (*d.var == -1) {
       LOG(ERROR) << "Erro lendo atributo " << d.nome;
       continue;
@@ -311,17 +313,17 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(uniforme, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1f(contexto->uni_gltab_textura, 1.0f);
@@ -329,7 +331,7 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_NORMALIZE) {
     // Shader ja normaliza tudo.
@@ -344,24 +346,24 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(uniforme, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(contexto->uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
     glUniform1f(contexto->uni_gltab_textura, 0.0f);
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     glUniform4f(contexto->uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_NORMALIZE) {
     // Shader ja normaliza tudo.
@@ -542,26 +544,26 @@ bool EstaHabilitado(GLenum cap) {
   if (cap == GL_LIGHTING) {
     GLint uniforme = contexto->uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     return cor[3] > 0.0f;
   } else if (cap == GL_LIGHT0) {
     GLint uniforme = contexto->uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     return cor[3] > 0;
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
     GLint uniforme = contexto->uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     return cor[3] > 0;
   } else if (cap == GL_TEXTURE_2D) {
     GLfloat fret;
-    glGetUniformfv(contexto->programa_luz, contexto->uni_gltab_textura, &fret);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, contexto->uni_gltab_textura, &fret);
     return fret;
   } else if (cap == GL_FOG) {
     GLint uniforme = contexto->uni_gltab_nevoa_cor;
     GLfloat cor[4];
-    glGetUniformfv(contexto->programa_luz, uniforme, cor);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, uniforme, cor);
     return cor[3] > 0;
   }
   return glIsEnabled(cap);
