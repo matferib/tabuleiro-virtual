@@ -168,8 +168,9 @@ int IndiceLuzAtributos(int id_luz) {
 
 namespace {
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return false; } while (0)
-bool IniciaShader(const char* nome_vs, const char* nome_fs,
-                  GLuint* programa, GLuint* vs, GLuint* fs) {
+bool IniciaShader(const char* nome_programa, const char* nome_vs, const char* nome_fs,
+                  VarShader* shader) {
+  shader->nome = nome_programa;
   GLuint v_shader = glCreateShader(GL_VERTEX_SHADER);
   V_ERRO_RET("criando vertex shader");
   GLuint f_shader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -196,9 +197,9 @@ bool IniciaShader(const char* nome_vs, const char* nome_fs,
   V_ERRO_RET("atachando fragment no programa shader");
   glLinkProgram(p);
   V_ERRO_RET("linkando programa shader");
-  *programa = p;
-  *vs = v_shader;
-  *fs = f_shader;
+  shader->programa = p;
+  shader->vs = v_shader;
+  shader->fs = f_shader;
   return true;
 }
 
@@ -207,24 +208,27 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
 
   V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
-  struct Shaders {
+  struct DadosShaders {
+    std::string nome_programa;
     std::string nome_vs;
     std::string nome_fs;
-    GLuint* pp;
-    GLuint* pvs;
-    GLuint* pfs;
+    VarShader* shader;
   };
-  std::vector<Shaders> shaders = {
-    { luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c",
+  std::vector<DadosShaders> dados_shaders = {
+    { luz_por_vertice ? "programa_luz_vertice" : "programa_luz_pixel",
+      luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c",
       luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
-      &contexto->shaders[TSH_LUZ].programa, &contexto->shaders[TSH_LUZ].vs, &contexto->shaders[TSH_LUZ].fs },
-    { "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES].programa, &contexto->shaders[TSH_SIMPLES].vs, &contexto->shaders[TSH_SIMPLES].fs }
+      &contexto->shaders[TSH_LUZ] },
+    { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] }
   };
 
-  for (const auto s : shaders) {
-    if (!IniciaShader(s.nome_vs.c_str(), s.nome_fs.c_str(), s.pp, s.pvs, s.pfs)) {
-      LOG(ERROR) << "Erro carregando programa com " << s.nome_vs.c_str() << " e " << s.nome_fs.c_str();
+  for (auto& ds : dados_shaders) {
+    LOG(INFO) << "Iniciando programa shaders: " << ds.nome_programa.c_str();
+    if (!IniciaShader(ds.nome_programa.c_str(), ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
+      LOG(ERROR) << "Erro carregando programa com " << ds.nome_vs.c_str() << " e " << ds.nome_fs.c_str();
+      continue;
     }
+    LOG(INFO) << "Programa shaders '" << ds.nome_programa.c_str() << "' iniciado com sucesso";
   }
   glUseProgram(contexto->shaders[TSH_LUZ].programa);
   V_ERRO("usando programa shader");
