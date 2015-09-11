@@ -427,7 +427,7 @@ namespace interno {
 
 // Variaveis de shaders.
 struct VarShader {
-  const char* nome;  // Nome para o programa, depuracao apenas.
+  std::string nome;  // Nome para o programa, depuracao apenas.
 
   // Shader.
   GLuint programa;
