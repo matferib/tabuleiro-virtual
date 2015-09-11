@@ -425,6 +425,36 @@ void AlternaModoDebug();
 // Namespace para utilidades internas, nem deveria estar aqui.
 namespace interno {
 
+// Variaveis de shaders.
+struct VarShader {
+  // Shader.
+  GLuint programa;
+  GLuint vs;
+  GLuint fs;
+  GLuint programa_simples;
+  GLuint vs_simples;
+  GLuint fs_simples;
+
+  // Variaveis uniformes dos shaders.
+  GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente. Alfa indica se iluminacao geral esta ligada.
+  GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
+  GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional ().
+  GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
+  GLint uni_gltab_textura;              // Ha textura: 1, nao ha: 0.
+  GLint uni_gltab_unidade_textura;
+  GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
+  GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
+  GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
+  GLint uni_gltab_mvm;                  // Matrix modelview.
+  GLint uni_gltab_nm;                   // Matrix de normais.
+  GLint uni_gltab_prm;                  // Matrix projecao.
+  // Atributos do vertex shader.
+  GLint atr_gltab_vertice;
+  GLint atr_gltab_normal;
+  GLint atr_gltab_cor;
+  GLint atr_gltab_texel;
+};
+
 // Depende de plataforma.
 struct ContextoDependente {
   virtual ~ContextoDependente() {}
@@ -472,7 +502,7 @@ Contexto* BuscaContexto();
 
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
-void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
+void FinalizaShaders(GLuint programa, GLuint vs, GLuint fs);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
 
