@@ -10,6 +10,9 @@
 #include "gltab/gl.h"
 #include "log/log.h"
 
+using gl::interno::TSH_LUZ;
+using gl::interno::TSH_SIMPLES;
+
 namespace gl {
 
 namespace interno {
@@ -71,8 +74,10 @@ void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
 #endif
-  interno::FinalizaShaders(g_contexto.programa_luz, g_contexto.vs, g_contexto.fs);
-  interno::FinalizaShaders(g_contexto.programa_simples, g_contexto.vs_simples, g_contexto.fs_simples);
+  interno::FinalizaShaders(
+      g_contexto.shaders[TSH_LUZ].programa, g_contexto.shaders[TSH_LUZ].vs, g_contexto.shaders[TSH_LUZ].fs);
+  interno::FinalizaShaders(
+      g_contexto.shaders[TSH_SIMPLES].programa, g_contexto.shaders[TSH_SIMPLES].vs, g_contexto.shaders[TSH_SIMPLES].fs);
 }
 
 namespace interno {
@@ -173,7 +178,7 @@ void MudaCor(float r, float g, float b, float a) {
 
 GLint Uniforme(const char* id) {
 #if USAR_SHADER
-  GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
+  GLint ret = glGetUniformLocation(g_contexto.shaders[TSH_LUZ].programa, id);
   if (ret == -1) {
     LOG_EVERY_N(INFO, 100) << "Uniforme nao encontrada: " << id;
   }

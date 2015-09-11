@@ -427,6 +427,8 @@ namespace interno {
 
 // Variaveis de shaders.
 struct VarShader {
+  const char* nome;  // Nome para o programa, depuracao apenas.
+
   // Shader.
   GLuint programa;
   GLuint vs;
@@ -455,23 +457,27 @@ struct VarShader {
   GLint atr_gltab_texel;
 };
 
+// Usado para indexar os shaders.
+enum TipoShader {
+  TSH_LUZ = 0,
+  TSH_SIMPLES = 1,
+  TSH_NUM,  // numero de shaders.
+};
+
 // Depende de plataforma.
 struct ContextoDependente {
   virtual ~ContextoDependente() {}
 };
+
+// Contexto comum.
 class Contexto {
  public:
-  Contexto(ContextoDependente* cd) : interno(cd) {}
+  Contexto(ContextoDependente* cd) : shaders(TSH_NUM), interno(cd) {}
   ~Contexto() {}
 
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
-  // Shader.
-  GLuint programa_luz;
-  GLuint vs;
-  GLuint fs;
-  GLuint programa_simples;
-  GLuint vs_simples;
-  GLuint fs_simples;
+
+  std::vector<VarShader> shaders;
   // Variaveis uniformes dos shaders.
   GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente. Alfa indica se iluminacao geral esta ligada.
   GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
@@ -490,13 +496,14 @@ class Contexto {
   GLint atr_gltab_normal;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
-  std::unique_ptr<ContextoDependente> interno;
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
   std::stack<Matrix4> pilha_mvm;
   std::stack<Matrix4> pilha_prj;
   std::stack<Matrix4>* pilha_corrente = nullptr;
   Matrix3 matriz_normal;  // Computada da mvm corrente.
+
+  std::unique_ptr<ContextoDependente> interno;
 };
 Contexto* BuscaContexto();
 
