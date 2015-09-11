@@ -296,11 +296,11 @@ void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
   contexto->pilha_corrente = &contexto->pilha_mvm;
 }
 
-void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs) {
+void FinalizaShaders(GLuint programa, GLuint vs, GLuint fs) {
 #if USAR_SHADER
-  glDetachShader(programa_luz, vs);
-  glDetachShader(programa_luz, fs);
-  glDeleteProgram(programa_luz);
+  glDetachShader(programa, vs);
+  glDetachShader(programa, fs);
+  glDeleteProgram(programa);
   glDeleteShader(vs);
   glDeleteShader(fs);
 #endif

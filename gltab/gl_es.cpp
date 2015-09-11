@@ -76,6 +76,7 @@ void IniciaGl(int* argcp, char** argv) {
 
 void FinalizaGl() {
   interno::FinalizaShaders(g_contexto.programa_luz, g_contexto.vs, g_contexto.fs);
+  interno::FinalizaShaders(g_contexto.programa_simples, g_contexto.vs_simples, g_contexto.fs_simples);
 }
 
 void InicioCena() {
