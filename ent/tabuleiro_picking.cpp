@@ -32,6 +32,9 @@ namespace ent {
 // basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
+#if USAR_SHADER
+  gl::ShaderSimples();
+#endif
   // inicia o buffer de picking (selecao)
   gl::BufferSelecao(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0

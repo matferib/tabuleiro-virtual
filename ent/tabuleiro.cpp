@@ -393,6 +393,10 @@ void Tabuleiro::ConfiguraOlhar() {
 }
 
 void Tabuleiro::Desenha() {
+#if USAR_SHADER
+  gl::ShaderLuz();
+#endif
+
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
@@ -1946,9 +1950,6 @@ void Tabuleiro::DesenhaCena() {
                  proto_corrente_->luz_ambiente().a());
   gl::Limpa(GL_DEPTH_BUFFER_BIT);
 
-#if USAR_SHADER
-  gl::ShaderLuz();
-#endif
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
@@ -2093,6 +2094,10 @@ void Tabuleiro::DesenhaCena() {
   // DESENHOS 2D.
   //-------------
   gl::Desabilita(GL_FOG);
+#if USAR_SHADER
+  gl::ShaderSimples();
+#endif
+
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
