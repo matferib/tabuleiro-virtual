@@ -894,7 +894,7 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
   vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
   vbo.Concatena(vbo_disco);
   char nome[50];
-  snprintf(nome, 49, "livre:%lup", pontos.size());
+  snprintf(nome, 49, "livre:%lup", (unsigned long)pontos.size());
   vbo.Nomeia(nome);
   return vbo;
 }
