@@ -478,24 +478,6 @@ class Contexto {
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
 
   std::vector<VarShader> shaders;
-  // Variaveis uniformes dos shaders.
-  GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente. Alfa indica se iluminacao geral esta ligada.
-  GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
-  GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional ().
-  GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
-  GLint uni_gltab_textura;              // Ha textura: 1, nao ha: 0.
-  GLint uni_gltab_unidade_textura;
-  GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
-  GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
-  GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
-  GLint uni_gltab_mvm;                  // Matrix modelview.
-  GLint uni_gltab_nm;                   // Matrix de normais.
-  GLint uni_gltab_prm;                  // Matrix projecao.
-  // Atributos do vertex shader.
-  GLint atr_gltab_vertice;
-  GLint atr_gltab_normal;
-  GLint atr_gltab_cor;
-  GLint atr_gltab_texel;
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
   std::stack<Matrix4> pilha_mvm;
@@ -506,10 +488,11 @@ class Contexto {
   std::unique_ptr<ContextoDependente> interno;
 };
 Contexto* BuscaContexto();
+inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
 
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
-void FinalizaShaders(GLuint programa, GLuint vs, GLuint fs);
+void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
 
@@ -519,6 +502,5 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
 }  // namespace interno
 
 }  // namespace gl
-
 
 #endif  // GL_GL_H

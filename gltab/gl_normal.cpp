@@ -74,10 +74,8 @@ void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
 #endif
-  interno::FinalizaShaders(
-      g_contexto.shaders[TSH_LUZ].programa, g_contexto.shaders[TSH_LUZ].vs, g_contexto.shaders[TSH_LUZ].fs);
-  interno::FinalizaShaders(
-      g_contexto.shaders[TSH_SIMPLES].programa, g_contexto.shaders[TSH_SIMPLES].vs, g_contexto.shaders[TSH_SIMPLES].fs);
+  interno::FinalizaShaders(g_contexto.shaders[TSH_LUZ]);
+  interno::FinalizaShaders(g_contexto.shaders[TSH_SIMPLES]);
 }
 
 namespace interno {
@@ -170,7 +168,7 @@ void Desabilita(GLenum cap) {
 
 void MudaCor(float r, float g, float b, float a) {
 #if USAR_SHADER
-  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, r, g, b, a);
+  glVertexAttrib4f(interno::BuscaShader(TSH_LUZ).atr_gltab_cor, r, g, b, a);
 #else
   glColor4f(r, g, b, a);
 #endif
