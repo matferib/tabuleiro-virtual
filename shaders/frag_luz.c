@@ -80,7 +80,11 @@ void main() {
     cor_final *= clamp(cor_luz, 0.0, 1.0);
   }
 
-  cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
+  // Ipad da pau usando o mix.
+  //cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
+  if (gltab_textura > 0.0) {
+    cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
+  }
   //lowp float cor = (cor_final.r + cor_final.g + cor_final.b) / 3.0;
   //cor_final = vec4(cor, cor, cor, cor_final.a);
 
