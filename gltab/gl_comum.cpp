@@ -415,7 +415,6 @@ bool LuzPorVertice(int argc, const char* const* argv) {
 #if !USAR_OPENGL_ES
   return FLAGS_luz_por_vertice;
 #else
-  return true;
   for (int i = 0; i < argc; ++i) {
     if (std::string(argv[i]) == "--luz_por_vertice") {
       return true;
