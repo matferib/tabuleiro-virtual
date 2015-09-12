@@ -1946,6 +1946,9 @@ void Tabuleiro::DesenhaCena() {
                  proto_corrente_->luz_ambiente().a());
   gl::Limpa(GL_DEPTH_BUFFER_BIT);
 
+#if USAR_SHADER
+  gl::ShaderLuz();
+#endif
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }

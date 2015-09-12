@@ -14,6 +14,7 @@ DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice."
 #endif
 
 using gl::interno::TSH_LUZ;
+using gl::interno::TSH_SIMPLES;
 
 // Comum.
 namespace gl {
@@ -292,7 +293,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
     print_uniforms(ds.shader->programa);
     LOG(INFO) << "Programa shaders '" << ds.nome_programa.c_str() << "' iniciado com sucesso";
   }
-  glUseProgram(contexto->shaders[TSH_LUZ].programa);
+  ShaderLuz();
   V_ERRO("usando programa shader");
 }
 
@@ -513,7 +514,7 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaShader(TSH_LUZ).atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
+  glVertexAttribPointer(interno::BuscaShader().atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
 #else
   glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
@@ -537,7 +538,7 @@ void Normal(GLfloat x, GLfloat y, GLfloat z) {
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaShader(TSH_LUZ).atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+  glVertexAttribPointer(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
 #else
   glColorPointer(num_componentes, GL_FLOAT, passo, cores);
 #endif
@@ -545,7 +546,7 @@ void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
 #if USAR_SHADER
-  glVertexAttribPointer(interno::BuscaShader(TSH_LUZ).atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  glVertexAttribPointer(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
 #else
   glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
 #endif
@@ -571,7 +572,7 @@ bool EstaHabilitado(GLenum cap) {
     return cor[3] > 0;
   } else if (cap == GL_TEXTURE_2D) {
     GLfloat fret;
-    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, interno::BuscaShader(TSH_LUZ).uni_gltab_textura, &fret);
+    glGetUniformfv(contexto->shaders[TSH_LUZ].programa, interno::BuscaShader().uni_gltab_textura, &fret);
     return fret;
   } else if (cap == GL_FOG) {
     GLint uniforme = interno::BuscaShader(TSH_LUZ).uni_gltab_nevoa_cor;
@@ -836,13 +837,13 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
 void HabilitaEstadoCliente(GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_VERTEX_ARRAY) {
-    glEnableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_vertice);
+    glEnableVertexAttribArray(interno::BuscaShader().atr_gltab_vertice);
   } else if (cap == GL_NORMAL_ARRAY) {
-    glEnableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_normal);
+    glEnableVertexAttribArray(interno::BuscaShader().atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    glEnableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_cor);
+    glEnableVertexAttribArray(interno::BuscaShader().atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    glEnableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_texel);
+    glEnableVertexAttribArray(interno::BuscaShader().atr_gltab_texel);
   } else {
     glEnableClientState(cap);
   }
@@ -854,13 +855,13 @@ void HabilitaEstadoCliente(GLenum cap) {
 void DesabilitaEstadoCliente(GLenum cap) {
 #if USAR_SHADER
   if (cap == GL_VERTEX_ARRAY) {
-    glDisableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_vertice);
+    glDisableVertexAttribArray(interno::BuscaShader().atr_gltab_vertice);
   } else if (cap == GL_NORMAL_ARRAY) {
-    glDisableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_normal);
+    glDisableVertexAttribArray(interno::BuscaShader().atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    glDisableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_cor);
+    glDisableVertexAttribArray(interno::BuscaShader().atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    glDisableVertexAttribArray(interno::BuscaShader(TSH_LUZ).atr_gltab_texel);
+    glDisableVertexAttribArray(interno::BuscaShader().atr_gltab_texel);
   } else {
     glDisableClientState(cap);
   }
@@ -870,12 +871,26 @@ void DesabilitaEstadoCliente(GLenum cap) {
 }
 
 #if USAR_SHADER
+void ShaderLuz() {
+  auto* c = interno::BuscaContexto();
+  glUseProgram(c->shaders[TSH_LUZ].programa);
+  c->shader_corrente = &c->shaders[TSH_LUZ];
+}
+
+void ShaderSimples() {
+  auto* c = interno::BuscaContexto();
+  glUseProgram(c->shaders[TSH_SIMPLES].programa);
+  c->shader_corrente = &c->shaders[TSH_SIMPLES];
+}
+
 void AtualizaMatrizesNovo() {
   auto* c = interno::BuscaContexto();
   bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
-  GLuint mloc = modo_mv ? interno::BuscaShader(TSH_LUZ).uni_gltab_mvm : interno::BuscaShader(TSH_LUZ).uni_gltab_prm;
+  const interno::VarShader& shader = interno::BuscaShader();
+  bool shader_luz = (&shader == &c->shaders[TSH_LUZ]);
+  GLuint mloc = modo_mv ? shader.uni_gltab_mvm : shader.uni_gltab_prm;
   glUniformMatrix4fv(mloc, 1, false, c->pilha_corrente->top().get());
-  if (!modo_mv) {
+  if (!modo_mv || !shader_luz) {
     return;
   }
 
