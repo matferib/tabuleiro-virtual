@@ -157,6 +157,11 @@ inline void InicioCena() {}
 void InicioCena();
 #endif
 
+#if USAR_SHADER
+void ShaderLuz();
+void ShaderSimples();
+#endif
+
 /** Funcoes gerais. */
 bool EstaHabilitado(GLenum cap);
 void Habilita(GLenum cap);
@@ -478,6 +483,7 @@ class Contexto {
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
 
   std::vector<VarShader> shaders;
+  VarShader* shader_corrente = nullptr;  // Aponta para o shader corrente.
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
   std::stack<Matrix4> pilha_mvm;
@@ -489,6 +495,7 @@ class Contexto {
 };
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
+inline const VarShader& BuscaShader() { return *BuscaContexto()->shader_corrente; }
 
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
