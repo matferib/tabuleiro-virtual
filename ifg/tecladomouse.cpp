@@ -277,7 +277,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       }
       break;
     case Tecla_D:
-      if (modificadores == (Modificador_Ctrl | Modificador_Alt)) {
+      if (modificadores == (Modificador_Ctrl/* | Modificador_Alt*/)) {
         tabuleiro_->AlternaModoDebug();
         return;
       }

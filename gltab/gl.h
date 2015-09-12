@@ -421,9 +421,6 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
   glStencilOp(falha_stencil, falha_profundidade, sucesso);
 }
 
-/** Uniforms. */
-GLint Uniforme(const char* id);
-
 /** debugging. */
 void AlternaModoDebug();
 
@@ -496,6 +493,10 @@ class Contexto {
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
 inline const VarShader& BuscaShader() { return *BuscaContexto()->shader_corrente; }
+inline bool UsandoShaderLuz() {
+  auto* c = BuscaContexto();
+  return c->shader_corrente == &c->shaders[TSH_LUZ];
+}
 
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);

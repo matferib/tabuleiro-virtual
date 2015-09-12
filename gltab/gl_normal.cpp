@@ -168,21 +168,9 @@ void Desabilita(GLenum cap) {
 
 void MudaCor(float r, float g, float b, float a) {
 #if USAR_SHADER
-  glVertexAttrib4f(interno::BuscaShader(TSH_LUZ).atr_gltab_cor, r, g, b, a);
+  glVertexAttrib4f(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
 #else
   glColor4f(r, g, b, a);
-#endif
-}
-
-GLint Uniforme(const char* id) {
-#if USAR_SHADER
-  GLint ret = glGetUniformLocation(g_contexto.shaders[TSH_LUZ].programa, id);
-  if (ret == -1) {
-    LOG_EVERY_N(INFO, 100) << "Uniforme nao encontrada: " << id;
-  }
-  return ret;
-#else
-  return -1;
 #endif
 }
 

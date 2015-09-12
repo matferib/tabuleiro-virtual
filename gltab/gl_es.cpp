@@ -201,7 +201,7 @@ void CarregaNome(GLuint id) {
           << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
   // Muda a cor para a mapeada.
 #if USAR_SHADER
-  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+  glVertexAttrib4f(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
 #else
   glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 #endif
@@ -230,7 +230,7 @@ void MudaCor(float r, float g, float b, float a) {
   // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
   //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
 #if USAR_SHADER
-  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, r, g, b, a);
+  glVertexAttrib4f(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
 #else
   glColor4f(r, g, b, a);
 #endif
