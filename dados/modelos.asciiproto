@@ -7,6 +7,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Bulette'
+  entidade {
+    dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
+  }
+}
+modelo {
   id: 'Demônio Bebilith'
   entidade {
     dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
@@ -46,7 +53,24 @@ modelo {
 }
 modelo {
   id : 'Drow'
-  entidade { dados_vida: '1d8' cor { r: 0.1 g: 0.1 b: 0.1 } info_textura { id: 'drow.png' } }
+  entidade {
+    dados_vida: '1d8' cor { r: 0.1 g: 0.1 b: 0.1 } info_textura { id: 'drow.png' }
+    rotulo_especial: 'ini: +1\nat: rapier +3 dano: 1d6+1\nat: +2 besta mao: 1d4\nca: 16'
+  }
+}
+modelo {
+  id : 'Drow Sargento 3'
+  entidade {
+    dados_vida: '3d8' cor { r: 0.2 g: 0.2 b: 0.2 } info_textura { id: 'drow.png' }
+    rotulo_especial: 'ini: +1\nat: rapier +5 dano: 1d6+1\nat: +4 besta mao: 1d4\nca: 16'
+  }
+}
+modelo {
+  id : 'Drow Lider 6'
+  entidade {
+    dados_vida: '6d8+6' cor { r: 0.3 g: 0.3 b: 0.3 } info_textura { id: 'drow.png' }
+    rotulo_especial: 'ini: +2\nat: rapier +8/+3 dano: 1d6+2\nat: +7 besta mao: 1d4\nca: 20'
+  }
 }
 modelo {
   id: 'Elemental do Ar (Pequeno)'
@@ -54,7 +78,10 @@ modelo {
 }
 modelo {
   id : 'Elfo'
-  entidade { dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' } }
+  entidade {
+    dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' }
+    rotulo_especial: 'ini: +1\nat: espada +2 dano: 1d8+1\nat: +3 arco dano: 1d8\nca: 15'
+  }
 }
 modelo {
   id: 'Enxame (centopéias)'
@@ -176,6 +203,13 @@ modelo {
 modelo {
   id: 'Uivante'
   entidade { dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+}
+modelo {
+  id: 'Urso-Coruja'
+  entidade {
+    dados_vida: '5d10+25' tamanho: TM_GRANDE info_textura { id: 'owlbear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    rotulo_especial: 'ini: +1\nat: 2 garras +9 1d6+5\nat: mordida +4 1d8+2\nca: 15'
+  }
 }
 modelo {
   id: 'Urso Marrom'

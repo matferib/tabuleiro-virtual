@@ -6,6 +6,11 @@ sub_menu {
   modelo { id: 'Demônio Flecha' texto: 'Flecha' }
 }
 modelo { id: 'Dragontino' }
+sub_menu {
+  id: 'Drows'
+  modelo { id: 'Sniper Drow' }
+  modelo { id: 'Sacerdotiza Drow' }
+}
 modelo { id: 'Garra de Ossos' }
 modelo { id: 'Gigante da Montanha' }
 modelo { id: 'Morcego (Caçador Noturno)' }

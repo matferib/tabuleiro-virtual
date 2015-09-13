@@ -16,6 +16,21 @@ modelo {
 	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
 modelo {
+  id: 'Sniper Drow'  # MM4 pg 56
+  entidade {
+    dados_vida: '6d10+6' info_textura { id: 'drow_dark_sniper.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini + 6\nat: arco +10 1d8+2\nat: rapier +6 1d6+1 + veneno\nca19'
+  }
+}
+modelo {
+  id: 'Sacerdotiza Drow'  # MM4 pg 57
+  entidade {
+    dados_vida: '8d8+16' info_textura { id: 'drow_priestess.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini: +3\nat: +7/+2 maca 1d6+1\nac: 22'
+  }
+}
+
+modelo {
   id: 'Garra de Ossos'  # Manual dos monstros 3.
   entidade { dados_vida: '10d12+40' tamanho: TM_GRANDE info_textura { id: 'boneclaw.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
 }
