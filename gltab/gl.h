@@ -227,10 +227,10 @@ inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); 
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
-inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glShaderInfoLog(shader, maxLength, length, infolog); }
+inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glGetShaderInfoLog(shader, maxLength, length, infoLog); }
 inline void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) { glGetShaderiv(shader, pname, params); }
 inline void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) { glGetProgramiv(program, pname, params); }
-GLint LocalUniforme(GLuint program, const GLchar *name) { return glUniformLocation(program, name); }
+inline GLint LocalUniforme(GLuint program, const GLchar *name) { return glGetUniformLocation(program, name); }
 inline void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) { glVertexAttrib4f(index, v0, v1, v2, v3); }
 inline void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2) { glVertexAttrib3f(index, v0, v1, v2); }
 inline void HabilitaVetorAtributosVertice(GLuint index) { glEnableVertexAttribArray(index); }
@@ -241,7 +241,7 @@ inline void Uniforme(GLint location, GLfloat v0, GLfloat v1) { glUniform2f(locat
 inline void Uniforme(GLint location, GLfloat v0) { glUniform1f(location, v0); }
 inline void Uniforme(GLint location, GLint v0) { glUniform1i(location, v0); }
 inline void LeUniforme(GLuint program, GLint location, GLfloat* params) { glGetUniformfv(program, location, params); }
-inline void LeUniforme(GLuint program, GLint location, GLint* params) { glGetUniformfi(program, location, params); }
+inline void LeUniforme(GLuint program, GLint location, GLint* params) { glGetUniformiv(program, location, params); }
 inline GLuint CriaShader(GLenum shaderType) { return glCreateShader(shaderType); }
 inline void DestroiShader(GLuint shader) { glDeleteShader(shader); }
 inline void CompilaShader(GLuint shader) { glCompileShader(shader); }
