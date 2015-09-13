@@ -393,6 +393,10 @@ void Tabuleiro::ConfiguraOlhar() {
 }
 
 void Tabuleiro::Desenha() {
+#if USAR_SHADER
+  gl::ShaderLuz();
+#endif
+
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
@@ -1944,7 +1948,7 @@ void Tabuleiro::DesenhaCena() {
                  proto_corrente_->luz_ambiente().g(),
                  proto_corrente_->luz_ambiente().b(),
                  proto_corrente_->luz_ambiente().a());
-  gl::Limpa(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  gl::Limpa(GL_DEPTH_BUFFER_BIT);
 
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -1972,7 +1976,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando luzes");
 
-  if (!parametros_desenho_.has_picking_x() && parametros_desenho_.desenha_texturas() && proto_corrente_->has_info_textura_ceu()) {
+  if (!parametros_desenho_.has_picking_x()) {
     DesenhaCaixaCeu();
   }
   V_ERRO("desenhando caixa do ceu");
@@ -2073,9 +2077,11 @@ void Tabuleiro::DesenhaCena() {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);
+      gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
       // Desenha os translucidos de forma solida para picking.
@@ -2088,6 +2094,10 @@ void Tabuleiro::DesenhaCena() {
   // DESENHOS 2D.
   //-------------
   gl::Desabilita(GL_FOG);
+#if USAR_SHADER
+  gl::ShaderSimples();
+#endif
+
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
   }
@@ -4251,6 +4261,28 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::DesenhaLuzes() {
+  // Entidade de referencia para camera presa.
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  if (entidade_referencia != nullptr) {
+    parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
+  }
+
+  if (parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
+      (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
+    gl::Habilita(GL_FOG);
+    float pos[4] = { 0, 0, 0, 1 };
+    // So funciona com shader.
+    const Posicao& epos = entidade_referencia->Pos();
+    pos[0] = epos.x();
+    pos[1] = epos.y();
+    pos[2] = epos.z();
+    gl::Nevoa(10.0, 10.0, 0, 0, 0, pos);
+    parametros_desenho_.clear_iluminacao();
+    gl::Desabilita(GL_LIGHTING);
+    return;
+  }
+
   GLfloat cor_luz_ambiente[] = { proto_corrente_->luz_ambiente().r(),
                                  proto_corrente_->luz_ambiente().g(),
                                  proto_corrente_->luz_ambiente().b(),
@@ -4282,21 +4314,13 @@ void Tabuleiro::DesenhaLuzes() {
     gl::Habilita(GL_LIGHT0);
   }
 
-  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
-  if (camera_presa_) {
-    auto* e = BuscaEntidade(id_camera_presa_);
-    if (e != nullptr) {
-      parametros_desenho_.set_tipo_visao(e->Proto().tipo_visao());
-    }
-  }
   if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
-    float pos[4] = { 0, 0, 0, 1 };
-    auto* e = BuscaEntidade(id_camera_presa_);
-    if (e != nullptr) {
+    float pos[4] = { olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), 1 };
+    if (entidade_referencia != nullptr) {
       // So funciona com shader.
-      const Posicao& epos = e->Pos();
+      const Posicao& epos = entidade_referencia->Pos();
       pos[0] = epos.x();
       pos[1] = epos.y();
       pos[2] = epos.z();
@@ -4319,10 +4343,6 @@ void Tabuleiro::DesenhaLuzes() {
 
 void Tabuleiro::DesenhaCaixaCeu() {
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
-  if (id_textura == GL_INVALID_VALUE) {
-    // Se a textura for invalida, sai aqui e evita um monte de coisas (e bugs tb).
-    return;
-  }
   // Desliga luzes direcionais e pontuais.
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -4333,10 +4353,15 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
   MudaCor(COR_BRANCA);
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FaceNula(GL_FRONT);
-  gl::Habilita(GL_TEXTURE_2D);
-  gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    vbo_caixa_ceu_.forca_texturas(true);
+  } else {
+    vbo_caixa_ceu_.forca_texturas(false);
+  }
   gl::DesenhaVbo(vbo_caixa_ceu_);
   gl::Desabilita(GL_TEXTURE_2D);
   // Religa luzes.

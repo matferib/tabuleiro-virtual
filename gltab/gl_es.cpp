@@ -10,6 +10,9 @@
 #include "gltab/glues.h"
 #include "log/log.h"
 
+using gl::interno::TSH_LUZ;
+using gl::interno::TSH_SIMPLES;
+
 namespace gl {
 
 bool ImprimeSeErro(const char* mais);
@@ -75,7 +78,8 @@ void IniciaGl(int* argcp, char** argv) {
 }
 
 void FinalizaGl() {
-  interno::FinalizaShaders(g_contexto.programa_luz, g_contexto.vs, g_contexto.fs);
+  interno::FinalizaShaders(g_contexto.shaders[TSH_LUZ]);
+  interno::FinalizaShaders(g_contexto.shaders[TSH_SIMPLES]);
 }
 
 void InicioCena() {
@@ -197,7 +201,7 @@ void CarregaNome(GLuint id) {
           << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
   // Muda a cor para a mapeada.
 #if USAR_SHADER
-  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+  glVertexAttrib4f(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
 #else
   glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 #endif
@@ -226,7 +230,7 @@ void MudaCor(float r, float g, float b, float a) {
   // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
   //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
 #if USAR_SHADER
-  glVertexAttrib4f(interno::BuscaContexto()->atr_gltab_cor, r, g, b, a);
+  glVertexAttrib4f(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
 #else
   glColor4f(r, g, b, a);
 #endif
@@ -280,7 +284,7 @@ void AlternaModoDebug() {
 
 GLint Uniforme(const char* id) {
 #if USAR_SHADER
-  GLint ret = glGetUniformLocation(g_contexto.programa_luz, id);
+  GLint ret = glGetUniformLocation(g_contexto.shaders[TSH_LUZ].programa, id);
   if (ret == -1) {
     LOG(INFO) << "Uniforme nao encontrada: " << id;
   }
