@@ -83,8 +83,14 @@ void Entidade::DesenhaObjetoCompostoProto(
   gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0, false);
   gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
   if (!vd.vbos.empty()) {
+    if (pd->has_alfa_translucidos()) {
+      gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    }
     for (const auto& vbo : vd.vbos) {
       gl::DesenhaVbo(vbo);
+    }
+    if (pd->has_alfa_translucidos()) {
+      gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
   } else {
     for (const auto& forma : proto.sub_forma()) {

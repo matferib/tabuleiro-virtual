@@ -6,7 +6,8 @@
 #include <boost/asio.hpp>
 #include <boost/asio/error.hpp>
 #include <memory>
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstdio>
 #include <sys/time.h>
 #include <time.h>
 #include <stdint.h>
@@ -88,9 +89,11 @@ void nativeCreate(void* view) {
   g_carregador.reset(new CarregadorTabuleiro(g_central.get()));
   g_tratador_dialogos.reset(new TratadorDialogos(g_central.get()));
 
-  int* argcp = nullptr;
-  char** argvp = nullptr;
-  gl::IniciaGl(argcp, argvp);
+  int argc = 1;
+  char* argv = new char[100];
+  snprintf(argv, 99, "%s", "--luz_por_vertice");
+  gl::IniciaGl(&argc, &argv);
+  delete[] argv;
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
   

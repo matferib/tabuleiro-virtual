@@ -895,7 +895,7 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
   vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
   vbo.Concatena(vbo_disco);
   char nome[50];
-  snprintf(nome, 49, "livre:%lup", pontos.size());
+  snprintf(nome, 49, "livre:%lup", (unsigned long)pontos.size());
   vbo.Nomeia(nome);
   return vbo;
 }
@@ -906,6 +906,7 @@ void DesenhaVbo(GLenum modo,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
+  //V_ERRO("DesenhaVB0: antes");
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
@@ -921,13 +922,21 @@ void DesenhaVbo(GLenum modo,
   }
 
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
+  //V_ERRO("DesenhaVBO: meio");
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
 
+  //V_ERRO("DesenhaVBO: posmeio");
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
-  gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
-  V_ERRO("DesenhaVBO");
+  if (tem_normais) {
+    gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+  }
+  if (tem_cores) {
+    gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
+  }
+  if (tem_texturas) {
+    gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+  }
+  //V_ERRO("DesenhaVBO: depois");
 }
 
 }  // namespace

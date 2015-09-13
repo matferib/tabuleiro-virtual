@@ -10,6 +10,9 @@
 #include "gltab/gl.h"
 #include "log/log.h"
 
+using gl::interno::TSH_LUZ;
+using gl::interno::TSH_SIMPLES;
+
 namespace gl {
 
 #define INTERNO dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get())
@@ -49,11 +52,11 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglUseProgram;
   PROC pglCreateProgram;
   PROC pglDeleteProgram;
-
   PROC pglGetAttribLocation;
   PROC pglVertexAttribPointer;
   PROC pglUniformMatrix4fv;
   PROC pglUniformMatrix3fv;
+  PROC pglBlendColor;
 #endif
 };
 }  // namespace interno
@@ -80,6 +83,7 @@ void IniciaGl(int* argcp, char** argv) {
   LOG(INFO) << "pegando ponteiros";
   auto* interno = dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get());
   std::string erro;
+  PGL(glBlendColor);
   PGL(glGenBuffers);
   PGL(glDeleteBuffers);
   PGL(glBufferData);
@@ -130,7 +134,8 @@ void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
 #endif
-  interno::FinalizaShaders(g_contexto.programa_luz, g_contexto.vs, g_contexto.fs);
+  interno::FinalizaShaders(g_contexto.shaders[TSH_LUZ]);
+  interno::FinalizaShaders(g_contexto.shaders[TSH_SIMPLES]);
 }
 
 namespace interno {
@@ -184,6 +189,10 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 }  // namespace
 
 #if WIN32
+void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
+  ((PFNGLBLENDCOLORPROC)INTERNO->pglBlendColor)(r, g, b, a);
+}
+
 void GeraBuffers(GLsizei n, GLuint* buffers) {
   ((PFNGLGENBUFFERSPROC)INTERNO->pglGenBuffers)(n, buffers);
 }
@@ -345,21 +354,9 @@ void Desabilita(GLenum cap) {
 
 void MudaCor(float r, float g, float b, float a) {
 #if USAR_SHADER
-  AtributoVertice(interno::BuscaContexto()->atr_gltab_cor, r, g, b, a);
+  AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
 #else
   glColor4f(r, g, b, a);
-#endif
-}
-
-GLint Uniforme(const char* id) {
-#if USAR_SHADER
-  GLint ret = LocalUniforme(g_contexto.programa_luz, id);
-  if (ret == -1) {
-    LOG_EVERY_N(INFO, 100) << "Uniforme nao encontrada: " << id;
-  }
-  return ret;
-#else
-  return -1;
 #endif
 }
 

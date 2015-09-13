@@ -57,16 +57,11 @@
 #define V_ERRO_STRING(e) gluErrorString(e)
 #endif
 #if DEBUG
-#define V_ERRO(X)\
-  do {\
-    auto e = glGetError();\
-    if (e != GL_NO_ERROR) {\
-      LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e);\
-      return;\
-    }\
-  } while (0)
+#define V_ERRO(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return; } } while (0)
+#define V_ERRO_RET(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return false; } } while (0)
 #else
 #define V_ERRO(X)
+#define V_ERRO_RET(X) do { if (glGetError() != GL_NO_ERROR) { return false; } } while (0);
 #endif
 
 namespace gl {
@@ -148,6 +143,11 @@ inline void InicioCena() {}
 void InicioCena();
 #endif
 
+#if USAR_SHADER
+void ShaderLuz();
+void ShaderSimples();
+#endif
+
 /** Funcoes gerais. */
 bool EstaHabilitado(GLenum cap);
 void Habilita(GLenum cap);
@@ -186,6 +186,7 @@ inline void ImagemTextura2d(
 
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
+void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void GeraBuffers(GLsizei n, GLuint* buffers);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
@@ -221,6 +222,7 @@ void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean 
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 #else
+inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
@@ -475,29 +477,24 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
   glStencilOp(falha_stencil, falha_profundidade, sucesso);
 }
 
-/** Uniforms. */
-GLint Uniforme(const char* id);
-
 /** debugging. */
 void AlternaModoDebug();
 
 // Namespace para utilidades internas, nem deveria estar aqui.
 namespace interno {
 
-// Depende de plataforma.
-struct ContextoDependente {
-  virtual ~ContextoDependente() {}
-};
-class Contexto {
- public:
-  Contexto(ContextoDependente* cd) : interno(cd) {}
-  ~Contexto() {}
+// Variaveis de shaders.
+struct VarShader {
+  std::string nome;  // Nome para o programa, depuracao apenas.
 
-  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   // Shader.
-  GLuint programa_luz;
+  GLuint programa;
   GLuint vs;
   GLuint fs;
+  GLuint programa_simples;
+  GLuint vs_simples;
+  GLuint fs_simples;
+
   // Variaveis uniformes dos shaders.
   GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente. Alfa indica se iluminacao geral esta ligada.
   GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
@@ -516,19 +513,50 @@ class Contexto {
   GLint atr_gltab_normal;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
-  std::unique_ptr<ContextoDependente> interno;
+};
+
+// Usado para indexar os shaders.
+enum TipoShader {
+  TSH_LUZ = 0,
+  TSH_SIMPLES = 1,
+  TSH_NUM,  // numero de shaders.
+};
+
+// Depende de plataforma.
+struct ContextoDependente {
+  virtual ~ContextoDependente() {}
+};
+
+// Contexto comum.
+class Contexto {
+ public:
+  Contexto(ContextoDependente* cd) : shaders(TSH_NUM), interno(cd) {}
+  ~Contexto() {}
+
+  bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
+
+  std::vector<VarShader> shaders;
+  VarShader* shader_corrente = nullptr;  // Aponta para o shader corrente.
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
   std::stack<Matrix4> pilha_mvm;
   std::stack<Matrix4> pilha_prj;
   std::stack<Matrix4>* pilha_corrente = nullptr;
   Matrix3 matriz_normal;  // Computada da mvm corrente.
+
+  std::unique_ptr<ContextoDependente> interno;
 };
 Contexto* BuscaContexto();
+inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
+inline const VarShader& BuscaShader() { return *BuscaContexto()->shader_corrente; }
+inline bool UsandoShaderLuz() {
+  auto* c = BuscaContexto();
+  return c->shader_corrente == &c->shaders[TSH_LUZ];
+}
 
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
-void FinalizaShaders(GLuint programa_luz, GLuint vs, GLuint fs);
+void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
 
@@ -538,6 +566,5 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
 }  // namespace interno
 
 }  // namespace gl
-
 
 #endif  // GL_GL_H
