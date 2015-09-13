@@ -5,6 +5,12 @@ modelo { id: 'Carneçal' }
 modelo { id: 'Carniçal' }
 modelo { id: 'Centopéia Imensa' }
 sub_menu {
+  id: 'Animais'
+  modelo { id: 'Urso Marrom' }
+  modelo { id: 'Urso Negro' }
+}
+
+sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
   modelo { id: 'Demônio Vrock' texto: 'Vrock' }
@@ -12,8 +18,16 @@ sub_menu {
   modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
   modelo { id: 'Demônio Súcubo' texto: 'Súcubo' }
 }
+sub_menu {
+  id: 'Drows'
+  modelo { id: 'Drow' }
+}
 modelo { id: 'Elemental do Ar (Pequeno)' }
 modelo { id: 'Enxame (centopéias)' }
+sub_menu {
+  id: 'Elfos'
+  modelo { id: 'Elfo' }
+}
 sub_menu {
   id: 'Esqueletos'
   modelo { id: 'Esqueleto (Humano Combatente)' }
@@ -44,6 +58,10 @@ sub_menu {
   modelo { id: 'Orc Sargento' }
   modelo { id: 'Orc Tenente' }
   modelo { id: 'Orc Capitão' }
+}
+sub_menu {
+  id: 'Plantas'
+  modelo { id: 'Arbusto Errante' }
 }
 modelo { id: 'Troll' }
 modelo { id: 'Uivante' }

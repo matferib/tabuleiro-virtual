@@ -45,8 +45,16 @@ modelo {
   entidade { dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 } }
 }
 modelo {
+  id : 'Drow'
+  entidade { dados_vida: '1d8' cor { r: 0.1 g: 0.1 b: 0.1 } info_textura { id: 'drow.png' } }
+}
+modelo {
   id: 'Elemental do Ar (Pequeno)'
   entidade { dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 } }
+}
+modelo {
+  id : 'Elfo'
+  entidade { dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' } }
 }
 modelo {
   id: 'Enxame (centopéias)'
@@ -155,6 +163,13 @@ modelo {
   entidade { dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 } }
 }
 modelo {
+  id: 'Arbusto Errante'
+  entidade {
+    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
+    rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
+  }
+}
+modelo {
   id: 'Troll'
   entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
 }
@@ -162,6 +177,21 @@ modelo {
   id: 'Uivante'
   entidade { dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
 }
+modelo {
+  id: 'Urso Marrom'
+  entidade {
+    dados_vida: '6d8+24' tamanho: TM_GRANDE info_textura { id: 'brown_bear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    rotulo_especial: 'ini: +1\nat: 2x +11 1d8+8 +6 2d6+4\nca: 15'
+  }
+}
+modelo {
+  id: 'Urso Negro'
+  entidade {
+    dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini: +1\nat: 2x +6 1d4+4 +1 1d6+2\nca: 13'
+  }
+}
+
 modelo {
   id: 'Zumbi (humano)'
   entidade { dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
