@@ -267,7 +267,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
-  opcoes_.set_mostra_fps(true);  // TODO temp.
+  //opcoes_.set_mostra_fps(true);  // TODO temp.
 
   //EstadoInicial();
 #if USAR_WATCHDOG

@@ -9,7 +9,7 @@ sub_menu {
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
-
+modelo { id: 'Bulette' }
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
@@ -21,6 +21,8 @@ sub_menu {
 sub_menu {
   id: 'Drows'
   modelo { id: 'Drow' }
+  modelo { id: 'Drow Sargento 3' }
+  modelo { id: 'Drow Lider 6' }
 }
 modelo { id: 'Elemental do Ar (Pequeno)' }
 modelo { id: 'Enxame (centopéias)' }
