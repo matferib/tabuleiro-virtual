@@ -171,11 +171,13 @@ class Texturas::InfoTexturaInterna {
       return;
     }
     gl::GeraTexturas(1, &id_);
+    V_ERRO("GeraTexturas");
     VLOG(1) << "Criando textura para: " << imagem_.id() << ", id openGL: " << id_;
     if (id_ == GL_INVALID_VALUE) {
       throw std::logic_error("Erro criando textura (glGenTextures)");
     }
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_);
+    V_ERRO("Ligacao");
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -185,6 +187,7 @@ class Texturas::InfoTexturaInterna {
                         largura_, altura_,
                         0, FormatoImagem(), TipoImagem(),
                         bits_.data());
+    V_ERRO("Imagem");
 #if !WIN32
     // Tem que fazer o wrapper.
     glGenerateMipmap(GL_TEXTURE_2D);
