@@ -25,7 +25,7 @@ struct ContextoDesktop : public ContextoDependente {
 
   PROC pglGetShaderiv;
   PROC pglGetShaderInfoLog;
-  PROC pglGetProgram;
+  PROC pglGetProgramiv;
   PROC pglGetActiveUniform;
   PROC pglGetUniformLocation;
   PROC pglVertexAttrib4f;
@@ -76,34 +76,20 @@ void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
 #if WIN32
 #define PGL_ERRO(x) if (interno->x == nullptr) { erro = "null"#x; }
-#define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null"#x; } } while (0)
+#define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null "#x; } } while (0)
   LOG(INFO) << "pegando ponteiros";
   auto* interno = dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get());
-  interno->pglGenBuffers = wglGetProcAddress("glGenBuffers");
   std::string erro;
-  if (interno->pglGenBuffers == nullptr) {
-    erro = "null glGenBuffers";
-  }
-  interno->pglDeleteBuffers = wglGetProcAddress("glDeleteBuffers");
-  if (interno->pglDeleteBuffers == nullptr) {
-    erro = "null glDeleteBuffers";
-  }
-  interno->pglBufferData = wglGetProcAddress("glBufferData");
-  if (interno->pglBufferData == nullptr) {
-    erro = "null glBufferData";
-  }
-  interno->pglBindBuffer = wglGetProcAddress("glBindBuffer");
-  if (interno->pglBindBuffer == nullptr) {
-    erro = "null glBindBuffer";
-  }
-  
+  PGL(glGenBuffers);
+  PGL(glDeleteBuffers);
+  PGL(glBufferData);
+  PGL(glBindBuffer);
   PGL(glGetAttribLocation);
   PGL(glVertexAttrib4f);
   PGL(glVertexAttrib3f);
   PGL(glVertexAttribPointer);
   PGL(glUniformMatrix4fv);
   PGL(glUniformMatrix3fv);
-
   PGL(glCreateShader);
   PGL(glDeleteShader);
   PGL(glCompileShader);
@@ -114,44 +100,25 @@ void IniciaGl(int* argcp, char** argv) {
   PGL(glUseProgram);
   PGL(glCreateProgram);
   PGL(glDeleteProgram);
-
-  interno->pglGetUniformfv = wglGetProcAddress("glGetUniformfv");
-  PGL_ERRO(pglGetUniformfv);
-  interno->pglGetUniformiv = wglGetProcAddress("glGetUniformfi");
-  PGL_ERRO(pglGetUniformiv);
-  interno->pglUniform4f = wglGetProcAddress("glUniform4f");
-  PGL_ERRO(pglUniform4f);
-  interno->pglUniform3f = wglGetProcAddress("glUniform3f");
-  PGL_ERRO(pglUniform3f);
-  interno->pglUniform2f = wglGetProcAddress("glUniform2f");
-  PGL_ERRO(pglUniform2f);
-  interno->pglUniform1f = wglGetProcAddress("glUniform1f");
-  PGL_ERRO(pglUniform1f);
-  interno->pglUniform1i = wglGetProcAddress("glUniform1i");
-  PGL_ERRO(pglUniform1i);
-
-  interno->pglEnableVertexAttribArray = wglGetProcAddress("glEnableVertexAttribArray");
-  PGL_ERRO(pglEnableVertexAttribArray);
-  interno->pglDisableVertexAttribArray = wglGetProcAddress("glDisableVertexAttribArray");
-  PGL_ERRO(pglDisableVertexAttribArray);
-
-  interno->pglVertexAttrib4f = wglGetProcAddress("glVertexAttrib4f");
-  PGL_ERRO(pglVertexAttrib4f);
-  interno->pglVertexAttrib3f = wglGetProcAddress("glVertexAttrib3f");
-  PGL_ERRO(pglVertexAttrib3f);
-
-  interno->pglGetShaderiv =  wglGetProcAddress("glGetShaderiv");
-  PGL_ERRO(pglGetShaderiv);
-  interno->pglGetShaderInfoLog = wglGetProcAddress("glGetShaderInfoLog");
-  PGL_ERRO(pglGetShaderInfoLog);
-  interno->pglGetProgram = wglGetProcAddress("glGetProgram");
-  PGL_ERRO(pglGetProgram);
-  interno->pglGetActiveUniform = wglGetProcAddress("glGetActiveUniform");
-  PGL_ERRO(pglGetActiveUniform);
-  interno->pglGetUniformLocation = wglGetProcAddress("glGetUniformLocation");
-  PGL_ERRO(pglGetUniformLocation);
+  PGL(glGetUniformfv);
+  PGL(glGetUniformiv);
+  PGL(glUniform4f);
+  PGL(glUniform3f);
+  PGL(glUniform2f);
+  PGL(glUniform1f);
+  PGL(glUniform1i);
+  PGL(glEnableVertexAttribArray);
+  PGL(glDisableVertexAttribArray);
+  PGL(glVertexAttrib4f);
+  PGL(glVertexAttrib3f);
+  PGL(glGetShaderiv);
+  PGL(glGetShaderInfoLog);
+  PGL(glGetProgramiv);
+  PGL(glGetActiveUniform);
+  PGL(glGetUniformLocation);
 
   if (!erro.empty()) {
+    LOG(ERROR) << "Erro: " << erro;
     throw std::logic_error(erro);
   }
 #endif
@@ -240,36 +207,47 @@ void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* in
 void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) {
   ((PFNGLGETSHADERIVPROC)INTERNO->pglGetShaderiv)(shader, pname, params);
 }
+
 void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) {
-  ((PFNGLGETPROGRAMIVPROC)INTERNO->pglGetProgram)(program, pname, params);
+  ((PFNGLGETPROGRAMIVPROC)INTERNO->pglGetProgramiv)(program, pname, params);
 }
+
 GLint LocalUniforme(GLuint program, const GLchar *name) {
   return ((PFNGLGETUNIFORMLOCATIONPROC)INTERNO->pglGetUniformLocation)(program, name);
 }
-void  AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) {
+
+void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) {
   ((PFNGLVERTEXATTRIB4FPROC)INTERNO->pglVertexAttrib4f)(index, v0, v1, v2, v3);
 }
+
 void AtributoVertice(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2) {
   ((PFNGLVERTEXATTRIB3FPROC)INTERNO->pglVertexAttrib3f)(index, v0, v1, v2);
 }
+
 void HabilitaVetorAtributosVertice(GLuint index) {
   ((PFNGLENABLEVERTEXATTRIBARRAYPROC)INTERNO->pglEnableVertexAttribArray)(index);
 }
+
 void DesabilitaVetorAtributosVertice(GLuint index) {
   ((PFNGLDISABLEVERTEXATTRIBARRAYPROC)INTERNO->pglDisableVertexAttribArray)(index);
 }
+
 void Uniforme(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) {
   ((PFNGLUNIFORM4FPROC)INTERNO->pglUniform4f)(location, v0, v1, v2, v3);
 }
+
 void Uniforme(GLint location, GLfloat v0, GLfloat v1, GLfloat v2) {
   ((PFNGLUNIFORM3FPROC)INTERNO->pglUniform3f)(location, v0, v1, v2);
 }
+
 void Uniforme(GLint location, GLfloat v0, GLfloat v1) {
   ((PFNGLUNIFORM2FPROC)INTERNO->pglUniform2f)(location, v0, v1);
 }
+
 void Uniforme(GLint location, GLfloat v0) {
   ((PFNGLUNIFORM1FPROC)INTERNO->pglUniform1f)(location, v0);
 }
+
 void Uniforme(GLint location, GLint v0) {
   ((PFNGLUNIFORM1IPROC)INTERNO->pglUniform1i)(location, v0);
 }
@@ -277,36 +255,47 @@ void Uniforme(GLint location, GLint v0) {
 void LeUniforme(GLuint program, GLint location, GLfloat* params) {
   ((PFNGLGETUNIFORMFVPROC)INTERNO->pglGetUniformfv)(program, location, params);
 }
+
 void LeUniforme(GLuint program, GLint location, GLint* params) {
   ((PFNGLGETUNIFORMIVPROC)INTERNO->pglGetUniformiv)(program, location, params);
 }
+
 GLuint CriaShader(GLenum shaderType) {
   return ((PFNGLCREATESHADERPROC)INTERNO->pglCreateShader)(shaderType);
 }
+
 void DestroiShader(GLuint shader) {
   ((PFNGLDELETESHADERPROC)INTERNO->pglDeleteShader)(shader);
 }
+
 void CompilaShader(GLuint shader) {
   ((PFNGLCOMPILESHADERPROC)INTERNO->pglCompileShader)(shader);
 }
+
 void AnexaShader(GLuint program, GLuint shader) {
   ((PFNGLATTACHSHADERPROC)INTERNO->pglAttachShader)(program, shader);
 }
+
 void DesanexaShader(GLuint program, GLuint shader) {
   ((PFNGLDETACHSHADERPROC)INTERNO->pglDetachShader)(program, shader);
 }
+
 void FonteShader(GLuint shader, GLsizei count, const GLchar **s, const GLint *length) {
   ((PFNGLSHADERSOURCEPROC)INTERNO->pglShaderSource)(shader, count, s, length);
 }
+
 void LinkaPrograma(GLuint program) {
   ((PFNGLLINKPROGRAMPROC)INTERNO->pglLinkProgram)(program);
 }
+
 void UsaPrograma(GLuint program) {
   ((PFNGLUSEPROGRAMPROC)INTERNO->pglUseProgram)(program);
 }
+
 GLuint CriaPrograma() {
   return ((PFNGLCREATEPROGRAMPROC)INTERNO->pglCreateProgram)();
 }
+
 
 void DestroiPrograma(GLuint program) {
   ((PFNGLDELETEPROGRAMPROC)INTERNO->pglDeleteProgram)(program);
@@ -315,15 +304,19 @@ void DestroiPrograma(GLuint program) {
 void LeUniformeAtivo(GLuint program, GLuint index, GLsizei bufSize, GLsizei *length, GLint *size, GLenum *type, GLchar *name) {
   ((PFNGLGETACTIVEUNIFORMPROC)INTERNO->pglGetActiveUniform)(program, index, bufSize, length, size, type, name);
 }
+
 GLint LeLocalAtributo(GLuint program, const GLchar* name) {
   return ((PFNGLGETATTRIBLOCATIONPROC)INTERNO->pglGetAttribLocation)(program, name);
 }
+
 void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer) {
   ((PFNGLVERTEXATTRIBPOINTERPROC)INTERNO->pglVertexAttribPointer)(index, size, type, normalized, stride, pointer);
 }
+
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
   ((PFNGLUNIFORMMATRIX3FVPROC)INTERNO->pglUniformMatrix3fv)(location, count, transpose, value);
 }
+
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value) {
   ((PFNGLUNIFORMMATRIX4FVPROC)INTERNO->pglUniformMatrix4fv)(location, count, transpose, value);
 }
