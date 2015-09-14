@@ -187,9 +187,11 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jo
 // Nativos de TabuleiroRenderer.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, jobject thisz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInitGl");
-  int* argcp = nullptr;
-  char** argvp = nullptr;
-  gl::IniciaGl(argcp, argvp);
+  int argc = 1;
+  char* argv = new char[100];
+  snprintf(argv, 99, "%s", "--luz_por_vertice");
+  gl::IniciaGl(&argc, &argv);
+  delete[] argv;
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
 }
