@@ -66,7 +66,7 @@
 
 namespace gl {
 
-// Inicializacao e finalizacao da parte grafica. Inicializacao lanca excecao std::logic_error em caso de erro.
+// Inicializacao e finalizacao da parte grafica. Da excecao em caso de erro.
 void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
@@ -530,7 +530,7 @@ struct ContextoDependente {
 // Contexto comum.
 class Contexto {
  public:
-  Contexto(ContextoDependente* cd) : shaders(TSH_NUM), interno(cd) {}
+  explicit Contexto(ContextoDependente* cd) : shaders(TSH_NUM), interno(cd) {}
   ~Contexto() {}
 
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
@@ -545,6 +545,8 @@ class Contexto {
   Matrix3 matriz_normal;  // Computada da mvm corrente.
 
   std::unique_ptr<ContextoDependente> interno;
+ private:
+  Contexto();
 };
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
