@@ -6,6 +6,7 @@ tabvirt.command
 Texturas e dados:
 texturas/*.png
 dados/*.asciiproto
+shaders/*.c
 
 Os 3 frameworks do Qt, sem headers:
 O esqueleto pode ser encontrado em https://drive.google.com/file/d/0B7clSIFMH9R-NWMzaGJVS1RXd3M/view?usp=sharing (mac_skeleton.tgz).
