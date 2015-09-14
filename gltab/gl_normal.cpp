@@ -12,10 +12,11 @@
 
 using gl::interno::TSH_LUZ;
 using gl::interno::TSH_SIMPLES;
+using gl::interno::BuscaContexto;
 
 namespace gl {
 
-#define INTERNO dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get())
+#define INTERNO dynamic_cast<interno::ContextoDesktop*>(BuscaContexto()->interno.get())
 
 namespace interno {
 struct ContextoDesktop : public ContextoDependente {
@@ -59,15 +60,10 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglBlendColor;
 #endif
 };
-}  // namespace interno
 
-namespace {
-interno::Contexto g_contexto(new interno::ContextoDesktop);
-}  // namespace
-
-namespace interno {
 Contexto* BuscaContexto() {
-    return &g_contexto;
+    static Contexto* g_contexto = new Contexto(new ContextoDesktop);
+    return g_contexto;
 }
 }  // namespace interno
 
@@ -78,10 +74,9 @@ bool ImprimeSeShaderErro(GLuint shader);
 void IniciaGl(int* argcp, char** argv) {
   glutInit(argcp, argv);
 #if WIN32
-#define PGL_ERRO(x) if (interno->x == nullptr) { erro = "null"#x; }
 #define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null "#x; } } while (0)
   LOG(INFO) << "pegando ponteiros";
-  auto* interno = dynamic_cast<interno::ContextoDesktop*>(g_contexto.interno.get());
+  auto* interno = INTERNO;
   std::string erro;
   PGL(glBlendColor);
   PGL(glGenBuffers);
@@ -126,7 +121,7 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), &g_contexto);
+  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), BuscaContexto());
 }
 //#undef V_ERRO
 
@@ -134,8 +129,8 @@ void FinalizaGl() {
 #if WIN32
   // Apagar o contexto_interno
 #endif
-  interno::FinalizaShaders(g_contexto.shaders[TSH_LUZ]);
-  interno::FinalizaShaders(g_contexto.shaders[TSH_SIMPLES]);
+  interno::FinalizaShaders(BuscaContexto()->shaders[TSH_LUZ]);
+  interno::FinalizaShaders(BuscaContexto()->shaders[TSH_SIMPLES]);
 }
 
 namespace interno {
@@ -333,12 +328,12 @@ void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const G
 #endif
 
 void AlternaModoDebug() {
-  g_contexto.depurar_selecao_por_cor = !g_contexto.depurar_selecao_por_cor;
+  BuscaContexto()->depurar_selecao_por_cor = !BuscaContexto()->depurar_selecao_por_cor;
 }
 
 void Habilita(GLenum cap) {
 #if USAR_SHADER
-  interno::HabilitaComShader(&g_contexto, cap);
+  interno::HabilitaComShader(BuscaContexto(), cap);
 #else
   glEnable(cap);
 #endif
@@ -346,7 +341,7 @@ void Habilita(GLenum cap) {
 
 void Desabilita(GLenum cap) {
 #if USAR_SHADER
-  interno::DesabilitaComShader(&g_contexto, cap);
+  interno::DesabilitaComShader(BuscaContexto(), cap);
 #else
   glDisable(cap);
 #endif
