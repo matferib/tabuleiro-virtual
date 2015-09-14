@@ -168,6 +168,8 @@ void Visualizador3d::initializeGL() {
     }
     tabuleiro_->IniciaGL();
   } catch (const std::logic_error& erro) {
+    // Este log de erro eh pro caso da aplicacao morrer e nao conseguir mostrar a mensagem.
+    LOG(ERROR) << "Erro na inicializacao GL " << erro.what();
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro(erro.what());
     central_->AdicionaNotificacao(n);

@@ -303,12 +303,14 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
 
 
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
-#if USAR_SHADER
-  IniciaShaders(luz_por_vertice, contexto);
-#endif
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
+#if USAR_SHADER
+  // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
+  // a mensagem de erro.
+  IniciaShaders(luz_por_vertice, contexto);
+#endif
 }
 
 void FinalizaShaders(const VarShader& shader) {
@@ -432,6 +434,7 @@ void EmpilhaMatriz(bool atualizar) {
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
+  // Nao precisa porque a matriz empilhada eh igual.
   //if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glPushMatrix();
@@ -441,6 +444,12 @@ void EmpilhaMatriz(bool atualizar) {
 void DesempilhaMatriz(bool atualizar) {
 #if USAR_SHADER
   auto* c = interno::BuscaContexto();
+#if DEBUG
+  if (c->pilha_corrente->empty()) {
+    LOG(ERROR) << "Pilha vazia";
+    return;
+  }
+#endif
   c->pilha_corrente->pop();
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
