@@ -1,4 +1,5 @@
-Versao 1.10.2
+Versao 1.11.2
+- Android e ipad: manter tela ativada.
 - Passar aura para metros ao inves de quadrados.
 - Verificar se picking esta mais lento no shader.
 - Refatorar projecao ortogonal para usar matriz picking.
@@ -27,8 +28,7 @@ Versao 1.10.2
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 1.10.3
-- VBO em entidades.
+Versao 1.11.3
 - Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).

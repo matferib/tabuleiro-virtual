@@ -44,6 +44,7 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     view_ = new TabuleiroSurfaceView(this);
     view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
+    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
         getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
