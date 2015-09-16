@@ -39,6 +39,7 @@ class StringLogger {
 #endif
 #define VLOG(X) if (X <= VLOG_NIVEL) StringLogger(SHORT_FILE, __LINE__)
 // __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
+#define LOG_EVERY_N(X, N) if (true) StringLogger(SHORT_FILE, __LINE__)
 
 #else
 // TODO dar um jeito de anular essas macros se nao tiver log.

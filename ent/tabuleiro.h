@@ -228,7 +228,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Move todos os objetos do tabuleiro em uma direcao. */
   void TrataRolagem(dir_rolagem_e dir);
 
-  /** inicializa os parametros do openGL. */
+  /** inicializa os parametros do openGL. Chamado no IOS e ANDROID tambem para recuperar o contexto grafico. */
   void IniciaGL();
 
   /** Seleciona o modelo de entidade através do identificador. */
@@ -372,8 +372,8 @@ class Tabuleiro : public ntf::Receptor {
     bool valido_;
   };
 
-  /** Poe o tabuleiro nas condicoes iniciais. */
-  void EstadoInicial();
+  /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
+  void EstadoInicial(bool reiniciar_grafico);
 
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
@@ -796,8 +796,6 @@ class Tabuleiro : public ntf::Receptor {
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = -1;
   TabuleiroProto* proto_corrente_ = &proto_;
-
-  bool gl_iniciado_ = false;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

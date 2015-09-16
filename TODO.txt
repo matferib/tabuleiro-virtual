@@ -1,9 +1,8 @@
 Versao 1.11.2
-- Arrumar a perda de contexto: IniciaGL chama estado inicial e eh chamado ao restaurar contexto.
-- Android e ipad: manter tela ativada.
+- Bug do dungeon dos aporynian: arvores.
+- ipad: manter tela ativada.
 - UI android e ipad: aura de luz.
 - Passar aura para metros ao inves de quadrados.
-- Verificar se picking esta mais lento no shader.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
 - Entidade com efeito sumindo em outros cenarios: tentar reproduzir o reflexos que nao aparecia.

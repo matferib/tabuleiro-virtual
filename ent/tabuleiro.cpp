@@ -269,7 +269,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   opcoes_.set_desenha_controle_virtual(true);
   //opcoes_.set_mostra_fps(true);  // TODO temp.
 
-  //EstadoInicial();
+  EstadoInicial(false);
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
@@ -296,28 +296,25 @@ Tabuleiro::~Tabuleiro() {
 }
 
 void Tabuleiro::LiberaTextura() {
-  if (proto_corrente_->has_info_textura()) {
-    VLOG(2) << "Liberando textura: " << proto_corrente_->info_textura().id();
-    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
-    nl->add_info_textura()->set_id(proto_corrente_->info_textura().id());
-    central_->AdicionaNotificacao(nl);
+  VLOG(2) << "Liberando textura: " << proto_corrente_->info_textura().id();
+  TabuleiroProto dummy;
+  for (const auto& sub_cenario : proto_.sub_cenario()) {
+    dummy.set_id_cenario(sub_cenario.id_cenario());
+    AtualizaTexturas(dummy);
   }
+  dummy.set_id_cenario(CENARIO_PRINCIPAL);
+  AtualizaTexturas(dummy);
 }
 
-void Tabuleiro::EstadoInicial() {
-  V_ERRO("estado inicial");
+void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Proto do tabuleiro.
-  LiberaTextura();
-  V_ERRO("estado inicial pos textura");
   proto_.Clear();
   cenario_corrente_ = CENARIO_PRINCIPAL;
   proto_corrente_ = &proto_;
   // Iluminacao.
   ReiniciaIluminacao(&proto_);
-  V_ERRO("estado inicial pos iluminacao");
   // Olho.
   ReiniciaCamera();
-  V_ERRO("estado inicial pos camera");
 
   // Valores iniciais.
   ultimo_x_ = ultimo_y_ = 0;
@@ -349,10 +346,11 @@ void Tabuleiro::EstadoInicial() {
   modo_clique_ = MODO_NORMAL;
   // Lista objetos.
   pagina_lista_objetos_ = 0;
-  if (gl_iniciado_) {
-    RegeraVboTabuleiro();
+  if (reiniciar_grafico) {
+    IniciaGL();
+    // Atencao V_ERRO so pode ser usado com contexto grafico.
+    V_ERRO("estado inicial pos grafico");
   }
-  V_ERRO("estado inicial pos regerar");
 }
 
 void Tabuleiro::ConfiguraProjecao() {
@@ -919,7 +917,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_REINICIAR_TABULEIRO: {
-      EstadoInicial();
+      EstadoInicial(true);
       // Repassa aos clientes.
       if (notificacao.local()) {
         central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO));
@@ -1840,9 +1838,8 @@ void Tabuleiro::IniciaGL() {
   RegeraVboTabuleiro();
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
-  gl_iniciado_ = true;
 
-  EstadoInicial();
+  RegeraVboTabuleiro();
   Entidade::IniciaGl();
 }
 
@@ -2508,6 +2505,8 @@ void Tabuleiro::DesenhaTabuleiro() {
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  } else if (proto_corrente_->has_info_textura()) {
+    LOG_EVERY_N(ERROR, 100) << "TEXTURA INVALIDA: " << proto_corrente_->info_textura().id();
   }
   V_ERRO("textura");
 
@@ -3384,7 +3383,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << tabuleiro.ShortDebugString();
   } else {
     VLOG(1) << "Deserializando tabuleiro todo: " << tabuleiro.ShortDebugString();
-    EstadoInicial();
+    EstadoInicial(true);
   }
   if (notificacao.has_erro()) {
     auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);

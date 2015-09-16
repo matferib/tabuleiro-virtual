@@ -340,14 +340,15 @@ unsigned int Texturas::Textura(const std::string& id) const {
 void Texturas::Recarrega(bool rele) {
   // Apaga todas as texturas primeiro para garantir que nao havera repeticoes de ids.
   for (auto& cv : texturas_) {
+    LOG(INFO) << "Apagando: " << cv.first;
     cv.second->ApagaTexturaOpengl();
   }
   // Agora recria.
   for (auto& cv : texturas_) {
+    LOG(INFO) << "Recriando: " << cv.first;
     if (rele) {
       cv.second->Rele();
     }
-    cv.second->ApagaTexturaOpengl();
     cv.second->CriaTexturaOpenGl();
   }
 }
