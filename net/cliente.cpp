@@ -53,6 +53,10 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   } else if (notificacao.tipo() == ntf::TN_DESCONECTAR) {
     Desconecta("");
     return true;
+  } else if (notificacao.tipo() == ntf::TN_HACK_ANDROID) {
+#if ANDROID
+    sincronizador_->AlternaHackAndroid();
+#endif
   }
   return false;
 }

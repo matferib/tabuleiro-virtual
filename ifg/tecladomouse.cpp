@@ -279,6 +279,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_D:
       if (modificadores == (Modificador_Ctrl/* | Modificador_Alt*/)) {
         tabuleiro_->AlternaModoDebug();
+        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_HACK_ANDROID));
         return;
       }
       // Entra em modo de temporizacao.

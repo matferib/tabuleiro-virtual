@@ -42,6 +42,10 @@ class Sincronizador {
   // Roda o que houver para rodar, retornando o numero de tarefas executadas.
   int Roda();
 
+#if ANDROID
+  void AlternaHackAndroid();
+#endif
+
  private:
   friend class SocketUdp;
   friend class Socket;

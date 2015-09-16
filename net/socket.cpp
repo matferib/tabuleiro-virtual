@@ -161,6 +161,8 @@ struct Sincronizador::Interno {
     cond_.notify_one();
   }
 
+  void AlternaHackAndroid() { hack_android = !hack_android; }
+
   // Aceitador.
 
   std::thread thread_;
@@ -180,6 +182,8 @@ struct Sincronizador::Interno {
   // Sincronizacao.
   std::condition_variable_any cond_;
   std::recursive_mutex mutex_;
+
+  bool hack_android = false;
 };
 
 
@@ -456,12 +460,12 @@ void Sincronizador::Interno::LoopRecepcaoTcp(Interno* thiz) {
   struct timeval tv;
   tv.tv_sec = 0;
   tv.tv_usec = 1000;
-#if 0
-  for (int i = 0; i < 1000; ++i) {
-    // so pra acordar o processador.
-    ;
+  if (thiz->hack_android) {
+    for (int i = 0; i < 1000; ++i) {
+      // so pra acordar o processador.
+      ;
+    }
   }
-#endif
   int select_ret = select(maior + 1, &conjunto_tcp, nullptr, nullptr, &tv);
   if (select_ret == -1) {
     LOG(ERROR) << "Erro no select: " << strerror(select_ret);
@@ -513,6 +517,9 @@ void Sincronizador::Interno::Loop(Interno* thiz) {
   }
 }
 
+void Sincronizador::AlternaHackAndroid() {
+  interno_->AlternaHackAndroid();
+}
 
 }  // namespace net
 
