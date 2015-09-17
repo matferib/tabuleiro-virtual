@@ -849,9 +849,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   if (tab_proto.has_nevoa()) {
     gerador.checkbox_nevoa->setCheckState(Qt::Checked);
     gerador.linha_nevoa_min->setEnabled(true);
-    gerador.linha_nevoa_min->setText(QString().setNum(tab_proto.nevoa().distancia_minima()));
+    gerador.linha_nevoa_min->setText(QString().setNum(tab_proto.nevoa().minimo()));
     gerador.linha_nevoa_max->setEnabled(true);
-    gerador.linha_nevoa_max->setText(QString().setNum(tab_proto.nevoa().distancia_maxima()));
+    gerador.linha_nevoa_max->setText(QString().setNum(tab_proto.nevoa().maximo()));
   } else {
     gerador.checkbox_nevoa->setCheckState(Qt::Unchecked);
   }
@@ -922,8 +922,8 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
                      << gerador.linha_nevoa_max->text().toStdString();
         return;
       }
-      proto_retornado->mutable_nevoa()->set_distancia_minima(d_min);
-      proto_retornado->mutable_nevoa()->set_distancia_maxima(d_max);
+      proto_retornado->mutable_nevoa()->set_minimo(d_min);
+      proto_retornado->mutable_nevoa()->set_maximo(d_max);
     } else {
       proto_retornado->clear_nevoa();
     }

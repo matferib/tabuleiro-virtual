@@ -820,8 +820,6 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
-#if USAR_SHADER
-  auto* c = interno::BuscaContexto();
   float tx = - ((direita + esquerda) / (direita - esquerda));
   float ty = - ((cima + baixo) / (cima - baixo));
   float tz = - ((distante + proximo) / (distante - proximo));
@@ -830,6 +828,8 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   glm[1] = 0; glm[5] = 2.0f / (cima - baixo); glm[9] = 0; glm[13] = ty;
   glm[2] = 0; glm[6] = 0; glm[10] = -2.0f / (distante - proximo); glm[14] = tz;
   glm[3] = 0; glm[7] = 0; glm[11] = 0; glm[15] = 1;
+#if USAR_SHADER
+  auto* c = interno::BuscaContexto();
   Matrix4 topo = c->pilha_corrente->top();
   Matrix4 m(glm);
   // Nao tenho certeza qual a ordem certa. No caso das ortogonais quase sempre a matriz corrente eh identidade, entao
@@ -838,14 +838,6 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   c->pilha_corrente->top() = topo * m;
   ATUALIZA_MATRIZES_NOVO();
 #else
-  float tx = - ((direita + esquerda) / (direita - esquerda));
-  float ty = - ((cima + baixo) / (cima - baixo));
-  float tz = - ((distante + proximo) / (distante - proximo));
-  GLfloat m[16];
-  m[0] = 2.0f / (direita - esquerda); m[4] = 0; m[8] = 0; m[12] = tx;
-  m[1] = 0; m[5] = 2.0f / (cima - baixo); m[9] = 0; m[13] = ty;
-  m[2] = 0; m[6] = 0; m[10] = -2.0f / (distante - proximo); m[14] = tz;
-  m[3] = 0; m[7] = 0; m[11] = 0; m[15] = 1;
   glMultMatrixf(m);
 #endif
 }

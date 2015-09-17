@@ -77,15 +77,6 @@ const float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
 /** A Translacao e a rotacao de objetos so ocorre depois que houver essa distancia de pixels percorrida pelo mouse. */
 const int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
 
-/** Os clipping planes. Isso afeta diretamente a precisao do Z buffer. */
-#if ZBUFFER_16_BITS
-const double DISTANCIA_PLANO_CORTE_PROXIMO = 2.0f;
-const double DISTANCIA_PLANO_CORTE_DISTANTE = 80.0f;
-#else
-const double DISTANCIA_PLANO_CORTE_PROXIMO = 1.0f;
-const double DISTANCIA_PLANO_CORTE_DISTANTE = 160.0f;
-#endif
-
 const char* ID_ACAO_ATAQUE_CORPO_A_CORPO = "Ataque Corpo a Corpo";
 
 // Retorna 0 se nao andou quadrado, 1 se andou no eixo x, 2 se andou no eixo y, 3 se andou em ambos.
@@ -4261,6 +4252,7 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
 
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
+  parametros_desenho_.clear_nevoa();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
   if (entidade_referencia != nullptr) {
@@ -4277,6 +4269,15 @@ void Tabuleiro::DesenhaLuzes() {
     pos[1] = epos.y();
     pos[2] = epos.z();
     gl::Nevoa(10.0, 10.0, 0, 0, 0, pos);
+    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_x(pos[0]);
+    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_y(pos[1]);
+    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_z(pos[2]);
+    parametros_desenho_.mutable_nevoa()->set_minimo(10);
+    parametros_desenho_.mutable_nevoa()->set_maximo(10);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_r(0);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_g(0);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_b(0);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_a(1.0);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);
     return;
@@ -4324,8 +4325,21 @@ void Tabuleiro::DesenhaLuzes() {
       pos[1] = epos.y();
       pos[2] = epos.z();
     }
-    gl::Nevoa(proto_corrente_->nevoa().distancia_minima(), proto_corrente_->nevoa().distancia_maxima(),
+    gl::Nevoa(proto_corrente_->nevoa().minimo(), proto_corrente_->nevoa().maximo(),
               cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2], pos);
+    GLfloat mv_gl[16];
+    gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
+    Matrix4 mv(mv_gl);
+    Vector4 ref = mv * Vector4(pos[0], pos[1], pos[2], 1.0f);
+    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_x(ref.x);
+    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_y(ref.y);
+    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_z(ref.z);
+    parametros_desenho_.mutable_nevoa()->set_minimo(proto_corrente_->nevoa().minimo());
+    parametros_desenho_.mutable_nevoa()->set_maximo(proto_corrente_->nevoa().maximo());
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_r(cor_luz_ambiente[0]);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_g(cor_luz_ambiente[1]);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_b(cor_luz_ambiente[2]);
+    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_a(1.0);
   } else {
     gl::Desabilita(GL_FOG);
   }
