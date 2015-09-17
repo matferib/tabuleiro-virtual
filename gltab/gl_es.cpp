@@ -246,6 +246,7 @@ void Limpa(GLbitfield mascara) {
   glClear(mascara);
 }
 
+#if 0
 void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura) {
   unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
   *largura_fonte = media_tela / 64;
@@ -257,6 +258,7 @@ void TamanhoFonte(int* largura, int* altura) {
   gl::Le(GL_VIEWPORT, viewport);
   TamanhoFonte(viewport[2], viewport[3], largura, altura);
 }
+#endif
 
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   float matriz_mv[16];
@@ -318,6 +320,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::Translada(x2d, y2d, 0.0f, false);
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
+#if 0
   gl::Escala(largura_fonte, altura_fonte, 1.0f, false);
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   for (const std::string& str_linha : str_linhas) {
@@ -334,6 +337,26 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
     }
     gl::Translada(-(translacao_x + static_cast<float>(str_linha.size())), inverte_vertical ? 1.0f : -1.0f, 0.0f, false);
   }
+#else
+  std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
+  for (const std::string& str_linha : str_linhas) {
+    float translacao_x = 0;
+    if (alinhamento == 1) {  // direita.
+      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte);
+    } if (alinhamento == 0) {  // central.
+      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
+    }
+    gl::Translada(translacao_x, 0.0f, 0.0f, false);
+    for (const char c : str_linha) {
+      gl::DesenhaCaractere(c);
+      gl::Translada(largura_fonte, 0.0f, 0.0f, false);
+    }
+    gl::Translada(-((translacao_x * largura_fonte) + static_cast<float>(str_linha.size())),
+                  inverte_vertical ? altura_fonte : -altura_fonte,
+                  0.0f,
+                  false);
+  }
+#endif
 }
 
 Contexto* BuscaContexto() {

@@ -838,7 +838,7 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   c->pilha_corrente->top() = topo * m;
   ATUALIZA_MATRIZES_NOVO();
 #else
-  glMultMatrixf(m);
+  glMultMatrixf(glm);
 #endif
 }
 

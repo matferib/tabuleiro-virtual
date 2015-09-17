@@ -363,8 +363,10 @@ void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
 void PosicaoRaster(GLint x, GLint y);
 void DesenhaCaractere(char c);
 /** Retorna o tamanho da fonte. Variavel de acordo com viewport. Segunda versao eh um pouco mais barata. */
-void TamanhoFonte(int* largura, int* altura);
-void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura);
+//void TamanhoFonte(int* largura, int* altura);
+//void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura);
+inline void TamanhoFonte(int* largura, int* altura) { *largura = 8; *altura = 13; }
+inline void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura) { *largura = 8; *altura = 13; }
 #endif
 // Desenha a string str centralizada no ponto do raster.
 // Se inverte_vertical for verdadeiro, linhas irao para cima ao inves de ir
