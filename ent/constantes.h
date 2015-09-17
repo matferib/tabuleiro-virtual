@@ -22,6 +22,16 @@
 /** Numero de divisoes do eixo Z do cone. */
 #define NUM_LINHAS 1
 
+/** Os clipping planes. Isso afeta diretamente a precisao do Z buffer. */
+#if ZBUFFER_16_BITS
+#define DISTANCIA_PLANO_CORTE_PROXIMO 2.0f
+#define DISTANCIA_PLANO_CORTE_DISTANTE 80.0f
+#else
+#define DISTANCIA_PLANO_CORTE_PROXIMO 1.0f
+#define DISTANCIA_PLANO_CORTE_DISTANTE 160.0f
+#endif
+#define DISTANCIA_ENTRE_PLANOS (DISTANCIA_PLANO_CORTE_DISTANTE - DISTANCIA_PLANO_CORTE_PROXIMO)
+
 #define ARQUIVO_MODELOS "modelos.asciiproto"
 #define ARQUIVO_MODELOS_NAO_SRD "modelos_nao_srd.asciiproto"
 #define ARQUIVO_ACOES "acoes.asciiproto"
