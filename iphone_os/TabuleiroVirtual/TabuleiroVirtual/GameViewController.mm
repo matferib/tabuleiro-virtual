@@ -81,12 +81,15 @@ const int TAG_BOTAO_CANCELA = 101;
   super.preferredFramesPerSecond = ATUALIZACOES_POR_SEGUNDO;
   
   one_finger_ = true;
+  
+  [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
 
   [self setupGL];
 }
 
 - (void)viewDidUnload
 {
+  [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
   [self tearDownGL];
   [super viewDidUnload];
   

@@ -1,7 +1,5 @@
 Versao 1.11.2
-- Bug do dungeon dos aporynian: arvores.
-- ipad: manter tela ativada.
-- UI android e ipad: aura de luz.
+- UI android e ipad: raio de luz.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
