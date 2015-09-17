@@ -65,6 +65,13 @@ message IluminacaoPontual {
   optional float atenuacao = 3 [deprecated=true];
 }
 
+message Nevoa {
+  optional float minimo = 1;
+  optional float maximo = 2;
+  optional Posicao referencia = 3;
+  optional Cor cor = 4;
+}
+
 message InfoTextura {
   // Identificador da textura. Normalmente o nome do arquivo.
   optional string id = 1;
@@ -243,6 +250,8 @@ message ParametrosDesenho {
   optional bool desenha_pontos_rolagem = 26 [default=true];
   // Se verdadeiro, aplica efeito de nevoa.
   optional bool desenha_nevoa = 27 [default=true];
+  // Informacoes sobre a nevoa, se houver.
+  optional Nevoa nevoa = 70;
   // Se verdadeiro, desenha o id da acao corrente.
   optional bool desenha_id_acao = 30 [default=true];
   // Se verdadeiro, desenha o controle virtual de acoes.
