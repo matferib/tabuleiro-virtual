@@ -84,6 +84,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
+  CorrigeTranslacaoDeprecated(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {
@@ -113,8 +114,6 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
-
-  CorrigeTranslacaoDeprecated(&proto_);
 }
 
 const std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
