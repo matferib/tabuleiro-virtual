@@ -846,16 +846,15 @@ void BitmapCharacter(int character) {
   std::vector<GLshort> points(13 * face[0] * 2);
   nbpoints = BitsToIndexedShorts(face + 1, face[0], 13, &points[0], 0, 0);
 
-  glEnable(GL_ALPHA_TEST);
-  glAlphaFunc(GL_NOTEQUAL, 0);
-
   for (i = 0; i < nbpoints; i++) indices[i] = i;
 
+  //glEnable(GL_ALPHA_TEST);
+  //glAlphaFunc(GL_NOTEQUAL, 0);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   gl::PonteiroVertices(2, GL_SHORT, 0, points.data());
   gl::DesenhaElementos(GL_POINTS, nbpoints, GL_UNSIGNED_SHORT, indices);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  glDisable(GL_ALPHA_TEST);
+  //glDisable(GL_ALPHA_TEST);
 }
 
 void DesenhaCaractere(char c) {

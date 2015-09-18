@@ -18,7 +18,7 @@ varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
 uniform highp mat4 gltab_prm;    // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
-uniform lowp vec4 gltab_dados_raster;    // p = tamanho ponto.
+uniform mediump vec4 gltab_dados_raster;    // p = tamanho ponto.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute lowp vec4 gltab_cor;

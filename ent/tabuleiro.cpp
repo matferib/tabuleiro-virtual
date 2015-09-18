@@ -1817,6 +1817,8 @@ void Tabuleiro::IniciaGL() {
   gl::Desabilita(GL_DITHER);
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
+  //gl::Habilita(GL_VERTEX_PROGRAM_POINT_SIZE);
+  gl::Habilita(0x8642);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 #if !USAR_SHADER
   gl::Habilita(GL_COLOR_MATERIAL);

@@ -1045,7 +1045,9 @@ void TamanhoFonte(int* largura, int* altura, int* escala) {
 }
 
 void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura, int* escala) {
-#if ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
+#if 0
+  *escala = 2;
+#elif ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
   unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
   *escala = std::max(media_tela / 500, 1U);
 #else
