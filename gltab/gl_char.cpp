@@ -8,13 +8,14 @@
 
 namespace gl {
 
+#if 0
+namespace  {
 // Atlas de caracteres. Aqui estao vertices usados para construi-los. Cada caractere esta em um espaco
 // de 1.0 x 1.0 dividido em pontos em ordem crescente de 0.0, 0.1, 0.2 ... 1.0 de baixo para cima, depois
 // da esquerda para a direita.
 const int kResX = 10;
 const int kResY = 10;
 
-namespace  {
 
 // Retorna o indice do vertice coordenada x, y.
 unsigned short I(int x, int y) {
@@ -430,7 +431,7 @@ const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres
 
   //Q(I(), I(), I(), I(),),
 };
-
+#endif
 // GLUTES font data.
 static const GLubyte Fixed8x13_Character_032[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}; /* blank */
 static const GLubyte Fixed8x13_Character_097[] = {  8,  0,  0,116,140,132,124,  4,120,  0,  0,  0,  0,  0}; /* "a" */
@@ -525,14 +526,14 @@ static const GLubyte Fixed8x13_Character_047[] = {  8,  0,  0,128,128, 64, 32, 1
 static const GLubyte Fixed8x13_Character_063[] = {  8,  0,  0, 16,  0, 16, 16,  8,  4,132,132,120,  0,  0}; /* "?" */
 static const GLubyte Fixed8x13_Character_092[] = {  8,  0,  0,  2,  2,  4,  8, 16, 32, 64,128,128,  0,  0}; /* "\" */
 static const GLubyte Fixed8x13_Character_034[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0,144,144,144,  0,  0}; /* """ */
-
 /* Missing Characters filled in by John Fay by hand ... */
 static const GLubyte Fixed8x13_Character_039[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0, 32, 32, 32,  0,  0}; /* """ */
 static const GLubyte Fixed8x13_Character_124[] = {  8, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32,  0,  0}; /* """ */
 
 
 /* The font characters mapping: */
-static const GLubyte* Fixed8x13_Character_Map[] = {Fixed8x13_Character_042,
+static const GLubyte* Fixed8x13_Character_Map[] = {
+  Fixed8x13_Character_042,
   Fixed8x13_Character_042,
   Fixed8x13_Character_042,
   Fixed8x13_Character_042,
@@ -804,6 +805,7 @@ void DesenhaCaractere(char c) {
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
 #else
+// glutes.
 int BitsToIndexedShorts(const GLubyte *bits, int ssx, int ssy, GLshort *points, int startx, int starty)
 {
 	int ssxsy = ssx * ssy; // total bit #
@@ -833,7 +835,8 @@ int BitsToIndexedShorts(const GLubyte *bits, int ssx, int ssy, GLshort *points, 
 	return count;
 }
 
-void __glutBitmapCharacter(int character) {
+// glutes.
+void BitmapCharacter(int character) {
   if (!(character >= 1) && (character < 256)) return;
 
 	int i, nbpoints;
@@ -856,7 +859,7 @@ void __glutBitmapCharacter(int character) {
 }
 
 void DesenhaCaractere(char c) {
-  __glutBitmapCharacter((int)c);
+  BitmapCharacter((int)c);
 }
 
 #endif
