@@ -4434,9 +4434,10 @@ void Tabuleiro::DesenhaListaObjetos() {
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
   const int pagina_corrente = (pagina_lista_objetos_ >= num_paginas) ? num_paginas : pagina_lista_objetos_;
   const int objeto_inicial = pagina_corrente * objs_por_pagina;
-  const int objeto_final = (pagina_corrente == num_paginas - 1) ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui ultimo.
+  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0)) ?
+      n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
   if (pagina_lista_objetos_ > num_paginas - 1) {
-    pagina_lista_objetos_ = num_paginas - 1;
+    pagina_lista_objetos_ = std::max(num_paginas - 1, 0);
   }
 
   // Modo 2d: eixo com origem embaixo esquerda.

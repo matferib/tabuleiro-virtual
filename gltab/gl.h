@@ -31,16 +31,13 @@
 #elif __APPLE__
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
-#include <GLUT/glut.h>
 #elif WIN32
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glut.h>
 #include <GL/glext.h>
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glut.h>
 #endif
 #include "matrix/matrices.h"
 

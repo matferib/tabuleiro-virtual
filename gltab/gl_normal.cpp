@@ -72,7 +72,6 @@ bool ImprimeSeShaderErro(GLuint shader);
 
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 void IniciaGl(int* argcp, char** argv) {
-  glutInit(argcp, argv);
 #if WIN32
 #define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null "#x; } } while (0)
   LOG(INFO) << "pegando ponteiros";
