@@ -88,7 +88,7 @@ class AcaoSinalizacao : public Acao {
     }
   }
 
-  void AtualizaAposAtraso() {
+  void AtualizaAposAtraso() override {
     const float DURACAO_SINALIZACAO_SEGUNDOS = 0.5f;
     estado_ -= TAMANHO_MAXIMO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SINALIZACAO_SEGUNDOS;
   }
@@ -157,7 +157,7 @@ class AcaoDeltaPontosVida : public Acao {
     DesenhaStringDelta();
   }
 
-  void AtualizaAposAtraso() {
+  void AtualizaAposAtraso() override {
     pos_.set_z(pos_.z() + MAX_DELTA_Z * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS);
     --contador_atualizacoes_;
     if (contador_atualizacoes_ == 0) {
@@ -227,7 +227,7 @@ class AcaoDispersao : public Acao {
     DesenhaGeometriaAcao(acao_proto_.geometria());
   }
 
-  void AtualizaAposAtraso() {
+  void AtualizaAposAtraso() override {
     efeito_ += efeito_maximo_ * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS;
   }
 
@@ -423,7 +423,7 @@ class AcaoRaio : public Acao {
     gl::ConeSolido(0.2f, tam2, 6  /*fatias*/, 1  /*tocos*/);
   }
 
-  void AtualizaAposAtraso() {
+  void AtualizaAposAtraso() override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
       VLOG(1) << "Terminando acao pois origem nao existe mais.";
@@ -503,7 +503,7 @@ class AcaoCorpoCorpo : public Acao {
     gl::Triangulo(1.0f);
   }
 
-  void AtualizaAposAtraso() {
+  void AtualizaAposAtraso() override {
     auto* eo = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (eo == nullptr) {
       VLOG(1) << "Terminando acao corpo a corpo: origem nao existe mais.";
@@ -588,7 +588,7 @@ class AcaoFeiticoToque : public Acao {
     DesenhaGeometriaAcao(acao_proto_.geometria());
   }
 
-  void AtualizaAposAtraso() {
+  void AtualizaAposAtraso() override {
     auto* e = tabuleiro_->BuscaEntidade(desenhando_origem_ ? acao_proto_.id_entidade_origem() : acao_proto_.id_entidade_destino(0));
     if (e == nullptr) {
       VLOG(1) << "Terminando acao feitico: origem ou destino nao existe mais.";
