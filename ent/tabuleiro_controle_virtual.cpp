@@ -204,8 +204,10 @@ void Tabuleiro::DesenhaControleVirtual() {
   cor_ativa[1] = 0.4f;
   cor_ativa[2] = 0.4f;
 
-  int fonte_x_int, fonte_y_int;
-  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int);
+  int fonte_x_int, fonte_y_int, escala;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+  fonte_x_int *= escala;
+  fonte_y_int *= escala;
   const float fonte_x = fonte_x_int;
   const float fonte_y = fonte_y_int;
   const float altura_botao = fonte_y * 2.5f;

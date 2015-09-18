@@ -135,6 +135,7 @@ void FinalizaGl() {
 
 namespace interno {
 
+#if 0
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
   GLboolean raster_valido;
@@ -180,6 +181,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
     y -= (altura_fonte + 1) * (inverte_vertical ? -1 : 1);
   }
 }
+#endif
 
 }  // namespace
 

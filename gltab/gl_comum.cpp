@@ -54,8 +54,51 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
   return ret;
 }
 
-// Implementado diferente em cada um.
-void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical);
+// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
+void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
+  // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade(false);
+  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
+  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
+  gl::CarregaIdentidade(false);
+
+  int largura_fonte, altura_fonte, escala;
+  TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+
+  auto* contexto = BuscaContexto();
+  float x2d = contexto->raster_x;
+  float y2d = contexto->raster_y;
+  gl::Translada(x2d, y2d, 0.0f, false);
+
+  //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
+  std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
+  gl::TamanhoPonto(escala);
+  gl::Escala(escala, escala, 1.0f);
+  for (const std::string& str_linha : str_linhas) {
+    float translacao_x = 0;
+    if (alinhamento == 1) {  // direita.
+      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte);
+    } if (alinhamento == 0) {  // central.
+      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
+    }
+    gl::Translada(translacao_x, 0.0f, 0.0f, false);
+    for (const char c : str_linha) {
+      gl::DesenhaCaractere(c);
+      gl::Translada(largura_fonte, 0.0f, 0.0f, false);
+    }
+    gl::Translada(-((translacao_x * largura_fonte) + static_cast<float>(str_linha.size())),
+                  inverte_vertical ? altura_fonte : -altura_fonte,
+                  0.0f,
+                  false);
+  }
+}
+
 
 bool ImprimeSeShaderErro(GLuint shader) {
 #if USAR_SHADER
@@ -224,6 +267,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_nm", &shader->uni_gltab_nm },
+          {"gltab_dados_raster", &shader->uni_gltab_dados_raster},
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
     if (*d.var == -1) {
@@ -527,6 +571,19 @@ void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar)
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 #else
   glRotatef(angulo_graus, x, y, z);
+#endif
+}
+
+void TamanhoPonto(float tam) {
+#if USAR_SHADER
+  const auto& shader = interno::BuscaShader();
+  GLint uniforme = shader.uni_gltab_dados_raster;
+  GLfloat dados_raster[4];
+  LeUniforme(shader.programa, uniforme, dados_raster);
+  // Tamanho do ponto eh o p, ou terceiro elemento.
+  Uniforme(uniforme, dados_raster[0], dados_raster[1], tam, dados_raster[3]);
+#else
+  glPointSize(tam);
 #endif
 }
 
@@ -980,5 +1037,44 @@ void DebugaMatrizes() {
   //                       << ", NM: \n" << normal;
 }
 #endif
+
+void TamanhoFonte(int* largura, int* altura, int* escala) {
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  TamanhoFonte(viewport[2], viewport[3], largura, altura, escala);
+}
+
+void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura, int* escala) {
+#if ANDROID || (__APPLE__ && (TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR))
+  unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
+  *escala = std::max(media_tela / 500, 1U);
+#else
+  *escala = 1;
+#endif
+  *largura_fonte = 8;
+  *altura = 13;
+}
+
+void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
+  float matriz_mv[16];
+  float matriz_pr[16];
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
+  gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
+  float x2d, y2d, z2d;
+  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
+    return;
+  }
+  auto* contexto = interno::BuscaContexto();
+  contexto->raster_x = x2d;
+  contexto->raster_y = y2d;
+  //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
+}
+
+void PosicaoRaster(GLint x, GLint y) {
+  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
+}
+
 
 }  // namespace gl

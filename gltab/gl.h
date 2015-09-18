@@ -347,27 +347,18 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);
 
-/** Raster. */
-#if !USAR_OPENGL_ES
-inline void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
-  ATUALIZA_MATRIZES_NOVO();
-  glRasterPos3f(x, y, z);
-}
-inline void PosicaoRaster(GLint x, GLint y) { glRasterPos2i(x, y); }
-inline void DesenhaCaractere(char c) { glutBitmapCharacter(GLUT_BITMAP_8_BY_13, c); }
-/** Retorna o tamanho da fonte. Sempre fixo. */
-inline void TamanhoFonte(int* largura, int* altura) { *largura = 8; *altura = 13; }
-inline void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura) { *largura = 8; *altura = 13; }
-#else
+void TamanhoPonto(float tam);
+
+/** Retorna o tamanho base da fonte (hoje fixa em 8x13). A escala indica qual deve ser aplicada para ficar legal na tela.
+* Ela sera usada por DesenhaString tanto como escala quanto no tamanho do ponto.
+*/
+void TamanhoFonte(int* largura, int* altura, int* escala);
+void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, int* escala);
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
 void PosicaoRaster(GLint x, GLint y);
+
+/** Raster. */
 void DesenhaCaractere(char c);
-/** Retorna o tamanho da fonte. Variavel de acordo com viewport. Segunda versao eh um pouco mais barata. */
-//void TamanhoFonte(int* largura, int* altura);
-//void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura);
-inline void TamanhoFonte(int* largura, int* altura) { *largura = 8; *altura = 13; }
-inline void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura) { *largura = 8; *altura = 13; }
-#endif
 // Desenha a string str centralizada no ponto do raster.
 // Se inverte_vertical for verdadeiro, linhas irao para cima ao inves de ir
 // para baixo.
@@ -507,6 +498,7 @@ struct VarShader {
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
+  GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
   GLint uni_gltab_mvm;                  // Matrix modelview.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
@@ -536,6 +528,8 @@ class Contexto {
   ~Contexto() {}
 
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
+  float raster_x = 0.0f;
+  float raster_y = 0.0f;
 
   std::vector<VarShader> shaders;
   VarShader* shader_corrente = nullptr;  // Aponta para o shader corrente.

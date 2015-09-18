@@ -275,8 +275,6 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::EsferaSolida(0.2f, 4, 2);
       // Descricao (so quando nao for picking).
       if (!pd->has_picking_x() && !descricao.empty()) {
-        int l, a;
-        gl::TamanhoFonte(&l, &a);
         gl::Translada(0.0f, 0.0f, 0.4f);
         gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
         gl::DesenhaString(descricao, true  /*inverte vertical*/);

@@ -20,6 +20,7 @@ uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;    // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
 uniform mediump mat3 gltab_nm;     // normal matrix
+uniform lowp vec4 gltab_dados_raster;  // p = tamanho ponto.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
@@ -96,6 +97,7 @@ void main() {
   v_Color = cor_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * v_Pos;
+  gl_PointSize = gltab_dados_raster.p;
 }
 
 

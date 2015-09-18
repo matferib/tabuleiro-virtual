@@ -4397,8 +4397,10 @@ void Tabuleiro::DesenhaListaPontosVida() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
   int raster_x = 0, raster_y = 0;
-  int largura_fonte, altura_fonte;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
   raster_y = altura_ - altura_fonte;
   raster_x = largura_ - 2;
   PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
@@ -4440,9 +4442,11 @@ void Tabuleiro::DesenhaListaObjetos() {
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   int raster_x = 0, raster_y = 0;
-  int largura_fonte, altura_fonte;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte);
-  raster_y = altura_ - altura_fonte;
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  raster_y = altura_ - (altura_fonte * escala);
   raster_x = largura_ - 2;
   if (!parametros_desenho_.has_picking_x()) {
     PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
@@ -4568,8 +4572,10 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
   id_acao = StringSemUtf8(id_acao);
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int largura_fonte, altura_fonte;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
   PosicionaRaster2d(largura_ / 2, altura_ - altura_fonte, largura_, altura_);
   MudaCor(COR_BRANCA);
   gl::DesenhaString(id_acao);
@@ -4596,8 +4602,10 @@ void Tabuleiro::DesenhaCoordenadas() {
     gl::MatrizEscopo salva_matriz(GL_PROJECTION);
     gl::CarregaIdentidade();
     gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    int largura_fonte, altura_fonte;
-    gl::TamanhoFonte(&largura_fonte, &altura_fonte);
+    int largura_fonte, altura_fonte, escala;
+    gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+    largura_fonte *= escala;
+    altura_fonte *= escala;
     int raster_y = altura_ - (2 * altura_fonte);
     int raster_x = largura_ / 2;
     gl::PosicaoRaster(raster_x, raster_y);
@@ -4631,8 +4639,10 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   }
   gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int largura_fonte, altura_fonte;
-  gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte);
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
 
 #if ANDROID || WIN32
   std::string tempo_str;

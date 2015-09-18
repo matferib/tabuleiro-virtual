@@ -1,6 +1,10 @@
 // OpenGL ES.
 // Varias funcoes copiadas do GLUES: https://code.google.com/p/glues/.
 
+#if __APPLE__
+#include "TargetConditionals.h"
+#endif
+#include <algorithm>
 #include <cmath>
 #include <unordered_map>
 #include <utility>
@@ -27,8 +31,6 @@ struct ContextoEs : public ContextoDependente {
   modo_renderizacao_e modo_renderizacao = MR_RENDER;
   GLuint* buffer_selecao = nullptr;
   GLuint tam_buffer = 0;
-  float raster_x = 0.0f;
-  float raster_y = 0.0f;
   int max_pilha_mv = 0.0f;
   int max_pilha_pj = 0.0f;
   bool* depurar_selecao_por_cor;
@@ -246,40 +248,6 @@ void Limpa(GLbitfield mascara) {
   glClear(mascara);
 }
 
-#if 0
-void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte, int* altura) {
-  unsigned int media_tela = (largura_viewport + altura_viewport) / 2;
-  *largura_fonte = media_tela / 64;
-  *altura = static_cast<int>(*largura_fonte * (13.0f / 8.0f));
-}
-
-void TamanhoFonte(int* largura, int* altura) {
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-  TamanhoFonte(viewport[2], viewport[3], largura, altura);
-}
-#endif
-
-void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
-  float matriz_mv[16];
-  float matriz_pr[16];
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-  gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
-  gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
-  float x2d, y2d, z2d;
-  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
-    return;
-  }
-  g_contexto_interno->raster_x = x2d;
-  g_contexto_interno->raster_y = y2d;
-  //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
-}
-
-void PosicaoRaster(GLint x, GLint y) {
-  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
-}
-
 void AlternaModoDebug() {
   *g_contexto_interno->depurar_selecao_por_cor = !*g_contexto_interno->depurar_selecao_por_cor;
 }
@@ -297,68 +265,6 @@ GLint Uniforme(const char* id) {
 }
 
 namespace interno {
-// Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
-void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
-  // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
-  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-  //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade(false);
-  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
-  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
-  gl::CarregaIdentidade(false);
-
-  int largura_fonte;
-  int altura_fonte;
-  TamanhoFonte(&largura_fonte, &altura_fonte);
-
-  float x2d = g_contexto_interno->raster_x;
-  float y2d = g_contexto_interno->raster_y;
-  gl::Translada(x2d, y2d, 0.0f, false);
-
-  //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
-#if 0
-  gl::Escala(largura_fonte, altura_fonte, 1.0f, false);
-  std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
-  for (const std::string& str_linha : str_linhas) {
-    float translacao_x = 0;
-    if (alinhamento == 1) {  // direita.
-      translacao_x = -static_cast<float>(str_linha.size());
-    } if (alinhamento == 0) {  // central.
-      translacao_x = -static_cast<float>(str_linha.size()) / 2.0f;
-    }
-    gl::Translada(translacao_x, 0.0f, 0.0f, false);
-    for (const char c : str_linha) {
-      gl::DesenhaCaractere(c);
-      gl::Translada(1.0f, 0.0f, 0.0f, false);
-    }
-    gl::Translada(-(translacao_x + static_cast<float>(str_linha.size())), inverte_vertical ? 1.0f : -1.0f, 0.0f, false);
-  }
-#else
-  std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
-  for (const std::string& str_linha : str_linhas) {
-    float translacao_x = 0;
-    if (alinhamento == 1) {  // direita.
-      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte);
-    } if (alinhamento == 0) {  // central.
-      translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
-    }
-    gl::Translada(translacao_x, 0.0f, 0.0f, false);
-    for (const char c : str_linha) {
-      gl::DesenhaCaractere(c);
-      gl::Translada(largura_fonte, 0.0f, 0.0f, false);
-    }
-    gl::Translada(-((translacao_x * largura_fonte) + static_cast<float>(str_linha.size())),
-                  inverte_vertical ? altura_fonte : -altura_fonte,
-                  0.0f,
-                  false);
-  }
-#endif
-}
-
 Contexto* BuscaContexto() {
   return &g_contexto;
 }
