@@ -54,7 +54,7 @@
 #define V_ERRO_STRING(e) gluErrorString(e)
 #endif
 #if DEBUG
-#define V_ERRO(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return; } } while (0)
+#define V_ERRO(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return; } } while (0)
 #define V_ERRO_RET(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return false; } } while (0)
 #else
 #define V_ERRO(X)

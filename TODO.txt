@@ -1,5 +1,4 @@
 Versao 1.11.2
-- Nevoa e escritos.
 - UI android e ipad: raio de luz.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.
@@ -29,12 +28,10 @@ Versao 1.11.2
 - Texturas faltantes.
 
 Versao 1.11.3
-- Mais letras maiusculas.
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Android e ipad: voltar para UI principal caso falhe.
 - Adicionar mais unit tests (comecar pelos simples).
-- Fazer as classes de cada tipo de entidade, ja ta virando bagunca.
 - Adicionar modelos diversos.
 - Adicionar texturas globais.
 

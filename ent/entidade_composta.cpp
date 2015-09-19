@@ -31,6 +31,7 @@ void Entidade::AtualizaProtoComposta(
 const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto) {
   std::vector<gl::VboNaoGravado> vbos(1);
   std::vector<gl::VboNaoGravado> sub_vbos;
+  int indice_corrente = 0;  // qual vbo esta sendo concatenado.
   for (const auto& sub : proto.sub_forma()) {
     if (sub.tipo() == TE_COMPOSTA) {
       sub_vbos = std::move(ExtraiVboComposta(sub));
@@ -38,15 +39,27 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::Enti
       sub_vbos = std::move(ExtraiVboForma(sub));
     }
     for (const auto& svbo : sub_vbos) {
-      vbos[0].Concatena(svbo);
+      try {
+        vbos[indice_corrente].Concatena(svbo);
+      } catch (...) {
+        LOG(INFO) << "Objeto grande, criando outro VBO para ele.";
+        vbos[indice_corrente].RodaX(proto.rotacao_x_graus());
+        vbos[indice_corrente].RodaY(proto.rotacao_y_graus());
+        vbos[indice_corrente].RodaZ(proto.rotacao_z_graus());
+        vbos[indice_corrente].Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+        // Mundo.
+        vbos[indice_corrente].Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
+        ++indice_corrente;
+        vbos.push_back(svbo);
+      }
     }
   }
-  vbos[0].RodaX(proto.rotacao_x_graus());
-  vbos[0].RodaY(proto.rotacao_y_graus());
-  vbos[0].RodaZ(proto.rotacao_z_graus());
-  vbos[0].Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+  vbos[indice_corrente].RodaX(proto.rotacao_x_graus());
+  vbos[indice_corrente].RodaY(proto.rotacao_y_graus());
+  vbos[indice_corrente].RodaZ(proto.rotacao_z_graus());
+  vbos[indice_corrente].Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   // Mundo.
-  vbos[0].Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
+  vbos[indice_corrente].Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
   return vbos;
 }
 
