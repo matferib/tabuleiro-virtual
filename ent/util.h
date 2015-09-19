@@ -16,6 +16,11 @@ class Posicao;
 void MudaCor(const float* cor);
 void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd);
 
+/** Liga a nevoa com os parametros passados, preenchendo pd. Posicao deve ser em coordenadas de mundo, que sera convertida em coordenadas
+* de olho.
+*/
+void ConfiguraNevoa(float min, float max, float r, float g, float b, float* pos, ParametrosDesenho* pd);
+
 /** Considera alpha. */
 void MudaCorAlfa(const float* cor);
 

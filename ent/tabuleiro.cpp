@@ -4234,16 +4234,7 @@ void Tabuleiro::DesenhaLuzes() {
     pos[0] = epos.x();
     pos[1] = epos.y();
     pos[2] = epos.z();
-    gl::Nevoa(10.0, 10.0, 0, 0, 0, pos);
-    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_x(pos[0]);
-    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_y(pos[1]);
-    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_z(pos[2]);
-    parametros_desenho_.mutable_nevoa()->set_minimo(10);
-    parametros_desenho_.mutable_nevoa()->set_maximo(10);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_r(0);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_g(0);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_b(0);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_a(1.0);
+    ConfiguraNevoa(10.0, 10.1, 0, 0, 0, pos, &parametros_desenho_);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);
     return;
@@ -4291,21 +4282,8 @@ void Tabuleiro::DesenhaLuzes() {
       pos[1] = epos.y();
       pos[2] = epos.z();
     }
-    gl::Nevoa(proto_corrente_->nevoa().minimo(), proto_corrente_->nevoa().maximo(),
-              cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2], pos);
-    GLfloat mv_gl[16];
-    gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
-    Matrix4 mv(mv_gl);
-    Vector4 ref = mv * Vector4(pos[0], pos[1], pos[2], 1.0f);
-    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_x(ref.x);
-    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_y(ref.y);
-    parametros_desenho_.mutable_nevoa()->mutable_referencia()->set_z(ref.z);
-    parametros_desenho_.mutable_nevoa()->set_minimo(proto_corrente_->nevoa().minimo());
-    parametros_desenho_.mutable_nevoa()->set_maximo(proto_corrente_->nevoa().maximo());
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_r(cor_luz_ambiente[0]);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_g(cor_luz_ambiente[1]);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_b(cor_luz_ambiente[2]);
-    parametros_desenho_.mutable_nevoa()->mutable_cor()->set_a(1.0);
+    ConfiguraNevoa(proto_corrente_->nevoa().minimo(), proto_corrente_->nevoa().maximo(),
+                   cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2], pos, &parametros_desenho_);
   } else {
     gl::Desabilita(GL_FOG);
   }

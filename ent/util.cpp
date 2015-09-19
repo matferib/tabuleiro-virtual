@@ -55,6 +55,26 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
   }
 }
 
+void ConfiguraNevoa(float min, float max, float r, float g, float b, float* pos, ParametrosDesenho* pd) {
+  // A funcao nevoa ja converte a posicao para olho.
+  gl::Nevoa(min, max, r, g, b, pos);
+  // Aqui tem que ser feito nao mao.
+  GLfloat mv_gl[16];
+  gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
+  Matrix4 mv(mv_gl);
+  Vector4 ref = mv * Vector4(pos[0], pos[1], pos[2], 1.0f);
+
+  pd->mutable_nevoa()->mutable_referencia()->set_x(ref.x);
+  pd->mutable_nevoa()->mutable_referencia()->set_y(ref.y);
+  pd->mutable_nevoa()->mutable_referencia()->set_z(ref.z);
+  pd->mutable_nevoa()->set_minimo(min);
+  pd->mutable_nevoa()->set_maximo(max);
+  pd->mutable_nevoa()->mutable_cor()->set_r(r);
+  pd->mutable_nevoa()->mutable_cor()->set_g(g);
+  pd->mutable_nevoa()->mutable_cor()->set_b(b);
+  pd->mutable_nevoa()->mutable_cor()->set_a(1.0);
+}
+
 void MudaCorAlfa(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], cor[3]);
 }
