@@ -14,6 +14,7 @@ class Posicao;
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
+void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd);
 
 /** Considera alpha. */
 void MudaCorAlfa(const float* cor);
@@ -107,7 +108,7 @@ enum efeitos_e {
   EFEITO_INVALIDO = -1,
   EFEITO_BORRAR = 0,
   EFEITO_REFLEXOS = 1,  // complemento: numero de imagens.
-  EFEITO_PISCAR = 2,  
+  EFEITO_PISCAR = 2,
 };
 
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
@@ -134,6 +135,8 @@ static inline std::string &rtrim(std::string& s) {
 static inline std::string &trim(std::string& s) {
   return ltrim(rtrim(s));
 }
+
+const std::string StringSemUtf8(const std::string& id_acao);
 
 }  // namespace ent
 

@@ -68,7 +68,7 @@ message IluminacaoPontual {
 message Nevoa {
   optional float minimo = 1;
   optional float maximo = 2;
-  optional Posicao referencia = 3;
+  optional Posicao referencia = 3;  // coordenadas da camera.
   optional Cor cor = 4;
 }
 

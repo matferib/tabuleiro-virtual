@@ -148,11 +148,11 @@ class AcaoDeltaPontosVida : public Acao {
     gl::MatrizEscopo salva_matriz;
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     if (acao_proto_.delta_pontos_vida() > 0) {
-      MudaCor(COR_VERDE);
+      MudaCorAplicandoNevoa(COR_VERDE, pd);
     } else if (acao_proto_.delta_pontos_vida() == 0) {
-      MudaCor(COR_BRANCA);
+      MudaCorAplicandoNevoa(COR_BRANCA, pd);
     } else {
-      MudaCor(COR_VERMELHA);
+      MudaCorAplicandoNevoa(COR_VERMELHA, pd);
     }
     DesenhaStringDelta();
   }
@@ -171,6 +171,7 @@ class AcaoDeltaPontosVida : public Acao {
 
  private:
   void DesenhaStringDelta() const {
+    gl::DesabilitaEscopo salva_nevoa(GL_FOG);
     gl::PosicaoRaster(pos_.x(), pos_.y(), pos_.z());
     gl::DesenhaString(string_delta_);
   }

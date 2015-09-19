@@ -1,5 +1,4 @@
 Versao 1.11.2
-- Ficar livre do GLUT.
 - Nevoa e escritos.
 - UI android e ipad: raio de luz.
 - Passar aura para metros ao inves de quadrados.

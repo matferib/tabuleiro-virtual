@@ -275,9 +275,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::EsferaSolida(0.2f, 4, 2);
       // Descricao (so quando nao for picking).
       if (!pd->has_picking_x() && !descricao.empty()) {
+        gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+        MudaCorAplicandoNevoa(COR_AMARELA, pd);
         gl::Translada(0.0f, 0.0f, 0.4f);
         gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-        gl::DesenhaString(descricao, true  /*inverte vertical*/);
+        gl::DesenhaString(StringSemUtf8(descricao), true  /*inverte vertical*/);
       }
     }
   }
@@ -287,37 +289,15 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
-    MudaCor(COR_AMARELA);
     if (pd->desenha_rotulo()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-      // Descobre a distancia do ponto para calcular nevoa.
-      if (pd->has_nevoa()) {
-        // Distancia do ponto pra nevoa.
-        GLfloat mv_gl[16];
-        gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
-        Matrix4 mv(mv_gl);
-        Vector4 ref = Vector4(pd->nevoa().referencia().x(),
-                              pd->nevoa().referencia().y(),
-                              pd->nevoa().referencia().z(),
-                              1.0f);
-        Vector4 ponto = mv * Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-        ponto -= Vector4(ref.x, ref.y, ref.z, 0.0f);
-        float distancia = ponto.length();
-        LOG_EVERY_N(INFO, 10) << "Distancia: " << distancia;
-        if (distancia > pd->nevoa().maximo()) {
-          gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
-        } else if (distancia > pd->nevoa().minimo()) {
-          float escala = (distancia - pd->nevoa().minimo()) / (pd->nevoa().maximo() - pd->nevoa().minimo());
-          gl::MudaCor(pd->nevoa().cor().r() * escala + COR_AMARELA[0] * (1.0f - escala),
-                      pd->nevoa().cor().g() * escala + COR_AMARELA[1] * (1.0f - escala),
-                      pd->nevoa().cor().b() * escala + COR_AMARELA[2] * (1.0f - escala),
-                      1.0f);
-        }
-      }
+      MudaCorAplicandoNevoa(COR_AMARELA, pd);
       gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      gl::DesenhaString(proto_.rotulo(), false);
+      gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
     }
     if (pd->desenha_rotulo_especial()) {
+      gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+      MudaCorAplicandoNevoa(COR_AMARELA, pd);
       gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
       std::string rotulo;
       for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
@@ -339,7 +319,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
             rotulo += "VALOR INVALIDO";
         }
       }
-      gl::DesenhaString(rotulo);
+      gl::DesenhaString(StringSemUtf8(rotulo));
     }
   }
 }

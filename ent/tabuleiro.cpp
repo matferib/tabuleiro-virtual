@@ -154,42 +154,6 @@ const std::string StringEstado(ent::etab_t estado) {
   }
 }
 
-// Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
-const std::string StringSemUtf8(const std::string& id_acao) {
-  std::string ret(id_acao);
-#if USAR_OPENGL_ES
-  std::transform(ret.begin(), ret.end(), ret.begin(), ::tolower);
-#endif
-  const static std::map<std::string, std::string> mapa = {
-    { "á", "a" },
-    { "ã", "a" },
-    { "â", "a" },
-    { "é", "e" },
-    { "ê", "e" },
-    { "í", "i" },
-    { "ç", "c" },
-    { "ô", "o" },
-    { "ó", "o" },
-    { "õ", "o" },
-    { "Á", "A" },
-    { "Â", "A" },
-    { "É", "E" },
-    { "Ê", "E" },
-    { "Í", "I" },
-    { "Ç", "C" },
-    { "Ô", "O" },
-    { "Ó", "O" },
-  };
-  for (const auto& it_mapa : mapa) {
-    auto it = ret.find(it_mapa.first);
-    while (it != std::string::npos) {
-      ret.replace(it, it_mapa.first.size(), it_mapa.second);
-      it = ret.find(it_mapa.first);
-    }
-  }
-  return ret;
-}
-
 // O delta de pontos de vida afeta outros bits tambem.
 void PreencheNotificacaoDeltaPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {

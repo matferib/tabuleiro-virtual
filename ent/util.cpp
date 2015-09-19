@@ -25,6 +25,36 @@ void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }
 
+void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
+  if (!pd->has_nevoa()) {
+    MudaCor(cor);
+    return;
+  }
+  // Distancia do ponto pra nevoa.
+  GLfloat mv_gl[16];
+  gl::Le(GL_MODELVIEW_MATRIX, mv_gl);
+  Matrix4 mv(mv_gl);
+  Vector4 ref = Vector4(pd->nevoa().referencia().x(),
+                        pd->nevoa().referencia().y(),
+                        pd->nevoa().referencia().z(),
+                        1.0f);
+  Vector4 ponto = mv * Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+  ponto -= Vector4(ref.x, ref.y, ref.z, 0.0f);
+  float distancia = ponto.length();
+  VLOG(2) << "Distancia para nevoa: " << distancia;
+  if (distancia > pd->nevoa().maximo()) {
+    gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
+  } else if (distancia > pd->nevoa().minimo()) {
+    float escala = (distancia - pd->nevoa().minimo()) / (pd->nevoa().maximo() - pd->nevoa().minimo());
+    gl::MudaCor(pd->nevoa().cor().r() * escala + cor[0] * (1.0f - escala),
+                pd->nevoa().cor().g() * escala + cor[1] * (1.0f - escala),
+                pd->nevoa().cor().b() * escala + cor[2] * (1.0f - escala),
+                1.0f);
+  } else {
+    MudaCor(cor);
+  }
+}
+
 void MudaCorAlfa(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], cor[3]);
 }
@@ -519,6 +549,39 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
       evento.set_id_efeito(id_efeito);
     }
     ret.Add()->Swap(&evento);
+  }
+  return ret;
+}
+
+// Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
+const std::string StringSemUtf8(const std::string& id_acao) {
+  std::string ret(id_acao);
+  const static std::map<std::string, std::string> mapa = {
+    { "á", "a" },
+    { "ã", "a" },
+    { "â", "a" },
+    { "é", "e" },
+    { "ê", "e" },
+    { "í", "i" },
+    { "ç", "c" },
+    { "ô", "o" },
+    { "ó", "o" },
+    { "õ", "o" },
+    { "Á", "A" },
+    { "Â", "A" },
+    { "É", "E" },
+    { "Ê", "E" },
+    { "Í", "I" },
+    { "Ç", "C" },
+    { "Ô", "O" },
+    { "Ó", "O" },
+  };
+  for (const auto& it_mapa : mapa) {
+    auto it = ret.find(it_mapa.first);
+    while (it != std::string::npos) {
+      ret.replace(it, it_mapa.first.size(), it_mapa.second);
+      it = ret.find(it_mapa.first);
+    }
   }
   return ret;
 }
