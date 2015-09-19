@@ -175,11 +175,9 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   if (profundidade == 1.0f) {
     return false;
   }
-#if !USAR_OPENGL_ES
-  return MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d);
-#else
-  return MousePara3dComId(x, y, id, pos_pilha, x3d, y3d, z3d);
-#endif
+  return !gl::SelecaoPorCor() ?
+      MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d) :
+      MousePara3dComId(x, y, id, pos_pilha, x3d, y3d, z3d);
 }
 
 bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
@@ -205,7 +203,6 @@ bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float
   return true;
 }
 
-#if !USAR_OPENGL_ES
 bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d) {
   GLfloat modelview[16], projection[16];
   GLint viewport[4];
@@ -221,17 +218,13 @@ bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, flo
   VLOG(2) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
   return true;
 }
-#else
+
 bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d) {
   // Busca mais detalhado.
   if (pos_pilha == 1) {
     MousePara3dTabuleiro(x, y, x3d, y3d, z3d);
   } else {
-#if !USAR_OPENGL_ES
-    GLdouble modelview[16], projection[16];
-#else
     GLfloat modelview[16], projection[16];
-#endif
     GLint viewport[4];
     gl::Le(GL_MODELVIEW_MATRIX, modelview);
     gl::Le(GL_PROJECTION_MATRIX, projection);
@@ -310,6 +303,5 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos
   VLOG(2) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
   return true;
 }
-#endif
 
 }  // namespace ent

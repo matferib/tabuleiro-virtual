@@ -53,6 +53,9 @@ struct ContextoDependente {
   virtual ~ContextoDependente() {}
 };
 
+// Mapeia um id para as cores rgb.
+void MapeiaId(unsigned int id, GLubyte rgb[3]);
+
 // Contexto comum.
 class Contexto {
  public:
@@ -74,7 +77,6 @@ class Contexto {
 
   std::unique_ptr<ContextoDependente> interno;
 
-  // Selecao por cor.
   // Mapeia um ID para a cor RGB em 21 bits (os dois mais significativos sao para a pilha).
   std::unordered_map<unsigned int, unsigned int> ids;
   modo_renderizacao_e modo_renderizacao = MR_RENDER;
@@ -84,12 +86,22 @@ class Contexto {
   unsigned int bit_pilha = 0;
   GLuint tam_buffer = 0;
 
+  inline bool SelecaoPorCorHabilitada() const {
+    return selecao_por_cor_habilitada_;
+  }
+  inline void AlternaSelecaoPorCor() {
+#if !USAR_OPENGL_ES
+    selecao_por_cor_habilitada_ = !selecao_por_cor_habilitada_;
+#endif
+  }
   inline bool UsarSelecaoPorCor() const {
-    return modo_renderizacao == MR_SELECT || depurar_selecao_por_cor;
+    return selecao_por_cor_habilitada_ && (modo_renderizacao == MR_SELECT || depurar_selecao_por_cor);
   }
 
  private:
   Contexto();
+  // Selecao por cor.
+  bool selecao_por_cor_habilitada_ = true;
 };
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }

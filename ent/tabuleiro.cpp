@@ -1445,11 +1445,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int
     // Entidade.
     id_entidade_destino = id;
     float x3d, y3d, z3d;
-#if !USAR_OPENGL_ES
-    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#else
-    MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
-#endif
+    if (!gl::SelecaoPorCor()) {
+      MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+    } else {
+      MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
+    }
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
@@ -1960,12 +1960,10 @@ void Tabuleiro::DesenhaCena() {
   if (depth > 2) {
     LOG(ERROR) << "Pilha PROJECTION com vazamento: " << depth;
   }
-#if !USAR_OPENGL_ES
   gl::Le(GL_ATTRIB_STACK_DEPTH, &depth);
   if (depth > 2) {
     LOG(ERROR) << "Pilha de ATRIBUTOS com vazamento: " << depth;
   }
-#endif
 #endif
 
   if (VisaoMestre() && parametros_desenho_.desenha_pontos_rolagem()) {
@@ -2768,11 +2766,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
-#if !USAR_OPENGL_ES
-  MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#else
-  MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
-#endif
+  if (!gl::SelecaoPorCor()) {
+    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+  } else {
+    MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
+  }
   // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
   if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
     switch (modo_clique_) {
@@ -4753,7 +4751,7 @@ Entidade* Tabuleiro::EntidadeSelecionada() {
 
 void Tabuleiro::AlternaModoDebug() {
   gl::AlternaModoDebug();
-  modo_debug_ = !modo_debug_;
+  //modo_debug_ = !modo_debug_;
 }
 
 void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {

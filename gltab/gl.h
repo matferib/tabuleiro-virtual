@@ -135,11 +135,7 @@ class AtributosEscopo {
 #endif
 
 /** Funcao especial para depuracao. */
-#if !USAR_OPENGL_ES
-inline void InicioCena() {}
-#else
 void InicioCena();
-#endif
 
 #if USAR_SHADER
 void ShaderLuz();
@@ -288,17 +284,10 @@ inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormai
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 
 /** Funcoes de nomes. */
-#if !USAR_OPENGL_ES
-inline void IniciaNomes() { glInitNames(); }
-inline void EmpilhaNome(GLuint nome) { glPushName(nome); }
-inline void CarregaNome(GLuint nome) { glLoadName(nome); }
-inline void DesempilhaNome() { glPopName(); }
-#else
+void CarregaNome(GLuint nome);
 void IniciaNomes();
 void EmpilhaNome(GLuint nome);
-void CarregaNome(GLuint nome);
 void DesempilhaNome();
-#endif
 
 /** Configura o tipo de objeto para o escopo, retornando ao sair. */
 class TipoEscopo {
@@ -384,28 +373,21 @@ enum modo_renderizacao_e {
   MR_RENDER = GL_RENDER,
   MR_SELECT = GL_SELECT
 };
-inline GLint ModoRenderizacao(modo_renderizacao_e modo) { return glRenderMode(modo); }
-inline void BufferSelecao(GLsizei tam_buffer, GLuint* buffer) { glSelectBuffer(tam_buffer, buffer); }
 #else
 enum modo_renderizacao_e {
   MR_RENDER = 0x1C00,
   MR_SELECT = 0x1C02
 };
-/* Render Mode */
-GLint ModoRenderizacao(modo_renderizacao_e modo);
-void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
 #endif
+void BufferSelecao(GLsizei tam_buffer, GLuint* buffer);
+GLint ModoRenderizacao(modo_renderizacao_e modo);
 
 /** Mudanca de cor. */
 void MudaCor(float r, float g, float b, float a);
 inline void MascaraCor(GLboolean mascara) { glColorMask(mascara, mascara, mascara, mascara); }
 
 inline void CorLimpeza(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glClearColor(r, g, b, a); }
-#if !USAR_OPENGL_ES
-inline void Limpa(GLbitfield mascara) { glClear(mascara); }
-#else
 void Limpa(GLbitfield mascara);
-#endif
 
 inline void MascaraProfundidade(GLboolean valor) { glDepthMask(valor); }
 class DesligaEscritaProfundidadeEscopo {
@@ -467,6 +449,9 @@ inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFun
 inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLenum sucesso) {
   glStencilOp(falha_stencil, falha_profundidade, sucesso);
 }
+
+/** Retorna true se a selecao por cor estiver sendo usada. */
+bool SelecaoPorCor();
 
 /** debugging. */
 void AlternaModoDebug();

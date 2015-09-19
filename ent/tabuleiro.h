@@ -461,13 +461,11 @@ class Tabuleiro : public ntf::Receptor {
   */
   bool MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d);
 
-#if !USAR_OPENGL_ES
   /** Dada uma profundidade, faz a projecao inversa (2d para 3d). Bem mais barato que MousePara3d acima. */
   bool MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d);
-#else
+
   /** Dado um objeto retorna as coordenadas x y z. */
   bool MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d);
-#endif
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();

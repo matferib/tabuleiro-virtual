@@ -124,14 +124,6 @@ void IniciaGl(int* argcp, char** argv) {
 }
 //#undef V_ERRO
 
-void FinalizaGl() {
-#if WIN32
-  // Apagar o contexto_interno
-#endif
-  interno::FinalizaShaders(BuscaContexto()->shaders[TSH_LUZ]);
-  interno::FinalizaShaders(BuscaContexto()->shaders[TSH_SIMPLES]);
-}
-
 namespace interno {
 
 #if 0
@@ -327,33 +319,5 @@ void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const G
 }
 
 #endif
-
-void AlternaModoDebug() {
-  BuscaContexto()->depurar_selecao_por_cor = !BuscaContexto()->depurar_selecao_por_cor;
-}
-
-void Habilita(GLenum cap) {
-#if USAR_SHADER
-  interno::HabilitaComShader(BuscaContexto(), cap);
-#else
-  glEnable(cap);
-#endif
-}
-
-void Desabilita(GLenum cap) {
-#if USAR_SHADER
-  interno::DesabilitaComShader(BuscaContexto(), cap);
-#else
-  glDisable(cap);
-#endif
-}
-
-void MudaCor(float r, float g, float b, float a) {
-#if USAR_SHADER
-  AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
-#else
-  glColor4f(r, g, b, a);
-#endif
-}
 
 }  // namespace gl.
