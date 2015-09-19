@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "gltab/gl.h"
+#include "gltab/gl_interno.h"
 #include "gltab/glues.h"
 #include "arq/arquivo.h"
 #include "log/log.h"

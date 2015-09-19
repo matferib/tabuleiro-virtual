@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstring>
 #include <limits>
-#include "gltab/gl.h"
+#include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
 #include "log/log.h"
 
@@ -906,7 +906,7 @@ void DesenhaVbo(GLenum modo,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
                 bool tem_cores, const void* cores, int d_cores) {
-  V_ERRO("DesenhaVB0: antes");
+  //V_ERRO("DesenhaVB0: antes");
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
@@ -916,16 +916,16 @@ void DesenhaVbo(GLenum modo,
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   }
-  if (tem_cores) {
+  if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor()) {
     gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   }
 
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
-  V_ERRO("DesenhaVBO: meio");
+  //V_ERRO("DesenhaVBO: meio");
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
 
-  V_ERRO("DesenhaVBO: posmeio");
+  //V_ERRO("DesenhaVBO: posmeio");
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
@@ -936,7 +936,7 @@ void DesenhaVbo(GLenum modo,
   if (tem_texturas) {
     gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
   }
-  V_ERRO("DesenhaVBO: depois");
+  //V_ERRO("DesenhaVBO: depois");
 }
 
 }  // namespace

@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 #include "arq/arquivo.h"
-#include "gltab/gl.h"
+#include "gltab/gl_interno.h"
 #include "log/log.h"
 
 using gl::interno::TSH_LUZ;
