@@ -222,7 +222,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
-  //opcoes_.set_mostra_fps(true);  // TODO temp.
+  opcoes_.set_mostra_fps(true);  // TODO temp.
 
   EstadoInicial(false);
 #if USAR_WATCHDOG
@@ -297,6 +297,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   CorParaProto(COR_BRANCA, &forma_cor_);
   // Tempo renderizacao.
   tempos_renderizacao_.clear();
+  tempos_entre_frames_.clear();
   // Modo de acao.
   modo_clique_ = MODO_NORMAL;
   // Lista objetos.
@@ -4585,17 +4586,7 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
   largura_fonte *= escala;
   altura_fonte *= escala;
 
-#if ANDROID || WIN32
-  std::string tempo_str;
-  while (maior_tempo_ms > 0) {
-    char c = (maior_tempo_ms % 10) + '0';
-    tempo_str.push_back(c);
-    maior_tempo_ms /= 10;
-  }
-  std::reverse(tempo_str.begin(), tempo_str.end());
-#else
   std::string tempo_str = net::to_string(maior_tempo_ms);
-#endif
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }
@@ -4608,11 +4599,31 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
     MudaCor(COR_PRETA);
     gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
     gl::CarregaIdentidade();
-    gl::Retangulo(0.0f, altura_ - altura_fonte - 2.0f, tempo_str.size() * largura_fonte + 2.0f, altura_);
+    gl::Retangulo(0.0f, altura_ - (altura_fonte * 2) - 2.0f, tempo_str.size() * largura_fonte + 2.0f, altura_);
   }
 
   // Eixo com origem embaixo esquerda.
   PosicionaRaster2d(2, altura_ - altura_fonte - 2, largura_, altura_);
+  MudaCor(COR_BRANCA);
+  gl::DesenhaStringAlinhadoEsquerda(tempo_str);
+  PosicionaRaster2d(2, altura_ - (altura_fonte * 2) - 2, largura_, altura_);
+  // Computa o tempo.
+  auto passou_ms = timer_para_ultimo_.elapsed().wall / 1000000ULL;
+  timer_para_ultimo_.start();
+  tempos_entre_frames_.push_front(passou_ms);
+  if (tempos_entre_frames_.size() > kMaximoTamTemposEntreFrames) {
+    tempos_entre_frames_.pop_back();
+  }
+  uint64_t maior_tempo_entre_frames = 0;
+  for (uint64_t tempo_ms : tempos_entre_frames_) {
+    if (tempo_ms > maior_tempo_entre_frames) {
+      maior_tempo_entre_frames = tempo_ms;
+    }
+  }
+  tempo_str = net::to_string(maior_tempo_entre_frames);
+  while (tempo_str.size() < 4) {
+    tempo_str.insert(0, "0");
+  }
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
   V_ERRO("tempo de renderizacao");
