@@ -1,5 +1,5 @@
 Versao 1.11.2
-- Arrumar picking opengles formas compostas.
+- Testar selecao por cor no windows com filipin.
 - Picking de cor geral com profundidade.
 - UI android e ipad: raio de luz.
 - Passar aura para metros ao inves de quadrados.
