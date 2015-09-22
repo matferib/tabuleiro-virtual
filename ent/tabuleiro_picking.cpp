@@ -124,10 +124,10 @@ void Tabuleiro::BuscaHitMaisProximo(
 
   // Busca o hit mais proximo.
   for (GLuint i = 0; i < numero_hits; ++i) {
-    GLuint tipo_objeto_corrente = *ptr_hits;
+    GLuint pos_pilha_corrente = *ptr_hits;
     ++ptr_hits;
-    if (tipo_objeto_corrente != 2) {
-      LOG(ERROR) << "Tamanho da pilha diferente de 2: " << tipo_objeto_corrente;
+    if (pos_pilha_corrente != 2) {
+      LOG(ERROR) << "Tamanho da pilha diferente de 2: " << pos_pilha_corrente;
       *tipo_objeto = 0;
       *id = 0;
       return;
@@ -165,7 +165,7 @@ void Tabuleiro::BuscaHitMaisProximo(
     *profundidade = menor_profundidade;
   }
   VLOG(1) << "Retornando menor profundidade: " << menor_profundidade
-          << ", tipo_objeto: " << tipo_objeto_menor 
+          << ", tipo_objeto: " << tipo_objeto_menor
           << ", id: " << id_menor;
 }
 

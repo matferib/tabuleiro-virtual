@@ -90,8 +90,9 @@ class Contexto {
   inline bool SelecaoPorCorHabilitada() const {
     return selecao_por_cor_habilitada_;
   }
+  // So alterna se nao houver OpenGL ES, pois este nao tem as funcoes de selecao.
   inline void AlternaSelecaoPorCor() {
-#if !USAR_OPENGL_ES
+#if !USAR_OPENGL_ES && USAR_SHADER
     selecao_por_cor_habilitada_ = !selecao_por_cor_habilitada_;
 #endif
   }
@@ -102,7 +103,12 @@ class Contexto {
  private:
   Contexto();
   // Selecao por cor.
+#if USAR_OPENGL_ES || USAR_SHADER
   bool selecao_por_cor_habilitada_ = true;
+#else
+  // Este modo usa a selecao antiga do opengl, sem shader.
+  bool selecao_por_cor_habilitada_ = false;
+#endif
 };
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
