@@ -140,6 +140,7 @@ void InicioCena();
 #if USAR_SHADER
 void ShaderLuz();
 void ShaderSimples();
+void ShaderProfundidade();
 #endif
 
 /** Funcoes gerais. */

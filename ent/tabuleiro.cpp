@@ -380,6 +380,8 @@ void Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_nevoa(false);
     parametros_desenho_.set_desenha_coordenadas(false);
   }
+  gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl::Habilita(GL_BLEND);
   DesenhaCena();
 }
 
@@ -1445,11 +1447,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int
     // Entidade.
     id_entidade_destino = id;
     float x3d, y3d, z3d;
-    if (!gl::SelecaoPorCor()) {
-      MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-    } else {
-      MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
-    }
+#if USAR_OPENGL_ES && !USAR_SHADER
+    MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
+#else
+    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+#endif
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
@@ -1779,8 +1781,6 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 
 void Tabuleiro::IniciaGL() {
   gl::Desabilita(GL_DITHER);
-  gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  gl::Habilita(GL_BLEND);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 #if !USAR_SHADER
   gl::Habilita(GL_COLOR_MATERIAL);
@@ -2764,11 +2764,11 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
-  if (!gl::SelecaoPorCor()) {
-    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-  } else {
-    MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
-  }
+#if USAR_OPENGL_ES && !USAR_SHADER
+  MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
+#else
+  MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+#endif
   // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
   if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
     switch (modo_clique_) {

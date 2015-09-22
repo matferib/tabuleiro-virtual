@@ -33,7 +33,7 @@ namespace ent {
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
 #if USAR_SHADER
-  gl::ShaderSimples();
+  gl::ShaderProfundidade();
 #endif
   // inicia o buffer de picking (selecao)
   gl::BufferSelecao(100, buffer_hits);
@@ -77,6 +77,8 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_efeitos_entidades(false);
   parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
+
+  gl::Desabilita(GL_BLEND);
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
@@ -107,7 +109,7 @@ void Tabuleiro::BuscaHitMaisProximo(
   }
 
   // Busca o hit mais próximo em buffer_hits. Cada posicao do buffer (hit record):
-  // - 0: pos_pilha de nomes (numero de nomes empilhados);
+  // - 0: tipo_objeto de nomes (numero de nomes empilhados);
   // - 1: profundidade minima.
   // - 2: profundidade maxima.
   // - 3: nomes empilhados (1 para cada pos pilha).
@@ -122,10 +124,10 @@ void Tabuleiro::BuscaHitMaisProximo(
 
   // Busca o hit mais proximo.
   for (GLuint i = 0; i < numero_hits; ++i) {
-    GLuint pos_pilha_corrente = *ptr_hits;
+    GLuint tipo_objeto_corrente = *ptr_hits;
     ++ptr_hits;
-    if (pos_pilha_corrente != 2) {
-      LOG(ERROR) << "Tamanho da pilha diferente de 2: " << pos_pilha_corrente;
+    if (tipo_objeto_corrente != 2) {
+      LOG(ERROR) << "Tamanho da pilha diferente de 2: " << tipo_objeto_corrente;
       *tipo_objeto = 0;
       *id = 0;
       return;
@@ -169,15 +171,17 @@ void Tabuleiro::BuscaHitMaisProximo(
 
 bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   GLuint id;
-  GLuint pos_pilha;
+  GLuint tipo_objeto;
   float profundidade;
-  BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   if (profundidade == 1.0f) {
     return false;
   }
-  return !gl::SelecaoPorCor() ?
-      MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d) :
-      MousePara3dComId(x, y, id, pos_pilha, x3d, y3d, z3d);
+#if USAR_OPENGL_ES && !USAR_SHADER
+  return MousePara3dComId(x, y, id, tipo_objeto, x3d, y3d, z3d);
+#else
+  return MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d);
+#endif
 }
 
 bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
@@ -219,9 +223,9 @@ bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, flo
   return true;
 }
 
-bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d) {
+bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int tipo_objeto, float* x3d, float* y3d, float* z3d) {
   // Busca mais detalhado.
-  if (pos_pilha == 1) {
+  if (tipo_objeto == 1) {
     MousePara3dTabuleiro(x, y, x3d, y3d, z3d);
   } else {
     GLfloat modelview[16], projection[16];

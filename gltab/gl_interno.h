@@ -45,6 +45,7 @@ struct VarShader {
 enum TipoShader {
   TSH_LUZ = 0,
   TSH_SIMPLES = 1,
+  TSH_PROFUNDIDADE = 2,
   TSH_NUM,  // numero de shaders.
 };
 

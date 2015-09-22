@@ -16,6 +16,7 @@ DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice."
 
 using gl::interno::TSH_LUZ;
 using gl::interno::TSH_SIMPLES;
+using gl::interno::TSH_PROFUNDIDADE;
 
 // Comum.
 namespace gl {
@@ -325,7 +326,8 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c",
       luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
       &contexto->shaders[TSH_LUZ] },
-    { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] }
+    { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
+    { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
   };
 
   for (auto& ds : dados_shaders) {
@@ -1007,6 +1009,12 @@ void ShaderSimples() {
   c->shader_corrente = &c->shaders[TSH_SIMPLES];
 }
 
+void ShaderProfundidade() {
+  auto* c = interno::BuscaContexto();
+  UsaPrograma(c->shaders[TSH_PROFUNDIDADE].programa);
+  c->shader_corrente = &c->shaders[TSH_PROFUNDIDADE];
+}
+
 void AtualizaMatrizesNovo() {
   auto* c = interno::BuscaContexto();
   bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
@@ -1208,8 +1216,12 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         VLOG(1) << "Id original: " << id_original;
         GLuint* ptr = c->buffer_selecao;
         ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
+#if USAR_SHADER
+        ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * 0xFFFFFFFF);  // zmin.
+#else
         ptr[1] = 0;  // zmin.
-        ptr[2] = 0;  // zmax
+#endif
+        ptr[2] = ptr[1];  // zmax
         ptr[3] = tipo_objeto;
         ptr[4] = id_original;
         c->buffer_selecao = nullptr;
@@ -1238,8 +1250,8 @@ void MudaCor(float r, float g, float b, float a) {
 #if USAR_SHADER
   AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
 #else
-  //GLfloat cor[4] = { r, g, b, a };
   // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
+  GLfloat cor[4] = { r, g, b, a };
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
   glColor4f(r, g, b, a);
 #endif
