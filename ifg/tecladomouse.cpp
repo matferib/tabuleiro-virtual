@@ -277,8 +277,11 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       }
       break;
     case Tecla_D:
-      if (modificadores == (Modificador_Ctrl/* | Modificador_Alt*/)) {
+      if (modificadores == Modificador_Ctrl) {
         tabuleiro_->AlternaModoDebug();
+        return;
+      }
+      if (modificadores == Modificador_Alt) {
         central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_HACK_ANDROID));
         return;
       }
