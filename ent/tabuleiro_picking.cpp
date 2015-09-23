@@ -20,6 +20,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+//#define VLOG_NIVEL 2
 #include "log/log.h"
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.pb.h"
