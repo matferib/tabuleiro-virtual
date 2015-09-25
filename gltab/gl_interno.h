@@ -41,14 +41,6 @@ struct VarShader {
   GLint atr_gltab_texel;
 };
 
-// Usado para indexar os shaders.
-enum TipoShader {
-  TSH_LUZ = 0,
-  TSH_SIMPLES = 1,
-  TSH_PROFUNDIDADE = 2,
-  TSH_NUM,  // numero de shaders.
-};
-
 // Depende de plataforma.
 struct ContextoDependente {
   virtual ~ContextoDependente() {}
@@ -113,6 +105,10 @@ class Contexto {
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
 inline const VarShader& BuscaShader() { return *BuscaContexto()->shader_corrente; }
+inline bool UsandoShaderComNevoa() {
+  auto* c = BuscaContexto();
+  return c->shader_corrente == &c->shaders[TSH_LUZ] || c->shader_corrente == &c->shaders[TSH_PRETO_BRANCO];
+}
 inline bool UsandoShaderLuz() {
   auto* c = BuscaContexto();
   return c->shader_corrente == &c->shaders[TSH_LUZ];

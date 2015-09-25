@@ -138,9 +138,16 @@ class AtributosEscopo {
 void InicioCena();
 
 #if USAR_SHADER
-void ShaderLuz();
-void ShaderSimples();
-void ShaderProfundidade();
+// Usado para indexar os shaders.
+enum TipoShader {
+  TSH_LUZ,
+  TSH_SIMPLES,
+  TSH_PROFUNDIDADE,
+  TSH_PRETO_BRANCO,
+  TSH_NUM,  // numero de shaders.
+};
+
+void UsaShader(TipoShader ts);
 #endif
 
 /** Funcoes gerais. */

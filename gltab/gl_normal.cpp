@@ -10,8 +10,6 @@
 #include "gltab/gl_interno.h"
 #include "log/log.h"
 
-using gl::interno::TSH_LUZ;
-using gl::interno::TSH_SIMPLES;
 using gl::interno::BuscaContexto;
 
 namespace gl {

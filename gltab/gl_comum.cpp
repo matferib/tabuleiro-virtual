@@ -14,9 +14,10 @@
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
 #endif
 
-using gl::interno::TSH_LUZ;
-using gl::interno::TSH_SIMPLES;
-using gl::interno::TSH_PROFUNDIDADE;
+using gl::TSH_LUZ;
+using gl::TSH_SIMPLES;
+using gl::TSH_PROFUNDIDADE;
+using gl::TSH_PRETO_BRANCO;
 
 // Comum.
 namespace gl {
@@ -328,6 +329,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       &contexto->shaders[TSH_LUZ] },
     { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
     { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
+    { "programa_preto_branco", "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
   };
 
   for (auto& ds : dados_shaders) {
@@ -343,7 +345,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
     print_uniforms(ds.shader->programa);
     LOG(INFO) << "Programa shaders '" << ds.nome_programa.c_str() << "' iniciado com sucesso";
   }
-  ShaderLuz();
+  UsaShader(TSH_LUZ);
   V_ERRO("usando programa shader");
 }
 
@@ -403,7 +405,7 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_textura, 1.0f);
     Uniforme(shader.uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
   } else if (cap == GL_FOG) {
-    if (!UsandoShaderLuz()) {
+    if (!UsandoShaderComNevoa()) {
       return;
     }
     GLint uniforme = shader.uni_gltab_nevoa_cor;
@@ -448,7 +450,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else if (cap == GL_TEXTURE_2D) {
     Uniforme(shader.uni_gltab_textura, 0.0f);
   } else if (cap == GL_FOG) {
-    if (!UsandoShaderLuz()) {
+    if (!UsandoShaderComNevoa()) {
       return;
     }
     GLint uniforme = shader.uni_gltab_nevoa_cor;
@@ -656,17 +658,16 @@ void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsize
 bool EstaHabilitado(GLenum cap) {
 #if USAR_SHADER
   const auto& shader = interno::BuscaShader();
-  bool usando_shader_luz = interno::UsandoShaderLuz();
   if (cap == GL_LIGHTING) {
-    if (!usando_shader_luz) {
+    if (!interno::UsandoShaderLuz()) {
       return false;
     }
-    GLint uniforme = interno::BuscaShader().uni_gltab_luz_ambiente_cor;
+    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0.0f;
   } else if (cap == GL_LIGHT0) {
-    if (!usando_shader_luz) {
+    if (!interno::UsandoShaderLuz()) {
       return false;
     }
     GLint uniforme = shader.uni_gltab_luz_direcional_cor;
@@ -674,7 +675,7 @@ bool EstaHabilitado(GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0;
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
-    if (!usando_shader_luz) {
+    if (!interno::UsandoShaderLuz()) {
       return false;
     }
     GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
@@ -686,7 +687,7 @@ bool EstaHabilitado(GLenum cap) {
     LeUniforme(shader.programa, shader.uni_gltab_textura, &fret);
     return fret;
   } else if (cap == GL_FOG) {
-    if (!usando_shader_luz) {
+    if (!interno::UsandoShaderComNevoa()) {
       return false;
     }
     GLint uniforme = shader.uni_gltab_nevoa_cor;
@@ -785,7 +786,7 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
 
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia) {
 #if USAR_SHADER
-  if (!interno::UsandoShaderLuz()) {
+  if (!interno::UsandoShaderComNevoa()) {
     return;
   }
   GLfloat glm[16];
@@ -997,22 +998,11 @@ void DesabilitaEstadoCliente(GLenum cap) {
 }
 
 #if USAR_SHADER
-void ShaderLuz() {
+void UsaShader(TipoShader ts) {
   auto* c = interno::BuscaContexto();
-  UsaPrograma(c->shaders[TSH_LUZ].programa);
-  c->shader_corrente = &c->shaders[TSH_LUZ];
-}
-
-void ShaderSimples() {
-  auto* c = interno::BuscaContexto();
-  UsaPrograma(c->shaders[TSH_SIMPLES].programa);
-  c->shader_corrente = &c->shaders[TSH_SIMPLES];
-}
-
-void ShaderProfundidade() {
-  auto* c = interno::BuscaContexto();
-  UsaPrograma(c->shaders[TSH_PROFUNDIDADE].programa);
-  c->shader_corrente = &c->shaders[TSH_PROFUNDIDADE];
+  UsaPrograma(c->shaders[ts].programa);
+  c->shader_corrente = &c->shaders[ts];
+  VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
 
 void AtualizaMatrizesNovo() {

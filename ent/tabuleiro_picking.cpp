@@ -33,7 +33,7 @@ namespace ent {
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
 #if USAR_SHADER
-  gl::ShaderProfundidade();
+  gl::UsaShader(gl::TSH_PROFUNDIDADE);
 #endif
   // inicia o buffer de picking (selecao)
   gl::BufferSelecao(100, buffer_hits);
