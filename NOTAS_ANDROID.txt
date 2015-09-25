@@ -120,6 +120,9 @@ Baixar wire compiler (prot enxuto). https://github.com/square/wire
 java -jar wire-compiler/target/wire-compiler-VERSION-jar-with-dependencies.jar \
   --java_out=java_out caminho/para/proto.
 
+Exemplo:
+java -jar wire-compiler-1.8.0-jar-with-dependencies.jar --java_out=java_out ent/entidade.proto
+
 Mover os protos gerados para src/com/matferib/Tabuleiro/.
 
 Baixar runtime:
