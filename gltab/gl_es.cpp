@@ -14,9 +14,6 @@
 #include "gltab/glues.h"
 #include "log/log.h"
 
-using gl::interno::TSH_LUZ;
-using gl::interno::TSH_SIMPLES;
-
 namespace gl {
 
 bool ImprimeSeErro(const char* mais);
