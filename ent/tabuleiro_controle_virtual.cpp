@@ -56,10 +56,12 @@ const int CONTROLE_CIMA_VERTICAL = 22;
 const int CONTROLE_BAIXO_VERTICAL = 23;
 const int CONTROLE_TRANSICAO = 24;
 }
-
 // Preciso desses valores fora do arquivo.
-extern const int CONTROLE_PAGINACAO_CIMA = 25;  // paginacao de lista de objetos, nao esta aqui.
+extern const int CONTROLE_PAGINACAO_CIMA = 25;  // paginacao de lista de objetos.
 extern const int CONTROLE_PAGINACAO_BAIXO = 26;  // ditto.
+namespace {
+const int CONTROLE_VISAO_ESCURO = 27;
+}
 
 namespace {
 // Texturas do controle virtual.
@@ -72,8 +74,10 @@ const char* TEXTURA_CAMERA_ISOMETRICA = "icon_isometric_camera.png";
 const char* TEXTURA_CAMERA_PRESA = "icon_tracking_camera.png";
 const char* TEXTURA_DESFAZER = "icon_undo.png";
 const char* TEXTURA_TRANSICAO = "icon_enter.png";
-const std::vector<std::string> g_texturas = { TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA,
-                                              TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA, TEXTURA_DESFAZER, TEXTURA_TRANSICAO };
+const char* TEXTURA_VISAO_ESCURO = "icon_darkvision.png";
+const std::vector<std::string> g_texturas = {
+    TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA, TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA,
+    TEXTURA_DESFAZER, TEXTURA_TRANSICAO, TEXTURA_VISAO_ESCURO };
 
 // Para botoes sem estado.
 bool RetornaFalse() {
@@ -112,6 +116,9 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       break;
     case CONTROLE_CAMERA_PRESA:
       AlternaCameraPresa();
+      break;
+    case CONTROLE_VISAO_ESCURO:
+      AlternaVisaoEscuro();
       break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
@@ -305,12 +312,13 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Cameras.
     { 1, 0, 16, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
     { 1, 1, 16, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },      4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 17, "Ve", nullptr, TEXTURA_VISAO_ESCURO,      CONTROLE_VISAO_ESCURO,      [this] () { return this->visao_escuro_; },      4, 0.0f, 0.0f, 0.0f },
 
     // Desfazer.
-    { 2, 0, 17, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
+    { 2, 0, 18, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
 
     // Contador de rodadas.
-    { 2, 0, 19, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
+    { 2, 0, 20, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
   };
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);

@@ -354,12 +354,10 @@ void Tabuleiro::Desenha() {
 #if USAR_SHADER
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
-  if (entidade_referencia != nullptr) {
+  if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
+      (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
-  }
-  if (parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
-      (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::UsaShader(gl::TSH_PRETO_BRANCO);
   } else {
     gl::UsaShader(gl::TSH_LUZ);

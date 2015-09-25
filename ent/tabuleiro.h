@@ -338,6 +338,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna a camera presa a entidade. */
   void AlternaCameraPresa();
+  
+  /** Alterna a visao no escuro. Ainda depende da entidade selecionada possuir a visao. */
+  void AlternaVisaoEscuro() { visao_escuro_ = !visao_escuro_; }
 
   /** Carrega um cenario do tabuleiro. O cenario deve existir.
   * @param id do cenario. Use CENARIO_PRINCIPAL para principal.
@@ -728,6 +731,7 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_mestre_;
   bool visao_jogador_ = false;  // Para o mestre poder ver na visao do jogador.
   bool camera_presa_ = false;
+  bool visao_escuro_ = false;  // Jogador ligou a visao no escuro (mas depende da entidade presa possuir).
   unsigned int id_camera_presa_ = Entidade::IdInvalido;  // A qual entidade a camera esta presa.
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
 
