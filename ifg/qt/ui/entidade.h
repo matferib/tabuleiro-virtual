@@ -105,6 +105,8 @@ public:
     QHBoxLayout *horizontalLayout_20;
     QLabel *label_13;
     QComboBox *combo_visao;
+    QLabel *label_14;
+    QDoubleSpinBox *spin_raio_visao_escuro;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -472,6 +474,19 @@ public:
 
         horizontalLayout_20->addWidget(combo_visao);
 
+        label_14 = new QLabel(horizontalLayoutWidget_11);
+        label_14->setObjectName(QString::fromUtf8("label_14"));
+        label_14->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_20->addWidget(label_14);
+
+        spin_raio_visao_escuro = new QDoubleSpinBox(horizontalLayoutWidget_11);
+        spin_raio_visao_escuro->setObjectName(QString::fromUtf8("spin_raio_visao_escuro"));
+        spin_raio_visao_escuro->setDecimals(1);
+        spin_raio_visao_escuro->setSingleStep(0.5);
+
+        horizontalLayout_20->addWidget(spin_raio_visao_escuro);
+
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
@@ -572,6 +587,10 @@ public:
         );
 #ifndef QT_NO_TOOLTIP
         combo_visao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo de vis\303\243o da entidade.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_14->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_raio_visao_escuro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 

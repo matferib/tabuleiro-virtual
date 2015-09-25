@@ -262,6 +262,7 @@ message ParametrosDesenho {
   optional bool desenha_coordenadas = 37 [default=true];
   // Tipo de visao da entidade presa.
   optional TipoVisao tipo_visao = 39;
+  optional float multiplicador_visao_penumbra = 40 [default=1.2];
 
   // Opcoes por entidade.
   // Se verdadeiro, desenha a barra de vida da entidade.

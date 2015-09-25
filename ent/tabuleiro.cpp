@@ -222,7 +222,9 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
-  opcoes_.set_mostra_fps(true);  // TODO temp.
+#if DEBUG
+  opcoes_.set_mostra_fps(true);
+#endif
 
   EstadoInicial(false);
 #if USAR_WATCHDOG
@@ -351,18 +353,26 @@ void Tabuleiro::Desenha() {
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
-#if USAR_SHADER
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
   if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
+#if USAR_SHADER
     gl::UsaShader(gl::TSH_PRETO_BRANCO);
-  } else {
-    gl::UsaShader(gl::TSH_LUZ);
-  }
 #endif
+  } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+    parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
+    parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
+#if USAR_SHADER
+    gl::UsaShader(gl::TSH_LUZ);
+#endif
+  } else {
+#if USAR_SHADER
+    gl::UsaShader(gl::TSH_LUZ);
+#endif
+  }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
@@ -4233,7 +4243,8 @@ void Tabuleiro::DesenhaLuzes() {
     pos[0] = epos.x();
     pos[1] = epos.y();
     pos[2] = epos.z();
-    ConfiguraNevoa(10.0, 10.1, 0, 0, 0, pos, &parametros_desenho_);
+    float alcance_visao = entidade_referencia->Proto().has_alcance_visao() ? entidade_referencia->Proto().alcance_visao() : 18.0f;
+    ConfiguraNevoa(alcance_visao, alcance_visao + 0.1f, 0, 0, 0, pos, &parametros_desenho_);
     parametros_desenho_.clear_iluminacao();
     gl::Desabilita(GL_LIGHTING);
     return;
@@ -4248,6 +4259,10 @@ void Tabuleiro::DesenhaLuzes() {
     cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
     cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
     cor_luz_ambiente[2] = std::max(0.65f, cor_luz_ambiente[2]);
+  } else if (parametros_desenho_.tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+    cor_luz_ambiente[0] = std::min(1.0f, cor_luz_ambiente[0] * parametros_desenho_.multiplicador_visao_penumbra());
+    cor_luz_ambiente[1] = std::min(1.0f, cor_luz_ambiente[1] * parametros_desenho_.multiplicador_visao_penumbra());
+    cor_luz_ambiente[2] = std::min(1.0f, cor_luz_ambiente[2] * parametros_desenho_.multiplicador_visao_penumbra());
   }
   gl::LuzAmbiente(cor_luz_ambiente[0], cor_luz_ambiente[1], cor_luz_ambiente[2]);
 
@@ -4266,6 +4281,11 @@ void Tabuleiro::DesenhaLuzes() {
         proto_corrente_->luz_direcional().cor().g(),
         proto_corrente_->luz_direcional().cor().b(),
         proto_corrente_->luz_direcional().cor().a() };
+    if (parametros_desenho_.tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
+      cor_luz[0] = std::min(1.0f, cor_luz[0] * parametros_desenho_.multiplicador_visao_penumbra());
+      cor_luz[1] = std::min(1.0f, cor_luz[1] * parametros_desenho_.multiplicador_visao_penumbra());
+      cor_luz[2] = std::min(1.0f, cor_luz[2] * parametros_desenho_.multiplicador_visao_penumbra());
+    }
     gl::LuzDirecional(pos_luz, cor_luz[0], cor_luz[1], cor_luz[2]);
     gl::Habilita(GL_LIGHT0);
   }

@@ -705,6 +705,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Tipo de visao.
   gerador.combo_visao->setCurrentIndex((int)entidade.tipo_visao());
+  lambda_connect(gerador.combo_visao, SIGNAL(currentIndexChanged(int)), [this, &gerador] () {
+    gerador.spin_raio_visao_escuro->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
+  });
+  gerador.spin_raio_visao_escuro->setValue(entidade.has_alcance_visao() ? entidade.alcance_visao() : 18);
+  gerador.spin_raio_visao_escuro->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
@@ -778,6 +783,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_translacao_z_deprecated(0);
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
+    if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
+      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro->value());
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

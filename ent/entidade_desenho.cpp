@@ -420,10 +420,12 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
     const ent::Cor& cor = proto_.luz().cor();
     float raio = (proto_.luz().has_raio() ? proto_.luz().raio() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
+    float multiplicador_cor = 1.0f;
     if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
       raio *= 2.0;
+      multiplicador_cor = pd->multiplicador_visao_penumbra();
     }
-    gl::LuzPontual(id_luz, pos_luz, cor.r(), cor.g(), cor.b(), raio);
+    gl::LuzPontual(id_luz, pos_luz, cor.r() * multiplicador_cor, cor.g() * multiplicador_cor, cor.b() * multiplicador_cor, raio);
     gl::Habilita(GL_LIGHT0 + id_luz);
     pd->set_luz_corrente(id_luz + 1);
   }

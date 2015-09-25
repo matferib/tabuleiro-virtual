@@ -666,6 +666,29 @@
       </item>
      </widget>
     </item>
+    <item>
+     <widget class="QLabel" name="label_14">
+      <property name="text">
+       <string>Raio</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QDoubleSpinBox" name="spin_raio_visao_escuro">
+      <property name="toolTip">
+       <string>Raio da visão no escuro, em metros.</string>
+      </property>
+      <property name="decimals">
+       <number>1</number>
+      </property>
+      <property name="singleStep">
+       <double>0.500000000000000</double>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
