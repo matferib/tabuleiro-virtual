@@ -121,7 +121,7 @@ message EntidadeProto {
   // Informacoes adicionais sobre a entidade. Visivel apenas para o mestre ou se a entidade puder ser selecionada.
   // Algumas informacoes serao concatenadas ao valor do campo.
   repeated string rotulo_especial = 30;
-  // Os varios tamanhos de uma entidade no tabuleiro. */
+  // Os varios tamanhos de uma entidade no tabuleiro.
   optional TamanhoEntidade tamanho = 3 [default=TM_MEDIO];
   // Se verdadeiro, objeto sera desenhado de forma achatada.
   optional bool achatado = 17 [default=false];

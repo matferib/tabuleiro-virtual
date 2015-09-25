@@ -31,9 +31,12 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import com.squareup.wire.Wire;
 import com.matferib.Tabuleiro.ent.EntidadeProto;
+import com.matferib.Tabuleiro.ent.TipoVisao;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
 public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
@@ -354,6 +357,11 @@ class TabuleiroRenderer
           Log.e(TAG, "pv == null");
           return;
         }
+        final Spinner tv = (Spinner)view.findViewById(R.id.tipo_visao);
+        if (tv == null) {
+          Log.e(TAG, "tv == null");
+          return;
+        }
         final EditText eventos = (EditText)view.findViewById(R.id.eventos);
         if (eventos == null) {
           Log.e(TAG, "eventos == null");
@@ -361,6 +369,11 @@ class TabuleiroRenderer
         }
         max_pv.setText(String.valueOf(proto.max_pontos_vida));
         pv.setText(String.valueOf(proto.pontos_vida));
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+            activity_, R.array.tipo_visao_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        tv.setAdapter(adapter);
+        tv.setSelection(proto.tipo_visao != null ? proto.tipo_visao.getValue() : TipoVisao.VISAO_NORMAL.getValue());
         String evento_str = new String();
         for (EntidadeProto.Evento e : proto.evento) {
           evento_str += e.descricao;
@@ -383,6 +396,7 @@ class TabuleiroRenderer
                     .id(proto.id)
                     .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
                     .pontos_vida(Integer.parseInt(pv.getText().toString()))
+                    .tipo_visao(TipoVisao.values()[tv.getSelectedItemPosition()])
                     .evento(evento_hack)
                     .build();
                 Log.d(TAG, "OK proto: " + proto_modificado.toString());

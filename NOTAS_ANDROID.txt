@@ -131,6 +131,9 @@ okio: https://github.com/square/okio/blob/master/README.md
 
 Coloca-los no diretorio libs do android.
 
+Atencao: em caso de null ser retornado nos componentes, conferir se a compilacao realmente aconteceu.
+m -rf bin/classes
+
 ===========
  Problemas
 ===========

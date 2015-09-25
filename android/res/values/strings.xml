@@ -4,4 +4,11 @@
     <string name="max_pontos_vida">Max Pontos Vida</string>
     <string name="pontos_vida">Pontos Vida</string>
     <string name="eventos">Eventos</string>
-</resources>
+    <string name="tipo_visao">Tipo de Visão</string>
+    <string-array name="tipo_visao_array">
+      <!-- A ordem deve ser a mesma da enum de visoes. -->
+      <item>Visão Normal</item>
+      <item>Visão na Penumbra</item>
+      <item>Visão no Escuro</item>
+    </string-array>
+  </resources>
