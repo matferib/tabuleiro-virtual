@@ -1,7 +1,6 @@
 Versao 1.11.2
-- Testar selecao por cor no windows com filipin.
-- Picking de cor geral com profundidade.
-- UI android e ipad: raio de luz.
+- Repensar camera presa.
+- UI android e ipad: raio de luz e tipo de visao.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
