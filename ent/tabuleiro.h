@@ -147,8 +147,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna o ultimo valor da lista entre cura e dano. */
   void AlternaUltimoPontoVidaListaPontosVida();
 
-  /** desenha o mundo. */
-  void Desenha();
+  /** desenha o mundo. Retorna o tempo em ms. */
+  int Desenha();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -765,12 +765,10 @@ class Tabuleiro : public ntf::Receptor {
 
   // Armazena os ultimos tempos de renderizacao.
   boost::timer::cpu_timer timer_;
-  boost::timer::cpu_timer timer_para_ultimo_;
+  boost::timer::cpu_timer timer_para_renderizacao_;
   boost::timer::cpu_timer timer_para_atualizacoes_;
   std::list<uint64_t> tempos_renderizacao_;
-  std::list<uint64_t> tempos_entre_frames_;
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
-  constexpr static unsigned int kMaximoTamTemposEntreFrames = 20;
 
   // Modo de depuracao do tabuleiro.
   bool modo_debug_ = false;

@@ -223,7 +223,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
-#if DEBUG
+#if 1 || DEBUG
   opcoes_.set_mostra_fps(true);
 #endif
 
@@ -300,7 +300,6 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   CorParaProto(COR_BRANCA, &forma_cor_);
   // Tempo renderizacao.
   tempos_renderizacao_.clear();
-  tempos_entre_frames_.clear();
   // Modo de acao.
   modo_clique_ = MODO_NORMAL;
   // Lista objetos.
@@ -349,7 +348,10 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 }
 
-void Tabuleiro::Desenha() {
+int Tabuleiro::Desenha() {
+  auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
+  timer_para_renderizacao_.start();
+
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
   // default. Alem disso a matriz de projecao eh diferente para picking.
@@ -403,6 +405,7 @@ void Tabuleiro::Desenha() {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
   DesenhaCena();
+  return passou_ms;
 }
 
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
@@ -4585,12 +4588,12 @@ void Tabuleiro::DesenhaCoordenadas() {
 
 // Chamado pelo TimerEscopo no tabuleiro.h.
 void Tabuleiro::DesenhaTempoRenderizacao() {
-  auto cpu_times = timer_.elapsed();
-  uint64_t tempo_ms = (cpu_times.user + cpu_times.system) / 1000000ULL;
+  glFinish();
+  auto passou_ms = timer_.elapsed().wall / 1000000ULL;
   if (tempos_renderizacao_.size() == kMaximoTamTemposRenderizacao) {
     tempos_renderizacao_.pop_back();
   }
-  tempos_renderizacao_.push_front(tempo_ms);
+  tempos_renderizacao_.push_front(passou_ms);
   if (!parametros_desenho_.desenha_fps()) {
     // Se nao eh pra desenhar, nao gasta tempo com o resto. A parte de cima eh importante
     // para contabilizar os casos de picking.
@@ -4623,31 +4626,10 @@ void Tabuleiro::DesenhaTempoRenderizacao() {
     MudaCor(COR_PRETA);
     gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
     gl::CarregaIdentidade();
-    gl::Retangulo(0.0f, altura_ - (altura_fonte * 2) - 2.0f, tempo_str.size() * largura_fonte + 2.0f, altura_);
+    gl::Retangulo(0.0f, altura_ - altura_fonte - 2.0f, tempo_str.size() * largura_fonte + 2.0f, altura_);
   }
-
   // Eixo com origem embaixo esquerda.
   PosicionaRaster2d(2, altura_ - altura_fonte - 2, largura_, altura_);
-  MudaCor(COR_BRANCA);
-  gl::DesenhaStringAlinhadoEsquerda(tempo_str);
-  PosicionaRaster2d(2, altura_ - (altura_fonte * 2) - 2, largura_, altura_);
-  // Computa o tempo.
-  auto passou_ms = timer_para_ultimo_.elapsed().wall / 1000000ULL;
-  timer_para_ultimo_.start();
-  tempos_entre_frames_.push_front(passou_ms);
-  if (tempos_entre_frames_.size() > kMaximoTamTemposEntreFrames) {
-    tempos_entre_frames_.pop_back();
-  }
-  uint64_t maior_tempo_entre_frames = 0;
-  for (uint64_t tempo_ms : tempos_entre_frames_) {
-    if (tempo_ms > maior_tempo_entre_frames) {
-      maior_tempo_entre_frames = tempo_ms;
-    }
-  }
-  tempo_str = net::to_string(maior_tempo_entre_frames);
-  while (tempo_str.size() < 4) {
-    tempo_str.insert(0, "0");
-  }
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
   V_ERRO("tempo de renderizacao");

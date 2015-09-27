@@ -698,7 +698,8 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
-  float cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO / 3.0f;
+  // Se o intervalo eh grande, os deltas ficam grandes. Aqui corrigimos isso.
+  float cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO / (3.0f * (intervalo_ms / INTERVALO_NOTIFICACAO_MS));
   float dx_alvo = dx_ * cos_delta_alvo;
   float dy_alvo = dy_ * cos_delta_alvo;
   float dz_alvo = dz_ * cos_delta_alvo;
