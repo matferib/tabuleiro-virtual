@@ -8,6 +8,7 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "gltab/gl_vbo.h"
+#include "matrix/vectors.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
@@ -272,7 +273,7 @@ class AcaoProjetil : public Acao {
 
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (estagio_ == INICIAL) {
-      AtualizaInicial();
+      AtualizaVoo(intervalo_ms);
     } else if (estagio_ == ATINGIU_ALVO) {
       if (!AtualizaAlvo(intervalo_ms)) {
         VLOG(1) << "Terminando acao projetil, alvo atualizado.";
@@ -303,8 +304,7 @@ class AcaoProjetil : public Acao {
   }
 
  private:
-  void AtualizaInicial() {
-    // Atualiza destino a cada 50ms.
+  void AtualizaVoo(int intervalo_ms) {
     Entidade* entidade_destino = nullptr;
     if ((entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
       VLOG(1) << "Finalizando projetil, destino não existe.";
@@ -313,30 +313,22 @@ class AcaoProjetil : public Acao {
     }
     const auto& pos_destino = entidade_destino->PosicaoAcao();
     // Recalcula vetor.
-    // TODO adicionar um componente erratico.
     dx_ = pos_destino.x() - pos_.x();
     dy_ = pos_destino.y() - pos_.y();
     dz_ = pos_destino.z() - pos_.z();
-    double tamanho = sqrt(dx_ * dx_ + dy_ * dy_ + dz_ * dz_);
-    if (tamanho == 0) {
-      VLOG(1) << "Projetil atingiu alvo.";
-      estagio_ = ATINGIU_ALVO;
-      return;
-    }
-    AtualizaVelocidade();
-    const double vel_tam = velocidade_ / tamanho;
-    dx_ *= vel_tam;
-    dy_ *= vel_tam;
-    dz_ *= vel_tam;
-    VLOG(4) << "vel_tam: " << vel_tam << ", vel: " << velocidade_ << ", tamanho: " << tamanho
-            << ", dx: " << dx_ << ", dy: " << dy_ << ", dz: " << dz_;
-
-    double xa = pos_.x();
-    double ya = pos_.y();
-    double za = pos_.z();
-    pos_.set_x(ArrumaSePassou(xa, xa + dx_, pos_destino.x()));
-    pos_.set_y(ArrumaSePassou(ya, ya + dy_, pos_destino.y()));
-    pos_.set_z(ArrumaSePassou(za, za + dz_, pos_destino.z()));
+    AtualizaVelocidade(intervalo_ms);
+    VLOG(1) << "Velocidade: " << velocidade_m_ms_;
+    Vector3 v(dx_, dy_, dz_);
+    v.normalize();
+    v *= (velocidade_m_ms_ * intervalo_ms);
+    // Posicao antes.
+    float xa = pos_.x();
+    float ya = pos_.y();
+    float za = pos_.z();
+    // Antes, depois, destino.
+    pos_.set_x(ArrumaSePassou(xa, xa + v.x, pos_destino.x()));
+    pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino.y()));
+    pos_.set_z(ArrumaSePassou(za, za + v.z, pos_destino.z()));
 
     if (pos_.x() == pos_destino.x() &&
         pos_.y() == pos_destino.y() &&
@@ -349,12 +341,12 @@ class AcaoProjetil : public Acao {
 
 
   // Verifica se a coordenada passou do ponto de destino.
-  static bool Passou(double antes, double depois, double destino) {
+  static bool Passou(float antes, float depois, float destino) {
     return (antes < destino) ? depois > destino : depois < destino;
   }
 
   // Retorna depois se a coordenada nao passou de destino, caso contrario retorna destino.
-  static double ArrumaSePassou(double antes, double depois, double destino) {
+  static float ArrumaSePassou(float antes, float depois, float destino) {
     return Passou(antes, depois, destino) ? destino : depois;
   }
 
@@ -626,10 +618,8 @@ class AcaoFeiticoToque : public Acao {
 // Acao.
 Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro)
     : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {
-  delta_tempo_ = 0;
-  velocidade_ = acao_proto.velocidade().inicial_m_s() * POR_SEGUNDO_PARA_ATUALIZACAO;
-  aceleracao_ = acao_proto.velocidade().aceleracao_m_s_2() * POR_SEGUNDO_PARA_ATUALIZACAO;
-  delta_aceleracao_ = acao_proto.velocidade().delta_aceleracao_m_s_3() * POR_SEGUNDO_PARA_ATUALIZACAO;
+  velocidade_m_ms_ = acao_proto.velocidade().inicial_m_s() / 1000.0f;
+  aceleracao_m_ms_2_ = acao_proto.velocidade().aceleracao_m_s_2() / 1000.0f;
   dx_ = dy_ = dz_ = 0;
   dx_total_ = dy_total_ = dz_total_ = 0;
   disco_alvo_rad_ = 0;
@@ -663,23 +653,30 @@ void Acao::DesenhaTranslucido(ParametrosDesenho* pd) const {
   DesenhaTranslucidoSeNaoFinalizada(pd);
 }
 
-void Acao::AtualizaVelocidade() {
-  ++delta_tempo_;
+void Acao::AtualizaVelocidade(int intervalo_ms) {
+  VLOG(1) << "velocidade_m_ms antes: " << velocidade_m_ms_
+          << ", aceleracao_m_ms_2_ antes: " << aceleracao_m_ms_2_;
   int tipo_aceleracao = acao_proto_.velocidade().tipo_aceleracao();
   switch (tipo_aceleracao) {
     case ACAO_ACEL_ZERO:
-      return;
+      break;
     case ACAO_ACEL_CONSTANTE:
-      velocidade_ += aceleracao_;
-      return;
+      velocidade_m_ms_ += intervalo_ms * aceleracao_m_ms_2_;
+      break;
     case ACAO_ACEL_LINEAR:
-      aceleracao_ += delta_aceleracao_;
-      velocidade_ += aceleracao_;
-      return;
+      aceleracao_m_ms_2_ += intervalo_ms * (acao_proto_.velocidade().delta_aceleracao_m_s_3() / 1000.0f);
+      velocidade_m_ms_ += intervalo_ms * aceleracao_m_ms_2_;
+      break;
     default:
       LOG(WARNING) << "Tipo de aceleracao invalida.";
-      return;
+      break;
   }
+  float vmax_m_ms = acao_proto_.velocidade().maxima_m_s() / 1000.0f;
+  if (velocidade_m_ms_ > vmax_m_ms) {
+    velocidade_m_ms_ = vmax_m_ms;
+  }
+  VLOG(1) << "velocidade_m_ms depois: " << velocidade_m_ms_
+          << ", aceleracao_m_ms_2_ depois: " << aceleracao_m_ms_2_;
 }
 
 bool Acao::AtualizaAlvo(int intervalo_ms) {
@@ -701,7 +698,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
-  double cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO / 3.0f;
+  float cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO / 3.0f;
   float dx_alvo = dx_ * cos_delta_alvo;
   float dy_alvo = dy_ * cos_delta_alvo;
   float dz_alvo = dz_ * cos_delta_alvo;

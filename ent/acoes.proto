@@ -38,6 +38,7 @@ message Velocidade {
   optional TipoAceleracao tipo_aceleracao = 2 [default=ACAO_ACEL_ZERO];
   optional float aceleracao_m_s_2 = 3;
   optional float delta_aceleracao_m_s_3 = 4 [default=0];
+  optional float maxima_m_s = 5 [default=50.0];
 }
 
 message AcaoProto {

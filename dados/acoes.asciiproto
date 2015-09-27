@@ -18,7 +18,7 @@ acao {
   escala { x: 1.0 y: 0.05 z: 0.05 }
   cor { r: 0.0 g: 0.0 b: 0.0 }
   velocidade {
-    inicial_m_s:50
+    inicial_m_s: 50 
     tipo_aceleracao: ACAO_ACEL_ZERO
   }
 }
@@ -72,9 +72,8 @@ acao {
   escala { x: 0.2 y: 0.2 z: 0.2 }
   cor { r: 0.0 g: 0.0 b: 1.0 }
   velocidade {
-    tipo_aceleracao: ACAO_ACEL_LINEAR
-    aceleracao_m_s_2: 0
-    delta_aceleracao_m_s_3: 0.008
+    tipo_aceleracao: ACAO_ACEL_CONSTANTE
+    aceleracao_m_s_2: 0.04
   }
 }
 acao {

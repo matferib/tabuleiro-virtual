@@ -43,7 +43,7 @@
 #endif
 #define INTERVALO_NOTIFICACAO_MS (1000.0f / ATUALIZACOES_POR_SEGUNDO)
 // Converte a velocidade por segundo para distancia por atualizacao.
-#define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
+//#define POR_SEGUNDO_PARA_ATUALIZACAO (1.0f / ATUALIZACOES_POR_SEGUNDO)
 
 // Taxa de envio de movimentos parciais para clientes.
 #define CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS (ATUALIZACOES_POR_SEGUNDO / 3)
