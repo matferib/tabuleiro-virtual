@@ -23,15 +23,17 @@ Cliente::Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central
   // TODO fazer alguma verificacao disso.
   // tamanho maximo da mensagem: 1MB.
   buffer_.resize(1 * 1024 * 1024);
+  timer_descobrimento_.stop();
 }
 
 bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
   if (notificacao.tipo() == ntf::TN_TEMPORIZADOR) {
     int n = 0;
     if (socket_descobrimento_.get() != nullptr) {
-      if (++timer_descobrimento_ * INTERVALO_NOTIFICACAO_MS > 3000) {
-        //LOG(INFO) << "Timer: " << timer_descobrimento_;
+      auto passou_ms = timer_descobrimento_.elapsed().wall / 1000000ULL;
+      if (passou_ms > 3000) {
         socket_descobrimento_->Fecha();
+        timer_descobrimento_.stop();
       }
       n = sincronizador_->Roda();
     } else if (Ligado()) {
@@ -129,7 +131,7 @@ void Cliente::AutoConecta(const std::string& id) {
       }
   );
   //LOG(INFO) << "zerando timer";
-  timer_descobrimento_ = 0;
+  timer_descobrimento_.start();
 }
 
 void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
@@ -144,7 +146,7 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
   boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
   if (endereco_porta.size() == 0) {
     // Endereco padrao.
-    LOG(ERROR) << "Nunca deveria chegar aqui: conexao sem endereco nem portal";
+    LOG(ERROR) << "Nunca deveria chegar aqui: conexao sem endereco nem porta";
     endereco_porta.push_back("localhost");
   } else if (endereco_porta[0].empty()) {
     endereco_porta[0] = "localhost";

@@ -1,6 +1,7 @@
 #ifndef NET_CLIENTE_H
 #define NET_CLIENTE_H
 
+#include <boost/timer/timer.hpp>
 #include <memory>
 #include <queue>
 #include <string>
@@ -48,7 +49,7 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   std::unique_ptr<SocketUdp> socket_descobrimento_;
   std::string buffer_descobrimento_;
   std::string endereco_descoberto_;
-  int timer_descobrimento_;
+  boost::timer::cpu_timer timer_descobrimento_;
 };
 
 }  // namespace net
