@@ -43,7 +43,7 @@ void LeArquivoAsset(tipo_e tipo, const std::string& nome_arquivo, std::string* d
       __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "falha com tamanho do asset: %ld", tam);
       throw 2;
     }
-    __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido '%s', tamnho '%ld'", nome_arquivo.c_str(), tam);
+    __android_log_print(ANDROID_LOG_ERROR, "Tabuleiro", "asset lido '%s', tamanho '%ld'", nome_arquivo.c_str(), tam);
     std::vector<char> vetor_dados;
     vetor_dados.resize(tam);
     memcpy(vetor_dados.data(), AAsset_getBuffer(asset), tam);
