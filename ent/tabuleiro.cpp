@@ -27,6 +27,7 @@
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
+#include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -66,7 +67,7 @@ const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 const float EXPESSURA_LINHA = 0.2f;
 const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
-const float VELOCIDADE_POR_EIXO = 0.1f;  // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
+const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
@@ -878,9 +879,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_TEMPORIZADOR: {
-      AtualizaOlho();
-      AtualizaEntidades();
-      AtualizaAcoes();
+      auto passou_ms = timer_para_atualizacoes_.elapsed().wall / 1000000ULL;
+      //auto passou_ms = INTERVALO_NOTIFICACAO_MS;
+      timer_para_atualizacoes_.start();
+      AtualizaOlho(passou_ms, false  /*forcar*/);
+      AtualizaEntidades(passou_ms);
+      AtualizaAcoes(passou_ms);
       if (ciclos_para_atualizar_ == 0) {
         RefrescaMovimentosParciais();
         ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
@@ -1191,7 +1195,7 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
     olho_rotacao += 2 * M_PI;
   }
   olho_.set_rotacao_rad(olho_rotacao);
-  AtualizaOlho(true  /*forcar*/);
+  AtualizaOlho(0, true  /*forcar*/);
 }
 
 void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
@@ -1202,7 +1206,7 @@ void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
     olho_altura = OLHO_ALTURA_MINIMA;
   }
   olho_.set_altura(olho_altura);
-  AtualizaOlho(true  /*forcar*/);
+  AtualizaOlho(0, true  /*forcar*/);
 }
 
 void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
@@ -1224,7 +1228,7 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
   p->set_x(p->x() - delta_x);
   p->set_y(p->y() - delta_y);
   olho_.clear_destino();
-  AtualizaOlho(true);
+  AtualizaOlho(0, true);
 }
 
 void Tabuleiro::TrataMovimentoMouse() {
@@ -1301,7 +1305,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       olho_.set_altura(olho_altura);
       ultimo_x_ = x;
       ultimo_y_ = y;
-      AtualizaOlho(true  /*forcar*/);
+      AtualizaOlho(0, true  /*forcar*/);
     }
     break;
     case ETAB_ENTS_PRESSIONADAS: {
@@ -1370,7 +1374,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       p->set_x(novo_x);
       p->set_y(novo_y);
       olho_.clear_destino();
-      AtualizaOlho(true);
+      AtualizaOlho(0, true);
       ultimo_x_ = x;
       ultimo_y_ = y;
       // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
@@ -2666,7 +2670,7 @@ void Tabuleiro::DesenhaSombras() {
   DesenhaStencil3d(tam_x, tam_y, cor_sombra);
 }
 
-void Tabuleiro::AtualizaOlho(bool forcar) {
+void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
   if (camera_presa_) {
     const auto* e = BuscaEntidade(id_camera_presa_);
     if (e == nullptr) {
@@ -2692,18 +2696,16 @@ void Tabuleiro::AtualizaOlho(bool forcar) {
     return;
   }
   auto* pos_alvo = olho_.mutable_alvo();
-  double origem[] = { pos_alvo->x(), pos_alvo->y(), pos_alvo->z() };
-  if (olho_.has_destino()) {
+  float origem[] = { pos_alvo->x(), pos_alvo->y(), pos_alvo->z() };
+  if (olho_.has_destino() && intervalo_ms > 0) {
     const auto& pd = olho_.destino();
-    double destino[] = { pd.x(), pd.y(), pd.z() };
+    float destino[] = { pd.x(), pd.y(), pd.z() };
+    Vector3 v(Vector3(destino) - Vector3(origem));
+    v.normalize() *= intervalo_ms * (VELOCIDADE_OLHO_M_S / 1000.0f);
     bool chegou = true;
     for (int i = 0; i < 3; ++i) {
-      double delta = (origem[i] > destino[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
-      if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO * 3) {
-        origem[i] += delta * 3;
-        chegou = false;
-      } else if (fabs(origem[i] - destino[i]) > VELOCIDADE_POR_EIXO) {
-        origem[i] += delta;
+      if (fabs(destino[i] - origem[i]) > fabs(v[i])) {
+        origem[i] += v[i];
         chegou = false;
       } else {
         origem[i] = destino[i];
@@ -2731,23 +2733,23 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
     raio = OLHO_RAIO_MAXIMO;
   }
   olho_.set_raio(raio);
-  AtualizaOlho(true  /*forcar*/);
+  AtualizaOlho(0, true  /*forcar*/);
 }
 
-void Tabuleiro::AtualizaEntidades() {
+void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   for (auto& id_ent : entidades_) {
-    id_ent.second->Atualiza(INTERVALO_NOTIFICACAO_MS);
+    id_ent.second->Atualiza(intervalo_ms);
   }
 }
 
-void Tabuleiro::AtualizaAcoes() {
+void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
   // Qualquer acao adicionada aqui ja foi colocada na lista de desfazer durante a criacao.
   ignorar_lista_eventos_ = true;
   std::vector<std::unique_ptr<Acao>> copia_acoes;
   copia_acoes.swap(acoes_);
   bool limpar_salvacoes = false;
   for (auto& acao : copia_acoes) {
-    acao->Atualiza(INTERVALO_NOTIFICACAO_MS);
+    acao->Atualiza(intervalo_ms);
     if (acao->AtingiuAlvo()) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
@@ -3604,7 +3606,7 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
 
   olho_.mutable_alvo()->CopyFrom(camera);
   olho_.clear_destino();
-  AtualizaOlho(true  /*forcar*/);
+  AtualizaOlho(0, true  /*forcar*/);
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -4950,7 +4952,7 @@ void Tabuleiro::ReiniciaCamera() {
     olho_.set_raio(OLHO_RAIO_INICIAL);
     olho_.clear_destino();
   }
-  AtualizaOlho(true  /*forcar*/);
+  AtualizaOlho(0, true  /*forcar*/);
 }
 
 void Tabuleiro::ReiniciaIluminacao(TabuleiroProto* sub_cenario) {

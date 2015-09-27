@@ -423,7 +423,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada.
   * Se forcar for false, so atualiza se houver destino. Caso contrario, atualiza independente do destino.
   */
-  void AtualizaOlho(bool forcar = false);
+  void AtualizaOlho(int intervalo_ms, bool forcar = false);
 
   /** Atualiza o raio do olho (distancia horizontal para o ponto de foco), respeitando limites
   * maximos e minimos.
@@ -431,10 +431,10 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaRaioOlho(float raio);
 
   /** Atualiza as aentidades do tabuleiro. */
-  void AtualizaEntidades();
+  void AtualizaEntidades(int intervalo_ms);
 
   /** Atualiza as acoes do tabuleiro, removendo as finalizadas. */
-  void AtualizaAcoes();
+  void AtualizaAcoes(int intervalo_ms);
 
   /** Similar a TrataBotaoAcaoPressionado, mas pos operacao de picking. */
   void TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade);
@@ -766,6 +766,7 @@ class Tabuleiro : public ntf::Receptor {
   // Armazena os ultimos tempos de renderizacao.
   boost::timer::cpu_timer timer_;
   boost::timer::cpu_timer timer_para_ultimo_;
+  boost::timer::cpu_timer timer_para_atualizacoes_;
   std::list<uint64_t> tempos_renderizacao_;
   std::list<uint64_t> tempos_entre_frames_;
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;

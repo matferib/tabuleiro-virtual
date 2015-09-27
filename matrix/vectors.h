@@ -73,6 +73,7 @@ struct Vector3
     // ctors
     Vector3() : x(0), y(0), z(0) {};
     Vector3(float x, float y, float z) : x(x), y(y), z(z) {};
+    explicit Vector3(const float* xyz) : x(xyz[0]), y(xyz[1]), z(xyz[2]) {};
 
     // utils functions
     void        set(float x, float y, float z);
