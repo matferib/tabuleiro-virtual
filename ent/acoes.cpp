@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cmath>
 
+#define VLOG_NIVEL 2
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
@@ -329,7 +330,11 @@ class AcaoProjetil : public Acao {
     pos_.set_x(ArrumaSePassou(xa, xa + v.x, pos_destino.x()));
     pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino.y()));
     pos_.set_z(ArrumaSePassou(za, za + v.z, pos_destino.z()));
-
+    // Deslocamento do alvo.
+    v /= 2.0f;  // meio metro de deslocamento.
+    dx_ = v.x;
+    dy_ = v.y;
+    dz_ = v.z;
     if (pos_.x() == pos_destino.x() &&
         pos_.y() == pos_destino.y() &&
         pos_.z() == pos_destino.z()) {
@@ -492,7 +497,7 @@ class AcaoCorpoCorpo : public Acao {
     gl::Roda(direcao_graus_, 0.0f,  0.0f, 1.0f);
     gl::Roda(90.0f, 1.0f, 0.0f,  0.0f);  // o triangulo eh no Y, entao traz ele pro Z.
     gl::Roda(rotacao_graus_, 0.0f, 0.0f, -1.0f);
-    gl::Escala(0.2f, distancia_, 0.2f);
+    gl::Escala(0.2f, distancia_ + TAMANHO_LADO_QUADRADO_2, 0.2f);
     gl::Triangulo(1.0f);
   }
 
@@ -538,12 +543,20 @@ class AcaoCorpoCorpo : public Acao {
     dx_ = pos_d.x() - pos_o.x();
     dy_ = pos_d.y() - pos_o.y();
     dz_ = pos_d.z() - pos_o.z();
-    direcao_graus_ = VetorParaRotacaoGraus(dx_, dy_, &distancia_);
-    distancia_ = sqrt(distancia_ * distancia_ + dz_ * dz_);
-    // O fator 8 é só para atenuar o delta do impacto, já que o d* aqui sao usados apenas para atualizar o alvo.
-    dx_ /= distancia_ * 8;
-    dy_ /= distancia_ * 8;
-    dz_ /= distancia_ * 8;
+    direcao_graus_ = VetorParaRotacaoGraus(dx_, dy_);
+    Vector3 v(dx_, dy_, dz_);
+    distancia_ = v.length();
+    // Ajusta os deltas para nao ficar deslocamento gigante.
+    LOG(INFO) << "v.length1: " << distancia_;
+    v /= 3.0f;  // 1/3 da distancia como delta.
+    LOG(INFO) << "v.length2: " << v.length();
+    float tam = std::max(std::min(v.length(), TAMANHO_LADO_QUADRADO * 2.0f), 0.1f);  // min 0.1, maximo 2 quadrados (3m).
+    LOG(INFO) << "Tam: " << tam;
+    v.normalize();
+    v *= tam;
+    dx_ = v.x;
+    dy_ = v.y;
+    dz_ = v.z;
   }
   float distancia_;
   float direcao_graus_;
@@ -698,8 +711,9 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
-  // Se o intervalo eh grande, os deltas ficam grandes. Aqui corrigimos isso.
-  float cos_delta_alvo = cosf(disco_alvo_rad_) * TAMANHO_LADO_QUADRADO / (3.0f * (intervalo_ms / INTERVALO_NOTIFICACAO_MS));
+  const int DURACAO_ATUALIZACAO_ALVO_MS = 100;
+  // A duracao conta ida e volta, entao o dt da atualizacao deve levar em conta so metade do tempo para dar certinho o deslocamento.
+  float cos_delta_alvo = cosf(disco_alvo_rad_) * (static_cast<float>(intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS);
   float dx_alvo = dx_ * cos_delta_alvo;
   float dy_alvo = dy_ * cos_delta_alvo;
   float dz_alvo = dz_ * cos_delta_alvo;
@@ -710,12 +724,16 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   dx_total_ += entidade_destino->X() - x_antes;
   dy_total_ += entidade_destino->Y() - y_antes;
   dz_total_ += entidade_destino->Z() - z_antes;
+  VLOG(2) << "Atualizando alvo: dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
   if (disco_alvo_rad_ == 0) {
     entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
     atingiu_alvo_ = true;
   }
-  const int DURACAO_ATUALIZACAO_ALVO_MS = 100;
-  disco_alvo_rad_ += intervalo_ms * M_PI / DURACAO_ATUALIZACAO_ALVO_MS;
+  if (intervalo_ms > DURACAO_ATUALIZACAO_ALVO_MS) {
+    disco_alvo_rad_ = M_PI;
+  } else {
+    disco_alvo_rad_ += (static_cast<float>(intervalo_ms) / DURACAO_ATUALIZACAO_ALVO_MS) * M_PI;
+  }
   return true;
 }
 

@@ -52,7 +52,7 @@ class Acao {
   // Por atualizacao.
   float velocidade_m_ms_ = 0;
   float aceleracao_m_ms_2_ = 0;
-  // Diferenca entre posicao da acao da origem e do destino.
+  // Vetor de deslocamento do alvo ao ser atingido. Este eh o valor total deslocado em cada eixo.
   float dx_ = 0, dy_ = 0, dz_ = 0;
   // O alvo se move em uma senoide de 0 ate PI (usando cosseno, vai e volta).
   float disco_alvo_rad_ = 0;

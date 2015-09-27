@@ -135,10 +135,14 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
 
 // View do OpenGL.
 class TabuleiroSurfaceView extends GLSurfaceView {
+  public static final String TAG = "TabuleiroSurfaceView";
+
   public TabuleiroSurfaceView(Activity activity) {
     super(activity);
     setEGLContextClientVersion(2);
     renderer_ = new TabuleiroRenderer(activity, this, getResources(), OrientacaoPadrao(activity));
+    ultima_renderizacao_ms_ = 0;
+    num_frames_pular_ = 0;
     detectorEventos_ = new GestureDetector(activity, renderer_);
     detectorEventos_.setOnDoubleTapListener(renderer_);
     detectorEventos_.setIsLongpressEnabled(false);
@@ -269,9 +273,28 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     timer_ = new java.util.Timer();
     timer_.scheduleAtFixedRate(new java.util.TimerTask() {
       public void run() {
-        requestRender();
+        queueEvent(new Runnable() {
+          public void run() {
+            renderer_.ChamaTimer();
+          }
+        });
+        if ((num_frames_pular_ == 0) || desenha_proxima_) {
+          requestRender();
+          desenha_proxima_ = false;
+        } else {
+          --num_frames_pular_;
+        }
       }
-    }, 0, 33);
+    }, 0, TEMPO_ENTRE_NOTIFICACOES_MS);
+  }
+
+  public void ReportaUltimaRenderizacao(int tempo_ms) {
+    ultima_renderizacao_ms_ = tempo_ms;
+    num_frames_pular_ = (tempo_ms / TEMPO_ENTRE_NOTIFICACOES_MS) - 1;
+    if (num_frames_pular_ > 1) {
+      desenha_proxima_ = true;
+      Log.d(TAG, "Pulando: " + num_frames_pular_);
+    }
   }
 
   private TabuleiroRenderer renderer_;
@@ -285,7 +308,12 @@ class TabuleiroSurfaceView extends GLSurfaceView {
   private java.util.Timer timer_;
   private static int ESTADO_OCIOSO = 1, ESTADO_MULTITOQUE_2 = 2, ESTADO_MULTITOQUE_3 = 3;
   private int estado_ = ESTADO_OCIOSO;
+  private int ultima_renderizacao_ms_ = 0;
+  private int num_frames_pular_ = 0;
+  private boolean desenha_proxima_ = true;
+  private static final int TEMPO_ENTRE_NOTIFICACOES_MS = nativeTempoEntreNotificacoes();
 
+  private static native int nativeTempoEntreNotificacoes();
   private static native void nativePause();
   private static native void nativeResume();
 }
@@ -467,6 +495,12 @@ class TabuleiroRenderer
   @Override
   public void onDrawFrame(GL10 unused) {
     //Log.d(TAG, "DrawFrame");
+    ((TabuleiroSurfaceView)parent_).ReportaUltimaRenderizacao(nativeRender());
+  }
+
+  /** Deve ser chamado na UI thread. */
+  public void ChamaTimer() {
+    //Log.d(TAG, "ChamaTimer");
     nativeTimer();
     //Log.d(TAG, "Tam Evento Antes: " + eventos_.size());
     Vector<Evento> eventos;
@@ -528,7 +562,7 @@ class TabuleiroRenderer
         default:
       }
     }
-    nativeRender();
+
   }
 
   // Detector de eventos.
@@ -777,7 +811,7 @@ class TabuleiroRenderer
 
   private static native void nativeInitGl();
   private static native void nativeResize(int w, int h);
-  private static native void nativeRender();
+  private static native int nativeRender();
   private native void nativeTimer();
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(boolean toggle, int x, int y);

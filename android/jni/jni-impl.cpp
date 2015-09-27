@@ -9,6 +9,7 @@
 #include <boost/asio.hpp>
 #include <stdint.h>
 #include "arq/arquivo.h"
+#include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
@@ -201,6 +202,10 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, job
   g_tabuleiro->TrataRedimensionaJanela(w, h);
 }
 
+jint Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeTempoEntreNotificacoes(JNIEnv* env, jobject thiz) {
+  return INTERVALO_NOTIFICACAO_MS;
+}
+
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
   //setenv("CPUPROFILE", "/data/data/com.matferib.Tabuleiro/files/gmon.out", 1);
@@ -278,9 +283,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeAction(JNIEnv* env, job
 }
 
 // Render.
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, jobject thiz) {
+jint Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeRender");
-  g_tabuleiro->Desenha();
+  return g_tabuleiro->Desenha();
 }
 
 // Timer.

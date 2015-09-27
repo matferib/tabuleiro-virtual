@@ -258,7 +258,7 @@ void Entidade::Atualiza(int intervalo_ms) {
   }
   // Queda.
   const double DURACAO_QUEDA_MS = 500.0f;
-  const float DELTA_QUEDA = (90.0f * intervalo_ms / DURACAO_QUEDA_MS);
+  const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
       vd_.angulo_disco_queda_graus += DELTA_QUEDA;
