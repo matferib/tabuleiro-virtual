@@ -2736,7 +2736,7 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 
 void Tabuleiro::AtualizaEntidades() {
   for (auto& id_ent : entidades_) {
-    id_ent.second->Atualiza();
+    id_ent.second->Atualiza(INTERVALO_NOTIFICACAO_MS);
   }
 }
 
@@ -2747,7 +2747,7 @@ void Tabuleiro::AtualizaAcoes() {
   copia_acoes.swap(acoes_);
   bool limpar_salvacoes = false;
   for (auto& acao : copia_acoes) {
-    acao->Atualiza();
+    acao->Atualiza(INTERVALO_NOTIFICACAO_MS);
     if (acao->AtingiuAlvo()) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();

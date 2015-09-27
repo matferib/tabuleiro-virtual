@@ -16,11 +16,6 @@ bool ImprimeSeErro();
 }  // namespace gl
 
 namespace ent {
-namespace {
-
-const double DURACAO_QUEDA_SEGUNDOS = 0.5f;
-
-}  // namespace
 
 // Factory.
 Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
@@ -221,16 +216,16 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
   }
 }
 
-void Entidade::Atualiza() {
+void Entidade::Atualiza(int intervalo_ms) {
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   AtualizaEfeitos();
   // Voo.
-  const float DURACAO_POSICIONAMENTO_INICIAL = 1.0f;
-  const float DURACAO_VOO_SEGUNDOS = 4.0f;
-  const float DELTA_VOO = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_VOO_SEGUNDOS;
-  const float DURACAO_LUZ_SEGUNDOS = 3.0f;
-  const float DELTA_LUZ = 2.0f * M_PI * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_LUZ_SEGUNDOS;
+  const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
+  const float DURACAO_VOO_MS = 4000.0f;
+  const float DELTA_VOO = 2.0f * M_PI * intervalo_ms / DURACAO_VOO_MS;
+  const float DURACAO_LUZ_MS = 3000.0f;
+  const float DELTA_LUZ = 2.0f * M_PI * intervalo_ms / DURACAO_LUZ_MS;
   if (proto_.has_luz()) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
@@ -241,14 +236,14 @@ void Entidade::Atualiza() {
         vd_.z_antes_voo = Z();
       }
       // Decolando, ate chegar na altura do voo.
-      vd_.altura_voo += ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
+      vd_.altura_voo += ALTURA_VOO * intervalo_ms / DURACAO_POSICIONAMENTO_INICIAL_MS;
     } else {
       // Chegou na altura do voo, flutua.
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
     if (vd_.altura_voo > 0) {
-      const float DECREMENTO = ALTURA_VOO * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_POSICIONAMENTO_INICIAL;
+      const float DECREMENTO = ALTURA_VOO * intervalo_ms / DURACAO_POSICIONAMENTO_INICIAL_MS;
       if (Z() > vd_.z_antes_voo) {
         proto_.mutable_pos()->set_z(Z() - DECREMENTO);
       } else {
@@ -262,7 +257,8 @@ void Entidade::Atualiza() {
     vd_.angulo_disco_voo_rad = 0.0f;
   }
   // Queda.
-  const float DELTA_QUEDA = (90.0f * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_QUEDA_SEGUNDOS);
+  const double DURACAO_QUEDA_MS = 500.0f;
+  const float DELTA_QUEDA = (90.0f * intervalo_ms / DURACAO_QUEDA_MS);
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
       vd_.angulo_disco_queda_graus += DELTA_QUEDA;

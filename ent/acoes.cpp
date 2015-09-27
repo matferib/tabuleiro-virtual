@@ -112,21 +112,21 @@ class AcaoDeltaPontosVida : public Acao {
     Entidade* entidade_destino = nullptr;
     if (acao_proto_.id_entidade_destino_size() == 0 ||
         (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
-      contador_atualizacoes_ = 0;
+      faltam_ms_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
       return;
     }
     pos_ = entidade_destino->PosicaoAcao();
-    contador_atualizacoes_ = 0;
+    faltam_ms_ = 0;
     // Monta a string de delta.
     int delta = abs(acao_proto_.delta_pontos_vida());
     if (!acao_proto_.has_delta_pontos_vida()) {
-      contador_atualizacoes_ = 0;
+      faltam_ms_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida, precisa de um delta.";
       return;
     }
     if (delta > 10000) {
-      contador_atualizacoes_ = 0;
+      faltam_ms_ = 0;
       VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
       return;
     }
@@ -141,7 +141,7 @@ class AcaoDeltaPontosVida : public Acao {
     }
     std::reverse(string_delta_.begin(), string_delta_.end());
     VLOG(2) << "String delta: " << string_delta_;
-    contador_atualizacoes_ = DURACAO_SEGUNDOS / POR_SEGUNDO_PARA_ATUALIZACAO;
+    faltam_ms_ = DURACAO_MS;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -158,15 +158,15 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
-    pos_.set_z(pos_.z() + MAX_DELTA_Z * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS);
-    --contador_atualizacoes_;
-    if (contador_atualizacoes_ == 0) {
+    pos_.set_z(pos_.z() + intervalo_ms * MAX_DELTA_Z / DURACAO_MS);
+    faltam_ms_ -= intervalo_ms;
+    if (faltam_ms_ <= 0) {
       VLOG(1) << "Finalizando delta_pontos_vida, MAX_ATUALIZACOES alcancado.";
     }
   }
 
   bool Finalizada() const override {
-    return contador_atualizacoes_ == 0;  // 3s.
+    return faltam_ms_ <= 0;  // 3s.
   }
 
  private:
@@ -176,12 +176,12 @@ class AcaoDeltaPontosVida : public Acao {
     gl::DesenhaString(string_delta_);
   }
 
-  constexpr static float DURACAO_SEGUNDOS = 2.0f;
+  constexpr static int DURACAO_MS = 2000;
   constexpr static float MAX_DELTA_Z = 2.0f;
 
   std::string string_delta_;
   Posicao pos_;
-  int contador_atualizacoes_;
+  int faltam_ms_;
 };
 
 // Acao de dispersao, estilo bola de fogo.
@@ -229,7 +229,7 @@ class AcaoDispersao : public Acao {
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
-    efeito_ += efeito_maximo_ * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS;
+    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / DURACAO_MS;
   }
 
   bool Finalizada() const override {
@@ -237,7 +237,7 @@ class AcaoDispersao : public Acao {
   }
 
  private:
-  constexpr static float DURACAO_SEGUNDOS = 0.5f;
+  constexpr static int DURACAO_MS = 500;
   float efeito_maximo_;
   float efeito_;
 };
@@ -596,7 +596,7 @@ class AcaoFeiticoToque : public Acao {
       terminado_ = true;
       return;
     }
-    const float DELTA_RAIO = 1.0f * POR_SEGUNDO_PARA_ATUALIZACAO / DURACAO_SEGUNDOS;
+    const float DELTA_RAIO = static_cast<float>(intervalo_ms) / DURACAO_MS;
     if (desenhando_origem_) {
       raio_ -= DELTA_RAIO;
       if (raio_ <= 0) {
@@ -615,7 +615,7 @@ class AcaoFeiticoToque : public Acao {
   }
 
  private:
-  constexpr static float DURACAO_SEGUNDOS = 0.48f;
+  constexpr static int DURACAO_MS = 480;
   bool desenhando_origem_;
   float raio_;
   bool terminado_;

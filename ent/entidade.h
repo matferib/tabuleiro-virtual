@@ -39,7 +39,7 @@ class Entidade {
   void AtualizaProto(const EntidadeProto& novo_proto);
 
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
-  void Atualiza();
+  void Atualiza(int intervalo_ms);
 
   /** Destroi a entidade. */
   ~Entidade();

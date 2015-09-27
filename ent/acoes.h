@@ -16,7 +16,7 @@ class Acao {
   Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro);
   virtual ~Acao() {}
 
-  void Atualiza();
+  void Atualiza(int intervalo_ms);
 
   // Desenha a acao.
   void Desenha(ParametrosDesenho* pd) const;
@@ -36,14 +36,14 @@ class Acao {
  protected:
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const {}
-  virtual void AtualizaAposAtraso() = 0;
+  virtual void AtualizaAposAtraso(int intervalo_ms) = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
   void AtualizaVelocidade();
   // Pode ser chamado para atualizar o alvo de uma acao. Retorna false quando terminar.
   // Utiliza os parametros dx_, dy_ e dz_ para calcular o deslocamento do alvo num movimento senoide
   // usando disco_alvo_rad_ para manter o estado.
-  bool AtualizaAlvo();
+  bool AtualizaAlvo(int intervalo_ms);
 
  protected:
   AcaoProto acao_proto_;
