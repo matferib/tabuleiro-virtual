@@ -53,10 +53,17 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 
 # Flags de performance.
 LOCAL_ARM_MODE := arm
-LOCAL_ARM_NEON := true
+ifneq ($(XOOM),)
+	LOCAL_ARM_NEON := false
+else
+	LOCAL_ARM_NEON := true
+endif
 
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES -DUSAR_SHADER
 ifneq ($(NEXUS7),)
+	LOCAL_CPPFLAGS += -DZBUFFER_16_BITS
+endif
+ifneq ($(XOOM),)
 	LOCAL_CPPFLAGS += -DZBUFFER_16_BITS
 endif
 LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt boost-filesystem-prebuilt
