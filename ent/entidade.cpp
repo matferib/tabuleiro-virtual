@@ -290,7 +290,7 @@ void Entidade::Atualiza(int intervalo_ms) {
 
   bool chegou = true;
   // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
-  const float VELOCIDADE_POR_EIXO = 10.0f * POR_SEGUNDO_PARA_ATUALIZACAO;
+  const float VELOCIDADE_POR_EIXO = 4 * TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
   for (int i = 0; i < 3; ++i) {
     double delta = (origens[i] > destinos[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
     float diferenca = fabs(origens[i] - destinos[i]);
