@@ -144,7 +144,9 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     detectorEventos_.setIsLongpressEnabled(false);
     detectorPressao_ = new PressureDetector(renderer_);
     detectorEscala_ = new ScaleGestureDetector(activity, renderer_);
-    detectorEscala_.setQuickScaleEnabled(true);
+    if (Build.VERSION.SDK_INT >= 19) {
+      detectorEscala_.setQuickScaleEnabled(true);
+    }
     detectorRotacao_ = new RotationGestureDetector(renderer_);
     detectorTranslacao_ = new TranslationGestureDetector(renderer_);
     setEGLConfigChooser(8, 8, 8, 8, 16, 1);
