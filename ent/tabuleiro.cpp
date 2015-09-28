@@ -223,7 +223,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   CarregaTexturasControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
-#if 1 || DEBUG
+#if DEBUG
   opcoes_.set_mostra_fps(true);
 #endif
 

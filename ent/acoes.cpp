@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <cmath>
 
-#define VLOG_NIVEL 2
+//#define VLOG_NIVEL 2
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/entidade.h"
@@ -320,7 +320,7 @@ class AcaoProjetil : public Acao {
     AtualizaVelocidade(intervalo_ms);
     VLOG(1) << "Velocidade: " << velocidade_m_ms_;
     Vector3 v(dx_, dy_, dz_);
-    v.normalize();
+    Vector3 vn(v.normalize());
     v *= (velocidade_m_ms_ * intervalo_ms);
     // Posicao antes.
     float xa = pos_.x();
@@ -331,10 +331,10 @@ class AcaoProjetil : public Acao {
     pos_.set_y(ArrumaSePassou(ya, ya + v.y, pos_destino.y()));
     pos_.set_z(ArrumaSePassou(za, za + v.z, pos_destino.z()));
     // Deslocamento do alvo.
-    v /= 2.0f;  // meio metro de deslocamento.
-    dx_ = v.x;
-    dy_ = v.y;
-    dz_ = v.z;
+    vn /= 2.0f;  // meio metro de deslocamento.
+    dx_ = vn.x;
+    dy_ = vn.y;
+    dz_ = vn.z;
     if (pos_.x() == pos_destino.x() &&
         pos_.y() == pos_destino.y() &&
         pos_.z() == pos_destino.z()) {

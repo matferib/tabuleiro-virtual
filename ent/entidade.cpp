@@ -236,20 +236,26 @@ void Entidade::Atualiza(int intervalo_ms) {
         vd_.z_antes_voo = Z();
       }
       // Decolando, ate chegar na altura do voo.
-      vd_.altura_voo += ALTURA_VOO * intervalo_ms / DURACAO_POSICIONAMENTO_INICIAL_MS;
+      vd_.altura_voo += ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
+      if (vd_.altura_voo > ALTURA_VOO) {
+        vd_.altura_voo = ALTURA_VOO;
+      }
     } else {
       // Chegou na altura do voo, flutua.
       vd_.angulo_disco_voo_rad = fmod(vd_.angulo_disco_voo_rad + DELTA_VOO, 2 * M_PI);
     }
   } else {
     if (vd_.altura_voo > 0) {
-      const float DECREMENTO = ALTURA_VOO * intervalo_ms / DURACAO_POSICIONAMENTO_INICIAL_MS;
+      const float DECREMENTO = ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
       if (Z() > vd_.z_antes_voo) {
         proto_.mutable_pos()->set_z(Z() - DECREMENTO);
       } else {
         proto_.mutable_pos()->set_z(vd_.z_antes_voo);
         // Nao eh voadora e esta suspensa. Pousando.
         vd_.altura_voo -= DECREMENTO;
+        if (Z() < vd_.z_antes_voo) {
+          proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+        }
       }
     } else {
       vd_.altura_voo = 0;
@@ -262,10 +268,16 @@ void Entidade::Atualiza(int intervalo_ms) {
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
       vd_.angulo_disco_queda_graus += DELTA_QUEDA;
+      if (vd_.angulo_disco_queda_graus > 90.0f) {
+        vd_.angulo_disco_queda_graus = 90.0f;
+      }
     }
   } else {
     if (vd_.angulo_disco_queda_graus > 0) {
       vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
+      if (vd_.angulo_disco_queda_graus < 0) {
+        vd_.angulo_disco_queda_graus = 0.0f;
+      }
     }
   }
 

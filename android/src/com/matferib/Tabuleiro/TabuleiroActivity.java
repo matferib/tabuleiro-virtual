@@ -125,6 +125,10 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
   }
 
   static {
+    if (Build.VERSION.SDK_INT < 18) {
+      // https://developer.android.com/ndk/guides/cpp-support.html#runtimes.
+      System.loadLibrary("gnustl_shared");
+    }
     System.loadLibrary("tabuleiro");
   }
   private native void nativeCreate(String nome, String endereco, Object assets, String dir);
