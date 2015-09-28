@@ -282,6 +282,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
           requestRender();
           desenha_proxima_ = false;
         } else {
+          Log.d(TAG, "num_frames_pular_: " + num_frames_pular_);
           --num_frames_pular_;
         }
       }
@@ -294,6 +295,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     if (num_frames_pular_ > 1) {
       desenha_proxima_ = true;
       Log.d(TAG, "Pulando: " + num_frames_pular_);
+    } else {
+      num_frames_pular_ = 0;
     }
   }
 
@@ -548,7 +551,7 @@ class TabuleiroRenderer
           nativeTouchMoved(evento.x(), evento.y());
           break;
         case Evento.INCLINACAO:
-          nativeTilt(evento.delta());
+          nativeTilt(-evento.delta());
           break;
         case Evento.TECLADO:
           nativeKeyboard(evento.tecla(), evento.modificadores());
