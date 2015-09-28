@@ -712,8 +712,9 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     return false;
   }
   const int DURACAO_ATUALIZACAO_ALVO_MS = 100;
-  // A duracao conta ida e volta, entao o dt da atualizacao deve levar em conta so metade do tempo para dar certinho o deslocamento.
-  float cos_delta_alvo = cosf(disco_alvo_rad_) * (static_cast<float>(intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS);
+  // dt representa a fracao do arco ate 90 graus que o alvo andou. Os outros 90 sao da volta.
+  const float dt = std::min((static_cast<float>(intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS), 1.0f);
+  float cos_delta_alvo = cosf(disco_alvo_rad_) * dt;
   float dx_alvo = dx_ * cos_delta_alvo;
   float dy_alvo = dy_ * cos_delta_alvo;
   float dz_alvo = dz_ * cos_delta_alvo;
@@ -724,16 +725,13 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   dx_total_ += entidade_destino->X() - x_antes;
   dy_total_ += entidade_destino->Y() - y_antes;
   dz_total_ += entidade_destino->Z() - z_antes;
-  VLOG(2) << "Atualizando alvo: dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
+  VLOG(2) << "Atualizando alvo: intervalo_ms: " << intervalo_ms << ", dt; " << dt
+          << ", dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
   if (disco_alvo_rad_ == 0) {
     entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
     atingiu_alvo_ = true;
   }
-  if (intervalo_ms > DURACAO_ATUALIZACAO_ALVO_MS) {
-    disco_alvo_rad_ = M_PI;
-  } else {
-    disco_alvo_rad_ += (static_cast<float>(intervalo_ms) / DURACAO_ATUALIZACAO_ALVO_MS) * M_PI;
-  }
+  disco_alvo_rad_ += dt * M_PI / 2.0f;
   return true;
 }
 
