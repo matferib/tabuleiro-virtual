@@ -1,8 +1,6 @@
 Versao 1.11.2
-- Porque android travando com novo evento.
-- Lembrar de criar um checkpoint antes da parte de intervalo variavel.
-- Repensar camera presa.
 - UI android e ipad: raio de luz e tipo de visao.
+- Repensar camera presa.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
