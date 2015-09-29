@@ -21,6 +21,7 @@ const int TAG_TAMANHO = 6;
 const int TAG_TEXTO_TAMANHO = 7;
 const int TAG_PONTOS_VIDA = 8;
 const int TAG_MAX_PONTOS_VIDA = 9;
+const int TAG_TIPO_VISAO = 10;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -83,6 +84,8 @@ const int TAG_BOTAO_CANCELA = 101;
   one_finger_ = true;
   
   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+  
+  tipo_visao_array_ = @[@"Normal", @"Visão na Penumbra", @"Visão no Escuro"];
 
   [self setupGL];
 }
@@ -221,7 +224,7 @@ const int TAG_BOTAO_CANCELA = 101;
       } else {
         delta = -gyro.rotationRate.x;
       }
-      nativeTilt(delta);
+      nativeTilt(-delta);
     }];
   }
 #endif
@@ -365,7 +368,7 @@ const int TAG_BOTAO_CANCELA = 101;
       eventos_str.append(std::to_string(evento.rodadas()) + "\n");
     }
     [text_view setText: [NSString stringWithCString:eventos_str.c_str()
-                                           encoding: NSUTF8StringEncoding]];
+                                  encoding: NSUTF8StringEncoding]];
     UIButton* botao_ok = (UIButton*)[view viewWithTag:TAG_BOTAO_OK];
     [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
 
@@ -374,6 +377,10 @@ const int TAG_BOTAO_CANCELA = 101;
 
     UITextField* texto_rotulo = (UITextField*)[view viewWithTag:TAG_ROTULO];
     [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
+    
+    tipo_visao_picker_ = (UIPickerView*)[view viewWithTag:TAG_TIPO_VISAO];
+    [tipo_visao_picker_ setDelegate:self];
+    [tipo_visao_picker_ selectRow:n.entidade().tipo_visao() inComponent:0 animated:FALSE];
 
     slider_ = (UISlider*)[view viewWithTag:TAG_AURA];
     [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
@@ -469,6 +476,9 @@ const int TAG_BOTAO_CANCELA = 101;
     int max_pontos_vida = (int)[[max_pontos_vida_ text] intValue];
     notificacao_->mutable_entidade()->set_max_pontos_vida(max_pontos_vida);
   }
+  {
+    notificacao_->mutable_entidade()->set_tipo_visao(static_cast<ent::TipoVisao>([tipo_visao_picker_ selectedRowInComponent:0]));
+  }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);
   notificacao_ = nullptr;
@@ -476,6 +486,34 @@ const int TAG_BOTAO_CANCELA = 101;
   vc_entidade_ = nil;
   slider_ = nil;
 }
+
+// ---------------------------------------------
+// Delegacao de UIPickerView para tipo de visao.
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow: (NSInteger)row inComponent:(NSInteger)component {
+}
+
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+  return [tipo_visao_array_ count];
+}
+
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+  return 1;
+}
+
+// tell the picker the title for a given component
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
+  return tipo_visao_array_[row];
+}
+
+// tell the picker the width of each row for a given component
+- (CGFloat)pickerView:(UIPickerView *)pickerView widthForComponent:(NSInteger)component {
+  int sectionWidth = 300;
+  
+  return sectionWidth;
+}
+//----------------------------
+// Fim delegacao UIPickerView.
+//----------------------------
 
 #pragma mark - Keyboard events
 /*-(SEL)seletorLetra: (NSString*)id

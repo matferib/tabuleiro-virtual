@@ -15,7 +15,7 @@ namespace ntf {
 class Notificacao;
 }  // namespace ntf
 
-@interface GameViewController : GLKViewController <UIGestureRecognizerDelegate>
+@interface GameViewController : GLKViewController <UIGestureRecognizerDelegate, UIPickerViewDelegate>
 {
     float last_scale_;
     float last_rotation_;
@@ -28,7 +28,9 @@ class Notificacao;
     UITextField* texto_slider_tamanho_;  // ditto.
     UITextField* pontos_vida_;
     UITextField* max_pontos_vida_;
+    UIPickerView* tipo_visao_picker_;
     CMMotionManager* motion_manager_;
+    NSArray* tipo_visao_array_;
     
     @public
     NSString* id_cliente_;
