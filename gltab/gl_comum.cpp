@@ -7,6 +7,7 @@
 #include "gltab/gl_interno.h"
 #include "gltab/glues.h"
 #include "arq/arquivo.h"
+//#define VLOG_NIVEL 2
 #include "log/log.h"
 #include "matrix/matrices.h"
 
@@ -1095,7 +1096,7 @@ void CarregaNome(GLuint id) {
             << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
     // Muda a cor para a mapeada.
 #if USAR_SHADER
-    glVertexAttrib4f(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+    AtributoVertice(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
 #else
     glColor4ub(rgb[0], rgb[1], rgb[2], 255);
 #endif
@@ -1180,6 +1181,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         GLubyte pixel[4] = { 0 };
         glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);
+
         int erro = glGetError();
         if (erro != 0) {
           VLOG(1) << "Erro pos glReadPixels: " << erro;

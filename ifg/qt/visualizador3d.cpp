@@ -136,7 +136,7 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
 
 // Formato da janela.
 QGLFormat Formato(bool anti_aliasing) {
-  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer |
+  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel |
                    (anti_aliasing ? QGL::SampleBuffers : QGL::NoSampleBuffers));
 }
 
