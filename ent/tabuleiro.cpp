@@ -56,6 +56,9 @@ const double OLHO_RAIO_MAXIMO = 40.0;
 /** raio minimo do olho. */
 const double OLHO_RAIO_MINIMO = 1.5;
 
+/** Distancia maxima do olho da entidade de referencia. */
+const float OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA = 5.0f * TAMANHO_LADO_QUADRADO;
+
 /** sensibilidade da rodela do mouse. */
 const double SENSIBILIDADE_RODA = 0.01;
 /** sensibilidade da rotacao lateral do olho. */
@@ -1350,9 +1353,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_DESLIZANDO: {
-      if (camera_presa_) {
-        return;
-      }
+      camera_presa_ = false;  // temporariamente.
       // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
       //gl::ModoMatriz(GL_MODELVIEW);
       gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
@@ -1377,7 +1378,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       p->set_x(novo_x);
       p->set_y(novo_y);
       olho_.clear_destino();
-      AtualizaOlho(0, true);
+      AtualizaOlho(0  /*intervalo_ms*/, true  /*forca*/);
       ultimo_x_ = x;
       ultimo_y_ = y;
       // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
@@ -2674,23 +2675,28 @@ void Tabuleiro::DesenhaSombras() {
 }
 
 void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
+  const auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
   if (camera_presa_) {
-    const auto* e = BuscaEntidade(id_camera_presa_);
-    if (e == nullptr) {
+    if (entidade_referencia == nullptr) {
       AlternaCameraPresa();
     } else {
-      bool cenario_diferente = e->Pos().id_cenario() != proto_corrente_->id_cenario();
+      bool cenario_diferente = entidade_referencia->Pos().id_cenario() != proto_corrente_->id_cenario();
       if (cenario_diferente) {
         // Pode acontecer da entidade estar se movendo para o cenario novo.
-        if (e->Destino().has_id_cenario() && (e->Destino().id_cenario() == proto_corrente_->id_cenario())) {
+        if (entidade_referencia->Destino().has_id_cenario() && (entidade_referencia->Destino().id_cenario() == proto_corrente_->id_cenario())) {
           cenario_diferente = false;
         }
       }
       if (cenario_diferente) {
         AlternaCameraPresa();
       } else {
-        olho_.mutable_destino()->CopyFrom(e->Pos());
-        olho_.mutable_destino()->set_z(e->Z());
+        Vector2 vdm(olho_.alvo().x() - entidade_referencia->X(), olho_.alvo().y() - entidade_referencia->Y());
+        if (vdm.length() > OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA) {
+          vdm.normalize() *= OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA;
+          olho_.mutable_destino()->set_x(entidade_referencia->X() + vdm.x);
+          olho_.mutable_destino()->set_y(entidade_referencia->Y() + vdm.y);
+          olho_.mutable_destino()->set_z(entidade_referencia->Z());
+        }
       }
     }
   }
@@ -3124,6 +3130,10 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       return;
     case ETAB_DESLIZANDO:
       estado_ = estado_anterior_;
+      if (!camera_presa_ && id_camera_presa_ != Entidade::IdInvalido) {
+        // Restaura camera presa antes do movimento.
+        camera_presa_ = true;
+      }
       return;
     case ETAB_ENTS_PRESSIONADAS: {
       ciclos_para_atualizar_ = -1;
