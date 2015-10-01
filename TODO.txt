@@ -1,5 +1,5 @@
-Versao 1.11.2
-- UI android e ipad: raio de luz e alcance de visao no escuro.
+Versao 1.11.4
+- UI android e ipad: raio de luz.
 - Repensar camera presa.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.
@@ -28,7 +28,7 @@ Versao 1.11.2
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 1.11.3
+Versao 1.11.5
 - Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
 - Android e ipad: voltar para UI principal caso falhe.

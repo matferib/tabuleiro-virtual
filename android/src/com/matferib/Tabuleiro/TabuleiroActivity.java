@@ -399,6 +399,11 @@ class TabuleiroRenderer
           Log.e(TAG, "tv == null");
           return;
         }
+        final EditText av = (EditText)view.findViewById(R.id.raio_visao_escuro);
+        if (av == null) {
+          Log.e(TAG, "av == null");
+          return;
+        }
         final EditText eventos = (EditText)view.findViewById(R.id.eventos);
         if (eventos == null) {
           Log.e(TAG, "eventos == null");
@@ -411,6 +416,7 @@ class TabuleiroRenderer
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tv.setAdapter(adapter);
         tv.setSelection(proto.tipo_visao != null ? proto.tipo_visao.getValue() : TipoVisao.VISAO_NORMAL.getValue());
+        av.setText(String.valueOf(proto.alcance_visao == null ? 0 : proto.alcance_visao));
         String evento_str = new String();
         for (EntidadeProto.Evento e : proto.evento) {
           evento_str += e.descricao;
@@ -434,6 +440,7 @@ class TabuleiroRenderer
                     .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
                     .pontos_vida(Integer.parseInt(pv.getText().toString()))
                     .tipo_visao(TipoVisao.values()[tv.getSelectedItemPosition()])
+                    .alcance_visao(Float.parseFloat(av.getText().toString()))
                     .evento(evento_hack)
                     .build();
                 Log.d(TAG, "OK proto: " + proto_modificado.toString());

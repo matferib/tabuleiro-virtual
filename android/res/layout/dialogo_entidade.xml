@@ -34,7 +34,7 @@
         android:minEms="4"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:inputType="phone" />
+        android:inputType="number" />
   </LinearLayout>
   <!-- tipo de visao -->
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -49,6 +49,17 @@
         android:id="@+id/tipo_visao"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
+    <EditText
+        android:id="@+id/raio_visao_escuro"
+        android:maxLength="4"
+        android:minEms="4"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number" />
+    <TextView android:id="@+id/metros"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/metros_m" />
   </LinearLayout>
 
   <!-- eventos -->

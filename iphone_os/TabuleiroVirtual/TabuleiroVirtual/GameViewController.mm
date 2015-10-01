@@ -493,7 +493,8 @@ const int TAG_BOTAO_CANCELA = 101;
   {
     notificacao_->mutable_entidade()->set_tipo_visao(static_cast<ent::TipoVisao>([tipo_visao_picker_ selectedRowInComponent:0]));
     float alcance = [raio_visao_stepper_ value];
-    notificacao_->mutable_entidade()->set_alcance_visao(alcance > 0.0 ? alcance : 18.0f);
+    notificacao_->mutable_entidade()->set_alcance_visao(
+        (alcance == 0.0 && notificacao_->entidade().tipo_visao() == ent::VISAO_ESCURO) ? 18.0f : alcance);
   }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);

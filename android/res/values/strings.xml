@@ -5,6 +5,7 @@
     <string name="pontos_vida">Pontos Vida</string>
     <string name="eventos">Eventos</string>
     <string name="tipo_visao">Tipo de Visão</string>
+    <string name="metros_m">m</string>
     <string-array name="tipo_visao_array">
       <!-- A ordem deve ser a mesma da enum de visoes. -->
       <item>Visão Normal</item>
