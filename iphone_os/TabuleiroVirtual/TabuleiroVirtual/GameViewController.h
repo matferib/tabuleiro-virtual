@@ -29,6 +29,8 @@ class Notificacao;
     UITextField* pontos_vida_;
     UITextField* max_pontos_vida_;
     UIPickerView* tipo_visao_picker_;
+    UIStepper*  raio_visao_stepper_;
+    UILabel* raio_visao_rotulo_;
     CMMotionManager* motion_manager_;
     NSArray* tipo_visao_array_;
     

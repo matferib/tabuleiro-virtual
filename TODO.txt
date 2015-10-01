@@ -1,5 +1,5 @@
 Versao 1.11.2
-- UI android e ipad: raio de luz e tipo de visao.
+- UI android e ipad: raio de luz e alcance de visao no escuro.
 - Repensar camera presa.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.

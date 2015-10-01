@@ -22,6 +22,8 @@ const int TAG_TEXTO_TAMANHO = 7;
 const int TAG_PONTOS_VIDA = 8;
 const int TAG_MAX_PONTOS_VIDA = 9;
 const int TAG_TIPO_VISAO = 10;
+const int TAG_RAIO_VISAO_ESCURO_STEP = 11;
+const int TAG_RAIO_VISAO_ESCURO_ROTULO = 12;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -292,6 +294,12 @@ const int TAG_BOTAO_CANCELA = 101;
   [texto_slider_ setText:[NSString stringWithFormat:@"%d", valor]];
 }
 
+// Mudanca no raio de visao.
+-(void)mudaRaioVisao
+{
+  [raio_visao_rotulo_ setText:[NSString stringWithFormat:@"%1.1f m", [raio_visao_stepper_ value]]];
+}
+
 -(void)arredondaTamanho
 {
   int valor = round(slider_tamanho_.value);
@@ -380,7 +388,13 @@ const int TAG_BOTAO_CANCELA = 101;
     
     tipo_visao_picker_ = (UIPickerView*)[view viewWithTag:TAG_TIPO_VISAO];
     [tipo_visao_picker_ setDelegate:self];
-    [tipo_visao_picker_ selectRow:n.entidade().tipo_visao() inComponent:0 animated:FALSE];
+    raio_visao_stepper_ = (UIStepper*)[view viewWithTag:TAG_RAIO_VISAO_ESCURO_STEP];  // criar antes da selecao.
+    [raio_visao_stepper_ addTarget:self action:@selector(mudaRaioVisao) forControlEvents:UIControlEventValueChanged];
+    raio_visao_rotulo_ = (UILabel*)[view viewWithTag:TAG_RAIO_VISAO_ESCURO_ROTULO];
+    [tipo_visao_picker_ selectRow:n.entidade().tipo_visao() inComponent:0 animated:false];
+    [self pickerView:tipo_visao_picker_ didSelectRow:(NSInteger)n.entidade().tipo_visao() inComponent:(NSInteger)0];
+    [raio_visao_stepper_ setValue:n.entidade().alcance_visao()];
+    [self mudaRaioVisao];
 
     slider_ = (UISlider*)[view viewWithTag:TAG_AURA];
     [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
@@ -478,6 +492,8 @@ const int TAG_BOTAO_CANCELA = 101;
   }
   {
     notificacao_->mutable_entidade()->set_tipo_visao(static_cast<ent::TipoVisao>([tipo_visao_picker_ selectedRowInComponent:0]));
+    float alcance = [raio_visao_stepper_ value];
+    notificacao_->mutable_entidade()->set_alcance_visao(alcance > 0.0 ? alcance : 18.0f);
   }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);
@@ -489,7 +505,9 @@ const int TAG_BOTAO_CANCELA = 101;
 
 // ---------------------------------------------
 // Delegacao de UIPickerView para tipo de visao.
-- (void)pickerView:(UIPickerView *)pickerView didSelectRow: (NSInteger)row inComponent:(NSInteger)component {
+#pragma mark - Delegacao de UIPickerView.
+- (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
+  [raio_visao_stepper_ setEnabled:(row == ent::VISAO_ESCURO)];
 }
 
 - (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
@@ -500,9 +518,16 @@ const int TAG_BOTAO_CANCELA = 101;
   return 1;
 }
 
-// tell the picker the title for a given component
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component {
   return tipo_visao_array_[row];
+}
+
+- (UIView *)pickerView:(UIPickerView *)pickerView viewForRow:(NSInteger)row forComponent:(NSInteger)component reusingView:(UIView *)view
+{
+  UILabel *label = [[UILabel alloc] init];
+  label.text = tipo_visao_array_[row];
+  label.textAlignment = NSTextAlignmentNatural; //Changed to NS as UI is deprecated.
+  return label;
 }
 
 // tell the picker the width of each row for a given component
