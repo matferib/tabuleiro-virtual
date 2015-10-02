@@ -384,6 +384,9 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
+  /** Desenha o alvo do olho. */
+  void DesenhaOlho();
+
   /** Desenha as luzes do tabuleiro. */
   void DesenhaLuzes();
 

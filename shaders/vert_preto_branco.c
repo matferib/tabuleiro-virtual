@@ -26,8 +26,7 @@ attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
 
 void main() {
-  lowp float media_cor = (gltab_cor.r + gltab_cor.g + gltab_cor.b) / 3.0;
-  v_Color = vec4(media_cor, media_cor, media_cor, gltab_cor.a);
+  v_Color = gltab_cor;
   v_Tex.st = gltab_texel;
   v_Pos = gltab_mvm * gltab_vertice;
   gl_Position = gltab_prm * v_Pos;
