@@ -33,10 +33,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.NumberPicker;
 import android.widget.Spinner;
 import com.squareup.wire.Wire;
 import com.matferib.Tabuleiro.ent.EntidadeProto;
 import com.matferib.Tabuleiro.ent.TipoVisao;
+import com.matferib.Tabuleiro.ent.IluminacaoPontual;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
 public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
@@ -404,11 +406,17 @@ class TabuleiroRenderer
           Log.e(TAG, "av == null");
           return;
         }
+        final NumberPicker raio_luz = (NumberPicker)view.findViewById(R.id.raio_luz_picker);
+        if (raio_luz == null) {
+          Log.e(TAG, "raio_luz == null");
+          return;
+        }
         final EditText eventos = (EditText)view.findViewById(R.id.eventos);
         if (eventos == null) {
           Log.e(TAG, "eventos == null");
           return;
         }
+
         max_pv.setText(String.valueOf(proto.max_pontos_vida));
         pv.setText(String.valueOf(proto.pontos_vida));
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
@@ -416,6 +424,29 @@ class TabuleiroRenderer
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tv.setAdapter(adapter);
         tv.setSelection(proto.tipo_visao != null ? proto.tipo_visao.getValue() : TipoVisao.VISAO_NORMAL.getValue());
+        final int num_valores_raios = 300;
+        String[] valores_raio = new String[num_valores_raios];
+        for (int i = 0; i < num_valores_raios; ++i) {
+          valores_raio[i] = String.valueOf(i * 1.5f);
+        }
+        raio_luz.setMaxValue(num_valores_raios);
+        raio_luz.setMinValue(0);
+        raio_luz.setWrapSelectorWheel(false);
+        raio_luz.setDisplayedValues(valores_raio);
+        raio_luz.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+        float val_luz = 0.0f;
+        if (proto.luz != null) {
+          if (proto.luz.raio == null) {
+            val_luz = 6.0f;  // raio padrao de luz: 4 quadrados.
+          } else {
+            val_luz = proto.luz.raio;
+          }
+        }
+        int indice_val_luz = (int)(val_luz / 1.5f);
+        if (indice_val_luz > (num_valores_raios - 1)) {
+          indice_val_luz = num_valores_raios - 1;
+        }
+        raio_luz.setValue(indice_val_luz);
         av.setText(String.valueOf(proto.alcance_visao == null ? 0 : proto.alcance_visao));
         String evento_str = new String();
         for (EntidadeProto.Evento e : proto.evento) {
@@ -440,6 +471,7 @@ class TabuleiroRenderer
                     .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
                     .pontos_vida(Integer.parseInt(pv.getText().toString()))
                     .tipo_visao(TipoVisao.values()[tv.getSelectedItemPosition()])
+                    .luz(new IluminacaoPontual(null, new Float(raio_luz.getValue() * 1.5f), null))
                     .alcance_visao(Float.parseFloat(av.getText().toString()))
                     .evento(evento_hack)
                     .build();

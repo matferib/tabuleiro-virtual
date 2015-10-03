@@ -414,8 +414,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
 
   // Casos especiais.
-  auto* luz = proto_.has_luz() ? proto_.mutable_luz()->mutable_cor() : nullptr;
-  if (luz != nullptr && luz->r() == 0 && luz->g() == 0 && luz->b() == 0) {
+  const auto* luz = proto_.has_luz() ? proto_.mutable_luz() : nullptr;
+  if (luz != nullptr && luz->has_raio() && luz->raio() == 0.0f) {
+    proto_.clear_luz();
+  }
+  const auto* cor = ((luz != nullptr) && luz->has_cor()) ? const_cast<IluminacaoPontual*>(luz)->mutable_cor() : nullptr;
+  if (cor != nullptr && (cor->r() == 0 && cor->g() == 0 && cor->b() == 0)) {
     proto_.clear_luz();
   }
   if (proto_parcial.has_pontos_vida()) {

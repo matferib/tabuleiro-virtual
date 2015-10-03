@@ -24,6 +24,8 @@ const int TAG_MAX_PONTOS_VIDA = 9;
 const int TAG_TIPO_VISAO = 10;
 const int TAG_RAIO_VISAO_ESCURO_STEP = 11;
 const int TAG_RAIO_VISAO_ESCURO_ROTULO = 12;
+const int TAG_RAIO_LUZ_STEPPER = 13;
+const int TAG_RAIO_LUZ_ROTULO = 14;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -289,15 +291,21 @@ const int TAG_BOTAO_CANCELA = 101;
 // Arrendonda valor do slider.
 -(void)arredonda
 {
-  int valor = round(slider_.value);
-  slider_.value = valor;
-  [texto_slider_ setText:[NSString stringWithFormat:@"%d", valor]];
+  int valor = round(slider_aura_.value);
+  slider_aura_.value = valor;
+  [texto_aura_ setText:[NSString stringWithFormat:@"%d", valor]];
 }
 
 // Mudanca no raio de visao.
 -(void)mudaRaioVisao
 {
   [raio_visao_rotulo_ setText:[NSString stringWithFormat:@"%1.1f m", [raio_visao_stepper_ value]]];
+}
+
+// Mudanca no raio de luz.
+-(void)mudaRaioLuz
+{
+  [raio_luz_rotulo_ setText:[NSString stringWithFormat:@"%1.1f m", [raio_luz_stepper_ value]]];
 }
 
 -(void)arredondaTamanho
@@ -396,12 +404,22 @@ const int TAG_BOTAO_CANCELA = 101;
     [raio_visao_stepper_ setValue:n.entidade().alcance_visao()];
     [self mudaRaioVisao];
 
-    slider_ = (UISlider*)[view viewWithTag:TAG_AURA];
-    [slider_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
-    [slider_ setValue:n.entidade().aura()];
+    slider_aura_ = (UISlider*)[view viewWithTag:TAG_AURA];
+    [slider_aura_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
+    [slider_aura_ setValue:n.entidade().aura()];
 
-    texto_slider_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];
-    [texto_slider_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
+    texto_aura_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];
+    [texto_aura_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
+    
+    raio_luz_stepper_ = (UIStepper*)[view viewWithTag:TAG_RAIO_LUZ_STEPPER];
+    [raio_luz_stepper_ addTarget:self action:@selector(mudaRaioLuz) forControlEvents:UIControlEventValueChanged];
+    float raio_luz = n.entidade().has_luz()
+        ? (n.entidade().luz().has_raio() ? n.entidade().luz().raio() : 4 * TAMANHO_LADO_QUADRADO)
+        : 0;
+    [raio_luz_stepper_ setValue:raio_luz];
+    
+    raio_luz_rotulo_ = (UILabel*)[view viewWithTag:TAG_RAIO_LUZ_ROTULO];
+    [self mudaRaioLuz];
 
     slider_tamanho_ = (UISlider*)[view viewWithTag:TAG_TAMANHO];
     [slider_tamanho_ addTarget:self action:@selector(arredondaTamanho) forControlEvents:UIControlEventValueChanged];
@@ -425,7 +443,11 @@ const int TAG_BOTAO_CANCELA = 101;
 {
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
   vc_entidade_ = nil;
-  slider_ = nil;
+  slider_aura_ = nil;
+  raio_luz_stepper_ = nil;
+  raio_luz_rotulo_ = nil;
+  raio_visao_rotulo_ = nil;
+  raio_visao_stepper_ = nil;
 }
 
 -(void)aceitaFechaViewEntidade
@@ -473,7 +495,7 @@ const int TAG_BOTAO_CANCELA = 101;
     }
   }
   {
-    int valor_slider = (int)[slider_ value];
+    int valor_slider = (int)[slider_aura_ value];
     if (valor_slider > 0) {
       notificacao_->mutable_entidade()->set_aura(valor_slider);
     } else {
@@ -496,12 +518,25 @@ const int TAG_BOTAO_CANCELA = 101;
     notificacao_->mutable_entidade()->set_alcance_visao(
         (alcance == 0.0 && notificacao_->entidade().tipo_visao() == ent::VISAO_ESCURO) ? 18.0f : alcance);
   }
+  {
+    if ([raio_luz_stepper_ value] == 0.0) {
+      notificacao_->mutable_entidade()->clear_luz();
+    } else {
+      auto* cor_luz = notificacao_->mutable_entidade()->mutable_luz()->mutable_cor();
+      notificacao_->mutable_entidade()->mutable_luz()->set_raio([raio_luz_stepper_ value]);
+      if (!notificacao_->entidade().luz().cor().has_r()) {  // se nao tem r, nao tem gb.
+        cor_luz->set_r(1.0f);
+        cor_luz->set_g(1.0f);
+        cor_luz->set_b(1.0f);
+      }
+    }
+  }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
   nativeCentral()->AdicionaNotificacao(notificacao_);
   notificacao_ = nullptr;
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
   vc_entidade_ = nil;
-  slider_ = nil;
+  slider_aura_ = nil;
 }
 
 // ---------------------------------------------

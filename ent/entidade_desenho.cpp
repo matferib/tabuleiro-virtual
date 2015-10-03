@@ -418,7 +418,13 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
     // Objeto de luz. O quarto componente indica que a luz é posicional.
     // Se for 0, a luz é direcional e os componentes indicam sua direção.
     GLfloat pos_luz[] = { 0, 0, 0, 1.0f };
-    const ent::Cor& cor = proto_.luz().cor();
+    ent::Cor cor = proto_.luz().cor();
+    if (!proto_.luz().has_cor()) {
+      cor.set_r(1.0f);
+      cor.set_g(1.0f);
+      cor.set_b(1.0f);
+      cor.set_a(1.0f);
+    }
     float raio = (proto_.luz().has_raio() ? proto_.luz().raio() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
     float multiplicador_cor = 1.0f;
     if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {

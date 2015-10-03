@@ -61,6 +61,19 @@
         android:layout_height="wrap_content"
         android:text="@string/metros_m" />
   </LinearLayout>
+  <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+      android:orientation="horizontal"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content">
+    <TextView android:id="@+id/raio_luz_rotulo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/raio_luz" />
+    <NumberPicker android:id="@+id/raio_luz_picker"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+  </LinearLayout>
 
   <!-- eventos -->
   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"

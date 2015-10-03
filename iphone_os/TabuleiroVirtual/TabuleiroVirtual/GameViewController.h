@@ -22,8 +22,8 @@ class Notificacao;
     bool one_finger_;
     UIViewController* vc_entidade_;  // dialogo de propriedade de entidade.
     ntf::Notificacao* notificacao_;
-    UISlider* slider_;  // para dialogo de propriedade de entidade.
-    UITextField* texto_slider_;  // ditto.
+    UISlider* slider_aura_;  // para dialogo de propriedade de entidade.
+    UITextField* texto_aura_;  // ditto.
     UISlider* slider_tamanho_;  // para dialogo de propriedade de entidade.
     UITextField* texto_slider_tamanho_;  // ditto.
     UITextField* pontos_vida_;
@@ -31,6 +31,8 @@ class Notificacao;
     UIPickerView* tipo_visao_picker_;
     UIStepper*  raio_visao_stepper_;
     UILabel* raio_visao_rotulo_;
+    UIStepper* raio_luz_stepper_;
+    UILabel* raio_luz_rotulo_;
     CMMotionManager* motion_manager_;
     NSArray* tipo_visao_array_;
     
