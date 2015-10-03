@@ -114,7 +114,8 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
       gl::DesenhaCaractere(c);
       gl::Translada(largura_fonte, 0.0f, 0.0f, false);
     }
-    gl::Translada(-((translacao_x * largura_fonte) + static_cast<float>(str_linha.size())),
+    // A translacao volta tudo que ela andou.
+    gl::Translada(-static_cast<float>(str_linha.size() * largura_fonte) - translacao_x,
                   inverte_vertical ? altura_fonte : -altura_fonte,
                   0.0f,
                   false);
