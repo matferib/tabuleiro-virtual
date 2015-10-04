@@ -289,11 +289,13 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
+    bool desenhou_rotulo = false;
     if (pd->desenha_rotulo()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
       MudaCorAplicandoNevoa(COR_AMARELA, pd);
       gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
       gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
+      desenhou_rotulo = true;
     }
     if (pd->desenha_rotulo_especial()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
@@ -301,7 +303,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
       std::string rotulo;
       for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
-        rotulo += std::string("\n") + rotulo_especial;
+        rotulo += (desenhou_rotulo ? std::string("\n") : std::string("")) + rotulo_especial;
       }
       if (proto_.proxima_salvacao() != RS_FALHOU) {
         rotulo += "\nprox. salv.: ";
