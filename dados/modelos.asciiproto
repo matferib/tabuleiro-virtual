@@ -41,15 +41,24 @@ modelo {
 }
 modelo {
   id: 'Demônio Vrock'
-  entidade { dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 } }
+  entidade {
+    dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Demônio Babau'
-  entidade { dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 } }
+  entidade {
+    dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Demônio Dretch'
-  entidade { dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 } }
+  entidade {
+    dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id : 'Drow'
@@ -151,7 +160,19 @@ modelo {
 }
 modelo {
   id: 'Goblin'
-  entidade { dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 } }
+  entidade {
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini: +1\nca16\nmaca estrela: +4 1d6 azagaia: +6 1d4'
+  }
+}
+modelo {
+  id: 'Goblin Sargento'
+  entidade {
+    dados_vida: '3d8+3' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.545 g: 0.396 b: 0.188 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
+  }
 }
 modelo {
   id: 'Homem-Rato'
@@ -167,27 +188,45 @@ modelo {
 }
 modelo {
   id: 'Orc'
-  entidade { dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 } }
+  entidade {
+    dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Orc Lanceiro'
-  entidade { dados_vida: '1d8+1' info_textura { id: 'orc_spear.png'} cor { g: 1.0 } ultima_acao: 'Ataque a Distância' }
+  entidade {
+    dados_vida: '1d8+1' info_textura { id: 'orc_spear.png'} cor { g: 1.0 } ultima_acao: 'Ataque a Distância'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Orc Sargento'
-  entidade { dados_vida: '3d8+6' info_textura { id: 'orc_lead.png'} cor { g: 0.7 } }
+  entidade {
+    dados_vida: '3d8+6' info_textura { id: 'orc_lead.png'} cor { g: 0.7 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Orc Tenente'
-  entidade { dados_vida: '5d8+15' info_textura { id: 'orc_lead.png'} cor { g: 0.5 } }
+  entidade {
+    dados_vida: '5d8+15' info_textura { id: 'orc_lead.png'} cor { g: 0.5 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Orc Capitão'
-  entidade { dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 } }
+  entidade {
+    dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Demônio Súcubo'
-  entidade { dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 } }
+  entidade {
+    dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
 }
 modelo {
   id: 'Arbusto Errante'

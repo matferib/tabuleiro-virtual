@@ -49,10 +49,17 @@ sub_menu {
   modelo { id: 'Humano Mago' }
   modelo { id: 'Humano Paladino' }
 }
-modelo { id: 'Goblin' }
+sub_menu {
+  id: 'Goblins'
+  modelo { id: 'Goblin' }
+  modelo { id: 'Goblin Sargento' }
+}
 modelo { id: 'Homem-Rato' }
-modelo { id: 'Ogro' }
-modelo { id: 'Ogro Bárbaro' }
+sub_menu {
+  id: 'Ogros'
+  modelo { id: 'Ogro' }
+  modelo { id: 'Ogro Bárbaro' }
+}
 sub_menu {
   id: 'Orcs'
   modelo { id: 'Orc' }

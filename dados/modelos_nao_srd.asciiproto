@@ -68,5 +68,19 @@ modelo {
 }
 modelo {
   id: 'Soldado do Horror' # monstros de faerun.
-  entidade { dados_vida: '4d12' info_textura { id: 'dread_warrior' } cor { r: 0 g: 0 b: 0 } }
+  entidade { dados_vida: '4d12' info_textura { id: 'dread_warrior.png' } cor { r: 0 g: 0 b: 0 } }
+}
+modelo {
+  id: 'Peticionário Sacerdote Abismo (mane)'
+  entidade {
+    dados_vida: '2d8+2' info_textura { id: 'mane_priest.png' } cor { r: 0.8 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini: -1 mov: 6\nat:+1 dano: 1d3\nca:9\nimune: eletricidade e veneno\nresistencia: fogo e acido:20\nao morrer, nuvem acida: reflexo 20 1d6 dano ou zero'
+  }
+}
+modelo {
+  id: 'Peticionário Ogro Abismo (mane)'
+  entidade {
+    dados_vida: '2d8+8' tamanho: TM_GRANDE info_textura { id: 'mane_ogre.png' } cor { r: 0.8 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini: -1 mov: 6\nat:+6 dano: 1d4+7\nca:13\nimune: eletricidade e veneno\nresistencia: fogo e acido:20\nao morrer, nuvem acida: reflexo 20 1d6 dano ou zero'
+  }
 }

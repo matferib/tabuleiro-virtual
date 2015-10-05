@@ -4,6 +4,8 @@ modelo { id: 'Aranha Armadeira' }
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Flecha' texto: 'Flecha' }
+  modelo { id: 'Peticionário Sacerdote Abismo (mane)' }
+  modelo { id: 'Peticionário Ogro Abismo (mane)' }
 }
 modelo { id: 'Dragontino' }
 sub_menu {
