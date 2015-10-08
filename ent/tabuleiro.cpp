@@ -408,6 +408,9 @@ int Tabuleiro::Desenha() {
   }
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
+#if USAR_FRAMEBUFFER
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
   DesenhaCena();
   return passou_ms;
 }
@@ -1823,6 +1826,7 @@ void Tabuleiro::IniciaGL() {
   GeraVboRosaDosVentos();
 
   RegeraVboTabuleiro();
+  GeraFramebufferPicking();
   Entidade::IniciaGl();
 }
 
@@ -1922,13 +1926,16 @@ void Tabuleiro::DesenhaCena() {
 
   gl::InicioCena();
   gl::IniciaNomes();
+  V_ERRO("Inicio cena");
 
   gl::Habilita(GL_DEPTH_TEST);
+  V_ERRO("Teste profundidade");
   gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
                  proto_corrente_->luz_ambiente().g(),
                  proto_corrente_->luz_ambiente().b(),
                  proto_corrente_->luz_ambiente().a());
   gl::Limpa(GL_DEPTH_BUFFER_BIT);
+  V_ERRO("Limpa");
 
   for (int i = 1; i < 8; ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -2112,6 +2119,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaControleVirtual();
   }
   V_ERRO("desenhando controle virtual");
+  glFlush();
 }
 
 void Tabuleiro::DesenhaOlho() {
@@ -2464,6 +2472,58 @@ void Tabuleiro::RegeraVboTabuleiro() {
   grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
   vbo_grade_.Grava(grade_nao_gravada);
   V_ERRO("RegeraVboTabuleiro fim");
+}
+
+void Tabuleiro::GeraFramebufferPicking() {
+#if USAR_FRAMEBUFFER
+  V_ERRO("gerando framebuffer picking");
+  // Textura de cor para renderizacao.
+  GLuint textura_cor;
+  glGenTextures(1, &textura_cor);
+  glBindTexture(GL_TEXTURE_2D, textura_cor);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glBindTexture(GL_TEXTURE_2D, 0);
+  V_ERRO("Gera FramebufferPicking textura cor");
+  // Profundidade.
+#define DEPTH_TEX 1
+#if DEPTH_TEX
+  GLuint textura_prof;
+  glGenTextures(1, &textura_prof);
+  glBindTexture(GL_TEXTURE_2D, textura_prof);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glBindTexture(GL_TEXTURE_2D, 0);
+#else
+  GLuint rb;
+  glGenRenderbuffers(1, &rb);
+  glBindRenderbuffer(GL_RENDERBUFFER, rb);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+#endif
+  V_ERRO("Gera FramebufferPicking textura profundidade");
+  // Gera o framebuffer com as texturas.
+  glGenFramebuffers(1, &framebuffer_pick_);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_pick_);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textura_cor, 0);
+#if DEPTH_TEX
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textura_prof, 0);
+#else
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
+#endif
+  V_ERRO("glGenFramebuffers");
+  GLenum e = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (e != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer incompleto: " << (void*)e;
+  } 
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+#endif
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -4625,7 +4685,6 @@ void Tabuleiro::DesenhaCoordenadas() {
 
 // Chamado pelo TimerEscopo no tabuleiro.h.
 void Tabuleiro::DesenhaTempoRenderizacao() {
-  glFinish();
   auto passou_ms = timer_.elapsed().wall / 1000000ULL;
   if (tempos_renderizacao_.size() == kMaximoTamTemposRenderizacao) {
     tempos_renderizacao_.pop_back();

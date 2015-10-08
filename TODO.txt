@@ -1,4 +1,5 @@
 Versao 1.11.5
+- Arrumar layout da UI de IOS.
 - Aumentar a precisao do buffer de profundidade.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.

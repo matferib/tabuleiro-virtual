@@ -646,6 +646,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Gera o vbo da rosa dos ventos, chamado apenas uma vez. */
   void GeraVboRosaDosVentos();
 
+  /** Gera e configura o framebuffer para picking. */
+  void GeraFramebufferPicking();
+
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
 
@@ -799,6 +802,7 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
+  GLuint framebuffer_pick_ = 0;
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = -1;
