@@ -461,6 +461,16 @@ inline void OperacaoStencil(GLenum falha_stencil, GLenum falha_profundidade, GLe
 /** Retorna true se a selecao por cor estiver sendo usada. */
 bool SelecaoPorCor();
 
+constexpr unsigned int BitsPilha() { return 3; }
+constexpr unsigned int MaiorBitPilha() { return (1 << BitsPilha()) - 1; }
+// Tem que ser 16 ou 8. Ver o mapeamento inverso de cores em gl_comum.cc:
+// unsigned int id_mapeado = ...
+constexpr unsigned int BitsProfundidade() { return 8; }
+constexpr unsigned int DeslocamentoPilha() { return 32 - BitsProfundidade() - BitsPilha(); }
+constexpr unsigned int NumeroMaximoEntidades() { return (1 << (32 - BitsPilha() - BitsProfundidade())); }
+/** O id maximo de entidade que consegue ser mapeado pela selecao por cor. */
+constexpr unsigned int IdMaximoEntidade() { return NumeroMaximoEntidades() - 1; }
+
 /** debugging. */
 void AlternaModoDebug();
 

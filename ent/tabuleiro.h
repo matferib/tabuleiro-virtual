@@ -802,7 +802,9 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
+#if USAR_FRAMEBUFFER
   GLuint framebuffer_pick_ = 0;
+#endif
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = -1;

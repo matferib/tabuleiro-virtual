@@ -4225,12 +4225,12 @@ void Tabuleiro::AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao)
   }
 }
 
+#define BITS_CLIENTE 2
 unsigned int Tabuleiro::GeraIdEntidade(int id_cliente) {
-  const unsigned int max_id_entidade = (1 << 28);
-  unsigned int count = max_id_entidade;
+  unsigned int count = gl::NumeroMaximoEntidades();
   while (count-- > 0) {
-    unsigned int id = (id_cliente << 28) | proximo_id_entidade_;
-    proximo_id_entidade_ = ((proximo_id_entidade_ + 1) % max_id_entidade);
+    unsigned int id = (id_cliente << (32 - BITS_CLIENTE)) | proximo_id_entidade_;
+    proximo_id_entidade_ = ((proximo_id_entidade_ + 1) % gl::IdMaximoEntidade());
     auto it = entidades_.find(id);
     if (it == entidades_.end()) {
       return id;
@@ -4240,7 +4240,7 @@ unsigned int Tabuleiro::GeraIdEntidade(int id_cliente) {
 }
 
 int Tabuleiro::GeraIdTabuleiro() {
-  const int max_id_cliente = 15;
+  const int max_id_cliente = (1 << BITS_CLIENTE) - 1;
   int count = max_id_cliente;
   while (count-- > 0) {
     int id_tab = proximo_id_cliente_;
@@ -4566,7 +4566,11 @@ void Tabuleiro::DesenhaListaObjetos() {
              TipoEntidade_Name(e->Proto().tipo()).c_str(),
              e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
     gl::TipoEscopo tipo(OBJ_ENTIDADE_LISTA);
-    gl::CarregaNome(e->Id());
+    try {
+      gl::CarregaNome(e->Id());
+    } catch (...) {
+      continue;
+    }
     {
       gl::MatrizEscopo salva(GL_PROJECTION);
       gl::CarregaIdentidade();

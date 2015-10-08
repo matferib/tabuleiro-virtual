@@ -9,6 +9,7 @@
 #include "arq/arquivo.h"
 //#define VLOG_NIVEL 2
 #include "log/log.h"
+#include "net/util.h"
 #include "matrix/matrices.h"
 
 #if !USAR_OPENGL_ES && !WIN32
@@ -40,20 +41,20 @@ namespace interno {
 
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
-  unsigned int id_mapeado = c->proximo_id | (c->bit_pilha << 21);
+  if (c->proximo_id > IdMaximoEntidade()) {
+    throw std::logic_error(std::string("Limite de ids alcancado: ") + net::to_string(c->proximo_id));
+  }
+  unsigned int id_mapeado = c->proximo_id | (c->bit_pilha << DeslocamentoPilha() );
   c->ids.insert(std::make_pair(id_mapeado, id));
-  if (c->proximo_id == ((1 << 21) - 1)) {
-    LOG(ERROR) << "Limite de ids alcancado";
+  if (c->depurar_selecao_por_cor) {
+    // Mais facil de ver.
+    c->proximo_id += 5;
   } else {
-    if (c->depurar_selecao_por_cor) {
-      // Mais facil de ver.
-      c->proximo_id += 5;
-    } else {
-      ++c->proximo_id;
-    }
+    ++c->proximo_id;
   }
   rgb[0] = (id_mapeado & 0xFF);
   rgb[1] = ((id_mapeado >> 8) & 0xFF);
+  // Esse provavelmente sera ignorados ao usar 16 bits de profundidade.
   rgb[2] = ((id_mapeado >> 16) & 0xFF);
 }
 
@@ -1191,11 +1192,14 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
         VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];
-        unsigned int id_mapeado = pixel[0] | (pixel[1] << 8) | (pixel[2] << 16);
+        unsigned int id_mapeado = pixel[0] | (pixel[1] << 8);  // | (pixel[2] << 16);
+        if (BitsProfundidade() == 8) {
+          id_mapeado |= (pixel[2] << 16);
+        }
         VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
         unsigned int tipo_objeto = id_mapeado >> 21;
         VLOG(1) << "Tipo objeto: " << tipo_objeto;
-        if (tipo_objeto > 7) {
+        if (tipo_objeto > MaiorBitPilha()) {
           LOG(ERROR) << "Tipo objeto invalido: " << tipo_objeto;
           return 0;
         }
@@ -1210,7 +1214,13 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         GLuint* ptr = c->buffer_selecao;
         ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
 #if USAR_SHADER
-        ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * 0xFFFFFFFF);  // zmin.
+        // Converte a profundidade para 32 bits. TODO: nao seria simplesmente um shift left?
+        if (BitsProfundidade() == 8) {
+          ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * 0xFFFFFFFF);  // zmin.
+        } else {
+          unsigned int prof = (pixel[3] << 8) | pixel[2];
+          ptr[1] = static_cast<GLuint>(prof / static_cast<float>(0xFF) * 0xFFFFFFFF);  // zmin.
+        }
 #else
         ptr[1] = 0;  // zmin.
 #endif

@@ -84,7 +84,11 @@ void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
 }
 
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
-  gl::CarregaNome(Id());
+  try {
+    gl::CarregaNome(Id());
+  } catch (...) {
+    return;
+  }
   // Tem que normalizar por causa das operacoes de escala, que afetam as normais.
   gl::Habilita(GL_NORMALIZE);
   DesenhaObjeto(pd);
