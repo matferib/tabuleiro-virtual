@@ -36,6 +36,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 #if USAR_SHADER
   gl::UsaShader(gl::TSH_PROFUNDIDADE);
 #endif
+  //gl::Viewport(0, 0, (GLint)1, (GLint)1);
   // inicia o buffer de picking (selecao)
   gl::BufferSelecao(100, buffer_hits);
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
@@ -87,6 +88,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
   *numero_hits = gl::ModoRenderizacao(gl::MR_RENDER);
+  //gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
   //auto e = glGetError();
   //if (e != GL_NO_ERROR) {
   //  LOG(ERROR) << "Erro de picking: " << gluErrorString(e);

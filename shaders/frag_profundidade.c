@@ -27,6 +27,8 @@ void main() {
 #if BITS_PROFUNDIDADE == 8
   gl_FragColor = vec4(cor_final.rgb, gl_FragCoord.z);
 #else
-  gl_FragColor = vec4(cor_final.rg, gl_FragCoord.z, fract(gl_FragCoord.z * 256.0));
+  highp vec4 v4 = vec4(cor_final.rg, gl_FragCoord.z, fract(gl_FragCoord.z * 256.0));
+  //v4.b -= v4.a / 256.0;  // Tira a ultima parte.
+  gl_FragColor = v4;
 #endif
 }
