@@ -465,7 +465,8 @@ constexpr unsigned int BitsPilha() { return 3; }
 constexpr unsigned int MaiorBitPilha() { return (1 << BitsPilha()) - 1; }
 // Tem que ser 16 ou 8. Ver o mapeamento inverso de cores em gl_comum.cc:
 // unsigned int id_mapeado = ...
-constexpr unsigned int BitsProfundidade() { return 8; }
+// Se mudar aqui, tem que mudar o shader de profundidade tambem.
+constexpr unsigned int BitsProfundidade() { return 16; }
 constexpr unsigned int DeslocamentoPilha() { return 32 - BitsProfundidade() - BitsPilha(); }
 constexpr unsigned int NumeroMaximoEntidades() { return (1 << (32 - BitsPilha() - BitsProfundidade())); }
 /** O id maximo de entidade que consegue ser mapeado pela selecao por cor. */

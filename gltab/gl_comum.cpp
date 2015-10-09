@@ -1197,7 +1197,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
           id_mapeado |= (pixel[2] << 16);
         }
         VLOG(1) << "Id mapeado: " << (void*)id_mapeado;
-        unsigned int tipo_objeto = id_mapeado >> 21;
+        unsigned int tipo_objeto = id_mapeado >> (32 - BitsProfundidade() - BitsPilha());
         VLOG(1) << "Tipo objeto: " << tipo_objeto;
         if (tipo_objeto > MaiorBitPilha()) {
           LOG(ERROR) << "Tipo objeto invalido: " << tipo_objeto;
@@ -1208,22 +1208,26 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
           LOG(ERROR) << "Id nao mapeado: " << (void*)id_mapeado;
           return 0;
         }
-#pragma GCC diagnostic pop
         unsigned int id_original = it->second;
         VLOG(1) << "Id original: " << id_original;
         GLuint* ptr = c->buffer_selecao;
         ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
 #if USAR_SHADER
-        // Converte a profundidade para 32 bits. TODO: nao seria simplesmente um shift left?
+        // Converte a profundidade para 32 bits. TODO: nao seria simplesmente um shift left? Testei e fica meio deslocado.
         if (BitsProfundidade() == 8) {
           ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * 0xFFFFFFFF);  // zmin.
         } else {
-          unsigned int prof = (pixel[3] << 8) | pixel[2];
-          ptr[1] = static_cast<GLuint>(prof / static_cast<float>(0xFF) * 0xFFFFFFFF);  // zmin.
+          unsigned int prof = ((pixel[2] << 8) | pixel[3]);
+          //prof = static_cast<GLuint>((prof * 0xFFFFFFFF) / static_cast<float>(0xFFFF));
+          prof = static_cast<GLuint>(prof * (static_cast<float>(0xFFFFFFFF) / static_cast<float>(0xFFFF)));
+          LOG(INFO) << "prof: " << (void*)prof;
+          ptr[1] = prof;
+          //LOG(INFO) << "prof: " << (void*)prof << ", ptr[1]: " << ptr[1];
         }
 #else
         ptr[1] = 0;  // zmin.
 #endif
+#pragma GCC diagnostic pop
         ptr[2] = ptr[1];  // zmax
         ptr[3] = tipo_objeto;
         ptr[4] = id_original;
