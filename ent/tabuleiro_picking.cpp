@@ -225,7 +225,7 @@ bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, flo
     LOG(ERROR) << "Falha ao projetar x y no mundo 3d.";
     return false;
   }
-  VLOG(2) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
+  VLOG(1) << "Retornando: " << *x3d << " " << *y3d << " " << *z3d;
   return true;
 }
 

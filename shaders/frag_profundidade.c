@@ -28,7 +28,7 @@ void main() {
   gl_FragColor = vec4(cor_final.rgb, gl_FragCoord.z);
 #else
   highp vec4 v4 = vec4(cor_final.rg, gl_FragCoord.z, fract(gl_FragCoord.z * 256.0));
-  //v4.b -= v4.a / 256.0;  // Tira a ultima parte.
+  v4.b -= v4.a / 256.0;  // Tira a ultima parte, melhora e muito a precisao.
   gl_FragColor = v4;
 #endif
 }

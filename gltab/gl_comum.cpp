@@ -1192,7 +1192,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wint-to-pointer-cast"
         VLOG(2) << "Pixel: " << (void*)pixel[0] << " " << (void*)pixel[1] << " " << (void*)pixel[2] << " " << (void*)pixel[3];
-        unsigned int id_mapeado = pixel[0] | (pixel[1] << 8);  // | (pixel[2] << 16);
+        unsigned int id_mapeado = pixel[0] | (pixel[1] << 8);
         if (BitsProfundidade() == 8) {
           id_mapeado |= (pixel[2] << 16);
         }
@@ -1213,6 +1213,9 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         GLuint* ptr = c->buffer_selecao;
         ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
 #if USAR_SHADER
+#if 0 && !USAR_OPENGL_ES
+        glReadPixels(0, 0, 1, 1, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, &ptr[1]);
+#else
         // Converte a profundidade para 32 bits.
         if (BitsProfundidade() == 8) {
           ptr[1] = static_cast<GLuint>((pixel[3] / static_cast<float>(0xFF)) * 0xFFFFFFFF);  // zmin.
@@ -1220,6 +1223,7 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
           float prof = (pixel[2] / static_cast<float>(0xFF)) + ((pixel[3] / static_cast<float>(0xFF)) / 256.0);
           ptr[1] = static_cast<GLuint>(prof * 0xFFFFFFFF);
         }
+#endif
 #else
         ptr[1] = 0;  // zmin.
 #endif

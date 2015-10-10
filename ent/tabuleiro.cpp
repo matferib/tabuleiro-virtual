@@ -1828,6 +1828,8 @@ void Tabuleiro::IniciaGL() {
   RegeraVboTabuleiro();
   GeraFramebufferPicking();
   Entidade::IniciaGl();
+  //const GLubyte* ext = glGetString(GL_EXTENSIONS);
+  //LOG(INFO) << "Extensoes: " << ext;
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
