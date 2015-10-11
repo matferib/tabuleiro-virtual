@@ -466,13 +466,18 @@ class TabuleiroRenderer
                 // Hack: eventos sera todos colocados em uma string e decodificados no codigo nativo.
                 Vector<EntidadeProto.Evento> evento_hack = new Vector<EntidadeProto.Evento>();
                 evento_hack.add(new EntidadeProto.Evento(0, eventos.getText().toString(), 0, 0));
+                // Converte a visao para 18m se for no escuro e o valor for 0.
+                float alcance = Float.parseFloat(av.getText().toString());
+                if ((TipoVisao.values()[tv.getSelectedItemPosition()] == TipoVisao.VISAO_ESCURO) && alcance == 0) {
+                  alcance = 18.0f;
+                }
                 EntidadeProto proto_modificado = new EntidadeProto.Builder()
                     .id(proto.id)
                     .max_pontos_vida(Integer.parseInt(max_pv.getText().toString()))
                     .pontos_vida(Integer.parseInt(pv.getText().toString()))
                     .tipo_visao(TipoVisao.values()[tv.getSelectedItemPosition()])
                     .luz(new IluminacaoPontual(null, new Float(raio_luz.getValue() * 1.5f), null))
-                    .alcance_visao(Float.parseFloat(av.getText().toString()))
+                    .alcance_visao(new Float(alcance))
                     .evento(evento_hack)
                     .build();
                 Log.d(TAG, "OK proto: " + proto_modificado.toString());
