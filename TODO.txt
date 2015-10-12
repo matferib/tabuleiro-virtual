@@ -1,5 +1,4 @@
 Versao 1.11.5
-- Remover cenario.
 - Tirar versao sem shader
 - Sistema de particulas.
 - Testar limite de objetos.

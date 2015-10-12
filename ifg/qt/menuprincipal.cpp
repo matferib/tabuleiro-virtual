@@ -57,8 +57,9 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Opções"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Reiniciar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Salvar (Ctrl + S)"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "S&alvar Como"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "R&estaurar"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Res&taurar mantendo Entidades"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Res&taurar mantendo Entidades"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Adicionar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Remover"), nullptr,
@@ -420,6 +421,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao->set_endereco(file_str.toStdString());
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
+  } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_SALVAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_PROPRIEDADES]) {
