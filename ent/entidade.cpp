@@ -47,6 +47,7 @@ Entidade::~Entidade() {
 }
 
 namespace {
+
 // A variavei translacao_z foi deprecada e nao devera mais ser utilizada. Esta funcao a converte para possiveis
 // modelos que venham a aparecer com ela.
 void CorrigeTranslacaoDeprecated(EntidadeProto* proto) {
@@ -58,6 +59,19 @@ void CorrigeTranslacaoDeprecated(EntidadeProto* proto) {
     CorrigeTranslacaoDeprecated(&proto_filho);
   }
 }
+
+void CorrigeAuraDeprecated(EntidadeProto* proto) {
+  if (proto->has_aura()) {
+    proto->set_aura_m(proto->aura() * TAMANHO_LADO_QUADRADO);
+    proto->clear_aura();
+  }
+}
+
+void CorrigeCamposDeprecated(EntidadeProto* proto) {
+  CorrigeAuraDeprecated(proto);
+  CorrigeTranslacaoDeprecated(proto);
+}
+
 }  // namespace
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
@@ -79,7 +93,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   AtualizaTexturas(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
-  CorrigeTranslacaoDeprecated(&proto_);
+  CorrigeCamposDeprecated(&proto_);
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {
@@ -378,7 +392,7 @@ void Entidade::MataEntidade() {
   proto_.set_morta(true);
   proto_.set_caida(true);
   proto_.set_voadora(false);
-  proto_.set_aura(0);
+  proto_.set_aura_m(0.0f);
 }
 
 void Entidade::AtualizaPontosVida(int pontos_vida) {
@@ -390,7 +404,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
     proto_.set_morta(true);
     proto_.set_caida(true);
     proto_.set_voadora(false);
-    proto_.set_aura(0);
+    proto_.set_aura_m(0.0f);
   } else if (proto_.pontos_vida() < 0 && pontos_vida >= 0) {
     proto_.set_morta(false);
   }

@@ -447,7 +447,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
-  if (!pd->desenha_aura() || !proto_.has_aura() || proto_.aura() == 0) {
+  if (!pd->desenha_aura() || !proto_.has_aura_m() || proto_.aura_m() == 0) {
     return;
   }
   gl::MatrizEscopo salva_matriz(false);
@@ -459,9 +459,7 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
     ent_quadrados = 1.0f;
   }
   // A aura estende alem do tamanho da entidade.
-  gl::EsferaSolida(
-      TAMANHO_LADO_QUADRADO_2 * ent_quadrados + TAMANHO_LADO_QUADRADO * proto_.aura(),
-      NUM_FACES, NUM_FACES);
+  gl::EsferaSolida(proto_.aura_m(), NUM_FACES, NUM_FACES);
 }
 
 void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
