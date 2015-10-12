@@ -1,6 +1,7 @@
 Versao 1.11.5
+- Remover cenario.
 - Tirar versao sem shader
-- Regua de distancia.
+- Sistema de particulas.
 - Testar limite de objetos.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Geracao de terrenos.

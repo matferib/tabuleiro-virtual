@@ -66,6 +66,7 @@ message AcaoProto {
   optional Posicao pos_entidade = 12;
   // Usado para indicar o delta de pontos de vida da unidade afetada. Ver afeta_pontos_vida.
   optional int32 delta_pontos_vida = 14;  // cosmetico apenas.
+  optional string texto = 24;  // tambem cosmetico, usado para regua.
   // O tabuleiro ira alterar os pontos de vida da entidade afetada ao termino da acao.
   optional bool afeta_pontos_vida = 15 [default=false];  // Se verdadeiro, a entidade sofre o dano de verdade.
   // O tipo de objeto para algumas acoes especificas.

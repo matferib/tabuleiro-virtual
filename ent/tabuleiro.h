@@ -311,6 +311,9 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo transicao, cada clique causa uma transicao de cenario. */
   void AlternaModoTransicao();
 
+  /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
+  void AlternaModoRegua();
+
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
   bool ModoMestre() const { return modo_mestre_; }
   // Debug.
@@ -445,6 +448,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o botao pressionado em modo de transicao de cenarios, recebendo x e y em coordenadas opengl.
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */
   void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
+
+  /** Trata o botao pressionado no modo de regua, recebendo o destino do clique em coordenadas de mundo. */
+  void TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d);
 
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada

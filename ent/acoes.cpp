@@ -112,36 +112,48 @@ class AcaoDeltaPontosVida : public Acao {
  public:
   AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     Entidade* entidade_destino = nullptr;
-    if (acao_proto_.id_entidade_destino_size() == 0 ||
-        (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
-      faltam_ms_ = 0;
-      VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
-      return;
+    if (!acao_proto_.has_pos_entidade()) {
+      if (acao_proto_.id_entidade_destino_size() == 0 ||
+          (entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0))) == nullptr) {
+        faltam_ms_ = 0;
+        VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
+        return;
+      }
+      pos_ = entidade_destino->PosicaoAcao();
+    } else {
+      pos_ = acao_proto_.pos_entidade();
     }
-    pos_ = entidade_destino->PosicaoAcao();
     faltam_ms_ = 0;
     // Monta a string de delta.
-    int delta = abs(acao_proto_.delta_pontos_vida());
-    if (!acao_proto_.has_delta_pontos_vida()) {
-      faltam_ms_ = 0;
-      VLOG(1) << "Finalizando delta_pontos_vida, precisa de um delta.";
-      return;
-    }
-    if (delta > 10000) {
-      faltam_ms_ = 0;
-      VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
-      return;
-    }
-    if (delta == 0) {
-      string_delta_ = "X";
-    } else {
-      while (delta != 0) {
-        int d = delta % 10;
-        string_delta_.insert(string_delta_.end(), static_cast<char>(d + '0'));
-        delta /= 10;
+    if (acao_proto_.has_delta_pontos_vida()) {
+      int delta = abs(acao_proto_.delta_pontos_vida());
+      if (!acao_proto_.has_delta_pontos_vida()) {
+        faltam_ms_ = 0;
+        VLOG(1) << "Finalizando delta_pontos_vida, precisa de um delta.";
+        return;
       }
+      if (delta > 10000) {
+        faltam_ms_ = 0;
+        VLOG(1) << "Finalizando delta_pontos_vida, delta muito grande.";
+        return;
+      }
+      if (delta == 0) {
+        string_delta_ = "X";
+      } else {
+        while (delta != 0) {
+          int d = delta % 10;
+          string_delta_.insert(string_delta_.end(), static_cast<char>(d + '0'));
+          delta /= 10;
+        }
+      }
+      std::reverse(string_delta_.begin(), string_delta_.end());
+    } else if (acao_proto_.has_texto()) {
+      string_delta_ = acao_proto_.texto();
+    } else {
+      faltam_ms_ = 0;
+      VLOG(1) << "Finalizando delta_pontos_vida, proto nao tem delta nem texto.";
+      return;
     }
-    std::reverse(string_delta_.begin(), string_delta_.end());
     VLOG(2) << "String delta: " << string_delta_;
     faltam_ms_ = DURACAO_MS;
   }

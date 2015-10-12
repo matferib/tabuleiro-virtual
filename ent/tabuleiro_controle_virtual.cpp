@@ -61,6 +61,7 @@ extern const int CONTROLE_PAGINACAO_CIMA = 25;  // paginacao de lista de objetos
 extern const int CONTROLE_PAGINACAO_BAIXO = 26;  // ditto.
 namespace {
 const int CONTROLE_VISAO_ESCURO = 27;
+const int CONTROLE_REGUA = 28;
 }
 
 namespace {
@@ -75,9 +76,10 @@ const char* TEXTURA_CAMERA_PRESA = "icon_tracking_camera.png";
 const char* TEXTURA_DESFAZER = "icon_undo.png";
 const char* TEXTURA_TRANSICAO = "icon_enter.png";
 const char* TEXTURA_VISAO_ESCURO = "icon_darkvision.png";
+const char* TEXTURA_REGUA = "icon_ruler.png";
 const std::vector<std::string> g_texturas = {
     TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA, TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA,
-    TEXTURA_DESFAZER, TEXTURA_TRANSICAO, TEXTURA_VISAO_ESCURO };
+    TEXTURA_DESFAZER, TEXTURA_TRANSICAO, TEXTURA_VISAO_ESCURO, TEXTURA_REGUA };
 
 // Para botoes sem estado.
 bool RetornaFalse() {
@@ -119,6 +121,9 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       break;
     case CONTROLE_VISAO_ESCURO:
       AlternaVisaoEscuro();
+      break;
+    case CONTROLE_REGUA:
+      AlternaModoRegua();
       break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
@@ -310,9 +315,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 0, 15, "v", nullptr, "", CONTROLE_BAIXO_VERTICAL, RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
 
     // Cameras.
-    { 1, 0, 16, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 16, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },      4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 17, "Ve", nullptr, TEXTURA_VISAO_ESCURO,      CONTROLE_VISAO_ESCURO,      [this] () { return this->visao_escuro_; },      4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 16, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; },   4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 16, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },        4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 17, "Ve", nullptr, TEXTURA_VISAO_ESCURO,      CONTROLE_VISAO_ESCURO,      [this] () { return this->visao_escuro_; },        4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 17, "Re", nullptr, TEXTURA_REGUA,             CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; }, 4, 0.0f, 0.0f, 0.0f },
 
     // Desfazer.
     { 2, 0, 18, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },

@@ -1732,6 +1732,29 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
   CarregaSubCenario(id_cenario, pos_olho);
 }
 
+void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  auto* entidade = EntidadeSelecionada();
+  if (entidade == nullptr) {
+    VLOG(1) << "Ignorando clique de regua, ou nao ha entidade ou ha mais de uma selecionada.";
+    return;
+  }
+  Vector3 ve(entidade->X(), entidade->Y(), entidade->Z());
+  Vector3 vd(x3d, y3d, z3d);
+  float distancia = (ve - vd).length();
+  char texto[11];
+  snprintf(texto, 10, "%.1f m", distancia);
+  auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto* a = n->mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  auto* pd = a->mutable_pos_entidade();
+  pd->set_x(x3d);
+  pd->set_y(y3d);
+  pd->set_z(z3d);
+  a->set_texto(texto);
+  central_->AdicionaNotificacao(n);
+  // tira a regua.
+  modo_clique_ = MODO_NORMAL;
+}
 
 void Tabuleiro::TrataBotaoLiberado() {
   FinalizaEstadoCorrente();
@@ -2892,6 +2915,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case MODO_TRANSICAO:
         TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
         modo_clique_ = MODO_NORMAL;
+        break;
+      case MODO_REGUA:
+        TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
         break;
       default:
         ;
@@ -5014,6 +5040,14 @@ void Tabuleiro::AlternaModoTransicao() {
     modo_clique_ = MODO_NORMAL;
   } else {
     modo_clique_ = MODO_TRANSICAO;
+  }
+}
+
+void Tabuleiro::AlternaModoRegua() {
+  if (modo_clique_ == MODO_REGUA) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_REGUA;
   }
 }
 
