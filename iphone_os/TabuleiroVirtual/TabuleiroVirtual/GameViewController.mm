@@ -295,7 +295,7 @@ const int TAG_BOTAO_CANCELA = 101;
 {
   int valor = round(slider_aura_.value);
   slider_aura_.value = valor;
-  [texto_aura_ setText:[NSString stringWithFormat:@"%d", valor]];
+  [texto_aura_ setText:[NSString stringWithFormat:@"%.1f m", valor * TAMANHO_LADO_QUADRADO]];
 }
 
 // Mudanca no raio de visao.
@@ -408,10 +408,10 @@ const int TAG_BOTAO_CANCELA = 101;
 
     slider_aura_ = (UISlider*)[view viewWithTag:TAG_AURA];
     [slider_aura_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
-    [slider_aura_ setValue:n.entidade().aura()];
+    [slider_aura_ setValue:(n.entidade().aura_m() / TAMANHO_LADO_QUADRADO)];
 
     texto_aura_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];
-    [texto_aura_ setText:[NSString stringWithFormat:@"%d", n.entidade().aura()]];
+    [texto_aura_ setText:[NSString stringWithFormat:@"%.1f m", n.entidade().aura_m()]];
     
     raio_luz_stepper_ = (UIStepper*)[view viewWithTag:TAG_RAIO_LUZ_STEPPER];
     [raio_luz_stepper_ addTarget:self action:@selector(mudaRaioLuz) forControlEvents:UIControlEventValueChanged];
@@ -435,10 +435,13 @@ const int TAG_BOTAO_CANCELA = 101;
     max_pontos_vida_ = (UITextField*)[view viewWithTag:TAG_MAX_PONTOS_VIDA];
     [max_pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().max_pontos_vida()]];
     
+    CGFloat scale = [[UIScreen mainScreen] scale];
     UIScrollView* scrollview = (UIScrollView*)[view viewWithTag:TAG_SCROLLVIEW];
     UIView* viewproto = (UIView*)[view viewWithTag:TAG_VIEW];
     [scrollview setContentOffset:CGPointMake(0, 0)];
-    [scrollview setContentSize:viewproto.bounds.size];
+    CGSize tam = viewproto.bounds.size;
+    [scrollview setContentSize:tam];
+    [scrollview setBackgroundColor:[UIColor whiteColor]];
 
     [self presentModalViewController:vc_entidade_ animated:TRUE];
     return true;
@@ -504,9 +507,9 @@ const int TAG_BOTAO_CANCELA = 101;
   {
     int valor_slider = (int)[slider_aura_ value];
     if (valor_slider > 0) {
-      notificacao_->mutable_entidade()->set_aura(valor_slider);
+      notificacao_->mutable_entidade()->set_aura_m(valor_slider * TAMANHO_LADO_QUADRADO);
     } else {
-      notificacao_->mutable_entidade()->clear_aura();
+      notificacao_->mutable_entidade()->clear_aura_m();
     }
   }
   {

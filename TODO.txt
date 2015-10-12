@@ -1,4 +1,5 @@
 Versao 1.11.5
+- Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
 - Tirar versao sem shader
 - Sistema de particulas.
 - Testar limite de objetos.
