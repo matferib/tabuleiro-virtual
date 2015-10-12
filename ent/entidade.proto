@@ -152,8 +152,8 @@ message EntidadeProto {
   optional Modelo3d modelo_3d = 34;
 
   // BITS DAS ENTIDADE.
-  // Aura em quadrados.
-  optional int32 aura = 9;
+  optional int32 aura = 9 [deprecated=true];
+  optional float aura_m = 41;
   // Visibilidade. Apenas o dono pode ver.
   optional bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.
@@ -168,7 +168,7 @@ message EntidadeProto {
   optional bool fixa = 32 [default=false];
   // Tipo de visao da entidade.
   optional TipoVisao tipo_visao = 36;
-  // Alcance da visao no escuro.
+  // Alcance da visao no escuro em metros.
   optional float alcance_visao = 37;
 
   // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
