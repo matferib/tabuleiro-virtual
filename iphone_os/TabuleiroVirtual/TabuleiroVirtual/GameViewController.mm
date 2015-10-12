@@ -26,6 +26,8 @@ const int TAG_RAIO_VISAO_ESCURO_STEP = 11;
 const int TAG_RAIO_VISAO_ESCURO_ROTULO = 12;
 const int TAG_RAIO_LUZ_STEPPER = 13;
 const int TAG_RAIO_LUZ_ROTULO = 14;
+const int TAG_SCROLLVIEW = 15;
+const int TAG_VIEW = 16;
 const int TAG_BOTAO_OK = 100;
 const int TAG_BOTAO_CANCELA = 101;
 
@@ -432,6 +434,11 @@ const int TAG_BOTAO_CANCELA = 101;
     [pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().pontos_vida()]];
     max_pontos_vida_ = (UITextField*)[view viewWithTag:TAG_MAX_PONTOS_VIDA];
     [max_pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().max_pontos_vida()]];
+    
+    UIScrollView* scrollview = (UIScrollView*)[view viewWithTag:TAG_SCROLLVIEW];
+    UIView* viewproto = (UIView*)[view viewWithTag:TAG_VIEW];
+    [scrollview setContentOffset:CGPointMake(0, 0)];
+    [scrollview setContentSize:viewproto.bounds.size];
 
     [self presentModalViewController:vc_entidade_ animated:TRUE];
     return true;

@@ -1,7 +1,6 @@
 Versao 1.11.5
 - Tirar versao sem shader
 - Testar limite de objetos.
-- Arrumar layout da UI de IOS.
 - Passar aura para metros ao inves de quadrados.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.

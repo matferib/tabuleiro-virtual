@@ -34,5 +34,8 @@ void main() {
   // Limite.
   highp float distancia = length(v_Pos - gltab_nevoa_referencia);
   lowp float peso_nevoa = step(0.0, distancia - gltab_nevoa_dados.y);
+  if (peso_nevoa == 1.0) {
+    discard;
+  }
   gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
 }

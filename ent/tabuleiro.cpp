@@ -1932,11 +1932,16 @@ void Tabuleiro::DesenhaCena() {
 
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
-  gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
-                 proto_corrente_->luz_ambiente().g(),
-                 proto_corrente_->luz_ambiente().b(),
-                 proto_corrente_->luz_ambiente().a());
-  gl::Limpa(GL_DEPTH_BUFFER_BIT);
+  if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
+    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f); 
+    gl::Limpa(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+  } else {
+    gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
+                   proto_corrente_->luz_ambiente().g(),
+                   proto_corrente_->luz_ambiente().b(),
+                   proto_corrente_->luz_ambiente().a());
+    gl::Limpa(GL_DEPTH_BUFFER_BIT);
+  }
   V_ERRO("Limpa");
 
   for (int i = 1; i < 8; ++i) {
@@ -1965,7 +1970,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando luzes");
 
-  if (!parametros_desenho_.has_picking_x()) {
+  if (!parametros_desenho_.has_picking_x() && (parametros_desenho_.tipo_visao() != VISAO_ESCURO)) {
     DesenhaCaixaCeu();
   }
   V_ERRO("desenhando caixa do ceu");
@@ -4420,10 +4425,9 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
 
-  bool visao_escuro = parametros_desenho_.tipo_visao() == VISAO_ESCURO;
-  MudaCor(visao_escuro ? COR_PRETA : COR_BRANCA);
+  MudaCor(COR_BRANCA);
   bool nevoa = gl::EstaHabilitado(GL_FOG);
-  if (nevoa && !visao_escuro) {
+  if (nevoa) {
     // Para visoes normais, desabilitamos a nevoa para a caixa ser desenhada.
     // Na visao preta sera desenhado uma caixa preta.
     gl::Desabilita(GL_FOG);
@@ -4431,7 +4435,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FaceNula(GL_FRONT);
-  if (id_textura != GL_INVALID_VALUE && parametros_desenho_.tipo_visao() != VISAO_ESCURO) {
+  if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     vbo_caixa_ceu_.forca_texturas(true);
@@ -4445,7 +4449,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Habilita(GL_LIGHT0 + i);
   }
-  if (nevoa && !visao_escuro) {
+  if (nevoa) {
     // Religa nevoa se desligou.
     gl::Habilita(GL_FOG);
   }
