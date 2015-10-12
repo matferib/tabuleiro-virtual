@@ -423,9 +423,15 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spin_aura">
+       <widget class="QDoubleSpinBox" name="spin_aura">
         <property name="toolTip">
-         <string>Aura da entidade, em metros.</string>
+         <string>Raio da visão no escuro, em metros.</string>
+        </property>
+        <property name="decimals">
+         <number>1</number>
+        </property>
+        <property name="singleStep">
+         <double>1.500000000000000</double>
         </property>
        </widget>
       </item>
@@ -685,7 +691,7 @@
        <number>1</number>
       </property>
       <property name="singleStep">
-       <double>0.500000000000000</double>
+       <double>1.500000000000000</double>
       </property>
      </widget>
     </item>

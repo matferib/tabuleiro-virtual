@@ -690,7 +690,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   // Aura.
-  gerador.spin_aura->setValue(entidade.aura());
+  gerador.spin_aura->setValue(entidade.aura_m());
   // Voo.
   gerador.checkbox_voadora->setCheckState(entidade.voadora() ? Qt::Checked : Qt::Unchecked);
   // Caida.
@@ -770,9 +770,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     int aura = gerador.spin_aura->value();
     if (aura > 0) {
-      proto_retornado->set_aura(aura);
+      proto_retornado->set_aura_m(aura);
     } else {
-      proto_retornado->clear_aura();
+      proto_retornado->clear_aura_m();
     }
     proto_retornado->set_voadora(gerador.checkbox_voadora->checkState() == Qt::Checked);
     proto_retornado->set_caida(gerador.checkbox_caida->checkState() == Qt::Checked);

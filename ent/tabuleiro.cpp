@@ -320,7 +320,7 @@ void Tabuleiro::ConfiguraProjecao() {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
     float dif_z = alvo.z() - olho_.pos().z();
-    float distancia = 1.5f + fabs(dif_z);
+    float distancia = TAMANHO_LADO_QUADRADO + fabs(dif_z);
     const float largura = distancia * Aspecto() / 2.0f;
     const float altura = distancia / 2.0f;
     //LOG_EVERY_N(INFO, 30) << "Distancia: " << distancia;
@@ -1934,14 +1934,13 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("Teste profundidade");
   if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
     gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f); 
-    gl::Limpa(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
   } else {
     gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
                    proto_corrente_->luz_ambiente().g(),
                    proto_corrente_->luz_ambiente().b(),
                    proto_corrente_->luz_ambiente().a());
-    gl::Limpa(GL_DEPTH_BUFFER_BIT);
   }
+  gl::Limpa(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
   V_ERRO("Limpa");
 
   for (int i = 1; i < 8; ++i) {
@@ -1970,7 +1969,8 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando luzes");
 
-  if (!parametros_desenho_.has_picking_x() && (parametros_desenho_.tipo_visao() != VISAO_ESCURO)) {
+  // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes da janela para cobrir o fundo todo.
+  if (!parametros_desenho_.has_picking_x() && (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
     DesenhaCaixaCeu();
   }
   V_ERRO("desenhando caixa do ceu");
@@ -2187,7 +2187,8 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 }
 
 void Tabuleiro::GeraVboCaixaCeu() {
-  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(10.0f));
+  // O cubo tem que ser maior que a distancia do plano de corte minimo.
+  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 3.0));
   // Valores de referencia:
   // imagem 4x3.
   // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f

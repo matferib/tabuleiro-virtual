@@ -791,6 +791,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_ACAO,      // executa acoes no clique.
     MODO_DESENHO,   // reservado.
     MODO_TRANSICAO, // executa transicao no clique.
+    MODO_REGUA,     // o clique executara uma medicao.
   };
   modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.

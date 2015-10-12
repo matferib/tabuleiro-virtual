@@ -1,9 +1,8 @@
 Versao 1.11.5
 - Tirar versao sem shader
-- Testar limite de objetos.
-- Passar aura para metros ao inves de quadrados.
-- Refatorar projecao ortogonal para usar matriz picking.
 - Regua de distancia.
+- Testar limite de objetos.
+- Refatorar projecao ortogonal para usar matriz picking.
 - Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
 - Bug da translacao quando muda para um cenario menor que a origem.
