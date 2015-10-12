@@ -79,7 +79,7 @@ public:
     QCheckBox *checkbox_morta;
     QHBoxLayout *horizontalLayout_10;
     QLabel *label_4;
-    QSpinBox *spin_aura;
+    QDoubleSpinBox *spin_aura;
     QWidget *horizontalLayoutWidget_6;
     QHBoxLayout *horizontalLayout_13;
     QLabel *label_7;
@@ -345,8 +345,10 @@ public:
 
         horizontalLayout_10->addWidget(label_4);
 
-        spin_aura = new QSpinBox(layoutWidget);
+        spin_aura = new QDoubleSpinBox(layoutWidget);
         spin_aura->setObjectName(QString::fromUtf8("spin_aura"));
+        spin_aura->setDecimals(1);
+        spin_aura->setSingleStep(1.5);
 
         horizontalLayout_10->addWidget(spin_aura);
 
@@ -483,7 +485,7 @@ public:
         spin_raio_visao_escuro = new QDoubleSpinBox(horizontalLayoutWidget_11);
         spin_raio_visao_escuro->setObjectName(QString::fromUtf8("spin_raio_visao_escuro"));
         spin_raio_visao_escuro->setDecimals(1);
-        spin_raio_visao_escuro->setSingleStep(0.5);
+        spin_raio_visao_escuro->setSingleStep(1.5);
 
         horizontalLayout_20->addWidget(spin_raio_visao_escuro);
 
@@ -552,7 +554,7 @@ public:
         checkbox_morta->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Morta", 0, QApplication::UnicodeUTF8));
         label_4->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Aura:", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_aura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade, em metros.", 0, QApplication::UnicodeUTF8));
+        spin_aura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_7->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Deslocamento Vertical", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
