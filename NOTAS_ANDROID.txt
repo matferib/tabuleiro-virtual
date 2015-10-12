@@ -112,9 +112,9 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
 - Analisar:
 ${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
 
-==========================
-Protocol buffer in Android
-==========================
+===============================
+Protocol buffer no Android Java
+===============================
 
 Baixar wire compiler (prot enxuto). https://github.com/square/wire
 java -jar wire-compiler/target/wire-compiler-VERSION-jar-with-dependencies.jar \
