@@ -106,7 +106,6 @@ class AcaoSinalizacao : public Acao {
 gl::VboGravado AcaoSinalizacao::vbo_;
 
 // Sobe um numero verde ou vermelho de acordo com o dano causado.
-// TODO: centralizar o texto
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:

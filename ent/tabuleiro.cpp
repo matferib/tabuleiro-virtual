@@ -1741,8 +1741,8 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   Vector3 ve(entidade->X(), entidade->Y(), entidade->Z());
   Vector3 vd(x3d, y3d, z3d);
   float distancia = (ve - vd).length();
-  char texto[11];
-  snprintf(texto, 10, "%.1f m", distancia);
+  char texto[31];
+  snprintf(texto, 30, "%.1f m, %d quadrados", distancia, static_cast<int>(distancia / TAMANHO_LADO_QUADRADO));
   auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
