@@ -9,6 +9,7 @@
 #include <list>
 #include <vector>
 #include "ent/acoes.pb.h"
+#include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
@@ -814,7 +815,7 @@ class Tabuleiro : public ntf::Receptor {
 #endif
 
   // Sub cenarios. -1 para o principal.
-  int cenario_corrente_ = -1;
+  int cenario_corrente_ = CENARIO_PRINCIPAL;
   TabuleiroProto* proto_corrente_ = &proto_;
 
   // elimina copia

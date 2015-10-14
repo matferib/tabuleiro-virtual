@@ -4789,18 +4789,25 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
   const Posicao& pos_destino = acao.pos_entidade();
   const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
+  int cenario_origem =  (entidade_origem != nullptr) ? entidade_origem->IdCenario() : cenario_corrente_;
+  std::vector<const Entidade*> entidades_cenario;
+  for (const auto& id_entidade_destino : entidades_) {
+    auto* entidade = id_entidade_destino.second.get();
+    if (entidade->IdCenario() == cenario_origem) {
+      entidades_cenario.push_back(entidade);
+    }
+  }
   if (acao.tipo() == ACAO_DISPERSAO) {
     switch (acao.geometria()) {
       case ACAO_GEO_ESFERA: {
         const Posicao pos_para_computar = pos_destino.has_x() ? pos_destino : pos_tabuleiro;
-        for (const auto& id_entidade_destino : entidades_) {
-          const Entidade* entidade_destino = id_entidade_destino.second.get();
+        for (const auto* entidade_destino : entidades_cenario) {
           Posicao pos_entidade(entidade_destino->Pos());
           pos_entidade.set_z(pos_entidade.z() + entidade_destino->Z());
           float d2 = DistanciaQuadrado(pos_para_computar, pos_entidade);
           if (d2 <= powf(acao.raio_area() * TAMANHO_LADO_QUADRADO, 2)) {
-            VLOG(1) << "Adicionando id: " << id_entidade_destino.first;
-            ids_afetados.push_back(id_entidade_destino.first);
+            VLOG(1) << "Adicionando id: " << entidade_destino->Id();
+            ids_afetados.push_back(entidade_destino->Id());
           }
         }
       }
@@ -4829,14 +4836,10 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
           vertices[i].set_x(vertices[i].x() + pos_o.x());
           vertices[i].set_y(vertices[i].y() + pos_o.y());
         }
-        for (const auto& id_entidade_destino : entidades_) {
-          const Entidade* entidade_destino = id_entidade_destino.second.get();
-          if (entidade_destino == entidade_origem) {
-            continue;
-          }
+        for (const auto* entidade_destino : entidades_cenario) {
           if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
-            VLOG(1) << "Adicionando id: " << id_entidade_destino.first;
-            ids_afetados.push_back(id_entidade_destino.first);
+            VLOG(1) << "Adicionando id: " << entidade_destino->Id();
+            ids_afetados.push_back(entidade_destino->Id());
           }
         }
       }
@@ -4868,14 +4871,10 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
       vertices[i].set_x(vertices[i].x() + pos_o.x());
       vertices[i].set_y(vertices[i].y() + pos_o.y());
     }
-    for (const auto& id_entidade_destino : entidades_) {
-      const Entidade* entidade_destino = id_entidade_destino.second.get();
-      if (entidade_destino == entidade_origem) {
-        continue;
-      }
+    for (const auto* entidade_destino : entidades_cenario) {
       if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
-        VLOG(1) << "Adicionando id: " << id_entidade_destino.first;
-        ids_afetados.push_back(id_entidade_destino.first);
+        VLOG(1) << "Adicionando id: " << entidade_destino->Id();
+        ids_afetados.push_back(entidade_destino->Id());
       }
     }
   } else {
