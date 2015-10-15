@@ -160,3 +160,15 @@ ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb uninstall com.matferib.Tabuleiro
 -- Delay gigante em relacao ao servidor:
 
 O app do Banco do Brasil da conflito com o tabuleiro.
+
+=============
+Assinando APP
+=============
+
+-- Gera chave (no diretorio android):
+keytool -genkey -v -keystore tabuleiro-virtual.keystore -alias tabvirt -keyalg RSA -keysize 2048 -validity 10000
+
+-- Compilando e assinando:
+sh compila.sh --release
+jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore tabuleiro-virtual.keystore bin/TabuleiroVirtual-release-unsigned.apk tabvirt
+/Users/mribeiro/android/adt/sdk/build-tools/22.0.1/zipalign -v 4 bin/TabuleiroVirtual-release-unsigned.apk bin/TabuleiroVirtual-release-1.12.1.apk
