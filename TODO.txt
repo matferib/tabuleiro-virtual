@@ -1,10 +1,11 @@
-Versao 1.11.5
+Versao 1.13.0
+- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
+- Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
 - Tirar versao sem shader
 - Sistema de particulas.
 - Testar limite de objetos.
 - Refatorar projecao ortogonal para usar matriz picking.
-- Geracao de terrenos.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
 - Bug da translacao quando muda para um cenario menor que a origem.
 - Descricao de cenarios (melhorar UI com drop down).
@@ -15,7 +16,6 @@ Versao 1.11.5
 - Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: usar a funcao de conversao jstr para c++ str.
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
-- Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Textura em outras formas.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
@@ -25,7 +25,7 @@ Versao 1.11.5
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 1.11.6
+Versao 2.0.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Cor de formas compostas aplicando a todos os filhos.
@@ -43,11 +43,9 @@ Versao com Vbo:
 - Terminar a exportacao de formas e compostas (CORES).
 
 Versao com Shader:
-- Windows.
 - Shadow mapping.
 
-
-Versao 2.0
+Algumas ideias loucas.
 - Interface de mouse generico para tablets (suporte a multitap).
 - Visao primeira pessoa.
 - Joystick no android.
