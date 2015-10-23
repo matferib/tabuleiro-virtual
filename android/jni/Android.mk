@@ -43,7 +43,7 @@ LOCAL_MODULE := tabuleiro     # Modulo definido por este Android.mk.
 LOCAL_SRC_FILES := jni-impl.cpp \
 	                 gltab/gl_es.cpp gltab/gl_comum.cpp gltab/gl_char.cpp gltab/gl_vbo.cpp gltab/glues.cpp \
 									 matrix/matrices.cpp \
-									 net/util.cpp net/cliente.cpp net/socket.cpp \
+									 net/util.cpp net/cliente.cpp net/servidor.cpp net/socket.cpp \
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
 									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/entidade.cpp ent/entidade_desenho.cpp ent/entidade_composta.cpp ent/entidade_forma.cpp ent/tabuleiro.cpp ent/tabuleiro_controle_virtual.cpp ent/tabuleiro_picking.cpp ent/acoes.cpp ent/util.cpp \
                    ifg/tecladomouse.cpp \

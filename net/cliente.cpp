@@ -56,7 +56,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     Desconecta("");
     return true;
   } else if (notificacao.tipo() == ntf::TN_HACK_ANDROID) {
-#if ANDROID
+#if 0 && ANDROID
     sincronizador_->AlternaHackAndroid();
 #endif
   }

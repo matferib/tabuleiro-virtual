@@ -12,8 +12,9 @@ import android.widget.LinearLayout;
 
 public class SelecaoActivity extends Activity implements View.OnClickListener {
   // Mensagem de comunicacao entre atividades.
-  public final static String MENSAGEM_NOME = "com.matferib.Tabuleiro.MENSAGEM_NOME";
-  public final static String MENSAGEM_EXTRA = "com.matferib.Tabuleiro.MENSAGEM";
+  public final static String NOME = "com.matferib.Tabuleiro.NOME";
+  public final static String ENDERECO = "com.matferib.Tabuleiro.ENDERECO";
+  public final static String SERVIDOR = "com.matferib.Tabuleiro.SERVIDOR";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +44,13 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
     botao_.setLayoutParams(
         new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
     grupo.addView(botao_);
+    // Servidor;
+    botaoServidor_ = new Button(this);
+    botaoServidor_.setText("Abrir Servidor");
+    botaoServidor_.setOnClickListener(this);
+    botaoServidor_.setLayoutParams(
+        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
+    grupo.addView(botaoServidor_);
     // Finaliza.
     setContentView(grupo);
   }
@@ -60,14 +68,19 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   @Override
   public void onClick(View v) {
     Intent intencao = new Intent(this, TabuleiroActivity.class);
-    // Abre a activity do tabuleiro.
-    intencao.putExtra(MENSAGEM_EXTRA, endereco_.getText().toString());
-    intencao.putExtra(MENSAGEM_NOME, id_.getText().toString());
+    if (v == botaoServidor_) {
+      // Abre a activity do tabuleiro.
+      intencao.putExtra(SERVIDOR, endereco_.getText().toString());
+    } else {
+      // Abre a activity do tabuleiro.
+      intencao.putExtra(NOME, id_.getText().toString());
+      intencao.putExtra(ENDERECO, endereco_.getText().toString());
+    }
     startActivity(intencao);
   }
 
   // Membros.
   private EditText id_ = null;
   private EditText endereco_ = null;
-  private Button botao_ = null, botaoAuto_ = null;
+  private Button botao_ = null, botaoServidor_ = null;
 }

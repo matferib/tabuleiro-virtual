@@ -51,8 +51,9 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     setContentView(view_);
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     nativeCreate(
-        getIntent().getStringExtra(SelecaoActivity.MENSAGEM_NOME),
-        getIntent().getStringExtra(SelecaoActivity.MENSAGEM_EXTRA),
+        getIntent().getStringExtra(SelecaoActivity.SERVIDOR) != null,
+        getIntent().getStringExtra(SelecaoActivity.NOME),
+        getIntent().getStringExtra(SelecaoActivity.ENDERECO),
         getResources().getAssets(),
         ((android.content.Context)this).getFilesDir().getAbsolutePath());
     view_.requestFocus();
@@ -133,7 +134,7 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     }
     System.loadLibrary("tabuleiro");
   }
-  private native void nativeCreate(String nome, String endereco, Object assets, String dir);
+  private native void nativeCreate(boolean servidor, String nome, String endereco, Object assets, String dir);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;

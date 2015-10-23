@@ -19,6 +19,7 @@
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
+#include "net/servidor.h"
 #include "net/socket.h"
 #include "tex/texturas.h"
 
@@ -116,6 +117,7 @@ std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Sincronizador> g_sincronizador;
 std::unique_ptr<net::Cliente> g_cliente;
+std::unique_ptr<net::Servidor> g_servidor;
 std::unique_ptr<ReceptorErro> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
 
@@ -125,21 +127,7 @@ extern "C" {
 
 // Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
-    JNIEnv* env, jobject thisz, jstring nome, jstring endereco, jobject assets, jstring dir_dados) {
-  std::string nome_nativo;
-  {
-    const char* nome_nativo_c = env->GetStringUTFChars(nome, 0);
-    nome_nativo = nome_nativo_c;
-    env->ReleaseStringUTFChars(nome, nome_nativo_c);
-  }
-
-  std::string endereco_nativo;
-  const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
-  endereco_nativo = endereco_nativo_c;
-  env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
-
-  __android_log_print(
-      ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: '%s'", nome_nativo.c_str(), endereco_nativo.c_str());
+    JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco, jobject assets, jstring dir_dados) {
   arq::Inicializa(env, assets, ConverteString(env, dir_dados));
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
@@ -148,6 +136,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
+  g_servidor.reset(new net::Servidor(g_sincronizador.get(), g_central.get()));
   g_receptor.reset(new ReceptorErro);
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
@@ -167,10 +156,30 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     ninfo.set_erro("TESTE");
     g_receptor->TrataNotificacao(ninfo);
   }*/
-  auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_id_rede(nome_nativo);
-  n->set_endereco(endereco_nativo);
-  g_central->AdicionaNotificacao(n);
+  if (servidor) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
+    g_central->AdicionaNotificacao(n);
+  } else {
+    std::string nome_nativo;
+    {
+      const char* nome_nativo_c = env->GetStringUTFChars(nome, 0);
+      nome_nativo = nome_nativo_c;
+      env->ReleaseStringUTFChars(nome, nome_nativo_c);
+    }
+
+    std::string endereco_nativo;
+    const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
+    endereco_nativo = endereco_nativo_c;
+    env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
+
+    __android_log_print(
+        ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: '%s'", nome_nativo.c_str(), endereco_nativo.c_str());
+
+    auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
+    n->set_id_rede(nome_nativo);
+    n->set_endereco(endereco_nativo);
+    g_central->AdicionaNotificacao(n);
+  }
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jobject thisz) {
@@ -179,6 +188,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jo
   g_central->DesregistraReceptor(g_receptor.get());
   g_receptor.reset();
   g_cliente.reset();
+  g_servidor.reset();
   g_servico_io.reset();
   g_tabuleiro.reset();
   g_texturas.reset();

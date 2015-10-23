@@ -2624,7 +2624,8 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   } else if (parametros_desenho_.desenha_texturas() && proto_corrente_->has_info_textura()) {
-    LOG_EVERY_N(ERROR, 100) << "TEXTURA INVALIDA: " << proto_corrente_->info_textura().id();
+    // Eh possivel que a textura esteja carregando ainda.
+    LOG_EVERY_N(WARNING, 100) << "TEXTURA INVALIDA: " << proto_corrente_->info_textura().id();
   }
   V_ERRO("textura");
 
