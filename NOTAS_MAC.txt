@@ -38,3 +38,13 @@ pkgbuild --analyze --root ./mac TabuleiroVirtual.plist
 Depois adicionar --component-plist TabuleiroVirtual.plist.
 
 ?? nao precisa de usar install_name_tool para mudar os caminhos linkados.
+
+Gerando Icone do Tabvirt.command
+- Abra a imagem do icone no preview.
+- Selecione tudo.
+- Copie.
+- Clique no tabvirt.command.
+- Get Info
+- Clique no icone (em cima a esquerda)
+- Cole.
+https://support.apple.com/kb/PH13922?locale=pt_BR
