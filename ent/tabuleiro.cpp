@@ -1778,8 +1778,6 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   pd->set_z(z3d);
   a->set_texto(texto);
   central_->AdicionaNotificacao(n);
-  // tira a regua.
-  modo_clique_ = MODO_NORMAL;
 }
 
 void Tabuleiro::TrataBotaoLiberado() {
@@ -2941,18 +2939,20 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     switch (modo_clique_) {
       case MODO_ACAO:
         TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-        modo_clique_ = MODO_NORMAL;
         break;
       case MODO_TRANSICAO:
         TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
-        modo_clique_ = MODO_NORMAL;
         break;
       case MODO_REGUA:
         TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
         break;
+      case MODO_DESENHO:
+        TrataBotaoDesenhoPressionado(x, y);
+        break;
       default:
         ;
     }
+    modo_clique_ = MODO_NORMAL;
     return;
   }
 

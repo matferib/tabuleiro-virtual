@@ -62,6 +62,16 @@ extern const int CONTROLE_PAGINACAO_BAIXO = 26;  // ditto.
 namespace {
 const int CONTROLE_VISAO_ESCURO = 27;
 const int CONTROLE_REGUA = 28;
+const int CONTROLE_DESENHO_LIVRE = 29;
+const int CONTROLE_DESENHO_RETANGULO = 30;
+const int CONTROLE_DESENHO_CIRCULO = 31;
+const int CONTROLE_DESENHO_ESFERA = 32;
+const int CONTROLE_DESENHO_PIRAMIDE = 33;
+const int CONTROLE_DESENHO_CUBO = 34;
+const int CONTROLE_DESENHO_CILINDRO = 35;
+const int CONTROLE_DESENHO_CONE = 36;
+const int CONTROLE_DESENHO_AGRUPAR = 37;
+const int CONTROLE_DESENHO_DESAGRUPAR  = 38;
 }
 // Este deve ser o ultimo sempre.
 extern const int CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
@@ -79,9 +89,21 @@ const char* TEXTURA_DESFAZER = "icon_undo.png";
 const char* TEXTURA_TRANSICAO = "icon_enter.png";
 const char* TEXTURA_VISAO_ESCURO = "icon_darkvision.png";
 const char* TEXTURA_REGUA = "icon_ruler.png";
+const char* TEXTURA_DESENHO_LIVRE     = "icon_free.png";
+const char* TEXTURA_DESENHO_RETANGULO = "icon_rectangle.png";
+const char* TEXTURA_DESENHO_CIRCULO   = "icon_circle.png";
+const char* TEXTURA_DESENHO_ESFERA    = "icon_sphere.png";
+const char* TEXTURA_DESENHO_PIRAMIDE  = "icon_pyramid.png";
+const char* TEXTURA_DESENHO_CUBO      = "icon_cube.png";
+const char* TEXTURA_DESENHO_CILINDRO  = "icon_cylinder.png";
+const char* TEXTURA_DESENHO_CONE      = "icon_cone.png";
+const char* TEXTURA_DESENHO_AGRUPAR   = "icon_group.png";
+const char* TEXTURA_DESENHO_DESAGRUPAR= "icon_ungroup.png";
 const std::vector<std::string> g_texturas = {
     TEXTURA_ACAO, TEXTURA_VOO, TEXTURA_VISIBILIDADE, TEXTURA_LUZ, TEXTURA_QUEDA, TEXTURA_CAMERA_ISOMETRICA, TEXTURA_CAMERA_PRESA,
-    TEXTURA_DESFAZER, TEXTURA_TRANSICAO, TEXTURA_VISAO_ESCURO, TEXTURA_REGUA };
+    TEXTURA_DESFAZER, TEXTURA_TRANSICAO, TEXTURA_VISAO_ESCURO, TEXTURA_REGUA,
+    TEXTURA_DESENHO_LIVRE, TEXTURA_DESENHO_RETANGULO, TEXTURA_DESENHO_CIRCULO, TEXTURA_DESENHO_ESFERA, TEXTURA_DESENHO_PIRAMIDE,
+    TEXTURA_DESENHO_CUBO, TEXTURA_DESENHO_CILINDRO, TEXTURA_DESENHO_CONE, TEXTURA_DESENHO_AGRUPAR, TEXTURA_DESENHO_DESAGRUPAR };
 
 // Para botoes sem estado.
 bool RetornaFalse() {
@@ -201,6 +223,44 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
     case CONTROLE_PAGINACAO_BAIXO:
       ++pagina_lista_objetos_;
       break;
+    case CONTROLE_DESENHO_LIVRE:
+      SelecionaFormaDesenho(TF_LIVRE);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_RETANGULO:
+      SelecionaFormaDesenho(TF_RETANGULO);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_CIRCULO:
+      SelecionaFormaDesenho(TF_CIRCULO);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_ESFERA:
+      SelecionaFormaDesenho(TF_ESFERA);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_PIRAMIDE:
+      SelecionaFormaDesenho(TF_PIRAMIDE);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_CUBO:
+      SelecionaFormaDesenho(TF_CUBO);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_CILINDRO:
+      SelecionaFormaDesenho(TF_CILINDRO);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_CONE:
+      SelecionaFormaDesenho(TF_CONE);
+      modo_clique_ = MODO_DESENHO;
+      break;
+    case CONTROLE_DESENHO_AGRUPAR:
+      AgrupaEntidadesSelecionadas();
+      break;
+    case CONTROLE_DESENHO_DESAGRUPAR:
+      DesagrupaEntidadesSelecionadas();
+      break;
     default:
       if (id >= CONTROLE_JOGADORES) {
         ntf::Notificacao n;
@@ -232,8 +292,8 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float fonte_x = fonte_x_int;
   const float fonte_y = fonte_y_int;
   const float altura_botao = fonte_y * 2.5f;
-  //const float botao_x = altura_botao;  // botoes quadrados. Era: fonte_x * 3.0f;
-  const float largura_botao = fonte_x * 3.0f;
+  //const float largura_botao = fonte_x * 3.0f;
+  const float largura_botao = altura_botao;
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
@@ -331,9 +391,21 @@ void Tabuleiro::DesenhaControleVirtual() {
 
     // Desfazer.
     { 2, 0, 18, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
+    // Desenho 2d.
+    { 1, 1, 20, "Lv", nullptr, TEXTURA_DESENHO_LIVRE, CONTROLE_DESENHO_LIVRE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 21, "Rt", nullptr, TEXTURA_DESENHO_RETANGULO, CONTROLE_DESENHO_RETANGULO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_RETANGULO; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 22, "Ci", nullptr, TEXTURA_DESENHO_CIRCULO, CONTROLE_DESENHO_CIRCULO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CIRCULO; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 23, "Gr", nullptr, TEXTURA_DESENHO_GROUP, CONTROLE_DESENHO_AGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 24, "Un", nullptr, TEXTURA_DESENHO_UNGROUP, CONTROLE_DESENHO_DESAGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    // Desenho 3d.
+    { 1, 0, 20, "Es", nullptr, TEXTURA_DESENHO_ESFERA, CONTROLE_DESENHO_ESFERA, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 21, "Pi", nullptr, TEXTURA_DESENHO_PIRAMIDE, CONTROLE_DESENHO_PIRAMIDE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 22, "Cb", nullptr, TEXTURA_DESENHO_CUBO, CONTROLE_DESENHO_CUBO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CUBO; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 23, "Cn", nullptr, TEXTURA_DESENHO_CONE, CONTROLE_DESENHO_CONE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE; }, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 0, 24, "Cn", nullptr, TEXTURA_DESENHO_CILINDRO, CONTROLE_DESENHO_CILINDRO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CILINDRO; }, 4, 0.0f, 0.0f, 0.0f },
 
     // Contador de rodadas.
-    { 2, 0, 20, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
+    { 2, 0, 26, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
   };
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);

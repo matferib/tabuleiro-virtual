@@ -1,4 +1,5 @@
 Versao 1.13.0
+- Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
