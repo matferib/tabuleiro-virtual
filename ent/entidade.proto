@@ -277,6 +277,8 @@ message ParametrosDesenho {
   optional bool desenha_efeitos_entidades = 36 [default=true];
   // Se verdadeiro, desenha a lista de objetos (depuracao).
   optional bool desenha_lista_objetos = 38 [default=false];
+  // Se verdadeiro, desenha a lista de jogadores.
+  optional bool desenha_lista_jogadores = 41 [default=false];
 }
 
 // Para copiar e colar.

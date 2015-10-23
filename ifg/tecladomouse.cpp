@@ -289,7 +289,12 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       MudaEstado(ESTADO_TEMPORIZANDO_TECLADO);
       teclas_.push_back(tecla);
       return;
+    case Tecla_J: {
+      tabuleiro_->AlternaListaJogadores();
+      return;
+    }
     case Tecla_M: {
+      //tabuleiro_->AlternaModoMestreSecundario();
       //tabuleiro_->AlternaModoMestre();
       //central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO));
       return;

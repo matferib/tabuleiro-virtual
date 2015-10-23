@@ -63,6 +63,8 @@ namespace {
 const int CONTROLE_VISAO_ESCURO = 27;
 const int CONTROLE_REGUA = 28;
 }
+// Este deve ser o ultimo sempre.
+extern const int CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
 
 namespace {
 // Texturas do controle virtual.
@@ -200,7 +202,14 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       ++pagina_lista_objetos_;
       break;
     default:
-      LOG(WARNING) << "Controle invalido: " << id;
+      if (id >= CONTROLE_JOGADORES) {
+        ntf::Notificacao n;
+        n.set_tipo(ntf::TN_ALTERAR_MODO_MESTRE_SECUNDARIO);
+        n.mutable_entidade()->set_id(id - CONTROLE_JOGADORES);
+        TrataNotificacao(n);
+      } else {
+        LOG(WARNING) << "Controle invalido: " << id;
+      }
   }
 }
 

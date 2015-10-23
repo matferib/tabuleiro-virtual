@@ -315,12 +315,18 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
 
-  /** Retorna se o tabuleiro esta no modo mestre ou jogador. */
-  bool ModoMestre() const { return modo_mestre_; }
+  /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
+  * mestres secundarios tambem.
+  */
+  bool EmModoMestre(bool secundario = false) const {
+    return modo_mestre_ || (secundario && modo_mestre_secundario_);
+  }
   // Debug.
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
+  void AlternaModoMestreSecundario() { modo_mestre_secundario_ = !modo_mestre_secundario_; }
   // debug.
   void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); }
+  void AlternaListaJogadores() { opcoes_.set_mostra_lista_jogadores(!opcoes_.mostra_lista_jogadores()); }
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
@@ -342,7 +348,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna a camera presa a entidade. */
   void AlternaCameraPresa();
-  
+
   /** Alterna a visao no escuro. Ainda depende da entidade selecionada possuir a visao. */
   void AlternaVisaoEscuro() { visao_escuro_ = !visao_escuro_; }
 
@@ -603,6 +609,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a lista de pontos de vida a direita. */
   void DesenhaListaPontosVida();
 
+  /** Desenha lista de jogadores. */
+  void DesenhaListaJogadores();
+
   /** Para debugar, desenha uma lista de objetos. */
   void DesenhaListaObjetos();
 
@@ -642,7 +651,7 @@ class Tabuleiro : public ntf::Receptor {
   void ConfiguraOlhar();
 
   /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
-  bool VisaoMestre() const { return modo_mestre_ && !visao_jogador_; }
+  bool VisaoMestre() const { return (modo_mestre_ || modo_mestre_secundario_) && !visao_jogador_; }
 
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVboTabuleiro();
@@ -742,6 +751,10 @@ class Tabuleiro : public ntf::Receptor {
 #endif
   ntf::CentralNotificacoes* central_;
   bool modo_mestre_;
+  // Mestre secundario funciona tipo mestre: pode ver, mexer pecas etc. Mas alguns controles sao
+  // exclusivos do mestre, como quem sera mestre secundario ou a replicacao de algumas mensagens.
+  bool modo_mestre_secundario_ = false;
+  std::set<int> mestres_secundarios_;
   bool visao_jogador_ = false;  // Para o mestre poder ver na visao do jogador.
   bool camera_presa_ = false;
   bool visao_escuro_ = false;  // Jogador ligou a visao no escuro (mas depende da entidade presa possuir).
