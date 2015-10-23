@@ -292,8 +292,8 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float fonte_x = fonte_x_int;
   const float fonte_y = fonte_y_int;
   const float altura_botao = fonte_y * 2.5f;
-  //const float largura_botao = fonte_x * 3.0f;
-  const float largura_botao = altura_botao;
+  const float largura_botao = fonte_x * 3.0f;
+  //const float largura_botao = altura_botao;
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
@@ -395,8 +395,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     { 1, 1, 20, "Lv", nullptr, TEXTURA_DESENHO_LIVRE, CONTROLE_DESENHO_LIVRE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE; }, 4, 0.0f, 0.0f, 0.0f },
     { 1, 1, 21, "Rt", nullptr, TEXTURA_DESENHO_RETANGULO, CONTROLE_DESENHO_RETANGULO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_RETANGULO; }, 4, 0.0f, 0.0f, 0.0f },
     { 1, 1, 22, "Ci", nullptr, TEXTURA_DESENHO_CIRCULO, CONTROLE_DESENHO_CIRCULO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CIRCULO; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 23, "Gr", nullptr, TEXTURA_DESENHO_GROUP, CONTROLE_DESENHO_AGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 24, "Un", nullptr, TEXTURA_DESENHO_UNGROUP, CONTROLE_DESENHO_DESAGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 23, "Gr", nullptr, TEXTURA_DESENHO_AGRUPAR, CONTROLE_DESENHO_AGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
+    { 1, 1, 24, "Un", nullptr, TEXTURA_DESENHO_DESAGRUPAR, CONTROLE_DESENHO_DESAGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
     // Desenho 3d.
     { 1, 0, 20, "Es", nullptr, TEXTURA_DESENHO_ESFERA, CONTROLE_DESENHO_ESFERA, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA; }, 4, 0.0f, 0.0f, 0.0f },
     { 1, 0, 21, "Pi", nullptr, TEXTURA_DESENHO_PIRAMIDE, CONTROLE_DESENHO_PIRAMIDE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE; }, 4, 0.0f, 0.0f, 0.0f },
