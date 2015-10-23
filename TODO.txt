@@ -1,14 +1,13 @@
 Versao 1.13.0
+- Paginacao do controle virtual.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
 - Tirar versao sem shader
 - Sistema de particulas.
-- Testar limite de objetos.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
-- Bug da translacao quando muda para um cenario menor que a origem.
 - Descricao de cenarios (melhorar UI com drop down).
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.

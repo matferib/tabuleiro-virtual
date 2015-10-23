@@ -1401,7 +1401,10 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       auto* p = olho_.mutable_alvo();
       float novo_x = p->x() - delta_x;
       float novo_y = p->y() - delta_y;
-      if (novo_x < -TamanhoX() || novo_x > TamanhoX() || novo_y < -TamanhoY() || novo_y > TamanhoY()) {
+      const float tolerancia_quadrados = 10;
+      const float maximo_x = TamanhoX() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
+      const float maximo_y = TamanhoY() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
+      if (novo_x < -maximo_x || novo_x > maximo_x || novo_y < -maximo_y || novo_y > maximo_y) {
         VLOG(1) << "Olho fora do tabuleiro";
         return;
       }
