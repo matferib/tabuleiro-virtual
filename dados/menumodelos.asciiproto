@@ -43,7 +43,9 @@ modelo { id: 'Manto Negro' }
 modelo { id: 'Mephit do Fogo' }
 sub_menu {
   id: 'Humanos'
+  modelo { id: 'Humano Bárbaro' }
   modelo { id: 'Humano Clérigo' }
+  modelo { id: 'Humano Druida' }
   modelo { id: 'Humano Guerreiro' }
   modelo { id: 'Humano Ladino' }
   modelo { id: 'Humano Mago' }

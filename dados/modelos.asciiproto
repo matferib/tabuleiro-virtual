@@ -139,8 +139,16 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Bárbaro'
+  entidade { dados_vida: '1d12' info_textura { id: 'barbarian.png'} cor { r: 0.898 g: 0.475 b: 0.475 } }
+}
+modelo {
   id: 'Humano Clérigo'
   entidade { dados_vida: '1d8' info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Druida'
+  entidade { dados_vida: '1d8' info_textura { id: 'druid.png'} cor { r: 0.3 g: 0.7 b: 0.3 } }
 }
 modelo {
   id: 'Humano Guerreiro'
@@ -152,7 +160,7 @@ modelo {
 }
 modelo {
   id: 'Humano Mago'
-  entidade { dados_vida: '1d4' info_textura { id: 'mage.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
+  entidade { dados_vida: '1d4' info_textura { id: 'wizard.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
 }
 modelo {
   id: 'Humano Paladino'
