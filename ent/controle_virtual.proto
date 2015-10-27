@@ -1,0 +1,84 @@
+package ent;
+
+import "ent/entidade.proto";
+
+enum IdBotao {
+  CONTROLE_ACAO = 1;
+  CONTROLE_ACAO_ANTERIOR = 2;
+  CONTROLE_ACAO_PROXIMA = 3;
+  CONTROLE_ADICIONA_1 = 4;
+  CONTROLE_ADICIONA_5 = 5;
+  CONTROLE_ADICIONA_10 = 6;
+  CONTROLE_CONFIRMA_DANO = 7;
+  CONTROLE_APAGA_DANO = 8;
+  CONTROLE_ALTERNA_CURA = 9;
+  CONTROLE_DESFAZER = 10;
+  CONTROLE_VOO = 11;
+  CONTROLE_VISIBILIDADE = 12;
+  CONTROLE_QUEDA = 13;
+  CONTROLE_LUZ = 14;
+  CONTROLE_RODADA = 15;
+  CONTROLE_CAMERA_ISOMETRICA = 16;
+  CONTROLE_CAMERA_PRESA = 17;
+  CONTROLE_CIMA = 18;
+  CONTROLE_BAIXO = 19;
+  CONTROLE_ESQUERDA = 20;
+  CONTROLE_DIREITA = 21;
+  CONTROLE_CIMA_VERTICAL = 22;
+  CONTROLE_BAIXO_VERTICAL = 23;
+  CONTROLE_TRANSICAO = 24;
+  CONTROLE_PAGINACAO_CIMA = 25;  // paginacao de lista de objetos.
+  CONTROLE_PAGINACAO_BAIXO = 26;  // ditto.
+  CONTROLE_VISAO_ESCURO = 27;
+  CONTROLE_REGUA = 28;
+  CONTROLE_DESENHO_LIVRE = 29;
+  CONTROLE_DESENHO_RETANGULO = 30;
+  CONTROLE_DESENHO_CIRCULO = 31;
+  CONTROLE_DESENHO_ESFERA = 32;
+  CONTROLE_DESENHO_PIRAMIDE = 33;
+  CONTROLE_DESENHO_CUBO = 34;
+  CONTROLE_DESENHO_CILINDRO = 35;
+  CONTROLE_DESENHO_CONE = 36;
+  CONTROLE_DESENHO_AGRUPAR = 37;
+  CONTROLE_DESENHO_DESAGRUPAR  = 38;
+  // Este deve ser o ultimo sempre.
+  CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
+}
+
+message DadosBotao {
+  // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
+  // uma unidade, o 2 ocupa 4 (2x2).
+  optional int32 tamanho = 1;
+  // Em qual linha o botao se encontra: 0 baixo, 1 uma acima.
+  optional int32 linha = 2;
+  // Em qual coluna o botao se encontra.
+  optional int32 coluna = 3;
+  // Escrita no bota, maximo dois caracteres.
+  optional string rotulo = 4;
+  // // cor do rotulo (letra).
+  optional Cor cor_rotulo = 5;
+  // Nome do arquivo de icone.
+  optional string textura = 6;
+  // Identifica o que o botao faz, ver IdBotao.
+  optional IdBotao id = 7;
+  // numero de lados do botao.
+  optional int32 num_lados_botao = 8;
+  // Rotacao do botao.
+  optional float rotacao_graus = 9;
+  // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x).
+  optional float translacao_x = 10;
+  // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
+  optional float translacao_y = 11;
+}
+
+// Uma pagina contem varios botoes. As paginas servem para organizar os botoes.
+message Pagina {
+  repeated DadosBotao dados_botoes = 1;
+}
+
+// O controle eh composto por varias paginas.
+message ControleVirtualProto {
+  repeated Pagina pagina = 1;
+}
+
+
