@@ -233,25 +233,26 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
 }
 
 bool Tabuleiro::AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std::function<bool()>>& mapa_botoes) {
-  auto res = contador_pressao_por_controle_.find(id);
-  bool pressionado = false;
   const auto& it = mapa_botoes.find(id);
-  if (res != contador_pressao_por_controle_.end()) {
-    int& num_frames = res->second;
-    pressionado = (num_frames > 0);
-    if (pressionado) {
-      ++num_frames;
-      if (num_frames > ATUALIZACOES_BOTAO_PRESSIONADO) {
-        // Ficou suficiente, volta no proximo.
-        num_frames = 0;
-      } else if (it == mapa_botoes.end()) {
-        num_frames = 0;
-        pressionado = false;
-      }
-    }
+  if (it != mapa_botoes.end()) {
+    return it->second();
+  }
+  auto res = contador_pressao_por_controle_.find(id);
+  if (res == contador_pressao_por_controle_.end()) {
+    return false;
+  }
+  int& num_frames = res->second;
+  bool pressionado = (num_frames > 0);
+  if (!pressionado) {
+    return false;
+  }
+  ++num_frames;
+  if (num_frames > ATUALIZACOES_BOTAO_PRESSIONADO) {
+    // Ficou suficiente, volta no proximo.
+    num_frames = 0;
   }
   // O botao pode estar pressionado ou ativado.
-  return pressionado || ((it == mapa_botoes.end()) ? false : it->second());
+  return true;
 }
 
 void Tabuleiro::DesenhaControleVirtual() {
@@ -279,6 +280,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   // Mapeia id do botao para os dados internos.
   static const std::map<int, std::function<bool()>> mapa_botoes = {
+    { CONTROLE_ACAO,              [this] () { return modo_clique_ == MODO_ACAO; } },
     { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_isometrica_; } },
