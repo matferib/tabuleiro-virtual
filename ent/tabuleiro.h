@@ -10,6 +10,7 @@
 #include <vector>
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
+#include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.pb.h"
@@ -597,11 +598,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera e carrega texturas de acordo com novo_proto e o estado atual. */
   void AtualizaTexturas(const ent::TabuleiroProto& novo_proto);
 
-  /** Carrega as texturas do controle virtual. */
-  void CarregaTexturasControleVirtual();
+  /** Carrega o controle virtual. */
+  void CarregaControleVirtual();
 
-  /** Libera as texturas do controle virtual. */
-  void LiberaTexturasControleVirtual();
+  /** Libera o controle virtual. */
+  void LiberaControleVirtual();
 
   /** Desenha a grade do tabuleiro. */
   void DesenhaGrade();
@@ -626,6 +627,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
   void PickingControleVirtual(bool alterna_selecao, int id);
+
+  /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
+  * para botoes com estado. */
+  bool AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std::function<bool()>>& mapa_botoes);
 
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
@@ -816,7 +821,7 @@ class Tabuleiro : public ntf::Receptor {
   modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
-  std::map<int, int> contador_pressao_por_controle_;
+  std::map<IdBotao, int> contador_pressao_por_controle_;
 
   gl::VboGravado vbo_tabuleiro_;
   gl::VboGravado vbo_grade_;
@@ -830,6 +835,9 @@ class Tabuleiro : public ntf::Receptor {
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = CENARIO_PRINCIPAL;
   TabuleiroProto* proto_corrente_ = &proto_;
+
+  // Controle virtual.
+  ControleVirtualProto controle_virtual_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

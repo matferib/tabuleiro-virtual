@@ -21,6 +21,7 @@
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
 #include "ent/constantes.h"
+#include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
@@ -33,10 +34,6 @@
 #include "ntf/notificacao.pb.h"
 
 namespace ent {
-
-extern const int CONTROLE_PAGINACAO_CIMA;
-extern const int CONTROLE_PAGINACAO_BAIXO;
-extern const int CONTROLE_JOGADORES;
 
 namespace {
 
@@ -224,7 +221,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
     id_acoes_.push_back(a.id());
   }
   // Controle virtual.
-  CarregaTexturasControleVirtual();
+  CarregaControleVirtual();
 
   opcoes_.set_desenha_controle_virtual(true);
 #if DEBUG
@@ -255,7 +252,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
 
 Tabuleiro::~Tabuleiro() {
   LiberaTextura();
-  LiberaTexturasControleVirtual();
+  LiberaControleVirtual();
 }
 
 void Tabuleiro::LiberaTextura() {
@@ -4655,7 +4652,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   // Paginacao inicial.
   if (pagina_corrente > 0) {
     gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
-    gl::CarregaNome(CONTROLE_PAGINACAO_CIMA);
+    gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA);
     {
       gl::MatrizEscopo salva(GL_PROJECTION);
       gl::CarregaIdentidade();
@@ -4719,7 +4716,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   // Paginacao final.
   if (pagina_corrente < (num_paginas - 1)) {
     gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
-    gl::CarregaNome(CONTROLE_PAGINACAO_BAIXO);
+    gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO);
     {
       gl::MatrizEscopo salva(GL_PROJECTION);
       gl::CarregaIdentidade();

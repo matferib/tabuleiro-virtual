@@ -1,6 +1,7 @@
 #include <algorithm>
 
 #include "ent/constantes.h"
+//#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/servidor.h"
 #include "net/util.h"
@@ -25,6 +26,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
+        VLOG(1) << "ANUNCIO ENVIADO";
         anunciante_->Envia(PortaAnuncio(), buffer_porta_,
                            [] (const Erro& erro, std::size_t bytes_transferred) {});
       }

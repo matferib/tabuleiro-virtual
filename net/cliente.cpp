@@ -6,7 +6,7 @@
 
 #include "ent/constantes.h"
 // para depurar android e ios.
-//#define VLOG_NIVEL 1
+#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/cliente.h"
 #include "net/util.h"
@@ -31,7 +31,7 @@ bool Cliente::TrataNotificacao(const ntf::Notificacao& notificacao) {
     int n = 0;
     if (socket_descobrimento_.get() != nullptr) {
       auto passou_ms = timer_descobrimento_.elapsed().wall / 1000000ULL;
-      if (passou_ms > 3000) {
+      if (passou_ms > 9000) {
         socket_descobrimento_->Fecha();
         timer_descobrimento_.stop();
       }

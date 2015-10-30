@@ -1,4 +1,5 @@
 Versao 1.13.0
+- Resolver AppNap.
 - Paginacao do controle virtual.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).

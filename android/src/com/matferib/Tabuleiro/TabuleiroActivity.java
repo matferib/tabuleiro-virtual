@@ -285,7 +285,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
             renderer_.ChamaTimer();
           }
         });
-        if ((num_frames_pular_ == 0) || desenha_proxima_) {
+        if (true || (num_frames_pular_ == 0) || desenha_proxima_) {
           requestRender();
           desenha_proxima_ = false;
         } else {

@@ -1,4 +1,4 @@
-#if 0 && ANDROID
+#if ANDROID
 #include <algorithm>
 #include <cstring>
 #include <condition_variable>

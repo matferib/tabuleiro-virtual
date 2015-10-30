@@ -134,7 +134,7 @@ pagina {
     tamanho: 1
     linha: 0
     coluna: 6
-    rotulo: "v"
+    rotulo: "x"
     cor_rotulo { r: 1 g: 0 b: 0 }
     textura: ""
     id: CONTROLE_APAGA_DANO
@@ -283,7 +283,7 @@ pagina {
     tamanho: 1
     linha: 0
     coluna: 15
-    rotulo: "^"
+    rotulo: "v"
     cor_rotulo {}
     textura: ""
     id: CONTROLE_BAIXO_VERTICAL
