@@ -632,6 +632,10 @@ class Tabuleiro : public ntf::Receptor {
   * para botoes com estado. */
   bool AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std::function<bool()>>& mapa_botoes);
 
+  void DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao);
+  void DesenhaRotuloBotaoControleVirtual(
+      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
+
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
 

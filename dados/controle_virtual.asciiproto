@@ -27,7 +27,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 0
+    coluna: 1
     rotulo: "A"
     cor_rotulo {}
     textura: "icon_sword.png"
@@ -41,7 +41,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 2
+    coluna: 3
     rotulo: "<"
     cor_rotulo {}
     textura: ""
@@ -54,7 +54,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 3
+    coluna: 4
     rotulo: ">"
     cor_rotulo {}
     textura: ""
@@ -67,7 +67,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 4
+    coluna: 5
     rotulo: "+-"
     cor_rotulo {}
     textura: ""
@@ -81,7 +81,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 2
+    coluna: 3
     rotulo: "1"
     cor_rotulo {}
     textura: ""
@@ -94,7 +94,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 3
+    coluna: 4
     rotulo: "5"
     cor_rotulo {}
     textura: ""
@@ -107,7 +107,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 4
+    coluna: 5
     rotulo: "10"
     cor_rotulo {}
     textura: ""
@@ -120,7 +120,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 5
+    coluna: 6
     rotulo: "v"
     cor_rotulo { r: 0 g: 0 b: 1}
     textura: ""
@@ -133,7 +133,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 6
+    coluna: 7
     rotulo: "x"
     cor_rotulo { r: 1 g: 0 b: 0 }
     textura: ""
@@ -148,7 +148,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 8
+    coluna: 9
     rotulo: "T"
     cor_rotulo {}
     textura: "icon_enter.png"
@@ -163,7 +163,7 @@ pagina {
    dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 10
+    coluna: 11
     rotulo: "L"
     cor_rotulo {}
     textura: "icon_light.png"
@@ -176,7 +176,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 11
+    coluna: 12
     rotulo: "Q"
     cor_rotulo {}
     textura: "icon_slide.png"
@@ -189,7 +189,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 10
+    coluna: 11
     rotulo: "Vo"
     cor_rotulo {}
     textura: "icon_feather.png"
@@ -202,7 +202,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 11
+    coluna: 12
     rotulo: "Vi"
     cor_rotulo {}
     textura: "icon_hide.png"
@@ -217,7 +217,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 13
+    coluna: 14
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -230,7 +230,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 13
+    coluna: 14
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -243,7 +243,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 12
+    coluna: 13
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -256,7 +256,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 14
+    coluna: 15
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -269,7 +269,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 15
+    coluna: 16
     rotulo: "^"
     cor_rotulo {}
     textura: ""
@@ -282,7 +282,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 15
+    coluna: 16
     rotulo: "v"
     cor_rotulo {}
     textura: ""
@@ -297,7 +297,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 16
+    coluna: 17
     rotulo: "Is"
     cor_rotulo {}
     textura: "icon_isometric_camera.png"
@@ -310,7 +310,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 16
+    coluna: 17
     rotulo: "Is"
     cor_rotulo {}
     textura: "icon_tracking_camera.png"
@@ -323,7 +323,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 17
+    coluna: 18
     rotulo: "Ve"
     cor_rotulo {}
     textura: "icon_darkvision.png"
@@ -336,7 +336,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 17
+    coluna: 18
     rotulo: "Re"
     cor_rotulo {}
     textura: "icon_ruler.png"
@@ -351,7 +351,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 18
+    coluna: 19
     rotulo: "<="
     cor_rotulo {}
     textura: "icon_undo.png"
@@ -361,4 +361,33 @@ pagina {
     translacao_x: 0.0 
     translacao_y: 0.0
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 21
+    rotulo: "->"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_PAGINACAO_PROXIMO
+    num_lados_botao: 4
+    rotacao_graus: 0
+    translacao_x: 0 
+    translacao_y: 0
+  } 
+}
+pagina {
+  # Botao de paginacao anterior. 
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: "<-"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_PAGINACAO_ANTERIOR
+    num_lados_botao: 4
+    rotacao_graus: 0
+    translacao_x: 0 
+    translacao_y: 0
+  } 
 }

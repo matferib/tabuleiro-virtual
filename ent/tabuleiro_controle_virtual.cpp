@@ -48,6 +48,26 @@ bool RetornaFalse() {
   return false;
 }
 
+DadosBotao CriaBotaoPaginaAnterior() {
+  DadosBotao db;
+  db.set_tamanho(1);
+  db.set_id(CONTROLE_PAGINACAO_ANTERIOR);
+  db.set_linha(0);
+  db.set_coluna(0);
+  db.set_num_lados_botao(4);
+  return db;
+}
+
+DadosBotao CriaBotaoPaginaSeguinte() {
+  DadosBotao db;
+  db.set_tamanho(1);
+  db.set_id(CONTROLE_PAGINACAO_PROXIMO);
+  db.set_linha(0);
+  db.set_coluna(0);
+  db.set_num_lados_botao(4);
+  return db;
+}
+
 }  // namespace.
 
 void Tabuleiro::CarregaControleVirtual() {
@@ -255,6 +275,64 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std
   return true;
 }
 
+void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao) {
+  gl::CarregaNome(db.id());
+  float xi, xf, yi, yf;
+  xi = db.coluna() * largura_botao;
+  xf = xi + db.tamanho() * largura_botao;
+  yi = db.linha() * altura_botao;
+  yf = yi + db.tamanho() * altura_botao;
+  gl::MatrizEscopo salva(false);
+  if (db.num_lados_botao() == 4 || parametros_desenho_.has_picking_x()) {
+    float trans_x = (db.translacao_x() * largura_botao);
+    float trans_y = (db.translacao_y() * altura_botao);
+    unsigned int id_textura = db.textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura());
+    if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    }
+    float tam_x = xf - (2.0f * padding) - xi;
+    float tam_y = yf - (2.0f * padding) - yi;
+    gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f, false);
+    gl::Escala(tam_x, tam_y, 1.0f, false);
+    gl::Retangulo(1.0f);
+    gl::Desabilita(GL_TEXTURE_2D);
+  } else {
+    gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x() * largura_botao),
+        ((yi + yf) / 2.0f) + (db.translacao_y() * altura_botao), 0.0f, false);
+    gl::Roda(db.rotacao_graus(), 0.0f, 0.0f, 1.0f, false);
+    if (db.num_lados_botao() == 3) {
+      gl::Triangulo(xf - xi);
+    } else {
+      gl::Disco((xf - xi) / 2.0f, db.num_lados_botao());
+    }
+  }
+}
+
+void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
+  unsigned int id_textura = db.textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura());
+  if (db.rotulo().empty() || id_textura != GL_INVALID_VALUE) {
+    return;
+  }
+  float xi, xf, yi, yf;
+  xi = db.coluna() * largura_botao;
+  xf = xi + db.tamanho() * largura_botao;
+  yi = db.linha() * altura_botao;
+  yf = yi + db.tamanho() * altura_botao;
+  float x_meio = (xi + xf) / 2.0f;
+  float y_meio = (yi + yf) / 2.0f;
+  float y_base = y_meio - (fonte_y / 4.0f);
+  if (db.cor_rotulo().has_r() || db.cor_rotulo().has_g() || db.cor_rotulo().has_b()) {
+    gl::MudaCor(db.cor_rotulo().r(), db.cor_rotulo().g(), db.cor_rotulo().b(), 1.0f);
+  } else {
+    gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
+  }
+  // Adiciona largura de um botao por causa do paginador inicial.
+  PosicionaRaster2d(x_meio, y_base, viewport[2], viewport[3]);
+  gl::DesenhaString(db.rotulo());
+}
+
 void Tabuleiro::DesenhaControleVirtual() {
   gl::Desabilita(GL_LIGHTING);
   gl::Desabilita(GL_DEPTH_TEST);
@@ -446,77 +524,19 @@ void Tabuleiro::DesenhaControleVirtual() {
     gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
     gl::CarregaIdentidade();
     int pagina_corrente = controle_virtual_.pagina_corrente();
-    // Paginacao anterior.
-    if (pagina_corrente > 0) {
-      gl::MatrizEscopo salva(false);
-      float tam_x = 1.0 - (2.0f * padding);
-      float tam_y = 1.0 - (2.0f * padding);
-      gl::Translada(padding + (tam_x / 2.0f), padding + (tam_y / 2.0f), 0.0f, false);
-      gl::Escala(tam_x, tam_y, 1.0f, false);
-      gl::Retangulo(1.0f);
-    }
     if (pagina_corrente < 0 && pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
-    gl::Translada(largura_botao, 0, 0);  // Espaco da paginador no inicio.
     const auto& pagina = controle_virtual_.pagina(pagina_corrente);
     for (const auto& db : pagina.dados_botoes()) {
-      gl::CarregaNome(db.id());
       float* cor = AtualizaBotaoControleVirtual(db.id(), mapa_botoes) ? cor_ativa : cor_padrao;
       gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-      float xi, xf, yi, yf;
-      xi = db.coluna() * largura_botao;
-      xf = xi + db.tamanho() * largura_botao;
-      yi = db.linha() * altura_botao;
-      yf = yi + db.tamanho() * altura_botao;
-      gl::MatrizEscopo salva(false);
-      if (db.num_lados_botao() == 4 || parametros_desenho_.has_picking_x()) {
-        float trans_x = (db.translacao_x() * largura_botao);
-        float trans_y = (db.translacao_y() * altura_botao);
-        unsigned int id_textura = db.textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura());
-        if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
-          gl::Habilita(GL_TEXTURE_2D);
-          gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-        }
-        float tam_x = xf - (2.0f * padding) - xi;
-        float tam_y = yf - (2.0f * padding) - yi;
-        gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f, false);
-        gl::Escala(tam_x, tam_y, 1.0f, false);
-        gl::Retangulo(1.0f);
-        gl::Desabilita(GL_TEXTURE_2D);
-      } else {
-        gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x() * largura_botao),
-            ((yi + yf) / 2.0f) + (db.translacao_y() * altura_botao), 0.0f, false);
-        gl::Roda(db.rotacao_graus(), 0.0f, 0.0f, 1.0f, false);
-        if (db.num_lados_botao() == 3) {
-          gl::Triangulo(xf - xi);
-        } else {
-          gl::Disco((xf - xi) / 2.0f, db.num_lados_botao());
-        }
-      }
+      DesenhaBotaoControleVirtual(db, padding, largura_botao, altura_botao);
     }
+
     // Rotulos dos botoes.
     for (const auto& db : pagina.dados_botoes()) {
-      unsigned int id_textura = db.textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura());
-      if (db.rotulo().empty() || id_textura != GL_INVALID_VALUE) {
-        continue;
-      }
-      float xi, xf, yi, yf;
-      xi = db.coluna() * largura_botao;
-      xf = xi + db.tamanho() * largura_botao;
-      yi = db.linha() * altura_botao;
-      yf = yi + db.tamanho() * altura_botao;
-      float x_meio = (xi + xf) / 2.0f;
-      float y_meio = (yi + yf) / 2.0f;
-      float y_base = y_meio - (fonte_y / 4.0f);
-      if (db.cor_rotulo().has_r() || db.cor_rotulo().has_g() || db.cor_rotulo().has_b()) {
-        gl::MudaCor(db.cor_rotulo().r(), db.cor_rotulo().g(), db.cor_rotulo().b(), 1.0f);
-      } else {
-        gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
-      }
-      // Adiciona largura de um botao por causa do paginador inicial.
-      PosicionaRaster2d(x_meio + largura_botao, y_base, viewport[2], viewport[3]);
-      gl::DesenhaString(db.rotulo());
+      DesenhaRotuloBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
     }
   }
 
