@@ -2764,7 +2764,6 @@ void Tabuleiro::DesenhaPontosRolagem() {
 }
 
 void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
-  forma_selecionada_ = fd;
   switch (fd) {
     case TF_CILINDRO:
     case TF_CIRCULO:
@@ -2778,6 +2777,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
     default:
       LOG(ERROR) << "Forma de desenho invalida: " << fd;
   }
+  forma_selecionada_ = fd;
 }
 
 void Tabuleiro::DesenhaSombras() {
