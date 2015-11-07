@@ -30,46 +30,6 @@
 
 namespace ent {
 
-namespace {
-// Texturas do controle virtual.
-const char* TEXTURA_DESENHO_LIVRE     = "icon_free.png";
-const char* TEXTURA_DESENHO_RETANGULO = "icon_rectangle.png";
-const char* TEXTURA_DESENHO_CIRCULO   = "icon_circle.png";
-const char* TEXTURA_DESENHO_ESFERA    = "icon_sphere.png";
-const char* TEXTURA_DESENHO_PIRAMIDE  = "icon_pyramid.png";
-const char* TEXTURA_DESENHO_CUBO      = "icon_cube.png";
-const char* TEXTURA_DESENHO_CILINDRO  = "icon_cylinder.png";
-const char* TEXTURA_DESENHO_CONE      = "icon_cone.png";
-const char* TEXTURA_DESENHO_AGRUPAR   = "icon_group.png";
-const char* TEXTURA_DESENHO_DESAGRUPAR= "icon_ungroup.png";
-
-// Para botoes sem estado.
-bool RetornaFalse() {
-  return false;
-}
-
-DadosBotao CriaBotaoPaginaAnterior() {
-  DadosBotao db;
-  db.set_tamanho(1);
-  db.set_id(CONTROLE_PAGINACAO_ANTERIOR);
-  db.set_linha(0);
-  db.set_coluna(0);
-  db.set_num_lados_botao(4);
-  return db;
-}
-
-DadosBotao CriaBotaoPaginaSeguinte() {
-  DadosBotao db;
-  db.set_tamanho(1);
-  db.set_id(CONTROLE_PAGINACAO_PROXIMO);
-  db.set_linha(0);
-  db.set_coluna(0);
-  db.set_num_lados_botao(4);
-  return db;
-}
-
-}  // namespace.
-
 void Tabuleiro::CarregaControleVirtual() {
   const char* ARQUIVO_CONTROLE_VIRTUAL = "controle_virtual.asciiproto";
   try {
@@ -203,37 +163,37 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       }
       break;
     case CONTROLE_DESENHO_LIVRE:
-      SelecionaFormaDesenho(TF_LIVRE);
-      modo_clique_ = MODO_DESENHO;
-      break;
     case CONTROLE_DESENHO_RETANGULO:
-      SelecionaFormaDesenho(TF_RETANGULO);
-      modo_clique_ = MODO_DESENHO;
-      break;
     case CONTROLE_DESENHO_CIRCULO:
-      SelecionaFormaDesenho(TF_CIRCULO);
-      modo_clique_ = MODO_DESENHO;
-      break;
     case CONTROLE_DESENHO_ESFERA:
-      SelecionaFormaDesenho(TF_ESFERA);
-      modo_clique_ = MODO_DESENHO;
-      break;
     case CONTROLE_DESENHO_PIRAMIDE:
-      SelecionaFormaDesenho(TF_PIRAMIDE);
-      modo_clique_ = MODO_DESENHO;
-      break;
     case CONTROLE_DESENHO_CUBO:
-      SelecionaFormaDesenho(TF_CUBO);
-      modo_clique_ = MODO_DESENHO;
-      break;
     case CONTROLE_DESENHO_CILINDRO:
-      SelecionaFormaDesenho(TF_CILINDRO);
+    case CONTROLE_DESENHO_CONE: {
+      const std::map<IdBotao, TipoForma> mapa_id_tipo_forma = {
+        { CONTROLE_DESENHO_LIVRE, TF_LIVRE},
+        { CONTROLE_DESENHO_RETANGULO, TF_RETANGULO},
+        { CONTROLE_DESENHO_CIRCULO, TF_CIRCULO},
+        { CONTROLE_DESENHO_ESFERA, TF_ESFERA},
+        { CONTROLE_DESENHO_PIRAMIDE, TF_PIRAMIDE},
+        { CONTROLE_DESENHO_CUBO, TF_CUBO},
+        { CONTROLE_DESENHO_CILINDRO, TF_CILINDRO},
+        { CONTROLE_DESENHO_CONE, TF_CONE},
+      };
+      auto it = mapa_id_tipo_forma.find(IdBotao(id));
+      if (it == mapa_id_tipo_forma.end()) {
+        LOG(ERROR) << "Id invalido: " << id;
+        return;
+      }
+      TipoForma tf = it->second;
+      if (modo_clique_ == MODO_DESENHO && forma_selecionada_ == tf) {
+        modo_clique_ = MODO_NORMAL;
+        return;
+      }
+      SelecionaFormaDesenho(it->second);
       modo_clique_ = MODO_DESENHO;
       break;
-    case CONTROLE_DESENHO_CONE:
-      SelecionaFormaDesenho(TF_CONE);
-      modo_clique_ = MODO_DESENHO;
-      break;
+    }
     case CONTROLE_DESENHO_AGRUPAR:
       AgrupaEntidadesSelecionadas();
       break;
@@ -392,110 +352,36 @@ void Tabuleiro::DesenhaControleVirtual() {
       }
       return false;
     } },
+    { CONTROLE_DESENHO_LIVRE, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE;
+    }, },
+    { CONTROLE_DESENHO_RETANGULO, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_RETANGULO;
+    }, },
+    { CONTROLE_DESENHO_CIRCULO, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CIRCULO;
+    }, },
+    { CONTROLE_DESENHO_ESFERA, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA;
+    }, },
+    { CONTROLE_DESENHO_PIRAMIDE, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE;
+    }, },
+    { CONTROLE_DESENHO_CUBO, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CUBO;
+    }, },
+    { CONTROLE_DESENHO_CILINDRO, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CILINDRO;
+    }, },
+    { CONTROLE_DESENHO_CONE, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE;
+    }, },
+
   };
 #if 0
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
-  struct DadosBotao {
-    int tamanho;  // 1 eh base, 2 eh duas vezes maior.
-    int linha;    // Em qual linha esta a base do botao (0 ou 1)
-    int coluna;   // Em qual coluna esta a esquerda do botao.
-    std::string rotulo;
-    const float* cor_rotulo;   // cor do rotulo.
-    std::string textura;  // Se o botao tiver icone.
-    int id;  // Identifica o que o botao faz, ver pos_pilha == 4 para cada id.
-    std::function<bool()> estado_botao;  // Funcao que retorna o estado botao (true para apertado).
-    int num_lados_botao;  // numero de lados do botao,.
-    float rotacao_graus;  // Rotacao do botao.
-    float translacao_x;  // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x)
-    float translacao_y;  // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
-  };
   const std::vector<DadosBotao> dados_botoes = {
-    // Acao.
-    { 2, 0, 0, "A", nullptr, TEXTURA_ACAO, CONTROLE_ACAO, [this] () { return modo_clique_ == MODO_ACAO; } , 4, 0.0f, 0.0f, 0.0f },
-    // Linha de cima.
-    // Alterna acao para tras.
-    { 1, 1, 2, "<", nullptr, "", CONTROLE_ACAO_ANTERIOR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Alterna acao para frente.
-    { 1, 1, 3, ">", nullptr, "", CONTROLE_ACAO_PROXIMA, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Alterna cura.
-    { 1, 1, 4, "+-", modo_acao_cura_ ? COR_VERMELHA : COR_VERDE, "", CONTROLE_ALTERNA_CURA, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Linha de baixo
-    // Adiciona dano +1.
-    { 1, 0, 2, "1", nullptr, "", CONTROLE_ADICIONA_1, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Adiciona dano +5
-    { 1, 0, 3, "5", nullptr, "", CONTROLE_ADICIONA_5, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Adiciona dano +10.
-    { 1, 0, 4, "10", nullptr, "", CONTROLE_ADICIONA_10, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Confirma dano.
-    { 1, 0, 5, "v", COR_AZUL, "", CONTROLE_CONFIRMA_DANO, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    // Apaga dano.
-    { 1, 0, 6, "x", nullptr, "", CONTROLE_APAGA_DANO, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-
-    // Transicao.
-    { 2, 0, 8, "T", nullptr, TEXTURA_TRANSICAO, CONTROLE_TRANSICAO, [this] () { return modo_clique_ == MODO_TRANSICAO; } , 4, 0.0f, 0.0f, 0.0f },
-
-    // Status.
-    { 1, 0, 10, "L", COR_AMARELA, TEXTURA_LUZ, CONTROLE_LUZ,
-      [this]() {
-        if (ids_entidades_selecionadas_.size() == 1) {
-          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-          return e != nullptr && e->Proto().has_luz();
-        }
-        return false;
-      }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 11, "Q", nullptr, TEXTURA_QUEDA, CONTROLE_QUEDA,
-      [this]() {
-        if (ids_entidades_selecionadas_.size() == 1) {
-          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-          return e != nullptr && e->Proto().caida();
-        }
-        return false;
-      },
-      4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 10, "Vo", nullptr, TEXTURA_VOO, CONTROLE_VOO,
-      [this]() {
-        if (ids_entidades_selecionadas_.size() == 1) {
-          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-          return e != nullptr && e->Proto().voadora();
-        }
-        return false;
-      },
-      4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 11, "Vi", nullptr, TEXTURA_VISIBILIDADE, CONTROLE_VISIBILIDADE,
-      [this]() {
-        if (ids_entidades_selecionadas_.size() == 1) {
-          auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-          return e != nullptr && !e->Proto().visivel();
-        }
-        return false;
-      },
-      4, 0.0f, 0.0f, 0.0f },
-
-    // Setas.
-    { 1, 1, 13, "", nullptr, "", CONTROLE_CIMA,     RetornaFalse, 3, 0.0f,   0.0f,  -0.1f },
-    { 1, 0, 13, "", nullptr, "", CONTROLE_BAIXO,    RetornaFalse, 3, 180.0f, 0.0f,  0.1f },
-    { 1, 0, 12, "", nullptr, "", CONTROLE_ESQUERDA, RetornaFalse, 3, 90.0f,  0.4f,  0.5f },
-    { 1, 0, 14, "", nullptr, "", CONTROLE_DIREITA,  RetornaFalse, 3, -90.0f, -0.4f, 0.5f },
-
-    // Setas verticais.
-    { 1, 1, 15, "^", nullptr, "", CONTROLE_CIMA_VERTICAL,  RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
-    { 1, 0, 15, "v", nullptr, "", CONTROLE_BAIXO_VERTICAL, RetornaFalse, 4, 0.0f, 0.0f,  0.0f },
-
-    // Cameras.
-    { 1, 0, 16, "Is", nullptr, TEXTURA_CAMERA_ISOMETRICA, CONTROLE_CAMERA_ISOMETRICA, [this] () { return this->camera_isometrica_; },   4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 16, "Pr", nullptr, TEXTURA_CAMERA_PRESA,      CONTROLE_CAMERA_PRESA,      [this] () { return this->camera_presa_; },        4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 17, "Ve", nullptr, TEXTURA_VISAO_ESCURO,      CONTROLE_VISAO_ESCURO,      [this] () { return this->visao_escuro_; },        4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 17, "Re", nullptr, TEXTURA_REGUA,             CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; }, 4, 0.0f, 0.0f, 0.0f },
-
-    // Desfazer.
-    { 2, 0, 18, "<=", COR_VERMELHA, TEXTURA_DESFAZER, CONTROLE_DESFAZER, RetornaFalse, 4, 30.0f, 0.0f, 0.0f },
-
     // Desenho 2d.
-    { 1, 1, 20, "Lv", nullptr, TEXTURA_DESENHO_LIVRE, CONTROLE_DESENHO_LIVRE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 21, "Rt", nullptr, TEXTURA_DESENHO_RETANGULO, CONTROLE_DESENHO_RETANGULO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_RETANGULO; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 22, "Ci", nullptr, TEXTURA_DESENHO_CIRCULO, CONTROLE_DESENHO_CIRCULO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CIRCULO; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 23, "Gr", nullptr, TEXTURA_DESENHO_AGRUPAR, CONTROLE_DESENHO_AGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 1, 24, "Un", nullptr, TEXTURA_DESENHO_DESAGRUPAR, CONTROLE_DESENHO_DESAGRUPAR, RetornaFalse, 4, 0.0f, 0.0f, 0.0f },
     // Desenho 3d.
     { 1, 0, 20, "Es", nullptr, TEXTURA_DESENHO_ESFERA, CONTROLE_DESENHO_ESFERA, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA; }, 4, 0.0f, 0.0f, 0.0f },
     { 1, 0, 21, "Pi", nullptr, TEXTURA_DESENHO_PIRAMIDE, CONTROLE_DESENHO_PIRAMIDE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE; }, 4, 0.0f, 0.0f, 0.0f },
