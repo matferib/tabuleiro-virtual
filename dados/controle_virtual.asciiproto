@@ -1,29 +1,6 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
-# Texturas disponiveis.
-#TEXTURA_ACAO = "icon_sword.png";
-#TEXTURA_VOO = "icon_feather.png";
-#TEXTURA_VISIBILIDADE = "icon_hide.png";
-#TEXTURA_LUZ = "icon_light.png";
-#TEXTURA_QUEDA = "icon_slide.png";
-#TEXTURA_CAMERA_ISOMETRICA = "icon_isometric_camera.png";
-#TEXTURA_CAMERA_PRESA = "icon_tracking_camera.png";
-#TEXTURA_DESFAZER = "icon_undo.png";
-#TEXTURA_TRANSICAO = "icon_enter.png";
-#TEXTURA_VISAO_ESCURO = "icon_darkvision.png";
-#TEXTURA_REGUA = "icon_ruler.png";
-#TEXTURA_DESENHO_LIVRE     = "icon_free.png";
-#TEXTURA_DESENHO_RETANGULO = "icon_rectangle.png";
-#TEXTURA_DESENHO_CIRCULO   = "icon_circle.png";
-#TEXTURA_DESENHO_ESFERA    = "icon_sphere.png";
-#TEXTURA_DESENHO_PIRAMIDE  = "icon_pyramid.png";
-#TEXTURA_DESENHO_CUBO      = "icon_cube.png";
-#TEXTURA_DESENHO_CILINDRO  = "icon_cylinder.png";
-#TEXTURA_DESENHO_CONE      = "icon_cone.png";
-#TEXTURA_DESENHO_AGRUPAR   = "icon_group.png";
-#TEXTURA_DESENHO_DESAGRUPAR= "icon_ungroup.png";
-
 pagina {
-  # Botao de ataque. 
+  # Botao de ataque.
   dados_botoes {
     tamanho: 2
     linha: 0
@@ -33,10 +10,7 @@ pagina {
     textura: "icon_sword.png"
     id: CONTROLE_ACAO
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   # Botoes de acao.
   dados_botoes {
     tamanho: 1
@@ -47,10 +21,7 @@ pagina {
     textura: ""
     id: CONTROLE_ACAO_ANTERIOR
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -60,10 +31,7 @@ pagina {
     textura: ""
     id: CONTROLE_ACAO_PROXIMA
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -73,10 +41,7 @@ pagina {
     textura: ""
     id: CONTROLE_ALTERNA_CURA
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   # Linha de baixo
   dados_botoes {
     tamanho: 1
@@ -87,10 +52,7 @@ pagina {
     textura: ""
     id: CONTROLE_ADICIONA_1
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -100,10 +62,7 @@ pagina {
     textura: ""
     id: CONTROLE_ADICIONA_5
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -113,10 +72,7 @@ pagina {
     textura: ""
     id: CONTROLE_ADICIONA_10
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -126,10 +82,7 @@ pagina {
     textura: ""
     id: CONTROLE_CONFIRMA_DANO
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -139,10 +92,7 @@ pagina {
     textura: ""
     id: CONTROLE_APAGA_DANO
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
 
   # Transicao.
   dados_botoes {
@@ -154,10 +104,7 @@ pagina {
     textura: "icon_enter.png"
     id: CONTROLE_TRANSICAO
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
 
   # Status.
    dados_botoes {
@@ -169,10 +116,7 @@ pagina {
     textura: "icon_light.png"
     id: CONTROLE_LUZ
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -182,10 +126,7 @@ pagina {
     textura: "icon_slide.png"
     id: CONTROLE_QUEDA
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -195,10 +136,7 @@ pagina {
     textura: "icon_feather.png"
     id: CONTROLE_VOO
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -208,10 +146,7 @@ pagina {
     textura: "icon_hide.png"
     id: CONTROLE_VISIBILIDADE
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
 
   # Setas.
   dados_botoes {
@@ -223,10 +158,8 @@ pagina {
     textura: ""
     id: CONTROLE_CIMA
     num_lados_botao: 3
-    rotacao_graus: 0
-    translacao_x: 0 
     translacao_y: -0.1
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -237,9 +170,8 @@ pagina {
     id: CONTROLE_BAIXO
     num_lados_botao: 3
     rotacao_graus: 180.0
-    translacao_x: 0 
     translacao_y: 0.1
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -250,9 +182,9 @@ pagina {
     id: CONTROLE_ESQUERDA
     num_lados_botao: 3
     rotacao_graus: 90.0
-    translacao_x: 0.4 
+    translacao_x: 0.4
     translacao_y: 0.5
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -263,9 +195,9 @@ pagina {
     id: CONTROLE_DIREITA
     num_lados_botao: 3
     rotacao_graus: -90.0
-    translacao_x: -0.4 
+    translacao_x: -0.4
     translacao_y: 0.5
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -275,10 +207,7 @@ pagina {
     textura: ""
     id: CONTROLE_CIMA_VERTICAL
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -288,10 +217,7 @@ pagina {
     textura: ""
     id: CONTROLE_BAIXO_VERTICAL
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
-  } 
+  }
 
   # Cameras.
   dados_botoes {
@@ -303,10 +229,7 @@ pagina {
     textura: "icon_isometric_camera.png"
     id: CONTROLE_CAMERA_ISOMETRICA
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -316,10 +239,7 @@ pagina {
     textura: "icon_tracking_camera.png"
     id: CONTROLE_CAMERA_PRESA
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 1
@@ -329,10 +249,7 @@ pagina {
     textura: "icon_darkvision.png"
     id: CONTROLE_VISAO_ESCURO
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
-  } 
+  }
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -342,9 +259,6 @@ pagina {
     textura: "icon_ruler.png"
     id: CONTROLE_REGUA
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
   }
 
   # Desfazer.
@@ -357,9 +271,6 @@ pagina {
     textura: "icon_undo.png"
     id: CONTROLE_DESFAZER
     num_lados_botao: 4
-    rotacao_graus: 0.0
-    translacao_x: 0.0 
-    translacao_y: 0.0
   }
   dados_botoes {
     tamanho: 1
@@ -370,13 +281,10 @@ pagina {
     textura: ""
     id: CONTROLE_PAGINACAO_PROXIMO
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
 }
 pagina {
-  # Botao de paginacao anterior. 
+  # Botao de paginacao anterior.
   dados_botoes {
     tamanho: 1
     linha: 0
@@ -386,8 +294,107 @@ pagina {
     textura: ""
     id: CONTROLE_PAGINACAO_ANTERIOR
     num_lados_botao: 4
-    rotacao_graus: 0
-    translacao_x: 0 
-    translacao_y: 0
-  } 
+  }
+  # Desenho 2D.
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 1
+    rotulo: "Lv"
+    cor_rotulo {}
+    textura: "icon_free.png"
+    id: CONTROLE_DESENHO_LIVRE
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 2
+    rotulo: "Rt"
+    cor_rotulo {}
+    textura: "icon_rectangle.png"
+    id: CONTROLE_DESENHO_RETANGULO
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 3
+    rotulo: "Ci"
+    cor_rotulo {}
+    textura: "icon_circle.png"
+    id: CONTROLE_DESENHO_CIRCULO
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 4
+    rotulo: "Gr"
+    cor_rotulo {}
+    textura: "icon_group.png"
+    id: CONTROLE_DESENHO_AGRUPAR
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 5
+    rotulo: "Dg"
+    cor_rotulo {}
+    textura: "icon_ungroup.png"
+    id: CONTROLE_DESENHO_DESAGRUPAR
+    num_lados_botao: 4
+  }
+  # Desenho 3D.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 1
+    rotulo: "Es"
+    cor_rotulo {}
+    textura: "icon_sphere.png"
+    id: CONTROLE_DESENHO_ESFERA
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 2
+    rotulo: "Pi"
+    cor_rotulo {}
+    textura: "icon_pyramid.png"
+    id: CONTROLE_DESENHO_PIRAMIDE
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 3
+    rotulo: "Cb"
+    cor_rotulo {}
+    textura: "icon_cube.png"
+    id: CONTROLE_DESENHO_CUBO
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 4
+    rotulo: "Cn"
+    cor_rotulo {}
+    textura: "icon_cone.png"
+    id: CONTROLE_DESENHO_CONE
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 5
+    rotulo: "Ci"
+    cor_rotulo {}
+    textura: "icon_cylinder.png"
+    id: CONTROLE_DESENHO_CILINDRO
+    num_lados_botao: 4
+  }
 }
