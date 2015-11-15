@@ -171,8 +171,9 @@ message EntidadeProto {
   // Alcance da visao no escuro em metros.
   optional float alcance_visao = 37;
 
-  // Ultima acao da unidade. O valor eh um id no mapa de acoes do tabuleiro.
-  optional string ultima_acao = 26;
+  // Ultimas acoes da unidade. O valor eh um id no mapa de acoes do tabuleiro. Funciona na verdade como uma fila
+  // onde o indice 0 eh a acao mais recente e o tamanho maximo eh 3.
+  repeated string ultima_acao = 26;
   // Resultado da proxima salvacao da entidade.
   optional ResultadoSalvacao proxima_salvacao = 27;
   // A direcao do ultimo impacto sofrido pela entidade.

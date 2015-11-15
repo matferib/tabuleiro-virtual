@@ -1558,8 +1558,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      std::string ultima_acao = entidade->Proto().ultima_acao().empty() ?
-         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Proto().ultima_acao();
+      std::string ultima_acao = entidade->Acao().empty() ?
+         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao();
       auto acao_it = mapa_acoes_.find(ultima_acao);
       if (acao_it == mapa_acoes_.end()) {
         LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";

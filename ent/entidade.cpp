@@ -444,7 +444,17 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 }
 
 void Entidade::AtualizaAcao(const std::string& id_acao) {
-  proto_.set_ultima_acao(id_acao);
+  if (proto_.ultima_acao_size() == 0) {
+    proto_.add_ultima_acao();
+  }
+  proto_.set_ultima_acao(0, id_acao);
+}
+
+std::string Entidade::Acao() const {
+  if (proto_.ultima_acao_size() == 0) {
+    return "";
+  }
+  return proto_.ultima_acao(0);
 }
 
 const Posicao Entidade::PosicaoAcao() const {

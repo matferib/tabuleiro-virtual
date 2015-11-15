@@ -105,7 +105,7 @@ class Entidade {
 
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
-  const std::string Acao() const { return proto_.ultima_acao(); }
+  std::string Acao() const;
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
