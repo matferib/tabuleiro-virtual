@@ -105,6 +105,8 @@ class Entidade {
 
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
+
+  /** Retorna a acao mais recente da entidade ou vazio se nao houver. */
   std::string Acao() const;
 
   /** @return a posicao das acoes da entidade. */
@@ -165,6 +167,9 @@ class Entidade {
   Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
 
  private:
+  // Numero maximo de acoes de uma entidade.
+  static constexpr unsigned int MaxNumAcoes = 3;
+
   // Nome dos buffers de VBO.
   constexpr static unsigned short NUM_VBOS = 11;
   constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10;

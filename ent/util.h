@@ -2,6 +2,7 @@
 #define ENT_UTIL_H
 
 #include <algorithm>
+#include <functional>
 #include <string>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
@@ -10,6 +11,8 @@
 namespace ent {
 
 class Cor;
+class EntidadeProto_Evento;
+class ParametrosDesenho;
 class Posicao;
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
@@ -119,7 +122,7 @@ enum efeitos_e {
 /** Realiza a leitura de uma string de eventos, um por linha, formato:
 * descricao [(complemento)] : rodadas.
 */
-google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::string& eventos_str);
+google::protobuf::RepeatedPtrField<EntidadeProto_Evento> LeEventos(const std::string& eventos_str);
 
 /** Converte uma string para o efeito, se houver. Caso contrario retorna EFEITO_INVALIDO. */
 efeitos_e StringParaEfeito(const std::string& s);

@@ -444,10 +444,32 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 }
 
 void Entidade::AtualizaAcao(const std::string& id_acao) {
-  if (proto_.ultima_acao_size() == 0) {
-    proto_.add_ultima_acao();
+  int indice_acao = -1;
+  // Verifica se acao ja existe.
+  for (int i = 0; i < proto_.ultima_acao_size(); ++i) {
+    const auto& acao_entidade = proto_.ultima_acao(i);
+    if (id_acao == acao_entidade) {
+      indice_acao = i;
+      break;
+    }
   }
-  proto_.set_ultima_acao(0, id_acao);
+  // Se acao nao existe e cabe mais, cria uma nova no ultimo lugar.
+  if (indice_acao == -1) {
+    // A acao eh inserida no final (que sera descartada) e entao sera movida para a frente no final.
+    if (proto_.ultima_acao_size() < MaxNumAcoes) {
+      proto_.add_ultima_acao(id_acao);
+    } else {
+      proto_.set_ultima_acao(proto_.ultima_acao_size() - 1, id_acao);
+    }
+    indice_acao = proto_.ultima_acao_size() - 1;
+  }
+  if (indice_acao == 0) {
+    return;
+  }
+  // Acao jogada para a primeira posicao.
+  for (int i = indice_acao - 1; i >= 0; --i) {
+    proto_.mutable_ultima_acao()->SwapElements(i, i + 1);
+  }
 }
 
 std::string Entidade::Acao() const {

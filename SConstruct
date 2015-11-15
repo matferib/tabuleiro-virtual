@@ -210,6 +210,9 @@ if compilar_testes:
   env['LIBS'] += ['gtest', 'pthread']
   env['RPATH'] += ['./gtest/lib/']
   env.Program(
+      target = 'teste_ent_ent',
+      source = ['ent/ent_test.cpp', ] + objetos)
+  env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', ] + objetos)
   env.Program(
