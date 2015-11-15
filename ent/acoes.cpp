@@ -558,11 +558,11 @@ class AcaoCorpoCorpo : public Acao {
     Vector3 v(dx_, dy_, dz_);
     distancia_ = v.length();
     // Ajusta os deltas para nao ficar deslocamento gigante.
-    LOG(INFO) << "v.length1: " << distancia_;
+    //LOG(INFO) << "v.length1: " << distancia_;
     v /= 3.0f;  // 1/3 da distancia como delta.
-    LOG(INFO) << "v.length2: " << v.length();
+    //LOG(INFO) << "v.length2: " << v.length();
     float tam = std::max(std::min(v.length(), TAMANHO_LADO_QUADRADO * 2.0f), 0.1f);  // min 0.1, maximo 2 quadrados (3m).
-    LOG(INFO) << "Tam: " << tam;
+    //LOG(INFO) << "Tam: " << tam;
     v.normalize();
     v *= tam;
     dx_ = v.x;
@@ -652,7 +652,7 @@ Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro)
 
 void Acao::Atualiza(int intervalo_ms) {
   if (atraso_s_ > 0) {
-    atraso_s_ -= (intervalo_ms / 1000);
+    atraso_s_ -= (intervalo_ms / 1000.0f);
     return;
   }
   AtualizaAposAtraso(intervalo_ms);

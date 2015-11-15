@@ -1,4 +1,5 @@
 Versao 1.13.0
+- Arrumar icone para as acoes.
 - Outros botoes controle virtual: mudar cor, mudar template, salvar, abrir, etc.
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).

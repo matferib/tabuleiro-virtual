@@ -443,11 +443,21 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
 }
 
+// Acao de display.
 void Entidade::AtualizaAcao(const std::string& id_acao) {
+  proto_.set_ultima_acao(id_acao);
+}
+
+std::string Entidade::Acao() const {
+  return proto_.ultima_acao();
+}
+
+// Acoes executadas.
+void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
   int indice_acao = -1;
   // Verifica se acao ja existe.
-  for (int i = 0; i < proto_.ultima_acao_size(); ++i) {
-    const auto& acao_entidade = proto_.ultima_acao(i);
+  for (int i = 0; i < proto_.lista_acoes_size(); ++i) {
+    const auto& acao_entidade = proto_.lista_acoes(i);
     if (id_acao == acao_entidade) {
       indice_acao = i;
       break;
@@ -456,28 +466,32 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
   // Se acao nao existe e cabe mais, cria uma nova no ultimo lugar.
   if (indice_acao == -1) {
     // A acao eh inserida no final (que sera descartada) e entao sera movida para a frente no final.
-    if (proto_.ultima_acao_size() < MaxNumAcoes) {
-      proto_.add_ultima_acao(id_acao);
+    if (proto_.lista_acoes_size() < MaxNumAcoes) {
+      proto_.add_lista_acoes(id_acao);
     } else {
-      proto_.set_ultima_acao(proto_.ultima_acao_size() - 1, id_acao);
+      proto_.set_lista_acoes(proto_.lista_acoes_size() - 1, id_acao);
     }
-    indice_acao = proto_.ultima_acao_size() - 1;
+    indice_acao = proto_.lista_acoes_size() - 1;
   }
   if (indice_acao == 0) {
+    LOG(INFO) << "Lista acoes: " << proto_.lista_acoes_size();
     return;
   }
   // Acao jogada para a primeira posicao.
   for (int i = indice_acao - 1; i >= 0; --i) {
-    proto_.mutable_ultima_acao()->SwapElements(i, i + 1);
+    proto_.mutable_lista_acoes()->SwapElements(i, i + 1);
   }
+  LOG(INFO) << "Lista acoes: " << proto_.lista_acoes_size();
 }
 
-std::string Entidade::Acao() const {
-  if (proto_.ultima_acao_size() == 0) {
+std::string Entidade::AcaoExecutada(int indice_acao) const {
+  if (indice_acao < 0 || indice_acao >= proto_.lista_acoes_size()) {
+    LOG(INFO) << "Retornando vazio, indice acao: " << indice_acao << ", lista acoes: " << proto_.lista_acoes_size();
     return "";
   }
-  return proto_.ultima_acao(0);
+  return proto_.lista_acoes(indice_acao);
 }
+
 
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);

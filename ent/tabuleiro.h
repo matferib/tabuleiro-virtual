@@ -254,6 +254,8 @@ class Tabuleiro : public ntf::Receptor {
   void SelecionaAcao(const std::string& id_acao);
   void ProximaAcao();
   void AcaoAnterior();
+  /** Seleciona para a entidade selecionada umas das ultimas acoes executadas. Indice 0 eh a mais recente. */
+  void SelecionaAcaoExecutada(int indice);
 
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }

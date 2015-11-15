@@ -105,9 +105,13 @@ class Entidade {
 
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
-
   /** Retorna a acao mais recente da entidade ou vazio se nao houver. */
   std::string Acao() const;
+
+  /** Atualiza a acao da entidade para o indice passado. */
+  void AdicionaAcaoExecutada(const std::string& id_acao);
+  std::string AcaoExecutada(int indice_acao) const;
+
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;

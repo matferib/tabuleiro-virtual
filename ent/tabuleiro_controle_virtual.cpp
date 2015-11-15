@@ -200,6 +200,13 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
     case CONTROLE_DESENHO_DESAGRUPAR:
       DesagrupaEntidadesSelecionadas();
       break;
+    case CONTROLE_ULTIMA_ACAO_0:
+    case CONTROLE_ULTIMA_ACAO_1:
+    case CONTROLE_ULTIMA_ACAO_2: {
+      int indice = id - CONTROLE_ULTIMA_ACAO_0;
+      SelecionaAcaoExecutada(indice);
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         ntf::Notificacao n;

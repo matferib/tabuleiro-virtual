@@ -1,5 +1,30 @@
 # Este arquivo eh uma representacao texto do proto ControleVirtual.
 pagina {
+  # Botoes de ultimas acoes.
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 1
+    rotulo: "1"
+    id: CONTROLE_ULTIMA_ACAO_0
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 2
+    rotulo: "2"
+    id: CONTROLE_ULTIMA_ACAO_1
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 3
+    rotulo: "3"
+    id: CONTROLE_ULTIMA_ACAO_2
+    num_lados_botao: 4
+  }
   # Botao de ataque.
   dados_botoes {
     tamanho: 2

@@ -1491,7 +1491,8 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
-void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
+void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
+    bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE)) {
     // invalido.
     return;
@@ -1635,7 +1636,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int
           auto* nd = grupo_desfazer.add_notificacao();
           PreencheNotificacaoDeltaPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
         }
-        VLOG(2) << "Acao individual: " << acao_proto.ShortDebugString();
+        VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
       }
       TrataNotificacao(n);
@@ -1643,6 +1644,12 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(bool acao_padrao, int x, int
     }
     AdicionaNotificacaoListaEventos(grupo_desfazer);
   }
+  // Atualiza as acoes executadas da entidade se houver apenas uma.
+  auto* e = EntidadeSelecionada();
+  if (e == nullptr) {
+    return;
+  }
+  e->AdicionaAcaoExecutada(e->Acao());
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
@@ -1910,6 +1917,19 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
     }
     entidade->AtualizaAcao(it->first);
   }
+}
+
+void Tabuleiro::SelecionaAcaoExecutada(int indice) {
+  Entidade* e = EntidadeSelecionada();
+  if (e == nullptr) {
+    LOG(INFO) << "Nao selecionando acao pois ha 0 ou mais de uma entidade selecionada.";
+  }
+  std::string id_acao = e->AcaoExecutada(indice);
+  if (id_acao.empty()) {
+    LOG(INFO) << "Nao selecionando acao pois id eh invalido para a entidade.";
+    return;
+  }
+  SelecionaAcao(id_acao);
 }
 
 void Tabuleiro::ProximaAcao() {

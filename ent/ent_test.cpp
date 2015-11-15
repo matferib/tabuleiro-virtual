@@ -8,25 +8,26 @@ namespace ent {
 // Teste basico gera dados.
 TEST(TesteEntidade, TesteAtualizaAcao) {
   std::unique_ptr<Entidade> e(NovaEntidade(EntidadeProto(), nullptr, nullptr, nullptr));
-  const EntidadeProto& ep = e->Proto();
-  e->AtualizaAcao("teste1");
-  EXPECT_EQ("teste1", e->Acao());
-  e->AtualizaAcao("teste2");
-  EXPECT_EQ("teste2", e->Acao());
-  e->AtualizaAcao("teste1");
-  EXPECT_EQ(2, ep.ultima_acao_size());
-  EXPECT_EQ("teste1", ep.ultima_acao(0));
-  EXPECT_EQ("teste2", ep.ultima_acao(1));
-  e->AtualizaAcao("teste3");
-  EXPECT_EQ(3, ep.ultima_acao_size());
-  EXPECT_EQ("teste3", ep.ultima_acao(0));
-  EXPECT_EQ("teste1", ep.ultima_acao(1));
-  EXPECT_EQ("teste2", ep.ultima_acao(2));
-  e->AtualizaAcao("teste4");
-  EXPECT_EQ(3, ep.ultima_acao_size());
-  EXPECT_EQ("teste4", ep.ultima_acao(0));
-  EXPECT_EQ("teste3", ep.ultima_acao(1));
-  EXPECT_EQ("teste1", ep.ultima_acao(2));
+  e->AdicionaAcaoExecutada("teste1");
+  EXPECT_EQ("teste1", e->AcaoExecutada(0));
+  e->AdicionaAcaoExecutada("teste2");
+  EXPECT_EQ("teste2", e->AcaoExecutada(0));
+  EXPECT_EQ("teste1", e->AcaoExecutada(1));
+  EXPECT_EQ("", e->AcaoExecutada(2));
+  e->AdicionaAcaoExecutada("teste1");
+  EXPECT_EQ("teste1", e->AcaoExecutada(0));
+  EXPECT_EQ("teste2", e->AcaoExecutada(1));
+  EXPECT_EQ("", e->AcaoExecutada(2));
+  e->AdicionaAcaoExecutada("teste3");
+  EXPECT_EQ("teste3", e->AcaoExecutada(0));
+  EXPECT_EQ("teste1", e->AcaoExecutada(1));
+  EXPECT_EQ("teste2", e->AcaoExecutada(2));
+  EXPECT_EQ("", e->AcaoExecutada(3));
+  e->AdicionaAcaoExecutada("teste4");
+  EXPECT_EQ("teste4", e->AcaoExecutada(0));
+  EXPECT_EQ("teste3", e->AcaoExecutada(1));
+  EXPECT_EQ("teste1", e->AcaoExecutada(2));
+  EXPECT_EQ("", e->AcaoExecutada(3));
 }
 
 }  // namespace ent.
