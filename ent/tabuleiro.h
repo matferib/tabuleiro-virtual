@@ -258,7 +258,8 @@ class Tabuleiro : public ntf::Receptor {
   void SelecionaAcaoExecutada(int indice);
 
   /** Acesso ao mapa de modelos. */
-  const std::unordered_map<std::string, std::unique_ptr<AcaoProto>>& MapaAcoes() const { return mapa_acoes_; }
+  typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
+  const MapaIdAcao& MapaAcoes() const { return mapa_acoes_; }
 
   /** Seleciona uma das formas de desenho como padrao. */
   void SelecionaFormaDesenho(TipoForma fd);
@@ -491,6 +492,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
+  const Entidade* EntidadeSelecionada() const;
 
   /** Retorna se uma entidade esta selecionada. */
   bool EntidadeEstaSelecionada(unsigned int id);
@@ -637,6 +639,8 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao);
   void DesenhaRotuloBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
+  /** Retorna a textura correspondente a um botao (para botoes com texturas variaveis). */
+  unsigned int TexturaBotao(const DadosBotao& db) const;
 
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
@@ -750,7 +754,6 @@ class Tabuleiro : public ntf::Receptor {
   std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
 
   /** Ação selecionada (por id). */
-  typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
   MapaIdAcao mapa_acoes_;
   std::vector<std::string> id_acoes_;
 

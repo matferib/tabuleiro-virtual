@@ -44,6 +44,11 @@ void Tabuleiro::CarregaControleVirtual() {
       n->add_info_textura()->set_id(db.textura());
     }
   }
+  for (const auto& par_id_acao : mapa_acoes_) {
+    if (!par_id_acao.second->textura().empty()) {
+      n->add_info_textura()->set_id(par_id_acao.second->textura());
+    }
+  }
   central_->AdicionaNotificacao(n);
 }
 
@@ -52,6 +57,11 @@ void Tabuleiro::LiberaControleVirtual() {
   for (const auto& pagina : controle_virtual_.pagina()) {
     for (const auto& db : pagina.dados_botoes()) {
       n->add_info_textura()->set_id(db.textura());
+    }
+  }
+  for (const auto& par_id_acao : mapa_acoes_) {
+    if (!par_id_acao.second->textura().empty()) {
+      n->add_info_textura()->set_id(par_id_acao.second->textura());
     }
   }
   central_->AdicionaNotificacao(n);
@@ -242,6 +252,31 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std
   return true;
 }
 
+// Retorna o id da textura para uma determinada acao.
+unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
+  if (!db.textura().empty()) {
+    return texturas_->Textura(db.textura());
+  }
+  auto* entidade_selecionada = EntidadeSelecionada();
+  switch (db.id()) {
+    case CONTROLE_ACAO: {
+      unsigned int textura_espada = texturas_->Textura("icon_sword.png");
+      if (entidade_selecionada == nullptr || entidade_selecionada->Acao().empty()) {
+        return textura_espada;
+      }
+      const auto& it = mapa_acoes_.find(entidade_selecionada->Acao());
+      if (it == mapa_acoes_.end()) {
+        return textura_espada;
+      }
+      unsigned int textura = texturas_->Textura(it->second->textura());
+      return textura == GL_INVALID_VALUE ? textura_espada : textura;
+    }
+    default:
+      ;
+  }
+  return GL_INVALID_VALUE;
+}
+
 void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao) {
   gl::CarregaNome(db.id());
   float xi, xf, yi, yf;
@@ -253,7 +288,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding,
   if (db.num_lados_botao() == 4 || parametros_desenho_.has_picking_x()) {
     float trans_x = (db.translacao_x() * largura_botao);
     float trans_y = (db.translacao_y() * altura_botao);
-    unsigned int id_textura = db.textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura());
+    unsigned int id_textura = TexturaBotao(db);
     if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
       gl::Habilita(GL_TEXTURE_2D);
       gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
@@ -278,7 +313,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding,
 
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
-  unsigned int id_textura = db.textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(db.textura());
+  unsigned int id_textura = TexturaBotao(db);
   if (db.rotulo().empty() || id_textura != GL_INVALID_VALUE) {
     return;
   }

@@ -5006,6 +5006,18 @@ Entidade* Tabuleiro::EntidadeSelecionada() {
   return it->second.get();
 }
 
+const Entidade* Tabuleiro::EntidadeSelecionada() const {
+  if (ids_entidades_selecionadas_.size() != 1) {
+    return nullptr;
+  }
+  unsigned int id = *ids_entidades_selecionadas_.begin();
+  auto it = entidades_.find(id);
+  if (it == entidades_.end()) {
+    return nullptr;
+  }
+  return it->second.get();
+}
+
 void Tabuleiro::AlternaModoDebug() {
   gl::AlternaModoDebug();
   //modo_debug_ = !modo_debug_;

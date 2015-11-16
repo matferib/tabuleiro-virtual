@@ -32,7 +32,6 @@ pagina {
     coluna: 1
     rotulo: "A"
     cor_rotulo {}
-    textura: "icon_sword.png"
     id: CONTROLE_ACAO
     num_lados_botao: 4
   }
