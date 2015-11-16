@@ -1644,9 +1644,9 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     }
     AdicionaNotificacaoListaEventos(grupo_desfazer);
   }
-  // Atualiza as acoes executadas da entidade se houver apenas uma.
+  // Atualiza as acoes executadas da entidade se houver apenas uma. A sinalizacao nao eh adicionada a entidade porque ela possui forma propria.
   auto* e = EntidadeSelecionada();
-  if (e == nullptr) {
+  if (e == nullptr || e->Acao() == "Sinalização") {
     return;
   }
   e->AdicionaAcaoExecutada(e->Acao());

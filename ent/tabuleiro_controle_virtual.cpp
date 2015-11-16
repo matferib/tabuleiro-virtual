@@ -217,6 +217,10 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       SelecionaAcaoExecutada(indice);
       break;
     }
+    case CONTROLE_ACAO_SINALIZACAO: {
+      SelecionaAcao("Sinalização");
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         ntf::Notificacao n;
@@ -271,6 +275,23 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
       unsigned int textura = texturas_->Textura(it->second->textura());
       return textura == GL_INVALID_VALUE ? textura_espada : textura;
     }
+    case CONTROLE_ULTIMA_ACAO_0:
+    case CONTROLE_ULTIMA_ACAO_1:
+    case CONTROLE_ULTIMA_ACAO_2:
+    {
+      int indice_acao = db.id() - CONTROLE_ULTIMA_ACAO_0;
+      unsigned int textura_espada = texturas_->Textura("icon_sword.png");
+      if (entidade_selecionada == nullptr || entidade_selecionada->Acao().empty()) {
+        return textura_espada;
+      }
+      const auto& it = mapa_acoes_.find(entidade_selecionada->AcaoExecutada(indice_acao));
+      if (it == mapa_acoes_.end()) {
+        return textura_espada;
+      }
+      unsigned int textura = texturas_->Textura(it->second->textura());
+      return textura == GL_INVALID_VALUE ? textura_espada : textura;
+    }
+
     default:
       ;
   }

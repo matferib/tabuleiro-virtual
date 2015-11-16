@@ -7,6 +7,13 @@ modelo {
   }
 }
 modelo {
+  id : 'Anão'
+  entidade {
+    dados_vida: '1d8+2' cor { r: 0.4 g: 0.1 b: 0.1 } info_textura { id: 'dwarf.png' }
+    rotulo_especial: 'ini: +0\nat: machado +3 dano: 1d10+1/x3\nat: +1 arco curto dano: 1d6/x3\nca: 16'
+  }
+}
+modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
