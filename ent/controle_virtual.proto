@@ -43,6 +43,9 @@ enum IdBotao {
   CONTROLE_DESENHO_CONE = 38;
   CONTROLE_DESENHO_AGRUPAR = 39;
   CONTROLE_DESENHO_DESAGRUPAR  = 40;
+  CONTROLE_DESENHO_COR_VERMELHO = 41;
+  CONTROLE_DESENHO_COR_VERDE = 42;
+  CONTROLE_DESENHO_COR_AZUL = 43;
   CONTROLE_ACAO_SINALIZACAO = 59;
   CONTROLE_ULTIMA_ACAO_0 = 60;
   CONTROLE_ULTIMA_ACAO_1 = 61;
@@ -63,18 +66,20 @@ message DadosBotao {
   optional string rotulo = 4;
   // // cor do rotulo (letra).
   optional Cor cor_rotulo = 5;
+  // Cor de fundo do botao.
+  optional Cor cor_fundo = 6;
   // Nome do arquivo de icone.
-  optional string textura = 6;
+  optional string textura = 7;
   // Identifica o que o botao faz, ver IdBotao.
-  optional IdBotao id = 7;
+  optional IdBotao id = 8;
   // numero de lados do botao.
-  optional int32 num_lados_botao = 8;
+  optional int32 num_lados_botao = 9;
   // Rotacao do botao.
-  optional float rotacao_graus = 9;
+  optional float rotacao_graus = 10;
   // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x).
-  optional float translacao_x = 10;
+  optional float translacao_x = 11;
   // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
-  optional float translacao_y = 11;
+  optional float translacao_y = 12;
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.

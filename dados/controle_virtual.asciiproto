@@ -426,4 +426,33 @@ pagina {
     id: CONTROLE_DESENHO_CILINDRO
     num_lados_botao: 4
   }
+  # Cores
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 6
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_VERMELHO
+    cor_fundo { r: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 7
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_VERDE
+    cor_fundo { g: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 8
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_AZUL
+    cor_fundo { b: 1.0 }
+    num_lados_botao: 4
+  }
+
 }

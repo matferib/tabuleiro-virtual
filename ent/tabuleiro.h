@@ -269,6 +269,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Seleciona a cor do desenho (em RGB). */
   void SelecionaCorDesenho(const Cor& cor) { forma_cor_ = cor; }
+  /** Altera a cor das entidades selecionadas. Nao funciona em formas compostas. */
+  void AlteraCorEntidadesSelecionadas(const Cor& cor);
 
   /** Retorna a cor de desenho. */
   const Cor& CorDesenho() const { return forma_cor_; }

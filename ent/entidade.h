@@ -47,6 +47,9 @@ class Entidade {
   /** @return o identificador da entidade que deve ser unico globalmente. */
   unsigned int Id() const { return proto_.id(); }
 
+  /** Retorna a cor da entidade. */
+  const Cor& CorDesenho() const { return proto_.cor(); }
+
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */

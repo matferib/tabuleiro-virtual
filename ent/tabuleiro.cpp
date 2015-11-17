@@ -2800,6 +2800,30 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
   forma_selecionada_ = fd;
 }
 
+void Tabuleiro::AlteraCorEntidadesSelecionadas(const Cor& cor) {
+  ntf::Notificacao grupo_notificacao;
+  grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (int id : ids_entidades_selecionadas_) {
+    Entidade* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      continue;
+    }
+    auto* ne = grupo_notificacao.add_notificacao();
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* entidade_antes = ne->mutable_entidade_antes();
+    entidade_antes->set_id(e->Id());
+    entidade_antes->mutable_cor()->CopyFrom(e->CorDesenho());
+    auto* entidade_depois = ne->mutable_entidade();
+    entidade_depois->set_id(e->Id());
+    entidade_depois->mutable_cor()->CopyFrom(cor);
+  }
+  TrataNotificacao(grupo_notificacao);
+  if (grupo_notificacao.notificacao_size() > 0) {
+    // Para desfazer;
+    AdicionaNotificacaoListaEventos(grupo_notificacao);
+  }
+}
+
 void Tabuleiro::DesenhaSombras() {
   const float kAnguloInclinacao = proto_corrente_->luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
   const float kAnguloPosicao = proto_corrente_->luz_direcional().posicao_graus() * GRAUS_PARA_RAD;

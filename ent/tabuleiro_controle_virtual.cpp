@@ -217,6 +217,20 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       SelecionaAcaoExecutada(indice);
       break;
     }
+    case CONTROLE_DESENHO_COR_VERMELHO:
+    case CONTROLE_DESENHO_COR_VERDE:
+    case CONTROLE_DESENHO_COR_AZUL: {
+      Cor c;
+      c.set_r(id == CONTROLE_DESENHO_COR_VERMELHO ? 1.0f : 0);
+      c.set_g(id == CONTROLE_DESENHO_COR_VERDE ? 1.0f : 0);
+      c.set_b(id == CONTROLE_DESENHO_COR_AZUL ? 1.0f : 0);
+      if (!ids_entidades_selecionadas_.empty()) {
+        AlteraCorEntidadesSelecionadas(c);
+      } else {
+        SelecionaCorDesenho(c);
+      }
+      break;
+    }
     case CONTROLE_ACAO_SINALIZACAO: {
       SelecionaAcao("Sinalização");
       break;
@@ -360,13 +374,9 @@ void Tabuleiro::DesenhaControleVirtual() {
   gl::Desabilita(GL_LIGHTING);
   gl::Desabilita(GL_DEPTH_TEST);
   float cor_padrao[3];
-  float cor_ativa[3];
   cor_padrao[0] = 0.8f;
   cor_padrao[1] = 0.8f;
   cor_padrao[2] = 0.8f;
-  cor_ativa[0] = 0.4f;
-  cor_ativa[1] = 0.4f;
-  cor_ativa[2] = 0.4f;
 
   int fonte_x_int, fonte_y_int, escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
@@ -478,7 +488,20 @@ void Tabuleiro::DesenhaControleVirtual() {
     }
     const auto& pagina = controle_virtual_.pagina(pagina_corrente);
     for (const auto& db : pagina.dados_botoes()) {
-      float* cor = AtualizaBotaoControleVirtual(db.id(), mapa_botoes) ? cor_ativa : cor_padrao;
+      float cor[3];
+      if (db.has_cor_fundo()) {
+        cor[0] = db.cor_fundo().r();
+        cor[1] = db.cor_fundo().g();
+        cor[2] = db.cor_fundo().b();
+      } else {
+        cor[0] = cor_padrao[0];
+        cor[1] = cor_padrao[1];
+        cor[2] = cor_padrao[2];
+      }
+      float ajuste =  AtualizaBotaoControleVirtual(db.id(), mapa_botoes) ? 0.5f : 1.0f;
+      cor[0] *= ajuste;
+      cor[1] *= ajuste;
+      cor[2] *= ajuste;
       gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
       DesenhaBotaoControleVirtual(db, padding, largura_botao, altura_botao);
     }

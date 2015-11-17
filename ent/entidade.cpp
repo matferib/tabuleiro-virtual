@@ -413,6 +413,9 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   int pontos_vida_antes = PontosVida();
+  if (proto_parcial.has_cor()) {
+    proto_.clear_cor();
+  }
   if (proto_parcial.evento_size() > 0) {
     // Evento eh repeated, merge nao serve.
     proto_.clear_evento();
@@ -432,9 +435,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (luz != nullptr && luz->has_raio() && luz->raio() == 0.0f) {
     proto_.clear_luz();
   }
-  const auto* cor = ((luz != nullptr) && luz->has_cor()) ? const_cast<IluminacaoPontual*>(luz)->mutable_cor() : nullptr;
-  if (cor != nullptr && (cor->r() == 0 && cor->g() == 0 && cor->b() == 0)) {
+  const auto* cor_luz = ((luz != nullptr) && luz->has_cor()) ? &luz->cor() : nullptr;
+  if (cor_luz != nullptr && (cor_luz->r() == 0 && cor_luz->g() == 0 && cor_luz->b() == 0)) {
     proto_.clear_luz();
+  }
+  if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b()) {
+    proto_.clear_cor();
   }
   if (proto_parcial.has_pontos_vida()) {
     // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
