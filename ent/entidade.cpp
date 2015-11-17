@@ -419,7 +419,6 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
     // Evento eh repeated, merge nao serve.
-    LOG(INFO) << "EU";
     proto_.clear_evento();
   }
   if (proto_parcial.lista_acoes_size() > 0) {

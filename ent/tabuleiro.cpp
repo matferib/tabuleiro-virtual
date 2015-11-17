@@ -792,6 +792,9 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 }
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
+  if (notificacao.tipo() != ntf::TN_TEMPORIZADOR) {
+    LOG(INFO) << "n.tipo: " << notificacao.tipo();
+  }
   switch (notificacao.tipo()) {
     case ntf::TN_CONECTAR: {
       AlterarModoMestre(false);
