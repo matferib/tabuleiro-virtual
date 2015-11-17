@@ -60,8 +60,8 @@ struct ContextoDesktop : public ContextoDependente {
 };
 
 Contexto* BuscaContexto() {
-    static Contexto* g_contexto = new Contexto(new ContextoDesktop);
-    return g_contexto;
+  static Contexto* g_contexto = new Contexto(new ContextoDesktop);
+  return g_contexto;
 }
 }  // namespace interno
 

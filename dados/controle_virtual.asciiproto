@@ -302,9 +302,17 @@ pagina {
     num_lados_botao: 4
   }
   dados_botoes {
-    tamanho: 1
+    tamanho: 2
     linha: 0
     coluna: 21
+    rotulo: "X"
+    id: CONTROLE_RODADA
+    num_lados_botao: 8
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 23
     rotulo: "->"
     cor_rotulo {}
     textura: ""

@@ -465,22 +465,11 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_DESENHO_CONE, [this]() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE;
     }, },
-
   };
 #if 0
   // Todos os botoes tem tamanho baseado no tamanho da fonte.
-  const std::vector<DadosBotao> dados_botoes = {
-    // Desenho 2d.
-    // Desenho 3d.
-    { 1, 0, 20, "Es", nullptr, TEXTURA_DESENHO_ESFERA, CONTROLE_DESENHO_ESFERA, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 21, "Pi", nullptr, TEXTURA_DESENHO_PIRAMIDE, CONTROLE_DESENHO_PIRAMIDE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 22, "Cb", nullptr, TEXTURA_DESENHO_CUBO, CONTROLE_DESENHO_CUBO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CUBO; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 23, "Cn", nullptr, TEXTURA_DESENHO_CONE, CONTROLE_DESENHO_CONE, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE; }, 4, 0.0f, 0.0f, 0.0f },
-    { 1, 0, 24, "Cn", nullptr, TEXTURA_DESENHO_CILINDRO, CONTROLE_DESENHO_CILINDRO, [this] () { return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CILINDRO; }, 4, 0.0f, 0.0f, 0.0f },
-
     // Contador de rodadas.
     { 2, 0, 26, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
-  };
 #endif
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
@@ -499,7 +488,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
     gl::CarregaIdentidade();
     int pagina_corrente = controle_virtual_.pagina_corrente();
-    if (pagina_corrente < 0 && pagina_corrente >= controle_virtual_.pagina_size()) {
+    if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
     const auto& pagina = controle_virtual_.pagina(pagina_corrente);
