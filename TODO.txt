@@ -1,5 +1,6 @@
 Versao 1.13.0
-- Outros botoes controle virtual: mudar cor, mudar template, salvar, abrir, etc.
+- Enviar a lista de acoes executadas quando for cliente dono da entidade.
+- Outros botoes controle virtual: copiar/colar, mudar template, salvar, abrir, etc.
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).

@@ -310,7 +310,8 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
     {
       int indice_acao = db.id() - CONTROLE_ULTIMA_ACAO_0;
       unsigned int textura_espada = texturas_->Textura("icon_sword.png");
-      if (entidade_selecionada == nullptr || entidade_selecionada->Acao().empty()) {
+      if (entidade_selecionada == nullptr ||
+          indice_acao < 0 ||indice_acao >= entidade_selecionada->Proto().lista_acoes_size()) {
         return textura_espada;
       }
       const auto& it = mapa_acoes_.find(entidade_selecionada->AcaoExecutada(indice_acao));

@@ -1650,6 +1650,15 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     return;
   }
   e->AdicionaAcaoExecutada(e->Acao());
+  if (!EmModoMestre() && id_camera_presa_ == e->Id()) {
+    // Envia para o mestre as lista de acoes executadas da entidade.
+    auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n->set_servidor_apenas(true);
+    auto* entidade  = n->mutable_entidade();
+    entidade->set_id(e->Id());
+    entidade->mutable_lista_acoes()->CopyFrom(e->Proto().lista_acoes());
+    central_->AdicionaNotificacaoRemota(n);
+  }
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {

@@ -416,11 +416,16 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.has_cor()) {
     proto_.clear_cor();
   }
+  // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
     // Evento eh repeated, merge nao serve.
+    LOG(INFO) << "EU";
     proto_.clear_evento();
   }
-  // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao.
+  if (proto_parcial.lista_acoes_size() > 0) {
+    // repeated.
+    proto_.clear_lista_acoes();
+  }
   proto_.MergeFrom(proto_parcial);
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
     // Evento dummy so para limpar eventos.
