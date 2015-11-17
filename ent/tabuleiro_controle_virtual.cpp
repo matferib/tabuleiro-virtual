@@ -219,11 +219,26 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
     }
     case CONTROLE_DESENHO_COR_VERMELHO:
     case CONTROLE_DESENHO_COR_VERDE:
-    case CONTROLE_DESENHO_COR_AZUL: {
+    case CONTROLE_DESENHO_COR_AZUL:
+    case CONTROLE_DESENHO_COR_AMARELO:
+    case CONTROLE_DESENHO_COR_MAGENTA:
+    case CONTROLE_DESENHO_COR_CIANO:
+    case CONTROLE_DESENHO_COR_BRANCO:
+    case CONTROLE_DESENHO_COR_PRETO:
+    {
       Cor c;
-      c.set_r(id == CONTROLE_DESENHO_COR_VERMELHO ? 1.0f : 0);
-      c.set_g(id == CONTROLE_DESENHO_COR_VERDE ? 1.0f : 0);
-      c.set_b(id == CONTROLE_DESENHO_COR_AZUL ? 1.0f : 0);
+      c.set_r(id == CONTROLE_DESENHO_COR_VERMELHO ||
+              id == CONTROLE_DESENHO_COR_MAGENTA ||
+              id == CONTROLE_DESENHO_COR_AMARELO ||
+              id == CONTROLE_DESENHO_COR_BRANCO ? 1.0f : 0);
+      c.set_g(id == CONTROLE_DESENHO_COR_VERDE ||
+              id == CONTROLE_DESENHO_COR_CIANO ||
+              id == CONTROLE_DESENHO_COR_AMARELO ||
+              id == CONTROLE_DESENHO_COR_BRANCO ? 1.0f : 0);
+      c.set_b(id == CONTROLE_DESENHO_COR_AZUL ||
+              id == CONTROLE_DESENHO_COR_CIANO ||
+              id == CONTROLE_DESENHO_COR_MAGENTA ||
+              id == CONTROLE_DESENHO_COR_BRANCO ? 1.0f : 0);
       if (!ids_entidades_selecionadas_.empty()) {
         AlteraCorEntidadesSelecionadas(c);
       } else {
