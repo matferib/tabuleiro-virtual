@@ -271,6 +271,7 @@ class TabuleiroSurfaceView extends GLSurfaceView {
 
   @Override
   public void onResume() {
+    Log.d("TabuleiroRenderer", "onResume");
     super.onResume();
     gerenteSensores_.registerListener(renderer_,
                                       gerenteSensores_.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
@@ -502,7 +503,9 @@ class TabuleiroRenderer
 
   @Override
   public void onSurfaceCreated(GL10 unused, EGLConfig config) {
+    Log.d(TAG, "===============onSurfaceCreated");
     nativeInitGl();
+    contexto_criado_ = true;
   }
 
   @Override
@@ -546,12 +549,16 @@ class TabuleiroRenderer
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   @Override
   public void onDrawFrame(GL10 unused) {
-    //Log.d(TAG, "DrawFrame");
+    Log.d(TAG, "===============DrawFrame");
     ((TabuleiroSurfaceView)parent_).ReportaUltimaRenderizacao(nativeRender());
   }
 
   /** Deve ser chamado na UI thread. */
   public void ChamaTimer() {
+    Log.d(TAG, "===============ChamaTimer");
+    if (!contexto_criado_) {
+      return;
+    }
     //Log.d(TAG, "ChamaTimer");
     nativeTimer();
     //Log.d(TAG, "Tam Evento Antes: " + eventos_.size());
@@ -883,6 +890,7 @@ class TabuleiroRenderer
   private GLSurfaceView parent_;
   private Vector<Evento> eventos_ = new Vector<Evento>();
   private boolean carregando_ = false;
+  private boolean contexto_criado_ = false;
   private Resources resources_;
   private boolean lerGiroscopio_ = false;
   private int metaTeclas_ = 0;
