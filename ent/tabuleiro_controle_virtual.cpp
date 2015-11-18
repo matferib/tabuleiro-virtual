@@ -250,6 +250,14 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       SelecionaAcao("Sinalização");
       break;
     }
+    case CONTROLE_COPIAR: {
+      CopiaEntidadesSelecionadas();
+      break;
+    }
+    case CONTROLE_COLAR: {
+      ColaEntidadesSelecionadas();
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         ntf::Notificacao n;

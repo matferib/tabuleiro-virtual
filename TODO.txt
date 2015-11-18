@@ -1,7 +1,6 @@
 Versao 1.13.0
 - Ver se o controle virtual recupera as texturas quando minimizado.
 - Zoom e rotacao para formas no tablet.
-- Enviar a lista de acoes executadas quando for cliente dono da entidade.
 - Outros botoes controle virtual: copiar/colar, mudar template, salvar, abrir, etc.
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
