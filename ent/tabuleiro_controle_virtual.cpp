@@ -362,10 +362,24 @@ void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding,
   }
 }
 
+std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
+  if (db.has_rotulo()) {
+    return db.rotulo();
+  }
+  switch (db.id()) {
+    case CONTROLE_RODADA:
+      return net::to_string(proto_.contador_rodadas());
+    default:
+      ;
+  }
+  return "";
+}
+
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
   unsigned int id_textura = TexturaBotao(db);
-  if (db.rotulo().empty() || id_textura != GL_INVALID_VALUE) {
+  std::string rotulo = RotuloBotaoControleVirtual(db);
+  if (rotulo.empty() || id_textura != GL_INVALID_VALUE) {
     return;
   }
   float xi, xf, yi, yf;
@@ -383,7 +397,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   }
   // Adiciona largura de um botao por causa do paginador inicial.
   PosicionaRaster2d(x_meio, y_base, viewport[2], viewport[3]);
-  gl::DesenhaString(db.rotulo());
+  gl::DesenhaString(rotulo);
 }
 
 void Tabuleiro::DesenhaControleVirtual() {
@@ -466,11 +480,6 @@ void Tabuleiro::DesenhaControleVirtual() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE;
     }, },
   };
-#if 0
-  // Todos os botoes tem tamanho baseado no tamanho da fonte.
-    // Contador de rodadas.
-    { 2, 0, 26, net::to_string(proto_.contador_rodadas()), nullptr, "", CONTROLE_RODADA, RetornaFalse, 8, 0.0f, 0.0f, 0.0f },
-#endif
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 

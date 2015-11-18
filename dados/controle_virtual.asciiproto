@@ -305,7 +305,6 @@ pagina {
     tamanho: 2
     linha: 0
     coluna: 21
-    rotulo: "X"
     id: CONTROLE_RODADA
     num_lados_botao: 8
   }
