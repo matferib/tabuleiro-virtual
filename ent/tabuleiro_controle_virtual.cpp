@@ -165,11 +165,13 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
     case CONTROLE_PAGINACAO_ANTERIOR:
       if (controle_virtual_.pagina_corrente() > 0) {
         controle_virtual_.set_pagina_corrente(controle_virtual_.pagina_corrente() - 1);
+        contador_pressao_por_controle_[CONTROLE_PAGINACAO_ANTERIOR] = 0;
       }
       break;
     case CONTROLE_PAGINACAO_PROXIMO:
       if (controle_virtual_.pagina_corrente() < controle_virtual_.pagina_size() - 1) {
         controle_virtual_.set_pagina_corrente(controle_virtual_.pagina_corrente() + 1);
+        contador_pressao_por_controle_[CONTROLE_PAGINACAO_PROXIMO] = 0;
       }
       break;
     case CONTROLE_DESENHO_LIVRE:
