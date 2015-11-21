@@ -120,8 +120,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd,
                                        const float* matriz_shear) {
-  bool transparencias = pd->transparencias() &&
-                        ((pd->has_alfa_translucidos() && pd->alfa_translucidos() < 1.0f) || (proto.cor().a() < 1.0f));
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz(false);
   if (matriz_shear != nullptr) {
@@ -195,7 +193,10 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     }
     break;
     case TF_LIVRE: {
-      bool usar_stencil = (matriz_shear == nullptr) && transparencias;
+      // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
+      // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
+      // Para picking, deve-se ignorar o stencil tb.
+      bool usar_stencil = (matriz_shear == nullptr) && !pd->has_picking_x();
       if (usar_stencil) {
         LigaStencil();
       }
