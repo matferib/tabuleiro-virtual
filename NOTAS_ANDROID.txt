@@ -170,5 +170,4 @@ keytool -genkey -v -keystore tabuleiro-virtual.keystore -alias tabvirt -keyalg R
 
 -- Compilando e assinando:
 sh compila.sh --release
-jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore tabuleiro-virtual.keystore bin/TabuleiroVirtual-release-unsigned.apk tabvirt
-/Users/mribeiro/android/adt/sdk/build-tools/22.0.1/zipalign -v 4 bin/TabuleiroVirtual-release-unsigned.apk bin/TabuleiroVirtual-release-1.12.1.apk
+sh assina.sh -v VERSAO

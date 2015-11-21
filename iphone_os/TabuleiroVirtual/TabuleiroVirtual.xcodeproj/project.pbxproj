@@ -88,6 +88,7 @@
 		EACF27BA1A58DB230052E95A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EACF27B91A58DB230052E95A /* libz.dylib */; };
 		EACF27BD1A58DBFC0052E95A /* dados in Resources */ = {isa = PBXBuildFile; fileRef = EACF27BB1A58DBFB0052E95A /* dados */; };
 		EACF27BE1A58DBFC0052E95A /* texturas in Resources */ = {isa = PBXBuildFile; fileRef = EACF27BC1A58DBFB0052E95A /* texturas */; };
+		EAE207BC1C011E9F008057D3 /* controle_virtual.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -264,6 +265,7 @@
 		EACF27B91A58DB230052E95A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		EACF27BB1A58DBFB0052E95A /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dados; sourceTree = "<group>"; };
 		EACF27BC1A58DBFB0052E95A /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturas; sourceTree = "<group>"; };
+		EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = controle_virtual.pb.cc; path = ../../../../ent/controle_virtual.pb.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -400,6 +402,7 @@
 		EACF26EC1A58D95D0052E95A /* ent */ = {
 			isa = PBXGroup;
 			children = (
+				EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */,
 				EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */,
 				EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */,
 				EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */,
@@ -729,6 +732,7 @@
 				EACF27AA1A58D9AA0052E95A /* repeated_field.cc in Sources */,
 				EACF27991A58D9AA0052E95A /* dynamic_message.cc in Sources */,
 				EACF27211A58D95D0052E95A /* entidade.pb.cc in Sources */,
+				EAE207BC1C011E9F008057D3 /* controle_virtual.pb.cc in Sources */,
 				EACF27201A58D95D0052E95A /* entidade.cpp in Sources */,
 				EA9253DC1A6A2B65007EF810 /* gl_comum.cpp in Sources */,
 				EA31EFDF1AC9D5A70067BA40 /* entidade_composta.cpp in Sources */,
