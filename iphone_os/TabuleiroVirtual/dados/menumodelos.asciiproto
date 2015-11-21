@@ -1,0 +1,103 @@
+# Este arquivo é uma representação texto do proto ifg::MenuModelos.
+modelo { id: 'Padrão' }
+modelo { id: 'Allip' }
+modelo { id: 'Carneçal' }
+modelo { id: 'Carniçal' }
+modelo { id: 'Centopéia Imensa' }
+sub_menu {
+  id: 'Animais'
+  modelo { id: 'Urso Marrom' }
+  modelo { id: 'Urso Negro' }
+}
+sub_menu {
+  id: 'Anões'
+  modelo { id: 'Anão' }
+}
+modelo { id: 'Bulette' }
+sub_menu {
+  id: 'Demônio'
+  modelo { id: 'Demônio Babau' texto: 'Babau' }
+  modelo { id: 'Demônio Vrock' texto: 'Vrock' }
+  modelo { id: 'Demônio Dretch' texto: 'Dretch' }
+  modelo { id: 'Demônio Bebilith' texto: 'Bebilith' }
+  modelo { id: 'Demônio Súcubo' texto: 'Súcubo' }
+}
+sub_menu {
+  id: 'Drows'
+  modelo { id: 'Drow' }
+  modelo { id: 'Drow Sargento 3' }
+  modelo { id: 'Drow Lider 6' }
+}
+modelo { id: 'Elemental do Ar (Pequeno)' }
+modelo { id: 'Enxame (centopéias)' }
+sub_menu {
+  id: 'Elfos'
+  modelo { id: 'Elfo' }
+}
+sub_menu {
+  id: 'Esqueletos'
+  modelo { id: 'Esqueleto (Humano Combatente)' }
+  modelo { id: 'Esqueleto (Lobo)' }
+  modelo { id: 'Esqueleto (Troll)' }
+}
+modelo { id: 'Gigante da Colina' }
+modelo { id: 'Grifo' }
+modelo { id: 'Hipogrifo' }
+modelo { id: 'Manto Negro' }
+modelo { id: 'Mephit do Fogo' }
+sub_menu {
+  id: 'Humanos'
+  modelo { id: 'Humano Bárbaro' }
+  modelo { id: 'Humano Clérigo' }
+  modelo { id: 'Humano Druida' }
+  modelo { id: 'Humano Guerreiro' }
+  modelo { id: 'Humano Ladino' }
+  modelo { id: 'Humano Mago' }
+  modelo { id: 'Humano Paladino' }
+}
+sub_menu {
+  id: 'Goblins'
+  modelo { id: 'Goblin' }
+  modelo { id: 'Goblin Sargento' }
+}
+modelo { id: 'Homem-Rato' }
+sub_menu {
+  id: 'Ogros'
+  modelo { id: 'Ogro' }
+  modelo { id: 'Ogro Bárbaro' }
+}
+sub_menu {
+  id: 'Orcs'
+  modelo { id: 'Orc' }
+  modelo { id: 'Orc Lanceiro' }
+  modelo { id: 'Orc Sargento' }
+  modelo { id: 'Orc Tenente' }
+  modelo { id: 'Orc Capitão' }
+}
+sub_menu {
+  id: 'Plantas'
+  modelo { id: 'Arbusto Errante' }
+}
+modelo { id: 'Troll' }
+modelo { id: 'Uivante' }
+sub_menu {
+  id: 'Zumbis'
+  modelo { id: 'Zumbi (humano)' }
+  modelo { id: 'Zumbi (kobold)' }
+}
+modelo { id: 'Worg' }
+sub_menu {
+  id: 'Formas'
+  modelo { id: 'Árvore (genérica)' }
+  modelo { id: 'Árvore (pinheiro)' }
+  modelo { id: 'Árvore (seca)' }
+  modelo { id: 'Casa (8x7)' }
+  modelo { id: 'Moedas' }
+  modelo { id: 'Baú (madeira)' }
+  modelo { id: 'Barras' }
+}
+sub_menu {
+  id: 'Teste'
+  modelo { id: 'teste orc' }
+  modelo { id: 'teste geo' }
+}

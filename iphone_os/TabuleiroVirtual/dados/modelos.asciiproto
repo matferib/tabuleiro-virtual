@@ -1,0 +1,889 @@
+# Este arquivo é uma representação texto do proto ent::Modelos.
+modelo {
+  id: 'Allip'
+  entidade {
+    dados_vida: '4d12' info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini: +5\nat: +3 toque\ndano: 1d4 sab\nca: 15'
+  }
+}
+modelo {
+  id : 'Anão'
+  entidade {
+    dados_vida: '1d8+2' cor { r: 0.4 g: 0.1 b: 0.1 } info_textura { id: 'dwarf.png' }
+    rotulo_especial: 'ini: +0\nat: machado +3 dano: 1d10+1/x3\nat: +1 arco curto dano: 1d6/x3\nca: 16'
+  }
+}
+modelo {
+  id: 'Bulette'
+  entidade {
+    dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
+  }
+}
+modelo {
+  id: 'Demônio Bebilith'
+  entidade {
+    dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
+    rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
+    tamanho: TM_ENORME
+  }
+}
+modelo {
+  id: 'Carniçal'
+  entidade {
+    dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini: +2\nat: +2/+0/+0\ndano: 1d6+1+paralisia/1d3+paralisia\nca: 14'
+  }
+}
+modelo {
+  id: 'Carneçal'
+  entidade {
+    dados_vida: '4d12' info_textura { id: 'ghoul.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini: +3\nat: +5/+3/+3\ndano: 1d8+3+paralisia/1d4+1+paralisia\nca: 17'
+  }
+}
+modelo {
+  id: 'Centopéia Imensa'
+  entidade { dados_vida: '12d8+12' tamanho: TM_IMENSO achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+}
+modelo {
+  id: 'Demônio Vrock'
+  entidade {
+    dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Demônio Babau'
+  entidade {
+    dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Demônio Dretch'
+  entidade {
+    dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id : 'Drow'
+  entidade {
+    dados_vida: '1d8' cor { r: 0.1 g: 0.1 b: 0.1 } info_textura { id: 'drow.png' }
+    rotulo_especial: 'ini: +1\nat: rapier +3 dano: 1d6+1\nat: +2 besta mao: 1d4\nca: 16'
+  }
+}
+modelo {
+  id : 'Drow Sargento 3'
+  entidade {
+    dados_vida: '3d8' cor { r: 0.2 g: 0.2 b: 0.2 } info_textura { id: 'drow.png' }
+    rotulo_especial: 'ini: +1\nat: rapier +5 dano: 1d6+1\nat: +4 besta mao: 1d4\nca: 16'
+  }
+}
+modelo {
+  id : 'Drow Lider 6'
+  entidade {
+    dados_vida: '6d8+6' cor { r: 0.3 g: 0.3 b: 0.3 } info_textura { id: 'drow.png' }
+    rotulo_especial: 'ini: +2\nat: rapier +8/+3 dano: 1d6+2\nat: +7 besta mao: 1d4\nca: 20'
+  }
+}
+modelo {
+  id: 'Elemental do Ar (Pequeno)'
+  entidade { dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 } }
+}
+modelo {
+  id : 'Elfo'
+  entidade {
+    dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' }
+    rotulo_especial: 'ini: +1\nat: espada +2 dano: 1d8+1\nat: +3 arco dano: 1d8\nca: 15'
+  }
+}
+modelo {
+  id: 'Enxame (centopéias)'
+  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+}
+modelo {
+  id: 'Esqueleto (Humano Combatente)'
+  entidade { dados_vida: '1d12' info_textura { id: 'skeleton.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Esqueleto (Lobo)'
+  entidade { dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Esqueleto (Troll)'
+  entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Gigante da Colina'
+  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 } }
+}
+modelo {
+  id: 'Grifo'
+  entidade {
+    dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'ini: +2\nat: +11/+8/+8\ndano: 2d6+4/1d4+2/1d4+2\nca: 17'
+  }
+}
+modelo {
+  id: 'Hipogrifo'
+  entidade {
+    dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'ini: +2\nat: +6/+6/+1\ndano: 1d4+4/1d4+4/1d8+2\nca: 15'
+  }
+}
+
+modelo {
+  id: 'Manto Negro'
+  entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
+}
+modelo {
+  id: 'Mephit do Fogo'
+  entidade {
+    dados_vida: '3d8' tamanho: TM_PEQUENO voadora: true info_textura { id: 'fire_mephit.png' } cor { r: 0.8 g: 0.3 b: 0 }
+    rotulo_especial: 'ini: +5\nat: +4/+4, dano: 1d3+1d4(fogo) 1d3+1d4(fogo)\nca: 16'
+  }
+}
+modelo {
+  id: 'Humano Bárbaro'
+  entidade { dados_vida: '1d12' info_textura { id: 'barbarian.png'} cor { r: 0.898 g: 0.475 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Clérigo'
+  entidade { dados_vida: '1d8' info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Druida'
+  entidade { dados_vida: '1d8' info_textura { id: 'druid.png'} cor { r: 0.3 g: 0.7 b: 0.3 } }
+}
+modelo {
+  id: 'Humano Guerreiro'
+  entidade { dados_vida: '1d10' info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Humano Ladino'
+  entidade { dados_vida: '1d6' info_textura { id: 'rogue.png'} cor { r: 0.250 g: 0.250 b: 0.250 } }
+}
+modelo {
+  id: 'Humano Mago'
+  entidade { dados_vida: '1d4' info_textura { id: 'wizard.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
+}
+modelo {
+  id: 'Humano Paladino'
+  entidade { dados_vida: '1d10' info_textura { id: 'paladin.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
+  id: 'Goblin'
+  entidade {
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini: +1\nca16\nmaca estrela: +4 1d6 azagaia: +6 1d4'
+  }
+}
+modelo {
+  id: 'Goblin Sargento'
+  entidade {
+    dados_vida: '3d8+3' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.545 g: 0.396 b: 0.188 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
+  }
+}
+modelo {
+  id: 'Homem-Rato'
+  entidade { dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
+}
+modelo {
+  id: 'Ogro'
+  entidade { dados_vida: '4d8+11' tamanho: TM_GRANDE info_textura { id: 'ogre.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
+  id: 'Ogro Bárbaro'
+  entidade { dados_vida: '4d8+19+4d12+16' tamanho: TM_GRANDE info_textura { id: 'ogre_barbarian.png'} cor { r: 0.7 g: 0.5 b: 0.25 } }
+}
+modelo {
+  id: 'Orc'
+  entidade {
+    dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Orc Lanceiro'
+  entidade {
+    dados_vida: '1d8+1' info_textura { id: 'orc_spear.png'} cor { g: 1.0 } ultima_acao: 'Ataque a Distância'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Orc Sargento'
+  entidade {
+    dados_vida: '3d8+6' info_textura { id: 'orc_lead.png'} cor { g: 0.7 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Orc Tenente'
+  entidade {
+    dados_vida: '5d8+15' info_textura { id: 'orc_lead.png'} cor { g: 0.5 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Orc Capitão'
+  entidade {
+    dados_vida: '7d8+28' info_textura { id: 'orc_lead.png'} cor { g: 0.3 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Demônio Súcubo'
+  entidade {
+    dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+  }
+}
+modelo {
+  id: 'Arbusto Errante'
+  entidade {
+    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
+    rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
+  }
+}
+modelo {
+  id: 'Troll'
+  entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
+}
+modelo {
+  id: 'Uivante'
+  entidade { dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+}
+modelo {
+  id: 'Urso-Coruja'
+  entidade {
+    dados_vida: '5d10+25' tamanho: TM_GRANDE info_textura { id: 'owlbear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    rotulo_especial: 'ini: +1\nat: 2 garras +9 1d6+5\nat: mordida +4 1d8+2\nca: 15'
+  }
+}
+modelo {
+  id: 'Urso Marrom'
+  entidade {
+    dados_vida: '6d8+24' tamanho: TM_GRANDE info_textura { id: 'brown_bear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
+    rotulo_especial: 'ini: +1\nat: 2x +11 1d8+8 +6 2d6+4\nca: 15'
+  }
+}
+modelo {
+  id: 'Urso Negro'
+  entidade {
+    dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini: +1\nat: 2x +6 1d4+4 +1 1d6+2\nca: 13'
+  }
+}
+
+modelo {
+  id: 'Zumbi (humano)'
+  entidade { dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+}
+modelo {
+  id: 'Zumbi (kobold)'
+  entidade { dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+}
+modelo {
+  id: 'Worg'
+  entidade { dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 } }
+}
+modelo {
+  id: 'teste geo'
+  entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'geo' } }
+}
+modelo {
+  id: 'teste orc'
+  entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'orc' } }
+}
+modelo {
+  id: 'Árvore (pinheiro)'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 }
+      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.32156864 g: 0.47058824 b: 0.22745098 a: 1 }
+      sub_tipo: TF_CONE escala { x: 2.4 y: 3 z: 4 } rotacao_z_graus: 0 pos { z: 1.5 }
+    }
+  }
+}
+modelo {
+  id: 'Árvore (genérica)'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.63529414 g: 0.43137255 b: 0.25882354 a: 1 } sub_tipo: TF_CILINDRO
+      escala { x: 0.5 y: 0.6 z: 1.8 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.25098041 g: 0.4509804 b: 0.21568628 a: 1 } sub_tipo: TF_ESFERA
+      escala { x: 3.7 y: 4 z: 2 } rotacao_z_graus: 0 pos { z: 2.6 }
+    }
+  }
+}
+modelo {
+  id: 'Árvore (seca)'
+  entidade {
+  tipo: TE_COMPOSTA
+  pos {
+    x: -0.47868297
+    y: -4.9519219
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.055871278
+      y: 0.099030018
+      z: 2.9802322e-07
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 1.1
+      y: 1.5
+      z: 4
+    }
+    rotacao_z_graus: 1
+    rotacao_y_graus: 0
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.64478195
+      y: 0.21715832
+      z: 2.9600022
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 229
+    rotacao_y_graus: 65
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 0.077452511
+      y: 0.13638067
+      z: 1.6000005
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.59969538
+      y: 0.7796039
+      z: 2.0989337
+    }
+    rotacao_z_graus: 1
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.058860749
+      y: 0.030168533
+      z: 2.0800011
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.5
+      y: 0.5
+      z: 1.8
+    }
+    rotacao_z_graus: 259
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.070486754
+      y: 0.0272398
+      z: 2.5600019
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.3164784
+      y: 0.41142181
+      z: 1.1076742
+    }
+    rotacao_z_graus: 54
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.13993075
+      y: 0.080719948
+      z: 2.5600019
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CONE
+    escala {
+      x: 0.3164784
+      y: 0.41142181
+      z: 1.1076742
+    }
+    rotacao_z_graus: 166
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 0.5140475
+      y: 0.17648268
+      z: 2.0000026
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 3
+    rotacao_y_graus: 0
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.2528207
+      y: 0.25219297
+      z: 2.0000026
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 197
+    rotacao_y_graus: 65
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.027335316
+      y: 0.33316278
+      z: 2.0000026
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 74
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.26016966
+      y: -0.31811666
+      z: 2.4000034
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.07744
+      y: 0.07744
+      z: 0.3872
+    }
+    rotacao_z_graus: 197
+    rotacao_y_graus: 65
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.060005695
+      y: 0.15080309
+      z: 3.3600025
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 74
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 1.1740516
+      y: 0.19602633
+      z: 2.4800024
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.088
+      y: 0.088
+      z: 0.44
+    }
+    rotacao_z_graus: 229
+    rotacao_y_graus: -22
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.22047004
+      y: -0.87257147
+      z: 2.8000038
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.088
+      y: 0.088
+      z: 0.44
+    }
+    rotacao_z_graus: -44
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: -0.27684155
+      y: -0.926054
+      z: 2.8000038
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.088
+      y: 0.088
+      z: 0.44
+    }
+    rotacao_z_graus: -138
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos {
+      x: 0.30202225
+      y: 0.41737366
+      z: 2.9600034
+    }
+    cor {
+      r: 0.57254905
+      g: 0.32941177
+      b: 0.054901961
+      a: 1
+    }
+    sub_tipo: TF_CILINDRO
+    escala {
+      x: 0.1
+      y: 0.1
+      z: 0.5
+    }
+    rotacao_z_graus: 74
+    rotacao_y_graus: 53
+    rotacao_x_graus: 0
+  }
+}
+
+}
+modelo {
+  id: 'Casa (8x7)'
+  entidade {
+    tipo: TE_COMPOSTA
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.67450982 g: 0.45882353 b: 0.26666668 a: 1 }
+      sub_tipo: TF_PIRAMIDE escala { x: 8.5 y: 7.5 z: 3 } rotacao_z_graus: 0 pos { z: 3 }
+    }
+    sub_forma {
+      tipo: TE_FORMA cor { r: 0.63529414 g: 0.63529414 b: 0.63529414 a: 1 }
+      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 } rotacao_z_graus: 0
+    }
+  }
+}
+modelo {
+  id: 'Moedas'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos { x: -8.0337772 y: -5.2814279 z: 0 }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.23598671 y: 0.14873552 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.081827164 y: 0.24695206 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.036110878 y: -0.13381243 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.34461498 y: -0.10325861 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.26157951 y: 0.0507102 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.2195816 y: -0.17121983 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.11797523 y: 0.080595493 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.45322323 y: -0.24561167 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.36445236 y: 0.028829575 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.069937706 y: 0.19785213 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.21256638 y: 0.22889042 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.093837738 y: -0.07826519 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.18816185 y: -0.26585007 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.1976614 y: 0.0069446564 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.021260262 y: 0.03875351 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_COMPOSTA
+      pos { x: -0.025449753 y: -0.30637026 z: 0 }
+      rotacao_z_graus: -72
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -0.08864975 y: -0.22025299 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: -54
+      }
+      sub_forma {
+        tipo: TE_FORMA pos { x: -0.023306847 y: -0.020396233 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: -54
+      }
+      sub_forma {
+        tipo: TE_FORMA pos { x: -0.1211977 y: 0.32226181 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: -54
+      }
+      sub_forma {
+        tipo: TE_FORMA pos { x: 0.095113754 y: 0.19172239 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: -54
+      }
+      sub_forma {
+        tipo: TE_FORMA pos { x: 0.13804436 y: -0.2733345 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: -54
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.2209549 y: -0.015397072 z: 0.079999879 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 2
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.18480682 y: 0.15095949 z: 0.079999879 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 2
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.048179626 y: 0.0062036514 z: 0.1 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.27925777 y: -0.17786121 z: 0.079999879 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 2
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.075674057 y: 0.15737438 z: 0.1 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 24
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.13300705 y: 0.052742958 z: 0.079999879 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 2
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.081897736 y: -0.03186655 z: 0.17999992 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 10
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: 0.09928894 y: 0.014672756 z: 0.1599997 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 12
+    }
+    sub_forma {
+      tipo: TE_FORMA pos { x: -0.10939217 y: 0.11930418 z: 0.17999992 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 34
+    }
+  }
+}
+modelo {
+  id: 'Baú (madeira)'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos { x: -1.4369761 y: -4.3865471 z: 0 }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.010580743 y: 0.15333676 z: 0.2 }
+      cor { r: 0.56862748 g: 0.32941177 b: 0 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 3 y: 1.5 z: 0.4 }
+      rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.0098798666 y: 0.12084341 z: 0.6 }
+      cor { r: 0.27450982 g: 0.15294118 b: 0 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 3 y: 1.5 z: 0.2 }
+      rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.013416281 y: 0.13321257 z: 0.8 }
+      cor { r: 0.56862748 g: 0.32941177 b: 0 a: 1 }
+      sub_tipo: TF_PIRAMIDE
+      escala { x: 3 y: 1.5 z: 0.4 }
+      rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 4.1840598e-05 y: -0.56929588 z: 0.3 }
+      cor { r: 0 g: 0 b: 0 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.2 y: 0.2 z: 0.2 }
+      rotacao_z_graus: 0
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.0070024934 y: 0.16190362 z: 0 }
+      cor { r: 0.27450982 g: 0.15294118 b: 0 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 3 y: 1.5 z: 0.2 }
+      rotacao_z_graus: 0
+    }
+  }
+}
+modelo {
+  id: 'Barras'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos { x: 9.1388693 y: -3.4490695 z: 0 }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.0089092255 y: -0.12849927 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.010389328 y: 0.60484362 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.011434555 y: -0.5697937 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.1 y: 0.1 z: 2 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.014289856 y: -0.35526085 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.0053091049 y: 0.10105181 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.018933296 y: 0.34765816 z: 0 }
+      cor { r: 0.52941179 g: 0.52941179 b: 0.52941179 a: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.10118656 y: 0.10118656 z: 2.0237315 }
+    }
+  }
+}
