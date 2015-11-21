@@ -116,6 +116,17 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
   return vbos;
 }
 
+bool TipoForma2d(TipoForma tipo) {
+  switch (tipo) {
+    case TF_LIVRE:
+    case TF_RETANGULO:
+    case TF_CIRCULO:
+      return true;
+    default:
+      return false;
+  }
+}
+
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd,
@@ -129,13 +140,17 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
   gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0, false);
+  std::unique_ptr<gl::HabilitaEscopo> offset_escopo;
+  if (matriz_shear == nullptr && TipoForma2d(proto.sub_tipo())) {
+    offset_escopo.reset(new gl::HabilitaEscopo(GL_POLYGON_OFFSET_FILL));
+    gl::DesvioProfundidade(-1.0, -40.0f);
+  }
+
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
       if (matriz_shear != nullptr) {
         break;
       }
-      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
-      gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
       gl::DesenhaVbo(g_vbos[VBO_DISCO]);
     }
@@ -173,8 +188,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     }
     break;
     case TF_RETANGULO: {
-      gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
-      gl::DesvioProfundidade(-1.0f, -40.0f);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
       GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
           vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
@@ -203,8 +216,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       {
         // Durante preenchimento do stencil nao pode usar o offset pois ele se aplicara ao retangulo da tela toda.
         // Portanto escopo deve terminar aqui.
-        gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-        gl::DesvioProfundidade(-1.0, -40.0f);
         if (!vd.vbos.empty()) {
           //gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
           //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);

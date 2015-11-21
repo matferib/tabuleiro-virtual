@@ -61,9 +61,10 @@ void LimitesLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, f
 /** Funcoes para ligar o stencil e depois desenhar a cor passada (ou a corrente) onde o stencil foi marcado. */
 // ATENCAO: Esse retangulo acaba com a operacao de picking (porque escreve na tela toda). Operacoes de picking nao devem usar stencil.
 void LigaStencil();
+/** O stencil 2d desenha um retangulo sobre a tela inteira. */
 void DesenhaStencil2d(const float* cor = nullptr);
 void DesenhaStencil2d(const Cor& cor);
-/** O stencil 3d desenha um retangulo sobre o tabuleiro (paralelo). */
+/** O stencil 3d desenha um retangulo paralelo ao tabuleiro. */
 void DesenhaStencil3d(float tam_x, float tam_y, const Cor& cor);
 void DesenhaStencil3d(float tam_x, float tam_y, const float* cor = nullptr);
 void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor = nullptr);
