@@ -160,18 +160,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
     g_central->AdicionaNotificacao(n);
   } else {
-    std::string nome_nativo;
-    {
-      const char* nome_nativo_c = env->GetStringUTFChars(nome, 0);
-      nome_nativo = nome_nativo_c;
-      env->ReleaseStringUTFChars(nome, nome_nativo_c);
-    }
-
-    std::string endereco_nativo;
-    const char* endereco_nativo_c = env->GetStringUTFChars(endereco, 0);
-    endereco_nativo = endereco_nativo_c;
-    env->ReleaseStringUTFChars(endereco, endereco_nativo_c);
-
+    std::string nome_nativo = ConverteString(env, nome);
+    std::string endereco_nativo = ConverteString(env, endereco);
     __android_log_print(
         ANDROID_LOG_INFO, "Tabuleiro", "nativeCreate nome %s, endereco: '%s'", nome_nativo.c_str(), endereco_nativo.c_str());
 
