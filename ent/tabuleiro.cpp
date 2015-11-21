@@ -772,6 +772,7 @@ void Tabuleiro::AlteraUltimoPontoVidaListaPontosVida(int delta) {
     lista_pontos_vida_.pop_back();
   }
   lista_pontos_vida_.push_back(valor + delta);
+  modo_clique_ = MODO_ACAO;
 }
 
 void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
@@ -783,6 +784,7 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   } else {
     modo_acao_cura_ = !modo_acao_cura_;
   }
+  modo_clique_ = MODO_ACAO;
 }
 
 void Tabuleiro::LimpaUltimoListaPontosVida() {
@@ -1646,10 +1648,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   }
   // Atualiza as acoes executadas da entidade se houver apenas uma. A sinalizacao nao eh adicionada a entidade porque ela possui forma propria.
   auto* e = EntidadeSelecionada();
-  if (e == nullptr || e->Acao() == "Sinalização") {
+  std::string acao_executada = e->Acao();
+  if (e == nullptr || acao_executada.empty() || acao_executada == "Sinalização") {
     return;
   }
-  e->AdicionaAcaoExecutada(e->Acao());
+  e->AdicionaAcaoExecutada(acao_executada);
   if (!EmModoMestre() && id_camera_presa_ == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
     auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -1913,6 +1916,10 @@ const EntidadeProto* Tabuleiro::BuscaModelo(const std::string& id_modelo) const 
   return it->second.get();
 }
 
+void Tabuleiro::SelecionaSinalizacao() {
+  modo_clique_ = MODO_SINALIZACAO;
+}
+
 void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   auto it = mapa_acoes_.find(id_acao);
   if (it == mapa_acoes_.end()) {
@@ -1932,13 +1939,39 @@ void Tabuleiro::SelecionaAcaoExecutada(int indice) {
   Entidade* e = EntidadeSelecionada();
   if (e == nullptr) {
     LOG(INFO) << "Nao selecionando acao pois ha 0 ou mais de uma entidade selecionada.";
-  }
-  std::string id_acao = e->AcaoExecutada(indice);
-  if (id_acao.empty()) {
-    LOG(INFO) << "Nao selecionando acao pois id eh invalido para a entidade.";
     return;
   }
+  std::string id_acao = e->AcaoExecutada(indice, AcoesPadroes());
+  if (id_acao.empty()) {
+    VLOG(1) << "Selecionando acao padrao pois id eh invalido para a entidade.";
+    id_acao = AcaoPadrao(indice).id();
+  }
   SelecionaAcao(id_acao);
+  modo_clique_ = MODO_ACAO;
+}
+
+const std::vector<std::string>& Tabuleiro::AcoesPadroes() const {
+  static const std::vector<std::string> acoes_padroes = {
+    "Ataque Corpo a Corpo",
+    "Ataque a Distância",
+    "Feitiço de Toque"
+  };
+  return acoes_padroes;
+}
+
+const AcaoProto& Tabuleiro::AcaoPadrao(int indice) const {
+  if (indice < 0 || indice >= AcoesPadroes().size()) {
+    indice = 0;
+  }
+  return AcaoDoMapa(AcoesPadroes()[indice]);
+}
+
+const AcaoProto& Tabuleiro::AcaoDoMapa(const std::string& id_acao) const {
+  const auto it = mapa_acoes_.find(id_acao);
+  if (it == mapa_acoes_.end()) {
+    return AcaoProto::default_instance();
+  }
+  return *it->second;
 }
 
 void Tabuleiro::ProximaAcao() {
@@ -1965,6 +1998,7 @@ void Tabuleiro::ProximaAcao() {
     }
     entidade->AtualizaAcao(*it);
   }
+  modo_clique_ = MODO_ACAO;
 }
 
 void Tabuleiro::AcaoAnterior() {
@@ -1991,6 +2025,7 @@ void Tabuleiro::AcaoAnterior() {
     }
     entidade->AtualizaAcao(*it);
   }
+  modo_clique_ = MODO_ACAO;
 }
 
 // privadas
@@ -2993,6 +3028,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     switch (modo_clique_) {
       case MODO_ACAO:
         TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
+        break;
+      case MODO_SINALIZACAO:
+        TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
         break;
       case MODO_TRANSICAO:
         TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);

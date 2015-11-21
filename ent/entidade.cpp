@@ -462,6 +462,18 @@ std::string Entidade::Acao() const {
   return proto_.ultima_acao();
 }
 
+template<class T>
+std::string ListaAcoes(const T& t) {
+  std::string s;
+  for (const auto& ti : t) {
+    s += ti + ", ";
+  }
+  if (s.size() > 0) {
+    s.resize(s.size() - 2);
+  }
+  return s;
+}
+
 // Acoes executadas.
 void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
   int indice_acao = -1;
@@ -484,24 +496,35 @@ void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
     indice_acao = proto_.lista_acoes_size() - 1;
   }
   if (indice_acao == 0) {
-    LOG(INFO) << "Lista acoes: " << proto_.lista_acoes_size();
+    LOG(INFO) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
     return;
   }
   // Acao jogada para a primeira posicao.
   for (int i = indice_acao - 1; i >= 0; --i) {
     proto_.mutable_lista_acoes()->SwapElements(i, i + 1);
   }
-  LOG(INFO) << "Lista acoes: " << proto_.lista_acoes_size();
+  LOG(INFO) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
 }
 
-std::string Entidade::AcaoExecutada(int indice_acao) const {
-  if (indice_acao < 0 || indice_acao >= proto_.lista_acoes_size()) {
-    LOG(INFO) << "Retornando vazio, indice acao: " << indice_acao << ", lista acoes: " << proto_.lista_acoes_size();
+std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const {
+  if (indice_acao < 0 || indice_acao >= MaxNumAcoes) {
     return "";
   }
-  return proto_.lista_acoes(indice_acao);
+  if (indice_acao < proto_.lista_acoes_size()) {
+    return proto_.lista_acoes(indice_acao);
+  }
+  // Junta as acoes da entidade com as padroes.
+  std::vector<std::string> acoes(proto_.lista_acoes().begin(), proto_.lista_acoes().end());
+  for (const std::string& acao_padrao : acoes_padroes) {
+    if (std::find(acoes.begin(), acoes.end(), acao_padrao) == acoes.end()) {
+      acoes.push_back(acao_padrao);
+    }
+    if (acoes.size() == MaxNumAcoes) {
+      break;
+    }
+  }
+  return acoes[indice_acao];
 }
-
 
 const Posicao Entidade::PosicaoAcao() const {
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);

@@ -71,6 +71,10 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
     case CONTROLE_ACAO:
+      if (modo_clique_ == MODO_SINALIZACAO) {
+        modo_clique_ = MODO_NORMAL;
+        return;
+      }
       AlternaModoAcao();
       break;
     case CONTROLE_TRANSICAO:
@@ -215,8 +219,7 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
     case CONTROLE_ULTIMA_ACAO_0:
     case CONTROLE_ULTIMA_ACAO_1:
     case CONTROLE_ULTIMA_ACAO_2: {
-      int indice = id - CONTROLE_ULTIMA_ACAO_0;
-      SelecionaAcaoExecutada(indice);
+      SelecionaAcaoExecutada(id - CONTROLE_ULTIMA_ACAO_0);
       break;
     }
     case CONTROLE_DESENHO_COR_VERMELHO:
@@ -249,7 +252,7 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       break;
     }
     case CONTROLE_ACAO_SINALIZACAO: {
-      SelecionaAcao("Sinalização");
+      SelecionaSinalizacao();
       break;
     }
     case CONTROLE_COPIAR: {
@@ -303,6 +306,9 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   auto* entidade_selecionada = EntidadeSelecionada();
   switch (db.id()) {
     case CONTROLE_ACAO: {
+      if (modo_clique_ == MODO_SINALIZACAO) {
+        return texturas_->Textura("icon_signal.png");
+      }
       unsigned int textura_espada = texturas_->Textura("icon_sword.png");
       if (entidade_selecionada == nullptr || entidade_selecionada->Acao().empty()) {
         return textura_espada;
@@ -319,19 +325,11 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
     case CONTROLE_ULTIMA_ACAO_2:
     {
       int indice_acao = db.id() - CONTROLE_ULTIMA_ACAO_0;
-      unsigned int textura_espada = texturas_->Textura("icon_sword.png");
-      if (entidade_selecionada == nullptr ||
-          indice_acao < 0 ||indice_acao >= entidade_selecionada->Proto().lista_acoes_size()) {
-        return textura_espada;
+      if (entidade_selecionada == nullptr) {
+        return texturas_->Textura(AcaoPadrao(indice_acao).textura());
       }
-      const auto& it = mapa_acoes_.find(entidade_selecionada->AcaoExecutada(indice_acao));
-      if (it == mapa_acoes_.end()) {
-        return textura_espada;
-      }
-      unsigned int textura = texturas_->Textura(it->second->textura());
-      return textura == GL_INVALID_VALUE ? textura_espada : textura;
+      return texturas_->Textura(AcaoDoMapa(entidade_selecionada->AcaoExecutada(indice_acao, AcoesPadroes())).textura());
     }
-
     default:
       ;
   }
@@ -431,7 +429,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   // Mapeia id do botao para os dados internos.
   static const std::map<int, std::function<bool()>> mapa_botoes = {
-    { CONTROLE_ACAO,              [this] () { return modo_clique_ == MODO_ACAO; } },
+    { CONTROLE_ACAO,              [this] () { return modo_clique_ == MODO_ACAO || modo_clique_ == MODO_SINALIZACAO; } },
     { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_isometrica_; } },

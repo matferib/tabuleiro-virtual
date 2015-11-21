@@ -250,7 +250,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
 
-  /** Seleciona a acao para as entidades selecionadas através do identificador. */
+  /** Muda para o modo de sinalizacao. */
+  void SelecionaSinalizacao();
+  /** Seleciona a acao para as entidades selecionadas através do identificador. Ver dados/acoes.asciiproto. */
   void SelecionaAcao(const std::string& id_acao);
   void ProximaAcao();
   void AcaoAnterior();
@@ -688,6 +690,12 @@ class Tabuleiro : public ntf::Receptor {
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
 
+  /** Retorna a acao padrao especificada ou proto vazio se nao houver indice. */
+  const AcaoProto& AcaoPadrao(int indice) const;
+  const std::vector<std::string>& AcoesPadroes() const; 
+  /** Retorna a acao ou vazio se nao houver indice. */
+  const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -827,10 +835,11 @@ class Tabuleiro : public ntf::Receptor {
   // No MODO_DESENHO, o clique desenhara.
   enum modo_clique_e {
     MODO_NORMAL,
-    MODO_ACAO,      // executa acoes no clique.
-    MODO_DESENHO,   // reservado.
-    MODO_TRANSICAO, // executa transicao no clique.
-    MODO_REGUA,     // o clique executara uma medicao.
+    MODO_ACAO,         // executa acoes no clique.
+    MODO_SINALIZACAO,  // executa acao de sinalizacao.
+    MODO_DESENHO,      // reservado.
+    MODO_TRANSICAO,    // executa transicao no clique.
+    MODO_REGUA,        // o clique executara uma medicao.
   };
   modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
