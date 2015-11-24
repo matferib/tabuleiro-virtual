@@ -692,7 +692,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna a acao padrao especificada ou proto vazio se nao houver indice. */
   const AcaoProto& AcaoPadrao(int indice) const;
-  const std::vector<std::string>& AcoesPadroes() const; 
+  const std::vector<std::string>& AcoesPadroes() const;
   /** Retorna a acao ou vazio se nao houver indice. */
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
 

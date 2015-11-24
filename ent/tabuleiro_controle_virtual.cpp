@@ -306,7 +306,7 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   auto* entidade_selecionada = EntidadeSelecionada();
   switch (db.id()) {
     case CONTROLE_ACAO: {
-      if (modo_clique_ == MODO_SINALIZACAO) {
+      if (modo_clique_ == MODO_SINALIZACAO || ids_entidades_selecionadas_.empty()) {
         return texturas_->Textura("icon_signal.png");
       }
       unsigned int textura_espada = texturas_->Textura("icon_sword.png");

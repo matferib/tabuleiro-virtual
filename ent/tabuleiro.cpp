@@ -876,11 +876,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadeNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      auto* acao = NovaAcao(notificacao.acao(), this);
-      if (acao == nullptr) {
+      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this));
+      if (acao == nullptr || acao->Finalizada()) {
         return true;
       }
-      acoes_.push_back(std::unique_ptr<Acao>(acao));
+      acoes_.push_back(std::move(acao));
       if (notificacao.local()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         n_remota->mutable_acao()->clear_afeta_pontos_vida();
@@ -1648,8 +1648,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   }
   // Atualiza as acoes executadas da entidade se houver apenas uma. A sinalizacao nao eh adicionada a entidade porque ela possui forma propria.
   auto* e = EntidadeSelecionada();
+  if (e == nullptr) {
+    return;
+  }
   std::string acao_executada = e->Acao();
-  if (e == nullptr || acao_executada.empty() || acao_executada == "Sinalização") {
+  if (acao_executada.empty() || acao_executada == "Sinalização") {
     return;
   }
   e->AdicionaAcaoExecutada(acao_executada);

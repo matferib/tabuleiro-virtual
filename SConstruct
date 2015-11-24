@@ -51,6 +51,7 @@ elif sistema == 'apple':
                      '/usr/local/lib/QtOpenGL.framework/Headers',
                      '/usr/local/lib/QtCore.framework/Headers']
   env['CPPDEFINES'] = {'USAR_GLOG': 0}
+#env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations', '-mmacosx-version-min=10.10.5']
   env['CXXFLAGS'] += ['-Wall', '-std=c++11', '-Wno-deprecated-register', '-Wno-deprecated-declarations']
   env['LIBS'] += ['protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 else:
