@@ -1,5 +1,4 @@
 Versao 1.13.0
-- Crash das acoes sem entidade ou alvo.
 - Parse de eventos no ios.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.

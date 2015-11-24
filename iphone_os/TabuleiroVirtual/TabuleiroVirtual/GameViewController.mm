@@ -369,11 +369,11 @@ const int TAG_BOTAO_CANCELA = 101;
     UITextField* texto_id = (UITextField*)[view viewWithTag:TAG_ID];
     [texto_id setText: [NSString stringWithFormat: @"%d", n.entidade().id()]];
 
-    UITextView* text_view = (UITextView*)[view viewWithTag:TAG_EVENTOS];
-    [text_view.layer setBorderColor:[[[UIColor grayColor]colorWithAlphaComponent:0.5] CGColor]];
-    [text_view.layer setBorderWidth: 1.0];
-    text_view.layer.cornerRadius = 5;
-    text_view.clipsToBounds = YES;
+    texto_eventos_ = (UITextView*)[view viewWithTag:TAG_EVENTOS];
+    [texto_eventos_.layer setBorderColor:[[[UIColor grayColor]colorWithAlphaComponent:0.5] CGColor]];
+    [texto_eventos_.layer setBorderWidth: 1.0];
+    texto_eventos_.layer.cornerRadius = 5;
+    texto_eventos_.clipsToBounds = YES;
     std::string eventos_str;
     for (const auto& evento : n.entidade().evento()) {
       eventos_str.append(evento.descricao());
@@ -385,7 +385,7 @@ const int TAG_BOTAO_CANCELA = 101;
       eventos_str.append(": ");
       eventos_str.append(std::to_string(evento.rodadas()) + "\n");
     }
-    [text_view setText: [NSString stringWithCString:eventos_str.c_str()
+    [texto_eventos_ setText: [NSString stringWithCString:eventos_str.c_str()
                                   encoding: NSUTF8StringEncoding]];
     UIButton* botao_ok = (UIButton*)[view viewWithTag:TAG_BOTAO_OK];
     [botao_ok addTarget:self action:@selector(aceitaFechaViewEntidade) forControlEvents:UIControlEventTouchDown];
@@ -393,8 +393,8 @@ const int TAG_BOTAO_CANCELA = 101;
     UIButton* botao_cancelar = (UIButton*)[view viewWithTag:TAG_BOTAO_CANCELA];
     [botao_cancelar addTarget:self action:@selector(fechaViewEntidade) forControlEvents:UIControlEventTouchDown];
 
-    UITextField* texto_rotulo = (UITextField*)[view viewWithTag:TAG_ROTULO];
-    [texto_rotulo setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
+    texto_rotulo_ = (UITextField*)[view viewWithTag:TAG_ROTULO];
+    [texto_rotulo_ setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
     
     tipo_visao_picker_ = (UIPickerView*)[view viewWithTag:TAG_TIPO_VISAO];
     [tipo_visao_picker_ setDelegate:self];
@@ -458,51 +458,45 @@ const int TAG_BOTAO_CANCELA = 101;
   raio_luz_rotulo_ = nil;
   raio_visao_rotulo_ = nil;
   raio_visao_stepper_ = nil;
+  texto_eventos_ = nil;
+  texto_rotulo_ = nil;
 }
 
 -(void)aceitaFechaViewEntidade
 {
   NSArray* subviews = [vc_entidade_.view subviews];
-  for (UIView* subview in subviews) {
-    switch ([subview tag]) {
-      case TAG_EVENTOS: {
-        // Eventos.
-        UITextView* text_view = (UITextView*)subview;
-        NSString* eventos_str = [text_view text];
-        notificacao_->mutable_entidade()->clear_evento();
-        // Break string.
-        for (NSString* str in [eventos_str componentsSeparatedByString:@"\n"]) {
-          NSArray* desc_rodadas = [str componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@":()"]];
-          if ([[str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] == 0 || [desc_rodadas count] == 0) {
-            continue;
-          }
-          ent::EntidadeProto_Evento evento;
-          std::string evento_str(
-                                 [[[desc_rodadas firstObject]
-                                   stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
-                                  cStringUsingEncoding:NSUTF8StringEncoding]);
-          evento.set_descricao(evento_str);
-          for (int i = 1; i < [desc_rodadas count] - 1; ++i) {
-            // encontra o elemento nao vazio
-            if ([[desc_rodadas[i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] > 0) {
-              evento.set_complemento([desc_rodadas[i] intValue]);
-            }
-          }
-          evento.set_rodadas([[desc_rodadas lastObject] intValue]);
-          notificacao_->mutable_entidade()->add_evento()->Swap(&evento);
+  {
+    notificacao_->mutable_entidade()->set_rotulo([
+        [[texto_rotulo_ text]
+         stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+         cStringUsingEncoding:NSUTF8StringEncoding]);
+  }
+  {
+    // Eventos.
+    NSString* eventos_str = [texto_eventos_ text];
+    notificacao_->mutable_entidade()->clear_evento();
+    // Break string.
+    for (NSString* str in [eventos_str componentsSeparatedByString:@"\n"]) {
+      NSArray* desc_rodadas = [str componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@":()"]];
+      if ([[str stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] == 0 || [desc_rodadas count] == 0) {
+        continue;
+      }
+      ent::EntidadeProto_Evento evento;
+      std::string evento_str(
+                             [[[desc_rodadas firstObject]
+                               stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
+                              cStringUsingEncoding:NSUTF8StringEncoding]);
+      evento.set_descricao(evento_str);
+      for (int i = 1; i < [desc_rodadas count] - 1; ++i) {
+        // encontra o elemento nao vazio
+        if ([[desc_rodadas[i] stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] length] > 0) {
+          evento.set_complemento([desc_rodadas[i] intValue]);
         }
-
-        break;
       }
-      case TAG_ROTULO: {
-        UITextField* texto_rotulo = (UITextField*)subview;
-        notificacao_->mutable_entidade()->set_rotulo(
-            [[[texto_rotulo text]
-              stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]
-                  cStringUsingEncoding:NSUTF8StringEncoding]);
-        break;
-      }
+      evento.set_rodadas([[desc_rodadas lastObject] intValue]);
+      notificacao_->mutable_entidade()->add_evento()->Swap(&evento);
     }
+    
   }
   {
     int valor_slider = (int)[slider_aura_ value];
@@ -542,11 +536,11 @@ const int TAG_BOTAO_CANCELA = 101;
     }
   }
   notificacao_->set_tipo(ntf::TN_ATUALIZAR_ENTIDADE);
+  //NSLog(@"Notificacao: %s", notificacao_->DebugString().c_str());
   nativeCentral()->AdicionaNotificacao(notificacao_);
   notificacao_ = nullptr;
   [vc_entidade_ dismissModalViewControllerAnimated:TRUE];
   vc_entidade_ = nil;
-  slider_aura_ = nil;
 }
 
 // ---------------------------------------------

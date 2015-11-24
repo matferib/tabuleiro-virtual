@@ -22,6 +22,8 @@ class Notificacao;
     bool one_finger_;
     UIViewController* vc_entidade_;  // dialogo de propriedade de entidade.
     ntf::Notificacao* notificacao_;
+    UITextField* texto_rotulo_;  // rotulo da entidade.
+    UITextView* texto_eventos_;   // Para os eventos da entidade.
     UISlider* slider_aura_;  // para dialogo de propriedade de entidade.
     UITextField* texto_aura_;  // ditto.
     UISlider* slider_tamanho_;  // para dialogo de propriedade de entidade.
