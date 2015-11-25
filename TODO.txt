@@ -1,5 +1,5 @@
 Versao 1.13.0
-- Parse de eventos no ios.
+- Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
 - Zoom e rotacao para formas no tablet.
