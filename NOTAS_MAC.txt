@@ -30,7 +30,7 @@ libboost_chrono.dylib
 for i in libprotobuf.9.dylib libboost_system.dylib libboost_timer.dylib libboost_filesystem.dylib libgflags.2.dylib libglog.0.dylib QtOpenGL.framework/Versions/4/QtOpenGL QtGui.framework/Versions/4/QtGui QtCore.framework/Versions/4/QtCore; do install_name_tool -change /usr/local/lib/${i} @executable_path/lib/${i} mac/tabvirt; done
 
 2- Usar o pkgbuild para gerar o pacote (rodar do diretorio do tabuleiro).
-pkgbuild --identifier com.matferib.TabuleiroVirtual --version 1.12.2 --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-1.12.2.pkg
+pkgbuild --identifier com.matferib.TabuleiroVirtual --version 1.12.3 --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-1.12.3.pkg
 
 OBS:
 Nao vi utilidade em usar o plist. De qualquer forma, a versao para criar o arquivo padrao:
