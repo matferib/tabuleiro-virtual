@@ -141,15 +141,6 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
 
-  // TESTE
-  try {
-    auto* ntf_tab = new ntf::Notificacao;
-    arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "castelo.binproto", ntf_tab);
-    ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-    g_central->AdicionaNotificacao(ntf_tab);
-  } catch (...) {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
-  }
   /*{
     ntf::Notificacao ninfo;
     ninfo.set_tipo(ntf::TN_INFO);
@@ -159,6 +150,15 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   if (servidor) {
     auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
     g_central->AdicionaNotificacao(n);
+    // TESTE
+    try {
+      auto* ntf_tab = new ntf::Notificacao;
+      arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "deserto.binproto", ntf_tab);
+      ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+      g_central->AdicionaNotificacao(ntf_tab);
+    } catch (...) {
+      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
+    }
   } else {
     std::string nome_nativo = ConverteString(env, nome);
     std::string endereco_nativo = ConverteString(env, endereco);
