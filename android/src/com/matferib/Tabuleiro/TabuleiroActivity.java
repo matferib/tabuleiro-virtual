@@ -369,6 +369,41 @@ class TabuleiroRenderer
     });
   }
 
+  public void abreDialogoSalvarTabuleiro() {
+    //Log.d(TAG, "abreDialogoSalvarTabuleiro: ");
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Salvar Tabuleiro");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_salvar_tabuleiro, null);
+        final EditText edit_nome = (EditText)view.findViewById(R.id.nome_arquivo);
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              if (edit_nome == null) {
+                Log.e(TAG, "nome arquivo == null");
+                return;
+              }
+              nativeSaveBoardName(edit_nome.getText().toString());
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
+        caixa.show();
+      }
+    });
+
+  }
+
   /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
   public void abreDialogoEntidade(final byte[] mensagem) {
     //Log.d(TAG, "abreDialogoEntidade: ");
@@ -884,6 +919,7 @@ class TabuleiroRenderer
   private static native void nativeTilt(float delta);
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
+  private static native void nativeSaveBoardName(String nome);
   private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;

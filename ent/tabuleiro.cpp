@@ -921,6 +921,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
+      if (TemNome()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
+        central_->AdicionaNotificacao(n);
+        break;
+      }
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+      break;
+    }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
       std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
       if (notificacao.has_endereco()) {
@@ -2310,7 +2320,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
 void Tabuleiro::GeraVboCaixaCeu() {
   // O cubo tem que ser maior que a distancia do plano de corte minimo.
-  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 3.0));
+  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 4.0));
   // Valores de referencia:
   // imagem 4x3.
   // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f

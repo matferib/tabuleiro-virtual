@@ -401,24 +401,17 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
-    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_COMO]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
-    notificacao->mutable_tabuleiro()->set_nome("");  // nome vazio: deversa ser definido.
+    notificacao->mutable_tabuleiro()->set_nome("");  // nome vazio: devera ser definido.
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR] ||
              acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
-    QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
-                                                    tr("Abrir tabuleiro"),
-                                                    arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de restaurar cancelada.";
-      return;
-    }
-    notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO);
     if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
-      notificacao->mutable_tabuleiro()->set_manter_entidades(true);
+      n->mutable_tabuleiro()->set_manter_entidades(true);
     }
-    notificacao->set_endereco(file_str.toStdString());
+    central_->AdicionaNotificacao(n);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {

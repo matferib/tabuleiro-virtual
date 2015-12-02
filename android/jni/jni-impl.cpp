@@ -51,6 +51,10 @@ class ReceptorErro : public ntf::Receptor {
         case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
           TrataNotificacaoAbrirDialogoEntidade(notificacao);
           break;
+        case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
+          TrataNotificacaoAbrirDialogoSalvarTabuleiro(notificacao);
+          break;
+        }
         default:
           return false;
       }
@@ -95,6 +99,11 @@ class ReceptorErro : public ntf::Receptor {
     env_->SetByteArrayRegion(java_nstr, 0, nstr.size(), (const jbyte*)nstr.c_str());
     env_->CallVoidMethod(thisz_, metodo, java_nstr);
     env_->DeleteLocalRef(java_nstr);
+  }
+
+  void TrataNotificacaoAbrirDialogoSalvarTabuleiro(const ntf::Notificacao& notificacao) {
+    jmethodID metodo = Metodo("abreDialogoSalvarTabuleiro", "()V");
+    env_->CallVoidMethod(thisz_, metodo);
   }
 
   JNIEnv* env_ = nullptr;
@@ -295,6 +304,18 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobj
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();
+}
+
+
+// Dialogo de tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(JNIEnv* env, jobject thiz, jstring nome_arquivo) {
+  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
+  if (nome_arquivo_c.empty()) {
+    return;
+  }
+  auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+  n->set_endereco(nome_arquivo_c);
+  g_central->AdicionaNotificacao(n);
 }
 
 // Atualizacao de entidade.

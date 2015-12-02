@@ -522,4 +522,28 @@ pagina {
     id: CONTROLE_COLAR
     num_lados_botao: 4
   }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 12
+    textura: "icon_save.png"
+    id: CONTROLE_SALVAR
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 14
+    textura: "icon_save_as.png"
+    id: CONTROLE_SALVAR_COMO
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 16
+    textura: "icon_open.png"
+    id: CONTROLE_ABRIR
+    num_lados_botao: 4
+  }
 }

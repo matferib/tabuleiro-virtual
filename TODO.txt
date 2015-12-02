@@ -1,10 +1,13 @@
 Versao 1.13.0
+- Texturizar outros objetos 3d: cubo, triangulo, disco, esfera.
+- Outros botoes controle virtual: mudar template, abrir tabuleiro, etc.
+- Arrumar cena do deserto para ter apenas texturas do tabuleiro.
+- Texturas dos orcs.
 - Acao de regua nao deve ir para clientes remotos.
 - Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
 - Zoom e rotacao para formas no tablet.
-- Outros botoes controle virtual: mudar template, salvar, abrir, etc.
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
