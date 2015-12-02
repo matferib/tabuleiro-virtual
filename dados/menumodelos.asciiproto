@@ -91,6 +91,7 @@ sub_menu {
   modelo { id: 'Árvore (genérica)' }
   modelo { id: 'Árvore (pinheiro)' }
   modelo { id: 'Árvore (seca)' }
+  modelo { id: 'Cactos' }
   modelo { id: 'Casa (8x7)' }
   modelo { id: 'Moedas' }
   modelo { id: 'Baú (madeira)' }
