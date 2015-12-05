@@ -4,6 +4,11 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#if USAR_GFLAGS
+#include <google/gflags.h>
+#endif
+
 #include "gltab/gl_interno.h"
 #include "gltab/glues.h"
 #include "arq/arquivo.h"
@@ -12,7 +17,8 @@
 #include "net/util.h"
 #include "matrix/matrices.h"
 
-#if !USAR_OPENGL_ES && !WIN32
+
+#if USAR_GFLAGS
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
 #endif
 
@@ -469,7 +475,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }
 
 bool LuzPorVertice(int argc, const char* const* argv) {
-#if !USAR_OPENGL_ES && !WIN32
+#if USAR_GFLAGS
   return FLAGS_luz_por_vertice;
 #else
   for (int i = 0; i < argc; ++i) {
