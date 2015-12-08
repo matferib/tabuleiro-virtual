@@ -35,6 +35,13 @@ sub_menu {
   modelo { id: 'Elfo' }
 }
 sub_menu {
+  id: 'Esfinges'
+  modelo { id: 'Androesfinge' }
+  modelo { id: 'Crioesfinge' }
+  modelo { id: 'Ginoesfinge' }
+  modelo { id: 'Hieracoesfinge' }
+}
+sub_menu {
   id: 'Esqueletos'
   modelo { id: 'Esqueleto (Humano Combatente)' }
   modelo { id: 'Esqueleto (Lobo)' }

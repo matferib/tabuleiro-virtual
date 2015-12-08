@@ -14,6 +14,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Androesfinge'
+  entidade {
+    dados_vida: '12d10+48' info_textura { id: 'androsphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: 0\nat (2): +18 2d4+7\nca: 22'
+  }
+}
+modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
@@ -45,6 +53,14 @@ modelo {
 modelo {
   id: 'Centopéia Imensa'
   entidade { dados_vida: '12d8+12' tamanho: TM_IMENSO achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+}
+modelo {
+  id: 'Crioesfinge'
+  entidade {
+    dados_vida: '10d10+30' info_textura { id: 'criosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: 0\nat: +15/+10/+10\ndano: 2d6+6/1d6+3/1d6+3\nca: 20'
+  }
 }
 modelo {
   id: 'Demônio Vrock'
@@ -120,6 +136,14 @@ modelo {
   entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 } }
 }
 modelo {
+  id: 'Ginoesfinge'
+  entidade {
+    dados_vida: '8d10+8' info_textura { id: 'gynosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +5\nat (2): +11 1d6+4\nca: 21'
+  }
+}
+modelo {
   id: 'Grifo'
   entidade {
     dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
@@ -187,6 +211,14 @@ modelo {
     dados_vida: '3d8+3' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
+  }
+}
+modelo {
+  id: 'Hieracoesfinge'
+  entidade {
+    dados_vida: '9d10+18' info_textura { id: 'hieracosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +2\nat: +13/+8/+8\ndano: 1d10+5/1d6+2/1d6+2\nca: 21'
   }
 }
 modelo {
@@ -360,7 +392,7 @@ modelo {
     pos { x: 0.28926766 y: 0.26173019       z: 2.0800004  }
     cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
     sub_tipo: TF_ESFERA
-    escala {  x: 0.352       y: 0.352       z: 0.352     } 
+    escala {  x: 0.352       y: 0.352       z: 0.352     }
   }
   sub_forma {
     tipo: TE_FORMA
