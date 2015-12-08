@@ -23,6 +23,13 @@ sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Bruxo' }
 }
+sub_menu {
+  id: 'Phaerimm'
+  modelo { id: 'Phaerimm Jovem Adulto'}
+  modelo { id: 'Phaerimm Adulto'}
+  modelo { id: 'Phaerimm Experiente'}
+  modelo { id: 'Phaerimm Ancião Venerável' }
+}
 modelo { id: 'Peryton' }
 modelo { id: 'Soldado do Horror' }
 sub_menu {

@@ -89,3 +89,28 @@ modelo {
     rotulo_especial: 'ini: -1 mov: 6\nat:+6 dano: 1d4+7\nca:13\nimune: eletricidade e veneno\nresistencia: fogo e acido:20\nao morrer, nuvem acida: reflexo 20 1d6 dano ou zero'
   }
 }
+modelo {
+  id: 'Phaerimm Jovem Adulto'
+  entidade {
+    dados_vida: '7d8+7' info_textura { id: 'phaerimm.png' } cor { r: 0.3 g: 0.8 b: 0.3 }
+  }
+}
+modelo {
+  id: 'Phaerimm Adulto'
+  entidade {
+    dados_vida: '10d8+10' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.2 g: 0.7 b: 0.2 }
+  }
+}
+modelo {
+  id: 'Phaerimm Experiente'
+  entidade {
+    dados_vida: '13d8+26' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.15 g: 0.6 b: 0.15 }
+  }
+}
+modelo {
+  id: 'Phaerimm Ancião Venerável'
+  entidade {
+    dados_vida: '19d8+57' tamanho: TM_ENORME info_textura { id: 'phaerimm.png' } cor { r: 0.1 g: 0.5 b: 0.1 }
+  }
+}
+
