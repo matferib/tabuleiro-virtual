@@ -4583,6 +4583,9 @@ void Tabuleiro::DesenhaLuzes() {
 
 void Tabuleiro::DesenhaCaixaCeu() {
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
+  if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
+    gl::Desabilita(GL_LIGHTING);
+  }
   // Desliga luzes direcionais e pontuais.
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -4616,6 +4619,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Habilita(GL_LIGHT0 + i);
   }
+  gl::Habilita(GL_LIGHTING);
   if (nevoa) {
     // Religa nevoa se desligou.
     gl::Habilita(GL_FOG);

@@ -1,4 +1,5 @@
 Versao 1.13.0
+- UI para iluminacao de caixa do ceu.
 - Texturizar outros objetos 3d: cubo, triangulo, disco, esfera.
 - Outros botoes controle virtual: mudar template, abrir tabuleiro, etc.
 - Arrumar cena do deserto para ter apenas texturas do tabuleiro.
