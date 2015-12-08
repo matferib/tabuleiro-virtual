@@ -151,16 +151,35 @@ modelo {
   }
 }
 modelo {
+  id: 'Hiena'
+  entidade {
+    dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini +2\nat: +3 1d6+3\nca: 14'
+  }
+}
+modelo {
   id: 'Hipogrifo'
   entidade {
     dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'ini: +2\nat: +6/+6/+1\ndano: 1d4+4/1d4+4/1d8+2\nca: 15'
   }
 }
-
+modelo {
+  id: 'Leão'
+  entidade {
+    dados_vida: '5d8+10' tamanho: TM_GRANDE info_textura { id: 'lion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini: +3\nat: +2/+7/+7\ndano: 1d8+2/1d4+5/1d4+5\nca: 15'
+  }
+}
 modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
+}
+modelo {
+  id: 'Medusa'
+  entidade {
+    dados_vida: '6d8+6' info_textura { id: 'medusa.png' } cor { r: 0.384 g: 0.318 b: 0.282 }
+  }
 }
 modelo {
   id: 'Mephit do Fogo'
@@ -280,6 +299,13 @@ modelo {
   entidade {
     dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
     rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
+  }
+}
+modelo {
+  id: 'Rinoceronte'
+  entidade {
+    dados_vida: '8d8+40' tamanho: TM_GRANDE info_textura { id: 'rhinoceros.png' } cor { r: 0.5 g: 0.5 b: 0.5 }
+    rotulo_especial: 'ini: 0\nat: +13 2d6+12\nca: 16'
   }
 }
 modelo {
