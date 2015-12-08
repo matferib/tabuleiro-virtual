@@ -14,7 +14,10 @@ sub_menu {
   modelo { id: 'Sacerdotiza Drow' }
 }
 modelo { id: 'Garra de Ossos' }
-modelo { id: 'Gigante da Montanha' }
+sub_menu {
+  id: 'Gigantes'
+  modelo { id: 'Gigante das Montanhas' }
+}
 modelo { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
   id: 'Humanos'

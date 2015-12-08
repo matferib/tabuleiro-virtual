@@ -50,7 +50,12 @@ sub_menu {
   modelo { id: 'Esqueleto (Lobo)' }
   modelo { id: 'Esqueleto (Troll)' }
 }
-modelo { id: 'Gigante da Colina' }
+sub_menu {
+  id: 'Gigantes'
+  modelo { id: 'Gigante das Colinas' }
+  modelo { id: 'Gigante das Pedras' }
+  modelo { id: 'Gigante das Tempestades' }
+}
 modelo { id: 'Grifo' }
 modelo { id: 'Hipogrifo' }
 modelo { id: 'Manto Negro' }
@@ -91,6 +96,11 @@ sub_menu {
 }
 modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
+sub_menu {
+  id: 'Vermes'
+  modelo { id: 'Escorpião Monstruoso Grande' }
+  modelo { id: 'Escorpião Monstruoso Enorme' }
+}
 sub_menu {
   id: 'Zumbis'
   modelo { id: 'Zumbi (humano)' }

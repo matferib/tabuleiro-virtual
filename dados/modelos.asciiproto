@@ -116,6 +116,20 @@ modelo {
   }
 }
 modelo {
+  id: 'Escorpião Monstruoso Grande'
+  entidade {
+    dados_vida: '5d8+10' tamanho: TM_GRANDE cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    rotulo_especial: 'ini: 0\nat: +1/+6/+6\n1d6+2(+ven)/1d6+4/1d6+4'
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Enorme'
+  entidade {
+    dados_vida: '10d8+30' tamanho: TM_ENORME cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    rotulo_especial: 'ini: 0\nat: +6/+11/+11\n2d4+3(+ven)/1d8+6/1d8+6'
+  }
+}
+modelo {
   id: 'Enxame (centopéias)'
   entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
@@ -132,8 +146,29 @@ modelo {
   entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
 }
 modelo {
-  id: 'Gigante da Colina'
-  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 } }
+  id: 'Gigante das Colinas'
+  entidade {
+    dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    rotulo_especial: 'ini -1\nat: +16/+11 2d8+10\npedrada: +8 2d6+7\nca: 20'
+    lista_acoes: 'Ataque Corpo a Corpo'
+    lista_acoes: 'Pedrada (gigante)'
+  }
+}
+modelo {
+  id: 'Gigante das Pedras'
+  entidade {
+    dados_vida: '14d8+56' tamanho: TM_GRANDE info_textura { id: 'giant_stone.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    rotulo_especial: 'ini+2\nat: +17/+12 2d8+12\npedra: +11 2d8+12\nca:25'
+    lista_acoes: 'Ataque Corpo a Corpo'
+    lista_acoes: 'Pedrada (gigante)'
+  }
+}
+modelo {
+  id: 'Gigante das Tempestades'
+  entidade {
+    dados_vida: '19d8+114' tamanho: TM_ENORME info_textura { id: 'giant_storm.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    rotulo_especial: 'ini+2\nat: +26/+21/+16 4d6+21/19-20\narco: +14/+9/+4 3d6+14/x3\nca:27'
+  }
 }
 modelo {
   id: 'Ginoesfinge'
@@ -299,6 +334,13 @@ modelo {
   entidade {
     dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
     rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
+  }
+}
+modelo {
+  id: 'Quimera'
+  entidade {
+    dados_vida: '9d10+27' tamanho: TM_GRANDE info_textura { id: 'chimera.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
+    rotulo_especial: 'ini: +1\nat: +12/+12/+12/+10/+10\ndano:2d6+4/1d8+4/1d8+4/1d6+2/1d6+2\nca: 19'
   }
 }
 modelo {

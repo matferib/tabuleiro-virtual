@@ -35,8 +35,13 @@ modelo {
   entidade { dados_vida: '10d12+40' tamanho: TM_GRANDE info_textura { id: 'boneclaw.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
 }
 modelo {
-  id: 'Gigante da Montanha'  # http://www.dandwiki.com/wiki/Mountain_Giant_(3.5e_Creature)
-  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.427 g: 0.222 b: 0.076 } }
+  id: 'Gigante das Montanhas'  # http://www.dandwiki.com/wiki/Mountain_Giant_(3.5e_Creature)
+  entidade {
+    dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.427 g: 0.222 b: 0.076 }
+    rotulo_especial: 'ini 0\nat: +20/+15 3d6+10\npedrada: +8 2d6+7\nca: 21'
+    lista_acoes: 'Ataque Corpo a Corpo'
+    lista_acoes: 'Pedrada (gigante)'
+  }
 }
 modelo {
   id: 'Guarda de Bane'  # Monstros de Faerun
