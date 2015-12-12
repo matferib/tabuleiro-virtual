@@ -264,9 +264,9 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
   const int num_indices_total = num_indices_por_toco * num_tocos;
 
-  float coordenadas[num_coordenadas_total];
-  float normais[num_coordenadas_total];
-  unsigned short indices[num_indices_total];
+  std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<float> normais(num_coordenadas_total);
+  std::vector<unsigned short> indices(num_indices_total);
 
   float h_delta = altura / num_tocos;
   float h_topo = 0;
@@ -377,9 +377,9 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
 #endif
 
   VboNaoGravado vbo;
-  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
-  vbo.AtribuiNormais(normais);
-  vbo.AtribuiIndices(indices, num_indices_total);
+  vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
+  vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.Nomeia("troncocone");
   return vbo;
 }
@@ -396,8 +396,8 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
 
   float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
-  float coordenadas[num_coordenadas_total];
-  unsigned short indices[num_indices_total];
+  std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
 
@@ -453,7 +453,7 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       coordenadas[i_coordenadas + 8] = h_topo;
 
       // Simetria na parte de baixo.
-      memcpy(coordenadas + i_coordenadas + 12, coordenadas + i_coordenadas, sizeof(float) * 12);
+      memcpy(coordenadas.data() + i_coordenadas + 12, coordenadas.data() + i_coordenadas, sizeof(float) * 12);
       for (int i = 2; i < 12 ; i += 3) {
         coordenadas[i_coordenadas + 12 + i] = -coordenadas[i_coordenadas + i];
       }
@@ -487,9 +487,9 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   //}
 
   VboNaoGravado vbo;
-  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
-  vbo.AtribuiNormais(coordenadas);  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
-  vbo.AtribuiIndices(indices, num_indices_total);
+  vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
+  vbo.AtribuiNormais(coordenadas.data());  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
+  vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.Nomeia("esfera");
   return vbo;
 }
@@ -505,9 +505,9 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   const int num_indices_total = num_indices_por_toco * num_tocos;
 
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
-  float coordenadas[num_coordenadas_total];
-  float normais[num_coordenadas_total];
-  unsigned short indices[num_indices_total];
+  std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<float> normais(num_coordenadas_total);
+  std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
 
@@ -605,9 +605,9 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   //}
 
   VboNaoGravado vbo;
-  vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas_total);
-  vbo.AtribuiNormais(normais);
-  vbo.AtribuiIndices(indices, num_indices_total);
+  vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
+  vbo.AtribuiNormais(normais.data());
+  vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.Nomeia("cilindro");
   return vbo;
 }
