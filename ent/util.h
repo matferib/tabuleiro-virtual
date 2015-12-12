@@ -2,6 +2,7 @@
 #define ENT_UTIL_H
 
 #include <algorithm>
+#include <cctype>
 #include <functional>
 #include <string>
 #include <vector>
