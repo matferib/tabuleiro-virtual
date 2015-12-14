@@ -364,19 +364,13 @@ int Tabuleiro::Desenha() {
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_PRETO_BRANCO);
-#endif
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_LUZ);
-#endif
   } else {
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_LUZ);
-#endif
   }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   gl::MudarModoMatriz(GL_PROJECTION);
@@ -1510,11 +1504,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     // Entidade.
     id_entidade_destino = id;
     float x3d, y3d, z3d;
-#if USAR_OPENGL_ES && !USAR_SHADER
-    MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
-#else
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#endif
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
@@ -1885,9 +1875,6 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 void Tabuleiro::IniciaGL() {
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
-#if !USAR_SHADER
-  gl::Habilita(GL_COLOR_MATERIAL);
-#endif
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
@@ -2208,9 +2195,7 @@ void Tabuleiro::DesenhaCena() {
   // DESENHOS 2D.
   //-------------
   gl::Desabilita(GL_FOG);
-#if USAR_SHADER
   gl::UsaShader(gl::TSH_SIMPLES);
-#endif
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
@@ -2439,7 +2424,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
   // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
   // inferior eh onde comeca a desenhar a linha.
-#if USAR_SHADER
   // Com shader nao precisa tesselizar, pois a nevoa eh por pixel.
   indice = 0;
   // Linhas verticais (S-N).
@@ -2505,98 +2489,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
       indice += 4;
     }
   }
-#else
-  // Sem shader, tesseliza.
-  indice = 0;
-  const int kTamanhoPedaco = 30;
-  // Linhas verticais (S-N).
-  {
-    int limite_inferior = -x_2;
-    float incremento = 0.0f;
-    if (TamanhoX() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
-    int num_pedacos_verticais = tamanho_y / kTamanhoPedaco;
-    float ultimo_pedaco_vertical = fmod(tamanho_y, kTamanhoPedaco);
-    if (ultimo_pedaco_vertical > 0.0f) {
-      ++num_pedacos_verticais;
-    }
-    for (int i = limite_inferior; i <= x_2; ++i) {
-      float x = i * TAMANHO_LADO_QUADRADO + incremento;
-      float x_inicial = x - EXPESSURA_LINHA_2;
-      float x_final = x + EXPESSURA_LINHA_2;
-      for (int j = 0; j < num_pedacos_verticais; ++j) {
-        int j_tam = j * kTamanhoPedaco;
-        float y_inicial = -tamanho_y_2 + j_tam;
-        float incremento_vertical = kTamanhoPedaco;
-        if ((j == num_pedacos_verticais - 1) && (ultimo_pedaco_vertical > 0.0f)) {
-          incremento_vertical = ultimo_pedaco_vertical;
-        }
-        float y_final = y_inicial + incremento_vertical;
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_final);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 1);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice + 3);
-        indice += 4;
-      }
-    }
-  }
-  {
-    // Linhas horizontais (W-E).
-    int limite_inferior = -y_2;
-    float incremento = 0.0f;
-    if (TamanhoY() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    int num_pedacos_horizontais = tamanho_x / kTamanhoPedaco;
-    float ultimo_pedaco_horizontal = fmod(tamanho_x, kTamanhoPedaco);
-    if (ultimo_pedaco_horizontal > 0.0f) {
-      ++num_pedacos_horizontais;
-    }
-    for (int i = limite_inferior; i <= y_2; ++i) {
-      float y = i * TAMANHO_LADO_QUADRADO + incremento;
-      float y_inicial = y - EXPESSURA_LINHA_2;
-      float y_final = y + EXPESSURA_LINHA_2;
-      for (int j = 0; j < num_pedacos_horizontais; ++j) {
-        int j_tam = j * kTamanhoPedaco;
-        float x_inicial = -tamanho_x_2 + j_tam;
-        float incremento_horizontal = kTamanhoPedaco;
-        if ((j == num_pedacos_horizontais - 1) && (ultimo_pedaco_horizontal > 0.0f)) {
-          incremento_horizontal = ultimo_pedaco_horizontal;
-        }
-        float x_final = x_inicial + incremento_horizontal;
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_final);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 1);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice + 3);
-        indice += 4;
-      }
-    }
-  }
-#endif
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
   grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
   grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
@@ -3024,11 +2916,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
-#if USAR_OPENGL_ES && !USAR_SHADER
-  MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
-#else
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#endif
   // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
   if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
     switch (modo_clique_) {
