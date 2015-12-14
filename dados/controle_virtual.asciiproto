@@ -71,6 +71,16 @@ pagina {
     id: CONTROLE_ALTERNA_CURA
     num_lados_botao: 4
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "A"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_DANO_AUTOMATICO
+    num_lados_botao: 4
+  }
   # Linha de baixo
   dados_botoes {
     tamanho: 1
