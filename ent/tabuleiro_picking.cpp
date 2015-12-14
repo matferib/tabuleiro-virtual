@@ -33,9 +33,7 @@ namespace ent {
 // basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
-#if USAR_SHADER
   gl::UsaShader(gl::TSH_PROFUNDIDADE);
-#endif
   //gl::Viewport(0, 0, (GLint)1, (GLint)1);
   // inicia o buffer de picking (selecao)
   gl::BufferSelecao(100, buffer_hits);
@@ -183,11 +181,7 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   if (profundidade == 1.0f) {
     return false;
   }
-#if USAR_OPENGL_ES && !USAR_SHADER
-  return MousePara3dComId(x, y, id, tipo_objeto, x3d, y3d, z3d);
-#else
   return MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d);
-#endif
 }
 
 bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
