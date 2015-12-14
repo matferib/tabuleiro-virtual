@@ -781,6 +781,23 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   modo_clique_ = MODO_ACAO;
 }
 
+int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao) {
+  if (modo_dano_automatico_) {
+    if (entidade == nullptr) {
+      return 0;
+    }
+    return -entidade->ValorParaAcao(id_acao);
+  } else {
+    int delta_pontos_vida = lista_pontos_vida_.front();
+    lista_pontos_vida_.pop_front();
+    return delta_pontos_vida;
+  }
+}
+
+bool Tabuleiro::HaValorListaPontosVida() {
+  return !lista_pontos_vida_.empty() || modo_dano_automatico_;
+}
+
 void Tabuleiro::LimpaUltimoListaPontosVida() {
   if (!lista_pontos_vida_.empty()) {
     lista_pontos_vida_.pop_back();
@@ -1554,8 +1571,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      std::string ultima_acao = entidade->Acao().empty() ?
-         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao();
+      std::string ultima_acao = entidade->Acao(AcoesPadroes()).empty() ?
+         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao(AcoesPadroes());
       auto acao_it = mapa_acoes_.find(ultima_acao);
       if (acao_it == mapa_acoes_.end()) {
         LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";
@@ -1576,9 +1593,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           acao_proto.mutable_pos_entidade()->CopyFrom(pos_entidade);
         }
         int delta_pontos_vida = 0;
-        if (!lista_pontos_vida_.empty()) {
-          delta_pontos_vida = lista_pontos_vida_.front();
-          lista_pontos_vida_.pop_front();
+        if (HaValorListaPontosVida()) {
+          delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
@@ -1613,9 +1629,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       } else {
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
-        if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
-          int delta_pontos_vida = lista_pontos_vida_.front();
-          lista_pontos_vida_.pop_front();
+        if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+          int delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
           int delta_pv_pos_salvacao = delta_pontos_vida;
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
@@ -1644,7 +1659,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   if (e == nullptr) {
     return;
   }
-  std::string acao_executada = e->Acao();
+  std::string acao_executada = e->Acao(AcoesPadroes());
   if (acao_executada.empty() || acao_executada == "Sinalização") {
     return;
   }
@@ -1928,6 +1943,13 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   }
 }
 
+void Tabuleiro::AlternaDanoAutomatico() {
+  modo_dano_automatico_ = !modo_dano_automatico_;
+  if (modo_dano_automatico_) {
+    modo_clique_ = MODO_ACAO;
+  }
+}
+
 void Tabuleiro::SelecionaAcaoExecutada(int indice) {
   Entidade* e = EntidadeSelecionada();
   if (e == nullptr) {
@@ -1953,7 +1975,7 @@ const std::vector<std::string>& Tabuleiro::AcoesPadroes() const {
 }
 
 const AcaoProto& Tabuleiro::AcaoPadrao(int indice) const {
-  if (indice < 0 || indice >= AcoesPadroes().size()) {
+  if (indice < 0 || indice >= static_cast<int>(AcoesPadroes().size())) {
     indice = 0;
   }
   return AcaoDoMapa(AcoesPadroes()[indice]);
@@ -1976,13 +1998,13 @@ void Tabuleiro::ProximaAcao() {
     if (entidade == nullptr) {
       continue;
     }
-    std::string acao(entidade->Acao());
+    std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
     auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao);
     if (it == id_acoes_.end()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
       continue;
     }
     ++it;
@@ -2003,13 +2025,13 @@ void Tabuleiro::AcaoAnterior() {
     if (entidade == nullptr) {
       continue;
     }
-    std::string acao(entidade->Acao());
+    std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
     auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao);
     if (it == id_acoes_.rend()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
       continue;
     }
     ++it;
@@ -4507,7 +4529,7 @@ void Tabuleiro::DesenhaGrade() {
 }
 
 void Tabuleiro::DesenhaListaPontosVida() {
-  if (lista_pontos_vida_.empty()) {
+  if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
     return;
   }
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
@@ -4525,13 +4547,34 @@ void Tabuleiro::DesenhaListaPontosVida() {
   std::string titulo("Lista PV");
   gl::DesenhaStringAlinhadoDireita(titulo);
   raster_y -= (altura_fonte + 2);
-  for (int pv : lista_pontos_vida_) {
+  if (modo_dano_automatico_) {
     PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
     raster_y -= (altura_fonte + 2);
-    MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-    char str[4];
-    snprintf(str, 4, "%d", abs(pv));
-    gl::DesenhaStringAlinhadoDireita(str);
+    MudaCor(COR_BRANCA);
+    const auto* entidade = EntidadeSelecionada();
+    std::string valor = "AUTO";
+    if (entidade != nullptr) {
+      const std::string s = entidade->StringValorParaAcao(entidade->Acao(AcoesPadroes()));
+      if (s.empty()) {
+        valor += ": SEM ACAO";
+      } else {
+        valor += ": " + s;
+      }
+    } else if (ids_entidades_selecionadas_.size() > 1) {
+      valor += ": VARIOS";
+    } else {
+      valor += ": NENHUM";
+    }
+    gl::DesenhaStringAlinhadoDireita(valor);
+  } else {
+    for (int pv : lista_pontos_vida_) {
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      raster_y -= (altura_fonte + 2);
+      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+      char str[4];
+      snprintf(str, 4, "%d", abs(pv));
+      gl::DesenhaStringAlinhadoDireita(str);
+    }
   }
 }
 
@@ -4733,9 +4776,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       continue;
     }
     if (!achou) {
-      id_acao.assign(entidade->Acao());
+      id_acao.assign(entidade->Acao(AcoesPadroes()));
       achou = true;
-    } else if (id_acao != entidade->Acao()) {
+    } else if (id_acao != entidade->Acao(AcoesPadroes())) {
       id_acao.assign("acoes diferem");
       break;
     }

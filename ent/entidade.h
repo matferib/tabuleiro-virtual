@@ -108,8 +108,8 @@ class Entidade {
 
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
-  /** Retorna a acao mais recente da entidade ou vazio se nao houver. */
-  std::string Acao() const;
+  /** Retorna a acao mais recente da entidade. Caso nao haja, retorna a primeira acao padrao. */
+  std::string Acao(const std::vector<std::string>& acoes_padroes) const;
 
   /** Atualiza a acao da entidade para o indice passado. */
   void AdicionaAcaoExecutada(const std::string& id_acao);
@@ -156,6 +156,10 @@ class Entidade {
 
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
+
+  /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. */
+  int ValorParaAcao(const std::string& id_acao) const;
+  std::string StringValorParaAcao(const std::string& id_acao) const;
 
   /** Desenha um objeto a partir de seu proto. Usado para desenhar de forma simples objetos (por exemplo, formas sendo adicionadas).
   * Implementado em entidade_desenha.cpp.
