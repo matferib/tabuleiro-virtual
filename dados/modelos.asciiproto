@@ -206,6 +206,9 @@ modelo {
   entidade {
     dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '2d4+4' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d6+3' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 13 }
   }
 }
 modelo {
