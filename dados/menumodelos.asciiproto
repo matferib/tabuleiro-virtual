@@ -9,6 +9,7 @@ sub_menu {
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Rinoceronte' }
+  modelo { id: 'Tigre' }
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
