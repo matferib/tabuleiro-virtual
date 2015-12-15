@@ -55,7 +55,7 @@ void VboNaoGravado::Translada(GLfloat x, GLfloat y, GLfloat z) {
 void VboNaoGravado::RodaX(GLfloat angulo_graus) {
   GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
   GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+  for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
     GLfloat y = coordenadas_[i + 1];
     GLfloat z = coordenadas_[i + 2];
     coordenadas_[i + 1] = y * c + z * -s;
@@ -66,7 +66,7 @@ void VboNaoGravado::RodaX(GLfloat angulo_graus) {
 void VboNaoGravado::RodaY(GLfloat angulo_graus) {
   GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
   GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
+  for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
     GLfloat x = coordenadas_[i];
     GLfloat z = coordenadas_[i + 2];
     coordenadas_[i] = x * c + z * s;
@@ -827,6 +827,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   std::vector<float> normais(num_coordenadas);
   //std::vector<float> cores((num_coordenadas / 3) * 4);
   std::vector<unsigned short> indices(num_faces * 3);
+  // Norte.
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
   normais[2] = 1.0f;
@@ -837,9 +838,8 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   //cores[1] = 0;
   //cores[2] = 0;
   //cores[3] = 1.0f;
-
   for (int i = 3; i < num_coordenadas; i += 3) {
-    coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia; 
+    coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia;
     coordenadas[i + 1] = coordenadas[i - 3] * sen_fatia + coordenadas[i - 2] * cos_fatia;
     normais[i + 2] = 1.0f;
     //int ic = (i / 3) * 4;
@@ -847,6 +847,18 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
     //cores[ic+1] = ic * 0.1;
     //cores[ic+2] = ic * 0.1;
     //cores[ic+3] = 1.0f;
+  }
+  const unsigned short num_coordenadas_texel = 2 + (num_faces + 1) * 2;
+  std::vector<float> coordenadas_texel(num_coordenadas_texel);
+  // Norte.
+  coordenadas_texel[0] = 0.0f;
+  coordenadas_texel[1] = -0.5f;
+  for (unsigned int i = 2; i < num_coordenadas_texel; i += 2) {
+    coordenadas_texel[i] = coordenadas_texel[i - 2] * cos_fatia - coordenadas_texel[i - 1] * sen_fatia;
+    coordenadas_texel[i + 1] = coordenadas_texel[i - 2] * sen_fatia + coordenadas_texel[i - 1] * cos_fatia;
+  }
+  for (unsigned int i = 0; i < coordenadas_texel.size(); ++i) {
+    coordenadas_texel[i] += 0.5f;
   }
   for (unsigned int i = 0; i < num_faces; ++i) {
     int ind = i * 3;
@@ -858,7 +870,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());
   vbo.AtribuiNormais(normais.data());
   //vbo.AtribuiCores(cores.data());
-  //vbo.AtribuiTexturas(coordenadas_texel);
+  vbo.AtribuiTexturas(coordenadas_texel.data());
   vbo.AtribuiIndices(indices.data(), indices.size());
   vbo.Nomeia("disco");
   return vbo;

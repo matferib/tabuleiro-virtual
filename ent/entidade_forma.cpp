@@ -152,7 +152,14 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         break;
       }
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
+      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+      if (id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      }
       gl::DesenhaVbo(g_vbos[VBO_DISCO]);
+      gl::Desabilita(GL_TEXTURE_2D);
     }
     break;
     case TF_CILINDRO: {
