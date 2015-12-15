@@ -149,6 +149,10 @@ class Tabuleiro : public ntf::Receptor {
   void AlteraUltimoPontoVidaListaPontosVida(int delta);
   /** Alterna o ultimo valor da lista entre cura e dano. */
   void AlternaUltimoPontoVidaListaPontosVida();
+  /** Retorna true se houver valor na lista ou se for automatico e a entidade tiver os dados necessarios. */
+  bool HaValorListaPontosVida();
+  /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
+  int LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao);
 
   /** desenha o mundo. Retorna o tempo em ms. */
   int Desenha();
@@ -260,6 +264,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Seleciona para a entidade selecionada umas das ultimas acoes executadas. Indice 0 eh a mais recente. */
   void SelecionaAcaoExecutada(int indice);
 
+  /** Alterna o modo de dano automatico. */
+  void AlternaDanoAutomatico();
+
   /** Acesso ao mapa de modelos. */
   typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
   const MapaIdAcao& MapaAcoes() const { return mapa_acoes_; }
@@ -315,7 +322,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Altera o desenho entre os modos de debug (para OpenGL ES). */
   void AlternaModoDebug();
 
-  /** No modo acao, cada clique gera uma acao. Usado especialmente no tablet. */
+  /** No modo acao, cada clique gera uma acao. */
   void AlternaModoAcao();
 
   /** No modo transicao, cada clique causa uma transicao de cenario. */
@@ -846,6 +853,8 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
+
+  bool modo_dano_automatico_ = false;
 
   gl::VboGravado vbo_tabuleiro_;
   gl::VboGravado vbo_grade_;

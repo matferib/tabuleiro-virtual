@@ -458,8 +458,14 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
   proto_.set_ultima_acao(id_acao);
 }
 
-std::string Entidade::Acao() const {
-  return proto_.ultima_acao();
+std::string Entidade::Acao(const std::vector<std::string>& acoes_padroes) const {
+  if (!proto_.ultima_acao().empty()) {
+    return proto_.ultima_acao();
+  }
+  if (acoes_padroes.empty()) {
+    return "";
+  }
+  return AcaoExecutada(0, acoes_padroes);
 }
 
 template<class T>
@@ -488,7 +494,7 @@ void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
   // Se acao nao existe e cabe mais, cria uma nova no ultimo lugar.
   if (indice_acao == -1) {
     // A acao eh inserida no final (que sera descartada) e entao sera movida para a frente no final.
-    if (proto_.lista_acoes_size() < MaxNumAcoes) {
+    if (static_cast<unsigned int>(proto_.lista_acoes_size()) < MaxNumAcoes) {
       proto_.add_lista_acoes(id_acao);
     } else {
       proto_.set_lista_acoes(proto_.lista_acoes_size() - 1, id_acao);
@@ -507,7 +513,7 @@ void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
 }
 
 std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const {
-  if (indice_acao < 0 || indice_acao >= MaxNumAcoes) {
+  if (indice_acao < 0 || static_cast<unsigned int>(indice_acao) >= MaxNumAcoes) {
     return "";
   }
   if (indice_acao < proto_.lista_acoes_size()) {
@@ -646,6 +652,29 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   v.set_z(z);
   proto_.mutable_direcao_queda()->Swap(&v);
 }
+
+int Entidade::ValorParaAcao(const std::string& id_acao) const {
+  std::string s = StringValorParaAcao(id_acao);
+  if (s.empty()) {
+    return 0;
+  }
+  try {
+    return GeraPontosVida(s);
+  } catch (const std::exception& e) {
+    return 0;
+  }
+}
+
+std::string Entidade::StringValorParaAcao(const std::string& id_acao) const {
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() != id_acao) {
+      continue;
+    }
+    return da.dano();
+  }
+  return "";
+}
+
 
 // Nome dos buffers de VBO.
 std::vector<gl::VboGravado> Entidade::g_vbos;

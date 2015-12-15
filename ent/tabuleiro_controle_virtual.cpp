@@ -77,6 +77,10 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       }
       AlternaModoAcao();
       break;
+    case CONTROLE_DANO_AUTOMATICO: {
+      AlternaDanoAutomatico();
+      break;
+    }
     case CONTROLE_TRANSICAO:
       AlternaModoTransicao();
       break;
@@ -322,10 +326,10 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
         return texturas_->Textura("icon_signal.png");
       }
       unsigned int textura_espada = texturas_->Textura("icon_sword.png");
-      if (entidade_selecionada == nullptr || entidade_selecionada->Acao().empty()) {
+      if (entidade_selecionada == nullptr || entidade_selecionada->Acao(AcoesPadroes()).empty()) {
         return textura_espada;
       }
-      const auto& it = mapa_acoes_.find(entidade_selecionada->Acao());
+      const auto& it = mapa_acoes_.find(entidade_selecionada->Acao(AcoesPadroes()));
       if (it == mapa_acoes_.end()) {
         return textura_espada;
       }
@@ -498,6 +502,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     }, },
     { CONTROLE_DESENHO_CONE, [this]() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE;
+    }, },
+    { CONTROLE_DANO_AUTOMATICO, [this]() {
+      return modo_dano_automatico_;
     }, },
   };
   GLint viewport[4];

@@ -364,19 +364,13 @@ int Tabuleiro::Desenha() {
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_PRETO_BRANCO);
-#endif
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_LUZ);
-#endif
   } else {
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_LUZ);
-#endif
   }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   gl::MudarModoMatriz(GL_PROJECTION);
@@ -785,6 +779,23 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
     modo_acao_cura_ = !modo_acao_cura_;
   }
   modo_clique_ = MODO_ACAO;
+}
+
+int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao) {
+  if (modo_dano_automatico_) {
+    if (entidade == nullptr) {
+      return 0;
+    }
+    return -entidade->ValorParaAcao(id_acao);
+  } else {
+    int delta_pontos_vida = lista_pontos_vida_.front();
+    lista_pontos_vida_.pop_front();
+    return delta_pontos_vida;
+  }
+}
+
+bool Tabuleiro::HaValorListaPontosVida() {
+  return !lista_pontos_vida_.empty() || modo_dano_automatico_;
 }
 
 void Tabuleiro::LimpaUltimoListaPontosVida() {
@@ -1520,11 +1531,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     // Entidade.
     id_entidade_destino = id;
     float x3d, y3d, z3d;
-#if USAR_OPENGL_ES && !USAR_SHADER
-    MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
-#else
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#endif
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
@@ -1574,8 +1581,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      std::string ultima_acao = entidade->Acao().empty() ?
-         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao();
+      std::string ultima_acao = entidade->Acao(AcoesPadroes()).empty() ?
+         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao(AcoesPadroes());
       auto acao_it = mapa_acoes_.find(ultima_acao);
       if (acao_it == mapa_acoes_.end()) {
         LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";
@@ -1596,9 +1603,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           acao_proto.mutable_pos_entidade()->CopyFrom(pos_entidade);
         }
         int delta_pontos_vida = 0;
-        if (!lista_pontos_vida_.empty()) {
-          delta_pontos_vida = lista_pontos_vida_.front();
-          lista_pontos_vida_.pop_front();
+        if (HaValorListaPontosVida()) {
+          delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
@@ -1633,9 +1639,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       } else {
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
-        if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
-          int delta_pontos_vida = lista_pontos_vida_.front();
-          lista_pontos_vida_.pop_front();
+        if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+          int delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
           int delta_pv_pos_salvacao = delta_pontos_vida;
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
@@ -1664,7 +1669,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   if (e == nullptr) {
     return;
   }
-  std::string acao_executada = e->Acao();
+  std::string acao_executada = e->Acao(AcoesPadroes());
   if (acao_executada.empty() || acao_executada == "Sinalização") {
     return;
   }
@@ -1895,9 +1900,6 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 void Tabuleiro::IniciaGL() {
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
-#if !USAR_SHADER
-  gl::Habilita(GL_COLOR_MATERIAL);
-#endif
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
@@ -1951,6 +1953,13 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   }
 }
 
+void Tabuleiro::AlternaDanoAutomatico() {
+  modo_dano_automatico_ = !modo_dano_automatico_;
+  if (modo_dano_automatico_) {
+    modo_clique_ = MODO_ACAO;
+  }
+}
+
 void Tabuleiro::SelecionaAcaoExecutada(int indice) {
   Entidade* e = EntidadeSelecionada();
   if (e == nullptr) {
@@ -1976,7 +1985,7 @@ const std::vector<std::string>& Tabuleiro::AcoesPadroes() const {
 }
 
 const AcaoProto& Tabuleiro::AcaoPadrao(int indice) const {
-  if (indice < 0 || indice >= AcoesPadroes().size()) {
+  if (indice < 0 || indice >= static_cast<int>(AcoesPadroes().size())) {
     indice = 0;
   }
   return AcaoDoMapa(AcoesPadroes()[indice]);
@@ -1999,13 +2008,13 @@ void Tabuleiro::ProximaAcao() {
     if (entidade == nullptr) {
       continue;
     }
-    std::string acao(entidade->Acao());
+    std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
     auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao);
     if (it == id_acoes_.end()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
       continue;
     }
     ++it;
@@ -2026,13 +2035,13 @@ void Tabuleiro::AcaoAnterior() {
     if (entidade == nullptr) {
       continue;
     }
-    std::string acao(entidade->Acao());
+    std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
     auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao);
     if (it == id_acoes_.rend()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
       continue;
     }
     ++it;
@@ -2218,9 +2227,7 @@ void Tabuleiro::DesenhaCena() {
   // DESENHOS 2D.
   //-------------
   gl::Desabilita(GL_FOG);
-#if USAR_SHADER
   gl::UsaShader(gl::TSH_SIMPLES);
-#endif
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
@@ -2449,7 +2456,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
   // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
   // inferior eh onde comeca a desenhar a linha.
-#if USAR_SHADER
   // Com shader nao precisa tesselizar, pois a nevoa eh por pixel.
   indice = 0;
   // Linhas verticais (S-N).
@@ -2515,98 +2521,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
       indice += 4;
     }
   }
-#else
-  // Sem shader, tesseliza.
-  indice = 0;
-  const int kTamanhoPedaco = 30;
-  // Linhas verticais (S-N).
-  {
-    int limite_inferior = -x_2;
-    float incremento = 0.0f;
-    if (TamanhoX() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
-    int num_pedacos_verticais = tamanho_y / kTamanhoPedaco;
-    float ultimo_pedaco_vertical = fmod(tamanho_y, kTamanhoPedaco);
-    if (ultimo_pedaco_vertical > 0.0f) {
-      ++num_pedacos_verticais;
-    }
-    for (int i = limite_inferior; i <= x_2; ++i) {
-      float x = i * TAMANHO_LADO_QUADRADO + incremento;
-      float x_inicial = x - EXPESSURA_LINHA_2;
-      float x_final = x + EXPESSURA_LINHA_2;
-      for (int j = 0; j < num_pedacos_verticais; ++j) {
-        int j_tam = j * kTamanhoPedaco;
-        float y_inicial = -tamanho_y_2 + j_tam;
-        float incremento_vertical = kTamanhoPedaco;
-        if ((j == num_pedacos_verticais - 1) && (ultimo_pedaco_vertical > 0.0f)) {
-          incremento_vertical = ultimo_pedaco_vertical;
-        }
-        float y_final = y_inicial + incremento_vertical;
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_final);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 1);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice + 3);
-        indice += 4;
-      }
-    }
-  }
-  {
-    // Linhas horizontais (W-E).
-    int limite_inferior = -y_2;
-    float incremento = 0.0f;
-    if (TamanhoY() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    int num_pedacos_horizontais = tamanho_x / kTamanhoPedaco;
-    float ultimo_pedaco_horizontal = fmod(tamanho_x, kTamanhoPedaco);
-    if (ultimo_pedaco_horizontal > 0.0f) {
-      ++num_pedacos_horizontais;
-    }
-    for (int i = limite_inferior; i <= y_2; ++i) {
-      float y = i * TAMANHO_LADO_QUADRADO + incremento;
-      float y_inicial = y - EXPESSURA_LINHA_2;
-      float y_final = y + EXPESSURA_LINHA_2;
-      for (int j = 0; j < num_pedacos_horizontais; ++j) {
-        int j_tam = j * kTamanhoPedaco;
-        float x_inicial = -tamanho_x_2 + j_tam;
-        float incremento_horizontal = kTamanhoPedaco;
-        if ((j == num_pedacos_horizontais - 1) && (ultimo_pedaco_horizontal > 0.0f)) {
-          incremento_horizontal = ultimo_pedaco_horizontal;
-        }
-        float x_final = x_inicial + incremento_horizontal;
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_final);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 1);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice + 3);
-        indice += 4;
-      }
-    }
-  }
-#endif
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
   grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
   grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
@@ -3034,11 +2948,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
-#if USAR_OPENGL_ES && !USAR_SHADER
-  MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
-#else
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#endif
   // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
   if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
     switch (modo_clique_) {
@@ -4633,7 +4543,7 @@ void Tabuleiro::DesenhaGrade() {
 }
 
 void Tabuleiro::DesenhaListaPontosVida() {
-  if (lista_pontos_vida_.empty()) {
+  if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
     return;
   }
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
@@ -4651,13 +4561,34 @@ void Tabuleiro::DesenhaListaPontosVida() {
   std::string titulo("Lista PV");
   gl::DesenhaStringAlinhadoDireita(titulo);
   raster_y -= (altura_fonte + 2);
-  for (int pv : lista_pontos_vida_) {
+  if (modo_dano_automatico_) {
     PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
     raster_y -= (altura_fonte + 2);
-    MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-    char str[4];
-    snprintf(str, 4, "%d", abs(pv));
-    gl::DesenhaStringAlinhadoDireita(str);
+    MudaCor(COR_BRANCA);
+    const auto* entidade = EntidadeSelecionada();
+    std::string valor = "AUTO";
+    if (entidade != nullptr) {
+      const std::string s = entidade->StringValorParaAcao(entidade->Acao(AcoesPadroes()));
+      if (s.empty()) {
+        valor += ": SEM ACAO";
+      } else {
+        valor += ": " + s;
+      }
+    } else if (ids_entidades_selecionadas_.size() > 1) {
+      valor += ": VARIOS";
+    } else {
+      valor += ": NENHUM";
+    }
+    gl::DesenhaStringAlinhadoDireita(valor);
+  } else {
+    for (int pv : lista_pontos_vida_) {
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      raster_y -= (altura_fonte + 2);
+      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+      char str[4];
+      snprintf(str, 4, "%d", abs(pv));
+      gl::DesenhaStringAlinhadoDireita(str);
+    }
   }
 }
 
@@ -4859,9 +4790,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       continue;
     }
     if (!achou) {
-      id_acao.assign(entidade->Acao());
+      id_acao.assign(entidade->Acao(AcoesPadroes()));
       achou = true;
-    } else if (id_acao != entidade->Acao()) {
+    } else if (id_acao != entidade->Acao(AcoesPadroes())) {
       id_acao.assign("acoes diferem");
       break;
     }

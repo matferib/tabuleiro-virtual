@@ -69,14 +69,10 @@ void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
 
-#if USAR_SHADER
 #define ATUALIZA_MATRIZES_NOVO() AtualizaMatrizesNovo()
 // Atualiza as matrizes do shader.
 void AtualizaMatrizesNovo();
 void DebugaMatrizes();
-#else
-#define ATUALIZA_MATRIZES_NOVO()
-#endif
 
 // Operacoes de matriz. Melhor usar MatrizEscopo.
 void EmpilhaMatriz(bool atualizar = true);
@@ -137,7 +133,6 @@ class AtributosEscopo {
 /** Funcao especial para depuracao. */
 void InicioCena();
 
-#if USAR_SHADER
 // Usado para indexar os shaders.
 enum TipoShader {
   TSH_LUZ,
@@ -148,7 +143,6 @@ enum TipoShader {
 };
 
 void UsaShader(TipoShader ts);
-#endif
 
 /** Funcoes gerais. */
 bool EstaHabilitado(GLenum cap);
@@ -328,10 +322,6 @@ void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
 
 /** Funcoes de iluminacao. */
-#if !USAR_SHADER
-inline void  Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
-inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
-#endif
 void LuzAmbiente(float r, float g, float b);
 void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio);
@@ -433,23 +423,6 @@ class DesabilitaEscopo {
   GLenum cap_;
   GLboolean valor_anterior_;
 };
-
-#if !USAR_SHADER
-class ModeloLuzEscopo {
- public:
-  ModeloLuzEscopo(const GLfloat* luz) {
-      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
-  }
-  ~ModeloLuzEscopo() {
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-  }
-
- private:
-  GLfloat luz_antes[4];
-};
-#endif
-
 
 /** Stencil. */
 inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFunc(func, ref, mascara); }

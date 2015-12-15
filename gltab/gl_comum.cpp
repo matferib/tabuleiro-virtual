@@ -4,6 +4,11 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#if USAR_GFLAGS
+#include <google/gflags.h>
+#endif
+
 #include "gltab/gl_interno.h"
 #include "gltab/glues.h"
 #include "arq/arquivo.h"
@@ -12,7 +17,8 @@
 #include "net/util.h"
 #include "matrix/matrices.h"
 
-#if !USAR_OPENGL_ES && !WIN32
+
+#if USAR_GFLAGS
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
 #endif
 
@@ -125,7 +131,6 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
 
 bool ImprimeSeShaderErro(GLuint shader) {
-#if USAR_SHADER
   GLint success = 0;
   ShaderLeParam(shader, GL_COMPILE_STATUS, &success);
   if (success) {
@@ -137,11 +142,9 @@ bool ImprimeSeShaderErro(GLuint shader) {
   info_log.resize(log_size);
   ShaderInfoLog(shader, log_size, &log_size, &info_log[0]);
   LOG(ERROR) << "Erro de shader: " << info_log;
-#endif
   return true;
 }
 
-#if USAR_SHADER
 struct glsl_type_set {
   GLenum      type;
   const char* name;
@@ -202,9 +205,7 @@ void print_uniforms(GLuint program) {
       printf ("\n");
   }
 }
-#endif
 
-#if USAR_SHADER
 // Funcoes para buscar o indice do uniforme uni_gltab_luzes.
 // id_luz [0, 7].
 int IndiceLuzPos(int id_luz) {
@@ -353,32 +354,26 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
 }
 
 }  // namespace
-#endif
 
 
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
-#if USAR_SHADER
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
   IniciaShaders(luz_por_vertice, contexto);
-#endif
 }
 
 void FinalizaShaders(const VarShader& shader) {
-#if USAR_SHADER
   DesanexaShader(shader.programa, shader.vs);
   DesanexaShader(shader.programa, shader.fs);
   DestroiPrograma(shader.programa);
   DestroiShader(shader.vs);
   DestroiShader(shader.fs);
-#endif
 }
 
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
-#if USAR_SHADER
   const auto& shader = BuscaShader();
   if (cap == GL_LIGHTING) {
     if (!UsandoShaderLuz()) {
@@ -420,11 +415,9 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else {
     return glEnable(cap);
   }
-#endif
 }
 
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
-#if USAR_SHADER
   const auto& shader = BuscaShader();
   if (cap == GL_LIGHTING) {
     if (!UsandoShaderLuz()) {
@@ -465,11 +458,10 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else {
     glDisable(cap);
   }
-#endif
 }
 
 bool LuzPorVertice(int argc, const char* const* argv) {
-#if !USAR_OPENGL_ES && !WIN32
+#if USAR_GFLAGS
   return FLAGS_luz_por_vertice;
 #else
   for (int i = 0; i < argc; ++i) {
@@ -484,19 +476,14 @@ bool LuzPorVertice(int argc, const char* const* argv) {
 }  // namespace interno
 
 void EmpilhaMatriz(bool atualizar) {
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
   // Nao precisa porque a matriz empilhada eh igual.
   //if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glPushMatrix();
-#endif
 }
 
 void DesempilhaMatriz(bool atualizar) {
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
 #if DEBUG
   if (c->pilha_corrente->empty()) {
@@ -506,24 +493,14 @@ void DesempilhaMatriz(bool atualizar) {
 #endif
   c->pilha_corrente->pop();
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glPopMatrix();
-#endif
 }
 
 GLenum ModoMatrizCorrente() {
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
   return (c->pilha_corrente == &c->pilha_mvm) ? GL_MODELVIEW : GL_PROJECTION;
-#else
-  GLenum ret;
-  glGetIntegerv(GL_MATRIX_MODE, (GLint*)&ret);
-  return ret;
-#endif
 }
 
 void MudarModoMatriz(GLenum modo) {
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
   if (modo == GL_MODELVIEW) {
     c->pilha_corrente = &c->pilha_mvm;
@@ -531,70 +508,43 @@ void MudarModoMatriz(GLenum modo) {
     c->pilha_corrente = &c->pilha_prj;
   }
   //ATUALIZA_MATRIZES_NOVO();
-#else
-  glMatrixMode(modo);
-#endif
 }
 
 void CarregaIdentidade(bool atualizar) {
-#if USAR_SHADER
   interno::BuscaContexto()->pilha_corrente->top().identity();
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glLoadIdentity();
-#endif
 }
 
 void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
-#if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4(matriz);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glMultMatrixf(matriz);
-#endif
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
-#if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().scale(x, y, z);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glScalef(x, y, z);
-#endif
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
-#if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().translate(x, y, z);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glTranslatef(x, y, z);
-#endif
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
-#if USAR_SHADER
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4().rotate(angulo_graus, x, y, z);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
-#else
-  glRotatef(angulo_graus, x, y, z);
-#endif
 }
 
 void TamanhoPonto(float tam) {
-#if USAR_SHADER
   const auto& shader = interno::BuscaShader();
   GLint uniforme = shader.uni_gltab_dados_raster;
   GLfloat dados_raster[4];
   LeUniforme(shader.programa, uniforme, dados_raster);
   // Tamanho do ponto eh o p, ou terceiro elemento.
   Uniforme(uniforme, dados_raster[0], dados_raster[1], tam, dados_raster[3]);
-#else
-  glPointSize(tam);
-#endif
 }
 
 // DesligaEscritaProfundidadeEscopo.
@@ -613,53 +563,32 @@ DesligaEscritaProfundidadeEscopo::~DesligaEscritaProfundidadeEscopo() {
 }
 
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-#if USAR_SHADER
   PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_vertice, vertices_por_coordenada, tipo, GL_FALSE, passo, vertices);
-#else
-  glVertexPointer(vertices_por_coordenada, tipo, passo, vertices);
-#endif
 }
 
 void PonteiroNormais(GLenum tipo, GLsizei passo, const GLvoid* normais) {
-#if USAR_SHADER
   if (!interno::UsandoShaderLuz()) {
     return;
   }
   PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_normal, 3  /**dimensoes*/, tipo, GL_FALSE, passo, normais);
-#else
-  glNormalPointer(tipo, passo, normais);
-#endif
 }
 
 void Normal(GLfloat x, GLfloat y, GLfloat z) {
-#if USAR_SHADER
   if (!interno::UsandoShaderLuz()) {
     return;
   }
   AtributoVertice(interno::BuscaShader().atr_gltab_normal, x, y, z);
-#else
-  glNormal3f(x, y, z);
-#endif
 }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
-#if USAR_SHADER
   PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
-#else
-  glColorPointer(num_componentes, GL_FLOAT, passo, cores);
-#endif
 }
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-#if USAR_SHADER
   PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
-#else
-  glTexCoordPointer(vertices_por_coordenada, tipo, passo, vertices);
-#endif
 }
 
 bool EstaHabilitado(GLenum cap) {
-#if USAR_SHADER
   const auto& shader = interno::BuscaShader();
   if (cap == GL_LIGHTING) {
     if (!interno::UsandoShaderLuz()) {
@@ -699,9 +628,6 @@ bool EstaHabilitado(GLenum cap) {
     return cor[3] > 0;
   }
   return glIsEnabled(cap);
-#else
-  return glIsEnabled(cap);
-#endif
 }
 
 
@@ -719,19 +645,13 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical)
 }
 
 void LuzAmbiente(float r, float g, float b) {
-#if USAR_SHADER
   if (!interno::UsandoShaderLuz()) {
     return;
   }
   Uniforme(interno::BuscaShader().uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
-#else
-  GLfloat glparams[4] = { r, g, b, 1.0f };
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, glparams);
-#endif
 }
 
 void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
-#if USAR_SHADER
   if (!interno::UsandoShaderLuz()) {
     return;
   }
@@ -747,15 +667,9 @@ void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
   vp = nm * vp;
   //LOG(ERROR) << "vp: " << vp.x << ", " << vp.y << ", " << vp.z;
   Uniforme(interno::BuscaShader().uni_gltab_luz_direcional_pos, vp.x, vp.y, vp.z, 1.0f);
-#else
-  glLightfv(GL_LIGHT0, GL_POSITION, pos);
-  GLfloat cor[] = { r, g, b, 1.0f };
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, cor);
-#endif
 }
 
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio) {
-#if USAR_SHADER
   if (!interno::UsandoShaderLuz()) {
     return;
   }
@@ -773,22 +687,9 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzPos(luz - 1)], vp.x, vp.y, vp.z, 1.0f);
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(luz - 1)], r, g, b, 1.0f);
   Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzAtributos(luz - 1)], raio, 0, 0, 0);
-#else
-  glLightfv(GL_LIGHT0 + luz, GL_POSITION, pos);
-  GLfloat cor_luz[] = { r, g, b, 1.0f };
-  glLightfv(GL_LIGHT0 + luz, GL_DIFFUSE, cor_luz);
-  // Equacao: y = 1 / (c + q * d ^ 2)
-  // valores c = 0.2 e q = 0.02 dao 0.5 em y = 6 (4 quadrados), equivalente a tocha.
-  // o modificador sera aplicado aos dois de forma inversa ao raio. Ou seja, um raio de 12 divide
-  // os coeficientes por 2, o que reduz o decaimento de 50% pela metade. Eh apenas uma aproximacao.
-  float mod = 6.0f / raio;
-  glLightf(GL_LIGHT0 + luz, GL_CONSTANT_ATTENUATION, 0.2f * mod);
-  glLightf(GL_LIGHT0 + luz, GL_QUADRATIC_ATTENUATION, 0.02f * mod);
-#endif
 }
 
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia) {
-#if USAR_SHADER
   if (!interno::UsandoShaderComNevoa()) {
     return;
   }
@@ -801,13 +702,6 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
   Uniforme(shader.uni_gltab_nevoa_referencia, v.x, v.y, v.z, 1.0f);
   Uniforme(shader.uni_gltab_nevoa_dados, inicio, fim, 0.0f  /*nao usado*/, (1.0f / (fim - inicio))  /*escala*/);
   Uniforme(shader.uni_gltab_nevoa_cor, r, g, b, 1.0f);
-#else
-  glFogf(GL_FOG_MODE, GL_LINEAR);
-  glFogf(GL_FOG_START, inicio);
-  glFogf(GL_FOG_END, fim);
-  GLfloat cor[] = { r, g, b, 1.0f };
-  glFogfv(GL_FOG_COLOR, cor);
-#endif
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
@@ -831,13 +725,9 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   m[2][3] = -1.0f;
   m[3][2] = -2.0f * zNear * zFar / deltaZ;
   m[3][3] = 0;
-#if USAR_SHADER
   Matrix4& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
   ATUALIZA_MATRIZES_NOVO();
-#else
-  MultiplicaMatriz(&m[0][0]);
-#endif
 }
 
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
@@ -873,16 +763,11 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   m[1][2] = -forward[1];
   m[2][2] = -forward[2];
 
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
   Matrix4& topo = c->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
   topo *= Matrix4().translate(-eyex, -eyey, -eyez);
   ATUALIZA_MATRIZES_NOVO();
-#else
-  glMultMatrixf(&m[0][0]);
-  glTranslatef(-eyex, -eyey, -eyez);
-#endif
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
@@ -894,7 +779,6 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   glm[1] = 0; glm[5] = 2.0f / (cima - baixo); glm[9] = 0; glm[13] = ty;
   glm[2] = 0; glm[6] = 0; glm[10] = -2.0f / (distante - proximo); glm[14] = tz;
   glm[3] = 0; glm[7] = 0; glm[11] = 0; glm[15] = 1;
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
   Matrix4 topo = c->pilha_corrente->top();
   Matrix4 m(glm);
@@ -903,13 +787,9 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   //c->pilha_corrente->top() = m * topo;
   c->pilha_corrente->top() = topo * m;
   ATUALIZA_MATRIZES_NOVO();
-#else
-  glMultMatrixf(glm);
-#endif
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
-#if USAR_SHADER
   if (delta_x <= 0 || delta_y <= 0) {
     return;
   }
@@ -922,16 +802,6 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
       0);
   topo *= mt;
   ATUALIZA_MATRIZES_NOVO();
-#else
-  if (delta_x <= 0 || delta_y <= 0) {
-    return;
-  }
-
-  /* Translate and scale the picked region to the entire window */
-  glTranslatef((viewport[2] - 2 * (x - viewport[0])) / delta_x,
-               (viewport[3] - 2 * (y - viewport[1])) / delta_y, 0);
-  glScalef(viewport[2] / delta_x, viewport[3] / delta_y, 1.0);
-#endif
 }
 
 GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
@@ -944,7 +814,6 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
 }
 
 void Le(GLenum nome_parametro, GLfloat* valor) {
-#if USAR_SHADER
   auto* c = interno::BuscaContexto();
   if (nome_parametro == GL_MODELVIEW_MATRIX) {
     memcpy(valor, c->pilha_mvm.top().get(), 16 * sizeof(float));
@@ -953,13 +822,9 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
   } else {
     glGetFloatv(nome_parametro, valor);
   }
-#else
-  glGetFloatv(nome_parametro, valor);
-#endif
 }
 
 void HabilitaEstadoCliente(GLenum cap) {
-#if USAR_SHADER
   if (cap == GL_VERTEX_ARRAY) {
     HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_vertice);
   } else if (cap == GL_NORMAL_ARRAY) {
@@ -974,13 +839,9 @@ void HabilitaEstadoCliente(GLenum cap) {
   } else {
     glEnableClientState(cap);
   }
-#else
-  glEnableClientState(cap);
-#endif
 }
 
 void DesabilitaEstadoCliente(GLenum cap) {
-#if USAR_SHADER
   if (cap == GL_VERTEX_ARRAY) {
     DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_vertice);
   } else if (cap == GL_NORMAL_ARRAY) {
@@ -995,12 +856,8 @@ void DesabilitaEstadoCliente(GLenum cap) {
   } else {
     glDisableClientState(cap);
   }
-#else
-  glDisableClientState(cap);
-#endif
 }
 
-#if USAR_SHADER
 void UsaShader(TipoShader ts) {
   auto* c = interno::BuscaContexto();
   UsaPrograma(c->shaders[ts].programa);
@@ -1040,7 +897,6 @@ void DebugaMatrizes() {
   //LOG_EVERY_N(INFO, 300) << "MV: \n" << Matrix4(mv)
   //                       << ", NM: \n" << normal;
 }
-#endif
 
 void TamanhoFonte(int* largura, int* altura, int* escala) {
   GLint viewport[4];
@@ -1097,11 +953,7 @@ void CarregaNome(GLuint id) {
     VLOG(2) << "Mapeando " << id << ", bit pilha " << c->bit_pilha
             << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
     // Muda a cor para a mapeada.
-#if USAR_SHADER
     AtributoVertice(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
-#else
-    glColor4ub(rgb[0], rgb[1], rgb[2], 255);
-#endif
   } else {
 #if !USAR_OPENGL_ES
     glLoadName(id);
@@ -1212,7 +1064,6 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         VLOG(1) << "Id original: " << id_original;
         GLuint* ptr = c->buffer_selecao;
         ptr[0] = 2;  // Sempre 2: 1 para tipo, outro para id.
-#if USAR_SHADER
         //GLuint from_depth;
         //glReadPixels(0, 0, 1, 1, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, &from_depth);
         // Converte a profundidade para 32 bits.
@@ -1226,9 +1077,6 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
           //          << ", prof: " << (void*)static_cast<GLuint>(prof * 0xFFFFFFFF);
           ptr[1] = static_cast<GLuint>(prof * 0xFFFFFFFF);
         }
-#else
-        ptr[1] = 0;  // zmin.
-#endif
 #pragma GCC diagnostic pop
         ptr[2] = ptr[1];  // zmax
         ptr[3] = tipo_objeto;
@@ -1256,14 +1104,7 @@ void MudaCor(float r, float g, float b, float a) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
-#if USAR_SHADER
   AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
-#else
-  // Segundo manual do OpenGL ES, nao se pode definir o material separadamente por face.
-  GLfloat cor[4] = { r, g, b, a };
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, cor);
-  glColor4f(r, g, b, a);
-#endif
 }
 
 void Limpa(GLbitfield mascara) {
@@ -1293,21 +1134,13 @@ void Habilita(GLenum cap) {
       return;
     }
   } else {
-#if USAR_SHADER
     interno::HabilitaComShader(c, cap);
-#else
-    glEnable(cap);
-#endif
   }
 }
 
 void Desabilita(GLenum cap) {
-#if USAR_SHADER
   interno::DesabilitaComShader(interno::BuscaContexto(), cap);
   V_ERRO((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
-#else
-  glDisable(cap);
-#endif
 }
 
 void FinalizaGl() {
