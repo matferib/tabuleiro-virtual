@@ -1,4 +1,6 @@
 Versao 1.13.0
+- Textura em outras formas.
+- Ataque automatico.
 - Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
@@ -9,7 +11,6 @@ Versao 1.13.0
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
-- Tirar versao sem shader
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
@@ -20,7 +21,6 @@ Versao 1.13.0
 - Terminar socket.
 - Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
-- Textura em outras formas.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Credito para atribuicoes.
