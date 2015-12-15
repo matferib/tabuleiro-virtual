@@ -14,6 +14,14 @@ modelo {
   }
 }
 modelo {
+  id: 'Androesfinge'
+  entidade {
+    dados_vida: '12d10+48' info_textura { id: 'androsphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: 0\nat (2): +18 2d4+7\nca: 22'
+  }
+}
+modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
@@ -45,6 +53,14 @@ modelo {
 modelo {
   id: 'Centopéia Imensa'
   entidade { dados_vida: '12d8+12' tamanho: TM_IMENSO achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+}
+modelo {
+  id: 'Crioesfinge'
+  entidade {
+    dados_vida: '10d10+30' info_textura { id: 'criosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: 0\nat: +15/+10/+10\ndano: 2d6+6/1d6+3/1d6+3\nca: 20'
+  }
 }
 modelo {
   id: 'Demônio Vrock'
@@ -100,6 +116,20 @@ modelo {
   }
 }
 modelo {
+  id: 'Escorpião Monstruoso Grande'
+  entidade {
+    dados_vida: '5d8+10' tamanho: TM_GRANDE cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    rotulo_especial: 'ini: 0\nat: +1/+6/+6\n1d6+2(+ven)/1d6+4/1d6+4'
+  }
+}
+modelo {
+  id: 'Escorpião Monstruoso Enorme'
+  entidade {
+    dados_vida: '10d8+30' tamanho: TM_ENORME cor { r: 0.3 g: 0.1 b: 0.1 } info_textura { id: 'scorpion.png' }
+    rotulo_especial: 'ini: 0\nat: +6/+11/+11\n2d4+3(+ven)/1d8+6/1d8+6'
+  }
+}
+modelo {
   id: 'Enxame (centopéias)'
   entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
 }
@@ -116,8 +146,37 @@ modelo {
   entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
 }
 modelo {
-  id: 'Gigante da Colina'
-  entidade { dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 } }
+  id: 'Gigante das Colinas'
+  entidade {
+    dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    rotulo_especial: 'ini -1\nat: +16/+11 2d8+10\npedrada: +8 2d6+7\nca: 20'
+    lista_acoes: 'Ataque Corpo a Corpo'
+    lista_acoes: 'Pedrada (gigante)'
+  }
+}
+modelo {
+  id: 'Gigante das Pedras'
+  entidade {
+    dados_vida: '14d8+56' tamanho: TM_GRANDE info_textura { id: 'giant_stone.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    rotulo_especial: 'ini+2\nat: +17/+12 2d8+12\npedra: +11 2d8+12\nca:25'
+    lista_acoes: 'Ataque Corpo a Corpo'
+    lista_acoes: 'Pedrada (gigante)'
+  }
+}
+modelo {
+  id: 'Gigante das Tempestades'
+  entidade {
+    dados_vida: '19d8+114' tamanho: TM_ENORME info_textura { id: 'giant_storm.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
+    rotulo_especial: 'ini+2\nat: +26/+21/+16 4d6+21/19-20\narco: +14/+9/+4 3d6+14/x3\nca:27'
+  }
+}
+modelo {
+  id: 'Ginoesfinge'
+  entidade {
+    dados_vida: '8d10+8' info_textura { id: 'gynosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +5\nat (2): +11 1d6+4\nca: 21'
+  }
 }
 modelo {
   id: 'Grifo'
@@ -127,16 +186,35 @@ modelo {
   }
 }
 modelo {
+  id: 'Hiena'
+  entidade {
+    dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini +2\nat: +3 1d6+3\nca: 14'
+  }
+}
+modelo {
   id: 'Hipogrifo'
   entidade {
     dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'ini: +2\nat: +6/+6/+1\ndano: 1d4+4/1d4+4/1d8+2\nca: 15'
   }
 }
-
+modelo {
+  id: 'Leão'
+  entidade {
+    dados_vida: '5d8+10' tamanho: TM_GRANDE info_textura { id: 'lion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini: +3\nat: +2/+7/+7\ndano: 1d8+2/1d4+5/1d4+5\nca: 15'
+  }
+}
 modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
+}
+modelo {
+  id: 'Medusa'
+  entidade {
+    dados_vida: '6d8+6' info_textura { id: 'medusa.png' } cor { r: 0.384 g: 0.318 b: 0.282 }
+  }
 }
 modelo {
   id: 'Mephit do Fogo'
@@ -187,6 +265,14 @@ modelo {
     dados_vida: '3d8+3' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
+  }
+}
+modelo {
+  id: 'Hieracoesfinge'
+  entidade {
+    dados_vida: '9d10+18' info_textura { id: 'hieracosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +2\nat: +13/+8/+8\ndano: 1d10+5/1d6+2/1d6+2\nca: 21'
   }
 }
 modelo {
@@ -254,6 +340,24 @@ modelo {
   }
 }
 modelo {
+  id: 'Quimera'
+  entidade {
+    dados_vida: '9d10+27' tamanho: TM_GRANDE info_textura { id: 'chimera.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
+    rotulo_especial: 'ini: +1\nat: +12/+12/+12/+10/+10\ndano:2d6+4/1d8+4/1d8+4/1d6+2/1d6+2\nca: 19'
+  }
+}
+modelo {
+  id: 'Rinoceronte'
+  entidade {
+    dados_vida: '8d8+40' tamanho: TM_GRANDE info_textura { id: 'rhinoceros.png' } cor { r: 0.5 g: 0.5 b: 0.5 }
+    rotulo_especial: 'ini: 0\nat: +13 2d6+12\nca: 16'
+  }
+}
+modelo {
+  id: 'Tigre'
+  entidade { info_textura { id: 'snowtiger.png' } }
+}
+modelo {
   id: 'Troll'
   entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
 }
@@ -302,6 +406,105 @@ modelo {
 modelo {
   id: 'teste orc'
   entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'orc' } }
+}
+modelo {
+  id: 'Cactos'
+  entidade {
+    tipo: TE_COMPOSTA
+    escala { x: 0.85483849 y: 0.85483849 z: 0.85483849 }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.030991048 y: -0.050391197 z: 1.1999998 }
+      cor { r: 0 g: 0.71372551 b: 0.06666667 a: 1 }
+      sub_tipo: TF_CILINDRO
+      escala { x: 0.3 y: 0.4 z: 0.4
+    }
+    rotacao_z_graus: 358
+    rotacao_y_graus: -51
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: 0.30096516       y: 0.26950264       z: 1.36       id_cenario: -1     }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_CILINDRO
+    escala { x: 0.28100929       y: 0.3343055       z: 0.6966061     }
+    rotacao_z_graus: -19
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: 0.072809577       y: 0.11388016       z: 1.1999998       id_cenario: -1     }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_CILINDRO
+    escala {       x: 0.3       y: 0.3       z: 0.4     }
+    rotacao_z_graus: 216 
+    rotacao_y_graus: -51
+  }
+  sub_forma {
+    tipo: TE_COMPOSTA
+    pos { x: 0.053152412       y: -0.24006081       z: -0.39999998       id_cenario: -1     }
+    escala {       x: 1.2544    y: 1.2544       z: 1.2544     }
+    rotacao_z_graus: 87
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.16753078         y: -0.018273354         z: 1.1999998         id_cenario: -1       }
+      cor { r: 0         g: 0.71372551         b: 0.06666667         a: 1       }
+      sub_tipo: TF_CILINDRO
+      escala {         x: 0.3         y: 0.4         z: 0.4       }
+      rotacao_z_graus: 362
+      rotacao_y_graus: -51
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -0.16753078         y: 0.018274307         z: 1.36         id_cenario: -1       }
+      cor { r: 0         g: 0.71372551         b: 0.06666667         a: 1       }
+      sub_tipo: TF_CILINDRO
+      escala { x: 0.28100929         y: 0.3343055         z: 0.6966061       }
+      rotacao_z_graus: -15
+    }
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: 0.28926766 y: 0.26173019       z: 2.0800004  }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_ESFERA
+    escala {  x: 0.352       y: 0.352       z: 0.352     }
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: 0.05766657       y: -0.018131256       z: 0       id_cenario: -1     }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1 }
+    sub_tipo: TF_CILINDRO
+    escala { x: 0.46858674       y: 0.55745888       z: 1.1616     }
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: -0.36512804       y: -0.0088834763       z: 2.0000005       id_cenario: -1     }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_ESFERA
+    escala { x: 0.352       y: 0.352       z: 0.352     }
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: -0.36605257       y: -0.013843536       z: 1.36       id_cenario: -1     }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_CILINDRO
+    escala {  x: 0.28100929       y: 0.3343055       z: 0.6966061     }
+    rotacao_z_graus: -19
+  }   sub_forma {
+    tipo: TE_FORMA
+    pos { x: 0.016239882       y: -0.44123745       z: 2.2400002       id_cenario: -1 }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_ESFERA
+    escala { x: 0.4       y: 0.4       z: 0.4     }
+  }
+  sub_forma {
+    tipo: TE_FORMA
+    pos { x: -0.027929902       y: 0.12743473       z: 1.2800007       id_cenario: -1     }
+    cor { r: 0       g: 0.71372551       b: 0.06666667       a: 1     }
+    sub_tipo: TF_ESFERA
+    escala {       x: 0.352       y: 0.352       z: 0.352     }
+  }
+}
 }
 modelo {
   id: 'Árvore (pinheiro)'

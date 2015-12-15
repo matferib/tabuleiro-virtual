@@ -51,6 +51,10 @@ class ReceptorErro : public ntf::Receptor {
         case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
           TrataNotificacaoAbrirDialogoEntidade(notificacao);
           break;
+        case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
+          TrataNotificacaoAbrirDialogoSalvarTabuleiro(notificacao);
+          break;
+        }
         default:
           return false;
       }
@@ -97,6 +101,11 @@ class ReceptorErro : public ntf::Receptor {
     env_->DeleteLocalRef(java_nstr);
   }
 
+  void TrataNotificacaoAbrirDialogoSalvarTabuleiro(const ntf::Notificacao& notificacao) {
+    jmethodID metodo = Metodo("abreDialogoSalvarTabuleiro", "()V");
+    env_->CallVoidMethod(thisz_, metodo);
+  }
+
   JNIEnv* env_ = nullptr;
   jobject thisz_ = nullptr;
 };
@@ -141,15 +150,6 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
 
-  // TESTE
-  try {
-    auto* ntf_tab = new ntf::Notificacao;
-    arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "castelo.binproto", ntf_tab);
-    ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-    g_central->AdicionaNotificacao(ntf_tab);
-  } catch (...) {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
-  }
   /*{
     ntf::Notificacao ninfo;
     ninfo.set_tipo(ntf::TN_INFO);
@@ -159,6 +159,15 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   if (servidor) {
     auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
     g_central->AdicionaNotificacao(n);
+    // TESTE
+    try {
+      auto* ntf_tab = new ntf::Notificacao;
+      arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "deserto.binproto", ntf_tab);
+      ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+      g_central->AdicionaNotificacao(ntf_tab);
+    } catch (...) {
+      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
+    }
   } else {
     std::string nome_nativo = ConverteString(env, nome);
     std::string endereco_nativo = ConverteString(env, endereco);
@@ -295,6 +304,18 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobj
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();
+}
+
+
+// Dialogo de tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(JNIEnv* env, jobject thiz, jstring nome_arquivo) {
+  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
+  if (nome_arquivo_c.empty()) {
+    return;
+  }
+  auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+  n->set_endereco(nome_arquivo_c);
+  g_central->AdicionaNotificacao(n);
 }
 
 // Atualizacao de entidade.

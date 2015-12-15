@@ -754,8 +754,27 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
     -m, m, 0.0f,
     -m, -m, 0.0f,
   };
+  const float coordenadas_texel[] = {
+    // sul
+    0.5f, 0.5f,  // s meio
+    0.0f, 1.0f,   // s oeste
+    1.0f, 1.0f,   // s leste
+    // leste
+    0.5f, 0.5f,  // e meio
+    1.0f, 1.0f,   // e sul
+    1.0f, 0.0f,   // e norte
+    // norte
+    0.5f, 0.5f,  // n meio
+    1.0f, 0.0f,   // n leste
+    0.0f, 0.0f,   // n oeste
+    // oeste
+    0.5f, 0.5f,  // w meio
+    0.0f, 0.0f,   // w norte
+    0.0f, 1.0f,   // w sul
+  };
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
+  vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 12);
   vbo.AtribuiNormais(normais);
   vbo.Nomeia("piramide");

@@ -191,13 +191,23 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       break;
-    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
-      if (!notificacao.tabuleiro().has_nome() && tabuleiro_->TemNome()) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
-        central_->AdicionaNotificacao(n);
+    case ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO: {
+      QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+          tr("Abrir tabuleiro"),
+          arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
+      if (file_str.isEmpty()) {
+        VLOG(1) << "Operação de restaurar cancelada.";
         break;
       }
+      auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+      if (notificacao.tabuleiro().manter_entidades()) {
+        n->mutable_tabuleiro()->set_manter_entidades(true);
+      }
+      n->set_endereco(file_str.toStdString());
+      central_->AdicionaNotificacao(n);
+      break;
+    }
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
       // Abre dialogo de arquivo.
       QString file_str = QFileDialog::getSaveFileName(
           qobject_cast<QWidget*>(parent()),

@@ -267,6 +267,18 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       ColaEntidadesSelecionadas();
       break;
     }
+    case CONTROLE_SALVAR: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO));
+      break;
+    }
+    case CONTROLE_SALVAR_COMO: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+      break;
+    }
+    case CONTROLE_ABRIR: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO));
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         ntf::Notificacao n;

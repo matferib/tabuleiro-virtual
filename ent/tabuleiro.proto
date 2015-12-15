@@ -57,8 +57,10 @@ message TabuleiroProto {
   optional Cor luz_ambiente = 7;
   // Textura do tabuleiro.
   optional InfoTextura info_textura = 5;
-  // Textura do tabuleiro.
+  // Caixa do ceu (skybox).
   optional InfoTextura info_textura_ceu = 16;
+  // Para texturas noturnas e escuras, eh melhor nao aplicar iluminacao.
+  optional bool aplicar_luz_ambiente_textura_ceu = 20 [default = true];
   // Aplicar a textura de forma ladrilhada.
   optional bool ladrilho = 9;
   // Tamanho do tabuleiro em quadrados.

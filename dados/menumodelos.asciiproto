@@ -6,6 +6,10 @@ modelo { id: 'Carniçal' }
 modelo { id: 'Centopéia Imensa' }
 sub_menu {
   id: 'Animais'
+  modelo { id: 'Hiena' }
+  modelo { id: 'Leão' }
+  modelo { id: 'Rinoceronte' }
+  modelo { id: 'Tigre' }
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
@@ -35,15 +39,28 @@ sub_menu {
   modelo { id: 'Elfo' }
 }
 sub_menu {
+  id: 'Esfinges'
+  modelo { id: 'Androesfinge' }
+  modelo { id: 'Crioesfinge' }
+  modelo { id: 'Ginoesfinge' }
+  modelo { id: 'Hieracoesfinge' }
+}
+sub_menu {
   id: 'Esqueletos'
   modelo { id: 'Esqueleto (Humano Combatente)' }
   modelo { id: 'Esqueleto (Lobo)' }
   modelo { id: 'Esqueleto (Troll)' }
 }
-modelo { id: 'Gigante da Colina' }
+sub_menu {
+  id: 'Gigantes'
+  modelo { id: 'Gigante das Colinas' }
+  modelo { id: 'Gigante das Pedras' }
+  modelo { id: 'Gigante das Tempestades' }
+}
 modelo { id: 'Grifo' }
 modelo { id: 'Hipogrifo' }
 modelo { id: 'Manto Negro' }
+modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }
 sub_menu {
   id: 'Humanos'
@@ -81,6 +98,11 @@ sub_menu {
 modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
 sub_menu {
+  id: 'Vermes'
+  modelo { id: 'Escorpião Monstruoso Grande' }
+  modelo { id: 'Escorpião Monstruoso Enorme' }
+}
+sub_menu {
   id: 'Zumbis'
   modelo { id: 'Zumbi (humano)' }
   modelo { id: 'Zumbi (kobold)' }
@@ -91,6 +113,7 @@ sub_menu {
   modelo { id: 'Árvore (genérica)' }
   modelo { id: 'Árvore (pinheiro)' }
   modelo { id: 'Árvore (seca)' }
+  modelo { id: 'Cactos' }
   modelo { id: 'Casa (8x7)' }
   modelo { id: 'Moedas' }
   modelo { id: 'Baú (madeira)' }

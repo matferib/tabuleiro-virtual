@@ -932,6 +932,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
+      if (TemNome()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
+        central_->AdicionaNotificacao(n);
+        break;
+      }
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+      break;
+    }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
       std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
       if (notificacao.has_endereco()) {
@@ -2317,7 +2327,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
 void Tabuleiro::GeraVboCaixaCeu() {
   // O cubo tem que ser maior que a distancia do plano de corte minimo.
-  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 3.0));
+  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 4.0));
   // Valores de referencia:
   // imagem 4x3.
   // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
@@ -4483,6 +4493,9 @@ void Tabuleiro::DesenhaLuzes() {
 
 void Tabuleiro::DesenhaCaixaCeu() {
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
+  if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
+    gl::Desabilita(GL_LIGHTING);
+  }
   // Desliga luzes direcionais e pontuais.
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -4516,6 +4529,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Habilita(GL_LIGHT0 + i);
   }
+  gl::Habilita(GL_LIGHTING);
   if (nevoa) {
     // Religa nevoa se desligou.
     gl::Habilita(GL_FOG);
