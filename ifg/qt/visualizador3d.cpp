@@ -83,26 +83,8 @@ const QString TamanhoParaTexto(int tamanho) {
 
 // Carrega os dados de uma textura pro proto 'info_textura' e tambem preenche plargura e paltura.
 bool PreencheInfoTextura(
-    const QFileInfo& info_arquivo, bool global, ent::InfoTextura* info_textura, unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
-  unsigned int largura = 0, altura = 0;
-  if (plargura == nullptr) {
-    plargura = &largura;
-  }
-  if (paltura == nullptr) {
-    paltura = &altura;
-  }
-  try {
-    tex::Texturas::LeDecodificaImagem(
-        global, info_arquivo.absoluteFilePath().toStdString(), info_textura, plargura, paltura);
-    return true;
-  } catch (...) {
-    LOG(ERROR) << "Textura inválida: " << info_textura->id();
-    return false;
-  }
-}
-
-bool PreencheInfoTextura(
-    const std::string& nome, arq::tipo_e tipo, ent::InfoTextura* info_textura, unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
+    const std::string& nome, arq::tipo_e tipo, ent::InfoTextura* info_textura,
+    unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
   unsigned int largura = 0, altura = 0;
   if (plargura == nullptr) {
     plargura = &largura;
@@ -117,28 +99,6 @@ bool PreencheInfoTextura(
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
     return false;
   }
-}
-
-// Retorna o caminho para o id de textura.
-const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id, bool* pglobal = nullptr) {
-  bool global = false;
-  if (pglobal == nullptr) {
-    pglobal = &global;
-  }
-  // Encontra o caminho para o arquivo.
-  auto pos = id.find("0:");  // pode assumir id zero, ja que so o mestre pode criar.
-  QFileInfo fileinfo;
-  if (pos == std::string::npos) {
-    // Textura global.
-    fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS), QString::fromStdString(id));
-    *pglobal = true;
-  } else {
-    // Textura local.
-    fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS_LOCAIS), QString::fromStdString(id.substr(pos)));
-    *pglobal = false;
-  }
-  LOG(INFO) << "Caminho para texturas: " << fileinfo.fileName().toStdString();
-  return fileinfo;
 }
 
 // Mapeia a tecla do QT para do TratadorTecladoMouse.
@@ -909,7 +869,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   lambda_connect(gerador.checkbox_tamanho_automatico, SIGNAL(stateChanged(int)), [this, &gerador] () {
     int novo_estado = gerador.checkbox_tamanho_automatico->checkState();
     // Deve ter textura.
-    if (novo_estado == Qt::Checked && gerador.combo_fundo->currentIndex() != 0) {
+    if (novo_estado == Qt::Checked && gerador.combo_fundo->currentIndex() == 0) {
       gerador.checkbox_tamanho_automatico->setCheckState(Qt::Unchecked);
       return;
     }
@@ -958,12 +918,18 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
+      int indice = gerador.combo_fundo->currentIndex();
+      arq::tipo_e tipo = static_cast<arq::tipo_e>(gerador.combo_fundo->itemData(indice).toInt());
       // Busca tamanho da textura. Copia o objeto aqui porque a funcao PreencheInfoTextura o modifica.
       ent::InfoTextura textura = proto_retornado->info_textura();
       unsigned int largura = 0, altura = 0;
-      bool global;
-      auto caminho = IdTexturaParaCaminhoArquivo(textura.id(), &global);
-      PreencheInfoTextura(caminho, global, &textura, &largura, &altura);
+      std::string nome;
+      if (tipo == arq::TIPO_TEXTURA_LOCAL) {
+        nome = gerador.combo_fundo->itemText(indice).split(":")[1].toStdString();
+      } else {
+        nome = gerador.combo_fundo->itemText(indice).toStdString();
+      }
+      PreencheInfoTextura(nome, tipo, &textura, &largura, &altura);
       proto_retornado->set_largura(largura / 8);
       proto_retornado->set_altura(altura / 8);
     } else {
