@@ -7,6 +7,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Águia'
+  entidade {
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 } voadora: true info_textura { id: 'eagle.png' }
+    rotulo_especial: 'ini: +2\nat: +3 1d4\nca: 14'
+  }
+}
+modelo {
   id : 'Anão'
   entidade {
     dados_vida: '1d8+2' cor { r: 0.4 g: 0.1 b: 0.1 } info_textura { id: 'dwarf.png' }
@@ -240,12 +247,20 @@ modelo {
   entidade { dados_vida: '1d10' info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
+  id: 'Humana Guerreira'
+  entidade { dados_vida: '1d10' info_textura { id: 'fighter_female.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+}
+modelo {
   id: 'Humano Ladino'
   entidade { dados_vida: '1d6' info_textura { id: 'rogue.png'} cor { r: 0.250 g: 0.250 b: 0.250 } }
 }
 modelo {
   id: 'Humano Mago'
   entidade { dados_vida: '1d4' info_textura { id: 'wizard.png'} cor { r: 0.150 g: 0.150 b: 0.150 } }
+}
+modelo {
+  id: 'Humano Monge'
+  entidade { dados_vida: '1d8' info_textura { id: 'monk.png'} cor { r: 0.3 g: 0.1 b: 0.1 } }
 }
 modelo {
   id: 'Humano Paladino'
