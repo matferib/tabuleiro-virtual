@@ -14,6 +14,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
 #include <QtGui/QCheckBox>
+#include <QtGui/QComboBox>
 #include <QtGui/QDial>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
@@ -84,8 +85,8 @@ public:
     QSpinBox *spin_rotacao_y;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_8;
-    QLineEdit *linha_textura;
-    QPushButton *botao_textura;
+    QLabel *label_4;
+    QComboBox *combo_textura;
     QWidget *horizontalLayoutWidget_6;
     QHBoxLayout *horizontalLayout_11;
     QCheckBox *checkbox_fixa;
@@ -301,7 +302,7 @@ public:
 
         layoutWidget = new QWidget(ifg__qt__DialogoForma);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(140, 70, 277, 26));
+        layoutWidget->setGeometry(QRect(140, 70, 277, 29));
         horizontalLayout_13 = new QHBoxLayout(layoutWidget);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -380,16 +381,16 @@ public:
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
-        linha_textura = new QLineEdit(horizontalLayoutWidget_5);
-        linha_textura->setObjectName(QString::fromUtf8("linha_textura"));
-        linha_textura->setReadOnly(false);
+        label_4 = new QLabel(horizontalLayoutWidget_5);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_8->addWidget(linha_textura);
+        horizontalLayout_8->addWidget(label_4);
 
-        botao_textura = new QPushButton(horizontalLayoutWidget_5);
-        botao_textura->setObjectName(QString::fromUtf8("botao_textura"));
+        combo_textura = new QComboBox(horizontalLayoutWidget_5);
+        combo_textura->setObjectName(QString::fromUtf8("combo_textura"));
 
-        horizontalLayout_8->addWidget(botao_textura);
+        horizontalLayout_8->addWidget(combo_textura);
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
@@ -557,21 +558,6 @@ public:
 
         verticalLayout_2->addLayout(horizontalLayout_14);
 
-        horizontalLayoutWidget->raise();
-        botoes->raise();
-        horizontalLayoutWidget_2->raise();
-        groupBox->raise();
-        groupBox_2->raise();
-        horizontalLayoutWidget_3->raise();
-        layoutWidget->raise();
-        horizontalLayoutWidget_4->raise();
-        groupBox_3->raise();
-        horizontalLayoutWidget_5->raise();
-        horizontalLayoutWidget_6->raise();
-        layoutWidget_2->raise();
-        groupBox_4->raise();
-        groupBox_5->raise();
-        verticalLayoutWidget_2->raise();
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -604,8 +590,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
-        botao_textura->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Textura", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("ifg::qt::DialogoForma", "Textura", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP

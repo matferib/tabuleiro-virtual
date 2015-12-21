@@ -353,7 +353,7 @@
      <x>140</x>
      <y>70</y>
      <width>277</width>
-     <height>26</height>
+     <height>29</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_13">
@@ -526,21 +526,17 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_8">
     <item>
-     <widget class="QLineEdit" name="linha_textura">
-      <property name="readOnly">
-       <bool>false</bool>
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>Textura</string>
       </property>
-      <property name="placeholderText">
-       <string>Caminho para textura ou vazio</string>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="botao_textura">
-      <property name="text">
-       <string>Escolher Textura</string>
-      </property>
-     </widget>
+     <widget class="QComboBox" name="combo_textura"/>
     </item>
    </layout>
   </widget>
@@ -837,21 +833,6 @@
     </layout>
    </widget>
   </widget>
-  <zorder>horizontalLayoutWidget</zorder>
-  <zorder>botoes</zorder>
-  <zorder>horizontalLayoutWidget_2</zorder>
-  <zorder>groupBox</zorder>
-  <zorder>groupBox_2</zorder>
-  <zorder>horizontalLayoutWidget_3</zorder>
-  <zorder>layoutWidget</zorder>
-  <zorder>horizontalLayoutWidget_4</zorder>
-  <zorder>groupBox_3</zorder>
-  <zorder>horizontalLayoutWidget_5</zorder>
-  <zorder>horizontalLayoutWidget_6</zorder>
-  <zorder>layoutWidget_2</zorder>
-  <zorder>groupBox_4</zorder>
-  <zorder>groupBox_5</zorder>
-  <zorder>verticalLayoutWidget_2</zorder>
  </widget>
  <resources/>
  <connections>
