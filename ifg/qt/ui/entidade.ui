@@ -240,24 +240,17 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_6">
     <item>
-     <widget class="QLineEdit" name="linha_textura">
-      <property name="toolTip">
-       <string>Textura da entidade.</string>
+     <widget class="QLabel" name="label_15">
+      <property name="text">
+       <string>Textura</string>
       </property>
-      <property name="readOnly">
-       <bool>false</bool>
-      </property>
-      <property name="placeholderText">
-       <string>Caminho para textura ou vazio</string>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="botao_textura">
-      <property name="text">
-       <string>Escolher Textura</string>
-      </property>
-     </widget>
+     <widget class="QComboBox" name="combo_textura"/>
     </item>
    </layout>
   </widget>
@@ -483,7 +476,7 @@
      <x>20</x>
      <y>460</y>
      <width>361</width>
-     <height>31</height>
+     <height>35</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_16">
@@ -636,7 +629,7 @@
      <x>20</x>
      <y>400</y>
      <width>361</width>
-     <height>31</height>
+     <height>35</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_20">

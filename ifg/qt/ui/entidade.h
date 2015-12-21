@@ -59,8 +59,8 @@ public:
     QSlider *slider_tamanho;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_6;
-    QLineEdit *linha_textura;
-    QPushButton *botao_textura;
+    QLabel *label_15;
+    QComboBox *combo_textura;
     QWidget *horizontalLayoutWidget_7;
     QHBoxLayout *horizontalLayout_8;
     QCheckBox *checkbox_selecionavel;
@@ -247,16 +247,16 @@ public:
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
-        linha_textura = new QLineEdit(horizontalLayoutWidget_5);
-        linha_textura->setObjectName(QString::fromUtf8("linha_textura"));
-        linha_textura->setReadOnly(false);
+        label_15 = new QLabel(horizontalLayoutWidget_5);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+        label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_6->addWidget(linha_textura);
+        horizontalLayout_6->addWidget(label_15);
 
-        botao_textura = new QPushButton(horizontalLayoutWidget_5);
-        botao_textura->setObjectName(QString::fromUtf8("botao_textura"));
+        combo_textura = new QComboBox(horizontalLayoutWidget_5);
+        combo_textura->setObjectName(QString::fromUtf8("combo_textura"));
 
-        horizontalLayout_6->addWidget(botao_textura);
+        horizontalLayout_6->addWidget(combo_textura);
 
         horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
@@ -377,7 +377,7 @@ public:
 
         horizontalLayoutWidget_10 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_10->setObjectName(QString::fromUtf8("horizontalLayoutWidget_10"));
-        horizontalLayoutWidget_10->setGeometry(QRect(20, 460, 361, 31));
+        horizontalLayoutWidget_10->setGeometry(QRect(20, 460, 361, 35));
         horizontalLayout_16 = new QHBoxLayout(horizontalLayoutWidget_10);
         horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
         horizontalLayout_16->setContentsMargins(0, 0, 0, 0);
@@ -461,7 +461,7 @@ public:
 
         horizontalLayoutWidget_11 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_11->setObjectName(QString::fromUtf8("horizontalLayoutWidget_11"));
-        horizontalLayoutWidget_11->setGeometry(QRect(20, 400, 361, 31));
+        horizontalLayoutWidget_11->setGeometry(QRect(20, 400, 361, 35));
         horizontalLayout_20 = new QHBoxLayout(horizontalLayoutWidget_11);
         horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
         horizontalLayout_20->setContentsMargins(0, 0, 0, 0);
@@ -519,11 +519,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         slider_tamanho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da entidade", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        linha_textura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Textura da entidade.", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        linha_textura->setPlaceholderText(QApplication::translate("ifg::qt::DialogoEntidade", "Caminho para textura ou vazio", 0, QApplication::UnicodeUTF8));
-        botao_textura->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escolher Textura", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkbox_selecionavel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, jogadores poder\303\243o ver as propriedades e controlar a entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
