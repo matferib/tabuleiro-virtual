@@ -10,6 +10,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include <QString>
 
 #include "arq/arquivo.h"
@@ -158,6 +160,15 @@ QGLFormat Formato(bool anti_aliasing) {
                    (anti_aliasing ? QGL::SampleBuffers : QGL::NoSampleBuffers));
 }
 
+void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
+  QStandardItem* item = new QStandardItem(rotulo);
+  item->setFlags(item->flags() & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
+  QFont font = item->font();
+  font.setBold(true);
+  item->setFont(font);
+  ((QStandardItemModel*)combo_textura->model())->appendRow(item);
+}
+
 // Preenche combo de textura. Cada item tera o id e o tipo de textura. Para texturas locais,
 // o nome sera prefixado por id.
 void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
@@ -165,12 +176,16 @@ void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QCombo
   std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
   std::vector<std::string> texturas_baixadas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA);
   std::vector<std::string> texturas_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
+
+  AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
     combo_textura->addItem(QString(textura.c_str()), QVariant(arq::TIPO_TEXTURA));
   }
+  AdicionaSeparador(combo_textura->tr("Baixadas"), combo_textura);
   for (const std::string& textura : texturas_baixadas) {
     combo_textura->addItem(textura.c_str(), QVariant(arq::TIPO_TEXTURA_BAIXADA));
   }
+  AdicionaSeparador(combo_textura->tr("Locais"), combo_textura);
   QString prefixo = QString::number(id_cliente).append(":");
   for (const std::string& textura : texturas_locais) {
     combo_textura->addItem(QString(prefixo).append(textura.c_str()), QVariant(arq::TIPO_TEXTURA_LOCAL));
