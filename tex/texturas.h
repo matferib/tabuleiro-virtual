@@ -2,6 +2,7 @@
 #define TEX_TEXTURAS_H
 
 #include <unordered_map>
+#include "arq/arquivo.h"
 #include "ent/entidade.h"
 #include "ntf/notificacao.h"
 
@@ -31,6 +32,8 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   */
   static void LeDecodificaImagem(
       bool global, const std::string& caminho, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura);
+  static void LeDecodificaImagem(
+      arq::tipo_e tipo, const std::string& nome, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura);
 
  private:
   class InfoTexturaInterna;

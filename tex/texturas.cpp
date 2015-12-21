@@ -43,6 +43,27 @@ void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char
   }
   dados->assign(dados_str.begin(), dados_str.end());
 }
+void LeImagem(arq::tipo_e tipo, const std::string& nome, std::vector<unsigned char>* dados) {
+  std::string dados_str;
+  try {
+    arq::LeArquivo(tipo, nome, &dados_str);
+  } catch (const std::exception& e) {
+    if (tipo == arq::TIPO_TEXTURA) {
+      // Fallback de texturas baixadas.
+      try {
+        VLOG(1) << "Tentando fallback de " << nome << ", global";
+        arq::LeArquivo(arq::TIPO_TEXTURA_BAIXADA, nome, &dados_str);
+      } catch (...) {
+        LOG(ERROR) << "Falha lendo arquivo " << nome << ", global";
+        throw;
+      }
+    } else {
+      LOG(ERROR) << "Falha lendo arquivo " << nome << ", nao global";
+      throw;
+    }
+  }
+  dados->assign(dados_str.begin(), dados_str.end());
+}
 
 /** Decodifica os dados crus de info_textura, devolvendo altura, largura e os bits decodificados. */
 void DecodificaImagem(
@@ -430,6 +451,19 @@ void Texturas::LeDecodificaImagem(
   LeImagem(global, caminho, &dados_arquivo);
   if (dados_arquivo.size() <= 0) {
     throw std::logic_error(std::string("Erro lendo imagem: ") + caminho);
+  }
+  info_textura->clear_bits_crus();
+  info_textura->mutable_bits_crus()->append(dados_arquivo.begin(), dados_arquivo.end());
+  std::vector<unsigned char> nao_usado;
+  DecodificaImagem(*info_textura, largura, altura, &nao_usado);
+}
+
+void Texturas::LeDecodificaImagem(
+    arq::tipo_e tipo, const std::string& nome, ent::InfoTextura* info_textura, unsigned int* largura, unsigned int* altura) {
+  std::vector<unsigned char> dados_arquivo;
+  LeImagem(tipo, nome, &dados_arquivo);
+  if (dados_arquivo.size() <= 0) {
+    throw std::logic_error(std::string("Erro lendo imagem: ") + nome);
   }
   info_textura->clear_bits_crus();
   info_textura->mutable_bits_crus()->append(dados_arquivo.begin(), dados_arquivo.end());
