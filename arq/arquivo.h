@@ -1,3 +1,6 @@
+#ifndef ARQ_ARQUIVO_H
+#define ARQ_ARQUIVO_H
+
 #include <string>
 #include <vector>
 
@@ -78,3 +81,5 @@ const std::vector<std::string> ConteudoDiretorioNormal(const std::string& direto
 
 
 }  // namespace arq
+
+#endif
