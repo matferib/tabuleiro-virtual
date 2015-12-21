@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #include <string>
@@ -134,8 +135,11 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
 void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
   combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
   std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
+  std::sort(texturas.begin(), texturas.end());
   std::vector<std::string> texturas_baixadas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA);
+  std::sort(texturas_baixadas.begin(), texturas_baixadas.end());
   std::vector<std::string> texturas_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
+  std::sort(texturas_locais.begin(), texturas_locais.end());
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {

@@ -1,5 +1,5 @@
-Versao 1.13.0
-- UI para abrir arquivos sem ser por selecao de arquivos (select box).
+Versao 2.0.0
+- UI de abrir tabuleiro universal.
 - Texturizar outros objetos 3d: cubo, triangulo, disco, esfera.
 - Ataque automatico.
 - UI para iluminacao de caixa do ceu.
@@ -34,7 +34,7 @@ Versao 1.13.0
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 2.0.0
+Versao 2.1.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Cor de formas compostas aplicando a todos os filhos.
