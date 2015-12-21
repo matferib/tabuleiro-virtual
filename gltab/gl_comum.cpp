@@ -185,7 +185,7 @@ void print_uniforms(GLuint program) {
 
     GLint location = LocalUniforme (program, name);
 
-    for (int j = 0; j < sizeof (type_set) / sizeof (glsl_type_set); j++) {
+    for (unsigned int j = 0; j < sizeof (type_set) / sizeof (glsl_type_set); j++) {
       if (type_set [j].type != type)
         continue;
 
