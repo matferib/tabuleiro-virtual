@@ -171,6 +171,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     case Tecla_AltEsquerdo:
       tabuleiro_->DetalharTodasEntidades(true);
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
       return;
     case Tecla_Ctrl:
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_DESENHO);
@@ -344,6 +345,7 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
   switch (tecla) {
     case Tecla_AltEsquerdo:
       tabuleiro_->DetalharTodasEntidades(false);
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_NORMAL);
       return;
     case Tecla_Ctrl:
     case Tecla_Shift:
