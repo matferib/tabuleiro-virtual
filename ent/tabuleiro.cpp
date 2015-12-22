@@ -3525,6 +3525,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   proto_a_atualizar->set_largura(novo_proto.largura());
   proto_a_atualizar->set_altura(novo_proto.altura());
   proto_a_atualizar->set_desenha_grade(novo_proto.desenha_grade());
+  proto_a_atualizar->set_aplicar_luz_ambiente_textura_ceu(novo_proto.aplicar_luz_ambiente_textura_ceu());
   if (novo_proto.has_descricao_cenario()) {
     proto_a_atualizar->set_descricao_cenario(novo_proto.descricao_cenario());
   } else {

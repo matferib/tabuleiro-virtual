@@ -71,6 +71,7 @@ public:
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_14;
     QComboBox *combo_ceu;
+    QCheckBox *checkbox_luz_ceu;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_15;
@@ -309,6 +310,11 @@ public:
 
         horizontalLayout_4->addWidget(combo_ceu);
 
+        checkbox_luz_ceu = new QCheckBox(horizontalLayoutWidget_4);
+        checkbox_luz_ceu->setObjectName(QString::fromUtf8("checkbox_luz_ceu"));
+
+        horizontalLayout_4->addWidget(checkbox_luz_ceu);
+
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoIluminacao);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
         horizontalLayoutWidget_5->setGeometry(QRect(20, 20, 421, 41));
@@ -402,6 +408,10 @@ public:
         linha_nevoa_max->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Dist\303\242ncia onde o efeito m\303\241ximo da n\303\251voa \303\251 aplicado.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_14->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "C\303\251u", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_luz_ceu->setToolTip(QApplication::translate("ifg::qt::DialogoIluminacao", "Se marcado, o tamanho do tabuleiro ser\303\241 computado a partir do tamanho da textura.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_luz_ceu->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Aplicar luz ambiente", 0, QApplication::UnicodeUTF8));
         label_15->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Id", 0, QApplication::UnicodeUTF8));
         campo_descricao->setPlaceholderText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o do cen\303\241rio", 0, QApplication::UnicodeUTF8));
         label_16->setText(QApplication::translate("ifg::qt::DialogoIluminacao", "Descri\303\247\303\243o", 0, QApplication::UnicodeUTF8));

@@ -859,6 +859,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_fundo);
   // Ceu do tabuleiro.
   PreencheComboTextura(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
+  gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
 
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
@@ -920,6 +921,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     }
     // Textura ceu.
     PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
+    proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
       int indice = gerador.combo_fundo->currentIndex();

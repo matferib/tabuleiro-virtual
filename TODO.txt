@@ -3,7 +3,6 @@ Versao 2.0.0
 - Triangulo na UI (nao tem como desenhar).
 - Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
 - Ataque automatico.
-- UI para iluminacao de caixa do ceu.
 - Outros botoes controle virtual: mudar template, etc.
 - Arrumar cena do deserto para ter apenas texturas do tabuleiro.
 - Texturas dos orcs.
