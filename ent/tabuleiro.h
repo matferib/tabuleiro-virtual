@@ -654,6 +654,8 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao);
   void DesenhaRotuloBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
+  void DesenhaDicaBotaoControleVirtual(
+      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
   /** Retorna a textura correspondente a um botao (para botoes com texturas variaveis). */
   unsigned int TexturaBotao(const DadosBotao& db) const;
 
@@ -730,6 +732,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
+  unsigned int tipo_entidade_detalhada_;
 
   /** quadrado selecionado (pelo id de desenho). */
   int quadrado_selecionado_;

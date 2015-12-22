@@ -288,6 +288,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   ids_entidades_selecionadas_.clear();
   // Outras variaveis.
   id_entidade_detalhada_ = Entidade::IdInvalido;
+  tipo_entidade_detalhada_ = OBJ_INVALIDO;
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
   proximo_id_entidade_ = 0;
@@ -1292,6 +1293,7 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
 
 void Tabuleiro::TrataMovimentoMouse() {
   id_entidade_detalhada_ = Entidade::IdInvalido;
+  tipo_entidade_detalhada_ = OBJ_INVALIDO;
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
@@ -1828,12 +1830,14 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
-  if (pos_pilha != OBJ_ENTIDADE) {
+  if (pos_pilha != OBJ_ENTIDADE && pos_pilha != OBJ_CONTROLE_VIRTUAL) {
     // Mouse no tabuleiro.
     id_entidade_detalhada_ = Entidade::IdInvalido;
+    tipo_entidade_detalhada_ = OBJ_INVALIDO;
     return;
   }
   id_entidade_detalhada_ = id;
+  tipo_entidade_detalhada_ = pos_pilha;
 }
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
@@ -2657,7 +2661,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                                                  EntidadeEstaSelecionada(entidade->Id()));
     bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
-                              (entidade->Id() == id_entidade_detalhada_);
+                              tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
+                              entidade->Id() == id_entidade_detalhada_;
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada || detalhar_tudo);
     // Rotulos apenas individualmente.
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);

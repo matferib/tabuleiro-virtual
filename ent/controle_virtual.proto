@@ -92,6 +92,8 @@ message DadosBotao {
   optional float translacao_x = 11;
   // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
   optional float translacao_y = 12;
+  // Texto mostrado quando cursor ficar sobre o botao.
+  optional string dica = 13;
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.

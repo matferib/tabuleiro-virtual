@@ -310,6 +310,7 @@ pagina {
     textura: "icon_undo.png"
     id: CONTROLE_DESFAZER
     num_lados_botao: 4
+    dica: "Desfazer"
   }
   dados_botoes {
     tamanho: 2

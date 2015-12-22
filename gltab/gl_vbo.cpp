@@ -216,9 +216,9 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_texturas_ = -1;
   buffer_unico_ = std::move(vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_));
   num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
-  tem_normais_ = (deslocamento_normais_ != -1);
-  tem_cores_ = (deslocamento_cores_ != -1);
-  tem_texturas_ = (deslocamento_texturas_ != -1);
+  tem_normais_ = (deslocamento_normais_ != static_cast<unsigned int>(-1));
+  tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
+  tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
   gl::BufferizaDados(GL_ARRAY_BUFFER,
                      sizeof(GL_FLOAT) * buffer_unico_.size(),
                      buffer_unico_.data(),
@@ -688,11 +688,45 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     meio_lado, meio_lado, -meio_lado,
     meio_lado, -meio_lado, -meio_lado,
   };
+  const float coordenadas_texel[] = {
+    // Sul.
+    0.0f, 1.0f, 
+    1.0f, 1.0f, 
+    1.0f, 0.0f, 
+    0.0f, 0.0f,
+    // Norte.
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    // Oeste.
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    // Leste.
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    // Cima.
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    // Baixo.
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+  };
+
 
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas);
   vbo.AtribuiNormais(normais);
   vbo.AtribuiIndices(indices, num_indices);
+  vbo.AtribuiTexturas(coordenadas_texel);
   vbo.Nomeia("cubo");
   return vbo;
 }

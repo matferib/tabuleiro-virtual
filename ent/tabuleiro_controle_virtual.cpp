@@ -399,6 +399,23 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   return "";
 }
 
+void Tabuleiro::DesenhaDicaBotaoControleVirtual(
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
+  if (id_entidade_detalhada_ != db.id() || db.dica().empty()) {
+    return;
+  }
+  float xi, xf, yi, yf;
+  xi = db.coluna() * largura_botao;
+  xf = xi + db.tamanho() * largura_botao;
+  yi = db.linha() * altura_botao;
+  yf = yi + db.tamanho() * altura_botao;
+  float x_meio = (xi + xf) / 2.0f;
+  MudaCor(COR_BRANCA);
+  // Adiciona largura de um botao por causa do paginador inicial.
+  PosicionaRaster2d(x_meio, yf, viewport[2], viewport[3]);
+  gl::DesenhaString(db.dica());
+}
+
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
   unsigned int id_textura = TexturaBotao(db);
@@ -550,6 +567,12 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Rotulos dos botoes.
     for (const auto& db : pagina.dados_botoes()) {
       DesenhaRotuloBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+    }
+    // Dicas.
+    if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
+      for (const auto& db : pagina.dados_botoes()) {
+        DesenhaDicaBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+      }
     }
   }
 

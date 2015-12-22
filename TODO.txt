@@ -1,4 +1,6 @@
 Versao 2.0.0
+- Triangulo na UI (nao tem como desenhar).
+- Tooltip dos controles.
 - UI de abrir tabuleiro universal.
 - Texturizar outros objetos 3d: cubo, triangulo, disco, esfera.
 - Ataque automatico.
@@ -66,4 +68,3 @@ Algumas ideias loucas.
 - Sons.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
-- Tooltip com mais informacao.
