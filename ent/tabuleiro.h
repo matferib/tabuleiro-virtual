@@ -879,6 +879,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
+  std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

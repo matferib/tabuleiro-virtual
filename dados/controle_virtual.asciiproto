@@ -96,7 +96,7 @@ pagina {
     coluna: 7
     rotulo: "?"
     cor_rotulo {}
-    textura: ""
+    textura: "icon_help.png"
     id: CONTROLE_AJUDA
     num_lados_botao: 4
     dica: "Ajuda."
