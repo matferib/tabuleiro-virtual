@@ -218,7 +218,7 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
         return;
       }
       SelecionaFormaDesenho(it->second);
-      modo_clique_ = MODO_DESENHO;
+      EntraModoClique(MODO_DESENHO);
       break;
     }
     case CONTROLE_DESENHO_AGRUPAR:

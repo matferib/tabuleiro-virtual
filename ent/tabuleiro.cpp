@@ -5217,6 +5217,11 @@ void Tabuleiro::AlternaModoRegua() {
   }
 }
 
+void Tabuleiro::EntraModoClique(modo_clique_e modo) {
+  central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
+  modo_clique_ = modo;
+}
+
 void Tabuleiro::SalvaCameraInicial() {
   proto_.mutable_camera_inicial()->CopyFrom(olho_);
   proto_.mutable_camera_inicial()->mutable_pos()->set_id_cenario(proto_corrente_->id_cenario());

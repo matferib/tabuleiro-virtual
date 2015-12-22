@@ -331,6 +331,22 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
 
+  // Controle virtual.
+  // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
+  // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
+  // No MODO_DESENHO, o clique desenhara.
+  enum modo_clique_e {
+    MODO_NORMAL,
+    MODO_ACAO,         // executa acoes no clique.
+    MODO_SINALIZACAO,  // executa acao de sinalizacao.
+    MODO_DESENHO,      // reservado.
+    MODO_TRANSICAO,    // executa transicao no clique.
+    MODO_REGUA,        // o clique executara uma medicao.
+    MODO_AJUDA,        // o clique atuara como hover.
+  };
+  void EntraModoClique(modo_clique_e modo);
+  modo_clique_e ModoClique() const { return modo_clique_; }
+
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
   * mestres secundarios tambem.
   */
@@ -841,19 +857,6 @@ class Tabuleiro : public ntf::Receptor {
   // Se verdadeiro, todas entidades serao consideradas detalhadas durante o desenho. */
   bool detalhar_todas_entidades_ = false;
 
-  // Controle virtual.
-  // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
-  // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
-  // No MODO_DESENHO, o clique desenhara.
-  enum modo_clique_e {
-    MODO_NORMAL,
-    MODO_ACAO,         // executa acoes no clique.
-    MODO_SINALIZACAO,  // executa acao de sinalizacao.
-    MODO_DESENHO,      // reservado.
-    MODO_TRANSICAO,    // executa transicao no clique.
-    MODO_REGUA,        // o clique executara uma medicao.
-    MODO_AJUDA,        // o clique atuara como hover.
-  };
   modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.

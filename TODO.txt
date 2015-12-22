@@ -1,6 +1,6 @@
 Versao 2.0.0
-- Triangulo na UI (nao tem como desenhar).
 - UI de abrir tabuleiro universal.
+- Triangulo na UI (nao tem como desenhar).
 - Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
 - Ataque automatico.
 - UI para iluminacao de caixa do ceu.

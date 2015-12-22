@@ -147,6 +147,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       // Menus com acoes exclusivas.
       grupo_menu = new QActionGroup(this);
       grupo_menu->setExclusive(true);
+      grupos_exclusivos_[controle_menu] = grupo_menu;
     }
     menus_.push_back(menu);
     // para cada item no menu, cria os items (acoes)
@@ -265,6 +266,15 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_REINICIAR_TABULEIRO:
       // TODO Forma selecionada e desenho selecionado.
       return true;
+    case ntf::TN_REFRESCAR_MENU: {
+      for (auto* a : grupos_exclusivos_[ME_DESENHO]->actions()) {
+        if (a->data().toInt() == tabuleiro_->FormaDesenhoSelecionada()) {
+          a->setChecked(true);
+          break;
+        }
+      }
+      return true;
+    }
     default:
       return false;
   }
@@ -433,6 +443,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            acao == acoes_[ME_DESENHO][MI_PIRAMIDE] ||
            acao == acoes_[ME_DESENHO][MI_RETANGULO]) {
     tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
+    tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_DESENHO);
   } else if (acao == acoes_[ME_DESENHO][MI_SELECIONAR_COR]) {
     QColor cor_anterior = ProtoParaCor(tabuleiro_->CorDesenho());
     QColor cor = QColorDialog::getColor(cor_anterior, this, QObject::tr("Cor do Desenho"));
