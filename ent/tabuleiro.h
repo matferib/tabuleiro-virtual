@@ -343,6 +343,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_TRANSICAO,    // executa transicao no clique.
     MODO_REGUA,        // o clique executara uma medicao.
     MODO_AJUDA,        // o clique atuara como hover.
+    MODO_ROTACAO,      // modo de rotacao da camera.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }

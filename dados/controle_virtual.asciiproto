@@ -612,3 +612,18 @@ pagina {
     dica: "Restaura um tabuleiro."
   }
 }
+# Pagina inalcancavel.
+pagina {
+  # Botao de paginacao anterior.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_rotation.png"
+    id: CONTROLE_MODO_ROTACAO
+    num_lados_botao: 4
+    dica: "Modo de rotação."
+  }
+}

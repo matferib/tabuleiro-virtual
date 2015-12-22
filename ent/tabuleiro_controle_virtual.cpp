@@ -350,7 +350,8 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
     case Tabuleiro::MODO_SINALIZACAO: return CONTROLE_ACAO_SINALIZACAO;
     case Tabuleiro::MODO_TRANSICAO:   return CONTROLE_TRANSICAO;
     case Tabuleiro::MODO_REGUA:       return CONTROLE_REGUA;
-    default:               return CONTROLE_AJUDA;
+    case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
+    default:                          return CONTROLE_AJUDA;
   }
 }
 }  // namespace

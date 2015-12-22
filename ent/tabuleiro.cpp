@@ -1509,7 +1509,33 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
-  TrataBotaoEsquerdoPressionado(x, y, true  /*alternar selecao*/);
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+
+  unsigned int id, tipo_objeto;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
+  float x3d, y3d, z3d;
+  MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
+  ultimo_z_3d_ = z3d;
+  primeiro_x_3d_ = x3d;
+  primeiro_y_3d_ = y3d;
+  primeiro_z_3d_ = z3d;
+
+  if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
+    // Entidade.
+    VLOG(1) << "Picking alternar selecao entidade id " << id;
+    AlternaSelecaoEntidade(id);
+  } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
+    VLOG(1) << "Picking alternar selecao no controle virtual " << id;
+    PickingControleVirtual(true  /*alt*/, id);
+  } else {
+    VLOG(1) << "Picking alternar selecao ignorado.";
+  }
+  ultimo_x_ = x;
+  ultimo_y_ = y;
 }
 
 void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
@@ -2983,6 +3009,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           break;
         case MODO_DESENHO:
           TrataBotaoDesenhoPressionado(x, y);
+          break;
+        case MODO_ROTACAO:
+          TrataBotaoRotacaoPressionado(x, y);
           break;
         case MODO_AJUDA:
           TrataMouseParadoEm(x, y);

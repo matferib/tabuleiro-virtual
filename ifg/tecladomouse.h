@@ -66,6 +66,8 @@ enum teclas_e {
   Tecla_V = 0x56,
   Tecla_Y = 0x59,
   Tecla_Z = 0x5a,
+  Tecla_Shift = 0x01000020,
+  Tecla_Ctrl = 0x01000021,
   Tecla_Tab = 0x01000001,
   Tecla_TabInvertido = 0x01000002,
 };

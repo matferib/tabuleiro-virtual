@@ -595,6 +595,8 @@ const std::string StringSemUtf8(const std::string& id_acao) {
     { "Ç", "C" },
     { "Ô", "O" },
     { "Ó", "O" },
+    { "Ú", "U" },
+    { "ú", "u" },
   };
   for (const auto& it_mapa : mapa) {
     auto it = ret.find(it_mapa.first);
