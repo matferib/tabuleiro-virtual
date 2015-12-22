@@ -920,6 +920,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       } else if (ciclos_para_atualizar_ > 0) {
         --ciclos_para_atualizar_;
       }
+      if (temporizador_detalhamento_ms_ > 0) {
+        temporizador_detalhamento_ms_ -= passou_ms;
+      }
 #if USAR_WATCHDOG
       watchdog_.Refresca();
 #endif
@@ -1292,8 +1295,10 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
 }
 
 void Tabuleiro::TrataMovimentoMouse() {
-  id_entidade_detalhada_ = Entidade::IdInvalido;
-  tipo_entidade_detalhada_ = OBJ_INVALIDO;
+  if (temporizador_detalhamento_ms_ <= 0) {
+    id_entidade_detalhada_ = Entidade::IdInvalido;
+    tipo_entidade_detalhada_ = OBJ_INVALIDO;
+  }
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
@@ -2954,29 +2959,42 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-  // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
-  if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
-    switch (modo_clique_) {
-      case MODO_ACAO:
-        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-        break;
-      case MODO_SINALIZACAO:
-        TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
-        break;
-      case MODO_TRANSICAO:
-        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
-        break;
-      case MODO_REGUA:
-        TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
-        break;
-      case MODO_DESENHO:
-        TrataBotaoDesenhoPressionado(x, y);
-        break;
-      default:
-        ;
+  if (modo_clique_ != MODO_NORMAL) {
+    if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
+      if (modo_clique_ == MODO_AJUDA) {
+        TrataMouseParadoEm(x, y);
+        temporizador_detalhamento_ms_ = 1000;
+        modo_clique_ = MODO_NORMAL;
+        return;
+      }
+    } else {
+      switch (modo_clique_) {
+        case MODO_ACAO:
+          TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
+          break;
+        case MODO_SINALIZACAO:
+          TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
+          break;
+        case MODO_TRANSICAO:
+          TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
+          break;
+        case MODO_REGUA:
+          TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
+          break;
+        case MODO_DESENHO:
+          TrataBotaoDesenhoPressionado(x, y);
+          break;
+        case MODO_AJUDA:
+          TrataMouseParadoEm(x, y);
+          temporizador_detalhamento_ms_ = 1000;
+          modo_clique_ = MODO_NORMAL;
+          break;
+        default:
+          ;
+      }
+      modo_clique_ = MODO_NORMAL;
+      return;
     }
-    modo_clique_ = MODO_NORMAL;
-    return;
   }
 
   ultimo_x_3d_ = x3d;

@@ -1,8 +1,7 @@
 Versao 2.0.0
 - Triangulo na UI (nao tem como desenhar).
-- Tooltip dos controles.
 - UI de abrir tabuleiro universal.
-- Texturizar outros objetos 3d: cubo, triangulo, disco, esfera.
+- Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
 - Ataque automatico.
 - UI para iluminacao de caixa do ceu.
 - Outros botoes controle virtual: mudar template, etc.

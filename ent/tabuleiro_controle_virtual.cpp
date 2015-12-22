@@ -77,6 +77,13 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       }
       AlternaModoAcao();
       break;
+    case CONTROLE_AJUDA:
+      if (modo_clique_ == MODO_AJUDA) {
+        modo_clique_ = MODO_NORMAL;
+        return;
+      }
+      modo_clique_ = MODO_AJUDA;
+      break;
     case CONTROLE_DANO_AUTOMATICO: {
       AlternaDanoAutomatico();
       break;
@@ -410,10 +417,18 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   yi = db.linha() * altura_botao;
   yf = yi + db.tamanho() * altura_botao;
   float x_meio = (xi + xf) / 2.0f;
-  MudaCor(COR_BRANCA);
-  // Adiciona largura de um botao por causa do paginador inicial.
-  PosicionaRaster2d(x_meio, yf, viewport[2], viewport[3]);
-  gl::DesenhaString(db.dica());
+  MudaCor(COR_AMARELA);
+  std::string dica = StringSemUtf8(db.dica());
+  const float tam_dica_2_px = (dica.size() * fonte_x) / 2.0f;
+  float delta_x = 0;
+  if ((x_meio - tam_dica_2_px) < 0.0f) {
+    delta_x += -(x_meio - tam_dica_2_px);
+  } else if (x_meio + tam_dica_2_px > static_cast<float>(viewport[2])) {
+    delta_x -= (x_meio + tam_dica_2_px - viewport[2]);
+  }
+  PosicionaRaster2d(x_meio + delta_x, yf, viewport[2], viewport[3]);
+  std::function<void(const std::string&, bool)> funcao_desenho;
+  gl::DesenhaString(StringSemUtf8(db.dica()), false);
 }
 
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
@@ -463,6 +478,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Mapeia id do botao para os dados internos.
   static const std::map<int, std::function<bool()>> mapa_botoes = {
     { CONTROLE_ACAO,              [this] () { return modo_clique_ == MODO_ACAO || modo_clique_ == MODO_SINALIZACAO; } },
+    { CONTROLE_AJUDA,             [this] () { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_isometrica_; } },

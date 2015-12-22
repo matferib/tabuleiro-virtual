@@ -733,6 +733,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
   unsigned int tipo_entidade_detalhada_;
+  int temporizador_detalhamento_ms_;
 
   /** quadrado selecionado (pelo id de desenho). */
   int quadrado_selecionado_;
@@ -851,6 +852,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_DESENHO,      // reservado.
     MODO_TRANSICAO,    // executa transicao no clique.
     MODO_REGUA,        // o clique executara uma medicao.
+    MODO_AJUDA,        // o clique atuara como hover.
   };
   modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
