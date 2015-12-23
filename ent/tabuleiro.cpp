@@ -1302,6 +1302,10 @@ void Tabuleiro::TrataMovimentoMouse() {
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
+  if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
+    TrataBotaoRotacaoPressionado(x, y);
+    return;
+  }
   if (x == ultimo_x_ && y == ultimo_y_) {
     // No tablet pode acontecer de gerar estes eventos com mesma coordenadas.
     return;
@@ -5261,6 +5265,10 @@ void Tabuleiro::AlternaModoRegua() {
 
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
+  if (modo_clique_ == MODO_ROTACAO && modo != MODO_ROTACAO) {
+    // A rotacao eh diferente pq eh sem clique.
+    estado_ = estado_anterior_;
+  }
   modo_clique_ = modo;
 }
 

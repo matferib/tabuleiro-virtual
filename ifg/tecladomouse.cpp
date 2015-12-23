@@ -178,6 +178,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     case Tecla_Shift:
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ROTACAO);
+      estado_ = ESTADO_OUTRO;
       return;
     case Tecla_Cima: {
       // Nao pode usar == pq a seta tambem aplica modificador de keypad.
@@ -350,6 +351,7 @@ void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e mo
     //case Tecla_Ctrl:
     case Tecla_Shift:
       tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_NORMAL);
+      estado_ = ESTADO_TEMPORIZANDO_MOUSE;
       return;
     default:
       return;
