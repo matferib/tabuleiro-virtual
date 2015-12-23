@@ -48,7 +48,9 @@ void Tabuleiro::CarregaControleVirtual() {
   auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
   for (const auto& pagina : controle_virtual_.pagina()) {
     for (const auto& db : pagina.dados_botoes()) {
-      n->add_info_textura()->set_id(db.textura());
+      if (!db.textura().empty()) {
+        n->add_info_textura()->set_id(db.textura());
+      }
     }
   }
   for (const auto& par_id_acao : mapa_acoes_) {
