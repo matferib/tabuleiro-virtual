@@ -3513,7 +3513,15 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
   return notificacao;
 }
 
-void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
+void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_const) {
+  // Copia para poder remover uns lixos.
+  ent::TabuleiroProto novo_proto(novo_proto_const);
+  if (novo_proto.info_textura_ceu().id().empty()) {
+    novo_proto.clear_info_textura_ceu();
+  }
+  if (novo_proto.info_textura().id().empty()) {
+    novo_proto.clear_info_textura();
+  }
   VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
   TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
   if (proto_a_atualizar == nullptr) {
@@ -3537,13 +3545,6 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
     proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
-  // Safe.
-  if (novo_proto.info_textura().id().empty()) {
-    proto_a_atualizar->clear_info_textura();
-  }
-  if (novo_proto.info_textura_ceu().id().empty()) {
-    proto_a_atualizar->clear_info_textura_ceu();
-  }
   RegeraVboTabuleiro();
 }
 
