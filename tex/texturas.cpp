@@ -421,7 +421,8 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
       }
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/, info_lido)));
     } catch (const std::exception& e) {
-      LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
+      LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what()
+                 << ", info_textura: " << info_textura.ShortDebugString();
       // Cria textura fake.
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/)));
     }

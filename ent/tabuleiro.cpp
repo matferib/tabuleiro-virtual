@@ -3935,7 +3935,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* e = BuscaEntidade(id);
-    if (e == nullptr) {
+    if (e == nullptr || e->Tipo() == TE_ENTIDADE) {
       continue;
     }
     auto* notificacao = grupo_notificacoes.add_notificacao();
@@ -3945,6 +3945,10 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
     y_medio += e->Y();
     nova_entidade.add_sub_forma()->CopyFrom(e->Proto());
     ++num_entidades;
+  }
+  if (num_entidades <= 1) {
+    VLOG(1) << "Nenhuma (ou uma) entidade valida para agrupar";
+    return;
   }
   x_medio /= num_entidades;
   y_medio /= num_entidades;
