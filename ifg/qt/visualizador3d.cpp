@@ -573,7 +573,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
-    proto_retornado->set_translacao_z_deprecated(0);
+    proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
@@ -779,7 +779,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
-    proto_retornado->set_translacao_z_deprecated(0);
+    proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
