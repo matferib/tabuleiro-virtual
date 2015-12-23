@@ -101,6 +101,17 @@ void Entidade::DesenhaObjetoCompostoProto(
     }
     for (const auto& vbo : vd.vbos) {
       gl::DesenhaVbo(vbo);
+#if 0 && DEBUG
+      // Debug de normais escala deve estar em 1.0.
+      if (pd->desenha_barra_vida() && !pd->has_picking_x() && matriz_shear == nullptr) {
+        try {
+          auto vn = vbo.ExtraiVboNormais();
+          gl::DesenhaVbo(vn, GL_LINES);
+        } catch (const std::exception& e) {
+          LOG_EVERY_N(INFO, 1000) << "erro vbo: " << e.what();
+        }
+      }
+#endif
     }
     if (pd->has_alfa_translucidos()) {
       gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

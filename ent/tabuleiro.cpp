@@ -3537,6 +3537,13 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
     proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
+  // Safe.
+  if (novo_proto.info_textura().id().empty()) {
+    proto_a_atualizar->clear_info_textura();
+  }
+  if (novo_proto.info_textura_ceu().id().empty()) {
+    proto_a_atualizar->clear_info_textura_ceu();
+  }
   RegeraVboTabuleiro();
 }
 

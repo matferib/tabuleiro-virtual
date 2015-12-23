@@ -599,7 +599,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       // Valor especial para denotar ausencia.
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
     }
-    PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+    if (gerador.combo_textura->currentIndex() == 0) {
+      proto_retornado->clear_info_textura();
+    } else {
+      PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
@@ -756,7 +760,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->clear_luz();
     }
-    PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+    if (gerador.combo_textura->currentIndex() == 0) {
+      proto_retornado->clear_info_textura();
+    } else {
+      PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+    }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     int aura = gerador.spin_aura->value();
@@ -912,7 +920,11 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Textura.
-    PreencheTexturaProtoRetornado(tab_proto.info_textura(), gerador.combo_fundo, proto_retornado->mutable_info_textura());
+    if (gerador.combo_fundo->currentIndex() == 0) {
+      proto_retornado->clear_info_textura();
+    } else {
+      PreencheTexturaProtoRetornado(tab_proto.info_textura(), gerador.combo_fundo, proto_retornado->mutable_info_textura());
+    }
     // Ladrilho.
     if (gerador.combo_fundo->currentIndex() != 0) {
       proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
@@ -920,7 +932,11 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
       proto_retornado->clear_ladrilho();
     }
     // Textura ceu.
-    PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
+    if (gerador.combo_ceu->currentIndex() == 0) {
+      proto_retornado->clear_info_textura_ceu();
+    } else {
+      PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
+    }
     proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {

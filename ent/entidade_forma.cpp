@@ -171,8 +171,22 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         gl::Escala(-1.0f, 1.0f, -1.0f, false);
         gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
       }
-      gl::Translada(0.0f, 0.0f, 1.0f, false);
-      gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
+      {
+        gl::MatrizEscopo salva(false);
+        gl::Translada(0.0f, 0.0f, 1.0f, false);
+        gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
+      }
+#if 0
+      // Debug de normais. So funciona se escala for igual nos eixos pois transformacao de normal eh diferente.
+      if (pd->desenha_barra_vida() && !pd->has_picking_x() && matriz_shear == nullptr) {
+        try {
+          auto vn = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6).ExtraiVboNormais();
+          gl::DesenhaVbo(vn, GL_LINES);
+        } catch (const std::exception& e) {
+          LOG_EVERY_N(INFO, 1000) << "erro vbo: " << e.what();
+        }
+      }
+#endif
     }
     break;
     case TF_CONE: {

@@ -1,4 +1,5 @@
 Versao 2.0.0
+- Normais zoadas ao agrupar.
 - UI de abrir tabuleiro universal.
 - Triangulo na UI (nao tem como desenhar).
 - Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.

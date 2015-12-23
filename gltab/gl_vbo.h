@@ -45,6 +45,8 @@ class VboNaoGravado {
   // @throw caso os objetos nao sejam compativeis.
   void Concatena(const VboNaoGravado& rhs);
 
+  VboNaoGravado ExtraiVboNormais() const;
+
   // TODO: destruir os dados para liberar memoria.
   std::vector<float> GeraBufferUnico(unsigned int* deslocamento_normais,
                                      unsigned int* deslocamento_cores,
