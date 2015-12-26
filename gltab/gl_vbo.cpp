@@ -888,9 +888,10 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
   return vbo;
 }
 
-VboNaoGravado VboRetangulo(GLfloat tam_lado) {
-  float m = tam_lado / 2.0f;
-  return VboRetangulo(-m, -m, m, m);
+VboNaoGravado VboRetangulo(GLfloat tam_x, GLfloat tam_y) {
+  float x = tam_x / 2.0f;
+  float y = tam_y / 2.0f;
+  return VboRetangulo(-x, -y, x, y);
 }
 
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {

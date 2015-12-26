@@ -243,6 +243,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       break;
+#if 0
     case ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO: {
       QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
           tr("Abrir tabuleiro"),
@@ -259,6 +260,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+#endif
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
       // Abre dialogo de arquivo.
       QString file_str = QFileDialog::getSaveFileName(

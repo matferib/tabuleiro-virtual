@@ -1,10 +1,10 @@
 Versao 2.0.0
+- Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma mensagem, pois o loop fez a copia).
 - UI de abrir tabuleiro universal.
 - Triangulo na UI (nao tem como desenhar).
 - Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
 - Ataque automatico.
 - Outros botoes controle virtual: mudar template, etc.
-- Arrumar cena do deserto para ter apenas texturas do tabuleiro.
 - Texturas dos orcs.
 - Acao de regua nao deve ir para clientes remotos.
 - Eventos de escala e rotacao de entidades no IOS e android.

@@ -25,6 +25,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/tabuleiro_interface.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
@@ -230,6 +231,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
 #endif
 
   EstadoInicial(false);
+  gui_.reset(new InterfaceGraficaOpengl(central_));
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
@@ -256,13 +258,14 @@ Tabuleiro::~Tabuleiro() {
 }
 
 void Tabuleiro::LiberaTextura() {
-  VLOG(2) << "Liberando textura: " << proto_corrente_->info_textura().id();
   TabuleiroProto dummy;
   for (const auto& sub_cenario : proto_.sub_cenario()) {
+    VLOG(2) << "Liberando textura: " << sub_cenario.info_textura().id();
     dummy.set_id_cenario(sub_cenario.id_cenario());
     AtualizaTexturas(dummy);
   }
   dummy.set_id_cenario(CENARIO_PRINCIPAL);
+  VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
   AtualizaTexturas(dummy);
 }
 
@@ -308,6 +311,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Lista objetos.
   pagina_lista_objetos_ = 0;
   if (reiniciar_grafico) {
+    LiberaTextura();
     IniciaGL();
     // Atencao V_ERRO so pode ser usado com contexto grafico.
     V_ERRO("estado inicial pos grafico");
@@ -896,7 +900,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       acoes_.push_back(std::move(acao));
-      if (notificacao.local()) {
+      if (notificacao.local() && !notificacao.acao().local_apenas()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         n_remota->mutable_acao()->clear_afeta_pontos_vida();
         central_->AdicionaNotificacaoRemota(n_remota);
@@ -1007,16 +1011,25 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Deserializar de arquivo.
         ntf::Notificacao nt_tabuleiro;
         try {
-          boost::filesystem::path caminho(notificacao.endereco());
-          arq::LeArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), &nt_tabuleiro);
-          nt_tabuleiro.mutable_tabuleiro()->set_nome(caminho.filename().string());
+          // Endereco deve ter {estatico|dinamico}://nome_arquivo.
+          auto pos_separador = notificacao.endereco().find("://");
+          if (pos_separador == std::string::npos) {
+            throw std::logic_error(std::string("Nome de arquivo invalido: ") + notificacao.endereco());
+          }
+          std::string nome_arquivo = notificacao.endereco().substr(pos_separador + 3);
+          std::string tipo_arquivo = notificacao.endereco().substr(0, pos_separador);
+          arq::LeArquivoBinProto(tipo_arquivo == "estatico" ?
+              arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO,
+              nome_arquivo,
+              &nt_tabuleiro);
+          nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
         } catch (std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
           central_->AdicionaNotificacao(ne);
           return true;
         }
-        nt_tabuleiro.set_endereco(notificacao.endereco());
+        nt_tabuleiro.set_endereco(nt_tabuleiro.tabuleiro().nome());
         nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
@@ -1849,6 +1862,7 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  a->set_local_apenas(true);
   auto* pd = a->mutable_pos_entidade();
   pd->set_x(x3d);
   pd->set_y(y3d);
@@ -2304,6 +2318,13 @@ void Tabuleiro::DesenhaCena() {
     DesenhaControleVirtual();
   }
   V_ERRO("desenhando controle virtual");
+
+  {
+    gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
+    gui_->Desenha(&parametros_desenho_);
+  }
+  V_ERRO("desenhando interface grafica");
+
   glFlush();
 }
 

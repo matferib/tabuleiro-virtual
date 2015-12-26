@@ -98,6 +98,7 @@ env.SConscript('local.SConscript', exports = 'env')
 
 # Teclado.
 cTecladoMouse = env.Object('ifg/tecladomouse.cpp')
+cInterface = env.Object('ifg/interface.cpp')
 # Permite lambdas no QT.
 cUtil = env.Object('ifg/qt/util.cpp')
 ifg_proto = env.Protoc(
@@ -126,6 +127,7 @@ cModelos3d = env.Object('m3d/m3d.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cTabuleiroControleVirtual = env.Object('ent/tabuleiro_controle_virtual.cpp')
+cTabuleiroInterface = env.Object('ent/tabuleiro_interface.cpp')
 cTabuleiroPicking = env.Object('ent/tabuleiro_picking.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
 cEntidadeComposta = env.Object('ent/entidade_composta.cpp')
@@ -138,7 +140,7 @@ if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
 ent_proto = env.Protoc(
   target = [],
-  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto'],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto', 'ent/tabuleiro_interface.proto'],
 )
 
 # arq
@@ -174,7 +176,7 @@ objetos = [
     # notificacoes.
     ntf_proto[0], cNtf,
     # interface.
-    cTecladoMouse, ifg_proto[0],
+    cTecladoMouse, cInterface, ifg_proto[0],
     # interface QT
     cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
     # Texturas
@@ -182,7 +184,8 @@ objetos = [
     # Modelos3d.
     cModelos3d,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-    ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6], cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking,
+    ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6], ent_proto[8],
+    cTabuleiro, cTabuleiroInterface, cTabuleiroControleVirtual, cTabuleiroPicking,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar, cGlVbo, cGlues,

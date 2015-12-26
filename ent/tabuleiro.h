@@ -35,6 +35,7 @@ class Texturas;
 #if USAR_WATCHDOG
 class Watchdog;
 #endif
+class InterfaceGraficaOpengl;
 
 /** Estados possiveis do tabuleiro. */
 enum etab_t {
@@ -881,6 +882,9 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
+
+  // Interface Grafica OpenGL.
+  std::unique_ptr<InterfaceGraficaOpengl> gui_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
