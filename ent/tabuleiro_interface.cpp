@@ -231,8 +231,14 @@ class ElementoBarraOkCancela : public ElementoContainerHorizontal {
       int x, int y, int largura, int altura,
       std::function<void()> volta_ok, std::function<void()> volta_cancela, ElementoInterface* pai)
       : ElementoContainerHorizontal(x, y, largura, altura, pai) {
-    AdicionaFilho(new ElementoBotao("Cancela", volta_cancela, this));
-    AdicionaFilho(new ElementoBotao("Ok", volta_ok, this));
+    auto* botao_cancela = new ElementoBotao("Cancela", volta_cancela, this);
+    botao_cancela->CorRotulo(COR_VERMELHA);
+    botao_cancela->CorFundo(COR_CINZA);
+    AdicionaFilho(botao_cancela);
+    auto* botao_ok = new ElementoBotao("Ok", volta_ok, this);
+    botao_ok->CorRotulo(COR_VERDE);
+    botao_ok->CorFundo(COR_CINZA);
+    AdicionaFilho(botao_ok);
   }
   ~ElementoBarraOkCancela() {}
 
@@ -244,7 +250,8 @@ class ElementoBarraOkCancela : public ElementoContainerHorizontal {
 // Uma lista paginada de elementos.
 class ElementoListaPaginada : public ElementoInterface {
  public:
-  ElementoListaPaginada(const std::vector<std::string>& rotulos,
+  ElementoListaPaginada(
+      const std::vector<std::string>& rotulos,
       int x, int y, int largura, int altura, ElementoInterface* pai)
       : ElementoInterface(pai), rotulos_(rotulos) {
     Posiciona(x, y);
@@ -257,26 +264,26 @@ class ElementoListaPaginada : public ElementoInterface {
         AtualizaLista();
       }
     };
-    rotulo_anterior_.reset(new ElementoBotao("(anterior)", volta_anterior, this));
-    rotulo_anterior_->CorRotulo(COR_BRANCA);
-    rotulo_anterior_->CorFundo(COR_PRETA);
-    rotulo_anterior_->Posiciona(X() + kPaddingPx, Y() + Altura() - kPaddingPx - fonte_y_int);
+    botao_anterior_.reset(new ElementoBotao("(anterior)", volta_anterior, this));
+    botao_anterior_->CorRotulo(COR_BRANCA);
+    botao_anterior_->CorFundo(COR_PRETA);
+    botao_anterior_->Posiciona(X() + kPaddingPx, Y() + Altura() - botao_anterior_->Altura());
     std::function<void()> volta_proximo = [this] () {
       if ((pagina_corrente_ + 1) < num_paginas_) {
         ++pagina_corrente_;
         AtualizaLista();
       }
     };
-    rotulo_proximo_.reset(new ElementoBotao("(próximo)", volta_proximo, this));
-    rotulo_proximo_->Posiciona(X() + kPaddingPx, Y() + kPaddingPx);
-    rotulo_proximo_->CorRotulo(COR_BRANCA);
-    rotulo_proximo_->CorFundo(COR_PRETA);
+    botao_proximo_.reset(new ElementoBotao("(próximo)", volta_proximo, this));
+    botao_proximo_->Posiciona(X() + kPaddingPx, Y() + kPaddingPx);
+    botao_proximo_->CorRotulo(COR_BRANCA);
+    botao_proximo_->CorFundo(COR_PRETA);
     lista_.reset(new ElementoContainerVertical(
-          X(), Y() + rotulo_proximo_->Altura(),
-          Largura(), Altura() - rotulo_proximo_->Altura() - rotulo_anterior_->Altura(), this));
+        X(), Y() + botao_proximo_->Altura(),
+        Largura(), Altura() - botao_proximo_->Altura() - botao_anterior_->Altura(), this));
     std::unique_ptr<ElementoBotao> rotulo(new ElementoBotao("TEMP", std::function<void()>(), nullptr));
     elementos_por_pagina_ =
-        (lista_->Altura() - rotulo_anterior_->Altura() - rotulo_proximo_->Altura()) / rotulo->Altura();
+        (lista_->Altura() - botao_anterior_->Altura() - botao_proximo_->Altura()) / rotulo->Altura();
     if (elementos_por_pagina_ > 0) {
       num_paginas_ = rotulos.size() / elementos_por_pagina_;
       if (rotulos.size() % elementos_por_pagina_ > 0) {
@@ -287,8 +294,11 @@ class ElementoListaPaginada : public ElementoInterface {
     }
     for (unsigned int i = 0; i < elementos_por_pagina_; ++i) {
       std::function<void()> volta = [this, i] () {
-        item_selecionado_ = pagina_corrente_ * elementos_por_pagina_ + i;
-        AtualizaLista();
+        unsigned int candidato = pagina_corrente_ * elementos_por_pagina_ + i;
+        if (candidato < rotulos_.size()) {
+          item_selecionado_ = pagina_corrente_ * elementos_por_pagina_ + i;
+          AtualizaLista();
+        }
       };
       auto* er = new ElementoBotao("PLACEHOLDER", volta, this);
       er->CorRotulo(COR_BRANCA);
@@ -296,7 +306,7 @@ class ElementoListaPaginada : public ElementoInterface {
       elementos_rotulos_.push_back(er);
       lista_->AdicionaFilho(er, true  /*preenche*/);
     }
-    item_selecionado_ = 0;
+    item_selecionado_ = std::numeric_limits<unsigned int>::max();
     AtualizaLista();
   }
 
@@ -307,18 +317,18 @@ class ElementoListaPaginada : public ElementoInterface {
   }
 
   void Desenha(ParametrosDesenho* pd) {
-    rotulo_anterior_->DesenhaSeValido(pd);
+    botao_anterior_->DesenhaSeValido(pd);
     if (num_paginas_ > 0) {
       lista_->DesenhaSeValido(pd);
     }
-    rotulo_proximo_->DesenhaSeValido(pd);
+    botao_proximo_->DesenhaSeValido(pd);
   }
 
   bool Picking(int x, int y) {
-    if (rotulo_anterior_->Clicado(x, y)) {
-      return rotulo_anterior_->Picking(x, y);
-    } else if (rotulo_proximo_->Clicado(x, y)) {
-      return rotulo_proximo_->Picking(x, y);
+    if (botao_anterior_->Clicado(x, y)) {
+      return botao_anterior_->Picking(x, y);
+    } else if (botao_proximo_->Clicado(x, y)) {
+      return botao_proximo_->Picking(x, y);
     } else if (lista_->Clicado(x, y)) {
       return lista_->Picking(x, y);
     }
@@ -355,8 +365,8 @@ class ElementoListaPaginada : public ElementoInterface {
   unsigned int num_paginas_ = 0;
   unsigned int elementos_por_pagina_ = 0;
   unsigned int item_selecionado_ = 0;
-  std::unique_ptr<ElementoBotao> rotulo_anterior_;
-  std::unique_ptr<ElementoBotao> rotulo_proximo_;
+  std::unique_ptr<ElementoBotao> botao_anterior_;
+  std::unique_ptr<ElementoBotao> botao_proximo_;
   std::unique_ptr<ElementoContainerVertical> lista_;
   std::vector<std::string> rotulos_;
   std::vector<ElementoBotao*> elementos_rotulos_;
