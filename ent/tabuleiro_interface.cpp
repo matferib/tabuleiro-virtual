@@ -1,9 +1,13 @@
+#include <functional>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "ent/controle_virtual.pb.h"
 #include "ent/tabuleiro_interface.h"
 #include "ent/constantes.h"
+#include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "gltab/gl_vbo.h"
@@ -15,13 +19,10 @@ const int kPaddingPx = 2;
 
 class ElementoRotulo : public ElementoInterface {
  public:
-  ElementoRotulo(const std::string& rotulo, const float* cor, ElementoInterface* pai)
+  ElementoRotulo(const std::string& rotulo, ElementoInterface* pai)
       : ElementoInterface(pai) {
     rotulo_ = StringSemUtf8(rotulo);
-    CorParaProto(cor, &cor_);
-    int fonte_x_int, fonte_y_int;
-    gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
-    Dimensoes(rotulo_.size() * fonte_x_int + kPaddingPx * 2, fonte_y_int + kPaddingPx * 2);
+    Redimensiona();
   }
 
   ~ElementoRotulo() {}
@@ -37,41 +38,106 @@ class ElementoRotulo : public ElementoInterface {
     }
   }
 
-  void Rotulo(const std::string& rotulo) {
+  void EscreveRotulo(const std::string& rotulo) {
     rotulo_ = rotulo;
-  } 
+  }
 
- protected:
+  void CorRotulo(const float* cor) {
+    CorParaProto(cor, &cor_);
+  }
+
+ private:
+  void Redimensiona() {
+    int fonte_x_int, fonte_y_int;
+    gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
+    Dimensoes(rotulo_.size() * fonte_x_int, fonte_y_int);
+  }
+
+ public:
   std::string rotulo_;
   Cor cor_;
 };
 
-class ElementoBotao : public ElementoRotulo {
+class ElementoBotao : public ElementoInterface {
  public:
-  ElementoBotao(const std::string& rotulo, const float* cor, ElementoInterface* pai)
-      : ElementoRotulo(rotulo, cor, pai) {
-    int fonte_x_int, fonte_y_int;
-    gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
-    Dimensoes(rotulo_.size() * fonte_x_int + kPaddingPx * 2, fonte_y_int + kPaddingPx * 2);
+  ElementoBotao(
+      const std::string& rotulo, std::function<void()> volta, ElementoInterface* pai)
+      : rotulo_(rotulo, pai) {
+    volta_ = volta;
+    Dimensoes(rotulo_.Largura() + kPaddingPx * 2, rotulo_.Altura() + kPaddingPx * 2);
+    rotulo_.Posiciona(kPaddingPx, kPaddingPx);
+    rotulo_.CorRotulo(COR_PRETA);
+    CorFundo(COR_VERDE);  // teste.
   }
 
   ~ElementoBotao() {}
 
   void Desenha(ParametrosDesenho* pd) override {
-    if (Largura() == 0 || Altura() == 0) {
+    if (ElementoInterface::Largura() == 0 || ElementoInterface::Altura() == 0) {
       return;
     }
-    MudaCor(COR_VERDE);  // teste
-    gl::Retangulo(X(), Y(), X() + Largura(), Y() + Altura());
-    ElementoRotulo::Desenha(pd);
+    MudaCor(cor_fundo_);
+    gl::Retangulo(X(), Y(), X() + ElementoInterface::Largura(), Y() + ElementoInterface::Altura());
+    if (Largura() > rotulo_.Largura() && Altura() > rotulo_.Altura()) {
+      rotulo_.DesenhaSeValido(pd);
+    }
   }
+
+  void CorFundo(const float* cor) {
+    CorParaProto(cor, &cor_fundo_);
+  }
+
+  bool Picking(int x, int y) {
+    volta_();
+    return true;
+  }
+
+  void EscreveRotulo(const std::string& rotulo) {
+    rotulo_.EscreveRotulo(rotulo);
+    ReajustaRotulo();
+  }
+
+  void CorRotulo(const float* cor) {
+    rotulo_.CorRotulo(cor);
+  }
+
+  void Posiciona(int x, int y) override {
+    ElementoInterface::Posiciona(x, y);
+    ReajustaRotulo();
+  }
+
+  void EscreveAltura(int altura) override {
+    ElementoInterface::EscreveAltura(altura);
+    if (altura >= rotulo_.Altura()) {
+      ReajustaRotulo();
+    }
+  }
+
+  void EscreveLargura(int largura) override {
+    ElementoInterface::EscreveLargura(largura);
+    int largura_rotulo = rotulo_.Largura();
+    if (largura >= largura_rotulo) {
+      ReajustaRotulo();
+    }
+  }
+
+ private:
+  void ReajustaRotulo() {
+    rotulo_.Posiciona(X() + kPaddingPx, Y() + kPaddingPx);
+    rotulo_.EscreveLargura(Largura() - 2 * kPaddingPx);
+    rotulo_.EscreveAltura(Altura() - 2 * kPaddingPx);
+  }
+
+  ElementoRotulo rotulo_;
+  Cor cor_fundo_;
+  std::function<void()> volta_;
 };
 
 // Container de elementos.
 class ElementoContainer : public ElementoInterface {
  public:
   ElementoContainer(int x, int y, int largura, int altura, ElementoInterface* pai) : ElementoInterface(pai) {
-    Posicao(x, y);
+    Posiciona(x, y);
     Dimensoes(largura, altura);
   }
   ~ElementoContainer() override {}
@@ -87,6 +153,15 @@ class ElementoContainer : public ElementoInterface {
     VLOG(1) << "Filho x: " << filho->X() << ", y: " << filho->Y()
             << ", l: " << filho->Largura() << ", a: " << filho->Altura();
     filhos_.push_back(std::move(std::unique_ptr<ElementoInterface>(filho)));
+  }
+
+  bool Picking(int x, int y) {
+    for (auto& filho : filhos_) {
+      if (filho->Clicado(x, y)) {
+        return filho->Picking(x, y);
+      }
+    }
+    return false;
   }
 
  protected:
@@ -105,7 +180,7 @@ class ElementoContainerHorizontal : public ElementoContainer {
  protected:
   void AjustaFilhoAntesInserir(ElementoInterface* filho, bool preenche) override {
     if (filho->Altura() > (Altura() - (kPaddingPx * 2)) || preenche) {
-      filho->Altura(Altura() - (kPaddingPx * 2));
+      filho->EscreveAltura(Altura() - (kPaddingPx * 2));
     }
     // Computa sobra largura.
     int sobra = Largura() - (kPaddingPx * 2);
@@ -117,8 +192,8 @@ class ElementoContainerHorizontal : public ElementoContainer {
     if (sobra < 0) {
       sobra = 0;
     }
-    filho->Largura(std::min(filho->Largura(), sobra));
-    filho->Posicao(x - filho->Largura(), Y() + kPaddingPx);
+    filho->EscreveLargura(std::min(filho->Largura(), sobra));
+    filho->Posiciona(x - filho->Largura(), Y() + kPaddingPx);
   }
 };
 
@@ -132,7 +207,7 @@ class ElementoContainerVertical : public ElementoContainer {
  protected:
   void AjustaFilhoAntesInserir(ElementoInterface* filho, bool preenche) override {
     if (filho->Largura() > (Largura() - (kPaddingPx * 2)) || preenche) {
-      filho->Largura(Largura() - (kPaddingPx * 2));
+      filho->EscreveLargura(Largura() - (kPaddingPx * 2));
     }
     // Computa sobra altura.
     int sobra = Altura() - (kPaddingPx * 2);
@@ -144,20 +219,26 @@ class ElementoContainerVertical : public ElementoContainer {
     if (sobra < 0) {
       sobra = 0;
     }
-    filho->Altura(std::min(filho->Altura(), sobra));
-    filho->Posicao(X() + kPaddingPx, y - filho->Altura());
+    filho->EscreveAltura(std::min(filho->Altura(), sobra));
+    filho->Posiciona(X() + kPaddingPx, y - filho->Altura());
   }
 };
 
 // Barra horizontal de ok e cancela.
 class ElementoBarraOkCancela : public ElementoContainerHorizontal {
  public:
-  ElementoBarraOkCancela(int x, int y, int largura, int altura, ElementoInterface* pai)
+  ElementoBarraOkCancela(
+      int x, int y, int largura, int altura,
+      std::function<void()> volta_ok, std::function<void()> volta_cancela, ElementoInterface* pai)
       : ElementoContainerHorizontal(x, y, largura, altura, pai) {
-    AdicionaFilho(new ElementoBotao("Cancela", COR_PRETA, this));
-    AdicionaFilho(new ElementoBotao("Ok", COR_PRETA, this));
+    AdicionaFilho(new ElementoBotao("Cancela", volta_cancela, this));
+    AdicionaFilho(new ElementoBotao("Ok", volta_ok, this));
   }
   ~ElementoBarraOkCancela() {}
+
+ private:
+  std::function<void()> volta_ok_;
+  std::function<void()> volta_cancela_;
 };
 
 // Uma lista paginada de elementos.
@@ -166,18 +247,34 @@ class ElementoListaPaginada : public ElementoInterface {
   ElementoListaPaginada(const std::vector<std::string>& rotulos,
       int x, int y, int largura, int altura, ElementoInterface* pai)
       : ElementoInterface(pai), rotulos_(rotulos) {
-    Posicao(x, y);
+    Posiciona(x, y);
     Dimensoes(largura, altura);
     int fonte_x_int, fonte_y_int;
     gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
-    rotulo_anterior_.reset(new ElementoRotulo("(anterior)", COR_BRANCA, this));
-    rotulo_anterior_->Posicao(X() + kPaddingPx, Y() + Altura() - kPaddingPx - fonte_y_int);
-    rotulo_proximo_.reset(new ElementoRotulo("(próximo)", COR_BRANCA, this));
-    rotulo_proximo_->Posicao(X() + kPaddingPx, Y() + kPaddingPx);
+    std::function<void()> volta_anterior = [this] () {
+      if (pagina_corrente_ > 0) {
+        --pagina_corrente_;
+        AtualizaLista();
+      }
+    };
+    rotulo_anterior_.reset(new ElementoBotao("(anterior)", volta_anterior, this));
+    rotulo_anterior_->CorRotulo(COR_BRANCA);
+    rotulo_anterior_->CorFundo(COR_PRETA);
+    rotulo_anterior_->Posiciona(X() + kPaddingPx, Y() + Altura() - kPaddingPx - fonte_y_int);
+    std::function<void()> volta_proximo = [this] () {
+      if ((pagina_corrente_ + 1) < num_paginas_) {
+        ++pagina_corrente_;
+        AtualizaLista();
+      }
+    };
+    rotulo_proximo_.reset(new ElementoBotao("(próximo)", volta_proximo, this));
+    rotulo_proximo_->Posiciona(X() + kPaddingPx, Y() + kPaddingPx);
+    rotulo_proximo_->CorRotulo(COR_BRANCA);
+    rotulo_proximo_->CorFundo(COR_PRETA);
     lista_.reset(new ElementoContainerVertical(
           X(), Y() + rotulo_proximo_->Altura(),
           Largura(), Altura() - rotulo_proximo_->Altura() - rotulo_anterior_->Altura(), this));
-    std::unique_ptr<ElementoRotulo> rotulo(new ElementoRotulo("TEMP", COR_BRANCA, nullptr));
+    std::unique_ptr<ElementoBotao> rotulo(new ElementoBotao("TEMP", std::function<void()>(), nullptr));
     elementos_por_pagina_ =
         (lista_->Altura() - rotulo_anterior_->Altura() - rotulo_proximo_->Altura()) / rotulo->Altura();
     if (elementos_por_pagina_ > 0) {
@@ -189,14 +286,25 @@ class ElementoListaPaginada : public ElementoInterface {
       num_paginas_ = 0;
     }
     for (unsigned int i = 0; i < elementos_por_pagina_; ++i) {
-      auto* er = new ElementoRotulo("PLACEHOLDER", COR_BRANCA, this);
+      std::function<void()> volta = [this, i] () {
+        item_selecionado_ = pagina_corrente_ * elementos_por_pagina_ + i;
+        AtualizaLista();
+      };
+      auto* er = new ElementoBotao("PLACEHOLDER", volta, this);
+      er->CorRotulo(COR_BRANCA);
+      er->CorFundo(COR_PRETA);
       elementos_rotulos_.push_back(er);
       lista_->AdicionaFilho(er, true  /*preenche*/);
     }
-    AtualizaLista(0);
+    item_selecionado_ = 0;
+    AtualizaLista();
   }
 
   ~ElementoListaPaginada() {}
+
+  unsigned int ItemSelecionado() const {
+    return item_selecionado_;
+  }
 
   void Desenha(ParametrosDesenho* pd) {
     rotulo_anterior_->DesenhaSeValido(pd);
@@ -206,37 +314,63 @@ class ElementoListaPaginada : public ElementoInterface {
     rotulo_proximo_->DesenhaSeValido(pd);
   }
 
+  bool Picking(int x, int y) {
+    if (rotulo_anterior_->Clicado(x, y)) {
+      return rotulo_anterior_->Picking(x, y);
+    } else if (rotulo_proximo_->Clicado(x, y)) {
+      return rotulo_proximo_->Picking(x, y);
+    } else if (lista_->Clicado(x, y)) {
+      return lista_->Picking(x, y);
+    }
+    return false;
+  }
+
  private:
-  void AtualizaLista(unsigned int pagina) {
-    if (pagina >= num_paginas_) {
+  void AtualizaLista() {
+    if (pagina_corrente_ >= num_paginas_) {
       return;
     }
-    int inicio = pagina * elementos_por_pagina_;
-    for (unsigned int i = inicio, j = 0; i < elementos_por_pagina_; ++i, ++j) {
-      if (i >= rotulos_.size()) {
-        break;
+    unsigned int inicio = pagina_corrente_ * elementos_por_pagina_;
+    unsigned int indice_selecionado = std::numeric_limits<unsigned int>::max();
+    if (item_selecionado_ >= inicio && item_selecionado_ < inicio + elementos_por_pagina_) {
+      indice_selecionado = item_selecionado_ % elementos_por_pagina_;
+    }
+    for (unsigned int i = 0; i < elementos_por_pagina_; ++i) {
+      if (i == indice_selecionado) {
+        elementos_rotulos_[i]->CorFundo(COR_VERDE);
+        elementos_rotulos_[i]->CorRotulo(COR_PRETA);
+      } else {
+        elementos_rotulos_[i]->CorFundo(COR_PRETA);
+        elementos_rotulos_[i]->CorRotulo(COR_VERDE);
       }
-      elementos_rotulos_[j]->Rotulo(rotulos_[i]);
+      if ((inicio + i) >= rotulos_.size()) {
+        elementos_rotulos_[i]->EscreveRotulo("");
+      } else {
+        elementos_rotulos_[i]->EscreveRotulo(rotulos_[inicio + i]);
+      }
     }
   }
 
   unsigned int pagina_corrente_ = 0;
   unsigned int num_paginas_ = 0;
   unsigned int elementos_por_pagina_ = 0;
-  std::unique_ptr<ElementoRotulo> rotulo_anterior_;
-  std::unique_ptr<ElementoRotulo> rotulo_proximo_;
+  unsigned int item_selecionado_ = 0;
+  std::unique_ptr<ElementoBotao> rotulo_anterior_;
+  std::unique_ptr<ElementoBotao> rotulo_proximo_;
   std::unique_ptr<ElementoContainerVertical> lista_;
   std::vector<std::string> rotulos_;
-  std::vector<ElementoRotulo*> elementos_rotulos_;
+  std::vector<ElementoBotao*> elementos_rotulos_;
 };
 
 class ElementoAbrirTabuleiro : public ElementoInterface {
  public:
-  ElementoAbrirTabuleiro(const std::vector<std::string>& tab_estaticos,
+  ElementoAbrirTabuleiro(InterfaceGraficaOpengl* interface_grafica,
+                         const std::vector<std::string>& tab_estaticos,
                          const std::vector<std::string>& tab_dinamicos,
                          std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta)
-    : tab_estaticos_(tab_estaticos),
-      tab_dinamicos_(tab_dinamicos_),
+    : interface_grafica_(interface_grafica),
+      tab_estaticos_(tab_estaticos),
+      tab_dinamicos_(tab_dinamicos),
       funcao_volta_(funcao_volta) {
     int fonte_x_int, fonte_y_int;
     gl::TamanhoFonteComEscala(&fonte_x_int, &fonte_y_int);
@@ -245,17 +379,34 @@ class ElementoAbrirTabuleiro : public ElementoInterface {
     GLint xc = viewport[2] / 2, yc = viewport[3] / 2;
     GLint largura = std::min(50 * fonte_x_int, static_cast<int>(viewport[2] * 0.8f));
     GLint altura = std::min(20 * fonte_y_int, static_cast<int>(viewport[3] * 0.8f));
-    Posicao(xc - (largura / 2), yc - (altura / 2));
+    Posiciona(xc - (largura / 2), yc - (altura / 2));
     Dimensoes(largura, altura);
-    container_ok_cancela_.reset(
-        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx), this));
+    std::function<void()> volta_cancela = [this] () {
+      interface_grafica_->FechaElemento();
+    };
+    std::function<void()> volta_ok = [this, funcao_volta] () {
+      unsigned int indice = lista_paginada_->ItemSelecionado();
+      if (indice < tab_estaticos_.size()) {
+        //LOG(INFO) << "1: " << indice << ", " << tab_estaticos_[indice];
+        funcao_volta(tab_estaticos_[indice], arq::TIPO_TABULEIRO_ESTATICO);
+        interface_grafica_->FechaElemento();
+      } else if ((indice - tab_estaticos_.size()) < tab_dinamicos_.size()) {
+        unsigned int real = indice - tab_estaticos_.size();
+        //LOG(INFO) << "2: " << real << ", " << tab_dinamicos_[real];;
+        funcao_volta(tab_dinamicos_[real], arq::TIPO_TABULEIRO);
+        interface_grafica_->FechaElemento();
+      }
+    };
+    barra_ok_cancela_.reset(
+        new ElementoBarraOkCancela(X(), Y(), Largura(), static_cast<int>(fonte_y_int + 4 * kPaddingPx),
+                                   volta_ok, volta_cancela, this));
     std::vector<std::string> lista;
     lista.insert(lista.end(), tab_estaticos.begin(), tab_estaticos.end());
     lista.insert(lista.end(), tab_dinamicos.begin(), tab_dinamicos.end());
     lista_paginada_.reset(new ElementoListaPaginada(
           lista,
-          X(), Y() + container_ok_cancela_->Altura(),
-          Largura(), Altura() - container_ok_cancela_->Altura(), this));
+          X(), Y() + barra_ok_cancela_->Altura(),
+          Largura(), Altura() - barra_ok_cancela_->Altura(), this));
   }
   ~ElementoAbrirTabuleiro() {}
 
@@ -263,17 +414,30 @@ class ElementoAbrirTabuleiro : public ElementoInterface {
     MudaCor(COR_PRETA);
     gl::Retangulo(X(), Y(), X() + Largura(), Y() + Altura());
     lista_paginada_->Desenha(pd);
-    container_ok_cancela_->Desenha(pd);
+    barra_ok_cancela_->Desenha(pd);
+  }
+
+  bool Picking(int x, int y) {
+    if (barra_ok_cancela_->Clicado(x, y)) {
+      return barra_ok_cancela_->Picking(x, y);
+    } else if (lista_paginada_->Clicado(x, y)) {
+      return lista_paginada_->Picking(x, y);
+    }
+    return false;
   }
 
  private:
-  const std::vector<std::string>& tab_estaticos_;
-  const std::vector<std::string>& tab_dinamicos_;
+  InterfaceGraficaOpengl* interface_grafica_ = nullptr;
+  const std::vector<std::string> tab_estaticos_;
+  const std::vector<std::string> tab_dinamicos_;
   std::unique_ptr<ElementoListaPaginada> lista_paginada_;
-  std::unique_ptr<ElementoContainer> container_ok_cancela_;
+  std::unique_ptr<ElementoBarraOkCancela> barra_ok_cancela_;
   std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta_;
 };
 
+//-------------------------
+// Interface Grafica OpenGL
+//-------------------------
 void InterfaceGraficaOpengl::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,
     const std::vector<std::string>& tab_dinamicos,
@@ -282,7 +446,7 @@ void InterfaceGraficaOpengl::EscolheArquivoAbrirTabuleiro(
     LOG(WARNING) << "So pode haver um elemento por vez.";
     return;
   }
-  elemento_.reset(new ElementoAbrirTabuleiro(tab_estaticos, tab_dinamicos, funcao_volta));
+  elemento_.reset(new ElementoAbrirTabuleiro(this, tab_estaticos, tab_dinamicos, funcao_volta));
 }
 
 bool InterfaceGraficaOpengl::TrataNotificacao(const ntf::Notificacao& notificacao) {
@@ -295,7 +459,6 @@ bool InterfaceGraficaOpengl::TrataNotificacao(const ntf::Notificacao& notificaca
   return ifg::InterfaceGrafica::TrataNotificacao(notificacao);
 }
 
-// DESENHO
 void InterfaceGraficaOpengl::Desenha(ParametrosDesenho* pd) {
   if (elemento_.get() == nullptr) {
     return;
@@ -303,6 +466,7 @@ void InterfaceGraficaOpengl::Desenha(ParametrosDesenho* pd) {
 
   gl::Desabilita(GL_LIGHTING);
   gl::Desabilita(GL_DEPTH_TEST);
+  gl::CarregaNome(CONTROLE_INTERFACE_GRAFICA);
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade(false);
@@ -316,6 +480,13 @@ void InterfaceGraficaOpengl::Desenha(ParametrosDesenho* pd) {
   gl::CarregaIdentidade();
   elemento_->DesenhaSeValido(pd);
   return;
+}
+
+void InterfaceGraficaOpengl::Picking(int x, int y) {
+  if (elemento_.get() == nullptr) {
+    return;
+  }
+  elemento_->Picking(x, y);
 }
 
 }  // namespace ent

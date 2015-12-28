@@ -20,6 +20,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/tabuleiro_interface.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
@@ -76,9 +77,13 @@ void Tabuleiro::LiberaControleVirtual() {
   central_->AdicionaNotificacao(n);
 }
 
-void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
+void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_INTERFACE_GRAFICA: {
+      gui_->Picking(x, y);
+      break;
+    }
     case CONTROLE_ACAO:
       if (modo_clique_ != MODO_NORMAL) {
         EntraModoClique(MODO_NORMAL);

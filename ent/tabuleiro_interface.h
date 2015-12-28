@@ -27,17 +27,24 @@ class ElementoInterface {
   int Largura() const { return largura_; }
   int Altura() const { return altura_; }
 
-  void Posicao(int x, int y) {
+  virtual void Posiciona(int x, int y) {
     x_ = x; y_ = y;
   }
   void Dimensoes(int largura, int altura) {
-    largura_ = largura; altura_ = altura;
+    EscreveLargura(largura);
+    EscreveAltura(altura);
   }
-  void Altura(int altura) {
+  virtual void EscreveAltura(int altura) {
     altura_ = altura;
   }
-  void Largura(int largura) {
+  virtual void EscreveLargura(int largura) {
     largura_ = largura;
+  }
+
+  // Processa o click, retornando true se o click foi consumido. Caso contrario, o pai pode processar.
+  virtual bool Picking(int x, int y) { return false; }
+  virtual bool Clicado(int x, int y) const {
+    return (x >= X() && x < (X() + Largura())) && (y >= Y() && y < (Y() + Altura()));
   }
 
  protected:
@@ -62,6 +69,12 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
   void Desenha(ParametrosDesenho* pd);
 
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+
+  void Picking(int x, int y);
+
+  void FechaElemento() {
+    elemento_.reset();
+  }
 
  protected:
   void EscolheArquivoAbrirTabuleiro(

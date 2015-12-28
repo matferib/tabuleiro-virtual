@@ -3,7 +3,7 @@ all_sem_testes:
 	scons
 
 all:
-	scons testes=1
+	scons -j 4 testes=1
 
 opengles:
 	scons usar_opengl_es=1 gerar_profile=1
