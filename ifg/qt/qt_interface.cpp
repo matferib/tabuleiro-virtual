@@ -7,6 +7,7 @@
 
 #include "arq/arquivo.h"
 #include "ifg/qt/qt_interface.h"
+#include "ifg/qt/ui/entradastring.h"
 #include "ifg/qt/ui/listapaginada.h"
 #include "ifg/qt/util.h"
 
@@ -52,9 +53,20 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
 
 void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
     std::function<void(const std::string& nome)> funcao_volta) {
+  ifg::qt::Ui::EntradaString gerador;
+  auto* dialogo = new QDialog(pai_);
+  gerador.setupUi(dialogo);
+  auto lambda_aceito = [this, &gerador, dialogo, funcao_volta] () {
+    if (gerador.nome->text().length() > 0) {
+      funcao_volta(gerador.nome->text().toStdString());
+      dialogo->accept();
+    }
+  };
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
+  QObject::connect(gerador.botoes, SIGNAL(rejected()), dialogo, SLOT(reject()));
+  dialogo->exec();
+  delete dialogo;
 }
-
-
 
 }  // namespace qt
 }  // namespace ent
