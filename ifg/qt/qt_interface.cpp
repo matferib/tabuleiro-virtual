@@ -23,23 +23,24 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
   auto* wie = new QListWidgetItem(pai_->tr("Estáticos"), gerador.lista);
-  wie->setFlags(Qt::ItemIsUserCheckable);
+  wie->setFlags(Qt::NoItemFlags);
   for (const auto& tab : tab_estaticos) {
     new QListWidgetItem(tab.c_str(), gerador.lista);
   }
   auto* wid = new QListWidgetItem(pai_->tr("Salvos"), gerador.lista);
-  wid->setFlags(Qt::ItemIsUserCheckable);
+  wid->setFlags(Qt::NoItemFlags);
   for (const auto& tab : tab_dinamicos) {
     new QListWidgetItem(tab.c_str(), gerador.lista);
   }
   auto lambda_aceito = [this, &gerador, dialogo, tab_estaticos, tab_dinamicos, funcao_volta] () {
     int indice = gerador.lista->currentRow();
     int tamanho_total = tab_estaticos.size() + tab_dinamicos.size();
-    if (indice >= 0 && indice < tamanho_total) {
-      if (static_cast<unsigned int>(indice) < tab_estaticos.size()) {
-        funcao_volta(tab_estaticos[indice], arq::TIPO_TABULEIRO_ESTATICO);
+    // +2 por causa dos 2 items label adicionados.
+    if (indice > 0 && indice < (tamanho_total + 2)) {
+      if (static_cast<unsigned int>(indice - 1) < tab_estaticos.size()) {
+        funcao_volta(tab_estaticos[indice - 1], arq::TIPO_TABULEIRO_ESTATICO);
       } else {
-        funcao_volta(tab_dinamicos[indice - tab_estaticos.size()], arq::TIPO_TABULEIRO);
+        funcao_volta(tab_dinamicos[indice - 2 - tab_estaticos.size()], arq::TIPO_TABULEIRO);
       }
       dialogo->accept();
     }
