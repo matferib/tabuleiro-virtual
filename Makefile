@@ -1,6 +1,6 @@
 .PHONY: all all_sem_testes opengles windows apple linux_profile linux_release clean benchmark benchmark_debug
 all_sem_testes:
-	scons
+	scons -j 4
 
 all:
 	scons -j 4 testes=1

@@ -81,7 +81,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
     case CONTROLE_INTERFACE_GRAFICA: {
-      gui_->Picking(x, y);
+      if (gui_ != nullptr) {
+        gui_->Picking(x, y);
+      }
       break;
     }
     case CONTROLE_ACAO:

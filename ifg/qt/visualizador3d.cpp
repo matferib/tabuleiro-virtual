@@ -28,6 +28,7 @@
 #include "ifg/qt/ui/cenario.h"
 #include "ifg/qt/ui/opcoes.h"
 #include "ifg/qt/visualizador3d.h"
+#include "ifg/tecladomouse.h"
 #include "log/log.h"
 #include "net/util.h"
 #include "ntf/notificacao.pb.h"
@@ -195,11 +196,11 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv,
+    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(Formato(false  /*anti_aliasing*/), pai),
        argcp_(argcp), argv_(argv),
-       teclado_mouse_(central, tabuleiro),
+       teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
@@ -261,6 +262,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
     }
 #endif
+    /*
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
       // Abre dialogo de arquivo.
       QString file_str = QFileDialog::getSaveFileName(
@@ -276,6 +278,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+    */
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
         return false;
@@ -343,14 +346,14 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  teclado_mouse_.TrataTeclaPressionada(
+  teclado_mouse_->TrataTeclaPressionada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
 }
 
 void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
-  teclado_mouse_.TrataTeclaLiberada(
+  teclado_mouse_->TrataTeclaLiberada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
@@ -359,7 +362,7 @@ void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  teclado_mouse_.TrataBotaoMousePressionado(
+  teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
        event->x(),
@@ -368,7 +371,7 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  teclado_mouse_.TrataBotaoMouseLiberado();
+  teclado_mouse_->TrataBotaoMouseLiberado();
   event->accept();
 }
 
@@ -380,7 +383,7 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     mousePressEvent(event2);
     return;
   }
-  teclado_mouse_.TrataDuploCliqueMouse(
+  teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
       event->x(), height() - event->y());
@@ -388,12 +391,12 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  teclado_mouse_.TrataMovimentoMouse(event->x(), height() - event->y());
+  teclado_mouse_->TrataMovimentoMouse(event->x(), height() - event->y());
   event->accept();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  teclado_mouse_.TrataRodela(event->delta());
+  teclado_mouse_->TrataRodela(event->delta());
   event->accept();
 }
 

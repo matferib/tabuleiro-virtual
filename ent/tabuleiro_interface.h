@@ -61,8 +61,9 @@ class ElementoInterface {
 
 class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
  public:
-  InterfaceGraficaOpengl(ntf::CentralNotificacoes* central) :
-    ifg::InterfaceGrafica(central) {}
+  InterfaceGraficaOpengl(
+      ifg::TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
+      : ifg::InterfaceGrafica(teclado_mouse, tabuleiro, central) {}
 
   ~InterfaceGraficaOpengl() override {}
 
@@ -72,8 +73,9 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
 
   void Picking(int x, int y);
 
-  void FechaElemento() {
+  void FechaElemento() override {
     elemento_.reset();
+    InterfaceGrafica::FechaElemento();
   }
 
  protected:
@@ -81,6 +83,9 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
       const std::vector<std::string>& tab_estaticos,
       const std::vector<std::string>& tab_dinamicos,
       std::function<void(const std::string& nome, arq::tipo_e tipo)> funcao_volta) override;
+
+  void EscolheArquivoSalvarTabuleiro(
+      std::function<void(const std::string& nome)> funcao_volta) override;
 
  private:
   // So pode haver um elemento raiz por vez.

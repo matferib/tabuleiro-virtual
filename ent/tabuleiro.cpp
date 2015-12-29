@@ -182,13 +182,15 @@ void PreencheNotificacaoDeltaPontosVida(
 
 }  // namespace.
 
-Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) :
-    id_cliente_(0),
-    proximo_id_cliente_(1),
-    texturas_(texturas),
-    m3d_(m3d),
-    central_(central),
-    modo_mestre_(true) {
+Tabuleiro::Tabuleiro(
+    tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central)
+    : id_cliente_(0),
+      proximo_id_cliente_(1),
+      texturas_(texturas),
+      m3d_(m3d),
+      central_(central),
+      modo_mestre_(true) {
   central_->RegistraReceptor(this);
 
   // Modelos.
@@ -231,7 +233,6 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
 #endif
 
   EstadoInicial(false);
-  gui_.reset(new InterfaceGraficaOpengl(central_));
 #if USAR_WATCHDOG
   watchdog_.Inicia([this] () {
     LOG(ERROR) << "Estado do tabuleiro: " << StringEstado(estado_)
@@ -2319,7 +2320,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando controle virtual");
 
-  {
+  if (gui_ != nullptr) {
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
     gui_->Desenha(&parametros_desenho_);
   }

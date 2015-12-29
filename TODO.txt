@@ -1,6 +1,7 @@
 Versao 2.0.0
+- Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
+  de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma mensagem, pois o loop fez a copia).
-- UI de abrir tabuleiro universal.
 - Triangulo na UI (nao tem como desenhar).
 - Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
 - Ataque automatico.

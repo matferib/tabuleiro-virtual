@@ -14,6 +14,9 @@ class Texturas;
 }  // namespace tex
 
 namespace ifg {
+
+class TratadorTecladoMouse;
+ 
 namespace qt {
 
 // fwd
@@ -31,6 +34,7 @@ class Principal : public QWidget, ntf::Receptor {
   static Principal* Cria(int& argc, char** argv,
                          ent::Tabuleiro* tabuleiro,
                          ent::Texturas* texturas,
+                         ifg::TratadorTecladoMouse* teclado_mouse,
                          ntf::CentralNotificacoes* central);
   ~Principal();
 
@@ -52,7 +56,8 @@ class Principal : public QWidget, ntf::Receptor {
 
  private:
   Principal(int& argc, char** argv, 
-            ent::Tabuleiro* tabuleiro, ent::Texturas* texturas, ntf::CentralNotificacoes* central, QApplication* q_app);
+            ent::Tabuleiro* tabuleiro, ent::Texturas* texturas,
+            ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */
   ntf::CentralNotificacoes* central_;

@@ -116,6 +116,8 @@ cMenuPrincipal = env.Object('ifg/qt/menuprincipal.cpp')
 # visualizador3d: qt moc e fonte
 cVisualizador3d = env.Object('ifg/qt/visualizador3d.cpp')
 
+cQtInterface = env.Object('ifg/qt/qt_interface.cpp')
+
 # Implementacao das texturas.
 #cTexturas = env.Object('ifg/qt/texturas.cpp')
 cTexturasLode = env.Object('tex/lodepng.cpp')
@@ -178,7 +180,7 @@ objetos = [
     # interface.
     cTecladoMouse, cInterface, ifg_proto[0],
     # interface QT
-    cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil,
+    cPrincipal, cMenuPrincipal, cVisualizador3d, cUtil, cQtInterface,
     # Texturas
     cTexturas, cTexturasLode,
     # Modelos3d.

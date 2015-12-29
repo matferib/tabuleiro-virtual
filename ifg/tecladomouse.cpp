@@ -138,6 +138,9 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
+  //if (estado_ == ESTADO_MOSTRANDO_DIALOGO) {
+  //  return;
+  //}
   VLOG(1) << "Tecla: " << (void*)tecla << ", mod: " << (void*)modificadores;
   if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
     switch (tecla) {

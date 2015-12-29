@@ -67,7 +67,8 @@ typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+  explicit Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+                     ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -397,6 +398,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Para reativar o watchdog. */
   void ReativaWatchdog();
+
+  // Ativa a interface opengl para dialogos de tipo abrir tabuleiro, janela etc.
+  void AtivaInterfaceOpengl(InterfaceGraficaOpengl* gui) { gui_ = gui; }
 
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
@@ -806,7 +810,10 @@ class Tabuleiro : public ntf::Receptor {
 #if USAR_WATCHDOG
   Watchdog watchdog_;
 #endif
-  ntf::CentralNotificacoes* central_;
+  // Interface Grafica OpenGL.
+  InterfaceGraficaOpengl* gui_ = nullptr;
+
+  ntf::CentralNotificacoes* central_ = nullptr;
   bool modo_mestre_;
   // Mestre secundario funciona tipo mestre: pode ver, mexer pecas etc. Mas alguns controles sao
   // exclusivos do mestre, como quem sera mestre secundario ou a replicacao de algumas mensagens.
@@ -882,9 +889,6 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
-
-  // Interface Grafica OpenGL.
-  std::unique_ptr<InterfaceGraficaOpengl> gui_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

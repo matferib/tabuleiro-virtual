@@ -6,8 +6,11 @@
 
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
+#include "ent/tabuleiro_interface.h"
 #include "gltab/gl.h"
 #include "ifg/qt/principal.h"
+#include "ifg/tecladomouse.h"
+#include "ifg/qt/qt_interface.h"
 #include "net/cliente.h"
 #include "net/servidor.h"
 #include "ntf/notificacao.h"
@@ -28,7 +31,12 @@ int main(int argc, char** argv) {
   tex::Texturas texturas(&central);
   m3d::Modelos3d modelos3d;
   ent::Tabuleiro tabuleiro(&texturas, &modelos3d, &central);
-  std::unique_ptr<ifg::qt::Principal> p(ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &central));
+  ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
+  //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
+  //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
+  std::unique_ptr<ifg::qt::Principal> p(
+      ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &teclado_mouse, &central));
+  ifg::qt::InterfaceGraficaQt igqt(p.get(), &teclado_mouse, &tabuleiro, &central);
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
     auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
