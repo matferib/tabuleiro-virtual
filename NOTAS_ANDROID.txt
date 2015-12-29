@@ -55,9 +55,9 @@ export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
 export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
 export CFLAGS="-fPIC -DANDROID -nostdlib"
-export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/"
-export CPPFLAGS="-I$ANDROID_NDK/platforms/android-19/arch-arm/usr/include/"
-export LIBS="-lc "
+export LDFLAGS="-Wl,-rpath-link=${TOOLCHAIN}/arm-linux-androideabi/lib/ -L${TOOLCHAIN}/arm-linux-androideabi/lib/"
+export CPPFLAGS="-I${TOOLCHAIN}/sysroot/usr/include"
+export LIBS="-lstdc++ -lc"
 ./configure --host=arm-*-eabi
 make
 
