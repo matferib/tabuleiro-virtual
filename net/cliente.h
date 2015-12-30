@@ -16,8 +16,8 @@ class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
   // Nao possui os parametros.
   explicit Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central);
 
-  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
-  virtual bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
+  bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+  bool TrataNotificacaoRemota(const ntf::Notificacao& notificacao) override;
 
  private:
   // Conecta o cliente identificado por id ao servidor localizado em endereco, formato: <host:porta>.
