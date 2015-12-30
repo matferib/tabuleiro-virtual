@@ -14,6 +14,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "ifg/tecladomouse.h"
+#include "ifg/interface_android.h"
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -52,7 +53,7 @@ class ReceptorErro : public ntf::Receptor {
           TrataNotificacaoAbrirDialogoEntidade(notificacao);
           break;
         case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
-          TrataNotificacaoAbrirDialogoSalvarTabuleiro(notificacao);
+          //TrataNotificacaoAbrirDialogoSalvarTabuleiro(notificacao);
           break;
         }
         default:
@@ -101,11 +102,6 @@ class ReceptorErro : public ntf::Receptor {
     env_->DeleteLocalRef(java_nstr);
   }
 
-  void TrataNotificacaoAbrirDialogoSalvarTabuleiro(const ntf::Notificacao& notificacao) {
-    jmethodID metodo = Metodo("abreDialogoSalvarTabuleiro", "()V");
-    env_->CallVoidMethod(thisz_, metodo);
-  }
-
   JNIEnv* env_ = nullptr;
   jobject thisz_ = nullptr;
 };
@@ -129,6 +125,7 @@ std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<net::Servidor> g_servidor;
 std::unique_ptr<ReceptorErro> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
+std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
 
 }  // namespace
 
@@ -149,6 +146,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_receptor.reset(new ReceptorErro);
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
+  g_interface_android.reset(new ifg::InterfaceGraficaAndroid(
+        g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
 
   /*{
     ntf::Notificacao ninfo;
@@ -306,18 +305,6 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobj
   g_central->Notifica();
 }
 
-
-// Dialogo de tabuleiro fechado.
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(JNIEnv* env, jobject thiz, jstring nome_arquivo) {
-  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
-  if (nome_arquivo_c.empty()) {
-    return;
-  }
-  auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-  n->set_endereco(nome_arquivo_c);
-  g_central->AdicionaNotificacao(n);
-}
-
 // Atualizacao de entidade.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* env, jobject thiz, jbyteArray mensagem) {
   int tam_mensagem = env->GetArrayLength(mensagem);
@@ -334,6 +321,17 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   }
   n->mutable_entidade()->mutable_evento()->Swap(&evento_deshackeado);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Proto: %s", n->DebugString().c_str());
+  g_central->AdicionaNotificacao(n);
+}
+
+// Dialogo de tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(JNIEnv* env, jobject thiz, jstring nome_arquivo) {
+  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
+  if (nome_arquivo_c.empty()) {
+    return;
+  }
+  auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+  n->set_endereco(nome_arquivo_c);
   g_central->AdicionaNotificacao(n);
 }
 
