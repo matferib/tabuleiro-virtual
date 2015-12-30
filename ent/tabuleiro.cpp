@@ -2975,7 +2975,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
   bool limpar_salvacoes = false;
   for (auto& acao : copia_acoes) {
     acao->Atualiza(intervalo_ms);
-    if (acao->AtingiuAlvo()) {
+    if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
       if (ap.id_entidade_destino_size() > 0 &&

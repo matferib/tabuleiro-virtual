@@ -22,11 +22,19 @@ class Acao {
   void Desenha(ParametrosDesenho* pd) const;
   void DesenhaTranslucido(ParametrosDesenho* pd) const;
 
-  // Retorna se a acao ja atingiu alvo. A acao pode atingir o alvo antes de ser finalizada.
-  // Algumas acoes usam o bit atingiu alvo para isso.
-  virtual bool AtingiuAlvo() const { return Finalizada(); }
+  enum estado_alvo_e {
+    ALVO_NAO_ATINGIDO,          // acao ainda nao afetou o alvo.
+    ALVO_A_SER_ATINGIDO,        // acao deve afetar o alvo agora. Deve ser seguida por AlvoProcessado.
+    ALVO_ATINGIDO_E_PROCESSADO  // acao ja afetou o alvo.
+  };
+  // Retorna o estado do alvo da acao. O alvo pode ser afetado em qualquer momento.
+  // Caso a acao tenha terminado e o alvo nao tenha sido atingido ainda, marca como ALVO_ATINGIDO
+  // para a acao afetar os alvos.
+  estado_alvo_e EstadoAlvo() const {
+    return (Finalizada() && (estado_alvo_ == ALVO_NAO_ATINGIDO)) ? ALVO_A_SER_ATINGIDO : estado_alvo_;
+  }
   // Indica que o alvo ja foi processado pela acao.
-  void AlvoProcessado() { atingiu_alvo_ = false; }
+  void AlvoProcessado() { estado_alvo_ = ALVO_ATINGIDO_E_PROCESSADO; }
 
   // Indica que a acao ja terminou e pode ser descartada.
   virtual bool Finalizada() const = 0;
@@ -58,7 +66,7 @@ class Acao {
   float disco_alvo_rad_ = 0;
   // Para controle de quanto o alvo se moveu.
   float dx_total_ = 0, dy_total_ = 0, dz_total_ = 0;
-  bool atingiu_alvo_ = false;
+  estado_alvo_e estado_alvo_ = ALVO_NAO_ATINGIDO;
 };
 
 // Cria uma nova acao no tabuleiro.
