@@ -502,14 +502,14 @@ void Entidade::AdicionaAcaoExecutada(const std::string& id_acao) {
     indice_acao = proto_.lista_acoes_size() - 1;
   }
   if (indice_acao == 0) {
-    LOG(INFO) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
+    VLOG(1) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
     return;
   }
   // Acao jogada para a primeira posicao.
   for (int i = indice_acao - 1; i >= 0; --i) {
     proto_.mutable_lista_acoes()->SwapElements(i, i + 1);
   }
-  LOG(INFO) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
+  VLOG(1) << "Lista acoes: " << ListaAcoes(proto_.lista_acoes());
 }
 
 std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::string>& acoes_padroes) const {
