@@ -369,6 +369,7 @@ class TabuleiroRenderer
     });
   }
 
+  // Dados volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
   public void abreDialogoSalvarTabuleiro() {
     //Log.d(TAG, "abreDialogoSalvarTabuleiro: ");
     activity_.runOnUiThread(new Runnable() {
@@ -584,13 +585,13 @@ class TabuleiroRenderer
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   @Override
   public void onDrawFrame(GL10 unused) {
-    Log.d(TAG, "===============DrawFrame");
+    //Log.d(TAG, "===============DrawFrame");
     ((TabuleiroSurfaceView)parent_).ReportaUltimaRenderizacao(nativeRender());
   }
 
   /** Deve ser chamado na UI thread. */
   public void ChamaTimer() {
-    Log.d(TAG, "===============ChamaTimer");
+    //Log.d(TAG, "===============ChamaTimer");
     if (!contexto_criado_) {
       return;
     }
