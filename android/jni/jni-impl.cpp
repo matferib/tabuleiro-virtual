@@ -300,6 +300,7 @@ jint Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, job
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTimer");
   g_receptor->setEnvThisz(env, thiz);
+  g_interface_android->setEnvThisz(env, thiz);
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();
@@ -324,15 +325,28 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   g_central->AdicionaNotificacao(n);
 }
 
-// Dialogo de tabuleiro fechado.
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(JNIEnv* env, jobject thiz, jstring nome_arquivo) {
+// Dialogo de salvar tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(
+    JNIEnv* env, jobject thiz, jlong dados_volta, jstring nome_arquivo) {
+  std::unique_ptr<std::function<void(const std::string&)>> funcao_volta(
+      reinterpret_cast<std::function<void(const std::string&)>*>(dados_volta));
   std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
   if (nome_arquivo_c.empty()) {
     return;
   }
-  auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-  n->set_endereco(nome_arquivo_c);
-  g_central->AdicionaNotificacao(n);
+  (*funcao_volta)(nome_arquivo_c);
+}
+
+// Dialogo de abrir tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenBoardName(
+    JNIEnv* env, jobject thiz, jlong dados_volta, jstring nome_arquivo, jboolean estatico) {
+  std::unique_ptr<std::function<void(const std::string&, arq::tipo_e tipo)>> funcao_volta(
+      reinterpret_cast<std::function<void(const std::string&, arq::tipo_e tipo)>*>(dados_volta));
+  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
+  if (nome_arquivo_c.empty()) {
+    return;
+  }
+  (*funcao_volta)(nome_arquivo_c, estatico ? arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO);
 }
 
 }  // extern "C"

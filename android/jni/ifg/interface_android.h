@@ -32,10 +32,6 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
   jobject thisz_ = nullptr;  // ponteiro para o TabuleiroRenderer.
 };
 
-// Funcoes nativas chamadas de volta.
-void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeVoltaSalvarTabuleiro(
-    JNIEnv* env, jobject thiz, jstring nome_arquivo);
-
 }  // namespace ifg
 
 #endif
