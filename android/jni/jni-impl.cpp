@@ -45,17 +45,9 @@ class ReceptorErro : public ntf::Receptor {
     }
     try {
       switch (notificacao.tipo()) {
-        case ntf::TN_ERRO:
-        case ntf::TN_INFO:
-          TrataNotificacaoInfoErro(notificacao);
-          break;
         case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
           TrataNotificacaoAbrirDialogoEntidade(notificacao);
           break;
-        case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
-          //TrataNotificacaoAbrirDialogoSalvarTabuleiro(notificacao);
-          break;
-        }
         default:
           return false;
       }
@@ -76,21 +68,6 @@ class ReceptorErro : public ntf::Receptor {
       throw std::logic_error("metodo invalido");
     }
     return metodo;
-  }
-
-  void TrataNotificacaoInfoErro(const ntf::Notificacao& notificacao) {
-    if (notificacao.tipo() == ntf::TN_ERRO) {
-      __android_log_print(
-          notificacao.tipo() == ntf::TN_ERRO ? ANDROID_LOG_ERROR : ANDROID_LOG_INFO,
-          "Tabuleiro", "%s", notificacao.erro().c_str());
-    }
-    jmethodID metodo = Metodo("mensagem", "(ZLjava/lang/String;)V");
-    jstring msg = env_->NewStringUTF(notificacao.erro().c_str());
-    if (msg == nullptr) {
-      throw std::logic_error("falha alocando string de mensagem");
-    }
-    env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
-    env_->DeleteLocalRef(msg);
   }
 
   void TrataNotificacaoAbrirDialogoEntidade(const ntf::Notificacao& notificacao) {
@@ -323,6 +300,13 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   n->mutable_entidade()->mutable_evento()->Swap(&evento_deshackeado);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Proto: %s", n->DebugString().c_str());
   g_central->AdicionaNotificacao(n);
+}
+
+// Dialogo de mensagem fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeMessage(JNIEnv* env, jobject thiz, jlong dados_volta) {
+  std::unique_ptr<std::function<void()>> funcao_volta(
+      reinterpret_cast<std::function<void()>*>(dados_volta));
+  (*funcao_volta)();
 }
 
 // Dialogo de salvar tabuleiro fechado.

@@ -22,6 +22,8 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
   ~InterfaceGraficaQt() override {}
 
  protected:
+  void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) override;
+
   void EscolheArquivoAbrirTabuleiro(
       const std::vector<std::string>& tab_estaticos,
       const std::vector<std::string>& tab_dinamicos,

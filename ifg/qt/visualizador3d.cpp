@@ -326,6 +326,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+    /*
     case ntf::TN_INFO: {
       DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::information(this, tr("Informação"), tr(notificacao.erro().c_str()));
@@ -335,7 +336,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
       break;
-    }
+    }*/
     case ntf::TN_TEMPORIZADOR:
       glDraw();
       break;

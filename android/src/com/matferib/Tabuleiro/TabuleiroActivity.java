@@ -23,6 +23,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.Window;
@@ -351,7 +352,7 @@ class TabuleiroRenderer
   }
 
   /** Manda uma mensagem para a thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
-  public void mensagem(final boolean erro, final String mensagem) {
+  public void mensagem(final boolean erro, final String mensagem, final long dados_volta) {
     //Log.d(TAG, "mensagem: " + mensagem);
     activity_.runOnUiThread(new Runnable() {
       @Override
@@ -361,6 +362,7 @@ class TabuleiroRenderer
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int id) {
             dialog.dismiss();
+            nativeMessage(dados_volta);
           }
         });
         AlertDialog caixa = builder.create();
@@ -427,6 +429,11 @@ class TabuleiroRenderer
             new ArrayAdapter<String>(activity_, android.R.layout.simple_spinner_item) {
           public boolean isEnabled(int position) {
             return !((position == 0) || (position == tab_estaticos.length + 1));
+          }
+          public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            view.setEnabled(isEnabled(position));
+            return view;
           }
         };
         adapter.add("Estáticos");
@@ -981,6 +988,7 @@ class TabuleiroRenderer
   private static native void nativeTilt(float delta);
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
+  private static native void nativeMessage(long dados_volta);
   private static native void nativeSaveBoardName(long dados_volta, String nome);
   private static native void nativeOpenBoardName(long dados_volta, String nome, boolean estatico);
   private static native void nativeUpdateEntity(byte[] mensagem);

@@ -17,6 +17,8 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
   // Chamado pelo timer para arrumar as variaveis.
   void setEnvThisz(JNIEnv* env, jobject thisz) { env_ = env; thisz_ = thisz; }
 
+  void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) override;
+
   void EscolheArquivoAbrirTabuleiro(
       const std::vector<std::string>& tab_estaticos,
       const std::vector<std::string>& tab_dinamicos,

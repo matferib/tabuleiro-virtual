@@ -3,6 +3,7 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QListWidgetItem>
+#include <QMessageBox>
 #include <QString>
 
 #include "arq/arquivo.h"
@@ -13,6 +14,16 @@
 
 namespace ifg {
 namespace qt {
+
+void InterfaceGraficaQt::MostraMensagem(
+    bool erro, const std::string& mensagem, std::function<void()> funcao_volta) {
+  if (erro) {
+    QMessageBox::warning(pai_, pai_->tr("Erro"), pai_->tr(mensagem.c_str()));
+  } else {
+    QMessageBox::information(pai_, pai_->tr("Informação"), pai_->tr(mensagem.c_str()));
+  }
+  funcao_volta();
+}
 
 void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,

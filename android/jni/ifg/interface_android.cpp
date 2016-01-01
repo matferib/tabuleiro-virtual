@@ -4,6 +4,23 @@
 
 namespace ifg {
 
+void InterfaceGraficaAndroid::MostraMensagem(
+    bool erro, const std::string& mensagem, std::function<void()> funcao_volta) {
+  if (env_ == nullptr) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
+    central_->AdicionaNotificacao(n);
+    return;
+  }
+  auto* copia_volta = new std::function<void()>(funcao_volta);
+  jmethodID metodo = Metodo("mensagem", "(ZLjava/lang/String;J)V");
+  jstring msg = env_->NewStringUTF(mensagem.c_str());
+  if (msg == nullptr) {
+    throw std::logic_error("falha alocando string de mensagem");
+  }
+  env_->CallVoidMethod(thisz_, metodo, erro, msg, (jlong)copia_volta);
+}
+
 void InterfaceGraficaAndroid::EscolheArquivoAbrirTabuleiro(
     const std::vector<std::string>& tab_estaticos,
     const std::vector<std::string>& tab_dinamicos,
@@ -34,7 +51,7 @@ void InterfaceGraficaAndroid::EscolheArquivoAbrirTabuleiro(
     }
   }
 
-  auto* copia_volta = new std::function<void(const std::string& nome, arq::tipo_e tipo)>(funcao_volta); 
+  auto* copia_volta = new std::function<void(const std::string& nome, arq::tipo_e tipo)>(funcao_volta);
   env_->CallVoidMethod(thisz_, metodo, jte, jtd, (jlong)copia_volta);
 }
 
