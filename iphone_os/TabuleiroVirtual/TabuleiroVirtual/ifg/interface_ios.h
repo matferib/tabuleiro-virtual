@@ -7,9 +7,8 @@ namespace ifg {
 
 class InterfaceIos : public InterfaceGrafica {
  public:
-  InterfaceIos(
-      TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central)
-      : InterfaceGrafica(teclado_mouse, tabuleiro, central) {}
+  InterfaceIos(void* dados, TratadorTecladoMouse* teclado_mouse, ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes* central);
+  ~InterfaceIos() override;
 
  protected:
   void MostraMensagem(bool erro, const std::string& mensagem, std::function<void()> funcao_volta) override;
@@ -21,6 +20,10 @@ class InterfaceIos : public InterfaceGrafica {
 
   void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) override;
+    
+ private:
+  struct Dados;
+  Dados* dados_;
 };
 
 }  // namespace ifg

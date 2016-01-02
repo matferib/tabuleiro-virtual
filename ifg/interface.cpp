@@ -76,11 +76,13 @@ void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) 
 
 void InterfaceGrafica::VoltaAbrirTabuleiro(
     bool manter_entidades, const std::string& nome, arq::tipo_e tipo) {
-  auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-  notificacao->set_endereco(
-      std::string(tipo == arq::TIPO_TABULEIRO_ESTATICO ? "estatico://" : "dinamico://") + nome);
-  notificacao->mutable_tabuleiro()->set_manter_entidades(manter_entidades);
-  central_->AdicionaNotificacao(notificacao);
+  if (!nome.empty()) {
+    auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    notificacao->set_endereco(
+        std::string(tipo == arq::TIPO_TABULEIRO_ESTATICO ? "estatico://" : "dinamico://") + nome);
+    notificacao->mutable_tabuleiro()->set_manter_entidades(manter_entidades);
+    central_->AdicionaNotificacao(notificacao);
+  }
   tabuleiro_->ReativaWatchdog();
 }
 

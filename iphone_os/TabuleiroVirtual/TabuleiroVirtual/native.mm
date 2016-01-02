@@ -15,11 +15,13 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ifg/tecladomouse.h"
+#include "ifg/interface_ios.h"
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "gltab/gl.h"
 #include "net/cliente.h"
+#include "net/servidor.h"
 #include "net/socket.h"
 #include "tex/texturas.h"
 
@@ -32,7 +34,9 @@ std::unique_ptr<ent::Tabuleiro> g_tabuleiro;
 std::unique_ptr<boost::asio::io_service> g_servico_io;
 std::unique_ptr<net::Sincronizador> g_sincronizador;
 std::unique_ptr<net::Cliente> g_cliente;
+std::unique_ptr<net::Servidor> g_servidor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
+std::unique_ptr<ifg::InterfaceIos> g_interface;
 GameViewController* g_view;  // ponteiro para o view principal.
 
 // Carrega o tabuleiro do castelo quando o load de rede falhar.
@@ -75,18 +79,17 @@ std::unique_ptr<TratadorDialogos> g_tratador_dialogos;
 void nativeCreate(void* view) {
   arq::Inicializa();
   g_view = (__bridge GameViewController*)view;
-  std::string nome_nativo([g_view->id_cliente_ UTF8String]);
-  std::string endereco_nativo([g_view->endereco_servidor_ UTF8String]);
-
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
+  g_servidor.reset(new net::Servidor(g_sincronizador.get(), g_central.get()));
   g_teclado_mouse.reset(
       new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
   g_carregador.reset(new CarregadorTabuleiro(g_central.get()));
+  g_interface.reset(new ifg::InterfaceIos(view, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
   g_tratador_dialogos.reset(new TratadorDialogos(g_central.get()));
 
   int argc = 1;
@@ -96,17 +99,24 @@ void nativeCreate(void* view) {
   delete[] argv;
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
-  
-  auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
-  n->set_id_rede(nome_nativo);
-  n->set_endereco(endereco_nativo);
-  g_central->AdicionaNotificacao(n);
+
+  bool modo_servidor = g_view->id_cliente_ == nil;
+  if (modo_servidor) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
+    g_central->AdicionaNotificacao(n);
+  } else {
+    auto* n = ntf::NovaNotificacao(ntf::TN_CONECTAR);
+    n->set_id_rede([g_view->id_cliente_ UTF8String]);
+    n->set_endereco([g_view->endereco_servidor_ UTF8String]);
+    g_central->AdicionaNotificacao(n);
+  }
 }
-    
+
 void nativeDestroy() {
   g_tratador_dialogos.reset();
   g_teclado_mouse.reset();
   g_cliente.reset();
+  g_servidor.reset();
   g_servico_io.reset();
   g_tabuleiro.reset();
   g_texturas.reset();
@@ -127,28 +137,28 @@ void nativeRotate(float rad) {
 void nativeResize(int w, int h) {
   g_tabuleiro->TrataRedimensionaJanela(w, h);
 }
-  
+
 void nativeTimer() {
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();
 }
-  
+
 void nativeRender() {
   g_tabuleiro->Desenha();
 }
-  
+
 void nativeTouchPressed(ifg::botoesmouse_e botao, bool toggle, int x, int y) {
   //NSLog(@"nativeTouchPressed");
   g_teclado_mouse->TrataBotaoMousePressionado(
       botao, toggle ? ifg::Modificador_Ctrl : 0, x, y);
 }
-  
+
 void nativeTouchMoved(int x, int y) {
   //NSLog(@"NativeMoved");
   g_teclado_mouse->TrataMovimentoMouse(x, y);
 }
-  
+
 void nativeTouchReleased() {
   //NSLog(@"nativeReleased");
   g_teclado_mouse->TrataBotaoMouseLiberado();

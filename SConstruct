@@ -142,7 +142,7 @@ if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
 ent_proto = env.Protoc(
   target = [],
-  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto', 'ent/tabuleiro_interface.proto'],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto'],
 )
 
 # arq
@@ -186,8 +186,8 @@ objetos = [
     # Modelos3d.
     cModelos3d,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-    ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6], ent_proto[8],
-    cTabuleiro, cTabuleiroInterface, cTabuleiroControleVirtual, cTabuleiroPicking,
+    ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6],
+    cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking, cTabuleiroInterface,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar, cGlVbo, cGlues,

@@ -82,11 +82,11 @@ const int TAG_BOTAO_CANCELA = 101;
   view.drawableColorFormat = GLKViewDrawableColorFormatRGBA8888;
   view.drawableStencilFormat = GLKViewDrawableStencilFormat8;
   super.preferredFramesPerSecond = ATUALIZACOES_POR_SEGUNDO;
-  
+
   one_finger_ = true;
-  
+
   [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
-  
+
   tipo_visao_array_ = @[@"Normal", @"Visão na Penumbra", @"Visão no Escuro"];
 
   [self setupGL];
@@ -97,7 +97,7 @@ const int TAG_BOTAO_CANCELA = 101;
   [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
   [self tearDownGL];
   [super viewDidUnload];
-  
+
   if ([EAGLContext currentContext] == self.context_) {
     [EAGLContext setCurrentContext:nil];
   }
@@ -118,9 +118,9 @@ const int TAG_BOTAO_CANCELA = 101;
 
   if ([self isViewLoaded] && ([[self view] window] == nil)) {
     self.view = nil;
-        
+
     [self tearDownGL];
-        
+
     if ([EAGLContext currentContext] == self.context_) {
       [EAGLContext setCurrentContext:nil];
     }
@@ -331,29 +331,7 @@ const int TAG_BOTAO_CANCELA = 101;
 -(bool)trataNotificacao:(const ntf::Notificacao*)notificacao
 {
   const ntf::Notificacao& n = *notificacao;
-  if (n.tipo() == ntf::TN_ERRO || n.tipo() == ntf::TN_INFO) {
-    // Deprecated ios8 mas funciona em ipad1.
-    NSString* msg_str = [NSString stringWithCString:n.erro().c_str() encoding:NSUTF8StringEncoding];
-    NSString* titulo_str = n.tipo() == ntf::TN_INFO ? @"Info" : @"Erro";
-    UIAlertView* alert = [[UIAlertView alloc] initWithTitle:titulo_str
-                                              message:msg_str
-                                              delegate:nil
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-    [alert show];
-    // Nao funciona ipad1.
-    /*UIAlertController *alert = nil;
-    UIAlertAction* defaultAction = nil;
-    alert = [UIAlertController alertControllerWithTitle:titulo_str
-                               message:msg_str
-                               preferredStyle:UIAlertControllerStyleAlert];
-    defaultAction = [UIAlertAction actionWithTitle: @"OK"
-                                             style: UIAlertActionStyleDefault
-                                           handler: ^(UIAlertAction * action) {}];
-    [alert addAction:defaultAction];
-    [self presentViewController:alert animated:YES completion:nil];*/
-    return true;
-  } else if (n.tipo() == ntf::TN_ABRIR_DIALOGO_ENTIDADE) {
+  if (n.tipo() == ntf::TN_ABRIR_DIALOGO_ENTIDADE) {
     UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     vc_entidade_ = [sb instantiateViewControllerWithIdentifier:@"EntidadeView"];
     notificacao_ = new ntf::Notificacao;
@@ -391,7 +369,7 @@ const int TAG_BOTAO_CANCELA = 101;
 
     texto_rotulo_ = (UITextField*)[view viewWithTag:TAG_ROTULO];
     [texto_rotulo_ setText: [NSString stringWithCString:n.entidade().rotulo().c_str() encoding:NSUTF8StringEncoding]];
-    
+
     tipo_visao_picker_ = (UIPickerView*)[view viewWithTag:TAG_TIPO_VISAO];
     [tipo_visao_picker_ setDelegate:self];
     raio_visao_stepper_ = (UIStepper*)[view viewWithTag:TAG_RAIO_VISAO_ESCURO_STEP];  // criar antes da selecao.
@@ -408,14 +386,14 @@ const int TAG_BOTAO_CANCELA = 101;
 
     texto_aura_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];
     [texto_aura_ setText:[NSString stringWithFormat:@"%.1f m", n.entidade().aura_m()]];
-    
+
     raio_luz_stepper_ = (UIStepper*)[view viewWithTag:TAG_RAIO_LUZ_STEPPER];
     [raio_luz_stepper_ addTarget:self action:@selector(mudaRaioLuz) forControlEvents:UIControlEventValueChanged];
     float raio_luz = n.entidade().has_luz()
         ? (n.entidade().luz().has_raio() ? n.entidade().luz().raio() : 4 * TAMANHO_LADO_QUADRADO)
         : 0;
     [raio_luz_stepper_ setValue:raio_luz];
-    
+
     raio_luz_rotulo_ = (UILabel*)[view viewWithTag:TAG_RAIO_LUZ_ROTULO];
     [self mudaRaioLuz];
 
@@ -430,7 +408,7 @@ const int TAG_BOTAO_CANCELA = 101;
     [pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().pontos_vida()]];
     max_pontos_vida_ = (UITextField*)[view viewWithTag:TAG_MAX_PONTOS_VIDA];
     [max_pontos_vida_ setText:[NSString stringWithFormat:@"%d", n.entidade().max_pontos_vida()]];
-    
+
     CGFloat scale = [[UIScreen mainScreen] scale];
     UIScrollView* scrollview = (UIScrollView*)[view viewWithTag:TAG_SCROLLVIEW];
     UIView* viewproto = (UIView*)[view viewWithTag:TAG_VIEW];

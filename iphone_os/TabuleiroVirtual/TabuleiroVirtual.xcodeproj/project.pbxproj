@@ -23,6 +23,10 @@
 		EA9253DE1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */; };
 		EA9338CD1B8FF09A00A482DA /* glues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9338CC1B8FF09A00A482DA /* glues.cpp */; };
 		EA99CC2C1B86D27D009E759C /* matrices.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA99CC2A1B86D27D009E759C /* matrices.cpp */; };
+		EACE05981C374EB500C548F4 /* tabuleiro_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACE05961C374EB500C548F4 /* tabuleiro_interface.cpp */; };
+		EACE059B1C374EFA00C548F4 /* interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACE05991C374EFA00C548F4 /* interface.cpp */; };
+		EACE059E1C37535700C548F4 /* interface_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = EACE059D1C37535700C548F4 /* interface_ios.mm */; };
+		EACE05A11C37598000C548F4 /* servidor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EACE059F1C37598000C548F4 /* servidor.cpp */; };
 		EACF265F1A58C6DA0052E95A /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = EACF265E1A58C6DA0052E95A /* main.m */; };
 		EACF26621A58C6DA0052E95A /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = EACF26611A58C6DA0052E95A /* AppDelegate.mm */; };
 		EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = EACF266A1A58C6DA0052E95A /* Main.storyboard */; };
@@ -122,6 +126,14 @@
 		EA99CC291B86D27D009E759C /* vectors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vectors.h; path = ../../../matrix/vectors.h; sourceTree = "<group>"; };
 		EA99CC2A1B86D27D009E759C /* matrices.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = matrices.cpp; path = ../../../matrix/matrices.cpp; sourceTree = "<group>"; };
 		EA99CC2B1B86D27D009E759C /* matrices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = matrices.h; path = ../../../matrix/matrices.h; sourceTree = "<group>"; };
+		EACE05961C374EB500C548F4 /* tabuleiro_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_interface.cpp; path = ../../../../ent/tabuleiro_interface.cpp; sourceTree = "<group>"; };
+		EACE05971C374EB500C548F4 /* tabuleiro_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tabuleiro_interface.h; path = ../../../../ent/tabuleiro_interface.h; sourceTree = "<group>"; };
+		EACE05991C374EFA00C548F4 /* interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = interface.cpp; path = ../../../../ifg/interface.cpp; sourceTree = "<group>"; };
+		EACE059A1C374EFA00C548F4 /* interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = interface.h; path = ../../../../ifg/interface.h; sourceTree = "<group>"; };
+		EACE059C1C37535700C548F4 /* interface_ios.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = interface_ios.h; sourceTree = "<group>"; };
+		EACE059D1C37535700C548F4 /* interface_ios.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = interface_ios.mm; sourceTree = "<group>"; };
+		EACE059F1C37598000C548F4 /* servidor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = servidor.cpp; path = ../../../../net/servidor.cpp; sourceTree = "<group>"; };
+		EACE05A01C37598000C548F4 /* servidor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = servidor.h; path = ../../../../net/servidor.h; sourceTree = "<group>"; };
 		EACF26591A58C6DA0052E95A /* TabuleiroVirtual.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TabuleiroVirtual.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EACF265D1A58C6DA0052E95A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		EACF265E1A58C6DA0052E95A /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -402,6 +414,8 @@
 		EACF26EC1A58D95D0052E95A /* ent */ = {
 			isa = PBXGroup;
 			children = (
+				EACE05961C374EB500C548F4 /* tabuleiro_interface.cpp */,
+				EACE05971C374EB500C548F4 /* tabuleiro_interface.h */,
 				EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */,
 				EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */,
 				EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */,
@@ -445,6 +459,10 @@
 		EACF27051A58D95D0052E95A /* ifg */ = {
 			isa = PBXGroup;
 			children = (
+				EACE059C1C37535700C548F4 /* interface_ios.h */,
+				EACE059D1C37535700C548F4 /* interface_ios.mm */,
+				EACE05991C374EFA00C548F4 /* interface.cpp */,
+				EACE059A1C374EFA00C548F4 /* interface.h */,
 				EACF27061A58D95D0052E95A /* tecladomouse.cpp */,
 				EACF27071A58D95D0052E95A /* tecladomouse.h */,
 			);
@@ -462,6 +480,8 @@
 		EACF270A1A58D95D0052E95A /* net */ = {
 			isa = PBXGroup;
 			children = (
+				EACE059F1C37598000C548F4 /* servidor.cpp */,
+				EACE05A01C37598000C548F4 /* servidor.h */,
 				EA38B7271ACBB2C700D66E95 /* socket.cpp */,
 				EA38B7281ACBB2C700D66E95 /* socket.h */,
 				EACF270B1A58D95D0052E95A /* cliente.cpp */,
@@ -729,6 +749,7 @@
 				EA31EFE41AC9F5B80067BA40 /* arquivo_ios.mm in Sources */,
 				EA31EFE51AC9F5B80067BA40 /* arquivo.cpp in Sources */,
 				EACF272B1A58D95D0052E95A /* cliente.cpp in Sources */,
+				EACE05A11C37598000C548F4 /* servidor.cpp in Sources */,
 				EACF27AA1A58D9AA0052E95A /* repeated_field.cc in Sources */,
 				EACF27991A58D9AA0052E95A /* dynamic_message.cc in Sources */,
 				EACF27211A58D95D0052E95A /* entidade.pb.cc in Sources */,
@@ -741,6 +762,7 @@
 				EACF27311A58D95D0052E95A /* picopng.cpp in Sources */,
 				EACF27A31A58D9AA0052E95A /* tokenizer.cc in Sources */,
 				EA31EFE11AC9D5A70067BA40 /* tabuleiro_picking.cpp in Sources */,
+				EACE059B1C374EFA00C548F4 /* interface.cpp in Sources */,
 				EACF27AF1A58D9AA0052E95A /* common.cc in Sources */,
 				EACF27A51A58D9AA0052E95A /* zero_copy_stream_impl.cc in Sources */,
 				EACF27A01A58D9AA0052E95A /* gzip_stream.cc in Sources */,
@@ -760,6 +782,7 @@
 				EACF26871A58C77B0052E95A /* GameViewController.mm in Sources */,
 				EACF272E1A58D95D0052E95A /* notificacao.cpp in Sources */,
 				EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */,
+				EACE059E1C37535700C548F4 /* interface_ios.mm in Sources */,
 				EACF27B31A58D9AA0052E95A /* strutil.cc in Sources */,
 				EACF272F1A58D95D0052E95A /* notificacao.pb.cc in Sources */,
 				EACF27251A58D95D0052E95A /* util.cpp in Sources */,
@@ -788,6 +811,7 @@
 				EACF27A61A58D9AA0052E95A /* zero_copy_stream_impl_lite.cc in Sources */,
 				EACF27A71A58D9AA0052E95A /* message.cc in Sources */,
 				EACF27B81A58D9AA0052E95A /* wire_format_lite.cc in Sources */,
+				EACE05981C374EB500C548F4 /* tabuleiro_interface.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -955,9 +979,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/boost/ios/framework",
 				);
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
-					"USAR_OPENGL_ES=1",
-				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "USAR_OPENGL_ES=1";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
