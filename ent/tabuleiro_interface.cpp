@@ -391,7 +391,8 @@ class ElementoAbrirTabuleiro : public ElementoInterface {
     GLint altura = std::min(20 * fonte_y_int, static_cast<int>(viewport[3] * 0.8f));
     Posiciona(xc - (largura / 2), yc - (altura / 2));
     Dimensoes(largura, altura);
-    std::function<void()> volta_cancela = [this] () {
+    std::function<void()> volta_cancela = [this, funcao_volta] () {
+      funcao_volta("", arq::TIPO_TABULEIRO_ESTATICO);
       interface_grafica_->FechaElemento();
     };
     std::function<void()> volta_ok = [this, funcao_volta] () {
@@ -460,10 +461,12 @@ class ElementoSalvarTabuleiro : public ElementoInterface {
     GLint altura = std::min(fonte_y_int * 3, static_cast<int>(viewport[3] * 0.5f));
     Posiciona(xc - (largura / 2), yc - (altura / 2));
     Dimensoes(largura, altura);
-    std::function<void()> volta_cancela = [this] () {
+    std::function<void()> volta_cancela = [this, funcao_volta] () {
+      funcao_volta("");
       interface_grafica_->FechaElemento();
     };
     std::function<void()> volta_ok = [this, funcao_volta] () {
+      // TODO
       funcao_volta("bla.binproto");
       interface_grafica_->FechaElemento();
     };

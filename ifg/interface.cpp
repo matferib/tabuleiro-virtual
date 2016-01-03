@@ -35,10 +35,6 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
-void InterfaceGrafica::FechaElemento() {
-  teclado_mouse_->MudaEstado(TratadorTecladoMouse::ESTADO_TEMPORIZANDO_MOUSE);
-}
-
 //----------------
 // Mostra Mensagem
 //----------------

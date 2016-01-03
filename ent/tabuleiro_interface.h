@@ -73,9 +73,8 @@ class InterfaceGraficaOpengl : public ifg::InterfaceGrafica {
 
   void Picking(int x, int y);
 
-  void FechaElemento() override {
+  void FechaElemento() {
     elemento_.reset();
-    InterfaceGrafica::FechaElemento();
   }
 
  protected:

@@ -40,9 +40,6 @@ class InterfaceGrafica : public ntf::Receptor {
   virtual void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) = 0;
 
-  // Fecha elemento e volta teclado e mouse para estado normal.
-  virtual void FechaElemento();
-
  protected:
   TratadorTecladoMouse* teclado_mouse_ = nullptr;
   ent::Tabuleiro* tabuleiro_ = nullptr;
