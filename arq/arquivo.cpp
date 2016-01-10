@@ -50,6 +50,7 @@ const std::string TipoParaDiretorio(tipo_e tipo) {
     case TIPO_TABULEIRO: return "tabuleiros_salvos";
     case TIPO_TABULEIRO_ESTATICO: return "tabuleiros_salvos";
     case TIPO_DADOS: return "dados";
+    case TIPO_CONFIGURACOES: return "configuracoes";
     case TIPO_SHADER: return "shaders";
     case TIPO_ENTIDADES: return "entidades_salvas";
     case TIPO_TESTE: return "teste";
@@ -78,6 +79,7 @@ void CriaDiretoriosUsuario() {
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_LOCAL));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TABULEIRO));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_ENTIDADES));
+    boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_CONFIGURACOES));
     LOG(INFO) << "Diretorios de usuario criados em " << dir_apps_usuario;
   } catch (const std::exception& e) {
     LOG(ERROR) << "Falha ao criar diretorio de usuario '" << dir_apps_usuario << "': " << e.what();
