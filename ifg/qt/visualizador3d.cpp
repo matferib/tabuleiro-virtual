@@ -196,9 +196,9 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
+    int* argcp, char** argv, bool anti_aliasing, TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QGLWidget(Formato(false  /*anti_aliasing*/), pai),
+    :  QGLWidget(Formato(anti_aliasing  /*anti_aliasing*/), pai),
        argcp_(argcp), argv_(argv),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
