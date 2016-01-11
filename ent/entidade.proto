@@ -237,6 +237,7 @@ message ParametrosDesenho {
   optional bool transparencias = 12 [default=true];
   // Desenhar sombras.
   optional bool desenha_sombras = 13 [default=true];
+  optional bool desenha_sombra_projetada = 45 [default=false];
   // Modo de desenho.
   optional bool modo_mestre = 14 [default=true];
   // Alfa para translucidos.

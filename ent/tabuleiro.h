@@ -67,7 +67,8 @@ typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+  explicit Tabuleiro(const OpcoesProto& opcoes,
+                     tex::Texturas* texturas, const m3d::Modelos3d* m3d,
                      ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
@@ -158,6 +159,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** desenha o mundo. Retorna o tempo em ms. */
   int Desenha();
+
+  /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
+  void DesenhaSombraProjetada();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -716,8 +720,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Gera o vbo da rosa dos ventos, chamado apenas uma vez. */
   void GeraVboRosaDosVentos();
 
-  /** Gera e configura o framebuffer para picking. */
-  void GeraFramebufferPicking();
+  /** Gera e configura o framebuffer. */
+  void GeraFramebuffer();
 
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
@@ -879,7 +883,8 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
 #if USAR_FRAMEBUFFER
-  GLuint framebuffer_pick_ = 0;
+  GLuint framebuffer_ = 0;
+  GLuint textura_framebuffer_ = 0;
 #endif
 
   // Sub cenarios. -1 para o principal.

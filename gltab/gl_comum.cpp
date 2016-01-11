@@ -173,36 +173,30 @@ type_set [] = {
 void print_uniforms(GLuint program) {
   GLint uniform_count;
   ProgramaLeParam(program, GL_ACTIVE_UNIFORMS, &uniform_count);
-
   GLchar name [256];
-
   for (GLint i = 0; i < uniform_count; i++) {
     memset (name, '\0', 256);
     GLint  size;
     GLenum type;
 
     LeUniformeAtivo(program, i, 255, NULL, &size, &type, name);
-
     GLint location = LocalUniforme (program, name);
-
     for (unsigned int j = 0; j < sizeof (type_set) / sizeof (glsl_type_set); j++) {
       if (type_set [j].type != type)
         continue;
 
       const char* type_name = type_set [j].name;
 
-      if (size > 1)
-        printf ( "Uniform %d (loc=%d):\t%20s %-20s <Size: %d>\n",
-                   i, location, type_name, name, size );
-      else
-        printf ( "Uniform %d (loc=%d):\t%20s %-20s\n",
-                   i, location, type_name, name );
-
+      if (size > 1) {
+        printf ("Uniform %d (loc=%d):\t%20s %-20s <Size: %d>\n", i, location, type_name, name, size );
+      } else {
+        printf("Uniform %d (loc=%d):\t%20s %-20s\n", i, location, type_name, name );
+      }
       break;
     }
-
-    if (i == (uniform_count - 1))
+    if (i == (uniform_count - 1)) {
       printf ("\n");
+    }
   }
 }
 
@@ -270,11 +264,14 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_luz_direcional.pos", &shader->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &shader->uni_gltab_textura },
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
+          {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
           {"gltab_mvm", &shader->uni_gltab_mvm },
+          {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_prm", &shader->uni_gltab_prm },
+          {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
           {"gltab_nm", &shader->uni_gltab_nm },
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster},
   }) {
@@ -359,6 +356,8 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
+  contexto->pilha_mvm_sombra.push(Matrix4());
+  contexto->pilha_prj_sombra.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
@@ -401,7 +400,8 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
     Uniforme(shader.uni_gltab_textura, 1.0f);
-    Uniforme(shader.uni_gltab_unidade_textura, 0);  // A unidade de textura usada sempre eh zero.
+    Uniforme(shader.uni_gltab_unidade_textura, 0);
+    Uniforme(shader.uni_gltab_unidade_textura_sombra, 1);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -473,12 +473,54 @@ bool LuzPorVertice(int argc, const char* const* argv) {
 #endif
 }
 
+void AtualizaMatrizSombra(const Matrix4& m) {
+#if USAR_FRAMEBUFFER
+  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
+    return;
+  }
+  auto* c = interno::BuscaContexto();
+  c->pilha_mvm_sombra.top() *= m;
+#endif
+}
+
+void IdentidadeMatrizSombra() {
+#if USAR_FRAMEBUFFER
+  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
+    return;
+  }
+  auto* c = interno::BuscaContexto();
+  c->pilha_mvm_sombra.top().identity();
+#endif
+}
+
+void EmpilhaMatrizSombra() {
+#if USAR_FRAMEBUFFER
+  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
+    return;
+  }
+  auto* c = interno::BuscaContexto();
+  Matrix4 m(c->pilha_mvm_sombra.top());
+  c->pilha_mvm_sombra.push(m);
+#endif
+}
+
+void DesempilhaMatrizSombra() {
+#if USAR_FRAMEBUFFER
+  if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
+    return;
+  }
+  auto* c = interno::BuscaContexto();
+  c->pilha_mvm_sombra.pop();
+#endif
+}
+
 }  // namespace interno
 
 void EmpilhaMatriz(bool atualizar) {
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
+  interno::EmpilhaMatrizSombra();
   // Nao precisa porque a matriz empilhada eh igual.
   //if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
@@ -492,49 +534,66 @@ void DesempilhaMatriz(bool atualizar) {
   }
 #endif
   c->pilha_corrente->pop();
+  interno::DesempilhaMatrizSombra();
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
 
-GLenum ModoMatrizCorrente() {
+int ModoMatrizCorrente() {
   auto* c = interno::BuscaContexto();
-  return (c->pilha_corrente == &c->pilha_mvm) ? GL_MODELVIEW : GL_PROJECTION;
+  if (c->pilha_corrente == &c->pilha_mvm) { return MATRIZ_MODELAGEM_CAMERA; }
+  else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
+  else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
+  else { return MATRIZ_SOMBRA; }
 }
 
-void MudarModoMatriz(GLenum modo) {
+void MudarModoMatriz(int modo) {
   auto* c = interno::BuscaContexto();
-  if (modo == GL_MODELVIEW) {
+  if (modo == MATRIZ_MODELAGEM_CAMERA) {
     c->pilha_corrente = &c->pilha_mvm;
-  } else {
+  } else if (modo == MATRIZ_PROJECAO) {
     c->pilha_corrente = &c->pilha_prj;
+  } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
+    c->pilha_corrente = &c->pilha_prj_sombra;
+  } else {
+    c->pilha_corrente = &c->pilha_mvm_sombra;
   }
   //ATUALIZA_MATRIZES_NOVO();
 }
 
 void CarregaIdentidade(bool atualizar) {
   interno::BuscaContexto()->pilha_corrente->top().identity();
+  interno::IdentidadeMatrizSombra();
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
 
 void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  topo *= Matrix4(matriz);
+  Matrix4 m4(matriz);
+  topo *= m4;
+  interno::AtualizaMatrizSombra(m4);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  topo *= Matrix4().scale(x, y, z);
+  Matrix4 m4 = Matrix4().scale(x, y, z);
+  topo *= m4;
+  interno::AtualizaMatrizSombra(m4);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  topo *= Matrix4().translate(x, y, z);
+  Matrix4 m4 = Matrix4().translate(x, y, z);
+  topo *= m4;
+  interno::AtualizaMatrizSombra(m4);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  topo *= Matrix4().rotate(angulo_graus, x, y, z);
+  Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
+  topo *= m4;
+  interno::AtualizaMatrizSombra(m4);
   if (atualizar) ATUALIZA_MATRIZES_NOVO();
 }
 
@@ -813,6 +872,19 @@ GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
   return ret;
 }
 
+Matrix4 LeMatriz(matriz_e modo) {
+  auto* c = interno::BuscaContexto();
+  if (modo == MATRIZ_MODELAGEM_CAMERA) {
+    return c->pilha_mvm.top();
+  } else if (modo == MATRIZ_PROJECAO) {
+    return c->pilha_prj.top();
+  } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
+    return c->pilha_prj_sombra.top();
+  } else {
+    return c->pilha_mvm_sombra.top();
+  }
+}
+
 void Le(GLenum nome_parametro, GLfloat* valor) {
   auto* c = interno::BuscaContexto();
   if (nome_parametro == GL_MODELVIEW_MATRIX) {
@@ -865,13 +937,25 @@ void UsaShader(TipoShader ts) {
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
 
+namespace {
+GLint IdMatrizCorrente(const interno::VarShader& shader) {
+  switch (ModoMatrizCorrente()) {
+    case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
+    case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
+    case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
+    case MATRIZ_SOMBRA:
+    default:                      return shader.uni_gltab_mvm_sombra;
+  }
+}
+}  // namespace
+
 void AtualizaMatrizesNovo() {
   auto* c = interno::BuscaContexto();
-  bool modo_mv = c->pilha_corrente == &c->pilha_mvm;
+  int modo = ModoMatrizCorrente();
   const interno::VarShader& shader = interno::BuscaShader();
-  GLuint mloc = modo_mv ? shader.uni_gltab_mvm : shader.uni_gltab_prm;
+  GLuint mloc = IdMatrizCorrente(shader);
   Matriz4Uniforme(mloc, 1, false, c->pilha_corrente->top().get());
-  if (!modo_mv || !interno::UsandoShaderLuz()) {
+  if (modo != MATRIZ_MODELAGEM_CAMERA || !interno::UsandoShaderLuz()) {
     return;
   }
 
@@ -885,6 +969,10 @@ void AtualizaMatrizesNovo() {
     c->matriz_normal = normal;
     Matriz3Uniforme(shader.uni_gltab_nm, 1, false, normal.get());
   }
+
+#if USAR_FRAMEBUFFER
+  Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
+#endif
 }
 
 void DebugaMatrizes() {
@@ -1141,6 +1229,11 @@ void Habilita(GLenum cap) {
 void Desabilita(GLenum cap) {
   interno::DesabilitaComShader(interno::BuscaContexto(), cap);
   V_ERRO((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
+}
+
+void UnidadeTextura(GLenum unidade) {
+  glActiveTexture(unidade);
+  //Uniforme(shader.uni_gltab_unidade_textura, unidade - GL_TEXTURE0);
 }
 
 void FinalizaGl() {

@@ -5,6 +5,7 @@
 //#define lowp highp
 //#define mediump highp
 #else
+precision highp float;
 #define lowp
 #define highp
 #define mediump
@@ -14,6 +15,7 @@
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
+varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 
@@ -36,6 +38,7 @@ uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
+uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
@@ -67,7 +70,11 @@ void main() {
   lowp vec4 cor_final = v_Color;
   // luz ambiente.
   if (gltab_luz_ambiente.a > 0.0) {
-    lowp vec4 cor_luz = gltab_luz_ambiente + CorLuzDirecional(v_Normal, gltab_luz_direcional);
+    lowp vec4 cor_luz = gltab_luz_ambiente;
+    if ((v_Pos_sombra.z - 0.001) <= texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
+      cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
+    }
+    //cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
 
     // Outras luzes. O for eh ineficiente.
     cor_luz += CorLuzPontual(v_Normal, gltab_luzes[0]);
@@ -91,5 +98,23 @@ void main() {
   // Nevoa.
   highp float distancia = length(v_Pos - gltab_nevoa_referencia);
   lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
+#if 0
+  if (gltab_textura == 0.0) {
+    cor_final.r = 0.0;  //v_Pos_sombra.x; //v_Pos.x;
+    cor_final.g = v_Pos_sombra.y;
+    cor_final.b = 0.0;
+    cor_final.a = 1.0;
+    //vec2 xy = vec2(v_Pos_sombra.y, 1.0 - v_Pos_sombra.x);
+    //cor_final.r = clamp(texture2D(gltab_unidade_textura_sombra, xy).z, 0.0, 1.0);
+    //cor_final.g = 0.0; //clamp(texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z, 0.0, 1.0);
+    //cor_final.b = 0.0;
+    //cor_final.a = 1.0;
+    //if (cor_final.r < cor_final.g){
+    //  cor_final = vec4(1.0, 0.0, 0.0, 1.0);
+    //} else {
+    //  cor_final = vec4(0.0, 1.0, 0.0, 1.0);
+    //}
+  }
+#endif
   gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
 }

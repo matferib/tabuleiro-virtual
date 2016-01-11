@@ -199,9 +199,12 @@ class Texturas::InfoTexturaInterna {
     }
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_);
     V_ERRO("Ligacao");
+    // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     // Carrega a textura.
     gl::ImagemTextura2d(GL_TEXTURE_2D,
                         0, GL_RGBA,
@@ -211,7 +214,7 @@ class Texturas::InfoTexturaInterna {
     V_ERRO("Imagem");
 #if !WIN32
     // Tem que fazer o wrapper.
-    glGenerateMipmap(GL_TEXTURE_2D);
+    //glGenerateMipmap(GL_TEXTURE_2D);
 #endif
     gl::Desabilita(GL_TEXTURE_2D);
     V_ERRO("CriaTexturaOpenGl");

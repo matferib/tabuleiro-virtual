@@ -180,10 +180,19 @@ void PreencheNotificacaoDeltaPontosVida(
   }
 }
 
+void SalvaConfiguracoes(const OpcoesProto& proto) {
+  try {
+    arq::EscreveArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", proto);
+    LOG(INFO) << "Salvando opcoes em arquivo.";
+  } catch (const std::logic_error& e) {
+    LOG(ERROR) << "Falha salvando opcoes: " << e.what();
+  }
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(
-    tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+    const OpcoesProto& opcoes, tex::Texturas* texturas, const m3d::Modelos3d* m3d,
     ntf::CentralNotificacoes* central)
     : id_cliente_(0),
       proximo_id_cliente_(1),
@@ -226,6 +235,7 @@ Tabuleiro::Tabuleiro(
   // Controle virtual.
   CarregaControleVirtual();
 
+  opcoes_ = opcoes;
   opcoes_.set_desenha_controle_virtual(true);
 #if DEBUG
   opcoes_.set_mostra_fps(true);
@@ -320,6 +330,14 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 }
 
 void Tabuleiro::ConfiguraProjecao() {
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombra_projetada() || camera_isometrica_) {
+    float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
+    gl::Ortogonal(-val, val, -val, val,
+                  0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
+    return;
+  }
+#endif
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
@@ -336,6 +354,41 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombra_projetada() || camera_isometrica_) {
+    //GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
+    //gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
+    //gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
+    Matrix4 mr;
+    mr.rotateY(-45.0f/*-proto_corrente_->luz_direcional().inclinacao_graus()*/);
+    //mr.rotateZ(0.0f/*proto_corrente_->luz_direcional().posicao_graus()*/);
+    vl = vl * mr;
+    vl *= 100.0f;  // TODO achar um valor melhor.
+    //LOG(INFO) << vl;
+    Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
+    if (fabs(vl.x) < 0.001f && fabs(vl.y) < 0.001f) {
+      up.x = 0.0f;
+      up.y = 1.0f;
+      up.z = 0.0f;
+    }
+    gl::OlharPara(
+        // from.
+        //vl.x, vl.y, vl.z,
+        100.0f, 0.0f, 100.0f,
+        // to.
+        0.0f, 0.0f, 0.0f,
+        // up
+        0.0f, 0.0f, 1.0f);
+        //up.x, up.y, up.z);
+    //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
+    //LOG(INFO) << "mt: " << mt;
+    //Vector4 vt(10.0f, 0.0f, 0.0f, 1.0f);
+    //vt = vt * mt;
+    //LOG(INFO) << "vt: " << (vt * mt);
+    return;
+  }
+#endif
   const Posicao& alvo = olho_.alvo();
   if (camera_isometrica_) {
     gl::OlharPara(
@@ -356,6 +409,61 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 }
 
+void Tabuleiro::DesenhaSombraProjetada() {
+#if USAR_FRAMEBUFFER
+  parametros_desenho_.Clear();
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  gl::UsaShader(gl::TSH_LUZ);
+  // Aplica opcoes do jogador.
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_coordenadas(false);
+  parametros_desenho_.set_desenha_sombra_projetada(parametros_desenho_.desenha_sombras());
+  parametros_desenho_.set_desenha_sombras(false);
+  if (parametros_desenho_.desenha_sombra_projetada()) {
+    gl::Viewport(0, 0, 1024, 1024);
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::CarregaIdentidade();
+    ConfiguraProjecao();
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+    bool luz = parametros_desenho_.iluminacao();
+    parametros_desenho_.set_iluminacao(false);
+    glDrawBuffer(GL_NONE);
+    DesenhaCena();
+
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+    gl::CarregaIdentidade(false);
+    // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
+    Matrix4 bias(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0);
+    gl::MultiplicaMatriz(bias.get(), false);
+    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glDrawBuffer(GL_BACK);
+    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  }
+#endif
+}
+
 int Tabuleiro::Desenha() {
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
   timer_para_renderizacao_.start();
@@ -370,6 +478,7 @@ int Tabuleiro::Desenha() {
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
+    parametros_desenho_.set_desenha_sombra_projetada(false);
     gl::UsaShader(gl::TSH_PRETO_BRANCO);
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
@@ -379,13 +488,11 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(gl::TSH_LUZ);
   }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
-  gl::MudarModoMatriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  ConfiguraProjecao();
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   parametros_desenho_.set_desenha_lista_jogadores(opcoes_.mostra_lista_jogadores());
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
+  parametros_desenho_.set_desenha_grade(opcoes_.desenha_grade());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   if (modo_debug_) {
     parametros_desenho_.set_iluminacao(false);
@@ -394,6 +501,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_fps(false);
     parametros_desenho_.set_desenha_aura(false);
     parametros_desenho_.set_desenha_sombras(false);
+    parametros_desenho_.set_desenha_sombra_projetada(false);
     parametros_desenho_.set_limpa_fundo(false);
     parametros_desenho_.set_transparencias(false);
     parametros_desenho_.set_desenha_acoes(false);
@@ -408,8 +516,46 @@ int Tabuleiro::Desenha() {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
 #if USAR_FRAMEBUFFER
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  parametros_desenho_.set_desenha_sombra_projetada(parametros_desenho_.desenha_sombras());
+  parametros_desenho_.set_desenha_sombras(false);
+  if (parametros_desenho_.desenha_sombra_projetada()) {
+    // Primeira passada usa essa matriz.
+    gl::Viewport(0, 0, 1024, 1024);
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::CarregaIdentidade();
+    ConfiguraProjecao();
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+    bool luz = parametros_desenho_.iluminacao();
+    parametros_desenho_.set_iluminacao(false);
+    glDrawBuffer(GL_NONE);
+    DesenhaCena();
+
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+    gl::CarregaIdentidade(false);
+    // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
+    Matrix4 bias(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0);
+    gl::MultiplicaMatriz(bias.get(), false);
+    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    parametros_desenho_.set_desenha_sombras(parametros_desenho_.desenha_sombra_projetada());
+    parametros_desenho_.set_desenha_sombra_projetada(false);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    parametros_desenho_.set_iluminacao(luz);
+    glDrawBuffer(GL_BACK);
+    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    // TODO escrever o valor da textura.
+  }
 #endif
+  gl::MudarModoMatriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  ConfiguraProjecao();
   DesenhaCena();
   return passou_ms;
 }
@@ -1964,7 +2110,7 @@ void Tabuleiro::IniciaGL() {
   GeraVboRosaDosVentos();
 
   RegeraVboTabuleiro();
-  GeraFramebufferPicking();
+  GeraFramebuffer();
   Entidade::IniciaGl();
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
@@ -2123,7 +2269,7 @@ void Tabuleiro::DesenhaCena() {
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
   if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
-    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f); 
+    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
   } else {
     gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
                    proto_corrente_->luz_ambiente().g(),
@@ -2141,6 +2287,16 @@ void Tabuleiro::DesenhaCena() {
   gl::MudarModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
+    parametros_desenho_.set_desenha_sombra_projetada(true);
+    gl::MudarModoMatriz(gl::MATRIZ_SOMBRA);
+    ConfiguraOlhar();
+    parametros_desenho_.set_desenha_sombra_projetada(false);
+    gl::MudarModoMatriz(GL_MODELVIEW);
+  }
+#endif
+
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (camera_isometrica_ || (olho_.altura() > (2 * olho_.raio()))) {
@@ -2160,7 +2316,8 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando luzes");
 
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes da janela para cobrir o fundo todo.
-  if (!parametros_desenho_.has_picking_x() && (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
+  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
+      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
     DesenhaCaixaCeu();
   }
   V_ERRO("desenhando caixa do ceu");
@@ -2171,7 +2328,6 @@ void Tabuleiro::DesenhaCena() {
     gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
     DesenhaTabuleiro();
     if (parametros_desenho_.desenha_grade() &&
-        opcoes_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -2221,6 +2377,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando acoes");
 
   // Sombras.
+#if !USAR_FRAMEBUFFER
   if (parametros_desenho_.desenha_sombras() &&
       proto_corrente_->luz_direcional().inclinacao_graus() > 5.0 &&
       proto_corrente_->luz_direcional().inclinacao_graus() < 180.0f) {
@@ -2230,6 +2387,7 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
   }
   V_ERRO("desenhando sombras");
+#endif
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
@@ -2277,9 +2435,36 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando entidades alfa");
 
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombra_projetada()) {
+    return;
+  }
+#endif
+
   //-------------
   // DESENHOS 2D.
   //-------------
+#if USAR_FRAMEBUFFER
+  if (!parametros_desenho_.has_picking_x()) {
+    gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
+    gl::CarregaIdentidade();
+    // Eixo com origem embaixo esquerda.
+    gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
+    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::CarregaIdentidade(false);
+    gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+
+    MudaCor(COR_BRANCA);
+    gl::Habilita(GL_TEXTURE_2D);
+    /*
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
+    */
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
+#endif
+
   gl::Desabilita(GL_FOG);
   gl::UsaShader(gl::TSH_SIMPLES);
 
@@ -2589,55 +2774,23 @@ void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
-void Tabuleiro::GeraFramebufferPicking() {
+void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER
-  V_ERRO("gerando framebuffer picking");
-  // Textura de cor para renderizacao.
-  GLuint textura_cor;
-  glGenTextures(1, &textura_cor);
-  glBindTexture(GL_TEXTURE_2D, textura_cor);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  V_ERRO("gerando framebuffer");
+  glGenFramebuffers(1, &framebuffer_);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  glGenTextures(1, &textura_framebuffer_);
+  glBindTexture(GL_TEXTURE_2D, textura_framebuffer_);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  V_ERRO("Gera FramebufferPicking textura cor");
-  // Profundidade.
-#define DEPTH_TEX 1
-#if DEPTH_TEX
-  GLuint textura_prof;
-  glGenTextures(1, &textura_prof);
-  glBindTexture(GL_TEXTURE_2D, textura_prof);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glBindTexture(GL_TEXTURE_2D, 0);
-#else
-  GLuint rb;
-  glGenRenderbuffers(1, &rb);
-  glBindRenderbuffer(GL_RENDERBUFFER, rb);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
-#endif
-  V_ERRO("Gera FramebufferPicking textura profundidade");
-  // Gera o framebuffer com as texturas.
-  glGenFramebuffers(1, &framebuffer_pick_);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_pick_);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textura_cor, 0);
-#if DEPTH_TEX
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textura_prof, 0);
-#else
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
-#endif
-  V_ERRO("glGenFramebuffers");
-  GLenum e = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (e != GL_FRAMEBUFFER_COMPLETE) {
-    LOG(ERROR) << "Framebuffer incompleto: " << (void*)e;
-  } 
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+
+  // Volta estado normal.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 }
 
@@ -3838,6 +3991,7 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+  SalvaConfiguracoes(opcoes_);
 }
 
 void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {

@@ -62,6 +62,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_fps(false);
   parametros_desenho_.set_desenha_aura(false);
   parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_desenha_sombra_projetada(false);
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_acoes(false);
@@ -79,9 +80,6 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
 
   gl::Desabilita(GL_BLEND);
-#if USAR_FRAMEBUFFER
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_pick_);
-#endif
   DesenhaCena();
 
   // Volta pro modo de desenho, retornando quanto pegou no SELECT.
