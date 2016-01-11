@@ -331,7 +331,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 
 void Tabuleiro::ConfiguraProjecao() {
 #if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombra_projetada() || camera_isometrica_) {
+  if (parametros_desenho_.desenha_sombra_projetada()) {
     float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
     gl::Ortogonal(-val, val, -val, val,
                   0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
@@ -355,16 +355,16 @@ void Tabuleiro::ConfiguraProjecao() {
 
 void Tabuleiro::ConfiguraOlhar() {
 #if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombra_projetada() || camera_isometrica_) {
+  if (parametros_desenho_.desenha_sombra_projetada()) {
     //GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     //gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
     //gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
     Matrix4 mr;
-    mr.rotateY(-45.0f/*-proto_corrente_->luz_direcional().inclinacao_graus()*/);
-    //mr.rotateZ(0.0f/*proto_corrente_->luz_direcional().posicao_graus()*/);
-    vl = vl * mr;
-    vl *= 100.0f;  // TODO achar um valor melhor.
+    mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
+    mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
+    mr.scale(150.0f);  // TODO valor.
+    vl = mr * vl;
     //LOG(INFO) << vl;
     Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
     if (fabs(vl.x) < 0.001f && fabs(vl.y) < 0.001f) {
@@ -374,13 +374,13 @@ void Tabuleiro::ConfiguraOlhar() {
     }
     gl::OlharPara(
         // from.
-        //vl.x, vl.y, vl.z,
-        100.0f, 0.0f, 100.0f,
+        vl.x, vl.y, vl.z,
+        //100.0f, 0.0f, 100.0f,
         // to.
         0.0f, 0.0f, 0.0f,
         // up
-        0.0f, 0.0f, 1.0f);
-        //up.x, up.y, up.z);
+        //0.0f, 0.0f, 1.0f);
+        up.x, up.y, up.z);
     //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
     //LOG(INFO) << "mt: " << mt;
     //Vector4 vt(10.0f, 0.0f, 0.0f, 1.0f);
