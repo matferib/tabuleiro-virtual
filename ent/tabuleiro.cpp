@@ -414,7 +414,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::UsaShader(gl::TSH_LUZ);
-  // Aplica opcoes do jogador.
+  // Zera as coisas nao usadas na sombra.
   parametros_desenho_.set_desenha_lista_objetos(false);
   parametros_desenho_.set_desenha_lista_jogadores(false);
   parametros_desenho_.set_desenha_fps(false);
@@ -437,7 +437,6 @@ void Tabuleiro::DesenhaSombraProjetada() {
     gl::CarregaIdentidade();
     ConfiguraProjecao();
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-    bool luz = parametros_desenho_.iluminacao();
     parametros_desenho_.set_iluminacao(false);
     glDrawBuffer(GL_NONE);
     DesenhaCena();
@@ -513,46 +512,15 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_nevoa(false);
     parametros_desenho_.set_desenha_coordenadas(false);
   }
-  gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  gl::Habilita(GL_BLEND);
 #if USAR_FRAMEBUFFER
-  parametros_desenho_.set_desenha_sombra_projetada(parametros_desenho_.desenha_sombras());
-  parametros_desenho_.set_desenha_sombras(false);
-  if (parametros_desenho_.desenha_sombra_projetada()) {
-    // Primeira passada usa essa matriz.
-    gl::Viewport(0, 0, 1024, 1024);
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-    gl::CarregaIdentidade();
-    ConfiguraProjecao();
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-    bool luz = parametros_desenho_.iluminacao();
-    parametros_desenho_.set_iluminacao(false);
-    glDrawBuffer(GL_NONE);
-    DesenhaCena();
-
-    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
-    gl::CarregaIdentidade(false);
-    // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
-    Matrix4 bias(
-        0.5, 0.0, 0.0, 0.0,
-        0.0, 0.5, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0,
-        0.5, 0.5, 0.5, 1.0);
-    gl::MultiplicaMatriz(bias.get(), false);
-    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-    parametros_desenho_.set_desenha_sombras(parametros_desenho_.desenha_sombra_projetada());
-    parametros_desenho_.set_desenha_sombra_projetada(false);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    parametros_desenho_.set_iluminacao(luz);
-    glDrawBuffer(GL_BACK);
-    gl::UnidadeTextura(GL_TEXTURE1);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
-    gl::UnidadeTextura(GL_TEXTURE0);
-    // TODO escrever o valor da textura.
+  if (parametros_desenho_.desenha_sombras()) {
+    ParametrosDesenho salva_pd(parametros_desenho_);
+    DesenhaSombraProjetada();
+    parametros_desenho_ = salva_pd;
   }
 #endif
+  gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  gl::Habilita(GL_BLEND);
   gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
