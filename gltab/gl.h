@@ -189,7 +189,6 @@ inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, textura
 inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
 inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
-inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void ImagemTextura2d(
     GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda,
     GLenum formato, GLenum tipo, const GLvoid* dados) {
@@ -198,6 +197,7 @@ inline void ImagemTextura2d(
 
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
+void GeraMipmap(GLenum alvo);
 void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void GeraBuffers(GLsizei n, GLuint* buffers);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
@@ -234,6 +234,7 @@ void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean 
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 #else
+inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
