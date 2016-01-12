@@ -23,5 +23,6 @@ make apple && \
 cp tabvirt mac && \
 cp -f dados/*asciiproto mac/dados && \
 cp -f shaders/*.c mac/shaders && \
+cp -f texturas/*.png mac/texturas && \
 for i in libprotobuf.9.dylib libboost_system.dylib libboost_timer.dylib libboost_filesystem.dylib libgflags.2.dylib libglog.0.dylib QtOpenGL.framework/Versions/4/QtOpenGL QtGui.framework/Versions/4/QtGui QtCore.framework/Versions/4/QtCore; do install_name_tool -change /usr/local/lib/${i} @executable_path/lib/${i} mac/tabvirt; done && \
 pkgbuild --identifier com.matferib.TabuleiroVirtual --version ${VERSAO} --install-location=/Applications/TabuleiroVirtual --root ./mac TabuleiroVirtual-${VERSAO}.pkg

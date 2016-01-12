@@ -207,10 +207,10 @@ class Texturas::InfoTexturaInterna {
     V_ERRO("Ligacao");
     // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if (__linux__ && !ANDROID)
+#if TARGET_OS_MAC || (__linux__ && !ANDROID)
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-#elif WIN32 || TARGET_OS_MAC
+#elif WIN32
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #else
@@ -224,7 +224,7 @@ class Texturas::InfoTexturaInterna {
                         0, FormatoImagem(), TipoImagem(),
                         bits_.data());
     V_ERRO("Imagem");
-#if (__linux__ && !ANDROID)
+#if TARGET_OS_MAC || (__linux__ && !ANDROID)
     // TODO wrapper para outros...
     gl::GeraMipmap(GL_TEXTURE_2D);
 #endif

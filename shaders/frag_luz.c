@@ -5,7 +5,7 @@
 //#define lowp highp
 //#define mediump highp
 #else
-precision highp float;
+//precision highp float;
 #define lowp
 #define highp
 #define mediump

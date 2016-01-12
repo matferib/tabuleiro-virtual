@@ -1,3 +1,6 @@
+Caminho curto:
+sh gera_mac.sh -v 2.0.0
+
 1- Colocar no diretorio mac as coisas da instalação:
 Os executaveis:
 tabvirt
