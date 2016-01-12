@@ -48,10 +48,19 @@ void InterfaceGrafica::TrataMostraMensagem(bool erro, const std::string& mensage
 //----------------
 void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) {
   tabuleiro_->DesativaWatchdog();
-  std::vector<std::string> tab_estaticos =
-      arq::ConteudoDiretorio(arq::TIPO_TABULEIRO_ESTATICO);
-  std::vector<std::string> tab_dinamicos =
-      arq::ConteudoDiretorio(arq::TIPO_TABULEIRO);
+  std::vector<std::string> tab_estaticos;
+  std::vector<std::string> tab_dinamicos;
+  try {
+    tab_estaticos = arq::ConteudoDiretorio(arq::TIPO_TABULEIRO_ESTATICO);
+  }
+  catch (...) {
+  }
+  try {
+    tab_dinamicos = arq::ConteudoDiretorio(arq::TIPO_TABULEIRO);
+  }
+  catch (...) {
+  }
+
   if (tab_estaticos.size() + tab_dinamicos.size() == 0) {
     auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
     ne->set_erro(std::string("Nao existem tabuleiros salvos"));
