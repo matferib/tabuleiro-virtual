@@ -411,14 +411,24 @@ void Tabuleiro::ConfiguraOlhar() {
 
 void Tabuleiro::DesenhaSombraProjetada() {
 #if USAR_FRAMEBUFFER
+  if (!parametros_desenho_.desenha_sombras()) {
+    return;
+  }
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::UsaShader(gl::TSH_LUZ);
   // Zera as coisas nao usadas na sombra.
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_id_acao(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
   parametros_desenho_.set_desenha_lista_objetos(false);
   parametros_desenho_.set_desenha_lista_jogadores(false);
   parametros_desenho_.set_desenha_fps(false);
-  parametros_desenho_.set_desenha_grade(false);
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   parametros_desenho_.set_iluminacao(false);
   parametros_desenho_.set_desenha_texturas(false);
@@ -429,37 +439,41 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_coordenadas(false);
-  parametros_desenho_.set_desenha_sombra_projetada(parametros_desenho_.desenha_sombras());
+  parametros_desenho_.set_desenha_sombra_projetada(true);
   parametros_desenho_.set_desenha_sombras(false);
-  if (parametros_desenho_.desenha_sombra_projetada()) {
-    gl::Viewport(0, 0, 1024, 1024);
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-    gl::CarregaIdentidade();
-    ConfiguraProjecao();
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-    parametros_desenho_.set_iluminacao(false);
-    glDrawBuffer(GL_NONE);
-    DesenhaCena();
 
-    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
-    gl::CarregaIdentidade(false);
-    // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
-    Matrix4 bias(
-        0.5, 0.0, 0.0, 0.0,
-        0.0, 0.5, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0,
-        0.5, 0.5, 0.5, 1.0);
-    gl::MultiplicaMatriz(bias.get(), false);
-    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glDrawBuffer(GL_BACK);
-    gl::UnidadeTextura(GL_TEXTURE1);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
-    gl::UnidadeTextura(GL_TEXTURE0);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  }
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::Viewport(0, 0, 1024, 1024);
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  ConfiguraProjecao();
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  parametros_desenho_.set_iluminacao(false);
+  glDrawBuffer(GL_NONE);
+  //gl::FaceNula(GL_FRONT);
+  DesenhaCena();
+  //gl::FaceNula(GL_BACK);
+
+  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+  gl::CarregaIdentidade(false);
+  // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
+  Matrix4 bias(
+      0.5, 0.0, 0.0, 0.0,
+      0.0, 0.5, 0.0, 0.0,
+      0.0, 0.0, 0.5, 0.0,
+      0.5, 0.5, 0.5, 1.0);
+  gl::MultiplicaMatriz(bias.get(), false);
+  ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDrawBuffer(GL_BACK);
+  gl::UnidadeTextura(GL_TEXTURE1);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  //gl::Habilita(GL_TEXTURE_2D);
+  gl::Desabilita(GL_TEXTURE_2D);
 #endif
 }
 
@@ -518,6 +532,8 @@ int Tabuleiro::Desenha() {
     DesenhaSombraProjetada();
     parametros_desenho_ = salva_pd;
   }
+#else
+  gl::UnidadeTextura(GL_TEXTURE0);
 #endif
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
@@ -2073,7 +2089,6 @@ void Tabuleiro::IniciaGL() {
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
 
-  RegeraVboTabuleiro();
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
 
@@ -2412,7 +2427,7 @@ void Tabuleiro::DesenhaCena() {
   //-------------
   // DESENHOS 2D.
   //-------------
-#if USAR_FRAMEBUFFER
+#if 0 && USAR_FRAMEBUFFER
   if (!parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
@@ -2582,6 +2597,19 @@ void Tabuleiro::GeraVboCaixaCeu() {
   vbo_caixa_ceu_.Grava(vbo);
 }
 
+float AlturaCoord(int xq, int yq) {
+  return 0.0f;
+  float x_2 = 10.0f;
+  float y_2 = 10.0f;
+  if ((xq == x_2 && yq == y_2) ||
+      ((xq + 1) == x_2 && yq == y_2) ||
+      ((xq + 1) == x_2 && (yq + 1) == y_2) ||
+      (xq == x_2 && (yq + 1) == y_2)) {
+    return 3.0f;
+  }
+  return 0.0;
+}
+
 void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro inicio");
   std::vector<float> coordenadas_tabuleiro;
@@ -2614,12 +2642,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
       // desenha quadrado
       coordenadas_tabuleiro.push_back(x);
       coordenadas_tabuleiro.push_back(y);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab));
       coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
       coordenadas_tabuleiro.push_back(y);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab));
       coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
       coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab + 1));
       coordenadas_tabuleiro.push_back(x);
       coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab + 1));
 
       coordenadas_textura.push_back(inicio_texel_h);
       coordenadas_textura.push_back(inicio_texel_v);
@@ -2648,7 +2680,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   }
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
-  tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
+  tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
   V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
@@ -2689,12 +2721,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
       float y_final = y_inicial + tamanho_y;
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       indices_grade.push_back(indice);
       indices_grade.push_back(indice + 1);
       indices_grade.push_back(indice + 2);
@@ -2720,12 +2756,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
       float x_final = x_inicial + tamanho_x;
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       indices_grade.push_back(indice);
       indices_grade.push_back(indice + 1);
       indices_grade.push_back(indice + 2);
@@ -2737,7 +2777,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   }
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
   grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
-  grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
+  grade_nao_gravada.AtribuiCoordenadas(3, coordenadas_grade.data(), coordenadas_grade.size());
   vbo_grade_.Grava(grade_nao_gravada);
   V_ERRO("RegeraVboTabuleiro fim");
 }
@@ -2750,8 +2790,10 @@ void Tabuleiro::GeraFramebuffer() {
   glGenTextures(1, &textura_framebuffer_);
   glBindTexture(GL_TEXTURE_2D, textura_framebuffer_);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
