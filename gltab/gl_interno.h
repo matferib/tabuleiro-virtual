@@ -119,6 +119,9 @@ void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
+#if WIN32
+void TexturaAtivaInterno(GLenum textura);
+#endif
 
 // Quebra uma string em varias.
 const std::vector<std::string> QuebraString(const std::string& entrada, char caractere_quebra);
