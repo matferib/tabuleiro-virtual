@@ -1255,7 +1255,11 @@ void Desabilita(GLenum cap) {
 }
 
 void UnidadeTextura(GLenum unidade) {
+#if WIN32
+  interno::TexturaAtivaInterno(unidade);
+#else
   glActiveTexture(unidade);
+#endif
   // Atualiza as variaveis de shader, se houver. Meio hacky mas ok.
   const auto& shader = interno::BuscaShader();
   if (unidade == GL_TEXTURE0) {

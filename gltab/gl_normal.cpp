@@ -56,6 +56,8 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglUniformMatrix4fv;
   PROC pglUniformMatrix3fv;
   PROC pglBlendColor;
+  PROC pglGenerateMipmap;
+  PROC pglActiveTexture;
 #endif
 };
 
@@ -112,6 +114,8 @@ void IniciaGl(int* argcp, char** argv) {
   PGL(glGetProgramiv);
   PGL(glGetActiveUniform);
   PGL(glGetUniformLocation);
+  PGL(glGenerateMipmap);
+  PGL(glActiveTexture);
 
   if (!erro.empty()) {
     LOG(ERROR) << "Erro: " << erro;
@@ -175,6 +179,16 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 }  // namespace
 
 #if WIN32
+namespace interno {
+void TexturaAtivaInterno(GLenum unidade) {
+  ((PFNGLACTIVETEXTUREPROC)INTERNO->pglActiveTexture)(unidade);
+}
+}  // namespace interno
+
+void GeraMipmap(GLenum alvo) {
+  ((PFNGLGENERATEMIPMAPPROC)INTERNO->pglGenerateMipmap)(alvo);
+}
+
 void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) {
   ((PFNGLBLENDCOLORPROC)INTERNO->pglBlendColor)(r, g, b, a);
 }
