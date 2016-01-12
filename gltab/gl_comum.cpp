@@ -424,8 +424,6 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
     Uniforme(shader.uni_gltab_textura, 1.0f);
-    Uniforme(shader.uni_gltab_unidade_textura, 0);
-    Uniforme(shader.uni_gltab_unidade_textura_sombra, 1);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -437,7 +435,8 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else if (cap == GL_NORMALIZE) {
     // Shader ja normaliza tudo.
   } else {
-    return glEnable(cap);
+    glEnable(cap);
+    return;
   }
 }
 
@@ -1257,7 +1256,13 @@ void Desabilita(GLenum cap) {
 
 void UnidadeTextura(GLenum unidade) {
   glActiveTexture(unidade);
-  //Uniforme(shader.uni_gltab_unidade_textura, unidade - GL_TEXTURE0);
+  // Atualiza as variaveis de shader, se houver. Meio hacky mas ok.
+  const auto& shader = interno::BuscaShader();
+  if (unidade == GL_TEXTURE0) {
+    Uniforme(shader.uni_gltab_unidade_textura, 0);
+  } else if (unidade == GL_TEXTURE1) {
+    Uniforme(shader.uni_gltab_unidade_textura_sombra, 1);
+  }
 }
 
 void FinalizaGl() {
