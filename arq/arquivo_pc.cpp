@@ -25,10 +25,11 @@ namespace plat {
 
 const std::string DiretorioAppsUsuario() {
 #if __APPLE__ && TARGET_OS_MAC
-  std::string home(getenv("HOME"));
-  if (home.empty()) {
-    return "";
+  auto* home_ptr = getenv("HOME");
+  if (home_ptr == nullptr || strlen(home_ptr) == 0) {
+    return "./";
   }
+  std::string home(home_ptr);
   return home + "/Library/Application Support/TabuleiroVirtual/";
 #elif WIN32
   std::string appdata(getenv("localappdata"));
@@ -37,7 +38,18 @@ const std::string DiretorioAppsUsuario() {
   }
   return appdata + "/TabuleiroVirtual/";
 #else
-  return "./";
+  std::string home;
+  auto* xdg_config_home = getenv("XDG_CONFIG_HOME");
+  if (xdg_config_home == nullptr || strlen(xdg_config_home) == 0) {
+    auto* home_ptr = getenv("HOME");
+    if (home_ptr == nullptr || strlen(home_ptr) == 0) {
+      return "./";
+    }
+    home = std::string(home_ptr) + "/.config";
+  } else {
+    home = xdg_config_home;
+  }
+  return home + "/TabuleiroVirtual/";
 #endif
 }
 

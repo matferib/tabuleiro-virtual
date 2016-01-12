@@ -279,10 +279,6 @@ class AcaoProjetil : public Acao {
     pos_ = entidade_origem->PosicaoAcao();
   }
 
-  bool AtingiuAlvo() const override {
-    return atingiu_alvo_;
-  }
-
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (estagio_ == INICIAL) {
       AtualizaVoo(intervalo_ms);
@@ -354,7 +350,6 @@ class AcaoProjetil : public Acao {
       return;
     }
   }
-
 
   // Verifica se a coordenada passou do ponto de destino.
   static bool Passou(float antes, float depois, float destino) {
@@ -490,10 +485,6 @@ class AcaoCorpoCorpo : public Acao {
     }
     AtualizaDeltas();
     finalizado_ = false;
-  }
-
-  bool AtingiuAlvo() const override {
-    return atingiu_alvo_;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -738,9 +729,9 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   dz_total_ += entidade_destino->Z() - z_antes;
   VLOG(2) << "Atualizando alvo: intervalo_ms: " << intervalo_ms << ", dt; " << dt
           << ", dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
-  if (disco_alvo_rad_ == 0) {
+  if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
     entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
-    atingiu_alvo_ = true;
+    estado_alvo_ = ALVO_A_SER_ATINGIDO;
   }
   disco_alvo_rad_ += dt * M_PI / 2.0f;
   return true;

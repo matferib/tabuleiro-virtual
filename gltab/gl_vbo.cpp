@@ -33,11 +33,32 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 // VboNaoGravado
 //--------------
 void VboNaoGravado::Escala(GLfloat x, GLfloat y, GLfloat z) {
-  for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
-    coordenadas_[i] *= x;
-    coordenadas_[i + 1] *= y;
-    if (num_dimensoes_ == 3) {
-      coordenadas_[i + 2] *= z;
+  if (num_dimensoes_ == 2) {
+    for (unsigned int i = 0; i < coordenadas_.size(); i += 2) {
+      coordenadas_[i] *= x;
+      coordenadas_[i + 1] *= y;
+      if (num_dimensoes_ == 3) {
+        coordenadas_[i + 2] *= z;
+      }
+    }
+  } else if (num_dimensoes_ == 3) {
+    Matrix4 m;
+    m.scale(x, y, z);
+    for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
+      Vector4 c(coordenadas_[i], coordenadas_[i+1], coordenadas_[i+2], 1.0f);
+      c = m * c;
+      coordenadas_[i]   = c[0];
+      coordenadas_[i+1] = c[1];
+      coordenadas_[i+2] = c[2];
+    }
+    m.invert().transpose();
+    for (unsigned int i = 0; i < normais_.size(); i += 3) {
+      Vector4 c(normais_[i], normais_[i+1], normais_[i+2], 1.0f);
+      c = m * c;
+      c.normalize();
+      normais_[i]   = c[0];
+      normais_[i+1] = c[1];
+      normais_[i+2] = c[2];
     }
   }
 }
@@ -53,35 +74,60 @@ void VboNaoGravado::Translada(GLfloat x, GLfloat y, GLfloat z) {
 }
 
 void VboNaoGravado::RodaX(GLfloat angulo_graus) {
-  GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
-  GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
-    GLfloat y = coordenadas_[i + 1];
-    GLfloat z = coordenadas_[i + 2];
-    coordenadas_[i + 1] = y * c + z * -s;
-    coordenadas_[i + 2] = y * s + z * c;
+  Matrix4 m;
+  m.rotateX(angulo_graus);
+  for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
+    Vector4 c(0.0f, coordenadas_[i + 1], coordenadas_[i + 2], 1.0f);
+    c = m * c;
+    coordenadas_[i + 1] = c[1];
+    coordenadas_[i + 2] = c[2];
+  }
+  // Mesma transformada.
+  for (unsigned int i = 0; i < normais_.size(); i += 3) {
+    Vector4 c(0.0f, normais_[i + 1], normais_[i + 2], 1.0f);
+    c = m * c;
+    normais_[i + 1] = c[1];
+    normais_[i + 2] = c[2];
   }
 }
 
 void VboNaoGravado::RodaY(GLfloat angulo_graus) {
-  GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
-  GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
-  for (int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
-    GLfloat x = coordenadas_[i];
-    GLfloat z = coordenadas_[i + 2];
-    coordenadas_[i] = x * c + z * s;
-    coordenadas_[i + 2] = x * -s + z * c;
+  Matrix4 m;
+  m.rotateY(angulo_graus);
+  for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
+    Vector4 c(coordenadas_[i], 0.0f, coordenadas_[i + 2], 1.0f);
+    c = m * c;
+    coordenadas_[i]     = c[0];
+    coordenadas_[i + 2] = c[2];
+  }
+  // Mesma transformada.
+  for (unsigned int i = 0; i < normais_.size(); i += 3) {
+    Vector4 c(normais_[i], 0.0f, normais_[i+2], 1.0f);
+    c = m * c;
+    normais_[i]   = c[0];
+    normais_[i+2] = c[2];
   }
 }
 
 void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
-  GLfloat c = cosf(angulo_graus * GRAUS_PARA_RAD);
-  GLfloat s = sinf(angulo_graus * GRAUS_PARA_RAD);
+  Matrix4 m;
+  m.rotateZ(angulo_graus);
   for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
-    GLfloat x = coordenadas_[i];
-    GLfloat y = coordenadas_[i + 1];
-    coordenadas_[i] = x * c + y * -s;
-    coordenadas_[i + 1] = x * s + y * c;
+    Vector4 c(coordenadas_[i], coordenadas_[i + 1], 0.0f, 1.0f);
+    c = m * c;
+    coordenadas_[i]     = c[0];
+    coordenadas_[i + 1] = c[1];
+  }
+  if (num_dimensoes_ != 3) {
+    // So rotacao Z tem essa verificacao.
+    return;
+  }
+  // Mesma transformada.
+  for (unsigned int i = 0; i < normais_.size(); i += 3) {
+    Vector4 c(normais_[i], normais_[i + 1], normais_[i + 2], 1.0f);
+    c = m * c;
+    normais_[i]     = c[0];
+    normais_[i + 1] = c[1];
   }
 }
 
@@ -182,6 +228,33 @@ void VboNaoGravado::AtribuiCores(const float* cores) {
   tem_cores_ = true;
 }
 
+VboNaoGravado VboNaoGravado::ExtraiVboNormais() const {
+  if (num_dimensoes_ != 3) {
+    throw std::logic_error("extracao de normais nao suportado para n != 3");
+  }
+  if (normais_.empty()) {
+    throw std::logic_error("extracao de normais para objeto sem normais");
+  }
+  VboNaoGravado vbo;
+  std::vector<float> cs;
+  for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
+    cs.push_back(coordenadas_[i]);
+    cs.push_back(coordenadas_[i+1]);
+    cs.push_back(coordenadas_[i+2]);
+    cs.push_back(coordenadas_[i]   + normais_[i]);
+    cs.push_back(coordenadas_[i+1] + normais_[i+1]);
+    cs.push_back(coordenadas_[i+2] + normais_[i+2]);
+  }
+  vbo.AtribuiCoordenadas(3, cs.data(), cs.size());
+  std::vector<unsigned short> is;
+  for (unsigned int i = 0; i < indices_.size(); ++i) {
+    is.push_back(indices_[i] * 2);
+    is.push_back(indices_[i] * 2 + 1);
+  }
+  vbo.AtribuiIndices(is.data(), is.size());
+  return vbo;
+}
+
 std::string VboNaoGravado::ParaString() const {
 #if WIN32 || ANDROID
   return std::string("vbo: ") + nome_;
@@ -216,9 +289,9 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_texturas_ = -1;
   buffer_unico_ = std::move(vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_));
   num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
-  tem_normais_ = (deslocamento_normais_ != -1);
-  tem_cores_ = (deslocamento_cores_ != -1);
-  tem_texturas_ = (deslocamento_texturas_ != -1);
+  tem_normais_ = (deslocamento_normais_ != static_cast<unsigned int>(-1));
+  tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
+  tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
   gl::BufferizaDados(GL_ARRAY_BUFFER,
                      sizeof(GL_FLOAT) * buffer_unico_.size(),
                      buffer_unico_.data(),
@@ -688,11 +761,45 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
     meio_lado, meio_lado, -meio_lado,
     meio_lado, -meio_lado, -meio_lado,
   };
+  const float coordenadas_texel[] = {
+    // Sul.
+    0.0f, 1.0f, 
+    1.0f, 1.0f, 
+    1.0f, 0.0f, 
+    0.0f, 0.0f,
+    // Norte.
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    // Oeste.
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+    // Leste.
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    // Cima.
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
+    0.0f, 0.0f,
+    // Baixo.
+    0.0f, 1.0f,
+    0.0f, 0.0f,
+    1.0f, 0.0f,
+    1.0f, 1.0f,
+  };
+
 
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, num_coordenadas);
   vbo.AtribuiNormais(normais);
   vbo.AtribuiIndices(indices, num_indices);
+  vbo.AtribuiTexturas(coordenadas_texel);
   vbo.Nomeia("cubo");
   return vbo;
 }
@@ -754,17 +861,37 @@ VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
     -m, m, 0.0f,
     -m, -m, 0.0f,
   };
+  const float coordenadas_texel[] = {
+    // sul
+    0.5f, 0.5f,  // s meio
+    0.0f, 1.0f,   // s oeste
+    1.0f, 1.0f,   // s leste
+    // leste
+    0.5f, 0.5f,  // e meio
+    1.0f, 1.0f,   // e sul
+    1.0f, 0.0f,   // e norte
+    // norte
+    0.5f, 0.5f,  // n meio
+    1.0f, 0.0f,   // n leste
+    0.0f, 0.0f,   // n oeste
+    // oeste
+    0.5f, 0.5f,  // w meio
+    0.0f, 0.0f,   // w norte
+    0.0f, 1.0f,   // w sul
+  };
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, sizeof(coordenadas) / sizeof(float));
+  vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 12);
   vbo.AtribuiNormais(normais);
   vbo.Nomeia("piramide");
   return vbo;
 }
 
-VboNaoGravado VboRetangulo(GLfloat tam_lado) {
-  float m = tam_lado / 2.0f;
-  return VboRetangulo(-m, -m, m, m);
+VboNaoGravado VboRetangulo(GLfloat tam_x, GLfloat tam_y) {
+  float x = tam_x / 2.0f;
+  float y = tam_y / 2.0f;
+  return VboRetangulo(-x, -y, x, y);
 }
 
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
@@ -808,6 +935,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   std::vector<float> normais(num_coordenadas);
   //std::vector<float> cores((num_coordenadas / 3) * 4);
   std::vector<unsigned short> indices(num_faces * 3);
+  // Norte.
   coordenadas[0] = 0.0f;
   coordenadas[1] = raio;
   normais[2] = 1.0f;
@@ -818,9 +946,8 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   //cores[1] = 0;
   //cores[2] = 0;
   //cores[3] = 1.0f;
-
   for (int i = 3; i < num_coordenadas; i += 3) {
-    coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia; 
+    coordenadas[i] = coordenadas[i - 3] * cos_fatia - coordenadas[i - 2] * sen_fatia;
     coordenadas[i + 1] = coordenadas[i - 3] * sen_fatia + coordenadas[i - 2] * cos_fatia;
     normais[i + 2] = 1.0f;
     //int ic = (i / 3) * 4;
@@ -828,6 +955,18 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
     //cores[ic+1] = ic * 0.1;
     //cores[ic+2] = ic * 0.1;
     //cores[ic+3] = 1.0f;
+  }
+  const unsigned short num_coordenadas_texel = 2 + (num_faces + 1) * 2;
+  std::vector<float> coordenadas_texel(num_coordenadas_texel);
+  // Norte.
+  coordenadas_texel[0] = 0.0f;
+  coordenadas_texel[1] = -0.5f;
+  for (unsigned int i = 2; i < num_coordenadas_texel; i += 2) {
+    coordenadas_texel[i] = coordenadas_texel[i - 2] * cos_fatia - coordenadas_texel[i - 1] * sen_fatia;
+    coordenadas_texel[i + 1] = coordenadas_texel[i - 2] * sen_fatia + coordenadas_texel[i - 1] * cos_fatia;
+  }
+  for (unsigned int i = 0; i < coordenadas_texel.size(); ++i) {
+    coordenadas_texel[i] += 0.5f;
   }
   for (unsigned int i = 0; i < num_faces; ++i) {
     int ind = i * 3;
@@ -839,7 +978,7 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   vbo.AtribuiCoordenadas(3, coordenadas.data(), coordenadas.size());
   vbo.AtribuiNormais(normais.data());
   //vbo.AtribuiCores(cores.data());
-  //vbo.AtribuiTexturas(coordenadas_texel);
+  vbo.AtribuiTexturas(coordenadas_texel.data());
   vbo.AtribuiIndices(indices.data(), indices.size());
   vbo.Nomeia("disco");
   return vbo;

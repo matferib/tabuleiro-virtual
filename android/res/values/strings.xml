@@ -7,6 +7,8 @@
     <string name="tipo_visao">Tipo de Visão</string>
     <string name="metros_m">m</string>
     <string name="raio_luz">Raio da Luz</string>
+    <string name="salvar">Salvar</string>
+    <string name="abrir">Abrir</string>
     <string-array name="tipo_visao_array">
       <!-- A ordem deve ser a mesma da enum de visoes. -->
       <item>Visão Normal</item>

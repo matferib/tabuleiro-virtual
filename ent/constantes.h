@@ -52,6 +52,7 @@
 #define ATUALIZACOES_BOTAO_PRESSIONADO (static_cast<int>(ATUALIZACOES_POR_SEGUNDO * 0.240f))
 
 // Constantes para picking do tabuleiro. Limite: TODO
+#define OBJ_INVALIDO 0
 #define OBJ_TABULEIRO 1
 #define OBJ_ENTIDADE 2
 #define OBJ_ENTIDADE_LISTA 3

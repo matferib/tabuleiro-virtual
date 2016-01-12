@@ -4,15 +4,13 @@
 #include "ent/tabuleiro.h"
 #include "log/log.h"
 
-#define LOGT(X) VLOG(1)
-
 namespace ifg {
 
 namespace {
 
 // Temporizadores * 10ms.
 const float MAX_TEMPORIZADOR_TECLADO_S = 3;
-const float  MAX_TEMPORIZADOR_MOUSE_S = 1;
+const float MAX_TEMPORIZADOR_MOUSE_S = 1;
 
 const float MAX_TEMPORIZADOR_TECLADO = MAX_TEMPORIZADOR_TECLADO_S * ATUALIZACOES_POR_SEGUNDO;
 const float MAX_TEMPORIZADOR_MOUSE = MAX_TEMPORIZADOR_MOUSE_S * ATUALIZACOES_POR_SEGUNDO;
@@ -140,6 +138,9 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
 }
 
 void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e modificadores) {
+  //if (estado_ == ESTADO_MOSTRANDO_DIALOGO) {
+  //  return;
+  //}
   VLOG(1) << "Tecla: " << (void*)tecla << ", mod: " << (void*)modificadores;
   if (estado_ == ESTADO_TEMPORIZANDO_TECLADO) {
     switch (tecla) {
@@ -173,6 +174,14 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     case Tecla_AltEsquerdo:
       tabuleiro_->DetalharTodasEntidades(true);
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ACAO);
+      return;
+    case Tecla_Ctrl:
+      //tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_DESENHO);
+      return;
+    case Tecla_Shift:
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_ROTACAO);
+      estado_ = ESTADO_OUTRO;
       return;
     case Tecla_Cima: {
       // Nao pode usar == pq a seta tambem aplica modificador de keypad.
@@ -310,7 +319,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     }
     case Tecla_S:
       if ((modificadores & Modificador_Ctrl) != 0) {
-        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+        central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO));
         return;
       }
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
@@ -337,29 +346,40 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
 }
 
 void TratadorTecladoMouse::TrataTeclaLiberada(teclas_e tecla, modificadores_e modificadores) {
-  if (tecla == Tecla_AltEsquerdo) {
-    tabuleiro_->DetalharTodasEntidades(false);
+  switch (tecla) {
+    case Tecla_AltEsquerdo:
+      tabuleiro_->DetalharTodasEntidades(false);
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_NORMAL);
+      return;
+    //case Tecla_Ctrl:
+    case Tecla_Shift:
+      tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_NORMAL);
+      estado_ = ESTADO_TEMPORIZANDO_MOUSE;
+      return;
+    default:
+      return;
   }
 }
 
 void TratadorTecladoMouse::TrataBotaoMousePressionado(
     botoesmouse_e botao, unsigned int modificadores, int x, int y) {
-  LOGT(1) << "Pressionado: " << x << ", " << y;
   MudaEstado(ESTADO_OUTRO);
   if (modificadores == Modificador_Alt) {
+    VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com alt, pos " << x << ", " << y;
     // Acao padrao eh usada quando o botao eh o direito.
     tabuleiro_->TrataBotaoAcaoPressionado(botao == Botao_Direito, x, y);
   } else if (modificadores == Modificador_Ctrl) {
+    VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << " com ctrl, pos " << x << ", " << y;
     if (botao == Botao_Esquerdo) {
       tabuleiro_->TrataBotaoAlternarSelecaoEntidadePressionado(x, y);
     } else if (botao == Botao_Direito) {
       tabuleiro_->TrataBotaoDesenhoPressionado(x, y);
     }
   } else {
+    VLOG(1) << "Pressionado e: " << (botao==Botao_Esquerdo) << ", pos " << x << ", " << y;
     switch (botao) {
       case Botao_Esquerdo:
         if (modificadores == Modificador_Shift) {
-          // Mac nao tem botao do meio, entao usa o shift para simular.
           tabuleiro_->TrataBotaoRotacaoPressionado(x, y);
         } else {
           tabuleiro_->TrataBotaoEsquerdoPressionado(x, y);
@@ -378,7 +398,7 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(
 }
 
 void TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
-  LOGT(1) << "Movimento: " << x << ", " << y;
+  VLOG(1) << "Movimento: " << x << ", " << y;
   ultimo_x_ = x;
   ultimo_y_ = y;
   if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
@@ -391,12 +411,12 @@ void TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
 }
 
 void TratadorTecladoMouse::TrataRodela(int delta) {
-  LOGT(1) << "Rodela: " << delta;
+  VLOG(1) << "Rodela: " << delta;
   tabuleiro_->TrataEscalaPorDelta(delta);
 }
 
 void TratadorTecladoMouse::TrataPincaEscala(float fator) {
-  LOGT(1) << "Pinca: " << fator;
+  VLOG(1) << "Pinca: " << fator;
   tabuleiro_->TrataEscalaPorFator(fator);
 }
 
@@ -439,7 +459,7 @@ bool TratadorTecladoMouse::TrataNotificacao(const ntf::Notificacao& notificacao)
 }
 
 void TratadorTecladoMouse::TrataDuploCliqueMouse(botoesmouse_e botao, unsigned int modificadores, int x, int y) {
-  LOGT(1) << "Duplo clique: " << x << ", " << y;
+  VLOG(1) << "Duplo clique: " << x << ", " << y;
   if (botao == Botao_Esquerdo) {
     tabuleiro_->TrataDuploCliqueEsquerdo(x, y);
   } else if (botao == Botao_Direito) {
@@ -448,7 +468,7 @@ void TratadorTecladoMouse::TrataDuploCliqueMouse(botoesmouse_e botao, unsigned i
 }
 
 void TratadorTecladoMouse::TrataBotaoMouseLiberado() {
-  LOGT(1) << "Liberado";
+  VLOG(1) << "Liberado";
   MudaEstado(ESTADO_TEMPORIZANDO_MOUSE);
   tabuleiro_->TrataBotaoLiberado();
 }

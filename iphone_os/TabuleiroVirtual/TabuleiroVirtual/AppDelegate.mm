@@ -4,6 +4,7 @@
 #define VIEW_ID 1
 #define VIEW_IP 2
 #define VIEW_CONECTAR 100
+#define VIEW_SERVIDOR 101
 
 @interface AppDelegate ()
 
@@ -37,6 +38,9 @@
     NSString* host_antes_ponto = [[NSProcessInfo processInfo] hostName];
     host_antes_ponto = [[host_antes_ponto componentsSeparatedByString:@"."] firstObject];
     [texto_id setText:host_antes_ponto];
+    UIButton* botao_servidor = (UIButton*)[self.window viewWithTag:VIEW_SERVIDOR];
+    [botao_servidor addTarget:self action:@selector(servidor)
+             forControlEvents:UIControlEventTouchDown];
     UIButton* botao_conectar = (UIButton*)[self.window viewWithTag:VIEW_CONECTAR];
     [botao_conectar addTarget:self action:@selector(conectar)
              forControlEvents:UIControlEventTouchDown];
@@ -54,6 +58,15 @@
         [(UITextField*)[self.window viewWithTag:VIEW_ID] text];
     game_view_controller->endereco_servidor_ =
         [(UITextField*)[self.window viewWithTag:VIEW_IP] text];
+    UIViewController* responder = (UIViewController*)
+        [[[self.window subviews] firstObject] nextResponder];
+    [responder presentModalViewController:game_view_controller animated:TRUE];
+}
+
+-(void)servidor {
+    UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    GameViewController* game_view_controller = (GameViewController*)
+        [sb instantiateViewControllerWithIdentifier:@"GameViewController"];
     UIViewController* responder = (UIViewController*)
         [[[self.window subviews] firstObject] nextResponder];
     [responder presentModalViewController:game_view_controller animated:TRUE];

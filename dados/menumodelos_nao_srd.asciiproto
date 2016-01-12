@@ -14,11 +14,21 @@ sub_menu {
   modelo { id: 'Sacerdotiza Drow' }
 }
 modelo { id: 'Garra de Ossos' }
-modelo { id: 'Gigante da Montanha' }
+sub_menu {
+  id: 'Gigantes'
+  modelo { id: 'Gigante das Montanhas' }
+}
 modelo { id: 'Morcego (Caçador Noturno)' }
 sub_menu {
   id: 'Humanos'
   modelo { id: 'Humano Bruxo' }
+}
+sub_menu {
+  id: 'Phaerimm'
+  modelo { id: 'Phaerimm Jovem Adulto'}
+  modelo { id: 'Phaerimm Adulto'}
+  modelo { id: 'Phaerimm Experiente'}
+  modelo { id: 'Phaerimm Ancião Venerável' }
 }
 modelo { id: 'Peryton' }
 modelo { id: 'Soldado do Horror' }

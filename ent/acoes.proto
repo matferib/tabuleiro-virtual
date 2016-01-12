@@ -81,6 +81,8 @@ message AcaoProto {
   optional bool permite_salvacao = 23;
   // A textura que representa a acao (icone).
   optional string textura = 25;
+  // A acao deve ser feita apenas localmente.
+  optional bool local_apenas = 26;
 }
 
 // O arquivo de acoes é serializado desta forma.

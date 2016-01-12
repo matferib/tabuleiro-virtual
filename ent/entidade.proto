@@ -189,6 +189,20 @@ message EntidadeProto {
     optional int32 complemento = 3;  // Alguns efeitos tem complementos.
   }
   repeated Evento evento = 31;
+
+  // Dados para ataque automatico.
+  message DadosAtaque {
+    optional string tipo_ataque = 1;
+    optional int32 bonus_ataque = 2;
+    optional string dano = 3;
+  }
+  repeated DadosAtaque dados_ataque = 44;
+  // Dados para defesa de ataque automatico.
+  message DadosDefesa {
+    optional string tipo_defesa = 1;
+    optional int32 classe_armadura = 2;
+  }
+  repeated DadosDefesa dados_defesa = 45;
 }
 
 // Alguns estados são mantidos nesta variável.
@@ -223,6 +237,7 @@ message ParametrosDesenho {
   optional bool transparencias = 12 [default=true];
   // Desenhar sombras.
   optional bool desenha_sombras = 13 [default=true];
+  optional bool desenha_sombra_projetada = 45 [default=false];
   // Modo de desenho.
   optional bool modo_mestre = 14 [default=true];
   // Alfa para translucidos.

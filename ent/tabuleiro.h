@@ -35,6 +35,7 @@ class Texturas;
 #if USAR_WATCHDOG
 class Watchdog;
 #endif
+class InterfaceGraficaOpengl;
 
 /** Estados possiveis do tabuleiro. */
 enum etab_t {
@@ -66,7 +67,9 @@ typedef std::unordered_map<unsigned int, std::string> MapaClientes;
 */
 class Tabuleiro : public ntf::Receptor {
  public:
-  explicit Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+  explicit Tabuleiro(const OpcoesProto& opcoes,
+                     tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+                     ntf::CentralNotificacoes* central);
 
   /** libera os recursos do tabuleiro, inclusive entidades. */
   virtual ~Tabuleiro();
@@ -149,9 +152,16 @@ class Tabuleiro : public ntf::Receptor {
   void AlteraUltimoPontoVidaListaPontosVida(int delta);
   /** Alterna o ultimo valor da lista entre cura e dano. */
   void AlternaUltimoPontoVidaListaPontosVida();
+  /** Retorna true se houver valor na lista ou se for automatico e a entidade tiver os dados necessarios. */
+  bool HaValorListaPontosVida();
+  /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
+  int LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao);
 
   /** desenha o mundo. Retorna o tempo em ms. */
   int Desenha();
+
+  /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
+  void DesenhaSombraProjetada();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -260,6 +270,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Seleciona para a entidade selecionada umas das ultimas acoes executadas. Indice 0 eh a mais recente. */
   void SelecionaAcaoExecutada(int indice);
 
+  /** Alterna o modo de dano automatico. */
+  void AlternaDanoAutomatico();
+
   /** Acesso ao mapa de modelos. */
   typedef std::unordered_map<std::string, std::unique_ptr<AcaoProto>> MapaIdAcao;
   const MapaIdAcao& MapaAcoes() const { return mapa_acoes_; }
@@ -315,7 +328,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Altera o desenho entre os modos de debug (para OpenGL ES). */
   void AlternaModoDebug();
 
-  /** No modo acao, cada clique gera uma acao. Usado especialmente no tablet. */
+  /** No modo acao, cada clique gera uma acao. */
   void AlternaModoAcao();
 
   /** No modo transicao, cada clique causa uma transicao de cenario. */
@@ -323,6 +336,23 @@ class Tabuleiro : public ntf::Receptor {
 
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
+
+  // Controle virtual.
+  // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
+  // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
+  // No MODO_DESENHO, o clique desenhara.
+  enum modo_clique_e {
+    MODO_NORMAL,
+    MODO_ACAO,         // executa acoes no clique.
+    MODO_SINALIZACAO,  // executa acao de sinalizacao.
+    MODO_DESENHO,      // reservado.
+    MODO_TRANSICAO,    // executa transicao no clique.
+    MODO_REGUA,        // o clique executara uma medicao.
+    MODO_AJUDA,        // o clique atuara como hover.
+    MODO_ROTACAO,      // modo de rotacao da camera.
+  };
+  void EntraModoClique(modo_clique_e modo);
+  modo_clique_e ModoClique() const { return modo_clique_; }
 
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
   * mestres secundarios tambem.
@@ -372,6 +402,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Para reativar o watchdog. */
   void ReativaWatchdog();
+
+  // Ativa a interface opengl para dialogos de tipo abrir tabuleiro, janela etc.
+  void AtivaInterfaceOpengl(InterfaceGraficaOpengl* gui) { gui_ = gui; }
 
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
@@ -635,7 +668,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaControleVirtual();
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
-  void PickingControleVirtual(bool alterna_selecao, int id);
+  void PickingControleVirtual(int x, int y, bool alterna_selecao, int id);
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
@@ -646,6 +679,8 @@ class Tabuleiro : public ntf::Receptor {
 
   void DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao);
   void DesenhaRotuloBotaoControleVirtual(
+      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
+  void DesenhaDicaBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
   /** Retorna a textura correspondente a um botao (para botoes com texturas variaveis). */
   unsigned int TexturaBotao(const DadosBotao& db) const;
@@ -685,8 +720,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Gera o vbo da rosa dos ventos, chamado apenas uma vez. */
   void GeraVboRosaDosVentos();
 
-  /** Gera e configura o framebuffer para picking. */
-  void GeraFramebufferPicking();
+  /** Gera e configura o framebuffer. */
+  void GeraFramebuffer();
 
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
@@ -723,6 +758,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
+  unsigned int tipo_entidade_detalhada_;
+  int temporizador_detalhamento_ms_;
 
   /** quadrado selecionado (pelo id de desenho). */
   int quadrado_selecionado_;
@@ -777,7 +814,10 @@ class Tabuleiro : public ntf::Receptor {
 #if USAR_WATCHDOG
   Watchdog watchdog_;
 #endif
-  ntf::CentralNotificacoes* central_;
+  // Interface Grafica OpenGL.
+  InterfaceGraficaOpengl* gui_ = nullptr;
+
+  ntf::CentralNotificacoes* central_ = nullptr;
   bool modo_mestre_;
   // Mestre secundario funciona tipo mestre: pode ver, mexer pecas etc. Mas alguns controles sao
   // exclusivos do mestre, como quem sera mestre secundario ou a replicacao de algumas mensagens.
@@ -830,22 +870,12 @@ class Tabuleiro : public ntf::Receptor {
   // Se verdadeiro, todas entidades serao consideradas detalhadas durante o desenho. */
   bool detalhar_todas_entidades_ = false;
 
-  // Controle virtual.
-  // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
-  // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
-  // No MODO_DESENHO, o clique desenhara.
-  enum modo_clique_e {
-    MODO_NORMAL,
-    MODO_ACAO,         // executa acoes no clique.
-    MODO_SINALIZACAO,  // executa acao de sinalizacao.
-    MODO_DESENHO,      // reservado.
-    MODO_TRANSICAO,    // executa transicao no clique.
-    MODO_REGUA,        // o clique executara uma medicao.
-  };
   modo_clique_e modo_clique_ = MODO_NORMAL;
   bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
+
+  bool modo_dano_automatico_ = false;
 
   gl::VboGravado vbo_tabuleiro_;
   gl::VboGravado vbo_grade_;
@@ -853,7 +883,8 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
 #if USAR_FRAMEBUFFER
-  GLuint framebuffer_pick_ = 0;
+  GLuint framebuffer_ = 0;
+  GLuint textura_framebuffer_ = 0;
 #endif
 
   // Sub cenarios. -1 para o principal.
@@ -862,6 +893,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
+  std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

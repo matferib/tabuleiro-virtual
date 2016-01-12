@@ -3,7 +3,6 @@
 
 #include <QGLWidget>
 #include <list>
-#include "ifg/tecladomouse.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -17,6 +16,9 @@ class TabuleiroProto;
 }  // namespace ent
 
 namespace ifg {
+
+class TratadorTecladoMouse;
+
 namespace qt {
 
 /** Widget responsavel por desenhar a area 3D. Recebe eventos de redimensionamento,
@@ -27,7 +29,9 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   /** constroi a widget do tabuleiro recebendo a widget pai.
   * Nao se torna dono de nada.
   */
-  Visualizador3d(int* argcp, char** argv, ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
+  Visualizador3d(
+      int* argcp, char** argv, bool anti_aliasing, ifg::TratadorTecladoMouse* teclado_mouse,
+      ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
 
   /** destroi as entidades do tabuleiro e libera os recursos. */
   virtual ~Visualizador3d();
@@ -63,7 +67,7 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
  private:
   int* argcp_;
   char** argv_;
-  ifg::TratadorTecladoMouse teclado_mouse_;
+  ifg::TratadorTecladoMouse* teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
 };

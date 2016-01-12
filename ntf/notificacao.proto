@@ -34,7 +34,9 @@ enum Tipo {
   TN_ABRIR_DIALOGO_ENTIDADE = 20;
   TN_ABRIR_DIALOGO_PROPRIEDADES_TABULEIRO = 21;
   TN_ABRIR_DIALOGO_OPCOES = 22;
+  TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO = 44;
   TN_ABRIR_DIALOGO_SALVAR_TABULEIRO = 40;
+  TN_ABRIR_DIALOGO_ABRIR_TABULEIRO = 45;
   TN_CARREGAR_TEXTURA = 24;
   TN_DESCARREGAR_TEXTURA = 25;
   TN_ADICIONAR_ACAO = 26;
@@ -48,6 +50,7 @@ enum Tipo {
   TN_REQUISITAR_TEXTURAS = 38;  // Remota: cliente pedindo texturas para servidor, incluindo as que ja tem.
   TN_ENVIAR_TEXTURAS = 39;      // Servidor enviando texturas para cliente.
   TN_ALTERAR_MODO_MESTRE_SECUNDARIO = 43;  // Servidor pedindo para alterar o modo mestre secundario.
+  TN_REFRESCAR_MENU = 46;  // Tabuleiro notificando que mudou algum modo e o menu deve se atualizar.
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;

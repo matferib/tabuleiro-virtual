@@ -55,9 +55,9 @@ export RANLIB="${TOOLCHAIN}/bin/arm-linux-androideabi-ranlib"
 export CXX="${TOOLCHAIN}/bin/arm-linux-androideabi-g++"
 export CC=${CXX/g++/gcc}
 export CFLAGS="-fPIC -DANDROID -nostdlib"
-export LDFLAGS="-Wl,-rpath-link=$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/ -L$ANDROID_NDK/platforms/android-19/arch-arm/usr/lib/"
-export CPPFLAGS="-I$ANDROID_NDK/platforms/android-19/arch-arm/usr/include/"
-export LIBS="-lc "
+export LDFLAGS="-Wl,-rpath-link=${TOOLCHAIN}/arm-linux-androideabi/lib/ -L${TOOLCHAIN}/arm-linux-androideabi/lib/"
+export CPPFLAGS="-I${TOOLCHAIN}/sysroot/usr/include"
+export LIBS="-lstdc++ -lc"
 ./configure --host=arm-*-eabi
 make
 
@@ -75,6 +75,7 @@ git clone https://github.com/MysticTreeGames/Boost-for-Android.git
 - Usar o toolchain mais novo:
 ./build-android.sh ${ANDROID_NDK} --boost=1.55.0 --toolchain=arm-linux-androideabi-4.8 --with-libraries=system,timer,filesystem
 
+(se der pau, tem que ir no configs/user-config-boost-1_55_0.jam e mudar as referencias de 4.6 para 4.8.
 
 ==============
 Instrumentação
@@ -116,14 +117,14 @@ ${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/ar
 Protocol buffer no Android Java
 ===============================
 
-Baixar wire compiler (prot enxuto). https://github.com/square/wire
-java -jar wire-compiler/target/wire-compiler-VERSION-jar-with-dependencies.jar \
-  --java_out=java_out caminho/para/proto.
+Baixar wire compiler (prot enxuto) versao 1.8.0 (ver releases). https://github.com/square/wire
+Rodar o build_tests pra compilar tudo.
 
-Exemplo:
+Compilar os protos (diretorio base do tabuleiro); Exemplo:
 java -jar wire-compiler-1.8.0-jar-with-dependencies.jar --java_out=java_out ent/entidade.proto
 
-Mover os protos gerados para src/com/matferib/Tabuleiro/.
+Mover os protos gerados para src/com/matferib/Tabuleiro/ (do diretorio base do tabuleiro):
+mv java_out/com/matferib/Tabuleiro/ent/ android/src/com/matferib/Tabuleiro/
 
 Baixar runtime:
 wire https://github.com/square/wire/blob/master/README.md
@@ -132,7 +133,7 @@ okio: https://github.com/square/okio/blob/master/README.md
 Coloca-los no diretorio libs do android.
 
 Atencao: em caso de null ser retornado nos componentes, conferir se a compilacao realmente aconteceu.
-m -rf bin/classes
+rm -rf bin/classes
 
 ===========
  Problemas

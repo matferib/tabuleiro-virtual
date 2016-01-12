@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cmath>
 #include <stdexcept>
 #include <string>
@@ -10,6 +11,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QMouseEvent>
+#include <QStandardItem>
+#include <QStandardItemModel>
 #include <QString>
 
 #include "arq/arquivo.h"
@@ -25,6 +28,7 @@
 #include "ifg/qt/ui/cenario.h"
 #include "ifg/qt/ui/opcoes.h"
 #include "ifg/qt/visualizador3d.h"
+#include "ifg/tecladomouse.h"
 #include "log/log.h"
 #include "net/util.h"
 #include "ntf/notificacao.pb.h"
@@ -80,8 +84,9 @@ const QString TamanhoParaTexto(int tamanho) {
 }
 
 // Carrega os dados de uma textura pro proto 'info_textura' e tambem preenche plargura e paltura.
-bool PreencheProtoTextura(
-    const QFileInfo& info_arquivo, bool global, ent::InfoTextura* info_textura, unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
+bool PreencheInfoTextura(
+    const std::string& nome, arq::tipo_e tipo, ent::InfoTextura* info_textura,
+    unsigned int* plargura = nullptr, unsigned int* paltura = nullptr) {
   unsigned int largura = 0, altura = 0;
   if (plargura == nullptr) {
     plargura = &largura;
@@ -90,35 +95,12 @@ bool PreencheProtoTextura(
     paltura = &altura;
   }
   try {
-    tex::Texturas::LeDecodificaImagem(
-        global, info_arquivo.absoluteFilePath().toStdString(), info_textura, plargura, paltura);
+    tex::Texturas::LeDecodificaImagem(tipo, nome, info_textura, plargura, paltura);
     return true;
   } catch (...) {
     LOG(ERROR) << "Textura inválida: " << info_textura->id();
     return false;
   }
-}
-
-// Retorna o caminho para o id de textura.
-const QFileInfo IdTexturaParaCaminhoArquivo(const std::string& id, bool* pglobal = nullptr) {
-  bool global = false;
-  if (pglobal == nullptr) {
-    pglobal = &global;
-  }
-  // Encontra o caminho para o arquivo.
-  auto pos = id.find("0:");  // pode assumir id zero, ja que so o mestre pode criar.
-  QFileInfo fileinfo;
-  if (pos == std::string::npos) {
-    // Textura global.
-    fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS), QString::fromStdString(id));
-    *pglobal = true;
-  } else {
-    // Textura local.
-    fileinfo.setFile(QString::fromStdString(DIR_TEXTURAS_LOCAIS), QString::fromStdString(id.substr(pos)));
-    *pglobal = false;
-  }
-  LOG(INFO) << "Caminho para texturas: " << fileinfo.fileName().toStdString();
-  return fileinfo;
 }
 
 // Mapeia a tecla do QT para do TratadorTecladoMouse.
@@ -140,14 +122,85 @@ QGLFormat Formato(bool anti_aliasing) {
                    (anti_aliasing ? QGL::SampleBuffers : QGL::NoSampleBuffers));
 }
 
+void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
+  QStandardItem* item = new QStandardItem(rotulo);
+  item->setFlags(item->flags() & ~(Qt::ItemIsEnabled | Qt::ItemIsSelectable));
+  QFont font = item->font();
+  font.setBold(true);
+  item->setFont(font);
+  ((QStandardItemModel*)combo_textura->model())->appendRow(item);
+}
+
+// Preenche combo de textura. Cada item tera o id e o tipo de textura. Para texturas locais,
+// o nome sera prefixado por id.
+void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
+  combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
+  std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
+  std::sort(texturas.begin(), texturas.end());
+  std::vector<std::string> texturas_baixadas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA);
+  std::sort(texturas_baixadas.begin(), texturas_baixadas.end());
+  std::vector<std::string> texturas_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
+  std::sort(texturas_locais.begin(), texturas_locais.end());
+
+  AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
+  for (const std::string& textura : texturas) {
+    combo_textura->addItem(QString(textura.c_str()), QVariant(arq::TIPO_TEXTURA));
+  }
+  AdicionaSeparador(combo_textura->tr("Baixadas"), combo_textura);
+  for (const std::string& textura : texturas_baixadas) {
+    combo_textura->addItem(textura.c_str(), QVariant(arq::TIPO_TEXTURA_BAIXADA));
+  }
+  AdicionaSeparador(combo_textura->tr("Locais"), combo_textura);
+  QString prefixo = QString::number(id_cliente).append(":");
+  for (const std::string& textura : texturas_locais) {
+    combo_textura->addItem(QString(prefixo).append(textura.c_str()), QVariant(arq::TIPO_TEXTURA_LOCAL));
+  }
+  if (id_corrente.empty()) {
+    combo_textura->setCurrentIndex(0);
+  } else {
+    int index = combo_textura->findText(QString(id_corrente.c_str()));
+    if (index == -1) {
+      index = 0;
+    }
+    combo_textura->setCurrentIndex(index);
+  }
+}
+
+// Preenche proto_retornado usando entidade e o combo como base.
+void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
+                                   ent::InfoTextura* info_textura) {
+  if (combo_textura->currentIndex() != 0) {
+    if (combo_textura->currentText().toStdString() == info_antes.id()) {
+      // Textura igual a anterior.
+      VLOG(2) << "Textura igual a anterior.";
+      info_textura->set_id(info_antes.id());
+    } else {
+      VLOG(2) << "Textura diferente da anterior.";
+      QString nome(combo_textura->currentText());
+      QVariant dados(combo_textura->itemData(combo_textura->currentIndex()));
+      if (dados.toInt() == arq::TIPO_TEXTURA_LOCAL) {
+        VLOG(2) << "Textura local, recarregando.";
+        info_textura->set_id(nome.toStdString());
+        PreencheInfoTextura(nome.split(":")[1].toStdString(),
+            arq::TIPO_TEXTURA_LOCAL, info_textura);
+      } else {
+        info_textura->set_id(nome.toStdString());
+      }
+    }
+    VLOG(2) << "Id textura: " << info_textura->id();
+  } else {
+    info_textura->Clear();
+  }
+}
+
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv,
+    int* argcp, char** argv, bool anti_aliasing, TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QGLWidget(Formato(false  /*anti_aliasing*/), pai),
+    :  QGLWidget(Formato(anti_aliasing  /*anti_aliasing*/), pai),
        argcp_(argcp), argv_(argv),
-       teclado_mouse_(central, tabuleiro),
+       teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
@@ -191,13 +244,26 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // chama o resize pra iniciar a geometria e desenha a janela
       resizeGL(width(), height());
       break;
-    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
-      if (!notificacao.tabuleiro().has_nome() && tabuleiro_->TemNome()) {
-        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
-        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
-        central_->AdicionaNotificacao(n);
+#if 0
+    case ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO: {
+      QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+          tr("Abrir tabuleiro"),
+          arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
+      if (file_str.isEmpty()) {
+        VLOG(1) << "Operação de restaurar cancelada.";
         break;
       }
+      auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+      if (notificacao.tabuleiro().manter_entidades()) {
+        n->mutable_tabuleiro()->set_manter_entidades(true);
+      }
+      n->set_endereco(file_str.toStdString());
+      central_->AdicionaNotificacao(n);
+      break;
+    }
+#endif
+    /*
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
       // Abre dialogo de arquivo.
       QString file_str = QFileDialog::getSaveFileName(
           qobject_cast<QWidget*>(parent()),
@@ -212,6 +278,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+    */
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
       if (!notificacao.has_entidade()) {
         return false;
@@ -259,6 +326,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       break;
     }
+    /*
     case ntf::TN_INFO: {
       DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::information(this, tr("Informação"), tr(notificacao.erro().c_str()));
@@ -268,7 +336,7 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       DesativadorWatchdogEscopo dw(tabuleiro_);
       QMessageBox::warning(this, tr("Erro"), tr(notificacao.erro().c_str()));
       break;
-    }
+    }*/
     case ntf::TN_TEMPORIZADOR:
       glDraw();
       break;
@@ -279,14 +347,14 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
 
 // teclado.
 void Visualizador3d::keyPressEvent(QKeyEvent* event) {
-  teclado_mouse_.TrataTeclaPressionada(
+  teclado_mouse_->TrataTeclaPressionada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
 }
 
 void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
-  teclado_mouse_.TrataTeclaLiberada(
+  teclado_mouse_->TrataTeclaLiberada(
       TeclaQtParaTratadorTecladoMouse(event->key()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()));
   event->accept();
@@ -295,7 +363,7 @@ void Visualizador3d::keyReleaseEvent(QKeyEvent* event) {
 // mouse
 
 void Visualizador3d::mousePressEvent(QMouseEvent* event) {
-  teclado_mouse_.TrataBotaoMousePressionado(
+  teclado_mouse_->TrataBotaoMousePressionado(
        BotaoMouseQtParaTratadorTecladoMouse(event->button()),
        ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
        event->x(),
@@ -304,7 +372,7 @@ void Visualizador3d::mousePressEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseReleaseEvent(QMouseEvent* event) {
-  teclado_mouse_.TrataBotaoMouseLiberado();
+  teclado_mouse_->TrataBotaoMouseLiberado();
   event->accept();
 }
 
@@ -316,7 +384,7 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     mousePressEvent(event2);
     return;
   }
-  teclado_mouse_.TrataDuploCliqueMouse(
+  teclado_mouse_->TrataDuploCliqueMouse(
       BotaoMouseQtParaTratadorTecladoMouse(event->button()),
       ModificadoresQtParaTratadorTecladoMouse(event->modifiers()),
       event->x(), height() - event->y());
@@ -324,12 +392,12 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  teclado_mouse_.TrataMovimentoMouse(event->x(), height() - event->y());
+  teclado_mouse_->TrataMovimentoMouse(event->x(), height() - event->y());
   event->accept();
 }
 
 void Visualizador3d::wheelEvent(QWheelEvent* event) {
-  teclado_mouse_.TrataRodela(event->delta());
+  teclado_mouse_->TrataRodela(event->delta());
   event->accept();
 }
 
@@ -373,16 +441,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Textura do objeto.
-  gerador.linha_textura->setText(entidade.info_textura().id().c_str());
-  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
-      [this, dialogo, &gerador ] () {
-    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de leitura de textura cancelada.";
-      return;
-    }
-    gerador.linha_textura->setText(file_str);
-  });
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -520,7 +579,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
-    proto_retornado->set_translacao_z_deprecated(0);
+    proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
     proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
     proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
@@ -546,33 +605,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       // Valor especial para denotar ausencia.
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
     }
-
-    if (!gerador.linha_textura->text().isEmpty()) {
-      if (gerador.linha_textura->text().toStdString() == entidade.info_textura().id()) {
-        // Textura igual a anterior.
-        VLOG(2) << "Textura igual a anterior.";
-        proto_retornado->mutable_info_textura()->set_id(entidade.info_textura().id());
-      } else {
-        VLOG(2) << "Textura diferente da anterior.";
-        QFileInfo info(gerador.linha_textura->text());
-        // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
-        // mesmo nome isso vai falhar.
-        if (info.dir().dirName() != DIR_TEXTURAS) {
-          VLOG(2) << "Textura local, recarregando.";
-          QString id = QString::number(notificacao.tabuleiro().id_cliente());
-          id.append(":");
-          id.append(info.fileName());
-          proto_retornado->mutable_info_textura()->set_id(id.toStdString());
-          // Usa o id para evitar conflito de textura local com texturas globais.
-          // Enviar a textura toda.
-          PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
-        } else {
-          proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
-        }
-      }
-      VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
-    } else {
+    if (gerador.combo_textura->currentIndex() == 0) {
       proto_retornado->clear_info_textura();
+    } else {
+      PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
@@ -676,16 +712,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
   });
   // Textura do objeto.
-  gerador.linha_textura->setText(entidade.info_textura().id().c_str());
-  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
-      [this, dialogo, &gerador ] () {
-    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de leitura de textura cancelada.";
-      return;
-    }
-    gerador.linha_textura->setText(file_str);
-  });
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
@@ -739,32 +766,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->clear_luz();
     }
-    if (!gerador.linha_textura->text().isEmpty()) {
-      if (gerador.linha_textura->text().toStdString() == entidade.info_textura().id()) {
-        // Textura igual a anterior.
-        VLOG(2) << "Textura igual a anterior.";
-        proto_retornado->mutable_info_textura()->set_id(entidade.info_textura().id());
-      } else {
-        VLOG(2) << "Textura diferente da anterior.";
-        QFileInfo info(gerador.linha_textura->text());
-        // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
-        // mesmo nome isso vai falhar.
-        if (info.dir().dirName() != DIR_TEXTURAS) {
-          VLOG(2) << "Textura local, recarregando.";
-          QString id = QString::number(notificacao.tabuleiro().id_cliente());
-          id.append(":");
-          id.append(info.fileName());
-          proto_retornado->mutable_info_textura()->set_id(id.toStdString());
-          // Usa o id para evitar conflito de textura local com texturas globais.
-          // Enviar a textura toda.
-          PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
-        } else {
-          proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
-        }
-      }
-      VLOG(2) << "Id textura: " << proto_retornado->info_textura().id();
-    } else {
+    if (gerador.combo_textura->currentIndex() == 0) {
       proto_retornado->clear_info_textura();
+    } else {
+      PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
@@ -780,7 +785,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
-    proto_retornado->set_translacao_z_deprecated(0);
+    proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
@@ -865,27 +870,10 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   }
 
   // Textura do tabuleiro.
-  gerador.linha_textura->setText(tab_proto.info_textura().id().c_str());
-  lambda_connect(gerador.botao_textura, SIGNAL(clicked()),
-      [this, dialogo, &gerador ] () {
-    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de leitura de textura cancelada.";
-      return;
-    }
-    gerador.linha_textura->setText(file_str);
-  });
+  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_fundo);
   // Ceu do tabuleiro.
-  gerador.linha_textura_ceu->setText(tab_proto.info_textura_ceu().id().c_str());
-  lambda_connect(gerador.botao_textura_ceu, SIGNAL(clicked()),
-      [this, dialogo, &gerador ] () {
-    QString file_str = QFileDialog::getOpenFileName(this, tr("Abrir textura do céu"), tr(DIR_TEXTURAS, FILTRO_IMAGENS));
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de leitura de textura de céu cancelada.";
-      return;
-    }
-    gerador.linha_textura_ceu->setText(file_str);
-  });
+  PreencheComboTextura(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
+  gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
 
   // Ladrilho de textura.
   gerador.checkbox_ladrilho->setCheckState(tab_proto.ladrilho() ? Qt::Checked : Qt::Unchecked);
@@ -900,7 +888,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   lambda_connect(gerador.checkbox_tamanho_automatico, SIGNAL(stateChanged(int)), [this, &gerador] () {
     int novo_estado = gerador.checkbox_tamanho_automatico->checkState();
     // Deve ter textura.
-    if (novo_estado == Qt::Checked && gerador.linha_textura->text().isEmpty()) {
+    if (novo_estado == Qt::Checked && gerador.combo_fundo->currentIndex() == 0) {
       gerador.checkbox_tamanho_automatico->setCheckState(Qt::Unchecked);
       return;
     }
@@ -938,67 +926,38 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
     // Descricao.
     proto_retornado->set_descricao_cenario(gerador.campo_descricao->text().toStdString());
     // Textura.
-    if (gerador.linha_textura->text().isEmpty()) {
-      VLOG(2) << "Textura vazia.";
+    if (gerador.combo_fundo->currentIndex() == 0) {
       proto_retornado->clear_info_textura();
-    } else if (gerador.linha_textura->text().toStdString() == tab_proto.info_textura().id()) {
-      // Textura igual a anterior.
-      VLOG(2) << "Textura igual a anterior.";
-      proto_retornado->mutable_info_textura()->set_id(tab_proto.info_textura().id());
     } else {
-      VLOG(2) << "Textura diferente da anterior.";
-      QFileInfo info(gerador.linha_textura->text());
-      // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
-      // mesmo nome isso vai falhar.
-      if (info.dir().dirName() != DIR_TEXTURAS) {
-        VLOG(2) << "Textura local, recarregando.";
-        QString id = QString::number(tab_proto.id_cliente()).append(":").append(info.fileName());
-        proto_retornado->mutable_info_textura()->set_id(id.toStdString());
-        // Usa o id para evitar conflito de textura local com texturas globais.
-        // Enviar a textura toda.
-        PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura());
-      } else {
-        proto_retornado->mutable_info_textura()->set_id(info.fileName().toStdString());
-      }
+      PreencheTexturaProtoRetornado(tab_proto.info_textura(), gerador.combo_fundo, proto_retornado->mutable_info_textura());
     }
     // Ladrilho.
-    if (!gerador.linha_textura->text().isEmpty()) {
+    if (gerador.combo_fundo->currentIndex() != 0) {
       proto_retornado->set_ladrilho(gerador.checkbox_ladrilho->checkState() == Qt::Checked);
     } else {
       proto_retornado->clear_ladrilho();
     }
     // Textura ceu.
-    if (gerador.linha_textura_ceu->text().isEmpty()) {
-      VLOG(2) << "Textura de ceu vazia.";
+    if (gerador.combo_ceu->currentIndex() == 0) {
       proto_retornado->clear_info_textura_ceu();
-    } else if (gerador.linha_textura_ceu->text().toStdString() == tab_proto.info_textura_ceu().id()) {
-      // Textura ceu igual a anterior.
-      VLOG(2) << "Textura de ceu igual a anterior.";
-      proto_retornado->mutable_info_textura_ceu()->set_id(tab_proto.info_textura_ceu().id());
     } else {
-      VLOG(2) << "Textura de ceu diferente da anterior.";
-      QFileInfo info(gerador.linha_textura_ceu->text());
-      // TODO fazer uma comparacao melhor. Se o diretorio local terminar com o
-      // mesmo nome isso vai falhar.
-      if (info.dir().dirName() != DIR_TEXTURAS) {
-        VLOG(2) << "Textura de ceu local, recarregando.";
-        QString id = QString::number(tab_proto.id_cliente()).append(":").append(info.fileName());
-        proto_retornado->mutable_info_textura_ceu()->set_id(id.toStdString());
-        // Usa o id para evitar conflito de textura local com texturas globais.
-        // Enviar a textura toda.
-        PreencheProtoTextura(info, false  /*global*/, proto_retornado->mutable_info_textura_ceu());
-      } else {
-        proto_retornado->mutable_info_textura_ceu()->set_id(info.fileName().toStdString());
-      }
+      PreencheTexturaProtoRetornado(tab_proto.info_textura_ceu(), gerador.combo_ceu, proto_retornado->mutable_info_textura_ceu());
     }
+    proto_retornado->set_aplicar_luz_ambiente_textura_ceu(gerador.checkbox_luz_ceu->checkState() == Qt::Checked);
     // Tamanho do tabuleiro.
     if (gerador.checkbox_tamanho_automatico->checkState() == Qt::Checked) {
-      // Busca tamanho da textura. Copia o objeto aqui porque a funcao PreencheProtoTextura o modifica.
+      int indice = gerador.combo_fundo->currentIndex();
+      arq::tipo_e tipo = static_cast<arq::tipo_e>(gerador.combo_fundo->itemData(indice).toInt());
+      // Busca tamanho da textura. Copia o objeto aqui porque a funcao PreencheInfoTextura o modifica.
       ent::InfoTextura textura = proto_retornado->info_textura();
       unsigned int largura = 0, altura = 0;
-      bool global;
-      auto caminho = IdTexturaParaCaminhoArquivo(textura.id(), &global);
-      PreencheProtoTextura(caminho, global, &textura, &largura, &altura);
+      std::string nome;
+      if (tipo == arq::TIPO_TEXTURA_LOCAL) {
+        nome = gerador.combo_fundo->itemText(indice).split(":")[1].toStdString();
+      } else {
+        nome = gerador.combo_fundo->itemText(indice).toStdString();
+      }
+      PreencheInfoTextura(nome, tipo, &textura, &largura, &altura);
       proto_retornado->set_largura(largura / 8);
       proto_retornado->set_altura(altura / 8);
     } else {

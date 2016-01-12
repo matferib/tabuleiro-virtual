@@ -23,6 +23,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.Window;
@@ -35,6 +36,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
+import android.widget.TextView;
 import com.squareup.wire.Wire;
 import com.matferib.Tabuleiro.ent.EntidadeProto;
 import com.matferib.Tabuleiro.ent.TipoVisao;
@@ -350,7 +352,7 @@ class TabuleiroRenderer
   }
 
   /** Manda uma mensagem para a thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
-  public void mensagem(final boolean erro, final String mensagem) {
+  public void mensagem(final boolean erro, final String mensagem, final long dados_volta) {
     //Log.d(TAG, "mensagem: " + mensagem);
     activity_.runOnUiThread(new Runnable() {
       @Override
@@ -360,6 +362,7 @@ class TabuleiroRenderer
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
           public void onClick(DialogInterface dialog, int id) {
             dialog.dismiss();
+            nativeMessage(dados_volta);
           }
         });
         AlertDialog caixa = builder.create();
@@ -367,6 +370,107 @@ class TabuleiroRenderer
         caixa.show();
       }
     });
+  }
+
+  // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
+  public void abreDialogoSalvarTabuleiro(final long dados_volta) {
+    //Log.d(TAG, "abreDialogoSalvarTabuleiro: ");
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Salvar Tabuleiro");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_salvar_tabuleiro, null);
+        final EditText edit_nome = (EditText)view.findViewById(R.id.nome_arquivo);
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              if (edit_nome == null) {
+                Log.e(TAG, "nome arquivo == null");
+                return;
+              }
+              nativeSaveBoardName(dados_volta, edit_nome.getText().toString());
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              nativeSaveBoardName(dados_volta, "");
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
+        caixa.show();
+      }
+    });
+
+  }
+
+  // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
+  public void abreDialogoAbrirTabuleiro(
+      final String[] tab_estaticos, final String[] tab_dinamicos, final long dados_volta) {
+    //Log.d(TAG, "abreDialogoAbrirTabuleiro: ");
+    activity_.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
+        builder.setTitle("Abrir Tabuleiro");
+        LayoutInflater inflater = activity_.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialogo_abrir_tabuleiro, null);
+        final Spinner spinner = (Spinner)view.findViewById(R.id.spinner_abrir);
+        if (spinner == null) {
+          Log.e(TAG, "spinner== null");
+          return;
+        }
+        final ArrayAdapter<String> adapter =
+            new ArrayAdapter<String>(activity_, android.R.layout.simple_spinner_item) {
+          public boolean isEnabled(int position) {
+            return !((position == 0) || (position == tab_estaticos.length + 1));
+          }
+          public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            view.setEnabled(isEnabled(position));
+            return view;
+          }
+        };
+        adapter.add("Estáticos");
+        adapter.addAll(tab_estaticos);
+        //v.setSelectable(false);
+        adapter.add("Salvos");
+        adapter.addAll(tab_dinamicos);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        // Termina a janela de dialogo.
+        builder.setView(view)
+          .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              int posicao = spinner.getSelectedItemPosition();
+              if (posicao == spinner.INVALID_POSITION || posicao == 0 ||
+                  (posicao == tab_estaticos.length + 1) ||
+                  posicao >= (tab_estaticos.length + tab_dinamicos.length + 2)) {
+                nativeOpenBoardName(dados_volta, "", false);
+              }
+              boolean estatico = posicao < tab_estaticos.length + 1;
+              nativeOpenBoardName(dados_volta, (String)spinner.getSelectedItem(), estatico);
+              dialog.dismiss();
+            }
+          })
+          .setNegativeButton("Cancela", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+              nativeOpenBoardName(dados_volta, "", false);
+              dialog.dismiss();
+            }
+          }
+        );
+        AlertDialog caixa = builder.create();
+        caixa.show();
+      }
+    });
+
   }
 
   /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
@@ -549,13 +653,13 @@ class TabuleiroRenderer
   /** Toda atualizacao eh feita daqui para acontecer na mesma thread que o grafico. */
   @Override
   public void onDrawFrame(GL10 unused) {
-    Log.d(TAG, "===============DrawFrame");
+    //Log.d(TAG, "===============DrawFrame");
     ((TabuleiroSurfaceView)parent_).ReportaUltimaRenderizacao(nativeRender());
   }
 
   /** Deve ser chamado na UI thread. */
   public void ChamaTimer() {
-    Log.d(TAG, "===============ChamaTimer");
+    //Log.d(TAG, "===============ChamaTimer");
     if (!contexto_criado_) {
       return;
     }
@@ -884,6 +988,9 @@ class TabuleiroRenderer
   private static native void nativeTilt(float delta);
   private static native void nativeKeyboard(int tecla, int modificadores);
   private static native void nativeMetaKeyboard(boolean pressionado, int tecla);
+  private static native void nativeMessage(long dados_volta);
+  private static native void nativeSaveBoardName(long dados_volta, String nome);
+  private static native void nativeOpenBoardName(long dados_volta, String nome, boolean estatico);
   private static native void nativeUpdateEntity(byte[] mensagem);
 
   private Activity activity_;

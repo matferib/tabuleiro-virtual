@@ -14,6 +14,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "ifg/tecladomouse.h"
+#include "ifg/interface_android.h"
 #include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
@@ -44,10 +45,6 @@ class ReceptorErro : public ntf::Receptor {
     }
     try {
       switch (notificacao.tipo()) {
-        case ntf::TN_ERRO:
-        case ntf::TN_INFO:
-          TrataNotificacaoInfoErro(notificacao);
-          break;
         case ntf::TN_ABRIR_DIALOGO_ENTIDADE:
           TrataNotificacaoAbrirDialogoEntidade(notificacao);
           break;
@@ -71,21 +68,6 @@ class ReceptorErro : public ntf::Receptor {
       throw std::logic_error("metodo invalido");
     }
     return metodo;
-  }
-
-  void TrataNotificacaoInfoErro(const ntf::Notificacao& notificacao) {
-    if (notificacao.tipo() == ntf::TN_ERRO) {
-      __android_log_print(
-          notificacao.tipo() == ntf::TN_ERRO ? ANDROID_LOG_ERROR : ANDROID_LOG_INFO,
-          "Tabuleiro", "%s", notificacao.erro().c_str());
-    }
-    jmethodID metodo = Metodo("mensagem", "(ZLjava/lang/String;)V");
-    jstring msg = env_->NewStringUTF(notificacao.erro().c_str());
-    if (msg == nullptr) {
-      throw std::logic_error("falha alocando string de mensagem");
-    }
-    env_->CallVoidMethod(thisz_, metodo, notificacao.tipo() == ntf::TN_ERRO, msg);
-    env_->DeleteLocalRef(msg);
   }
 
   void TrataNotificacaoAbrirDialogoEntidade(const ntf::Notificacao& notificacao) {
@@ -120,6 +102,7 @@ std::unique_ptr<net::Cliente> g_cliente;
 std::unique_ptr<net::Servidor> g_servidor;
 std::unique_ptr<ReceptorErro> g_receptor;
 std::unique_ptr<ifg::TratadorTecladoMouse> g_teclado_mouse;
+std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
 
 }  // namespace
 
@@ -132,7 +115,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_modelos3d.reset(new m3d::Modelos3d());
-  g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_modelos3d.get(), g_central.get()));
+  ent::OpcoesProto opcoes;
+  g_tabuleiro.reset(new ent::Tabuleiro(opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
@@ -140,16 +124,9 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_receptor.reset(new ReceptorErro);
   g_central->RegistraReceptor(g_receptor.get());
   g_teclado_mouse.reset(new ifg::TratadorTecladoMouse(g_central.get(), g_tabuleiro.get()));
+  g_interface_android.reset(new ifg::InterfaceGraficaAndroid(
+        g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
 
-  // TESTE
-  try {
-    auto* ntf_tab = new ntf::Notificacao;
-    arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "castelo.binproto", ntf_tab);
-    ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-    g_central->AdicionaNotificacao(ntf_tab);
-  } catch (...) {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
-  }
   /*{
     ntf::Notificacao ninfo;
     ninfo.set_tipo(ntf::TN_INFO);
@@ -159,6 +136,15 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   if (servidor) {
     auto* n = ntf::NovaNotificacao(ntf::TN_INICIAR);
     g_central->AdicionaNotificacao(n);
+    // TESTE
+    try {
+      auto* ntf_tab = new ntf::Notificacao;
+      arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "deserto.binproto", ntf_tab);
+      ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+      g_central->AdicionaNotificacao(ntf_tab);
+    } catch (...) {
+      __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
+    }
   } else {
     std::string nome_nativo = ConverteString(env, nome);
     std::string endereco_nativo = ConverteString(env, endereco);
@@ -292,6 +278,7 @@ jint Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeRender(JNIEnv* env, job
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTimer(JNIEnv* env, jobject thiz) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTimer");
   g_receptor->setEnvThisz(env, thiz);
+  g_interface_android->setEnvThisz(env, thiz);
   auto* n = ntf::NovaNotificacao(ntf::TN_TEMPORIZADOR);
   g_central->AdicionaNotificacao(n);
   g_central->Notifica();
@@ -314,6 +301,37 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeUpdateEntity(JNIEnv* en
   n->mutable_entidade()->mutable_evento()->Swap(&evento_deshackeado);
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Proto: %s", n->DebugString().c_str());
   g_central->AdicionaNotificacao(n);
+}
+
+// Dialogo de mensagem fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeMessage(JNIEnv* env, jobject thiz, jlong dados_volta) {
+  std::unique_ptr<std::function<void()>> funcao_volta(
+      reinterpret_cast<std::function<void()>*>(dados_volta));
+  (*funcao_volta)();
+}
+
+// Dialogo de salvar tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeSaveBoardName(
+    JNIEnv* env, jobject thiz, jlong dados_volta, jstring nome_arquivo) {
+  std::unique_ptr<std::function<void(const std::string&)>> funcao_volta(
+      reinterpret_cast<std::function<void(const std::string&)>*>(dados_volta));
+  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
+  if (nome_arquivo_c.empty()) {
+    return;
+  }
+  (*funcao_volta)(nome_arquivo_c);
+}
+
+// Dialogo de abrir tabuleiro fechado.
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeOpenBoardName(
+    JNIEnv* env, jobject thiz, jlong dados_volta, jstring nome_arquivo, jboolean estatico) {
+  std::unique_ptr<std::function<void(const std::string&, arq::tipo_e tipo)>> funcao_volta(
+      reinterpret_cast<std::function<void(const std::string&, arq::tipo_e tipo)>*>(dados_volta));
+  std::string nome_arquivo_c = ConverteString(env, nome_arquivo);
+  if (nome_arquivo_c.empty()) {
+    return;
+  }
+  (*funcao_volta)(nome_arquivo_c, estatico ? arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO);
 }
 
 }  // extern "C"

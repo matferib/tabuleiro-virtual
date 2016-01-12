@@ -20,6 +20,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/tabuleiro_interface.h"
 #include "ent/controle_virtual.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
@@ -38,10 +39,19 @@ void Tabuleiro::CarregaControleVirtual() {
     LOG(ERROR) << "Erro carregando controle virtual: " << erro.what();
     return;
   }
+  for (const auto& p : controle_virtual_.pagina()) {
+    for (const auto& db : p.dados_botoes()) {
+      if (mapa_botoes_controle_virtual_.find(db.id()) == mapa_botoes_controle_virtual_.end()) {
+        mapa_botoes_controle_virtual_[db.id()] = &db;
+      }
+    }
+  }
   auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
   for (const auto& pagina : controle_virtual_.pagina()) {
     for (const auto& db : pagina.dados_botoes()) {
-      n->add_info_textura()->set_id(db.textura());
+      if (!db.textura().empty()) {
+        n->add_info_textura()->set_id(db.textura());
+      }
     }
   }
   for (const auto& par_id_acao : mapa_acoes_) {
@@ -67,16 +77,34 @@ void Tabuleiro::LiberaControleVirtual() {
   central_->AdicionaNotificacao(n);
 }
 
-void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
+void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_INTERFACE_GRAFICA: {
+      if (gui_ != nullptr) {
+        gui_->Picking(x, y);
+      }
+      break;
+    }
     case CONTROLE_ACAO:
-      if (modo_clique_ == MODO_SINALIZACAO) {
-        modo_clique_ = MODO_NORMAL;
+      if (modo_clique_ != MODO_NORMAL) {
+        EntraModoClique(MODO_NORMAL);
+        return;
+      } else {
+        EntraModoClique(MODO_ACAO);
+      }
+      break;
+    case CONTROLE_AJUDA:
+      if (modo_clique_ == MODO_AJUDA) {
+        EntraModoClique(MODO_NORMAL);
         return;
       }
-      AlternaModoAcao();
+      EntraModoClique(MODO_AJUDA);
       break;
+    case CONTROLE_DANO_AUTOMATICO: {
+      AlternaDanoAutomatico();
+      break;
+    }
     case CONTROLE_TRANSICAO:
       AlternaModoTransicao();
       break;
@@ -207,7 +235,7 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
         return;
       }
       SelecionaFormaDesenho(it->second);
-      modo_clique_ = MODO_DESENHO;
+      EntraModoClique(MODO_DESENHO);
       break;
     }
     case CONTROLE_DESENHO_AGRUPAR:
@@ -263,6 +291,18 @@ void Tabuleiro::PickingControleVirtual(bool alterna_selecao, int id) {
       ColaEntidadesSelecionadas();
       break;
     }
+    case CONTROLE_SALVAR: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO));
+      break;
+    }
+    case CONTROLE_SALVAR_COMO: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+      break;
+    }
+    case CONTROLE_ABRIR: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO));
+      break;
+    }
     default:
       if (id >= CONTROLE_JOGADORES) {
         ntf::Notificacao n;
@@ -298,6 +338,33 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std
   return true;
 }
 
+namespace {
+// Funcao para retornar o id de botao que melhor representa o estado do clique com a forma selecionada.
+IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
+  switch (mc) {
+    case Tabuleiro::MODO_DESENHO: {
+      switch (tf) {
+        case TF_LIVRE:     return CONTROLE_DESENHO_LIVRE;
+        case TF_RETANGULO: return CONTROLE_DESENHO_RETANGULO;
+        case TF_CIRCULO:   return CONTROLE_DESENHO_CIRCULO;
+        case TF_ESFERA:    return CONTROLE_DESENHO_ESFERA;
+        case TF_PIRAMIDE:  return CONTROLE_DESENHO_PIRAMIDE;
+        case TF_CUBO:      return CONTROLE_DESENHO_CUBO;
+        case TF_CILINDRO:  return CONTROLE_DESENHO_CILINDRO;
+        case TF_CONE:      return CONTROLE_DESENHO_CONE;
+        default:           return CONTROLE_DESENHO_LIVRE;
+      }
+    }
+    case Tabuleiro::MODO_AJUDA:       return CONTROLE_AJUDA;
+    case Tabuleiro::MODO_SINALIZACAO: return CONTROLE_ACAO_SINALIZACAO;
+    case Tabuleiro::MODO_TRANSICAO:   return CONTROLE_TRANSICAO;
+    case Tabuleiro::MODO_REGUA:       return CONTROLE_REGUA;
+    case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
+    default:                          return CONTROLE_AJUDA;
+  }
+}
+}  // namespace
+
 // Retorna o id da textura para uma determinada acao.
 unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   if (!db.textura().empty()) {
@@ -306,19 +373,23 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   auto* entidade_selecionada = EntidadeSelecionada();
   switch (db.id()) {
     case CONTROLE_ACAO: {
-      if (modo_clique_ == MODO_SINALIZACAO || ids_entidades_selecionadas_.empty()) {
-        return texturas_->Textura("icon_signal.png");
+      if (modo_clique_ == MODO_NORMAL || modo_clique_ == MODO_ACAO) {
+        unsigned int textura_espada = texturas_->Textura("icon_sword.png");
+        if (entidade_selecionada == nullptr || entidade_selecionada->Acao(AcoesPadroes()).empty()) {
+          return textura_espada;
+        }
+        const auto& it = mapa_acoes_.find(entidade_selecionada->Acao(AcoesPadroes()));
+        if (it == mapa_acoes_.end()) {
+          return textura_espada;
+        }
+        unsigned int textura = texturas_->Textura(it->second->textura());
+        return textura == GL_INVALID_VALUE ? textura_espada : textura;
+      } else {
+        auto it = mapa_botoes_controle_virtual_.find(ModoCliqueParaId(modo_clique_, forma_selecionada_));
+        if (it != mapa_botoes_controle_virtual_.end()) {
+          return it->second->textura().empty() ? GL_INVALID_VALUE : texturas_->Textura(it->second->textura());
+        }
       }
-      unsigned int textura_espada = texturas_->Textura("icon_sword.png");
-      if (entidade_selecionada == nullptr || entidade_selecionada->Acao().empty()) {
-        return textura_espada;
-      }
-      const auto& it = mapa_acoes_.find(entidade_selecionada->Acao());
-      if (it == mapa_acoes_.end()) {
-        return textura_espada;
-      }
-      unsigned int textura = texturas_->Textura(it->second->textura());
-      return textura == GL_INVALID_VALUE ? textura_espada : textura;
     }
     case CONTROLE_ULTIMA_ACAO_0:
     case CONTROLE_ULTIMA_ACAO_1:
@@ -383,6 +454,31 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   return "";
 }
 
+void Tabuleiro::DesenhaDicaBotaoControleVirtual(
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
+  if (id_entidade_detalhada_ != db.id() || db.dica().empty()) {
+    return;
+  }
+  float xi, xf, yi, yf;
+  xi = db.coluna() * largura_botao;
+  xf = xi + db.tamanho() * largura_botao;
+  yi = db.linha() * altura_botao;
+  yf = yi + db.tamanho() * altura_botao;
+  float x_meio = (xi + xf) / 2.0f;
+  MudaCor(COR_AMARELA);
+  std::string dica = StringSemUtf8(db.dica());
+  const float tam_dica_2_px = (dica.size() * fonte_x) / 2.0f;
+  float delta_x = 0;
+  if ((x_meio - tam_dica_2_px) < 0.0f) {
+    delta_x += -(x_meio - tam_dica_2_px);
+  } else if (x_meio + tam_dica_2_px > static_cast<float>(viewport[2])) {
+    delta_x -= (x_meio + tam_dica_2_px - viewport[2]);
+  }
+  PosicionaRaster2d(x_meio + delta_x, yf, viewport[2], viewport[3]);
+  std::function<void(const std::string&, bool)> funcao_desenho;
+  gl::DesenhaString(StringSemUtf8(db.dica()), false);
+}
+
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
   unsigned int id_textura = TexturaBotao(db);
@@ -429,7 +525,8 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   // Mapeia id do botao para os dados internos.
   static const std::map<int, std::function<bool()>> mapa_botoes = {
-    { CONTROLE_ACAO,              [this] () { return modo_clique_ == MODO_ACAO || modo_clique_ == MODO_SINALIZACAO; } },
+    { CONTROLE_ACAO,              [this] () { return modo_clique_ != MODO_NORMAL; } },
+    { CONTROLE_AJUDA,             [this] () { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_isometrica_; } },
@@ -487,6 +584,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_DESENHO_CONE, [this]() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE;
     }, },
+    { CONTROLE_DANO_AUTOMATICO, [this]() {
+      return modo_dano_automatico_;
+    }, },
   };
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
@@ -531,6 +631,12 @@ void Tabuleiro::DesenhaControleVirtual() {
     // Rotulos dos botoes.
     for (const auto& db : pagina.dados_botoes()) {
       DesenhaRotuloBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+    }
+    // Dicas.
+    if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
+      for (const auto& db : pagina.dados_botoes()) {
+        DesenhaDicaBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+      }
     }
   }
 

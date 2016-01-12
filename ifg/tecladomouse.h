@@ -66,6 +66,8 @@ enum teclas_e {
   Tecla_V = 0x56,
   Tecla_Y = 0x59,
   Tecla_Z = 0x5a,
+  Tecla_Shift = 0x01000020,
+  Tecla_Ctrl = 0x01000021,
   Tecla_Tab = 0x01000001,
   Tecla_TabInvertido = 0x01000002,
 };
@@ -100,20 +102,21 @@ class TratadorTecladoMouse : public ntf::Receptor {
   void TrataPincaEscala(float fator);
 
   // Interface receptor.
-  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+  bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
- private:
-  // Assumindo uma maquina de estados bem simples, que vai do ESTADO_OCIOSO pros outros e volta.
+  // Retorna o estado.
+  // Assumindo uma maquina de estados bem simples, que vai do ESTADO_TEMPORIZANDO_MOUSE pros outros e volta.
   enum estado_e {
     ESTADO_TEMPORIZANDO_TECLADO,
     ESTADO_TEMPORIZANDO_MOUSE,
+    //ESTADO_MOSTRANDO_DIALOGO,
     ESTADO_OUTRO,
   };
+  void MudaEstado(estado_e estado);
 
+ private:
   void TrataAcaoTemporizadaTeclado();
   void TrataAcaoTemporizadaMouse();
-  // Retorna o estado para ESTADO_OCIOSO.
-  void MudaEstado(estado_e estado);
 
   estado_e estado_;
   // Ultimas coordenadas do mouse (em OpenGL).

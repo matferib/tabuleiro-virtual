@@ -25,6 +25,7 @@
 #include "ent/entidade.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
+#include "ent/tabuleiro_interface.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
@@ -179,15 +180,26 @@ void PreencheNotificacaoDeltaPontosVida(
   }
 }
 
+void SalvaConfiguracoes(const OpcoesProto& proto) {
+  try {
+    arq::EscreveArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", proto);
+    LOG(INFO) << "Salvando opcoes em arquivo.";
+  } catch (const std::logic_error& e) {
+    LOG(ERROR) << "Falha salvando opcoes: " << e.what();
+  }
+}
+
 }  // namespace.
 
-Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) :
-    id_cliente_(0),
-    proximo_id_cliente_(1),
-    texturas_(texturas),
-    m3d_(m3d),
-    central_(central),
-    modo_mestre_(true) {
+Tabuleiro::Tabuleiro(
+    const OpcoesProto& opcoes, tex::Texturas* texturas, const m3d::Modelos3d* m3d,
+    ntf::CentralNotificacoes* central)
+    : id_cliente_(0),
+      proximo_id_cliente_(1),
+      texturas_(texturas),
+      m3d_(m3d),
+      central_(central),
+      modo_mestre_(true) {
   central_->RegistraReceptor(this);
 
   // Modelos.
@@ -223,6 +235,7 @@ Tabuleiro::Tabuleiro(tex::Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Ce
   // Controle virtual.
   CarregaControleVirtual();
 
+  opcoes_ = opcoes;
   opcoes_.set_desenha_controle_virtual(true);
 #if DEBUG
   opcoes_.set_mostra_fps(true);
@@ -256,13 +269,14 @@ Tabuleiro::~Tabuleiro() {
 }
 
 void Tabuleiro::LiberaTextura() {
-  VLOG(2) << "Liberando textura: " << proto_corrente_->info_textura().id();
   TabuleiroProto dummy;
   for (const auto& sub_cenario : proto_.sub_cenario()) {
+    VLOG(2) << "Liberando textura: " << sub_cenario.info_textura().id();
     dummy.set_id_cenario(sub_cenario.id_cenario());
     AtualizaTexturas(dummy);
   }
   dummy.set_id_cenario(CENARIO_PRINCIPAL);
+  VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
   AtualizaTexturas(dummy);
 }
 
@@ -288,6 +302,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   ids_entidades_selecionadas_.clear();
   // Outras variaveis.
   id_entidade_detalhada_ = Entidade::IdInvalido;
+  tipo_entidade_detalhada_ = OBJ_INVALIDO;
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
   proximo_id_entidade_ = 0;
@@ -307,6 +322,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Lista objetos.
   pagina_lista_objetos_ = 0;
   if (reiniciar_grafico) {
+    LiberaTextura();
     IniciaGL();
     // Atencao V_ERRO so pode ser usado com contexto grafico.
     V_ERRO("estado inicial pos grafico");
@@ -314,6 +330,14 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 }
 
 void Tabuleiro::ConfiguraProjecao() {
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombra_projetada()) {
+    float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
+    gl::Ortogonal(-val, val, -val, val,
+                  0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
+    return;
+  }
+#endif
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
@@ -330,6 +354,41 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombra_projetada()) {
+    //GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
+    //gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
+    //gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
+    Matrix4 mr;
+    mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
+    mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
+    mr.scale(150.0f);  // TODO valor.
+    vl = mr * vl;
+    //LOG(INFO) << vl;
+    Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
+    if (fabs(vl.x) < 0.001f && fabs(vl.y) < 0.001f) {
+      up.x = 0.0f;
+      up.y = 1.0f;
+      up.z = 0.0f;
+    }
+    gl::OlharPara(
+        // from.
+        vl.x, vl.y, vl.z,
+        //100.0f, 0.0f, 100.0f,
+        // to.
+        0.0f, 0.0f, 0.0f,
+        // up
+        //0.0f, 0.0f, 1.0f);
+        up.x, up.y, up.z);
+    //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
+    //LOG(INFO) << "mt: " << mt;
+    //Vector4 vt(10.0f, 0.0f, 0.0f, 1.0f);
+    //vt = vt * mt;
+    //LOG(INFO) << "vt: " << (vt * mt);
+    return;
+  }
+#endif
   const Posicao& alvo = olho_.alvo();
   if (camera_isometrica_) {
     gl::OlharPara(
@@ -350,6 +409,74 @@ void Tabuleiro::ConfiguraOlhar() {
   }
 }
 
+void Tabuleiro::DesenhaSombraProjetada() {
+#if USAR_FRAMEBUFFER
+  if (!parametros_desenho_.desenha_sombras()) {
+    return;
+  }
+  parametros_desenho_.Clear();
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  gl::UsaShader(gl::TSH_LUZ);
+  // Zera as coisas nao usadas na sombra.
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_id_acao(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_coordenadas(false);
+  parametros_desenho_.set_desenha_sombra_projetada(true);
+  parametros_desenho_.set_desenha_sombras(false);
+
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::Viewport(0, 0, 1024, 1024);
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  ConfiguraProjecao();
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  parametros_desenho_.set_iluminacao(false);
+  glDrawBuffer(GL_NONE);
+  //gl::FaceNula(GL_FRONT);
+  DesenhaCena();
+  //gl::FaceNula(GL_BACK);
+
+  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+  gl::CarregaIdentidade(false);
+  // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
+  Matrix4 bias(
+      0.5, 0.0, 0.0, 0.0,
+      0.0, 0.5, 0.0, 0.0,
+      0.0, 0.0, 0.5, 0.0,
+      0.5, 0.5, 0.5, 1.0);
+  gl::MultiplicaMatriz(bias.get(), false);
+  ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glDrawBuffer(GL_BACK);
+  gl::UnidadeTextura(GL_TEXTURE1);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  //gl::Habilita(GL_TEXTURE_2D);
+  gl::Desabilita(GL_TEXTURE_2D);
+#endif
+}
+
 int Tabuleiro::Desenha() {
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
   timer_para_renderizacao_.start();
@@ -364,28 +491,21 @@ int Tabuleiro::Desenha() {
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
-#if USAR_SHADER
+    parametros_desenho_.set_desenha_sombra_projetada(false);
     gl::UsaShader(gl::TSH_PRETO_BRANCO);
-#endif
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_LUZ);
-#endif
   } else {
-#if USAR_SHADER
     gl::UsaShader(gl::TSH_LUZ);
-#endif
   }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
-  gl::MudarModoMatriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  ConfiguraProjecao();
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   parametros_desenho_.set_desenha_lista_jogadores(opcoes_.mostra_lista_jogadores());
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
+  parametros_desenho_.set_desenha_grade(opcoes_.desenha_grade());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   if (modo_debug_) {
     parametros_desenho_.set_iluminacao(false);
@@ -394,6 +514,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_fps(false);
     parametros_desenho_.set_desenha_aura(false);
     parametros_desenho_.set_desenha_sombras(false);
+    parametros_desenho_.set_desenha_sombra_projetada(false);
     parametros_desenho_.set_limpa_fundo(false);
     parametros_desenho_.set_transparencias(false);
     parametros_desenho_.set_desenha_acoes(false);
@@ -405,11 +526,20 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_nevoa(false);
     parametros_desenho_.set_desenha_coordenadas(false);
   }
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombras()) {
+    ParametrosDesenho salva_pd(parametros_desenho_);
+    DesenhaSombraProjetada();
+    parametros_desenho_ = salva_pd;
+  }
+#else
+  gl::UnidadeTextura(GL_TEXTURE0);
+#endif
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
-#if USAR_FRAMEBUFFER
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-#endif
+  gl::MudarModoMatriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  ConfiguraProjecao();
   DesenhaCena();
   return passou_ms;
 }
@@ -787,6 +917,23 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   modo_clique_ = MODO_ACAO;
 }
 
+int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao) {
+  if (modo_dano_automatico_) {
+    if (entidade == nullptr) {
+      return 0;
+    }
+    return -entidade->ValorParaAcao(id_acao);
+  } else {
+    int delta_pontos_vida = lista_pontos_vida_.front();
+    lista_pontos_vida_.pop_front();
+    return delta_pontos_vida;
+  }
+}
+
+bool Tabuleiro::HaValorListaPontosVida() {
+  return !lista_pontos_vida_.empty() || modo_dano_automatico_;
+}
+
 void Tabuleiro::LimpaUltimoListaPontosVida() {
   if (!lista_pontos_vida_.empty()) {
     lista_pontos_vida_.pop_back();
@@ -884,7 +1031,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return true;
       }
       acoes_.push_back(std::move(acao));
-      if (notificacao.local()) {
+      if (notificacao.local() && !notificacao.acao().local_apenas()) {
         auto* n_remota = new ntf::Notificacao(notificacao);
         n_remota->mutable_acao()->clear_afeta_pontos_vida();
         central_->AdicionaNotificacaoRemota(n_remota);
@@ -908,6 +1055,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       } else if (ciclos_para_atualizar_ > 0) {
         --ciclos_para_atualizar_;
       }
+      if (temporizador_detalhamento_ms_ > 0) {
+        temporizador_detalhamento_ms_ -= passou_ms;
+      }
 #if USAR_WATCHDOG
       watchdog_.Refresca();
 #endif
@@ -920,6 +1070,16 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         central_->AdicionaNotificacaoRemota(ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO));
       }
       return true;
+    }
+    case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
+      if (TemNome()) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
+        central_->AdicionaNotificacao(n);
+        break;
+      }
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO));
+      break;
     }
     case ntf::TN_SERIALIZAR_TABULEIRO: {
       std::unique_ptr<ntf::Notificacao> nt_tabuleiro(SerializaTabuleiro());
@@ -982,16 +1142,25 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Deserializar de arquivo.
         ntf::Notificacao nt_tabuleiro;
         try {
-          boost::filesystem::path caminho(notificacao.endereco());
-          arq::LeArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), &nt_tabuleiro);
-          nt_tabuleiro.mutable_tabuleiro()->set_nome(caminho.filename().string());
+          // Endereco deve ter {estatico|dinamico}://nome_arquivo.
+          auto pos_separador = notificacao.endereco().find("://");
+          if (pos_separador == std::string::npos) {
+            throw std::logic_error(std::string("Nome de arquivo invalido: ") + notificacao.endereco());
+          }
+          std::string nome_arquivo = notificacao.endereco().substr(pos_separador + 3);
+          std::string tipo_arquivo = notificacao.endereco().substr(0, pos_separador);
+          arq::LeArquivoBinProto(tipo_arquivo == "estatico" ?
+              arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO,
+              nome_arquivo,
+              &nt_tabuleiro);
+          nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
         } catch (std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
           central_->AdicionaNotificacao(ne);
           return true;
         }
-        nt_tabuleiro.set_endereco(notificacao.endereco());
+        nt_tabuleiro.set_endereco(nt_tabuleiro.tabuleiro().nome());
         nt_tabuleiro.mutable_tabuleiro()->set_manter_entidades(notificacao.tabuleiro().manter_entidades());
         DeserializaTabuleiro(nt_tabuleiro);
         // Envia para os clientes.
@@ -1270,10 +1439,17 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
 }
 
 void Tabuleiro::TrataMovimentoMouse() {
-  id_entidade_detalhada_ = Entidade::IdInvalido;
+  if (temporizador_detalhamento_ms_ <= 0) {
+    id_entidade_detalhada_ = Entidade::IdInvalido;
+    tipo_entidade_detalhada_ = OBJ_INVALIDO;
+  }
 }
 
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
+  if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
+    TrataBotaoRotacaoPressionado(x, y);
+    return;
+  }
   if (x == ultimo_x_ && y == ultimo_y_) {
     // No tablet pode acontecer de gerar estes eventos com mesma coordenadas.
     return;
@@ -1481,7 +1657,33 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
-  TrataBotaoEsquerdoPressionado(x, y, true  /*alternar selecao*/);
+  ultimo_x_ = x;
+  ultimo_y_ = y;
+
+  unsigned int id, tipo_objeto;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
+  float x3d, y3d, z3d;
+  MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
+  ultimo_x_3d_ = x3d;
+  ultimo_y_3d_ = y3d;
+  ultimo_z_3d_ = z3d;
+  primeiro_x_3d_ = x3d;
+  primeiro_y_3d_ = y3d;
+  primeiro_z_3d_ = z3d;
+
+  if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
+    // Entidade.
+    VLOG(1) << "Picking alternar selecao entidade id " << id;
+    AlternaSelecaoEntidade(id);
+  } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
+    VLOG(1) << "Picking alternar selecao no controle virtual " << id;
+    PickingControleVirtual(x, y, true  /*alt*/, id);
+  } else {
+    VLOG(1) << "Picking alternar selecao ignorado.";
+  }
+  ultimo_x_ = x;
+  ultimo_y_ = y;
 }
 
 void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
@@ -1510,11 +1712,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     // Entidade.
     id_entidade_destino = id;
     float x3d, y3d, z3d;
-#if USAR_OPENGL_ES && !USAR_SHADER
-    MousePara3dComId(x, y, id, OBJ_ENTIDADE, &x3d, &y3d, &z3d);
-#else
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#endif
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
@@ -1564,8 +1762,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      std::string ultima_acao = entidade->Acao().empty() ?
-         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao();
+      std::string ultima_acao = entidade->Acao(AcoesPadroes()).empty() ?
+         ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao(AcoesPadroes());
       auto acao_it = mapa_acoes_.find(ultima_acao);
       if (acao_it == mapa_acoes_.end()) {
         LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";
@@ -1586,9 +1784,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           acao_proto.mutable_pos_entidade()->CopyFrom(pos_entidade);
         }
         int delta_pontos_vida = 0;
-        if (!lista_pontos_vida_.empty()) {
-          delta_pontos_vida = lista_pontos_vida_.front();
-          lista_pontos_vida_.pop_front();
+        if (HaValorListaPontosVida()) {
+          delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
@@ -1623,9 +1820,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       } else {
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
-        if (!lista_pontos_vida_.empty() && entidade_destino != nullptr) {
-          int delta_pontos_vida = lista_pontos_vida_.front();
-          lista_pontos_vida_.pop_front();
+        if (HaValorListaPontosVida() && entidade_destino != nullptr) {
+          int delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
           int delta_pv_pos_salvacao = delta_pontos_vida;
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
@@ -1654,7 +1850,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   if (e == nullptr) {
     return;
   }
-  std::string acao_executada = e->Acao();
+  std::string acao_executada = e->Acao(AcoesPadroes());
   if (acao_executada.empty() || acao_executada == "Sinalização") {
     return;
   }
@@ -1797,6 +1993,7 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  a->set_local_apenas(true);
   auto* pd = a->mutable_pos_entidade();
   pd->set_x(x3d);
   pd->set_y(y3d);
@@ -1813,12 +2010,14 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   unsigned int id;
   unsigned int pos_pilha;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha);
-  if (pos_pilha != OBJ_ENTIDADE) {
+  if (pos_pilha != OBJ_ENTIDADE && pos_pilha != OBJ_CONTROLE_VIRTUAL) {
     // Mouse no tabuleiro.
     id_entidade_detalhada_ = Entidade::IdInvalido;
+    tipo_entidade_detalhada_ = OBJ_INVALIDO;
     return;
   }
   id_entidade_detalhada_ = id;
+  tipo_entidade_detalhada_ = pos_pilha;
 }
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
@@ -1885,20 +2084,16 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 void Tabuleiro::IniciaGL() {
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
-#if !USAR_SHADER
-  gl::Habilita(GL_COLOR_MATERIAL);
-#endif
 
   // Nao desenha as costas dos poligonos.
   gl::Habilita(GL_CULL_FACE);
   gl::FaceNula(GL_BACK);
 
-  RegeraVboTabuleiro();
   GeraVboCaixaCeu();
   GeraVboRosaDosVentos();
 
   RegeraVboTabuleiro();
-  GeraFramebufferPicking();
+  GeraFramebuffer();
   Entidade::IniciaGl();
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
@@ -1941,6 +2136,13 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   }
 }
 
+void Tabuleiro::AlternaDanoAutomatico() {
+  modo_dano_automatico_ = !modo_dano_automatico_;
+  if (modo_dano_automatico_) {
+    modo_clique_ = MODO_ACAO;
+  }
+}
+
 void Tabuleiro::SelecionaAcaoExecutada(int indice) {
   Entidade* e = EntidadeSelecionada();
   if (e == nullptr) {
@@ -1966,7 +2168,7 @@ const std::vector<std::string>& Tabuleiro::AcoesPadroes() const {
 }
 
 const AcaoProto& Tabuleiro::AcaoPadrao(int indice) const {
-  if (indice < 0 || indice >= AcoesPadroes().size()) {
+  if (indice < 0 || indice >= static_cast<int>(AcoesPadroes().size())) {
     indice = 0;
   }
   return AcaoDoMapa(AcoesPadroes()[indice]);
@@ -1989,13 +2191,13 @@ void Tabuleiro::ProximaAcao() {
     if (entidade == nullptr) {
       continue;
     }
-    std::string acao(entidade->Acao());
+    std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
     auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao);
     if (it == id_acoes_.end()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
       continue;
     }
     ++it;
@@ -2016,13 +2218,13 @@ void Tabuleiro::AcaoAnterior() {
     if (entidade == nullptr) {
       continue;
     }
-    std::string acao(entidade->Acao());
+    std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
     auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao);
     if (it == id_acoes_.rend()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao();
+      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
       continue;
     }
     ++it;
@@ -2050,7 +2252,7 @@ void Tabuleiro::DesenhaCena() {
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
   if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
-    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f); 
+    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
   } else {
     gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
                    proto_corrente_->luz_ambiente().g(),
@@ -2068,6 +2270,16 @@ void Tabuleiro::DesenhaCena() {
   gl::MudarModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
+    parametros_desenho_.set_desenha_sombra_projetada(true);
+    gl::MudarModoMatriz(gl::MATRIZ_SOMBRA);
+    ConfiguraOlhar();
+    parametros_desenho_.set_desenha_sombra_projetada(false);
+    gl::MudarModoMatriz(GL_MODELVIEW);
+  }
+#endif
+
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (camera_isometrica_ || (olho_.altura() > (2 * olho_.raio()))) {
@@ -2087,7 +2299,8 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando luzes");
 
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes da janela para cobrir o fundo todo.
-  if (!parametros_desenho_.has_picking_x() && (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
+  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
+      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
     DesenhaCaixaCeu();
   }
   V_ERRO("desenhando caixa do ceu");
@@ -2098,7 +2311,6 @@ void Tabuleiro::DesenhaCena() {
     gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
     DesenhaTabuleiro();
     if (parametros_desenho_.desenha_grade() &&
-        opcoes_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -2148,6 +2360,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando acoes");
 
   // Sombras.
+#if !USAR_FRAMEBUFFER
   if (parametros_desenho_.desenha_sombras() &&
       proto_corrente_->luz_direcional().inclinacao_graus() > 5.0 &&
       proto_corrente_->luz_direcional().inclinacao_graus() < 180.0f) {
@@ -2157,6 +2370,7 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
   }
   V_ERRO("desenhando sombras");
+#endif
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
@@ -2204,13 +2418,38 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando entidades alfa");
 
+#if USAR_FRAMEBUFFER
+  if (parametros_desenho_.desenha_sombra_projetada()) {
+    return;
+  }
+#endif
+
   //-------------
   // DESENHOS 2D.
   //-------------
-  gl::Desabilita(GL_FOG);
-#if USAR_SHADER
-  gl::UsaShader(gl::TSH_SIMPLES);
+#if 0 && USAR_FRAMEBUFFER
+  if (!parametros_desenho_.has_picking_x()) {
+    gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
+    gl::CarregaIdentidade();
+    // Eixo com origem embaixo esquerda.
+    gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
+    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::CarregaIdentidade(false);
+    gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+
+    MudaCor(COR_BRANCA);
+    gl::Habilita(GL_TEXTURE_2D);
+    /*
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
+    */
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
 #endif
+
+  gl::Desabilita(GL_FOG);
+  gl::UsaShader(gl::TSH_SIMPLES);
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
@@ -2248,6 +2487,13 @@ void Tabuleiro::DesenhaCena() {
     DesenhaControleVirtual();
   }
   V_ERRO("desenhando controle virtual");
+
+  if (gui_ != nullptr) {
+    gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
+    gui_->Desenha(&parametros_desenho_);
+  }
+  V_ERRO("desenhando interface grafica");
+
   glFlush();
 }
 
@@ -2310,7 +2556,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
 void Tabuleiro::GeraVboCaixaCeu() {
   // O cubo tem que ser maior que a distancia do plano de corte minimo.
-  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 3.0));
+  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 4.0));
   // Valores de referencia:
   // imagem 4x3.
   // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
@@ -2351,6 +2597,19 @@ void Tabuleiro::GeraVboCaixaCeu() {
   vbo_caixa_ceu_.Grava(vbo);
 }
 
+float AlturaCoord(int xq, int yq) {
+  return 0.0f;
+  float x_2 = 10.0f;
+  float y_2 = 10.0f;
+  if ((xq == x_2 && yq == y_2) ||
+      ((xq + 1) == x_2 && yq == y_2) ||
+      ((xq + 1) == x_2 && (yq + 1) == y_2) ||
+      (xq == x_2 && (yq + 1) == y_2)) {
+    return 3.0f;
+  }
+  return 0.0;
+}
+
 void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro inicio");
   std::vector<float> coordenadas_tabuleiro;
@@ -2383,12 +2642,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
       // desenha quadrado
       coordenadas_tabuleiro.push_back(x);
       coordenadas_tabuleiro.push_back(y);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab));
       coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
       coordenadas_tabuleiro.push_back(y);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab));
       coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
       coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab + 1));
       coordenadas_tabuleiro.push_back(x);
       coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
+      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab + 1));
 
       coordenadas_textura.push_back(inicio_texel_h);
       coordenadas_textura.push_back(inicio_texel_v);
@@ -2417,7 +2680,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   }
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
-  tabuleiro_nao_gravado.AtribuiCoordenadas(2, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
+  tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
   V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
@@ -2439,7 +2702,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
   // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
   // inferior eh onde comeca a desenhar a linha.
-#if USAR_SHADER
   // Com shader nao precisa tesselizar, pois a nevoa eh por pixel.
   indice = 0;
   // Linhas verticais (S-N).
@@ -2459,12 +2721,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
       float y_final = y_inicial + tamanho_y;
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       indices_grade.push_back(indice);
       indices_grade.push_back(indice + 1);
       indices_grade.push_back(indice + 2);
@@ -2490,12 +2756,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
       float x_final = x_inicial + tamanho_x;
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_inicial);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_final);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       coordenadas_grade.push_back(x_inicial);
       coordenadas_grade.push_back(y_final);
+      coordenadas_grade.push_back(0.0f);
       indices_grade.push_back(indice);
       indices_grade.push_back(indice + 1);
       indices_grade.push_back(indice + 2);
@@ -2505,154 +2775,32 @@ void Tabuleiro::RegeraVboTabuleiro() {
       indice += 4;
     }
   }
-#else
-  // Sem shader, tesseliza.
-  indice = 0;
-  const int kTamanhoPedaco = 30;
-  // Linhas verticais (S-N).
-  {
-    int limite_inferior = -x_2;
-    float incremento = 0.0f;
-    if (TamanhoX() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
-    int num_pedacos_verticais = tamanho_y / kTamanhoPedaco;
-    float ultimo_pedaco_vertical = fmod(tamanho_y, kTamanhoPedaco);
-    if (ultimo_pedaco_vertical > 0.0f) {
-      ++num_pedacos_verticais;
-    }
-    for (int i = limite_inferior; i <= x_2; ++i) {
-      float x = i * TAMANHO_LADO_QUADRADO + incremento;
-      float x_inicial = x - EXPESSURA_LINHA_2;
-      float x_final = x + EXPESSURA_LINHA_2;
-      for (int j = 0; j < num_pedacos_verticais; ++j) {
-        int j_tam = j * kTamanhoPedaco;
-        float y_inicial = -tamanho_y_2 + j_tam;
-        float incremento_vertical = kTamanhoPedaco;
-        if ((j == num_pedacos_verticais - 1) && (ultimo_pedaco_vertical > 0.0f)) {
-          incremento_vertical = ultimo_pedaco_vertical;
-        }
-        float y_final = y_inicial + incremento_vertical;
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_final);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 1);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice + 3);
-        indice += 4;
-      }
-    }
-  }
-  {
-    // Linhas horizontais (W-E).
-    int limite_inferior = -y_2;
-    float incremento = 0.0f;
-    if (TamanhoY() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    int num_pedacos_horizontais = tamanho_x / kTamanhoPedaco;
-    float ultimo_pedaco_horizontal = fmod(tamanho_x, kTamanhoPedaco);
-    if (ultimo_pedaco_horizontal > 0.0f) {
-      ++num_pedacos_horizontais;
-    }
-    for (int i = limite_inferior; i <= y_2; ++i) {
-      float y = i * TAMANHO_LADO_QUADRADO + incremento;
-      float y_inicial = y - EXPESSURA_LINHA_2;
-      float y_final = y + EXPESSURA_LINHA_2;
-      for (int j = 0; j < num_pedacos_horizontais; ++j) {
-        int j_tam = j * kTamanhoPedaco;
-        float x_inicial = -tamanho_x_2 + j_tam;
-        float incremento_horizontal = kTamanhoPedaco;
-        if ((j == num_pedacos_horizontais - 1) && (ultimo_pedaco_horizontal > 0.0f)) {
-          incremento_horizontal = ultimo_pedaco_horizontal;
-        }
-        float x_final = x_inicial + incremento_horizontal;
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(x_final);
-        coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(x_inicial);
-        coordenadas_grade.push_back(y_final);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 1);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice);
-        indices_grade.push_back(indice + 2);
-        indices_grade.push_back(indice + 3);
-        indice += 4;
-      }
-    }
-  }
-#endif
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
   grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
-  grade_nao_gravada.AtribuiCoordenadas(2, coordenadas_grade.data(), coordenadas_grade.size());
+  grade_nao_gravada.AtribuiCoordenadas(3, coordenadas_grade.data(), coordenadas_grade.size());
   vbo_grade_.Grava(grade_nao_gravada);
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
-void Tabuleiro::GeraFramebufferPicking() {
+void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER
-  V_ERRO("gerando framebuffer picking");
-  // Textura de cor para renderizacao.
-  GLuint textura_cor;
-  glGenTextures(1, &textura_cor);
-  glBindTexture(GL_TEXTURE_2D, textura_cor);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1024, 1024, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glBindTexture(GL_TEXTURE_2D, 0);
-  V_ERRO("Gera FramebufferPicking textura cor");
-  // Profundidade.
-#define DEPTH_TEX 1
-#if DEPTH_TEX
-  GLuint textura_prof;
-  glGenTextures(1, &textura_prof);
-  glBindTexture(GL_TEXTURE_2D, textura_prof);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glBindTexture(GL_TEXTURE_2D, 0);
-#else
-  GLuint rb;
-  glGenRenderbuffers(1, &rb);
-  glBindRenderbuffer(GL_RENDERBUFFER, rb);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
-#endif
-  V_ERRO("Gera FramebufferPicking textura profundidade");
-  // Gera o framebuffer com as texturas.
-  glGenFramebuffers(1, &framebuffer_pick_);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_pick_);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textura_cor, 0);
-#if DEPTH_TEX
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textura_prof, 0);
-#else
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rb);
-#endif
-  V_ERRO("glGenFramebuffers");
-  GLenum e = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (e != GL_FRAMEBUFFER_COMPLETE) {
-    LOG(ERROR) << "Framebuffer incompleto: " << (void*)e;
-  } 
+  V_ERRO("gerando framebuffer");
+  glGenFramebuffers(1, &framebuffer_);
+  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  glGenTextures(1, &textura_framebuffer_);
+  glBindTexture(GL_TEXTURE_2D, textura_framebuffer_);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+
+  // Volta estado normal.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 #endif
 }
 
@@ -2733,7 +2881,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                                                  EntidadeEstaSelecionada(entidade->Id()));
     bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
-                              (entidade->Id() == id_entidade_detalhada_);
+                              tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
+                              entidade->Id() == id_entidade_detalhada_;
     parametros_desenho_.set_desenha_barra_vida(entidade_detalhada || detalhar_tudo);
     // Rotulos apenas individualmente.
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
@@ -2989,7 +3138,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
   bool limpar_salvacoes = false;
   for (auto& acao : copia_acoes) {
     acao->Atualiza(intervalo_ms);
-    if (acao->AtingiuAlvo()) {
+    if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
       if (ap.id_entidade_destino_size() > 0 &&
@@ -3024,34 +3173,46 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
-#if USAR_OPENGL_ES && !USAR_SHADER
-  MousePara3dComId(x, y, id, tipo_objeto, &x3d, &y3d, &z3d);
-#else
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-#endif
-  // Nos modos de clique diferentes, apenas o controle virtual devera ser executado normalmente.
-  if (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL) {
-    switch (modo_clique_) {
-      case MODO_ACAO:
-        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-        break;
-      case MODO_SINALIZACAO:
-        TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
-        break;
-      case MODO_TRANSICAO:
-        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
-        break;
-      case MODO_REGUA:
-        TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
-        break;
-      case MODO_DESENHO:
-        TrataBotaoDesenhoPressionado(x, y);
-        break;
-      default:
-        ;
+  if (modo_clique_ != MODO_NORMAL) {
+    if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
+      if (modo_clique_ == MODO_AJUDA) {
+        TrataMouseParadoEm(x, y);
+        temporizador_detalhamento_ms_ = 1000;
+        modo_clique_ = MODO_NORMAL;
+        return;
+      }
+    } else {
+      switch (modo_clique_) {
+        case MODO_ACAO:
+          TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
+          break;
+        case MODO_SINALIZACAO:
+          TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
+          break;
+        case MODO_TRANSICAO:
+          TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
+          break;
+        case MODO_REGUA:
+          TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
+          break;
+        case MODO_DESENHO:
+          TrataBotaoDesenhoPressionado(x, y);
+          break;
+        case MODO_ROTACAO:
+          TrataBotaoRotacaoPressionado(x, y);
+          break;
+        case MODO_AJUDA:
+          TrataMouseParadoEm(x, y);
+          temporizador_detalhamento_ms_ = 1000;
+          modo_clique_ = MODO_NORMAL;
+          break;
+        default:
+          ;
+      }
+      modo_clique_ = MODO_NORMAL;
+      return;
     }
-    modo_clique_ = MODO_NORMAL;
-    return;
   }
 
   ultimo_x_3d_ = x3d;
@@ -3107,7 +3268,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
-    PickingControleVirtual(alterna_selecao, id);
+    PickingControleVirtual(x, y, alterna_selecao, id);
   } else if (tipo_objeto == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
@@ -3228,7 +3389,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
       central_->AdicionaNotificacao(n);
     }
   } if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
-    PickingControleVirtual(false  /*alterna selecao*/, id);
+    PickingControleVirtual(x, y, false  /*alterna selecao*/, id);
   } else {
     ;
   }
@@ -3541,7 +3702,15 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
   return notificacao;
 }
 
-void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
+void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_const) {
+  // Copia para poder remover uns lixos.
+  ent::TabuleiroProto novo_proto(novo_proto_const);
+  if (novo_proto.info_textura_ceu().id().empty()) {
+    novo_proto.clear_info_textura_ceu();
+  }
+  if (novo_proto.info_textura().id().empty()) {
+    novo_proto.clear_info_textura();
+  }
   VLOG(1) << "Atualizando propriedades: " << novo_proto.ShortDebugString();
   TabuleiroProto* proto_a_atualizar = BuscaSubCenario(novo_proto.id_cenario());
   if (proto_a_atualizar == nullptr) {
@@ -3553,6 +3722,7 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto) {
   proto_a_atualizar->set_largura(novo_proto.largura());
   proto_a_atualizar->set_altura(novo_proto.altura());
   proto_a_atualizar->set_desenha_grade(novo_proto.desenha_grade());
+  proto_a_atualizar->set_aplicar_luz_ambiente_textura_ceu(novo_proto.aplicar_luz_ambiente_textura_ceu());
   if (novo_proto.has_descricao_cenario()) {
     proto_a_atualizar->set_descricao_cenario(novo_proto.descricao_cenario());
   } else {
@@ -3831,6 +4001,7 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+  SalvaConfiguracoes(opcoes_);
 }
 
 void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
@@ -3954,7 +4125,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* e = BuscaEntidade(id);
-    if (e == nullptr) {
+    if (e == nullptr || e->Tipo() == TE_ENTIDADE) {
       continue;
     }
     auto* notificacao = grupo_notificacoes.add_notificacao();
@@ -3964,6 +4135,10 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
     y_medio += e->Y();
     nova_entidade.add_sub_forma()->CopyFrom(e->Proto());
     ++num_entidades;
+  }
+  if (num_entidades <= 1) {
+    VLOG(1) << "Nenhuma (ou uma) entidade valida para agrupar";
+    return;
   }
   x_medio /= num_entidades;
   y_medio /= num_entidades;
@@ -4573,6 +4748,9 @@ void Tabuleiro::DesenhaLuzes() {
 
 void Tabuleiro::DesenhaCaixaCeu() {
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
+  if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
+    gl::Desabilita(GL_LIGHTING);
+  }
   // Desliga luzes direcionais e pontuais.
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
@@ -4606,6 +4784,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Habilita(GL_LIGHT0 + i);
   }
+  gl::Habilita(GL_LIGHTING);
   if (nevoa) {
     // Religa nevoa se desligou.
     gl::Habilita(GL_FOG);
@@ -4619,7 +4798,7 @@ void Tabuleiro::DesenhaGrade() {
 }
 
 void Tabuleiro::DesenhaListaPontosVida() {
-  if (lista_pontos_vida_.empty()) {
+  if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
     return;
   }
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
@@ -4637,13 +4816,34 @@ void Tabuleiro::DesenhaListaPontosVida() {
   std::string titulo("Lista PV");
   gl::DesenhaStringAlinhadoDireita(titulo);
   raster_y -= (altura_fonte + 2);
-  for (int pv : lista_pontos_vida_) {
+  if (modo_dano_automatico_) {
     PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
     raster_y -= (altura_fonte + 2);
-    MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-    char str[4];
-    snprintf(str, 4, "%d", abs(pv));
-    gl::DesenhaStringAlinhadoDireita(str);
+    MudaCor(COR_BRANCA);
+    const auto* entidade = EntidadeSelecionada();
+    std::string valor = "AUTO";
+    if (entidade != nullptr) {
+      const std::string s = entidade->StringValorParaAcao(entidade->Acao(AcoesPadroes()));
+      if (s.empty()) {
+        valor += ": SEM ACAO";
+      } else {
+        valor += ": " + s;
+      }
+    } else if (ids_entidades_selecionadas_.size() > 1) {
+      valor += ": VARIOS";
+    } else {
+      valor += ": NENHUM";
+    }
+    gl::DesenhaStringAlinhadoDireita(valor);
+  } else {
+    for (int pv : lista_pontos_vida_) {
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      raster_y -= (altura_fonte + 2);
+      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+      char str[4];
+      snprintf(str, 4, "%d", abs(pv));
+      gl::DesenhaStringAlinhadoDireita(str);
+    }
   }
 }
 
@@ -4845,9 +5045,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       continue;
     }
     if (!achou) {
-      id_acao.assign(entidade->Acao());
+      id_acao.assign(entidade->Acao(AcoesPadroes()));
       achou = true;
-    } else if (id_acao != entidade->Acao()) {
+    } else if (id_acao != entidade->Acao(AcoesPadroes())) {
       id_acao.assign("acoes diferem");
       break;
     }
@@ -5247,6 +5447,15 @@ void Tabuleiro::AlternaModoRegua() {
   } else {
     modo_clique_ = MODO_REGUA;
   }
+}
+
+void Tabuleiro::EntraModoClique(modo_clique_e modo) {
+  central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
+  if (modo_clique_ == MODO_ROTACAO && modo != MODO_ROTACAO) {
+    // A rotacao eh diferente pq eh sem clique.
+    estado_ = estado_anterior_;
+  }
+  modo_clique_ = modo;
 }
 
 void Tabuleiro::SalvaCameraInicial() {

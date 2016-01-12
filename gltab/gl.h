@@ -70,20 +70,28 @@ void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
 
-#if USAR_SHADER
 #define ATUALIZA_MATRIZES_NOVO() AtualizaMatrizesNovo()
 // Atualiza as matrizes do shader.
 void AtualizaMatrizesNovo();
 void DebugaMatrizes();
-#else
-#define ATUALIZA_MATRIZES_NOVO()
-#endif
 
 // Operacoes de matriz. Melhor usar MatrizEscopo.
 void EmpilhaMatriz(bool atualizar = true);
 void DesempilhaMatriz(bool atualizar = true);
-GLenum ModoMatrizCorrente();
-void MudarModoMatriz(GLenum modo);
+enum matriz_e {
+  MATRIZ_MODELAGEM_CAMERA = GL_MODELVIEW,
+  MATRIZ_PROJECAO = GL_PROJECTION,
+  MATRIZ_SOMBRA = GL_MODELVIEW + 2,
+  MATRIZ_PROJECAO_SOMBRA = GL_MODELVIEW + 3,
+  MATRIZ_INVALIDA = GL_INVALID_ENUM
+};
+static_assert(MATRIZ_MODELAGEM_CAMERA != MATRIZ_PROJECAO &&
+              MATRIZ_MODELAGEM_CAMERA != MATRIZ_SOMBRA &&
+              MATRIZ_SOMBRA != MATRIZ_PROJECAO &&
+              MATRIZ_PROJECAO_SOMBRA != MATRIZ_PROJECAO,
+              "valores de matrizes devem ser diferentes");
+int ModoMatrizCorrente();
+void MudarModoMatriz(int modo);
 
 /** Salva a matriz corrente durante escopo da classe. Ou muda o modo de matriz e a salva, retornando ao modo anterior ao fim do escopo. */
 class MatrizEscopo {
@@ -95,26 +103,26 @@ class MatrizEscopo {
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
   explicit MatrizEscopo(int modo, bool atualizar = true) : atualizar_(atualizar), modo_(modo) {
     modo_anterior_ = ModoMatrizCorrente();
-    MudarModoMatriz(modo_);
+    MudarModoMatriz(static_cast<matriz_e>(modo_));
     EmpilhaMatriz(atualizar_);
   }
 
   /** Restaura matriz anterior ao escopo para o modo escolhido. */
   ~MatrizEscopo() {
     if (modo_ != GL_INVALID_ENUM) {
-      MudarModoMatriz(modo_);
+      MudarModoMatriz(static_cast<matriz_e>(modo_));
     }
     DesempilhaMatriz(atualizar_);
     if (modo_anterior_ != GL_INVALID_ENUM) {
-      MudarModoMatriz(modo_anterior_);
+      MudarModoMatriz(static_cast<matriz_e>(modo_anterior_));
     }
   }
 
  private:
   bool atualizar_;
-  GLenum modo_anterior_;
+  int modo_anterior_;
   // O valor GL_INVALID_ENUM indica que nao eh para restaurar a matriz.
-  GLenum modo_;
+  int modo_;
 };
 
 #if !USAR_OPENGL_ES
@@ -138,7 +146,6 @@ class AtributosEscopo {
 /** Funcao especial para depuracao. */
 void InicioCena();
 
-#if USAR_SHADER
 // Usado para indexar os shaders.
 enum TipoShader {
   TSH_LUZ,
@@ -149,7 +156,6 @@ enum TipoShader {
 };
 
 void UsaShader(TipoShader ts);
-#endif
 
 /** Funcoes gerais. */
 bool EstaHabilitado(GLenum cap);
@@ -158,6 +164,7 @@ void Desabilita(GLenum cap);
 void HabilitaEstadoCliente(GLenum cap);
 void DesabilitaEstadoCliente(GLenum cap);
 
+Matrix4 LeMatriz(matriz_e tipo_matriz);
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 void Le(GLenum nome_parametro, GLfloat* valor);
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
@@ -177,10 +184,12 @@ inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) {
 }
 
 // Texturas.
+void UnidadeTextura(GLenum unidade);
 inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, texturas); }
 inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
 inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
+inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void ImagemTextura2d(
     GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda,
     GLenum formato, GLenum tipo, const GLvoid* dados) {
@@ -329,10 +338,6 @@ void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
 
 /** Funcoes de iluminacao. */
-#if !USAR_SHADER
-inline void  Luz(GLenum luz, GLenum nome_param, GLfloat param) { glLightf(luz, nome_param, param); }
-inline void Luz(GLenum luz, GLenum nome_param, const GLfloat* params) { glLightfv(luz, nome_param, params); }
-#endif
 void LuzAmbiente(float r, float g, float b);
 void LuzDirecional(const GLfloat* pos, float r, float g, float b);
 void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio);
@@ -349,6 +354,12 @@ void TamanhoPonto(float tam);
 * Ela sera usada por DesenhaString tanto como escala quanto no tamanho do ponto.
 */
 void TamanhoFonte(int* largura, int* altura, int* escala);
+inline void TamanhoFonteComEscala(int* largura, int* altura) {
+  int escala;
+  TamanhoFonte(largura, altura, &escala);
+  *largura *= escala;
+  *altura *= escala;
+}
 void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, int* escala);
 void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
 void PosicaoRaster(GLint x, GLint y);
@@ -434,23 +445,6 @@ class DesabilitaEscopo {
   GLenum cap_;
   GLboolean valor_anterior_;
 };
-
-#if !USAR_SHADER
-class ModeloLuzEscopo {
- public:
-  ModeloLuzEscopo(const GLfloat* luz) {
-      glGetFloatv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-      glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz);
-  }
-  ~ModeloLuzEscopo() {
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, luz_antes);
-  }
-
- private:
-  GLfloat luz_antes[4];
-};
-#endif
-
 
 /** Stencil. */
 inline void FuncaoStencil(GLenum func, GLint ref, GLuint mascara) { glStencilFunc(func, ref, mascara); }

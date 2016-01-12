@@ -1,3 +1,6 @@
+#ifndef ARQ_ARQUIVO_H
+#define ARQ_ARQUIVO_H
+
 #include <string>
 #include <vector>
 
@@ -24,6 +27,7 @@ enum tipo_e {
   TIPO_TEXTURA_BAIXADA,
   TIPO_TEXTURA_LOCAL,
   TIPO_DADOS,
+  TIPO_CONFIGURACOES,
   TIPO_TABULEIRO,
   TIPO_TABULEIRO_ESTATICO,  // quando vem de assets.
   TIPO_ENTIDADES,
@@ -78,3 +82,5 @@ const std::vector<std::string> ConteudoDiretorioNormal(const std::string& direto
 
 
 }  // namespace arq
+
+#endif

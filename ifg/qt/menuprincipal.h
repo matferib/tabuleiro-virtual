@@ -6,8 +6,10 @@
 * Compilar com moc para gerar o fonte do qt.
 */
 
+#include <QActionGroup>
 #include <QMenuBar>
 #include <QMenu>
+#include <map>
 #include <memory>
 #include <vector>
 #include <unordered_map>
@@ -74,6 +76,7 @@ class MenuPrincipal : public QMenuBar, ntf::Receptor {
   std::vector<std::vector<QAction*>> acoes_;
   // Usar para armazenar as acoes de modelos, que sao desattivas em alguns casos.
   std::vector<QAction*> acoes_modelos_;
+  std::map<int, QActionGroup*> grupos_exclusivos_;
 
   ntf::CentralNotificacoes* central_;
 };

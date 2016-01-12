@@ -27,13 +27,16 @@ struct VarShader {
   GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
   GLint uni_gltab_textura;              // Ha textura: 1, nao ha: 0.
   GLint uni_gltab_unidade_textura;
+  GLint uni_gltab_unidade_textura_sombra;
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
   GLint uni_gltab_mvm;                  // Matrix modelview.
+  GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
+  GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
@@ -65,6 +68,8 @@ class Contexto {
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
   std::stack<Matrix4> pilha_mvm;
   std::stack<Matrix4> pilha_prj;
+  std::stack<Matrix4> pilha_mvm_sombra;
+  std::stack<Matrix4> pilha_prj_sombra;
   std::stack<Matrix4>* pilha_corrente = nullptr;
   Matrix3 matriz_normal;  // Computada da mvm corrente.
 
@@ -84,7 +89,7 @@ class Contexto {
   }
   // So alterna se nao houver OpenGL ES, pois este nao tem as funcoes de selecao.
   inline void AlternaSelecaoPorCor() {
-#if !USAR_OPENGL_ES && USAR_SHADER
+#if !USAR_OPENGL_ES
     selecao_por_cor_habilitada_ = !selecao_por_cor_habilitada_;
 #endif
   }
@@ -95,12 +100,7 @@ class Contexto {
  private:
   Contexto();
   // Selecao por cor.
-#if USAR_OPENGL_ES || USAR_SHADER
   bool selecao_por_cor_habilitada_ = true;
-#else
-  // Este modo usa a selecao antiga do opengl, sem shader.
-  bool selecao_por_cor_habilitada_ = false;
-#endif
 };
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }

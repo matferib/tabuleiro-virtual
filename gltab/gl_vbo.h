@@ -45,6 +45,8 @@ class VboNaoGravado {
   // @throw caso os objetos nao sejam compativeis.
   void Concatena(const VboNaoGravado& rhs);
 
+  VboNaoGravado ExtraiVboNormais() const;
+
   // TODO: destruir os dados para liberar memoria.
   std::vector<float> GeraBufferUnico(unsigned int* deslocamento_normais,
                                      unsigned int* deslocamento_cores,
@@ -200,9 +202,13 @@ inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {
 }
 
 // Retangulo cercando a origem.
-VboNaoGravado VboRetangulo(GLfloat tam_lado);
-inline void Retangulo(GLfloat tam_lado) {
-  DesenhaVbo(VboRetangulo(tam_lado));
+VboNaoGravado VboRetangulo(GLfloat tam_x, GLfloat tam_y);
+inline VboNaoGravado VboRetangulo(GLfloat tam_lado) { return VboRetangulo(tam_lado, tam_lado); }
+inline void Retangulo(GLfloat tam_x, GLfloat tam_y) {
+  DesenhaVbo(VboRetangulo(tam_x, tam_y));
+}
+inline void Retangulo(GLfloat tam) {
+  DesenhaVbo(VboRetangulo(tam, tam));
 }
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {

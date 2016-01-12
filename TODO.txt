@@ -1,15 +1,26 @@
-Versao 1.13.0
+Versao 2.0.0
+- Brincar com os mipmaps e anti aliasing para PC.
+- Salvar opcoes.
+- Sombra projetada.
+- Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
+  de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
+- Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
+  mensagem, pois o loop fez a copia).
+- Triangulo na UI (nao tem como desenhar).
+- Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
+- Ataque automatico.
+- Outros botoes controle virtual: mudar template, etc.
+- Texturas dos orcs.
+- Acao de regua nao deve ir para clientes remotos.
 - Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
 - Zoom e rotacao para formas no tablet.
-- Outros botoes controle virtual: mudar template, salvar, abrir, etc.
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
 - Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
-- Tirar versao sem shader
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.
 - Criar um ETAB_TABULEIRO_PRESSIONADO para quando o clique for no chao mas nao nos quadrados.
@@ -20,7 +31,6 @@ Versao 1.13.0
 - Terminar socket.
 - Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
-- Textura em outras formas.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
 - Credito para atribuicoes.
@@ -29,7 +39,7 @@ Versao 1.13.0
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 2.0.0
+Versao 2.1.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Cor de formas compostas aplicando a todos os filhos.
@@ -61,4 +71,3 @@ Algumas ideias loucas.
 - Sons.
 - Mudar cursor quando control estiver pressionado.
 - Selecao de porta pelo servidor.
-- Tooltip com mais informacao.

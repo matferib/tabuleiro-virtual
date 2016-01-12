@@ -147,6 +147,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
       // Menus com acoes exclusivas.
       grupo_menu = new QActionGroup(this);
       grupo_menu->setExclusive(true);
+      grupos_exclusivos_[controle_menu] = grupo_menu;
     }
     menus_.push_back(menu);
     // para cada item no menu, cria os items (acoes)
@@ -265,6 +266,15 @@ bool MenuPrincipal::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_REINICIAR_TABULEIRO:
       // TODO Forma selecionada e desenho selecionado.
       return true;
+    case ntf::TN_REFRESCAR_MENU: {
+      for (auto* a : grupos_exclusivos_[ME_DESENHO]->actions()) {
+        if (a->data().toInt() == tabuleiro_->FormaDesenhoSelecionada()) {
+          a->setChecked(true);
+          break;
+        }
+      }
+      return true;
+    }
     default:
       return false;
   }
@@ -401,24 +411,17 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_TABULEIRO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR]) {
-    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO);
   } else if (acao == acoes_[ME_TABULEIRO][MI_SALVAR_COMO]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO);
-    notificacao->mutable_tabuleiro()->set_nome("");  // nome vazio: deversa ser definido.
+    notificacao->mutable_tabuleiro()->set_nome("");  // nome vazio: devera ser definido.
   } else if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR] ||
              acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
-    QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
-                                                    tr("Abrir tabuleiro"),
-                                                    arq::Diretorio(arq::TIPO_TABULEIRO).c_str());
-    if (file_str.isEmpty()) {
-      VLOG(1) << "Operação de restaurar cancelada.";
-      return;
-    }
-    notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO);
     if (acao == acoes_[ME_TABULEIRO][MI_RESTAURAR_MANTENDO_ENTIDADES]) {
-      notificacao->mutable_tabuleiro()->set_manter_entidades(true);
+      n->mutable_tabuleiro()->set_manter_entidades(true);
     }
-    notificacao->set_endereco(file_str.toStdString());
+    central_->AdicionaNotificacao(n);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REINICIAR_CAMERA]) {
     notificacao = ntf::NovaNotificacao(ntf::TN_REINICIAR_CAMERA);
   } else if (acao == acoes_[ME_TABULEIRO][MI_REMOVER_CENARIO]) {
@@ -440,6 +443,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            acao == acoes_[ME_DESENHO][MI_PIRAMIDE] ||
            acao == acoes_[ME_DESENHO][MI_RETANGULO]) {
     tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
+    tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_DESENHO);
   } else if (acao == acoes_[ME_DESENHO][MI_SELECIONAR_COR]) {
     QColor cor_anterior = ProtoParaCor(tabuleiro_->CorDesenho());
     QColor cor = QColorDialog::getColor(cor_anterior, this, QObject::tr("Cor do Desenho"));
