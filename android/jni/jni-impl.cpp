@@ -115,7 +115,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_modelos3d.reset(new m3d::Modelos3d());
-  g_tabuleiro.reset(new ent::Tabuleiro(g_texturas.get(), g_modelos3d.get(), g_central.get()));
+  ent::OpcoesProto opcoes;
+  g_tabuleiro.reset(new ent::Tabuleiro(opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
