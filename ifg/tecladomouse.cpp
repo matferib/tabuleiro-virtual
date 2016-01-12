@@ -160,7 +160,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       default:
         // Nao muda estado mas reinicia o timer.
         teclas_.push_back(tecla);
-        temporizador_teclado_ = MAX_TEMPORIZADOR_TECLADO;
+        temporizador_teclado_ = static_cast<int>(MAX_TEMPORIZADOR_TECLADO);
         return;
     }
     // Ao terminar, volta pro mouse.
