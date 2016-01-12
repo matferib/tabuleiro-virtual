@@ -11,11 +11,16 @@ precision highp float;
 #define mediump
 #endif
 
+// Macros ${XXX} deverao ser substituidas pelo codigo fonte.
+#define USAR_FRAMEBUFFER ${USAR_FRAMEBUFFER}
+
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
+#if USAR_FRAMEBUFFER
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
+#endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 
@@ -38,7 +43,9 @@ uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
+#if USAR_FRAMEBUFFER
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+#endif
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
@@ -71,10 +78,14 @@ void main() {
   // luz ambiente.
   if (gltab_luz_ambiente.a > 0.0) {
     lowp vec4 cor_luz = gltab_luz_ambiente;
-    if ((v_Pos_sombra.z - 0.001) <= texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
+#if USAR_FRAMEBUFFER
+    highp float bias = 0.001;// * tan(acos(dot(v_Normal, gltab_luz_direcional.pos)));
+    if ((v_Pos_sombra.z - bias) <= texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
       cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
     }
-    //cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
+#else
+    cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
+#endif
 
     // Outras luzes. O for eh ineficiente.
     cor_luz += CorLuzPontual(v_Normal, gltab_luzes[0]);

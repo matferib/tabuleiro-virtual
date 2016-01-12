@@ -4,6 +4,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <map>
 
 #if USAR_GFLAGS
 #include <google/gflags.h>
@@ -216,6 +217,27 @@ int IndiceLuzAtributos(int id_luz) {
 
 namespace {
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return false; } while (0)
+
+// Realiza preprocessamento do fonte do shader. Altera o fonte.
+void PreprocessaFonte(const std::string& nome, std::string* fonte) {
+#define STRINGIFY_MACRO_VALUE(S) STRINGIFY(S)
+#define STRINGIFY(S) #S
+  std::map<std::string, std::string> mapa = {
+    { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) }
+  };
+  for (const auto& par : mapa) {
+    auto pos = fonte->find(par.first);
+    if (pos == std::string::npos) {
+      continue;
+    }
+    LOG(INFO) << "Substituindo no shader " << nome << ": '" << par.first << "' -> '" << par.second << "'";
+    fonte->replace(pos, par.first.size(), par.second);
+  }
+  //LOG(INFO) << "Fonte: " << *fonte;
+#undef STRINGIFY
+#undef STRINGIFY_MACRO_VALUE
+}
+
 bool IniciaShader(const char* nome_programa, const char* nome_vs, const char* nome_fs,
                   VarShader* shader) {
   shader->nome = nome_programa;
@@ -225,11 +247,13 @@ bool IniciaShader(const char* nome_programa, const char* nome_vs, const char* no
   V_ERRO_RET("criando fragment shader");
   std::string codigo_v_shader_str;
   arq::LeArquivo(arq::TIPO_SHADER, nome_vs, &codigo_v_shader_str);
+  PreprocessaFonte(nome_vs, &codigo_v_shader_str);
   const char* codigo_v_shader = codigo_v_shader_str.c_str();
   FonteShader(v_shader, 1, &codigo_v_shader, nullptr);
   V_ERRO_RET("shader source vertex");
   std::string codigo_f_shader_str;
   arq::LeArquivo(arq::TIPO_SHADER, nome_fs, &codigo_f_shader_str);
+  PreprocessaFonte(nome_fs, &codigo_f_shader_str);
   const char* codigo_f_shader = codigo_f_shader_str.c_str();
   FonteShader(f_shader, 1, &codigo_f_shader, nullptr);
   V_ERRO_RET("shader source fragment");
