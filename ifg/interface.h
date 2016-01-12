@@ -1,6 +1,9 @@
 #ifndef IFG_INTERFACE_H
 #define IFG_INTERFACE_H
 
+#include <functional>
+#include <string>
+
 #include "arq/arquivo.h"
 #include "ntf/notificacao.h"
 
