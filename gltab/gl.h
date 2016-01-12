@@ -188,6 +188,7 @@ inline void GeraTexturas(GLsizei n, GLuint* texturas) { glGenTextures(n, textura
 inline void ApagaTexturas(GLsizei n, const GLuint* texturas) { glDeleteTextures(n, texturas); }
 inline void LigacaoComTextura(GLenum alvo, GLuint textura) { glBindTexture(alvo, textura); }
 inline void ParametroTextura(GLenum alvo, GLenum nome_param, GLint valor_param) { glTexParameteri(alvo, nome_param, valor_param); }
+inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void ImagemTextura2d(
     GLenum alvo, GLint nivel, GLint formato_interno, GLsizei largura, GLsizei altura, GLint borda,
     GLenum formato, GLenum tipo, const GLvoid* dados) {
