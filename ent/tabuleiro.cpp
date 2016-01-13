@@ -1154,7 +1154,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
               nome_arquivo,
               &nt_tabuleiro);
           nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
-        } catch (std::logic_error& erro) {
+        } catch (std::logic_error&) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(std::string("Erro lendo arquivo: ") + notificacao.endereco());
           central_->AdicionaNotificacao(ne);
@@ -1347,10 +1347,13 @@ void Tabuleiro::RefrescaMovimentosParciais() {
 }
 
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
+  return;
+#if 0
   switch (tecla) {
     default:
       ;
   }
+#endif
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
@@ -5259,7 +5262,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
       vertices[i].set_y(vertices[i].y() + pos_o.y());
     }
     for (const auto* entidade_destino : entidades_cenario) {
-      if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
+      if (entidade_destino != entidade_origem && PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
         VLOG(1) << "Adicionando id: " << entidade_destino->Id();
         ids_afetados.push_back(entidade_destino->Id());
       }
