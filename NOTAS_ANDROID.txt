@@ -170,5 +170,5 @@ Assinando APP
 keytool -genkey -v -keystore tabuleiro-virtual.keystore -alias tabvirt -keyalg RSA -keysize 2048 -validity 10000
 
 -- Compilando e assinando:
-sh compila.sh --release
-sh assina.sh -v VERSAO
+bash compila.sh --release
+bash assina.sh -v VERSAO
