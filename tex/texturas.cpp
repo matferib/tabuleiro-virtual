@@ -32,7 +32,7 @@ void LeImagem(bool global, const std::string& arquivo, std::vector<unsigned char
   std::string dados_str;
   try {
     arq::LeArquivo(global ? arq::TIPO_TEXTURA : arq::TIPO_TEXTURA_LOCAL, caminho.filename().string(), &dados_str);
-  } catch (const std::exception& e) {
+  } catch (const std::exception&) {
     if (global) {
       // Fallback de texturas baixadas.
       try {
@@ -53,7 +53,7 @@ void LeImagem(arq::tipo_e tipo, const std::string& nome, std::vector<unsigned ch
   std::string dados_str;
   try {
     arq::LeArquivo(tipo, nome, &dados_str);
-  } catch (const std::exception& e) {
+  } catch (const std::exception&) {
     if (tipo == arq::TIPO_TEXTURA) {
       // Fallback de texturas baixadas.
       try {
@@ -207,12 +207,9 @@ class Texturas::InfoTexturaInterna {
     V_ERRO("Ligacao");
     // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if TARGET_OS_MAC || (__linux__ && !ANDROID)
+#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-#elif WIN32
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 #else
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -224,7 +221,7 @@ class Texturas::InfoTexturaInterna {
                         0, FormatoImagem(), TipoImagem(),
                         bits_.data());
     V_ERRO("Imagem");
-#if TARGET_OS_MAC || (__linux__ && !ANDROID)
+#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
     // TODO wrapper para outros...
     gl::GeraMipmap(GL_TEXTURE_2D);
 #endif
