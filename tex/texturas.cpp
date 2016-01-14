@@ -209,11 +209,16 @@ class Texturas::InfoTexturaInterna {
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
 #if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-#if __linux__
-    // Melhora muito as texturas.
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
-#endif
+    GLfloat aniso = 0;
+    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    if (aniso <= 0) {
+      // Trilinear.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+      // Melhora muito as texturas. Mipmap + aniso.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    }
 #else
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

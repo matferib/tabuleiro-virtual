@@ -1,0 +1,20 @@
+instalar o git com git bash, para ter o terminal posix.
+
+colocar em win32/lib as dlls (de acordo com a plataforma):
+concrt140.dll  msvcp140.dll  QtCore4.dll  QtGui4.dll  QtOpenGL4.dll  vccorlib140.dll  vcruntime140.dll
+
+copiar as texturas.
+
+Usar o instalador para instalar.
+
+Versao 32 bits: instalar o redistributable 32 bits do VS 2015;
+Versao 64 bits: instalar o redistributable 64 bits do VS 2015;
+
+Compilando QT:
+- Usei o projeto para 32 bits que tem no QT.
+- Criei a plataforma 64 bits copiando do 32 (Gerenciador de configuracao, plataforma, nova: x64, copiar de 32);
+-- Fiz isso para QtOpengl, QtGui e QtCore apenas.
+-- Nos Generated Files de cada um dos projetos acima, tirei os res do build pq tava dando conflito.
+-- Tive que mudar o caminho de linkagem deles tambem para usar da versao 64 bits que ele gera em x64/Release.
+
+
