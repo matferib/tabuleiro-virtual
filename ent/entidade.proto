@@ -203,6 +203,11 @@ message EntidadeProto {
     optional int32 classe_armadura = 2;
   }
   repeated DadosDefesa dados_defesa = 45;
+  // Geracao de tesouro automatica?
+  message DadosTesouro {
+    optional string tesouro = 1;
+  }
+  repeated DadosTesouro tesouro = 46;
 }
 
 // Alguns estados são mantidos nesta variável.

@@ -121,10 +121,10 @@ public:
     {
         if (ifg__qt__DialogoForma->objectName().isEmpty())
             ifg__qt__DialogoForma->setObjectName(QString::fromUtf8("ifg__qt__DialogoForma"));
-        ifg__qt__DialogoForma->resize(496, 804);
+        ifg__qt__DialogoForma->resize(872, 561);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(180, 10, 181, 41));
+        horizontalLayoutWidget->setGeometry(QRect(320, 10, 181, 41));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -141,12 +141,12 @@ public:
 
         botoes = new QDialogButtonBox(ifg__qt__DialogoForma);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(120, 760, 341, 32));
+        botoes->setGeometry(QRect(490, 490, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(240, 450, 221, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(470, 320, 221, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -173,7 +173,7 @@ public:
 
         groupBox = new QGroupBox(ifg__qt__DialogoForma);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(70, 440, 161, 141));
+        groupBox->setGeometry(QRect(60, 370, 161, 141));
         verticalLayoutWidget = new QWidget(groupBox);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(0, 20, 160, 121));
@@ -268,7 +268,7 @@ public:
         spin_rotacao->setMaximum(360);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(240, 490, 221, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(470, 360, 221, 41));
         horizontalLayout_9 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -338,7 +338,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(240, 530, 221, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(470, 400, 221, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -377,7 +377,7 @@ public:
         spin_rotacao_y->setMaximum(180);
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(80, 390, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(450, 70, 361, 41));
         horizontalLayout_8 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
         horizontalLayout_8->setContentsMargins(0, 0, 0, 0);
@@ -394,7 +394,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(70, 590, 391, 31));
+        horizontalLayoutWidget_6->setGeometry(QRect(470, 270, 391, 31));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -464,7 +464,7 @@ public:
         spin_rotacao_x->setMaximum(180);
         groupBox_5 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        groupBox_5->setGeometry(QRect(70, 620, 401, 131));
+        groupBox_5->setGeometry(QRect(450, 120, 401, 131));
         verticalLayoutWidget_2 = new QWidget(groupBox_5);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
         verticalLayoutWidget_2->setGeometry(QRect(10, 40, 381, 80));

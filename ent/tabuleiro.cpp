@@ -441,6 +441,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_sombra_projetada(true);
   parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
 
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::Viewport(0, 0, 1024, 1024);
