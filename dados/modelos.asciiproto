@@ -59,7 +59,13 @@ modelo {
 }
 modelo {
   id: 'Centopéia Imensa'
-  entidade { dados_vida: '12d8+12' tamanho: TM_IMENSO achatado: true info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo' }
+  entidade {
+    dados_vida: '12d8+12' tamanho: TM_IMENSO info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini: +2\nagarrar: +27\nat: +11\ndano: 2d8+9+veneno/\nca: 18'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 11 dano: '2d8+9' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+  }
 }
 modelo {
   id: 'Crioesfinge'
@@ -207,6 +213,51 @@ modelo {
   }
 }
 modelo {
+  id: 'Hobgoblin'
+  entidade {
+    dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'ini: +1\nat: +2/\ndano: 1d8+1(19-20)\nca: 15'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 15 }
+  }
+}
+modelo {
+  id: 'Hobgoblin Sargento'
+  entidade {
+    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' } cor { r: 0.3 g: 0.3 b: 0.15 }
+    rotulo_especial: 'ini: +2\nat: +7/\ndano: 1d8+2(19-20)\nca: 21'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 21 }
+  }
+}
+modelo {
+  id: 'Hobgoblin Tenente 5'
+  entidade {
+    dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini: +1\nat: +10/\ndano: 1d10+6(19-20)\nca: 15'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d10+6' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 20 }
+  }
+}
+modelo {
+  id: 'Hobgoblin Tenente'
+  entidade {
+    dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
+    rotulo_especial: 'ini: +1\nat: +2/\ndano: 1d8+1(19-20)\nca: 15'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 15 }
+  }
+}
+
+modelo {
   id: 'Leão'
   entidade {
     dados_vida: '5d8+10' tamanho: TM_GRANDE info_textura { id: 'lion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
@@ -231,8 +282,50 @@ modelo {
   }
 }
 modelo {
+  id: 'Humano Adepto 3'
+  entidade {
+    dados_vida: '3d6+6' info_textura { id: 'adept3.png'} cor { r: 0.898 g: 0.475 b: 0.475 }
+    rotulo_especial: 'Humano Adepto 3\nini: -1\nat: +2 ou +1 (24 q)\ndano: 1d6 ou 1d10\nca: 13'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' }
+    dados_ataque { tipo_ataque: 'Mãos Flamenjantes' bonus_ataque: 0 dano: '3d4' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d10' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 13 }
+  }
+}
+modelo {
   id: 'Humano Bárbaro'
   entidade { dados_vida: '1d12' info_textura { id: 'barbarian.png'} cor { r: 0.898 g: 0.475 b: 0.475 } }
+}
+# Os combatentes tem vitalidade.
+modelo {
+  id: 'Humano Combatente 1'
+  entidade {
+    dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
+    rotulo_especial: 'Humano Combatente 1\nini: +0\nat: +3 ou +1 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+  }
+}
+modelo {
+  id: 'Humano Combatente 2'
+  entidade {
+    dados_vida: '2d8+5' info_textura { id: 'warrior2.png'} cor { r: 0.7 g: 0.6 b: 0.45 }
+    rotulo_especial: 'Humano Combatente 2\nini: +0\nat: +4 ou +2 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d8' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+  }
+}
+modelo {
+  id: 'Humano Combatente 4'
+  entidade {
+    dados_vida: '4d8+7' info_textura { id: 'warrior4.png'} cor { r: 0.6 g: 0.5 b: 0.3 }
+    rotulo_especial: 'Humano Combatente 4\nini: +0\nat: +8 ou +5 (24 q)\ndano: 1d8+2 ou 1d10\nca: 17'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d8+2' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d10' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+  }
 }
 modelo {
   id: 'Humano Clérigo'
@@ -253,6 +346,26 @@ modelo {
 modelo {
   id: 'Humano Ladino'
   entidade { dados_vida: '1d6' info_textura { id: 'rogue.png'} cor { r: 0.250 g: 0.250 b: 0.250 } }
+}
+modelo {
+  id: 'Humano Ladino 3'
+  entidade {
+    dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6\nca: 18'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+  }
+}
+modelo {
+  id: 'Humano Ladino 7'
+  entidade {
+    dados_vida: '7d6+7' info_textura { id: 'rogue7.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    rotulo_especial: 'Humano Ladino 7\nini: +7\nat: +7 ou +9 (12 q)\ndano: 1d4+1 ou 1d6+1\nca: 18'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d6+1' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+  }
 }
 modelo {
   id: 'Humano Mago'

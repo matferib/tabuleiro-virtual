@@ -3,7 +3,6 @@ modelo { id: 'Padrão' }
 modelo { id: 'Allip' }
 modelo { id: 'Carneçal' }
 modelo { id: 'Carniçal' }
-modelo { id: 'Centopéia Imensa' }
 sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
@@ -65,12 +64,24 @@ modelo { id: 'Medusa' }
 modelo { id: 'Mephit do Fogo' }
 sub_menu {
   id: 'Humanos'
+  modelo { id: 'Humano Adepto 3' }
   modelo { id: 'Humano Bárbaro' }
   modelo { id: 'Humano Clérigo' }
+  sub_menu {
+    id: 'Combatentes'
+    modelo { id: 'Humano Combatente 1' }
+    modelo { id: 'Humano Combatente 2' }
+    modelo { id: 'Humano Combatente 4' }
+  }
   modelo { id: 'Humano Druida' }
   modelo { id: 'Humana Guerreira' }
   modelo { id: 'Humano Guerreiro' }
-  modelo { id: 'Humano Ladino' }
+  sub_menu {
+    id: 'Ladinos'
+    modelo { id: 'Humano Ladino' }
+    modelo { id: 'Humano Ladino 3' }
+    modelo { id: 'Humano Ladino 7' }
+  }
   modelo { id: 'Humano Mago' }
   modelo { id: 'Humano Monge' }
   modelo { id: 'Humano Paladino' }
@@ -79,6 +90,12 @@ sub_menu {
   id: 'Goblins'
   modelo { id: 'Goblin' }
   modelo { id: 'Goblin Sargento' }
+}
+sub_menu {
+  id: 'Hobgoblins'
+  modelo { id: 'Hobgoblin' }
+  modelo { id: 'Hobgoblin Sargento' }
+  modelo { id: 'Hobgoblin Tenente 5' }
 }
 modelo { id: 'Homem-Rato' }
 sub_menu {
@@ -103,6 +120,7 @@ modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
+  modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }
 }
