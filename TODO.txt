@@ -1,4 +1,5 @@
 Versao 2.0.0
+- Terreno 3d.
 - Sombra projetada.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.

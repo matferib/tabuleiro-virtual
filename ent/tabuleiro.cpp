@@ -26,6 +26,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/tabuleiro_interface.h"
+#include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
@@ -2317,7 +2318,7 @@ void Tabuleiro::DesenhaCena() {
     if (parametros_desenho_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
-      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+      //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
     }
   }
@@ -2601,24 +2602,17 @@ void Tabuleiro::GeraVboCaixaCeu() {
   vbo_caixa_ceu_.Grava(vbo);
 }
 
-float AlturaCoord(int xq, int yq) {
-  return 0.0f;
-  float x_2 = 10.0f;
-  float y_2 = 10.0f;
-  if ((xq == x_2 && yq == y_2) ||
-      ((xq + 1) == x_2 && yq == y_2) ||
-      ((xq + 1) == x_2 && (yq + 1) == y_2) ||
-      (xq == x_2 && (yq + 1) == y_2)) {
-    return 3.0f;
-  }
-  return 0.0;
+float AlturaCoord(int x, int y) {
+  return 0;
 }
 
 void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro inicio");
   std::vector<float> coordenadas_tabuleiro;
   std::vector<float> coordenadas_textura;
+  std::vector<float> coordenadas_normais;
   std::vector<unsigned short> indices_tabuleiro;
+  Terreno terreno(TamanhoX(), TamanhoY());
 
   unsigned short indice = 0;
   float x = 0, y = 0;
@@ -2682,6 +2676,18 @@ void Tabuleiro::RegeraVboTabuleiro() {
     x = 0;
     y += TAMANHO_LADO_QUADRADO;
   }
+  LOG(INFO) << "Antes: " << coordenadas_tabuleiro.size();
+  indices_tabuleiro.clear();
+#if 0
+  coordenadas_tabuleiro.clear();
+  coordenadas_normais.clear();
+  coordenadas_textura.clear();
+  terreno.Preenche(&indices_tabuleiro,
+                   &coordenadas_tabuleiro,
+                   &coordenadas_normais,
+                   &coordenadas_textura);
+#endif
+  LOG(INFO) << "Depois: " << coordenadas_tabuleiro.size();
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
@@ -2693,90 +2699,66 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // Regera a grade.
   std::vector<float> coordenadas_grade;
   std::vector<unsigned short> indices_grade;
-  // A grade sera regerada independente dos valores do proto, ja que o controle se ela devera ser desenha ou nao
-  // e feito durante o desenho da cena.
-  const int x_2 = TamanhoX() / 2;
-  const int y_2 = TamanhoY() / 2;
-  const float tamanho_y = TamanhoY() * TAMANHO_LADO_QUADRADO;
-  const float tamanho_y_2 = tamanho_y / 2.0f;
-  const float tamanho_x = TamanhoX() * TAMANHO_LADO_QUADRADO;
-  const float tamanho_x_2 = tamanho_x / 2.0f;
-
-  // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
-  // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
-  // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
-  // inferior eh onde comeca a desenhar a linha.
-  // Com shader nao precisa tesselizar, pois a nevoa eh por pixel.
   indice = 0;
+  float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
+  float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
   // Linhas verticais (S-N).
   {
-    int limite_inferior = -x_2;
-    float incremento = 0.0f;
-    if (TamanhoX() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
-    for (int i = limite_inferior; i <= x_2; ++i) {
-      float x = i * TAMANHO_LADO_QUADRADO + incremento;
-      float x_inicial = x - EXPESSURA_LINHA_2;
-      float x_final = x + EXPESSURA_LINHA_2;
-      float y_inicial = -tamanho_y_2;
-      float y_final = y_inicial + tamanho_y;
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 1);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice + 3);
-      indice += 4;
+    for (int xcorrente = 0; xcorrente <= TamanhoX(); ++xcorrente) {
+      float x_inicial = (xcorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_x;
+      float x_final = x_inicial + EXPESSURA_LINHA;
+      for (int ycorrente = 0; ycorrente < TamanhoY(); ++ycorrente) {
+        float y_inicial = ycorrente * TAMANHO_LADO_QUADRADO + deslocamento_y;
+        float y_final = y_inicial + TAMANHO_LADO_QUADRADO;
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente + 1));
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente + 1));
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 1);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice + 3);
+        indice += 4;
+      }
     }
   }
   {
-    // Linhas horizontais (W-E).
-    int limite_inferior = -y_2;
-    float incremento = 0.0f;
-    if (TamanhoY() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    for (int i = limite_inferior; i <= y_2; ++i) {
-      float y = i * TAMANHO_LADO_QUADRADO + incremento;
-      float y_inicial = y - EXPESSURA_LINHA_2;
-      float y_final = y + EXPESSURA_LINHA_2;
-      float x_inicial = -tamanho_x_2;
-      float x_final = x_inicial + tamanho_x;
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 1);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice + 3);
-      indice += 4;
+    for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
+      float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_y;
+      float y_final = y_inicial + EXPESSURA_LINHA;
+      for (int xcorrente = 0; xcorrente < TamanhoX(); ++xcorrente) {
+        float x_inicial = xcorrente * TAMANHO_LADO_QUADRADO + deslocamento_x;
+        float x_final = x_inicial + TAMANHO_LADO_QUADRADO;
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente + 1, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente + 1, ycorrente));
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaCoord(xcorrente , ycorrente));
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 1);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice + 3);
+        indice += 4;
+      }
     }
   }
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
