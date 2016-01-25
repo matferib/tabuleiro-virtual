@@ -2318,7 +2318,7 @@ void Tabuleiro::DesenhaCena() {
     if (parametros_desenho_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
-      //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
       DesenhaGrade();
     }
   }
@@ -2612,82 +2612,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
   std::vector<float> coordenadas_textura;
   std::vector<float> coordenadas_normais;
   std::vector<unsigned short> indices_tabuleiro;
-  Terreno terreno(TamanhoX(), TamanhoY());
-
-  unsigned short indice = 0;
-  float x = 0, y = 0;
-  float tamanho_texel_h;
-  float tamanho_texel_v;
-  if (proto_corrente_->ladrilho()) {
-    tamanho_texel_h = 1.0f;
-    tamanho_texel_v = 1.0f;
-  } else {
-    tamanho_texel_h = 1.0f / TamanhoX();
-    tamanho_texel_v = 1.0f / TamanhoY();
-  }
-  for (int y_tab = 0; y_tab < TamanhoY(); ++y_tab) {
-    if (indice + 4 > USHRT_MAX) {
-      LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoX() << "x" << TamanhoY();
-      break;
-    }
-    float inicio_texel_v = proto_corrente_->ladrilho() ? 0.0f : (TamanhoY() - y_tab) * tamanho_texel_v;
-    float inicio_texel_h = 0.0f;
-    for (int x_tab = 0; x_tab < TamanhoX(); ++x_tab) {
-      if (indice + 4 > USHRT_MAX) {
-        LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoY() << "y" << TamanhoY();
-        break;
-      }
-      // desenha quadrado
-      coordenadas_tabuleiro.push_back(x);
-      coordenadas_tabuleiro.push_back(y);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab));
-      coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(y);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab));
-      coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab + 1));
-      coordenadas_tabuleiro.push_back(x);
-      coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab + 1));
-
-      coordenadas_textura.push_back(inicio_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v);
-      coordenadas_textura.push_back(inicio_texel_h + tamanho_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v);
-      coordenadas_textura.push_back(inicio_texel_h + tamanho_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v - tamanho_texel_v);
-      coordenadas_textura.push_back(inicio_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v - tamanho_texel_v);
-
-      indices_tabuleiro.push_back(indice);
-      indices_tabuleiro.push_back(indice + 1);
-      indices_tabuleiro.push_back(indice + 2);
-      indices_tabuleiro.push_back(indice);
-      indices_tabuleiro.push_back(indice + 2);
-      indices_tabuleiro.push_back(indice + 3);
-      indice += 4;
-      x += TAMANHO_LADO_QUADRADO;
-      if (!proto_corrente_->ladrilho()) {
-        inicio_texel_h += tamanho_texel_h;
-      }
-    }
-    // volta tudo esquerda e sobe 1 quadrado
-    x = 0;
-    y += TAMANHO_LADO_QUADRADO;
-  }
-  LOG(INFO) << "Antes: " << coordenadas_tabuleiro.size();
-  indices_tabuleiro.clear();
-#if 0
-  coordenadas_tabuleiro.clear();
-  coordenadas_normais.clear();
-  coordenadas_textura.clear();
+  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho());
   terreno.Preenche(&indices_tabuleiro,
                    &coordenadas_tabuleiro,
                    &coordenadas_normais,
                    &coordenadas_textura);
-#endif
-  LOG(INFO) << "Depois: " << coordenadas_tabuleiro.size();
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
@@ -2699,7 +2628,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   // Regera a grade.
   std::vector<float> coordenadas_grade;
   std::vector<unsigned short> indices_grade;
-  indice = 0;
+  int indice = 0;
   float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
   float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
   // Linhas verticais (S-N).

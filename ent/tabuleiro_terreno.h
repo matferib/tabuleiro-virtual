@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "ent/constantes.h"
@@ -13,9 +14,34 @@ namespace ent {
 struct XYQuad {
   int xquad;
   int yquad;
+  bool xorigem;
+  bool yorigem;
 
+  std::string ParaString() {
+    return std::string("(") + std::to_string(xquad) + ", " + std::to_string(yquad) + "; " +
+            std::to_string(xorigem) + ", " + std::to_string(yorigem) + ")";
+  }
   bool operator<(const XYQuad& rhs) const {
-    return xquad < rhs.yquad || (xquad == rhs.xquad && yquad < rhs.yquad);
+    if (xquad < rhs.xquad) {
+      return true;
+    } else if (xquad > rhs.xquad) {
+      return false;
+    } else if (yquad < rhs.yquad) {
+      return true;
+    } else if (yquad > rhs.yquad) {
+      return false;
+    } else if (xorigem && !rhs.xorigem) {
+      return true;
+    } else if (!xorigem && rhs.xorigem) {
+      return false;
+    } else if (yorigem && !rhs.yorigem) {
+      return true;
+    } else if (!yorigem && rhs.yorigem) {
+      return false;
+    } else {
+      // Tudo igual.
+      return false;
+    }
   }
 };
 
@@ -37,17 +63,47 @@ struct DadosPonto {
 class Terreno {
  public:
   // Constroi um terreno flat, com o numero de quadrados passado.
-  Terreno(int num_x_quad, int num_y_quad) {
-    delta_x_ = - ((num_x_quad * TAMANHO_LADO_QUADRADO) / 2.0f);
-    delta_y_ = - ((num_y_quad * TAMANHO_LADO_QUADRADO) / 2.0f);
-    inc_s_ = (1.0f / num_x_quad);
-    inc_t_ = (1.0f / num_y_quad);
+  Terreno(int num_x_quad, int num_y_quad, bool ladrilho) {
+    ladrilho_ = ladrilho;
+    if (!ladrilho_) {
+      inc_s_ = (1.0f / num_x_quad);
+      inc_t_ = (1.0f / num_y_quad);
+    }
+    // Cria os pontos (os do final sao para fechar o quadrado).
+    if (ladrilho_) {
+      for (int ytab = 0; ytab < num_y_quad; ++ytab) {
+        for (int xtab = 0; xtab < num_x_quad; ++xtab) {
+          InserePonto(xtab,     ytab,     true,  true);
+          InserePonto(xtab + 1, ytab,     false, true);
+          InserePonto(xtab + 1, ytab + 1, false, false);
+          InserePonto(xtab,     ytab + 1, true,  false);
+        }
+      }
+    } else {
+      // Sem ladrilho precisa criar a ultima fileira pra fechar o quadrado.
+      for (int ytab = 0; ytab <= num_y_quad; ++ytab) {
+        for (int xtab = 0; xtab <= num_x_quad; ++xtab) {
+          InserePonto(xtab, ytab, true, true);
+        }
+      }
+    }
+    // Cria os triangulos.
     for (int ytab = 0; ytab < num_y_quad; ++ytab) {
       for (int xtab = 0; xtab < num_x_quad; ++xtab) {
-        if (PontoExiste(xtab, ytab)) {
-          indices_.push_back(IndicePonto(xtab, ytab));
+        if (ladrilho_) {
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab, false, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
+          indices_.push_back(IndicePonto(xtab, ytab + 1, true, false));
         } else {
-          InserePonto(xtab, ytab);
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
+          indices_.push_back(IndicePonto(xtab, ytab + 1, true, true));
         }
       }
     }
@@ -71,11 +127,15 @@ class Terreno {
   }
 
  private:
-  bool PontoExiste(int x_quad, int y_quad) const {
-    return mapa_pontos_.find({x_quad, y_quad}) != mapa_pontos_.end();
+  bool PontoExiste(int x_quad, int y_quad, bool xorigem, bool yorigem) const {
+    return mapa_pontos_.find({x_quad, y_quad, xorigem, yorigem}) != mapa_pontos_.end();
   }
 
-  void InserePonto(int x_quad, int y_quad) {
+  void InserePonto(int x_quad, int y_quad, bool xorigem, bool yorigem) {
+    XYQuad xy = {x_quad, y_quad, xorigem, yorigem};
+    if (PontoExiste(x_quad, y_quad, xorigem, yorigem)) {
+      throw std::logic_error(std::string("Ponto ja existe: ") + xy.ParaString());
+    }
     DadosPonto dp;
     dp.x = ConverteXQuad(x_quad);
     dp.y = ConverteYQuad(y_quad);
@@ -83,17 +143,20 @@ class Terreno {
     dp.nx = 0.0f;
     dp.ny = 0.0f;
     dp.nz = 1.0f;
-    dp.s = x_quad * inc_s_;
-    dp.t = 1.0f - (y_quad * inc_t_);
+    if (ladrilho_) {
+      dp.s = xorigem ? 0.0f : 1.0f;
+      dp.t = yorigem ? 1.0f : 0.0f;
+    } else {
+      dp.s = x_quad * inc_s_;
+      dp.t = 1.0f - (y_quad * inc_t_);
+    }
     dp.indice = pontos_.size();
-    indices_.push_back(dp.indice);
-    XYQuad xy = { x_quad, y_quad };
     mapa_pontos_[xy] = std::move(dp);
     pontos_.push_back(&mapa_pontos_[xy]);
   }
 
-  int IndicePonto(int x_quad, int y_quad) const {
-    XYQuad xy = { x_quad, y_quad };
+  int IndicePonto(int x_quad, int y_quad, bool xorigem, bool yorigem) const {
+    XYQuad xy = { x_quad, y_quad, xorigem, yorigem };
     auto it = mapa_pontos_.find(xy);
     if (it == mapa_pontos_.end()) {
       throw std::logic_error("Ponto nao existe.");
@@ -114,6 +177,7 @@ class Terreno {
     return 0.0f;
   }
 
+  bool ladrilho_ = false;
   std::map<XYQuad, DadosPonto> mapa_pontos_;
   std::vector<DadosPonto*> pontos_;
   std::vector<unsigned short> indices_; 
