@@ -1,12 +1,14 @@
 #ifndef ENT_TABULEIRO_TERRENO_H
 #define ENT_TABULEIRO_TERRENO_H
 
+#include <cstdlib>
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
 #include "ent/constantes.h"
+#include "matrix/matrices.h"
 
 namespace ent {
 
@@ -69,44 +71,9 @@ class Terreno {
       inc_s_ = (1.0f / num_x_quad);
       inc_t_ = (1.0f / num_y_quad);
     }
-    // Cria os pontos (os do final sao para fechar o quadrado).
-    if (ladrilho_) {
-      for (int ytab = 0; ytab < num_y_quad; ++ytab) {
-        for (int xtab = 0; xtab < num_x_quad; ++xtab) {
-          InserePonto(xtab,     ytab,     true,  true);
-          InserePonto(xtab + 1, ytab,     false, true);
-          InserePonto(xtab + 1, ytab + 1, false, false);
-          InserePonto(xtab,     ytab + 1, true,  false);
-        }
-      }
-    } else {
-      // Sem ladrilho precisa criar a ultima fileira pra fechar o quadrado.
-      for (int ytab = 0; ytab <= num_y_quad; ++ytab) {
-        for (int xtab = 0; xtab <= num_x_quad; ++xtab) {
-          InserePonto(xtab, ytab, true, true);
-        }
-      }
-    }
-    // Cria os triangulos.
-    for (int ytab = 0; ytab < num_y_quad; ++ytab) {
-      for (int xtab = 0; xtab < num_x_quad; ++xtab) {
-        if (ladrilho_) {
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab, false, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
-          indices_.push_back(IndicePonto(xtab, ytab + 1, true, false));
-        } else {
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
-          indices_.push_back(IndicePonto(xtab, ytab + 1, true, true));
-        }
-      }
-    }
+    CriaPontos(num_x_quad, num_y_quad);
+    ComputaNormais(num_x_quad, num_y_quad);
+    CriaMalha(num_x_quad, num_y_quad);
   }
 
   void Preenche(std::vector<unsigned short>* indices,
@@ -132,7 +99,7 @@ class Terreno {
   }
 
   void InserePonto(int x_quad, int y_quad, bool xorigem, bool yorigem) {
-    XYQuad xy = {x_quad, y_quad, xorigem, yorigem};
+    XYQuad xy = { x_quad, y_quad, xorigem, yorigem };
     if (PontoExiste(x_quad, y_quad, xorigem, yorigem)) {
       throw std::logic_error(std::string("Ponto ja existe: ") + xy.ParaString());
     }
@@ -140,9 +107,6 @@ class Terreno {
     dp.x = ConverteXQuad(x_quad);
     dp.y = ConverteYQuad(y_quad);
     dp.z = Altura(x_quad, y_quad);
-    dp.nx = 0.0f;
-    dp.ny = 0.0f;
-    dp.nz = 1.0f;
     if (ladrilho_) {
       dp.s = xorigem ? 0.0f : 1.0f;
       dp.t = yorigem ? 1.0f : 0.0f;
@@ -155,13 +119,90 @@ class Terreno {
     pontos_.push_back(&mapa_pontos_[xy]);
   }
 
+  void CriaPontos(int num_x_quad, int num_y_quad) {
+    if (ladrilho_) {
+      for (int ytab = 0; ytab < num_y_quad; ++ytab) {
+        for (int xtab = 0; xtab < num_x_quad; ++xtab) {
+          InserePonto(xtab,     ytab,     true,  true);
+          InserePonto(xtab + 1, ytab,     false, true);
+          InserePonto(xtab + 1, ytab + 1, false, false);
+          InserePonto(xtab,     ytab + 1, true,  false);
+        }
+      }
+    } else {
+      // Sem ladrilho precisa criar a ultima fileira pra fechar o quadrado.
+      for (int ytab = 0; ytab <= num_y_quad; ++ytab) {
+        for (int xtab = 0; xtab <= num_x_quad; ++xtab) {
+          InserePonto(xtab, ytab, true, true);
+        }
+      }
+    }
+  }
+
+  void ComputaNormais(int num_x_quad, int num_y_quad) {
+    for (int ytab = 0; ytab <= num_y_quad; ++ytab) {
+      for (int xtab = 0; xtab <= num_x_quad; ++xtab) {
+        float xesq = mapa_pontos_.find({std::max(xtab - 1, 0), ytab, true, true})->second.z;
+        float xdir = mapa_pontos_.find({std::min(xtab + 1, num_x_quad), ytab, true, true})->second.z;
+        float yesq = mapa_pontos_.find({xtab, std::max(ytab - 1, 0), true, true})->second.z;
+        float ydir = mapa_pontos_.find({xtab, std::min(ytab + 1, num_y_quad), true, true})->second.z;
+        Vector3 n(xesq - xdir, yesq - ydir, 2.0f);
+        n.normalize();
+        if (ladrilho_) {
+          std::vector<XYQuad> xys = {
+            { xtab, ytab, true, true },
+            { xtab, ytab, false, true },
+            { xtab, ytab, true, false },
+            { xtab, ytab, false, false },
+          };
+          for (const auto& xy : xys) {
+            auto it = mapa_pontos_.find(xy);
+            // Nem todas combinacoes existem.
+            if (it != mapa_pontos_.end()) {
+              it->second.nx = n.x;
+              it->second.ny = n.y;
+              it->second.nz = n.z;
+            }
+          }
+        } else {
+          auto it = mapa_pontos_.find({xtab, ytab, true, true});
+          it->second.nx = n.x;
+          it->second.ny = n.y;
+          it->second.nz = n.z;
+        }
+      }
+    }
+  }
+
+  void CriaMalha(int num_x_quad, int num_y_quad) {
+    for (int ytab = 0; ytab < num_y_quad; ++ytab) {
+      for (int xtab = 0; xtab < num_x_quad; ++xtab) {
+        if (ladrilho_) {
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab, false, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
+          indices_.push_back(IndicePonto(xtab, ytab + 1, true, false));
+        } else {
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
+          indices_.push_back(IndicePonto(xtab, ytab, true, true));
+          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
+          indices_.push_back(IndicePonto(xtab, ytab + 1, true, true));
+        }
+      }
+    }
+  }
+
   int IndicePonto(int x_quad, int y_quad, bool xorigem, bool yorigem) const {
     XYQuad xy = { x_quad, y_quad, xorigem, yorigem };
     auto it = mapa_pontos_.find(xy);
     if (it == mapa_pontos_.end()) {
       throw std::logic_error("Ponto nao existe.");
     }
-    return it->second.indice; 
+    return it->second.indice;
   }
 
  private:
@@ -174,13 +215,30 @@ class Terreno {
   }
 
   float Altura(int x_quad, int y_quad) const {
-    return 0.0f;
+    srandom(x_quad + (y_quad << 10));
+    int mod = random() % 100;
+    int mod_2 = mod / 2;
+    float res = 0.0f;
+    if (mod_2 < 25) {
+      res = 0.0f;
+    } else if (mod_2 < 37) {
+      res = 0.25;;
+    } else if (mod_2 < 43) {
+      res = 0.5;
+    } else if (mod_2 < 46) {
+      res = 0.75;
+    } else if (mod_2 < 48) {
+      res = 1.0f;
+    } else {
+      res = 1.5;
+    }
+    return mod >= 50 ? -res : res;
   }
 
   bool ladrilho_ = false;
-  std::map<XYQuad, DadosPonto> mapa_pontos_;
-  std::vector<DadosPonto*> pontos_;
-  std::vector<unsigned short> indices_; 
+  std::map<XYQuad, DadosPonto> mapa_pontos_;  // mapa de pontos, mapeia id quadrado para os dados do ponto.
+  std::vector<DadosPonto*> pontos_;  // pontos de forma sequencia (como ficarao na saida).
+  std::vector<unsigned short> indices_;  // aponta para pontos_.
   float delta_x_ = 0;
   float delta_y_ = 0;
   // textura.

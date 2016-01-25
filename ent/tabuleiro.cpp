@@ -2621,6 +2621,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
+  tabuleiro_nao_gravado.AtribuiNormais(coordenadas_normais.data());
   V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
   V_ERRO("RegeraVboTabuleiro depois gravar");
@@ -2726,7 +2727,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::MatrizEscopo salva_matriz;
   float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
-  gl::Normal(0, 0, 1.0f);
+  //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
   if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
