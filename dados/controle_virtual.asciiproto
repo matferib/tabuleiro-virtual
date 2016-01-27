@@ -611,10 +611,28 @@ pagina {
     num_lados_botao: 4
     dica: "Restaura um tabuleiro."
   }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 20
+    rotulo: "TA"
+    id: CONTROLE_GERAR_TERRENO_ALEATORIO
+    num_lados_botao: 4
+    dica: "Gera um terreno aleatório."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 22
+    rotulo: "MT"
+    id: CONTROLE_MODO_TERRENO
+    num_lados_botao: 4
+    dica: "Gera um terreno aleatório."
+  }
 }
 # Pagina inalcancavel.
 pagina {
-  # Botao de paginacao anterior.
+  # Para carregar icone de rotacao.
   dados_botoes {
     tamanho: 1
     linha: 0

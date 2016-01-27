@@ -337,10 +337,14 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
 
+  /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
+  void AlternaModoTerreno();
+
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
   // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
   // No MODO_DESENHO, o clique desenhara.
+  // No MODO_TERRENO, o clique selecionara quadrado mas os drags alterarao a altura dos pontos.
   enum modo_clique_e {
     MODO_NORMAL,
     MODO_ACAO,         // executa acoes no clique.
@@ -350,6 +354,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_REGUA,        // o clique executara uma medicao.
     MODO_AJUDA,        // o clique atuara como hover.
     MODO_ROTACAO,      // modo de rotacao da camera.
+    MODO_TERRENO,      // modo de edicao de relevo do terreno.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -498,6 +503,8 @@ class Tabuleiro : public ntf::Receptor {
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */
   void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
 
+  void TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, float z3d);
+
   /** Trata o botao pressionado no modo de regua, recebendo o destino do clique em coordenadas de mundo. */
   void TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d);
 
@@ -580,12 +587,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Envia atualizacoes de movimento apos um intervalo de tempo. */
   void RefrescaMovimentosParciais();
 
+  // O id eh sequencial, comecando em SW (0) indo para leste. As linhas sobem para o norte.
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
-
   /** retorna as coordenadas do centro do quadrado. */
   void CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z);
-  /** retorna o id do quadrado em determinada coordenada. */
+  /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
 
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida.
@@ -722,6 +729,11 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Gera e configura o framebuffer. */
   void GeraFramebuffer();
+
+  /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
+  void GeraTerrenoAleatorioNotificando();
+  void TrataDeltaTerreno(float delta);
+  void TrataNivelamentoTerreno(int x, int y);
 
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }

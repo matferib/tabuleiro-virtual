@@ -86,6 +86,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       }
       break;
     }
+    case CONTROLE_GERAR_TERRENO_ALEATORIO: {
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_GERAR_TERRENO_ALEATORIO);
+      TrataNotificacao(n);
+      break;
+    }
     case CONTROLE_ACAO:
       if (modo_clique_ != MODO_NORMAL) {
         EntraModoClique(MODO_NORMAL);
@@ -119,6 +125,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       break;
     case CONTROLE_REGUA:
       AlternaModoRegua();
+      break;
+    case CONTROLE_MODO_TERRENO:
+      AlternaModoTerreno();
       break;
     case CONTROLE_CIMA:
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
@@ -523,12 +532,13 @@ void Tabuleiro::DesenhaControleVirtual() {
   //const float largura_botao = altura_botao;
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
-  // Mapeia id do botao para os dados internos.
+  // Mapeia id do botao para a funcao de estado.
   static const std::map<int, std::function<bool()>> mapa_botoes = {
     { CONTROLE_ACAO,              [this] () { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] () { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
+    { CONTROLE_MODO_TERRENO,      [this] () { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_isometrica_; } },
     { CONTROLE_CAMERA_PRESA,      [this] () { return camera_presa_; } },
     { CONTROLE_VISAO_ESCURO,      [this] () { return visao_escuro_; } },

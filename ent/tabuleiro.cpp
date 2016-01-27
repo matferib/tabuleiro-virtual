@@ -35,6 +35,8 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
+using google::protobuf::RepeatedField;
+
 namespace ent {
 
 namespace {
@@ -1304,6 +1306,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_GERAR_TERRENO_ALEATORIO: {
+      GeraTerrenoAleatorioNotificando();
+      return true;
+    }
     default: ;
   }
   return false;
@@ -1359,6 +1365,10 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
+  if (ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
+    return;
+  }
   if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
     if (estado_ == ETAB_ENTS_PRESSIONADAS) {
       FinalizaEstadoCorrente();
@@ -1453,6 +1463,10 @@ void Tabuleiro::TrataMovimentoMouse() {
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
     TrataBotaoRotacaoPressionado(x, y);
+    return;
+  }
+  if (modo_clique_ == MODO_TERRENO) {
+    TrataNivelamentoTerreno(x, y);
     return;
   }
   if (x == ultimo_x_ && y == ultimo_y_) {
@@ -1869,6 +1883,18 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     entidade->mutable_lista_acoes()->CopyFrom(e->Proto().lista_acoes());
     central_->AdicionaNotificacaoRemota(n);
   }
+}
+
+void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  // converte x3d e y3d em um quadrado.
+  primeiro_x_3d_ = x3d;
+  primeiro_y_3d_ = y3d;
+  primeiro_z_3d_ = z3d;
+  unsigned int id_quadrado = IdQuadrado(x3d, y3d);
+  if (id_quadrado == static_cast<unsigned long>(-1)) {
+    return;
+  }
+  SelecionaQuadrado(id_quadrado);
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
@@ -2612,7 +2638,14 @@ void Tabuleiro::RegeraVboTabuleiro() {
   std::vector<float> coordenadas_textura;
   std::vector<float> coordenadas_normais;
   std::vector<unsigned short> indices_tabuleiro;
-  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho());
+  std::vector<double> pontos;
+  pontos.reserve(TamanhoX() * TamanhoY());
+  if (proto_corrente_->ponto_terreno_size() == (TamanhoX() + 1) * (TamanhoY() + 1)) {
+    pontos.insert(pontos.end(), proto_corrente_->ponto_terreno().begin(), proto_corrente_->ponto_terreno().end());
+  } else {
+    pontos.resize((TamanhoX() + 1) * (TamanhoY() + 1));
+  }
+  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(), pontos);
   terreno.Preenche(&indices_tabuleiro,
                    &coordenadas_tabuleiro,
                    &coordenadas_normais,
@@ -2718,6 +2751,90 @@ void Tabuleiro::GeraFramebuffer() {
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
   glBindTexture(GL_TEXTURE_2D, 0);
 #endif
+}
+
+void Tabuleiro::GeraTerrenoAleatorioNotificando() {
+  if (!EmModoMestre(true  /*secundario*/)) {
+    LOG(INFO) << "Apenas mestre pode gerar terreno.";
+    return;
+  }
+  std::vector<double> pontos;
+  try {
+    pontos = Terreno::CriaPontosAleatorios(TamanhoX(), TamanhoY());
+    if (pontos.size() != size_t((TamanhoX() + 1) * (TamanhoY() + 1))) {
+      throw std::logic_error("Geracao de terreno invalida");
+    }
+  } catch (const std::logic_error& e) {
+    LOG(ERROR) << "Geracao de terreno invalida: " << e.what();
+    return;
+  }
+  proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
+  std::copy(pontos.begin(), pontos.end(), proto_corrente_->mutable_ponto_terreno()->begin());
+  RegeraVboTabuleiro();
+  // TODO notifica.
+}
+
+namespace {
+
+void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, int)> funcao,
+                            int quad_x, int quad_y, int num_quad_x, RepeatedField<double>* pontos) {
+  for (int x = quad_x; x <= quad_x + 1; ++x) {
+    for (int y = quad_y; y <= quad_y + 1; ++y) {
+      int indice = Terreno::IndicePonto(x, y, num_quad_x);
+      if (indice < 0 || indice >= pontos->size()) {
+        LOG(ERROR) << "indice invalido: " << indice;
+      }
+      pontos->Set(indice, funcao(*pontos, indice));
+    }
+  }
+}
+
+}  // namespace
+
+void Tabuleiro::TrataDeltaTerreno(float delta) {
+  if (estado_ != ETAB_QUAD_SELECIONADO) {
+    return;
+  }
+  if (proto_corrente_->ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
+    proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
+  }
+  int quad_x = quadrado_selecionado_ % TamanhoX();
+  int quad_y = quadrado_selecionado_ / TamanhoX();
+  AtualizaAlturaQuadrado(
+      [delta] (const RepeatedField<double>& pontos, int indice) { return pontos.Get(indice) + delta; },
+      quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
+  RegeraVboTabuleiro();
+}
+
+void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
+  parametros_desenho_.set_desenha_entidades(false);
+  parametros_desenho_.set_offset_terreno(primeiro_z_3d_);
+  unsigned int id, tipo_objeto;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
+  if (tipo_objeto != OBJ_TABULEIRO) {
+    return;
+  }
+  float x3d, y3d, z3d;
+  if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
+    LOG(INFO) << "TrataNivelamentoTerreno: MousePara3dTabuleiro retornou false";
+    return;
+  }
+  id = IdQuadrado(x3d, y3d);
+  if (id == static_cast<unsigned int>(-1)) {
+    LOG(INFO) << "TrataNivelamentoTerreno: id quadrado invalido";
+    return;
+  }
+  if (proto_corrente_->ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
+    proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
+  }
+  int quad_x = id % TamanhoX();
+  int quad_y = id / TamanhoX();
+  float pz3d = primeiro_z_3d_;
+  AtualizaAlturaQuadrado(
+      [pz3d] (const RepeatedField<double>&, int) { return pz3d; },
+      quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
+  RegeraVboTabuleiro();
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -3103,6 +3220,10 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         case MODO_ACAO:
           TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
           break;
+        case MODO_TERRENO:
+          TrataBotaoTerrenoPressionadoPosPicking(x3d, y3d, z3d);
+          // Nao quero voltar para o modo normal.
+          return;
         case MODO_SINALIZACAO:
           TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
           break;
@@ -5362,6 +5483,14 @@ void Tabuleiro::AlternaModoRegua() {
     modo_clique_ = MODO_NORMAL;
   } else {
     modo_clique_ = MODO_REGUA;
+  }
+}
+
+void Tabuleiro::AlternaModoTerreno() {
+  if (modo_clique_ == MODO_TERRENO) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_TERRENO;
   }
 }
 

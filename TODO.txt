@@ -1,4 +1,7 @@
 Versao 2.0.0
+- Notificacao de terreno 3d.
+- Interface para modificar terreno 3d.
+- Cube map para o ceu.
 - Terreno 3d.
 - Sombra projetada.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
