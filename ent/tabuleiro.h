@@ -589,7 +589,7 @@ class Tabuleiro : public ntf::Receptor {
   void RefrescaMovimentosParciais();
 
   /** Envia atualizacoes de terreno para clientes. */
-  void RefrescaTerreno();
+  void RefrescaTerrenoParaClientes();
 
   // O id eh sequencial, comecando em SW (0) indo para leste. As linhas sobem para o norte.
   /** seleciona o quadrado pelo ID. */
@@ -869,6 +869,9 @@ class Tabuleiro : public ntf::Receptor {
   } translacao_rotacao_;
   // Para desfazer translacao rotacao.
   std::unordered_map<unsigned int, std::pair<float, float>> translacoes_rotacoes_antes_;
+
+  // Usada para notificacoes de desfazer que comecam em um estado e terminam em outro.
+  ntf::Notificacao notificacao_desfazer_;
 
   // Para desfazer e refazer. A lista tem tamanho maximo.
   bool ignorar_lista_eventos_;  // Quando verdadeiro, eventos inseridos na lista de eventos serao ignorados.

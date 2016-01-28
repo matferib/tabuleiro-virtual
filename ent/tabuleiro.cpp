@@ -1058,7 +1058,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           RefrescaMovimentosParciais();
           ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
         } else if (ModoClique() == MODO_TERRENO) {
-          RefrescaTerreno();
+          RefrescaTerrenoParaClientes();
           ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
         }
       } else if (ciclos_para_atualizar_ > 0) {
@@ -1317,6 +1317,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO: {
       DeserializaRelevoCenario(notificacao.tabuleiro());
+      if (notificacao.local()) {
+        RefrescaTerrenoParaClientes();
+      }
       return true;
     }
     default: ;
@@ -1363,7 +1366,7 @@ void Tabuleiro::RefrescaMovimentosParciais() {
   }
 }
 
-void Tabuleiro::RefrescaTerreno() {
+void Tabuleiro::RefrescaTerrenoParaClientes() {
   central_->AdicionaNotificacaoRemota(SerializaRelevoCenario());
 }
 
@@ -1416,7 +1419,11 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
-  AtualizaRaioOlho(olho_.raio() / fator);
+  if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
+  } else {
+    AtualizaRaioOlho(olho_.raio() / fator);
+  }
 }
 
 void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
@@ -1630,6 +1637,10 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (modo_clique_ == MODO_TERRENO) {
         estado_ = ETAB_RELEVO;
         ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        notificacao_desfazer_.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+        auto* cenario_antes = notificacao_desfazer_.mutable_tabuleiro_antes();
+        cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
+        *cenario_antes->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
         TrataNivelamentoTerreno(x, y);
         break;
       }
@@ -2814,6 +2825,14 @@ void Tabuleiro::TrataDeltaTerreno(float delta) {
   if (estado_ != ETAB_QUAD_SELECIONADO) {
     return;
   }
+  ntf::Notificacao n_desfazer;
+  n_desfazer.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  {
+    auto* cenario_antes = n_desfazer.mutable_tabuleiro_antes();
+    cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_antes->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+
   if (proto_corrente_->ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
     proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
   }
@@ -2823,7 +2842,13 @@ void Tabuleiro::TrataDeltaTerreno(float delta) {
       [delta] (const RepeatedField<double>& pontos, int indice) { return pontos.Get(indice) + delta; },
       quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
   RegeraVboTabuleiro();
-  RefrescaTerreno();
+  RefrescaTerrenoParaClientes();
+  {
+    auto* cenario_depois = n_desfazer.mutable_tabuleiro();
+    cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+  AdicionaNotificacaoListaEventos(n_desfazer);
 }
 
 void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
@@ -3669,8 +3694,12 @@ void Tabuleiro::FinalizaEstadoCorrente() {
     case ETAB_RELEVO: {
       estado_ = estado_anterior_;
       ciclos_para_atualizar_ = -1;
-      RefrescaTerreno();
-      // TODO undo.
+      RefrescaTerrenoParaClientes();
+      auto* cenario_depois = notificacao_desfazer_.mutable_tabuleiro();
+      cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
+      *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+      AdicionaNotificacaoListaEventos(notificacao_desfazer_);
+      notificacao_desfazer_.Clear();
       return;
     }
     default:
@@ -4418,6 +4447,10 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       for (const auto& n : n_original.notificacao()) {
         n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
       }
+      break;
+    case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO:
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+      *n_inversa.mutable_tabuleiro()->mutable_ponto_terreno() = n_original.tabuleiro_antes().ponto_terreno();
       break;
     case ntf::TN_CRIAR_CENARIO: {
       if (!n_original.tabuleiro().has_id_cenario()) {

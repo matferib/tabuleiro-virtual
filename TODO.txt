@@ -1,10 +1,7 @@
 Versao 2.0.0
-- Undo de terreno.
-- Notificacao de terreno 3d.
-- Interface para modificar terreno 3d.
+- Terminar grade 3d.
+- UI com botoes de terreno.
 - Cube map para o ceu.
-- Terreno 3d.
-- Sombra projetada.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
