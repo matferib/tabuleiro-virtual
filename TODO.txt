@@ -1,4 +1,6 @@
 Versao 2.0.0
+- Escala de terreno no tablet.
+- Shader de sombra no tablet.
 - Terminar grade 3d.
 - UI com botoes de terreno.
 - Cube map para o ceu.

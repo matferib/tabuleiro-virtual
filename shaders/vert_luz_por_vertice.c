@@ -15,6 +15,9 @@ precision mediump float;
 
 // Output pro frag shader, interpolado dos vertices.
 varying lowp vec4 v_Color;
+#if USAR_FRAMEBUFFER
+varying lowp vec4 v_ColorSemDirecional;
+#endif
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 #if USAR_FRAMEBUFFER
@@ -91,8 +94,11 @@ void main() {
   v_Pos = gltab_mvm * gltab_vertice;
   lowp vec3 normal  = normalize(gltab_nm * gltab_normal);
   lowp vec4 cor_vertice = gltab_cor;
+#if USAR_FRAMEBUFFER
+  v_ColorSemDirecional = gltab_cor;
+#endif
   if (gltab_luz_ambiente.a > 0.0) {
-    lowp vec4 cor_luz = gltab_luz_ambiente + CorLuzDirecional(normal, gltab_luz_direcional);
+    lowp vec4 cor_luz = gltab_luz_ambiente;
     // Outras luzes. O for eh ineficiente.
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[0]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[1]);
@@ -101,6 +107,11 @@ void main() {
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[4]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[5]);
     cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[6]);
+#if USAR_FRAMEBUFFER
+    v_ColorSemDirecional *= cor_luz;
+#endif
+    // direcional.
+    cor_luz += CorLuzDirecional(normal, gltab_luz_direcional);
     cor_vertice *= clamp(cor_luz, 0.0, 1.0);
   }
   v_Normal = normal;

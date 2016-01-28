@@ -13,6 +13,9 @@ precision mediump float;
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
+#if USAR_FRAMEBUFFER
+varying lowp vec4 v_ColorSemDirecional;
+#endif
 varying mediump vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 #if USAR_FRAMEBUFFER
@@ -36,7 +39,7 @@ void main() {
 #if USAR_FRAMEBUFFER
   highp float bias = 0.001;// * tan(acos(dot(v_Normal, gltab_luz_direcional.pos)));
   if ((v_Pos_sombra.z - bias) > texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
-    cor_final = mix(vec4(), gltab_luz_ambiente, gltab_luz_ambiente.a);
+    cor_final = v_ColorSemDirecional;
   }
 #endif
 

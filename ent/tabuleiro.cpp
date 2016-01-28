@@ -471,7 +471,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
   gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDrawBuffer(GL_BACK);
+  gl::BufferDesenho(GL_BACK);
   gl::UnidadeTextura(GL_TEXTURE1);
   gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
   gl::UnidadeTextura(GL_TEXTURE0);
@@ -2373,7 +2373,9 @@ void Tabuleiro::DesenhaCena() {
     if (parametros_desenho_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
+#if !USAR_FRAMEBUFFER
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+#endif
       DesenhaGrade();
     }
   }
@@ -2766,16 +2768,16 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("gerando framebuffer");
   glGenFramebuffers(1, &framebuffer_);
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-  glGenTextures(1, &textura_framebuffer_);
-  glBindTexture(GL_TEXTURE_2D, textura_framebuffer_);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+  gl::GeraTexturas(1, &textura_framebuffer_);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
   //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textura_framebuffer_, 0);
 
   // Volta estado normal.
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
