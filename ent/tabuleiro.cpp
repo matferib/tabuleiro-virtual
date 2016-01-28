@@ -1054,8 +1054,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaEntidades(passou_ms);
       AtualizaAcoes(passou_ms);
       if (ciclos_para_atualizar_ == 0) {
-        RefrescaMovimentosParciais();
-        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        if (estado_ == ETAB_ENTS_TRANSLACAO_ROTACAO) {
+          RefrescaMovimentosParciais();
+          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        } else if (ModoClique() == MODO_TERRENO) {
+          RefrescaTerreno();
+          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        }
       } else if (ciclos_para_atualizar_ > 0) {
         --ciclos_para_atualizar_;
       }
@@ -1310,6 +1315,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       GeraTerrenoAleatorioNotificando();
       return true;
     }
+    case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO: {
+      DeserializaRelevoCenario(notificacao.tabuleiro());
+      return true;
+    }
     default: ;
   }
   return false;
@@ -1354,6 +1363,10 @@ void Tabuleiro::RefrescaMovimentosParciais() {
   }
 }
 
+void Tabuleiro::RefrescaTerreno() {
+  central_->AdicionaNotificacaoRemota(SerializaRelevoCenario());
+}
+
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
   return;
 #if 0
@@ -1365,10 +1378,6 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
-  if (ModoClique() == MODO_TERRENO) {
-    TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
-    return;
-  }
   if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
     if (estado_ == ETAB_ENTS_PRESSIONADAS) {
       FinalizaEstadoCorrente();
@@ -1394,6 +1403,8 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     TrataNotificacao(grupo_notificacoes);
     // Para desfazer.
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  } else if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
   } else {
     if (camera_isometrica_) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
@@ -1463,10 +1474,6 @@ void Tabuleiro::TrataMovimentoMouse() {
 void Tabuleiro::TrataMovimentoMouse(int x, int y) {
   if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
     TrataBotaoRotacaoPressionado(x, y);
-    return;
-  }
-  if (modo_clique_ == MODO_TERRENO) {
-    TrataNivelamentoTerreno(x, y);
     return;
   }
   if (x == ultimo_x_ && y == ultimo_y_) {
@@ -1615,7 +1622,18 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
     }
     break;
+    case ETAB_RELEVO: {
+      TrataNivelamentoTerreno(x, y);
+      break;
+    }
     case ETAB_QUAD_PRESSIONADO:
+      if (modo_clique_ == MODO_TERRENO) {
+        estado_ = ETAB_RELEVO;
+        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        TrataNivelamentoTerreno(x, y);
+        break;
+      }
+      // Passthough proposital.
     case ETAB_SELECIONANDO_ENTIDADES: {
       quadrado_selecionado_ = -1;
       float x3d, y3d, z3d;
@@ -2657,6 +2675,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_nao_gravado.AtribuiNormais(coordenadas_normais.data());
   V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  //vbo_tabuleiro_normais_ = std::move(tabuleiro_nao_gravado.ExtraiVboNormais());
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
@@ -2804,6 +2823,7 @@ void Tabuleiro::TrataDeltaTerreno(float delta) {
       [delta] (const RepeatedField<double>& pontos, int indice) { return pontos.Get(indice) + delta; },
       quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
   RegeraVboTabuleiro();
+  RefrescaTerreno();
 }
 
 void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
@@ -2878,6 +2898,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   V_ERRO("textura");
 
   gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
+  //gl::DesenhaVbo(vbo_tabuleiro_normais_, GL_LINES);
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
@@ -3645,6 +3666,13 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       TrataNotificacao(n);
       return;
     }
+    case ETAB_RELEVO: {
+      estado_ = estado_anterior_;
+      ciclos_para_atualizar_ = -1;
+      RefrescaTerreno();
+      // TODO undo.
+      return;
+    }
     default:
       //estado_ = ETAB_OCIOSO;
       ;
@@ -3733,6 +3761,14 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   return notificacao;
 }
 
+ntf::Notificacao* Tabuleiro::SerializaRelevoCenario() const {
+  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  auto* tabuleiro = notificacao->mutable_tabuleiro();
+  tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
+  *tabuleiro->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  return notificacao;
+}
+
 ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
   notificacao->mutable_opcoes()->CopyFrom(opcoes_);
@@ -3771,6 +3807,17 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
+  RegeraVboTabuleiro();
+}
+
+void Tabuleiro::DeserializaRelevoCenario(const TabuleiroProto& novo_proto) {
+  // Copia para poder remover uns lixos.
+  auto* cenario = BuscaSubCenario(novo_proto.id_cenario());
+  if (cenario == nullptr) {
+    LOG(WARNING) << "Cenario invalido " << novo_proto.id_cenario() << " para atualizacao de relevo";
+    return;
+  }
+  *cenario->mutable_ponto_terreno() = novo_proto.ponto_terreno();
   RegeraVboTabuleiro();
 }
 
@@ -5487,6 +5534,9 @@ void Tabuleiro::AlternaModoRegua() {
 }
 
 void Tabuleiro::AlternaModoTerreno() {
+  if (!EmModoMestre(true  /*secundario*/)) {
+    return;
+  }
   if (modo_clique_ == MODO_TERRENO) {
     modo_clique_ = MODO_NORMAL;
   } else {

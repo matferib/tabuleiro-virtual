@@ -52,7 +52,7 @@ enum Tipo {
   TN_ALTERAR_MODO_MESTRE_SECUNDARIO = 43;  // Servidor pedindo para alterar o modo mestre secundario.
   TN_REFRESCAR_MENU = 46;  // Tabuleiro notificando que mudou algum modo e o menu deve se atualizar.
   TN_GERAR_TERRENO_ALEATORIO = 47;  // Notifica geracao de terreno aleatorio.
-  TN_ATUALIZAR_TERRENO = 48;        // indica atualizacao de terreno.
+  TN_ATUALIZAR_RELEVO_TABULEIRO = 48;        // indica atualizacao de terreno.
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;

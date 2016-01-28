@@ -50,6 +50,7 @@ enum etab_t {
   ETAB_QUAD_SELECIONADO,
   ETAB_SELECIONANDO_ENTIDADES,
   ETAB_DESENHANDO,
+  ETAB_RELEVO,
 };
 
 struct Sinalizador {
@@ -584,8 +585,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns estados podem ser interrompidos por outros. Esta funcao finaliza o corrente antes de mudar para um novo. */
   void FinalizaEstadoCorrente();
 
-  /** Envia atualizacoes de movimento apos um intervalo de tempo. */
+  /** Envia atualizacoes de movimento para clientes. */
   void RefrescaMovimentosParciais();
+
+  /** Envia atualizacoes de terreno para clientes. */
+  void RefrescaTerreno();
 
   // O id eh sequencial, comecando em SW (0) indo para leste. As linhas sobem para o norte.
   /** seleciona o quadrado pelo ID. */
@@ -606,6 +610,9 @@ class Tabuleiro : public ntf::Receptor {
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaPropriedades() const;
 
+  /** @return uma notificacao do tipo TN_ATUALIZAR_RELEVO_TABULEIRO preenchida. */
+  ntf::Notificacao* SerializaRelevoCenario() const;
+
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
   ntf::Notificacao* SerializaOpcoes() const;
 
@@ -617,6 +624,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Deserializa apenas a parte de propriedades. */
   void DeserializaPropriedades(const ent::TabuleiroProto& novo_proto);
+
+  /** Deserializa o relevo de um cenario. */
+  void DeserializaRelevoCenario(const ent::TabuleiroProto& novo_proto);
 
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
@@ -771,6 +781,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
   unsigned int tipo_entidade_detalhada_;
+  // TODO sera que da pra usar ciclos_para_atualizar aqui?
   int temporizador_detalhamento_ms_;
 
   /** quadrado selecionado (pelo id de desenho). */
@@ -890,6 +901,7 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_dano_automatico_ = false;
 
   gl::VboGravado vbo_tabuleiro_;
+  gl::VboNaoGravado vbo_tabuleiro_normais_;
   gl::VboGravado vbo_grade_;
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;

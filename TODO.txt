@@ -1,4 +1,5 @@
 Versao 2.0.0
+- Undo de terreno.
 - Notificacao de terreno 3d.
 - Interface para modificar terreno 3d.
 - Cube map para o ceu.

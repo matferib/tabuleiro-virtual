@@ -47,6 +47,8 @@
 
 // Taxa de envio de movimentos parciais para clientes.
 #define CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS (ATUALIZACOES_POR_SEGUNDO / 3)
+// Taxa de envio de atualizacoes de terreno para clientes.
+#define CICLOS_PARA_ATUALIZAR_TERRENO (ATUALIZACOES_POR_SEGUNDO)
 
 // Por quantos frames um botao fica pressionado. 240ms.
 #define ATUALIZACOES_BOTAO_PRESSIONADO (static_cast<int>(ATUALIZACOES_POR_SEGUNDO * 0.240f))
