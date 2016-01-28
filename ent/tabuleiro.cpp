@@ -453,7 +453,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   ConfiguraProjecao();
   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   parametros_desenho_.set_iluminacao(false);
-  glDrawBuffer(GL_NONE);
+  gl::BufferDesenho(GL_NONE);
   //gl::FaceNula(GL_FRONT);
   DesenhaCena();
   //gl::FaceNula(GL_BACK);

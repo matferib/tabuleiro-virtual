@@ -197,6 +197,7 @@ inline void ImagemTextura2d(
 
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
+void BufferDesenho(GLenum modo);
 void GeraMipmap(GLenum alvo);
 void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void GeraBuffers(GLsizei n, GLuint* buffers);
@@ -234,6 +235,7 @@ void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean 
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 #else
+void BufferDesenho(GLenum modo) { glDrawBuffer(modo); }
 inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }

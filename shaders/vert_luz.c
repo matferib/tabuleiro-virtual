@@ -29,7 +29,7 @@ uniform highp mat4 gltab_prm;           // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
 #if USAR_FRAMEBUFFER
 uniform highp mat4 gltab_prm_sombra;    // projecao sombra.
-uniform highp mat4 gltab_mvm_sombra;    // projecao sombra.
+uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
 #endif
 uniform highp mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
