@@ -9,6 +9,7 @@
 
 #include "ent/constantes.h"
 #include "matrix/matrices.h"
+#include "net/util.h"
 
 namespace ent {
 
@@ -20,8 +21,8 @@ struct XYQuad {
   bool yorigem;
 
   std::string ParaString() {
-    return std::string("(") + std::to_string(xquad) + ", " + std::to_string(yquad) + "; " +
-            std::to_string(xorigem) + ", " + std::to_string(yorigem) + ")";
+    return std::string("(") + net::to_string(xquad) + ", " + net::to_string(yquad) + "; " +
+            net::to_string(xorigem) + ", " + net::to_string(yorigem) + ")";
   }
   bool operator<(const XYQuad& rhs) const {
     if (xquad < rhs.xquad) {
