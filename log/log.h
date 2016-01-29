@@ -11,6 +11,12 @@
 #include <string>
 #include <sstream>
 
+#ifndef INFO
+#define INFO 1
+#define WARNING 2
+#define ERROR 3
+#endif
+
 class StringLogger {
  public:
   StringLogger(const char* file, int line) {
@@ -18,7 +24,7 @@ class StringLogger {
   }
 
   ~StringLogger() {
-    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "%s", oss_.str().c_str());
+    __android_log_print(ANDROID_LOG_INFO, "TabuleiroJni", "%s", oss_.str().c_str());
   }
 
   template <class T>
@@ -32,7 +38,7 @@ class StringLogger {
 };
 
 #define SHORT_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define LOG(X) if (true) StringLogger(SHORT_FILE, __LINE__)
+#define LOG(X) if (X > INFO) StringLogger(SHORT_FILE, __LINE__)
 // Arquivos querendo VLOG devem definir esse VLOG_NIVEL no android.
 #ifndef VLOG_NIVEL
 #define VLOG_NIVEL 0
@@ -48,8 +54,13 @@ class StringLogger {
 #ifndef VLOG_NIVEL
 #define VLOG_NIVEL 0
 #endif
-#define LOG(X) if (true) std::cout << std::endl
-#define LOG_EVERY_N(X, N) if (true) std::cout << std::endl
+#ifndef INFO
+#define INFO 1
+#define WARNING 2
+#define ERROR 3
+#endif
+#define LOG(X) if (X > INFO) std::cout << std::endl
+#define LOG_EVERY_N(X, N) if (X > INFO) std::cout << std::endl
 #define VLOG(X) if (X <= VLOG_NIVEL) std::cout << std::endl
 #endif
 
