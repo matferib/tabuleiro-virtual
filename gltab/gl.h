@@ -152,6 +152,7 @@ void InicioCena();
 enum TipoShader {
   TSH_LUZ,
   TSH_SIMPLES,
+  TSH_PICKING,
   TSH_PROFUNDIDADE,
   TSH_PRETO_BRANCO,
   TSH_NUM,  // numero de shaders.

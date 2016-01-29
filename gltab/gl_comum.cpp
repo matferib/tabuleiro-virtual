@@ -25,6 +25,7 @@ DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice."
 
 using gl::TSH_LUZ;
 using gl::TSH_SIMPLES;
+using gl::TSH_PICKING;
 using gl::TSH_PROFUNDIDADE;
 using gl::TSH_PRETO_BRANCO;
 
@@ -315,7 +316,7 @@ bool IniciaVariaveis(VarShader* shader) {
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
     if (*d.var == -1) {
-      LOG(ERROR) << "Erro lendo uniforme " << d.nome;
+      LOG(INFO) << "Shader nao possui uniforme " << d.nome;
     }
   }
   // Uniformes array.
@@ -327,7 +328,7 @@ bool IniciaVariaveis(VarShader* shader) {
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
       shader->uni_gltab_luzes[pos] = LocalUniforme(shader->programa, nome_var);
       if (shader->uni_gltab_luzes[pos] == -1) {
-        LOG(INFO) << "Shader nao possui uniforme " << nome_var;
+        LOG(INFO) << "Shader nao possui uniforme array" << nome_var;
       }
       ++j;
     }
@@ -342,7 +343,7 @@ bool IniciaVariaveis(VarShader* shader) {
   }) {
     *d.var = LeLocalAtributo(shader->programa, d.nome);
     if (*d.var == -1) {
-      LOG(ERROR) << "Erro lendo atributo " << d.nome;
+      LOG(INFO) << "Shader nao possui atributo " << d.nome;
       continue;
     }
     LOG(INFO) << "Atributo " << d.nome << " na posicao " << *d.var;
@@ -367,6 +368,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
       &contexto->shaders[TSH_LUZ] },
     { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
+    { "programa_picking", "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
     { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
   };
@@ -681,7 +683,9 @@ void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
 }
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  if (interno::BuscaShader().atr_gltab_texel != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  }
 }
 
 bool EstaHabilitado(GLenum cap) {
@@ -947,7 +951,9 @@ void HabilitaEstadoCliente(GLenum cap) {
   } else if (cap == GL_COLOR_ARRAY) {
     HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    if (interno::BuscaShader().atr_gltab_texel != -1) {
+      HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    }
   } else {
     glEnableClientState(cap);
   }
@@ -964,7 +970,9 @@ void DesabilitaEstadoCliente(GLenum cap) {
   } else if (cap == GL_COLOR_ARRAY) {
     DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    if (interno::BuscaShader().atr_gltab_texel != -1) {
+      DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    }
   } else {
     glDisableClientState(cap);
   }
@@ -1260,7 +1268,9 @@ void MudaCor(float r, float g, float b, float a) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
-  AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
+  if (interno::BuscaShader().atr_gltab_cor != -1) {
+    AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
+  }
 }
 
 void Limpa(GLbitfield mascara) {
