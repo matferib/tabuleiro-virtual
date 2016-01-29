@@ -133,13 +133,13 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       TrataMovimentoEntidadesSelecionadas(true, 1.0f);
       break;
     case CONTROLE_CIMA_VERTICAL:
-      TrataTranslacaoZEntidadesSelecionadas(1.0f);
+      TrataTranslacaoZ(1.0f);
       break;
     case CONTROLE_BAIXO:
       TrataMovimentoEntidadesSelecionadas(true, -1.0f);
       break;
     case CONTROLE_BAIXO_VERTICAL:
-      TrataTranslacaoZEntidadesSelecionadas(-1.0f);
+      TrataTranslacaoZ(-1.0f);
       break;
     case CONTROLE_ESQUERDA:
       TrataMovimentoEntidadesSelecionadas(false, -1.0f);
