@@ -307,13 +307,13 @@ class Tabuleiro : public ntf::Receptor {
   /** Desagrupa as entidades selecionadas, criando varias de acordo com os subtipos. */
   void DesagrupaEntidadesSelecionadas();
 
-  /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
-  * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.
+  /** Movimenta as entidades selecionadas em valor * quadrado. O movimento pode ser no eixo frente - atras ou no eixo lateral;
+  * o valor deve sera multiplicado pelo tamanho do quadrado. A movimentacao sera referente a posicao da camera.
   */
-  void TrataMovimentoEntidadesSelecionadas(bool vertical, float valor);
+  void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
 
-  /** Trata o movimento de entidades no eixo Z, notificando clientes. */
-  void TrataTranslacaoZEntidadesSelecionadas(float delta);
+  /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. */
+  void TrataTranslacaoZ(float delta);
 
   /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
   * maximo, tira a cabeca.
