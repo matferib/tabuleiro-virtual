@@ -56,6 +56,7 @@
 #define V_ERRO_STRING(e) gluErrorString(e)
 #endif
 #if DEBUG
+#include "net/util.h"
 #define V_ERRO(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return; } } while (0)
 #define V_ERRO_RET(X) do { auto e = glGetError(); if (e != GL_NO_ERROR) { LOG_EVERY_N(ERROR, 1000) << "ERRO_GL: " << X << ", codigo: " << e << ", " << V_ERRO_STRING(e); return false; } } while (0)
 #else
@@ -70,9 +71,10 @@ void IniciaGl(int* argcp, char** argv);
 void FinalizaGl();
 
 
-#define ATUALIZA_MATRIZES_NOVO() AtualizaMatrizesNovo()
-// Atualiza as matrizes do shader.
-void AtualizaMatrizesNovo();
+// Atualiza as matrizes do shader de acordo com o modo. Apenas as necessarias serao atualizadas.
+void AtualizaMatrizes();
+// Atualiza todas as matrizes do shader.
+void AtualizaTodasMatrizes();
 void DebugaMatrizes();
 
 // Operacoes de matriz. Melhor usar MatrizEscopo.
@@ -240,6 +242,11 @@ inline void BufferDesenho(GLenum modo) {
   glDrawBuffer(modo);
 #endif
 }
+inline void GeraFramebuffers(GLsizei num, GLuint *ids) { glGenFramebuffers(num, ids); }
+inline void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer) { glBindFramebuffer(alvo, framebuffer); }
+inline void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel) {
+  glFramebufferTexture2D(alvo, anexo, GL_TEXTURE_2D, textura, nivel);
+}
 inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
@@ -290,7 +297,7 @@ inline void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, 
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
   glDrawElements(modo, num_vertices, tipo, indices);
 }
 // Vertices.

@@ -46,6 +46,13 @@ bool ImprimeSeErro(const char* mais) {
 
 namespace interno {
 
+void UniformeSeValido(GLint location, GLint v0) {
+  if (location == -1) {
+    return;
+  }
+  Uniforme(location, v0);
+} 
+
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
   if (c->proximo_id > IdMaximoEntidade()) {
@@ -313,7 +320,7 @@ bool IniciaVariaveis(VarShader* shader) {
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
       shader->uni_gltab_luzes[pos] = LocalUniforme(shader->programa, nome_var);
       if (shader->uni_gltab_luzes[pos] == -1) {
-        LOG(ERROR) << "Erro lendo uniforme " << nome_var;
+        LOG(INFO) << "Shader nao possui uniforme " << nome_var;
       }
       ++j;
     }
@@ -545,7 +552,7 @@ void EmpilhaMatriz(bool atualizar) {
   c->pilha_corrente->push(m);
   interno::EmpilhaMatrizSombra();
   // Nao precisa porque a matriz empilhada eh igual.
-  //if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  //if (atualizar) AtualizaMatrizes();
 }
 
 void DesempilhaMatriz(bool atualizar) {
@@ -558,7 +565,7 @@ void DesempilhaMatriz(bool atualizar) {
 #endif
   c->pilha_corrente->pop();
   interno::DesempilhaMatrizSombra();
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 int ModoMatrizCorrente() {
@@ -580,13 +587,13 @@ void MudarModoMatriz(int modo) {
   } else {
     c->pilha_corrente = &c->pilha_mvm_sombra;
   }
-  //ATUALIZA_MATRIZES_NOVO();
+  //AtualizaMatrizes();
 }
 
 void CarregaIdentidade(bool atualizar) {
   interno::BuscaContexto()->pilha_corrente->top().identity();
   interno::IdentidadeMatrizSombra();
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
@@ -594,7 +601,7 @@ void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
   Matrix4 m4(matriz);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
@@ -602,7 +609,7 @@ void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   Matrix4 m4 = Matrix4().scale(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
@@ -610,14 +617,14 @@ void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   Matrix4 m4 = Matrix4().translate(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void TamanhoPonto(float tam) {
@@ -809,7 +816,7 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   m[3][3] = 0;
   Matrix4& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
@@ -849,7 +856,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   Matrix4& topo = c->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
   topo *= Matrix4().translate(-eyex, -eyey, -eyez);
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
@@ -868,7 +875,7 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   // da na mesma.
   //c->pilha_corrente->top() = m * topo;
   c->pilha_corrente->top() = topo * m;
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
@@ -883,7 +890,7 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
       (viewport[3] - 2 * (y - viewport[1])) / delta_y,
       0);
   topo *= mt;
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
@@ -956,7 +963,12 @@ void DesabilitaEstadoCliente(GLenum cap) {
 void UsaShader(TipoShader ts) {
   auto* c = interno::BuscaContexto();
   UsaPrograma(c->shaders[ts].programa);
-  c->shader_corrente = &c->shaders[ts];
+  auto* shader = c->shader_corrente = &c->shaders[ts];
+  // Atualiza as variaveis de shader.
+  AtualizaTodasMatrizes();
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura, 0);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
+
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
 
@@ -972,7 +984,7 @@ GLint IdMatrizCorrente(const interno::VarShader& shader) {
 }
 }  // namespace
 
-void AtualizaMatrizesNovo() {
+void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();
   int modo = ModoMatrizCorrente();
   const interno::VarShader& shader = interno::BuscaShader();
@@ -996,6 +1008,29 @@ void AtualizaMatrizesNovo() {
 #if USAR_FRAMEBUFFER
   Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
 #endif
+}
+
+void AtualizaTodasMatrizes() {
+  auto* c = interno::BuscaContexto();
+  const interno::VarShader& shader = interno::BuscaShader();
+  struct DadosMatriz {
+    GLint id;
+    Matrix4* matriz;
+  };
+  std::vector<DadosMatriz> dados_matriz = {
+    { shader.uni_gltab_mvm, &c->pilha_mvm.top() },
+    { shader.uni_gltab_prm, &c->pilha_prj.top() },
+    { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
+    { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
+  };
+  for (const auto& dm : dados_matriz) {
+    if (dm.id != -1) {
+      Matriz4Uniforme(dm.id, 1, false, dm.matriz->get());
+    }
+  }
+  if (shader.uni_gltab_nm != -1) {
+    Matriz3Uniforme(shader.uni_gltab_nm, 1, false, c->matriz_normal.get());
+  }
 }
 
 void DebugaMatrizes() {
@@ -1251,7 +1286,7 @@ void Habilita(GLenum cap) {
 
 void Desabilita(GLenum cap) {
   interno::DesabilitaComShader(interno::BuscaContexto(), cap);
-  V_ERRO((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
+  V_ERRO((std::string("desabilitando es cap: ") + net::to_string((int)cap)).c_str());
 }
 
 void UnidadeTextura(GLenum unidade) {
@@ -1260,6 +1295,8 @@ void UnidadeTextura(GLenum unidade) {
 #else
   glActiveTexture(unidade);
 #endif
+#if 0
+  // Passei pro usa shader.
   // Atualiza as variaveis de shader, se houver. Meio hacky mas ok.
   const auto& shader = interno::BuscaShader();
   if (unidade == GL_TEXTURE0) {
@@ -1267,6 +1304,7 @@ void UnidadeTextura(GLenum unidade) {
   } else if (unidade == GL_TEXTURE1) {
     Uniforme(shader.uni_gltab_unidade_textura_sombra, 1);
   }
+#endif
 }
 
 void FinalizaGl() {
