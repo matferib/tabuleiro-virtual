@@ -13,7 +13,7 @@
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
-#define VLOG_NIVEL 1
+#define VLOG_NIVEL 0
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/lodepng.h"
