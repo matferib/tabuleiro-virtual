@@ -1,4 +1,5 @@
 Versao 2.0.0
+- Picking de transparencias.
 - Escala de terreno no tablet.
 - Shader de sombra no tablet.
 - Terminar grade 3d.
