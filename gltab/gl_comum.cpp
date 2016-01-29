@@ -51,7 +51,14 @@ void UniformeSeValido(GLint location, GLint v0) {
     return;
   }
   Uniforme(location, v0);
-} 
+}
+
+void UniformeSeValido(GLint location, GLfloat v0) {
+  if (location == -1) {
+    return;
+  }
+  Uniforme(location, v0);
+}
 
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
@@ -430,7 +437,7 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    Uniforme(shader.uni_gltab_textura, 1.0f);
+    interno::UniformeSeValido(shader.uni_gltab_textura, 1.0f);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -474,7 +481,7 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    Uniforme(shader.uni_gltab_textura, 0.0f);
+    interno::UniformeSeValido(shader.uni_gltab_textura, 0.0f);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -704,9 +711,12 @@ bool EstaHabilitado(GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0;
   } else if (cap == GL_TEXTURE_2D) {
+    if (shader.uni_gltab_textura == -1) {
+      return false;
+    }
     GLfloat fret;
     LeUniforme(shader.programa, shader.uni_gltab_textura, &fret);
-    return fret;
+    return fret > 0.5f;
   } else if (cap == GL_FOG) {
     if (!interno::UsandoShaderComNevoa()) {
       return false;
