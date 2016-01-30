@@ -33,7 +33,7 @@ struct InfoLuzDirecional {
 // Informacao sobre luzes pontuais. Os atributos sao colocados em vec4 para melhor aproveitamento
 // dos uniformes.
 struct InfoLuzPontual {
-  highp vec4 pos;  // posicao.
+  highp vec4 pos;  // posicao em coordenadas de camera.
   lowp vec4 cor;  // alfa usado para indicar se esta ligada.
   mediump vec4 atributos;  // r=raio, g=?, b=?, a=?
 };
@@ -79,8 +79,13 @@ void main() {
   if (gltab_luz_ambiente.a > 0.0) {
     lowp vec4 cor_luz = gltab_luz_ambiente;
 #if USAR_FRAMEBUFFER
-    highp float bias = 0.001;// * tan(acos(dot(v_Normal, gltab_luz_direcional.pos)));
-    if ((v_Pos_sombra.z - bias) <= texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
+    highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos), 0.0, 1.0);
+    highp float bias = 0.005 * tan(acos(cos_theta));
+    bias = clamp(bias, 0.0011, 0.010);
+    //if ((v_Pos_sombra.z - bias) <= texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
+    lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
+    lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
+    if ((v_Pos_sombra.z - bias) <= texz) {
       cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
     }
 #else

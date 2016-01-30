@@ -37,7 +37,7 @@ uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para com
 void main() {
   lowp vec4 cor_final = v_Color;
 #if USAR_FRAMEBUFFER
-  highp float bias = 0.001;// * tan(acos(dot(v_Normal, gltab_luz_direcional.pos)));
+  highp float bias = 0.002;
   if ((v_Pos_sombra.z - bias) > texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
     cor_final = v_ColorSemDirecional;
   }

@@ -35,6 +35,8 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
+#define USAR_FRAMEBUFFER_OPENGLES 1
+
 using google::protobuf::RepeatedField;
 
 namespace ent {
@@ -267,6 +269,7 @@ Tabuleiro::Tabuleiro(
 }
 
 Tabuleiro::~Tabuleiro() {
+  //LiberaFramebuffer();
   LiberaTextura();
   LiberaControleVirtual();
 }
@@ -419,7 +422,6 @@ void Tabuleiro::DesenhaSombraProjetada() {
   }
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
-  gl::UsaShader(gl::TSH_LUZ);
   // Zera as coisas nao usadas na sombra.
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
@@ -445,39 +447,27 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_sombra_projetada(true);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
 
+#if USAR_FRAMEBUFFER_OPENGLES
+  gl::UsaShader(gl::TSH_PROFUNDIDADE);
+#else
+  gl::UsaShader(gl::TSH_LUZ);
+#endif
+  gl::UnidadeTextura(GL_TEXTURE1);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
   gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-  parametros_desenho_.set_iluminacao(false);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+#if !USAR_FRAMEBUFFER_OPENGLES
   gl::BufferDesenho(GL_NONE);
   //gl::FaceNula(GL_FRONT);
+#endif
   DesenhaCena();
-  //gl::FaceNula(GL_BACK);
-
-  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
-  gl::CarregaIdentidade(false);
-  // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
-  Matrix4 bias(
-      0.5, 0.0, 0.0, 0.0,
-      0.0, 0.5, 0.0, 0.0,
-      0.0, 0.0, 0.5, 0.0,
-      0.5, 0.5, 0.5, 1.0);
-  gl::MultiplicaMatriz(bias.get(), false);
-  ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
-  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  gl::BufferDesenho(GL_BACK);
-  gl::UnidadeTextura(GL_TEXTURE1);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
-  gl::UnidadeTextura(GL_TEXTURE0);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  //gl::Habilita(GL_TEXTURE_2D);
-  gl::Desabilita(GL_TEXTURE_2D);
 #endif
 }
 
@@ -490,19 +480,20 @@ int Tabuleiro::Desenha() {
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  gl::TipoShader tipo_shader;
   auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
   if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_sombra_projetada(false);
-    gl::UsaShader(gl::TSH_PRETO_BRANCO);
+    tipo_shader = gl::TSH_PRETO_BRANCO;
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
-    gl::UsaShader(gl::TSH_LUZ);
+    tipo_shader = gl::TSH_LUZ;
   } else {
-    gl::UsaShader(gl::TSH_LUZ);
+    tipo_shader = gl::TSH_LUZ;
   }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   // Aplica opcoes do jogador.
@@ -534,9 +525,34 @@ int Tabuleiro::Desenha() {
   if (parametros_desenho_.desenha_sombras()) {
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaSombraProjetada();
+    // Restaura os valores e usa a textura como sombra.
+    //gl::FaceNula(GL_BACK);
+    gl::UsaShader(tipo_shader);
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+    gl::CarregaIdentidade(false);
+    Matrix4 bias(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0);
+    gl::MultiplicaMatriz(bias.get(), false);
+    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+#if !USAR_FRAMEBUFFER_OPENGLES
+    gl::BufferDesenho(GL_BACK);
+#endif
+    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
   }
 #else
+  gl::UsaShader(tipo_shader);
   gl::UnidadeTextura(GL_TEXTURE0);
 #endif
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2384,6 +2400,7 @@ void Tabuleiro::DesenhaCena() {
   if (opcoes_.desenha_olho()) {
     DesenhaOlho();
   }
+  V_ERRO("desenhando olho");
 
 #if 0
   // Algumas verificacoes.
@@ -2407,6 +2424,7 @@ void Tabuleiro::DesenhaCena() {
     gl::TipoEscopo pontos(OBJ_ROLAGEM);
     DesenhaPontosRolagem();
   }
+  V_ERRO("desenhando pontos rolagem");
 
   if (parametros_desenho_.desenha_entidades()) {
     gl::TipoEscopo nomes(OBJ_ENTIDADE);
@@ -2489,7 +2507,7 @@ void Tabuleiro::DesenhaCena() {
   //-------------
   // DESENHOS 2D.
   //-------------
-#if 0 && USAR_FRAMEBUFFER
+#if 1 && USAR_FRAMEBUFFER
   if (!parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
@@ -2502,10 +2520,9 @@ void Tabuleiro::DesenhaCena() {
 
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
-    /*
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
-    */
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 #endif
@@ -2765,23 +2782,52 @@ void Tabuleiro::RegeraVboTabuleiro() {
 
 void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER
-  V_ERRO("gerando framebuffer");
-  glGenFramebuffers(1, &framebuffer_);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  LOG(ERROR) << "gerando framebuffer";
+  gl::GeraFramebuffers(1, &framebuffer_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  V_ERRO("LigacaoComFramebuffer");
   gl::GeraTexturas(1, &textura_framebuffer_);
+  V_ERRO("GeraTexturas");
   gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  V_ERRO("LigacaoComTextura");
+#if USAR_FRAMEBUFFER_OPENGLES
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  //gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+#else
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+#endif
+  V_ERRO("ImagemTextura2d");
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, textura_framebuffer_, 0);
+  V_ERRO("ParametroTextura");
+#if USAR_FRAMEBUFFER_OPENGLES
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
+  GLuint renderbuffer;
+  glGenRenderbuffers(1, &renderbuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+#else
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+#endif
+  V_ERRO("TexturaFramebuffer");
+
+  auto ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer incompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer completo";
+  }
 
   // Volta estado normal.
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+  LOG(ERROR) << "framebuffer gerado";
 #endif
 }
 
@@ -3053,6 +3099,7 @@ void Tabuleiro::DesenhaPontosRolagem() {
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoY() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   int id = 0;
+  V_ERRO("AQUI");
   for (const std::pair<float, float>& delta : { std::pair<float, float>{ translacao_x, 0.0f },
                                                 std::pair<float, float>{ -translacao_x, 0.0f },
                                                 std::pair<float, float>{ 0.0f, translacao_y },
@@ -4328,7 +4375,7 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   }
 }
 
-void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) {
+void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
   Posicao vetor_camera;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
   // angulo da camera em relacao ao eixo X.
@@ -4337,28 +4384,28 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) 
   float dy = 0;
   if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
     // Camera apontando para x positivo.
-    if (vertical) {
+    if (frente_atras) {
       dx = TAMANHO_LADO_QUADRADO * valor;
     } else {
       dy = TAMANHO_LADO_QUADRADO * -valor;
     }
   } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
     // Camera apontando para y positivo.
-    if (vertical) {
+    if (frente_atras) {
       dy = TAMANHO_LADO_QUADRADO * valor;
     } else {
       dx = TAMANHO_LADO_QUADRADO * valor;
     }
   } else if (rotacao_graus > 135 || rotacao_graus < -135) {
     // Camera apontando para x negativo.
-    if (vertical) {
+    if (frente_atras) {
       dx = TAMANHO_LADO_QUADRADO * -valor;
     } else {
       dy = TAMANHO_LADO_QUADRADO * valor;
     }
   } else {
     // Camera apontando para y negativo.
-    if (vertical) {
+    if (frente_atras) {
       dy = TAMANHO_LADO_QUADRADO * -valor;
     } else {
       dx = TAMANHO_LADO_QUADRADO * -valor;
@@ -4393,28 +4440,31 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) 
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::TrataTranslacaoZEntidadesSelecionadas(float delta) {
-  // TODO UNDO, limites e enviar para clientes.
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : ids_entidades_selecionadas_) {
-    auto* entidade_selecionada = BuscaEntidade(id);
-    if (entidade_selecionada == nullptr) {
-      continue;
+void Tabuleiro::TrataTranslacaoZ(float delta) {
+  if (ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(delta * TAMANHO_LADO_QUADRADO);
+  } else {
+    ntf::Notificacao grupo_notificacoes;
+    grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade_selecionada = BuscaEntidade(id);
+      if (entidade_selecionada == nullptr) {
+        continue;
+      }
+      // Salva para desfazer.
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_MOVER_ENTIDADE);
+      auto* e = n->mutable_entidade();
+      e->set_id(entidade_selecionada->Id());
+      e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
+      // Altera a translacao em Z.
+      entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
+      e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
     }
-    // Salva para desfazer.
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_MOVER_ENTIDADE);
-    auto* e = n->mutable_entidade();
-    e->set_id(entidade_selecionada->Id());
-    e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
-    // Altera a translacao em Z.
-    entidade_selecionada->IncrementaZ(delta);
-    e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
+    // Nop mas envia para os clientes.
+    TrataNotificacao(grupo_notificacoes);
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
-  // Nop mas envia para os clientes.
-  TrataNotificacao(grupo_notificacoes);
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
