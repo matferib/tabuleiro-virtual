@@ -679,7 +679,9 @@ void Normal(GLfloat x, GLfloat y, GLfloat z) {
 }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+  if (interno::BuscaShader().atr_gltab_cor != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+  }
 }
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
@@ -949,7 +951,9 @@ void HabilitaEstadoCliente(GLenum cap) {
     }
     HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    if (interno::BuscaShader().atr_gltab_cor != -1) {
+      HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    }
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
     if (interno::BuscaShader().atr_gltab_texel != -1) {
       HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
@@ -968,7 +972,9 @@ void DesabilitaEstadoCliente(GLenum cap) {
     }
     DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    if (interno::BuscaShader().atr_gltab_cor != -1) {
+      DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    }
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
     if (interno::BuscaShader().atr_gltab_texel != -1) {
       DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
@@ -1117,7 +1123,9 @@ void CarregaNome(GLuint id) {
     VLOG(2) << "Mapeando " << id << ", bit pilha " << c->bit_pilha
             << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
     // Muda a cor para a mapeada.
-    AtributoVertice(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+    if (interno::BuscaShader().atr_gltab_cor != -1) {
+      AtributoVertice(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+    }
   } else {
 #if !USAR_OPENGL_ES
     glLoadName(id);

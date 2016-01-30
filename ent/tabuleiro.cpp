@@ -362,14 +362,11 @@ void Tabuleiro::ConfiguraProjecao() {
 void Tabuleiro::ConfiguraOlhar() {
 #if USAR_FRAMEBUFFER
   if (parametros_desenho_.desenha_sombra_projetada()) {
-    //GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
-    //gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
-    //gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
     Matrix4 mr;
     mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
     mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
     mr.scale(150.0f);  // TODO valor.
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
     vl = mr * vl;
     //LOG(INFO) << vl;
     Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
@@ -378,14 +375,16 @@ void Tabuleiro::ConfiguraOlhar() {
       up.y = 1.0f;
       up.z = 0.0f;
     }
+    // Para usar a posicao alvo do olho como referencia.
+    const Posicao& alvo = olho_.alvo();
     gl::OlharPara(
         // from.
+        //alvo.x() + vl.x, alvo.y() + vl.y, alvo.z() + vl.z,
         vl.x, vl.y, vl.z,
-        //100.0f, 0.0f, 100.0f,
         // to.
-        0.0f, 0.0f, 0.0f,
+        //alvo.x(), alvo.y(), alvo.z(),
+        0, 0, 0,
         // up
-        //0.0f, 0.0f, 1.0f);
         up.x, up.y, up.z);
     //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
     //LOG(INFO) << "mt: " << mt;

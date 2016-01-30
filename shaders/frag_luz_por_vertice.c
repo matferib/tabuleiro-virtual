@@ -38,7 +38,9 @@ void main() {
   lowp vec4 cor_final = v_Color;
 #if USAR_FRAMEBUFFER
   highp float bias = 0.002;
-  if ((v_Pos_sombra.z - bias) > texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
+  lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
+  lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
+  if ((v_Pos_sombra.z - bias) > texz) {
     cor_final = v_ColorSemDirecional;
   }
 #endif

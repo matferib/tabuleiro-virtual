@@ -763,9 +763,9 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
   };
   const float coordenadas_texel[] = {
     // Sul.
-    0.0f, 1.0f, 
-    1.0f, 1.0f, 
-    1.0f, 0.0f, 
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+    1.0f, 0.0f,
     0.0f, 0.0f,
     // Norte.
     0.0f, 1.0f,
@@ -1055,19 +1055,21 @@ void DesenhaVbo(GLenum modo,
     gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   }
+  V_ERRO("DesenhaVBO: um quarto");
   if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor()) {
     gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   }
 
-  gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   V_ERRO("DesenhaVBO: meio");
+  gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
 
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
     gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
   }
+  V_ERRO("DesenhaVBO: tres quartos");
   if (tem_cores) {
     gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
   }
