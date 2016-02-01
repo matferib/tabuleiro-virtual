@@ -2157,6 +2157,11 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+  if (opcoes_.anti_aliasing()) {
+    gl::Habilita(GL_MULTISAMPLE);
+  } else {
+    gl::Desabilita(GL_MULTISAMPLE);
+  }
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
@@ -4162,6 +4167,11 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+  if (opcoes_.anti_aliasing()) {
+    gl::Habilita(GL_MULTISAMPLE);
+  } else {
+    gl::Desabilita(GL_MULTISAMPLE);
+  }
   SalvaConfiguracoes(opcoes_);
 }
 

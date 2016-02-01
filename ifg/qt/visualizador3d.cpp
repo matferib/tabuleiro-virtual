@@ -117,9 +117,8 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
 }
 
 // Formato da janela.
-QGLFormat Formato(bool anti_aliasing) {
-  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel |
-                   (anti_aliasing ? QGL::SampleBuffers : QGL::NoSampleBuffers));
+QGLFormat Formato() {
+  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers);
 }
 
 void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
@@ -196,9 +195,9 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv, bool anti_aliasing, TratadorTecladoMouse* teclado_mouse,
+    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QGLWidget(Formato(anti_aliasing  /*anti_aliasing*/), pai),
+    :  QGLWidget(Formato(), pai),
        argcp_(argcp), argv_(argv),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
@@ -1034,17 +1033,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_iluminacao_mestre->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_rosa_dos_ventos(
         gerador.checkbox_rosa_dos_ventos->checkState() == Qt::Checked ? true : false);
-    if (gerador.checkbox_anti_aliasing->checkState() == Qt::Checked) {
-#if __linux__ && !ANDROID
-      setFormat(Formato(true));
-#endif
-      proto_retornado->set_anti_aliasing(true);
-    } else {
-#if __linux__ && !ANDROID
-      setFormat(Formato(false));
-#endif
-      proto_retornado->set_anti_aliasing(false);
-    }
+    proto_retornado->set_anti_aliasing(gerador.checkbox_anti_aliasing->checkState() == Qt::Checked);
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_controle_virtual(

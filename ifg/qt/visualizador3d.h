@@ -30,7 +30,7 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   * Nao se torna dono de nada.
   */
   Visualizador3d(
-      int* argcp, char** argv, bool anti_aliasing, ifg::TratadorTecladoMouse* teclado_mouse,
+      int* argcp, char** argv, ifg::TratadorTecladoMouse* teclado_mouse,
       ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
 
   /** destroi as entidades do tabuleiro e libera os recursos. */

@@ -1,10 +1,9 @@
 Versao 2.0.0
-- Picking de transparencias.
-- Escala de terreno no tablet.
-- Shader de sombra no tablet.
-- Terminar grade 3d.
 - UI com botoes de terreno.
 - Cube map para o ceu.
+- Filtro de arquivos para skyboxes e de terreno.
+- Picking de transparencias.
+- Terminar grade 3d.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
