@@ -35,7 +35,11 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 
+#if USAR_OPENGL_ES
 #define USAR_FRAMEBUFFER_OPENGLES 1
+#else
+#define USAR_FRAMEBUFFER_OPENGLES 0
+#endif
 
 using google::protobuf::RepeatedField;
 
@@ -376,7 +380,7 @@ void Tabuleiro::ConfiguraOlhar() {
       up.z = 0.0f;
     }
     // Para usar a posicao alvo do olho como referencia.
-    const Posicao& alvo = olho_.alvo();
+    //const Posicao& alvo = olho_.alvo();
     gl::OlharPara(
         // from.
         //alvo.x() + vl.x, alvo.y() + vl.y, alvo.z() + vl.z,
@@ -2796,9 +2800,9 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("LigacaoComTextura");
 #if USAR_FRAMEBUFFER_OPENGLES
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  //gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
 #else
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 #endif
   V_ERRO("ImagemTextura2d");
   //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

@@ -1,4 +1,4 @@
-//#version 120
+#version 130
 
 #if defined(GL_ES)
 //precision highp float;
@@ -9,6 +9,7 @@
 #define lowp
 #define highp
 #define mediump
+#define varying in
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
@@ -44,7 +45,8 @@ uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 #if USAR_FRAMEBUFFER
-uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+//uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
@@ -79,15 +81,16 @@ void main() {
   if (gltab_luz_ambiente.a > 0.0) {
     lowp vec4 cor_luz = gltab_luz_ambiente;
 #if USAR_FRAMEBUFFER
-    highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos), 0.0, 1.0);
+    highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
     highp float bias = 0.005 * tan(acos(cos_theta));
-    bias = clamp(bias, 0.0011, 0.010);
-    //if ((v_Pos_sombra.z - bias) <= texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z) {
-    lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
-    lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
-    if ((v_Pos_sombra.z - bias) <= texz) {
-      cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
-    }
+    bias = clamp(bias, 0.00, 0.0035);
+    //lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
+    //lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
+    highp float texz = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
+    //lowp float texz = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z;
+    //if (v_Pos_sombra.z - bias <= texz) {
+    //if (v_Pos_sombra.z - bias <= texz) {
+    cor_luz += texz * CorLuzDirecional(v_Normal, gltab_luz_direcional);
 #else
     cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
 #endif

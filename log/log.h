@@ -1,4 +1,6 @@
 /** Macros de log. */
+#ifndef LOG_LOG_H
+#define LOG_LOG_H
 
 #if USAR_GLOG
 #include <gflags/gflags.h>
@@ -74,3 +76,5 @@ inline void Inicializa(int* argc, char*** argv) {
 }
 
 }  // namespace meulog
+
+#endif

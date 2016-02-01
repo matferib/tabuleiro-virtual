@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "ent/constantes.h"
+#include "log/log.h"
 #include "matrix/matrices.h"
 #include "net/util.h"
 
@@ -263,7 +264,7 @@ class Terreno {
   static float GeraAltura(int x_quad, int y_quad) {
     srandom(x_quad + (y_quad << 10));
     int mod = random() % 100;
-    int mod_2 = mod / 2;
+    int mod_2 = mod % 50;
     float res = 0.0f;
     if (mod_2 < 25) {
       res = 0.0f;
