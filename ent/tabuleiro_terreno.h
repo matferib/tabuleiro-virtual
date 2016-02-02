@@ -1,6 +1,8 @@
 #ifndef ENT_TABULEIRO_TERRENO_H
 #define ENT_TABULEIRO_TERRENO_H
 
+#include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <map>
 #include <stdexcept>
@@ -120,6 +122,41 @@ class Terreno {
     int num_x = num_x_quad + 1;  // borda.
     return y_quad * num_x + x_quad;
   }
+
+  /** Retorna a altura do chao em determinado ponto do terreno. Retorna 0 se ponto for invalido. */
+  static float ZChao(float x, float y, int num_x_quad, int num_y_quad, const double* pontos) {
+    // Limites.
+    float lim_x = num_x_quad * TAMANHO_LADO_QUADRADO_2;
+    float lim_y = num_y_quad * TAMANHO_LADO_QUADRADO_2;
+    if (fabs(x) >= lim_x || fabs(y) >= lim_y) {
+      return 0.0f;
+    }
+    try {
+      // Poe x e y com origem em 0,0.
+      x += lim_x;
+      y += lim_y;
+      int x_quad0 = x / TAMANHO_LADO_QUADRADO;
+      int x_quad1 = std::min<int>(x_quad0 + 1, num_x_quad);
+      int y_quad0 = y / TAMANHO_LADO_QUADRADO;
+      int y_quad1 = std::min<int>(y_quad0 + 1, num_y_quad);
+      float zx0y0 = AlturaPonto(x_quad0, y_quad0, num_x_quad, num_y_quad, pontos);
+      float zx1y0 = AlturaPonto(x_quad1, y_quad0, num_x_quad, num_y_quad, pontos);
+      float zx0y1 = AlturaPonto(x_quad0, y_quad1, num_x_quad, num_y_quad, pontos);
+      float zx1y1 = AlturaPonto(x_quad1, y_quad1, num_x_quad, num_y_quad, pontos);
+
+      float dx = fmod(x, TAMANHO_LADO_QUADRADO) / TAMANHO_LADO_QUADRADO;
+      float dy = fmod(y, TAMANHO_LADO_QUADRADO) / TAMANHO_LADO_QUADRADO;
+      //LOG(INFO) << "zx0y0: " << zx0y0 << ", zx1y0: " << zx1y0 << ", zx0y1: " << zx0y1 << ", zx1y1: " << zx1y1
+      //  << ", dx: " << dx << ", dy: " << dy;
+      float z_sul   = (zx1y0 * dx) + (zx0y0 * (1.0f - dx));
+      float z_norte = (zx1y1 * dx) + (zx0y1 * (1.0f - dx));
+      float z_norte_sul = (z_norte * dy) + (z_sul * (1.0f - dy));
+      return z_norte_sul;
+    } catch (const std::logic_error& e) {
+      LOG(ERROR) << e.what();
+      return 0.0f;
+    }
+  } 
 
  private:
   // Verifica se um ponto existe.
@@ -248,6 +285,14 @@ class Terreno {
       throw std::logic_error("Ponto nao existe.");
     }
     return it->second.indice;
+  }
+
+  static float AlturaPonto(
+      int x_quad, int y_quad, int num_x_quad, int num_y_quad, const double* pontos) {
+    if (x_quad > num_x_quad || y_quad > num_y_quad) {
+      throw std::logic_error("ponto invalido para altura");
+    }
+    return pontos[y_quad * (num_x_quad + 1) + x_quad];
   }
 
   // Converte um x_quad em uma coordenada.
