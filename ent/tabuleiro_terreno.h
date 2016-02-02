@@ -123,6 +123,15 @@ class Terreno {
     return y_quad * num_x + x_quad;
   }
 
+  /** Retorna a altura de um ponto do tabuleiro, sem interpolar. O ponto eh dado por um x y de quadrado. */
+  static float AlturaPonto(
+      int x_quad, int y_quad, int num_x_quad, int num_y_quad, const double* pontos) {
+    if (x_quad > num_x_quad || y_quad > num_y_quad) {
+      throw std::logic_error("ponto invalido para altura");
+    }
+    return pontos[y_quad * (num_x_quad + 1) + x_quad];
+  }
+
   /** Retorna a altura do chao em determinado ponto do terreno. Retorna 0 se ponto for invalido. */
   static float ZChao(float x, float y, int num_x_quad, int num_y_quad, const double* pontos) {
     // Limites.
@@ -285,14 +294,6 @@ class Terreno {
       throw std::logic_error("Ponto nao existe.");
     }
     return it->second.indice;
-  }
-
-  static float AlturaPonto(
-      int x_quad, int y_quad, int num_x_quad, int num_y_quad, const double* pontos) {
-    if (x_quad > num_x_quad || y_quad > num_y_quad) {
-      throw std::logic_error("ponto invalido para altura");
-    }
-    return pontos[y_quad * (num_x_quad + 1) + x_quad];
   }
 
   // Converte um x_quad em uma coordenada.

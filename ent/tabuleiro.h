@@ -751,6 +751,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
   float ZChao(float x, float y) const;
 
+  /** Retorna a altura de um ponto de quadrado do tabuleiro (SW) ou zero se invalido. */
+  float AlturaPonto(int x_quad, int y_quad) const;
+
   /** Retorna a acao padrao especificada ou proto vazio se nao houver indice. */
   const AcaoProto& AcaoPadrao(int indice) const;
   const std::vector<std::string>& AcoesPadroes() const;

@@ -75,7 +75,7 @@ const double SENSIBILIDADE_ROTACAO_X = 0.01;
 const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 
 /** expessura da linha da grade do tabuleiro. */
-const float EXPESSURA_LINHA = 0.2f;
+const float EXPESSURA_LINHA = 0.1f;
 const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
@@ -2489,6 +2489,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaFormaSelecionada();
   }
 
+#if 0
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     gl::DesligaEscritaProfundidadeEscopo desliga_teste_escopo;
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
@@ -2498,6 +2499,7 @@ void Tabuleiro::DesenhaCena() {
     MudaCorAlfa(COR_AZUL_ALFA);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
   }
+#endif
 
   // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
@@ -2699,10 +2701,6 @@ void Tabuleiro::GeraVboCaixaCeu() {
   vbo_caixa_ceu_.Grava(vbo);
 }
 
-float AlturaCoord(int x, int y) {
-  return 0;
-}
-
 void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro inicio");
   std::vector<float> coordenadas_tabuleiro;
@@ -2747,16 +2745,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
         float y_final = y_inicial + TAMANHO_LADO_QUADRADO;
         coordenadas_grade.push_back(x_inicial);
         coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente));
         coordenadas_grade.push_back(x_final);
         coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente));
         coordenadas_grade.push_back(x_final);
         coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente + 1));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente + 1));
         coordenadas_grade.push_back(x_inicial);
         coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente + 1));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente + 1));
         indices_grade.push_back(indice);
         indices_grade.push_back(indice + 1);
         indices_grade.push_back(indice + 2);
@@ -2776,16 +2774,16 @@ void Tabuleiro::RegeraVboTabuleiro() {
         float x_final = x_inicial + TAMANHO_LADO_QUADRADO;
         coordenadas_grade.push_back(x_inicial);
         coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente, ycorrente));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente));
         coordenadas_grade.push_back(x_final);
         coordenadas_grade.push_back(y_inicial);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente + 1, ycorrente));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente + 1, ycorrente));
         coordenadas_grade.push_back(x_final);
         coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente + 1, ycorrente));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente + 1, ycorrente));
         coordenadas_grade.push_back(x_inicial);
         coordenadas_grade.push_back(y_final);
-        coordenadas_grade.push_back(AlturaCoord(xcorrente , ycorrente));
+        coordenadas_grade.push_back(AlturaPonto(xcorrente , ycorrente));
         indices_grade.push_back(indice);
         indices_grade.push_back(indice + 1);
         indices_grade.push_back(indice + 2);
@@ -5758,6 +5756,17 @@ float Tabuleiro::ZChao(float x, float y) const {
     return 0.0f;
   }
   return Terreno::ZChao(x, y, TamanhoX(), TamanhoY(), proto_corrente_->ponto_terreno().data());
+}
+
+float Tabuleiro::AlturaPonto(int x_quad, int y_quad) const {
+  if (proto_corrente_->ponto_terreno_size() == 0) {
+    return 0.0f;
+  }
+  try {
+    return Terreno::AlturaPonto(x_quad, y_quad, TamanhoX(), TamanhoY(), proto_corrente_->ponto_terreno().data());
+  } catch (...) {
+    return 0.0f;
+  }
 }
 
 }  // namespace ent
