@@ -1583,16 +1583,31 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
         return;
       }
+      float dx = nx - ultimo_x_3d_;
+      float dy = ny - ultimo_y_3d_;
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
           continue;
         }
-        entidade_selecionada->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+        float ex0 = entidade_selecionada->X();
+        float ey0 = entidade_selecionada->Y();
+        float ex1 = ex0 + dx;
+        float ey1 = ey0 + dy;
+        float z_antes = entidade_selecionada->Z();
+        float z_chao_antes = ZChao(ex0, ey0);
+        bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
+        float z_depois = 0.0f;
+        if (manter_chao) {
+          z_depois = ZChao(ex1, ey1);
+        } else {
+          z_depois = std::max(z_antes, ZChao(ex1, ey1));
+        }
+        entidade_selecionada->MovePara(ex1, ey1, z_depois);
         Posicao pos;
-        pos.set_x(entidade_selecionada->X());
-        pos.set_y(entidade_selecionada->Y());
-        pos.set_z(ZChao(pos.x(), pos.y()));
+        pos.set_x(ex1);
+        pos.set_y(ey1);
+        pos.set_z(0.0f);
         auto& vp = rastros_movimento_[id];
         int andou = AndouQuadrado(pos, vp.back());
         if (andou != 0) {
@@ -2963,7 +2978,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
-                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f,
+                parametros_desenho_.offset_terreno(),
                 false);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_corrente_->has_info_textura() &&
@@ -3040,11 +3055,11 @@ void Tabuleiro::DesenhaRastros() {
       continue;
     }
     // Copia vetor de pontos e adiciona posicao corrente da entidade.
-    auto pontos = it.second;
+    std::vector<Posicao> pontos(it.second);
     Posicao pos;
     pos.set_x(e->X());
     pos.set_y(e->Y());
-    pos.set_z(ZChao(pos.x(), pos.y()));
+    pos.set_z(0.0f);
     pontos.push_back(pos);
     // Rastro pouco menor que quadrado.
     DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO * 0.8);
@@ -3386,7 +3401,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         Posicao pos;
         pos.set_x(entidade_selecionada->X());
         pos.set_y(entidade_selecionada->Y());
-        pos.set_z(ZChao(pos.x(), pos.y()));
+        pos.set_z(0.0f);
         rastros_movimento_[id].push_back(pos);
       }
       if (ha_entidades_selecionadas) {
@@ -4438,10 +4453,20 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     n->set_tipo(ntf::TN_MOVER_ENTIDADE);
     auto* e = n->mutable_entidade();
     e->set_id(id);
+    float nx = entidade_selecionada->X() + dx;
+    float ny = entidade_selecionada->Y() + dy;
     auto* p = e->mutable_destino();
-    p->set_x(entidade_selecionada->X() + dx);
-    p->set_y(entidade_selecionada->Y() + dy);
-    p->set_z(entidade_selecionada->Z());
+    p->set_x(nx);
+    p->set_y(ny);
+    float z_antes = entidade_selecionada->Z();
+    float z_chao_antes = ZChao(entidade_selecionada->X(), entidade_selecionada->Y());
+    float z_chao_depois = ZChao(nx, ny);
+    bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
+    if (manter_chao) {
+      p->set_z(z_chao_depois);
+    } else {
+      p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
+    }
     // Para desfazer.
     p = e->mutable_pos();
     p->set_x(entidade_selecionada->X());
@@ -5726,6 +5751,13 @@ void Tabuleiro::ReativaWatchdog() {
   }
   watchdog_.Reinicia();
 #endif
+}
+
+float Tabuleiro::ZChao(float x, float y) const {
+  if (proto_corrente_->ponto_terreno_size() == 0) {
+    return 0.0f;
+  }
+  return Terreno::ZChao(x, y, TamanhoX(), TamanhoY(), proto_corrente_->ponto_terreno().data());
 }
 
 }  // namespace ent
