@@ -748,6 +748,9 @@ class Tabuleiro : public ntf::Receptor {
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
 
+  /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
+  float ZChao(float x, float y) const;
+
   /** Retorna a acao padrao especificada ou proto vazio se nao houver indice. */
   const AcaoProto& AcaoPadrao(int indice) const;
   const std::vector<std::string>& AcoesPadroes() const;
