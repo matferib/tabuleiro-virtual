@@ -291,20 +291,39 @@ class Terreno {
     int num_y = num_y_quad + 1;
     for (int ytab = 0; ytab < (num_y - 1); ++ytab) {
       for (int xtab = 0; xtab < (num_x - 1); ++xtab) {
+        int x0 = xtab;
+        int x1 = xtab + 1;
+        int x2 = xtab + 1;
+        int x3 = xtab;
+        int y0 = ytab;
+        int y1 = ytab;
+        int y2 = ytab + 1;
+        int y3 = ytab + 1;
+        bool inverte = ((xtab + ytab) % 2) != 0;
+        if (inverte) {
+          x0 = xtab;
+          x1 = xtab;
+          x2 = xtab + 1;
+          x3 = xtab + 1;
+          y0 = ytab + 1;
+          y1 = ytab;
+          y2 = ytab;
+          y3 = ytab + 1;
+        }
         if (ladrilho_) {
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab, false, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, false, false));
-          indices_.push_back(IndicePonto(xtab, ytab + 1, true, false));
+          indices_.push_back(IndicePonto(x0, y0, true, true));
+          indices_.push_back(IndicePonto(x1, y1, false, true));
+          indices_.push_back(IndicePonto(x2, y2, false, false));
+          indices_.push_back(IndicePonto(x0, y0, true, true));
+          indices_.push_back(IndicePonto(x2, y2, false, false));
+          indices_.push_back(IndicePonto(x3, y3, true, false));
         } else {
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
-          indices_.push_back(IndicePonto(xtab, ytab, true, true));
-          indices_.push_back(IndicePonto(xtab + 1, ytab + 1, true, true));
-          indices_.push_back(IndicePonto(xtab, ytab + 1, true, true));
+          indices_.push_back(IndicePonto(x0, y0, true, true));
+          indices_.push_back(IndicePonto(x1, y1, true, true));
+          indices_.push_back(IndicePonto(x2, y2, true, true));
+          indices_.push_back(IndicePonto(x0, y0, true, true));
+          indices_.push_back(IndicePonto(x2, y2, true, true));
+          indices_.push_back(IndicePonto(x3, y3, true, true));
         }
       }
     }

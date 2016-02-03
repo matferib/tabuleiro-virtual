@@ -3891,7 +3891,7 @@ void CorrigeTamanhoTerreno(
       pontos->empty()) {
     return;
   }
-  LOG(1) << "tamx: " << tam_x_velho << ", tamy:" << tam_y_velho << ", pontos_size: " << pontos->size();
+  VLOG(1) << "tamx: " << tam_x_velho << ", tamy:" << tam_y_velho << ", pontos_size: " << pontos->size();
   RepeatedField<double> novos_pontos;
   novos_pontos.Resize((tam_x_novo + 1) * (tam_y_novo + 1), 0.0f);
   for (int y = 0; y <= tam_y_velho; ++y) {

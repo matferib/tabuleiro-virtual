@@ -1,4 +1,4 @@
-Versao 2.0.0
+Versao 2.1.0
 - Desenho de quadrado selecionado com relevo.
 - UI com botoes de terreno.
 - Cube map para o ceu.
@@ -41,7 +41,7 @@ Versao 2.0.0
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 2.1.0
+Versao 2.2.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Cor de formas compostas aplicando a todos os filhos.
