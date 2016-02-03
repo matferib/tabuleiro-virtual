@@ -1,6 +1,5 @@
 Versao 2.0.0
 - Desenho de quadrado selecionado com relevo.
-- Conversao de terrenos de tamanhos diferentes.
 - UI com botoes de terreno.
 - Cube map para o ceu.
 - Filtro de arquivos para skyboxes e de terreno.

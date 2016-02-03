@@ -83,6 +83,17 @@ const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
+// Os offsets servem para evitar zfight. Eles adicionam a profundidae um valor
+// dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
+// a camera e r eh o menor offset que gera diferenca no zbuffer.
+// Valores positivos afastam, negativos aproximam.
+const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
+const float OFFSET_TERRENO_ESCALA_R  = 2.0f; 
+const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
+const float OFFSET_GRADE_ESCALA_R    = 1.0f; 
+const float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
+const float OFFSET_RASTRO_ESCALA_R  = -20.0f;
+
 /** Distancia minima entre pontos no desenho livre. */
 const float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
 
@@ -2489,17 +2500,15 @@ void Tabuleiro::DesenhaCena() {
     DesenhaFormaSelecionada();
   }
 
-#if 0
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     gl::DesligaEscritaProfundidadeEscopo desliga_teste_escopo;
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-    gl::DesvioProfundidade(-3.0f, -30.0f);
+    gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
     MudaCorAlfa(COR_AZUL_ALFA);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
   }
-#endif
 
   // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
@@ -2707,14 +2716,13 @@ void Tabuleiro::RegeraVboTabuleiro() {
   std::vector<float> coordenadas_textura;
   std::vector<float> coordenadas_normais;
   std::vector<unsigned short> indices_tabuleiro;
-  std::vector<double> pontos;
-  pontos.reserve(TamanhoX() * TamanhoY());
-  if (proto_corrente_->ponto_terreno_size() == (TamanhoX() + 1) * (TamanhoY() + 1)) {
-    pontos.insert(pontos.end(), proto_corrente_->ponto_terreno().begin(), proto_corrente_->ponto_terreno().end());
-  } else {
-    pontos.resize((TamanhoX() + 1) * (TamanhoY() + 1));
+  if (!proto_corrente_->ponto_terreno().empty() &&
+      proto_corrente_->ponto_terreno_size() != (TamanhoX() + 1) * (TamanhoY() + 1)) {
+    LOG(ERROR) << "Tamanho de terreno invalido";
+    return;
   }
-  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(), pontos);
+  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(),
+                  Wrapper<RepeatedField<double>>(proto_corrente_->ponto_terreno()));
   terreno.Preenche(&indices_tabuleiro,
                    &coordenadas_tabuleiro,
                    &coordenadas_normais,
@@ -2870,7 +2878,7 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando() {
   proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
   std::copy(pontos.begin(), pontos.end(), proto_corrente_->mutable_ponto_terreno()->begin());
   RegeraVboTabuleiro();
-  // TODO notifica.
+  RefrescaTerrenoParaClientes();
 }
 
 namespace {
@@ -2969,9 +2977,8 @@ void Tabuleiro::DesenhaTabuleiro() {
   V_ERRO("desenhando tabuleiro dentro");
 
   // Desenha o chao mais pro fundo.
-  // TODO transformar offsets em constantes.
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(2.0f, 20.0f);
+  gl::DesvioProfundidade(OFFSET_TERRENO_ESCALA_DZ, OFFSET_TERRENO_ESCALA_R);
   V_ERRO("GL_POLYGON_OFFSET_FILL e desvio");
   MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
@@ -3046,7 +3053,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
 
 void Tabuleiro::DesenhaRastros() {
   gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(-2.0f, -20.0f);
+  gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
     if (e == nullptr || e->Tipo() != TE_ENTIDADE) {
@@ -3874,6 +3881,39 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
   return notificacao;
 }
 
+namespace {
+// Mantem a topologia apos uma mudanca de tamanho. Os valores de tam_* sao em quadrados, portante deve-se
+// adicionar 1 para obter o numero de pontos.
+void CorrigeTamanhoTerreno(
+    int tam_x_velho, int tam_y_velho, int tam_x_novo, int tam_y_novo,
+    RepeatedField<double>* pontos) {
+  if ((tam_x_velho == tam_x_novo && tam_y_velho == tam_y_novo) ||
+      pontos->empty()) {
+    return;
+  }
+  LOG(1) << "tamx: " << tam_x_velho << ", tamy:" << tam_y_velho << ", pontos_size: " << pontos->size();
+  RepeatedField<double> novos_pontos;
+  novos_pontos.Resize((tam_x_novo + 1) * (tam_y_novo + 1), 0.0f);
+  for (int y = 0; y <= tam_y_velho; ++y) {
+    int novo_y = (y - tam_y_velho / 2) + (tam_y_novo / 2);
+    if (novo_y < 0 || novo_y > tam_y_novo) {
+      // ponto fora, descarta.
+      continue;
+    }
+    for (int x = 0; x <= tam_x_velho; ++x) {
+      int novo_x = (x - tam_x_velho / 2) + (tam_x_novo / 2);
+      if (novo_x < 0 || novo_x > tam_x_novo) {
+        continue;
+      }
+      VLOG(3) << "copiando: " << x << ", " << y << " para " << novo_x << ", " << novo_y;
+      novos_pontos.Set(novo_y * (tam_x_novo + 1) + novo_x, pontos->Get(y * (tam_x_velho + 1) + x));
+    }
+  }
+  novos_pontos.Swap(pontos);
+  VLOG(1) << "Swapei";
+}
+}  // namespace
+
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_const) {
   // Copia para poder remover uns lixos.
   ent::TabuleiroProto novo_proto(novo_proto_const);
@@ -3889,6 +3929,8 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     LOG(ERROR) << "Sub cenario " << novo_proto.id_cenario() << " nao existe";
     return;
   }
+  int tam_x_velho = proto_a_atualizar->largura();
+  int tam_y_velho = proto_a_atualizar->altura();
   proto_a_atualizar->mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
   proto_a_atualizar->mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_a_atualizar->set_largura(novo_proto.largura());
@@ -3906,6 +3948,8 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
+  CorrigeTamanhoTerreno(tam_x_velho, tam_y_velho, proto_a_atualizar->largura(), proto_a_atualizar->altura(),
+                        proto_a_atualizar->mutable_ponto_terreno());
   RegeraVboTabuleiro();
 }
 
@@ -4997,8 +5041,10 @@ void Tabuleiro::DesenhaCaixaCeu() {
 }
 
 void Tabuleiro::DesenhaGrade() {
-  //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   MudaCor(COR_PRETA);
+  gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
   gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
 }
 

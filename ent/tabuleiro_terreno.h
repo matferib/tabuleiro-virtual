@@ -66,13 +66,35 @@ struct DadosPonto {
   float t;
 };
 
+// Wrapper sobre vector, repeater_field etc.
+template <class Container>
+class Wrapper {
+ public:
+  Wrapper(const Container& c) : c_(c) {}
+  Wrapper(const Wrapper& rhs) : c_(rhs.c_) {}
+  size_t size() const { return c_.size(); }
+  bool empty() const { return c_.empty(); }
+
+  typename Container::value_type operator[] (size_t indice) const {
+    if (c_.empty()) {
+      return 0.0f;
+    }
+    return c_.data()[indice];
+  }
+
+ private:
+  Wrapper();
+  const Container& c_;
+};
+
 class Terreno {
  public:
   // Constroi um terreno flat, com o numero de quadrados passado. O numero de pontos deve incluir a coluna final
   // leste e a linha final norte, para cobrir o tabuleiro todo.
-  Terreno(int num_x_quad, int num_y_quad, bool ladrilho, const std::vector<double>& pontos) {
+  template <class Container>
+  Terreno(int num_x_quad, int num_y_quad, bool ladrilho, const Wrapper<Container> pontos) {
     ladrilho_ = ladrilho;
-    if (pontos.size() != size_t((num_y_quad + 1) * (num_x_quad + 1))) {
+    if (!pontos.empty() && pontos.size() != size_t((num_y_quad + 1) * (num_x_quad + 1))) {
       throw std::logic_error("Numero de pontos invalido.");
     }
     if (!ladrilho_) {
@@ -196,10 +218,11 @@ class Terreno {
   }
 
   // Percorre os pontos, inserindo os dados de cada um.
-  void CriaPontos(int num_x_quad, int num_y_quad, const std::vector<double>& pontos) {
+  template <class Container>
+  void CriaPontos(int num_x_quad, int num_y_quad, const Wrapper<Container> pontos) {
     int num_x = num_x_quad + 1;
     int num_y = num_y_quad + 1;
-    if (pontos.size() != size_t(num_x * num_y)) {
+    if (!pontos.empty() && pontos.size() != size_t(num_x * num_y)) {
       throw std::logic_error("Numero de pontos invalido na criacao");
     }
     if (ladrilho_) {
