@@ -1,5 +1,5 @@
 Versao 2.1.0
-- Desenho de quadrado selecionado com relevo.
+- Campo de sombra para objeto (alguns nao devem fazer sombra).
 - UI com botoes de terreno.
 - Cube map para o ceu.
 - Filtro de arquivos para skyboxes e de terreno.

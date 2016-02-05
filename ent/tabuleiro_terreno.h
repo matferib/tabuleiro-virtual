@@ -139,8 +139,8 @@ class Terreno {
     }
   }
 
-  // Retorna o indice de um ponto no tabuleiro.
-  static int IndicePonto(int x_quad, int y_quad, int num_x_quad) {
+  // Retorna o indice de um ponto no tabuleiro no proto ponto_terreno.
+  static int IndicePontoTabuleiro(int x_quad, int y_quad, int num_x_quad) {
     int num_x = num_x_quad + 1;  // borda.
     return y_quad * num_x + x_quad;
   }
@@ -187,7 +187,7 @@ class Terreno {
       LOG(ERROR) << e.what();
       return 0.0f;
     }
-  } 
+  }
 
   static bool Inverte(int x_quad, int y_quad) {
     return ((x_quad + y_quad) % 2) != 0;
@@ -226,6 +226,7 @@ class Terreno {
   void CriaPontos(int num_x_quad, int num_y_quad, const Wrapper<Container> pontos) {
     int num_x = num_x_quad + 1;
     int num_y = num_y_quad + 1;
+    VLOG(1) << "CriaPontos " << num_x << ", " << num_y;
     if (!pontos.empty() && pontos.size() != size_t(num_x * num_y)) {
       throw std::logic_error("Numero de pontos invalido na criacao");
     }
@@ -233,6 +234,7 @@ class Terreno {
       // So vai ate a penultima coluna, que ja cria a ultima.
       for (int ytab = 0; ytab < (num_y - 1); ++ytab) {
         for (int xtab = 0; xtab < (num_x - 1); ++xtab) {
+          VLOG(2) << "Criando quadrado " << xtab << ", " << ytab;
           double altura_x0y0 = pontos[ytab       * num_x + xtab];
           double altura_x1y0 = pontos[ytab       * num_x + (xtab + 1)];
           double altura_x1y1 = pontos[(ytab + 1) * num_x + (xtab + 1)];
@@ -293,41 +295,27 @@ class Terreno {
   void CriaMalha(int num_x_quad, int num_y_quad) {
     int num_x = num_x_quad + 1;
     int num_y = num_y_quad + 1;
+    VLOG(1) << "Criando malha " << num_x << ", " << num_y;
     for (int ytab = 0; ytab < (num_y - 1); ++ytab) {
       for (int xtab = 0; xtab < (num_x - 1); ++xtab) {
-        int x0 = xtab;
-        int x1 = xtab + 1;
-        int x2 = xtab + 1;
-        int x3 = xtab;
-        int y0 = ytab;
-        int y1 = ytab;
-        int y2 = ytab + 1;
-        int y3 = ytab + 1;
+        VLOG(2) << "Criando quadrado " << xtab << ", " << ytab;
+        bool b0 = true;
+        bool b1 = ladrilho_ ? false : true;
+        int x0y0 = IndicePonto(xtab,     ytab,     b0, b0);
+        int x1y0 = IndicePonto(xtab + 1, ytab,     b1, b0);
+        int x1y1 = IndicePonto(xtab + 1, ytab + 1, b1, b1);
+        int x0y1 = IndicePonto(xtab    , ytab + 1, b0, b1);
+        indices_.push_back(x0y0);
+        indices_.push_back(x1y0);
         if (Inverte(xtab, ytab)) {
-          x0 = xtab;
-          x1 = xtab;
-          x2 = xtab + 1;
-          x3 = xtab + 1;
-          y0 = ytab + 1;
-          y1 = ytab;
-          y2 = ytab;
-          y3 = ytab + 1;
-        }
-        if (ladrilho_) {
-          indices_.push_back(IndicePonto(x0, y0, true, true));
-          indices_.push_back(IndicePonto(x1, y1, false, true));
-          indices_.push_back(IndicePonto(x2, y2, false, false));
-          indices_.push_back(IndicePonto(x0, y0, true, true));
-          indices_.push_back(IndicePonto(x2, y2, false, false));
-          indices_.push_back(IndicePonto(x3, y3, true, false));
+          indices_.push_back(x0y1);
+          indices_.push_back(x1y0);
         } else {
-          indices_.push_back(IndicePonto(x0, y0, true, true));
-          indices_.push_back(IndicePonto(x1, y1, true, true));
-          indices_.push_back(IndicePonto(x2, y2, true, true));
-          indices_.push_back(IndicePonto(x0, y0, true, true));
-          indices_.push_back(IndicePonto(x2, y2, true, true));
-          indices_.push_back(IndicePonto(x3, y3, true, true));
+          indices_.push_back(x1y1);
+          indices_.push_back(x0y0);
         }
+        indices_.push_back(x1y1);
+        indices_.push_back(x0y1);
       }
     }
   }
@@ -336,7 +324,8 @@ class Terreno {
     XYQuad xy = { x_quad, y_quad, xorigem, yorigem };
     auto it = mapa_pontos_.find(xy);
     if (it == mapa_pontos_.end()) {
-      throw std::logic_error("Ponto nao existe.");
+      LOG(ERROR) << "ponto " << x_quad << ", " << y_quad << ", " << xorigem << ", " << yorigem << " nao existe";
+      throw std::logic_error(std::string("Ponto nao existe: ") + net::to_string(x_quad) + " " + net::to_string(y_quad));
     }
     return it->second.indice;
   }

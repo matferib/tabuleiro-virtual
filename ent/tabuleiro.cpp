@@ -2722,6 +2722,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
     LOG(ERROR) << "Tamanho de terreno invalido";
     return;
   }
+  LOG(INFO) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
   Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(),
                   Wrapper<RepeatedField<double>>(proto_corrente_->ponto_terreno()));
   terreno.Preenche(&indices_tabuleiro,
@@ -2888,7 +2889,7 @@ void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, in
                             int quad_x, int quad_y, int num_quad_x, RepeatedField<double>* pontos) {
   for (int x = quad_x; x <= quad_x + 1; ++x) {
     for (int y = quad_y; y <= quad_y + 1; ++y) {
-      int indice = Terreno::IndicePonto(x, y, num_quad_x);
+      int indice = Terreno::IndicePontoTabuleiro(x, y, num_quad_x);
       if (indice < 0 || indice >= pontos->size()) {
         LOG(ERROR) << "indice invalido: " << indice;
       }
@@ -3933,16 +3934,38 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
 namespace {
 // Mantem a topologia apos uma mudanca de tamanho. Os valores de tam_* sao em quadrados, portante deve-se
 // adicionar 1 para obter o numero de pontos.
-void CorrigeTamanhoTerreno(
+void CorrigeTopologiaAposMudancaTamanho(
     int tam_x_velho, int tam_y_velho, int tam_x_novo, int tam_y_novo,
     RepeatedField<double>* pontos) {
   if ((tam_x_velho == tam_x_novo && tam_y_velho == tam_y_novo) ||
       pontos->empty()) {
     return;
   }
-  VLOG(1) << "tamx: " << tam_x_velho << ", tamy:" << tam_y_velho << ", pontos_size: " << pontos->size();
+  LOG(INFO) << "tamxvelho: " << tam_x_velho << ", tamyvelho:" << tam_y_velho
+            << ", tamxnovo: " << tam_x_novo << ", tamynovo: " << tam_y_novo
+            << ", pontos_size: " << pontos->size();
   RepeatedField<double> novos_pontos;
   novos_pontos.Resize((tam_x_novo + 1) * (tam_y_novo + 1), 0.0f);
+  for (int i = 0; i < pontos->size(); ++i) {
+    float z = pontos->Get(i);
+    if (z > 0) {
+      LOG(INFO) << "ponto (" << i << ") > 0: " << z;
+      break;
+    }
+  }
+
+  for (int y = 0; y <= tam_y_velho; ++y) {
+    for (int x = 0; x <= tam_x_velho; ++x) {
+      int indice = y * (tam_x_velho + 1) + x;
+      LOG(INFO) << "indice: " << indice;
+      float z = pontos->Get(indice);
+      if (z > 0) {
+        LOG(INFO) << "ponto (" << x << ", " << y << ") > 0: " << z;
+        break;
+      }
+    }
+  }
+
   for (int y = 0; y <= tam_y_velho; ++y) {
     int novo_y = (y - tam_y_velho / 2) + (tam_y_novo / 2);
     if (novo_y < 0 || novo_y > tam_y_novo) {
@@ -3954,8 +3977,9 @@ void CorrigeTamanhoTerreno(
       if (novo_x < 0 || novo_x > tam_x_novo) {
         continue;
       }
-      VLOG(3) << "copiando: " << x << ", " << y << " para " << novo_x << ", " << novo_y;
-      novos_pontos.Set(novo_y * (tam_x_novo + 1) + novo_x, pontos->Get(y * (tam_x_velho + 1) + x));
+      float z = pontos->Get(y * (tam_x_velho + 1) + x);
+      //LOG(INFO) << "copiando: " << x << ", " << y << ": '" << z << "' para " << novo_x << ", " << novo_y;
+      novos_pontos.Set(novo_y * (tam_x_novo + 1) + novo_x, z);
     }
   }
   novos_pontos.Swap(pontos);
@@ -3997,8 +4021,8 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
-  CorrigeTamanhoTerreno(tam_x_velho, tam_y_velho, proto_a_atualizar->largura(), proto_a_atualizar->altura(),
-                        proto_a_atualizar->mutable_ponto_terreno());
+  CorrigeTopologiaAposMudancaTamanho(
+      tam_x_velho, tam_y_velho, proto_a_atualizar->largura(), proto_a_atualizar->altura(), proto_a_atualizar->mutable_ponto_terreno());
   RegeraVboTabuleiro();
 }
 
@@ -4071,6 +4095,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
   }
   AtualizaTexturasIncluindoSubCenarios(tabuleiro);
+  int largura_velho = TamanhoX();
+  int altura_velho = TamanhoY();
   proto_.CopyFrom(tabuleiro);
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
@@ -4078,6 +4104,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   proto_.clear_manter_entidades();  // Os clientes nao devem receber isso.
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
+  int largura_novo = TamanhoX();
+  int altura_novo = TamanhoY();
   RegeraVboTabuleiro();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
