@@ -182,7 +182,7 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
   return MousePara3dComProfundidade(x, y, profundidade, x3d, y3d, z3d);
 }
 
-bool Tabuleiro::MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d) {
+bool Tabuleiro::MousePara3dParaleloZero(int x, int y, float* x3d, float* y3d, float* z3d) {
   // Intersecao de reta com plano z=0.
   GLfloat modelview[16], projection[16];
   GLint viewport[4];
@@ -224,7 +224,7 @@ bool Tabuleiro::MousePara3dComProfundidade(int x, int y, float profundidade, flo
 bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int tipo_objeto, float* x3d, float* y3d, float* z3d) {
   // Busca mais detalhado.
   if (tipo_objeto == 1) {
-    MousePara3dTabuleiro(x, y, x3d, y3d, z3d);
+    MousePara3dParaleloZero(x, y, x3d, y3d, z3d);
   } else {
     GLfloat modelview[16], projection[16];
     GLint viewport[4];

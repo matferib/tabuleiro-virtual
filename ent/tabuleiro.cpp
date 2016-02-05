@@ -1483,12 +1483,12 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
   // Faz picking do tabuleiro sem entidades.
   parametros_desenho_.set_desenha_entidades(false);
   float x0, y0, z0;
-  if (!MousePara3dTabuleiro(x, y, &x0, &y0, &z0)) {
+  if (!MousePara3dParaleloZero(x, y, &x0, &y0, &z0)) {
     return;
   }
 
   float x1, y1, z1;
-  if (!MousePara3dTabuleiro(nx, ny, &x1, &y1, &z1)) {
+  if (!MousePara3dParaleloZero(nx, ny, &x1, &y1, &z1)) {
     return;
   }
 
@@ -1591,7 +1591,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
-      if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
+      if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
         return;
       }
       float dx = nx - ultimo_x_3d_;
@@ -1647,7 +1647,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       ConfiguraOlhar();
       // Faz picking do tabuleiro sem entidades.
       float nx, ny, nz;
-      if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
+      if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
         return;
       }
 
@@ -1694,7 +1694,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       quadrado_selecionado_ = -1;
       float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
-      if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
+      if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
         return;
       }
@@ -1718,7 +1718,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_DESENHANDO: {
       float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
-      if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
+      if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
         return;
       }
@@ -1816,7 +1816,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   Posicao pos_tabuleiro;
   if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
-    MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+    MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
     unsigned int id_quadrado = IdQuadrado(x3d, y3d);
     VLOG(1) << "Acao no tabuleiro: " << id_quadrado;
     // Tabuleiro, posicao do quadrado clicado.
@@ -2938,8 +2938,8 @@ void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
     return;
   }
   float x3d, y3d, z3d;
-  if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
-    LOG(INFO) << "TrataNivelamentoTerreno: MousePara3dTabuleiro retornou false";
+  if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
+    LOG(INFO) << "TrataNivelamentoTerreno: MousePara3dParaleloZero retornou false";
     return;
   }
   id = IdQuadrado(x3d, y3d);
@@ -3413,7 +3413,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
         estado_ = ETAB_ENTS_PRESSIONADAS;
       } else {
-        MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+        MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
         ultimo_x_3d_ = x3d;
         ultimo_y_3d_ = y3d;
         ultimo_z_3d_ = z3d;
@@ -3448,7 +3448,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   estado_anterior_ = estado_;
   float x3d, y3d, z3d;
   parametros_desenho_.set_desenha_entidades(false);
-  MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+  MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
   estado_ = ETAB_DESLIZANDO;
@@ -3532,7 +3532,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
-    MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
     // Tabuleiro: cria uma entidade nova.
     SelecionaQuadrado(IdQuadrado(x3d, y3d));
     estado_ = ETAB_QUAD_SELECIONADO;
@@ -3840,7 +3840,8 @@ void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y,
        (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
   *y = ((quad_y * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
        (TamanhoY() * TAMANHO_LADO_QUADRADO_2);
-  *z = parametros_desenho_.offset_terreno();
+  //*z = parametros_desenho_.offset_terreno();
+  *z = ZChao(*x, *y);
 }
 
 ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
