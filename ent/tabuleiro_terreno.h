@@ -189,6 +189,10 @@ class Terreno {
     }
   } 
 
+  static bool Inverte(int x_quad, int y_quad) {
+    return ((x_quad + y_quad) % 2) != 0;
+  }
+
  private:
   // Verifica se um ponto existe.
   bool PontoExiste(int x_quad, int y_quad, bool xorigem, bool yorigem) const {
@@ -299,8 +303,7 @@ class Terreno {
         int y1 = ytab;
         int y2 = ytab + 1;
         int y3 = ytab + 1;
-        bool inverte = ((xtab + ytab) % 2) != 0;
-        if (inverte) {
+        if (Inverte(xtab, ytab)) {
           x0 = xtab;
           x1 = xtab;
           x2 = xtab + 1;

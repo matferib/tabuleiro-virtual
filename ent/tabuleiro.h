@@ -453,6 +453,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o tabuleiro do sul pro norte. */
   void DesenhaTabuleiro();
+  /** Desenha o quadrado selecionado do tabuleiro de forma mais escura, transparente. */
+  void DesenhaQuadradoSelecionado();
+  /** Desenha a grade do tabuleiro. */
+  void DesenhaGrade();
 
   /** funcao para desenhar os rastros de movimento. */
   void DesenhaRastros();
@@ -596,6 +600,9 @@ class Tabuleiro : public ntf::Receptor {
   void SelecionaQuadrado(int id_quadrado);
   /** retorna as coordenadas do centro do quadrado. */
   void CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z);
+  /** Retorna o x3d e y3d do SW do quadrado. */
+  void CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z = nullptr);
+  void CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z = nullptr);
   /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
 
@@ -662,9 +669,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Libera o controle virtual. */
   void LiberaControleVirtual();
-
-  /** Desenha a grade do tabuleiro. */
-  void DesenhaGrade();
 
   /** Desenha a lista de pontos de vida a direita. */
   void DesenhaListaPontosVida();

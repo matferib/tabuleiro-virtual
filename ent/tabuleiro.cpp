@@ -2428,6 +2428,7 @@ void Tabuleiro::DesenhaCena() {
 #endif
       DesenhaGrade();
     }
+    DesenhaQuadradoSelecionado();
   }
   V_ERRO("desenhando tabuleiro");
 
@@ -3005,18 +3006,53 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::Habilita(GL_CULL_FACE);
   gl::Desabilita(GL_TEXTURE_2D);
   V_ERRO("depois vbo_tabuleiro_");
+}
 
+void Tabuleiro::DesenhaQuadradoSelecionado() {
   // Desenha quadrado selecionado.
+  gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
-    //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
-    // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
+    gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
     MudaCorAlfa(cor);
-    int linha = quadrado_selecionado_ / TamanhoX();
-    int coluna = quadrado_selecionado_ % TamanhoX();
-    float x3d = coluna * TAMANHO_LADO_QUADRADO, y3d = linha * TAMANHO_LADO_QUADRADO;
-    gl::Translada(x3d + TAMANHO_LADO_QUADRADO_2, y3d + TAMANHO_LADO_QUADRADO_2, 0.05f, false);
-    gl::Retangulo(TAMANHO_LADO_QUADRADO);
+    int x_quad = quadrado_selecionado_ % TamanhoX();
+    int y_quad = quadrado_selecionado_ / TamanhoX();
+    struct Ponto {
+      float x, y, z;
+    };
+    Ponto pontos[4];
+    CoordenadaSwQuadrado(x_quad,     y_quad, &pontos[0].x, &pontos[0].y, &pontos[0].z);
+    CoordenadaSwQuadrado(x_quad + 1, y_quad, &pontos[1].x, &pontos[1].y, &pontos[1].z);
+    CoordenadaSwQuadrado(x_quad + 1, y_quad + 1, &pontos[2].x, &pontos[2].y, &pontos[2].z);
+    CoordenadaSwQuadrado(x_quad,     y_quad + 1, &pontos[3].x, &pontos[3].y, &pontos[3].z);
+    GLfloat coordenadas[12];
+    for (int i = 0; i < 4; ++i) {
+      coordenadas[i * 3]     = pontos[i].x;
+      coordenadas[i * 3 + 1] = pontos[i].y;
+      coordenadas[i * 3 + 2] = pontos[i].z;
+    }
+    unsigned short indices[6];
+    if (Terreno::Inverte(x_quad, y_quad)) {
+      indices[0] = 3;
+      indices[1] = 1;
+      indices[2] = 2;
+      indices[3] = 3;
+      indices[4] = 0;
+      indices[5] = 1;
+    } else {
+      indices[0] = 0;
+      indices[1] = 1;
+      indices[2] = 2;
+      indices[3] = 0;
+      indices[4] = 2;
+      indices[5] = 3;
+    }
+    gl::VboNaoGravado vbo;
+    vbo.AtribuiCoordenadas(3, coordenadas, 12);
+    vbo.AtribuiIndices(indices, 6);
+    vbo.Nomeia("triangulo_quadrado_selecionado");
+    gl::DesenhaVbo(vbo);
   }
 }
 
@@ -3831,17 +3867,29 @@ unsigned int Tabuleiro::IdQuadrado(float x, float y) {
 }
 
 void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
-  int quad_x = id_quadrado % TamanhoX();
-  int quad_y = id_quadrado / TamanhoX();
-  VLOG(2) << "id_quadrado: " << id_quadrado << ", quad_x: " << quad_x << ", quad_y: " << quad_y;
-
+  CoordenadaSwQuadrado(id_quadrado, x, y);
   // centro do quadrado
-  *x = ((quad_x * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
-       (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
-  *y = ((quad_y * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
-       (TamanhoY() * TAMANHO_LADO_QUADRADO_2);
+  *x += TAMANHO_LADO_QUADRADO_2;
+  *y += TAMANHO_LADO_QUADRADO_2;
   //*z = parametros_desenho_.offset_terreno();
   *z = ZChao(*x, *y);
+}
+
+void Tabuleiro::CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
+  int x_quad = id_quadrado % TamanhoX();
+  int y_quad = id_quadrado / TamanhoX();
+  VLOG(2) << "id_quadrado: " << id_quadrado << ", x_quad: " << x_quad << ", y_quad: " << y_quad;
+  CoordenadaSwQuadrado(x_quad, y_quad, x, y, z);
+}
+
+void Tabuleiro::CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z) {
+  VLOG(2) << "x_quad: " << x_quad << ", y_quad: " << y_quad;
+  *x = (x_quad * TAMANHO_LADO_QUADRADO) - (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
+  *y = (y_quad * TAMANHO_LADO_QUADRADO) - (TamanhoY() * TAMANHO_LADO_QUADRADO_2);
+  if (z != nullptr) {
+    // Mais barato que chamar ZChao.
+    *z = AlturaPonto(x_quad, y_quad);
+  }
 }
 
 ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
