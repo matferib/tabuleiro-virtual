@@ -439,6 +439,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
 
+  /** Libera o framebuffer de sombra. */
+  void LiberaFramebuffer();
+
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
@@ -922,6 +925,7 @@ class Tabuleiro : public ntf::Receptor {
 #if USAR_FRAMEBUFFER
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
+  GLuint renderbuffer_framebuffer_ = 0;
 #endif
 
   // Sub cenarios. -1 para o principal.

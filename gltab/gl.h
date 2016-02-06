@@ -244,6 +244,7 @@ inline void BufferDesenho(GLenum modo) {
 #endif
 }
 inline void GeraFramebuffers(GLsizei num, GLuint *ids) { glGenFramebuffers(num, ids); }
+inline void ApagaFramebuffers(GLsizei num, const GLuint *ids) { glDeleteFramebuffers(num, ids); }
 inline void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer) { glBindFramebuffer(alvo, framebuffer); }
 inline void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel) {
   glFramebufferTexture2D(alvo, anexo, GL_TEXTURE_2D, textura, nivel);
@@ -253,7 +254,8 @@ inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColo
 inline void GeraBuffers(GLsizei n, GLuint* buffers) { glGenBuffers(n, buffers); }
 inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target, buffer); }
 inline void LigacaoComRenderbuffer(GLenum target, GLuint buffer) { glBindRenderbuffer(target, buffer); }
-inline void GeraRenderbuffer(GLsizei n, GLuint* renderbuffers) { glGenRenderbuffers(n, renderbuffers); }
+inline void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) { glGenRenderbuffers(n, renderbuffers); }
+inline void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) { glDeleteRenderbuffers(n, renderbuffers); }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
 inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glGetShaderInfoLog(shader, maxLength, length, infoLog); }

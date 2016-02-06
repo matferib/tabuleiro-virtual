@@ -284,7 +284,7 @@ Tabuleiro::Tabuleiro(
 }
 
 Tabuleiro::~Tabuleiro() {
-  //LiberaFramebuffer();
+  LiberaFramebuffer();
   LiberaTextura();
   LiberaControleVirtual();
 }
@@ -300,6 +300,16 @@ void Tabuleiro::LiberaTextura() {
   VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
   AtualizaTexturas(dummy);
 }
+
+void Tabuleiro::LiberaFramebuffer() {
+#if USAR_FRAMEBUFFER
+  LOG(ERROR) << "gerando framebuffer";
+  gl::ApagaFramebuffers(1, &framebuffer_);
+  gl::ApagaTexturas(1, &textura_framebuffer_);
+  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
+#endif
+}
+
 
 void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Proto do tabuleiro.
@@ -2837,8 +2847,7 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("ParametroTextura");
 #if USAR_FRAMEBUFFER_OPENGLES
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
-  GLuint renderbuffer;
-  glGenRenderbuffers(1, &renderbuffer);
+  gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
   glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
@@ -4095,8 +4104,6 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
   }
   AtualizaTexturasIncluindoSubCenarios(tabuleiro);
-  int largura_velho = TamanhoX();
-  int altura_velho = TamanhoY();
   proto_.CopyFrom(tabuleiro);
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
@@ -4104,8 +4111,6 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   proto_.clear_manter_entidades();  // Os clientes nao devem receber isso.
   proto_.clear_entidade();  // As entidades serao armazenadas abaixo.
   proto_.clear_id_cliente();
-  int largura_novo = TamanhoX();
-  int altura_novo = TamanhoY();
   RegeraVboTabuleiro();
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {

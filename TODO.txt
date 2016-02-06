@@ -1,4 +1,5 @@
 Versao 2.1.0
+- Otimizar shaders com matriz.
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
 - UI com botoes de terreno.
 - Cube map para o ceu.

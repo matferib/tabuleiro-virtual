@@ -79,31 +79,26 @@ void main() {
   lowp vec4 cor_final = v_Color;
   // luz ambiente.
   if (gltab_luz_ambiente.a > 0.0) {
-    lowp vec4 cor_luz = gltab_luz_ambiente;
+    //lowp vec4 cor_luz = gltab_luz_ambiente;
 #if USAR_FRAMEBUFFER
     highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
     highp float bias = 0.005 * tan(acos(cos_theta));
     bias = clamp(bias, 0.00, 0.0035);
-    //lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
-    //lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
-    highp float texz = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
-    //lowp float texz = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z;
-    //if (v_Pos_sombra.z - bias <= texz) {
-    //if (v_Pos_sombra.z - bias <= texz) {
-    cor_luz += texz * CorLuzDirecional(v_Normal, gltab_luz_direcional);
+    lowp float texz = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
 #else
-    cor_luz += CorLuzDirecional(v_Normal, gltab_luz_direcional);
+    lowp float texz = 1.0;
 #endif
-
-    // Outras luzes. O for eh ineficiente.
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[0]);
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[1]);
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[2]);
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[3]);
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[4]);
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[5]);
-    cor_luz += CorLuzPontual(v_Normal, gltab_luzes[6]);
-    cor_final *= clamp(cor_luz, 0.0, 1.0);
+    // Outras luzes.
+    lowp vec4 uns = vec4(1.0, 1.0, 1.0, 1.0);
+    lowp mat4 cor_luz = mat4(texz * CorLuzDirecional(v_Normal, gltab_luz_direcional),
+                             CorLuzPontual(v_Normal, gltab_luzes[0]),
+                             CorLuzPontual(v_Normal, gltab_luzes[1]),
+                             CorLuzPontual(v_Normal, gltab_luzes[2]));
+    lowp mat4 cor_luz_2 = mat4(CorLuzPontual(v_Normal, gltab_luzes[3]),
+                               CorLuzPontual(v_Normal, gltab_luzes[4]),
+                               CorLuzPontual(v_Normal, gltab_luzes[5]),
+                               CorLuzPontual(v_Normal, gltab_luzes[6]));
+    cor_final *= clamp(gltab_luz_ambiente + cor_luz * uns + cor_luz_2 * uns, 0.0, 1.0);
   }
 
   // Ipad da pau usando o mix.
