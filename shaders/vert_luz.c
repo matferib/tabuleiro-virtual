@@ -1,4 +1,4 @@
-//# version 110
+#version ${VERSAO}
 // uniform: variaveis que nao variam durante primitiva.
 // attribute: variaveis que variam por vertice.
 
@@ -10,6 +10,7 @@
 #define lowp
 #define highp
 #define mediump
+#define varying in
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.

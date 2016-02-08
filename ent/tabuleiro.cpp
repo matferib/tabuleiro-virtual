@@ -2848,9 +2848,9 @@ void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER_OPENGLES
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
   gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
-  glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
 #else
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
 #endif

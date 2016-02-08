@@ -238,7 +238,12 @@ void PreprocessaFonte(const std::string& nome, std::string* fonte) {
 #define STRINGIFY_MACRO_VALUE(S) STRINGIFY(S)
 #define STRINGIFY(S) #S
   std::map<std::string, std::string> mapa = {
-    { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) }
+    { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) },
+#if USAR_OPENGLE_ES
+    { "${USAR_FRAMEBUFFER}", "100" },
+#else
+    { "${USAR_FRAMEBUFFER}", "130" },
+#endif
   };
   for (const auto& par : mapa) {
     auto pos = fonte->find(par.first);
