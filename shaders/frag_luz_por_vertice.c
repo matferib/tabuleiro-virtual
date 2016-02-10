@@ -1,4 +1,4 @@
-//#version 120
+#version ${VERSAO}
 
 #if defined(GL_ES)
 precision mediump float;
