@@ -240,9 +240,9 @@ void PreprocessaFonte(const std::string& nome, std::string* fonte) {
   std::map<std::string, std::string> mapa = {
     { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) },
 #if USAR_OPENGLE_ES
-    { "${USAR_FRAMEBUFFER}", "100" },
+    { "${VERSAO}", "100" },
 #else
-    { "${USAR_FRAMEBUFFER}", "130" },
+    { "${VERSAO}", "130" },
 #endif
   };
   for (const auto& par : mapa) {
