@@ -10,7 +10,7 @@
 #define lowp
 #define highp
 #define mediump
-#define varying in
+#define varying out
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
