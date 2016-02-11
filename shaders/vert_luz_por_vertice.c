@@ -100,7 +100,7 @@ void main() {
   if (gltab_luz_ambiente.a > 0.0) {
     // Outras luzes. O for eh ineficiente.
     lowp vec4 uns = vec4(1.0, 1.0, 1.0, 1.0);
-    lowp mat4 cor_luz_1 = mat4(CorLuzDirecional(normal, gltab_luz_direcional),
+    lowp mat4 cor_luz_1 = mat4(gltab_luz_ambiente,
                                CorLuzPontual(v_Pos, normal, gltab_luzes[0]),
                                CorLuzPontual(v_Pos, normal, gltab_luzes[1]),
                                CorLuzPontual(v_Pos, normal, gltab_luzes[2]));
@@ -108,8 +108,7 @@ void main() {
                                CorLuzPontual(v_Pos, normal, gltab_luzes[4]),
                                CorLuzPontual(v_Pos, normal, gltab_luzes[5]),
                                CorLuzPontual(v_Pos, normal, gltab_luzes[6]));
-    lowp vec4 cor_luz = clamp(gltab_luz_ambiente + cor_luz_1 * uns + cor_luz_2 * uns, 0.0, 1.0);
-
+    lowp vec4 cor_luz = clamp(cor_luz_1 * uns + cor_luz_2 * uns, 0.0, 1.0);
 #if USAR_FRAMEBUFFER
     v_ColorSemDirecional *= cor_luz;
 #endif
