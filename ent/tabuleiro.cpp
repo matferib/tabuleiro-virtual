@@ -88,9 +88,9 @@ const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 // a camera e r eh o menor offset que gera diferenca no zbuffer.
 // Valores positivos afastam, negativos aproximam.
 const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
-const float OFFSET_TERRENO_ESCALA_R  = 2.0f; 
+const float OFFSET_TERRENO_ESCALA_R  = 2.0f;
 const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
-const float OFFSET_GRADE_ESCALA_R    = 1.0f; 
+const float OFFSET_GRADE_ESCALA_R    = 1.0f;
 const float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
 const float OFFSET_RASTRO_ESCALA_R  = -20.0f;
 
@@ -496,6 +496,8 @@ void Tabuleiro::DesenhaSombraProjetada() {
 }
 
 int Tabuleiro::Desenha() {
+  TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
+
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
   timer_para_renderizacao_.start();
 
@@ -2360,10 +2362,6 @@ void Tabuleiro::AcaoAnterior() {
 void Tabuleiro::DesenhaCena() {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
-
-  // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
-  // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
-  TimerEscopo timer_escopo(this, parametros_desenho_.desenha_fps() || opcoes_.mostra_fps());
 
   gl::InicioCena();
   gl::IniciaNomes();
