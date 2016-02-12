@@ -4055,12 +4055,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     for (auto& sub_cenario : *t->mutable_sub_cenario()) {
       cenarios.push_back(&sub_cenario);
     }
-    for (auto* cenario : cenarios) {
-      if (cenario->info_textura().has_bits_crus()) {
-        // Serializa apenas os bits crus.
-        cenario->mutable_info_textura()->clear_deprecated_bits();
-      }
-    }
     t->clear_entidade();  // As entidades vem do mapa de entidades.
     for (const auto& id_ent : entidades_) {
       t->add_entidade()->CopyFrom(id_ent.second->Proto());

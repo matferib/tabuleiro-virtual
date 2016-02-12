@@ -422,11 +422,6 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   if (info_textura.has_bits_crus()) {
     VLOG(1) << "Carregando textura local com bits crus, id: '" << info_textura.id() << "'.";
     texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), false  /*global*/, info_textura)));
-  } else if (info_textura.has_deprecated_bits()) {
-    // Este caso era quando armazenava a textura por bits decodificados nao compactados. Gera arquivos muito grandes.
-    // Deprecated.
-    LOG(WARNING) << "WARNING: Carregando textura local com bits, id: '" << info_textura.id() << "'.";
-    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), false  /*global*/, info_textura)));
   } else {
     // Textura global.
     VLOG(1) << "Carregando textura global, id: '" << info_textura.id() << "'.";
