@@ -134,12 +134,18 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
 // o nome sera prefixado por id.
 void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
   combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
-  std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
-  std::sort(texturas.begin(), texturas.end());
-  std::vector<std::string> texturas_baixadas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA);
-  std::sort(texturas_baixadas.begin(), texturas_baixadas.end());
-  std::vector<std::string> texturas_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
-  std::sort(texturas_locais.begin(), texturas_locais.end());
+  auto NaoEhSkybox = [] (const std::string& nome_arquivo) {
+    bool ret = nome_arquivo.find("skybox_") != 0;
+    return ret;
+  };
+  auto FiltraOrdena = [NaoEhSkybox] (std::vector<std::string> texturas) -> std::vector<std::string> {
+    texturas.erase(std::remove_if(texturas.begin(), texturas.end(), NaoEhSkybox), texturas.end());
+    std::sort(texturas.begin(), texturas.end());
+    return texturas;
+  };
+  std::vector<std::string> texturas = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA)));
+  std::vector<std::string> texturas_baixadas = std::move(FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA))));
+  std::vector<std::string> texturas_locais = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL)));
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
