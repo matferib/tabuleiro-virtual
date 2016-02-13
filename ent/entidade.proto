@@ -81,6 +81,12 @@ message InfoTextura {
   // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
   // dentro de tabuleiros.
   optional bytes bits_crus = 6;
+  optional bytes bits_crus_posx = 7;
+  optional bytes bits_crus_posy = 8;
+  optional bytes bits_crus_posz = 9;
+  optional bytes bits_crus_negx = 10;
+  optional bytes bits_crus_negy = 11;
+  optional bytes bits_crus_negz = 12;
 }
 
 message Modelo3d {
