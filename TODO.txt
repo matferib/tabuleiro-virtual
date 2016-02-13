@@ -1,4 +1,5 @@
 Versao 2.1.0
+- Arrumar o clique no controle de movimento.
 - Otimizar shaders com matriz.
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
 - UI com botoes de terreno.

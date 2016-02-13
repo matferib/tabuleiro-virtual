@@ -3921,6 +3921,7 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_largura(proto_corrente_->largura());
   tabuleiro->set_altura(proto_corrente_->altura());
   tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
+  tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
   return notificacao;
 }
 
@@ -5071,6 +5072,7 @@ void Tabuleiro::DesenhaLuzes() {
 
 void Tabuleiro::DesenhaCaixaCeu() {
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
+  GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
   if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
     gl::Desabilita(GL_LIGHTING);
   }
@@ -5078,7 +5080,6 @@ void Tabuleiro::DesenhaCaixaCeu() {
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
-  // Desliga luz direcional.
 
   gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
@@ -5093,15 +5094,17 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FaceNula(GL_FRONT);
+  gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : GL_TEXTURE0);
   if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::Habilita(tipo_textura);
+    gl::LigacaoComTextura(tipo_textura, id_textura);
     vbo_caixa_ceu_.forca_texturas(true);
   } else {
     vbo_caixa_ceu_.forca_texturas(false);
   }
   gl::DesenhaVbo(vbo_caixa_ceu_);
-  gl::Desabilita(GL_TEXTURE_2D);
+  gl::Desabilita(tipo_textura);
+  gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.
   gl::FaceNula(GL_BACK);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {

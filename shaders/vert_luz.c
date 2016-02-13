@@ -20,6 +20,7 @@
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // posicao em coordenada de olho.
+varying highp vec4 v_Pos_model;
 #if USAR_FRAMEBUFFER
 varying highp vec4 v_Pos_sombra;
 #endif
@@ -44,6 +45,7 @@ void main() {
   v_Normal = normalize(gltab_nm * gltab_normal);
   v_Color = gltab_cor;
   v_Pos = gltab_mvm * gltab_vertice;
+  v_Pos_model = gltab_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * v_Pos;
 #if USAR_FRAMEBUFFER

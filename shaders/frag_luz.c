@@ -19,6 +19,7 @@
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
+varying highp vec4 v_Pos_model;
 #if USAR_FRAMEBUFFER
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 #endif
@@ -43,11 +44,13 @@ struct InfoLuzPontual {
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
+uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 #if USAR_FRAMEBUFFER
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 //uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
+uniform highp samplerCube gltab_unidade_textura_cubo;   // handler da textura de cubos.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
@@ -106,6 +109,10 @@ void main() {
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
+  if (gltab_textura_cubo > 0.0) {
+    cor_final *= texture(gltab_unidade_textura_cubo, v_Pos_model.yzx);
+  }
+
   //lowp float cor = (cor_final.r + cor_final.g + cor_final.b) / 3.0;
   //cor_final = vec4(cor, cor, cor, cor_final.a);
 

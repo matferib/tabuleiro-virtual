@@ -307,8 +307,10 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_luz_direcional.cor", &shader->uni_gltab_luz_direcional_cor },
           {"gltab_luz_direcional.pos", &shader->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &shader->uni_gltab_textura },
+          {"gltab_textura_cubo", &shader->uni_gltab_textura_cubo },
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
+          {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
@@ -445,6 +447,8 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
     interno::UniformeSeValido(shader.uni_gltab_textura, 1.0f);
+  } else if (cap == GL_TEXTURE_CUBE_MAP) {
+    interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 1.0f);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -489,6 +493,8 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
     interno::UniformeSeValido(shader.uni_gltab_textura, 0.0f);
+  } else if (cap == GL_TEXTURE_CUBE_MAP) {
+    interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 0.0f);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -727,6 +733,13 @@ bool EstaHabilitado(GLenum cap) {
     }
     GLfloat fret;
     LeUniforme(shader.programa, shader.uni_gltab_textura, &fret);
+    return fret > 0.5f;
+  } else if (cap == GL_TEXTURE_CUBE_MAP) {
+    if (shader.uni_gltab_textura_cubo == -1) {
+      return false;
+    }
+    GLfloat fret;
+    LeUniforme(shader.programa, shader.uni_gltab_textura_cubo, &fret);
     return fret > 0.5f;
   } else if (cap == GL_FOG) {
     if (!interno::UsandoShaderComNevoa()) {
@@ -997,6 +1010,7 @@ void UsaShader(TipoShader ts) {
   AtualizaTodasMatrizes();
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura, 0);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
@@ -1327,16 +1341,6 @@ void UnidadeTextura(GLenum unidade) {
   interno::TexturaAtivaInterno(unidade);
 #else
   glActiveTexture(unidade);
-#endif
-#if 0
-  // Passei pro usa shader.
-  // Atualiza as variaveis de shader, se houver. Meio hacky mas ok.
-  const auto& shader = interno::BuscaShader();
-  if (unidade == GL_TEXTURE0) {
-    Uniforme(shader.uni_gltab_unidade_textura, 0);
-  } else if (unidade == GL_TEXTURE1) {
-    Uniforme(shader.uni_gltab_unidade_textura_sombra, 1);
-  }
 #endif
 }
 
