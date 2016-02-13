@@ -22,6 +22,8 @@ class Texturas {
  public:
   /** Retorna o id da textura ou GL_INVALID_VALUE. */
   virtual unsigned int Textura(const std::string& id) const = 0;
+  /** Retorna o tipo da textura: GL_TEXTURE_2D ou GL_TEXTURE_CUBE_MAP. */
+  virtual unsigned int TipoTextura(const std::string& id) const = 0;
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
