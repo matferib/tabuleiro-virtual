@@ -20,6 +20,7 @@ varying lowp vec4 v_ColorSemDirecional;
 #endif
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // posicao em coordenada de olho.
+varying highp vec4 v_Pos_model;
 #if USAR_FRAMEBUFFER
 varying highp vec4 v_Pos_sombra;
 #endif
@@ -92,6 +93,7 @@ lowp vec4 CorLuzPontual(in highp vec4 pos, in lowp vec3 normal, in InfoLuzPontua
 
 void main() {
   v_Pos = gltab_mvm * gltab_vertice;
+  v_Pos_model = gltab_vertice;
   lowp vec3 normal  = normalize(gltab_nm * gltab_normal);
   lowp vec4 cor_vertice = gltab_cor;
 #if USAR_FRAMEBUFFER
