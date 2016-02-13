@@ -155,6 +155,9 @@ class Texturas::InfoTexturaInterna {
   // Retorna id opengl da textura.
   GLuint Id() const { return id_; }
 
+  // Retorna o tipo de textura.
+  GLenum Tipo() const { return imagem_.textura_cubo() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D; }
+
   // Incremento e decremento de contador de refencia.
   int Ref() { return ++contador_; }
   int Deref() { return --contador_; }
@@ -470,6 +473,15 @@ unsigned int Texturas::Textura(const std::string& id) const {
   }
   return info_interna->Id();
 }
+
+unsigned int Texturas::TipoTextura(const std::string& id) const {
+  const InfoTexturaInterna* info_interna = InfoInterna(id);
+  if (info_interna == nullptr) {
+    return GL_TEXTURE_2D;
+  }
+  return info_interna->Tipo();
+}
+
 // Fim da interface ent::Texturas.
 
 void Texturas::Recarrega(bool rele) {
@@ -504,7 +516,11 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
   return it->second;
 }
 
-void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
+void Texturas::CarregaTextura(const ent::InfoTextura& info_textura_const) {
+  ent::InfoTextura info_textura(info_textura_const);
+  if (info_textura.id().find(".cube") != std::string::npos) {
+    info_textura.set_textura_cubo(true);
+  }
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna != nullptr) {
     int contador = info_interna->Ref();
@@ -553,9 +569,11 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
         { "posz.png", info_lido.mutable_bits_crus_posz() }
       };
       try {
+        std::string prefixo = info_textura.id();
+        prefixo.replace(prefixo.find(".cube"), 5, "");
         for (const auto& dados_textura : dados_texturas) {
           std::vector<unsigned char> lido;
-          LeImagem(true  /*global*/, info_textura.id() + dados_textura.sufixo, &lido);
+          LeImagem(true  /*global*/, prefixo + dados_textura.sufixo, &lido);
           info_lido.set_id(info_textura.id());
           info_lido.set_textura_cubo(true);
           dados_textura.bits_crus->resize(lido.size());
@@ -577,7 +595,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
 void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
-    LOG(WARNING) << "Textura nao existente: " << info_textura.id();
+    LOG(WARNING) << "Textura nao existente para descarregar: " << info_textura.id();
   } else {
     int contador = info_interna->Deref();
     if (contador == 0) {
