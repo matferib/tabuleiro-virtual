@@ -3374,54 +3374,46 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-  if (modo_clique_ != MODO_NORMAL) {
-    if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
-      // TODO remover isso? Esse if bypassa qualquer clique em objeto controle virtual em outros modos.
-      // Qual efeito de remove-lo?
-      if (modo_clique_ == MODO_AJUDA) {
+  // Trata modos diferentes de clique, exceto para controle virtual.
+  // Se o clique foi no controle virtual, apenas o MODO_AJUDA trata aqui. Isso permite que o controle
+  // funcione em outros modos, ao mesmo tempo que a ajuda possa ser mostrada para os botoes do controle.
+  if (modo_clique_ == MODO_AJUDA || (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL)) {
+    switch (modo_clique_) {
+      case MODO_ACAO:
+        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
+        if (!lista_pontos_vida_.empty()) {
+          return;  // Mantem o MODO_ACAO.
+        }
+        break;
+      case MODO_TERRENO:
+        TrataBotaoTerrenoPressionadoPosPicking(x3d, y3d, z3d);
+        // Nao quero voltar para o modo normal.
+        return;
+      case MODO_SINALIZACAO:
+        TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
+        break;
+      case MODO_TRANSICAO:
+        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
+        break;
+      case MODO_REGUA:
+        TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
+        break;
+      case MODO_DESENHO:
+        TrataBotaoDesenhoPressionado(x, y);
+        break;
+      case MODO_ROTACAO:
+        TrataBotaoRotacaoPressionado(x, y);
+        break;
+      case MODO_AJUDA:
         TrataMouseParadoEm(x, y);
         temporizador_detalhamento_ms_ = 1000;
         modo_clique_ = MODO_NORMAL;
-        return;
-      }
-    } else {
-      switch (modo_clique_) {
-        case MODO_ACAO:
-          TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-          if (!lista_pontos_vida_.empty()) {
-            return;  // Mantem o MODO_ACAO.
-          }
-          break;
-        case MODO_TERRENO:
-          TrataBotaoTerrenoPressionadoPosPicking(x3d, y3d, z3d);
-          // Nao quero voltar para o modo normal.
-          return;
-        case MODO_SINALIZACAO:
-          TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
-          break;
-        case MODO_TRANSICAO:
-          TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
-          break;
-        case MODO_REGUA:
-          TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
-          break;
-        case MODO_DESENHO:
-          TrataBotaoDesenhoPressionado(x, y);
-          break;
-        case MODO_ROTACAO:
-          TrataBotaoRotacaoPressionado(x, y);
-          break;
-        case MODO_AJUDA:
-          TrataMouseParadoEm(x, y);
-          temporizador_detalhamento_ms_ = 1000;
-          modo_clique_ = MODO_NORMAL;
-          break;
-        default:
-          ;
-      }
-      modo_clique_ = MODO_NORMAL;
-      return;
+        break;
+      default:
+        ;
     }
+    modo_clique_ = MODO_NORMAL;
+    return;
   }
 
   ultimo_x_3d_ = x3d;
