@@ -220,7 +220,7 @@ inline void Disco(GLfloat raio, GLfloat num_faces) {
   DesenhaVbo(VboDisco(raio, num_faces));
 }
 
-// Triangulo equilatero, pico para eixo y.
+// Triangulo equilatero, pico para eixo y com a base no y=0.
 VboNaoGravado VboTriangulo(float lado);
 inline void Triangulo(GLfloat lado) {
   DesenhaVbo(VboTriangulo(lado));

@@ -155,7 +155,7 @@ struct Vector4
 
 
 // fast math routines from Doom3 SDK
-inline float invSqrt(float x)
+/*inline float invSqrt(float x)
 {
     float xhalf = 0.5f * x;
     int i = *(int*)&x;          // get bits for floating value
@@ -163,7 +163,7 @@ inline float invSqrt(float x)
     x = *(float*)&i;            // convert bits back to float
     x = x * (1.5f - xhalf*x*x); // Newton step
     return x;
-}
+}*/
 
 
 

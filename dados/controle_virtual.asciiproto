@@ -219,7 +219,7 @@ pagina {
 
   # Setas.
   dados_botoes {
-    tamanho: 1
+    tamanho: 1.2
     linha: 1
     coluna: 14
     rotulo: ""
@@ -227,10 +227,12 @@ pagina {
     textura: ""
     id: CONTROLE_CIMA
     num_lados_botao: 3
-    translacao_y: -0.1
+    rotacao_graus: 180.0
+    translacao_y: 0.3
+    dica: "Move entidade selecionada para direcao contraria ao visualizador"
   }
   dados_botoes {
-    tamanho: 1
+    tamanho: 1.2
     linha: 0
     coluna: 14
     rotulo: ""
@@ -238,11 +240,12 @@ pagina {
     textura: ""
     id: CONTROLE_BAIXO
     num_lados_botao: 3
-    rotacao_graus: 180.0
-    translacao_y: 0.1
+    rotacao_graus: 0.0
+    translacao_y: -0.3
+    dica: "Move entidade selecionada para direcao do visualizador"
   }
   dados_botoes {
-    tamanho: 1
+    tamanho: 1.2
     linha: 0
     coluna: 13
     rotulo: ""
@@ -250,12 +253,12 @@ pagina {
     textura: ""
     id: CONTROLE_ESQUERDA
     num_lados_botao: 3
-    rotacao_graus: 90.0
-    translacao_x: 0.4
+    rotacao_graus: 270.0
     translacao_y: 0.5
+    dica: "Move entidade selecionada para esquerda do visualizador"
   }
   dados_botoes {
-    tamanho: 1
+    tamanho: 1.2
     linha: 0
     coluna: 15
     rotulo: ""
@@ -263,9 +266,9 @@ pagina {
     textura: ""
     id: CONTROLE_DIREITA
     num_lados_botao: 3
-    rotacao_graus: -90.0
-    translacao_x: -0.4
+    rotacao_graus: 90.0
     translacao_y: 0.5
+    dica: "Move entidade selecionada para direita do visualizador"
   }
   dados_botoes {
     tamanho: 1
@@ -615,20 +618,44 @@ pagina {
     tamanho: 2
     linha: 0
     coluna: 20
-    rotulo: "TA"
-    id: CONTROLE_GERAR_TERRENO_ALEATORIO
-    num_lados_botao: 4
-    dica: "Gera um terreno aleatório."
-  }
-  dados_botoes {
-    tamanho: 2
-    linha: 0
-    coluna: 22
+    textura: "icon_terrain.png"
     rotulo: "MT"
     id: CONTROLE_MODO_TERRENO
     num_lados_botao: 4
-    dica: "Gera um terreno aleatório."
+    dica: "Modo edição de terreno."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 22
+    rotulo: "^"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA_VERTICAL
+    num_lados_botao: 4
+    dica: "Movimento vertical."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 22
+    rotulo: "v"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO_VERTICAL
+    num_lados_botao: 4
+    dica: "Movimento vertical."
+  }
+#  dados_botoes {
+#    tamanho: 2
+#    linha: 0
+#    coluna: 23
+#    rotulo: "TA"
+#    id: CONTROLE_GERAR_TERRENO_ALEATORIO
+#    num_lados_botao: 4
+#    dica: "Gera um terreno aleatório."
+#  }
+
 }
 # Pagina inalcancavel.
 pagina {

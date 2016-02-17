@@ -424,7 +424,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding,
   yi = db.linha() * altura_botao;
   yf = yi + db.tamanho() * altura_botao;
   gl::MatrizEscopo salva(false);
-  if (db.num_lados_botao() == 4 || parametros_desenho_.has_picking_x()) {
+  if (db.num_lados_botao() == 4) {
     float trans_x = (db.translacao_x() * largura_botao);
     float trans_y = (db.translacao_y() * altura_botao);
     unsigned int id_textura = TexturaBotao(db);

@@ -5,6 +5,9 @@ all_sem_testes:
 all:
 	scons -j 4 testes=1
 
+release:
+	scons -j 4 debug=0
+
 opengles:
 	scons usar_opengl_es=1 gerar_profile=1
 

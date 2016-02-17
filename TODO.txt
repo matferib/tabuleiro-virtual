@@ -1,9 +1,8 @@
 Versao 2.1.0
+- Shader de skybox (e passar pro final).
 - Arrumar o clique no controle de movimento.
 - Otimizar shaders com matriz.
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
-- UI com botoes de terreno.
-- Cube map para o ceu.
 - Filtro de arquivos para skyboxes e de terreno.
 - Picking de transparencias.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento

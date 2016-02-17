@@ -2550,7 +2550,7 @@ void Tabuleiro::DesenhaCena() {
   //-------------
   // DESENHOS 2D.
   //-------------
-#if 1 && USAR_FRAMEBUFFER
+#if 1 && DEBUG && USAR_FRAMEBUFFER
   if (!parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
