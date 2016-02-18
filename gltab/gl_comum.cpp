@@ -241,6 +241,8 @@ void PreprocessaFonte(const std::string& nome, std::string* fonte) {
     { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) },
 #if USAR_OPENGL_ES
     { "${VERSAO}", "100" },
+#elif __APPLE__
+    { "${VERSAO}", "120" },
 #else
     { "${VERSAO}", "130" },
 #endif
