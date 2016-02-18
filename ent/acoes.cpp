@@ -158,6 +158,9 @@ class AcaoDeltaPontosVida : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
+    if (!pd->desenha_detalhes()) {
+      return;
+    }
     gl::MatrizEscopo salva_matriz;
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     if (acao_proto_.delta_pontos_vida() > 0) {
