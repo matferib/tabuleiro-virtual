@@ -118,7 +118,9 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
 
 // Formato da janela.
 QGLFormat Formato() {
-  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers);
+  auto format = QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers);
+  //format.setVersion(3, 3);
+  return format;
 }
 
 void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
