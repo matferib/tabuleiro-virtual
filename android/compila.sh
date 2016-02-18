@@ -4,6 +4,7 @@
 DISP=
 MODO=debug
 DEBUG="1"
+INSTALAR="1"
 
 #echo num args: $#
 while [[ $# > 0 ]]; do
@@ -22,6 +23,7 @@ while [[ $# > 0 ]]; do
     -r|--release)
       MODO=release
       DEBUG="0"
+      INSTALAR="0"
       shift
       ;;
     *)
@@ -34,5 +36,5 @@ echo "Dispositivo: ${DISP:-universal}"
 pushd .
 cd jni && ${ANDROID_NDK}/ndk-build V=1 ${DISP} DEBUG=${DEBUG} && cd .. && \
 ${ANTROOT}/bin/ant ${MODO} && \
-${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-${MODO}.apk
+test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-${MODO}.apk
 popd
