@@ -303,7 +303,7 @@ void Tabuleiro::LiberaTextura() {
 
 void Tabuleiro::LiberaFramebuffer() {
 #if USAR_FRAMEBUFFER
-  LOG(ERROR) << "gerando framebuffer";
+  LOG(ERROR) << "Liberando framebuffer";
   gl::ApagaFramebuffers(1, &framebuffer_);
   gl::ApagaTexturas(1, &textura_framebuffer_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
@@ -2833,8 +2833,11 @@ void Tabuleiro::GeraFramebuffer() {
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #else
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+  // Nas versoes mais nova, usa-se ref.
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 #endif
+
   V_ERRO("ImagemTextura2d");
   //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -2846,7 +2849,7 @@ void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER_OPENGLES
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
   gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
-  glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
   glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
 #else
@@ -2854,6 +2857,9 @@ void Tabuleiro::GeraFramebuffer() {
 #endif
   V_ERRO("TexturaFramebuffer");
 
+  // No IOS da pau se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+  gl::BufferDesenho(GL_NONE);
+  gl::BufferLeitura(GL_NONE);
   auto ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
     LOG(ERROR) << "Framebuffer incompleto: " << ret;
@@ -2863,7 +2869,7 @@ void Tabuleiro::GeraFramebuffer() {
 
   // Volta estado normal.
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
   LOG(ERROR) << "framebuffer gerado";
 #endif
