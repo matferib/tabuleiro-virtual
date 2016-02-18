@@ -9,7 +9,9 @@
 #define lowp
 #define highp
 #define mediump
+#if __VERSION__ == 130
 #define varying in
+#endif
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
@@ -87,7 +89,11 @@ void main() {
     highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
     highp float bias = 0.005 * tan(acos(cos_theta));
     bias = clamp(bias, 0.00, 0.0035);
+#if __VERSION__ == 130
     lowp float texz = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
+#else
+    lowp float texz = shadow2D(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias)).r;
+#endif
 #else
     lowp float texz = 1.0;
 #endif
@@ -110,7 +116,7 @@ void main() {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
   if (gltab_textura_cubo > 0.0) {
-    cor_final *= texture(gltab_unidade_textura_cubo, v_Pos_model.yzx);
+    cor_final *= textureCube(gltab_unidade_textura_cubo, v_Pos_model.yzx);
   }
 
   //lowp float cor = (cor_final.r + cor_final.g + cor_final.b) / 3.0;
