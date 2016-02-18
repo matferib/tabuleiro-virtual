@@ -10,7 +10,9 @@
 #define lowp
 #define highp
 #define mediump
+#if __VERSION__ == 130
 #define varying out
+#endif
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.

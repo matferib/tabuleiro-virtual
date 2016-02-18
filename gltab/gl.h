@@ -201,6 +201,7 @@ inline void ImagemTextura2d(
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
 void BufferDesenho(GLenum modo);
+void BufferLeitura(GLenum modo);
 void GeraMipmap(GLenum alvo);
 void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a);
 void GeraBuffers(GLsizei n, GLuint* buffers);
@@ -241,6 +242,11 @@ void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const G
 inline void BufferDesenho(GLenum modo) {
 #if !USAR_OPENGL_ES
   glDrawBuffer(modo);
+#endif
+}
+inline void BufferLeitura(GLenum modo) {
+#if !USAR_OPENGL_ES
+  glReadBuffer(modo);
 #endif
 }
 inline void GeraFramebuffers(GLsizei num, GLuint *ids) { glGenFramebuffers(num, ids); }
