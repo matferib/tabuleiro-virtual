@@ -2833,6 +2833,7 @@ void Tabuleiro::GeraFramebuffer() {
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #else
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
 #endif
   V_ERRO("ImagemTextura2d");
