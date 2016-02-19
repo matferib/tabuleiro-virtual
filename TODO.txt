@@ -1,6 +1,5 @@
 Versao 2.0.0
-- Brincar com os mipmaps e anti aliasing para PC.
-- Salvar opcoes.
+- Dano nao aparece na visao no escuro.
 - Sombra projetada.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
