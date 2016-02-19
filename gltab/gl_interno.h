@@ -26,8 +26,10 @@ struct VarShader {
   GLint uni_gltab_luz_direcional_pos;   // Posicao da luz direcional ().
   GLint uni_gltab_luzes[7 * 3];         // Luzes pontuais: 7 luzes InfoLuzPontual (3 vec4: pos, cor, atributos).
   GLint uni_gltab_textura;              // Ha textura: 1, nao ha: 0.
+  GLint uni_gltab_textura_cubo;         // Ha textura cubo: 1, nao ha: 0.
   GLint uni_gltab_unidade_textura;
   GLint uni_gltab_unidade_textura_sombra;
+  GLint uni_gltab_unidade_textura_cubo;
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
@@ -114,6 +116,9 @@ inline bool UsandoShaderLuz() {
   return c->shader_corrente == &c->shaders[TSH_LUZ];
 }
 
+// Atualiza um uniforme se ele for valido para o shader (ou seja, nao for -1).
+void UniformeSeValido(GLint location, GLint v0);
+void UniformeSeValido(GLint location, GLfloat v0);
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);

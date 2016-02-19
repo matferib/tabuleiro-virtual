@@ -50,6 +50,7 @@ enum etab_t {
   ETAB_QUAD_SELECIONADO,
   ETAB_SELECIONANDO_ENTIDADES,
   ETAB_DESENHANDO,
+  ETAB_RELEVO,
 };
 
 struct Sinalizador {
@@ -306,13 +307,13 @@ class Tabuleiro : public ntf::Receptor {
   /** Desagrupa as entidades selecionadas, criando varias de acordo com os subtipos. */
   void DesagrupaEntidadesSelecionadas();
 
-  /** Movimenta as entidades selecionadas 1 quadrado. O movimento pode ser vertical ou horizontal e o valor
-  * deve ser 1 ou -1. A movimentacao sera referente a posicao da camera.
+  /** Movimenta as entidades selecionadas em valor * quadrado. O movimento pode ser no eixo frente - atras ou no eixo lateral;
+  * o valor deve sera multiplicado pelo tamanho do quadrado. A movimentacao sera referente a posicao da camera.
   */
-  void TrataMovimentoEntidadesSelecionadas(bool vertical, float valor);
+  void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
 
-  /** Trata o movimento de entidades no eixo Z, notificando clientes. */
-  void TrataTranslacaoZEntidadesSelecionadas(float delta);
+  /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. */
+  void TrataTranslacaoZ(float delta);
 
   /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
   * maximo, tira a cabeca.
@@ -337,10 +338,14 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
 
+  /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
+  void AlternaModoTerreno();
+
   // Controle virtual.
   // O clique pode ter subtipos. Por exemplo, no MODO_ACAO, todo clique executa uma acao.
   // No MODO_TRANSICAO, o clique executara uma transicao de cenario.
   // No MODO_DESENHO, o clique desenhara.
+  // No MODO_TERRENO, o clique selecionara quadrado mas os drags alterarao a altura dos pontos.
   enum modo_clique_e {
     MODO_NORMAL,
     MODO_ACAO,         // executa acoes no clique.
@@ -350,6 +355,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_REGUA,        // o clique executara uma medicao.
     MODO_AJUDA,        // o clique atuara como hover.
     MODO_ROTACAO,      // modo de rotacao da camera.
+    MODO_TERRENO,      // modo de edicao de relevo do terreno.
   };
   void EntraModoClique(modo_clique_e modo);
   modo_clique_e ModoClique() const { return modo_clique_; }
@@ -433,6 +439,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
 
+  /** Libera o framebuffer de sombra. */
+  void LiberaFramebuffer();
+
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
 
@@ -447,6 +456,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o tabuleiro do sul pro norte. */
   void DesenhaTabuleiro();
+  /** Desenha o quadrado selecionado do tabuleiro de forma mais escura, transparente. */
+  void DesenhaQuadradoSelecionado();
+  /** Desenha a grade do tabuleiro. */
+  void DesenhaGrade();
 
   /** funcao para desenhar os rastros de movimento. */
   void DesenhaRastros();
@@ -498,6 +511,8 @@ class Tabuleiro : public ntf::Receptor {
   * O picking ja foi realizado pelo cliente, que devera prover as informacoes de id e tipo de objeto (pos_pilha). */
   void TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto);
 
+  void TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, float z3d);
+
   /** Trata o botao pressionado no modo de regua, recebendo o destino do clique em coordenadas de mundo. */
   void TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d);
 
@@ -520,7 +535,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Dada uma coordenada de mouse (x, y) retorna o valor (x, y, z) do local onde o raio projetado intercepta o tabuleiro.
   * Retorna false caso nao haja.
   */
-  bool MousePara3dTabuleiro(int x, int y, float* x3d, float* y3d, float* z3d);
+  bool MousePara3dParaleloZero(int x, int y, float* x3d, float* y3d, float* z3d);
 
   /** Dada uma profundidade, faz a projecao inversa (2d para 3d). Bem mais barato que MousePara3d acima. */
   bool MousePara3dComProfundidade(int x, int y, float profundidade, float* x3d, float* y3d, float* z3d);
@@ -577,15 +592,21 @@ class Tabuleiro : public ntf::Receptor {
   /** Alguns estados podem ser interrompidos por outros. Esta funcao finaliza o corrente antes de mudar para um novo. */
   void FinalizaEstadoCorrente();
 
-  /** Envia atualizacoes de movimento apos um intervalo de tempo. */
+  /** Envia atualizacoes de movimento para clientes. */
   void RefrescaMovimentosParciais();
 
+  /** Envia atualizacoes de terreno para clientes. */
+  void RefrescaTerrenoParaClientes();
+
+  // O id eh sequencial, comecando em SW (0) indo para leste. As linhas sobem para o norte.
   /** seleciona o quadrado pelo ID. */
   void SelecionaQuadrado(int id_quadrado);
-
   /** retorna as coordenadas do centro do quadrado. */
   void CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z);
-  /** retorna o id do quadrado em determinada coordenada. */
+  /** Retorna o x3d e y3d do SW do quadrado. */
+  void CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z = nullptr);
+  void CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z = nullptr);
+  /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
 
   /** @return uma notificacao do tipo TN_SERIALIZAR_TABULEIRO preenchida.
@@ -599,6 +620,9 @@ class Tabuleiro : public ntf::Receptor {
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_ILUMINACAO_TEXTURA preenchida. */
   ntf::Notificacao* SerializaPropriedades() const;
 
+  /** @return uma notificacao do tipo TN_ATUALIZAR_RELEVO_TABULEIRO preenchida. */
+  ntf::Notificacao* SerializaRelevoCenario() const;
+
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
   ntf::Notificacao* SerializaOpcoes() const;
 
@@ -610,6 +634,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Deserializa apenas a parte de propriedades. */
   void DeserializaPropriedades(const ent::TabuleiroProto& novo_proto);
+
+  /** Deserializa o relevo de um cenario. */
+  void DeserializaRelevoCenario(const ent::TabuleiroProto& novo_proto);
 
   /** Deserializa as opcoes. */
   void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
@@ -645,9 +672,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Libera o controle virtual. */
   void LiberaControleVirtual();
-
-  /** Desenha a grade do tabuleiro. */
-  void DesenhaGrade();
 
   /** Desenha a lista de pontos de vida a direita. */
   void DesenhaListaPontosVida();
@@ -723,8 +747,19 @@ class Tabuleiro : public ntf::Receptor {
   /** Gera e configura o framebuffer. */
   void GeraFramebuffer();
 
+  /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
+  void GeraTerrenoAleatorioNotificando();
+  void TrataDeltaTerreno(float delta);
+  void TrataNivelamentoTerreno(int x, int y);
+
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
+
+  /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
+  float ZChao(float x, float y) const;
+
+  /** Retorna a altura de um ponto de quadrado do tabuleiro (SW) ou zero se invalido. */
+  float AlturaPonto(int x_quad, int y_quad) const;
 
   /** Retorna a acao padrao especificada ou proto vazio se nao houver indice. */
   const AcaoProto& AcaoPadrao(int indice) const;
@@ -759,6 +794,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
   unsigned int tipo_entidade_detalhada_;
+  // TODO sera que da pra usar ciclos_para_atualizar aqui?
   int temporizador_detalhamento_ms_;
 
   /** quadrado selecionado (pelo id de desenho). */
@@ -847,6 +883,9 @@ class Tabuleiro : public ntf::Receptor {
   // Para desfazer translacao rotacao.
   std::unordered_map<unsigned int, std::pair<float, float>> translacoes_rotacoes_antes_;
 
+  // Usada para notificacoes de desfazer que comecam em um estado e terminam em outro.
+  ntf::Notificacao notificacao_desfazer_;
+
   // Para desfazer e refazer. A lista tem tamanho maximo.
   bool ignorar_lista_eventos_;  // Quando verdadeiro, eventos inseridos na lista de eventos serao ignorados.
   std::list<ntf::Notificacao> lista_eventos_;  // Usar sempre as funcoes de evento para acessar.
@@ -878,6 +917,7 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_dano_automatico_ = false;
 
   gl::VboGravado vbo_tabuleiro_;
+  gl::VboNaoGravado vbo_tabuleiro_normais_;
   gl::VboGravado vbo_grade_;
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
@@ -885,6 +925,7 @@ class Tabuleiro : public ntf::Receptor {
 #if USAR_FRAMEBUFFER
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
+  GLuint renderbuffer_framebuffer_ = 0;
 #endif
 
   // Sub cenarios. -1 para o principal.

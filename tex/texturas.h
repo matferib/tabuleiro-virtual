@@ -17,10 +17,11 @@ class Texturas : public ent::Texturas, public ntf::Receptor {
   virtual ~Texturas();
 
   /** Trata as notificacoes do tipo de carregamento descarregamento de textura. */
-  virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
+  bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
   /** Retorna uma textura. */
-  virtual unsigned int Textura(const std::string& id) const override;
+  unsigned int Textura(const std::string& id) const override;
+  unsigned int TipoTextura(const std::string& id) const override; 
 
   /** Recarrega todas as texturas (em caso de perda do contexto OpenGL, no android por exemplo).
   * @param rele tambem realiza a releitura dos bits crus, decodificando-os.

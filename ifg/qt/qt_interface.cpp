@@ -68,6 +68,7 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
   ifg::qt::Ui::EntradaString gerador;
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
+  gerador.label_titulo->setText(QDialog::tr("Salvar Tabuleiro"));
   auto lambda_aceito = [this, &gerador, dialogo, funcao_volta] () {
     if (gerador.nome->text().length() > 0) {
       funcao_volta(gerador.nome->text().toStdString());

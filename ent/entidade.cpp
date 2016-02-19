@@ -346,7 +346,7 @@ void Entidade::MovePara(float x, float y, float z) {
   auto* p = proto_.mutable_pos();
   p->set_x(x);
   p->set_y(y);
-  p->set_z(std::max(ZChao(x, y), z));
+  p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
 }

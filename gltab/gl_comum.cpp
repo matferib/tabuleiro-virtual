@@ -25,6 +25,7 @@ DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice."
 
 using gl::TSH_LUZ;
 using gl::TSH_SIMPLES;
+using gl::TSH_PICKING;
 using gl::TSH_PROFUNDIDADE;
 using gl::TSH_PRETO_BRANCO;
 
@@ -45,6 +46,20 @@ bool ImprimeSeErro(const char* mais) {
 }
 
 namespace interno {
+
+void UniformeSeValido(GLint location, GLint v0) {
+  if (location == -1) {
+    return;
+  }
+  Uniforme(location, v0);
+}
+
+void UniformeSeValido(GLint location, GLfloat v0) {
+  if (location == -1) {
+    return;
+  }
+  Uniforme(location, v0);
+}
 
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
@@ -223,7 +238,14 @@ void PreprocessaFonte(const std::string& nome, std::string* fonte) {
 #define STRINGIFY_MACRO_VALUE(S) STRINGIFY(S)
 #define STRINGIFY(S) #S
   std::map<std::string, std::string> mapa = {
-    { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) }
+    { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) },
+#if USAR_OPENGL_ES
+    { "${VERSAO}", "100" },
+#elif __APPLE__
+    { "${VERSAO}", "120" },
+#else
+    { "${VERSAO}", "130" },
+#endif
   };
   for (const auto& par : mapa) {
     auto pos = fonte->find(par.first);
@@ -287,8 +309,10 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_luz_direcional.cor", &shader->uni_gltab_luz_direcional_cor },
           {"gltab_luz_direcional.pos", &shader->uni_gltab_luz_direcional_pos },
           {"gltab_textura", &shader->uni_gltab_textura },
+          {"gltab_textura_cubo", &shader->uni_gltab_textura_cubo },
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
+          {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
@@ -301,7 +325,7 @@ bool IniciaVariaveis(VarShader* shader) {
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
     if (*d.var == -1) {
-      LOG(ERROR) << "Erro lendo uniforme " << d.nome;
+      LOG(INFO) << "Shader nao possui uniforme " << d.nome;
     }
   }
   // Uniformes array.
@@ -313,7 +337,7 @@ bool IniciaVariaveis(VarShader* shader) {
       snprintf(nome_var, sizeof(nome_var), "gltab_luzes[%d].%s", i, sub_var);
       shader->uni_gltab_luzes[pos] = LocalUniforme(shader->programa, nome_var);
       if (shader->uni_gltab_luzes[pos] == -1) {
-        LOG(ERROR) << "Erro lendo uniforme " << nome_var;
+        LOG(INFO) << "Shader nao possui uniforme array" << nome_var;
       }
       ++j;
     }
@@ -328,7 +352,7 @@ bool IniciaVariaveis(VarShader* shader) {
   }) {
     *d.var = LeLocalAtributo(shader->programa, d.nome);
     if (*d.var == -1) {
-      LOG(ERROR) << "Erro lendo atributo " << d.nome;
+      LOG(INFO) << "Shader nao possui atributo " << d.nome;
       continue;
     }
     LOG(INFO) << "Atributo " << d.nome << " na posicao " << *d.var;
@@ -353,6 +377,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
       luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
       &contexto->shaders[TSH_LUZ] },
     { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
+    { "programa_picking", "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
     { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
   };
@@ -423,7 +448,9 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    Uniforme(shader.uni_gltab_textura, 1.0f);
+    interno::UniformeSeValido(shader.uni_gltab_textura, 1.0f);
+  } else if (cap == GL_TEXTURE_CUBE_MAP) {
+    interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 1.0f);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -467,7 +494,9 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    Uniforme(shader.uni_gltab_textura, 0.0f);
+    interno::UniformeSeValido(shader.uni_gltab_textura, 0.0f);
+  } else if (cap == GL_TEXTURE_CUBE_MAP) {
+    interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 0.0f);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -545,7 +574,7 @@ void EmpilhaMatriz(bool atualizar) {
   c->pilha_corrente->push(m);
   interno::EmpilhaMatrizSombra();
   // Nao precisa porque a matriz empilhada eh igual.
-  //if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  //if (atualizar) AtualizaMatrizes();
 }
 
 void DesempilhaMatriz(bool atualizar) {
@@ -558,7 +587,7 @@ void DesempilhaMatriz(bool atualizar) {
 #endif
   c->pilha_corrente->pop();
   interno::DesempilhaMatrizSombra();
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 int ModoMatrizCorrente() {
@@ -580,13 +609,13 @@ void MudarModoMatriz(int modo) {
   } else {
     c->pilha_corrente = &c->pilha_mvm_sombra;
   }
-  //ATUALIZA_MATRIZES_NOVO();
+  //AtualizaMatrizes();
 }
 
 void CarregaIdentidade(bool atualizar) {
   interno::BuscaContexto()->pilha_corrente->top().identity();
   interno::IdentidadeMatrizSombra();
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
@@ -594,7 +623,7 @@ void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
   Matrix4 m4(matriz);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
@@ -602,7 +631,7 @@ void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   Matrix4 m4 = Matrix4().scale(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
@@ -610,14 +639,14 @@ void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   Matrix4 m4 = Matrix4().translate(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombra(m4);
-  if (atualizar) ATUALIZA_MATRIZES_NOVO();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void TamanhoPonto(float tam) {
@@ -663,11 +692,15 @@ void Normal(GLfloat x, GLfloat y, GLfloat z) {
 }
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores) {
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+  if (interno::BuscaShader().atr_gltab_cor != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_cor, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, cores);
+  }
 }
 
 void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices) {
-  PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  if (interno::BuscaShader().atr_gltab_texel != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_texel, 2  /**dimensoes*/, GL_FLOAT, GL_FALSE, passo, vertices);
+  }
 }
 
 bool EstaHabilitado(GLenum cap) {
@@ -697,9 +730,19 @@ bool EstaHabilitado(GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0;
   } else if (cap == GL_TEXTURE_2D) {
+    if (shader.uni_gltab_textura == -1) {
+      return false;
+    }
     GLfloat fret;
     LeUniforme(shader.programa, shader.uni_gltab_textura, &fret);
-    return fret;
+    return fret > 0.5f;
+  } else if (cap == GL_TEXTURE_CUBE_MAP) {
+    if (shader.uni_gltab_textura_cubo == -1) {
+      return false;
+    }
+    GLfloat fret;
+    LeUniforme(shader.programa, shader.uni_gltab_textura_cubo, &fret);
+    return fret > 0.5f;
   } else if (cap == GL_FOG) {
     if (!interno::UsandoShaderComNevoa()) {
       return false;
@@ -809,7 +852,7 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   m[3][3] = 0;
   Matrix4& topo = interno::BuscaContexto()->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
@@ -849,7 +892,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   Matrix4& topo = c->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
   topo *= Matrix4().translate(-eyex, -eyey, -eyez);
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
@@ -868,7 +911,7 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   // da na mesma.
   //c->pilha_corrente->top() = m * topo;
   c->pilha_corrente->top() = topo * m;
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
@@ -883,7 +926,7 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
       (viewport[3] - 2 * (y - viewport[1])) / delta_y,
       0);
   topo *= mt;
-  ATUALIZA_MATRIZES_NOVO();
+  AtualizaMatrizes();
 }
 
 GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
@@ -928,9 +971,13 @@ void HabilitaEstadoCliente(GLenum cap) {
     }
     HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    if (interno::BuscaShader().atr_gltab_cor != -1) {
+      HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    }
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    if (interno::BuscaShader().atr_gltab_texel != -1) {
+      HabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    }
   } else {
     glEnableClientState(cap);
   }
@@ -945,9 +992,13 @@ void DesabilitaEstadoCliente(GLenum cap) {
     }
     DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_normal);
   } else if (cap == GL_COLOR_ARRAY) {
-    DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    if (interno::BuscaShader().atr_gltab_cor != -1) {
+      DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_cor);
+    }
   } else if (cap == GL_TEXTURE_COORD_ARRAY) {
-    DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    if (interno::BuscaShader().atr_gltab_texel != -1) {
+      DesabilitaVetorAtributosVertice(interno::BuscaShader().atr_gltab_texel);
+    }
   } else {
     glDisableClientState(cap);
   }
@@ -956,7 +1007,13 @@ void DesabilitaEstadoCliente(GLenum cap) {
 void UsaShader(TipoShader ts) {
   auto* c = interno::BuscaContexto();
   UsaPrograma(c->shaders[ts].programa);
-  c->shader_corrente = &c->shaders[ts];
+  auto* shader = c->shader_corrente = &c->shaders[ts];
+  // Atualiza as variaveis de shader.
+  AtualizaTodasMatrizes();
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura, 0);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
+
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
 
@@ -972,7 +1029,7 @@ GLint IdMatrizCorrente(const interno::VarShader& shader) {
 }
 }  // namespace
 
-void AtualizaMatrizesNovo() {
+void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();
   int modo = ModoMatrizCorrente();
   const interno::VarShader& shader = interno::BuscaShader();
@@ -996,6 +1053,29 @@ void AtualizaMatrizesNovo() {
 #if USAR_FRAMEBUFFER
   Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
 #endif
+}
+
+void AtualizaTodasMatrizes() {
+  auto* c = interno::BuscaContexto();
+  const interno::VarShader& shader = interno::BuscaShader();
+  struct DadosMatriz {
+    GLint id;
+    Matrix4* matriz;
+  };
+  std::vector<DadosMatriz> dados_matriz = {
+    { shader.uni_gltab_mvm, &c->pilha_mvm.top() },
+    { shader.uni_gltab_prm, &c->pilha_prj.top() },
+    { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
+    { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
+  };
+  for (const auto& dm : dados_matriz) {
+    if (dm.id != -1) {
+      Matriz4Uniforme(dm.id, 1, false, dm.matriz->get());
+    }
+  }
+  if (shader.uni_gltab_nm != -1) {
+    Matriz3Uniforme(shader.uni_gltab_nm, 1, false, c->matriz_normal.get());
+  }
 }
 
 void DebugaMatrizes() {
@@ -1064,7 +1144,9 @@ void CarregaNome(GLuint id) {
     VLOG(2) << "Mapeando " << id << ", bit pilha " << c->bit_pilha
             << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
     // Muda a cor para a mapeada.
-    AtributoVertice(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+    if (interno::BuscaShader().atr_gltab_cor != -1) {
+      AtributoVertice(interno::BuscaShader().atr_gltab_cor, rgb[0] / 255.0f, rgb[1] / 255.0f, rgb[2] / 255.0f, 1.0f);
+    }
   } else {
 #if !USAR_OPENGL_ES
     glLoadName(id);
@@ -1215,7 +1297,9 @@ void MudaCor(float r, float g, float b, float a) {
     // So muda no modo de renderizacao pra nao estragar o picking por cor.
     return;
   }
-  AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
+  if (interno::BuscaShader().atr_gltab_cor != -1) {
+    AtributoVertice(interno::BuscaShader().atr_gltab_cor, r, g, b, a);
+  }
 }
 
 void Limpa(GLbitfield mascara) {
@@ -1251,7 +1335,7 @@ void Habilita(GLenum cap) {
 
 void Desabilita(GLenum cap) {
   interno::DesabilitaComShader(interno::BuscaContexto(), cap);
-  V_ERRO((std::string("desabilitando es cap: ") + std::to_string((int)cap)).c_str());
+  V_ERRO((std::string("desabilitando es cap: ") + net::to_string((int)cap)).c_str());
 }
 
 void UnidadeTextura(GLenum unidade) {
@@ -1260,13 +1344,6 @@ void UnidadeTextura(GLenum unidade) {
 #else
   glActiveTexture(unidade);
 #endif
-  // Atualiza as variaveis de shader, se houver. Meio hacky mas ok.
-  const auto& shader = interno::BuscaShader();
-  if (unidade == GL_TEXTURE0) {
-    Uniforme(shader.uni_gltab_unidade_textura, 0);
-  } else if (unidade == GL_TEXTURE1) {
-    Uniforme(shader.uni_gltab_unidade_textura_sombra, 1);
-  }
 }
 
 void FinalizaGl() {

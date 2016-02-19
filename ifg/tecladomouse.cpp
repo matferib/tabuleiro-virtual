@@ -187,7 +187,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       // Nao pode usar == pq a seta tambem aplica modificador de keypad.
       float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
       if ((modificadores & Modificador_Ctrl) != 0) {
-        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(incremento);
+        tabuleiro_->TrataTranslacaoZ(incremento);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, incremento);
       }
@@ -196,7 +196,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
     case Tecla_Baixo: {
       float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
       if ((modificadores & Modificador_Ctrl) != 0) {
-        tabuleiro_->TrataTranslacaoZEntidadesSelecionadas(incremento);
+        tabuleiro_->TrataTranslacaoZ(incremento);
       } else {
         tabuleiro_->TrataMovimentoEntidadesSelecionadas(true, incremento);
       }

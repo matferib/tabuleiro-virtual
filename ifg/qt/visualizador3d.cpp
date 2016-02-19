@@ -117,9 +117,10 @@ botoesmouse_e BotaoMouseQtParaTratadorTecladoMouse(int botao_qt) {
 }
 
 // Formato da janela.
-QGLFormat Formato(bool anti_aliasing) {
-  return QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel |
-                   (anti_aliasing ? QGL::SampleBuffers : QGL::NoSampleBuffers));
+QGLFormat Formato() {
+  auto format = QGLFormat(QGL::DepthBuffer | QGL::Rgba | QGL::DoubleBuffer | QGL::AlphaChannel | QGL::SampleBuffers);
+  //format.setVersion(3, 3);
+  return format;
 }
 
 void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
@@ -135,12 +136,65 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
 // o nome sera prefixado por id.
 void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
   combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
-  std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA);
-  std::sort(texturas.begin(), texturas.end());
-  std::vector<std::string> texturas_baixadas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA);
-  std::sort(texturas_baixadas.begin(), texturas_baixadas.end());
-  std::vector<std::string> texturas_locais = arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL);
-  std::sort(texturas_locais.begin(), texturas_locais.end());
+  auto FiltraOrdena = [] (std::vector<std::string> texturas) -> std::vector<std::string> {
+    std::sort(texturas.begin(), texturas.end());
+    return texturas;
+  };
+  std::vector<std::string> texturas = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA)));
+  std::vector<std::string> texturas_baixadas = std::move(FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA))));
+  std::vector<std::string> texturas_locais = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL)));
+
+  AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
+  for (const std::string& textura : texturas) {
+    combo_textura->addItem(QString(textura.c_str()), QVariant(arq::TIPO_TEXTURA));
+  }
+  AdicionaSeparador(combo_textura->tr("Baixadas"), combo_textura);
+  for (const std::string& textura : texturas_baixadas) {
+    combo_textura->addItem(textura.c_str(), QVariant(arq::TIPO_TEXTURA_BAIXADA));
+  }
+  AdicionaSeparador(combo_textura->tr("Locais"), combo_textura);
+  QString prefixo = QString::number(id_cliente).append(":");
+  for (const std::string& textura : texturas_locais) {
+    combo_textura->addItem(QString(prefixo).append(textura.c_str()), QVariant(arq::TIPO_TEXTURA_LOCAL));
+  }
+  if (id_corrente.empty()) {
+    combo_textura->setCurrentIndex(0);
+  } else {
+    int index = combo_textura->findText(QString(id_corrente.c_str()));
+    if (index == -1) {
+      index = 0;
+    }
+    combo_textura->setCurrentIndex(index);
+  }
+}
+
+void PreencheComboTexturaCeu(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
+  combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
+  auto NaoEhSkybox = [] (const std::string& nome_arquivo) {
+    return nome_arquivo.find("skybox") != 0;
+  };
+  auto EhCuboSecundario = [] (const std::string& nome_arquivo) {
+    return nome_arquivo.find("negx.png") != std::string::npos ||
+           nome_arquivo.find("posy.png") != std::string::npos ||
+           nome_arquivo.find("negy.png") != std::string::npos ||
+           nome_arquivo.find("posz.png") != std::string::npos ||
+           nome_arquivo.find("negz.png") != std::string::npos;
+  };
+  auto FiltraOrdena = [NaoEhSkybox, EhCuboSecundario] (std::vector<std::string> texturas) -> std::vector<std::string> {
+    texturas.erase(std::remove_if(texturas.begin(), texturas.end(), NaoEhSkybox), texturas.end());
+    texturas.erase(std::remove_if(texturas.begin(), texturas.end(), EhCuboSecundario), texturas.end());
+    for (std::string& textura : texturas) {
+      std::size_t pos = textura.find("posx.png");
+      if (pos != std::string::npos) {
+        textura.replace(pos, 8, ".cube");
+      }
+    }
+    std::sort(texturas.begin(), texturas.end());
+    return texturas;
+  };
+  std::vector<std::string> texturas = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA)));
+  std::vector<std::string> texturas_baixadas = std::move(FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA))));
+  std::vector<std::string> texturas_locais = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL)));
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
@@ -196,9 +250,9 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv, bool anti_aliasing, TratadorTecladoMouse* teclado_mouse,
+    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
-    :  QGLWidget(Formato(anti_aliasing  /*anti_aliasing*/), pai),
+    :  QGLWidget(Formato(), pai),
        argcp_(argcp), argv_(argv),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
@@ -872,7 +926,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   // Textura do tabuleiro.
   PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_fundo);
   // Ceu do tabuleiro.
-  PreencheComboTextura(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
+  PreencheComboTexturaCeu(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
 
   // Ladrilho de textura.
@@ -1034,17 +1088,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_iluminacao_mestre->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_rosa_dos_ventos(
         gerador.checkbox_rosa_dos_ventos->checkState() == Qt::Checked ? true : false);
-    if (gerador.checkbox_anti_aliasing->checkState() == Qt::Checked) {
-#if __linux__ && !ANDROID
-      setFormat(Formato(true));
-#endif
-      proto_retornado->set_anti_aliasing(true);
-    } else {
-#if __linux__ && !ANDROID
-      setFormat(Formato(false));
-#endif
-      proto_retornado->set_anti_aliasing(false);
-    }
+    proto_retornado->set_anti_aliasing(gerador.checkbox_anti_aliasing->checkState() == Qt::Checked);
     proto_retornado->set_desenha_grade(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_controle_virtual(

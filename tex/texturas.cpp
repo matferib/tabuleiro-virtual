@@ -13,7 +13,7 @@
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
-#define VLOG_NIVEL 1
+#define VLOG_NIVEL 0
 #include "log/log.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/lodepng.h"
@@ -73,8 +73,8 @@ void LeImagem(arq::tipo_e tipo, const std::string& nome, std::vector<unsigned ch
 
 /** Decodifica os dados crus de info_textura, devolvendo altura, largura e os bits decodificados. */
 void DecodificaImagem(
-    const ent::InfoTextura& info_textura, unsigned int* plargura, unsigned int* paltura, std::vector<unsigned char>* bits) {
-  std::vector<unsigned char> dados_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
+    const std::string& dados_entrada, unsigned int* plargura, unsigned int* paltura, std::vector<unsigned char>* bits) {
+  std::vector<unsigned char> dados_crus(dados_entrada.begin(), dados_entrada.end());
   std::vector<unsigned char> dados;
   lodepng::State estado;
   unsigned int largura = 0, altura = 0;
@@ -126,11 +126,10 @@ class Texturas::InfoTexturaInterna {
     imagem_ = info_textura;
     imagem_.set_id(id_mapa);
     // Decodifica.
-    std::vector<unsigned char> bits_crus(info_textura.bits_crus().begin(), info_textura.bits_crus().end());
     try {
       DecodificaImagem(info_textura);
     } catch (const std::exception& e) {
-      LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what();
+      LOG(ERROR) << "Textura inválida: " << e.what() << ", textura: " << info_textura.id() << ", cubo: " << info_textura.textura_cubo();
       return;
     }
     // Cria a textura openGL.
@@ -155,6 +154,9 @@ class Texturas::InfoTexturaInterna {
 
   // Retorna id opengl da textura.
   GLuint Id() const { return id_; }
+
+  // Retorna o tipo de textura.
+  GLenum Tipo() const { return imagem_.textura_cubo() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D; }
 
   // Incremento e decremento de contador de refencia.
   int Ref() { return ++contador_; }
@@ -193,6 +195,14 @@ class Texturas::InfoTexturaInterna {
 
   // Cria a textura openGL. Publica para Recarregar poder acessar tambem.
   void CriaTexturaOpenGl() {
+    if (!imagem_.textura_cubo()) {
+      CriaTexturaOpenGlNormal();
+    } else {
+      CriaTexturaOpenGlCubo();
+    }
+  }
+
+  void CriaTexturaOpenGlNormal() {
     // So cria se a textura tiver bits.
     if (bits_.empty()) {
       return;
@@ -238,10 +248,93 @@ class Texturas::InfoTexturaInterna {
     V_ERRO("CriaTexturaOpenGl");
   }
 
+  void CriaTexturaOpenGlCubo() {
+    // So cria se a textura tiver bits.
+    if (bits_posx_.empty() || bits_posy_.empty() || bits_posz_.empty() ||
+        bits_negx_.empty() || bits_negy_.empty() || bits_negz_.empty()) {
+      return;
+    }
+    gl::GeraTexturas(1, &id_);
+    V_ERRO("GeraTexturasCubo");
+    VLOG(1) << "Criando textura cubo para: " << imagem_.id() << ", id openGL: " << id_;
+    if (id_ == GL_INVALID_VALUE) {
+      throw std::logic_error("Erro criando textura cubo (glGenTextures)");
+    }
+    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, id_);
+    V_ERRO("Ligacao Cubo");
+    // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
+    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
+#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLfloat aniso = 0;
+    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    if (aniso <= 0) {
+      // Trilinear.
+      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+      // Melhora muito as texturas. Mipmap + aniso.
+      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    }
+#else
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#if !USAR_OPENGL_ES
+    // Nao sei se precisa disso...
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+#endif
+    // Carrega a textura.
+    struct DadosTextura {
+      GLenum alvo;
+      std::vector<unsigned char>* bits;
+    };
+    std::vector<DadosTextura> dados_texturas = {
+      { GL_TEXTURE_CUBE_MAP_POSITIVE_X, &bits_posx_ },
+      { GL_TEXTURE_CUBE_MAP_POSITIVE_Y, &bits_posy_ },
+      { GL_TEXTURE_CUBE_MAP_POSITIVE_Z, &bits_posz_ },
+      { GL_TEXTURE_CUBE_MAP_NEGATIVE_X, &bits_negx_ },
+      { GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, &bits_negy_ },
+      { GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, &bits_negz_ },
+    };
+    for (const auto& dado_textura : dados_texturas) {
+      gl::ImagemTextura2d(
+          dado_textura.alvo,
+          0, GL_RGBA,
+          largura_, altura_,
+          0, FormatoImagem(), TipoImagem(),
+          dado_textura.bits->data());
+      V_ERRO("ImagemCubo");
+    }
+#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
+    // TODO wrapper para outros...
+    gl::GeraMipmap(GL_TEXTURE_CUBE_MAP);
+#endif
+    gl::Desabilita(GL_TEXTURE_CUBE_MAP);
+    V_ERRO("CriaTexturaOpenGlCubo");
+  }
+
  private:
   /** Decodifica os dados_crus, preenchendo info_textura. */
   void DecodificaImagem(const ent::InfoTextura& info_textura) {
-    tex::DecodificaImagem(info_textura, &largura_, &altura_, &bits_);
+    if (!info_textura.textura_cubo()) {
+      tex::DecodificaImagem(info_textura.bits_crus(), &largura_, &altura_, &bits_);
+    } else {
+      unsigned int largura, altura;
+      tex::DecodificaImagem(info_textura.bits_crus_posx(), &largura_, &altura_, &bits_posx_);
+      tex::DecodificaImagem(info_textura.bits_crus_posy(), &largura, &altura, &bits_posy_);
+      if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
+      tex::DecodificaImagem(info_textura.bits_crus_posz(), &largura, &altura, &bits_posz_);
+      if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
+      tex::DecodificaImagem(info_textura.bits_crus_negx(), &largura, &altura, &bits_negx_);
+      if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
+      tex::DecodificaImagem(info_textura.bits_crus_negy(), &largura, &altura, &bits_negy_);
+      if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
+      tex::DecodificaImagem(info_textura.bits_crus_negz(), &largura, &altura, &bits_negz_);
+      if (largura_ != largura) throw std::logic_error("tamanho invalido de textura");
+    }
   }
 
  private:
@@ -255,6 +348,12 @@ class Texturas::InfoTexturaInterna {
   unsigned int altura_;
   int formato_;
   std::vector<unsigned char> bits_;
+  std::vector<unsigned char> bits_posx_;
+  std::vector<unsigned char> bits_posy_;
+  std::vector<unsigned char> bits_posz_;
+  std::vector<unsigned char> bits_negx_;
+  std::vector<unsigned char> bits_negy_;
+  std::vector<unsigned char> bits_negz_;
 };
 
 Texturas::Texturas(ntf::CentralNotificacoes* central) {
@@ -377,6 +476,15 @@ unsigned int Texturas::Textura(const std::string& id) const {
   }
   return info_interna->Id();
 }
+
+unsigned int Texturas::TipoTextura(const std::string& id) const {
+  const InfoTexturaInterna* info_interna = InfoInterna(id);
+  if (info_interna == nullptr) {
+    return GL_TEXTURE_2D;
+  }
+  return info_interna->Tipo();
+}
+
 // Fim da interface ent::Texturas.
 
 void Texturas::Recarrega(bool rele) {
@@ -411,7 +519,11 @@ const Texturas::InfoTexturaInterna* Texturas::InfoInterna(const std::string& id)
   return it->second;
 }
 
-void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
+void Texturas::CarregaTextura(const ent::InfoTextura& info_textura_const) {
+  ent::InfoTextura info_textura(info_textura_const);
+  if (info_textura.id().find(".cube") != std::string::npos) {
+    info_textura.set_textura_cubo(true);
+  }
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna != nullptr) {
     int contador = info_interna->Ref();
@@ -422,30 +534,63 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
   if (info_textura.has_bits_crus()) {
     VLOG(1) << "Carregando textura local com bits crus, id: '" << info_textura.id() << "'.";
     texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), false  /*global*/, info_textura)));
-  } else if (info_textura.has_deprecated_bits()) {
-    // Este caso era quando armazenava a textura por bits decodificados nao compactados. Gera arquivos muito grandes.
-    // Deprecated.
-    LOG(WARNING) << "WARNING: Carregando textura local com bits, id: '" << info_textura.id() << "'.";
-    texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), false  /*global*/, info_textura)));
   } else {
-    // Textura global.
-    VLOG(1) << "Carregando textura global, id: '" << info_textura.id() << "'.";
-    try {
+    if (!info_textura.textura_cubo()) {
+      // Textura global.
+      VLOG(1) << "Carregando textura global, id: '" << info_textura.id() << "'.";
+      try {
+        ent::InfoTextura info_lido;
+        std::vector<unsigned char> lido;
+        LeImagem(true  /*global*/, info_textura.id(), &lido);
+        info_lido.set_id(info_textura.id());
+        info_lido.mutable_bits_crus()->resize(lido.size());
+        info_lido.mutable_bits_crus()->assign((char*)lido.data(), (char*)(lido.data() + lido.size()));
+        if (FormatoImagem() == -1) {
+          throw std::logic_error("formato invalido");
+        }
+        texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/, info_lido)));
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what()
+                   << ", info_textura: " << info_textura.ShortDebugString();
+        // Cria textura fake.
+        texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/)));
+      }
+    } else {
+      // Textura cubo global.
+      VLOG(1) << "Carregando textura cubo global, id: '" << info_textura.id() << "'.";
+      struct DadosTextura {
+        std::string sufixo;
+        std::string* bits_crus;
+      };
       ent::InfoTextura info_lido;
-      std::vector<unsigned char> lido;
-      LeImagem(true  /*global*/, info_textura.id(), &lido);
-      info_lido.set_id(info_textura.id());
-      info_lido.mutable_bits_crus()->resize(lido.size());
-      info_lido.mutable_bits_crus()->assign((char*)lido.data(), (char*)(lido.data() + lido.size()));
-      if (FormatoImagem() == -1) {
-        throw std::logic_error("formato invalido");
+      const std::vector<DadosTextura> dados_texturas = {
+        { "negx.png", info_lido.mutable_bits_crus_negx() },
+        { "negy.png", info_lido.mutable_bits_crus_negy() },
+        { "negz.png", info_lido.mutable_bits_crus_negz() },
+        { "posx.png", info_lido.mutable_bits_crus_posx() },
+        { "posy.png", info_lido.mutable_bits_crus_posy() },
+        { "posz.png", info_lido.mutable_bits_crus_posz() }
+      };
+      try {
+        std::string prefixo = info_textura.id();
+        prefixo.replace(prefixo.find(".cube"), 5, "");
+        for (const auto& dados_textura : dados_texturas) {
+          std::vector<unsigned char> lido;
+          LeImagem(true  /*global*/, prefixo + dados_textura.sufixo, &lido);
+          info_lido.set_id(info_textura.id());
+          info_lido.set_textura_cubo(true);
+          dados_textura.bits_crus->resize(lido.size());
+          dados_textura.bits_crus->assign((char*)lido.data(), (char*)(lido.data() + lido.size()));
+          if (FormatoImagem() == -1) {
+            throw std::logic_error("formato invalido");
+          }
+        }
+      } catch (const std::exception& e) {
+        LOG(ERROR) << "Textura inválida: " << e.what() << ", info_textura: " << info_textura.ShortDebugString();
+        // Cria textura fake.
+        texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/)));
       }
       texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/, info_lido)));
-    } catch (const std::exception& e) {
-      LOG(ERROR) << "Textura inválida: " << info_textura.ShortDebugString() << ", excecao: " << e.what()
-                 << ", info_textura: " << info_textura.ShortDebugString();
-      // Cria textura fake.
-      texturas_.insert(make_pair(info_textura.id(), new InfoTexturaInterna(info_textura.id(), true  /*global*/)));
     }
   }
 }
@@ -453,7 +598,7 @@ void Texturas::CarregaTextura(const ent::InfoTextura& info_textura) {
 void Texturas::DescarregaTextura(const ent::InfoTextura& info_textura) {
   auto* info_interna = InfoInterna(info_textura.id());
   if (info_interna == nullptr) {
-    LOG(WARNING) << "Textura nao existente: " << info_textura.id();
+    LOG(WARNING) << "Textura nao existente para descarregar: " << info_textura.id();
   } else {
     int contador = info_interna->Deref();
     if (contador == 0) {
@@ -477,7 +622,7 @@ void Texturas::LeDecodificaImagem(
   info_textura->clear_bits_crus();
   info_textura->mutable_bits_crus()->append(dados_arquivo.begin(), dados_arquivo.end());
   std::vector<unsigned char> nao_usado;
-  DecodificaImagem(*info_textura, largura, altura, &nao_usado);
+  DecodificaImagem(info_textura->bits_crus(), largura, altura, &nao_usado);
 }
 
 void Texturas::LeDecodificaImagem(
@@ -490,7 +635,7 @@ void Texturas::LeDecodificaImagem(
   info_textura->clear_bits_crus();
   info_textura->mutable_bits_crus()->append(dados_arquivo.begin(), dados_arquivo.end());
   std::vector<unsigned char> nao_usado;
-  DecodificaImagem(*info_textura, largura, altura, &nao_usado);
+  DecodificaImagem(info_textura->bits_crus(), largura, altura, &nao_usado);
 }
 
 }  // namespace tex

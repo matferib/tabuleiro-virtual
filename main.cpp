@@ -50,7 +50,7 @@ int main(int argc, char** argv) {
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);
   //tabuleiro.AtivaInterfaceOpengl(&guiopengl);
   std::unique_ptr<ifg::qt::Principal> p(
-      ifg::qt::Principal::Cria(argc, argv, opcoes.anti_aliasing(), &tabuleiro, &texturas, &teclado_mouse, &central));
+      ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(p.get(), &teclado_mouse, &tabuleiro, &central);
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.

@@ -244,7 +244,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
       // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
       // Para picking, deve-se ignorar o stencil tb.
-      bool usar_stencil = (matriz_shear == nullptr) && !pd->has_picking_x();
+      bool usar_stencil = (matriz_shear == nullptr) && !pd->desenha_sombra_projetada() && !pd->has_picking_x();
       if (usar_stencil) {
         LigaStencil();
       }

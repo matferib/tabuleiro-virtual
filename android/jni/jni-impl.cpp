@@ -138,10 +138,10 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     g_central->AdicionaNotificacao(n);
     // TESTE
     try {
-      auto* ntf_tab = new ntf::Notificacao;
-      arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "deserto.binproto", ntf_tab);
-      ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-      g_central->AdicionaNotificacao(ntf_tab);
+      //auto* ntf_tab = new ntf::Notificacao;
+      //arq::LeArquivoBinProto(arq::TIPO_TABULEIRO_ESTATICO, "deserto.binproto", ntf_tab);
+      //ntf_tab->set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
+      //g_central->AdicionaNotificacao(ntf_tab);
     } catch (...) {
       __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Falha lendo tabuleiro");
     }

@@ -26,6 +26,7 @@
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/tabuleiro_interface.h"
+#include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "log/log.h"
@@ -33,6 +34,14 @@
 #include "net/util.h"  // hack to_string
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
+
+#if USAR_OPENGL_ES
+#define USAR_FRAMEBUFFER_OPENGLES 1
+#else
+#define USAR_FRAMEBUFFER_OPENGLES 0
+#endif
+
+using google::protobuf::RepeatedField;
 
 namespace ent {
 
@@ -66,13 +75,24 @@ const double SENSIBILIDADE_ROTACAO_X = 0.01;
 const double SENSIBILIDADE_ROTACAO_Y = 0.08;
 
 /** expessura da linha da grade do tabuleiro. */
-const float EXPESSURA_LINHA = 0.2f;
+const float EXPESSURA_LINHA = 0.1f;
 const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
+
+// Os offsets servem para evitar zfight. Eles adicionam a profundidae um valor
+// dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
+// a camera e r eh o menor offset que gera diferenca no zbuffer.
+// Valores positivos afastam, negativos aproximam.
+const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
+const float OFFSET_TERRENO_ESCALA_R  = 2.0f;
+const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
+const float OFFSET_GRADE_ESCALA_R    = 1.0f;
+const float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
+const float OFFSET_RASTRO_ESCALA_R  = -20.0f;
 
 /** Distancia minima entre pontos no desenho livre. */
 const float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
@@ -264,6 +284,7 @@ Tabuleiro::Tabuleiro(
 }
 
 Tabuleiro::~Tabuleiro() {
+  LiberaFramebuffer();
   LiberaTextura();
   LiberaControleVirtual();
 }
@@ -279,6 +300,16 @@ void Tabuleiro::LiberaTextura() {
   VLOG(2) << "Liberando textura: " << proto_.info_textura().id();
   AtualizaTexturas(dummy);
 }
+
+void Tabuleiro::LiberaFramebuffer() {
+#if USAR_FRAMEBUFFER
+  LOG(ERROR) << "Liberando framebuffer";
+  gl::ApagaFramebuffers(1, &framebuffer_);
+  gl::ApagaTexturas(1, &textura_framebuffer_);
+  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
+#endif
+}
+
 
 void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Proto do tabuleiro.
@@ -356,14 +387,11 @@ void Tabuleiro::ConfiguraProjecao() {
 void Tabuleiro::ConfiguraOlhar() {
 #if USAR_FRAMEBUFFER
   if (parametros_desenho_.desenha_sombra_projetada()) {
-    //GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
-    //gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
-    //gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
-    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
     Matrix4 mr;
     mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
     mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
     mr.scale(150.0f);  // TODO valor.
+    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
     vl = mr * vl;
     //LOG(INFO) << vl;
     Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
@@ -372,14 +400,16 @@ void Tabuleiro::ConfiguraOlhar() {
       up.y = 1.0f;
       up.z = 0.0f;
     }
+    // Para usar a posicao alvo do olho como referencia.
+    //const Posicao& alvo = olho_.alvo();
     gl::OlharPara(
         // from.
+        //alvo.x() + vl.x, alvo.y() + vl.y, alvo.z() + vl.z,
         vl.x, vl.y, vl.z,
-        //100.0f, 0.0f, 100.0f,
         // to.
-        0.0f, 0.0f, 0.0f,
+        //alvo.x(), alvo.y(), alvo.z(),
+        0, 0, 0,
         // up
-        //0.0f, 0.0f, 1.0f);
         up.x, up.y, up.z);
     //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
     //LOG(INFO) << "mt: " << mt;
@@ -416,7 +446,6 @@ void Tabuleiro::DesenhaSombraProjetada() {
   }
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
-  gl::UsaShader(gl::TSH_LUZ);
   // Zera as coisas nao usadas na sombra.
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
@@ -441,43 +470,34 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_sombra_projetada(true);
   parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
 
+#if USAR_FRAMEBUFFER_OPENGLES
+  gl::UsaShader(gl::TSH_PROFUNDIDADE);
+#else
+  gl::UsaShader(gl::TSH_LUZ);
+#endif
+  gl::UnidadeTextura(GL_TEXTURE1);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
   gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-  parametros_desenho_.set_iluminacao(false);
-  glDrawBuffer(GL_NONE);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+#if !USAR_FRAMEBUFFER_OPENGLES
+  gl::BufferDesenho(GL_NONE);
   //gl::FaceNula(GL_FRONT);
+#endif
   DesenhaCena();
-  //gl::FaceNula(GL_BACK);
-
-  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
-  gl::CarregaIdentidade(false);
-  // Desloca os componentes xyz para do espaco [-1,1] para [0,1].
-  Matrix4 bias(
-      0.5, 0.0, 0.0, 0.0,
-      0.0, 0.5, 0.0, 0.0,
-      0.0, 0.0, 0.5, 0.0,
-      0.5, 0.5, 0.5, 1.0);
-  gl::MultiplicaMatriz(bias.get(), false);
-  ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
-  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glDrawBuffer(GL_BACK);
-  gl::UnidadeTextura(GL_TEXTURE1);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
-  gl::UnidadeTextura(GL_TEXTURE0);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  //gl::Habilita(GL_TEXTURE_2D);
-  gl::Desabilita(GL_TEXTURE_2D);
 #endif
 }
 
 int Tabuleiro::Desenha() {
+  TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
+
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
   timer_para_renderizacao_.start();
 
@@ -486,19 +506,20 @@ int Tabuleiro::Desenha() {
   // default. Alem disso a matriz de projecao eh diferente para picking.
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  gl::TipoShader tipo_shader;
   auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
   if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_sombra_projetada(false);
-    gl::UsaShader(gl::TSH_PRETO_BRANCO);
+    tipo_shader = gl::TSH_PRETO_BRANCO;
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_multiplicador_visao_penumbra(1.4f);
-    gl::UsaShader(gl::TSH_LUZ);
+    tipo_shader = gl::TSH_LUZ;
   } else {
-    gl::UsaShader(gl::TSH_LUZ);
+    tipo_shader = gl::TSH_LUZ;
   }
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   // Aplica opcoes do jogador.
@@ -530,9 +551,34 @@ int Tabuleiro::Desenha() {
   if (parametros_desenho_.desenha_sombras()) {
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaSombraProjetada();
+    // Restaura os valores e usa a textura como sombra.
+    //gl::FaceNula(GL_BACK);
+    gl::UsaShader(tipo_shader);
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+    gl::CarregaIdentidade(false);
+    Matrix4 bias(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0);
+    gl::MultiplicaMatriz(bias.get(), false);
+    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+#if !USAR_FRAMEBUFFER_OPENGLES
+    gl::BufferDesenho(GL_BACK);
+#endif
+    gl::UnidadeTextura(GL_TEXTURE1);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
   }
 #else
+  gl::UsaShader(tipo_shader);
   gl::UnidadeTextura(GL_TEXTURE0);
 #endif
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1050,8 +1096,13 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaEntidades(passou_ms);
       AtualizaAcoes(passou_ms);
       if (ciclos_para_atualizar_ == 0) {
-        RefrescaMovimentosParciais();
-        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        if (estado_ == ETAB_ENTS_TRANSLACAO_ROTACAO) {
+          RefrescaMovimentosParciais();
+          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
+        } else if (ModoClique() == MODO_TERRENO) {
+          RefrescaTerrenoParaClientes();
+          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        }
       } else if (ciclos_para_atualizar_ > 0) {
         --ciclos_para_atualizar_;
       }
@@ -1302,6 +1353,17 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
+    case ntf::TN_GERAR_TERRENO_ALEATORIO: {
+      GeraTerrenoAleatorioNotificando();
+      return true;
+    }
+    case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO: {
+      DeserializaRelevoCenario(notificacao.tabuleiro());
+      if (notificacao.local()) {
+        RefrescaTerrenoParaClientes();
+      }
+      return true;
+    }
     default: ;
   }
   return false;
@@ -1346,6 +1408,10 @@ void Tabuleiro::RefrescaMovimentosParciais() {
   }
 }
 
+void Tabuleiro::RefrescaTerrenoParaClientes() {
+  central_->AdicionaNotificacaoRemota(SerializaRelevoCenario());
+}
+
 void Tabuleiro::TrataTeclaPressionada(int tecla) {
   return;
 #if 0
@@ -1382,6 +1448,8 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     TrataNotificacao(grupo_notificacoes);
     // Para desfazer.
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  } else if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
   } else {
     if (camera_isometrica_) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
@@ -1393,7 +1461,11 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
-  AtualizaRaioOlho(olho_.raio() / fator);
+  if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
+  } else {
+    AtualizaRaioOlho(olho_.raio() / fator);
+  }
 }
 
 void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
@@ -1423,12 +1495,12 @@ void Tabuleiro::TrataTranslacaoPorDelta(int x, int y, int nx, int ny) {
   // Faz picking do tabuleiro sem entidades.
   parametros_desenho_.set_desenha_entidades(false);
   float x0, y0, z0;
-  if (!MousePara3dTabuleiro(x, y, &x0, &y0, &z0)) {
+  if (!MousePara3dParaleloZero(x, y, &x0, &y0, &z0)) {
     return;
   }
 
   float x1, y1, z1;
-  if (!MousePara3dTabuleiro(nx, ny, &x1, &y1, &z1)) {
+  if (!MousePara3dParaleloZero(nx, ny, &x1, &y1, &z1)) {
     return;
   }
 
@@ -1531,19 +1603,34 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
-      if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
+      if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
         return;
       }
+      float dx = nx - ultimo_x_3d_;
+      float dy = ny - ultimo_y_3d_;
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
           continue;
         }
-        entidade_selecionada->MoveDelta(nx - ultimo_x_3d_, ny - ultimo_y_3d_, 0.0f);
+        float ex0 = entidade_selecionada->X();
+        float ey0 = entidade_selecionada->Y();
+        float ex1 = ex0 + dx;
+        float ey1 = ey0 + dy;
+        float z_antes = entidade_selecionada->Z();
+        float z_chao_antes = ZChao(ex0, ey0);
+        bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
+        float z_depois = 0.0f;
+        if (manter_chao) {
+          z_depois = ZChao(ex1, ey1);
+        } else {
+          z_depois = std::max(z_antes, ZChao(ex1, ey1));
+        }
+        entidade_selecionada->MovePara(ex1, ey1, z_depois);
         Posicao pos;
-        pos.set_x(entidade_selecionada->X());
-        pos.set_y(entidade_selecionada->Y());
-        pos.set_z(ZChao(pos.x(), pos.y()));
+        pos.set_x(ex1);
+        pos.set_y(ey1);
+        pos.set_z(0.0f);
         auto& vp = rastros_movimento_[id];
         int andou = AndouQuadrado(pos, vp.back());
         if (andou != 0) {
@@ -1572,7 +1659,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       ConfiguraOlhar();
       // Faz picking do tabuleiro sem entidades.
       float nx, ny, nz;
-      if (!MousePara3dTabuleiro(x, y, &nx, &ny, &nz)) {
+      if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
         return;
       }
 
@@ -1599,12 +1686,27 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
     }
     break;
+    case ETAB_RELEVO: {
+      TrataNivelamentoTerreno(x, y);
+      break;
+    }
     case ETAB_QUAD_PRESSIONADO:
+      if (modo_clique_ == MODO_TERRENO) {
+        estado_ = ETAB_RELEVO;
+        ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        notificacao_desfazer_.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+        auto* cenario_antes = notificacao_desfazer_.mutable_tabuleiro_antes();
+        cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
+        *cenario_antes->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+        TrataNivelamentoTerreno(x, y);
+        break;
+      }
+      // Passthough proposital.
     case ETAB_SELECIONANDO_ENTIDADES: {
       quadrado_selecionado_ = -1;
       float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
-      if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
+      if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
         return;
       }
@@ -1628,7 +1730,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     case ETAB_DESENHANDO: {
       float x3d, y3d, z3d;
       parametros_desenho_.set_desenha_entidades(false);
-      if (!MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d)) {
+      if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
         return;
       }
@@ -1726,7 +1828,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   Posicao pos_tabuleiro;
   if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
-    MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+    MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
     unsigned int id_quadrado = IdQuadrado(x3d, y3d);
     VLOG(1) << "Acao no tabuleiro: " << id_quadrado;
     // Tabuleiro, posicao do quadrado clicado.
@@ -1867,6 +1969,18 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     entidade->mutable_lista_acoes()->CopyFrom(e->Proto().lista_acoes());
     central_->AdicionaNotificacaoRemota(n);
   }
+}
+
+void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  // converte x3d e y3d em um quadrado.
+  primeiro_x_3d_ = x3d;
+  primeiro_y_3d_ = y3d;
+  primeiro_z_3d_ = z3d;
+  unsigned int id_quadrado = IdQuadrado(x3d, y3d);
+  if (id_quadrado == static_cast<unsigned long>(-1)) {
+    return;
+  }
+  SelecionaQuadrado(id_quadrado);
 }
 
 void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned int id, unsigned int tipo_objeto) {
@@ -2085,6 +2199,11 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+  if (opcoes_.anti_aliasing()) {
+    gl::Habilita(GL_MULTISAMPLE);
+  } else {
+    gl::Desabilita(GL_MULTISAMPLE);
+  }
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
@@ -2244,10 +2363,6 @@ void Tabuleiro::DesenhaCena() {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
-  // Caso o parametros_desenho_.desenha_fps() seja false, ele computara mas nao desenhara o objeto.
-  // Isso eh importante para computacao de frames lentos, mesmo que nao seja mostrado naquele quadro.
-  TimerEscopo timer_escopo(this, parametros_desenho_.desenha_fps() || opcoes_.mostra_fps());
-
   gl::InicioCena();
   gl::IniciaNomes();
   V_ERRO("Inicio cena");
@@ -2316,15 +2431,19 @@ void Tabuleiro::DesenhaCena() {
     if (parametros_desenho_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
       // Pra evitar z fight, desliga a profundidade,
+#if !USAR_FRAMEBUFFER
       gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+#endif
       DesenhaGrade();
     }
+    DesenhaQuadradoSelecionado();
   }
   V_ERRO("desenhando tabuleiro");
 
   if (opcoes_.desenha_olho()) {
     DesenhaOlho();
   }
+  V_ERRO("desenhando olho");
 
 #if 0
   // Algumas verificacoes.
@@ -2348,6 +2467,7 @@ void Tabuleiro::DesenhaCena() {
     gl::TipoEscopo pontos(OBJ_ROLAGEM);
     DesenhaPontosRolagem();
   }
+  V_ERRO("desenhando pontos rolagem");
 
   if (parametros_desenho_.desenha_entidades()) {
     gl::TipoEscopo nomes(OBJ_ENTIDADE);
@@ -2394,7 +2514,7 @@ void Tabuleiro::DesenhaCena() {
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-    gl::DesvioProfundidade(-3.0f, -30.0f);
+    gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
     MudaCorAlfa(COR_AZUL_ALFA);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
   }
@@ -2430,7 +2550,7 @@ void Tabuleiro::DesenhaCena() {
   //-------------
   // DESENHOS 2D.
   //-------------
-#if 0 && USAR_FRAMEBUFFER
+#if 1 && DEBUG && USAR_FRAMEBUFFER
   if (!parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
@@ -2443,10 +2563,9 @@ void Tabuleiro::DesenhaCena() {
 
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
-    /*
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
-    */
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 #endif
@@ -2600,182 +2719,97 @@ void Tabuleiro::GeraVboCaixaCeu() {
   vbo_caixa_ceu_.Grava(vbo);
 }
 
-float AlturaCoord(int xq, int yq) {
-  return 0.0f;
-  float x_2 = 10.0f;
-  float y_2 = 10.0f;
-  if ((xq == x_2 && yq == y_2) ||
-      ((xq + 1) == x_2 && yq == y_2) ||
-      ((xq + 1) == x_2 && (yq + 1) == y_2) ||
-      (xq == x_2 && (yq + 1) == y_2)) {
-    return 3.0f;
-  }
-  return 0.0;
-}
-
 void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro inicio");
   std::vector<float> coordenadas_tabuleiro;
   std::vector<float> coordenadas_textura;
+  std::vector<float> coordenadas_normais;
   std::vector<unsigned short> indices_tabuleiro;
-
-  unsigned short indice = 0;
-  float x = 0, y = 0;
-  float tamanho_texel_h;
-  float tamanho_texel_v;
-  if (proto_corrente_->ladrilho()) {
-    tamanho_texel_h = 1.0f;
-    tamanho_texel_v = 1.0f;
-  } else {
-    tamanho_texel_h = 1.0f / TamanhoX();
-    tamanho_texel_v = 1.0f / TamanhoY();
+  if (!proto_corrente_->ponto_terreno().empty() &&
+      proto_corrente_->ponto_terreno_size() != (TamanhoX() + 1) * (TamanhoY() + 1)) {
+    LOG(ERROR) << "Tamanho de terreno invalido";
+    return;
   }
-  for (int y_tab = 0; y_tab < TamanhoY(); ++y_tab) {
-    if (indice + 4 > USHRT_MAX) {
-      LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoX() << "x" << TamanhoY();
-      break;
-    }
-    float inicio_texel_v = proto_corrente_->ladrilho() ? 0.0f : (TamanhoY() - y_tab) * tamanho_texel_v;
-    float inicio_texel_h = 0.0f;
-    for (int x_tab = 0; x_tab < TamanhoX(); ++x_tab) {
-      if (indice + 4 > USHRT_MAX) {
-        LOG(ERROR) << "Tabuleiro muito grande: " << TamanhoY() << "y" << TamanhoY();
-        break;
-      }
-      // desenha quadrado
-      coordenadas_tabuleiro.push_back(x);
-      coordenadas_tabuleiro.push_back(y);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab));
-      coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(y);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab));
-      coordenadas_tabuleiro.push_back(x + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab + 1, y_tab + 1));
-      coordenadas_tabuleiro.push_back(x);
-      coordenadas_tabuleiro.push_back(y + TAMANHO_LADO_QUADRADO);
-      coordenadas_tabuleiro.push_back(AlturaCoord(x_tab, y_tab + 1));
-
-      coordenadas_textura.push_back(inicio_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v);
-      coordenadas_textura.push_back(inicio_texel_h + tamanho_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v);
-      coordenadas_textura.push_back(inicio_texel_h + tamanho_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v - tamanho_texel_v);
-      coordenadas_textura.push_back(inicio_texel_h);
-      coordenadas_textura.push_back(inicio_texel_v - tamanho_texel_v);
-
-      indices_tabuleiro.push_back(indice);
-      indices_tabuleiro.push_back(indice + 1);
-      indices_tabuleiro.push_back(indice + 2);
-      indices_tabuleiro.push_back(indice);
-      indices_tabuleiro.push_back(indice + 2);
-      indices_tabuleiro.push_back(indice + 3);
-      indice += 4;
-      x += TAMANHO_LADO_QUADRADO;
-      if (!proto_corrente_->ladrilho()) {
-        inicio_texel_h += tamanho_texel_h;
-      }
-    }
-    // volta tudo esquerda e sobe 1 quadrado
-    x = 0;
-    y += TAMANHO_LADO_QUADRADO;
-  }
+  LOG(INFO) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
+  Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(),
+                  Wrapper<RepeatedField<double>>(proto_corrente_->ponto_terreno()));
+  terreno.Preenche(&indices_tabuleiro,
+                   &coordenadas_tabuleiro,
+                   &coordenadas_normais,
+                   &coordenadas_textura);
   gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
   tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
   tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
+  tabuleiro_nao_gravado.AtribuiNormais(coordenadas_normais.data());
   V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  //vbo_tabuleiro_normais_ = std::move(tabuleiro_nao_gravado.ExtraiVboNormais());
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
   std::vector<float> coordenadas_grade;
   std::vector<unsigned short> indices_grade;
-  // A grade sera regerada independente dos valores do proto, ja que o controle se ela devera ser desenha ou nao
-  // e feito durante o desenho da cena.
-  const int x_2 = TamanhoX() / 2;
-  const int y_2 = TamanhoY() / 2;
-  const float tamanho_y = TamanhoY() * TAMANHO_LADO_QUADRADO;
-  const float tamanho_y_2 = tamanho_y / 2.0f;
-  const float tamanho_x = TamanhoX() * TAMANHO_LADO_QUADRADO;
-  const float tamanho_x_2 = tamanho_x / 2.0f;
-
-  // O tabuleiro tem caracteristicas diferentes se o numero de quadrados for par ou impar. Se for
-  // impar, a grade passa pelo centro do tabuleiro. Caso contrario ela ladeia o centro. Por isso
-  // ha o tratamento com base no tamanho, abaixo. O incremento eh o desvio de meio quadrado e o limite
-  // inferior eh onde comeca a desenhar a linha.
-  // Com shader nao precisa tesselizar, pois a nevoa eh por pixel.
-  indice = 0;
+  int indice = 0;
+  float deslocamento_x = -TamanhoX() * TAMANHO_LADO_QUADRADO_2;
+  float deslocamento_y = -TamanhoY() * TAMANHO_LADO_QUADRADO_2;
   // Linhas verticais (S-N).
   {
-    int limite_inferior = -x_2;
-    float incremento = 0.0f;
-    if (TamanhoX() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    // Divide (tesseliza) a grade em pedacos menores por causa do bug de fog. Quando usar shader isso nao sera mais necessario.
-    for (int i = limite_inferior; i <= x_2; ++i) {
-      float x = i * TAMANHO_LADO_QUADRADO + incremento;
-      float x_inicial = x - EXPESSURA_LINHA_2;
-      float x_final = x + EXPESSURA_LINHA_2;
-      float y_inicial = -tamanho_y_2;
-      float y_final = y_inicial + tamanho_y;
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 1);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice + 3);
-      indice += 4;
+    for (int xcorrente = 0; xcorrente <= TamanhoX(); ++xcorrente) {
+      float x_inicial = (xcorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_x;
+      float x_final = x_inicial + EXPESSURA_LINHA;
+      for (int ycorrente = 0; ycorrente < TamanhoY(); ++ycorrente) {
+        float y_inicial = ycorrente * TAMANHO_LADO_QUADRADO + deslocamento_y;
+        float y_final = y_inicial + TAMANHO_LADO_QUADRADO;
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente + 1));
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente + 1));
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 1);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice + 3);
+        indice += 4;
+      }
     }
   }
   {
-    // Linhas horizontais (W-E).
-    int limite_inferior = -y_2;
-    float incremento = 0.0f;
-    if (TamanhoY() % 2 != 0) {
-      --limite_inferior;
-      incremento = TAMANHO_LADO_QUADRADO_2;
-    }
-    for (int i = limite_inferior; i <= y_2; ++i) {
-      float y = i * TAMANHO_LADO_QUADRADO + incremento;
-      float y_inicial = y - EXPESSURA_LINHA_2;
-      float y_final = y + EXPESSURA_LINHA_2;
-      float x_inicial = -tamanho_x_2;
-      float x_final = x_inicial + tamanho_x;
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_inicial);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_final);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      coordenadas_grade.push_back(x_inicial);
-      coordenadas_grade.push_back(y_final);
-      coordenadas_grade.push_back(0.0f);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 1);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice);
-      indices_grade.push_back(indice + 2);
-      indices_grade.push_back(indice + 3);
-      indice += 4;
+    for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
+      float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_y;
+      float y_final = y_inicial + EXPESSURA_LINHA;
+      for (int xcorrente = 0; xcorrente < TamanhoX(); ++xcorrente) {
+        float x_inicial = xcorrente * TAMANHO_LADO_QUADRADO + deslocamento_x;
+        float x_final = x_inicial + TAMANHO_LADO_QUADRADO;
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_inicial);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente + 1, ycorrente));
+        coordenadas_grade.push_back(x_final);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente + 1, ycorrente));
+        coordenadas_grade.push_back(x_inicial);
+        coordenadas_grade.push_back(y_final);
+        coordenadas_grade.push_back(AlturaPonto(xcorrente , ycorrente));
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 1);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice);
+        indices_grade.push_back(indice + 2);
+        indices_grade.push_back(indice + 3);
+        indice += 4;
+      }
     }
   }
   gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
@@ -2787,24 +2821,158 @@ void Tabuleiro::RegeraVboTabuleiro() {
 
 void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER
-  V_ERRO("gerando framebuffer");
-  glGenFramebuffers(1, &framebuffer_);
-  glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-  glGenTextures(1, &textura_framebuffer_);
-  glBindTexture(GL_TEXTURE_2D, textura_framebuffer_);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+  LOG(ERROR) << "gerando framebuffer";
+  gl::GeraFramebuffers(1, &framebuffer_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  V_ERRO("LigacaoComFramebuffer");
+  gl::GeraTexturas(1, &textura_framebuffer_);
+  V_ERRO("GeraTexturas");
+  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+  V_ERRO("LigacaoComTextura");
+#if USAR_FRAMEBUFFER_OPENGLES
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+#else
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
+  // Nas versoes mais nova, usa-se ref.
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+#endif
+
+  V_ERRO("ImagemTextura2d");
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  V_ERRO("ParametroTextura");
+#if USAR_FRAMEBUFFER_OPENGLES
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
+  gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
+#else
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+#endif
+  V_ERRO("TexturaFramebuffer");
+
+  // No IOS da pau se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+  gl::BufferDesenho(GL_NONE);
+  gl::BufferLeitura(GL_NONE);
+  auto ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer incompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer completo";
+  }
 
   // Volta estado normal.
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
-  glBindTexture(GL_TEXTURE_2D, 0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+  LOG(ERROR) << "framebuffer gerado";
 #endif
+}
+
+void Tabuleiro::GeraTerrenoAleatorioNotificando() {
+  if (!EmModoMestre(true  /*secundario*/)) {
+    LOG(INFO) << "Apenas mestre pode gerar terreno.";
+    return;
+  }
+  std::vector<double> pontos;
+  try {
+    pontos = Terreno::CriaPontosAleatorios(TamanhoX(), TamanhoY());
+    if (pontos.size() != size_t((TamanhoX() + 1) * (TamanhoY() + 1))) {
+      throw std::logic_error("Geracao de terreno invalida");
+    }
+  } catch (const std::logic_error& e) {
+    LOG(ERROR) << "Geracao de terreno invalida: " << e.what();
+    return;
+  }
+  proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
+  std::copy(pontos.begin(), pontos.end(), proto_corrente_->mutable_ponto_terreno()->begin());
+  RegeraVboTabuleiro();
+  RefrescaTerrenoParaClientes();
+}
+
+namespace {
+
+void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, int)> funcao,
+                            int quad_x, int quad_y, int num_quad_x, RepeatedField<double>* pontos) {
+  for (int x = quad_x; x <= quad_x + 1; ++x) {
+    for (int y = quad_y; y <= quad_y + 1; ++y) {
+      int indice = Terreno::IndicePontoTabuleiro(x, y, num_quad_x);
+      if (indice < 0 || indice >= pontos->size()) {
+        LOG(ERROR) << "indice invalido: " << indice;
+      }
+      pontos->Set(indice, funcao(*pontos, indice));
+    }
+  }
+}
+
+}  // namespace
+
+void Tabuleiro::TrataDeltaTerreno(float delta) {
+  if (estado_ != ETAB_QUAD_SELECIONADO) {
+    return;
+  }
+  ntf::Notificacao n_desfazer;
+  n_desfazer.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  {
+    auto* cenario_antes = n_desfazer.mutable_tabuleiro_antes();
+    cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_antes->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+
+  if (proto_corrente_->ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
+    proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
+  }
+  int quad_x = quadrado_selecionado_ % TamanhoX();
+  int quad_y = quadrado_selecionado_ / TamanhoX();
+  AtualizaAlturaQuadrado(
+      [delta] (const RepeatedField<double>& pontos, int indice) { return pontos.Get(indice) + delta; },
+      quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
+  RegeraVboTabuleiro();
+  RefrescaTerrenoParaClientes();
+  {
+    auto* cenario_depois = n_desfazer.mutable_tabuleiro();
+    cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+  AdicionaNotificacaoListaEventos(n_desfazer);
+}
+
+void Tabuleiro::TrataNivelamentoTerreno(int x, int y) {
+  parametros_desenho_.set_desenha_entidades(false);
+  parametros_desenho_.set_offset_terreno(primeiro_z_3d_);
+  unsigned int id, tipo_objeto;
+  float profundidade;
+  BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
+  if (tipo_objeto != OBJ_TABULEIRO) {
+    return;
+  }
+  float x3d, y3d, z3d;
+  if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
+    LOG(INFO) << "TrataNivelamentoTerreno: MousePara3dParaleloZero retornou false";
+    return;
+  }
+  id = IdQuadrado(x3d, y3d);
+  if (id == static_cast<unsigned int>(-1)) {
+    LOG(INFO) << "TrataNivelamentoTerreno: id quadrado invalido";
+    return;
+  }
+  if (proto_corrente_->ponto_terreno_size() != ((TamanhoX() + 1) * (TamanhoY() + 1))) {
+    proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0.0f);
+  }
+  int quad_x = id % TamanhoX();
+  int quad_y = id / TamanhoX();
+  float pz3d = primeiro_z_3d_;
+  AtualizaAlturaQuadrado(
+      [pz3d] (const RepeatedField<double>&, int) { return pz3d; },
+      quad_x, quad_y, TamanhoX(), proto_corrente_->mutable_ponto_terreno());
+  RegeraVboTabuleiro();
 }
 
 void Tabuleiro::DesenhaTabuleiro() {
@@ -2814,7 +2982,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   gl::MatrizEscopo salva_matriz;
   float deltaX = -TamanhoX() * TAMANHO_LADO_QUADRADO;
   float deltaY = -TamanhoY() * TAMANHO_LADO_QUADRADO;
-  gl::Normal(0, 0, 1.0f);
+  //gl::Normal(0, 0, 1.0f);
   V_ERRO("desenhando tabuleiro normal");
   if (parametros_desenho_.has_offset_terreno()) {
     // Para mover entidades acima do plano do olho.
@@ -2825,14 +2993,13 @@ void Tabuleiro::DesenhaTabuleiro() {
   V_ERRO("desenhando tabuleiro dentro");
 
   // Desenha o chao mais pro fundo.
-  // TODO transformar offsets em constantes.
   gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(2.0f, 20.0f);
+  gl::DesvioProfundidade(OFFSET_TERRENO_ESCALA_DZ, OFFSET_TERRENO_ESCALA_R);
   V_ERRO("GL_POLYGON_OFFSET_FILL e desvio");
   MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
-                parametros_desenho_.has_offset_terreno() ? parametros_desenho_.offset_terreno() : 0.0f,
+                parametros_desenho_.offset_terreno(),
                 false);
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_corrente_->has_info_textura() &&
@@ -2848,23 +3015,59 @@ void Tabuleiro::DesenhaTabuleiro() {
   V_ERRO("textura");
 
   gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
+  //gl::DesenhaVbo(vbo_tabuleiro_normais_, GL_LINES);
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
   gl::Desabilita(GL_TEXTURE_2D);
   V_ERRO("depois vbo_tabuleiro_");
+}
 
+void Tabuleiro::DesenhaQuadradoSelecionado() {
   // Desenha quadrado selecionado.
+  gl::HabilitaEscopo habilita_offset(GL_POLYGON_OFFSET_FILL);
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
-    //gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
-    // Por algum motivo desligar o DEPTH aqui da biziu total no motoX.
+    gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
     MudaCorAlfa(cor);
-    int linha = quadrado_selecionado_ / TamanhoX();
-    int coluna = quadrado_selecionado_ % TamanhoX();
-    float x3d = coluna * TAMANHO_LADO_QUADRADO, y3d = linha * TAMANHO_LADO_QUADRADO;
-    gl::Translada(x3d + TAMANHO_LADO_QUADRADO_2, y3d + TAMANHO_LADO_QUADRADO_2, 0.05f, false);
-    gl::Retangulo(TAMANHO_LADO_QUADRADO);
+    int x_quad = quadrado_selecionado_ % TamanhoX();
+    int y_quad = quadrado_selecionado_ / TamanhoX();
+    struct Ponto {
+      float x, y, z;
+    };
+    Ponto pontos[4];
+    CoordenadaSwQuadrado(x_quad,     y_quad, &pontos[0].x, &pontos[0].y, &pontos[0].z);
+    CoordenadaSwQuadrado(x_quad + 1, y_quad, &pontos[1].x, &pontos[1].y, &pontos[1].z);
+    CoordenadaSwQuadrado(x_quad + 1, y_quad + 1, &pontos[2].x, &pontos[2].y, &pontos[2].z);
+    CoordenadaSwQuadrado(x_quad,     y_quad + 1, &pontos[3].x, &pontos[3].y, &pontos[3].z);
+    GLfloat coordenadas[12];
+    for (int i = 0; i < 4; ++i) {
+      coordenadas[i * 3]     = pontos[i].x;
+      coordenadas[i * 3 + 1] = pontos[i].y;
+      coordenadas[i * 3 + 2] = pontos[i].z;
+    }
+    unsigned short indices[6];
+    if (Terreno::Inverte(x_quad, y_quad)) {
+      indices[0] = 3;
+      indices[1] = 1;
+      indices[2] = 2;
+      indices[3] = 3;
+      indices[4] = 0;
+      indices[5] = 1;
+    } else {
+      indices[0] = 0;
+      indices[1] = 1;
+      indices[2] = 2;
+      indices[3] = 0;
+      indices[4] = 2;
+      indices[5] = 3;
+    }
+    gl::VboNaoGravado vbo;
+    vbo.AtribuiCoordenadas(3, coordenadas, 12);
+    vbo.AtribuiIndices(indices, 6);
+    vbo.Nomeia("triangulo_quadrado_selecionado");
+    gl::DesenhaVbo(vbo);
   }
 }
 
@@ -2901,18 +3104,18 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
 
 void Tabuleiro::DesenhaRastros() {
   gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(-2.0f, -20.0f);
+  gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
   for (const auto& it : rastros_movimento_) {
     auto* e = BuscaEntidade(it.first);
     if (e == nullptr || e->Tipo() != TE_ENTIDADE) {
       continue;
     }
     // Copia vetor de pontos e adiciona posicao corrente da entidade.
-    auto pontos = it.second;
+    std::vector<Posicao> pontos(it.second);
     Posicao pos;
     pos.set_x(e->X());
     pos.set_y(e->Y());
-    pos.set_z(ZChao(pos.x(), pos.y()));
+    pos.set_z(0.0f);
     pontos.push_back(pos);
     // Rastro pouco menor que quadrado.
     DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO * 0.8);
@@ -2975,6 +3178,7 @@ void Tabuleiro::DesenhaPontosRolagem() {
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoY() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   int id = 0;
+  V_ERRO("AQUI");
   for (const std::pair<float, float>& delta : { std::pair<float, float>{ translacao_x, 0.0f },
                                                 std::pair<float, float>{ -translacao_x, 0.0f },
                                                 std::pair<float, float>{ 0.0f, translacao_y },
@@ -3177,45 +3381,46 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   float x3d, y3d, z3d;
   MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
-  if (modo_clique_ != MODO_NORMAL) {
-    if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
-      if (modo_clique_ == MODO_AJUDA) {
+  // Trata modos diferentes de clique, exceto para controle virtual.
+  // Se o clique foi no controle virtual, apenas o MODO_AJUDA trata aqui. Isso permite que o controle
+  // funcione em outros modos, ao mesmo tempo que a ajuda possa ser mostrada para os botoes do controle.
+  if (modo_clique_ == MODO_AJUDA || (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL)) {
+    switch (modo_clique_) {
+      case MODO_ACAO:
+        TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
+        if (!lista_pontos_vida_.empty()) {
+          return;  // Mantem o MODO_ACAO.
+        }
+        break;
+      case MODO_TERRENO:
+        TrataBotaoTerrenoPressionadoPosPicking(x3d, y3d, z3d);
+        // Nao quero voltar para o modo normal.
+        return;
+      case MODO_SINALIZACAO:
+        TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
+        break;
+      case MODO_TRANSICAO:
+        TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
+        break;
+      case MODO_REGUA:
+        TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
+        break;
+      case MODO_DESENHO:
+        TrataBotaoDesenhoPressionado(x, y);
+        break;
+      case MODO_ROTACAO:
+        TrataBotaoRotacaoPressionado(x, y);
+        break;
+      case MODO_AJUDA:
         TrataMouseParadoEm(x, y);
         temporizador_detalhamento_ms_ = 1000;
         modo_clique_ = MODO_NORMAL;
-        return;
-      }
-    } else {
-      switch (modo_clique_) {
-        case MODO_ACAO:
-          TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-          break;
-        case MODO_SINALIZACAO:
-          TrataBotaoAcaoPressionadoPosPicking(true, x, y, id, tipo_objeto, profundidade);
-          break;
-        case MODO_TRANSICAO:
-          TrataBotaoTransicaoPressionadoPosPicking(x, y, id, tipo_objeto);
-          break;
-        case MODO_REGUA:
-          TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
-          break;
-        case MODO_DESENHO:
-          TrataBotaoDesenhoPressionado(x, y);
-          break;
-        case MODO_ROTACAO:
-          TrataBotaoRotacaoPressionado(x, y);
-          break;
-        case MODO_AJUDA:
-          TrataMouseParadoEm(x, y);
-          temporizador_detalhamento_ms_ = 1000;
-          modo_clique_ = MODO_NORMAL;
-          break;
-        default:
-          ;
-      }
-      modo_clique_ = MODO_NORMAL;
-      return;
+        break;
+      default:
+        ;
     }
+    modo_clique_ = MODO_NORMAL;
+    return;
   }
 
   ultimo_x_3d_ = x3d;
@@ -3249,14 +3454,14 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         Posicao pos;
         pos.set_x(entidade_selecionada->X());
         pos.set_y(entidade_selecionada->Y());
-        pos.set_z(ZChao(pos.x(), pos.y()));
+        pos.set_z(0.0f);
         rastros_movimento_[id].push_back(pos);
       }
       if (ha_entidades_selecionadas) {
         ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
         estado_ = ETAB_ENTS_PRESSIONADAS;
       } else {
-        MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+        MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
         ultimo_x_3d_ = x3d;
         ultimo_y_3d_ = y3d;
         ultimo_z_3d_ = z3d;
@@ -3291,7 +3496,7 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   estado_anterior_ = estado_;
   float x3d, y3d, z3d;
   parametros_desenho_.set_desenha_entidades(false);
-  MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+  MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
   estado_ = ETAB_DESLIZANDO;
@@ -3375,7 +3580,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
-    MousePara3dTabuleiro(x, y, &x3d, &y3d, &z3d);
+    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
     // Tabuleiro: cria uma entidade nova.
     SelecionaQuadrado(IdQuadrado(x3d, y3d));
     estado_ = ETAB_QUAD_SELECIONADO;
@@ -3611,6 +3816,17 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       TrataNotificacao(n);
       return;
     }
+    case ETAB_RELEVO: {
+      estado_ = estado_anterior_;
+      ciclos_para_atualizar_ = -1;
+      RefrescaTerrenoParaClientes();
+      auto* cenario_depois = notificacao_desfazer_.mutable_tabuleiro();
+      cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
+      *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+      AdicionaNotificacaoListaEventos(notificacao_desfazer_);
+      notificacao_desfazer_.Clear();
+      return;
+    }
     default:
       //estado_ = ETAB_OCIOSO;
       ;
@@ -3663,16 +3879,29 @@ unsigned int Tabuleiro::IdQuadrado(float x, float y) {
 }
 
 void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
-  int quad_x = id_quadrado % TamanhoX();
-  int quad_y = id_quadrado / TamanhoX();
-  VLOG(2) << "id_quadrado: " << id_quadrado << ", quad_x: " << quad_x << ", quad_y: " << quad_y;
-
+  CoordenadaSwQuadrado(id_quadrado, x, y);
   // centro do quadrado
-  *x = ((quad_x * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
-       (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
-  *y = ((quad_y * TAMANHO_LADO_QUADRADO) + TAMANHO_LADO_QUADRADO_2) -
-       (TamanhoY() * TAMANHO_LADO_QUADRADO_2);
-  *z = parametros_desenho_.offset_terreno();
+  *x += TAMANHO_LADO_QUADRADO_2;
+  *y += TAMANHO_LADO_QUADRADO_2;
+  //*z = parametros_desenho_.offset_terreno();
+  *z = ZChao(*x, *y);
+}
+
+void Tabuleiro::CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
+  int x_quad = id_quadrado % TamanhoX();
+  int y_quad = id_quadrado / TamanhoX();
+  VLOG(2) << "id_quadrado: " << id_quadrado << ", x_quad: " << x_quad << ", y_quad: " << y_quad;
+  CoordenadaSwQuadrado(x_quad, y_quad, x, y, z);
+}
+
+void Tabuleiro::CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z) {
+  VLOG(2) << "x_quad: " << x_quad << ", y_quad: " << y_quad;
+  *x = (x_quad * TAMANHO_LADO_QUADRADO) - (TamanhoX() * TAMANHO_LADO_QUADRADO_2);
+  *y = (y_quad * TAMANHO_LADO_QUADRADO) - (TamanhoY() * TAMANHO_LADO_QUADRADO_2);
+  if (z != nullptr) {
+    // Mais barato que chamar ZChao.
+    *z = AlturaPonto(x_quad, y_quad);
+  }
 }
 
 ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
@@ -3696,6 +3925,15 @@ ntf::Notificacao* Tabuleiro::SerializaPropriedades() const {
   tabuleiro->set_largura(proto_corrente_->largura());
   tabuleiro->set_altura(proto_corrente_->altura());
   tabuleiro->set_desenha_grade(proto_corrente_->desenha_grade());
+  tabuleiro->set_aplicar_luz_ambiente_textura_ceu(proto_corrente_->aplicar_luz_ambiente_textura_ceu());
+  return notificacao;
+}
+
+ntf::Notificacao* Tabuleiro::SerializaRelevoCenario() const {
+  auto* notificacao = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  auto* tabuleiro = notificacao->mutable_tabuleiro();
+  tabuleiro->set_id_cenario(proto_corrente_->id_cenario());
+  *tabuleiro->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
   return notificacao;
 }
 
@@ -3704,6 +3942,62 @@ ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
   notificacao->mutable_opcoes()->CopyFrom(opcoes_);
   return notificacao;
 }
+
+namespace {
+// Mantem a topologia apos uma mudanca de tamanho. Os valores de tam_* sao em quadrados, portante deve-se
+// adicionar 1 para obter o numero de pontos.
+void CorrigeTopologiaAposMudancaTamanho(
+    int tam_x_velho, int tam_y_velho, int tam_x_novo, int tam_y_novo,
+    RepeatedField<double>* pontos) {
+  if ((tam_x_velho == tam_x_novo && tam_y_velho == tam_y_novo) ||
+      pontos->empty()) {
+    return;
+  }
+  LOG(INFO) << "tamxvelho: " << tam_x_velho << ", tamyvelho:" << tam_y_velho
+            << ", tamxnovo: " << tam_x_novo << ", tamynovo: " << tam_y_novo
+            << ", pontos_size: " << pontos->size();
+  RepeatedField<double> novos_pontos;
+  novos_pontos.Resize((tam_x_novo + 1) * (tam_y_novo + 1), 0.0f);
+  for (int i = 0; i < pontos->size(); ++i) {
+    float z = pontos->Get(i);
+    if (z > 0) {
+      LOG(INFO) << "ponto (" << i << ") > 0: " << z;
+      break;
+    }
+  }
+
+  for (int y = 0; y <= tam_y_velho; ++y) {
+    for (int x = 0; x <= tam_x_velho; ++x) {
+      int indice = y * (tam_x_velho + 1) + x;
+      LOG(INFO) << "indice: " << indice;
+      float z = pontos->Get(indice);
+      if (z > 0) {
+        LOG(INFO) << "ponto (" << x << ", " << y << ") > 0: " << z;
+        break;
+      }
+    }
+  }
+
+  for (int y = 0; y <= tam_y_velho; ++y) {
+    int novo_y = (y - tam_y_velho / 2) + (tam_y_novo / 2);
+    if (novo_y < 0 || novo_y > tam_y_novo) {
+      // ponto fora, descarta.
+      continue;
+    }
+    for (int x = 0; x <= tam_x_velho; ++x) {
+      int novo_x = (x - tam_x_velho / 2) + (tam_x_novo / 2);
+      if (novo_x < 0 || novo_x > tam_x_novo) {
+        continue;
+      }
+      float z = pontos->Get(y * (tam_x_velho + 1) + x);
+      //LOG(INFO) << "copiando: " << x << ", " << y << ": '" << z << "' para " << novo_x << ", " << novo_y;
+      novos_pontos.Set(novo_y * (tam_x_novo + 1) + novo_x, z);
+    }
+  }
+  novos_pontos.Swap(pontos);
+  VLOG(1) << "Swapei";
+}
+}  // namespace
 
 void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_const) {
   // Copia para poder remover uns lixos.
@@ -3720,6 +4014,8 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     LOG(ERROR) << "Sub cenario " << novo_proto.id_cenario() << " nao existe";
     return;
   }
+  int tam_x_velho = proto_a_atualizar->largura();
+  int tam_y_velho = proto_a_atualizar->altura();
   proto_a_atualizar->mutable_luz_ambiente()->CopyFrom(novo_proto.luz_ambiente());
   proto_a_atualizar->mutable_luz_direcional()->CopyFrom(novo_proto.luz_direcional());
   proto_a_atualizar->set_largura(novo_proto.largura());
@@ -3737,6 +4033,19 @@ void Tabuleiro::DeserializaPropriedades(const ent::TabuleiroProto& novo_proto_co
     proto_a_atualizar->clear_nevoa();
   }
   AtualizaTexturas(novo_proto);
+  CorrigeTopologiaAposMudancaTamanho(
+      tam_x_velho, tam_y_velho, proto_a_atualizar->largura(), proto_a_atualizar->altura(), proto_a_atualizar->mutable_ponto_terreno());
+  RegeraVboTabuleiro();
+}
+
+void Tabuleiro::DeserializaRelevoCenario(const TabuleiroProto& novo_proto) {
+  // Copia para poder remover uns lixos.
+  auto* cenario = BuscaSubCenario(novo_proto.id_cenario());
+  if (cenario == nullptr) {
+    LOG(WARNING) << "Cenario invalido " << novo_proto.id_cenario() << " para atualizacao de relevo";
+    return;
+  }
+  *cenario->mutable_ponto_terreno() = novo_proto.ponto_terreno();
   RegeraVboTabuleiro();
 }
 
@@ -3750,12 +4059,6 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
     cenarios.push_back(t);
     for (auto& sub_cenario : *t->mutable_sub_cenario()) {
       cenarios.push_back(&sub_cenario);
-    }
-    for (auto* cenario : cenarios) {
-      if (cenario->info_textura().has_bits_crus()) {
-        // Serializa apenas os bits crus.
-        cenario->mutable_info_textura()->clear_deprecated_bits();
-      }
     }
     t->clear_entidade();  // As entidades vem do mapa de entidades.
     for (const auto& id_ent : entidades_) {
@@ -4004,6 +4307,11 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+  if (opcoes_.anti_aliasing()) {
+    gl::Habilita(GL_MULTISAMPLE);
+  } else {
+    gl::Desabilita(GL_MULTISAMPLE);
+  }
   SalvaConfiguracoes(opcoes_);
 }
 
@@ -4216,7 +4524,7 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   }
 }
 
-void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) {
+void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
   Posicao vetor_camera;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
   // angulo da camera em relacao ao eixo X.
@@ -4225,28 +4533,28 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) 
   float dy = 0;
   if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
     // Camera apontando para x positivo.
-    if (vertical) {
+    if (frente_atras) {
       dx = TAMANHO_LADO_QUADRADO * valor;
     } else {
       dy = TAMANHO_LADO_QUADRADO * -valor;
     }
   } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
     // Camera apontando para y positivo.
-    if (vertical) {
+    if (frente_atras) {
       dy = TAMANHO_LADO_QUADRADO * valor;
     } else {
       dx = TAMANHO_LADO_QUADRADO * valor;
     }
   } else if (rotacao_graus > 135 || rotacao_graus < -135) {
     // Camera apontando para x negativo.
-    if (vertical) {
+    if (frente_atras) {
       dx = TAMANHO_LADO_QUADRADO * -valor;
     } else {
       dy = TAMANHO_LADO_QUADRADO * valor;
     }
   } else {
     // Camera apontando para y negativo.
-    if (vertical) {
+    if (frente_atras) {
       dy = TAMANHO_LADO_QUADRADO * -valor;
     } else {
       dx = TAMANHO_LADO_QUADRADO * -valor;
@@ -4266,10 +4574,20 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) 
     n->set_tipo(ntf::TN_MOVER_ENTIDADE);
     auto* e = n->mutable_entidade();
     e->set_id(id);
+    float nx = entidade_selecionada->X() + dx;
+    float ny = entidade_selecionada->Y() + dy;
     auto* p = e->mutable_destino();
-    p->set_x(entidade_selecionada->X() + dx);
-    p->set_y(entidade_selecionada->Y() + dy);
-    p->set_z(entidade_selecionada->Z());
+    p->set_x(nx);
+    p->set_y(ny);
+    float z_antes = entidade_selecionada->Z();
+    float z_chao_antes = ZChao(entidade_selecionada->X(), entidade_selecionada->Y());
+    float z_chao_depois = ZChao(nx, ny);
+    bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
+    if (manter_chao) {
+      p->set_z(z_chao_depois);
+    } else {
+      p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
+    }
     // Para desfazer.
     p = e->mutable_pos();
     p->set_x(entidade_selecionada->X());
@@ -4281,28 +4599,31 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool vertical, float valor) 
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::TrataTranslacaoZEntidadesSelecionadas(float delta) {
-  // TODO UNDO, limites e enviar para clientes.
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : ids_entidades_selecionadas_) {
-    auto* entidade_selecionada = BuscaEntidade(id);
-    if (entidade_selecionada == nullptr) {
-      continue;
+void Tabuleiro::TrataTranslacaoZ(float delta) {
+  if (ModoClique() == MODO_TERRENO) {
+    TrataDeltaTerreno(delta * TAMANHO_LADO_QUADRADO);
+  } else {
+    ntf::Notificacao grupo_notificacoes;
+    grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      auto* entidade_selecionada = BuscaEntidade(id);
+      if (entidade_selecionada == nullptr) {
+        continue;
+      }
+      // Salva para desfazer.
+      auto* n = grupo_notificacoes.add_notificacao();
+      n->set_tipo(ntf::TN_MOVER_ENTIDADE);
+      auto* e = n->mutable_entidade();
+      e->set_id(entidade_selecionada->Id());
+      e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
+      // Altera a translacao em Z.
+      entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
+      e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
     }
-    // Salva para desfazer.
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_MOVER_ENTIDADE);
-    auto* e = n->mutable_entidade();
-    e->set_id(entidade_selecionada->Id());
-    e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
-    // Altera a translacao em Z.
-    entidade_selecionada->IncrementaZ(delta);
-    e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
+    // Nop mas envia para os clientes.
+    TrataNotificacao(grupo_notificacoes);
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
-  // Nop mas envia para os clientes.
-  TrataNotificacao(grupo_notificacoes);
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
@@ -4337,6 +4658,10 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       for (const auto& n : n_original.notificacao()) {
         n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
       }
+      break;
+    case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO:
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+      *n_inversa.mutable_tabuleiro()->mutable_ponto_terreno() = n_original.tabuleiro_antes().ponto_terreno();
       break;
     case ntf::TN_CRIAR_CENARIO: {
       if (!n_original.tabuleiro().has_id_cenario()) {
@@ -4751,6 +5076,7 @@ void Tabuleiro::DesenhaLuzes() {
 
 void Tabuleiro::DesenhaCaixaCeu() {
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
+  GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
   if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
     gl::Desabilita(GL_LIGHTING);
   }
@@ -4758,7 +5084,6 @@ void Tabuleiro::DesenhaCaixaCeu() {
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
     gl::Desabilita(GL_LIGHT0 + i);
   }
-  // Desliga luz direcional.
 
   gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
@@ -4773,15 +5098,17 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FaceNula(GL_FRONT);
+  gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : GL_TEXTURE0);
   if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::Habilita(tipo_textura);
+    gl::LigacaoComTextura(tipo_textura, id_textura);
     vbo_caixa_ceu_.forca_texturas(true);
   } else {
     vbo_caixa_ceu_.forca_texturas(false);
   }
   gl::DesenhaVbo(vbo_caixa_ceu_);
-  gl::Desabilita(GL_TEXTURE_2D);
+  gl::Desabilita(tipo_textura);
+  gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.
   gl::FaceNula(GL_BACK);
   for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
@@ -4795,8 +5122,10 @@ void Tabuleiro::DesenhaCaixaCeu() {
 }
 
 void Tabuleiro::DesenhaGrade() {
-  //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   MudaCor(COR_PRETA);
+  gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
   gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
 }
 
@@ -5452,6 +5781,17 @@ void Tabuleiro::AlternaModoRegua() {
   }
 }
 
+void Tabuleiro::AlternaModoTerreno() {
+  if (!EmModoMestre(true  /*secundario*/)) {
+    return;
+  }
+  if (modo_clique_ == MODO_TERRENO) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_TERRENO;
+  }
+}
+
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
   if (modo_clique_ == MODO_ROTACAO && modo != MODO_ROTACAO) {
@@ -5536,6 +5876,24 @@ void Tabuleiro::ReativaWatchdog() {
   }
   watchdog_.Reinicia();
 #endif
+}
+
+float Tabuleiro::ZChao(float x, float y) const {
+  if (proto_corrente_->ponto_terreno_size() == 0) {
+    return 0.0f;
+  }
+  return Terreno::ZChao(x, y, TamanhoX(), TamanhoY(), proto_corrente_->ponto_terreno().data());
+}
+
+float Tabuleiro::AlturaPonto(int x_quad, int y_quad) const {
+  if (proto_corrente_->ponto_terreno_size() == 0) {
+    return 0.0f;
+  }
+  try {
+    return Terreno::AlturaPonto(x_quad, y_quad, TamanhoX(), TamanhoY(), proto_corrente_->ponto_terreno().data());
+  } catch (...) {
+    return 0.0f;
+  }
 }
 
 }  // namespace ent

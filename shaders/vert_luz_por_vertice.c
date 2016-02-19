@@ -10,15 +10,29 @@ precision mediump float;
 #define mediump
 #endif
 
+// Macros ${XXX} deverao ser substituidas pelo codigo fonte.
+#define USAR_FRAMEBUFFER ${USAR_FRAMEBUFFER}
+
 // Output pro frag shader, interpolado dos vertices.
 varying lowp vec4 v_Color;
+#if USAR_FRAMEBUFFER
+varying lowp vec4 v_ColorSemDirecional;
+#endif
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // posicao em coordenada de olho.
+varying highp vec4 v_Pos_model;
+#if USAR_FRAMEBUFFER
+varying highp vec4 v_Pos_sombra;
+#endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;    // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
+#if USAR_FRAMEBUFFER
+uniform highp mat4 gltab_prm_sombra;    // projecao sombra.
+uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
+#endif
 uniform mediump mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 // Atributos variam por vertice.
@@ -79,24 +93,38 @@ lowp vec4 CorLuzPontual(in highp vec4 pos, in lowp vec3 normal, in InfoLuzPontua
 
 void main() {
   v_Pos = gltab_mvm * gltab_vertice;
+  v_Pos_model = gltab_vertice;
   lowp vec3 normal  = normalize(gltab_nm * gltab_normal);
   lowp vec4 cor_vertice = gltab_cor;
+#if USAR_FRAMEBUFFER
+  v_ColorSemDirecional = gltab_cor;
+#endif
   if (gltab_luz_ambiente.a > 0.0) {
-    lowp vec4 cor_luz = gltab_luz_ambiente + CorLuzDirecional(normal, gltab_luz_direcional);
     // Outras luzes. O for eh ineficiente.
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[0]);
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[1]);
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[2]);
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[3]);
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[4]);
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[5]);
-    cor_luz += CorLuzPontual(v_Pos, normal, gltab_luzes[6]);
+    lowp vec4 uns = vec4(1.0, 1.0, 1.0, 1.0);
+    lowp mat4 cor_luz_1 = mat4(gltab_luz_ambiente,
+                               CorLuzPontual(v_Pos, normal, gltab_luzes[0]),
+                               CorLuzPontual(v_Pos, normal, gltab_luzes[1]),
+                               CorLuzPontual(v_Pos, normal, gltab_luzes[2]));
+    lowp mat4 cor_luz_2 = mat4(CorLuzPontual(v_Pos, normal, gltab_luzes[3]),
+                               CorLuzPontual(v_Pos, normal, gltab_luzes[4]),
+                               CorLuzPontual(v_Pos, normal, gltab_luzes[5]),
+                               CorLuzPontual(v_Pos, normal, gltab_luzes[6]));
+    lowp vec4 cor_luz = clamp(cor_luz_1 * uns + cor_luz_2 * uns, 0.0, 1.0);
+#if USAR_FRAMEBUFFER
+    v_ColorSemDirecional *= cor_luz;
+#endif
+    // direcional.
+    cor_luz += CorLuzDirecional(normal, gltab_luz_direcional);
     cor_vertice *= clamp(cor_luz, 0.0, 1.0);
   }
   v_Normal = normal;
   v_Color = cor_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * v_Pos;
+#if USAR_FRAMEBUFFER
+  v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
+#endif
   gl_PointSize = gltab_dados_raster.p;
 }
 

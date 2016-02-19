@@ -16,6 +16,7 @@
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QHeaderView>
+#include <QtGui/QLabel>
 #include <QtGui/QLineEdit>
 
 namespace ifg {
@@ -26,6 +27,7 @@ class Ui_EntradaString
 public:
     QDialogButtonBox *botoes;
     QLineEdit *nome;
+    QLabel *label_titulo;
 
     void setupUi(QDialog *ifg__qt__EntradaString)
     {
@@ -39,7 +41,11 @@ public:
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         nome = new QLineEdit(ifg__qt__EntradaString);
         nome->setObjectName(QString::fromUtf8("nome"));
-        nome->setGeometry(QRect(20, 30, 281, 27));
+        nome->setGeometry(QRect(10, 30, 291, 27));
+        label_titulo = new QLabel(ifg__qt__EntradaString);
+        label_titulo->setObjectName(QString::fromUtf8("label_titulo"));
+        label_titulo->setGeometry(QRect(16, 10, 281, 20));
+        label_titulo->setAlignment(Qt::AlignCenter);
 
         retranslateUi(ifg__qt__EntradaString);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__EntradaString, SLOT(accept()));
@@ -51,6 +57,7 @@ public:
     void retranslateUi(QDialog *ifg__qt__EntradaString)
     {
         ifg__qt__EntradaString->setWindowTitle(QApplication::translate("ifg::qt::EntradaString", "Dialog", 0, QApplication::UnicodeUTF8));
+        label_titulo->setText(QApplication::translate("ifg::qt::EntradaString", "TextLabel", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

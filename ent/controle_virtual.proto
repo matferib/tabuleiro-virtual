@@ -60,19 +60,21 @@ enum IdBotao {
   CONTROLE_AJUDA = 55;
   CONTROLE_MODO_ROTACAO = 56;
   CONTROLE_INTERFACE_GRAFICA = 57;
+  CONTROLE_GERAR_TERRENO_ALEATORIO = 58;
+  CONTROLE_MODO_TERRENO = 59;
   // Acoes devem ser consecutivas sempre.
-  CONTROLE_ACAO_SINALIZACAO = 59;
-  CONTROLE_ULTIMA_ACAO_0 = 60;
-  CONTROLE_ULTIMA_ACAO_1 = 61;
-  CONTROLE_ULTIMA_ACAO_2 = 62;
+  CONTROLE_ACAO_SINALIZACAO = 100;
+  CONTROLE_ULTIMA_ACAO_0 = 101;
+  CONTROLE_ULTIMA_ACAO_1 = 102;
+  CONTROLE_ULTIMA_ACAO_2 = 103;
   // Este deve ser o ultimo sempre.
   CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
 }
 
 message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
-  // uma unidade, o 2 ocupa 4 (2x2).
-  optional int32 tamanho = 1;
+  // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
+  optional float tamanho = 1;
   // Em qual linha o botao se encontra: 0 baixo, 1 uma acima.
   optional int32 linha = 2;
   // Em qual coluna o botao se encontra.

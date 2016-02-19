@@ -73,21 +73,20 @@ message Nevoa {
 }
 
 message InfoTextura {
-  // Identificador da textura. Normalmente o nome do arquivo.
+  // Identificador da textura. Normalmente o nome do arquivo. Para mapeamento de cubo, sera adicionado
+  // pos{xyz} e neg{xyz} apos o nome.
   optional string id = 1;
+  // Para texturas de mapeamento de cubo.
+  optional bool textura_cubo = 2;
   // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
   // dentro de tabuleiros.
   optional bytes bits_crus = 6;
-
-  // Deprecated: isso eh de uso interno apenas.
-  // Largura em pixels.
-  optional int32 deprecated_largura = 2 [deprecated=true];
-  // Altura em pixels.
-  optional int32 deprecated_altura = 3 [deprecated=true];
-  // Formato QT da textura.
-  optional int32 deprecated_formato = 4 [deprecated=true];
-  // Os bits da textura.
-  optional bytes deprecated_bits = 5 [deprecated=true];
+  optional bytes bits_crus_posx = 7;
+  optional bytes bits_crus_posy = 8;
+  optional bytes bits_crus_posz = 9;
+  optional bytes bits_crus_negx = 10;
+  optional bytes bits_crus_negy = 11;
+  optional bytes bits_crus_negz = 12;
 }
 
 message Modelo3d {
@@ -203,6 +202,11 @@ message EntidadeProto {
     optional int32 classe_armadura = 2;
   }
   repeated DadosDefesa dados_defesa = 45;
+  // Geracao de tesouro automatica?
+  message DadosTesouro {
+    optional string tesouro = 1;
+  }
+  repeated DadosTesouro tesouro = 46;
 }
 
 // Alguns estados são mantidos nesta variável.

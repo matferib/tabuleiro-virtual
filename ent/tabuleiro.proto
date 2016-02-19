@@ -66,6 +66,9 @@ message TabuleiroProto {
   // Tamanho do tabuleiro em quadrados.
   optional uint32 largura = 4 [default=20];
   optional uint32 altura = 6 [default=20];
+  // Os pontos de relevo do terreno. Preenche-se do sul para o norte, oeste para leste. O primeiro
+  // ponto eh SW, o segundo eh SW + 1E e por ai vai.
+  repeated double ponto_terreno = 21;
   // Se verdadeiro, nao usa entidades do proto e mantem as correntes. Usado para deserializacao.
   optional bool manter_entidades = 8 [default=false];
   // Entidades do tabuleiro.
