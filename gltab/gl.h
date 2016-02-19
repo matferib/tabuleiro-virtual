@@ -198,8 +198,27 @@ inline void ImagemTextura2d(
   glTexImage2D(alvo, nivel, formato_interno, largura, altura, borda, formato, tipo, dados);
 }
 
+inline void BufferDesenho(GLenum modo) {
+#if !USAR_OPENGL_ES
+  glDrawBuffer(modo);
+#endif
+}
+inline void BufferLeitura(GLenum modo) {
+#if !USAR_OPENGL_ES
+  glReadBuffer(modo);
+#endif
+}
+
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
+GLenum VerificaFramebuffer(GLenum alvo);
+void GeraFramebuffers(GLsizei num, GLuint *ids);
+void ApagaFramebuffers(GLsizei num, const GLuint *ids);
+void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer);
+void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers);
+void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers);
+void LigacaoComRenderbuffer(GLenum target, GLuint buffer);
+void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel);
 void BufferDesenho(GLenum modo);
 void BufferLeitura(GLenum modo);
 void GeraMipmap(GLenum alvo);
@@ -239,16 +258,7 @@ void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean 
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 #else
-inline void BufferDesenho(GLenum modo) {
-#if !USAR_OPENGL_ES
-  glDrawBuffer(modo);
-#endif
-}
-inline void BufferLeitura(GLenum modo) {
-#if !USAR_OPENGL_ES
-  glReadBuffer(modo);
-#endif
-}
+inline GLenum VerificaFramebuffer(GLenum alvo) { return glCheckFramebufferStatus(alvo); }
 inline void GeraFramebuffers(GLsizei num, GLuint *ids) { glGenFramebuffers(num, ids); }
 inline void ApagaFramebuffers(GLsizei num, const GLuint *ids) { glDeleteFramebuffers(num, ids); }
 inline void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer) { glBindFramebuffer(alvo, framebuffer); }
