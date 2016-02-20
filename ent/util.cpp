@@ -12,7 +12,9 @@
 #include <random>
 #include <unordered_map>
 #include "ent/constantes.h"
+#include "ent/entidade.h"
 #include "ent/entidade.pb.h"
+#include "ent/tabuleiro.h"
 #include "ent/util.h"
 #include "gltab/gl.h"  // TODO remover e passar desenhos para para gl
 #include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
@@ -606,6 +608,14 @@ const std::string StringSemUtf8(const std::string& id_acao) {
     }
   }
   return ret;
+}
+
+void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tabuleiro, Entidade* entidade) {
+  float novo_x = entidade->X() + dx;
+  float novo_y = entidade->Y() + dy;
+  float zchao = tabuleiro.ZChao(novo_x, novo_y);
+  float novo_z = std::max(zchao, entidade->Z() + dz);
+  entidade->MovePara(novo_x, novo_y, novo_z);
 }
 
 }  // namespace ent

@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <map>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -342,8 +343,8 @@ class Terreno {
 
   // Gera altura aleatoria de um ponto.
   static float GeraAltura(int x_quad, int y_quad) {
-    srandom(x_quad + (y_quad << 10));
-    int mod = random() % 100;
+    std::minstd_rand motor_aleatorio(x_quad + (y_quad << 10));
+    int mod = motor_aleatorio() % 100;
     int mod_2 = mod % 50;
     float res = 0.0f;
     if (mod_2 < 25) {

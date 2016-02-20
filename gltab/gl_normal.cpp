@@ -20,11 +20,19 @@ namespace interno {
 struct ContextoDesktop : public ContextoDependente {
  public:
 #if WIN32
+  PROC pglCheckFramebufferStatus;
+  PROC pglGenFramebuffers;
+  PROC pglBindFramebuffer;
+  PROC pglDeleteFramebuffers;
+  PROC pglGenRenderbuffers;
+  PROC pglDeleteRenderbuffers;
+  PROC pglBindRenderbuffer;
+  PROC pglFramebufferTexture2D;
+
   PROC pglGenBuffers;
   PROC pglBindBuffer;
   PROC pglDeleteBuffers;
   PROC pglBufferData;
-
   PROC pglGetShaderiv;
   PROC pglGetShaderInfoLog;
   PROC pglGetProgramiv;
@@ -78,6 +86,15 @@ void IniciaGl(bool luz_por_pixel, bool mapeamento_sombras) {
   LOG(INFO) << "pegando ponteiros";
   auto* interno = INTERNO;
   std::string erro;
+  PGL(glCheckFramebufferStatus);
+  PGL(glGenFramebuffers);
+  PGL(glBindFramebuffer);
+  PGL(glDeleteFramebuffers);
+  PGL(glGenRenderbuffers);
+  PGL(glDeleteRenderbuffers);
+  PGL(glBindRenderbuffer);
+  PGL(glFramebufferTexture2D);
+
   PGL(glBlendColor);
   PGL(glGenBuffers);
   PGL(glDeleteBuffers);
@@ -185,6 +202,35 @@ void TexturaAtivaInterno(GLenum unidade) {
   ((PFNGLACTIVETEXTUREPROC)INTERNO->pglActiveTexture)(unidade);
 }
 }  // namespace interno
+
+GLenum VerificaFramebuffer(GLenum alvo) {
+  return ((PFNGLCHECKFRAMEBUFFERSTATUSPROC)INTERNO->pglCheckFramebufferStatus)(alvo);
+}
+void GeraFramebuffers(GLsizei num, GLuint *ids) {
+  ((PFNGLGENFRAMEBUFFERSPROC)INTERNO->pglGenFramebuffers)(num, ids);
+}
+void ApagaFramebuffers(GLsizei num, const GLuint *ids) {
+  ((PFNGLDELETEFRAMEBUFFERSPROC)INTERNO->pglDeleteFramebuffers)(num, ids);
+}
+void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer) {
+  ((PFNGLBINDFRAMEBUFFERPROC)INTERNO->pglBindFramebuffer)(alvo, framebuffer);
+}
+
+void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) {
+  ((PFNGLGENRENDERBUFFERSPROC)INTERNO->pglGenRenderbuffers)(n, renderbuffers);
+}
+
+void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) {
+  ((PFNGLDELETERENDERBUFFERSPROC)INTERNO->pglDeleteRenderbuffers)(n, renderbuffers);
+}
+
+void LigacaoComRenderbuffer(GLenum target, GLuint buffer) {
+  ((PFNGLBINDRENDERBUFFERPROC)INTERNO->pglBindRenderbuffer)(target, buffer);
+}
+
+void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel) {
+  ((PFNGLFRAMEBUFFERTEXTURE2DPROC)INTERNO->pglFramebufferTexture2D)(alvo, anexo, GL_TEXTURE_2D, textura, nivel);
+}
 
 void GeraMipmap(GLenum alvo) {
   ((PFNGLGENERATEMIPMAPPROC)INTERNO->pglGenerateMipmap)(alvo);

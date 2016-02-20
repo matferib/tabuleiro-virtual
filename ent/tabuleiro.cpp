@@ -2861,7 +2861,7 @@ void Tabuleiro::GeraFramebuffer() {
   gl::BufferDesenho(GL_NONE);
   gl::BufferLeitura(GL_NONE);
 #endif
-  auto ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
     LOG(ERROR) << "Framebuffer incompleto: " << ret;
   } else {

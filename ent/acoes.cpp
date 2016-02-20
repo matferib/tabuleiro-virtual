@@ -712,7 +712,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   }
   if (disco_alvo_rad_ >= M_PI) {
     VLOG(1) << "Finalizando alvo, arco terminou.";
-    entidade_destino->MoveDelta(-dx_total_, -dy_total_, -dz_total_);
+    MoveDeltaRespeitandoChao(-dx_total_, -dy_total_, -dz_total_, *tabuleiro_, entidade_destino);
     dx_total_ = dy_total_ = dz_total_ = 0;
     return false;
   }
@@ -726,7 +726,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   float x_antes = entidade_destino->X();
   float y_antes = entidade_destino->Y();
   float z_antes = entidade_destino->Z();
-  entidade_destino->MoveDelta(dx_alvo, dy_alvo, dz_alvo);
+  MoveDeltaRespeitandoChao(dx_alvo, dy_alvo, dz_alvo, *tabuleiro_, entidade_destino);
   dx_total_ += entidade_destino->X() - x_antes;
   dy_total_ += entidade_destino->Y() - y_antes;
   dz_total_ += entidade_destino->Z() - z_antes;

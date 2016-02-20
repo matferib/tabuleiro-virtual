@@ -403,6 +403,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void CarregaSubCenario(int id, const Posicao& camera);
 
+  /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
+  float ZChao(float x, float y) const;
+
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
   void DesativaWatchdog();
 
@@ -754,9 +757,6 @@ class Tabuleiro : public ntf::Receptor {
 
   /** @return true se estiver executando o comando de desfazer/refazer. */
   bool Desfazendo() const { return ignorar_lista_eventos_; }
-
-  /** Retorna o nivel do solo na coordenada ou zero se nao for valida. */
-  float ZChao(float x, float y) const;
 
   /** Retorna a altura de um ponto de quadrado do tabuleiro (SW) ou zero se invalido. */
   float AlturaPonto(int x_quad, int y_quad) const;
