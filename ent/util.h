@@ -12,9 +12,11 @@
 namespace ent {
 
 class Cor;
+class Entidade;
 class EntidadeProto_Evento;
 class ParametrosDesenho;
 class Posicao;
+class Tabuleiro;
 
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
@@ -147,6 +149,9 @@ static inline std::string &trim(std::string& s) {
 }
 
 const std::string StringSemUtf8(const std::string& id_acao);
+
+// Move o delta para uma entidade, garantindo que ela termine acima do solo.
+void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tabuleiro, Entidade* entidade);
 
 }  // namespace ent
 
