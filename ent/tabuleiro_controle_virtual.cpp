@@ -437,6 +437,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding,
     gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f, false);
     gl::Escala(tam_x, tam_y, 1.0f, false);
     gl::Retangulo(1.0f);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   } else {
     gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x() * largura_botao),

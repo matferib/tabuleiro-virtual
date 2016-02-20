@@ -38,8 +38,10 @@ message OpcoesProto {
   optional bool desenha_grade = 6 [default=true];
   optional bool desenha_controle_virtual = 7 [default=false];
   optional bool mostra_lista_objetos = 8 [default=false];
-  optional bool mostra_lista_jogadores = 10 [default=false];
   optional bool desenha_olho = 9 [default=false];
+  optional bool mostra_lista_jogadores = 10 [default=false];
+  optional bool usar_sombra_complexa = 11 [default=false];
+  optional bool usar_iluminacao_por_pixel = 12 [default=false];
 }
 
 // Mensagem enviada para os clientes de um jogo.

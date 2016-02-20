@@ -26,7 +26,9 @@ struct ContextoEs : public ContextoDependente {
 }  // namespace interno
 
 void IniciaGl(int* argcp, char** argv) {
-  interno::IniciaComum(interno::LuzPorVertice(argcp == nullptr ? 0 : *argcp, argv), BuscaContexto());
+  interno::IniciaComum(interno::LuzPorVertice(argcp == nullptr ? 0 : *argcp, argv),
+                       interno::MapeamentoSombras(argcp == nullptr ? 0 : *argcp, argv),
+                       BuscaContexto());
 }
 
 namespace interno {

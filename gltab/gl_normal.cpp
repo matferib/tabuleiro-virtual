@@ -71,6 +71,7 @@ bool ImprimeSeErro();
 bool ImprimeSeShaderErro(GLuint shader);
 
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
+
 void IniciaGl(int* argcp, char** argv) {
 #if WIN32
 #define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null "#x; } } while (0)
@@ -122,7 +123,7 @@ void IniciaGl(int* argcp, char** argv) {
     throw std::logic_error(erro);
   }
 #endif
-  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), BuscaContexto());
+  interno::IniciaComum(interno::LuzPorVertice(*argcp, argv), interno::MapeamentoSombras(*argcp, argv), BuscaContexto());
 }
 //#undef V_ERRO
 

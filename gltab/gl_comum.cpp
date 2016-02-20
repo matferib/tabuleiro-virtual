@@ -22,6 +22,7 @@
 
 #if USAR_GFLAGS
 DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
+DEFINE_bool(mapeamento_sombras, false, "Se verdadeiro, usa mapeamento de sombras.");
 #endif
 
 using gl::TSH_LUZ;
@@ -235,11 +236,11 @@ namespace {
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return false; } while (0)
 
 // Realiza preprocessamento do fonte do shader. Altera o fonte.
-void PreprocessaFonte(const std::string& nome, std::string* fonte) {
+void PreprocessaFonte(const std::string& nome, const VarShader& shader, std::string* fonte) {
 #define STRINGIFY_MACRO_VALUE(S) STRINGIFY(S)
 #define STRINGIFY(S) #S
   std::map<std::string, std::string> mapa = {
-    { "${USAR_FRAMEBUFFER}", STRINGIFY_MACRO_VALUE(USAR_FRAMEBUFFER) },
+    { "${USAR_FRAMEBUFFER}", shader.mapeamento_sombras ? "1" : "0" },
 #if USAR_OPENGL_ES
     { "${VERSAO}", "100" },
 #elif __APPLE__
@@ -261,7 +262,9 @@ void PreprocessaFonte(const std::string& nome, std::string* fonte) {
 #undef STRINGIFY_MACRO_VALUE
 }
 
-bool IniciaShader(const char* nome_programa, const char* nome_vs, const char* nome_fs,
+bool IniciaShader(const char* nome_programa,
+                  const char* nome_vs,
+                  const char* nome_fs,
                   VarShader* shader) {
   shader->nome = nome_programa;
   GLuint v_shader = CriaShader(GL_VERTEX_SHADER);
@@ -270,13 +273,13 @@ bool IniciaShader(const char* nome_programa, const char* nome_vs, const char* no
   V_ERRO_RET("criando fragment shader");
   std::string codigo_v_shader_str;
   arq::LeArquivo(arq::TIPO_SHADER, nome_vs, &codigo_v_shader_str);
-  PreprocessaFonte(nome_vs, &codigo_v_shader_str);
+  PreprocessaFonte(nome_vs, *shader, &codigo_v_shader_str);
   const char* codigo_v_shader = codigo_v_shader_str.c_str();
   FonteShader(v_shader, 1, &codigo_v_shader, nullptr);
   V_ERRO_RET("shader source vertex");
   std::string codigo_f_shader_str;
   arq::LeArquivo(arq::TIPO_SHADER, nome_fs, &codigo_f_shader_str);
-  PreprocessaFonte(nome_fs, &codigo_f_shader_str);
+  PreprocessaFonte(nome_fs, *shader, &codigo_f_shader_str);
   const char* codigo_f_shader = codigo_f_shader_str.c_str();
   FonteShader(f_shader, 1, &codigo_f_shader, nullptr);
   V_ERRO_RET("shader source fragment");
@@ -361,7 +364,7 @@ bool IniciaVariaveis(VarShader* shader) {
   return true;
 }
 
-void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
+void IniciaShaders(bool luz_por_vertice, bool mapeamento_sombras, interno::Contexto* contexto) {
   LOG(INFO) << "Tentando iniciar com shaders, luz por fragmento? " << !luz_por_vertice;
 
   V_ERRO("antes vertex shader");
@@ -385,6 +388,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
 
   for (auto& ds : dados_shaders) {
     LOG(INFO) << "Iniciando programa shaders: " << ds.nome_programa.c_str();
+    ds.shader->mapeamento_sombras = mapeamento_sombras;
     if (!IniciaShader(ds.nome_programa.c_str(), ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
       LOG(ERROR) << "Erro carregando programa com " << ds.nome_vs.c_str() << " e " << ds.nome_fs.c_str();
       continue;
@@ -403,7 +407,7 @@ void IniciaShaders(bool luz_por_vertice, interno::Contexto* contexto) {
 }  // namespace
 
 
-void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
+void IniciaComum(bool luz_por_vertice, bool mapeamento_sombras, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
@@ -411,7 +415,7 @@ void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto) {
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
-  IniciaShaders(luz_por_vertice, contexto);
+  IniciaShaders(luz_por_vertice, mapeamento_sombras, contexto);
 }
 
 void FinalizaShaders(const VarShader& shader) {
@@ -526,45 +530,50 @@ bool LuzPorVertice(int argc, const char* const* argv) {
 #endif
 }
 
+bool MapeamentoSombras(int argc, const char* const* argv) {
+#if USAR_GFLAGS
+  return FLAGS_mapeamento_sombras;
+#else
+  for (int i = 0; i < argc; ++i) {
+    if (std::string(argv[i]) == "--mapeamento_sombras") {
+      return true;
+    }
+  }
+  return false;
+#endif
+}
+
 void AtualizaMatrizSombra(const Matrix4& m) {
-#if USAR_FRAMEBUFFER
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.top() *= m;
-#endif
 }
 
 void IdentidadeMatrizSombra() {
-#if USAR_FRAMEBUFFER
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.top().identity();
-#endif
 }
 
 void EmpilhaMatrizSombra() {
-#if USAR_FRAMEBUFFER
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_mvm_sombra.top());
   c->pilha_mvm_sombra.push(m);
-#endif
 }
 
 void DesempilhaMatrizSombra() {
-#if USAR_FRAMEBUFFER
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.pop();
-#endif
 }
 
 }  // namespace interno
@@ -1051,9 +1060,9 @@ void AtualizaMatrizes() {
     Matriz3Uniforme(shader.uni_gltab_nm, 1, false, normal.get());
   }
 
-#if USAR_FRAMEBUFFER
-  Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
-#endif
+  if (shader.uni_gltab_mvm_sombra != -1) {
+    Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
+  }
 }
 
 void AtualizaTodasMatrizes() {

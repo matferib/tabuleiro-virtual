@@ -52,6 +52,7 @@ void main() {
   bias = clamp(bias, 0.00, 0.0035);
   lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
   lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
+  // Possivelmente da pra otimizar com mix aqui pois nao eh variavel uniforme.
   if ((v_Pos_sombra.z - bias) > texz) {
     cor_final = v_ColorSemDirecional;
   }
@@ -64,7 +65,6 @@ void main() {
   if (gltab_textura_cubo > 0.0) {
     cor_final *= textureCube(gltab_unidade_textura_cubo, v_Pos_model.yzx);
   }
-  //cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
 
   // Nevoa: em cenario sem nevoa, o if saiu bem mais barato. Com nevoa ficou igual.
   //mediump float distancia = length(v_Pos - gltab_nevoa_referencia);
