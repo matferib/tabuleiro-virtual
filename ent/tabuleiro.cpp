@@ -487,15 +487,16 @@ void Tabuleiro::DesenhaSombraProjetada() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  V_ERRO("LigacaoComFramebufferSombraProjetada");
 #if !USAR_FRAMEBUFFER_OPENGLES
   gl::BufferDesenho(GL_NONE);
-  //gl::FaceNula(GL_FRONT);
 #endif
   DesenhaCena();
 #endif
 }
 
 int Tabuleiro::Desenha() {
+  V_ERRO_RET("InicioDesenha");
   TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
 
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
@@ -547,12 +548,16 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_nevoa(false);
     parametros_desenho_.set_desenha_coordenadas(false);
   }
+  V_ERRO_RET("Antes desenha sombras");
+
 #if USAR_FRAMEBUFFER
   if (parametros_desenho_.desenha_sombras()) {
+    GLint original;
+    gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaSombraProjetada();
+    V_ERRO_RET("Depois DesenhaSombraProjetada");
     // Restaura os valores e usa a textura como sombra.
-    //gl::FaceNula(GL_BACK);
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
@@ -566,7 +571,7 @@ int Tabuleiro::Desenha() {
     gl::MultiplicaMatriz(bias.get(), false);
     ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
     gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_FRAMEBUFFER_OPENGLES
     gl::BufferDesenho(GL_BACK);
 #endif
@@ -577,6 +582,7 @@ int Tabuleiro::Desenha() {
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
   }
+  V_ERRO_RET("MeioDesenha");
 #else
   gl::UsaShader(tipo_shader);
   gl::UnidadeTextura(GL_TEXTURE0);
@@ -587,6 +593,7 @@ int Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   DesenhaCena();
+  V_ERRO_RET("FimDesenha");
   return passou_ms;
 }
 
@@ -2199,11 +2206,13 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+#if !__APPLE__ || !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
     gl::Habilita(GL_MULTISAMPLE);
   } else {
     gl::Desabilita(GL_MULTISAMPLE);
   }
+#endif
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
@@ -2219,6 +2228,7 @@ void Tabuleiro::IniciaGL() {
   Entidade::IniciaGl();
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
+  V_ERRO("erro inicializando GL");
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
@@ -2550,7 +2560,7 @@ void Tabuleiro::DesenhaCena() {
   //-------------
   // DESENHOS 2D.
   //-------------
-#if 1 && DEBUG && USAR_FRAMEBUFFER
+#if 0 && DEBUG && USAR_FRAMEBUFFER
   if (!parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
@@ -2821,6 +2831,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
 
 void Tabuleiro::GeraFramebuffer() {
 #if USAR_FRAMEBUFFER
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(ERROR) << "gerando framebuffer";
   gl::GeraFramebuffers(1, &framebuffer_);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
@@ -2859,8 +2871,10 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("TexturaFramebuffer");
 
   // No IOS da pau se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+#if __APPLE__ && !USAR_OPENGL_ES
   gl::BufferDesenho(GL_NONE);
   gl::BufferLeitura(GL_NONE);
+#endif
   auto ret = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
     LOG(ERROR) << "Framebuffer incompleto: " << ret;
@@ -2871,7 +2885,8 @@ void Tabuleiro::GeraFramebuffer() {
   // Volta estado normal.
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer");
   LOG(ERROR) << "framebuffer gerado";
 #endif
 }
@@ -4307,12 +4322,15 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+#if !__APPLE__ || !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
-    gl::Habilita(GL_MULTISAMPLE);
+    //gl::Habilita(GL_MULTISAMPLE);
   } else {
-    gl::Desabilita(GL_MULTISAMPLE);
+    //gl::Desabilita(GL_MULTISAMPLE);
   }
+#endif
   SalvaConfiguracoes(opcoes_);
+  V_ERRO("erro deserializando GL");
 }
 
 void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {

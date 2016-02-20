@@ -9,12 +9,13 @@
   #elif TARGET_OS_MAC
   #endif
 #endif
+//#define VLOG_NIVEL 1
+#include "log/log.h"
+
 #include "arq/arquivo.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
-#define VLOG_NIVEL 0
-#include "log/log.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/lodepng.h"
 #include "tex/texturas.h"
