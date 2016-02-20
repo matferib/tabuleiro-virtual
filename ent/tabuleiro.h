@@ -767,8 +767,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a acao ou vazio se nao houver indice. */
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
 
-  bool UsarMapeamentoSombras() const { return opcoes_.usar_sombra_complexa(); }
-  bool UsarIluminacaoPorPixel() const { return opcoes_.usar_iluminacao_por_pixel(); }
+  bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

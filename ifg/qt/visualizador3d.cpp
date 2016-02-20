@@ -271,7 +271,8 @@ void Visualizador3d::initializeGL() {
   try {
     if (!once) {
       once = true;
-      gl::IniciaGl(argcp_, argv_);
+      // luz_por_pixel, mapeamento_sombras.
+      gl::IniciaGl(true, true);
     }
     tabuleiro_->IniciaGL();
   } catch (const std::logic_error& erro) {

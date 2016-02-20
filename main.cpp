@@ -23,6 +23,8 @@ namespace {
 void CarregaConfiguracoes(ent::OpcoesProto* proto) {
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", proto);
+    proto->set_iluminacao_por_pixel(true);
+    proto->set_mapeamento_sombras(true);
     LOG(INFO) << "Carregando opcoes de arquivo.";
   } catch (...) {
     proto->CopyFrom(ent::OpcoesProto::default_instance());

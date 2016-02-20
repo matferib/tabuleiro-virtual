@@ -19,12 +19,6 @@
 #include "net/util.h"
 #include "matrix/matrices.h"
 
-
-#if USAR_GFLAGS
-DEFINE_bool(luz_por_vertice, false, "Se verdadeiro, usa iluminacao por vertice.");
-DEFINE_bool(mapeamento_sombras, false, "Se verdadeiro, usa mapeamento de sombras.");
-#endif
-
 using gl::TSH_LUZ;
 using gl::TSH_SIMPLES;
 using gl::TSH_PICKING;
@@ -364,8 +358,8 @@ bool IniciaVariaveis(VarShader* shader) {
   return true;
 }
 
-void IniciaShaders(bool luz_por_vertice, bool mapeamento_sombras, interno::Contexto* contexto) {
-  LOG(INFO) << "Tentando iniciar com shaders, luz por fragmento? " << !luz_por_vertice;
+void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto* contexto) {
+  LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << luz_por_pixel;
 
   V_ERRO("antes vertex shader");
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
@@ -376,9 +370,9 @@ void IniciaShaders(bool luz_por_vertice, bool mapeamento_sombras, interno::Conte
     VarShader* shader;
   };
   std::vector<DadosShaders> dados_shaders = {
-    { luz_por_vertice ? "programa_luz_vertice" : "programa_luz_pixel",
-      luz_por_vertice ? "vert_luz_por_vertice.c" : "vert_luz.c",
-      luz_por_vertice ? "frag_luz_por_vertice.c" : "frag_luz.c",
+    { luz_por_pixel ? "programa_luz_pixel" : "programa_luz_vertice",
+      luz_por_pixel ? "vert_luz.c" : "vert_luz_por_vertice.c",
+      luz_por_pixel ? "frag_luz.c" : "frag_luz_por_vertice.c",
       &contexto->shaders[TSH_LUZ] },
     { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
     { "programa_picking", "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
@@ -407,7 +401,7 @@ void IniciaShaders(bool luz_por_vertice, bool mapeamento_sombras, interno::Conte
 }  // namespace
 
 
-void IniciaComum(bool luz_por_vertice, bool mapeamento_sombras, interno::Contexto* contexto) {
+void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
@@ -415,7 +409,7 @@ void IniciaComum(bool luz_por_vertice, bool mapeamento_sombras, interno::Context
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
-  IniciaShaders(luz_por_vertice, mapeamento_sombras, contexto);
+  IniciaShaders(luz_por_pixel, mapeamento_sombras, contexto);
 }
 
 void FinalizaShaders(const VarShader& shader) {
@@ -515,32 +509,6 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else {
     glDisable(cap);
   }
-}
-
-bool LuzPorVertice(int argc, const char* const* argv) {
-#if USAR_GFLAGS
-  return FLAGS_luz_por_vertice;
-#else
-  for (int i = 0; i < argc; ++i) {
-    if (std::string(argv[i]) == "--luz_por_vertice") {
-      return true;
-    }
-  }
-  return false;
-#endif
-}
-
-bool MapeamentoSombras(int argc, const char* const* argv) {
-#if USAR_GFLAGS
-  return FLAGS_mapeamento_sombras;
-#else
-  for (int i = 0; i < argc; ++i) {
-    if (std::string(argv[i]) == "--mapeamento_sombras") {
-      return true;
-    }
-  }
-  return false;
-#endif
 }
 
 void AtualizaMatrizSombra(const Matrix4& m) {

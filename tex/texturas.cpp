@@ -158,7 +158,7 @@ class Texturas::InfoTexturaInterna {
   GLuint Id() const { return id_; }
 
   // Retorna o tipo de textura.
-  GLenum Tipo() const { return GL_TEXTURE_2D; } //imagem_.textura_cubo() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D; }
+  GLenum Tipo() const { return imagem_.textura_cubo() ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D; }
 
   // Incremento e decremento de contador de refencia.
   int Ref() { return ++contador_; }

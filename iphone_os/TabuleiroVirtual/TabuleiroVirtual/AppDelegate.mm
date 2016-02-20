@@ -74,6 +74,10 @@
     UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     GameViewController* game_view_controller = (GameViewController*)
         [sb instantiateViewControllerWithIdentifier:@"GameViewController"];
+  game_view_controller->usar_sombra_complexa_ =
+  ((UISwitch*)[self.window viewWithTag:VIEW_SOMBRA_COMPLEXA]).on;
+  game_view_controller->usar_iluminacao_por_pixel_ =
+  ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on;
     UIViewController* responder = (UIViewController*)
         [[[self.window subviews] firstObject] nextResponder];
     [responder presentModalViewController:game_view_controller animated:TRUE];

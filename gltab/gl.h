@@ -67,7 +67,7 @@
 namespace gl {
 
 // Inicializacao e finalizacao da parte grafica. Da excecao em caso de erro.
-void IniciaGl(int* argcp, char** argv);
+void IniciaGl(bool luz_por_pixel, bool mapeamento_sombras);
 void FinalizaGl();
 
 

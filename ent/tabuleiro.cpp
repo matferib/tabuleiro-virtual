@@ -302,7 +302,7 @@ void Tabuleiro::LiberaTextura() {
 }
 
 void Tabuleiro::LiberaFramebuffer() {
-  if (!UsarMapeamentoSombras()) {
+  if (!MapeamentoSombras()) {
     return;
   }
   LOG(ERROR) << "Liberando framebuffer";
@@ -362,7 +362,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 }
 
 void Tabuleiro::ConfiguraProjecao() {
-  if (UsarMapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
     gl::Ortogonal(-val, val, -val, val,
                   0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
@@ -384,7 +384,7 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
-  if (UsarMapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     Matrix4 mr;
     mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
     mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
@@ -545,7 +545,7 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("Antes desenha sombras");
 
-  if (UsarMapeamentoSombras() && parametros_desenho_.desenha_sombras()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombras()) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
@@ -2392,7 +2392,7 @@ void Tabuleiro::DesenhaCena() {
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
-  if (UsarMapeamentoSombras() && parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
     parametros_desenho_.set_desenha_sombra_projetada(true);
     gl::MudarModoMatriz(gl::MATRIZ_SOMBRA);
     ConfiguraOlhar();
@@ -2481,7 +2481,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando acoes");
 
   // Sombras.
-  if (!UsarMapeamentoSombras() && parametros_desenho_.desenha_sombras() &&
+  if (!MapeamentoSombras() && parametros_desenho_.desenha_sombras() &&
       proto_corrente_->luz_direcional().inclinacao_graus() > 5.0 &&
       proto_corrente_->luz_direcional().inclinacao_graus() < 180.0f) {
     bool desenha_texturas = parametros_desenho_.desenha_texturas();
@@ -2537,7 +2537,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando entidades alfa");
 
-  if (UsarMapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     return;
   }
 
@@ -2545,7 +2545,7 @@ void Tabuleiro::DesenhaCena() {
   // DESENHOS 2D.
   //-------------
 #if 0 && DEBUG
-  if (UsarMapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
+  if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
@@ -2814,7 +2814,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
 }
 
 void Tabuleiro::GeraFramebuffer() {
-  if (!UsarMapeamentoSombras()) {
+  if (!MapeamentoSombras()) {
     return;
   }
   GLint original;

@@ -951,9 +951,7 @@
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"USAR_OPENGL_ES=1",
-					"USAR_FRAMEBUFFER=0",
 					"DEBUG=1",
-					"$(inherited)",
 				);
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
@@ -983,10 +981,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/boost/ios/framework",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"USAR_OPENGL_ES=1",
-					"USAR_FRAMEBUFFER=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "USAR_OPENGL_ES=1";
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
