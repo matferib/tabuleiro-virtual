@@ -10,11 +10,12 @@
 #include <google/gflags.h>
 #endif
 
+#define VLOG_NIVEL 2
+#include "log/log.h"
+
 #include "gltab/gl_interno.h"
 #include "gltab/glues.h"
 #include "arq/arquivo.h"
-//#define VLOG_NIVEL 2
-#include "log/log.h"
 #include "net/util.h"
 #include "matrix/matrices.h"
 
