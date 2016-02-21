@@ -130,6 +130,7 @@ modelo { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
   modelo { id: 'Aranha Gigante Enorme' }
+  modelo { id: 'Besouro do Fogo' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }

@@ -45,6 +45,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Besouro do Fogo'
+  entidade {
+    dados_vida: '1d8' tamanho: TM_PEQUENO info_textura { id: 'firebeetle.png' } cor { r: 1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini 0\nca 16/11/16 mordida +1 dano 2d5' luz { raio: 3 cor { r: 1 } }
+  }
+}
+modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }

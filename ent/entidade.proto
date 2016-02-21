@@ -61,7 +61,8 @@ message Cor {
 
 message IluminacaoPontual {
   optional Cor cor = 1;
-  optional float raio = 2;
+  // Metros. Passar para quadrados.
+  optional float raio_m = 2;
   optional float atenuacao = 3 [deprecated=true];
 }
 
