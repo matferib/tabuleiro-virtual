@@ -96,7 +96,6 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   gl::Desabilita(GL_NORMALIZE);
 }
 
-
 void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {
   DesenhaObjetoProto(proto, VariaveisDerivadas(), pd, matriz_shear);
 }
@@ -183,7 +182,9 @@ void Entidade::DesenhaObjetoEntidadeProto(
         // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
         angulo = -angulo;
       }
-      gl::Roda(angulo - 90.0f, 0, 0, 1.0, false);
+      gl::Roda(angulo - 90.0f, 0, 0, 1.0f, false);
+    } else if (!proto.caida()) {
+      gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
     }
     gl::MatrizEscopo salva_matriz(false);
     gl::Escala(1.0f, 0.1f, 1.0f, false);
