@@ -311,6 +311,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Leão Atroz'
+  entidade {
+    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'direlion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini: +2\nca 15/11/13 agarrar +17 mordida/garrax2 +7/+13/+13\ndano: 1d8+3/1d6+7/1d6+7\nagarrar aprimorado'
+  }
+}
+modelo {
   id: 'Manto Negro'
   entidade { dados_vida: '1d10+1' tamanho: TM_PEQUENO voadora: true info_textura { id: 'darkmantle.png' } cor { r: 0.384 g: 0.318 b: 0.282 } }
 }

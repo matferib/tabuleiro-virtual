@@ -1,4 +1,5 @@
 Versao 2.1.0
+- Permitir que alguns modelos afundem na terra.
 - Fazer o projeto XCode do mac.
 - Setar todas unidades de textura na inicializacao dos shaders.
 - Dano nao aparece na visao no escuro.
