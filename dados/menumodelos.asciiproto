@@ -148,6 +148,7 @@ sub_menu {
   modelo { id: 'Árvore (pinheiro)' }
   modelo { id: 'Árvore (seca)' }
   modelo { id: 'Cactos' }
+  modelo { id: 'Carroça' }
   modelo { id: 'Casa (8x7)' }
   modelo { id: 'Cavalo' }
   modelo { id: 'Moedas' }
