@@ -38,6 +38,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Aparição'
+  entidade {
+    dados_vida: '5d12' info_textura { id: 'wraith.png' } cor { r: 1 b: 1 g: 1 a: 0.8 } voadora: true
+    rotulo_especial: 'ini +7\nca 15/15/12 toque +5 dano: 1d4 + 1d6 constituição\nmov 12 quadrados'
+  }
+}
+modelo {
   id: 'Aranha Gigante Enorme'
   entidade {
     dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'giantspider.png' } cor { r: 0 g: 0 b: 0 }

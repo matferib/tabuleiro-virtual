@@ -1,8 +1,23 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 modelo { id: 'Padrão' }
-modelo { id: 'Allip' }
-modelo { id: 'Carneçal' }
-modelo { id: 'Carniçal' }
+sub_menu {
+  id: 'Mortos-Vivos' 
+  modelo { id: 'Allip' }
+  modelo { id: 'Aparição' }
+  modelo { id: 'Carneçal' }
+  modelo { id: 'Carniçal' }
+  sub_menu {
+    id: 'Esqueletos'
+    modelo { id: 'Esqueleto (Humano Combatente)' }
+    modelo { id: 'Esqueleto (Lobo)' }
+    modelo { id: 'Esqueleto (Troll)' }
+  }
+  sub_menu {
+    id: 'Zumbis'
+    modelo { id: 'Zumbi (humano)' }
+    modelo { id: 'Zumbi (kobold)' }
+  }
+}
 sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
@@ -14,7 +29,7 @@ sub_menu {
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
-modelo { id: 'ankheg.png' }
+modelo { id: 'Ankheg' }
 sub_menu {
   id: 'Anões'
   modelo { id: 'Anão' }
@@ -48,12 +63,6 @@ sub_menu {
   modelo { id: 'Crioesfinge' }
   modelo { id: 'Ginoesfinge' }
   modelo { id: 'Hieracoesfinge' }
-}
-sub_menu {
-  id: 'Esqueletos'
-  modelo { id: 'Esqueleto (Humano Combatente)' }
-  modelo { id: 'Esqueleto (Lobo)' }
-  modelo { id: 'Esqueleto (Troll)' }
 }
 sub_menu {
   id: 'Formiga Gigante'
@@ -135,11 +144,6 @@ sub_menu {
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }
-}
-sub_menu {
-  id: 'Zumbis'
-  modelo { id: 'Zumbi (humano)' }
-  modelo { id: 'Zumbi (kobold)' }
 }
 modelo { id: 'Worg' }
 sub_menu {
