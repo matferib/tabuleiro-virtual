@@ -436,7 +436,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // Casos especiais.
   const auto* luz = proto_.has_luz() ? proto_.mutable_luz() : nullptr;
-  if (luz != nullptr && luz->has_raio() && luz->raio() == 0.0f) {
+  if (luz != nullptr && luz->has_raio_m() && luz->raio_m() == 0.0f) {
     proto_.clear_luz();
   }
   const auto* cor_luz = ((luz != nullptr) && luz->has_cor()) ? &luz->cor() : nullptr;

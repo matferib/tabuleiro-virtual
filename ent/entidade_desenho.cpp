@@ -432,7 +432,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
       cor.set_b(1.0f);
       cor.set_a(1.0f);
     }
-    float raio = (proto_.luz().has_raio() ? proto_.luz().raio() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
+    float raio = (proto_.luz().has_raio_m() ? proto_.luz().raio_m() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
     float multiplicador_cor = 1.0f;
     if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
       raio *= 2.0;

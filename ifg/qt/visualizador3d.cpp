@@ -744,7 +744,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_luz()) {
     luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
     gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
-    gerador.spin_raio->setValue(entidade.luz().has_raio() ? entidade.luz().raio() : 6.0f);
+    gerador.spin_raio->setValue(entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f);
   } else {
     ent::Cor branco;
     branco.set_r(1.0f);
@@ -817,7 +817,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.spin_raio->value() > 0.0f) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
-      proto_retornado->mutable_luz()->set_raio(gerador.spin_raio->value());
+      proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio->value());
     } else {
       proto_retornado->clear_luz();
     }

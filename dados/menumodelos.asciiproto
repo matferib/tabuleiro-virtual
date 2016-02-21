@@ -21,6 +21,7 @@ sub_menu {
 }
 modelo { id: 'Bulette' }
 modelo { id: 'Cão Teleportador'}
+modelo { id: 'Coruja Gigante'}
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }

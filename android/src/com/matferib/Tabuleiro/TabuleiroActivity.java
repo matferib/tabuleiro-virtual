@@ -542,10 +542,10 @@ class TabuleiroRenderer
         raio_luz.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         float val_luz = 0.0f;
         if (proto.luz != null) {
-          if (proto.luz.raio == null) {
+          if (proto.luz.raio_m == null) {
             val_luz = 6.0f;  // raio padrao de luz: 4 quadrados.
           } else {
-            val_luz = proto.luz.raio;
+            val_luz = proto.luz.raio_m;
           }
         }
         int indice_val_luz = (int)(val_luz / 1.5f);
