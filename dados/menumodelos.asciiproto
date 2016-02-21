@@ -13,11 +13,13 @@ sub_menu {
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }
 }
+modelo { id: 'ankheg.png' }
 sub_menu {
   id: 'Anões'
   modelo { id: 'Anão' }
 }
 modelo { id: 'Bulette' }
+modelo { id: 'Cão Teleportador'}
 sub_menu {
   id: 'Demônio'
   modelo { id: 'Demônio Babau' texto: 'Babau' }
@@ -50,6 +52,12 @@ sub_menu {
   modelo { id: 'Esqueleto (Humano Combatente)' }
   modelo { id: 'Esqueleto (Lobo)' }
   modelo { id: 'Esqueleto (Troll)' }
+}
+sub_menu {
+  id: 'Formiga Gigante'
+  modelo { id: 'Formiga Gigante' texto: 'Operária' }
+  modelo { id: 'Formiga Gigante, Soldado' texto: 'Soldado' }
+  modelo { id: 'Formiga Gigante, Rainha'  texto: 'Rainha' }
 }
 sub_menu {
   id: 'Gigantes'
@@ -120,6 +128,7 @@ modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
 sub_menu {
   id: 'Vermes'
+  modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }

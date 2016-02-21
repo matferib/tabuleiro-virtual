@@ -7,6 +7,15 @@ modelo {
   }
 }
 modelo {
+  id: 'Ankheg'
+  entidade {
+    dados_vida: '3d10+12' tamanho: TM_GRANDE info_textura { id: 'ankheg.png' } cor { r: 0.3 g: 0.3 b: 0.3 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini 0\nataque: +7 dano: 2d6+7+1d4\nca 18/9/18'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+  }
+}
+modelo {
   id: 'Águia'
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 } voadora: true info_textura { id: 'eagle.png' }
@@ -29,10 +38,26 @@ modelo {
   }
 }
 modelo {
+  id: 'Aranha Gigante Enorme'
+  entidade {
+    dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'giantspider.png' } cor { r: 0 g: 0 b: 0 }
+    rotulo_especial: 'ini: +3\nca 16/11/13 agarrar 18 mordida: +9 dano 2d6+6+veneno\nveneno cd 16 1d8 força'
+  }
+}
+modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
     rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
+  }
+}
+modelo {
+  id: 'Cão Teleportador'
+  entidade {
+    dados_vida: '4d10' info_textura { id: 'blinkdog.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    rotulo_especial: 'ini: +3\nat: mordida: +4 dano: 1d6\nPiscar a vontade, porta dimensional uma vez por rodada como acao livre\nca 16/13/13'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
   }
 }
 modelo {
@@ -53,7 +78,7 @@ modelo {
 modelo {
   id: 'Carneçal'
   entidade {
-    dados_vida: '4d12' info_textura { id: 'ghoul.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    dados_vida: '4d12' info_textura { id: 'ghast.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
     rotulo_especial: 'ini: +3\nat: +5/+3/+3\ndano: 1d8+3+paralisia/1d4+1+paralisia\nca: 17'
   }
 }
@@ -157,6 +182,27 @@ modelo {
 modelo {
   id: 'Esqueleto (Troll)'
   entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+}
+modelo {
+  id: 'Formiga Gigante'
+  entidade {
+    dados_vida: '2d8' info_textura { id: 'giantant.png'} cor { r: 0.3 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini 0\nca 17/10/17 at +1 dano 1d6\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
+}
+modelo {
+  id: 'Formiga Gigante, Soldado'
+  entidade {
+    dados_vida: '2d8+2' info_textura { id: 'giantant_soldier.png'} cor { r: 0.2 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini 0\nca 17/10/17 at +3 dano 2d4+3\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
+}
+modelo {
+  id: 'Formiga Gigante, Rainha'
+  entidade {
+    dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'giantant_queen.png'} cor { r: 0.2 g: 0.0 b: 0.0 }
+    rotulo_especial: 'ini -1\nca 17/10/17 at +5 dano 2d6+4\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
 }
 modelo {
   id: 'Gigante das Colinas'
