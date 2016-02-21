@@ -58,7 +58,6 @@ struct InfoLuzPontual {
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
-uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.

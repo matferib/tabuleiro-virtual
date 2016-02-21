@@ -41,6 +41,8 @@ class Notificacao;
     @public
     NSString* id_cliente_;
     NSString* endereco_servidor_;
+    bool usar_sombra_complexa_;
+    bool usar_iluminacao_por_pixel_;
 }
 
 -(bool)trataNotificacao:(const ntf::Notificacao*)notificacao;

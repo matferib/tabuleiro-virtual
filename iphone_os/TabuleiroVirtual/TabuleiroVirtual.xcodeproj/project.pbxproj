@@ -117,6 +117,7 @@
 		EA38B7281ACBB2C700D66E95 /* socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = socket.h; path = ../../../../net/socket.h; sourceTree = "<group>"; };
 		EA38B72B1AD4C95600D66E95 /* m3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = m3d.cpp; path = ../../../m3d/m3d.cpp; sourceTree = "<group>"; };
 		EA38B72C1AD4C95600D66E95 /* m3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = m3d.h; path = ../../../m3d/m3d.h; sourceTree = "<group>"; };
+		EA5CE7541C757F350091039C /* tabuleiro_terreno.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tabuleiro_terreno.h; path = ../../../../ent/tabuleiro_terreno.h; sourceTree = "<group>"; };
 		EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		EA6B4A941B844324005A1E79 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = ../../shaders; sourceTree = "<group>"; };
 		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
@@ -414,6 +415,7 @@
 		EACF26EC1A58D95D0052E95A /* ent */ = {
 			isa = PBXGroup;
 			children = (
+				EA5CE7541C757F350091039C /* tabuleiro_terreno.h */,
 				EACE05961C374EB500C548F4 /* tabuleiro_interface.cpp */,
 				EACE05971C374EB500C548F4 /* tabuleiro_interface.h */,
 				EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */,
@@ -947,11 +949,11 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/boost/ios/framework",
 				);
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = (
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"USAR_OPENGL_ES=1",
 					"DEBUG=1",
-					"$(inherited)",
 				);
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -979,7 +981,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/boost/ios/framework",
 				);
-				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "USAR_OPENGL_ES=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "USAR_OPENGL_ES=1";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,

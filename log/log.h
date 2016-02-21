@@ -61,9 +61,10 @@ class StringLogger {
 #define WARNING 2
 #define ERROR 3
 #endif
-#define LOG(X) if (X > INFO) std::cout << std::endl
-#define LOG_EVERY_N(X, N) if (X > INFO) std::cout << std::endl
-#define VLOG(X) if (X <= VLOG_NIVEL) std::cout << std::endl
+#define SHORT_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+#define LOG(X) if (X > INFO || VLOG_NIVEL > 0) std::cout << std::endl << SHORT_FILE << ":" << __LINE__ << " "
+#define LOG_EVERY_N(X, N) if (X > INFO || VLOG_NIVEL > 0) std::cout << std::endl  << SHORT_FILE << ":" << __LINE__ << " "
+#define VLOG(X) if (VLOG_NIVEL >= X) std::cout << std::endl
 #endif
 
 namespace meulog {

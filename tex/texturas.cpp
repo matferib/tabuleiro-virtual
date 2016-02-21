@@ -7,14 +7,16 @@
   #include "TargetConditionals.h"
   #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
   #elif TARGET_OS_MAC
+    #define MAC_OSX 1
   #endif
 #endif
+//#define VLOG_NIVEL 1
+#include "log/log.h"
+
 #include "arq/arquivo.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "gltab/gl.h"
-#define VLOG_NIVEL 0
-#include "log/log.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/lodepng.h"
 #include "tex/texturas.h"
@@ -217,7 +219,7 @@ class Texturas::InfoTexturaInterna {
     V_ERRO("Ligacao");
     // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     GLfloat aniso = 0;
     gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
@@ -240,10 +242,11 @@ class Texturas::InfoTexturaInterna {
                         0, FormatoImagem(), TipoImagem(),
                         bits_.data());
     V_ERRO("Imagem");
-#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
     // TODO wrapper para outros...
     gl::GeraMipmap(GL_TEXTURE_2D);
 #endif
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
     V_ERRO("CriaTexturaOpenGl");
   }
@@ -264,7 +267,7 @@ class Texturas::InfoTexturaInterna {
     V_ERRO("Ligacao Cubo");
     // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
     // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     GLfloat aniso = 0;
     gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
@@ -308,10 +311,11 @@ class Texturas::InfoTexturaInterna {
           dado_textura.bits->data());
       V_ERRO("ImagemCubo");
     }
-#if WIN32 || TARGET_OS_MAC || (__linux__ && !ANDROID)
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
     // TODO wrapper para outros...
     gl::GeraMipmap(GL_TEXTURE_CUBE_MAP);
 #endif
+    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
     gl::Desabilita(GL_TEXTURE_CUBE_MAP);
     V_ERRO("CriaTexturaOpenGlCubo");
   }

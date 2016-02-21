@@ -92,6 +92,7 @@ const std::string ConverteString(JNIEnv* env, jstring jstr) {
 }
 
 // Contexto nativo.
+std::unique_ptr<ent::OpcoesProto> g_opcoes;
 std::unique_ptr<ntf::CentralNotificacoes> g_central;
 std::unique_ptr<tex::Texturas> g_texturas;
 std::unique_ptr<m3d::Modelos3d> g_modelos3d;
@@ -112,11 +113,13 @@ extern "C" {
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco, jobject assets, jstring dir_dados) {
   arq::Inicializa(env, assets, ConverteString(env, dir_dados));
+  g_opcoes.reset(new ent::OpcoesProto);
+  g_opcoes->set_mapeamento_sombras(true);
+  g_opcoes->set_iluminacao_por_pixel(false);
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_modelos3d.reset(new m3d::Modelos3d());
-  ent::OpcoesProto opcoes;
-  g_tabuleiro.reset(new ent::Tabuleiro(opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
+  g_tabuleiro.reset(new ent::Tabuleiro(*g_opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
   g_cliente.reset(new net::Cliente(g_sincronizador.get(), g_central.get()));
@@ -174,11 +177,8 @@ void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeDestroy(JNIEnv* env, jo
 // Nativos de TabuleiroRenderer.
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, jobject thisz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeInitGl");
-  int argc = 1;
-  char* argv = new char[100];
-  snprintf(argv, 99, "%s", "--luz_por_vertice");
-  gl::IniciaGl(&argc, &argv);
-  delete[] argv;
+  // luz por pixel e sombra projetada.
+  gl::IniciaGl(g_opcoes->iluminacao_por_pixel(), g_opcoes->mapeamento_sombras());
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
 }

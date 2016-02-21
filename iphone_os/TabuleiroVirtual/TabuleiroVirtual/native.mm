@@ -82,6 +82,8 @@ void nativeCreate(void* view) {
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   ent::OpcoesProto opcoes;
+  opcoes.set_mapeamento_sombras(g_view->usar_sombra_complexa_);
+  opcoes.set_iluminacao_por_pixel(g_view->usar_iluminacao_por_pixel_);
   g_tabuleiro.reset(new ent::Tabuleiro(opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
@@ -93,11 +95,7 @@ void nativeCreate(void* view) {
   g_interface.reset(new ifg::InterfaceIos(view, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
   g_tratador_dialogos.reset(new TratadorDialogos(g_central.get()));
 
-  int argc = 1;
-  char* argv = new char[100];
-  snprintf(argv, 99, "%s", "--luz_por_vertice");
-  gl::IniciaGl(&argc, &argv);
-  delete[] argv;
+  gl::IniciaGl(false, g_view->usar_sombra_complexa_);
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
 

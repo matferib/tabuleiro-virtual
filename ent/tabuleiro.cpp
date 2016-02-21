@@ -302,12 +302,13 @@ void Tabuleiro::LiberaTextura() {
 }
 
 void Tabuleiro::LiberaFramebuffer() {
-#if USAR_FRAMEBUFFER
+  if (!MapeamentoSombras()) {
+    return;
+  }
   LOG(ERROR) << "Liberando framebuffer";
   gl::ApagaFramebuffers(1, &framebuffer_);
   gl::ApagaTexturas(1, &textura_framebuffer_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
-#endif
 }
 
 
@@ -361,14 +362,12 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 }
 
 void Tabuleiro::ConfiguraProjecao() {
-#if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
     gl::Ortogonal(-val, val, -val, val,
                   0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
     return;
   }
-#endif
   if (camera_isometrica_) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
@@ -385,8 +384,7 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
-#if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     Matrix4 mr;
     mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
     mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
@@ -418,7 +416,6 @@ void Tabuleiro::ConfiguraOlhar() {
     //LOG(INFO) << "vt: " << (vt * mt);
     return;
   }
-#endif
   const Posicao& alvo = olho_.alvo();
   if (camera_isometrica_) {
     gl::OlharPara(
@@ -440,7 +437,6 @@ void Tabuleiro::ConfiguraOlhar() {
 }
 
 void Tabuleiro::DesenhaSombraProjetada() {
-#if USAR_FRAMEBUFFER
   if (!parametros_desenho_.desenha_sombras()) {
     return;
   }
@@ -487,15 +483,15 @@ void Tabuleiro::DesenhaSombraProjetada() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  V_ERRO("LigacaoComFramebufferSombraProjetada");
 #if !USAR_FRAMEBUFFER_OPENGLES
   gl::BufferDesenho(GL_NONE);
-  //gl::FaceNula(GL_FRONT);
 #endif
   DesenhaCena();
-#endif
 }
 
 int Tabuleiro::Desenha() {
+  V_ERRO_RET("InicioDesenha");
   TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
 
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
@@ -547,12 +543,15 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_nevoa(false);
     parametros_desenho_.set_desenha_coordenadas(false);
   }
-#if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombras()) {
+  V_ERRO_RET("Antes desenha sombras");
+
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombras()) {
+    GLint original;
+    gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaSombraProjetada();
+    V_ERRO_RET("Depois DesenhaSombraProjetada");
     // Restaura os valores e usa a textura como sombra.
-    //gl::FaceNula(GL_BACK);
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
@@ -566,7 +565,7 @@ int Tabuleiro::Desenha() {
     gl::MultiplicaMatriz(bias.get(), false);
     ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
     gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_FRAMEBUFFER_OPENGLES
     gl::BufferDesenho(GL_BACK);
 #endif
@@ -576,17 +575,18 @@ int Tabuleiro::Desenha() {
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
     parametros_desenho_ = salva_pd;
+  } else {
+    gl::UsaShader(tipo_shader);
+    gl::UnidadeTextura(GL_TEXTURE0);
   }
-#else
-  gl::UsaShader(tipo_shader);
-  gl::UnidadeTextura(GL_TEXTURE0);
-#endif
+  V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::Habilita(GL_BLEND);
   gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   DesenhaCena();
+  V_ERRO_RET("FimDesenha");
   return passou_ms;
 }
 
@@ -2199,11 +2199,13 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+#if !__APPLE__ || !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
     gl::Habilita(GL_MULTISAMPLE);
   } else {
     gl::Desabilita(GL_MULTISAMPLE);
   }
+#endif
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
@@ -2219,6 +2221,7 @@ void Tabuleiro::IniciaGL() {
   Entidade::IniciaGl();
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
+  V_ERRO("erro inicializando GL");
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
@@ -2388,15 +2391,14 @@ void Tabuleiro::DesenhaCena() {
   gl::MudarModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
-#if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
+
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
     parametros_desenho_.set_desenha_sombra_projetada(true);
     gl::MudarModoMatriz(gl::MATRIZ_SOMBRA);
     ConfiguraOlhar();
     parametros_desenho_.set_desenha_sombra_projetada(false);
     gl::MudarModoMatriz(GL_MODELVIEW);
   }
-#endif
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
@@ -2430,10 +2432,6 @@ void Tabuleiro::DesenhaCena() {
     DesenhaTabuleiro();
     if (parametros_desenho_.desenha_grade() &&
         (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
-      // Pra evitar z fight, desliga a profundidade,
-#if !USAR_FRAMEBUFFER
-      gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-#endif
       DesenhaGrade();
     }
     DesenhaQuadradoSelecionado();
@@ -2483,8 +2481,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando acoes");
 
   // Sombras.
-#if !USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombras() &&
+  if (!MapeamentoSombras() && parametros_desenho_.desenha_sombras() &&
       proto_corrente_->luz_direcional().inclinacao_graus() > 5.0 &&
       proto_corrente_->luz_direcional().inclinacao_graus() < 180.0f) {
     bool desenha_texturas = parametros_desenho_.desenha_texturas();
@@ -2493,7 +2490,6 @@ void Tabuleiro::DesenhaCena() {
     parametros_desenho_.set_desenha_texturas(desenha_texturas);
   }
   V_ERRO("desenhando sombras");
-#endif
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     //gl::HabilitaEscopo blend_escopo(GL_BLEND);
@@ -2541,17 +2537,15 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando entidades alfa");
 
-#if USAR_FRAMEBUFFER
-  if (parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     return;
   }
-#endif
 
   //-------------
   // DESENHOS 2D.
   //-------------
-#if 1 && DEBUG && USAR_FRAMEBUFFER
-  if (!parametros_desenho_.has_picking_x()) {
+#if 0 && DEBUG
+  if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
@@ -2820,7 +2814,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
 }
 
 void Tabuleiro::GeraFramebuffer() {
-#if USAR_FRAMEBUFFER
+  if (!MapeamentoSombras()) {
+    return;
+  }
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(ERROR) << "gerando framebuffer";
   gl::GeraFramebuffers(1, &framebuffer_);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
@@ -2859,8 +2857,10 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("TexturaFramebuffer");
 
   // No IOS da pau se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+#if __APPLE__ && !USAR_OPENGL_ES
   gl::BufferDesenho(GL_NONE);
   gl::BufferLeitura(GL_NONE);
+#endif
   auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
     LOG(ERROR) << "Framebuffer incompleto: " << ret;
@@ -2871,9 +2871,9 @@ void Tabuleiro::GeraFramebuffer() {
   // Volta estado normal.
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer");
   LOG(ERROR) << "framebuffer gerado";
-#endif
 }
 
 void Tabuleiro::GeraTerrenoAleatorioNotificando() {
@@ -3011,6 +3011,10 @@ void Tabuleiro::DesenhaTabuleiro() {
   } else if (parametros_desenho_.desenha_texturas() && proto_corrente_->has_info_textura()) {
     // Eh possivel que a textura esteja carregando ainda.
     LOG_EVERY_N(WARNING, 100) << "TEXTURA INVALIDA: " << proto_corrente_->info_textura().id();
+  } else {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
   }
   V_ERRO("textura");
 
@@ -4308,12 +4312,15 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
+#if !__APPLE__ || !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
     gl::Habilita(GL_MULTISAMPLE);
   } else {
     gl::Desabilita(GL_MULTISAMPLE);
   }
+#endif
   SalvaConfiguracoes(opcoes_);
+  V_ERRO("erro deserializando GL");
 }
 
 void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
@@ -5105,6 +5112,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     gl::LigacaoComTextura(tipo_textura, id_textura);
     vbo_caixa_ceu_.forca_texturas(true);
   } else {
+    gl::LigacaoComTextura(tipo_textura, 0);
     vbo_caixa_ceu_.forca_texturas(false);
   }
   gl::DesenhaVbo(vbo_caixa_ceu_);
