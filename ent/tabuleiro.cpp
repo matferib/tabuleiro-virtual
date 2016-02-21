@@ -3019,6 +3019,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Desabilita(GL_TEXTURE_2D);
   V_ERRO("depois vbo_tabuleiro_");
 }
@@ -5107,6 +5108,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     vbo_caixa_ceu_.forca_texturas(false);
   }
   gl::DesenhaVbo(vbo_caixa_ceu_);
+  gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
   gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.

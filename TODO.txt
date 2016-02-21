@@ -1,4 +1,5 @@
 Versao 2.1.0
+- Fazer o projeto XCode do mac.
 - Dano nao aparece na visao no escuro.
 - Shader de skybox (e passar pro final).
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
