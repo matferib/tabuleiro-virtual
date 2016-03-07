@@ -25,9 +25,12 @@ sub_menu {
 }
 sub_menu {
   id: 'Phaerimm'
+  modelo { id: 'Phaerimm Filhote'}
+  modelo { id: 'Phaerimm Juvenil'}
   modelo { id: 'Phaerimm Jovem Adulto'}
   modelo { id: 'Phaerimm Adulto'}
   modelo { id: 'Phaerimm Experiente'}
+  modelo { id: 'Phaerimm Ancião' }
   modelo { id: 'Phaerimm Ancião Venerável' }
 }
 modelo { id: 'Peryton' }

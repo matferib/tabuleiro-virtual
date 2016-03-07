@@ -90,6 +90,18 @@ modelo {
   }
 }
 modelo {
+  id: 'Phaerimm Filhote'
+  entidade {
+    dados_vida: '1d8' tamanho: TM_MIUDO info_textura { id: 'phaerimm.png' } cor { r: 0.6 g: 1.0 b: 0.6 }
+  }
+}
+modelo {
+  id: 'Phaerimm Juvenil'
+  entidade {
+    dados_vida: '4d8' tamanho: TM_PEQUENO info_textura { id: 'phaerimm.png' } cor { r: 0.4 g: 0.9 b: 0.4 }
+  }
+}
+modelo {
   id: 'Phaerimm Jovem Adulto'
   entidade {
     dados_vida: '7d8+7' info_textura { id: 'phaerimm.png' } cor { r: 0.3 g: 0.8 b: 0.3 }
@@ -105,6 +117,12 @@ modelo {
   id: 'Phaerimm Experiente'
   entidade {
     dados_vida: '13d8+26' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.15 g: 0.6 b: 0.15 }
+  }
+}
+modelo {
+  id: 'Phaerimm Ancião'
+  entidade {
+    dados_vida: '16d8+32' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.12 g: 0.55 b: 0.12 }
   }
 }
 modelo {
