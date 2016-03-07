@@ -182,6 +182,16 @@ type_set [] = {
   {GL_SAMPLER_2D,                                "sampler2D" },
   {GL_SAMPLER_CUBE,                              "samplerCube" },
 };
+
+void ImprimeExtensoes() {
+  int ne;
+  gl::Le(GL_EXTENSIONS, &ne);
+  for (int i = 0; i < ne; ++i) {
+    // So pra aparecer.
+    //VLOG(1) << "Extensao: " << glGetStringi(GL_EXTENSIONS, i);
+  }
+}
+
 void print_uniforms(GLuint program) {
   GLint uniform_count;
   ProgramaLeParam(program, GL_ACTIVE_UNIFORMS, &uniform_count);
@@ -409,6 +419,7 @@ void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto*
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
+  //ImprimeExtensoes();
   IniciaShaders(luz_por_pixel, mapeamento_sombras, contexto);
 }
 
