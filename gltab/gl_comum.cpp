@@ -244,7 +244,7 @@ void PreprocessaFonte(const std::string& nome, const VarShader& shader, std::str
 #define STRINGIFY_MACRO_VALUE(S) STRINGIFY(S)
 #define STRINGIFY(S) #S
   std::map<std::string, std::string> mapa = {
-    { "${USAR_FRAMEBUFFER}", shader.mapeamento_sombras ? "1" : "0" },
+    { "${USAR_MAPEAMENTO_SOMBRAS}", shader.mapeamento_sombras ? "1" : "0" },
 #if USAR_OPENGL_ES
     { "${VERSAO}", "100" },
 #elif __APPLE__

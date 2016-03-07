@@ -9,7 +9,7 @@ precision mediump float;
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
-#define USAR_FRAMEBUFFER ${USAR_FRAMEBUFFER}
+#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
@@ -19,13 +19,13 @@ struct InfoLuzDirecional {
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
 varying lowp vec4 v_ColorSemDirecional;
 #endif
 varying mediump vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
@@ -36,7 +36,7 @@ uniform lowp float gltab_textura;                // Textura ligada?
 uniform lowp float gltab_textura_cubo;           // Textura cubo ligada?
 uniform lowp sampler2D gltab_unidade_textura;    // handler da textura.
 uniform lowp samplerCube gltab_unidade_textura_cubo;   // handler da textura.
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 #endif
@@ -46,7 +46,7 @@ uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para com
 
 void main() {
   lowp vec4 cor_final = v_Color;
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
   highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
   highp float bias = 0.005 * tan(acos(cos_theta));
   bias = clamp(bias, 0.00, 0.0035);

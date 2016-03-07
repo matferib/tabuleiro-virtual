@@ -15,14 +15,14 @@
 #endif
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
-#define USAR_FRAMEBUFFER ${USAR_FRAMEBUFFER}
+#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
@@ -48,7 +48,7 @@ uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
 #if __VERSION__ == 130 || __VERSION__ == 120
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #else
@@ -88,7 +88,7 @@ void main() {
   // luz ambiente.
   if (gltab_luz_ambiente.a > 0.0) {
     //lowp vec4 cor_luz = gltab_luz_ambiente;
-#if USAR_FRAMEBUFFER
+#if USAR_MAPEAMENTO_SOMBRAS
     highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
     highp float bias = 0.005 * tan(acos(cos_theta));
     bias = clamp(bias, 0.00, 0.0035);

@@ -36,9 +36,9 @@
 #include "ntf/notificacao.pb.h"
 
 #if USAR_OPENGL_ES
-#define USAR_FRAMEBUFFER_OPENGLES 1
+#define USAR_MAPEAMENTO_SOMBRAS_OPENGLES 1
 #else
-#define USAR_FRAMEBUFFER_OPENGLES 0
+#define USAR_MAPEAMENTO_SOMBRAS_OPENGLES 0
 #endif
 
 using google::protobuf::RepeatedField;
@@ -469,7 +469,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
 
-#if USAR_FRAMEBUFFER_OPENGLES
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::UsaShader(gl::TSH_PROFUNDIDADE);
 #else
   gl::UsaShader(gl::TSH_LUZ);
@@ -484,7 +484,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   V_ERRO("LigacaoComFramebufferSombraProjetada");
-#if !USAR_FRAMEBUFFER_OPENGLES
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::BufferDesenho(GL_NONE);
 #endif
   DesenhaCena();
@@ -566,7 +566,7 @@ int Tabuleiro::Desenha() {
     ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
     gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-#if !USAR_FRAMEBUFFER_OPENGLES
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::BufferDesenho(GL_BACK);
 #endif
     gl::UnidadeTextura(GL_TEXTURE1);
@@ -1977,7 +1977,7 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
   unsigned int id_quadrado = IdQuadrado(x3d, y3d);
-  if (id_quadrado == static_cast<unsigned long>(-1)) {
+  if (id_quadrado == static_cast<unsigned int>(-1)) {
     return;
   }
   SelecionaQuadrado(id_quadrado);
@@ -2827,7 +2827,7 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("GeraTexturas");
   gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
   V_ERRO("LigacaoComTextura");
-#if USAR_FRAMEBUFFER_OPENGLES
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 #else
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
@@ -2845,7 +2845,7 @@ void Tabuleiro::GeraFramebuffer() {
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   V_ERRO("ParametroTextura");
-#if USAR_FRAMEBUFFER_OPENGLES
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
   gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
