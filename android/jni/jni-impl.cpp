@@ -111,11 +111,12 @@ extern "C" {
 
 // Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
-    JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco, jobject assets, jstring dir_dados) {
+    JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco,
+    jboolean mapeamento_sombras, jboolean luz_por_pixel, jobject assets, jstring dir_dados) {
   arq::Inicializa(env, assets, ConverteString(env, dir_dados));
   g_opcoes.reset(new ent::OpcoesProto);
-  g_opcoes->set_mapeamento_sombras(true);
-  g_opcoes->set_iluminacao_por_pixel(true);
+  g_opcoes->set_mapeamento_sombras(mapeamento_sombras);
+  g_opcoes->set_iluminacao_por_pixel(luz_por_pixel);
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
   g_modelos3d.reset(new m3d::Modelos3d());

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="abrir_servidor">Abrir Servidor</string>
+    <string name="conectar">Conectar</string>
+    <string name="id_jogador">Identificador do jogador</string>
+    <string name="endereco_ou_ip">Endereço ou IP (vazio para automático)</string>
+    <string name="usar_mapeamento_sombras">Usar mapeamento de sombras</string>
+    <string name="usar_luz_por_pixel">Usar luz por pixel</string>
     <string name="app_name">Tabuleiro</string>
     <string name="max_pontos_vida">Max Pontos Vida</string>
     <string name="pontos_vida">Pontos Vida</string>

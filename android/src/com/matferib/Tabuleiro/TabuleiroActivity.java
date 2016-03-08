@@ -56,6 +56,8 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
         getIntent().getStringExtra(SelecaoActivity.SERVIDOR) != null,
         getIntent().getStringExtra(SelecaoActivity.NOME),
         getIntent().getStringExtra(SelecaoActivity.ENDERECO),
+        getIntent().getBooleanExtra(SelecaoActivity.MAPEAMENTO_SOMBRAS, false),
+        getIntent().getBooleanExtra(SelecaoActivity.LUZ_POR_PIXEL, false),
         getResources().getAssets(),
         ((android.content.Context)this).getFilesDir().getAbsolutePath());
     view_.requestFocus();
@@ -136,7 +138,8 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     }
     System.loadLibrary("tabuleiro");
   }
-  private native void nativeCreate(boolean servidor, String nome, String endereco, Object assets, String dir);
+  private native void nativeCreate(boolean servidor, String nome, String endereco,
+                                   boolean mapeamento_sombras, boolean luz_por_pixel, Object assets, String dir);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;
