@@ -217,24 +217,6 @@ class Texturas::InfoTexturaInterna {
     }
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_);
     V_ERRO("Ligacao");
-    // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
-    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GLfloat aniso = 0;
-    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-    if (aniso <= 0) {
-      // Trilinear.
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-      // Melhora muito as texturas. Mipmap + aniso.
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
-    }
-#else
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
     // Carrega a textura.
     gl::ImagemTextura2d(GL_TEXTURE_2D,
                         0, GL_RGBA,
