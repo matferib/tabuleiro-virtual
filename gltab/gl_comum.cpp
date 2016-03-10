@@ -459,6 +459,21 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
     interno::UniformeSeValido(shader.uni_gltab_textura, 1.0f);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
+    GLfloat aniso = 0;
+    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    if (aniso <= 0) {
+      // Trilinear.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+      // Melhora muito as texturas. Mipmap + aniso.
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    }
+#else
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 1.0f);
   } else if (cap == GL_FOG) {
@@ -505,6 +520,8 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
     interno::UniformeSeValido(shader.uni_gltab_textura, 0.0f);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 0.0f);
   } else if (cap == GL_FOG) {
@@ -1330,8 +1347,10 @@ void Desabilita(GLenum cap) {
 void UnidadeTextura(GLenum unidade) {
 #if WIN32
   interno::TexturaAtivaInterno(unidade);
+  //glClientActiveTexture(unidade);
 #else
   glActiveTexture(unidade);
+  //glClientActiveTexture(unidade);
 #endif
 }
 
