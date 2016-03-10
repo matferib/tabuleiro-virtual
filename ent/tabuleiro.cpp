@@ -2838,10 +2838,6 @@ void Tabuleiro::GeraFramebuffer() {
 #endif
 
   V_ERRO("ImagemTextura2d");
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   V_ERRO("ParametroTextura");
@@ -5112,6 +5108,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     gl::LigacaoComTextura(tipo_textura, id_textura);
     vbo_caixa_ceu_.forca_texturas(true);
   } else {
+    gl::Desabilita(tipo_textura);
     gl::LigacaoComTextura(tipo_textura, 0);
     vbo_caixa_ceu_.forca_texturas(false);
   }
