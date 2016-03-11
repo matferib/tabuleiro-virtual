@@ -10,6 +10,14 @@
 #include <google/gflags.h>
 #endif
 
+#if __APPLE__
+  #include "TargetConditionals.h"
+  #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+  #elif TARGET_OS_MAC
+    #define MAC_OSX 1
+  #endif
+#endif
+
 #define VLOG_NIVEL 2
 #include "log/log.h"
 
@@ -24,6 +32,7 @@ using gl::TSH_SIMPLES;
 using gl::TSH_PICKING;
 using gl::TSH_PROFUNDIDADE;
 using gl::TSH_PRETO_BRANCO;
+using gl::TSH_CAIXA_CEU;
 
 // Comum.
 namespace gl {
@@ -385,6 +394,7 @@ void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Context
       luz_por_pixel ? "frag_luz.c" : "frag_luz_por_vertice.c",
       &contexto->shaders[TSH_LUZ] },
     { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
+    { "programa_caixa_ceu", "vert_caixa_ceu.c", "frag_caixa_ceu.c", &contexto->shaders[TSH_CAIXA_CEU] },
     { "programa_picking", "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
     { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
@@ -476,6 +486,30 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 #endif
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 1.0f);
+    // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
+    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLfloat aniso = 0;
+    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+    if (aniso <= 0) {
+      // Trilinear.
+      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    } else {
+      // Melhora muito as texturas. Mipmap + aniso.
+      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
+    }
+#else
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#if !USAR_OPENGL_ES
+    // Nao sei se precisa disso...
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+#endif
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;
@@ -524,6 +558,8 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 0.0f);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   } else if (cap == GL_FOG) {
     if (!UsandoShaderComNevoa()) {
       return;

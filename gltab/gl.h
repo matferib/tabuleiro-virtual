@@ -155,6 +155,7 @@ enum TipoShader {
   TSH_PICKING,
   TSH_PROFUNDIDADE,
   TSH_PRETO_BRANCO,
+  TSH_CAIXA_CEU,
   TSH_NUM,  // numero de shaders.
 };
 
