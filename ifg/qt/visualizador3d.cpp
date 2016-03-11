@@ -250,10 +250,9 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
+    TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(Formato(), pai),
-       argcp_(argcp), argv_(argv),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
