@@ -16,18 +16,16 @@
 #endif
 
 // Output pro frag shader, interpolado dos vertices.
-varying lowp vec4 v_Color;
-varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 varying highp vec4 v_Pos_model;
 varying lowp vec2 v_Tex;  // coordenada texel.
+varying lowp vec4 v_Color;
 // Uniformes nao variam por vertice, vem de fora.
-uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;           // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
-attribute lowp vec4 gltab_cor;
 attribute lowp vec2 gltab_texel;
+attribute lowp vec4 gltab_cor;
 
 void main() {
   v_Color = gltab_cor;

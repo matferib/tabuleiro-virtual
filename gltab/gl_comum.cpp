@@ -276,10 +276,12 @@ void PreprocessaFonte(const std::string& nome, const VarShader& shader, std::str
 }
 
 bool IniciaShader(const char* nome_programa,
+                  TipoShader tipo,
                   const char* nome_vs,
                   const char* nome_fs,
                   VarShader* shader) {
   shader->nome = nome_programa;
+  shader->tipo = tipo;
   GLuint v_shader = CriaShader(GL_VERTEX_SHADER);
   V_ERRO_RET("criando vertex shader");
   GLuint f_shader = CriaShader(GL_FRAGMENT_SHADER);
@@ -384,26 +386,28 @@ void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Context
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   struct DadosShaders {
     std::string nome_programa;
+    TipoShader tipo;
     std::string nome_vs;
     std::string nome_fs;
     VarShader* shader;
   };
   std::vector<DadosShaders> dados_shaders = {
     { luz_por_pixel ? "programa_luz_pixel" : "programa_luz_vertice",
+      TSH_LUZ,
       luz_por_pixel ? "vert_luz.c" : "vert_luz_por_vertice.c",
       luz_por_pixel ? "frag_luz.c" : "frag_luz_por_vertice.c",
       &contexto->shaders[TSH_LUZ] },
-    { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
-    { "programa_caixa_ceu", "vert_caixa_ceu.c", "frag_caixa_ceu.c", &contexto->shaders[TSH_CAIXA_CEU] },
-    { "programa_picking", "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
-    { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
-    { "programa_preto_branco", "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
+    { "programa_simples", TSH_SIMPLES, "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
+    { "programa_caixa_ceu", TSH_CAIXA_CEU, "vert_caixa_ceu.c", "frag_caixa_ceu.c", &contexto->shaders[TSH_CAIXA_CEU] },
+    { "programa_picking", TSH_PICKING, "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
+    { "programa_profundidade", TSH_PROFUNDIDADE, "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
+    { "programa_preto_branco", TSH_PRETO_BRANCO, "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
   };
 
   for (auto& ds : dados_shaders) {
     LOG(INFO) << "Iniciando programa shaders: " << ds.nome_programa.c_str();
     ds.shader->mapeamento_sombras = mapeamento_sombras;
-    if (!IniciaShader(ds.nome_programa.c_str(), ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
+    if (!IniciaShader(ds.nome_programa.c_str(), ds.tipo, ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
       LOG(ERROR) << "Erro carregando programa com " << ds.nome_vs.c_str() << " e " << ds.nome_fs.c_str();
       continue;
     }
@@ -1057,6 +1061,11 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
+}
+
+TipoShader TipoShaderCorrente() {
+  auto* c = interno::BuscaContexto();
+  return c->shader_corrente->tipo;
 }
 
 namespace {

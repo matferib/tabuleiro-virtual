@@ -11,6 +11,7 @@ namespace interno {
 // Variaveis de shaders.
 struct VarShader {
   std::string nome;  // Nome para o programa, depuracao apenas.
+  TipoShader tipo;   // tipo do shader.
 
   // Shader.
   GLuint programa;

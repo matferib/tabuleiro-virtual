@@ -160,6 +160,7 @@ enum TipoShader {
 };
 
 void UsaShader(TipoShader ts);
+TipoShader TipoShaderCorrente();
 
 /** Funcoes gerais. */
 bool EstaHabilitado(GLenum cap);

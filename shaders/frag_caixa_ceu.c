@@ -17,10 +17,9 @@
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
 
 // Varying sao interpoladas da saida do vertex.
-varying lowp vec4 v_Color;
 varying highp vec4 v_Pos_model;
 varying lowp vec2 v_Tex;  // coordenada texel.
-uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
+varying lowp vec4 v_Color;
 
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
@@ -29,11 +28,10 @@ uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 uniform highp samplerCube gltab_unidade_textura_cubo;   // handler da textura de cubos.
 
 void main() {
-  lowp vec4 cor_final = clamp(v_Color + gltab_luz_ambiente.a * gltab_luz_ambiente, 0.0, 1.0);
+  lowp vec4 cor_final = v_Color;
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
-  }
-  if (gltab_textura_cubo > 0.0) {
+  } else if (gltab_textura_cubo > 0.0) {
     cor_final *= textureCube(gltab_unidade_textura_cubo, v_Pos_model.yzx);
   }
   gl_FragColor = cor_final;

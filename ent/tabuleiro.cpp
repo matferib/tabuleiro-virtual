@@ -2372,15 +2372,25 @@ void Tabuleiro::DesenhaCena() {
 
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
-  if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
-    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+  int bits_limpar = GL_DEPTH_BUFFER_BIT;
+  bool desenhar_caixa_ceu = false;
+  // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
+  // da janela para cobrir o fundo todo.
+  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
+      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
+    desenhar_caixa_ceu = true;
   } else {
-    gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
-                   proto_corrente_->luz_ambiente().g(),
-                   proto_corrente_->luz_ambiente().b(),
-                   proto_corrente_->luz_ambiente().a());
+    bits_limpar |= GL_COLOR_BUFFER_BIT;
+    if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
+      gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+    } else {
+      gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
+                     proto_corrente_->luz_ambiente().g(),
+                     proto_corrente_->luz_ambiente().b(),
+                     proto_corrente_->luz_ambiente().a());
+    }
   }
-  gl::Limpa(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+  gl::Limpa(bits_limpar);
   V_ERRO("Limpa");
 
   for (int i = 1; i < 8; ++i) {
@@ -2418,9 +2428,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando luzes");
 
-  // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes da janela para cobrir o fundo todo.
-  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
-      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
+  if (desenhar_caixa_ceu) {
     DesenhaCaixaCeu();
   }
   V_ERRO("desenhando caixa do ceu");
@@ -5079,26 +5087,19 @@ void Tabuleiro::DesenhaLuzes() {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+  gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
+  gl::UsaShader(gl::TSH_CAIXA_CEU);
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
   GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
   if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
-    gl::Desabilita(GL_LIGHTING);
-  }
-  // Desliga luzes direcionais e pontuais.
-  for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
-    gl::Desabilita(GL_LIGHT0 + i);
+    MudaCor(COR_BRANCA);
+  } else {
+    MudaCor(proto_corrente_->luz_ambiente());
   }
 
   gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
 
-  MudaCor(COR_BRANCA);
-  bool nevoa = gl::EstaHabilitado(GL_FOG);
-  if (nevoa) {
-    // Para visoes normais, desabilitamos a nevoa para a caixa ser desenhada.
-    // Na visao preta sera desenhado uma caixa preta.
-    gl::Desabilita(GL_FOG);
-  }
   gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::FaceNula(GL_FRONT);
@@ -5118,14 +5119,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.
   gl::FaceNula(GL_BACK);
-  for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
-    gl::Habilita(GL_LIGHT0 + i);
-  }
-  gl::Habilita(GL_LIGHTING);
-  if (nevoa) {
-    // Religa nevoa se desligou.
-    gl::Habilita(GL_FOG);
-  }
+  gl::UsaShader(tipo_anterior);
 }
 
 void Tabuleiro::DesenhaGrade() {
