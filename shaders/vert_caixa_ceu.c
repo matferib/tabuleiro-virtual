@@ -32,4 +32,5 @@ void main() {
   v_Pos_model = gltab_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * gltab_mvm * gltab_vertice;
+  gl_Position.zw = vec2(1.0, 1.0);
 }
