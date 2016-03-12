@@ -2428,11 +2428,6 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando luzes");
 
-  if (desenhar_caixa_ceu) {
-    DesenhaCaixaCeu();
-  }
-  V_ERRO("desenhando caixa do ceu");
-
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
   // desenha tabuleiro do sul para o norte.
   {
@@ -2482,6 +2477,11 @@ void Tabuleiro::DesenhaCena() {
     DesenhaEntidades();
   }
   V_ERRO("desenhando entidades");
+
+  if (desenhar_caixa_ceu) {
+    DesenhaCaixaCeu();
+  }
+  V_ERRO("desenhando caixa do ceu");
 
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
@@ -5100,8 +5100,9 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
 
-  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-  gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
+  glDepthFunc(GL_LEQUAL);  // O shader vai escrever pro mais longe.
   gl::FaceNula(GL_FRONT);
   gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : GL_TEXTURE0);
   if (id_textura != GL_INVALID_VALUE) {
@@ -5119,6 +5120,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.
   gl::FaceNula(GL_BACK);
+  glDepthFunc(GL_LESS);
   gl::UsaShader(tipo_anterior);
 }
 
