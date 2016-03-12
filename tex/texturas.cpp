@@ -209,7 +209,6 @@ class Texturas::InfoTexturaInterna {
     if (bits_.empty()) {
       return;
     }
-    gl::Habilita(GL_TEXTURE_2D);
     gl::GeraTexturas(1, &id_);
     V_ERRO("GeraTexturas");
     VLOG(1) << "Criando textura para: " << imagem_.id() << ", id openGL: " << id_;
@@ -217,6 +216,7 @@ class Texturas::InfoTexturaInterna {
       throw std::logic_error("Erro criando textura (glGenTextures)");
     }
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_);
+    gl::Habilita(GL_TEXTURE_2D);
     V_ERRO("Ligacao");
     // Carrega a textura.
     gl::ImagemTextura2d(GL_TEXTURE_2D,
@@ -248,6 +248,7 @@ class Texturas::InfoTexturaInterna {
     }
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, id_);
     V_ERRO("Ligacao Cubo");
+    gl::Habilita(GL_TEXTURE_CUBE_MAP);
     // Carrega a textura.
     struct DadosTextura {
       GLenum alvo;
