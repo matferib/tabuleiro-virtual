@@ -1,7 +1,6 @@
 Versao 2.1.0
-- Quebrei sombras projetada.
+- Terminar extensao de shadow samplers.
 - Passar a inicializacao de mipmap e aniso para a ligacao com textura.
-- Passar skybox pro fim do desenho.
 - Fazer o projeto XCode do mac.
 - Setar todas unidades de textura na inicializacao dos shaders.
 - Dano nao aparece na visao no escuro.
