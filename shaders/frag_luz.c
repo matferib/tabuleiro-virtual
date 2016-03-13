@@ -1,5 +1,14 @@
 #version ${VERSAO}
 
+// Macros ${XXX} deverao ser substituidas pelo codigo fonte.
+#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
+
+#if USAR_MAPEAMENTO_SOMBRAS
+#if defined(GL_EXT_shadow_samplers)
+#extension GL_EXT_shadow_samplers : enable
+#endif
+#endif
+
 #if defined(GL_ES)
 //precision highp float;
 //#define lowp highp
@@ -13,9 +22,6 @@
 #define varying in
 #endif
 #endif
-
-// Macros ${XXX} deverao ser substituidas pelo codigo fonte.
-#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
@@ -49,7 +55,7 @@ uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 #if USAR_MAPEAMENTO_SOMBRAS
-#if __VERSION__ == 130 || __VERSION__ == 120 || defined(OES_depth_texture)
+#if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
@@ -93,8 +99,11 @@ void main() {
     bias = clamp(bias, 0.00, 0.0035);
 #if __VERSION__ == 130
     lowp float aplicar_luz_direcional = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
-#elif __VERSION__ == 120 || defined(OES_depth_texture)
+#elif __VERSION__ == 120
     lowp float aplicar_luz_direcional = shadow2D(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias)).r;
+#elif defined(GL_EXT_shadow_samplers)
+    lowp float aplicar_luz_direcional = shadow2DEXT(
+        gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
 #else
     // OpenGL ES 2.0.
     lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
