@@ -83,7 +83,7 @@ const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
-// Os offsets servem para evitar zfight. Eles adicionam a profundidae um valor
+// Os offsets servem para evitar zfight. Eles adicionam à profundidade um valor
 // dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
 // a camera e r eh o menor offset que gera diferenca no zbuffer.
 // Valores positivos afastam, negativos aproximam.
@@ -5142,10 +5142,11 @@ void Tabuleiro::DesenhaCaixaCeu() {
 }
 
 void Tabuleiro::DesenhaGrade() {
+  gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
+  //gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   MudaCor(COR_PRETA);
-  gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
+  //gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
   gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
 }
 
