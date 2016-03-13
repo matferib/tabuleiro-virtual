@@ -1,3 +1,4 @@
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -18,7 +19,7 @@
   #endif
 #endif
 
-#define VLOG_NIVEL 2
+//#define VLOG_NIVEL 2
 #include "log/log.h"
 
 #include "gltab/gl_interno.h"
@@ -192,12 +193,32 @@ type_set [] = {
   {GL_SAMPLER_CUBE,                              "samplerCube" },
 };
 
+namespace {
+
+void CarregaExtensoes() {
+  auto* contexto = BuscaContexto();
+  std::string extstr((const char*)gl::Le(GL_EXTENSIONS));
+  std::string corrente;
+  for (auto c : extstr) {
+    if (!isspace(c)) {
+      corrente.append(1, c);
+    } else {
+      contexto->extensoes.insert(corrente);
+      corrente.clear();
+    }
+  }
+  if (!corrente.empty()) {
+    contexto->extensoes.insert(corrente);
+  }
+}
+
+}  // namespace
+
 void ImprimeExtensoes() {
-  int ne;
-  gl::Le(GL_EXTENSIONS, &ne);
-  for (int i = 0; i < ne; ++i) {
-    // So pra aparecer.
-    //VLOG(1) << "Extensao: " << glGetStringi(GL_EXTENSIONS, i);
+  LOG(INFO) << "Extensoes:";
+  auto* contexto = BuscaContexto();
+  for (const auto& e : contexto->extensoes) {
+    LOG(INFO) << e;
   }
 }
 
@@ -433,7 +454,8 @@ void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto*
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
-  //ImprimeExtensoes();
+  CarregaExtensoes();
+  ImprimeExtensoes();
   IniciaShaders(luz_por_pixel, mapeamento_sombras, contexto);
 }
 
@@ -995,6 +1017,11 @@ Matrix4 LeMatriz(matriz_e modo) {
   } else {
     return c->pilha_mvm_sombra.top();
   }
+}
+
+bool TemExtensao(const std::string& nome_extensao) {
+  const auto& extensoes = interno::BuscaContexto()->extensoes;
+  return extensoes.find(nome_extensao) != extensoes.end();
 }
 
 void Le(GLenum nome_parametro, GLfloat* valor) {

@@ -469,11 +469,12 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
 
-#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  gl::UsaShader(gl::TSH_PROFUNDIDADE);
-#else
-  gl::UsaShader(gl::TSH_LUZ);
-#endif
+  if (usar_sampler_sombras_) {
+    //gl::UsaShader(gl::TSH_LUZ);
+    gl::UsaShader(gl::TSH_SIMPLES);
+  } else {
+    gl::UsaShader(gl::TSH_PROFUNDIDADE);
+  }
   gl::UnidadeTextura(GL_TEXTURE1);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
@@ -2836,7 +2837,15 @@ void Tabuleiro::GeraFramebuffer() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
   V_ERRO("LigacaoComTextura");
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  if (gl::TemExtensao("GL_OES_depth_texture")) {
+    usar_sampler_sombras_ = true;
+    gl::ImagemTextura2d(
+        GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
+  } else {
+    usar_sampler_sombras_ = false;
+    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  }
 #else
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
   // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
@@ -2854,11 +2863,15 @@ void Tabuleiro::GeraFramebuffer() {
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   V_ERRO("ParametroTextura");
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
-  gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
+  if (usar_sampler_sombras_) {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+  } else {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
+    gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
+    gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
+  }
 #else
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
 #endif
@@ -5106,7 +5119,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
-  glDepthFunc(GL_LEQUAL);  // O shader vai escrever pro mais longe.
+  gl::FuncaoProfundidade(GL_LEQUAL);  // O shader vai escrever pro mais longe.
   gl::FaceNula(GL_FRONT);
   gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : GL_TEXTURE0);
   if (id_textura != GL_INVALID_VALUE) {
@@ -5124,7 +5137,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.
   gl::FaceNula(GL_BACK);
-  glDepthFunc(GL_LESS);
+  gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);
 }
 

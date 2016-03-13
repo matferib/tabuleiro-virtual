@@ -927,6 +927,7 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
+  bool usar_sampler_sombras_ = true;
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = CENARIO_PRINCIPAL;

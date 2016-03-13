@@ -173,7 +173,9 @@ Matrix4 LeMatriz(matriz_e tipo_matriz);
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 void Le(GLenum nome_parametro, GLfloat* valor);
 inline void Le(GLenum nome_parametro, GLboolean* valor) { glGetBooleanv(nome_parametro, valor); }
+inline const GLubyte* Le(GLenum nome) { return glGetString(nome); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
+bool TemExtensao(const std::string& nome_extensao);
 
 void CarregaIdentidade(bool atualizar = true);
 void MultiplicaMatriz(const GLfloat* matriz, bool atualizar = true);
@@ -184,6 +186,7 @@ inline void DesempilhaAtributo() { glPopAttrib(); }
 #endif
 inline void FaceNula(GLenum modo) { glCullFace(modo); }
 inline void FuncaoMistura(GLenum fator_s, GLenum fator_d) { glBlendFunc(fator_s, fator_d); }
+inline void FuncaoProfundidade(GLenum funcao) { glDepthFunc(funcao); }
 inline void Viewport(GLint x, GLint y, GLsizei largura, GLsizei altura) {
   glViewport(x, y, largura, altura);
 }
