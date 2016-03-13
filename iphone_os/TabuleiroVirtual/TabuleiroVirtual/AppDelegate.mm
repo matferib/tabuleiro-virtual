@@ -3,7 +3,7 @@
 
 #define VIEW_ID 1
 #define VIEW_IP 2
-#define VIEW_SOMBRA_COMPLEXA 3
+#define VIEW_MAPEAMENTO_SOMBRAS 3
 #define VIEW_ILUMINACAO_POR_PIXEL 4
 #define VIEW_CONECTAR 100
 #define VIEW_SERVIDOR 101
@@ -60,8 +60,8 @@
         [(UITextField*)[self.window viewWithTag:VIEW_ID] text];
     game_view_controller->endereco_servidor_ =
         [(UITextField*)[self.window viewWithTag:VIEW_IP] text];
-    game_view_controller->usar_sombra_complexa_ =
-        ((UISwitch*)[self.window viewWithTag:VIEW_SOMBRA_COMPLEXA]).on;
+    game_view_controller->usar_mapeamento_sombras_ =
+        ((UISwitch*)[self.window viewWithTag:VIEW_MAPEAMENTO_SOMBRAS]).on;
     game_view_controller->usar_iluminacao_por_pixel_ =
         ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on;
   
@@ -74,8 +74,8 @@
     UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     GameViewController* game_view_controller = (GameViewController*)
         [sb instantiateViewControllerWithIdentifier:@"GameViewController"];
-  game_view_controller->usar_sombra_complexa_ =
-  ((UISwitch*)[self.window viewWithTag:VIEW_SOMBRA_COMPLEXA]).on;
+  game_view_controller->usar_mapeamento_sombras_ =
+  ((UISwitch*)[self.window viewWithTag:VIEW_MAPEAMENTO_SOMBRAS]).on;
   game_view_controller->usar_iluminacao_por_pixel_ =
   ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on;
     UIViewController* responder = (UIViewController*)
