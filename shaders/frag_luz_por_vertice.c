@@ -56,21 +56,20 @@ uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para com
 
 void main() {
 #if USAR_MAPEAMENTO_SOMBRAS
-  //highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
-  //highp float bias = 0.005 * tan(acos(cos_theta));
-  //bias = clamp(bias, 0.00, 0.0035);
-  highp float bias = v_Bias;
 #if __VERSION__ == 130
-  lowp float aplicar_luz_direcional = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
+  lowp float aplicar_luz_direcional =
+      texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - v_Bias));
 #elif __VERSION__ == 120
-  lowp float aplicar_luz_direcional = shadow2D(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias)).r;
+  lowp float aplicar_luz_direcional =
+      shadow2D(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - v_Bias)).r;
 #elif defined(GL_EXT_shadow_samplers)
-  lowp float aplicar_luz_direcional = shadow2DEXT(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
+  lowp float aplicar_luz_direcional =
+      shadow2DEXT(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - v_Bias));
 #else
   // OpenGL ES 2.0.
   lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
   lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
-  lowp float aplicar_luz_direcional = (v_Pos_sombra.z - bias) > texz ? 0.0 : 1.0;
+  lowp float aplicar_luz_direcional = (v_Pos_sombra.z - v_Bias) > texz ? 0.0 : 1.0;
 #endif
   lowp vec4 cor_final = mix(v_ColorSemDirecional, v_Color, aplicar_luz_direcional);
 #else
