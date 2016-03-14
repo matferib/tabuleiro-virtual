@@ -40,11 +40,11 @@ class StringLogger {
 };
 
 #define SHORT_FILE (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
-#define LOG(X) if (X > INFO) StringLogger(SHORT_FILE, __LINE__)
 // Arquivos querendo VLOG devem definir esse VLOG_NIVEL no android.
 #ifndef VLOG_NIVEL
 #define VLOG_NIVEL 0
 #endif
+#define LOG(X) if (X > INFO || VLOG_NIVEL > 0) StringLogger(SHORT_FILE, __LINE__)
 #define VLOG(X) if (X <= VLOG_NIVEL) StringLogger(SHORT_FILE, __LINE__)
 // __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 #define LOG_EVERY_N(X, N) if (true) StringLogger(SHORT_FILE, __LINE__)
