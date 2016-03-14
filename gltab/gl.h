@@ -169,6 +169,10 @@ void Desabilita(GLenum cap);
 void HabilitaEstadoCliente(GLenum cap);
 void DesabilitaEstadoCliente(GLenum cap);
 
+// Funcoes para habilitar e desabilitar mipmap e aniso para texturas.
+void HabilitaMipmapAniso(GLenum alvo);
+void DesabilitaMipmapAniso(GLenum alvo);
+
 Matrix4 LeMatriz(matriz_e tipo_matriz);
 inline void Le(GLenum nome_parametro, GLint* valor) { glGetIntegerv(nome_parametro, valor); }
 void Le(GLenum nome_parametro, GLfloat* valor);
