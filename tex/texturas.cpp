@@ -216,7 +216,7 @@ class Texturas::InfoTexturaInterna {
       throw std::logic_error("Erro criando textura (glGenTextures)");
     }
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_);
-    gl::Habilita(GL_TEXTURE_2D);
+    gl::HabilitaMipmapAniso(GL_TEXTURE_2D);
     V_ERRO("Ligacao");
     // Carrega a textura.
     gl::ImagemTextura2d(GL_TEXTURE_2D,
@@ -230,7 +230,7 @@ class Texturas::InfoTexturaInterna {
     gl::GeraMipmap(GL_TEXTURE_2D);
 #endif
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-    gl::Desabilita(GL_TEXTURE_2D);
+    gl::DesabilitaMipmapAniso(GL_TEXTURE_2D);
     V_ERRO("CriaTexturaOpenGl");
   }
 
@@ -248,7 +248,6 @@ class Texturas::InfoTexturaInterna {
     }
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, id_);
     V_ERRO("Ligacao Cubo");
-    gl::Habilita(GL_TEXTURE_CUBE_MAP);
     // Carrega a textura.
     struct DadosTextura {
       GLenum alvo;
@@ -276,7 +275,6 @@ class Texturas::InfoTexturaInterna {
     gl::GeraMipmap(GL_TEXTURE_CUBE_MAP);
 #endif
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
-    gl::Desabilita(GL_TEXTURE_CUBE_MAP);
     V_ERRO("CriaTexturaOpenGlCubo");
   }
 
