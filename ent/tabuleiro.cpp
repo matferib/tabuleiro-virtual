@@ -3225,6 +3225,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
     case TF_LIVRE:
     case TF_PIRAMIDE:
     case TF_RETANGULO:
+    case TF_TRIANGULO:
       break;
     default:
       LOG(ERROR) << "Forma de desenho invalida: " << fd;

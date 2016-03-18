@@ -422,8 +422,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 3
+    linha: 0
+    coluna: 1
     rotulo: "Ci"
     cor_rotulo {}
     textura: "icon_circle.png"
@@ -433,31 +433,20 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 4
-    rotulo: "Gr"
+    linha: 0
+    coluna: 2
+    rotulo: "Tr"
     cor_rotulo {}
-    textura: "icon_group.png"
-    id: CONTROLE_DESENHO_AGRUPAR
+    textura: "icon_triangle.png"
+    id: CONTROLE_DESENHO_TRIANGULO
     num_lados_botao: 4
-    dica: "Agrupa formas."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 5
-    rotulo: "Dg"
-    cor_rotulo {}
-    textura: "icon_ungroup.png"
-    id: CONTROLE_DESENHO_DESAGRUPAR
-    num_lados_botao: 4
-    dica: "Desagrupa formas."
+    dica: "Desenha triângulo."
   }
   # Desenho 3D.
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 1
+    coluna: 3
     rotulo: "Es"
     cor_rotulo {}
     textura: "icon_sphere.png"
@@ -468,7 +457,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 2
+    coluna: 4
     rotulo: "Pi"
     cor_rotulo {}
     textura: "icon_pyramid.png"
@@ -479,7 +468,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 3
+    coluna: 5
     rotulo: "Cb"
     cor_rotulo {}
     textura: "icon_cube.png"
@@ -489,8 +478,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 0
-    coluna: 4
+    linha: 1
+    coluna: 3
     rotulo: "Cn"
     cor_rotulo {}
     textura: "icon_cone.png"
@@ -500,8 +489,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 0
-    coluna: 5
+    linha: 1
+    coluna: 4
     rotulo: "Ci"
     cor_rotulo {}
     textura: "icon_cylinder.png"
@@ -509,11 +498,35 @@ pagina {
     num_lados_botao: 4
     dica: "Desenha cilindro."
   }
-  # Cores
+  # Agrupar/Desagrupar.
   dados_botoes {
     tamanho: 1
     linha: 0
     coluna: 6
+    rotulo: "Gr"
+    cor_rotulo {}
+    textura: "icon_group.png"
+    id: CONTROLE_DESENHO_AGRUPAR
+    num_lados_botao: 4
+    dica: "Agrupa formas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "Dg"
+    cor_rotulo {}
+    textura: "icon_ungroup.png"
+    id: CONTROLE_DESENHO_DESAGRUPAR
+    num_lados_botao: 4
+    dica: "Desagrupa formas."
+  }
+
+  # Cores
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 7
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_VERMELHO
     cor_fundo { r: 1.0 }
@@ -522,7 +535,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 7
+    coluna: 8
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_VERDE
     cor_fundo { g: 1.0 }
@@ -531,7 +544,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 8
+    coluna: 9
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_AZUL
     cor_fundo { b: 1.0 }
@@ -540,7 +553,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 6
+    coluna: 7
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_AMARELO
     cor_fundo { r: 1.0 g: 1.0 }
@@ -549,7 +562,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 7
+    coluna: 8
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_MAGENTA
     cor_fundo { r: 1.0 b:1.0 }
@@ -558,7 +571,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 8
+    coluna: 9
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_CIANO
     cor_fundo { g: 1.0 b: 1.0 }
@@ -567,7 +580,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 9
+    coluna: 10
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_BRANCO
     cor_fundo { r: 1.0 g: 1.0 b:1.0 }
@@ -576,7 +589,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 9
+    coluna: 10
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_PRETO
     cor_fundo { r: 0.0 g: 0.0 b: 0.0 }
@@ -585,7 +598,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 10
+    coluna: 11
     textura: "icon_copy.png"
     id: CONTROLE_COPIAR
     num_lados_botao: 4
@@ -594,7 +607,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 12
+    coluna: 13
     textura: "icon_paste.png"
     id: CONTROLE_COLAR
     num_lados_botao: 4
@@ -603,7 +616,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 14
+    coluna: 15
     textura: "icon_save.png"
     id: CONTROLE_SALVAR
     num_lados_botao: 4
@@ -612,7 +625,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 16
+    coluna: 17
     textura: "icon_save_as.png"
     id: CONTROLE_SALVAR_COMO
     num_lados_botao: 4
@@ -621,7 +634,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 18
+    coluna: 19
     textura: "icon_open.png"
     id: CONTROLE_ABRIR
     num_lados_botao: 4
@@ -630,7 +643,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 20
+    coluna: 21
     textura: "icon_terrain.png"
     rotulo: "MT"
     id: CONTROLE_MODO_TERRENO
@@ -640,7 +653,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 22
+    coluna: 23
     rotulo: "^"
     cor_rotulo {}
     textura: ""
@@ -651,7 +664,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 22
+    coluna: 23
     rotulo: "v"
     cor_rotulo {}
     textura: ""

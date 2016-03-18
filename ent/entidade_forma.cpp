@@ -75,6 +75,10 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
       vbo = std::move(gl::VboRetangulo(1.0f));
     }
     break;
+    case TF_TRIANGULO: {
+      vbo = std::move(gl::VboTriangulo(1.0f));
+    }
+    break;
     case TF_ESFERA: {
       vbo = std::move(gl::VboEsferaSolida(0.5f, 24, 12));
     }
@@ -101,6 +105,7 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
     break;
     default:
       LOG(ERROR) << "Forma de desenho invalida";
+      throw std::logic_error("Forma de desenho invalida");
   }
   const auto& c = proto.cor();
   vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
@@ -121,6 +126,7 @@ bool TipoForma2d(TipoForma tipo) {
     case TF_LIVRE:
     case TF_RETANGULO:
     case TF_CIRCULO:
+    case TF_TRIANGULO:
       return true;
     default:
       return false;
@@ -231,6 +237,19 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
       }
       gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
+      gl::Desabilita(GL_TEXTURE_2D);
+    }
+    break;
+    case TF_TRIANGULO: {
+      gl::Translada(0.0f, -proto.escala().y() / 2.0f, 0.0f, false);
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
+      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+      if (id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      }
+      gl::DesenhaVbo(g_vbos[VBO_TRIANGULO], GL_TRIANGLES);
       gl::Desabilita(GL_TEXTURE_2D);
     }
     break;
