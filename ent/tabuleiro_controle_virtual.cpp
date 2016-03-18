@@ -80,6 +80,9 @@ void Tabuleiro::LiberaControleVirtual() {
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_NOP: { 
+      break;
+    }
     case CONTROLE_INTERFACE_GRAFICA: {
       if (gui_ != nullptr) {
         gui_->Picking(x, y);
@@ -416,17 +419,22 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   return GL_INVALID_VALUE;
 }
 
-void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao) {
+void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float unidade_largura, float unidade_altura) {
+  if (db.picking_apenas() && !parametros_desenho_.has_picking_x()) {
+    return;
+  }
   gl::CarregaNome(db.id());
   float xi, xf, yi, yf;
-  xi = db.coluna() * largura_botao;
-  xf = xi + db.tamanho() * largura_botao;
-  yi = db.linha() * altura_botao;
-  yf = yi + db.tamanho() * altura_botao;
+  xi = db.coluna() * unidade_largura;
+  float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
+  float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
+  xf = xi + largura_botao * unidade_largura;
+  yi = db.linha() * unidade_altura;
+  yf = yi + altura_botao * unidade_altura;
   gl::MatrizEscopo salva(false);
   if (db.num_lados_botao() == 4) {
-    float trans_x = (db.translacao_x() * largura_botao);
-    float trans_y = (db.translacao_y() * altura_botao);
+    float trans_x = (db.translacao_x() * unidade_largura);
+    float trans_y = (db.translacao_y() * unidade_altura);
     unsigned int id_textura = TexturaBotao(db);
     if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
       gl::Habilita(GL_TEXTURE_2D);
@@ -440,8 +448,8 @@ void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding,
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   } else {
-    gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x() * largura_botao),
-        ((yi + yf) / 2.0f) + (db.translacao_y() * altura_botao), 0.0f, false);
+    gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x() * unidade_largura),
+        ((yi + yf) / 2.0f) + (db.translacao_y() * unidade_altura), 0.0f, false);
     gl::Roda(db.rotacao_graus(), 0.0f, 0.0f, 1.0f, false);
     if (db.num_lados_botao() == 3) {
       gl::Triangulo(xf - xi);

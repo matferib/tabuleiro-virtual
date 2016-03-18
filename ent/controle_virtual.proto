@@ -62,6 +62,7 @@ enum IdBotao {
   CONTROLE_INTERFACE_GRAFICA = 57;
   CONTROLE_GERAR_TERRENO_ALEATORIO = 58;
   CONTROLE_MODO_TERRENO = 59;
+  CONTROLE_NOP = 60;
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 100;
   CONTROLE_ULTIMA_ACAO_0 = 101;
@@ -75,30 +76,35 @@ message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
   // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
   optional float tamanho = 1;
+  // Se tamanho nao for preenchido, esses dois devem ser. A unidade eh a mesma do tamanho (ou seja, em caracteres).
+  optional float largura = 2;
+  optional float altura = 3;
   // Em qual linha o botao se encontra: 0 baixo, 1 uma acima.
-  optional int32 linha = 2;
+  optional int32 linha = 4;
   // Em qual coluna o botao se encontra.
-  optional int32 coluna = 3;
+  optional int32 coluna = 5;
   // Escrita no bota, maximo dois caracteres.
-  optional string rotulo = 4;
+  optional string rotulo = 6;
   // // cor do rotulo (letra).
-  optional Cor cor_rotulo = 5;
+  optional Cor cor_rotulo = 7;
   // Cor de fundo do botao.
-  optional Cor cor_fundo = 6;
+  optional Cor cor_fundo = 8;
   // Nome do arquivo de icone.
-  optional string textura = 7;
+  optional string textura = 9;
   // Identifica o que o botao faz, ver IdBotao.
-  optional IdBotao id = 8;
+  optional IdBotao id = 10;
   // numero de lados do botao.
-  optional int32 num_lados_botao = 9;
+  optional int32 num_lados_botao = 11;
   // Rotacao do botao.
-  optional float rotacao_graus = 10;
+  optional float rotacao_graus = 12;
   // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x).
-  optional float translacao_x = 11;
+  optional float translacao_x = 13;
   // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
-  optional float translacao_y = 12;
+  optional float translacao_y = 14;
+  // Se verdadeiro, deve ser desenhado apenas durante picking. Util para evitar cliques no tabuleiro.
+  optional bool picking_apenas = 15;
   // Texto mostrado quando cursor ficar sobre o botao.
-  optional string dica = 13;
+  optional string dica = 16;
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.
