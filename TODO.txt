@@ -1,18 +1,15 @@
 Versao 2.1.0
 - Fazer o projeto XCode do mac.
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
-- Filtro de arquivos para skyboxes e de terreno.
 - Picking de transparencias.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
   mensagem, pois o loop fez a copia).
-- Triangulo na UI (nao tem como desenhar).
 - Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
 - Ataque automatico.
 - Outros botoes controle virtual: mudar template, etc.
 - Texturas dos orcs.
-- Acao de regua nao deve ir para clientes remotos.
 - Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
