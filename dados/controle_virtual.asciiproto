@@ -219,6 +219,19 @@ pagina {
 
   # Setas.
   dados_botoes {
+    largura: 3.0
+    altura: 2.0
+    linha: 0
+    coluna: 13
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_NOP
+    num_lados_botao: 4
+    picking_apenas: true
+    dica: ""
+  }
+  dados_botoes {
     tamanho: 1.2
     linha: 1
     coluna: 14
