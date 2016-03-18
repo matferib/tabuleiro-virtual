@@ -1,9 +1,5 @@
 Versao 2.1.0
-- Terminar extensao de shadow samplers.
-- Passar a inicializacao de mipmap e aniso para a ligacao com textura.
 - Fazer o projeto XCode do mac.
-- Setar todas unidades de textura na inicializacao dos shaders.
-- Dano nao aparece na visao no escuro.
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
 - Filtro de arquivos para skyboxes e de terreno.
 - Picking de transparencias.
