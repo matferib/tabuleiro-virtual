@@ -41,9 +41,14 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
                         pd->nevoa().referencia().z(),
                         1.0f);
   Vector4 ponto = mv * Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-  ponto -= Vector4(ref.x, ref.y, ref.z, 0.0f);
+  ponto -= Vector4(ref.x, ref.y, ref.z, 1.0f);
   float distancia = ponto.length();
-  VLOG(2) << "Distancia para nevoa: " << distancia;
+  //VLOG(2) << "Distancia para nevoa: " << distancia;
+  VLOG(3) << "Distancia para nevoa: " << distancia
+          << ", ref: (" << pd->nevoa().referencia().x() << ", " << pd->nevoa().referencia().y() << ", " << pd->nevoa().referencia().z() << ")"
+          << ", ponto: (" << ponto.x << ", " << ponto.y << ", " << ponto.z << ")"
+          << ", minimo: " << pd->nevoa().minimo()
+          << ", maximo: " << pd->nevoa().maximo();
   if (distancia > pd->nevoa().maximo()) {
     gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
   } else if (distancia > pd->nevoa().minimo()) {
