@@ -134,9 +134,10 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
 
 // Preenche combo de textura. Cada item tera o id e o tipo de textura. Para texturas locais,
 // o nome sera prefixado por id.
-void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
+void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::function<bool(const std::string&)> filtro, QComboBox* combo_textura) {
   combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
-  auto FiltraOrdena = [] (std::vector<std::string> texturas) -> std::vector<std::string> {
+  auto FiltraOrdena = [filtro] (std::vector<std::string> texturas) -> std::vector<std::string> {
+    texturas.erase(std::remove_if(texturas.begin(), texturas.end(), filtro), texturas.end());
     std::sort(texturas.begin(), texturas.end());
     return texturas;
   };
@@ -495,7 +496,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(),
+     [] (const std::string& s) { return s.find("skybox") == 0 || s.find("tile_") == 0 || s.find("icon_") == 0 || s.find("terrain_") == 0; },
+     gerador.combo_textura);
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -766,7 +769,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
   });
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(),
+     [] (const std::string& s) { return s.find("skybox") == 0 || s.find("tile_") == 0 || s.find("icon_") == 0 || s.find("terrain_") == 0; },
+      gerador.combo_textura);
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
@@ -924,7 +929,9 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   }
 
   // Textura do tabuleiro.
-  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_fundo);
+  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(),
+    [] (const std::string& s) { return !(s.find("tile_") == 0 || s.find("terrain_") == 0); },
+    gerador.combo_fundo);
   // Ceu do tabuleiro.
   PreencheComboTexturaCeu(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
