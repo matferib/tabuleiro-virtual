@@ -32,5 +32,8 @@ void main() {
   v_Pos_model = gltab_vertice;
   v_Tex.st = gltab_texel;
   gl_Position = gltab_prm * gltab_mvm * gltab_vertice;
+  // Esta linha joga o skybox la pro fundo da cena. Fazendo o z == w, o valor
+  // de profundidade sera z / w = 1.0. Assim, o skybox pode ser desenhado por ultimo
+  // melhorando a performance, pois o fragmento so sera desenhado onde necessario.
   gl_Position.zw = vec2(gl_Position.w, gl_Position.w);
 }
