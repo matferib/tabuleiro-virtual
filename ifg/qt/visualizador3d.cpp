@@ -538,13 +538,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Rotacao em Z.
-  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
-  gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus() + 90.0f);
+  gerador.spin_rotacao->setValue(entidade.rotacao_z_graus());
   lambda_connect(gerador.dial_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+    gerador.spin_rotacao->setValue(fmod(gerador.dial_rotacao->value() - 90.0f, 360.0));
   });
   lambda_connect(gerador.spin_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.dial_rotacao->setValue(gerador.spin_rotacao->value());
+    gerador.dial_rotacao->setValue(fmod(gerador.spin_rotacao->value() + 90.0f, 360.0f));
   });
 
   // Translacao em Z.
@@ -632,7 +632,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       proto_retornado->set_selecionavel_para_jogador(false);
     }
     proto_retornado->set_fixa(fixa);
-    proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
+    proto_retornado->set_rotacao_z_graus(gerador.spin_rotacao->value());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());

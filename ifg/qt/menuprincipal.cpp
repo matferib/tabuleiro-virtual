@@ -69,7 +69,7 @@ const char* g_menuitem_strs[] = {
   // Desenho.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Cilindro"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Cí&rculo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "C&one"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "C&ubo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Esfera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Livre"),
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Pirâmide"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Retângulo"), nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Pirâmide"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Retângulo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Triângulo"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar Cor"), g_fim,
   // Sobre
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Tabuleiro virtual"), g_fim,
@@ -441,6 +441,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
            acao == acoes_[ME_DESENHO][MI_ESFERA] ||
            acao == acoes_[ME_DESENHO][MI_LIVRE] ||
            acao == acoes_[ME_DESENHO][MI_PIRAMIDE] ||
+           acao == acoes_[ME_DESENHO][MI_TRIANGULO] ||
            acao == acoes_[ME_DESENHO][MI_RETANGULO]) {
     tabuleiro_->SelecionaFormaDesenho(static_cast<ent::TipoForma>(acao->data().toInt()));
     tabuleiro_->EntraModoClique(ent::Tabuleiro::MODO_DESENHO);
