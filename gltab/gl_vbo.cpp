@@ -993,12 +993,17 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   coordenadas[4] = 0.0f;
   coordenadas[6] = lado / 2.0f;
   coordenadas[7] = 0.0f;
+  const float coordenadas_texel[] = {
+    0.5f, 0.0f,
+    0.0f, 1.0f,
+    1.0f, 1.0f,
+  };
   GLfloat normais[9] = { 0.0f };
   normais[2] = normais[5] = normais[8] = 1.0f;
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas, 9);
   vbo.AtribuiNormais(normais);
-  //vbo.AtribuiTexturas(coordenadas_texel);
+  vbo.AtribuiTexturas(coordenadas_texel);
   vbo.AtribuiIndices(indices, 3);
   vbo.Nomeia("triangulo");
   return vbo;
