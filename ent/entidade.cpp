@@ -425,6 +425,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // repeated.
     proto_.clear_lista_acoes();
   }
+  if (proto_parcial.has_info_textura()) {
+    AtualizaTexturas(proto_parcial);
+  }
   proto_.MergeFrom(proto_parcial);
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
     // Evento dummy so para limpar eventos.

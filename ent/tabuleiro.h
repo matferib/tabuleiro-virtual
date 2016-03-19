@@ -286,8 +286,12 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Seleciona a cor do desenho (em RGB). */
   void SelecionaCorDesenho(const Cor& cor) { forma_cor_ = cor; }
+
   /** Altera a cor das entidades selecionadas. Nao funciona em formas compostas. */
-  void AlteraCorEntidadesSelecionadas(const Cor& cor);
+  void AlteraCorEntidadesSelecionadasNotificando(const Cor& cor);
+
+  /** Altera a textura das entidades selecionadas, notificando. */
+  void AlteraTexturaEntidadesSelecionadasNotificando(const std::string& id_textura);
 
   /** Retorna a cor de desenho. */
   const Cor& CorDesenho() const { return forma_cor_; }
@@ -936,6 +940,7 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
+  std::set<std::string> texturas_entidades_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

@@ -522,6 +522,31 @@ pagina {
     dica: "Desagrupa formas."
   }
 
+  # Texturas.
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 1
+    rotulo: "<"
+    id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    altura: 1
+    largura: 10
+    linha: 2
+    coluna: 2
+    id: CONTROLE_TEXTURA_ENTIDADE
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 12
+    rotulo: ">"
+    id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
+    num_lados_botao: 4
+  }
   # Cores
   dados_botoes {
     tamanho: 1

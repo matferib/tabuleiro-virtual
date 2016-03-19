@@ -623,4 +623,32 @@ void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tab
   entidade->MovePara(novo_x, novo_y, novo_z);
 }
 
+bool EhPng(const std::string& textura) {
+  return textura.find(".png") == (textura.size() - 4);
+}
+
+bool EhTerreno(const std::string& textura) {
+  return EhPng(textura) && (textura.find("tile_") == 0 || textura.find("terrain_") == 0);
+}
+
+bool EhCaixaCeu(const std::string& textura) {
+  return EhPng(textura) && textura.find("skybox") == 0;
+}
+
+bool EhIcone(const std::string& textura) {
+  return EhPng(textura) && textura.find("icon_") == 0;
+}
+
+bool FiltroTexturaEntidade(const std::string& textura) {
+  return EhCaixaCeu(textura) || EhTerreno(textura) || EhIcone(textura) || !EhPng(textura);
+}
+
+bool FiltroTexturaCaixaCeu(const std::string& textura) {
+  return !EhCaixaCeu(textura);
+}
+
+bool FiltroTexturaTabuleiro(const std::string& textura) {
+  return !EhTerreno(textura);
+}
+
 }  // namespace ent

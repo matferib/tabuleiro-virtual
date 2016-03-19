@@ -627,7 +627,7 @@ void DesabilitaMipmapAniso(GLenum alvo) {
   GLfloat aniso = 0;
   gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
   if (aniso > 0) {
-    gl::ParametroTextura(alvo, GL_TEXTURE_MAX_ANISOTROPY_EXT, 0);
+    gl::ParametroTextura(alvo, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
   }
 #endif
 }

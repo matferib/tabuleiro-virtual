@@ -31,6 +31,36 @@
 
 namespace ent {
 
+namespace {
+
+const char* TexturaEntidade(const Entidade* entidade) {
+  if (entidade == nullptr) {
+    return "-";
+  }
+  return entidade->Proto().info_textura().id().empty() ? "-" : entidade->Proto().info_textura().id().c_str();
+}
+
+const std::string ProximaTextura(const char* corrente, const std::set<std::string>& texturas) {
+  auto it = texturas.find(corrente);
+  if (it == texturas.end()) {
+    return "-";
+  }
+  ++it;
+  return (it == texturas.end()) ? *texturas.begin() : *it;
+}
+
+const std::string TexturaAnterior(const char* corrente, const std::set<std::string>& texturas) {
+  auto it = texturas.find(corrente);
+  if (it == texturas.end()) {
+    return "-";
+  }
+  return (it == texturas.begin()) ? *(--texturas.end()) : *(--it);
+}
+
+}  // namespace
+
+
+
 void Tabuleiro::CarregaControleVirtual() {
   const char* ARQUIVO_CONTROLE_VIRTUAL = "controle_virtual.asciiproto";
   try {
@@ -60,6 +90,15 @@ void Tabuleiro::CarregaControleVirtual() {
     }
   }
   central_->AdicionaNotificacao(n);
+
+  texturas_entidades_.insert("-");
+  try {
+    std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA, FiltroTexturaEntidade);
+    // insere.
+    texturas_entidades_.insert(texturas.begin(), texturas.end());
+  } catch (const std::logic_error& e) {
+    LOG(ERROR) << "Erro carregando lista de texturas do controle virtual: " << e.what();
+  }
 }
 
 void Tabuleiro::LiberaControleVirtual() {
@@ -250,6 +289,14 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       EntraModoClique(MODO_DESENHO);
       break;
     }
+    case CONTROLE_TEXTURA_ENTIDADE_ANTERIOR: {
+      AlteraTexturaEntidadesSelecionadasNotificando(TexturaAnterior(TexturaEntidade(EntidadeSelecionada()), texturas_entidades_));
+      break;
+    }
+    case CONTROLE_TEXTURA_ENTIDADE_PROXIMA: {
+      AlteraTexturaEntidadesSelecionadasNotificando(ProximaTextura(TexturaEntidade(EntidadeSelecionada()), texturas_entidades_));
+      break;
+    }
     case CONTROLE_DESENHO_AGRUPAR:
       AgrupaEntidadesSelecionadas();
       break;
@@ -285,7 +332,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
               id == CONTROLE_DESENHO_COR_MAGENTA ||
               id == CONTROLE_DESENHO_COR_BRANCO ? 1.0f : 0);
       if (!ids_entidades_selecionadas_.empty()) {
-        AlteraCorEntidadesSelecionadas(c);
+        AlteraCorEntidadesSelecionadasNotificando(c);
       } else {
         SelecionaCorDesenho(c);
       }
@@ -466,6 +513,8 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   switch (db.id()) {
     case CONTROLE_RODADA:
       return net::to_string(proto_.contador_rodadas());
+    case CONTROLE_TEXTURA_ENTIDADE:
+      return TexturaEntidade(EntidadeSelecionada());
     default:
       ;
   }
@@ -473,15 +522,17 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
 }
 
 void Tabuleiro::DesenhaDicaBotaoControleVirtual(
-    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
   if (id_entidade_detalhada_ != db.id() || db.dica().empty()) {
     return;
   }
+  float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
+  float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
-  xi = db.coluna() * largura_botao;
-  xf = xi + db.tamanho() * largura_botao;
-  yi = db.linha() * altura_botao;
-  yf = yi + db.tamanho() * altura_botao;
+  xi = db.coluna() * unidade_largura;
+  xf = xi + largura_botao * unidade_largura;
+  yi = db.linha() * unidade_altura;
+  yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
   MudaCor(COR_AMARELA);
   std::string dica = StringSemUtf8(db.dica());
@@ -498,17 +549,19 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
-    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao) {
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
   unsigned int id_textura = TexturaBotao(db);
   std::string rotulo = RotuloBotaoControleVirtual(db);
   if (rotulo.empty() || id_textura != GL_INVALID_VALUE) {
     return;
   }
+  float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
+  float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
-  xi = db.coluna() * largura_botao;
-  xf = xi + db.tamanho() * largura_botao;
-  yi = db.linha() * altura_botao;
-  yf = yi + db.tamanho() * altura_botao;
+  xi = db.coluna() * unidade_largura;
+  xf = xi + largura_botao * unidade_largura;
+  yi = db.linha() * unidade_altura;
+  yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
   float y_meio = (yi + yf) / 2.0f;
   float y_base = y_meio - (fonte_y / 4.0f);
@@ -518,8 +571,9 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     gl::MudaCor(0.0f, 0.0f, 0.0f, 1.0f);
   }
   // Adiciona largura de um botao por causa do paginador inicial.
+  int max_caracteres = (largura_botao * unidade_largura) / fonte_x;
   PosicionaRaster2d(x_meio, y_base, viewport[2], viewport[3]);
-  gl::DesenhaString(rotulo);
+  gl::DesenhaString(rotulo.substr(0, max_caracteres));
 }
 
 void Tabuleiro::DesenhaControleVirtual() {

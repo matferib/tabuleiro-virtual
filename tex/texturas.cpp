@@ -231,7 +231,7 @@ class Texturas::InfoTexturaInterna {
 #endif
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::DesabilitaMipmapAniso(GL_TEXTURE_2D);
-    V_ERRO("CriaTexturaOpenGl");
+    V_ERRO("CriaTexturaOpenGl id: " << imagem_.id());
   }
 
   void CriaTexturaOpenGlCubo() {

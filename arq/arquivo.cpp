@@ -126,12 +126,15 @@ const std::string Diretorio(tipo_e tipo) {
   }
 }
 
-const std::vector<std::string> ConteudoDiretorio(tipo_e tipo) {
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo, std::function<bool(const std::string&)> filtro) {
+  std::vector<std::string> ret;
   if (interno::EhAsset(tipo)) {
-    return plat::ConteudoDiretorioAsset(tipo);
+    ret = plat::ConteudoDiretorioAsset(tipo);
   } else {
-    return interno::ConteudoDiretorioNormal(Diretorio(tipo));
+    ret = interno::ConteudoDiretorioNormal(Diretorio(tipo));
   }
+  ret.erase(std::remove_if(ret.begin(), ret.end(), filtro), ret.end());
+  return ret;
 }
 
 // Escrita: funciona para todas as plataformas, desde que a funcao caminho arquivo funcione.

@@ -3233,7 +3233,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
   forma_selecionada_ = fd;
 }
 
-void Tabuleiro::AlteraCorEntidadesSelecionadas(const Cor& cor) {
+void Tabuleiro::AlteraCorEntidadesSelecionadasNotificando(const Cor& cor) {
   ntf::Notificacao grupo_notificacao;
   grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (int id : ids_entidades_selecionadas_) {
@@ -3256,6 +3256,31 @@ void Tabuleiro::AlteraCorEntidadesSelecionadas(const Cor& cor) {
     AdicionaNotificacaoListaEventos(grupo_notificacao);
   }
 }
+
+void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string& id_textura) {
+  ntf::Notificacao grupo_notificacao;
+  grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (int id : ids_entidades_selecionadas_) {
+    Entidade* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      continue;
+    }
+    auto* ne = grupo_notificacao.add_notificacao();
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* entidade_antes = ne->mutable_entidade_antes();
+    entidade_antes->set_id(e->Id());
+    entidade_antes->mutable_info_textura()->CopyFrom(e->Proto().info_textura());
+    auto* entidade_depois = ne->mutable_entidade();
+    entidade_depois->set_id(e->Id());
+    entidade_depois->mutable_info_textura()->set_id(id_textura);
+  }
+  TrataNotificacao(grupo_notificacao);
+  if (grupo_notificacao.notificacao_size() > 0) {
+    // Para desfazer;
+    AdicionaNotificacaoListaEventos(grupo_notificacao);
+  }
+}
+
 
 void Tabuleiro::DesenhaSombras() {
   const float kAnguloInclinacao = proto_corrente_->luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
