@@ -277,6 +277,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
     case CONTROLE_DESENHO_CIRCULO:
     case CONTROLE_DESENHO_ESFERA:
     case CONTROLE_DESENHO_PIRAMIDE:
+    case CONTROLE_DESENHO_TRIANGULO:
     case CONTROLE_DESENHO_CUBO:
     case CONTROLE_DESENHO_CILINDRO:
     case CONTROLE_DESENHO_CONE: {
@@ -286,6 +287,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
         { CONTROLE_DESENHO_CIRCULO, TF_CIRCULO},
         { CONTROLE_DESENHO_ESFERA, TF_ESFERA},
         { CONTROLE_DESENHO_PIRAMIDE, TF_PIRAMIDE},
+        { CONTROLE_DESENHO_TRIANGULO, TF_TRIANGULO},
         { CONTROLE_DESENHO_CUBO, TF_CUBO},
         { CONTROLE_DESENHO_CILINDRO, TF_CILINDRO},
         { CONTROLE_DESENHO_CONE, TF_CONE},
@@ -425,6 +427,7 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
         case TF_CIRCULO:   return CONTROLE_DESENHO_CIRCULO;
         case TF_ESFERA:    return CONTROLE_DESENHO_ESFERA;
         case TF_PIRAMIDE:  return CONTROLE_DESENHO_PIRAMIDE;
+        case TF_TRIANGULO: return CONTROLE_DESENHO_TRIANGULO;
         case TF_CUBO:      return CONTROLE_DESENHO_CUBO;
         case TF_CILINDRO:  return CONTROLE_DESENHO_CILINDRO;
         case TF_CONE:      return CONTROLE_DESENHO_CONE;
@@ -667,6 +670,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     }, },
     { CONTROLE_DESENHO_PIRAMIDE, [this]() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE;
+    }, },
+    { CONTROLE_DESENHO_TRIANGULO, [this]() {
+      return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_TRIANGULO;
     }, },
     { CONTROLE_DESENHO_CUBO, [this]() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CUBO;
