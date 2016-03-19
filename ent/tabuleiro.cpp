@@ -89,8 +89,8 @@ const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 // Valores positivos afastam, negativos aproximam.
 const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
 const float OFFSET_TERRENO_ESCALA_R  = 2.0f;
-const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
-const float OFFSET_GRADE_ESCALA_R    = 1.0f;
+//const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
+//const float OFFSET_GRADE_ESCALA_R    = 1.0f;
 const float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
 const float OFFSET_RASTRO_ESCALA_R  = -20.0f;
 
@@ -4403,6 +4403,11 @@ Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
   return (it != entidades_.end()) ? it->second.get() : nullptr;
 }
 
+const Entidade* Tabuleiro::BuscaEntidade(unsigned int id) const {
+  auto it = entidades_.find(id);
+  return (it != entidades_.end()) ? it->second.get() : nullptr;
+}
+
 void Tabuleiro::CopiaEntidadesSelecionadas() {
 #if USAR_QT
   ent::EntidadesCopiadas entidades_copiadas;
@@ -5672,6 +5677,18 @@ const Entidade* Tabuleiro::EntidadeSelecionada() const {
     return nullptr;
   }
   return it->second.get();
+}
+
+std::vector<const Entidade*> Tabuleiro::EntidadesSelecionadas() const {
+  std::vector<const Entidade*> entidades;
+  for (const auto& id : ids_entidades_selecionadas_) {
+    const Entidade* e = nullptr;
+    if ((e = BuscaEntidade(id)) == nullptr) {
+      continue;
+    }
+    entidades.push_back(e);
+  }
+  return entidades;
 }
 
 void Tabuleiro::AlternaModoDebug() {

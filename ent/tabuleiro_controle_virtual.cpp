@@ -33,26 +33,41 @@ namespace ent {
 
 namespace {
 
-const char* TexturaEntidade(const Entidade* entidade) {
-  if (entidade == nullptr) {
-    return "-";
+const char* ROTULO_PADRAO = "-";
+const char* TEXTURA_VAZIA = "";
+const char* TEXTURAS_DIFEREM = "~";
+
+// Retorna a textura das entidades. Se nao houver entidade ou se houver mas nao tiver textura, retorna TEXTURA_VAZIA.
+// Se houver mais de uma e elas diferirem, retorna "~".
+std::string TexturaEntidade(const std::vector<const Entidade*>& entidades) {
+  if (entidades.empty()) {
+    return TEXTURA_VAZIA;
   }
-  return entidade->Proto().info_textura().id().empty() ? "-" : entidade->Proto().info_textura().id().c_str();
+  const std::string& textura = entidades[0]->Proto().info_textura().id();
+  for (const auto& e : entidades) {
+    if (e->Proto().info_textura().id() != textura) {
+      return TEXTURAS_DIFEREM;
+    }
+  }
+  return textura;
 }
 
-const std::string ProximaTextura(const char* corrente, const std::set<std::string>& texturas) {
-  auto it = texturas.find(corrente);
+// As funcoes abaixo retorna a proxima e a anterior do conjunto ordenado de texturas. O conjunto eh circular.
+const std::string ProximoRotuloTextura(const std::string& corrente, const std::set<std::string>& texturas) {
+  std::string chave = (corrente == TEXTURAS_DIFEREM || corrente == TEXTURA_VAZIA) ? ROTULO_PADRAO : corrente;
+  auto it = texturas.find(chave);
   if (it == texturas.end()) {
-    return "-";
+    return ROTULO_PADRAO;
   }
   ++it;
   return (it == texturas.end()) ? *texturas.begin() : *it;
 }
 
-const std::string TexturaAnterior(const char* corrente, const std::set<std::string>& texturas) {
-  auto it = texturas.find(corrente);
+const std::string RotuloTexturaAnterior(const std::string& corrente, const std::set<std::string>& texturas) {
+  std::string chave = (corrente == TEXTURAS_DIFEREM || corrente == TEXTURA_VAZIA) ? ROTULO_PADRAO : corrente;
+  auto it = texturas.find(chave);
   if (it == texturas.end()) {
-    return "-";
+    return ROTULO_PADRAO;
   }
   return (it == texturas.begin()) ? *(--texturas.end()) : *(--it);
 }
@@ -91,7 +106,7 @@ void Tabuleiro::CarregaControleVirtual() {
   }
   central_->AdicionaNotificacao(n);
 
-  texturas_entidades_.insert("-");
+  texturas_entidades_.insert(ROTULO_PADRAO);
   try {
     std::vector<std::string> texturas = arq::ConteudoDiretorio(arq::TIPO_TEXTURA, FiltroTexturaEntidade);
     // insere.
@@ -119,7 +134,7 @@ void Tabuleiro::LiberaControleVirtual() {
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
-    case CONTROLE_NOP: { 
+    case CONTROLE_NOP: {
       break;
     }
     case CONTROLE_INTERFACE_GRAFICA: {
@@ -290,11 +305,13 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       break;
     }
     case CONTROLE_TEXTURA_ENTIDADE_ANTERIOR: {
-      AlteraTexturaEntidadesSelecionadasNotificando(TexturaAnterior(TexturaEntidade(EntidadeSelecionada()), texturas_entidades_));
+      std::string rotulo_anterior = RotuloTexturaAnterior(TexturaEntidade(EntidadesSelecionadas()), texturas_entidades_);
+      AlteraTexturaEntidadesSelecionadasNotificando(rotulo_anterior == ROTULO_PADRAO ? "" : rotulo_anterior);
       break;
     }
     case CONTROLE_TEXTURA_ENTIDADE_PROXIMA: {
-      AlteraTexturaEntidadesSelecionadasNotificando(ProximaTextura(TexturaEntidade(EntidadeSelecionada()), texturas_entidades_));
+      std::string proximo_rotulo = ProximoRotuloTextura(TexturaEntidade(EntidadesSelecionadas()), texturas_entidades_);
+      AlteraTexturaEntidadesSelecionadasNotificando(proximo_rotulo == ROTULO_PADRAO ? "" : proximo_rotulo);
       break;
     }
     case CONTROLE_DESENHO_AGRUPAR:
@@ -513,9 +530,12 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   switch (db.id()) {
     case CONTROLE_RODADA:
       return net::to_string(proto_.contador_rodadas());
-    case CONTROLE_TEXTURA_ENTIDADE:
-      return TexturaEntidade(EntidadeSelecionada());
+    case CONTROLE_TEXTURA_ENTIDADE: {
+      std::string rotulo = TexturaEntidade(EntidadesSelecionadas());
+      return rotulo.empty() ? "-" : rotulo;
+    }
     default:
+
       ;
   }
   return "";

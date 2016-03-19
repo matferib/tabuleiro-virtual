@@ -298,6 +298,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
+  const Entidade* BuscaEntidade(unsigned int id) const;
 
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();
@@ -553,6 +554,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
   const Entidade* EntidadeSelecionada() const;
+  /** Retorna as entidades selecionadas ou vazio se nao houver. */
+  std::vector<const Entidade*> EntidadesSelecionadas() const;
 
   /** Retorna se uma entidade esta selecionada. */
   bool EntidadeEstaSelecionada(unsigned int id);
