@@ -680,7 +680,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     const ntf::Notificacao& notificacao) {
   const auto& entidade = notificacao.entidade();
-  auto* proto_retornado = new ent::EntidadeProto;
+  auto* proto_retornado = new ent::EntidadeProto(entidade);
   proto_retornado->set_id(entidade.id());
   ifg::qt::Ui::DialogoEntidade gerador;
   auto* dialogo = new QDialog(this);
