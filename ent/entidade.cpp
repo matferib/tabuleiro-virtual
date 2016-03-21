@@ -582,7 +582,8 @@ void Entidade::MontaMatriz(bool queda,
     gl::MultiplicaMatriz(matriz_shear, false);
     gl::Translada(0, 0, translacao_z, false);
   }
-  if (proto.has_modelo_3d()) {
+  bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
+  if (!computar_queda && (proto.has_modelo_3d() || (pd != nullptr && !pd->texturas_sempre_de_frente()))) {
     gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   }
 
@@ -591,8 +592,7 @@ void Entidade::MontaMatriz(bool queda,
     gl::Escala(1.0f, 1.0f, 0.1f, false);
   }
 
-  // So roda entidades nao achatadas.
-  if (queda && vd.angulo_disco_queda_graus > 0/* && !achatar*/) {
+  if (computar_queda) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
     // Roda pra direcao de queda.
