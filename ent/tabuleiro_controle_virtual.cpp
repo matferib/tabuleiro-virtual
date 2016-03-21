@@ -316,6 +316,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       AlteraTexturaEntidadesSelecionadasNotificando(proximo_rotulo == ROTULO_PADRAO ? "" : proximo_rotulo);
       break;
     }
+    case CONTROLE_APAGA_ENTIDADES: {
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_REMOVER_ENTIDADE);
+      TrataNotificacao(n);
+      break;
+    }
     case CONTROLE_DESENHO_AGRUPAR:
       AgrupaEntidadesSelecionadas();
       break;

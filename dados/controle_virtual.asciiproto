@@ -352,11 +352,23 @@ pagina {
     dica: "Modo régua (requer câmera presa)."
   }
 
-  # Desfazer.
   dados_botoes {
     tamanho: 2
     linha: 0
     coluna: 19
+    rotulo: "X"
+    cor_rotulo { r: 1.0 a: 1.0 }
+    textura: "icon_trash.png"
+    id: CONTROLE_APAGA_ENTIDADES
+    num_lados_botao: 4
+    dica: "Apaga entidades selecionadas."
+  }
+
+  # Desfazer.
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 21
     rotulo: "<="
     cor_rotulo {}
     textura: "icon_undo.png"
@@ -367,7 +379,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 21
+    coluna: 23
     id: CONTROLE_RODADA
     num_lados_botao: 8
     dica: "Passa uma rodada."
@@ -375,7 +387,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 23
+    coluna: 25
     rotulo: "->"
     cor_rotulo {}
     textura: ""
