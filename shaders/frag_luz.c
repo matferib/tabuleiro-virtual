@@ -95,7 +95,7 @@ void main() {
     //lowp vec4 cor_luz = gltab_luz_ambiente;
 #if USAR_MAPEAMENTO_SOMBRAS
     highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
-    highp float bias = 0.005 * tan(acos(cos_theta));
+    highp float bias = 0.002 * tan(acos(cos_theta));
     bias = clamp(bias, 0.00, 0.0035);
 #if __VERSION__ == 130
     lowp float aplicar_luz_direcional = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
