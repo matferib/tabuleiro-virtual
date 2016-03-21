@@ -1,5 +1,4 @@
 Versao 2.1.0
-- terminar de arrumar modelos 3d: morte saindo do eixo, morrer virando pra queda.
 - Modelo de objetos no controle virtual (templates para criacao de entidades).
 - Geracao de terrenos por tipo (arvores, relevo).
 - Fazer o projeto XCode do mac.
