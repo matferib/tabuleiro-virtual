@@ -1,5 +1,4 @@
 Versao 2.1.0
-- Fechar embaixo do cone.
 - Permitir que alguns modelos afundem na terra.
 - Modelo de objetos no controle virtual (templates para criacao de entidades).
 - Geracao de terrenos por tipo (arvores, relevo).

@@ -2829,7 +2829,7 @@ void Tabuleiro::GeraFramebuffer() {
   }
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  LOG(ERROR) << "gerando framebuffer";
+  LOG(INFO) << "gerando framebuffer";
   gl::GeraFramebuffers(1, &framebuffer_);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   V_ERRO("LigacaoComFramebuffer");
@@ -2895,7 +2895,7 @@ void Tabuleiro::GeraFramebuffer() {
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   V_ERRO("Fim da Geracao de framebuffer");
-  LOG(ERROR) << "framebuffer gerado";
+  LOG(INFO) << "framebuffer gerado";
 }
 
 void Tabuleiro::GeraTerrenoAleatorioNotificando() {
@@ -3579,6 +3579,10 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
           std::make_pair(entidade->Id(),
                          std::make_pair(entidade->Z(), entidade->RotacaoZGraus())));
     }
+  } if (estado_ == ETAB_DESENHANDO) {
+    FinalizaEstadoCorrente();
+    estado_anterior_ = ETAB_OCIOSO;
+    estado_ = ETAB_ROTACAO;
   } else {
     estado_anterior_ = estado_;
     estado_ = ETAB_ROTACAO;
@@ -3861,6 +3865,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       return;
     case ETAB_DESENHANDO: {
       estado_ = estado_anterior_;
+      modo_clique_ = MODO_NORMAL;  // garante que o modo clique sai depois de usar o ctrl+botao direito.
       VLOG(1) << "Finalizando: " << forma_proto_.ShortDebugString();
       forma_proto_.mutable_cor()->CopyFrom(forma_cor_);
       ntf::Notificacao n;
