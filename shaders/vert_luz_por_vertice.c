@@ -125,7 +125,7 @@ void main() {
 #if USAR_MAPEAMENTO_SOMBRAS
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
   highp float cos_theta = clamp(dot(normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
-  v_Bias = clamp(0.005 * tan(acos(cos_theta)), 0.00, 0.0035);
+  v_Bias = clamp(0.002 * tan(acos(cos_theta)), 0.00, 0.0035);
 #endif
   gl_PointSize = gltab_dados_raster.p;
 }

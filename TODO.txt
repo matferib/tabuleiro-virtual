@@ -1,4 +1,5 @@
 Versao 2.1.0
+- Arrumar sem mapeamento de sombras (ais escuro pq). Arrumar tb carregamento inicial de tabuleiro.
 - Modelo de objetos no controle virtual (templates para criacao de entidades).
 - Geracao de terrenos por tipo (arvores, relevo).
 - Fazer o projeto XCode do mac.
