@@ -149,20 +149,20 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   }
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_atual->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (proto_atual->has_info_textura() && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
+  if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     nl->add_info_textura()->set_id(proto_atual->info_textura().id());
     central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
-  if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
+  if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
     VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
     central->AdicionaNotificacao(nc);
   }
-  if (novo_proto.has_info_textura()) {
+  if (novo_proto.info_textura().id().size() > 0) {
     proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
   } else {
     proto_atual->clear_info_textura();
@@ -173,16 +173,27 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
 
-  // mantem o id, posicao e destino.
+  // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
   proto_.CopyFrom(novo_proto);
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
   proto_.set_id(proto_original.id());
+  proto_.set_tipo(proto_original.tipo());
   proto_.mutable_pos()->Swap(proto_original.mutable_pos());
+  proto_.mutable_pos()->set_z(novo_proto.pos().z());
   if (proto_original.has_destino()) {
     proto_.mutable_destino()->Swap(proto_original.mutable_destino());
+  }
+  if (proto_original.tipo() == TE_ENTIDADE) {
+    *proto_.mutable_escala() = proto_original.escala();
+    float fator = novo_proto.escala().x() / proto_original.escala().x();
+    if (fator > 1.1f) {
+      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::min<int>(TM_COLOSSAL, proto_.tamanho() + 1)));
+    } else if (fator < 0.9f) {
+      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::max<int>(TM_MINUSCULO, proto_.tamanho() - 1)));
+    }
   }
   if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
@@ -425,6 +436,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // repeated.
     proto_.clear_lista_acoes();
   }
+  if (proto_parcial.has_info_textura()) {
+    AtualizaTexturas(proto_parcial);
+  }
   proto_.MergeFrom(proto_parcial);
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
     // Evento dummy so para limpar eventos.
@@ -578,7 +592,8 @@ void Entidade::MontaMatriz(bool queda,
     gl::MultiplicaMatriz(matriz_shear, false);
     gl::Translada(0, 0, translacao_z, false);
   }
-  if (proto.has_modelo_3d()) {
+  bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
+  if (!computar_queda && (proto.has_modelo_3d() || (pd != nullptr && !pd->texturas_sempre_de_frente()))) {
     gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   }
 
@@ -587,8 +602,7 @@ void Entidade::MontaMatriz(bool queda,
     gl::Escala(1.0f, 1.0f, 0.1f, false);
   }
 
-  // So roda entidades nao achatadas.
-  if (queda && vd.angulo_disco_queda_graus > 0/* && !achatar*/) {
+  if (computar_queda) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
     // Roda pra direcao de queda.

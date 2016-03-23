@@ -286,14 +286,19 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Seleciona a cor do desenho (em RGB). */
   void SelecionaCorDesenho(const Cor& cor) { forma_cor_ = cor; }
+
   /** Altera a cor das entidades selecionadas. Nao funciona em formas compostas. */
-  void AlteraCorEntidadesSelecionadas(const Cor& cor);
+  void AlteraCorEntidadesSelecionadasNotificando(const Cor& cor);
+
+  /** Altera a textura das entidades selecionadas, notificando. */
+  void AlteraTexturaEntidadesSelecionadasNotificando(const std::string& id_textura);
 
   /** Retorna a cor de desenho. */
   const Cor& CorDesenho() const { return forma_cor_; }
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
+  const Entidade* BuscaEntidade(unsigned int id) const;
 
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();
@@ -549,6 +554,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
   const Entidade* EntidadeSelecionada() const;
+  /** Retorna as entidades selecionadas ou vazio se nao houver. */
+  std::vector<const Entidade*> EntidadesSelecionadas() const;
 
   /** Retorna se uma entidade esta selecionada. */
   bool EntidadeEstaSelecionada(unsigned int id);
@@ -927,6 +934,7 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
+  bool usar_sampler_sombras_ = true;
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = CENARIO_PRINCIPAL;
@@ -935,6 +943,7 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
+  std::set<std::string> texturas_entidades_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

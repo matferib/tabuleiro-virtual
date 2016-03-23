@@ -1,6 +1,7 @@
 #ifndef ARQ_ARQUIVO_H
 #define ARQ_ARQUIVO_H
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -42,8 +43,8 @@ void Inicializa(JNIEnv* env, jobject assets, const std::string& dir_dados);
 void Inicializa();
 #endif
 
-// Retorna conteudo de um diretorio.
-const std::vector<std::string> ConteudoDiretorio(tipo_e tipo);
+// Retorna conteudo de um diretorio. Se o filtro for passado, aqueles que retornarem true serao filtrados (removidos).
+const std::vector<std::string> ConteudoDiretorio(tipo_e tipo, std::function<bool(const std::string&)> filtro = [] (const std::string&) { return false; });
 
 // Retorna o diretorio do tipo passado, sem a "/" final.
 const std::string Diretorio(tipo_e tipo);

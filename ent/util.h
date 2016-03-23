@@ -153,6 +153,15 @@ const std::string StringSemUtf8(const std::string& id_acao);
 // Move o delta para uma entidade, garantindo que ela termine acima do solo.
 void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tabuleiro, Entidade* entidade);
 
+bool EhPng(const std::string& textura);
+bool EhIcone(const std::string& textura);
+bool EhTerreno(const std::string& textura);
+bool EhCaixaCeu(const std::string& textura);
+// Filtros uteis.
+bool FiltroTexturaEntidade(const std::string& textura);
+bool FiltroTexturaCaixaCeu(const std::string& textura);
+bool FiltroTexturaTabuleiro(const std::string& textura);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

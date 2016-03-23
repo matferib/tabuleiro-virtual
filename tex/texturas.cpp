@@ -216,25 +216,8 @@ class Texturas::InfoTexturaInterna {
       throw std::logic_error("Erro criando textura (glGenTextures)");
     }
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_);
+    gl::HabilitaMipmapAniso(GL_TEXTURE_2D);
     V_ERRO("Ligacao");
-    // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
-    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GLfloat aniso = 0;
-    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-    if (aniso <= 0) {
-      // Trilinear.
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-      // Melhora muito as texturas. Mipmap + aniso.
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
-    }
-#else
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
     // Carrega a textura.
     gl::ImagemTextura2d(GL_TEXTURE_2D,
                         0, GL_RGBA,
@@ -247,8 +230,8 @@ class Texturas::InfoTexturaInterna {
     gl::GeraMipmap(GL_TEXTURE_2D);
 #endif
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-    gl::Desabilita(GL_TEXTURE_2D);
-    V_ERRO("CriaTexturaOpenGl");
+    gl::DesabilitaMipmapAniso(GL_TEXTURE_2D);
+    V_ERRO("CriaTexturaOpenGl id: " << imagem_.id());
   }
 
   void CriaTexturaOpenGlCubo() {
@@ -265,30 +248,6 @@ class Texturas::InfoTexturaInterna {
     }
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, id_);
     V_ERRO("Ligacao Cubo");
-    // TODO IOS e android podem usar NEAREST por causa da resolucao cavalar.
-    // Mapeamento de texels em amostragem para cima e para baixo (mip maps).
-#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GLfloat aniso = 0;
-    gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
-    if (aniso <= 0) {
-      // Trilinear.
-      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    } else {
-      // Melhora muito as texturas. Mipmap + aniso.
-      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
-      gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
-    }
-#else
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-#endif
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-#if !USAR_OPENGL_ES
-    // Nao sei se precisa disso...
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-#endif
     // Carrega a textura.
     struct DadosTextura {
       GLenum alvo;
@@ -316,7 +275,6 @@ class Texturas::InfoTexturaInterna {
     gl::GeraMipmap(GL_TEXTURE_CUBE_MAP);
 #endif
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
-    gl::Desabilita(GL_TEXTURE_CUBE_MAP);
     V_ERRO("CriaTexturaOpenGlCubo");
   }
 

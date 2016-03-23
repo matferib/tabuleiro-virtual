@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -15,44 +16,21 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   public final static String NOME = "com.matferib.Tabuleiro.NOME";
   public final static String ENDERECO = "com.matferib.Tabuleiro.ENDERECO";
   public final static String SERVIDOR = "com.matferib.Tabuleiro.SERVIDOR";
+  public final static String MAPEAMENTO_SOMBRAS = "com.matferib.Tabuleiro.MAPEAMENTO_SOMBRAS";
+  public final static String LUZ_POR_PIXEL = "com.matferib.Tabuleiro.LUZ_POR_PIXEL";
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    LinearLayout grupo = new LinearLayout(this);
-    //grupo.setWeightSum(1.0f);
-    grupo.setOrientation(LinearLayout.VERTICAL);
-    grupo.setGravity(android.view.Gravity.CENTER_HORIZONTAL);
-    // Nome.
-    id_ = new EditText(this);
-    id_.setHint("identificador do jogador");
+    setContentView(R.layout.janela_conexao);
+    // Pega os campos do XML.
+    id_ = (EditText)findViewById(R.id.texto_id_jogador);
     id_.setText(android.os.Build.MODEL);
-    id_.setLayoutParams(
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
-    grupo.addView(id_);
-    // Endereco.
-    endereco_ = new EditText(this);
-    endereco_.setHint("endereço ou IP (vazio para automático)");
-    endereco_.setLayoutParams(
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
-    grupo.addView(endereco_);
-
-    // Botao.
-    botao_ = new Button(this);
-    botao_.setText("Conectar");
+    endereco_ = (EditText)findViewById(R.id.texto_endereco_ou_ip);
+    botao_ = (Button)findViewById(R.id.botao_conectar);
     botao_.setOnClickListener(this);
-    botao_.setLayoutParams(
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
-    grupo.addView(botao_);
-    // Servidor;
-    botaoServidor_ = new Button(this);
-    botaoServidor_.setText("Abrir Servidor");
+    botaoServidor_ = (Button)findViewById(R.id.botao_abrir_servidor);
     botaoServidor_.setOnClickListener(this);
-    botaoServidor_.setLayoutParams(
-        new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, 0.0f));
-    grupo.addView(botaoServidor_);
-    // Finaliza.
-    setContentView(grupo);
   }
 
   @Override
@@ -76,6 +54,8 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
       intencao.putExtra(NOME, id_.getText().toString());
       intencao.putExtra(ENDERECO, endereco_.getText().toString());
     }
+    intencao.putExtra(MAPEAMENTO_SOMBRAS, ((CheckBox)findViewById(R.id.checkbox_mapeamento_sombras)).isChecked());
+    intencao.putExtra(LUZ_POR_PIXEL, ((CheckBox)findViewById(R.id.checkbox_luz_por_pixel)).isChecked());
     startActivity(intencao);
   }
 

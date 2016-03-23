@@ -36,9 +36,9 @@
 #include "ntf/notificacao.pb.h"
 
 #if USAR_OPENGL_ES
-#define USAR_FRAMEBUFFER_OPENGLES 1
+#define USAR_MAPEAMENTO_SOMBRAS_OPENGLES 1
 #else
-#define USAR_FRAMEBUFFER_OPENGLES 0
+#define USAR_MAPEAMENTO_SOMBRAS_OPENGLES 0
 #endif
 
 using google::protobuf::RepeatedField;
@@ -83,14 +83,14 @@ const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
-// Os offsets servem para evitar zfight. Eles adicionam a profundidae um valor
+// Os offsets servem para evitar zfight. Eles adicionam à profundidade um valor
 // dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
 // a camera e r eh o menor offset que gera diferenca no zbuffer.
 // Valores positivos afastam, negativos aproximam.
 const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
 const float OFFSET_TERRENO_ESCALA_R  = 2.0f;
-const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
-const float OFFSET_GRADE_ESCALA_R    = 1.0f;
+//const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
+//const float OFFSET_GRADE_ESCALA_R    = 1.0f;
 const float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
 const float OFFSET_RASTRO_ESCALA_R  = -20.0f;
 
@@ -469,11 +469,12 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
 
-#if USAR_FRAMEBUFFER_OPENGLES
-  gl::UsaShader(gl::TSH_PROFUNDIDADE);
-#else
-  gl::UsaShader(gl::TSH_LUZ);
-#endif
+  if (usar_sampler_sombras_) {
+    //gl::UsaShader(gl::TSH_LUZ);
+    gl::UsaShader(gl::TSH_SIMPLES);
+  } else {
+    gl::UsaShader(gl::TSH_PROFUNDIDADE);
+  }
   gl::UnidadeTextura(GL_TEXTURE1);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
@@ -484,7 +485,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   V_ERRO("LigacaoComFramebufferSombraProjetada");
-#if !USAR_FRAMEBUFFER_OPENGLES
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::BufferDesenho(GL_NONE);
 #endif
   DesenhaCena();
@@ -566,7 +567,7 @@ int Tabuleiro::Desenha() {
     ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
     gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-#if !USAR_FRAMEBUFFER_OPENGLES
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::BufferDesenho(GL_BACK);
 #endif
     gl::UnidadeTextura(GL_TEXTURE1);
@@ -1977,7 +1978,7 @@ void Tabuleiro::TrataBotaoTerrenoPressionadoPosPicking(float x3d, float y3d, flo
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
   unsigned int id_quadrado = IdQuadrado(x3d, y3d);
-  if (id_quadrado == static_cast<unsigned long>(-1)) {
+  if (id_quadrado == static_cast<unsigned int>(-1)) {
     return;
   }
   SelecionaQuadrado(id_quadrado);
@@ -2372,15 +2373,25 @@ void Tabuleiro::DesenhaCena() {
 
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
-  if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
-    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+  int bits_limpar = GL_DEPTH_BUFFER_BIT;
+  bool desenhar_caixa_ceu = false;
+  // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
+  // da janela para cobrir o fundo todo.
+  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
+      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
+    desenhar_caixa_ceu = true;
   } else {
-    gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
-                   proto_corrente_->luz_ambiente().g(),
-                   proto_corrente_->luz_ambiente().b(),
-                   proto_corrente_->luz_ambiente().a());
+    bits_limpar |= GL_COLOR_BUFFER_BIT;
+    if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
+      gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+    } else {
+      gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
+                     proto_corrente_->luz_ambiente().g(),
+                     proto_corrente_->luz_ambiente().b(),
+                     proto_corrente_->luz_ambiente().a());
+    }
   }
-  gl::Limpa(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+  gl::Limpa(bits_limpar);
   V_ERRO("Limpa");
 
   for (int i = 1; i < 8; ++i) {
@@ -2417,13 +2428,6 @@ void Tabuleiro::DesenhaCena() {
     gl::Desabilita(GL_FOG);
   }
   V_ERRO("desenhando luzes");
-
-  // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes da janela para cobrir o fundo todo.
-  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
-      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
-    DesenhaCaixaCeu();
-  }
-  V_ERRO("desenhando caixa do ceu");
 
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
   // desenha tabuleiro do sul para o norte.
@@ -2474,6 +2478,11 @@ void Tabuleiro::DesenhaCena() {
     DesenhaEntidades();
   }
   V_ERRO("desenhando entidades");
+
+  if (desenhar_caixa_ceu) {
+    DesenhaCaixaCeu();
+  }
+  V_ERRO("desenhando caixa do ceu");
 
   if (parametros_desenho_.desenha_acoes()) {
     DesenhaAcoes();
@@ -2827,8 +2836,16 @@ void Tabuleiro::GeraFramebuffer() {
   V_ERRO("GeraTexturas");
   gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
   V_ERRO("LigacaoComTextura");
-#if USAR_FRAMEBUFFER_OPENGLES
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+  if (gl::TemExtensao("GL_OES_depth_texture")) {
+    usar_sampler_sombras_ = true;
+    gl::ImagemTextura2d(
+        GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
+  } else {
+    usar_sampler_sombras_ = false;
+    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  }
 #else
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
   // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
@@ -2845,12 +2862,16 @@ void Tabuleiro::GeraFramebuffer() {
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   V_ERRO("ParametroTextura");
-#if USAR_FRAMEBUFFER_OPENGLES
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
-  gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+  if (usar_sampler_sombras_) {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
+  } else {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
+    gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
+    gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
+  }
 #else
   gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
 #endif
@@ -3204,6 +3225,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
     case TF_LIVRE:
     case TF_PIRAMIDE:
     case TF_RETANGULO:
+    case TF_TRIANGULO:
       break;
     default:
       LOG(ERROR) << "Forma de desenho invalida: " << fd;
@@ -3211,7 +3233,7 @@ void Tabuleiro::SelecionaFormaDesenho(TipoForma fd) {
   forma_selecionada_ = fd;
 }
 
-void Tabuleiro::AlteraCorEntidadesSelecionadas(const Cor& cor) {
+void Tabuleiro::AlteraCorEntidadesSelecionadasNotificando(const Cor& cor) {
   ntf::Notificacao grupo_notificacao;
   grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (int id : ids_entidades_selecionadas_) {
@@ -3234,6 +3256,31 @@ void Tabuleiro::AlteraCorEntidadesSelecionadas(const Cor& cor) {
     AdicionaNotificacaoListaEventos(grupo_notificacao);
   }
 }
+
+void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string& id_textura) {
+  ntf::Notificacao grupo_notificacao;
+  grupo_notificacao.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (int id : ids_entidades_selecionadas_) {
+    Entidade* e = BuscaEntidade(id);
+    if (e == nullptr) {
+      continue;
+    }
+    auto* ne = grupo_notificacao.add_notificacao();
+    ne->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* entidade_antes = ne->mutable_entidade_antes();
+    entidade_antes->set_id(e->Id());
+    entidade_antes->mutable_info_textura()->CopyFrom(e->Proto().info_textura());
+    auto* entidade_depois = ne->mutable_entidade();
+    entidade_depois->set_id(e->Id());
+    entidade_depois->mutable_info_textura()->set_id(id_textura);
+  }
+  TrataNotificacao(grupo_notificacao);
+  if (grupo_notificacao.notificacao_size() > 0) {
+    // Para desfazer;
+    AdicionaNotificacaoListaEventos(grupo_notificacao);
+  }
+}
+
 
 void Tabuleiro::DesenhaSombras() {
   const float kAnguloInclinacao = proto_corrente_->luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
@@ -4356,6 +4403,11 @@ Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
   return (it != entidades_.end()) ? it->second.get() : nullptr;
 }
 
+const Entidade* Tabuleiro::BuscaEntidade(unsigned int id) const {
+  auto it = entidades_.find(id);
+  return (it != entidades_.end()) ? it->second.get() : nullptr;
+}
+
 void Tabuleiro::CopiaEntidadesSelecionadas() {
 #if USAR_QT
   ent::EntidadesCopiadas entidades_copiadas;
@@ -5083,28 +5135,22 @@ void Tabuleiro::DesenhaLuzes() {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+  gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
+  gl::UsaShader(gl::TSH_CAIXA_CEU);
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
   GLenum tipo_textura = texturas_->TipoTextura(proto_corrente_->info_textura_ceu().id());
   if (!proto_corrente_->aplicar_luz_ambiente_textura_ceu()) {
-    gl::Desabilita(GL_LIGHTING);
-  }
-  // Desliga luzes direcionais e pontuais.
-  for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
-    gl::Desabilita(GL_LIGHT0 + i);
+    MudaCor(COR_BRANCA);
+  } else {
+    MudaCor(proto_corrente_->luz_ambiente());
   }
 
   gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
 
-  MudaCor(COR_BRANCA);
-  bool nevoa = gl::EstaHabilitado(GL_FOG);
-  if (nevoa) {
-    // Para visoes normais, desabilitamos a nevoa para a caixa ser desenhada.
-    // Na visao preta sera desenhado uma caixa preta.
-    gl::Desabilita(GL_FOG);
-  }
-  gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
-  gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
+  gl::FuncaoProfundidade(GL_LEQUAL);  // O shader vai escrever pro mais longe.
   gl::FaceNula(GL_FRONT);
   gl::UnidadeTextura(tipo_textura == GL_TEXTURE_CUBE_MAP ? GL_TEXTURE2 : GL_TEXTURE0);
   if (id_textura != GL_INVALID_VALUE) {
@@ -5112,6 +5158,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     gl::LigacaoComTextura(tipo_textura, id_textura);
     vbo_caixa_ceu_.forca_texturas(true);
   } else {
+    gl::Desabilita(tipo_textura);
     gl::LigacaoComTextura(tipo_textura, 0);
     vbo_caixa_ceu_.forca_texturas(false);
   }
@@ -5121,21 +5168,16 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::UnidadeTextura(GL_TEXTURE0);
   // Religa luzes.
   gl::FaceNula(GL_BACK);
-  for (int i = 0; i < parametros_desenho_.luz_corrente(); ++i) {
-    gl::Habilita(GL_LIGHT0 + i);
-  }
-  gl::Habilita(GL_LIGHTING);
-  if (nevoa) {
-    // Religa nevoa se desligou.
-    gl::Habilita(GL_FOG);
-  }
+  gl::FuncaoProfundidade(GL_LESS);
+  gl::UsaShader(tipo_anterior);
 }
 
 void Tabuleiro::DesenhaGrade() {
+  gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
+  //gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   MudaCor(COR_PRETA);
-  gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
+  //gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
   gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
 }
 
@@ -5635,6 +5677,18 @@ const Entidade* Tabuleiro::EntidadeSelecionada() const {
     return nullptr;
   }
   return it->second.get();
+}
+
+std::vector<const Entidade*> Tabuleiro::EntidadesSelecionadas() const {
+  std::vector<const Entidade*> entidades;
+  for (const auto& id : ids_entidades_selecionadas_) {
+    const Entidade* e = nullptr;
+    if ((e = BuscaEntidade(id)) == nullptr) {
+      continue;
+    }
+    entidades.push_back(e);
+  }
+  return entidades;
 }
 
 void Tabuleiro::AlternaModoDebug() {

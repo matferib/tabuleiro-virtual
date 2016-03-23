@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
+  <EditText
+      android:id="@+id/texto_id_jogador"
+      android:maxLength="50"
+      android:minEms="20"
+      android:hint="@string/id_jogador"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:inputType="textNoSuggestions" />
+  <EditText
+      android:id="@+id/texto_endereco_ou_ip"
+      android:maxLength="50"
+      android:minEms="20"
+      android:hint="@string/endereco_ou_ip"
+      android:layout_width="fill_parent"
+      android:layout_height="wrap_content"
+      android:inputType="text" />
+  <!-- botoes -->
+  <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:gravity="center_horizontal"
+        android:layout_height="wrap_content">
+        <Button
+             android:id="@+id/botao_conectar"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/conectar" />
+        <Button
+             android:id="@+id/botao_abrir_servidor"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/abrir_servidor" />
+  </LinearLayout>
+  <!-- opcoes -->
+  <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <CheckBox
+             android:id="@+id/checkbox_mapeamento_sombras"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/usar_mapeamento_sombras" />
+        <CheckBox
+            android:id="@+id/checkbox_luz_por_pixel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/usar_luz_por_pixel" />
+  </LinearLayout>
+</LinearLayout>

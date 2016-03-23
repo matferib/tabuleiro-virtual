@@ -33,7 +33,7 @@ void main() {
 
   // Limite.
   highp float distancia = length(v_Pos - gltab_nevoa_referencia);
-  lowp float peso_nevoa = step(0.0, distancia - gltab_nevoa_dados.y);
+  lowp float peso_nevoa = step(0.001, (distancia - gltab_nevoa_dados.y) * gltab_nevoa_cor.a);
   if (peso_nevoa == 1.0) {
     discard;
   }

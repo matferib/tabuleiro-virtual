@@ -134,15 +134,15 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
 
 // Preenche combo de textura. Cada item tera o id e o tipo de textura. Para texturas locais,
 // o nome sera prefixado por id.
-void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
+void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::function<bool(const std::string&)> filtro, QComboBox* combo_textura) {
   combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
-  auto FiltraOrdena = [] (std::vector<std::string> texturas) -> std::vector<std::string> {
+  auto Ordena = [filtro] (std::vector<std::string> texturas) -> std::vector<std::string> {
     std::sort(texturas.begin(), texturas.end());
     return texturas;
   };
-  std::vector<std::string> texturas = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA)));
-  std::vector<std::string> texturas_baixadas = std::move(FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA))));
-  std::vector<std::string> texturas_locais = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL)));
+  std::vector<std::string> texturas = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA, filtro)));
+  std::vector<std::string> texturas_baixadas = std::move(Ordena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA, filtro))));
+  std::vector<std::string> texturas_locais = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL, filtro)));
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
@@ -250,10 +250,9 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
+    TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(Formato(), pai),
-       argcp_(argcp), argv_(argv),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
   central_->RegistraReceptor(this);
@@ -496,7 +495,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -536,13 +535,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Rotacao em Z.
-  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
-  gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus() + 90.0f);
+  gerador.spin_rotacao->setValue(entidade.rotacao_z_graus());
   lambda_connect(gerador.dial_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+    gerador.spin_rotacao->setValue(fmod(gerador.dial_rotacao->value() - 90.0f, 360.0));
   });
   lambda_connect(gerador.spin_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.dial_rotacao->setValue(gerador.spin_rotacao->value());
+    gerador.dial_rotacao->setValue(fmod(gerador.spin_rotacao->value() + 90.0f, 360.0f));
   });
 
   // Translacao em Z.
@@ -630,7 +629,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       proto_retornado->set_selecionavel_para_jogador(false);
     }
     proto_retornado->set_fixa(fixa);
-    proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
+    proto_retornado->set_rotacao_z_graus(gerador.spin_rotacao->value());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
@@ -681,7 +680,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     const ntf::Notificacao& notificacao) {
   const auto& entidade = notificacao.entidade();
-  auto* proto_retornado = new ent::EntidadeProto;
+  auto* proto_retornado = new ent::EntidadeProto(entidade);
   proto_retornado->set_id(entidade.id());
   ifg::qt::Ui::DialogoEntidade gerador;
   auto* dialogo = new QDialog(this);
@@ -767,7 +766,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
   });
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
@@ -925,7 +924,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   }
 
   // Textura do tabuleiro.
-  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_fundo);
+  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaTabuleiro, gerador.combo_fundo);
   // Ceu do tabuleiro.
   PreencheComboTexturaCeu(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);

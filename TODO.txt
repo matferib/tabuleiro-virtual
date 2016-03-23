@@ -1,22 +1,18 @@
 Versao 2.1.0
 - Permitir que alguns modelos afundem na terra.
-- Fazer o projeto XCode do mac.
-- Setar todas unidades de textura na inicializacao dos shaders.
-- Dano nao aparece na visao no escuro.
-- Shader de skybox (e passar pro final).
+- Arrumar sem mapeamento de sombras (ais escuro pq). Arrumar tb carregamento inicial de tabuleiro.
+- Modelo de objetos no controle virtual (templates para criacao de entidades).
+- Geracao de terrenos por tipo (arvores, relevo).
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
-- Filtro de arquivos para skyboxes e de terreno.
 - Picking de transparencias.
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
   mensagem, pois o loop fez a copia).
-- Triangulo na UI (nao tem como desenhar).
-- Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
+- Texturizar outros objetos 3d: esfera, cone, cilindro.
 - Ataque automatico.
 - Outros botoes controle virtual: mudar template, etc.
 - Texturas dos orcs.
-- Acao de regua nao deve ir para clientes remotos.
 - Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
@@ -24,7 +20,6 @@ Versao 2.1.0
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
-- Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.

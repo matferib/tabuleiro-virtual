@@ -41,9 +41,14 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
                         pd->nevoa().referencia().z(),
                         1.0f);
   Vector4 ponto = mv * Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-  ponto -= Vector4(ref.x, ref.y, ref.z, 0.0f);
+  ponto -= Vector4(ref.x, ref.y, ref.z, 1.0f);
   float distancia = ponto.length();
-  VLOG(2) << "Distancia para nevoa: " << distancia;
+  //VLOG(2) << "Distancia para nevoa: " << distancia;
+  VLOG(3) << "Distancia para nevoa: " << distancia
+          << ", ref: (" << pd->nevoa().referencia().x() << ", " << pd->nevoa().referencia().y() << ", " << pd->nevoa().referencia().z() << ")"
+          << ", ponto: (" << ponto.x << ", " << ponto.y << ", " << ponto.z << ")"
+          << ", minimo: " << pd->nevoa().minimo()
+          << ", maximo: " << pd->nevoa().maximo();
   if (distancia > pd->nevoa().maximo()) {
     gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
   } else if (distancia > pd->nevoa().minimo()) {
@@ -616,6 +621,34 @@ void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tab
   float zchao = tabuleiro.ZChao(novo_x, novo_y);
   float novo_z = std::max(zchao, entidade->Z() + dz);
   entidade->MovePara(novo_x, novo_y, novo_z);
+}
+
+bool EhPng(const std::string& textura) {
+  return textura.find(".png") == (textura.size() - 4);
+}
+
+bool EhTerreno(const std::string& textura) {
+  return EhPng(textura) && (textura.find("tile_") == 0 || textura.find("terrain_") == 0);
+}
+
+bool EhCaixaCeu(const std::string& textura) {
+  return EhPng(textura) && textura.find("skybox") == 0;
+}
+
+bool EhIcone(const std::string& textura) {
+  return EhPng(textura) && textura.find("icon_") == 0;
+}
+
+bool FiltroTexturaEntidade(const std::string& textura) {
+  return EhCaixaCeu(textura) || EhTerreno(textura) || EhIcone(textura) || !EhPng(textura);
+}
+
+bool FiltroTexturaCaixaCeu(const std::string& textura) {
+  return !EhCaixaCeu(textura);
+}
+
+bool FiltroTexturaTabuleiro(const std::string& textura) {
+  return !EhTerreno(textura);
 }
 
 }  // namespace ent

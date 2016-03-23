@@ -139,6 +139,12 @@ rm -rf bin/classes
  Problemas
 ===========
 
+-- Ids trocados.
+
+Se os elementos do XML forem trocados de lugar, o arquivo R.java nao sera regerado e os ids serao trocados.
+Para resolver, basta remover gen/com/matferib/Tabuleiro/R.java.
+
+
 -- Depuração:
 
 Colocar no manifest, dentro do elemento application android:debuggable="true"

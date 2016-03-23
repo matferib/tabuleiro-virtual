@@ -1,6 +1,7 @@
 #ifndef GLTAB_INTERNO_H
 #define GLTAB_INTERNO_H
 
+#include <set>
 #include "gltab/gl.h"
 
 namespace gl {
@@ -11,6 +12,7 @@ namespace interno {
 // Variaveis de shaders.
 struct VarShader {
   std::string nome;  // Nome para o programa, depuracao apenas.
+  TipoShader tipo;   // tipo do shader.
 
   // Shader.
   GLuint programa;
@@ -66,6 +68,8 @@ class Contexto {
   bool depurar_selecao_por_cor = false;  // Mudar para true para depurar selecao por cor.
   float raster_x = 0.0f;
   float raster_y = 0.0f;
+
+  std::set<std::string> extensoes;
 
   std::vector<VarShader> shaders;
   VarShader* shader_corrente = nullptr;  // Aponta para o shader corrente.

@@ -17,14 +17,25 @@
 #include "log/log.h"
 #include "tex/texturas.h"
 
+#if USAR_GFLAGS
+DEFINE_bool(iluminacao_por_pixel, true, "Se verdadeiro, usa luz por pixel (caro mas melhor).");
+DEFINE_bool(mapeamento_de_sombras, true, "Se verdadeiro, usa mapemento de sombras caro mas melhor)..");
+DEFINE_string(tabuleiro, "", "Se nao vazio, carrega o tabuleiro passado ao iniciar.");
+#endif
+
 using namespace std;
 
 namespace {
 void CarregaConfiguracoes(ent::OpcoesProto* proto) {
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", proto);
+#if USAR_GFLAGS
+    proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
+    proto->set_mapeamento_sombras(FLAGS_mapeamento_de_sombras);
+#else
     proto->set_iluminacao_por_pixel(true);
     proto->set_mapeamento_sombras(true);
+#endif
     LOG(INFO) << "Carregando opcoes de arquivo.";
   } catch (...) {
     proto->CopyFrom(ent::OpcoesProto::default_instance());
@@ -54,12 +65,21 @@ int main(int argc, char** argv) {
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(p.get(), &teclado_mouse, &tabuleiro, &central);
+#if USAR_GLAGS
+  if (!FLAGS_tabuleiro.empty()) {
+    // Carrega o tabuleiro.
+    auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    n->set_endereco(FLAGS_tabuleiro);
+    central.AdicionaNotificacao(n);
+  }
+#else
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
     auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
     n->set_endereco(argv[1]);
     central.AdicionaNotificacao(n);
   }
+#endif
   try {
     p->Executa();
   }
