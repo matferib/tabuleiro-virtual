@@ -65,6 +65,8 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
 
  private:
+  bool luz_por_pixel_;
+  bool mapeamento_sombras_;
   ifg::TratadorTecladoMouse* teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;

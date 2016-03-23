@@ -420,6 +420,8 @@ class Tabuleiro : public ntf::Receptor {
   // Ativa a interface opengl para dialogos de tipo abrir tabuleiro, janela etc.
   void AtivaInterfaceOpengl(InterfaceGraficaOpengl* gui) { gui_ = gui; }
 
+  const OpcoesProto& Opcoes() const { return opcoes_; }
+
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
   class TimerEscopo {

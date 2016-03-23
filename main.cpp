@@ -7,7 +7,7 @@
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
 #include "ent/tabuleiro_interface.h"
-#include "gltab/gl.h"
+//#include "gltab/gl.h"
 #include "ifg/qt/principal.h"
 #include "ifg/tecladomouse.h"
 #include "ifg/qt/qt_interface.h"

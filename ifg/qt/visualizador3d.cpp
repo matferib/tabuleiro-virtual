@@ -18,6 +18,7 @@
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
+#include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
@@ -255,6 +256,9 @@ Visualizador3d::Visualizador3d(
     :  QGLWidget(Formato(), pai),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
+  const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
+  luz_por_pixel_ = opcoes.iluminacao_por_pixel();
+  mapeamento_sombras_ = opcoes.mapeamento_sombras();
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -270,8 +274,7 @@ void Visualizador3d::initializeGL() {
   try {
     if (!once) {
       once = true;
-      // luz_por_pixel, mapeamento_sombras.
-      gl::IniciaGl(true, true);
+      gl::IniciaGl(luz_por_pixel_, mapeamento_sombras_);
     }
     tabuleiro_->IniciaGL();
   } catch (const std::logic_error& erro) {
