@@ -1197,7 +1197,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
           // Endereco deve ter {estatico|dinamico}://nome_arquivo.
           auto pos_separador = notificacao.endereco().find("://");
           if (pos_separador == std::string::npos) {
-            throw std::logic_error(std::string("Nome de arquivo invalido: ") + notificacao.endereco());
+            throw std::logic_error(
+                std::string(":// não encontrado no nome do arquivo: ") + notificacao.endereco());
           }
           std::string nome_arquivo = notificacao.endereco().substr(pos_separador + 3);
           std::string tipo_arquivo = notificacao.endereco().substr(0, pos_separador);

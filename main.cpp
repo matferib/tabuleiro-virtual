@@ -65,18 +65,18 @@ int main(int argc, char** argv) {
   std::unique_ptr<ifg::qt::Principal> p(
       ifg::qt::Principal::Cria(argc, argv, &tabuleiro, &texturas, &teclado_mouse, &central));
   ifg::qt::InterfaceGraficaQt igqt(p.get(), &teclado_mouse, &tabuleiro, &central);
-#if USAR_GLAGS
+#if USAR_GFLAGS
   if (!FLAGS_tabuleiro.empty()) {
     // Carrega o tabuleiro.
     auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    n->set_endereco(FLAGS_tabuleiro);
+    n->set_endereco(std::string("://") + FLAGS_tabuleiro);
     central.AdicionaNotificacao(n);
   }
 #else
   if (argc >= 2 && argv[1][0] != '-') {
     // Carrega o tabuleiro.
     auto* n = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
-    n->set_endereco(argv[1]);
+    n->set_endereco(std::string("://") + argv[1]);
     central.AdicionaNotificacao(n);
   }
 #endif
