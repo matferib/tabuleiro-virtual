@@ -121,7 +121,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   AjustaCor(proto, pd);
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
-  if (!proto.has_info_textura() && !proto.has_modelo_3d()) {
+  if (proto.info_textura().id().empty() && !proto.has_modelo_3d()) {
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
@@ -192,7 +192,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
-  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+  GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
@@ -215,7 +215,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     return;
   }
   // Disco da entidade.
-  if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
+  if (proto_.info_textura().id().empty() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,
