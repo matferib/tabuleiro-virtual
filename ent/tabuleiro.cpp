@@ -481,7 +481,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
   gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   V_ERRO("LigacaoComFramebufferSombraProjetada");
@@ -1548,6 +1548,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
           VLOG(1) << "Comecando translacao";
           translacao_rotacao_ = TR_TRANSLACAO;
         } else {
+          VLOG(1) << "Ainda indeciso";
           ultimo_x_ = x;
           ultimo_y_ = y;
           return;
@@ -3579,7 +3580,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
           std::make_pair(entidade->Id(),
                          std::make_pair(entidade->Z(), entidade->RotacaoZGraus())));
     }
-  } if (estado_ == ETAB_DESENHANDO) {
+  } else if (estado_ == ETAB_DESENHANDO) {
     FinalizaEstadoCorrente();
     estado_anterior_ = ETAB_OCIOSO;
     estado_ = ETAB_ROTACAO;
