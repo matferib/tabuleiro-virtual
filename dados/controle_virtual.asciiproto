@@ -158,6 +158,32 @@ pagina {
     dica: "Remove o último valor acumulado."
   }
 
+  # Modelos.
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 8
+    rotulo: "<"
+    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    altura: 1
+    largura: 10
+    linha: 2
+    coluna: 9
+    id: CONTROLE_MODELO_ENTIDADE
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 19
+    rotulo: ">"
+    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
+    num_lados_botao: 4
+  }
+
   # Transicao.
   dados_botoes {
     tamanho: 2

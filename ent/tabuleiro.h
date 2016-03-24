@@ -252,7 +252,7 @@ class Tabuleiro : public ntf::Receptor {
   const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
 
   /** Acesso ao modelo de entidade selecionado. */
-  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
+  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_.second; }
 
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const {
@@ -848,7 +848,7 @@ class Tabuleiro : public ntf::Receptor {
   bool camera_isometrica_ = false;
 
   /** O modelo selecionado para inserção de entidades. */
-  const ent::EntidadeProto* modelo_selecionado_;
+  std::pair<std::string, const ent::EntidadeProto*> modelo_selecionado_;
   std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
 
   /** Ação selecionada (por id). */
@@ -946,6 +946,7 @@ class Tabuleiro : public ntf::Receptor {
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
   std::set<std::string> texturas_entidades_;
+  std::set<std::string> modelos_entidades_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

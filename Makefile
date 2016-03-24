@@ -47,6 +47,9 @@ apple_test:
 apple_benchmark:
 	scons sistema=apple debug=0 benchmark=1 benchmark
 
+apple_benchmark_debug:
+	scons sistema=apple debug=1 benchmark=1 benchmark
+
 linux_profile:
 	scons gerar_profile=1
 

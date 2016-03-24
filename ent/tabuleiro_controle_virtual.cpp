@@ -114,6 +114,10 @@ void Tabuleiro::CarregaControleVirtual() {
   } catch (const std::logic_error& e) {
     LOG(ERROR) << "Erro carregando lista de texturas do controle virtual: " << e.what();
   }
+
+  for (const auto& modelo : mapa_modelos_) {
+    modelos_entidades_.insert(modelo.first);
+  }
 }
 
 void Tabuleiro::LiberaControleVirtual() {
@@ -314,6 +318,30 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
     case CONTROLE_TEXTURA_ENTIDADE_PROXIMA: {
       std::string proximo_rotulo = ProximoRotuloTextura(TexturaEntidade(EntidadesSelecionadas()), texturas_entidades_);
       AlteraTexturaEntidadesSelecionadasNotificando(proximo_rotulo == ROTULO_PADRAO ? "" : proximo_rotulo);
+      break;
+    }
+    case CONTROLE_MODELO_ENTIDADE_ANTERIOR: {
+      if (modelos_entidades_.size() < 2) {
+        return;
+      }
+      auto it = modelos_entidades_.find(modelo_selecionado_.first);
+      if (it == modelos_entidades_.begin()) {
+        SelecionaModeloEntidade(*--modelos_entidades_.end());
+      } else {
+        SelecionaModeloEntidade(*--it);
+      }
+      break;
+    }
+    case CONTROLE_MODELO_ENTIDADE_PROXIMA: {
+      if (modelos_entidades_.size() < 2) {
+        return;
+      }
+      auto it = modelos_entidades_.find(modelo_selecionado_.first);
+      if (it == modelos_entidades_.end() || it == --modelos_entidades_.end()) {
+        SelecionaModeloEntidade(*modelos_entidades_.begin());
+      } else {
+        SelecionaModeloEntidade(*++it);
+      }
       break;
     }
     case CONTROLE_APAGA_ENTIDADES: {
@@ -543,6 +571,10 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
       std::string rotulo = TexturaEntidade(EntidadesSelecionadas());
       return rotulo.empty() ? "-" : rotulo;
     }
+    case CONTROLE_MODELO_ENTIDADE: {
+      std::string rotulo = modelo_selecionado_.first;
+      return rotulo.empty() ? "-" : rotulo;
+    }
     default:
 
       ;
@@ -574,13 +606,13 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   }
   PosicionaRaster2d(x_meio + delta_x, yf, viewport[2], viewport[3]);
   std::function<void(const std::string&, bool)> funcao_desenho;
-  gl::DesenhaString(StringSemUtf8(db.dica()), false);
+  gl::DesenhaString(dica, false);
 }
 
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
   unsigned int id_textura = TexturaBotao(db);
-  std::string rotulo = RotuloBotaoControleVirtual(db);
+  std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db));
   if (rotulo.empty() || id_textura != GL_INVALID_VALUE) {
     return;
   }

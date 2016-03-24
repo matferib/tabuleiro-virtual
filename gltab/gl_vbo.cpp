@@ -579,6 +579,7 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
 
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   std::vector<float> coordenadas(num_coordenadas_total);
+  //std::vector<float> coordenadas_texturas(num_vertices_por_toco * 2 * num_tocos);
   std::vector<float> normais(num_coordenadas_total);
   std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);

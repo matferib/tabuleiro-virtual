@@ -226,7 +226,8 @@ Tabuleiro::Tabuleiro(
   auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
   modelo_padrao->mutable_cor()->set_g(1.0f);
   mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<EntidadeProto>(modelo_padrao)));
-  modelo_selecionado_ = modelo_padrao;
+  modelo_selecionado_.first = "Padrão";
+  modelo_selecionado_.second = modelo_padrao;
   Modelos modelos;
   const std::string arquivos_modelos[] = { ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD };
   for (const std::string& nome_arquivo_modelo : arquivos_modelos) {
@@ -594,7 +595,7 @@ int Tabuleiro::Desenha() {
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
-      EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_);
+      EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_.second);
       if (modelo.tipo() == TE_FORMA && !EmModoMestre(true)) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
@@ -2233,7 +2234,8 @@ void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return;
   }
-  modelo_selecionado_ = it->second.get();
+  modelo_selecionado_.first = id_modelo;
+  modelo_selecionado_.second = it->second.get();
 }
 
 const EntidadeProto* Tabuleiro::BuscaModelo(const std::string& id_modelo) const {
@@ -2879,7 +2881,7 @@ void Tabuleiro::GeraFramebuffer() {
 #endif
   V_ERRO("TexturaFramebuffer");
 
-  // No IOS da pau se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+  // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
 #if __APPLE__ && !USAR_OPENGL_ES
   gl::BufferDesenho(GL_NONE);
   gl::BufferLeitura(GL_NONE);

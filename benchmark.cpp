@@ -5,8 +5,15 @@
 #include <memory>
 #include <stdexcept>
 
+#if __APPLE__
+  // Other kinds of Mac OS
+  #include <GLUT/glut.h>
+#endif
+
 #include "ent/tabuleiro.h"
+#include "ent/tabuleiro.pb.h"
 #include "gltab/gl.h"
+#include "m3d/m3d.h" 
 #include "ntf/notificacao.h"
 #include "log/log.h"
 #include "tex/texturas.h"
@@ -27,7 +34,8 @@ void render() {
   g_tabuleiro->Desenha();
   g_tabuleiro->TrataRotacaoPorDelta(0.01f);
   glutSwapBuffers();
-  if (g_counter++ >= FLAGS_num_desenhos) {
+  LOG(INFO) << "aqui!!";
+  if (++g_counter >= FLAGS_num_desenhos) {
     LOG(INFO) << "saindo!!";
     longjmp(g_buf, 1);
   }
@@ -39,14 +47,19 @@ void reshape(int width, int height) {
 
 int main(int argc, char** argv) {
   meulog::Inicializa(&argc, &argv);
-  gl::IniciaGl(&argc, argv);  // inicia o glut.
+  // luz por pixel e mapa sombras.
   glutInitWindowSize(FLAGS_tam_janela, FLAGS_tam_janela);
   glutInitWindowPosition(0, 0);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_STENCIL | GLUT_DEPTH);
   glutCreateWindow("benchmark");
+  gl::IniciaGl(true, true);  // inicia o glut.
   ntf::CentralNotificacoes central;
   tex::Texturas texturas(&central);
-  ent::Tabuleiro tabuleiro(&texturas, &central);
+  ent::OpcoesProto opcoes;
+  opcoes.set_iluminacao_por_pixel(true);
+  opcoes.set_mapeamento_sombras(true);
+  m3d::Modelos3d modelos;
+  ent::Tabuleiro tabuleiro(opcoes, &texturas, &modelos, &central);
   g_tabuleiro = &tabuleiro;
   tabuleiro.IniciaGL();
   tabuleiro.TrataRedimensionaJanela(FLAGS_tam_janela, FLAGS_tam_janela);
@@ -69,6 +82,7 @@ int main(int argc, char** argv) {
   }
 
   // Desenha varias vezes.
+  glutReshapeFunc(reshape);
   glutIdleFunc(render);
   glutDisplayFunc(render);
   boost::timer::auto_cpu_timer timer;
