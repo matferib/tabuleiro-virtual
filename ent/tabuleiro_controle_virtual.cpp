@@ -473,6 +473,7 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
     case Tabuleiro::MODO_TRANSICAO:   return CONTROLE_TRANSICAO;
     case Tabuleiro::MODO_REGUA:       return CONTROLE_REGUA;
     case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
+    case Tabuleiro::MODO_TERRENO:     return CONTROLE_MODO_TERRENO;
     default:                          return CONTROLE_AJUDA;
   }
 }
