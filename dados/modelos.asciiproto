@@ -40,7 +40,7 @@ modelo {
 modelo {
   id: 'Aparição'
   entidade {
-    dados_vida: '5d12' info_textura { id: 'wraith.png' } cor { r: 1 b: 1 g: 1 a: 0.8 } voadora: true
+    dados_vida: '5d12' info_textura { id: 'wraith.png' } cor { r: 1 g: 1 b: 1 a: 0.8 } voadora: true
     rotulo_especial: 'ini +7\nca 15/15/12 toque +5 dano: 1d4 + 1d6 constituição\nmov 12 quadrados'
   }
 }
@@ -751,7 +751,7 @@ modelo {
       y: 0.099030018
       z: 2.9802322e-07
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 1.1
@@ -767,7 +767,7 @@ modelo {
       y: 0.21715832
       z: 2.9600022
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CILINDRO
     escala {
       x: 0.1
@@ -784,7 +784,7 @@ modelo {
       y: 0.13638067
       z: 1.6000005
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.59969538
@@ -801,7 +801,7 @@ modelo {
       y: 0.030168533
       z: 2.0800011
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.5
@@ -818,7 +818,7 @@ modelo {
       y: 0.0272398
       z: 2.5600019
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.3164784
@@ -835,7 +835,7 @@ modelo {
       y: 0.080719948
       z: 2.5600019
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.3164784
@@ -852,7 +852,7 @@ modelo {
       y: 0.17648268
       z: 2.0000026
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CILINDRO
     escala {
       x: 0.1
@@ -1270,7 +1270,7 @@ modelo {
     sub_forma {
       tipo: TE_FORMA
       pos { x: -1.506027 y: 0.074174106 z: 0 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.3 y: 0.3 z: 1.5 }
     }
@@ -1301,14 +1301,14 @@ modelo {
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.693313 y: -0.27704048 z: 0 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.3 y: 0.3 z: 1.5 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.815652 y: -0.047820628 z: 2.08 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.3 y: 0.3 z: 1 }
       rotacao_z_graus: 1
@@ -1341,28 +1341,28 @@ modelo {
     sub_forma {
       tipo: TE_FORMA
       pos { x: 3.5581195 y: 2.2859819 z: 0.64000005 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_ESFERA
       escala { x: 1.4 y: 0.2 z: 1.4 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.051985741 y: 2.2943857 z: 0.64000005 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_ESFERA
       escala { x: 1.4 y: 0.2 z: 1.4 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 1.3276377 y: 2.2773182 z: 0 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 0 y: 0 z: 0 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 3.5255058 y: -1.7137246 z: 0.64000005 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_ESFERA
       escala { x: 1.4 y: 0.2 z: 1.4 }
     }
@@ -1372,21 +1372,21 @@ modelo {
         x: 8.1212063
         y: -0.31381941
       }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0 y: 0 z: 0 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.019371986 y: -1.7053208 z: 0.64000005 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_ESFERA
       escala { x: 1.4 y: 0.2 z: 1.4 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.23081803 y: 0.25739956 z: 3.2600005 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 2 y: 3.9 z: 4.5 }
       rotacao_y_graus: 90
@@ -1397,7 +1397,7 @@ modelo {
         x: 1.2950243
         y: -1.7223883
       }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 0 y: 0 z: 0 }
     }
@@ -1407,28 +1407,28 @@ modelo {
         x: -4.0354624
         y: -3.6287422
       }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 0 y: 0 z: 0 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 2.4775298 y: 0.25612974 z: 1.74 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 4.5 y: 3.9 z: 1.5 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 1.790395 y: 0.28369093 z: 0.79999989 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 5.9 y: 3.9 z: 1 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: -3.1021178 y: -0.83369875 z: 1.6200004 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 4 y: 0.1 z: 0.1 }
       rotacao_y_graus: 8
@@ -1440,7 +1440,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: -2.0231993 y: -0.11610633 z: 0.63999993 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.1 y: 0.1 z: 1 }
         rotacao_y_graus: 23
@@ -1448,28 +1448,28 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.68883681 y: 0.10335892 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: -1.506027 y: 0.074174106 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: -1.5113454 y: -0.28700161 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.64164114 y: -0.043864727 z: 1.4399999 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.5 y: 0.5 z: 0.9 }
         rotacao_y_graus: 32
@@ -1477,7 +1477,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: -1.67682 y: -0.11951894 z: 1.44 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.7 y: 0.7 z: 2.5 }
         rotacao_z_graus: 1
@@ -1486,14 +1486,14 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.693313 y: -0.27704048 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.815652 y: -0.047820628 z: 2.08 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1 }
         rotacao_z_graus: 1
@@ -1502,7 +1502,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 1.1068577 y: -0.24795312 z: 2.1600008 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CONE
         escala { x: 0.1 y: 0.1 z: 0.3 }
         rotacao_y_graus: 5
@@ -1510,7 +1510,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 1.1043723 y: 0.1544643 z: 2.1600008 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CONE
         escala { x: 0.1 y: 0.1 z: 0.3 }
         rotacao_y_graus: 5
@@ -1523,7 +1523,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: -2.0231993 y: -0.11610633 z: 0.63999993 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.1 y: 0.1 z: 1 }
         rotacao_y_graus: 23
@@ -1531,28 +1531,28 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.68883681 y: 0.10335892 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: -1.506027 y: 0.074174106 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: -1.5113454 y: -0.28700161 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.64164114 y: -0.043864727 z: 1.4399999 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.5 y: 0.5 z: 0.9 }
         rotacao_y_graus: 32
@@ -1560,7 +1560,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: -1.67682 y: -0.11951894 z: 1.44 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.7 y: 0.7 z: 2.5 }
         rotacao_z_graus: 1
@@ -1569,14 +1569,14 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.693313 y: -0.27704048 z: 0 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1.5 }
       }
       sub_forma {
         tipo: TE_FORMA
         pos { x: 0.815652 y: -0.047820628 z: 2.08 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CILINDRO
         escala { x: 0.3 y: 0.3 z: 1 }
         rotacao_z_graus: 1
@@ -1585,7 +1585,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 1.1068577 y: -0.24795312 z: 2.1600008 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CONE
         escala { x: 0.1 y: 0.1 z: 0.3 }
         rotacao_y_graus: 5
@@ -1593,7 +1593,7 @@ modelo {
       sub_forma {
         tipo: TE_FORMA
         pos { x: 1.1043723 y: 0.1544643 z: 2.1600008 }
-        cor { r: 1 b: 1 g: 1 }
+        cor { r: 1 g: 1 b: 1 }
         sub_tipo: TF_CONE
         escala { x: 0.1 y: 0.1 z: 0.3 }
         rotacao_y_graus: 5
@@ -1602,7 +1602,7 @@ modelo {
     sub_forma {
       tipo: TE_FORMA
       pos { x: -3.0653141 y: 1.5151284 z: 1.6200004 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 4 y: 0.1 z: 0.1 }
       rotacao_z_graus: 2
@@ -1611,7 +1611,7 @@ modelo {
     sub_forma {
       tipo: TE_FORMA
       pos { x: -4.7459755 y: 0.32197189 z: 1.6000009 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CUBO
       escala { x: 0.1 y: 2 z: 0.1 }
     }

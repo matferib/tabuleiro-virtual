@@ -1,0 +1,7 @@
+Apos exportar um modelo e colar em modelos:
+
+:'<,'>g/visivel\|selecionavel\|pontos_vida|a: 1|id_cenario|rotacao_.*graus: 0/gd
+:'<,'>s/cor {\n\s*r: \([0-9.]\+\)\n\s*g: \([0-9.]\+\)\n\s*b: \([0-9.]\+\)\n\s*}/cor { r: \1 g: \2 b: \3 }/gc
+:'<,'>s/pos {\n\s*x: \([-0-9.]\+\)\n\s*y: \([-0-9.]\+\)\n\s*z: \([-0-9.]\+\)\n\s*}/pos { x: \1 y: \2 z: \3 }/gc
+:'<,'>s/escala {\n\s*x: \([-0-9.]\+\)\n\s*y: \([-0-9.]\+\)\n\s*z: \([-0-9.]\+\)\n\s*}/escala { x: \1 y: \2 z: \3 }/gc
+
