@@ -471,7 +471,6 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_controle_virtual(false);
 
   if (usar_sampler_sombras_) {
-    //gl::UsaShader(gl::TSH_LUZ);
     gl::UsaShader(gl::TSH_SIMPLES);
   } else {
     gl::UsaShader(gl::TSH_PROFUNDIDADE);
@@ -3110,6 +3109,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       continue;
     }
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
+      continue;
+    }
+    if (!entidade->Proto().faz_sombra() && (parametros_desenho_.desenha_sombra_projetada() || sombra)) {
       continue;
     }
     // Nao roda disco se estiver arrastando.
