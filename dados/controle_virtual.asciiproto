@@ -162,26 +162,29 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 8
+    coluna: 9
     rotulo: "<"
     id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
     num_lados_botao: 4
+    dica: "Seleciona modelo de entidade anterior."
   }
   dados_botoes {
     altura: 1
     largura: 10
     linha: 2
-    coluna: 9
+    coluna: 10
     id: CONTROLE_MODELO_ENTIDADE
     num_lados_botao: 4
+    dica: "O tipo de entidade adicionada por padrão."
   }
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 19
+    coluna: 20
     rotulo: ">"
     id: CONTROLE_MODELO_ENTIDADE_PROXIMA
     num_lados_botao: 4
+    dica: "Seleciona próximo modelo de entidade."
   }
 
   # Transicao.
