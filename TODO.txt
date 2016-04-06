@@ -1,12 +1,10 @@
 Versao 2.1.0
-- Bug: rotulo especial duplicando.
-- Bug: entidade composta vazia. Como? Tabuleiro do phaerimm.
+- Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
 - Modelar transparencia de modelos 3d de entidades (nao ficam translucidos, ver phaerimm).
 - Barras fixas do controle virtual e controles do mestre apenas.
 - Permitir que alguns modelos afundem na terra.
 - Geracao de terrenos por tipo (arvores, relevo).
-- Campo de sombra para objeto (alguns nao devem fazer sombra).
 - Picking de transparencias completas (alfa = 0).
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
