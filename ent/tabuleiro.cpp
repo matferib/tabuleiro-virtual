@@ -1252,6 +1252,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         boost::filesystem::path caminho(notificacao.endereco());
         ntf::Notificacao n;
         arq::LeArquivoBinProto(arq::TIPO_ENTIDADES, caminho.filename().string(), &n);
+        n.mutable_entidade()->set_selecionavel_para_jogador(notificacao.entidade().selecionavel_para_jogador());
         DeserializaEntidadesSelecionaveis(n);
         auto* ninfo = ntf::NovaNotificacao(ntf::TN_INFO);
         ninfo->set_erro("Entidades selecionáveis restauradas");
@@ -4248,9 +4249,12 @@ void Tabuleiro::DeserializaEntidadesSelecionaveis(const ntf::Notificacao& n) {
     n.mutable_entidade()->mutable_pos()->set_y(y_original - media_y + olho_.alvo().y());
   }
 
-  // Hack para entidades aparecerem visiveis e selecionaveis.
+  bool entidades_do_jogador = n.entidade().selecionavel_para_jogador();
+  // Hack para entidades aparecerem visiveis e selecionaveis caso necessario.
   bool modo_mestre_anterior = modo_mestre_;
-  modo_mestre_ = false;
+  if (entidades_do_jogador) {
+    modo_mestre_ = false;
+  }
   TrataNotificacao(grupo_notificacoes);
   modo_mestre_ = modo_mestre_anterior;
   // Para desfazer

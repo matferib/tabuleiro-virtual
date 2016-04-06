@@ -61,9 +61,16 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&mover Cenário Corrente"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
-  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Adicionar"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Remover"), nullptr,
-    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionáveis"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar selecionáveis"), g_fim,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"),
+    nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Adicionar"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Remover"),
+    nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionáveis"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar selecionáveis"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar como não selecionáveis"),
+    g_fim,
   // Acoes.
   g_fim,
   // Desenho.
@@ -402,6 +409,18 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     }
     notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
     notificacao->set_endereco(file_str.toStdString());
+    notificacao->mutable_entidade()->set_selecionavel_para_jogador(true);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES_COMO_NAO_SELECIONAVEIS]) {
+    QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
+                                                    tr("Abrir entidades do mestre"),
+                                                    arq::Diretorio(arq::TIPO_ENTIDADES).c_str());
+    if (file_str.isEmpty()) {
+      VLOG(1) << "Operação de restaurar cancelada.";
+      return;
+    }
+    notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
+    notificacao->set_endereco(file_str.toStdString());
+    notificacao->mutable_entidade()->set_selecionavel_para_jogador(false);
   }
   // Tabuleiro.
   else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
