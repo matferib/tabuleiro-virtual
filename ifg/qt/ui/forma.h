@@ -92,6 +92,7 @@ public:
     QCheckBox *checkbox_fixa;
     QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_visibilidade;
+    QCheckBox *checkbox_faz_sombra;
     QWidget *layoutWidget_2;
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_11;
@@ -257,6 +258,7 @@ public:
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
         spin_translacao->setGeometry(QRect(80, 60, 91, 24));
         spin_translacao->setDecimals(1);
+        spin_translacao->setMinimum(-100);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);
         label_2 = new QLabel(groupBox_2);
@@ -419,6 +421,11 @@ public:
         checkbox_visibilidade->setSizePolicy(sizePolicy2);
 
         horizontalLayout_11->addWidget(checkbox_visibilidade);
+
+        checkbox_faz_sombra = new QCheckBox(horizontalLayoutWidget_6);
+        checkbox_faz_sombra->setObjectName(QString::fromUtf8("checkbox_faz_sombra"));
+
+        horizontalLayout_11->addWidget(checkbox_faz_sombra);
 
         layoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
@@ -598,6 +605,10 @@ public:
         checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", 0, QApplication::UnicodeUTF8));
         checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_faz_sombra->setText(QApplication::translate("ifg::qt::DialogoForma", "Faz Sombra", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));

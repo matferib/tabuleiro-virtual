@@ -370,6 +370,7 @@ public:
         spin_translacao = new QDoubleSpinBox(horizontalLayoutWidget_6);
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
         spin_translacao->setDecimals(1);
+        spin_translacao->setMinimum(-100);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);
 
