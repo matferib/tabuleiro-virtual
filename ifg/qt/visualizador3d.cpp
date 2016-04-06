@@ -373,13 +373,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
-      auto* opcoes = AbreDialogoOpcoes(notificacao);
-      if (opcoes == nullptr) {
+      std::unique_ptr<ent::OpcoesProto> opcoes(AbreDialogoOpcoes(notificacao));
+      if (opcoes.get() == nullptr) {
         VLOG(1) << "Alterações de opcoes descartadas";
         break;
       }
       auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
-      n->mutable_opcoes()->Swap(opcoes);
+      n->mutable_opcoes()->Swap(opcoes.get());
       central_->AdicionaNotificacao(n);
       break;
     }
@@ -479,9 +479,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
-  if (!notificacao.modo_mestre()) {
-    gerador.checkbox_visibilidade->setEnabled(false);
-  }
+  gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
   // Fixa.
   gerador.checkbox_fixa->setCheckState(entidade.fixa() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -625,6 +623,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     bool fixa = gerador.checkbox_fixa->checkState() == Qt::Checked;
     if (fixa) {
@@ -809,6 +808,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
@@ -1057,7 +1057,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
 
 ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     const ntf::Notificacao& notificacao) {
-  auto* proto_retornado = new ent::OpcoesProto;
+  auto* proto_retornado = new ent::OpcoesProto(notificacao.opcoes());
   ifg::qt::Ui::DialogoOpcoes gerador;
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);
