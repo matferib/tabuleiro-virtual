@@ -1,5 +1,9 @@
 Versao 2.1.0
-- Barras fixas do controle virtual e controles do mestre.
+- Bug: rotulo especial duplicando.
+- Bug: entidade composta vazia. Como? Tabuleiro do phaerimm.
+- Rolagem com terreno.
+- Modelar transparencia de modelos 3d de entidades (nao ficam translucidos, ver phaerimm).
+- Barras fixas do controle virtual e controles do mestre apenas.
 - Permitir que alguns modelos afundem na terra.
 - Geracao de terrenos por tipo (arvores, relevo).
 - Campo de sombra para objeto (alguns nao devem fazer sombra).
