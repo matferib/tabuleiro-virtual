@@ -167,6 +167,8 @@ message EntidadeProto {
   optional bool selecionavel_para_jogador = 16 [default=true];
   // Se verdadeiro, o mestre nao conseguira selecionar a entidade. Ela sera apenas editavel com duplo clique.
   optional bool fixa = 32 [default=false];
+  // Se falso, a entidade nao faz sombra.
+  optional bool faz_sombra = 39 [default=true];
   // Tipo de visao da entidade.
   optional TipoVisao tipo_visao = 36;
   // Alcance da visao no escuro em metros.
