@@ -7,6 +7,15 @@ modelo {
   }
 }
 modelo {
+  id: 'Ankheg'
+  entidade {
+    dados_vida: '3d10+12' tamanho: TM_GRANDE info_textura { id: 'ankheg.png' } cor { r: 0.3 g: 0.3 b: 0.3 } ultima_acao: 'Ataque Corpo a Corpo'
+    rotulo_especial: 'ini 0\nataque: +7 dano: 2d6+7+1d4\nca 18/9/18'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+  }
+}
+modelo {
   id: 'Águia'
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 } voadora: true info_textura { id: 'eagle.png' }
@@ -29,10 +38,47 @@ modelo {
   }
 }
 modelo {
+  id: 'Aparição'
+  entidade {
+    dados_vida: '5d12' info_textura { id: 'wraith.png' } cor { r: 1 g: 1 b: 1 a: 0.8 } voadora: true
+    rotulo_especial: 'ini +7\nca 15/15/12 toque +5 dano: 1d4 + 1d6 constituição\nmov 12 quadrados'
+  }
+}
+modelo {
+  id: 'Aranha Gigante Enorme'
+  entidade {
+    dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'giantspider.png' } cor { r: 0 g: 0 b: 0 }
+    rotulo_especial: 'ini: +3\nca 16/11/13 agarrar 18 mordida: +9 dano 2d6+6+veneno\nveneno cd 16 1d8 força'
+  }
+}
+modelo {
+  id: 'Besouro do Fogo'
+  entidade {
+    dados_vida: '1d8' tamanho: TM_PEQUENO info_textura { id: 'firebeetle.png' } cor { r: 1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini 0\nca 16/11/16 mordida +1 dano 2d5' luz { raio_m: 3 cor { r: 1 } }
+  }
+}
+modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
     rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
+  }
+}
+modelo {
+  id: 'Cão Teleportador'
+  entidade {
+    dados_vida: '4d10' info_textura { id: 'blinkdog.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    rotulo_especial: 'ini: +3\nat: mordida: +4 dano: 1d6\nPiscar a vontade, porta dimensional uma vez por rodada como acao livre\nca 16/13/13'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+  }
+}
+modelo {
+  id: 'Coruja Gigante'
+  entidade {
+    dados_vida: '4d10+4' tamanho: TM_GRANDE voadora: true info_textura { id: 'giantowl.png' }
+    rotulo_especial: 'ini +3\nca 15/12/12 bicada/garrax2 +2/+7 dano 1d8+2/1d6+4\nvisao penumbra x5'
   }
 }
 modelo {
@@ -53,7 +99,7 @@ modelo {
 modelo {
   id: 'Carneçal'
   entidade {
-    dados_vida: '4d12' info_textura { id: 'ghoul.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    dados_vida: '4d12' info_textura { id: 'ghast.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
     rotulo_especial: 'ini: +3\nat: +5/+3/+3\ndano: 1d8+3+paralisia/1d4+1+paralisia\nca: 17'
   }
 }
@@ -159,6 +205,27 @@ modelo {
   entidade { dados_vida: '6d12' tamanho: TM_GRANDE info_textura { id: 'skeleton_troll.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
 }
 modelo {
+  id: 'Formiga Gigante'
+  entidade {
+    dados_vida: '2d8' info_textura { id: 'giantant.png'} cor { r: 0.3 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini 0\nca 17/10/17 at +1 dano 1d6\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
+}
+modelo {
+  id: 'Formiga Gigante, Soldado'
+  entidade {
+    dados_vida: '2d8+2' info_textura { id: 'giantant_soldier.png'} cor { r: 0.2 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini 0\nca 17/10/17 at +3 dano 2d4+3\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
+}
+modelo {
+  id: 'Formiga Gigante, Rainha'
+  entidade {
+    dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'giantant_queen.png'} cor { r: 0.2 g: 0.0 b: 0.0 }
+    rotulo_especial: 'ini -1\nca 17/10/17 at +5 dano 2d6+4\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
+}
+modelo {
   id: 'Gigante das Colinas'
   entidade {
     dados_vida: '12d8+48' tamanho: TM_GRANDE info_textura { id: 'giant_hill.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
@@ -262,6 +329,13 @@ modelo {
   entidade {
     dados_vida: '5d8+10' tamanho: TM_GRANDE info_textura { id: 'lion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'ini: +3\nat: +2/+7/+7\ndano: 1d8+2/1d4+5/1d4+5\nca: 15'
+  }
+}
+modelo {
+  id: 'Leão Atroz'
+  entidade {
+    dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'direlion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini: +2\nca 15/11/13 agarrar +17 mordida/garrax2 +7/+13/+13\ndano: 1d8+3/1d6+7/1d6+7\nagarrar aprimorado'
   }
 }
 modelo {
@@ -640,11 +714,11 @@ modelo {
     tipo: TE_COMPOSTA
     sub_forma {
       tipo: TE_FORMA cor { r: 0.5411765 g: 0.39607844 b: 0.16078432 a: 1 }
-      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 } rotacao_z_graus: 0
+      sub_tipo: TF_CILINDRO escala { x: 0.5 y: 0.6 z: 1.5 }
     }
     sub_forma {
       tipo: TE_FORMA cor { r: 0.32156864 g: 0.47058824 b: 0.22745098 a: 1 }
-      sub_tipo: TF_CONE escala { x: 2.4 y: 3 z: 4 } rotacao_z_graus: 0 pos { z: 1.5 }
+      sub_tipo: TF_CONE escala { x: 2.4 y: 3 z: 4 } pos { z: 1.5 }
     }
   }
 }
@@ -654,11 +728,11 @@ modelo {
     tipo: TE_COMPOSTA
     sub_forma {
       tipo: TE_FORMA cor { r: 0.63529414 g: 0.43137255 b: 0.25882354 a: 1 } sub_tipo: TF_CILINDRO
-      escala { x: 0.5 y: 0.6 z: 1.8 } rotacao_z_graus: 0
+      escala { x: 0.5 y: 0.6 z: 1.8 }
     }
     sub_forma {
       tipo: TE_FORMA cor { r: 0.25098041 g: 0.4509804 b: 0.21568628 a: 1 } sub_tipo: TF_ESFERA
-      escala { x: 3.7 y: 4 z: 2 } rotacao_z_graus: 0 pos { z: 2.6 }
+      escala { x: 3.7 y: 4 z: 2 } pos { z: 2.6 }
     }
   }
 }
@@ -677,7 +751,7 @@ modelo {
       y: 0.099030018
       z: 2.9802322e-07
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 1.1
@@ -685,8 +759,6 @@ modelo {
       z: 4
     }
     rotacao_z_graus: 1
-    rotacao_y_graus: 0
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -695,7 +767,7 @@ modelo {
       y: 0.21715832
       z: 2.9600022
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CILINDRO
     escala {
       x: 0.1
@@ -704,7 +776,6 @@ modelo {
     }
     rotacao_z_graus: 229
     rotacao_y_graus: 65
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -713,7 +784,7 @@ modelo {
       y: 0.13638067
       z: 1.6000005
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.59969538
@@ -722,7 +793,6 @@ modelo {
     }
     rotacao_z_graus: 1
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -731,7 +801,7 @@ modelo {
       y: 0.030168533
       z: 2.0800011
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.5
@@ -740,7 +810,6 @@ modelo {
     }
     rotacao_z_graus: 259
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -749,7 +818,7 @@ modelo {
       y: 0.0272398
       z: 2.5600019
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.3164784
@@ -758,7 +827,6 @@ modelo {
     }
     rotacao_z_graus: 54
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -767,7 +835,7 @@ modelo {
       y: 0.080719948
       z: 2.5600019
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CONE
     escala {
       x: 0.3164784
@@ -776,7 +844,6 @@ modelo {
     }
     rotacao_z_graus: 166
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -785,7 +852,7 @@ modelo {
       y: 0.17648268
       z: 2.0000026
     }
-    cor { r: 0.57254905 b: 0.32941177 g: 0.054901961 }
+    cor { r: 0.57254905 g: 0.32941177 b: 0.054901961 }
     sub_tipo: TF_CILINDRO
     escala {
       x: 0.1
@@ -793,8 +860,6 @@ modelo {
       z: 0.5
     }
     rotacao_z_graus: 3
-    rotacao_y_graus: 0
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -817,7 +882,6 @@ modelo {
     }
     rotacao_z_graus: 197
     rotacao_y_graus: 65
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -840,7 +904,6 @@ modelo {
     }
     rotacao_z_graus: 74
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -863,7 +926,6 @@ modelo {
     }
     rotacao_z_graus: 197
     rotacao_y_graus: 65
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -886,7 +948,6 @@ modelo {
     }
     rotacao_z_graus: 74
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -909,7 +970,6 @@ modelo {
     }
     rotacao_z_graus: 229
     rotacao_y_graus: -22
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -932,7 +992,6 @@ modelo {
     }
     rotacao_z_graus: -44
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -955,7 +1014,6 @@ modelo {
     }
     rotacao_z_graus: -138
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
   sub_forma {
     tipo: TE_FORMA
@@ -978,7 +1036,6 @@ modelo {
     }
     rotacao_z_graus: 74
     rotacao_y_graus: 53
-    rotacao_x_graus: 0
   }
 }
 
@@ -989,11 +1046,11 @@ modelo {
     tipo: TE_COMPOSTA
     sub_forma {
       tipo: TE_FORMA cor { r: 0.67450982 g: 0.45882353 b: 0.26666668 a: 1 }
-      sub_tipo: TF_PIRAMIDE escala { x: 8.5 y: 7.5 z: 3 } rotacao_z_graus: 0 pos { z: 3 }
+      sub_tipo: TF_PIRAMIDE escala { x: 8.5 y: 7.5 z: 3 } pos { z: 3 }
     }
     sub_forma {
       tipo: TE_FORMA cor { r: 0.63529414 g: 0.63529414 b: 0.63529414 a: 1 }
-      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 } rotacao_z_graus: 0
+      sub_tipo: TF_CUBO escala { x: 8 y: 7 z: 3 } 
     }
   }
 }
@@ -1003,49 +1060,49 @@ modelo {
     tipo: TE_COMPOSTA
     pos { x: -8.0337772 y: -5.2814279 z: 0 }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.23598671 y: 0.14873552 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.23598671 y: 0.14873552 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.081827164 y: 0.24695206 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.081827164 y: 0.24695206 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.036110878 y: -0.13381243 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.036110878 y: -0.13381243 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.34461498 y: -0.10325861 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.34461498 y: -0.10325861 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } 
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.26157951 y: 0.0507102 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.26157951 y: 0.0507102 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.2195816 y: -0.17121983 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.2195816 y: -0.17121983 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.11797523 y: 0.080595493 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.11797523 y: 0.080595493 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.45322323 y: -0.24561167 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.45322323 y: -0.24561167 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.36445236 y: 0.028829575 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.36445236 y: 0.028829575 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.069937706 y: 0.19785213 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.069937706 y: 0.19785213 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.21256638 y: 0.22889042 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.21256638 y: 0.22889042 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.093837738 y: -0.07826519 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.093837738 y: -0.07826519 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.18816185 y: -0.26585007 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.18816185 y: -0.26585007 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.1976614 y: 0.0069446564 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.1976614 y: 0.0069446564 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: 0.021260262 y: 0.03875351 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: 0.021260262 y: 0.03875351 z: 0 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
       tipo: TE_COMPOSTA
@@ -1075,7 +1132,7 @@ modelo {
       tipo: TE_FORMA pos { x: -0.18480682 y: 0.15095949 z: 0.079999879 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 2
     }
     sub_forma {
-      tipo: TE_FORMA pos { x: -0.048179626 y: 0.0062036514 z: 0.1 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 0
+      tipo: TE_FORMA pos { x: -0.048179626 y: 0.0062036514 z: 0.1 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 }
     }
     sub_forma {
       tipo: TE_FORMA pos { x: 0.27925777 y: -0.17786121 z: 0.079999879 } cor { r: 0.96862745 g: 0.83137256 b: 0.12941177 a: 1 } sub_tipo: TF_CUBO escala { x: 0.1 y: 0.1 z: 0.1 } rotacao_z_graus: 2
@@ -1108,7 +1165,6 @@ modelo {
       cor { r: 0.56862748 g: 0.32941177 b: 0 a: 1 }
       sub_tipo: TF_CUBO
       escala { x: 3 y: 1.5 z: 0.4 }
-      rotacao_z_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
@@ -1116,7 +1172,6 @@ modelo {
       cor { r: 0.27450982 g: 0.15294118 b: 0 a: 1 }
       sub_tipo: TF_CUBO
       escala { x: 3 y: 1.5 z: 0.2 }
-      rotacao_z_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
@@ -1124,7 +1179,6 @@ modelo {
       cor { r: 0.56862748 g: 0.32941177 b: 0 a: 1 }
       sub_tipo: TF_PIRAMIDE
       escala { x: 3 y: 1.5 z: 0.4 }
-      rotacao_z_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
@@ -1132,7 +1186,6 @@ modelo {
       cor { r: 0 g: 0 b: 0 a: 1 }
       sub_tipo: TF_CUBO
       escala { x: 0.2 y: 0.2 z: 0.2 }
-      rotacao_z_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
@@ -1140,7 +1193,6 @@ modelo {
       cor { r: 0.27450982 g: 0.15294118 b: 0 a: 1 }
       sub_tipo: TF_CUBO
       escala { x: 3 y: 1.5 z: 0.2 }
-      rotacao_z_graus: 0
     }
   }
 }
@@ -1206,9 +1258,7 @@ modelo {
       cor { r: 1 g: 1 b: 1 a: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.1 y: 0.1 z: 1 }
-      rotacao_z_graus: 0
       rotacao_y_graus: 23
-      rotacao_x_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
@@ -1220,7 +1270,7 @@ modelo {
     sub_forma {
       tipo: TE_FORMA
       pos { x: -1.506027 y: 0.074174106 z: 0 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.3 y: 0.3 z: 1.5 }
     }
@@ -1237,9 +1287,7 @@ modelo {
       cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.5 y: 0.5 z: 0.9 }
-      rotacao_z_graus: 0
       rotacao_y_graus: 32
-      rotacao_x_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
@@ -1249,19 +1297,18 @@ modelo {
       escala { x: 0.7 y: 0.7 z: 2.5 }
       rotacao_z_graus: 1
       rotacao_y_graus: 90
-      rotacao_x_graus: 0
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.693313 y: -0.27704048 z: 0 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.3 y: 0.3 z: 1.5 }
     }
     sub_forma {
       tipo: TE_FORMA
       pos { x: 0.815652 y: -0.047820628 z: 2.08 }
-      cor { r: 1 b: 1 g: 1 }
+      cor { r: 1 g: 1 b: 1 }
       sub_tipo: TF_CILINDRO
       escala { x: 0.3 y: 0.3 z: 1 }
       rotacao_z_graus: 1
@@ -1283,6 +1330,290 @@ modelo {
       sub_tipo: TF_CONE
       escala { x: 0.1 y: 0.1 z: 0.3 }
       rotacao_y_graus: 5
+    }
+  }
+}
+modelo {
+  id: 'Carroça'
+  entidade {
+    tipo: TE_COMPOSTA
+    pos { x: -2.0663233 y: -5.4043312 z: 0 }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 3.5581195 y: 2.2859819 z: 0.64000005 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_ESFERA
+      escala { x: 1.4 y: 0.2 z: 1.4 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.051985741 y: 2.2943857 z: 0.64000005 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_ESFERA
+      escala { x: 1.4 y: 0.2 z: 1.4 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 1.3276377 y: 2.2773182 z: 0 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0 y: 0 z: 0 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 3.5255058 y: -1.7137246 z: 0.64000005 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_ESFERA
+      escala { x: 1.4 y: 0.2 z: 1.4 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 8.1212063
+        y: -0.31381941
+      }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CILINDRO
+      escala { x: 0 y: 0 z: 0 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.019371986 y: -1.7053208 z: 0.64000005 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_ESFERA
+      escala { x: 1.4 y: 0.2 z: 1.4 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 0.23081803 y: 0.25739956 z: 3.2600005 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CILINDRO
+      escala { x: 2 y: 3.9 z: 4.5 }
+      rotacao_y_graus: 90
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: 1.2950243
+        y: -1.7223883
+      }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0 y: 0 z: 0 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos {
+        x: -4.0354624
+        y: -3.6287422
+      }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0 y: 0 z: 0 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 2.4775298 y: 0.25612974 z: 1.74 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 4.5 y: 3.9 z: 1.5 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: 1.790395 y: 0.28369093 z: 0.79999989 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 5.9 y: 3.9 z: 1 }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -3.1021178 y: -0.83369875 z: 1.6200004 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 4 y: 0.1 z: 0.1 }
+      rotacao_y_graus: 8
+    }
+    sub_forma {
+      tipo: TE_COMPOSTA
+      pos { x: -3.7119462 y: -0.61845589 z: 0 }
+      rotacao_z_graus: 180
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -2.0231993 y: -0.11610633 z: 0.63999993 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.1 y: 0.1 z: 1 }
+        rotacao_y_graus: 23
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.68883681 y: 0.10335892 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -1.506027 y: 0.074174106 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -1.5113454 y: -0.28700161 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.64164114 y: -0.043864727 z: 1.4399999 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.5 y: 0.5 z: 0.9 }
+        rotacao_y_graus: 32
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -1.67682 y: -0.11951894 z: 1.44 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.7 y: 0.7 z: 2.5 }
+        rotacao_z_graus: 1
+        rotacao_y_graus: 90
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.693313 y: -0.27704048 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.815652 y: -0.047820628 z: 2.08 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1 }
+        rotacao_z_graus: 1
+        rotacao_y_graus: 111
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 1.1068577 y: -0.24795312 z: 2.1600008 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CONE
+        escala { x: 0.1 y: 0.1 z: 0.3 }
+        rotacao_y_graus: 5
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 1.1043723 y: 0.1544643 z: 2.1600008 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CONE
+        escala { x: 0.1 y: 0.1 z: 0.3 }
+        rotacao_y_graus: 5
+      }
+    }
+    sub_forma {
+      tipo: TE_COMPOSTA
+      pos { x: -3.736779 y: 1.0441461 z: 0 }
+      rotacao_z_graus: 180
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -2.0231993 y: -0.11610633 z: 0.63999993 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.1 y: 0.1 z: 1 }
+        rotacao_y_graus: 23
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.68883681 y: 0.10335892 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -1.506027 y: 0.074174106 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -1.5113454 y: -0.28700161 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.64164114 y: -0.043864727 z: 1.4399999 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.5 y: 0.5 z: 0.9 }
+        rotacao_y_graus: 32
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: -1.67682 y: -0.11951894 z: 1.44 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.7 y: 0.7 z: 2.5 }
+        rotacao_z_graus: 1
+        rotacao_y_graus: 90
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.693313 y: -0.27704048 z: 0 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1.5 }
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 0.815652 y: -0.047820628 z: 2.08 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CILINDRO
+        escala { x: 0.3 y: 0.3 z: 1 }
+        rotacao_z_graus: 1
+        rotacao_y_graus: 111
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 1.1068577 y: -0.24795312 z: 2.1600008 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CONE
+        escala { x: 0.1 y: 0.1 z: 0.3 }
+        rotacao_y_graus: 5
+      }
+      sub_forma {
+        tipo: TE_FORMA
+        pos { x: 1.1043723 y: 0.1544643 z: 2.1600008 }
+        cor { r: 1 g: 1 b: 1 }
+        sub_tipo: TF_CONE
+        escala { x: 0.1 y: 0.1 z: 0.3 }
+        rotacao_y_graus: 5
+      }
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -3.0653141 y: 1.5151284 z: 1.6200004 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 4 y: 0.1 z: 0.1 }
+      rotacao_z_graus: 2
+      rotacao_y_graus: 8
+    }
+    sub_forma {
+      tipo: TE_FORMA
+      pos { x: -4.7459755 y: 0.32197189 z: 1.6000009 }
+      cor { r: 1 g: 1 b: 1 }
+      sub_tipo: TF_CUBO
+      escala { x: 0.1 y: 2 z: 0.1 }
     }
   }
 }

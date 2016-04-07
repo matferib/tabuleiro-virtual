@@ -390,7 +390,7 @@ const int TAG_BOTAO_CANCELA = 101;
     raio_luz_stepper_ = (UIStepper*)[view viewWithTag:TAG_RAIO_LUZ_STEPPER];
     [raio_luz_stepper_ addTarget:self action:@selector(mudaRaioLuz) forControlEvents:UIControlEventValueChanged];
     float raio_luz = n.entidade().has_luz()
-        ? (n.entidade().luz().has_raio() ? n.entidade().luz().raio() : 4 * TAMANHO_LADO_QUADRADO)
+        ? (n.entidade().luz().has_raio_m() ? n.entidade().luz().raio_m() : 4 * TAMANHO_LADO_QUADRADO)
         : 0;
     [raio_luz_stepper_ setValue:raio_luz];
 
@@ -501,7 +501,7 @@ const int TAG_BOTAO_CANCELA = 101;
       notificacao_->mutable_entidade()->clear_luz();
     } else {
       auto* cor_luz = notificacao_->mutable_entidade()->mutable_luz()->mutable_cor();
-      notificacao_->mutable_entidade()->mutable_luz()->set_raio([raio_luz_stepper_ value]);
+      notificacao_->mutable_entidade()->mutable_luz()->set_raio_m([raio_luz_stepper_ value]);
       if (!notificacao_->entidade().luz().cor().has_r()) {  // se nao tem r, nao tem gb.
         cor_luz->set_r(1.0f);
         cor_luz->set_g(1.0f);
