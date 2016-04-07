@@ -21,7 +21,7 @@ fi
 
 make apple && \
 cp tabvirt mac && \
-mkdir -f mac/dados mac/shaders mac/texturas mac/modelos3d && \
+mkdir -p mac/dados mac/shaders mac/texturas mac/modelos3d && \
 cp -f dados/*asciiproto mac/dados && \
 cp -f shaders/*.c mac/shaders && \
 cp -f texturas/*.png mac/texturas && \
