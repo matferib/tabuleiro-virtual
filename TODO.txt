@@ -1,4 +1,4 @@
-Versao 2.1.0
+Versao 2.3.0
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
 - Modelar transparencia de modelos 3d de entidades (nao ficam translucidos, ver phaerimm).
@@ -39,7 +39,7 @@ Versao 2.1.0
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 2.2.0
+Versao 2.4.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Cor de formas compostas aplicando a todos os filhos.
