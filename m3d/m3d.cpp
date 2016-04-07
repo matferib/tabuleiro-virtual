@@ -45,17 +45,12 @@ Modelos3d::~Modelos3d() {
 }
 
 const gl::VboNaoGravado* Modelos3d::Modelo(const std::string& id) const {
-  if (id == "orc") {
-    return &interno_->vbos["orc"];
+  auto it = interno_->vbos.find(id);
+  if (it == interno_->vbos.end()) {
+    return nullptr;
+  } else {
+    return &(it->second);
   }
-  if (id == "geo") {
-    return &interno_->vbos["geo"];
-  }
-  if (id == "phaerimm") {
-    return &interno_->vbos["phaerimm"];
-  }
-
-  return nullptr;
 }
 
 }  // namespace m3d

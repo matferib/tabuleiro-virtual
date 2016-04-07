@@ -1,0 +1,766 @@
+# Este arquivo eh uma representacao texto do proto ControleVirtual.
+pagina {
+  # Botoes de ultimas acoes.
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 1
+    id: CONTROLE_ULTIMA_ACAO_0
+    num_lados_botao: 4
+    dica: "Seleciona esta ação para o personagem."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 2
+    id: CONTROLE_ULTIMA_ACAO_1
+    num_lados_botao: 4
+    dica: "Seleciona esta ação para o personagem."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 3
+    id: CONTROLE_ULTIMA_ACAO_2
+    num_lados_botao: 4
+    dica: "Seleciona esta ação para o personagem."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 4
+    id: CONTROLE_ACAO_SINALIZACAO
+    num_lados_botao: 4
+    textura: 'icon_signal.png'
+    dica: "Seleciona ação de sinalização."
+  }
+  # Botao de ataque.
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 1
+    rotulo: "A"
+    cor_rotulo {}
+    id: CONTROLE_ACAO
+    num_lados_botao: 4
+    dica: "Prepara para executar ação."
+  }
+  # Botoes de acao.
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 3
+    rotulo: "<"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ACAO_ANTERIOR
+    num_lados_botao: 4
+    dica: "Seleciona ação anterior da lista completa."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 4
+    rotulo: ">"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ACAO_PROXIMA
+    num_lados_botao: 4
+    dica: "Seleciona próxima ação da lista completa."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 5
+    rotulo: "+-"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ALTERNA_CURA
+    num_lados_botao: 4
+    dica: "Alterna entre cura e dano."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "A"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_DANO_AUTOMATICO
+    num_lados_botao: 4
+    dica: "Liga/desliga dano automático."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 7
+    rotulo: "?"
+    cor_rotulo {}
+    textura: "icon_help.png"
+    id: CONTROLE_AJUDA
+    num_lados_botao: 4
+    dica: "Ajuda."
+  }
+  # Linha de baixo
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 3
+    rotulo: "1"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ADICIONA_1
+    num_lados_botao: 4
+    dica: "Adiciona 1 ao dano acumulado."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 4
+    rotulo: "5"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ADICIONA_5
+    num_lados_botao: 4
+    dica: "Adiciona 5 ao dano acumulado."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 5
+    rotulo: "10"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ADICIONA_10
+    num_lados_botao: 4
+    dica: "Adiciona 10 ao dano acumulado."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 6
+    rotulo: "v"
+    cor_rotulo { r: 0 g: 0 b: 1}
+    textura: ""
+    id: CONTROLE_CONFIRMA_DANO
+    num_lados_botao: 4
+    dica: "Acumula um novo valor de dano."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 7
+    rotulo: "x"
+    cor_rotulo { r: 1 g: 0 b: 0 }
+    textura: ""
+    id: CONTROLE_APAGA_DANO
+    num_lados_botao: 4
+    dica: "Remove o último valor acumulado."
+  }
+
+  # Modelos.
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 9
+    rotulo: "<"
+    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
+    num_lados_botao: 4
+    dica: "Seleciona modelo de entidade anterior."
+  }
+  dados_botoes {
+    altura: 1
+    largura: 10
+    linha: 2
+    coluna: 10
+    id: CONTROLE_MODELO_ENTIDADE
+    num_lados_botao: 4
+    dica: "O tipo de entidade adicionada por padrão."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 20
+    rotulo: ">"
+    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
+    num_lados_botao: 4
+    dica: "Seleciona próximo modelo de entidade."
+  }
+
+  # Transicao.
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 9
+    rotulo: "T"
+    cor_rotulo {}
+    textura: "icon_enter.png"
+    id: CONTROLE_TRANSICAO
+    num_lados_botao: 4
+    dica: "Entra em um objeto."
+  }
+
+  # Status.
+   dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 11
+    rotulo: "L"
+    cor_rotulo {}
+    textura: "icon_light.png"
+    id: CONTROLE_LUZ
+    num_lados_botao: 4
+    dica: "Liga/desliga luz para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 12
+    rotulo: "Q"
+    cor_rotulo {}
+    textura: "icon_slide.png"
+    id: CONTROLE_QUEDA
+    num_lados_botao: 4
+    dica: "Liga/desliga queda para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 11
+    rotulo: "Vo"
+    cor_rotulo {}
+    textura: "icon_feather.png"
+    id: CONTROLE_VOO
+    num_lados_botao: 4
+    dica: "Liga/desliga vôo para entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 12
+    rotulo: "Vi"
+    cor_rotulo {}
+    textura: "icon_hide.png"
+    id: CONTROLE_VISIBILIDADE
+    num_lados_botao: 4
+    dica: "Liga/desliga invisibilidade para entidades selecionadas."
+  }
+
+  # Setas.
+  dados_botoes {
+    largura: 3.0
+    altura: 2.0
+    linha: 0
+    coluna: 13
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_NOP
+    num_lados_botao: 4
+    picking_apenas: true
+    dica: ""
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 1
+    coluna: 14
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA
+    num_lados_botao: 3
+    rotacao_graus: 180.0
+    translacao_y: 0.3
+    dica: "Move entidade selecionada para direcao contraria ao visualizador"
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 0
+    coluna: 14
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO
+    num_lados_botao: 3
+    rotacao_graus: 0.0
+    translacao_y: -0.3
+    dica: "Move entidade selecionada para direcao do visualizador"
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 0
+    coluna: 13
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_ESQUERDA
+    num_lados_botao: 3
+    rotacao_graus: 270.0
+    translacao_y: 0.5
+    dica: "Move entidade selecionada para esquerda do visualizador"
+  }
+  dados_botoes {
+    tamanho: 1.2
+    linha: 0
+    coluna: 15
+    rotulo: ""
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_DIREITA
+    num_lados_botao: 3
+    rotacao_graus: 90.0
+    translacao_y: 0.5
+    dica: "Move entidade selecionada para direita do visualizador"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 16
+    rotulo: "^"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA_VERTICAL
+    num_lados_botao: 4
+    dica: "Movimento vertical."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 16
+    rotulo: "v"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO_VERTICAL
+    num_lados_botao: 4
+    dica: "Movimento vertical."
+  }
+
+  # Cameras.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 17
+    rotulo: "Is"
+    cor_rotulo {}
+    textura: "icon_isometric_camera.png"
+    id: CONTROLE_CAMERA_ISOMETRICA
+    num_lados_botao: 4
+    dica: "Câmera isométrica."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 17
+    rotulo: "Is"
+    cor_rotulo {}
+    textura: "icon_tracking_camera.png"
+    id: CONTROLE_CAMERA_PRESA
+    num_lados_botao: 4
+    dica: "Prende a câmera a um personagem."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 18
+    rotulo: "Ve"
+    cor_rotulo {}
+    textura: "icon_darkvision.png"
+    id: CONTROLE_VISAO_ESCURO
+    num_lados_botao: 4
+    dica: "Liga/desliga visão no escuro (requer câmera presa)."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 18
+    rotulo: "Re"
+    cor_rotulo {}
+    textura: "icon_ruler.png"
+    id: CONTROLE_REGUA
+    num_lados_botao: 4
+    dica: "Modo régua (requer câmera presa)."
+  }
+
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 19
+    rotulo: "X"
+    cor_rotulo { r: 1.0 a: 1.0 }
+    textura: "icon_trash.png"
+    id: CONTROLE_APAGA_ENTIDADES
+    num_lados_botao: 4
+    dica: "Apaga entidades selecionadas."
+  }
+
+  # Desfazer.
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 21
+    rotulo: "<="
+    cor_rotulo {}
+    textura: "icon_undo.png"
+    id: CONTROLE_DESFAZER
+    num_lados_botao: 4
+    dica: "Desfaz última ação realizada neste dispositivo."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 23
+    id: CONTROLE_RODADA
+    num_lados_botao: 8
+    dica: "Passa uma rodada."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 25
+    rotulo: "->"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_PAGINACAO_PROXIMO
+    num_lados_botao: 4
+    dica: "Próxima página."
+  }
+}
+pagina {
+  # Botao de paginacao anterior.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: "<-"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_PAGINACAO_ANTERIOR
+    num_lados_botao: 4
+    dica: "Página anterior."
+  }
+  # Desenho 2D.
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 1
+    rotulo: "Lv"
+    cor_rotulo {}
+    textura: "icon_free.png"
+    id: CONTROLE_DESENHO_LIVRE
+    num_lados_botao: 4
+    dica: "Desenho livre."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 2
+    rotulo: "Rt"
+    cor_rotulo {}
+    textura: "icon_rectangle.png"
+    id: CONTROLE_DESENHO_RETANGULO
+    num_lados_botao: 4
+    dica: "Desenha retângulo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 1
+    rotulo: "Ci"
+    cor_rotulo {}
+    textura: "icon_circle.png"
+    id: CONTROLE_DESENHO_CIRCULO
+    num_lados_botao: 4
+    dica: "Desenha círculo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 2
+    rotulo: "Tr"
+    cor_rotulo {}
+    textura: "icon_triangle.png"
+    id: CONTROLE_DESENHO_TRIANGULO
+    num_lados_botao: 4
+    dica: "Desenha triângulo."
+  }
+  # Desenho 3D.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 3
+    rotulo: "Es"
+    cor_rotulo {}
+    textura: "icon_sphere.png"
+    id: CONTROLE_DESENHO_ESFERA
+    num_lados_botao: 4
+    dica: "Desagrupa esfera."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 4
+    rotulo: "Pi"
+    cor_rotulo {}
+    textura: "icon_pyramid.png"
+    id: CONTROLE_DESENHO_PIRAMIDE
+    num_lados_botao: 4
+    dica: "Desenha pirâmide."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 5
+    rotulo: "Cb"
+    cor_rotulo {}
+    textura: "icon_cube.png"
+    id: CONTROLE_DESENHO_CUBO
+    num_lados_botao: 4
+    dica: "Desenha cubo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 3
+    rotulo: "Cn"
+    cor_rotulo {}
+    textura: "icon_cone.png"
+    id: CONTROLE_DESENHO_CONE
+    num_lados_botao: 4
+    dica: "Desenha cone."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 4
+    rotulo: "Ci"
+    cor_rotulo {}
+    textura: "icon_cylinder.png"
+    id: CONTROLE_DESENHO_CILINDRO
+    num_lados_botao: 4
+    dica: "Desenha cilindro."
+  }
+  # Agrupar/Desagrupar.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 6
+    rotulo: "Gr"
+    cor_rotulo {}
+    textura: "icon_group.png"
+    id: CONTROLE_DESENHO_AGRUPAR
+    num_lados_botao: 4
+    dica: "Agrupa formas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "Dg"
+    cor_rotulo {}
+    textura: "icon_ungroup.png"
+    id: CONTROLE_DESENHO_DESAGRUPAR
+    num_lados_botao: 4
+    dica: "Desagrupa formas."
+  }
+
+  # Texturas.
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 1
+    rotulo: "<"
+    id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    altura: 1
+    largura: 10
+    linha: 2
+    coluna: 2
+    id: CONTROLE_TEXTURA_ENTIDADE
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 12
+    rotulo: ">"
+    id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
+    num_lados_botao: 4
+  }
+  # Cores
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 7
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_VERMELHO
+    cor_fundo { r: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 8
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_VERDE
+    cor_fundo { g: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 9
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_AZUL
+    cor_fundo { b: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 7
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_AMARELO
+    cor_fundo { r: 1.0 g: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 8
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_MAGENTA
+    cor_fundo { r: 1.0 b:1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 9
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_CIANO
+    cor_fundo { g: 1.0 b: 1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 10
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_BRANCO
+    cor_fundo { r: 1.0 g: 1.0 b:1.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 10
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_PRETO
+    cor_fundo { r: 0.0 g: 0.0 b: 0.0 }
+    num_lados_botao: 4
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 11
+    textura: "icon_copy.png"
+    id: CONTROLE_COPIAR
+    num_lados_botao: 4
+    dica: "Copia selecionados."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 13
+    textura: "icon_paste.png"
+    id: CONTROLE_COLAR
+    num_lados_botao: 4
+    dica: "Cola entidades copiadas."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 15
+    textura: "icon_save.png"
+    id: CONTROLE_SALVAR
+    num_lados_botao: 4
+    dica: "Salva tabuleiro."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 17
+    textura: "icon_save_as.png"
+    id: CONTROLE_SALVAR_COMO
+    num_lados_botao: 4
+    dica: "Salva tabuleiro com outro nome."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 19
+    textura: "icon_open.png"
+    id: CONTROLE_ABRIR
+    num_lados_botao: 4
+    dica: "Restaura um tabuleiro."
+  }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 21
+    textura: "icon_terrain.png"
+    rotulo: "MT"
+    id: CONTROLE_MODO_TERRENO
+    num_lados_botao: 4
+    dica: "Modo edição de terreno."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 23
+    rotulo: "^"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA_VERTICAL
+    num_lados_botao: 4
+    dica: "Movimento vertical."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 23
+    rotulo: "v"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO_VERTICAL
+    num_lados_botao: 4
+    dica: "Movimento vertical."
+  }
+#  dados_botoes {
+#    tamanho: 2
+#    linha: 0
+#    coluna: 23
+#    rotulo: "TA"
+#    id: CONTROLE_GERAR_TERRENO_ALEATORIO
+#    num_lados_botao: 4
+#    dica: "Gera um terreno aleatório."
+#  }
+
+}
+# Pagina inalcancavel.
+pagina {
+  # Para carregar icone de rotacao.
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 0
+    rotulo: ""
+    cor_rotulo {}
+    textura: "icon_rotation.png"
+    id: CONTROLE_MODO_ROTACAO
+    num_lados_botao: 4
+    dica: "Modo de rotação."
+  }
+}

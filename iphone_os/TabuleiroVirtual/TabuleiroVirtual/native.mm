@@ -81,6 +81,7 @@ void nativeCreate(void* view) {
   g_view = (__bridge GameViewController*)view;
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
+  g_modelos3d.reset(new m3d::Modelos3d);
   ent::OpcoesProto opcoes;
   opcoes.set_mapeamento_sombras(g_view->usar_mapeamento_sombras_);
   opcoes.set_iluminacao_por_pixel(g_view->usar_iluminacao_por_pixel_);
