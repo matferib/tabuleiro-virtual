@@ -31,6 +31,7 @@ Source: ..\win32\lib\*.dll; Destdir: {app};
 Source: ..\texturas\*.png; Destdir: {app}\texturas;
 Source: ..\dados\*.asciiproto; Destdir: {app}\dados;
 Source: ..\shaders\*.c; Destdir: {app}\shaders;
+Source: ..\modelos3d\*.binproto; Destdir: {app}\modelos3d;
 Source: ..\tabuleiros_salvos\castelo.binproto; Destdir: {app}\tabuleiros_salvos
 Source: ..\tabuleiros_salvos\deserto.binproto; Destdir: {app}\tabuleiros_salvos
 Source: ..\tabuleiros_salvos\features.binproto; Destdir: {app}\tabuleiros_salvos
