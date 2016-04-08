@@ -190,7 +190,7 @@ public:
 
         spin_escala_x = new QDoubleSpinBox(verticalLayoutWidget);
         spin_escala_x->setObjectName(QString::fromUtf8("spin_escala_x"));
-        spin_escala_x->setDecimals(1);
+        spin_escala_x->setDecimals(2);
         spin_escala_x->setMinimum(-1000);
         spin_escala_x->setMaximum(1000);
         spin_escala_x->setSingleStep(0.5);
@@ -209,7 +209,7 @@ public:
 
         spin_escala_y = new QDoubleSpinBox(verticalLayoutWidget);
         spin_escala_y->setObjectName(QString::fromUtf8("spin_escala_y"));
-        spin_escala_y->setDecimals(1);
+        spin_escala_y->setDecimals(2);
         spin_escala_y->setMinimum(-1000);
         spin_escala_y->setMaximum(1000);
         spin_escala_y->setSingleStep(0.5);
@@ -228,7 +228,7 @@ public:
 
         spin_escala_z = new QDoubleSpinBox(verticalLayoutWidget);
         spin_escala_z->setObjectName(QString::fromUtf8("spin_escala_z"));
-        spin_escala_z->setDecimals(1);
+        spin_escala_z->setDecimals(2);
         spin_escala_z->setMinimum(-50);
         spin_escala_z->setMaximum(50);
         spin_escala_z->setSingleStep(0.5);
@@ -257,7 +257,7 @@ public:
         spin_translacao = new QDoubleSpinBox(groupBox_2);
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
         spin_translacao->setGeometry(QRect(80, 60, 91, 24));
-        spin_translacao->setDecimals(1);
+        spin_translacao->setDecimals(2);
         spin_translacao->setMinimum(-100);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);

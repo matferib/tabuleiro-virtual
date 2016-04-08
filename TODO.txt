@@ -1,4 +1,5 @@
 Versao 2.3.0
+- Formas compostas selecionadas de outra cor (apenas formas normais esta mudando a cor).
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
 - Modelar transparencia de modelos 3d de entidades (nao ficam translucidos, ver phaerimm).
