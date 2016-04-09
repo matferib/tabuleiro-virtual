@@ -221,6 +221,34 @@ void PreencheComboTexturaCeu(const std::string& id_corrente, int id_cliente, QCo
   }
 }
 
+void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_modelos_3d) {
+  combo_modelos_3d->addItem(combo_modelos_3d->tr("Nenhum"), QVariant(-1));
+  auto Ordena = [] (std::vector<std::string> modelos) -> std::vector<std::string> {
+    std::sort(modelos.begin(), modelos.end());
+    return modelos;
+  };
+  std::vector<std::string> modelos_3d = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d)));
+  std::vector<std::string> modelos_3d_baixados = std::move(Ordena((arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d))));
+
+  AdicionaSeparador(combo_modelos_3d->tr("Globais"), combo_modelos_3d);
+  for (const std::string& modelo_3d : modelos_3d) {
+    combo_modelos_3d->addItem(QString(modelo_3d.substr(0, modelo_3d.find(".binproto")).c_str()), QVariant(arq::TIPO_MODELOS_3D));
+  }
+  AdicionaSeparador(combo_modelos_3d->tr("Baixados"), combo_modelos_3d);
+  for (const std::string& modelo_3d : modelos_3d_baixados) {
+    combo_modelos_3d->addItem(modelo_3d.substr(0, modelo_3d.find(".binproto")).c_str(), QVariant(arq::TIPO_MODELOS_3D_BAIXADOS));
+  }
+  if (id_corrente.empty()) {
+    combo_modelos_3d->setCurrentIndex(0);
+  } else {
+    int index = combo_modelos_3d->findText(QString(id_corrente.c_str()));
+    if (index == -1) {
+      index = 0;
+    }
+    combo_modelos_3d->setCurrentIndex(index);
+  }
+}
+
 // Preenche proto_retornado usando entidade e o combo como base.
 void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
                                    ent::InfoTextura* info_textura) {
@@ -769,6 +797,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   });
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
+  // Modelo 3d.
+  PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
@@ -827,6 +857,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->clear_info_textura();
     } else {
       PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+    }
+    if (gerador.combo_modelos_3d->currentIndex() == 0) {
+      proto_retornado->clear_modelo_3d();
+    } else {
+      proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toStdString());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
