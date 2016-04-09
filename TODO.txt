@@ -1,4 +1,6 @@
 Versao 2.3.0
+- Botao de rotacao de entidades.
+- Download de modelos 3d.
 - Formas compostas selecionadas de outra cor (apenas formas normais esta mudando a cor).
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
