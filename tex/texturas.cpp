@@ -341,7 +341,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       return true;
     }
-    case ntf::TN_ENVIAR_ID_TEXTURAS: {
+    case ntf::TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D: {
       // Primeira notificacao eh local;
       if (!notificacao.local()) {
         return false;
