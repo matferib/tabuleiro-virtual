@@ -43,7 +43,8 @@ namespace interno {
 
 const std::string TipoParaDiretorio(tipo_e tipo) {
   switch (tipo) {
-    case TIPO_MODELO_3D: return "modelos3d";
+    case TIPO_MODELOS_3D: return "modelos3d";
+    case TIPO_MODELOS_3D_BAIXADOS: return "modelos3d_baixados";
     case TIPO_TEXTURA: return "texturas";
     case TIPO_TEXTURA_BAIXADA: return "texturas_baixadas";
     case TIPO_TEXTURA_LOCAL: return "texturas_locais";
@@ -64,7 +65,7 @@ bool EhAsset(tipo_e tipo) {
          tipo == TIPO_TEXTURA ||
          tipo == TIPO_DADOS ||
          tipo == TIPO_SHADER ||
-         tipo == TIPO_MODELO_3D;
+         tipo == TIPO_MODELOS_3D;
 }
 
 const std::string CaminhoArquivo(tipo_e tipo, const std::string& arquivo) {
@@ -77,6 +78,7 @@ void CriaDiretoriosUsuario() {
     boost::filesystem::create_directory(dir_apps_usuario);
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_BAIXADA));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TEXTURA_LOCAL));
+    boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_MODELOS_3D_BAIXADOS));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_TABULEIRO));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_ENTIDADES));
     boost::filesystem::create_directory(dir_apps_usuario + "/" + TipoParaDiretorio(TIPO_CONFIGURACOES));

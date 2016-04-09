@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
   net::Servidor servidor(&sincronizador, &central);
   net::Cliente cliente(&sincronizador, &central);
   tex::Texturas texturas(&central);
-  m3d::Modelos3d modelos3d;
+  m3d::Modelos3d modelos3d(&central);
   ent::Tabuleiro tabuleiro(opcoes, &texturas, &modelos3d, &central);
   ifg::TratadorTecladoMouse teclado_mouse(&central, &tabuleiro);
   //ent::InterfaceGraficaOpengl guiopengl(&teclado_mouse, &central);

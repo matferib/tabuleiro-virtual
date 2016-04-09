@@ -38,6 +38,7 @@ enum Tipo {
   TN_ABRIR_DIALOGO_SALVAR_TABULEIRO = 40;
   TN_ABRIR_DIALOGO_ABRIR_TABULEIRO = 45;
   TN_CARREGAR_TEXTURA = 24;
+  TN_CARREGAR_MODELO_3D = 49;
   TN_DESCARREGAR_TEXTURA = 25;
   TN_ADICIONAR_ACAO = 26;
   TN_REINICIAR_TABULEIRO = 27;
@@ -45,10 +46,11 @@ enum Tipo {
   TN_SALVAR_CAMERA = 31;
   TN_PASSAR_UMA_RODADA = 34;  // Modo mestre: atualiza todas as entidades e notifica.
   TN_ATUALIZAR_RODADAS = 35;  // Notifica clientes sobre atualizacao de rodadas.
-  TN_REQUISITAR_ID_TEXTURAS = 36;  // Requisicao local para enviar as texturas.
-  TN_ENVIAR_ID_TEXTURAS = 37;   // Local: pendido para texturas enviar os ids locais para servidor.
+  TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D = 37;   // Local: pedido para texturas enviar os ids locais para servidor.
+  TN_REQUISITAR_MODELOS_3D = 36;  // Remota: cliente pedindo modelos 3d para o servidor, incluindo os que ja tem.
   TN_REQUISITAR_TEXTURAS = 38;  // Remota: cliente pedindo texturas para servidor, incluindo as que ja tem.
   TN_ENVIAR_TEXTURAS = 39;      // Servidor enviando texturas para cliente.
+  TN_ENVIAR_MODELOS_3D = 50;      // Servidor enviando modelos 3d para cliente.
   TN_ALTERAR_MODO_MESTRE_SECUNDARIO = 43;  // Servidor pedindo para alterar o modo mestre secundario.
   TN_REFRESCAR_MENU = 46;  // Tabuleiro notificando que mudou algum modo e o menu deve se atualizar.
   TN_GERAR_TERRENO_ALEATORIO = 47;  // Notifica geracao de terreno aleatorio.
@@ -69,7 +71,7 @@ message Notificacao {
   optional bool servidor_apenas = 17 [default=false];
   // Usado para varios tipos de respostas. Ausente quando nao ha erro.
   optional string erro = 4;
-  // Identificacao propria do cliente no formato de string. Mensagens enviadas do servidor com este campo atribuido 
+  // Identificacao propria do cliente no formato de string. Mensagens enviadas do servidor com este campo atribuido.
   // serao enviadas apenas para o cliente especificado.
   optional string id_rede = 15;
   // URL do servidor para conexao ou caminho de arquivo para serializacao deserializacao.
@@ -91,6 +93,8 @@ message Notificacao {
   optional ent.OpcoesProto opcoes = 8;
   // Informacao sobre textura para carregamento e descarregamento.
   repeated ent.InfoTextura info_textura = 9;
+  // Informacao sobre modelos 3d.
+  repeated ent.Modelo3d info_modelo_3d = 18;
   // Indica se o jogo esta em modo mestre ou nao.
   optional bool modo_mestre = 10;
   // Indica que a mensagem eh local, ou seja, veio do proprio jogo e nao de um cliente remoto.
