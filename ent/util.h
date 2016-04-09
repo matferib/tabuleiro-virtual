@@ -157,7 +157,9 @@ bool EhPng(const std::string& textura);
 bool EhIcone(const std::string& textura);
 bool EhTerreno(const std::string& textura);
 bool EhCaixaCeu(const std::string& textura);
+bool EhModelo3d(const std::string& textura);
 // Filtros uteis.
+bool FiltroModelo3d(const std::string& textura);
 bool FiltroTexturaEntidade(const std::string& textura);
 bool FiltroTexturaCaixaCeu(const std::string& textura);
 bool FiltroTexturaTabuleiro(const std::string& textura);

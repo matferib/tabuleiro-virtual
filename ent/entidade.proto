@@ -94,6 +94,8 @@ message InfoTextura {
 message Modelo3d {
   // Identificador do modelo 3d.
   optional string id = 1;
+  // Para transmissao. Bits do arquivo de modelo.
+  optional bytes bits_crus = 6;
 }
 
 // A escala nos tres eixos.

@@ -151,7 +151,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
       gl::DesenhaVbo(*vbo);
       return;
     } else {
-      LOG(INFO) << "Modelo3d invalido: " << proto.modelo_3d().id();
+      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido: " << proto.modelo_3d().id();
     }
   }
 

@@ -639,6 +639,10 @@ bool EhIcone(const std::string& textura) {
   return EhPng(textura) && textura.find("icon_") == 0;
 }
 
+bool EhModelo3d(const std::string& nome) {
+  return nome.size() > 9 && nome.find(".binproto") != std::string::npos;
+}
+
 bool FiltroTexturaEntidade(const std::string& textura) {
   return EhCaixaCeu(textura) || EhTerreno(textura) || EhIcone(textura) || !EhPng(textura);
 }
@@ -649,6 +653,10 @@ bool FiltroTexturaCaixaCeu(const std::string& textura) {
 
 bool FiltroTexturaTabuleiro(const std::string& textura) {
   return !EhTerreno(textura);
+}
+
+bool FiltroModelo3d(const std::string& nome) {
+  return !EhModelo3d(nome);
 }
 
 }  // namespace ent
