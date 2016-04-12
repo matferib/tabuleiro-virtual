@@ -80,6 +80,9 @@ const float EXPESSURA_LINHA_2 = EXPESSURA_LINHA / 2.0f;
 /** velocidade do olho. */
 const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 
+/** Tempo que o detalhamento mostra os detalhes no hover. */
+const int TEMPO_DETALHAMENTO_MS = 500;
+
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 
@@ -172,6 +175,8 @@ const std::string StringEstado(ent::etab_t estado) {
       return "ETAB_SELECIONANDO_ENTIDADES";
     case ent::ETAB_DESENHANDO:
       return "ETAB_DESENHANDO";
+    case ent::ETAB_RELEVO:
+      return "ETAB_RELEVO";
     default:
       return "DESCONHECIDO";
   }
@@ -1097,12 +1102,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaEntidades(passou_ms);
       AtualizaAcoes(passou_ms);
       if (ciclos_para_atualizar_ == 0) {
-        if (estado_ == ETAB_ENTS_TRANSLACAO_ROTACAO) {
-          RefrescaMovimentosParciais();
-          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
-        } else if (ModoClique() == MODO_TERRENO) {
+        if (ModoClique() == MODO_TERRENO) {
           RefrescaTerrenoParaClientes();
           ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_TERRENO;
+        } else {
+          RefrescaMovimentosParciais();
+          ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
         }
       } else if (ciclos_para_atualizar_ > 0) {
         --ciclos_para_atualizar_;
@@ -2734,7 +2739,8 @@ void Tabuleiro::RegeraVboTabuleiro() {
   std::vector<unsigned short> indices_tabuleiro;
   if (!proto_corrente_->ponto_terreno().empty() &&
       proto_corrente_->ponto_terreno_size() != (TamanhoX() + 1) * (TamanhoY() + 1)) {
-    LOG(ERROR) << "Tamanho de terreno invalido";
+    LOG(ERROR) << "Tamanho de terreno invalido: corrente " << proto_corrente_->ponto_terreno_size()
+               << ", rhs: " << ((TamanhoX() + 1) * (TamanhoY() + 1));
     return;
   }
   LOG(INFO) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
@@ -3472,7 +3478,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         break;
       case MODO_AJUDA:
         TrataMouseParadoEm(x, y);
-        temporizador_detalhamento_ms_ = 1000;
+        temporizador_detalhamento_ms_ = TEMPO_DETALHAMENTO_MS;
         modo_clique_ = MODO_NORMAL;
         break;
       default:
