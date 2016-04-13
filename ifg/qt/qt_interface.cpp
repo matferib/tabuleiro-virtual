@@ -43,6 +43,7 @@ void InterfaceGraficaQt::EscolheArquivoAbrirTabuleiro(
   for (const auto& tab : tab_dinamicos) {
     new QListWidgetItem(tab.c_str(), gerador.lista);
   }
+  gerador.lista->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, tab_estaticos, tab_dinamicos, funcao_volta] () {
     int indice = gerador.lista->currentRow();
     int tamanho_total = tab_estaticos.size() + tab_dinamicos.size();
@@ -69,6 +70,7 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
   auto* dialogo = new QDialog(pai_);
   gerador.setupUi(dialogo);
   gerador.label_titulo->setText(QDialog::tr("Salvar Tabuleiro"));
+  gerador.nome->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, funcao_volta] () {
     if (gerador.nome->text().length() > 0) {
       funcao_volta(gerador.nome->text().toStdString());
