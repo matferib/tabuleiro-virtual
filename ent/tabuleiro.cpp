@@ -4742,6 +4742,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       break;
     case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO:
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+      n_inversa.mutable_tabuleiro()->set_id_cenario(n_original.tabuleiro_antes().id_cenario());
       *n_inversa.mutable_tabuleiro()->mutable_ponto_terreno() = n_original.tabuleiro_antes().ponto_terreno();
       break;
     case ntf::TN_CRIAR_CENARIO: {

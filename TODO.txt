@@ -1,6 +1,5 @@
 Versao 2.3.0
 - Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
-- Relevo e multiplos cenarios com pau. Esta alterando o principal.
 - Botao de rotacao de entidades.
 - Download de modelos 3d.
 - Formas compostas selecionadas de outra cor (apenas formas normais esta mudando a cor).
