@@ -392,6 +392,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna o modo da camera entre isometrica e perspectiva. */
   void AlternaCameraIsometrica();
+  /** Alterna entre a camera em primeira pessoa e a normal. */
+  void AlternaCameraPrimeiraPessoa();
 
   /** Alterna a visao de jogador para o mestre. */
   void AlternaVisaoJogador() { visao_jogador_ = !visao_jogador_; }
@@ -845,7 +847,12 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
-  bool camera_isometrica_ = false;
+  enum camera_e {
+    CAMERA_PERSPECTIVA,
+    CAMERA_ISOMETRICA,
+    CAMERA_PRIMEIRA_PESSOA
+  };
+  camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
   std::pair<std::string, const ent::EntidadeProto*> modelo_selecionado_;

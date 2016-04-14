@@ -234,7 +234,7 @@ bool Tabuleiro::MousePara3dComId(int x, int y, unsigned int id, unsigned int tip
     // Raio que sai do pixel.
     float p1x, p1y, p1z;
     gl::Desprojeta(x, y, -1.0f, modelview, projection, viewport, &p1x, &p1y, &p1z);
-    if (camera_isometrica_) {
+    if (camera_ == CAMERA_ISOMETRICA) {
       *x3d = p1x;
       *y3d = p1y;
       *z3d = 0.0f;

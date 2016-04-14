@@ -216,7 +216,7 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FIXA);
       return;
     case Tecla_F1:
-      tabuleiro_->AlternaCameraPresa();
+      tabuleiro_->AlternaCameraPrimeiraPessoa();
       return;
     case Tecla_F2:
       tabuleiro_->AlternaCameraIsometrica();

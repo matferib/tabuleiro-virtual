@@ -374,7 +374,7 @@ void Tabuleiro::ConfiguraProjecao() {
                   0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
     return;
   }
-  if (camera_isometrica_) {
+  if (camera_ == CAMERA_ISOMETRICA) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
     float dif_z = alvo.z() - olho_.pos().z();
@@ -423,7 +423,7 @@ void Tabuleiro::ConfiguraOlhar() {
     return;
   }
   const Posicao& alvo = olho_.alvo();
-  if (camera_isometrica_) {
+  if (camera_ == CAMERA_ISOMETRICA) {
     gl::OlharPara(
         // from.
         alvo.x(), alvo.y(), olho_.pos().z(),
@@ -431,6 +431,7 @@ void Tabuleiro::ConfiguraOlhar() {
         alvo.x(), alvo.y(), alvo.z(),
         // up
         alvo.x() - olho_.pos().x(), alvo.y() - olho_.pos().y(), 0.0);
+//  } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
   } else {
     gl::OlharPara(
         // from.
@@ -1459,8 +1460,9 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
   } else if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
   } else {
-    if (camera_isometrica_) {
+    if (camera_ == CAMERA_ISOMETRICA) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
+    } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     } else {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
@@ -2387,7 +2389,7 @@ void Tabuleiro::DesenhaCena() {
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
   // da janela para cobrir o fundo todo.
   if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
-      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && !camera_isometrica_) {
+      (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && camera_ != CAMERA_ISOMETRICA) {
     desenhar_caixa_ceu = true;
   } else {
     bits_limpar |= GL_COLOR_BUFFER_BIT;
@@ -2422,7 +2424,8 @@ void Tabuleiro::DesenhaCena() {
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
-  if (camera_isometrica_ || (olho_.altura() > (2 * olho_.raio()))) {
+  if (camera_ == CAMERA_ISOMETRICA ||
+      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
     parametros_desenho_.set_desenha_texturas_para_cima(true);
   } else {
     parametros_desenho_.set_desenha_texturas_para_cima(false);
@@ -3121,6 +3124,10 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (!entidade->Proto().faz_sombra() && (parametros_desenho_.desenha_sombra_projetada() || sombra)) {
       continue;
     }
+    // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
+    if (camera_ == CAMERA_PRIMEIRA_PESSOA && !sombra && entidade->Id() == id_camera_presa_) {
+      continue;
+    }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
@@ -3334,13 +3341,26 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
       bool cenario_diferente = entidade_referencia->Pos().id_cenario() != proto_corrente_->id_cenario();
       if (cenario_diferente) {
         // Pode acontecer da entidade estar se movendo para o cenario novo.
-        if (entidade_referencia->Destino().has_id_cenario() && (entidade_referencia->Destino().id_cenario() == proto_corrente_->id_cenario())) {
+        if (entidade_referencia->Destino().has_id_cenario() &&
+            (entidade_referencia->Destino().id_cenario() == proto_corrente_->id_cenario())) {
           cenario_diferente = false;
         }
       }
       if (cenario_diferente) {
         AlternaCameraPresa();
+      } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+        olho_.clear_destino();
+        olho_.mutable_pos()->set_x(entidade_referencia->X());
+        olho_.mutable_pos()->set_y(entidade_referencia->Y());
+        olho_.mutable_pos()->set_z(entidade_referencia->Z() + TAMANHO_LADO_QUADRADO * entidade_referencia->MultiplicadorTamanho());
+        // Aqui fazemos o inverso da visao normal. Colocamos o alvo no angulo oposto da rotacao para olhar na mesma direcao
+        // que a camera de perspectiva.
+        olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI));
+        olho_.mutable_alvo()->set_y(olho_.pos().y() + sinf(olho_.rotacao_rad() + M_PI));
+        olho_.mutable_alvo()->set_z(olho_.pos().z() - (olho_.altura() - OLHO_ALTURA_INICIAL) / 4.0f);
+        return;
       } else {
+        // Atualiza destino do olho caso a entidade tenha se afastado muito.
         Vector2 vdm(olho_.alvo().x() - entidade_referencia->X(), olho_.alvo().y() - entidade_referencia->Y());
         if (vdm.length() > OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA) {
           vdm.normalize() *= OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA;
@@ -4165,7 +4185,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
     central_->AdicionaNotificacao(n);
     return;
   }
-  // Cria os sub cenarios dummy para atualizacao de textura funcionar, caso contrario ela dira que o sub cenario nao existe e nao funcionara.
+  // Cria os sub cenarios dummy para atualizacao de textura funcionar,
+  // caso contrario ela dira que o sub cenario nao existe e nao funcionara.
   for (auto& sub_cenario : tabuleiro.sub_cenario()) {
     auto* cenario_dummy = proto_.add_sub_cenario();
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
@@ -4612,40 +4633,58 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   float rotacao_graus = VetorParaRotacaoGraus(vetor_camera.x(), vetor_camera.y());
   float dx = 0;
   float dy = 0;
-  if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
-    // Camera apontando para x positivo.
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    Vector2 vetor_movimento;
     if (frente_atras) {
-      dx = TAMANHO_LADO_QUADRADO * valor;
+      vetor_movimento = Vector2(vetor_camera.x(), vetor_camera.y());
     } else {
-      dy = TAMANHO_LADO_QUADRADO * -valor;
+      RodaVetor2d(-90.0f, &vetor_camera);
+      vetor_movimento = Vector2(vetor_camera.x(), vetor_camera.y());
     }
-  } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
-    // Camera apontando para y positivo.
-    if (frente_atras) {
-      dy = TAMANHO_LADO_QUADRADO * valor;
-    } else {
-      dx = TAMANHO_LADO_QUADRADO * valor;
-    }
-  } else if (rotacao_graus > 135 || rotacao_graus < -135) {
-    // Camera apontando para x negativo.
-    if (frente_atras) {
-      dx = TAMANHO_LADO_QUADRADO * -valor;
-    } else {
-      dy = TAMANHO_LADO_QUADRADO * valor;
-    }
+    vetor_movimento.normalize() *= valor;
+    dx = vetor_movimento.x;
+    dy = vetor_movimento.y;
   } else {
-    // Camera apontando para y negativo.
-    if (frente_atras) {
-      dy = TAMANHO_LADO_QUADRADO * -valor;
+    if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
+      // Camera apontando para x positivo.
+      if (frente_atras) {
+        dx = TAMANHO_LADO_QUADRADO * valor;
+      } else {
+        dy = TAMANHO_LADO_QUADRADO * -valor;
+      }
+    } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
+      // Camera apontando para y positivo.
+      if (frente_atras) {
+        dy = TAMANHO_LADO_QUADRADO * valor;
+      } else {
+        dx = TAMANHO_LADO_QUADRADO * valor;
+      }
+    } else if (rotacao_graus > 135 || rotacao_graus < -135) {
+      // Camera apontando para x negativo.
+      if (frente_atras) {
+        dx = TAMANHO_LADO_QUADRADO * -valor;
+      } else {
+        dy = TAMANHO_LADO_QUADRADO * valor;
+      }
     } else {
-      dx = TAMANHO_LADO_QUADRADO * -valor;
+      // Camera apontando para y negativo.
+      if (frente_atras) {
+        dy = TAMANHO_LADO_QUADRADO * -valor;
+      } else {
+        dx = TAMANHO_LADO_QUADRADO * -valor;
+      }
     }
   }
   // TODO direito com eventos.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  VLOG(1) << "Movendo entidades selecionadas dx: " << dx << ", dy: " << dy;
-  for (unsigned int id : ids_entidades_selecionadas_) {
+  std::unordered_set<unsigned int> ids;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    ids.insert(id_camera_presa_);
+  } else {
+    ids = ids_entidades_selecionadas_;
+  }
+  for (unsigned int id : ids) {
     auto* entidade_selecionada = BuscaEntidade(id);
     if (entidade_selecionada == nullptr) {
       continue;
@@ -5895,6 +5934,11 @@ void Tabuleiro::SalvaCameraInicial() {
 }
 
 void Tabuleiro::ReiniciaCamera() {
+  // Vou ser conservador aqui e voltar para a camera de perspectiva. Caso contrario, posso correr o risco de um jogador
+  // ficar preso em uma entidade que nao eh a dele (por exemplo, carregando o tabuleiro sem manter as entidades, a entidade
+  // presa deixa de existir).
+  camera_ = CAMERA_PERSPECTIVA;
+  camera_presa_ = false;
   if (proto_.has_camera_inicial()) {
     if (proto_.camera_inicial().pos().has_id_cenario() && proto_.camera_inicial().pos().id_cenario() != proto_corrente_->id_cenario()) {
       CarregaSubCenario(proto_.camera_inicial().pos().id_cenario(), proto_.camera_inicial().alvo());
@@ -5929,7 +5973,22 @@ void Tabuleiro::ReiniciaIluminacao(TabuleiroProto* sub_cenario) {
 }
 
 void Tabuleiro::AlternaCameraIsometrica() {
-  camera_isometrica_ = !camera_isometrica_;
+  if (camera_ == CAMERA_ISOMETRICA) {
+    camera_ = CAMERA_PERSPECTIVA;
+  } else {
+    camera_= CAMERA_ISOMETRICA;
+  }
+}
+
+void Tabuleiro::AlternaCameraPrimeiraPessoa() {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    LOG(INFO) << "Camera perspectiva";
+    camera_ = CAMERA_PERSPECTIVA;
+  } else if (camera_presa_) {
+    LOG(INFO) << "Camera primeira pessoa";
+    camera_= CAMERA_PRIMEIRA_PESSOA;
+  }
+  AtualizaOlho(0, true);
 }
 
 void Tabuleiro::AlternaCameraPresa() {
@@ -5937,6 +5996,9 @@ void Tabuleiro::AlternaCameraPresa() {
     camera_presa_ = false;
     id_camera_presa_ = Entidade::IdInvalido;
     LOG(INFO) << "Camera solta.";
+    if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+      camera_ = CAMERA_PERSPECTIVA;
+    }
   } else if (ids_entidades_selecionadas_.size() == 1) {
     camera_presa_ = true;
     id_camera_presa_ = *ids_entidades_selecionadas_.begin();

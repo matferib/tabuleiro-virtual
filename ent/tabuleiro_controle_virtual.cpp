@@ -664,7 +664,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_MODO_TERRENO,      [this] () { return modo_clique_ == MODO_TERRENO; } },
-    { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_isometrica_; } },
+    { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_CAMERA_PRESA,      [this] () { return camera_presa_; } },
     { CONTROLE_VISAO_ESCURO,      [this] () { return visao_escuro_; } },
     { CONTROLE_LUZ,               [this]() {
