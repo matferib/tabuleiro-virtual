@@ -431,7 +431,6 @@ void Tabuleiro::ConfiguraOlhar() {
         alvo.x(), alvo.y(), alvo.z(),
         // up
         alvo.x() - olho_.pos().x(), alvo.y() - olho_.pos().y(), 0.0);
-//  } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
   } else {
     gl::OlharPara(
         // from.
@@ -1099,8 +1098,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       auto passou_ms = timer_para_atualizacoes_.elapsed().wall / 1000000ULL;
       //auto passou_ms = INTERVALO_NOTIFICACAO_MS;
       timer_para_atualizacoes_.start();
-      AtualizaOlho(passou_ms, false  /*forcar*/);
       AtualizaEntidades(passou_ms);
+      AtualizaOlho(passou_ms, false  /*forcar*/);
       AtualizaAcoes(passou_ms);
       if (ciclos_para_atualizar_ == 0) {
         if (ModoClique() == MODO_TERRENO) {
@@ -3125,7 +3124,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_ == CAMERA_PRIMEIRA_PESSOA && !sombra && entidade->Id() == id_camera_presa_) {
+    if (camera_ == CAMERA_PRIMEIRA_PESSOA &&
+        !(parametros_desenho_.desenha_sombra_projetada() || sombra) &&
+        entidade->Id() == id_camera_presa_) {
       continue;
     }
     // Nao roda disco se estiver arrastando.
