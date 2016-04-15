@@ -247,6 +247,7 @@ class Texturas::InfoTexturaInterna {
       throw std::logic_error("Erro criando textura cubo (glGenTextures)");
     }
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, id_);
+    gl::HabilitaMipmapAniso(GL_TEXTURE_CUBE_MAP);
     V_ERRO("Ligacao Cubo");
     // Carrega a textura.
     struct DadosTextura {
@@ -275,6 +276,7 @@ class Texturas::InfoTexturaInterna {
     gl::GeraMipmap(GL_TEXTURE_CUBE_MAP);
 #endif
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
+    gl::DesabilitaMipmapAniso(GL_TEXTURE_CUBE_MAP);
     V_ERRO("CriaTexturaOpenGlCubo");
   }
 

@@ -690,12 +690,12 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
   GLfloat meio_lado = tam_lado / 2.0f;
   const unsigned short num_indices = 36;
   unsigned short indices[num_indices] = {
-      0, 1, 2, 0, 2, 3,
-      4, 5, 6, 4, 6, 7,
-      8, 9, 10, 8, 10, 11,
-      12, 13, 14, 12, 14, 15,
-      16, 17, 18, 16, 18, 19,
-      20, 21, 22, 20, 22, 23,
+      0, 1, 2, 0, 2, 3,        // sul
+      4, 5, 6, 4, 6, 7,        // norte
+      8, 9, 10, 8, 10, 11,     // oeste
+      12, 13, 14, 12, 14, 15,  // leste
+      16, 17, 18, 16, 18, 19,  // cima
+      20, 21, 22, 20, 22, 23,  // baixo
   };
   const unsigned short num_coordenadas = 6 * 3 * 4;
   const float normais[num_coordenadas] = {
