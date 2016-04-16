@@ -97,7 +97,13 @@ void Entidade::DesenhaObjetoCompostoProto(
   gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
   if (!vd.vbos.empty()) {
     if (pd->has_alfa_translucidos()) {
+      gl::Habilita(GL_BLEND);
       gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    } else if (pd->entidade_selecionada()) {
+      // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
+      gl::Habilita(GL_BLEND);
+      gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
+      gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
     }
     for (const auto& vbo : vd.vbos) {
       gl::DesenhaVbo(vbo);
@@ -113,9 +119,9 @@ void Entidade::DesenhaObjetoCompostoProto(
       }
 #endif
     }
-    if (pd->has_alfa_translucidos()) {
-      gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    }
+    gl::Desabilita(GL_BLEND);
+    gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
   } else {
     for (const auto& forma : proto.sub_forma()) {
       DesenhaObjetoProto(forma, vd, pd, nullptr);

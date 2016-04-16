@@ -587,7 +587,6 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  gl::Habilita(GL_BLEND);
   gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
@@ -2512,11 +2511,11 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando sombras");
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
-    //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     LigaStencil();
     DesenhaRastros();
     float tam_x = proto_.largura() * TAMANHO_LADO_QUADRADO;
     float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
     DesenhaStencil3d(tam_x, tam_y, COR_AZUL_ALFA);
   }
   V_ERRO("desenhando stencil sombras");
@@ -2528,10 +2527,10 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_quadrado_selecao() && estado_ == ETAB_SELECIONANDO_ENTIDADES) {
     gl::DesligaEscritaProfundidadeEscopo desliga_teste_escopo;
     gl::DesabilitaEscopo cull_escopo(GL_CULL_FACE);
-    //gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
     gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
     MudaCorAlfa(COR_AZUL_ALFA);
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
     gl::Retangulo(primeiro_x_3d_, primeiro_y_3d_, ultimo_x_3d_, ultimo_y_3d_);
   }
 
@@ -2544,6 +2543,7 @@ void Tabuleiro::DesenhaCena() {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
       parametros_desenho_.set_alfa_translucidos(0.5);
+      gl::HabilitaEscopo blend_escopo(GL_BLEND);
       gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
@@ -2635,7 +2635,6 @@ void Tabuleiro::DesenhaCena() {
 
 void Tabuleiro::DesenhaOlho() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::DesabilitaEscopo blend_escopo(GL_BLEND);
   MudaCor(COR_AMARELA);
   gl::MatrizEscopo salva_matriz;
   gl::Translada(olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z());
@@ -3067,6 +3066,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
   if (quadrado_selecionado_ != -1 && proto_corrente_->desenha_grade() && parametros_desenho_.desenha_grade()) {
     gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+    gl::HabilitaEscopo blend_escopo(GL_BLEND);
     const float cor[4] = { 0.0f, 0.0f, 0.0f, 0.3f };
     MudaCorAlfa(cor);
     int x_quad = quadrado_selecionado_ % TamanhoX();
@@ -3327,7 +3327,6 @@ void Tabuleiro::DesenhaSombras() {
 
   // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
-  //gl::HabilitaEscopo habilita_blend(GL_BLEND);
   float tam_x = proto_.largura() * TAMANHO_LADO_QUADRADO;
   float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
   DesenhaStencil3d(tam_x, tam_y, cor_sombra);

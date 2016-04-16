@@ -1,13 +1,10 @@
 Versao 2.3.0
-- Skybox ceu esta invertido.
 - Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
 - Botao de rotacao de entidades.
 - Download de modelos 3d.
 - Carregamento de modelos 3d.
-- Formas compostas selecionadas de outra cor (apenas formas normais esta mudando a cor).
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
-- Modelar transparencia de modelos 3d de entidades (nao ficam translucidos, ver phaerimm).
 - Barras fixas do controle virtual e controles do mestre apenas.
 - Permitir que alguns modelos afundem na terra.
 - Geracao de terrenos por tipo (arvores, relevo).

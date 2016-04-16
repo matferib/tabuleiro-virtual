@@ -148,7 +148,19 @@ void Entidade::DesenhaObjetoEntidadeProto(
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz(false);
       MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+      if (pd->has_alfa_translucidos()) {
+        gl::Habilita(GL_BLEND);
+        gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+      } else if (pd->entidade_selecionada()) {
+        // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
+        gl::Habilita(GL_BLEND);
+        gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
+        gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
+      }
       gl::DesenhaVbo(*vbo);
+      gl::Desabilita(GL_BLEND);
+      gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
       return;
     } else {
       LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido: " << proto.modelo_3d().id();
