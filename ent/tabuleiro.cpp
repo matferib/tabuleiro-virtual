@@ -1572,7 +1572,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
           continue;
         }
         if (translacao_rotacao_ == TR_ROTACAO) {
-          e->AlteraRotacaoZ(delta_x);
+          e->IncrementaRotacaoZGraus(delta_x);
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->IncrementaZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
         }

@@ -375,8 +375,12 @@ void Entidade::IncrementaZ(float delta) {
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
 }
 
-void Entidade::AlteraRotacaoZ(float delta) {
+void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
+}
+
+void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
+  proto_.set_rotacao_z_graus(rotacao_graus);
 }
 
 int Entidade::PontosVida() const {

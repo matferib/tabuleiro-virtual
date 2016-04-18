@@ -9,6 +9,7 @@ class CentralNotificacoes;
 
 namespace ent {
 
+class Entidade;
 class Tabuleiro;
 
 class Acao {
@@ -51,7 +52,15 @@ class Acao {
   // Pode ser chamado para atualizar o alvo de uma acao. Retorna false quando terminar.
   // Utiliza os parametros dx_, dy_ e dz_ para calcular o deslocamento do alvo num movimento senoide
   // usando disco_alvo_rad_ para manter o estado.
+  // Atualiza a direcao de queda do alvo.
   bool AtualizaAlvo(int intervalo_ms);
+
+  // Funcoes auxiliares para atualizacao das direcoes. Baseado em dx_ e dy_.
+  void AtualizaRotacaoZFonte(Entidade* entidade);
+  void AtualizaDirecaoQuedaAlvo(Entidade* entidade);
+  // Igual as anteriores, mas usa a posicao do alvo em relacao ao tabuleiro ao inves de dx_ dy_.
+  void AtualizaRotacaoZFonteRelativoTabuleiro(Entidade* entidade);
+  void AtualizaDirecaoQuedaAlvoRelativoTabuleiro(Entidade* entidade);
 
  protected:
   AcaoProto acao_proto_;

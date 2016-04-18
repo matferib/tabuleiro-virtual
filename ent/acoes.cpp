@@ -247,6 +247,24 @@ class AcaoDispersao : public Acao {
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {
+    if (efeito_ == 0.0f) {
+      Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+      const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : acao_proto_.pos_tabuleiro();
+      if (entidade_origem != nullptr) {
+        Vector3 v;
+        v.x = pos.x() - entidade_origem->X();
+        v.y = pos.y() - entidade_origem->Y();
+        v.z = pos.z() - entidade_origem->Z();
+        v.normalize() /= 10.0f;
+        dx_ = v.x;
+        dy_ = v.y;
+        dz_ = v.z;
+      }
+      AtualizaRotacaoZFonte(entidade_origem);
+      for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
+        AtualizaDirecaoQuedaAlvoRelativoTabuleiro(tabuleiro_->BuscaEntidade(id_destino));
+      }
+    }
     efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / DURACAO_MS;
   }
 
@@ -286,6 +304,10 @@ class AcaoProjetil : public Acao {
 
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (estagio_ == INICIAL) {
+      AtualizaRotacaoZFonteRelativoTabuleiro(tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem()));
+      estagio_ = VOO;
+      AtualizaVoo(intervalo_ms);
+    } else if (estagio_ == VOO) {
       AtualizaVoo(intervalo_ms);
     } else if (estagio_ == ATINGIU_ALVO) {
       if (!AtualizaAlvo(intervalo_ms)) {
@@ -368,6 +390,7 @@ class AcaoProjetil : public Acao {
 
   enum estagio_e {
     INICIAL = 0,
+    VOO,
     ATINGIU_ALVO,
     FIM
   } estagio_;
@@ -515,6 +538,9 @@ class AcaoCorpoCorpo : public Acao {
       finalizado_ = true;
       return;
     }
+    if (rotacao_graus_ == 0.0f) {
+      AtualizaRotacaoZFonteRelativoTabuleiro(eo);
+    }
 
     // TODO desenhar o impacto.
     // Os parametros iniciais sao mantidos, so a rotacao do corte eh alterada.
@@ -522,7 +548,7 @@ class AcaoCorpoCorpo : public Acao {
       rotacao_graus_ += intervalo_ms * 180.0f / DURACAO_MS;
     }
     bool terminou_alvo = false;
-    if (rotacao_graus_ >= 90.0) {
+    if (rotacao_graus_ >= 90.0f) {
       terminou_alvo = !AtualizaAlvo(intervalo_ms);
     }
     if (rotacao_graus_ >= 180.0f && terminou_alvo) {
@@ -699,6 +725,47 @@ void Acao::AtualizaVelocidade(int intervalo_ms) {
           << ", aceleracao_m_ms_2_ depois: " << aceleracao_m_ms_2_;
 }
 
+void Acao::AtualizaRotacaoZFonte(Entidade* entidade) {
+  if (entidade == nullptr) {
+    return;
+  }
+  Posicao vr;
+  vr.set_x(dx_);
+  vr.set_y(dy_);
+  entidade->AlteraRotacaoZGraus(VetorParaRotacaoGraus(vr));
+}
+
+void Acao::AtualizaDirecaoQuedaAlvo(Entidade* entidade) {
+  if (entidade == nullptr) {
+    return;
+  }
+  entidade->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
+}
+
+void Acao::AtualizaRotacaoZFonteRelativoTabuleiro(Entidade* entidade) {
+  if (entidade == nullptr) {
+    return;
+  }
+  Posicao v;
+  const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
+  v.set_x(pos_tabuleiro.x() - entidade->X());
+  v.set_y(pos_tabuleiro.y() - entidade->Y());
+  entidade->AlteraRotacaoZGraus(VetorParaRotacaoGraus(v));
+}
+
+void Acao::AtualizaDirecaoQuedaAlvoRelativoTabuleiro(Entidade* entidade) {
+  if (entidade == nullptr) {
+    return;
+  }
+  Vector3 v;
+  const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
+  v.x = entidade->X() - pos_tabuleiro.x();
+  v.y = entidade->Y() - pos_tabuleiro.y();
+  v.z = entidade->Z() - pos_tabuleiro.z();
+  v.normalize();
+  entidade->AtualizaDirecaoDeQueda(v.x, v.y, v.z);
+}
+
 bool Acao::AtualizaAlvo(int intervalo_ms) {
   Entidade* entidade_destino = nullptr;
   if (acao_proto_.id_entidade_destino_size() == 0 ||
@@ -706,6 +773,7 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     VLOG(1) << "Finalizando alvo, destino não existe.";
     return false;
   }
+
   // Move o alvo na direcao do impacto e volta se nao estiver caido.
   if (disco_alvo_rad_ >= (M_PI / 2.0f) && entidade_destino->Proto().morta()) {
     VLOG(1) << "Finalizando alvo, entidade morta nao precisa voltar.";
@@ -732,10 +800,10 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   dx_total_ += entidade_destino->X() - x_antes;
   dy_total_ += entidade_destino->Y() - y_antes;
   dz_total_ += entidade_destino->Z() - z_antes;
-  VLOG(2) << "Atualizando alvo: intervalo_ms: " << intervalo_ms << ", dt; " << dt
+  VLOG(1) << "Atualizando alvo: intervalo_ms: " << intervalo_ms << ", dt; " << dt
           << ", dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
   if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
-    entidade_destino->AtualizaDirecaoDeQueda(dx_, dy_, dz_);
+    AtualizaDirecaoQuedaAlvo(entidade_destino);
     estado_alvo_ = ALVO_A_SER_ATINGIDO;
   }
   disco_alvo_rad_ += dt * M_PI / 2.0f;
