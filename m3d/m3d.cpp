@@ -1,4 +1,5 @@
 #include <string>
+#define VLOG_NIVEL 1
 #include <unordered_set>
 #include <unordered_map>
 #include "arq/arquivo.h"
@@ -21,11 +22,11 @@ void LeModelo3d(const std::string& nome_arquivo, std::vector<unsigned char>* dad
   try {
     arq::LeArquivo(arq::TIPO_MODELOS_3D, nome_arquivo, &dados_str);
   } catch (...) {
-    VLOG(1) << "Falha lendo arquivo global: " << nome_arquivo << " modelo 3d, tentando fallback baixado";
+    VLOG(1) << "Arquivo global de modelo 3d não encontrado: " << nome_arquivo << ", tentando fallback baixado";
     try {
       arq::LeArquivo(arq::TIPO_MODELOS_3D_BAIXADOS, nome_arquivo, &dados_str);
     } catch (...) {
-      LOG(ERROR) << "Falha lendo arquivo: " << nome_arquivo << " modelo 3d";
+      LOG(ERROR) << "Falha lendo arquivo de modelo 3d: " << nome_arquivo;
       throw;
     }
   }
@@ -49,6 +50,7 @@ struct Modelos3d::Interno {
 };
 
 Modelos3d::Modelos3d(ntf::CentralNotificacoes* central) : interno_(new Interno), central_(central) {
+  central_->RegistraReceptor(this);
   Recarrega();
 }
 
@@ -105,7 +107,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
     }
     if (ids_faltantes.empty()) {
-      VLOG(1) << "Cliente tem todas os modelos.";
+      VLOG(1) << "Cliente tem todos os modelos.";
       return true;
     }
     auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_MODELOS_3D);
@@ -117,7 +119,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       info->set_id(id);
     }
     n->set_id_rede(notificacao.id_rede());
-    VLOG(1) << "Enviando modelos faltantes a cliente " << notificacao.id_rede();
+    VLOG(1) << "Enviando modelos faltantes a cliente " << n.id_rede();
     central_->AdicionaNotificacaoRemota(n);
     return true;
   } else if (notificacao.tipo() == ntf::TN_ENVIAR_MODELOS_3D) {
@@ -163,7 +165,8 @@ void Modelos3d::Recarrega() {
       LeModelo3d(id, &n);
       n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
       n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
-      VLOG(1) << "Carregando modelo 3d " << id_interno << "( " << id << ") : " << n.DebugString();
+      VLOG(1) << "Carregando modelo 3d " << id_interno << "( " << id << ") : ";
+      VLOG(2) << n.DebugString();
       interno_->vbos[id_interno] = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0))[0]);
     } catch (const std::exception& e) {
       LOG(ERROR) << "Falha carregando modelo 3d: " << id << ": " << e.what();
