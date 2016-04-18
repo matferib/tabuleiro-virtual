@@ -119,7 +119,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       info->set_id(id);
     }
     n->set_id_rede(notificacao.id_rede());
-    VLOG(1) << "Enviando modelos faltantes a cliente " << n.id_rede();
+    VLOG(1) << "Enviando modelos faltantes a cliente " << n->id_rede();
     central_->AdicionaNotificacaoRemota(n);
     return true;
   } else if (notificacao.tipo() == ntf::TN_ENVIAR_MODELOS_3D) {

@@ -20,8 +20,8 @@ void CentralNotificacoes::RegistraReceptor(Receptor* receptor) {
   receptores_.push_back(receptor);
 }
 
-void CentralNotificacoes::RegistraReceptorRemoto(ReceptorRemoto* receptor) {
-  receptores_remotos_.push_back(receptor);
+void CentralNotificacoes::RegistraEmissorRemoto(EmissorRemoto* receptor) {
+  emissores_remotos_.push_back(receptor);
 }
 
 void CentralNotificacoes::DesregistraReceptor(const Receptor* receptor) {
@@ -33,10 +33,10 @@ void CentralNotificacoes::DesregistraReceptor(const Receptor* receptor) {
   }
 }
 
-void CentralNotificacoes::DesregistraReceptorRemoto(const ReceptorRemoto* receptor) {
-  for (auto it = receptores_remotos_.begin(); it != receptores_remotos_.end(); ++it) {
+void CentralNotificacoes::DesregistraEmissorRemoto(const EmissorRemoto* receptor) {
+  for (auto it = emissores_remotos_.begin(); it != emissores_remotos_.end(); ++it) {
     if (*it == receptor) {
-      receptores_remotos_.erase(it);
+      emissores_remotos_.erase(it);
       break;
     }
   }
@@ -51,7 +51,7 @@ void CentralNotificacoes::AdicionaNotificacao(Notificacao* notificacao) {
 }
 
 void CentralNotificacoes::AdicionaNotificacaoRemota(Notificacao* notificacao) {
-  if (receptores_remotos_.empty()) {
+  if (emissores_remotos_.empty()) {
     delete notificacao;
     return;
   }
@@ -82,9 +82,9 @@ void CentralNotificacoes::Notifica() {
   copia_notificacoes.swap(notificacoes_remotas_);
   // Copia receptores caso algum queira se deregistrar durante o loop. Observe que a copia deve ser feita
   // aqui, caso contrario se alguem se registrar no loop acima, nao sera visto aqui e a mensagem se perdera.
-  std::vector<ReceptorRemoto*> copia_receptores_remotos(receptores_remotos_);
+  std::vector<EmissorRemoto*> copia_receptores_remotos(emissores_remotos_);
   for (const auto& n : copia_notificacoes) {
-    VLOG(1) << "Despachando remota: " << n->ShortDebugString();
+    VLOG(1) << "Emitindo remota: " << n->ShortDebugString();
     for (auto* r : copia_receptores_remotos) {
       r->TrataNotificacaoRemota(*n);
     }
