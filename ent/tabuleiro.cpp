@@ -3329,6 +3329,7 @@ void Tabuleiro::DesenhaSombras() {
   GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
   float tam_x = proto_.largura() * TAMANHO_LADO_QUADRADO;
   float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
+  gl::HabilitaEscopo blend_escopo(GL_BLEND);
   DesenhaStencil3d(tam_x, tam_y, cor_sombra);
 }
 
