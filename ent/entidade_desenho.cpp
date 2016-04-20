@@ -121,7 +121,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   AjustaCor(proto, pd);
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
-  if (proto.info_textura().id().empty() && !proto.has_modelo_3d()) {
+  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
@@ -163,7 +163,8 @@ void Entidade::DesenhaObjetoEntidadeProto(
       gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
       return;
     } else {
-      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido: " << proto.modelo_3d().id();
+      // Nem sempre eh erro.
+      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
     }
   }
 

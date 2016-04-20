@@ -253,6 +253,9 @@ class Entidade {
   static void AtualizaTexturasEntidadesCompostasProto(
       const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
 
+  /** Realiza as notificacoes referentes a modelos 3d. */
+  void AtualizaModelo3d(const EntidadeProto& novo_proto);
+
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);
 

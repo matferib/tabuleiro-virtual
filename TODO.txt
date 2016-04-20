@@ -1,6 +1,4 @@
 Versao 2.3.0
-- Carregamento de modelos 3d.
-
 - Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
 - Botao de rotacao de entidades.
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.

@@ -47,7 +47,7 @@ void LeModelo3d(const std::string& nome_arquivo, ntf::Notificacao* n) {
 
 struct Modelo3d {
   int contador = 0;
-  gl::VboNaoGravado vbo;
+  gl::VboGravado vbo;
 };
 
 struct Modelos3d::Interno {
@@ -56,7 +56,6 @@ struct Modelos3d::Interno {
 
 Modelos3d::Modelos3d(ntf::CentralNotificacoes* central) : interno_(new Interno), central_(central) {
   central_->RegistraReceptor(this);
-  Recarrega();
 }
 
 Modelos3d::~Modelos3d() {
@@ -137,7 +136,6 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
       // Salva bits crus do modelo 3d.
       arq::EscreveArquivo(arq::TIPO_MODELOS_3D_BAIXADOS, info.id(), info.bits_crus());
     }
-    Recarrega();
     return true;
   } else if (notificacao.tipo() == ntf::TN_CARREGAR_MODELO_3D) {
     CarregaModelo3d(notificacao.entidade().modelo_3d().id());
@@ -147,7 +145,7 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
-const gl::VboNaoGravado* Modelos3d::Modelo(const std::string& id) const {
+const gl::VboGravado* Modelos3d::Modelo(const std::string& id) const {
   auto it = interno_->modelos.find(id);
   if (it == interno_->modelos.end()) {
     return nullptr;
@@ -191,9 +189,9 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   LeModelo3d(nome_arquivo, &n);
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
-  VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ") : ";
+  VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
   VLOG(2) << n.DebugString();
-  interno_->modelos[id_interno].vbo = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0))[0]);
+  interno_->modelos[id_interno].vbo.Grava(std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0))[0]));
   interno_->modelos[id_interno].contador = 1;
 }
 

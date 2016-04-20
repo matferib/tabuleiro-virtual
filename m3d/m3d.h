@@ -18,7 +18,7 @@ class Modelos3d : public ntf::Receptor {
   /** Trata as notificacoes do tipo de carregamento descarregamento de textura. */
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
-  const gl::VboNaoGravado* Modelo(const std::string& id) const;
+  const gl::VboGravado* Modelo(const std::string& id) const;
 
  private:
   // Realiza a carga de um modelo 3d. Os ids nao possuem a extensao .binproto.

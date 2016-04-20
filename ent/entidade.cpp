@@ -44,6 +44,7 @@ Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Cen
 Entidade::~Entidade() {
   EntidadeProto dummy;
   AtualizaTexturas(dummy);
+  AtualizaModelo3d(dummy);
 }
 
 namespace {
@@ -89,8 +90,9 @@ void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivada
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
   proto_.set_tipo(novo_proto.tipo());
-  // Atualiza texturas antes de tudo.
+  // Atualiza texturas e modelos 3d antes de tudo.
   AtualizaTexturas(novo_proto);
+  AtualizaModelo3d(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
   CorrigeCamposDeprecated(&proto_);
@@ -137,6 +139,31 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProt
   }
 }
 
+void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
+  VLOG(2) << "Atualizando modelo3d novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+  // Libera textura anterior se houver e for diferente da corrente.
+  if (!proto_.modelo_3d().id().empty() &&
+      proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
+    VLOG(1) << "Liberando modelo_3d: " << proto_.modelo_3d().id();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
+    nl->mutable_entidade()->mutable_modelo_3d()->set_id(proto_.modelo_3d().id());
+    central_->AdicionaNotificacao(nl);
+  }
+  // Carrega modelo_3d se houver e for diferente da antiga.
+  if (!novo_proto.modelo_3d().id().empty() &&
+      novo_proto.modelo_3d().id() != proto_.modelo_3d().id()) {
+    VLOG(1) << "Carregando modelo_3d: " << novo_proto.modelo_3d().id();
+    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
+    *nc->mutable_entidade()->mutable_modelo_3d() = novo_proto.modelo_3d();
+    central_->AdicionaNotificacao(nc);
+  }
+  if (!novo_proto.modelo_3d().id().empty()) {
+    *proto_.mutable_modelo_3d() = novo_proto.modelo_3d();
+  } else {
+    proto_.clear_modelo_3d();
+  }
+}
+
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
   AtualizaTexturasProto(novo_proto, &proto_, central_);
 }
@@ -172,6 +199,7 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
 void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
+  AtualizaModelo3d(novo_proto);
 
   // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
@@ -442,6 +470,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
   if (proto_parcial.has_info_textura()) {
     AtualizaTexturas(proto_parcial);
+  }
+  if (proto_parcial.has_modelo_3d()) {
+    AtualizaModelo3d(proto_parcial);
   }
   proto_.MergeFrom(proto_parcial);
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
