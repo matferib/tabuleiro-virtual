@@ -182,6 +182,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, job
   gl::IniciaGl(g_opcoes->iluminacao_por_pixel(), g_opcoes->mapeamento_sombras());
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
+  g_modelos3d->Recarrega();
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, jobject thiz, jint w, jint h) {

@@ -157,29 +157,19 @@ const gl::VboGravado* Modelos3d::Modelo(const std::string& id) const {
 void Modelos3d::Recarrega() {
   // Percorre arquivos globais e baixados.
   VLOG(1) << "Recarregando modelos 3d";
-  interno_->modelos.clear();
-  std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d));
-  std::vector<std::string> baixados(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d));
-  std::set<std::string> todos_modelos(globais.begin(), globais.end());
-  todos_modelos.insert(baixados.begin(), baixados.end());
-  if (todos_modelos.empty()) {
-    VLOG(1) << "Modelos 3d vazio!";
-    return;
-  }
-  for (const std::string& id : todos_modelos) {
-    try {
-      ntf::Notificacao n;
-      n.set_tipo(ntf::TN_CARREGAR_MODELO_3D);
-      n.mutable_entidade()->mutable_modelo_3d()->set_id(id.substr(0, id.find(".binproto")));
-      TrataNotificacao(n);
-    } catch (const std::exception& e) {
-      LOG(ERROR) << "Falha carregando modelo 3d: " << id << ": " << e.what();
+  for (auto& it : interno_->modelos) {
+    auto& modelo = it.second;
+    if (modelo.contador > 0) {
+      VLOG(1) << "Recarregando modelo " << it.first;
+      modelo.contador = 0;
+      CarregaModelo3d(it.first);
     }
   }
 }
 
 void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
-  if (interno_->modelos.find(id_interno) != interno_->modelos.end()) {
+  auto it = interno_->modelos.find(id_interno);
+  if (it != interno_->modelos.end() && it->second.contador > 0) {
     ++interno_->modelos[id_interno].contador;
     VLOG(1) << "CarregaModelo3d apenas incrementou contador: " << interno_->modelos[id_interno].contador;
     return;

@@ -20,13 +20,13 @@ class Modelos3d : public ntf::Receptor {
 
   const gl::VboGravado* Modelo(const std::string& id) const;
 
+  // Recarrega os modelos 3d em caso de perda do contexto opengl.
+  void Recarrega();
+
  private:
   // Realiza a carga de um modelo 3d. Os ids nao possuem a extensao .binproto.
   void CarregaModelo3d(const std::string& id_interno);
   void DescarregaModelo3d(const std::string& id_interno);
-
-  // Recarrega os modelos 3d.
-  void Recarrega();
 
   struct Interno;
   std::unique_ptr<Interno> interno_;
