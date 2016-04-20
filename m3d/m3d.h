@@ -21,6 +21,10 @@ class Modelos3d : public ntf::Receptor {
   const gl::VboNaoGravado* Modelo(const std::string& id) const;
 
  private:
+  // Realiza a carga de um modelo 3d. Os ids nao possuem a extensao .binproto.
+  void CarregaModelo3d(const std::string& id_interno);
+  void DescarregaModelo3d(const std::string& id_interno);
+
   // Recarrega os modelos 3d.
   void Recarrega();
 

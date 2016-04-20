@@ -45,8 +45,13 @@ void LeModelo3d(const std::string& nome_arquivo, ntf::Notificacao* n) {
 
 }  // namespace
 
+struct Modelo3d {
+  int contador = 0;
+  gl::VboNaoGravado vbo;
+};
+
 struct Modelos3d::Interno {
-  std::unordered_map<std::string, gl::VboNaoGravado> vbos;
+  std::unordered_map<std::string, Modelo3d> modelos;
 };
 
 Modelos3d::Modelos3d(ntf::CentralNotificacoes* central) : interno_(new Interno), central_(central) {
@@ -134,22 +139,27 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     Recarrega();
     return true;
+  } else if (notificacao.tipo() == ntf::TN_CARREGAR_MODELO_3D) {
+    CarregaModelo3d(notificacao.entidade().modelo_3d().id());
+  } else if (notificacao.tipo() == ntf::TN_DESCARREGAR_MODELO_3D) {
+    DescarregaModelo3d(notificacao.entidade().modelo_3d().id());
   }
   return false;
 }
 
 const gl::VboNaoGravado* Modelos3d::Modelo(const std::string& id) const {
-  auto it = interno_->vbos.find(id);
-  if (it == interno_->vbos.end()) {
+  auto it = interno_->modelos.find(id);
+  if (it == interno_->modelos.end()) {
     return nullptr;
   } else {
-    return &(it->second);
+    return &(it->second.vbo);
   }
 }
 
 void Modelos3d::Recarrega() {
   // Percorre arquivos globais e baixados.
-  interno_->vbos.clear();
+  VLOG(1) << "Recarregando modelos 3d";
+  interno_->modelos.clear();
   std::vector<std::string> globais(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d));
   std::vector<std::string> baixados(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d));
   std::set<std::string> todos_modelos(globais.begin(), globais.end());
@@ -159,18 +169,46 @@ void Modelos3d::Recarrega() {
     return;
   }
   for (const std::string& id : todos_modelos) {
-    std::string id_interno(id.substr(0, id.find(".binproto")));
     try {
       ntf::Notificacao n;
-      LeModelo3d(id, &n);
-      n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
-      n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
-      VLOG(1) << "Carregando modelo 3d " << id_interno << "( " << id << ") : ";
-      VLOG(2) << n.DebugString();
-      interno_->vbos[id_interno] = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0))[0]);
+      n.set_tipo(ntf::TN_CARREGAR_MODELO_3D);
+      n.mutable_entidade()->mutable_modelo_3d()->set_id(id.substr(0, id.find(".binproto")));
+      TrataNotificacao(n);
     } catch (const std::exception& e) {
       LOG(ERROR) << "Falha carregando modelo 3d: " << id << ": " << e.what();
     }
+  }
+}
+
+void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
+  if (interno_->modelos.find(id_interno) != interno_->modelos.end()) {
+    ++interno_->modelos[id_interno].contador;
+    VLOG(1) << "CarregaModelo3d apenas incrementou contador: " << interno_->modelos[id_interno].contador;
+    return;
+  }
+  std::string nome_arquivo = id_interno + ".binproto";
+  ntf::Notificacao n;
+  LeModelo3d(nome_arquivo, &n);
+  n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
+  n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
+  VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ") : ";
+  VLOG(2) << n.DebugString();
+  interno_->modelos[id_interno].vbo = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0))[0]);
+  interno_->modelos[id_interno].contador = 1;
+}
+
+void Modelos3d::DescarregaModelo3d(const std::string& id_interno) {
+  if (interno_->modelos.find(id_interno) == interno_->modelos.end() ||
+      interno_->modelos[id_interno].contador <= 0) {
+    LOG(ERROR) << "Erro descarregando modelo 3d " << id_interno << ", "
+        << (interno_->modelos.find(id_interno) == interno_->modelos.end() ? "nao existe" : "contador invalido");
+    return;
+  }
+  if (--interno_->modelos[id_interno].contador == 0) {
+    VLOG(1) << "Descarregando modelo 3d " << id_interno;
+    interno_->modelos.erase(id_interno);
+  } else {
+    VLOG(1) << "Descarregando modelo 3d apenas decrementou contador: " << interno_->modelos[id_interno].contador ;
   }
 }
 
