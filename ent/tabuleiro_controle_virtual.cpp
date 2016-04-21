@@ -484,15 +484,15 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   if (!db.textura().empty()) {
     return texturas_->Textura(db.textura());
   }
-  auto* entidade_selecionada = EntidadeSelecionada();
+  auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
   switch (db.id()) {
     case CONTROLE_ACAO: {
       if (modo_clique_ == MODO_NORMAL || modo_clique_ == MODO_ACAO) {
         unsigned int textura_espada = texturas_->Textura("icon_sword.png");
-        if (entidade_selecionada == nullptr || entidade_selecionada->Acao(AcoesPadroes()).empty()) {
+        if (entidade == nullptr || entidade->Acao(AcoesPadroes()).empty()) {
           return textura_espada;
         }
-        const auto& it = mapa_acoes_.find(entidade_selecionada->Acao(AcoesPadroes()));
+        const auto& it = mapa_acoes_.find(entidade->Acao(AcoesPadroes()));
         if (it == mapa_acoes_.end()) {
           return textura_espada;
         }
@@ -510,10 +510,10 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
     case CONTROLE_ULTIMA_ACAO_2:
     {
       int indice_acao = db.id() - CONTROLE_ULTIMA_ACAO_0;
-      if (entidade_selecionada == nullptr) {
+      if (entidade == nullptr) {
         return texturas_->Textura(AcaoPadrao(indice_acao).textura());
       }
-      return texturas_->Textura(AcaoDoMapa(entidade_selecionada->AcaoExecutada(indice_acao, AcoesPadroes())).textura());
+      return texturas_->Textura(AcaoDoMapa(entidade->AcaoExecutada(indice_acao, AcoesPadroes())).textura());
     }
     default:
       ;
@@ -668,32 +668,20 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_CAMERA_PRESA,      [this] () { return camera_presa_; } },
     { CONTROLE_VISAO_ESCURO,      [this] () { return visao_escuro_; } },
     { CONTROLE_LUZ,               [this]() {
-      if (ids_entidades_selecionadas_.size() == 1) {
-        auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-        return e != nullptr && e->Proto().has_luz();
-      }
-      return false;
+      auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      return e != nullptr && e->Proto().has_luz();
     } },
     { CONTROLE_QUEDA,        [this]() {
-      if (ids_entidades_selecionadas_.size() == 1) {
-        auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-        return e != nullptr && e->Proto().caida();
-      }
-      return false;
+      auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      return e != nullptr && e->Proto().caida();
     } },
     { CONTROLE_VOO,          [this]() {
-      if (ids_entidades_selecionadas_.size() == 1) {
-        auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-        return e != nullptr && e->Proto().voadora();
-      }
-      return false;
+      auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      return e != nullptr && e->Proto().voadora();
     } },
     { CONTROLE_VISIBILIDADE, [this]() {
-      if (ids_entidades_selecionadas_.size() == 1) {
-        auto* e = BuscaEntidade(*ids_entidades_selecionadas_.begin());
-        return e != nullptr && !e->Proto().visivel();
-      }
-      return false;
+      auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      return e != nullptr && !e->Proto().visivel();
     } },
     { CONTROLE_DESENHO_LIVRE, [this]() {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE;

@@ -1462,6 +1462,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     if (camera_ == CAMERA_ISOMETRICA) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
     } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+      // TODO
     } else {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
@@ -1470,6 +1471,22 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return;
+
+    // Na camera de primeira pessoa, apenas subimos de descemos o olhar.
+#if 0
+    float olho_altura = olho_.altura() * (-fator / 3.0f);
+    if (olho_altura > OLHO_ALTURA_MAXIMA) {
+      olho_altura = OLHO_ALTURA_MAXIMA;
+    } else if (olho_altura < OLHO_ALTURA_MINIMA) {
+      olho_altura = OLHO_ALTURA_MINIMA;
+    }
+    olho_.set_altura(olho_altura);
+    AtualizaOlho(0, true  /*forcar*/);
+    return;
+#endif
+  }
   if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
   } else {
@@ -1668,42 +1685,54 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     case ETAB_DESLIZANDO: {
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-        // Primeira pessoa nao tem deslize de camera.
-        break;
-      }
-      camera_presa_ = false;  // temporariamente.
-      // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
-      //gl::ModoMatriz(GL_MODELVIEW);
-      gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-      gl::CarregaIdentidade();
-      ConfiguraOlhar();
-      // Faz picking do tabuleiro sem entidades.
-      float nx, ny, nz;
-      if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
-        return;
-      }
+        // Primeira pessoa ajusta altura do olho.
+        float delta_y = (y - ultimo_y_) * 0.01f;
+        float olho_altura = olho_.altura() - delta_y;
+        if (olho_altura > OLHO_ALTURA_MAXIMA) {
+          olho_altura = OLHO_ALTURA_MAXIMA;
+        } else if (olho_altura < OLHO_ALTURA_MINIMA) {
+          olho_altura = OLHO_ALTURA_MINIMA;
+        }
+        olho_.set_altura(olho_altura);
+        float delta_x =  (x - ultimo_x_) * 0.003f;
+        TrataRotacaoPorDelta(delta_x);
+        ultimo_x_ = x;
+        ultimo_y_ = y;
+      } else {
+        camera_presa_ = false;  // temporariamente.
+        // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
+        //gl::ModoMatriz(GL_MODELVIEW);
+        gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+        gl::CarregaIdentidade();
+        ConfiguraOlhar();
+        // Faz picking do tabuleiro sem entidades.
+        float nx, ny, nz;
+        if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
+          return;
+        }
 
-      float delta_x = nx - ultimo_x_3d_;
-      float delta_y = ny - ultimo_y_3d_;
-      // Dependendo da posicao da pinca, os deltas podem se tornar muito grandes. Tentar manter o olho no tabuleiro.
-      auto* p = olho_.mutable_alvo();
-      float novo_x = p->x() - delta_x;
-      float novo_y = p->y() - delta_y;
-      const float tolerancia_quadrados = 10;
-      const float maximo_x = TamanhoX() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
-      const float maximo_y = TamanhoY() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
-      if (novo_x < -maximo_x || novo_x > maximo_x || novo_y < -maximo_y || novo_y > maximo_y) {
-        VLOG(1) << "Olho fora do tabuleiro";
-        return;
+        float delta_x = nx - ultimo_x_3d_;
+        float delta_y = ny - ultimo_y_3d_;
+        // Dependendo da posicao da pinca, os deltas podem se tornar muito grandes. Tentar manter o olho no tabuleiro.
+        auto* p = olho_.mutable_alvo();
+        float novo_x = p->x() - delta_x;
+        float novo_y = p->y() - delta_y;
+        const float tolerancia_quadrados = 10;
+        const float maximo_x = TamanhoX() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
+        const float maximo_y = TamanhoY() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
+        if (novo_x < -maximo_x || novo_x > maximo_x || novo_y < -maximo_y || novo_y > maximo_y) {
+          VLOG(1) << "Olho fora do tabuleiro";
+          return;
+        }
+        p->set_x(novo_x);
+        p->set_y(novo_y);
+        olho_.clear_destino();
+        AtualizaOlho(0  /*intervalo_ms*/, true  /*forca*/);
+        ultimo_x_ = x;
+        ultimo_y_ = y;
+        // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
+        // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
       }
-      p->set_x(novo_x);
-      p->set_y(novo_y);
-      olho_.clear_destino();
-      AtualizaOlho(0  /*intervalo_ms*/, true  /*forca*/);
-      ultimo_x_ = x;
-      ultimo_y_ = y;
-      // No caso de deslizamento, nao precisa atualizar as coordenadas do ultimo_*_3d porque por definicao
-      // do movimento, ela fica fixa (o tabuleiro desliza acompanhando o dedo).
     }
     break;
     case ETAB_RELEVO: {
@@ -1861,7 +1890,13 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
   // - Efeito de area
   // - Efeito individual.
-  if (acao_padrao || ids_entidades_selecionadas_.size() == 0) {
+  std::unordered_set<unsigned int> ids_origem;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    ids_origem.insert(id_camera_presa_);
+  } else {
+    ids_origem = ids_entidades_selecionadas_;
+  }
+  if (acao_padrao || ids_origem.size() == 0) {
     AcaoProto acao_proto;
     // Sem entidade selecionada, realiza sinalizacao.
     VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
@@ -1882,7 +1917,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     ntf::Notificacao grupo_desfazer;
     grupo_desfazer.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
     float atraso_segundos = 0;
-    for (auto id_selecionado : ids_entidades_selecionadas_) {
+    for (auto id_selecionado : ids_origem) {
       Entidade* entidade = BuscaEntidade(id_selecionado);
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
@@ -2117,7 +2152,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
 }
 
 void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d) {
-  auto* entidade = EntidadeSelecionada();
+  auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
   if (entidade == nullptr) {
     VLOG(1) << "Ignorando clique de regua, ou nao ha entidade ou ha mais de uma selecionada.";
     return;
@@ -2273,7 +2308,14 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
     LOG(ERROR) << "Id de acao inválido: " << id_acao;
     return;
   }
-  for (auto id_selecionado : ids_entidades_selecionadas_) {
+
+  std::unordered_set<unsigned int> ids;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    ids.insert(id_camera_presa_);
+  } else {
+    ids = ids_entidades_selecionadas_;
+  }
+  for (auto id_selecionado : ids) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
       continue;
@@ -2290,7 +2332,7 @@ void Tabuleiro::AlternaDanoAutomatico() {
 }
 
 void Tabuleiro::SelecionaAcaoExecutada(int indice) {
-  Entidade* e = EntidadeSelecionada();
+  Entidade* e = EntidadePrimeiraPessoaOuSelecionada();
   if (e == nullptr) {
     LOG(INFO) << "Nao selecionando acao pois ha 0 ou mais de uma entidade selecionada.";
     return;
@@ -5728,6 +5770,23 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   return ids_afetados;
 }
 
+Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return BuscaEntidade(id_camera_presa_);
+  } else {
+    return EntidadeSelecionada();
+  }
+}
+
+const Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() const {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return BuscaEntidade(id_camera_presa_);
+  } else {
+    return EntidadeSelecionada();
+  }
+}
+
+
 Entidade* Tabuleiro::EntidadeSelecionada() {
   if (ids_entidades_selecionadas_.size() != 1) {
     return nullptr;
@@ -5996,9 +6055,15 @@ void Tabuleiro::AlternaCameraPrimeiraPessoa() {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     LOG(INFO) << "Camera perspectiva";
     camera_ = CAMERA_PERSPECTIVA;
-  } else if (camera_presa_) {
-    LOG(INFO) << "Camera primeira pessoa";
+  } else {
+    if (!camera_presa_) {
+      AlternaCameraPresa();
+    }
+    if (!camera_presa_) {
+      return;
+    }
     camera_= CAMERA_PRIMEIRA_PESSOA;
+    LOG(INFO) << "Camera primeira pessoa";
   }
   AtualizaOlho(0, true);
 }
