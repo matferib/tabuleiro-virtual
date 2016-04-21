@@ -90,8 +90,8 @@ class Entidade {
   /** @return a coordenada (y). */
   float Y() const;
 
-  /** @return a coordenada (z). */
-  float Z() const;
+  /** @return a coordenada (z). Se delta voo for true, inclui o delta de voo tb. */
+  float Z(bool delta_voo = false) const;
 
   /** @return o id de cenario da entidade. */
   int IdCenario() const;
