@@ -555,6 +555,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Dado um objeto retorna as coordenadas x y z. */
   bool MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d);
 
+  /** Retorna a entidade de primeira pessoa se a camera for primeira pessoa ou a entidade selecionada, se houver apenas uma.
+  * Caso contrario, retorna nullptr.
+  */
+  Entidade* EntidadePrimeiraPessoaOuSelecionada();
+  const Entidade* EntidadePrimeiraPessoaOuSelecionada() const;
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
   const Entidade* EntidadeSelecionada() const;
