@@ -423,8 +423,9 @@ float Entidade::Y() const {
   return proto_.pos().y();
 }
 
-float Entidade::Z() const {
-  return proto_.pos().z();
+float Entidade::Z(bool delta_voo) const {
+  bool delta = delta_voo ? DeltaVoo(vd_) : 0;
+  return proto_.pos().z() + delta;
 }
 
 int Entidade::IdCenario() const {
