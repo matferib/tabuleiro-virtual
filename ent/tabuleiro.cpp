@@ -17,6 +17,7 @@
 #include <utility>
 #include <vector>
 
+#define VLOG_NIVEL 1
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -1478,6 +1479,9 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
 
 void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
   // Realiza a rotacao da tela.
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    delta_rad = -delta_rad;
+  }
   float olho_rotacao = olho_.rotacao_rad() + delta_rad;
   if (olho_rotacao >= 2 * M_PI) {
     olho_rotacao -= 2 * M_PI;
@@ -1489,6 +1493,9 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
 }
 
 void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    delta = -delta;
+  }
   float olho_altura = olho_.altura() + delta;
   if (olho_altura > OLHO_ALTURA_MAXIMA) {
     olho_altura = OLHO_ALTURA_MAXIMA;
@@ -1660,6 +1667,10 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_DESLIZANDO: {
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+        // Primeira pessoa nao tem deslize de camera.
+        break;
+      }
       camera_presa_ = false;  // temporariamente.
       // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
       //gl::ModoMatriz(GL_MODELVIEW);
@@ -3353,7 +3364,7 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         olho_.clear_destino();
         olho_.mutable_pos()->set_x(entidade_referencia->X());
         olho_.mutable_pos()->set_y(entidade_referencia->Y());
-        olho_.mutable_pos()->set_z(entidade_referencia->Z() + TAMANHO_LADO_QUADRADO * entidade_referencia->MultiplicadorTamanho());
+        olho_.mutable_pos()->set_z(entidade_referencia->Z(true  /*delta_voo*/) + TAMANHO_LADO_QUADRADO * entidade_referencia->MultiplicadorTamanho());
         // Aqui fazemos o inverso da visao normal. Colocamos o alvo no angulo oposto da rotacao para olhar na mesma direcao
         // que a camera de perspectiva.
         olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI));
@@ -5998,7 +6009,7 @@ void Tabuleiro::AlternaCameraPresa() {
     id_camera_presa_ = Entidade::IdInvalido;
     LOG(INFO) << "Camera solta.";
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      camera_ = CAMERA_PERSPECTIVA;
+      AlternaCameraPrimeiraPessoa();
     }
   } else if (ids_entidades_selecionadas_.size() == 1) {
     camera_presa_ = true;
