@@ -131,13 +131,6 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     nativeDestroy();
   }
 
-  static {
-    if (Build.VERSION.SDK_INT < 18) {
-      // https://developer.android.com/ndk/guides/cpp-support.html#runtimes.
-      System.loadLibrary("gnustl_shared");
-    }
-    System.loadLibrary("tabuleiro");
-  }
   private native void nativeCreate(boolean servidor, String nome, String endereco,
                                    boolean mapeamento_sombras, boolean luz_por_pixel, Object assets, String dir);
   private static native void nativeDestroy();

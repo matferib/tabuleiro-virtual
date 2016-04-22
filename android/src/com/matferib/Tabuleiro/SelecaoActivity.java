@@ -3,6 +3,7 @@ package com.matferib.Tabuleiro;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,10 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.janela_conexao);
+    int bits_opcoes = nativeBitsOpcoes(
+        getResources().getAssets(), ((android.content.Context)this).getFilesDir().getAbsolutePath());
+    ((CheckBox)findViewById(R.id.checkbox_mapeamento_sombras)).setChecked((bits_opcoes & 1) != 0);
+    ((CheckBox)findViewById(R.id.checkbox_luz_por_pixel)).setChecked((bits_opcoes & 2) != 0);
     // Pega os campos do XML.
     id_ = (EditText)findViewById(R.id.texto_id_jogador);
     id_.setText(android.os.Build.MODEL);
@@ -58,6 +63,17 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
     intencao.putExtra(LUZ_POR_PIXEL, ((CheckBox)findViewById(R.id.checkbox_luz_por_pixel)).isChecked());
     startActivity(intencao);
   }
+
+  static {
+    if (Build.VERSION.SDK_INT < 18) {
+      // https://developer.android.com/ndk/guides/cpp-support.html#runtimes.
+      System.loadLibrary("gnustl_shared");
+    }
+    System.loadLibrary("tabuleiro");
+  }
+
+  // Retorna um bitwise das opcoes. 1 para mapeamento de sombras, 2 para luz por pixel.
+  private static native int nativeBitsOpcoes(Object assets, String dir);
 
   // Membros.
   private EditText id_ = null;
