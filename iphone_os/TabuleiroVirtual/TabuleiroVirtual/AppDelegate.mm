@@ -1,5 +1,7 @@
 #import "AppDelegate.h"
 #import "GameViewController.h"
+#include "native.h"
+#include "ent/tabuleiro.pb.h"
 
 #define VIEW_ID 1
 #define VIEW_IP 2
@@ -40,6 +42,15 @@
     NSString* host_antes_ponto = [[NSProcessInfo processInfo] hostName];
     host_antes_ponto = [[host_antes_ponto componentsSeparatedByString:@"."] firstObject];
     [texto_id setText:host_antes_ponto];
+    // Opcoes.
+    ent::OpcoesProto opcoes;
+    nativeArqInitAndReadOptions(&opcoes);
+    if (opcoes.mapeamento_sombras()) {
+      ((UISwitch*)[self.window viewWithTag:VIEW_MAPEAMENTO_SOMBRAS]).on = TRUE;
+    }
+    if (opcoes.iluminacao_por_pixel()) {
+      ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on = TRUE;
+    }
     UIButton* botao_servidor = (UIButton*)[self.window viewWithTag:VIEW_SERVIDOR];
     [botao_servidor addTarget:self action:@selector(servidor)
              forControlEvents:UIControlEventTouchDown];
