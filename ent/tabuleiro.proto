@@ -36,13 +36,13 @@ message OpcoesProto {
   optional bool desenha_rosa_dos_ventos = 4 [default=true];
   optional bool anti_aliasing = 5 [default=false];
   optional bool desenha_grade = 6 [default=true];
-  optional bool desenha_controle_virtual = 7 [default=false];
+  optional bool desenha_controle_virtual = 7 [default=true];
   optional bool mostra_lista_objetos = 8 [default=false];
   optional bool desenha_olho = 9 [default=false];
   optional bool mostra_lista_jogadores = 10 [default=false];
 
   // Estas opcoes nao podem ser alteradas durante o jogo. ie deve-se reiniciar.
-  optional bool mapeamento_sombras = 11 [default=false];
+  optional bool mapeamento_sombras = 11 [default=true];
   optional bool iluminacao_por_pixel = 12 [default=false];
 }
 
