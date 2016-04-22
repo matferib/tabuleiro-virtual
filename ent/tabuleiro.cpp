@@ -17,7 +17,7 @@
 #include <utility>
 #include <vector>
 
-#define VLOG_NIVEL 1
+//#define VLOG_NIVEL 1
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -263,7 +263,6 @@ Tabuleiro::Tabuleiro(
   CarregaControleVirtual();
 
   opcoes_ = opcoes;
-  opcoes_.set_desenha_controle_virtual(true);
 #if DEBUG
   opcoes_.set_mostra_fps(true);
   //opcoes_.set_desenha_olho(true);
@@ -1471,24 +1470,11 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return;
-
-    // Na camera de primeira pessoa, apenas subimos de descemos o olhar.
-#if 0
-    float olho_altura = olho_.altura() * (-fator / 3.0f);
-    if (olho_altura > OLHO_ALTURA_MAXIMA) {
-      olho_altura = OLHO_ALTURA_MAXIMA;
-    } else if (olho_altura < OLHO_ALTURA_MINIMA) {
-      olho_altura = OLHO_ALTURA_MINIMA;
-    }
-    olho_.set_altura(olho_altura);
-    AtualizaOlho(0, true  /*forcar*/);
-    return;
-#endif
-  }
   if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
+    // Eh possivel chegar aqui?
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
+  } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return;
   } else {
     AtualizaRaioOlho(olho_.raio() / fator);
   }
