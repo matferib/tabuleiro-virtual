@@ -6,6 +6,11 @@
 #include "ifg/tecladomouse.h"
 #include "ent/constantes.h"
 
+namespace ent {
+class Opcoes;
+}  // namespace ent
+
+void nativeArqInitAndReadOptions(ent::OpcoesProto* opcoes);
 void nativeCreate(void* view);
 void nativeDestroy();
 void nativeTimer();
