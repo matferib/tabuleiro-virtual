@@ -93,17 +93,4 @@ message TabuleiroProto {
   repeated TabuleiroProto sub_cenario = 18;
 }
 
-// TODO sumir com isso.
-// Cada modelo de entidade que pode ser adicionada. Apenas alguns campos da entidade sao considerados:
-// - pontos de vida.
-// - tamanho.
-// - cor.
-message Modelo {
-  optional string id = 1;
-  optional EntidadeProto entidade = 2;
-}
 
-// O arquivo eh serializado como uma repeticao de modelos em formato texto.
-message Modelos {
-  repeated Modelo modelo = 1;
-}
