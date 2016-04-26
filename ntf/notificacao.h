@@ -43,10 +43,13 @@ class CentralNotificacoes {
   /** Registra um receptor remoto com a central, que nao sera dono dele. */
   void RegistraEmissorRemoto(EmissorRemoto* receptor);
 
-  /** Tira um receptor do registro. */
+  /** Tira um receptor do registro.
+  * Atencao: ao se desregistrar durante o loop, o objeto continuarar recebendo mensagens ate o termino do loop,
+  * pois eh feita uma copia do loop por causa da iteracao.
+  */
   void DesregistraReceptor(const Receptor* receptor);
 
-  /** Tira um receptor remoto do registro. */
+  /** Tira um receptor remoto do registro. Ver warning acima. */
   void DesregistraEmissorRemoto(const EmissorRemoto* receptor);
 
   /** Notifica todos os receptores registrados das notificacoes adicionadas. */
