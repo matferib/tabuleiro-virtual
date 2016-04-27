@@ -82,7 +82,7 @@ void LeOpcoes(ent::OpcoesProto* proto) {
   }
 }
 
-void SalvaOpcoes(const ent::Opcoes& opcoes) {
+void SalvaOpcoes(const ent::OpcoesProto& opcoes) {
   try {
     arq::EscreveArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", opcoes);
   } catch (const std::exception& e) {
@@ -102,13 +102,13 @@ void nativeCreate(void* view) {
   g_view = (__bridge GameViewController*)view;
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
-  g_modelos3d.reset(new m3d::Modelos3d);
+  g_modelos3d.reset(new m3d::Modelos3d(g_central.get()));
   // Le de novo, pra num ter que criar global. O valor vai ser o mesmo.
   ent::OpcoesProto opcoes;
   LeOpcoes(&opcoes);
   opcoes.set_mapeamento_sombras(g_view->usar_mapeamento_sombras_);
   opcoes.set_iluminacao_por_pixel(g_view->usar_iluminacao_por_pixel_);
-  SalvaOpcoes();
+  SalvaOpcoes(opcoes);
   g_tabuleiro.reset(new ent::Tabuleiro(opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
