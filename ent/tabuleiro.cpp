@@ -2951,6 +2951,18 @@ void Tabuleiro::GeraFramebuffer() {
   LOG(INFO) << "framebuffer gerado";
 }
 
+namespace {
+void GeraPontoAleatorioMontanha(int x, int y, int tam_x, float altura_m, float max_porcentagem_aleatoria, TabuleiroProto* proto) {
+  float altura_aleatoria_m = altura_m * (1.0f + max_porcentagem_aleatoria * Aleatorio());
+  int indice = Terreno::IndicePontoTabuleiro(x, y, tam_x);
+  if (proto->ponto_terreno(indice) < altura_aleatoria_m) {
+    proto->set_ponto_terreno(indice, altura_aleatoria_m);
+  }
+}
+
+}  // namespace
+
+// TODO passar esse codigo pro terreno.
 void Tabuleiro::GeraMontanhaNotificando() {
   if (!EmModoMestre(true  /*secundario*/)) {
     LOG(INFO) << "Apenas mestre pode gerar montanha.";
@@ -2960,25 +2972,39 @@ void Tabuleiro::GeraMontanhaNotificando() {
     LOG(INFO) << "Preciso de um quadrado selecionado.";
     return;
   }
-  float altura_m = 10.0f;
-  float inclinacao_graus = 45.0f;
-  if (inclinacao_graus < 0 || inclinacao_graus > 85.0f) {
-    LOG(INFO) << "Inclinacao invalida: " << inclinacao_graus;
-    return;
-  }
-  // Gera o terreno se nao houver.
-  proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
-  // Delta de altura de cada iteracao da geracao.
-  float delta_h_m = TAMANHO_LADO_QUADRADO * tanf(inclinacao_graus * GRAUS_PARA_RAD);
-  int num_iteracoes = altura_m / delta_h_m;
   // Pega o ponto inicial (SW quadrado selecionado).
   int x_quad = -1, y_quad = -1;
   XYQuadrado(quadrado_selecionado_, &x_quad, &y_quad);
   if (x_quad < 0 || y_quad < 0) {
+    LOG(INFO) << "Coordenadas invalidas para quadrado selecionado";
     return;
   }
-  // Eleva o ponto na altura.
+  // Gera o terreno se nao houver.
+  proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
+
+  int indice = Terreno::IndicePontoTabuleiro(x_quad, y_quad, TamanhoX());
+  float altura_ponto_inicial_m = proto_corrente_->ponto_terreno(indice);
+
+  // Inclinacao e delta de altura por iteracao.
+  float inclinacao_graus = 45.0f;
+  float delta_h_m = TAMANHO_LADO_QUADRADO * tanf(inclinacao_graus * GRAUS_PARA_RAD);
+  if (inclinacao_graus < 0 || inclinacao_graus > 85.0f) {
+    LOG(INFO) << "Inclinacao invalida: " << inclinacao_graus;
+    return;
+  }
+
+  // Fator aleatorio: cada ponto podera ser ate esse fator mais alto.
+  float max_porcentagem_aleatoria = 0.3f;
+
+  // Altura inicial: usa o proprio ponto se ja tiver altura suficiente. Senao, gera um de altura constante.
+  float altura_m = (altura_ponto_inicial_m > delta_h_m) ? altura_ponto_inicial_m : (10.0f * (1.0f + (max_porcentagem_aleatoria * Aleatorio())));
+
+  // Numero de iteracoes eh calculado ate o terreno chegar no nivel 0, baseado na altura inicial e o delta.
+  int num_iteracoes = altura_m / delta_h_m;
+
+  // Eleva o ponto inicial na altura.
   proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_quad, y_quad, TamanhoX()), altura_m);
+
   // Percorre os pontos ao redor do quadrado, reduzindo a altura de acordo com a inclinacao.
   // Terminar quando chegar em 0.
   float altura_ajustada_m = altura_m;
@@ -2995,10 +3021,10 @@ void Tabuleiro::GeraMontanhaNotificando() {
           continue;
         }
         if (y_base_s >= 0) {
-          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_corrente, y_base_s, TamanhoX()), altura_ajustada_m);
+          GeraPontoAleatorioMontanha(x_corrente, y_base_s, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
         }
         if (y_base_n <= TamanhoY()) {
-          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_corrente, y_base_n, TamanhoX()), altura_ajustada_m);
+          GeraPontoAleatorioMontanha(x_corrente, y_base_n, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
         }
       }
     }
@@ -3013,10 +3039,10 @@ void Tabuleiro::GeraMontanhaNotificando() {
           continue;
         }
         if (x_base_w >= 0) {
-          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_base_w, y_corrente, TamanhoX()), altura_ajustada_m);
+          GeraPontoAleatorioMontanha(x_base_w, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
         }
         if (x_base_e <= TamanhoX()) {
-          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_base_e, y_corrente, TamanhoX()), altura_ajustada_m);
+          GeraPontoAleatorioMontanha(x_base_e, y_corrente, TamanhoX(), altura_ajustada_m, max_porcentagem_aleatoria, proto_corrente_);
         }
       }
     }

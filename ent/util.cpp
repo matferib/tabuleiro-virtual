@@ -429,6 +429,11 @@ int RolaDado(unsigned int nfaces) {
   return (motor_aleatorio() % nfaces) + 1;
 }
 
+float Aleatorio() {
+  int val = RolaDado(10001) - 1;  // [0-10000]
+  return val / 10000.0f;
+}
+
 // Como gcc esta sem suporte a regex, vamos fazer na mao.
 int GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);

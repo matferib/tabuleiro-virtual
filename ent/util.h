@@ -74,6 +74,8 @@ void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor =
 
 /** Gera um aleatorio de 1 a nfaces. */
 int RolaDado(unsigned int nfaces);
+/** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
+float Aleatorio();
 
 /** Gera pontos de vida baseado nos dados de vida, da forma 4d8+8 por exemplo.
 * Da excecao se dados_vida for mal formado.
