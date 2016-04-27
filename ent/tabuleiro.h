@@ -625,6 +625,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o x3d e y3d do SW do quadrado. */
   void CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z = nullptr);
   void CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z = nullptr);
+  /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */ 
+  void XYQuadrado(unsigned int id_quadrado, int *x, int* y);
   /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
 
@@ -768,6 +770,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
   void GeraTerrenoAleatorioNotificando();
+  void GeraMontanhaNotificando();
   void TrataDeltaTerreno(float delta);
   void TrataNivelamentoTerreno(int x, int y);
 

@@ -1364,6 +1364,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       GeraTerrenoAleatorioNotificando();
       return true;
     }
+    case ntf::TN_GERAR_MONTANHA: {
+      GeraMontanhaNotificando();
+      return true;
+    }
     case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO: {
       DeserializaRelevoCenario(notificacao.tabuleiro());
       if (notificacao.local()) {
@@ -2947,6 +2951,88 @@ void Tabuleiro::GeraFramebuffer() {
   LOG(INFO) << "framebuffer gerado";
 }
 
+void Tabuleiro::GeraMontanhaNotificando() {
+  if (!EmModoMestre(true  /*secundario*/)) {
+    LOG(INFO) << "Apenas mestre pode gerar montanha.";
+    return;
+  }
+  if (estado_ != ETAB_QUAD_SELECIONADO) {
+    LOG(INFO) << "Preciso de um quadrado selecionado.";
+    return;
+  }
+  float altura_m = 10.0f;
+  float inclinacao_graus = 45.0f;
+  if (inclinacao_graus < 0 || inclinacao_graus > 85.0f) {
+    LOG(INFO) << "Inclinacao invalida: " << inclinacao_graus;
+    return;
+  }
+  // Gera o terreno se nao houver.
+  proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
+  // Delta de altura de cada iteracao da geracao.
+  float delta_h_m = TAMANHO_LADO_QUADRADO * tanf(inclinacao_graus * GRAUS_PARA_RAD);
+  int num_iteracoes = altura_m / delta_h_m;
+  // Pega o ponto inicial (SW quadrado selecionado).
+  int x_quad = -1, y_quad = -1;
+  XYQuadrado(quadrado_selecionado_, &x_quad, &y_quad);
+  if (x_quad < 0 || y_quad < 0) {
+    return;
+  }
+  // Eleva o ponto na altura.
+  proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_quad, y_quad, TamanhoX()), altura_m);
+  // Percorre os pontos ao redor do quadrado, reduzindo a altura de acordo com a inclinacao.
+  // Terminar quando chegar em 0.
+  float altura_ajustada_m = altura_m;
+  for (int i = 1; i <= num_iteracoes; ++i) {
+    altura_ajustada_m -= delta_h_m;
+    // sul e norte.
+    {
+      int y_base_s = y_quad - i;
+      int y_base_n = y_quad + i;
+      int x_w = x_quad - i;
+      for (int j = 0; j < ((i * 2) + 1); ++j) {
+        int x_corrente = x_w + j;
+        if (x_corrente < 0 || x_corrente > TamanhoX()) {
+          continue;
+        }
+        if (y_base_s >= 0) {
+          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_corrente, y_base_s, TamanhoX()), altura_ajustada_m);
+        }
+        if (y_base_n <= TamanhoY()) {
+          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_corrente, y_base_n, TamanhoX()), altura_ajustada_m);
+        }
+      }
+    }
+    // Oeste e leste.
+    {
+      int y_s = y_quad - i + 1;
+      int x_base_w = x_quad - i;
+      int x_base_e = x_quad + i;
+      for (int j = 0; j < ((i * 2) - 1); ++j) {
+        int y_corrente = y_s + j;
+        if (y_corrente < 0 || y_corrente > TamanhoY()) {
+          continue;
+        }
+        if (x_base_w >= 0) {
+          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_base_w, y_corrente, TamanhoX()), altura_ajustada_m);
+        }
+        if (x_base_e <= TamanhoX()) {
+          proto_corrente_->set_ponto_terreno(Terreno::IndicePontoTabuleiro(x_base_e, y_corrente, TamanhoX()), altura_ajustada_m);
+        }
+      }
+    }
+  }
+  RegeraVboTabuleiro();
+  RefrescaTerrenoParaClientes();
+  ntf::Notificacao n_desfazer;
+  n_desfazer.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  {
+    auto* cenario_depois = n_desfazer.mutable_tabuleiro();
+    cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+  AdicionaNotificacaoListaEventos(n_desfazer);
+}
+
 void Tabuleiro::GeraTerrenoAleatorioNotificando() {
   if (!EmModoMestre(true  /*secundario*/)) {
     LOG(INFO) << "Apenas mestre pode gerar terreno.";
@@ -2966,6 +3052,14 @@ void Tabuleiro::GeraTerrenoAleatorioNotificando() {
   std::copy(pontos.begin(), pontos.end(), proto_corrente_->mutable_ponto_terreno()->begin());
   RegeraVboTabuleiro();
   RefrescaTerrenoParaClientes();
+  ntf::Notificacao n_desfazer;
+  n_desfazer.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  {
+    auto* cenario_depois = n_desfazer.mutable_tabuleiro();
+    cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_depois->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+  AdicionaNotificacaoListaEventos(n_desfazer);
 }
 
 namespace {
@@ -4017,6 +4111,25 @@ void Tabuleiro::CoordenadaQuadrado(unsigned int id_quadrado, float* x, float* y,
   *z = ZChao(*x, *y);
 }
 
+void Tabuleiro::XYQuadrado(unsigned int quadrado, int* x, int* y) {
+  if (estado_ != ETAB_QUAD_SELECIONADO) {
+    LOG(ERROR) << "XYQuadradoSelecionado sem quadrado selecionado";
+    return;
+  }
+  int quad_x = quadrado % TamanhoX();
+  int quad_y = quadrado / TamanhoX();
+  if (quad_x >= TamanhoX()) {
+    LOG(ERROR) << "XYQuadradoSelecionado excede em x: " << quad_x << ", tamanho: " << TamanhoX();
+    return;
+  }
+  if (quad_y >= TamanhoY()) {
+    LOG(ERROR) << "XYQuadradoSelecionado excede em y: " << quad_y << ", tamanho: " << TamanhoY();
+    return;
+  }
+  *x = quad_x;
+  *y = quad_y;
+}
+
 void Tabuleiro::CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z) {
   int x_quad = id_quadrado % TamanhoX();
   int y_quad = id_quadrado / TamanhoX();
@@ -4757,6 +4870,9 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    AtualizaOlho(0, true  /*forcar*/);
+  }
 }
 
 void Tabuleiro::TrataTranslacaoZ(float delta) {

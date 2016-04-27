@@ -153,6 +153,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       TrataNotificacao(n);
       break;
     }
+    case CONTROLE_GERAR_MONTANHA: {
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_GERAR_MONTANHA);
+      TrataNotificacao(n);
+      break;
+    }
     case CONTROLE_ACAO:
       if (modo_clique_ != MODO_NORMAL) {
         EntraModoClique(MODO_NORMAL);
@@ -179,7 +185,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       AlternaCameraIsometrica();
       break;
     case CONTROLE_CAMERA_PRESA:
-      AlternaCameraPresa();
+      AlternaCameraPrimeiraPessoa();
       break;
     case CONTROLE_VISAO_ESCURO:
       AlternaVisaoEscuro();

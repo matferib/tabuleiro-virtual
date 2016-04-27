@@ -1,12 +1,15 @@
 Versao 2.3.0
-- Opcoes de tablet (ou fazer mapeamento de sombras padrao).
+- Geracao de terrenos por tipo (arvores, relevo).
+- Botao de geracao de montanha.
+
+- Entidades montadas.
+- Relogio marcando horas e controlando iluminacao?
 - Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
 - Botao de rotacao de entidades.
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
 - Barras fixas do controle virtual e controles do mestre apenas.
 - Permitir que alguns modelos afundem na terra.
-- Geracao de terrenos por tipo (arvores, relevo).
 - Picking de transparencias completas (alfa = 0).
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
@@ -30,8 +33,6 @@ Versao 2.3.0
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
 - Fazer rotacao Z ser suavizada como destino do movimento.
-- Terminar socket.
-- Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
@@ -50,7 +51,6 @@ Versao 2.4.0
 - Adicionar modelos diversos.
 - Unit teste dos glVbo roda.
 - Objetos compostos com transparencia.
-- Visao primeira pessoa.
 
 Algumas ideias loucas.
 - Interface de mouse generico para tablets (suporte a multitap).

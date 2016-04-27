@@ -738,10 +738,20 @@ pagina {
     num_lados_botao: 4
     dica: "Movimento vertical."
   }
+  dados_botoes {
+    tamanho: 2
+    linha: 0
+    coluna: 24
+    rotulo: "GM"
+    id: CONTROLE_GERAR_MONTANHA
+    num_lados_botao: 4
+    dica: "Gera uma montanha."
+  }
+
 #  dados_botoes {
 #    tamanho: 2
 #    linha: 0
-#    coluna: 23
+#    coluna: 24
 #    rotulo: "TA"
 #    id: CONTROLE_GERAR_TERRENO_ALEATORIO
 #    num_lados_botao: 4
