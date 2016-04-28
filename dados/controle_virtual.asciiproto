@@ -744,6 +744,7 @@ pagina {
     coluna: 24
     rotulo: "GM"
     id: CONTROLE_GERAR_MONTANHA
+    textura: "icon_mountain.png"
     num_lados_botao: 4
     dica: "Gera uma montanha."
   }
