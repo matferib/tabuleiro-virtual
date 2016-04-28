@@ -385,7 +385,9 @@ void Tabuleiro::ConfiguraProjecao() {
     gl::Ortogonal(-largura, largura, -altura, altura,
                   0.0f /*DISTANCIA_PLANO_CORTE_PROXIMO*/, distancia * 1.2f);
   } else {
-    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(), DISTANCIA_PLANO_CORTE_PROXIMO, DISTANCIA_PLANO_CORTE_DISTANTE);
+    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(),
+                    camera_ == CAMERA_PRIMEIRA_PESSOA ? DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA : DISTANCIA_PLANO_CORTE_PROXIMO,
+                    DISTANCIA_PLANO_CORTE_DISTANTE);
   }
 }
 
@@ -2364,7 +2366,7 @@ void Tabuleiro::ProximaAcao() {
   if (id_acoes_.size() == 0) {
     return;
   }
-  for (auto id_selecionado : ids_entidades_selecionadas_) {
+  for (auto id_selecionado : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
       continue;
@@ -2391,7 +2393,7 @@ void Tabuleiro::AcaoAnterior() {
   if (id_acoes_.size() == 0) {
     return;
   }
-  for (auto id_selecionado : ids_entidades_selecionadas_) {
+  for (auto id_selecionado : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
       continue;
@@ -5851,7 +5853,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
           vertices[i].set_y(vertices[i].y() + pos_o.y());
         }
         for (const auto* entidade_destino : entidades_cenario) {
-          if (PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
+          if (entidade_destino != entidade_origem && PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
             VLOG(1) << "Adicionando id: " << entidade_destino->Id();
             ids_afetados.push_back(entidade_destino->Id());
           }
@@ -5896,6 +5898,14 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   }
 
   return ids_afetados;
+}
+
+std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() const {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return { id_camera_presa_ };
+  } else {
+    return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+  }
 }
 
 Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
