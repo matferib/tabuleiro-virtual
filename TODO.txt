@@ -1,6 +1,5 @@
 Versao 2.3.0
 - Geracao de terrenos por tipo (arvores, relevo).
-- Botao de geracao de montanha.
 
 - Entidades montadas.
 - Relogio marcando horas e controlando iluminacao?

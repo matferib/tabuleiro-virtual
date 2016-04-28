@@ -1182,7 +1182,7 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   *altura = 13;
 }
 
-void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
+bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   float matriz_mv[16];
   float matriz_pr[16];
   GLint viewport[4];
@@ -1190,17 +1190,19 @@ void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
   gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
   float x2d, y2d, z2d;
-  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
-    return;
+  // z < 0 significa projecao atras do olho.
+  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d) || z2d < 0) {
+    return false;
   }
   auto* contexto = interno::BuscaContexto();
   contexto->raster_x = x2d;
   contexto->raster_y = y2d;
   //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
+  return true;
 }
 
-void PosicaoRaster(GLint x, GLint y) {
-  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
+bool PosicaoRaster(GLint x, GLint y) {
+  return PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
 }
 
 void AlternaModoDebug() {

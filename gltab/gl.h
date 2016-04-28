@@ -406,8 +406,10 @@ inline void TamanhoFonteComEscala(int* largura, int* altura) {
   *altura *= escala;
 }
 void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, int* escala);
-void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
-void PosicaoRaster(GLint x, GLint y);
+
+// Posiciona o raster, usando coordenadas 3d. Caso a projecao falhe ou fique atras, retorna false.
+bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
+bool PosicaoRaster(GLint x, GLint y);
 
 /** Raster. */
 void DesenhaCaractere(char c);

@@ -190,8 +190,9 @@ class AcaoDeltaPontosVida : public Acao {
  private:
   void DesenhaStringDelta() const {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-    gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-    gl::DesenhaString(string_delta_);
+    if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+      gl::DesenhaString(string_delta_);
+    }
   }
 
   constexpr static int DURACAO_MS = 2000;

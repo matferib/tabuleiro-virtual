@@ -295,9 +295,10 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       if (!pd->has_picking_x() && !descricao.empty()) {
         gl::DesabilitaEscopo salva_nevoa(GL_FOG);
         gl::Translada(0.0f, 0.0f, 0.4f);
-        gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-        MudaCorAplicandoNevoa(COR_AMARELA, pd);
-        gl::DesenhaString(StringSemUtf8(descricao), true  /*inverte vertical*/);
+        if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+          MudaCorAplicandoNevoa(COR_AMARELA, pd);
+          gl::DesenhaString(StringSemUtf8(descricao), true  /*inverte vertical*/);
+        }
       }
     }
   }
@@ -310,36 +311,38 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     bool desenhou_rotulo = false;
     if (pd->desenha_rotulo()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      MudaCorAplicandoNevoa(COR_AMARELA, pd);
-      gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
-      desenhou_rotulo = true;
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        MudaCorAplicandoNevoa(COR_AMARELA, pd);
+        gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
+        desenhou_rotulo = true;
+      }
     }
     if (pd->desenha_rotulo_especial()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
       MudaCorAplicandoNevoa(COR_AMARELA, pd);
-      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      std::string rotulo;
-      for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
-        rotulo += (desenhou_rotulo ? std::string("\n") : std::string("")) + rotulo_especial;
-      }
-      if (proto_.proxima_salvacao() != RS_FALHOU) {
-        rotulo += "\nprox. salv.: ";
-        switch (proto_.proxima_salvacao()) {
-          case RS_MEIO:
-            rotulo += "1/2";
-            break;
-          case RS_QUARTO:
-            rotulo += "1/4";
-            break;
-          case RS_ANULOU:
-            rotulo += "ANULA";
-            break;
-          default:
-            rotulo += "VALOR INVALIDO";
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        std::string rotulo;
+        for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
+          rotulo += (desenhou_rotulo ? std::string("\n") : std::string("")) + rotulo_especial;
         }
+        if (proto_.proxima_salvacao() != RS_FALHOU) {
+          rotulo += "\nprox. salv.: ";
+          switch (proto_.proxima_salvacao()) {
+            case RS_MEIO:
+              rotulo += "1/2";
+              break;
+            case RS_QUARTO:
+              rotulo += "1/4";
+              break;
+            case RS_ANULOU:
+              rotulo += "ANULA";
+              break;
+            default:
+              rotulo += "VALOR INVALIDO";
+          }
+        }
+        gl::DesenhaString(StringSemUtf8(rotulo));
       }
-      gl::DesenhaString(StringSemUtf8(rotulo));
     }
   }
 }

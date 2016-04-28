@@ -115,7 +115,7 @@ void RodaVetor2d(float graus, Posicao* vetor);
 bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& vertices);
 
 /** Posicionamento do raster em 2d. */
-void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
+bool PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
 
 // Tipos de efeitos possiveis.
 enum efeitos_e {
