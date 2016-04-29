@@ -87,7 +87,7 @@ class ElementoBotao : public ElementoInterface {
     CorParaProto(cor, &cor_fundo_);
   }
 
-  bool Picking(int x, int y) {
+  bool Picking(int x, int y) override {
     volta_();
     return true;
   }
@@ -155,7 +155,7 @@ class ElementoContainer : public ElementoInterface {
     filhos_.push_back(std::move(std::unique_ptr<ElementoInterface>(filho)));
   }
 
-  bool Picking(int x, int y) {
+  bool Picking(int x, int y) override {
     for (auto& filho : filhos_) {
       if (filho->Clicado(x, y)) {
         return filho->Picking(x, y);
@@ -316,7 +316,7 @@ class ElementoListaPaginada : public ElementoInterface {
     return item_selecionado_;
   }
 
-  void Desenha(ParametrosDesenho* pd) {
+  void Desenha(ParametrosDesenho* pd) override {
     botao_anterior_->DesenhaSeValido(pd);
     if (num_paginas_ > 0) {
       lista_->DesenhaSeValido(pd);
@@ -324,7 +324,7 @@ class ElementoListaPaginada : public ElementoInterface {
     botao_proximo_->DesenhaSeValido(pd);
   }
 
-  bool Picking(int x, int y) {
+  bool Picking(int x, int y) override {
     if (botao_anterior_->Clicado(x, y)) {
       return botao_anterior_->Picking(x, y);
     } else if (botao_proximo_->Clicado(x, y)) {
@@ -428,7 +428,7 @@ class ElementoAbrirTabuleiro : public ElementoInterface {
     barra_ok_cancela_->Desenha(pd);
   }
 
-  bool Picking(int x, int y) {
+  bool Picking(int x, int y) override {
     if (barra_ok_cancela_->Clicado(x, y)) {
       return barra_ok_cancela_->Picking(x, y);
     } else if (lista_paginada_->Clicado(x, y)) {
@@ -482,7 +482,7 @@ class ElementoSalvarTabuleiro : public ElementoInterface {
     barra_ok_cancela_->Desenha(pd);
   }
 
-  bool Picking(int x, int y) {
+  bool Picking(int x, int y) override {
     if (barra_ok_cancela_->Clicado(x, y)) {
       return barra_ok_cancela_->Picking(x, y);
     }
