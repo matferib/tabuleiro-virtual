@@ -760,7 +760,7 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : ids_entidades_selecionadas_) {
+  for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
     const auto& proto_original = entidade_selecionada->Proto();
@@ -4909,7 +4909,7 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
   } else {
     ntf::Notificacao grupo_notificacoes;
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
       auto* entidade_selecionada = BuscaEntidade(id);
       if (entidade_selecionada == nullptr) {
         continue;
