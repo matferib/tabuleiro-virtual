@@ -362,6 +362,17 @@ pagina {
     tamanho: 1
     linha: 1
     coluna: 18
+    rotulo: "1p"
+    cor_rotulo {}
+    textura: "icon_first_person_camera.png"
+    id: CONTROLE_CAMERA_PRIMEIRA_PESSOA
+    num_lados_botao: 4
+    dica: "Poe a camera em primeira pessoa ao personagem selecionado."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 19
     rotulo: "Ve"
     cor_rotulo {}
     textura: "icon_darkvision.png"
@@ -382,9 +393,9 @@ pagina {
   }
 
   dados_botoes {
-    tamanho: 2
+    tamanho: 1
     linha: 0
-    coluna: 19
+    coluna: 20
     rotulo: "X"
     cor_rotulo { r: 1.0 a: 1.0 }
     textura: "icon_trash.png"
@@ -395,9 +406,9 @@ pagina {
 
   # Desfazer.
   dados_botoes {
-    tamanho: 2
-    linha: 0
-    coluna: 21
+    tamanho: 1
+    linha: 1
+    coluna: 20
     rotulo: "<="
     cor_rotulo {}
     textura: "icon_undo.png"
