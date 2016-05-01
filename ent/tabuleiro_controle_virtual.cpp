@@ -185,6 +185,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       AlternaCameraIsometrica();
       break;
     case CONTROLE_CAMERA_PRESA:
+      AlternaCameraPresa();
+      break;
+    case CONTROLE_CAMERA_PRIMEIRA_PESSOA:
       AlternaCameraPrimeiraPessoa();
       break;
     case CONTROLE_VISAO_ESCURO:
@@ -672,6 +675,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_MODO_TERRENO,      [this] () { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_CAMERA_PRESA,      [this] () { return camera_presa_; } },
+    { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] () { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
     { CONTROLE_VISAO_ESCURO,      [this] () { return visao_escuro_; } },
     { CONTROLE_LUZ,               [this]() {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
