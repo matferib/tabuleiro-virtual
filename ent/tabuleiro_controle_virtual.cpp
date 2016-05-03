@@ -74,8 +74,6 @@ const std::string RotuloTexturaAnterior(const std::string& corrente, const std::
 
 }  // namespace
 
-
-
 void Tabuleiro::CarregaControleVirtual() {
   const char* ARQUIVO_CONTROLE_VIRTUAL = "controle_virtual.asciiproto";
   try {
@@ -84,19 +82,23 @@ void Tabuleiro::CarregaControleVirtual() {
     LOG(ERROR) << "Erro carregando controle virtual: " << erro.what();
     return;
   }
+  auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
   for (const auto& p : controle_virtual_.pagina()) {
     for (const auto& db : p.dados_botoes()) {
+      if (!db.textura().empty()) {
+        n->add_info_textura()->set_id(db.textura());
+      }
       if (mapa_botoes_controle_virtual_.find(db.id()) == mapa_botoes_controle_virtual_.end()) {
         mapa_botoes_controle_virtual_[db.id()] = &db;
       }
     }
   }
-  auto* n = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
-  for (const auto& pagina : controle_virtual_.pagina()) {
-    for (const auto& db : pagina.dados_botoes()) {
-      if (!db.textura().empty()) {
-        n->add_info_textura()->set_id(db.textura());
-      }
+  for (const auto& db : controle_virtual_.fixo().dados_botoes()) {
+    if (!db.textura().empty()) {
+      n->add_info_textura()->set_id(db.textura());
+    }
+    if (mapa_botoes_controle_virtual_.find(db.id()) == mapa_botoes_controle_virtual_.end()) {
+      mapa_botoes_controle_virtual_[db.id()] = &db;
     }
   }
   for (const auto& par_id_acao : mapa_acoes_) {
@@ -530,17 +532,39 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
   return GL_INVALID_VALUE;
 }
 
-void Tabuleiro::DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float unidade_largura, float unidade_altura) {
-  if (db.picking_apenas() && !parametros_desenho_.has_picking_x()) {
+namespace {
+
+int TranslacaoX(int coluna, const GLint* viewport, float unidade_largura) {
+  if (coluna < 0) {
+    return viewport[2] + coluna * unidade_largura;
+  } else {
+    return coluna * unidade_largura;
+  }
+}
+
+float TranslacaoY(int linha, const GLint* viewport, float unidade_altura) {
+  if (linha < 0) {
+    return viewport[3] + linha * unidade_altura;
+  } else {
+    return linha * unidade_altura;
+  }
+}
+
+}  // namespace
+
+void Tabuleiro::DesenhaBotaoControleVirtual(
+    const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura) {
+  if ((db.picking_apenas() && !parametros_desenho_.has_picking_x()) ||
+      (db.mestre_apenas() && !EmModoMestre(true))) {
     return;
   }
   gl::CarregaNome(db.id());
   float xi, xf, yi, yf;
-  xi = db.coluna() * unidade_largura;
+  xi = TranslacaoX(db.coluna(), viewport, unidade_largura);
   float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
   float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
   xf = xi + largura_botao * unidade_largura;
-  yi = db.linha() * unidade_altura;
+  yi = TranslacaoY(db.linha(), viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   gl::MatrizEscopo salva(false);
   if (db.num_lados_botao() == 4) {
@@ -600,9 +624,9 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
   float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
-  xi = db.coluna() * unidade_largura;
+  xi = TranslacaoX(db.coluna(), viewport, unidade_largura);
   xf = xi + largura_botao * unidade_largura;
-  yi = db.linha() * unidade_altura;
+  yi = TranslacaoY(db.linha(), viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
   MudaCor(COR_AMARELA);
@@ -629,9 +653,9 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
   float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
-  xi = db.coluna() * unidade_largura;
+  xi = TranslacaoX(db.coluna(), viewport, unidade_largura);
   xf = xi + largura_botao * unidade_largura;
-  yi = db.linha() * unidade_altura;
+  yi = TranslacaoY(db.linha(), viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
   float y_meio = (yi + yf) / 2.0f;
@@ -744,34 +768,40 @@ void Tabuleiro::DesenhaControleVirtual() {
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
-    const auto& pagina = controle_virtual_.pagina(pagina_corrente);
-    for (const auto& db : pagina.dados_botoes()) {
+    std::vector<const DadosBotao*> botoes;
+    for (const auto& db : controle_virtual_.pagina(pagina_corrente).dados_botoes()) {
+      botoes.push_back(&db);
+    }
+    for (const auto& db : controle_virtual_.fixo().dados_botoes()) {
+      botoes.push_back(&db);
+    }
+    for (const auto* db : botoes) {
       float cor[3];
-      if (db.has_cor_fundo()) {
-        cor[0] = db.cor_fundo().r();
-        cor[1] = db.cor_fundo().g();
-        cor[2] = db.cor_fundo().b();
+      if (db->has_cor_fundo()) {
+        cor[0] = db->cor_fundo().r();
+        cor[1] = db->cor_fundo().g();
+        cor[2] = db->cor_fundo().b();
       } else {
         cor[0] = cor_padrao[0];
         cor[1] = cor_padrao[1];
         cor[2] = cor_padrao[2];
       }
-      float ajuste =  AtualizaBotaoControleVirtual(db.id(), mapa_botoes) ? 0.5f : 1.0f;
+      float ajuste = AtualizaBotaoControleVirtual(db->id(), mapa_botoes) ? 0.5f : 1.0f;
       cor[0] *= ajuste;
       cor[1] *= ajuste;
       cor[2] *= ajuste;
       gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-      DesenhaBotaoControleVirtual(db, padding, largura_botao, altura_botao);
+      DesenhaBotaoControleVirtual(*db, viewport, padding, largura_botao, altura_botao);
     }
 
     // Rotulos dos botoes.
-    for (const auto& db : pagina.dados_botoes()) {
-      DesenhaRotuloBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+    for (const auto* db : botoes) {
+      DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
     }
     // Dicas.
     if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {
-      for (const auto& db : pagina.dados_botoes()) {
-        DesenhaDicaBotaoControleVirtual(db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+      for (const auto* db : botoes) {
+        DesenhaDicaBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
       }
     }
   }
@@ -782,7 +812,5 @@ void Tabuleiro::DesenhaControleVirtual() {
   }
   gl::Habilita(GL_DEPTH_TEST);
 }
-
-
 
 }  // namespace ent

@@ -724,7 +724,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
 
-  void DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao);
+  void DesenhaBotaoControleVirtual(const DadosBotao& db, const GLint* viewport, float padding, float largura_botao, float altura_botao);
   void DesenhaRotuloBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
   void DesenhaDicaBotaoControleVirtual(

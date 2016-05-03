@@ -116,6 +116,8 @@ message DadosBotao {
   optional bool picking_apenas = 15;
   // Texto mostrado quando cursor ficar sobre o botao.
   optional string dica = 16;
+  // Se verdadeiro, apenas o mestre deve ver.
+  optional bool mestre_apenas = 17;
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.
@@ -123,10 +125,16 @@ message Pagina {
   repeated DadosBotao dados_botoes = 1;
 }
 
+// A barra fixa eh similar, mas nao tem paginacao, sendo sempre exibida.
+message Fixo {
+  repeated DadosBotao dados_botoes = 1;
+}
+
 // O controle eh composto por varias paginas.
 message ControleVirtualProto {
-  repeated Pagina pagina = 1;
-  optional int32 pagina_corrente = 2;
+  optional Fixo fixo = 1;
+  repeated Pagina pagina = 2;
+  optional int32 pagina_corrente = 3;
 }
 
 // Cada modelo de entidade (template) que pode ser adicionada. Apenas alguns campos da entidade sao considerados:

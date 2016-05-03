@@ -1,5 +1,7 @@
 Versao 2.3.0
 - Geracao de terrenos por tipo (arvores, relevo).
+- Elementos centralizados no controle virtual.
+- Passar controle virtual para interface.
 
 - Entidades montadas.
 - Relogio marcando horas e controlando iluminacao?
@@ -7,7 +9,6 @@ Versao 2.3.0
 - Botao de rotacao de entidades.
 - Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
 - Rolagem com terreno.
-- Barras fixas do controle virtual e controles do mestre apenas.
 - Permitir que alguns modelos afundem na terra.
 - Picking de transparencias completas (alfa = 0).
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
