@@ -63,7 +63,7 @@ fixo {
     id: CONTROLE_CIMA_VERTICAL_TERRENO
     num_lados_botao: 4
     mestre_apenas: true
-    dica: "Movimento vertical."
+    dica: "Movimento vertical do terreno."
   }
   dados_botoes {
     tamanho: 1
@@ -77,7 +77,7 @@ fixo {
     id: CONTROLE_BAIXO_VERTICAL_TERRENO
     num_lados_botao: 4
     mestre_apenas: true
-    dica: "Movimento vertical."
+    dica: "Movimento vertical do terreno."
   }
   dados_botoes {
     tamanho: 2

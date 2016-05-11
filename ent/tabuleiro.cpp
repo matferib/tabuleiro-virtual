@@ -341,6 +341,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Outras variaveis.
   id_entidade_detalhada_ = Entidade::IdInvalido;
   tipo_entidade_detalhada_ = OBJ_INVALIDO;
+  temporizador_detalhamento_ms_ = 0;
   quadrado_selecionado_ = -1;
   estado_ = ETAB_OCIOSO;
   proximo_id_entidade_ = 0;
@@ -2182,6 +2183,7 @@ void Tabuleiro::TrataMouseParadoEm(int x, int y) {
   }
   id_entidade_detalhada_ = id;
   tipo_entidade_detalhada_ = pos_pilha;
+  //temporizador_detalhamento_ms_ = TEMPO_DETALHAMENTO_MS;
 }
 
 void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
