@@ -3108,7 +3108,7 @@ void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, in
 }  // namespace
 
 void Tabuleiro::TrataDeltaTerreno(float delta) {
-  if (estado_ != ETAB_QUAD_SELECIONADO) {
+  if (estado_ != ETAB_QUAD_SELECIONADO || !EmModoMestre(true  /*secundario*/)) {
     return;
   }
   ntf::Notificacao n_desfazer;
