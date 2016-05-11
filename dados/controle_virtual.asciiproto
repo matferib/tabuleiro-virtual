@@ -60,7 +60,7 @@ fixo {
     rotulo: "^"
     cor_rotulo {}
     textura: ""
-    id: CONTROLE_CIMA_VERTICAL
+    id: CONTROLE_CIMA_VERTICAL_TERRENO
     num_lados_botao: 4
     mestre_apenas: true
     dica: "Movimento vertical."
@@ -74,7 +74,7 @@ fixo {
     rotulo: "v"
     cor_rotulo {}
     textura: ""
-    id: CONTROLE_BAIXO_VERTICAL
+    id: CONTROLE_BAIXO_VERTICAL_TERRENO
     num_lados_botao: 4
     mestre_apenas: true
     dica: "Movimento vertical."

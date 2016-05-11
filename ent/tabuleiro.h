@@ -317,7 +317,7 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
 
-  /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. */
+  /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. No modo terreno, trata a translacao do terreno. */
   void TrataTranslacaoZ(float delta);
 
   /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
