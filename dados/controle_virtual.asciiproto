@@ -5,6 +5,8 @@ fixo {
     tamanho: 2
     linha: -2
     coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save.png"
     id: CONTROLE_SALVAR
     num_lados_botao: 4
@@ -15,6 +17,8 @@ fixo {
     tamanho: 2
     linha: -4
     coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save_as.png"
     id: CONTROLE_SALVAR_COMO
     num_lados_botao: 4
@@ -25,6 +29,8 @@ fixo {
     tamanho: 2
     linha: -6
     coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_open.png"
     id: CONTROLE_ABRIR
     num_lados_botao: 4
@@ -36,6 +42,8 @@ fixo {
     tamanho: 2
     linha: -8
     coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_terrain.png"
     rotulo: "MT"
     id: CONTROLE_MODO_TERRENO
@@ -47,6 +55,8 @@ fixo {
     tamanho: 1
     linha: -7
     coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "^"
     cor_rotulo {}
     textura: ""
@@ -59,6 +69,8 @@ fixo {
     tamanho: 1
     linha: -8
     coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "v"
     cor_rotulo {}
     textura: ""
@@ -71,6 +83,8 @@ fixo {
     tamanho: 2
     linha: -10
     coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "GM"
     id: CONTROLE_GERAR_MONTANHA
     textura: "icon_mountain.png"
@@ -82,7 +96,9 @@ fixo {
   dados_botoes {
     tamanho: 1
     linha: -1
-    coluna: 9
+    alinhamento_horizontal: ALINHAMENTO_CENTRO
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    coluna: -6
     rotulo: "<"
     id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
     num_lados_botao: 4
@@ -92,7 +108,9 @@ fixo {
     altura: 1
     largura: 10
     linha: -1
-    coluna: 10
+    alinhamento_horizontal: ALINHAMENTO_CENTRO
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    coluna: -5
     id: CONTROLE_MODELO_ENTIDADE
     num_lados_botao: 4
     dica: "O tipo de entidade adicionada por padrão."
@@ -100,7 +118,9 @@ fixo {
   dados_botoes {
     tamanho: 1
     linha: -1
-    coluna: 20
+    alinhamento_horizontal: ALINHAMENTO_CENTRO
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    coluna: 5
     rotulo: ">"
     id: CONTROLE_MODELO_ENTIDADE_PROXIMA
     num_lados_botao: 4

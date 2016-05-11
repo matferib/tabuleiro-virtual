@@ -83,6 +83,14 @@ enum IdBotao {
   CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
 }
 
+enum Alinhamento {
+  ALINHAMENTO_CENTRO   = 1;
+  ALINHAMENTO_ESQUERDA = 2;
+  ALINHAMENTO_DIREITA  = 3;
+  ALINHAMENTO_CIMA     = 4;
+  ALINHAMENTO_BAIXO    = 5;
+}
+
 message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
   // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
@@ -118,6 +126,9 @@ message DadosBotao {
   optional string dica = 16;
   // Se verdadeiro, apenas o mestre deve ver.
   optional bool mestre_apenas = 17;
+  // Alinhamento do botao.
+  optional Alinhamento alinhamento_horizontal = 18 [default=ALINHAMENTO_ESQUERDA];
+  optional Alinhamento alinhamento_vertical = 19 [default=ALINHAMENTO_BAIXO];
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.

@@ -534,17 +534,23 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
 
 namespace {
 
-int TranslacaoX(int coluna, const GLint* viewport, float unidade_largura) {
-  if (coluna < 0) {
+int TranslacaoX(const DadosBotao& db, const GLint* viewport, float unidade_largura) {
+  int coluna = db.coluna();
+  if (db.alinhamento_horizontal() == ALINHAMENTO_DIREITA) {
     return viewport[2] + coluna * unidade_largura;
+  } else if (db.alinhamento_horizontal() == ALINHAMENTO_CENTRO) {
+    return (viewport[2] / 2) + coluna * unidade_largura;
   } else {
     return coluna * unidade_largura;
   }
 }
 
-float TranslacaoY(int linha, const GLint* viewport, float unidade_altura) {
-  if (linha < 0) {
+float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_altura) {
+  int linha = db.linha();
+  if (db.alinhamento_vertical() == ALINHAMENTO_CIMA) {
     return viewport[3] + linha * unidade_altura;
+  } else if (db.alinhamento_vertical() == ALINHAMENTO_CENTRO) {
+    return (viewport[3] / 2) + linha * unidade_altura;
   } else {
     return linha * unidade_altura;
   }
@@ -560,11 +566,11 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
   }
   gl::CarregaNome(db.id());
   float xi, xf, yi, yf;
-  xi = TranslacaoX(db.coluna(), viewport, unidade_largura);
+  xi = TranslacaoX(db, viewport, unidade_largura);
   float largura_botao = db.has_tamanho() ? db.tamanho() : db.largura();
   float altura_botao = db.has_tamanho() ? db.tamanho() : db.altura();
   xf = xi + largura_botao * unidade_largura;
-  yi = TranslacaoY(db.linha(), viewport, unidade_altura);
+  yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   gl::MatrizEscopo salva(false);
   if (db.num_lados_botao() == 4) {
@@ -624,9 +630,9 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
   float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
-  xi = TranslacaoX(db.coluna(), viewport, unidade_largura);
+  xi = TranslacaoX(db, viewport, unidade_largura);
   xf = xi + largura_botao * unidade_largura;
-  yi = TranslacaoY(db.linha(), viewport, unidade_altura);
+  yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
   MudaCor(COR_AMARELA);
@@ -653,9 +659,9 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   float largura_botao = db.has_largura() ? db.largura() : db.tamanho();
   float altura_botao = db.has_altura() ? db.altura() : db.tamanho();
   float xi, xf, yi, yf;
-  xi = TranslacaoX(db.coluna(), viewport, unidade_largura);
+  xi = TranslacaoX(db, viewport, unidade_largura);
   xf = xi + largura_botao * unidade_largura;
-  yi = TranslacaoY(db.linha(), viewport, unidade_altura);
+  yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
   float y_meio = (yi + yf) / 2.0f;

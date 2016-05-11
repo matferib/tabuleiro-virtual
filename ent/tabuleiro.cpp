@@ -5725,7 +5725,7 @@ void Tabuleiro::DesenhaCoordenadas() {
     gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
     largura_fonte *= escala;
     altura_fonte *= escala;
-    int raster_y = altura_ - (2 * altura_fonte);
+    int raster_y = altura_ - (4 * altura_fonte);
     int raster_x = largura_ / 2;
     gl::PosicaoRaster(raster_x, raster_y);
   }
