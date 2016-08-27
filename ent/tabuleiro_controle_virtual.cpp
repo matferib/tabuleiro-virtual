@@ -36,6 +36,11 @@ namespace {
 const char* ROTULO_PADRAO = "-";
 const char* TEXTURA_VAZIA = "";
 const char* TEXTURAS_DIFEREM = "~";
+// Os botoes tem largura e altura baseados no tamanho da fonte * multiplicador.
+const float MULTIPLICADOR_LARGURA = 3.0f;
+const float MULTIPLICADOR_ALTURA = 2.5f;
+
+
 
 // Retorna a textura das entidades. Se nao houver entidade ou se houver mas nao tiver textura, retorna TEXTURA_VAZIA.
 // Se houver mais de uma e elas diferirem, retorna "~".
@@ -683,6 +688,58 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   gl::DesenhaString(rotulo.substr(0, max_caracteres));
 }
 
+void Tabuleiro::DesenhaListaPontosVida() {
+  if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
+    return;
+  }
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA;
+
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  // Modo 2d: eixo com origem embaixo esquerda.
+  int raster_x = 0, raster_y = 0;
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  raster_y = altura_ - altura_fonte;
+  raster_x = largura_ - 3.0f * largura_botao - 2;
+  PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+
+  MudaCor(COR_BRANCA);
+  std::string titulo("Lista PV");
+  gl::DesenhaStringAlinhadoDireita(titulo);
+  raster_y -= (altura_fonte + 2);
+  if (modo_dano_automatico_) {
+    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+    raster_y -= (altura_fonte + 2);
+    MudaCor(COR_BRANCA);
+    const auto* entidade = EntidadeSelecionada();
+    std::string valor = "AUTO";
+    if (entidade != nullptr) {
+      const std::string s = entidade->StringValorParaAcao(entidade->Acao(AcoesPadroes()));
+      if (s.empty()) {
+        valor += ": SEM ACAO";
+      } else {
+        valor += ": " + s;
+      }
+    } else if (ids_entidades_selecionadas_.size() > 1) {
+      valor += ": VARIOS";
+    } else {
+      valor += ": NENHUM";
+    }
+    gl::DesenhaStringAlinhadoDireita(valor);
+  } else {
+    for (int pv : lista_pontos_vida_) {
+      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      raster_y -= (altura_fonte + 2);
+      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
+      char str[4];
+      snprintf(str, 4, "%d", abs(pv));
+      gl::DesenhaStringAlinhadoDireita(str);
+    }
+  }
+}
+
 void Tabuleiro::DesenhaControleVirtual() {
   gl::Desabilita(GL_LIGHTING);
   gl::Desabilita(GL_DEPTH_TEST);
@@ -697,8 +754,8 @@ void Tabuleiro::DesenhaControleVirtual() {
   fonte_y_int *= escala;
   const float fonte_x = fonte_x_int;
   const float fonte_y = fonte_y_int;
-  const float altura_botao = fonte_y * 2.5f;
-  const float largura_botao = fonte_x * 3.0f;
+  const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
+  const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
   //const float largura_botao = altura_botao;
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
@@ -817,6 +874,11 @@ void Tabuleiro::DesenhaControleVirtual() {
       }
     }
   }
+
+  if (parametros_desenho_.desenha_lista_pontos_vida()) {
+    DesenhaListaPontosVida();
+  }
+  V_ERRO("desenhando lista pontos de vida");
 
   // So volta a luz se havia iluminacao antes.
   if (parametros_desenho_.iluminacao()) {

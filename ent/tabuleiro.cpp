@@ -2649,11 +2649,6 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando lista de objetos");
 
-  if (parametros_desenho_.desenha_lista_pontos_vida()) {
-    DesenhaListaPontosVida();
-  }
-  V_ERRO("desenhando lista pontos de vida");
-
   if (parametros_desenho_.desenha_id_acao()) {
     DesenhaIdAcaoEntidade();
   }
@@ -2895,6 +2890,12 @@ void Tabuleiro::GeraFramebuffer() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
   V_ERRO("LigacaoComTextura");
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+#ifndef GL_TEXTURE_COMPARE_MODE_EXT
+// Estes dois nao estao presentes no jni android 17 (4.4.2).
+// Como o lollipop da pau de rede, prefiro fazer isso.
+#define GL_TEXTURE_COMPARE_MODE_EXT 0x884C
+#define GL_COMPARE_REF_TO_TEXTURE_EXT 0x884E
+#endif
   if (gl::TemExtensao("GL_OES_depth_texture")) {
     usar_sampler_sombras_ = true;
     gl::ImagemTextura2d(
@@ -5426,56 +5427,6 @@ void Tabuleiro::DesenhaGrade() {
   MudaCor(COR_PRETA);
   //gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
   gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
-}
-
-void Tabuleiro::DesenhaListaPontosVida() {
-  if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
-    return;
-  }
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  // Modo 2d: eixo com origem embaixo esquerda.
-  int raster_x = 0, raster_y = 0;
-  int largura_fonte, altura_fonte, escala;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  largura_fonte *= escala;
-  altura_fonte *= escala;
-  raster_y = altura_ - altura_fonte;
-  raster_x = largura_ - 2;
-  PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
-
-  MudaCor(COR_BRANCA);
-  std::string titulo("Lista PV");
-  gl::DesenhaStringAlinhadoDireita(titulo);
-  raster_y -= (altura_fonte + 2);
-  if (modo_dano_automatico_) {
-    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
-    raster_y -= (altura_fonte + 2);
-    MudaCor(COR_BRANCA);
-    const auto* entidade = EntidadeSelecionada();
-    std::string valor = "AUTO";
-    if (entidade != nullptr) {
-      const std::string s = entidade->StringValorParaAcao(entidade->Acao(AcoesPadroes()));
-      if (s.empty()) {
-        valor += ": SEM ACAO";
-      } else {
-        valor += ": " + s;
-      }
-    } else if (ids_entidades_selecionadas_.size() > 1) {
-      valor += ": VARIOS";
-    } else {
-      valor += ": NENHUM";
-    }
-    gl::DesenhaStringAlinhadoDireita(valor);
-  } else {
-    for (int pv : lista_pontos_vida_) {
-      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
-      raster_y -= (altura_fonte + 2);
-      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-      char str[4];
-      snprintf(str, 4, "%d", abs(pv));
-      gl::DesenhaStringAlinhadoDireita(str);
-    }
-  }
 }
 
 void Tabuleiro::DesenhaListaJogadores() {
