@@ -694,7 +694,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
   }
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA;
+  const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA * escala;
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   // Modo 2d: eixo com origem embaixo esquerda.
@@ -702,7 +702,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
   largura_fonte *= escala;
   altura_fonte *= escala;
   raster_y = altura_ - altura_fonte;
-  raster_x = largura_ - 3.0f * largura_botao - 2;
+  raster_x = largura_ - (EmModoMestre(true) ? 3.0f : 0.0f) * largura_botao - 2;
   PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
 
   MudaCor(COR_BRANCA);
