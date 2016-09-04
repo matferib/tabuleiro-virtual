@@ -1643,14 +1643,18 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         float ey0 = entidade_selecionada->Y();
         float ex1 = ex0 + dx;
         float ey1 = ey0 + dy;
-        float z_antes = entidade_selecionada->Z();
-        float z_chao_antes = ZChao(ex0, ey0);
-        bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
-        float z_depois = 0.0f;
-        if (manter_chao) {
-          z_depois = ZChao(ex1, ey1);
-        } else {
-          z_depois = std::max(z_antes, ZChao(ex1, ey1));
+        float z_depois = entidade_selecionada->Z();
+        // Apenas entidades respeitam o solo, formas podem entrar.
+        if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
+          float z_antes = entidade_selecionada->Z();
+          float z_chao_antes = ZChao(ex0, ey0);
+          bool manter_no_chao = (z_antes - z_chao_antes) < 0.001f;
+          if (manter_no_chao) {
+            z_depois = ZChao(ex1, ey1);
+          } else {
+            // mantem o mesmo Z de antes do movimento, acima do solo.
+            z_depois = std::max(z_antes, ZChao(ex1, ey1));
+          }
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
         Posicao pos;
@@ -4883,14 +4887,16 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     auto* p = e->mutable_destino();
     p->set_x(nx);
     p->set_y(ny);
-    float z_antes = entidade_selecionada->Z();
-    float z_chao_antes = ZChao(entidade_selecionada->X(), entidade_selecionada->Y());
-    float z_chao_depois = ZChao(nx, ny);
-    bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
-    if (manter_chao) {
-      p->set_z(z_chao_depois);
-    } else {
-      p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
+    if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
+      float z_antes = entidade_selecionada->Z();
+      float z_chao_antes = ZChao(entidade_selecionada->X(), entidade_selecionada->Y());
+      float z_chao_depois = ZChao(nx, ny);
+      bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
+      if (manter_chao) {
+        p->set_z(z_chao_depois);
+      } else {
+        p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
+      }
     }
     // Para desfazer.
     p = e->mutable_pos();
