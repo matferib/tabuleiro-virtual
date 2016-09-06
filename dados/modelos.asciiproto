@@ -528,6 +528,15 @@ modelo {
   }
 }
 modelo {
+  id: 'Otyugh'
+  entidade {
+    dados_vida: '6d8+9' info_textura { id: 'otyugh.png' } cor { r: 0.635 g: 0.51 b: 0.427 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +0\nagarrar: +8 1d6\nat: +4/+4/-2\ndano: 1d6/1d6/1d4\nca: 17\ndoenca'
+  }
+}
+modelo {
   id: 'Demônio Súcubo'
   entidade {
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
