@@ -144,7 +144,24 @@ modelo {
 }
 modelo {
   id: 'Enxame (centopéias)'
-  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+  entidade {
+    dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +4\ndano: 2d6 + veneno + nausea\nveneno: fort 13 1d4 des/1d4 des\nnausea: for 13 por 1 rodada'
+  }
+}
+modelo {
+  id: 'Enxame (morcegos)'
+  entidade {
+    dados_vida: '3d8' achatado: true info_textura { id: 'swarm_bat.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada'
+  }
+}
+modelo {
+  id: 'Enxame (ratos)'
+  entidade {
+    dados_vida: '4d8' achatado: true info_textura { id: 'swarm_rat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
+  }
 }
 modelo {
   id: 'Esqueleto (Humano Combatente)'
@@ -351,10 +368,30 @@ modelo {
   id: 'Humano Ladino 3'
   entidade {
     dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6\nca: 18'
+    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6(x3)\nca: 18'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+  }
+}
+modelo {
+  id: 'Humano Ladino 4'
+  entidade {
+    dados_vida: '4d6+4' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    rotulo_especial: 'Humano Ladino 4\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 2d6'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+  }
+}
+modelo {
+  id: 'Humano Ladino 5'
+  entidade {
+    dados_vida: '5d6+5' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    rotulo_especial: 'Humano Ladino 5\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 3d6'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1(x3)' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
   }
 }
 modelo {
@@ -406,6 +443,13 @@ modelo {
 modelo {
   id: 'Homem-Rato'
   entidade { dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
+}
+modelo {
+  id: 'Monstro da Ferrugem'
+  entidade {
+    dados_vida: '5d8+5' info_textura { id: 'rust_monster.png' } cor { r: 0.2 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini: +3\nat: +3/-2, dano: ferrugem/1d3\nca: 18/13/15'
+  }
 }
 modelo {
   id: 'Ogro'

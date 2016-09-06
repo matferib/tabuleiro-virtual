@@ -4,6 +4,11 @@ modelo { id: 'Allip' }
 modelo { id: 'Carneçal' }
 modelo { id: 'Carniçal' }
 sub_menu {
+  id: 'Aberraçoes'
+  modelo { id: 'Monstro da Ferrugem' }
+  modelo { id: 'Otyugh' }
+}
+sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
   modelo { id: 'Hiena' }
@@ -33,7 +38,12 @@ sub_menu {
   modelo { id: 'Drow Lider 6' }
 }
 modelo { id: 'Elemental do Ar (Pequeno)' }
-modelo { id: 'Enxame (centopéias)' }
+sub_menu {
+  id: 'Enxames'
+  modelo { id: 'Enxame (centopéias)' }
+  modelo { id: 'Enxame (morcegos)' }
+  modelo { id: 'Enxame (ratos)' }
+}
 sub_menu {
   id: 'Elfos'
   modelo { id: 'Elfo' }
@@ -80,6 +90,8 @@ sub_menu {
     id: 'Ladinos'
     modelo { id: 'Humano Ladino' }
     modelo { id: 'Humano Ladino 3' }
+    modelo { id: 'Humano Ladino 4' }
+    modelo { id: 'Humano Ladino 5' }
     modelo { id: 'Humano Ladino 7' }
   }
   modelo { id: 'Humano Mago' }
