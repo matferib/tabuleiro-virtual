@@ -35,7 +35,7 @@ namespace net {
 // - Servidor na funcao DesconectaCliente o retira do mapa que estiver e deleta o ponteiro.
 // - Servidor envia TN_DESCONECTADO localmente.
 // - Tabuleiro trata a mensagem atualizando mapa de clientes.
-class Servidor : public ntf::Receptor, public ntf::ReceptorRemoto {
+class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
  public:
   // Nao possui os parametros.
   Servidor(Sincronizador* sincronizador, ntf::CentralNotificacoes* central);

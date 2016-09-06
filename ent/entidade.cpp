@@ -44,6 +44,7 @@ Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::Cen
 Entidade::~Entidade() {
   EntidadeProto dummy;
   AtualizaTexturas(dummy);
+  AtualizaModelo3d(dummy);
 }
 
 namespace {
@@ -89,8 +90,9 @@ void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivada
 void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   // Preciso do tipo aqui para atualizar as outras coisas de acordo.
   proto_.set_tipo(novo_proto.tipo());
-  // Atualiza texturas antes de tudo.
+  // Atualiza texturas e modelos 3d antes de tudo.
   AtualizaTexturas(novo_proto);
+  AtualizaModelo3d(novo_proto);
   // mantem o tipo.
   proto_.CopyFrom(novo_proto);
   CorrigeCamposDeprecated(&proto_);
@@ -137,6 +139,31 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProt
   }
 }
 
+void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
+  VLOG(2) << "Atualizando modelo3d novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_.ShortDebugString();
+  // Libera textura anterior se houver e for diferente da corrente.
+  if (!proto_.modelo_3d().id().empty() &&
+      proto_.modelo_3d().id() != novo_proto.modelo_3d().id()) {
+    VLOG(1) << "Liberando modelo_3d: " << proto_.modelo_3d().id();
+    auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_MODELO_3D);
+    nl->mutable_entidade()->mutable_modelo_3d()->set_id(proto_.modelo_3d().id());
+    central_->AdicionaNotificacao(nl);
+  }
+  // Carrega modelo_3d se houver e for diferente da antiga.
+  if (!novo_proto.modelo_3d().id().empty() &&
+      novo_proto.modelo_3d().id() != proto_.modelo_3d().id()) {
+    VLOG(1) << "Carregando modelo_3d: " << novo_proto.modelo_3d().id();
+    auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_MODELO_3D);
+    *nc->mutable_entidade()->mutable_modelo_3d() = novo_proto.modelo_3d();
+    central_->AdicionaNotificacao(nc);
+  }
+  if (!novo_proto.modelo_3d().id().empty()) {
+    *proto_.mutable_modelo_3d() = novo_proto.modelo_3d();
+  } else {
+    proto_.clear_modelo_3d();
+  }
+}
+
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
   AtualizaTexturasProto(novo_proto, &proto_, central_);
 }
@@ -149,20 +176,20 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
   }
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_atual->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
-  if (proto_atual->has_info_textura() && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
+  if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
     VLOG(1) << "Liberando textura: " << proto_atual->info_textura().id();
     auto* nl = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
     nl->add_info_textura()->set_id(proto_atual->info_textura().id());
     central->AdicionaNotificacao(nl);
   }
   // Carrega textura se houver e for diferente da antiga.
-  if (novo_proto.has_info_textura() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
+  if (novo_proto.has_info_textura() && !novo_proto.info_textura().id().empty() && novo_proto.info_textura().id() != proto_atual->info_textura().id()) {
     VLOG(1) << "Carregando textura: " << proto_atual->info_textura().id();
     auto* nc = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
     nc->add_info_textura()->CopyFrom(novo_proto.info_textura());
     central->AdicionaNotificacao(nc);
   }
-  if (novo_proto.has_info_textura()) {
+  if (novo_proto.info_textura().id().size() > 0) {
     proto_atual->mutable_info_textura()->CopyFrom(novo_proto.info_textura());
   } else {
     proto_atual->clear_info_textura();
@@ -172,17 +199,29 @@ void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadePr
 void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   VLOG(1) << "Proto antes: " << proto_.ShortDebugString();
   AtualizaTexturas(novo_proto);
+  AtualizaModelo3d(novo_proto);
 
-  // mantem o id, posicao e destino.
+  // mantem o id, posicao (exceto Z) e destino.
   ent::EntidadeProto proto_original(proto_);
   proto_.CopyFrom(novo_proto);
   if (proto_.pontos_vida() > proto_.max_pontos_vida()) {
     proto_.set_pontos_vida(proto_.max_pontos_vida());
   }
   proto_.set_id(proto_original.id());
+  proto_.set_tipo(proto_original.tipo());
   proto_.mutable_pos()->Swap(proto_original.mutable_pos());
+  proto_.mutable_pos()->set_z(novo_proto.pos().z());
   if (proto_original.has_destino()) {
     proto_.mutable_destino()->Swap(proto_original.mutable_destino());
+  }
+  if (proto_original.tipo() == TE_ENTIDADE) {
+    *proto_.mutable_escala() = proto_original.escala();
+    float fator = novo_proto.escala().x() / proto_original.escala().x();
+    if (fator > 1.1f) {
+      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::min<int>(TM_COLOSSAL, proto_.tamanho() + 1)));
+    } else if (fator < 0.9f) {
+      proto_.set_tamanho(static_cast<TamanhoEntidade>(std::max<int>(TM_MINUSCULO, proto_.tamanho() - 1)));
+    }
   }
   if (proto_.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
@@ -316,7 +355,7 @@ void Entidade::Atualiza(int intervalo_ms) {
 
   bool chegou = true;
   // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
-  const float VELOCIDADE_POR_EIXO = 4 * TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
+  const float VELOCIDADE_POR_EIXO = TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
   for (int i = 0; i < 3; ++i) {
     double delta = (origens[i] > destinos[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
     float diferenca = fabs(origens[i] - destinos[i]);
@@ -364,8 +403,12 @@ void Entidade::IncrementaZ(float delta) {
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
 }
 
-void Entidade::AlteraRotacaoZ(float delta) {
+void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
+}
+
+void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
+  proto_.set_rotacao_z_graus(rotacao_graus);
 }
 
 int Entidade::PontosVida() const {
@@ -380,8 +423,9 @@ float Entidade::Y() const {
   return proto_.pos().y();
 }
 
-float Entidade::Z() const {
-  return proto_.pos().z();
+float Entidade::Z(bool delta_voo) const {
+  bool delta = delta_voo ? DeltaVoo(vd_) : 0;
+  return proto_.pos().z() + delta;
 }
 
 int Entidade::IdCenario() const {
@@ -425,6 +469,12 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // repeated.
     proto_.clear_lista_acoes();
   }
+  if (proto_parcial.has_info_textura()) {
+    AtualizaTexturas(proto_parcial);
+  }
+  if (proto_parcial.has_modelo_3d()) {
+    AtualizaModelo3d(proto_parcial);
+  }
   proto_.MergeFrom(proto_parcial);
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
     // Evento dummy so para limpar eventos.
@@ -436,14 +486,14 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 
   // Casos especiais.
   const auto* luz = proto_.has_luz() ? proto_.mutable_luz() : nullptr;
-  if (luz != nullptr && luz->has_raio() && luz->raio() == 0.0f) {
+  if (luz != nullptr && luz->has_raio_m() && luz->raio_m() == 0.0f) {
     proto_.clear_luz();
   }
   const auto* cor_luz = ((luz != nullptr) && luz->has_cor()) ? &luz->cor() : nullptr;
   if (cor_luz != nullptr && (cor_luz->r() == 0 && cor_luz->g() == 0 && cor_luz->b() == 0)) {
     proto_.clear_luz();
   }
-  if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b()) {
+  if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b() && !proto_.cor().has_a()) {
     proto_.clear_cor();
   }
   if (proto_parcial.has_pontos_vida()) {
@@ -578,7 +628,8 @@ void Entidade::MontaMatriz(bool queda,
     gl::MultiplicaMatriz(matriz_shear, false);
     gl::Translada(0, 0, translacao_z, false);
   }
-  if (proto.has_modelo_3d()) {
+  bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
+  if (!computar_queda && (proto.has_modelo_3d() || (pd != nullptr && !pd->texturas_sempre_de_frente()))) {
     gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   }
 
@@ -587,8 +638,7 @@ void Entidade::MontaMatriz(bool queda,
     gl::Escala(1.0f, 1.0f, 0.1f, false);
   }
 
-  // So roda entidades nao achatadas.
-  if (queda && vd.angulo_disco_queda_graus > 0/* && !achatar*/) {
+  if (computar_queda) {
     // Descomentar essa linha para ajustar a posicao da entidade.
     //gl::Translada(0, -TAMANHO_LADO_QUADRADO_2, 0);
     // Roda pra direcao de queda.

@@ -1,21 +1,22 @@
-Versao 2.1.0
-- Fazer o projeto XCode do mac.
-- Setar todas unidades de textura na inicializacao dos shaders.
-- Dano nao aparece na visao no escuro.
-- Shader de skybox (e passar pro final).
-- Campo de sombra para objeto (alguns nao devem fazer sombra).
-- Filtro de arquivos para skyboxes e de terreno.
-- Picking de transparencias.
+Versao 2.3.0
+- Geracao de terrenos por tipo (arvores, relevo).
+- Passar controle virtual para interface.
+
+- Entidades montadas.
+- Relogio marcando horas e controlando iluminacao?
+- Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
+- Botao de rotacao de entidades.
+- Bug: entidade composta vazia. Como? Tabuleiro do esconderijo_phaerimm com pau.
+- Rolagem com terreno.
+- Permitir que alguns modelos afundem na terra.
+- Picking de transparencias completas (alfa = 0).
 - Voltar a ideia de implementar a UI universal em cada plataforma de forma nativa, ja que o tratamento
   de teclado e mouse eh nao trivial. Exemplos: lista de objetos, entrada de string.
 - Warning de desregistrar no destrutor, que da merda (o objeto sera destruido mas ainda processara alguma
   mensagem, pois o loop fez a copia).
-- Triangulo na UI (nao tem como desenhar).
-- Texturizar outros objetos 3d: triangulo, esfera, cone, cilindro.
+- Texturizar outros objetos 3d: esfera, cone, cilindro.
 - Ataque automatico.
-- Outros botoes controle virtual: mudar template, etc.
 - Texturas dos orcs.
-- Acao de regua nao deve ir para clientes remotos.
 - Eventos de escala e rotacao de entidades no IOS e android.
 - Colocar todas as texturas de controle virtual em uma so.
 - Ver se o controle virtual recupera as texturas quando minimizado.
@@ -23,7 +24,6 @@ Versao 2.1.0
 - Resolver AppNap.
 - Corrigir o menu de formas de desenho para sincronizar com o controle virtual (enviar mensagens).
 - Acoes de entidade (ao inves de ser global, permitir que cada entidade tenha suas acoes).
-- Geracao de terrenos.
 - Remover cenario ao remover um objeto que o referencia e nao houver outro (perguntar pq pode ser perigoso!).
 - Sistema de particulas.
 - Refatorar projecao ortogonal para usar matriz picking.
@@ -32,8 +32,6 @@ Versao 2.1.0
 - Efeitos apenas para mestre.
 - Outros eventos, animacoes de eventos.
 - Fazer rotacao Z ser suavizada como destino do movimento.
-- Terminar socket.
-- Entender tilt de rede do lollipop (nao eh codigo, backtrack deu mesmo pau. Alguma coisa no lollipop).
 - Android: tentar usar a libc++ para compilar ao inves do gnustl (ver Application.mk). Da problema no proto.
 - Mudar a espessura do desenho.
 - Bug da transparencia quando um retangulo com textura transparente eh colocado.
@@ -43,29 +41,18 @@ Versao 2.1.0
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
 
-Versao 2.2.0
+Versao 2.4.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
-- Cor de formas compostas aplicando a todos os filhos.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
-- Android e ipad: voltar para UI principal caso falhe.
+- Android e ipad: voltar para UI principal caso falhe a conexao.
 - Adicionar mais unit tests (comecar pelos simples).
 - Adicionar modelos diversos.
-- Adicionar texturas globais.
-
-Versao com Vbo:
-- Modelos 3d para entidades.
-- Vbos de entidades.
 - Unit teste dos glVbo roda.
 - Objetos compostos com transparencia.
-- Terminar a exportacao de formas e compostas (CORES).
-
-Versao com Shader:
-- Shadow mapping.
 
 Algumas ideias loucas.
 - Interface de mouse generico para tablets (suporte a multitap).
-- Visao primeira pessoa.
 - Joystick no android.
 - Botao de aplicar mudancas nos dialogos.
 - Outros bits de status (dormindo, paralizado).

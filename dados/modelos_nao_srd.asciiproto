@@ -92,43 +92,51 @@ modelo {
 modelo {
   id: 'Phaerimm Filhote'
   entidade {
-    dados_vida: '1d8' tamanho: TM_MIUDO info_textura { id: 'phaerimm.png' } cor { r: 0.6 g: 1.0 b: 0.6 }
+    dados_vida: '1d8' tamanho: TM_MIUDO modelo_3d { id: "phaerimm" } voadora: true info_textura { id: 'phaerimm.png' } cor { r: 0.6 g: 1.0 b: 0.6 }
+    rotulo_especial: 'ini +3 mov 6\nat -1 2x garras dano 1\nca: 17/15/14, RM 11\nfeiticos CD 11+: 5/4'
   }
 }
 modelo {
   id: 'Phaerimm Juvenil'
   entidade {
-    dados_vida: '4d8' tamanho: TM_PEQUENO info_textura { id: 'phaerimm.png' } cor { r: 0.4 g: 0.9 b: 0.4 }
+    dados_vida: '4d8' tamanho: TM_PEQUENO modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.4 g: 0.9 b: 0.4 }
+    rotulo_especial: 'ini +2 mov 6\nat +3 2x garras dano 1d3-1, mordida dano 1d6\nca: 19/13/17, RM 14\nfeiticos CD 12 (13 ev): 6/7/4'
   }
 }
 modelo {
   id: 'Phaerimm Jovem Adulto'
   entidade {
-    dados_vida: '7d8+7' info_textura { id: 'phaerimm.png' } cor { r: 0.3 g: 0.8 b: 0.3 }
+    dados_vida: '7d8+7' modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.3 g: 0.8 b: 0.3 }
+    rotulo_especial: 'ini +1 mov 6\nat +6 4x garras dano 1d4+1, mordida dano 1d8\nferrao 1d6 + veneno CD 14\nca: 21/11/20, RM 17\nfeiticos CD 13 (15 ev): 6/7/7/5'
   }
 }
 modelo {
   id: 'Phaerimm Adulto'
   entidade {
-    dados_vida: '10d8+10' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.2 g: 0.7 b: 0.2 }
+    dados_vida: '10d8+10' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.2 g: 0.7 b: 0.2 }
+    rotulo_especial: 'ini +0 mov 6\nat +9 4x garras dano 1d6+3, mordida dano 2d6+1\nferrao 1d8 + veneno CD 16 + implante\nca: 23/9/23, RM 20\nfeiticos CD 14 (16 ev): 6/7/7/7/6/3'
   }
 }
 modelo {
   id: 'Phaerimm Experiente'
   entidade {
-    dados_vida: '13d8+26' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.15 g: 0.6 b: 0.15 }
+    dados_vida: '13d8+26' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.15 g: 0.6 b: 0.15 }
+    rotulo_especial: 'ini +0 mov 6\nat +12 4x garras dano 1d6+4, mordida dano 2d6+2\nferrao 1d8 + veneno CD 18 + implante\nca: 27/9/27, RM 23\nfeiticos CD 15 (17 en/ev): 6/8/7/7/7/7/4'
   }
 }
 modelo {
   id: 'Phaerimm Ancião'
   entidade {
-    dados_vida: '16d8+32' tamanho: TM_GRANDE info_textura { id: 'phaerimm.png' } cor { r: 0.12 g: 0.55 b: 0.12 }
+    dados_vida: '16d8+32' tamanho: TM_GRANDE modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true
+    cor { r: 0.12 g: 0.55 b: 0.12 }
+    rotulo_especial: 'ini +0 mov 6\nat +16 4x garras dano 1d6+5, mordida dano 2d6+2\nferrao 1d8 + veneno CD 20 + implante\nca: 31/9/31, RM 26\nfeiticos CD 16 (18 en/ev): 6/7/7/7/7/7/7/5/3'
   }
 }
 modelo {
   id: 'Phaerimm Ancião Venerável'
   entidade {
-    dados_vida: '19d8+57' tamanho: TM_ENORME info_textura { id: 'phaerimm.png' } cor { r: 0.1 g: 0.5 b: 0.1 }
+    dados_vida: '19d8+57' tamanho: TM_ENORME modelo_3d { id: "phaerimm" } info_textura { id: 'phaerimm.png' } voadora: true cor { r: 0.1 g: 0.5 b: 0.1 }
+    rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
   }
 }
 

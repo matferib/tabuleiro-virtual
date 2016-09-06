@@ -1,5 +1,5 @@
 Caminho curto:
-sh gera_mac.sh -v 2.0.0
+sh gera_mac.sh -v 2.2.0
 
 1- Colocar no diretorio mac as coisas da instalação:
 Os executaveis:
@@ -10,6 +10,7 @@ Texturas e dados:
 texturas/*.png
 dados/*.asciiproto
 shaders/*.c
+modelos3d/*.binproto
 
 Os 3 frameworks do Qt, sem headers:
 O esqueleto pode ser encontrado em https://drive.google.com/file/d/0B7clSIFMH9R-NWMzaGJVS1RXd3M/view?usp=sharing (mac_skeleton.tgz).

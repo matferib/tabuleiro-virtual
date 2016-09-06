@@ -18,6 +18,7 @@
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
+#include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
 #include "ifg/qt/constantes.h"
@@ -134,15 +135,15 @@ void AdicionaSeparador(const QString& rotulo, QComboBox* combo_textura) {
 
 // Preenche combo de textura. Cada item tera o id e o tipo de textura. Para texturas locais,
 // o nome sera prefixado por id.
-void PreencheComboTextura(const std::string& id_corrente, int id_cliente, QComboBox* combo_textura) {
+void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::function<bool(const std::string&)> filtro, QComboBox* combo_textura) {
   combo_textura->addItem(combo_textura->tr("Nenhuma"), QVariant(-1));
-  auto FiltraOrdena = [] (std::vector<std::string> texturas) -> std::vector<std::string> {
+  auto Ordena = [filtro] (std::vector<std::string> texturas) -> std::vector<std::string> {
     std::sort(texturas.begin(), texturas.end());
     return texturas;
   };
-  std::vector<std::string> texturas = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA)));
-  std::vector<std::string> texturas_baixadas = std::move(FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA))));
-  std::vector<std::string> texturas_locais = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL)));
+  std::vector<std::string> texturas = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA, filtro)));
+  std::vector<std::string> texturas_baixadas = std::move(Ordena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA, filtro))));
+  std::vector<std::string> texturas_locais = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL, filtro)));
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
@@ -220,6 +221,34 @@ void PreencheComboTexturaCeu(const std::string& id_corrente, int id_cliente, QCo
   }
 }
 
+void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_modelos_3d) {
+  combo_modelos_3d->addItem(combo_modelos_3d->tr("Nenhum"), QVariant(-1));
+  auto Ordena = [] (std::vector<std::string> modelos) -> std::vector<std::string> {
+    std::sort(modelos.begin(), modelos.end());
+    return modelos;
+  };
+  std::vector<std::string> modelos_3d = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d)));
+  std::vector<std::string> modelos_3d_baixados = std::move(Ordena((arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d))));
+
+  AdicionaSeparador(combo_modelos_3d->tr("Globais"), combo_modelos_3d);
+  for (const std::string& modelo_3d : modelos_3d) {
+    combo_modelos_3d->addItem(QString(modelo_3d.substr(0, modelo_3d.find(".binproto")).c_str()), QVariant(arq::TIPO_MODELOS_3D));
+  }
+  AdicionaSeparador(combo_modelos_3d->tr("Baixados"), combo_modelos_3d);
+  for (const std::string& modelo_3d : modelos_3d_baixados) {
+    combo_modelos_3d->addItem(modelo_3d.substr(0, modelo_3d.find(".binproto")).c_str(), QVariant(arq::TIPO_MODELOS_3D_BAIXADOS));
+  }
+  if (id_corrente.empty()) {
+    combo_modelos_3d->setCurrentIndex(0);
+  } else {
+    int index = combo_modelos_3d->findText(QString(id_corrente.c_str()));
+    if (index == -1) {
+      index = 0;
+    }
+    combo_modelos_3d->setCurrentIndex(index);
+  }
+}
+
 // Preenche proto_retornado usando entidade e o combo como base.
 void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
                                    ent::InfoTextura* info_textura) {
@@ -250,12 +279,14 @@ void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QCo
 }  // namespace
 
 Visualizador3d::Visualizador3d(
-    int* argcp, char** argv, TratadorTecladoMouse* teclado_mouse,
+    TratadorTecladoMouse* teclado_mouse,
     ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai)
     :  QGLWidget(Formato(), pai),
-       argcp_(argcp), argv_(argv),
        teclado_mouse_(teclado_mouse),
        central_(central), tabuleiro_(tabuleiro) {
+  const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
+  luz_por_pixel_ = opcoes.iluminacao_por_pixel();
+  mapeamento_sombras_ = opcoes.mapeamento_sombras();
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -271,8 +302,7 @@ void Visualizador3d::initializeGL() {
   try {
     if (!once) {
       once = true;
-      // luz_por_pixel, mapeamento_sombras.
-      gl::IniciaGl(true, true);
+      gl::IniciaGl(luz_por_pixel_, mapeamento_sombras_);
     }
     tabuleiro_->IniciaGL();
   } catch (const std::logic_error& erro) {
@@ -371,13 +401,13 @@ bool Visualizador3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
         return false;
       }
       DesativadorWatchdogEscopo dw(tabuleiro_);
-      auto* opcoes = AbreDialogoOpcoes(notificacao);
-      if (opcoes == nullptr) {
+      std::unique_ptr<ent::OpcoesProto> opcoes(AbreDialogoOpcoes(notificacao));
+      if (opcoes.get() == nullptr) {
         VLOG(1) << "Alterações de opcoes descartadas";
         break;
       }
       auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_OPCOES);
-      n->mutable_opcoes()->Swap(opcoes);
+      n->mutable_opcoes()->Swap(opcoes.get());
       central_->AdicionaNotificacao(n);
       break;
     }
@@ -477,9 +507,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
-  if (!notificacao.modo_mestre()) {
-    gerador.checkbox_visibilidade->setEnabled(false);
-  }
+  gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
   // Fixa.
   gerador.checkbox_fixa->setCheckState(entidade.fixa() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -496,7 +524,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.checkbox_selecionavel->setEnabled(false);
   }
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -536,13 +564,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Rotacao em Z.
-  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus());
-  gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus() + 90.0f);
+  gerador.spin_rotacao->setValue(entidade.rotacao_z_graus());
   lambda_connect(gerador.dial_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.spin_rotacao->setValue(gerador.dial_rotacao->value());
+    gerador.spin_rotacao->setValue(fmod(gerador.dial_rotacao->value() - 90.0f, 360.0));
   });
   lambda_connect(gerador.spin_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.dial_rotacao->setValue(gerador.spin_rotacao->value());
+    gerador.dial_rotacao->setValue(fmod(gerador.spin_rotacao->value() + 90.0f, 360.0f));
   });
 
   // Translacao em Z.
@@ -623,6 +651,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
+    proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     bool fixa = gerador.checkbox_fixa->checkState() == Qt::Checked;
     if (fixa) {
@@ -630,7 +659,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       proto_retornado->set_selecionavel_para_jogador(false);
     }
     proto_retornado->set_fixa(fixa);
-    proto_retornado->set_rotacao_z_graus(gerador.dial_rotacao->sliderPosition());
+    proto_retornado->set_rotacao_z_graus(gerador.spin_rotacao->value());
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
@@ -681,7 +710,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     const ntf::Notificacao& notificacao) {
   const auto& entidade = notificacao.entidade();
-  auto* proto_retornado = new ent::EntidadeProto;
+  auto* proto_retornado = new ent::EntidadeProto(entidade);
   proto_retornado->set_id(entidade.id());
   ifg::qt::Ui::DialogoEntidade gerador;
   auto* dialogo = new QDialog(this);
@@ -744,7 +773,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_luz()) {
     luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
     gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
-    gerador.spin_raio->setValue(entidade.luz().has_raio() ? entidade.luz().raio() : 6.0f);
+    gerador.spin_raio->setValue(entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f);
   } else {
     ent::Cor branco;
     branco.set_r(1.0f);
@@ -767,7 +796,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
   });
   // Textura do objeto.
-  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), gerador.combo_textura);
+  PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
+  // Modelo 3d.
+  PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
@@ -807,6 +838,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->set_rotulo(gerador.campo_rotulo->text().toStdString());
     }
     QStringList lista_rotulos = gerador.lista_rotulos->toPlainText().split("\n", QString::SkipEmptyParts);
+    proto_retornado->clear_rotulo_especial();
     for (const auto& rotulo : lista_rotulos) {
       proto_retornado->add_rotulo_especial(rotulo.toStdString());
     }
@@ -817,7 +849,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
     if (gerador.spin_raio->value() > 0.0f) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
-      proto_retornado->mutable_luz()->set_raio(gerador.spin_raio->value());
+      proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio->value());
     } else {
       proto_retornado->clear_luz();
     }
@@ -825,6 +857,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->clear_info_textura();
     } else {
       PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+    }
+    if (gerador.combo_modelos_3d->currentIndex() == 0) {
+      proto_retornado->clear_modelo_3d();
+    } else {
+      proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toStdString());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
@@ -925,7 +962,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
   }
 
   // Textura do tabuleiro.
-  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_fundo);
+  PreencheComboTextura(tab_proto.info_textura().id().c_str(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaTabuleiro, gerador.combo_fundo);
   // Ceu do tabuleiro.
   PreencheComboTexturaCeu(tab_proto.info_textura_ceu().id().c_str(), notificacao.tabuleiro().id_cliente(), gerador.combo_ceu);
   gerador.checkbox_luz_ceu->setCheckState(tab_proto.aplicar_luz_ambiente_textura_ceu() ? Qt::Checked : Qt::Unchecked);
@@ -1055,7 +1092,7 @@ ent::TabuleiroProto* Visualizador3d::AbreDialogoCenario(
 
 ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
     const ntf::Notificacao& notificacao) {
-  auto* proto_retornado = new ent::OpcoesProto;
+  auto* proto_retornado = new ent::OpcoesProto(notificacao.opcoes());
   ifg::qt::Ui::DialogoOpcoes gerador;
   auto* dialogo = new QDialog(this);
   gerador.setupUi(dialogo);

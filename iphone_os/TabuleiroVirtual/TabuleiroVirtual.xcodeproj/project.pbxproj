@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		EA06FA2E1A5B858B008ABF75 /* tabuleiros_salvos in Resources */ = {isa = PBXBuildFile; fileRef = EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */; };
 		EA31EFDF1AC9D5A70067BA40 /* entidade_composta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */; };
 		EA31EFE01AC9D5A70067BA40 /* entidade_forma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */; };
 		EA31EFE11AC9D5A70067BA40 /* tabuleiro_picking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */; };
@@ -16,6 +15,10 @@
 		EA33ED841B24ED9100FBDDBD /* gl_vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA33ED831B24ED9100FBDDBD /* gl_vbo.cpp */; };
 		EA38B7291ACBB2C700D66E95 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B7271ACBB2C700D66E95 /* socket.cpp */; };
 		EA38B72D1AD4C95600D66E95 /* m3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B72B1AD4C95600D66E95 /* m3d.cpp */; };
+		EA63E0AE1CB5F04300A8B02B /* modelos3d in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0AD1CB5F04300A8B02B /* modelos3d */; };
+		EA63E0B01CB5F07800A8B02B /* texturas in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0AF1CB5F07800A8B02B /* texturas */; };
+		EA63E0B41CB5F0AF00A8B02B /* tabuleiros_salvos in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */; };
+		EA63E0B61CB5F15300A8B02B /* dados in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0B51CB5F15300A8B02B /* dados */; };
 		EA6B4A931B7716B9005A1E79 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */; };
 		EA6B4A951B844324005A1E79 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = EA6B4A941B844324005A1E79 /* shaders */; };
 		EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253D91A6A2B43007EF810 /* gl_es.cpp */; };
@@ -90,8 +93,6 @@
 		EACF27B71A58D9AA0052E95A /* wire_format.cc in Sources */ = {isa = PBXBuildFile; fileRef = EACF278F1A58D9AA0052E95A /* wire_format.cc */; };
 		EACF27B81A58D9AA0052E95A /* wire_format_lite.cc in Sources */ = {isa = PBXBuildFile; fileRef = EACF27911A58D9AA0052E95A /* wire_format_lite.cc */; };
 		EACF27BA1A58DB230052E95A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = EACF27B91A58DB230052E95A /* libz.dylib */; };
-		EACF27BD1A58DBFC0052E95A /* dados in Resources */ = {isa = PBXBuildFile; fileRef = EACF27BB1A58DBFB0052E95A /* dados */; };
-		EACF27BE1A58DBFC0052E95A /* texturas in Resources */ = {isa = PBXBuildFile; fileRef = EACF27BC1A58DBFB0052E95A /* texturas */; };
 		EAE207BC1C011E9F008057D3 /* controle_virtual.pb.cc in Sources */ = {isa = PBXBuildFile; fileRef = EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */; };
 /* End PBXBuildFile section */
 
@@ -118,6 +119,11 @@
 		EA38B72B1AD4C95600D66E95 /* m3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = m3d.cpp; path = ../../../m3d/m3d.cpp; sourceTree = "<group>"; };
 		EA38B72C1AD4C95600D66E95 /* m3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = m3d.h; path = ../../../m3d/m3d.h; sourceTree = "<group>"; };
 		EA5CE7541C757F350091039C /* tabuleiro_terreno.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tabuleiro_terreno.h; path = ../../../../ent/tabuleiro_terreno.h; sourceTree = "<group>"; };
+		EA63E0AD1CB5F04300A8B02B /* modelos3d */ = {isa = PBXFileReference; lastKnownFileType = folder; name = modelos3d; path = ../../modelos3d; sourceTree = "<group>"; };
+		EA63E0AF1CB5F07800A8B02B /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; name = texturas; path = ../../texturas; sourceTree = "<group>"; };
+		EA63E0B11CB5F09000A8B02B /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dados; path = ../../dados; sourceTree = "<group>"; };
+		EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tabuleiros_salvos; path = ../../tabuleiros_salvos; sourceTree = "<group>"; };
+		EA63E0B51CB5F15300A8B02B /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dados; sourceTree = "<group>"; };
 		EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		EA6B4A941B844324005A1E79 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = ../../shaders; sourceTree = "<group>"; };
 		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
@@ -325,6 +331,11 @@
 		EACF26501A58C6DA0052E95A = {
 			isa = PBXGroup;
 			children = (
+				EA63E0B51CB5F15300A8B02B /* dados */,
+				EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */,
+				EA63E0B11CB5F09000A8B02B /* dados */,
+				EA63E0AF1CB5F07800A8B02B /* texturas */,
+				EA63E0AD1CB5F04300A8B02B /* modelos3d */,
 				EA6B4A941B844324005A1E79 /* shaders */,
 				EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */,
 				EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */,
@@ -716,10 +727,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EA63E0B61CB5F15300A8B02B /* dados in Resources */,
+				EA63E0B41CB5F0AF00A8B02B /* tabuleiros_salvos in Resources */,
+				EA63E0B01CB5F07800A8B02B /* texturas in Resources */,
+				EA63E0AE1CB5F04300A8B02B /* modelos3d in Resources */,
 				EA6B4A951B844324005A1E79 /* shaders in Resources */,
-				EACF27BD1A58DBFC0052E95A /* dados in Resources */,
-				EACF27BE1A58DBFC0052E95A /* texturas in Resources */,
-				EA06FA2E1A5B858B008ABF75 /* tabuleiros_salvos in Resources */,
 				EACF26711A58C6DA0052E95A /* LaunchScreen.xib in Resources */,
 				EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */,
 				EACF266E1A58C6DA0052E95A /* Images.xcassets in Resources */,

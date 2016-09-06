@@ -1,9 +1,11 @@
 #import "AppDelegate.h"
 #import "GameViewController.h"
+#include "native.h"
+#include "ent/tabuleiro.pb.h"
 
 #define VIEW_ID 1
 #define VIEW_IP 2
-#define VIEW_SOMBRA_COMPLEXA 3
+#define VIEW_MAPEAMENTO_SOMBRAS 3
 #define VIEW_ILUMINACAO_POR_PIXEL 4
 #define VIEW_CONECTAR 100
 #define VIEW_SERVIDOR 101
@@ -40,6 +42,15 @@
     NSString* host_antes_ponto = [[NSProcessInfo processInfo] hostName];
     host_antes_ponto = [[host_antes_ponto componentsSeparatedByString:@"."] firstObject];
     [texto_id setText:host_antes_ponto];
+    // Opcoes.
+    ent::OpcoesProto opcoes;
+    nativeArqInitAndReadOptions(&opcoes);
+    if (opcoes.mapeamento_sombras()) {
+      ((UISwitch*)[self.window viewWithTag:VIEW_MAPEAMENTO_SOMBRAS]).on = TRUE;
+    }
+    if (opcoes.iluminacao_por_pixel()) {
+      ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on = TRUE;
+    }
     UIButton* botao_servidor = (UIButton*)[self.window viewWithTag:VIEW_SERVIDOR];
     [botao_servidor addTarget:self action:@selector(servidor)
              forControlEvents:UIControlEventTouchDown];
@@ -60,8 +71,8 @@
         [(UITextField*)[self.window viewWithTag:VIEW_ID] text];
     game_view_controller->endereco_servidor_ =
         [(UITextField*)[self.window viewWithTag:VIEW_IP] text];
-    game_view_controller->usar_sombra_complexa_ =
-        ((UISwitch*)[self.window viewWithTag:VIEW_SOMBRA_COMPLEXA]).on;
+    game_view_controller->usar_mapeamento_sombras_ =
+        ((UISwitch*)[self.window viewWithTag:VIEW_MAPEAMENTO_SOMBRAS]).on;
     game_view_controller->usar_iluminacao_por_pixel_ =
         ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on;
   
@@ -74,8 +85,8 @@
     UIStoryboard* sb = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     GameViewController* game_view_controller = (GameViewController*)
         [sb instantiateViewControllerWithIdentifier:@"GameViewController"];
-  game_view_controller->usar_sombra_complexa_ =
-  ((UISwitch*)[self.window viewWithTag:VIEW_SOMBRA_COMPLEXA]).on;
+  game_view_controller->usar_mapeamento_sombras_ =
+  ((UISwitch*)[self.window viewWithTag:VIEW_MAPEAMENTO_SOMBRAS]).on;
   game_view_controller->usar_iluminacao_por_pixel_ =
   ((UISwitch*)[self.window viewWithTag:VIEW_ILUMINACAO_POR_PIXEL]).on;
     UIViewController* responder = (UIViewController*)

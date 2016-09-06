@@ -18,8 +18,8 @@ class Receptor {
   virtual bool TrataNotificacao(const Notificacao& notificacao) = 0;
 };
 
-/** Identico ao receptor, mas bom para diferenciar. */
-class ReceptorRemoto {
+/** Apenas classes de rede que enviam mensagens remotas devem implementar isso. */
+class EmissorRemoto {
  public:
   /** @return false se não tratar a notificação. */
   virtual bool TrataNotificacaoRemota(const Notificacao& notificacao) = 0;
@@ -33,7 +33,7 @@ class CentralNotificacoes {
   /** Adiciona uma notificacao a central, que sera a dona dela. */
   void AdicionaNotificacao(Notificacao* notificacao);
 
-  /** Adiciona uma notificacao a ser processada apenas pelos receptores remotos.
+  /** Adiciona uma notificacao a ser processada apenas pelos emissores remotos.
   * A central possuirá a notificação. */
   void AdicionaNotificacaoRemota(Notificacao* notificacao);
 
@@ -41,13 +41,16 @@ class CentralNotificacoes {
   void RegistraReceptor(Receptor* receptor);
 
   /** Registra um receptor remoto com a central, que nao sera dono dele. */
-  void RegistraReceptorRemoto(ReceptorRemoto* receptor);
+  void RegistraEmissorRemoto(EmissorRemoto* receptor);
 
-  /** Tira um receptor do registro. */
+  /** Tira um receptor do registro.
+  * Atencao: ao se desregistrar durante o loop, o objeto continuarar recebendo mensagens ate o termino do loop,
+  * pois eh feita uma copia do loop por causa da iteracao.
+  */
   void DesregistraReceptor(const Receptor* receptor);
 
-  /** Tira um receptor remoto do registro. */
-  void DesregistraReceptorRemoto(const ReceptorRemoto* receptor);
+  /** Tira um receptor remoto do registro. Ver warning acima. */
+  void DesregistraEmissorRemoto(const EmissorRemoto* receptor);
 
   /** Notifica todos os receptores registrados das notificacoes adicionadas. */
   void Notifica();
@@ -56,7 +59,7 @@ class CentralNotificacoes {
   std::vector<std::unique_ptr<Notificacao>> notificacoes_;
   std::vector<std::unique_ptr<Notificacao>> notificacoes_remotas_;
   std::vector<Receptor*> receptores_;
-  std::vector<ReceptorRemoto*> receptores_remotos_;
+  std::vector<EmissorRemoto*> emissores_remotos_;
 };
 
 } // namespace ntf

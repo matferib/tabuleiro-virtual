@@ -460,6 +460,9 @@
       <property name="decimals">
        <number>1</number>
       </property>
+      <property name="minimum">
+       <double>-100.000000000000000</double>
+      </property>
       <property name="maximum">
        <double>100.000000000000000</double>
       </property>
@@ -687,6 +690,31 @@
        <double>1.500000000000000</double>
       </property>
      </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWidget" name="horizontalLayoutWidget_9">
+   <property name="geometry">
+    <rect>
+     <x>410</x>
+     <y>390</y>
+     <width>361</width>
+     <height>41</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_21">
+    <item>
+     <widget class="QLabel" name="label_16">
+      <property name="text">
+       <string>Modelo 3D</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="combo_modelos_3d"/>
     </item>
    </layout>
   </widget>

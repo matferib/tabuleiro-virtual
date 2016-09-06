@@ -107,6 +107,10 @@ public:
     QComboBox *combo_visao;
     QLabel *label_14;
     QDoubleSpinBox *spin_raio_visao_escuro;
+    QWidget *horizontalLayoutWidget_9;
+    QHBoxLayout *horizontalLayout_21;
+    QLabel *label_16;
+    QComboBox *combo_modelos_3d;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -370,6 +374,7 @@ public:
         spin_translacao = new QDoubleSpinBox(horizontalLayoutWidget_6);
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
         spin_translacao->setDecimals(1);
+        spin_translacao->setMinimum(-100);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);
 
@@ -489,6 +494,23 @@ public:
 
         horizontalLayout_20->addWidget(spin_raio_visao_escuro);
 
+        horizontalLayoutWidget_9 = new QWidget(ifg__qt__DialogoEntidade);
+        horizontalLayoutWidget_9->setObjectName(QString::fromUtf8("horizontalLayoutWidget_9"));
+        horizontalLayoutWidget_9->setGeometry(QRect(410, 390, 361, 41));
+        horizontalLayout_21 = new QHBoxLayout(horizontalLayoutWidget_9);
+        horizontalLayout_21->setObjectName(QString::fromUtf8("horizontalLayout_21"));
+        horizontalLayout_21->setContentsMargins(0, 0, 0, 0);
+        label_16 = new QLabel(horizontalLayoutWidget_9);
+        label_16->setObjectName(QString::fromUtf8("label_16"));
+        label_16->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_21->addWidget(label_16);
+
+        combo_modelos_3d = new QComboBox(horizontalLayoutWidget_9);
+        combo_modelos_3d->setObjectName(QString::fromUtf8("combo_modelos_3d"));
+
+        horizontalLayout_21->addWidget(combo_modelos_3d);
+
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
@@ -590,6 +612,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_raio_visao_escuro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        label_16->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modelo 3D", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

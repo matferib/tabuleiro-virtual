@@ -96,7 +96,6 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   gl::Desabilita(GL_NORMALIZE);
 }
 
-
 void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {
   DesenhaObjetoProto(proto, VariaveisDerivadas(), pd, matriz_shear);
 }
@@ -122,7 +121,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   AjustaCor(proto, pd);
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
-  if (!proto.has_info_textura() && !proto.has_modelo_3d()) {
+  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
@@ -149,10 +148,23 @@ void Entidade::DesenhaObjetoEntidadeProto(
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz(false);
       MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+      if (pd->has_alfa_translucidos()) {
+        gl::Habilita(GL_BLEND);
+        gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+      } else if (pd->entidade_selecionada()) {
+        // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
+        gl::Habilita(GL_BLEND);
+        gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
+        gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
+      }
       gl::DesenhaVbo(*vbo);
+      gl::Desabilita(GL_BLEND);
+      gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
       return;
     } else {
-      LOG(INFO) << "Modelo3d invalido: " << proto.modelo_3d().id();
+      // Nem sempre eh erro.
+      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
     }
   }
 
@@ -183,7 +195,9 @@ void Entidade::DesenhaObjetoEntidadeProto(
         // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
         angulo = -angulo;
       }
-      gl::Roda(angulo - 90.0f, 0, 0, 1.0, false);
+      gl::Roda(angulo - 90.0f, 0, 0, 1.0f, false);
+    } else if (!proto.caida()) {
+      gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
     }
     gl::MatrizEscopo salva_matriz(false);
     gl::Escala(1.0f, 0.1f, 1.0f, false);
@@ -191,7 +205,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
-  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+  GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
@@ -214,7 +228,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     return;
   }
   // Disco da entidade.
-  if (!proto_.has_info_textura() && pd->entidade_selecionada()) {
+  if (proto_.info_textura().id().empty() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,
@@ -280,10 +294,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       // Descricao (so quando nao for picking).
       if (!pd->has_picking_x() && !descricao.empty()) {
         gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-        MudaCorAplicandoNevoa(COR_AMARELA, pd);
         gl::Translada(0.0f, 0.0f, 0.4f);
-        gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-        gl::DesenhaString(StringSemUtf8(descricao), true  /*inverte vertical*/);
+        if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+          MudaCorAplicandoNevoa(COR_AMARELA, pd);
+          gl::DesenhaString(StringSemUtf8(descricao), true  /*inverte vertical*/);
+        }
       }
     }
   }
@@ -296,36 +311,38 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     bool desenhou_rotulo = false;
     if (pd->desenha_rotulo()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
-      MudaCorAplicandoNevoa(COR_AMARELA, pd);
-      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
-      desenhou_rotulo = true;
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        MudaCorAplicandoNevoa(COR_AMARELA, pd);
+        gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
+        desenhou_rotulo = true;
+      }
     }
     if (pd->desenha_rotulo_especial()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
       MudaCorAplicandoNevoa(COR_AMARELA, pd);
-      gl::PosicaoRaster(0.0f, 0.0f, 0.0f);
-      std::string rotulo;
-      for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
-        rotulo += (desenhou_rotulo ? std::string("\n") : std::string("")) + rotulo_especial;
-      }
-      if (proto_.proxima_salvacao() != RS_FALHOU) {
-        rotulo += "\nprox. salv.: ";
-        switch (proto_.proxima_salvacao()) {
-          case RS_MEIO:
-            rotulo += "1/2";
-            break;
-          case RS_QUARTO:
-            rotulo += "1/4";
-            break;
-          case RS_ANULOU:
-            rotulo += "ANULA";
-            break;
-          default:
-            rotulo += "VALOR INVALIDO";
+      if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
+        std::string rotulo;
+        for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
+          rotulo += (desenhou_rotulo ? std::string("\n") : std::string("")) + rotulo_especial;
         }
+        if (proto_.proxima_salvacao() != RS_FALHOU) {
+          rotulo += "\nprox. salv.: ";
+          switch (proto_.proxima_salvacao()) {
+            case RS_MEIO:
+              rotulo += "1/2";
+              break;
+            case RS_QUARTO:
+              rotulo += "1/4";
+              break;
+            case RS_ANULOU:
+              rotulo += "ANULA";
+              break;
+            default:
+              rotulo += "VALOR INVALIDO";
+          }
+        }
+        gl::DesenhaString(StringSemUtf8(rotulo));
       }
-      gl::DesenhaString(StringSemUtf8(rotulo));
     }
   }
 }
@@ -431,7 +448,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
       cor.set_b(1.0f);
       cor.set_a(1.0f);
     }
-    float raio = (proto_.luz().has_raio() ? proto_.luz().raio() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
+    float raio = (proto_.luz().has_raio_m() ? proto_.luz().raio_m() : 6.0f) + sinf(vd_.angulo_disco_luz_rad) * 0.02;
     float multiplicador_cor = 1.0f;
     if (pd->tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
       raio *= 2.0;

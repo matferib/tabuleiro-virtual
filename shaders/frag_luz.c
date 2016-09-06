@@ -1,5 +1,14 @@
 #version ${VERSAO}
 
+// Macros ${XXX} deverao ser substituidas pelo codigo fonte.
+#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
+
+#if USAR_MAPEAMENTO_SOMBRAS
+#if defined(GL_EXT_shadow_samplers)
+#extension GL_EXT_shadow_samplers : enable
+#endif
+#endif
+
 #if defined(GL_ES)
 //precision highp float;
 //#define lowp highp
@@ -13,9 +22,6 @@
 #define varying in
 #endif
 #endif
-
-// Macros ${XXX} deverao ser substituidas pelo codigo fonte.
-#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
@@ -49,13 +55,12 @@ uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 #if USAR_MAPEAMENTO_SOMBRAS
-#if __VERSION__ == 130 || __VERSION__ == 120
+#if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
 #endif
-uniform highp samplerCube gltab_unidade_textura_cubo;   // handler da textura de cubos.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
@@ -90,12 +95,15 @@ void main() {
     //lowp vec4 cor_luz = gltab_luz_ambiente;
 #if USAR_MAPEAMENTO_SOMBRAS
     highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
-    highp float bias = 0.005 * tan(acos(cos_theta));
+    highp float bias = 0.002 * tan(acos(cos_theta));
     bias = clamp(bias, 0.00, 0.0035);
 #if __VERSION__ == 130
     lowp float aplicar_luz_direcional = texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
 #elif __VERSION__ == 120
     lowp float aplicar_luz_direcional = shadow2D(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias)).r;
+#elif defined(GL_EXT_shadow_samplers)
+    lowp float aplicar_luz_direcional = shadow2DEXT(
+        gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - bias));
 #else
     // OpenGL ES 2.0.
     lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
@@ -122,9 +130,6 @@ void main() {
   //cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
-  }
-  if (gltab_textura_cubo > 0.0) {
-    cor_final *= textureCube(gltab_unidade_textura_cubo, v_Pos_model.yzx);
   }
 
   //lowp float cor = (cor_final.r + cor_final.g + cor_final.b) / 3.0;

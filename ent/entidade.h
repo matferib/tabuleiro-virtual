@@ -73,8 +73,11 @@ class Entidade {
   /** Incrementa Z da entidade por um delta. */
   void IncrementaZ(float delta_z);
 
-  /** Altera a rotacao em Z da entidade. */
-  void AlteraRotacaoZ(float delta_rotacao_graus);
+  /** Incrementa a rotacao em Z da entidade. */
+  void IncrementaRotacaoZGraus(float delta_rotacao_graus);
+  
+  /** Altera a rotacao Z graus de uma entidade para o valor passado. */
+  void AlteraRotacaoZGraus(float rotacao_graus);
 
   float RotacaoZGraus() const { return proto_.rotacao_z_graus(); }
 
@@ -87,8 +90,8 @@ class Entidade {
   /** @return a coordenada (y). */
   float Y() const;
 
-  /** @return a coordenada (z). */
-  float Z() const;
+  /** @return a coordenada (z). Se delta voo for true, inclui o delta de voo tb. */
+  float Z(bool delta_voo = false) const;
 
   /** @return o id de cenario da entidade. */
   int IdCenario() const;
@@ -249,6 +252,9 @@ class Entidade {
   /** Para entidades compostas. */
   static void AtualizaTexturasEntidadesCompostasProto(
       const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
+
+  /** Realiza as notificacoes referentes a modelos 3d. */
+  void AtualizaModelo3d(const EntidadeProto& novo_proto);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);

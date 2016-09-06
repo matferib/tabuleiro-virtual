@@ -74,6 +74,8 @@ void DesenhaStencil3d(float xi, float yi, float xs, float ys, const float* cor =
 
 /** Gera um aleatorio de 1 a nfaces. */
 int RolaDado(unsigned int nfaces);
+/** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
+float Aleatorio();
 
 /** Gera pontos de vida baseado nos dados de vida, da forma 4d8+8 por exemplo.
 * Da excecao se dados_vida for mal formado.
@@ -113,7 +115,7 @@ void RodaVetor2d(float graus, Posicao* vetor);
 bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& vertices);
 
 /** Posicionamento do raster em 2d. */
-void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
+bool PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
 
 // Tipos de efeitos possiveis.
 enum efeitos_e {
@@ -152,6 +154,17 @@ const std::string StringSemUtf8(const std::string& id_acao);
 
 // Move o delta para uma entidade, garantindo que ela termine acima do solo.
 void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tabuleiro, Entidade* entidade);
+
+bool EhPng(const std::string& textura);
+bool EhIcone(const std::string& textura);
+bool EhTerreno(const std::string& textura);
+bool EhCaixaCeu(const std::string& textura);
+bool EhModelo3d(const std::string& textura);
+// Filtros uteis.
+bool FiltroModelo3d(const std::string& textura);
+bool FiltroTexturaEntidade(const std::string& textura);
+bool FiltroTexturaCaixaCeu(const std::string& textura);
+bool FiltroTexturaTabuleiro(const std::string& textura);
 
 }  // namespace ent
 

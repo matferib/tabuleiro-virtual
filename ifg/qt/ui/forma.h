@@ -92,6 +92,7 @@ public:
     QCheckBox *checkbox_fixa;
     QCheckBox *checkbox_selecionavel;
     QCheckBox *checkbox_visibilidade;
+    QCheckBox *checkbox_faz_sombra;
     QWidget *layoutWidget_2;
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_11;
@@ -189,7 +190,7 @@ public:
 
         spin_escala_x = new QDoubleSpinBox(verticalLayoutWidget);
         spin_escala_x->setObjectName(QString::fromUtf8("spin_escala_x"));
-        spin_escala_x->setDecimals(1);
+        spin_escala_x->setDecimals(2);
         spin_escala_x->setMinimum(-1000);
         spin_escala_x->setMaximum(1000);
         spin_escala_x->setSingleStep(0.5);
@@ -208,7 +209,7 @@ public:
 
         spin_escala_y = new QDoubleSpinBox(verticalLayoutWidget);
         spin_escala_y->setObjectName(QString::fromUtf8("spin_escala_y"));
-        spin_escala_y->setDecimals(1);
+        spin_escala_y->setDecimals(2);
         spin_escala_y->setMinimum(-1000);
         spin_escala_y->setMaximum(1000);
         spin_escala_y->setSingleStep(0.5);
@@ -227,7 +228,7 @@ public:
 
         spin_escala_z = new QDoubleSpinBox(verticalLayoutWidget);
         spin_escala_z->setObjectName(QString::fromUtf8("spin_escala_z"));
-        spin_escala_z->setDecimals(1);
+        spin_escala_z->setDecimals(2);
         spin_escala_z->setMinimum(-50);
         spin_escala_z->setMaximum(50);
         spin_escala_z->setSingleStep(0.5);
@@ -256,7 +257,8 @@ public:
         spin_translacao = new QDoubleSpinBox(groupBox_2);
         spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
         spin_translacao->setGeometry(QRect(80, 60, 91, 24));
-        spin_translacao->setDecimals(1);
+        spin_translacao->setDecimals(2);
+        spin_translacao->setMinimum(-100);
         spin_translacao->setMaximum(100);
         spin_translacao->setSingleStep(0.1);
         label_2 = new QLabel(groupBox_2);
@@ -265,7 +267,8 @@ public:
         spin_rotacao = new QSpinBox(groupBox_2);
         spin_rotacao->setObjectName(QString::fromUtf8("spin_rotacao"));
         spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
-        spin_rotacao->setMaximum(360);
+        spin_rotacao->setMinimum(-180);
+        spin_rotacao->setMaximum(180);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
         horizontalLayoutWidget_3->setGeometry(QRect(470, 360, 221, 41));
@@ -418,6 +421,11 @@ public:
         checkbox_visibilidade->setSizePolicy(sizePolicy2);
 
         horizontalLayout_11->addWidget(checkbox_visibilidade);
+
+        checkbox_faz_sombra = new QCheckBox(horizontalLayoutWidget_6);
+        checkbox_faz_sombra->setObjectName(QString::fromUtf8("checkbox_faz_sombra"));
+
+        horizontalLayout_11->addWidget(checkbox_faz_sombra);
 
         layoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
@@ -597,6 +605,10 @@ public:
         checkbox_fixa->setText(QApplication::translate("ifg::qt::DialogoForma", "Fixa", 0, QApplication::UnicodeUTF8));
         checkbox_selecionavel->setText(QApplication::translate("ifg::qt::DialogoForma", "Selecion\303\241vel", 0, QApplication::UnicodeUTF8));
         checkbox_visibilidade->setText(QApplication::translate("ifg::qt::DialogoForma", "Vis\303\255vel", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_faz_sombra->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_faz_sombra->setText(QApplication::translate("ifg::qt::DialogoForma", "Faz Sombra", 0, QApplication::UnicodeUTF8));
         label_11->setText(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));

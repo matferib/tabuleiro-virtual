@@ -17,6 +17,7 @@ enum TipoForma {
   TF_LIVRE = 5;
   TF_PIRAMIDE = 6;
   TF_RETANGULO = 7;
+  TF_TRIANGULO = 8;
 }
 
 enum TamanhoEntidade {
@@ -61,7 +62,8 @@ message Cor {
 
 message IluminacaoPontual {
   optional Cor cor = 1;
-  optional float raio = 2;
+  // Metros. Passar para quadrados.
+  optional float raio_m = 2;
   optional float atenuacao = 3 [deprecated=true];
 }
 
@@ -92,6 +94,8 @@ message InfoTextura {
 message Modelo3d {
   // Identificador do modelo 3d.
   optional string id = 1;
+  // Para transmissao. Bits do arquivo de modelo.
+  optional bytes bits_crus = 6;
 }
 
 // A escala nos tres eixos.
@@ -165,6 +169,8 @@ message EntidadeProto {
   optional bool selecionavel_para_jogador = 16 [default=true];
   // Se verdadeiro, o mestre nao conseguira selecionar a entidade. Ela sera apenas editavel com duplo clique.
   optional bool fixa = 32 [default=false];
+  // Se falso, a entidade nao faz sombra.
+  optional bool faz_sombra = 39 [default=true];
   // Tipo de visao da entidade.
   optional TipoVisao tipo_visao = 36;
   // Alcance da visao no escuro em metros.

@@ -131,13 +131,6 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     nativeDestroy();
   }
 
-  static {
-    if (Build.VERSION.SDK_INT < 18) {
-      // https://developer.android.com/ndk/guides/cpp-support.html#runtimes.
-      System.loadLibrary("gnustl_shared");
-    }
-    System.loadLibrary("tabuleiro");
-  }
   private native void nativeCreate(boolean servidor, String nome, String endereco,
                                    boolean mapeamento_sombras, boolean luz_por_pixel, Object assets, String dir);
   private static native void nativeDestroy();
@@ -545,10 +538,10 @@ class TabuleiroRenderer
         raio_luz.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
         float val_luz = 0.0f;
         if (proto.luz != null) {
-          if (proto.luz.raio == null) {
+          if (proto.luz.raio_m == null) {
             val_luz = 6.0f;  // raio padrao de luz: 4 quadrados.
           } else {
-            val_luz = proto.luz.raio;
+            val_luz = proto.luz.raio_m;
           }
         }
         int indice_val_luz = (int)(val_luz / 1.5f);

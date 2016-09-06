@@ -1,3 +1,4 @@
+#include <cctype>
 #include <cmath>
 #include <cstdio>
 #include <cstring>
@@ -10,7 +11,15 @@
 #include <google/gflags.h>
 #endif
 
-#define VLOG_NIVEL 2
+#if __APPLE__
+  #include "TargetConditionals.h"
+  #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+  #elif TARGET_OS_MAC
+    #define MAC_OSX 1
+  #endif
+#endif
+
+//#define VLOG_NIVEL 2
 #include "log/log.h"
 
 #include "gltab/gl_interno.h"
@@ -24,6 +33,7 @@ using gl::TSH_SIMPLES;
 using gl::TSH_PICKING;
 using gl::TSH_PROFUNDIDADE;
 using gl::TSH_PRETO_BRANCO;
+using gl::TSH_CAIXA_CEU;
 
 // Comum.
 namespace gl {
@@ -183,12 +193,32 @@ type_set [] = {
   {GL_SAMPLER_CUBE,                              "samplerCube" },
 };
 
+namespace {
+
+void CarregaExtensoes() {
+  auto* contexto = BuscaContexto();
+  std::string extstr((const char*)gl::Le(GL_EXTENSIONS));
+  std::string corrente;
+  for (auto c : extstr) {
+    if (!isspace(c)) {
+      corrente.append(1, c);
+    } else {
+      contexto->extensoes.insert(corrente);
+      corrente.clear();
+    }
+  }
+  if (!corrente.empty()) {
+    contexto->extensoes.insert(corrente);
+  }
+}
+
+}  // namespace
+
 void ImprimeExtensoes() {
-  int ne;
-  gl::Le(GL_EXTENSIONS, &ne);
-  for (int i = 0; i < ne; ++i) {
-    // So pra aparecer.
-    //VLOG(1) << "Extensao: " << glGetStringi(GL_EXTENSIONS, i);
+  LOG(INFO) << "Extensoes:";
+  auto* contexto = BuscaContexto();
+  for (const auto& e : contexto->extensoes) {
+    LOG(INFO) << e;
   }
 }
 
@@ -267,10 +297,12 @@ void PreprocessaFonte(const std::string& nome, const VarShader& shader, std::str
 }
 
 bool IniciaShader(const char* nome_programa,
+                  TipoShader tipo,
                   const char* nome_vs,
                   const char* nome_fs,
                   VarShader* shader) {
   shader->nome = nome_programa;
+  shader->tipo = tipo;
   GLuint v_shader = CriaShader(GL_VERTEX_SHADER);
   V_ERRO_RET("criando vertex shader");
   GLuint f_shader = CriaShader(GL_FRAGMENT_SHADER);
@@ -375,25 +407,28 @@ void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Context
   LOG(INFO) << "OpenGL: " << (char*)glGetString(GL_VERSION);
   struct DadosShaders {
     std::string nome_programa;
+    TipoShader tipo;
     std::string nome_vs;
     std::string nome_fs;
     VarShader* shader;
   };
   std::vector<DadosShaders> dados_shaders = {
     { luz_por_pixel ? "programa_luz_pixel" : "programa_luz_vertice",
+      TSH_LUZ,
       luz_por_pixel ? "vert_luz.c" : "vert_luz_por_vertice.c",
       luz_por_pixel ? "frag_luz.c" : "frag_luz_por_vertice.c",
       &contexto->shaders[TSH_LUZ] },
-    { "programa_simples", "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
-    { "programa_picking", "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
-    { "programa_profundidade", "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
-    { "programa_preto_branco", "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
+    { "programa_simples", TSH_SIMPLES, "vert_simples.c", "frag_simples.c", &contexto->shaders[TSH_SIMPLES] },
+    { "programa_caixa_ceu", TSH_CAIXA_CEU, "vert_caixa_ceu.c", "frag_caixa_ceu.c", &contexto->shaders[TSH_CAIXA_CEU] },
+    { "programa_picking", TSH_PICKING, "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
+    { "programa_profundidade", TSH_PROFUNDIDADE, "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
+    { "programa_preto_branco", TSH_PRETO_BRANCO, "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
   };
 
   for (auto& ds : dados_shaders) {
     LOG(INFO) << "Iniciando programa shaders: " << ds.nome_programa.c_str();
     ds.shader->mapeamento_sombras = mapeamento_sombras;
-    if (!IniciaShader(ds.nome_programa.c_str(), ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
+    if (!IniciaShader(ds.nome_programa.c_str(), ds.tipo, ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
       LOG(ERROR) << "Erro carregando programa com " << ds.nome_vs.c_str() << " e " << ds.nome_fs.c_str();
       continue;
     }
@@ -419,7 +454,8 @@ void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto*
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
-  //ImprimeExtensoes();
+  CarregaExtensoes();
+  ImprimeExtensoes();
   IniciaShaders(luz_por_pixel, mapeamento_sombras, contexto);
 }
 
@@ -556,6 +592,45 @@ void DesempilhaMatrizSombra() {
 }
 
 }  // namespace interno
+
+void HabilitaMipmapAniso(GLenum alvo) {
+  gl::ParametroTextura(alvo, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+#if WIN32 || MAC_OSX || (__linux__ && !ANDROID)
+  GLfloat aniso = 0;
+  gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+  if (aniso <= 0) {
+    // Trilinear.
+    gl::ParametroTextura(alvo, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  } else {
+    // Melhora muito as texturas. Mipmap + aniso.
+    gl::ParametroTextura(alvo, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    gl::ParametroTextura(alvo, GL_TEXTURE_MAX_ANISOTROPY_EXT, 4);
+  }
+#else
+  gl::ParametroTextura(alvo, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+#endif
+
+  gl::ParametroTextura(alvo, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(alvo, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#if !USAR_OPENGL_ES
+  // Nao sei se precisa disso...
+  if (alvo == GL_TEXTURE_CUBE_MAP) {
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+  }
+#endif
+}
+
+void DesabilitaMipmapAniso(GLenum alvo) {
+  gl::ParametroTextura(alvo, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  gl::ParametroTextura(alvo, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+#if WIN32 || MAC_OSX || (__linux__ && !ANDROID)
+  GLfloat aniso = 0;
+  gl::Le(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &aniso);
+  if (aniso > 0) {
+    gl::ParametroTextura(alvo, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1);
+  }
+#endif
+}
 
 void EmpilhaMatriz(bool atualizar) {
   auto* c = interno::BuscaContexto();
@@ -940,6 +1015,11 @@ Matrix4 LeMatriz(matriz_e modo) {
   }
 }
 
+bool TemExtensao(const std::string& nome_extensao) {
+  const auto& extensoes = interno::BuscaContexto()->extensoes;
+  return extensoes.find(nome_extensao) != extensoes.end();
+}
+
 void Le(GLenum nome_parametro, GLfloat* valor) {
   auto* c = interno::BuscaContexto();
   if (nome_parametro == GL_MODELVIEW_MATRIX) {
@@ -1004,6 +1084,11 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
+}
+
+TipoShader TipoShaderCorrente() {
+  auto* c = interno::BuscaContexto();
+  return c->shader_corrente->tipo;
 }
 
 namespace {
@@ -1097,7 +1182,7 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   *altura = 13;
 }
 
-void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
+bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   float matriz_mv[16];
   float matriz_pr[16];
   GLint viewport[4];
@@ -1105,17 +1190,19 @@ void PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   gl::Le(GL_MODELVIEW_MATRIX, matriz_mv);
   gl::Le(GL_PROJECTION_MATRIX, matriz_pr);
   float x2d, y2d, z2d;
-  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d)) {
-    return;
+  // z < 0 significa projecao atras do olho.
+  if (!glu::Project(x, y, z, matriz_mv, matriz_pr, viewport, &x2d, &y2d, &z2d) || z2d < 0) {
+    return false;
   }
   auto* contexto = interno::BuscaContexto();
   contexto->raster_x = x2d;
   contexto->raster_y = y2d;
   //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
+  return true;
 }
 
-void PosicaoRaster(GLint x, GLint y) {
-  PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
+bool PosicaoRaster(GLint x, GLint y) {
+  return PosicaoRaster(static_cast<float>(x), static_cast<float>(y), 0.0f);
 }
 
 void AlternaModoDebug() {
@@ -1330,8 +1417,10 @@ void Desabilita(GLenum cap) {
 void UnidadeTextura(GLenum unidade) {
 #if WIN32
   interno::TexturaAtivaInterno(unidade);
+  //glClientActiveTexture(unidade);
 #else
   glActiveTexture(unidade);
+  //glClientActiveTexture(unidade);
 #endif
 }
 

@@ -23,6 +23,7 @@ varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 varying highp vec4 v_Pos_model;
 #if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;
+varying highp float v_Bias;
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
@@ -123,19 +124,8 @@ void main() {
   gl_Position = gltab_prm * v_Pos;
 #if USAR_MAPEAMENTO_SOMBRAS
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
+  highp float cos_theta = clamp(dot(normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
+  v_Bias = clamp(0.002 * tan(acos(cos_theta)), 0.00, 0.0035);
 #endif
   gl_PointSize = gltab_dados_raster.p;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

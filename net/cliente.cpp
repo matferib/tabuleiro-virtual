@@ -6,7 +6,7 @@
 
 #include "ent/constantes.h"
 // para depurar android e ios.
-#define VLOG_NIVEL 1
+//#define VLOG_NIVEL 1
 #include "log/log.h"
 #include "net/cliente.h"
 #include "net/util.h"
@@ -174,12 +174,13 @@ void Cliente::Conecta(const std::string& id, const std::string& endereco_str) {
     LOG(INFO) << "Valor buffer envio watermark: " << option3.value();
 #endif
 
-    // Handler de leitura.
+    // Handler de leitura. Envia a notificacao localmente.
     auto* notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_RESPOSTA_CONEXAO);
     notificacao->set_id_rede(id);
     central_->AdicionaNotificacao(notificacao);
-    central_->RegistraReceptorRemoto(this);
+    central_->RegistraEmissorRemoto(this);
+    // Com o emissor remoto registrado, envia a notificacao remota.
     auto* copia = new ntf::Notificacao(*notificacao);
     central_->AdicionaNotificacaoRemota(copia);
     RecebeDados();
@@ -203,7 +204,7 @@ void Cliente::Desconecta(const std::string& erro) {
   socket_.reset();
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESCONECTADO);
   central_->AdicionaNotificacao(notificacao);
-  central_->DesregistraReceptorRemoto(this);
+  central_->DesregistraEmissorRemoto(this);
   if (!erro.empty()) {
     notificacao->set_erro(erro);
   }

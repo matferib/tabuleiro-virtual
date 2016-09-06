@@ -94,7 +94,7 @@ void Servidor::Liga() {
   VLOG(1) << "Ligando servidor.";
   try {
     proximo_cliente_.reset(new Cliente(new Socket(sincronizador_)));
-    central_->RegistraReceptorRemoto(this);
+    central_->RegistraEmissorRemoto(this);
     aceitador_->Liga(PortaPadrao(), proximo_cliente_->socket.get(),
                      [this](const Erro& erro) -> Socket* {
       if (erro) {
@@ -150,7 +150,7 @@ void Servidor::Desliga() {
     LOG(ERROR) << "Servidor ja está desligado.";
     return;
   }
-  central_->DesregistraReceptorRemoto(this);
+  central_->DesregistraEmissorRemoto(this);
   aceitador_->Desliga();
   anunciante_.reset();
   for (auto* c : clientes_) {

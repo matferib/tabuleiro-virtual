@@ -20,12 +20,15 @@ enum IdBotao {
   CONTROLE_RODADA = 15;
   CONTROLE_CAMERA_ISOMETRICA = 16;
   CONTROLE_CAMERA_PRESA = 17;
+  CONTROLE_CAMERA_PRIMEIRA_PESSOA = 70;
   CONTROLE_CIMA = 18;
   CONTROLE_BAIXO = 19;
   CONTROLE_ESQUERDA = 20;
   CONTROLE_DIREITA = 21;
   CONTROLE_CIMA_VERTICAL = 22;
   CONTROLE_BAIXO_VERTICAL = 23;
+  CONTROLE_CIMA_VERTICAL_TERRENO = 71;
+  CONTROLE_BAIXO_VERTICAL_TERRENO = 72;
   CONTROLE_TRANSICAO = 24;
   CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA = 25;  // paginacao de lista de objetos.
   CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO = 26;  // ditto.
@@ -36,32 +39,43 @@ enum IdBotao {
   CONTROLE_DESENHO_LIVRE = 31;
   CONTROLE_DESENHO_RETANGULO = 32;
   CONTROLE_DESENHO_CIRCULO = 33;
-  CONTROLE_DESENHO_ESFERA = 34;
-  CONTROLE_DESENHO_PIRAMIDE = 35;
-  CONTROLE_DESENHO_CUBO = 36;
-  CONTROLE_DESENHO_CILINDRO = 37;
-  CONTROLE_DESENHO_CONE = 38;
-  CONTROLE_DESENHO_AGRUPAR = 39;
-  CONTROLE_DESENHO_DESAGRUPAR  = 40;
-  CONTROLE_DESENHO_COR_VERMELHO = 41;
-  CONTROLE_DESENHO_COR_VERDE = 42;
-  CONTROLE_DESENHO_COR_AZUL = 43;
-  CONTROLE_DESENHO_COR_AMARELO = 44;
-  CONTROLE_DESENHO_COR_MAGENTA = 45;
-  CONTROLE_DESENHO_COR_CIANO = 46;
-  CONTROLE_DESENHO_COR_BRANCO = 47;
-  CONTROLE_DESENHO_COR_PRETO = 48;
-  CONTROLE_COPIAR = 49;
-  CONTROLE_COLAR = 50;
-  CONTROLE_SALVAR = 51;
-  CONTROLE_SALVAR_COMO = 52;
-  CONTROLE_ABRIR = 53;
-  CONTROLE_DANO_AUTOMATICO = 54;
-  CONTROLE_AJUDA = 55;
-  CONTROLE_MODO_ROTACAO = 56;
-  CONTROLE_INTERFACE_GRAFICA = 57;
-  CONTROLE_GERAR_TERRENO_ALEATORIO = 58;
-  CONTROLE_MODO_TERRENO = 59;
+  CONTROLE_DESENHO_TRIANGULO = 34;
+  CONTROLE_DESENHO_ESFERA = 35;
+  CONTROLE_DESENHO_PIRAMIDE = 36;
+  CONTROLE_DESENHO_CUBO = 37;
+  CONTROLE_DESENHO_CILINDRO = 38;
+  CONTROLE_DESENHO_CONE = 39;
+  CONTROLE_DESENHO_AGRUPAR = 40;
+  CONTROLE_DESENHO_DESAGRUPAR  = 41;
+  CONTROLE_DESENHO_COR_VERMELHO = 42;
+  CONTROLE_DESENHO_COR_VERDE = 43;
+  CONTROLE_DESENHO_COR_AZUL = 44;
+  CONTROLE_DESENHO_COR_AMARELO = 45;
+  CONTROLE_DESENHO_COR_MAGENTA = 46;
+  CONTROLE_DESENHO_COR_CIANO = 47;
+  CONTROLE_DESENHO_COR_BRANCO = 48;
+  CONTROLE_DESENHO_COR_PRETO = 49;
+  CONTROLE_COPIAR = 50;
+  CONTROLE_COLAR = 51;
+  CONTROLE_SALVAR = 52;
+  CONTROLE_SALVAR_COMO = 53;
+  CONTROLE_ABRIR = 54;
+  CONTROLE_DANO_AUTOMATICO = 55;
+  CONTROLE_AJUDA = 56;
+  CONTROLE_MODO_ROTACAO = 57;
+  CONTROLE_INTERFACE_GRAFICA = 58;
+  CONTROLE_GERAR_TERRENO_ALEATORIO = 59;
+  CONTROLE_GERAR_MONTANHA = 60;
+  CONTROLE_MODO_TERRENO = 61;
+  CONTROLE_NOP = 62;
+  CONTROLE_TEXTURA_ENTIDADE = 63;
+  CONTROLE_TEXTURA_ENTIDADE_PROXIMA = 64;
+  CONTROLE_TEXTURA_ENTIDADE_ANTERIOR = 65;
+  CONTROLE_APAGA_ENTIDADES = 66;
+  CONTROLE_MODELO_ENTIDADE = 67;
+  CONTROLE_MODELO_ENTIDADE_PROXIMA = 68;
+  CONTROLE_MODELO_ENTIDADE_ANTERIOR = 69;
+
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 100;
   CONTROLE_ULTIMA_ACAO_0 = 101;
@@ -71,34 +85,52 @@ enum IdBotao {
   CONTROLE_JOGADORES = 1000;  // Lista de jogadores.
 }
 
+enum Alinhamento {
+  ALINHAMENTO_CENTRO   = 1;
+  ALINHAMENTO_ESQUERDA = 2;
+  ALINHAMENTO_DIREITA  = 3;
+  ALINHAMENTO_CIMA     = 4;
+  ALINHAMENTO_BAIXO    = 5;
+}
+
 message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
   // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
   optional float tamanho = 1;
+  // Se tamanho nao for preenchido, esses dois devem ser. A unidade eh a mesma do tamanho (ou seja, em caracteres).
+  optional float largura = 2;
+  optional float altura = 3;
   // Em qual linha o botao se encontra: 0 baixo, 1 uma acima.
-  optional int32 linha = 2;
+  optional int32 linha = 4;
   // Em qual coluna o botao se encontra.
-  optional int32 coluna = 3;
+  optional int32 coluna = 5;
   // Escrita no bota, maximo dois caracteres.
-  optional string rotulo = 4;
+  optional string rotulo = 6;
   // // cor do rotulo (letra).
-  optional Cor cor_rotulo = 5;
+  optional Cor cor_rotulo = 7;
   // Cor de fundo do botao.
-  optional Cor cor_fundo = 6;
+  optional Cor cor_fundo = 8;
   // Nome do arquivo de icone.
-  optional string textura = 7;
+  optional string textura = 9;
   // Identifica o que o botao faz, ver IdBotao.
-  optional IdBotao id = 8;
+  optional IdBotao id = 10;
   // numero de lados do botao.
-  optional int32 num_lados_botao = 9;
+  optional int32 num_lados_botao = 11;
   // Rotacao do botao.
-  optional float rotacao_graus = 10;
+  optional float rotacao_graus = 12;
   // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x).
-  optional float translacao_x = 11;
+  optional float translacao_x = 13;
   // Translacao do desenho em fator de escala da fonte (altura_botao * translacao_x).
-  optional float translacao_y = 12;
+  optional float translacao_y = 14;
+  // Se verdadeiro, deve ser desenhado apenas durante picking. Util para evitar cliques no tabuleiro.
+  optional bool picking_apenas = 15;
   // Texto mostrado quando cursor ficar sobre o botao.
-  optional string dica = 13;
+  optional string dica = 16;
+  // Se verdadeiro, apenas o mestre deve ver.
+  optional bool mestre_apenas = 17;
+  // Alinhamento do botao.
+  optional Alinhamento alinhamento_horizontal = 18 [default=ALINHAMENTO_ESQUERDA];
+  optional Alinhamento alinhamento_vertical = 19 [default=ALINHAMENTO_BAIXO];
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.
@@ -106,10 +138,29 @@ message Pagina {
   repeated DadosBotao dados_botoes = 1;
 }
 
-// O controle eh composto por varias paginas.
-message ControleVirtualProto {
-  repeated Pagina pagina = 1;
-  optional int32 pagina_corrente = 2;
+// A barra fixa eh similar, mas nao tem paginacao, sendo sempre exibida.
+message Fixo {
+  repeated DadosBotao dados_botoes = 1;
 }
 
+// O controle eh composto por varias paginas.
+message ControleVirtualProto {
+  optional Fixo fixo = 1;
+  repeated Pagina pagina = 2;
+  optional int32 pagina_corrente = 3;
+}
+
+// Cada modelo de entidade (template) que pode ser adicionada. Apenas alguns campos da entidade sao considerados:
+// - pontos de vida.
+// - tamanho.
+// - cor.
+message Modelo {
+  optional string id = 1;
+  optional EntidadeProto entidade = 2;
+}
+
+// O arquivo eh serializado como uma repeticao de modelos em formato texto.
+message Modelos {
+  repeated Modelo modelo = 1;
+}
 

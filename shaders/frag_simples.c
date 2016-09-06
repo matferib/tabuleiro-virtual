@@ -21,6 +21,8 @@ uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 
 void main() {
   lowp vec4 cor_final = v_Color;
-  cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
+  if (gltab_textura > 0.0) {
+    cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
+  }
   gl_FragColor = cor_final;
 }

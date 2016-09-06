@@ -74,16 +74,41 @@ class TratadorDialogos : public ntf::Receptor {
 };
 std::unique_ptr<TratadorDialogos> g_tratador_dialogos;
 
-}  // namespace native
+void LeOpcoes(ent::OpcoesProto* proto) {
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", proto);
+  } catch (const std::exception& e) {
+    NSLog(@"Erro lendo opcoes iniciais, usando default: %s", e.what());
+  }
+}
+
+void SalvaOpcoes(const ent::OpcoesProto& opcoes) {
+  try {
+    arq::EscreveArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", opcoes);
+  } catch (const std::exception& e) {
+    NSLog(@"Erro salvando opcoes iniciais: %s", e.what());
+  }
+}
+
+}  // namespace
+
+// Essa eh a primeira chamada.
+void nativeArqInitAndReadOptions(ent::OpcoesProto* proto) {
+  arq::Inicializa();
+  LeOpcoes(proto);
+}
 
 void nativeCreate(void* view) {
-  arq::Inicializa();
   g_view = (__bridge GameViewController*)view;
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
+  g_modelos3d.reset(new m3d::Modelos3d(g_central.get()));
+  // Le de novo, pra num ter que criar global. O valor vai ser o mesmo.
   ent::OpcoesProto opcoes;
-  opcoes.set_mapeamento_sombras(g_view->usar_sombra_complexa_);
+  LeOpcoes(&opcoes);
+  opcoes.set_mapeamento_sombras(g_view->usar_mapeamento_sombras_);
   opcoes.set_iluminacao_por_pixel(g_view->usar_iluminacao_por_pixel_);
+  SalvaOpcoes(opcoes);
   g_tabuleiro.reset(new ent::Tabuleiro(opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
@@ -95,7 +120,7 @@ void nativeCreate(void* view) {
   g_interface.reset(new ifg::InterfaceIos(view, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
   g_tratador_dialogos.reset(new TratadorDialogos(g_central.get()));
 
-  gl::IniciaGl(false, g_view->usar_sombra_complexa_);
+  gl::IniciaGl(g_view->usar_iluminacao_por_pixel_, g_view->usar_mapeamento_sombras_);
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
 

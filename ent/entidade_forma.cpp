@@ -59,7 +59,12 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
     }
     break;
     case TF_CONE: {
-      vbo = std::move(gl::VboConeSolido(0.5f, 1.0f, 12, 6));
+      vbo = std::move(gl::VboConeSolido(0.5f/*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/));
+      {
+        gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+        vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+        vbo.Concatena(vbo_disco);
+      }
     }
     break;
     case TF_CUBO: {
@@ -73,6 +78,10 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
     break;
     case TF_RETANGULO: {
       vbo = std::move(gl::VboRetangulo(1.0f));
+    }
+    break;
+    case TF_TRIANGULO: {
+      vbo = std::move(gl::VboTriangulo(1.0f));
     }
     break;
     case TF_ESFERA: {
@@ -101,6 +110,7 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::Entidad
     break;
     default:
       LOG(ERROR) << "Forma de desenho invalida";
+      throw std::logic_error("Forma de desenho invalida");
   }
   const auto& c = proto.cor();
   vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
@@ -121,6 +131,7 @@ bool TipoForma2d(TipoForma tipo) {
     case TF_LIVRE:
     case TF_RETANGULO:
     case TF_CIRCULO:
+    case TF_TRIANGULO:
       return true;
     default:
       return false;
@@ -193,6 +204,11 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
       gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
       gl::DesenhaVbo(g_vbos[VBO_CONE]);
+      {
+        gl::MatrizEscopo salva(false);
+        gl::Escala(-1.0f, 1.0f, -1.0f, false);
+        gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
+      }
     }
     break;
     case TF_CUBO: {
@@ -231,6 +247,19 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
         gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
       }
       gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
+      gl::Desabilita(GL_TEXTURE_2D);
+    }
+    break;
+    case TF_TRIANGULO: {
+      gl::Translada(0.0f, -proto.escala().y() / 2.0f, 0.0f, false);
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
+      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+      if (id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      }
+      gl::DesenhaVbo(g_vbos[VBO_TRIANGULO], GL_TRIANGLES);
       gl::Desabilita(GL_TEXTURE_2D);
     }
     break;

@@ -109,17 +109,47 @@ std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
 
 extern "C" {
 
+// Essa eh a primeira chamada, acontece ainda na SelecaoActivity.
+// Inicializa arquivo e o proto de opcoes.
+jint Java_com_matferib_Tabuleiro_SelecaoActivity_nativeBitsOpcoes(JNIEnv* env, jobject thiz, jobject assets, jstring dir_dados) {
+  arq::Inicializa(env, assets, ConverteString(env, dir_dados));
+  ent::OpcoesProto proto;
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", &proto);
+  } catch (const std::exception& e) {
+    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Erro lendo opcoes iniciais, usando padrao: %s", e.what());
+  }
+  int ret = 0;
+  if (proto.mapeamento_sombras()) {
+    ret |= 1;
+  }
+  if (proto.iluminacao_por_pixel()) {
+    ret |= 2;
+  }
+  g_opcoes.reset(new ent::OpcoesProto(proto));
+  return ret;
+}
+
+namespace {
+void SalvaOpcoes() {
+  try {
+    arq::EscreveArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", *g_opcoes);
+  } catch (const std::exception& e) {
+    __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Erro salvando opcoes iniciais: %s", e.what());
+  }
+}
+}  // namespace
+
 // Nativos de TabuleiroActivity. Endereco pode ser nullptr para auto conexao.
 void Java_com_matferib_Tabuleiro_TabuleiroActivity_nativeCreate(
     JNIEnv* env, jobject thisz, jboolean servidor, jstring nome, jstring endereco,
     jboolean mapeamento_sombras, jboolean luz_por_pixel, jobject assets, jstring dir_dados) {
-  arq::Inicializa(env, assets, ConverteString(env, dir_dados));
-  g_opcoes.reset(new ent::OpcoesProto);
   g_opcoes->set_mapeamento_sombras(mapeamento_sombras);
   g_opcoes->set_iluminacao_por_pixel(luz_por_pixel);
+  SalvaOpcoes();
   g_central.reset(new ntf::CentralNotificacoes);
   g_texturas.reset(new tex::Texturas(g_central.get()));
-  g_modelos3d.reset(new m3d::Modelos3d());
+  g_modelos3d.reset(new m3d::Modelos3d(g_central.get()));
   g_tabuleiro.reset(new ent::Tabuleiro(*g_opcoes, g_texturas.get(), g_modelos3d.get(), g_central.get()));
   g_servico_io.reset(new boost::asio::io_service);
   g_sincronizador.reset(new net::Sincronizador(g_servico_io.get()));
@@ -182,6 +212,7 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeInitGl(JNIEnv* env, job
   gl::IniciaGl(g_opcoes->iluminacao_por_pixel(), g_opcoes->mapeamento_sombras());
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
+  g_modelos3d->Recarrega();
 }
 
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeResize(JNIEnv* env, jobject thiz, jint w, jint h) {

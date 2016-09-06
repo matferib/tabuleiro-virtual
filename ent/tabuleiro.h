@@ -252,7 +252,7 @@ class Tabuleiro : public ntf::Receptor {
   const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
 
   /** Acesso ao modelo de entidade selecionado. */
-  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_; }
+  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_.second; }
 
   /** Acesso ao mapa de modelos. */
   const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const {
@@ -286,14 +286,19 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Seleciona a cor do desenho (em RGB). */
   void SelecionaCorDesenho(const Cor& cor) { forma_cor_ = cor; }
+
   /** Altera a cor das entidades selecionadas. Nao funciona em formas compostas. */
-  void AlteraCorEntidadesSelecionadas(const Cor& cor);
+  void AlteraCorEntidadesSelecionadasNotificando(const Cor& cor);
+
+  /** Altera a textura das entidades selecionadas, notificando. */
+  void AlteraTexturaEntidadesSelecionadasNotificando(const std::string& id_textura);
 
   /** Retorna a cor de desenho. */
   const Cor& CorDesenho() const { return forma_cor_; }
 
   /** @return a entidade por id, ou nullptr se nao encontrá-la. */
   Entidade* BuscaEntidade(unsigned int id);
+  const Entidade* BuscaEntidade(unsigned int id) const;
 
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();
@@ -312,7 +317,7 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
 
-  /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. */
+  /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. No modo terreno, trata a translacao do terreno. */
   void TrataTranslacaoZ(float delta);
 
   /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
@@ -387,6 +392,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna o modo da camera entre isometrica e perspectiva. */
   void AlternaCameraIsometrica();
+  /** Alterna entre a camera em primeira pessoa e a normal. */
+  void AlternaCameraPrimeiraPessoa();
 
   /** Alterna a visao de jogador para o mestre. */
   void AlternaVisaoJogador() { visao_jogador_ = !visao_jogador_; }
@@ -414,6 +421,8 @@ class Tabuleiro : public ntf::Receptor {
 
   // Ativa a interface opengl para dialogos de tipo abrir tabuleiro, janela etc.
   void AtivaInterfaceOpengl(InterfaceGraficaOpengl* gui) { gui_ = gui; }
+
+  const OpcoesProto& Opcoes() const { return opcoes_; }
 
  private:
   // Classe para computar o tempo de desenho da cena pelo escopo.
@@ -546,9 +555,18 @@ class Tabuleiro : public ntf::Receptor {
   /** Dado um objeto retorna as coordenadas x y z. */
   bool MousePara3dComId(int x, int y, unsigned int id, unsigned int pos_pilha, float* x3d, float* y3d, float* z3d);
 
+  /** Retorna a entidade de primeira pessoa se a camera for primeira pessoa ou a entidade selecionada, se houver apenas uma.
+  * Caso contrario, retorna nullptr.
+  */
+  Entidade* EntidadePrimeiraPessoaOuSelecionada();
+  const Entidade* EntidadePrimeiraPessoaOuSelecionada() const;
+  /** Retorna o vetor ou com o id da entidade primeira pessoa, ou das entidades selecionadas se nao for primeira pessoa. */
+  std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadas() const;
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
   const Entidade* EntidadeSelecionada() const;
+  /** Retorna as entidades selecionadas ou vazio se nao houver. */
+  std::vector<const Entidade*> EntidadesSelecionadas() const;
 
   /** Retorna se uma entidade esta selecionada. */
   bool EntidadeEstaSelecionada(unsigned int id);
@@ -609,6 +627,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o x3d e y3d do SW do quadrado. */
   void CoordenadaSwQuadrado(unsigned int id_quadrado, float* x, float* y, float* z = nullptr);
   void CoordenadaSwQuadrado(int x_quad, int y_quad, float* x, float* y, float* z = nullptr);
+  /** Retorna o x e y do quadrado. O quadrado SW eh (0,0), a sua direita (1,0), acima (0,1) e por ai vai. */ 
+  void XYQuadrado(unsigned int id_quadrado, int *x, int* y);
   /** retorna o id do quadrado em determinada coordenada ou -1 se for posicao invalida. */
   unsigned int IdQuadrado(float x, float y);
 
@@ -704,7 +724,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
 
-  void DesenhaBotaoControleVirtual(const DadosBotao& db, float padding, float largura_botao, float altura_botao);
+  void DesenhaBotaoControleVirtual(const DadosBotao& db, const GLint* viewport, float padding, float largura_botao, float altura_botao);
   void DesenhaRotuloBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
   void DesenhaDicaBotaoControleVirtual(
@@ -752,6 +772,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Gera um terreno com relevo aleatorio, respeitando os limites correntes. */
   void GeraTerrenoAleatorioNotificando();
+  void GeraMontanhaNotificando();
   void TrataDeltaTerreno(float delta);
   void TrataNivelamentoTerreno(int x, int y);
 
@@ -836,10 +857,15 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
-  bool camera_isometrica_ = false;
+  enum camera_e {
+    CAMERA_PERSPECTIVA,
+    CAMERA_ISOMETRICA,
+    CAMERA_PRIMEIRA_PESSOA
+  };
+  camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  const ent::EntidadeProto* modelo_selecionado_;
+  std::pair<std::string, const ent::EntidadeProto*> modelo_selecionado_;
   std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
 
   /** Ação selecionada (por id). */
@@ -927,6 +953,7 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
+  bool usar_sampler_sombras_ = true;
 
   // Sub cenarios. -1 para o principal.
   int cenario_corrente_ = CENARIO_PRINCIPAL;
@@ -935,6 +962,8 @@ class Tabuleiro : public ntf::Receptor {
   // Controle virtual.
   ControleVirtualProto controle_virtual_;
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
+  std::set<std::string> texturas_entidades_;
+  std::set<std::string> modelos_entidades_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

@@ -117,15 +117,21 @@ GLint Project(
   GLfloat in[4];
   GLfloat out[4];
 
-  in[0]=objx;
-  in[1]=objy;
-  in[2]=objz;
-  in[3]=1.0;
+  in[0] = objx;
+  in[1] = objy;
+  in[2] = objz;
+  in[3] = 1.0;
   MultMatrixVecf(modelMatrix, in, out);
   MultMatrixVecf(projMatrix, out, in);
-
   if (in[3] == 0.0) {
-    LOG(ERROR) << "Projecao falhou";
+    LOG(WARNING) << "Projecao falhou2: " << "out: "
+      << out[0] << " " << out[1] << " " << out[2] << " " << out[3] << ", in: "
+      << in[0]  << " " << in[1]  << " " << in[2]  << " " << in[3] << ", proj: "
+      << projMatrix[0]  << " " << projMatrix[1]  << " " << projMatrix[2]  << " " << projMatrix[3]  << " "
+      << projMatrix[4]  << " " << projMatrix[5]  << " " << projMatrix[6]  << " " << projMatrix[7]  << " "
+      << projMatrix[8]  << " " << projMatrix[9]  << " " << projMatrix[10] << " " << projMatrix[11] << " "
+      << projMatrix[12] << " " << projMatrix[13] << " " << projMatrix[14] << " " << projMatrix[15]
+      ;
     return GL_FALSE;
   }
 

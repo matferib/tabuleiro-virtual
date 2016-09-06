@@ -128,7 +128,7 @@
        <item>
         <widget class="QDoubleSpinBox" name="spin_escala_x">
          <property name="decimals">
-          <number>1</number>
+          <number>2</number>
          </property>
          <property name="minimum">
           <double>-1000.000000000000000</double>
@@ -155,7 +155,7 @@
        <item>
         <widget class="QDoubleSpinBox" name="spin_escala_y">
          <property name="decimals">
-          <number>1</number>
+          <number>2</number>
          </property>
          <property name="minimum">
           <double>-1000.000000000000000</double>
@@ -182,7 +182,7 @@
        <item>
         <widget class="QDoubleSpinBox" name="spin_escala_z">
          <property name="decimals">
-          <number>1</number>
+          <number>2</number>
          </property>
          <property name="minimum">
           <double>-50.000000000000000</double>
@@ -265,7 +265,10 @@
      </rect>
     </property>
     <property name="decimals">
-     <number>1</number>
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>-100.000000000000000</double>
     </property>
     <property name="maximum">
      <double>100.000000000000000</double>
@@ -296,8 +299,11 @@
       <height>24</height>
      </rect>
     </property>
+    <property name="minimum">
+     <number>-180</number>
+    </property>
     <property name="maximum">
-     <number>360</number>
+     <number>180</number>
     </property>
    </widget>
   </widget>
@@ -580,6 +586,16 @@
       </property>
       <property name="text">
        <string>Visível</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_faz_sombra">
+      <property name="toolTip">
+       <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+      </property>
+      <property name="text">
+       <string>Faz Sombra</string>
       </property>
      </widget>
     </item>

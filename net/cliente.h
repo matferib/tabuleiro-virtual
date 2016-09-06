@@ -11,7 +11,7 @@
 namespace net {
 
 // Protocolo de conexao no servidor.
-class Cliente : public ntf::Receptor, public ntf::ReceptorRemoto {
+class Cliente : public ntf::Receptor, public ntf::EmissorRemoto {
  public:
   // Nao possui os parametros.
   explicit Cliente(Sincronizador* sincronizador, ntf::CentralNotificacoes* central);

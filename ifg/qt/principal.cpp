@@ -50,18 +50,17 @@ Principal* Principal::Cria(
   q_app->installTranslator(tradutor_meu);
 
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-  return new Principal(argc, argv, tabuleiro, texturas, teclado_mouse, central, q_app);
+  return new Principal(tabuleiro, texturas, teclado_mouse, central, q_app);
 }
 
-Principal::Principal(int& argc, char** argv,
-                     ent::Tabuleiro* tabuleiro,
+Principal::Principal(ent::Tabuleiro* tabuleiro,
                      ent::Texturas* texturas,
                      ifg::TratadorTecladoMouse* teclado_mouse,
                      ntf::CentralNotificacoes* central,
                      QApplication* q_app)
     : QWidget(NULL), central_(central), q_app_(q_app), q_timer_(new QTimer(this)),
       tabuleiro_(tabuleiro), menu_principal_(new MenuPrincipal(tabuleiro, central, this)),
-      v3d_(new Visualizador3d(&argc, argv, teclado_mouse, central, tabuleiro, this)) {
+      v3d_(new Visualizador3d(teclado_mouse, central, tabuleiro, this)) {
   central->RegistraReceptor(this);
   connect(q_timer_, SIGNAL(timeout()), this, SLOT(Temporizador()));
 }

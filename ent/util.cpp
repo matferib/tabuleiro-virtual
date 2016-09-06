@@ -41,9 +41,14 @@ void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd) {
                         pd->nevoa().referencia().z(),
                         1.0f);
   Vector4 ponto = mv * Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-  ponto -= Vector4(ref.x, ref.y, ref.z, 0.0f);
+  ponto -= Vector4(ref.x, ref.y, ref.z, 1.0f);
   float distancia = ponto.length();
-  VLOG(2) << "Distancia para nevoa: " << distancia;
+  //VLOG(2) << "Distancia para nevoa: " << distancia;
+  VLOG(3) << "Distancia para nevoa: " << distancia
+          << ", ref: (" << pd->nevoa().referencia().x() << ", " << pd->nevoa().referencia().y() << ", " << pd->nevoa().referencia().z() << ")"
+          << ", ponto: (" << ponto.x << ", " << ponto.y << ", " << ponto.z << ")"
+          << ", minimo: " << pd->nevoa().minimo()
+          << ", maximo: " << pd->nevoa().maximo();
   if (distancia > pd->nevoa().maximo()) {
     gl::MudaCor(pd->nevoa().cor().r(), pd->nevoa().cor().g(), pd->nevoa().cor().b(), 1.0f);
   } else if (distancia > pd->nevoa().minimo()) {
@@ -424,6 +429,11 @@ int RolaDado(unsigned int nfaces) {
   return (motor_aleatorio() % nfaces) + 1;
 }
 
+float Aleatorio() {
+  int val = RolaDado(10001) - 1;  // [0-10000]
+  return val / 10000.0f;
+}
+
 // Como gcc esta sem suporte a regex, vamos fazer na mao.
 int GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
@@ -518,14 +528,14 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 }
 
 // Posiciona o raster no pixel.
-void PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
+bool PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
   gl::CarregaIdentidade(false);
   gl::Ortogonal(0, largura_vp, 0, altura_vp, 0, 1);
 
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
   gl::CarregaIdentidade();
-  gl::PosicaoRaster(x, y);
+  return gl::PosicaoRaster(x, y);
 }
 
 efeitos_e StringParaEfeito(const std::string& s) {
@@ -616,6 +626,42 @@ void MoveDeltaRespeitandoChao(float dx, float dy, float dz, const Tabuleiro& tab
   float zchao = tabuleiro.ZChao(novo_x, novo_y);
   float novo_z = std::max(zchao, entidade->Z() + dz);
   entidade->MovePara(novo_x, novo_y, novo_z);
+}
+
+bool EhPng(const std::string& textura) {
+  return textura.find(".png") == (textura.size() - 4);
+}
+
+bool EhTerreno(const std::string& textura) {
+  return EhPng(textura) && (textura.find("tile_") == 0 || textura.find("terrain_") == 0);
+}
+
+bool EhCaixaCeu(const std::string& textura) {
+  return EhPng(textura) && textura.find("skybox") == 0;
+}
+
+bool EhIcone(const std::string& textura) {
+  return EhPng(textura) && textura.find("icon_") == 0;
+}
+
+bool EhModelo3d(const std::string& nome) {
+  return nome.size() > 9 && nome.find(".binproto") != std::string::npos;
+}
+
+bool FiltroTexturaEntidade(const std::string& textura) {
+  return EhCaixaCeu(textura) || EhTerreno(textura) || EhIcone(textura) || !EhPng(textura);
+}
+
+bool FiltroTexturaCaixaCeu(const std::string& textura) {
+  return !EhCaixaCeu(textura);
+}
+
+bool FiltroTexturaTabuleiro(const std::string& textura) {
+  return !EhTerreno(textura);
+}
+
+bool FiltroModelo3d(const std::string& nome) {
+  return !EhModelo3d(nome);
 }
 
 }  // namespace ent
