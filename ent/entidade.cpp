@@ -493,7 +493,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (cor_luz != nullptr && (cor_luz->r() == 0 && cor_luz->g() == 0 && cor_luz->b() == 0)) {
     proto_.clear_luz();
   }
-  if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b()) {
+  if (proto_.has_cor() && !proto_.cor().has_r() && !proto_.cor().has_g() && !proto_.cor().has_b() && !proto_.cor().has_a()) {
     proto_.clear_cor();
   }
   if (proto_parcial.has_pontos_vida()) {
