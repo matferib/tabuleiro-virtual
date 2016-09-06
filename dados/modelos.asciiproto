@@ -581,6 +581,21 @@ modelo {
   }
 }
 modelo {
+  id: 'Cubo Gelatinoso'
+  entidade {
+    dados_vida: '4d10+32' cor { r: 1 g: 1 b: 1 a: 0.3 }
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini -5\nat +2 1d6+1d6 acido\nengolfar, paralisia fort CD 20 3d6 rodadas'
+  }
+}
+modelo {
+  id: 'Pudim Negro'
+  entidade {
+    dados_vida: '10d10+60' cor { r: 0 b: 0 g: 0 } tamanho: TM_ENORME
+    rotulo_especial: 'ini -5\nat +8 2d6+4+2d6 acido\nconstricao 2d6+4'
+  }
+}
+modelo {
   id: 'Demônio Súcubo'
   entidade {
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }

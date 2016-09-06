@@ -146,6 +146,11 @@ sub_menu {
   id: 'Plantas'
   modelo { id: 'Arbusto Errante' }
 }
+sub_menu {
+  id: 'Limo/Gosma'
+  modelo { id: 'Cubo Gelatinoso' }
+  modelo { id: 'Pudim Negro' }
+}
 modelo { id: 'Quimera' }
 modelo { id: 'Troll' }
 modelo { id: 'Uivante' }
