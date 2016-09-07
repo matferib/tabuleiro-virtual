@@ -664,4 +664,30 @@ bool FiltroModelo3d(const std::string& nome) {
   return !EhModelo3d(nome);
 }
 
+bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, float alfa) const {
+  if (pd->has_alfa_translucidos()) {
+    // Blend ja ta ligado.
+    gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+    gl::CorMistura(1.0f, 1.0f, 1.0f, alfa < 1.0f ? alfa : pd->alfa_translucidos());
+    return true;
+  } else if (pd->entidade_selecionada()) {
+    // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
+    gl::Habilita(GL_BLEND);
+    gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
+    gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
+    return true;
+  }
+  return false;
+}
+
+void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
+  if (pd->has_alfa_translucidos()) {
+    gl::CorMistura(1.0f, 1.0f, 1.0f, pd->alfa_translucidos());
+  } else {
+    gl::Desabilita(GL_BLEND);
+    gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
+  }
+  gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+}
+
 }  // namespace ent

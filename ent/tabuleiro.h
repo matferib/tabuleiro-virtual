@@ -320,6 +320,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. No modo terreno, trata a translacao do terreno. */
   void TrataTranslacaoZ(float delta);
 
+  // Funcao auxiliar pra realizar algum hack qualquer em entidades selecionadas.
+  void Hack();
+
   /** Adiciona a notificacao a lista de eventos que podem ser desfeitos. Caso a lista alcance tamanho
   * maximo, tira a cabeca.
   */

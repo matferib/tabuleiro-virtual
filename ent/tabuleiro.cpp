@@ -4787,9 +4787,25 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
       nova_entidade->CopyFrom(sub_entidade);
       nova_entidade->clear_id();
       auto* pos = nova_entidade->mutable_pos();
-      pos->set_x(pos->x() + proto_composto.pos().x());
-      pos->set_y(pos->y() + proto_composto.pos().y());
-      pos->set_z(pos->z() + proto_composto.pos().z());
+      Vector4 vetor_pos(pos->x() * proto_composto.escala().x(),
+                        pos->y() * proto_composto.escala().y(),
+                        pos->z() * proto_composto.escala().z(),
+                        1.0f);
+      Matrix4 rotacao;
+      rotacao.rotateZ(proto_composto.rotacao_z_graus());
+      rotacao.rotateY(proto_composto.rotacao_y_graus());
+      rotacao.rotateX(proto_composto.rotacao_x_graus());
+      vetor_pos = rotacao * vetor_pos;
+      pos->set_x(vetor_pos.x + proto_composto.pos().x());
+      pos->set_y(vetor_pos.y + proto_composto.pos().y());
+      pos->set_z(vetor_pos.z + proto_composto.pos().z());
+      auto* escala = nova_entidade->mutable_escala();
+      escala->set_x(escala->x() * proto_composto.escala().x());
+      escala->set_y(escala->y() * proto_composto.escala().y());
+      escala->set_z(escala->z() * proto_composto.escala().z());
+      nova_entidade->set_rotacao_x_graus(nova_entidade->rotacao_x_graus() + proto_composto.rotacao_x_graus());
+      nova_entidade->set_rotacao_y_graus(nova_entidade->rotacao_y_graus() + proto_composto.rotacao_y_graus());
+      nova_entidade->set_rotacao_z_graus(nova_entidade->rotacao_z_graus() + proto_composto.rotacao_z_graus());
       ++num_adicionados;
     }
     auto* notificacao_remocao = grupo_notificacoes.add_notificacao();

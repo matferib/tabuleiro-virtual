@@ -96,21 +96,7 @@ void Entidade::DesenhaObjetoCompostoProto(
   gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0, false);
   gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
   if (!vd.vbos.empty()) {
-    // Bem hacky, se oa forma de desenhar translucidos mudar no tabuleiro, isso vai quebrar
-    // porque a restauracao dos valores vai ficar diferente de la.
-    bool restaurar = false;
-    if (pd->has_alfa_translucidos()) {
-      // blend ja ta ligado.
-      gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-      gl::CorMistura(1.0f, 1.0f, 1.0f, proto.cor().a() < 1.0f ? proto.cor().a() : pd->alfa_translucidos());
-      restaurar = true;
-    } else if (pd->entidade_selecionada()) {
-      // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
-      gl::Habilita(GL_BLEND);
-      gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
-      gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
-      restaurar = true;
-    }
+    AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
     for (const auto& vbo : vd.vbos) {
       gl::DesenhaVbo(vbo);
 #if 0 && DEBUG
@@ -124,15 +110,6 @@ void Entidade::DesenhaObjetoCompostoProto(
         }
       }
 #endif
-    }
-    if (restaurar) {
-      if (pd->has_alfa_translucidos()) {
-        gl::CorMistura(1.0f, 1.0f, 1.0f, pd->alfa_translucidos());
-      } else {
-        gl::Desabilita(GL_BLEND);
-        gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
-      }
-      gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
   } else {
     for (const auto& forma : proto.sub_forma()) {

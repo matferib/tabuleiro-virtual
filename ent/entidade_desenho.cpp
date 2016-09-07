@@ -147,20 +147,10 @@ void Entidade::DesenhaObjetoEntidadeProto(
     if (vbo != nullptr) {
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz(false);
+      // Mesmo hack das entidades compostas.
       MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
-      if (pd->has_alfa_translucidos()) {
-        gl::Habilita(GL_BLEND);
-        gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-      } else if (pd->entidade_selecionada()) {
-        // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
-        gl::Habilita(GL_BLEND);
-        gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
-        gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
-      }
+      AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
       gl::DesenhaVbo(*vbo);
-      gl::Desabilita(GL_BLEND);
-      gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
       return;
     } else {
       // Nem sempre eh erro.

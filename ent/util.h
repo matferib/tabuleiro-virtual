@@ -166,6 +166,23 @@ bool FiltroTexturaEntidade(const std::string& textura);
 bool FiltroTexturaCaixaCeu(const std::string& textura);
 bool FiltroTexturaTabuleiro(const std::string& textura);
 
+// Blend de entidades compostas e modelos3d. O blend deve ser restaurado para o valor padrao depois para nao
+// avacalhar os proximos.
+class AlteraBlendEscopo {
+ public:
+  // O valor alfa, se menor que 1.0, sera usado na transparencia no lugar do alfa_translucidos de pd.
+  explicit AlteraBlendEscopo(const ParametrosDesenho* pd, float alfa)
+      : pd_(pd), restaurar_(AlteraBlendEntidadeComposta(pd, alfa)) {}
+  ~AlteraBlendEscopo() { if (restaurar_) RestauraBlend(pd_); }
+
+ private:
+  bool AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, float alfa) const;
+  void RestauraBlend(const ParametrosDesenho* pd) const;
+
+  const ParametrosDesenho* pd_;
+  bool restaurar_;
+};
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H
