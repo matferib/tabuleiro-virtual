@@ -4887,6 +4887,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     auto* p = e->mutable_destino();
     p->set_x(nx);
     p->set_y(ny);
+    p->set_z(entidade_selecionada->Z());
     if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
       float z_antes = entidade_selecionada->Z();
       float z_chao_antes = ZChao(entidade_selecionada->X(), entidade_selecionada->Y());
@@ -4936,6 +4937,20 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
     // Nop mas envia para os clientes.
     TrataNotificacao(grupo_notificacoes);
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  }
+}
+
+void Tabuleiro::Hack() {
+  for (unsigned int id : ids_entidades_selecionadas_) {
+    auto* entidade_selecionada = BuscaEntidade(id);
+    if (entidade_selecionada == nullptr) {
+      continue;
+    }
+    //LOG(INFO) << "antes: " << entidade_selecionada->Proto().escala().ShortDebugString();
+    EntidadeProto proto;
+    proto.mutable_escala()->set_z(entidade_selecionada->Proto().escala().z() + 1.5f);
+    entidade_selecionada->AtualizaParcial(proto);
+    //LOG(INFO) << "depois: " << entidade_selecionada->Proto().escala().ShortDebugString();
   }
 }
 
