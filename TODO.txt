@@ -1,6 +1,7 @@
 Versao 2.3.0
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
+- Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz nao for visivel, descarta).
 
 - Entidades montadas.
 - Relogio marcando horas e controlando iluminacao?
