@@ -3330,7 +3330,6 @@ void Tabuleiro::DesenhaRastros() {
     Posicao pos;
     pos.set_x(e->X());
     pos.set_y(e->Y());
-    pos.set_z(0.0f);
     pontos.push_back(pos);
     // Rastro pouco menor que quadrado.
     DesenhaLinha3d(pontos, e->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO * 0.8);

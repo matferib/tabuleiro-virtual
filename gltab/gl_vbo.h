@@ -64,7 +64,7 @@ class VboNaoGravado {
 
   bool tem_normais() const { return tem_normais_; }
   bool tem_cores() const { return tem_cores_; }
-  bool tem_texturas() const { return tem_texturas_; }
+  bool tem_texturas() const { return !texturas_.empty(); }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
@@ -86,7 +86,6 @@ class VboNaoGravado {
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
   bool tem_normais_ = false;
   bool tem_cores_ = false;
-  bool tem_texturas_ = false;
 };
 
 // O vbo so esta realmente gravado quando grava for chamado.

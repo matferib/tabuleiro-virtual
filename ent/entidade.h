@@ -249,10 +249,6 @@ class Entidade {
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
   static void AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
-  /** Para entidades compostas. */
-  static void AtualizaTexturasEntidadesCompostasProto(
-      const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
-
   /** Realiza as notificacoes referentes a modelos 3d. */
   void AtualizaModelo3d(const EntidadeProto& novo_proto);
 

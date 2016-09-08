@@ -129,7 +129,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  if (!proto.morta()) {
+  if (!proto.morta() && !proto.has_modelo_3d()) {
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,
                 (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
@@ -218,7 +218,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     return;
   }
   // Disco da entidade.
-  if (proto_.info_textura().id().empty() && pd->entidade_selecionada()) {
+  if (proto_.modelo_3d().id().empty() && proto_.info_textura().id().empty() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,

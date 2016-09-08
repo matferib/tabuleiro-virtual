@@ -19,7 +19,7 @@ void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDeri
     vd->vbos = std::move(ExtraiVbo(proto));
     CorrigeVboRaiz(proto, vd);
   } catch (...) {
-    LOG(WARNING) << "Nao consegui extrair VBO de objeto composto: " << proto.id() << ", renderizacao sera lenta";
+    LOG(WARNING) << "Nao consegui extrair VBO de objeto composto: " << proto.id() << ", vai falhar ao desenhar";
     vd->vbos.clear();
   }
 }
@@ -63,27 +63,6 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::Enti
   return vbos;
 }
 
-void Entidade::AtualizaTexturasEntidadesCompostasProto(
-    const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
-  // Libera todas.
-  if (novo_proto.sub_forma_size() != proto_atual->sub_forma_size()) {
-    // Libera todos antigos e deixa do mesmo tamanho do novo.
-    EntidadeProto dummy;
-    for (auto& forma_velha : *proto_atual->mutable_sub_forma()) {
-      VLOG(2) << "Liberando textura de sub forma para entidade composta";
-      AtualizaTexturasProto(dummy, &forma_velha, central);
-    }
-    proto_atual->clear_sub_forma();
-    for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
-      proto_atual->add_sub_forma();
-    }
-  }
-  for (int i = 0; i < novo_proto.sub_forma_size(); ++i) {
-    VLOG(2) << "Atualizando textura de sub forma para entidade composta";
-    AtualizaTexturasProto(novo_proto.sub_forma(i), proto_atual->mutable_sub_forma(i), central);
-  }
-}
-
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
   gl::MatrizEscopo salva_matriz(false);
@@ -98,6 +77,12 @@ void Entidade::DesenhaObjetoCompostoProto(
   if (!vd.vbos.empty()) {
     AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
     for (const auto& vbo : vd.vbos) {
+      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() && vbo.tem_texturas() ?
+        vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+      if (id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      }
       gl::DesenhaVbo(vbo);
 #if 0 && DEBUG
       // Debug de normais escala deve estar em 1.0.
@@ -110,10 +95,7 @@ void Entidade::DesenhaObjetoCompostoProto(
         }
       }
 #endif
-    }
-  } else {
-    for (const auto& forma : proto.sub_forma()) {
-      DesenhaObjetoProto(forma, vd, pd, nullptr);
+      gl::Desabilita(GL_TEXTURE_2D);
     }
   }
 }

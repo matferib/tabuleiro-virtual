@@ -169,11 +169,6 @@ void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
 }
 
 void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
-  if (proto_atual->tipo() == TE_COMPOSTA) {
-    VLOG(1) << "Atualizando textura para entidade composta";
-    AtualizaTexturasEntidadesCompostasProto(novo_proto, proto_atual, central);
-    return;
-  }
   VLOG(2) << "Novo proto: " << novo_proto.ShortDebugString() << ", velho: " << proto_atual->ShortDebugString();
   // Libera textura anterior se houver e for diferente da corrente.
   if (proto_atual->info_textura().id().size() > 0  && proto_atual->info_textura().id() != novo_proto.info_textura().id()) {
@@ -616,7 +611,7 @@ void Entidade::MontaMatriz(bool queda,
                            const ParametrosDesenho* pd,
                            const float* matriz_shear) {
   const auto& pos = proto.pos();
-  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida();
+  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida() && !proto.has_modelo_3d();
   float translacao_z = ZChao(pos.x(), pos.y());
   if (transladar_z) {
     translacao_z += proto.pos().z() + DeltaVoo(vd);

@@ -155,6 +155,16 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
     indices_.push_back(indice + num_coordenadas_inicial);
   }
   cores_.insert(cores_.end(), rhs.cores_.begin(), rhs.cores_.end());
+  if (tem_texturas()) {
+    if (rhs.tem_texturas()) {
+      texturas_.insert(texturas_.end(), rhs.texturas_.begin(), rhs.texturas_.end());
+    } else {
+      LOG(WARNING) << "Limpando texturas ao concatenar porque rhs nao tem.";
+      texturas_.clear();
+    }
+  } else if (rhs.tem_texturas()) {
+    LOG(WARNING) << "Ignorando texturas ao concatenar porque lhs nao tem.";
+  }
   Nomeia(nome_ + "+" + rhs.nome_);
 }
 
@@ -177,7 +187,7 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
     *deslocamento_cores = pos_final;
     pos_final += cores_.size() * sizeof(float);
   }
-  if (tem_texturas_) {
+  if (tem_texturas()) {
     *deslocamento_texturas = pos_final;
     pos_final += texturas_.size() * sizeof(float);
   }
@@ -207,7 +217,6 @@ void VboNaoGravado::AtribuiNormais(const float* dados) {
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
   texturas_.clear();
   texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
-  tem_texturas_ = true;
 }
 
 void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {
