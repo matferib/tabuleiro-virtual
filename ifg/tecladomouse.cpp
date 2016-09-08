@@ -231,6 +231,11 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
         tabuleiro_->DesagrupaEntidadesSelecionadas();
       }
       return;
+    case Tecla_H:
+      if (modificadores == Modificador_Ctrl) {
+        tabuleiro_->Hack();
+      }
+      return;
     case Tecla_V:
       if (modificadores == Modificador_Ctrl) {
         tabuleiro_->ColaEntidadesSelecionadas();
