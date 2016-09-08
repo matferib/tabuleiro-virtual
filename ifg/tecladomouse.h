@@ -52,6 +52,7 @@ enum teclas_e {
   Tecla_E = 0x45,
   Tecla_F = 0x46,
   Tecla_G = 0x47,
+  Tecla_H = 0x48,
   Tecla_I = 0x49,
   Tecla_J = 0x4a,
   Tecla_K = 0x4b,
