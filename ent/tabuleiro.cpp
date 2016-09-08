@@ -4720,6 +4720,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   nova_entidade.set_tipo(TE_COMPOSTA);
   float x_medio = 0;
   float y_medio = 0;
+  float z_medio = 0;
   int num_entidades = 0;
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -4733,6 +4734,7 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
     notificacao->mutable_entidade()->CopyFrom(e->Proto());
     x_medio += e->X();
     y_medio += e->Y();
+    z_medio += e->Z();
     nova_entidade.add_sub_forma()->CopyFrom(e->Proto());
     ++num_entidades;
   }
@@ -4742,11 +4744,14 @@ void Tabuleiro::AgrupaEntidadesSelecionadas() {
   }
   x_medio /= num_entidades;
   y_medio /= num_entidades;
+  z_medio /= num_entidades;
   nova_entidade.mutable_pos()->set_x(x_medio);
   nova_entidade.mutable_pos()->set_y(y_medio);
+  nova_entidade.mutable_pos()->set_z(z_medio);
   for (auto& sub_forma : *nova_entidade.mutable_sub_forma()) {
     sub_forma.mutable_pos()->set_x(sub_forma.pos().x() - x_medio);
     sub_forma.mutable_pos()->set_y(sub_forma.pos().y() - y_medio);
+    sub_forma.mutable_pos()->set_z(sub_forma.pos().z() - z_medio);
   }
   auto* notificacao = grupo_notificacoes.add_notificacao();
   notificacao->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
@@ -4802,9 +4807,9 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
       escala->set_x(escala->x() * proto_composto.escala().x());
       escala->set_y(escala->y() * proto_composto.escala().y());
       escala->set_z(escala->z() * proto_composto.escala().z());
-      nova_entidade->set_rotacao_x_graus(nova_entidade->rotacao_x_graus() + proto_composto.rotacao_x_graus());
-      nova_entidade->set_rotacao_y_graus(nova_entidade->rotacao_y_graus() + proto_composto.rotacao_y_graus());
-      nova_entidade->set_rotacao_z_graus(nova_entidade->rotacao_z_graus() + proto_composto.rotacao_z_graus());
+      //nova_entidade->set_rotacao_x_graus(nova_entidade->rotacao_x_graus() + proto_composto.rotacao_x_graus());
+      //nova_entidade->set_rotacao_y_graus(nova_entidade->rotacao_y_graus() + proto_composto.rotacao_y_graus());
+      //nova_entidade->set_rotacao_z_graus(nova_entidade->rotacao_z_graus() + proto_composto.rotacao_z_graus());
       ++num_adicionados;
     }
     auto* notificacao_remocao = grupo_notificacoes.add_notificacao();
@@ -5551,7 +5556,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   largura_fonte *= escala;
   altura_fonte *= escala;
   raster_y = altura_ - (altura_fonte * escala);
-  raster_x = largura_ - 2;
+  raster_x = 0 + 2;
   if (!parametros_desenho_.has_picking_x()) {
     PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
   }
@@ -5561,7 +5566,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   MudaCor(COR_BRANCA);
   if (!parametros_desenho_.has_picking_x()) {
     std::string titulo("Lista Objetos");
-    gl::DesenhaStringAlinhadoDireita(titulo);
+    gl::DesenhaStringAlinhadoEsquerda(titulo);
   }
   raster_y -= (altura_fonte + 2);
   // Paginacao inicial.
@@ -5578,13 +5583,13 @@ void Tabuleiro::DesenhaListaObjetos() {
       gl::MatrizEscopo salva_2(GL_MODELVIEW);
       gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x - (3 * largura_fonte), raster_y, raster_x, raster_y + altura_fonte);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
     }
     if (!parametros_desenho_.has_picking_x()) {
       MudaCor(COR_AZUL);
       PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
       std::string page_up("^^^");
-      gl::DesenhaStringAlinhadoDireita(page_up);
+      gl::DesenhaStringAlinhadoEsquerda(page_up);
     }
   }
   // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
@@ -5619,11 +5624,11 @@ void Tabuleiro::DesenhaListaObjetos() {
       gl::MatrizEscopo salva_2(GL_MODELVIEW);
       gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x - (strlen(str) * largura_fonte), raster_y, raster_x, raster_y + altura_fonte);
+      gl::Retangulo(raster_x, raster_y, raster_x + (strlen(str) * largura_fonte), raster_y + altura_fonte);
     }
     MudaCor(COR_AZUL);
     if (!parametros_desenho_.has_picking_x()) {
-      gl::DesenhaStringAlinhadoDireita(str);
+      gl::DesenhaStringAlinhadoEsquerda(str);
     }
     raster_y -= (altura_fonte + 2);
   }
@@ -5642,13 +5647,13 @@ void Tabuleiro::DesenhaListaObjetos() {
       gl::MatrizEscopo salva_2(GL_MODELVIEW);
       gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x - (3 * largura_fonte), raster_y, raster_x, raster_y + altura_fonte);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
     }
     if (!parametros_desenho_.has_picking_x()) {
       MudaCor(COR_AZUL);
       PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
       std::string page_down("vvv");
-      gl::DesenhaStringAlinhadoDireita(page_down);
+      gl::DesenhaStringAlinhadoEsquerda(page_down);
     }
     raster_y -= (altura_fonte + 2);
   }
