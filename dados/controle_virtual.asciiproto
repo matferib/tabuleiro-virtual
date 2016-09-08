@@ -650,6 +650,17 @@ pagina {
     num_lados_botao: 4
     dica: "Desenha cilindro."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 5
+    rotulo: "Vi"
+    cor_rotulo {}
+    textura: "icon_hide.png"
+    id: CONTROLE_VISIBILIDADE
+    num_lados_botao: 4
+    dica: "Liga/desliga invisibilidade para entidades selecionadas."
+  }
   # Agrupar/Desagrupar.
   dados_botoes {
     tamanho: 1

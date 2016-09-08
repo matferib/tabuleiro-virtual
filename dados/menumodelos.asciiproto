@@ -19,7 +19,9 @@ sub_menu {
   }
 }
 sub_menu {
-  id: 'Aberraçoes'
+  id: 'Aberrações'
+  modelo { id: 'Abocanhador Matraqueante' }
+  modelo { id: 'Mantor' }
   modelo { id: 'Monstro da Ferrugem' }
   modelo { id: 'Otyugh' }
 }
@@ -29,6 +31,7 @@ sub_menu {
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Atroz' }
+  modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
   modelo { id: 'Tigre' }
   modelo { id: 'Urso Marrom' }
@@ -145,6 +148,8 @@ sub_menu {
 sub_menu {
   id: 'Plantas'
   modelo { id: 'Arbusto Errante' }
+  modelo { id: 'Fungo Guardião' }
+  modelo { id: 'Fungo Violeta' }
 }
 sub_menu {
   id: 'Limo/Gosma'
@@ -158,6 +163,7 @@ sub_menu {
   id: 'Vermes'
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
+  modelo { id: 'Centopéia Enorme' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }
@@ -176,8 +182,8 @@ sub_menu {
   modelo { id: 'Baú (madeira)' }
   modelo { id: 'Barras' }
 }
-sub_menu {
-  id: 'Teste'
-  modelo { id: 'teste orc' }
-  modelo { id: 'teste geo' }
-}
+#sub_menu {
+#  id: 'Teste'
+#modelo { id: 'teste orc' }
+#  modelo { id: 'teste geo' }
+#}
