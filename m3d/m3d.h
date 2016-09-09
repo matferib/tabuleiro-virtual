@@ -10,6 +10,14 @@ class VboNaoGravado;
 
 namespace m3d {
 
+struct Modelo3d {
+  std::vector<gl::VboGravado> vbos;
+  // Uso interno.
+  int contador = 0;
+  void Desenha() const;
+  bool Valido() const { return !vbos.empty(); }
+}; 
+
 class Modelos3d : public ntf::Receptor {
  public:
   Modelos3d(ntf::CentralNotificacoes* central);
@@ -18,7 +26,7 @@ class Modelos3d : public ntf::Receptor {
   /** Trata as notificacoes do tipo de carregamento descarregamento de textura. */
   bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
-  const gl::VboGravado* Modelo(const std::string& id) const;
+  const Modelo3d* Modelo(const std::string& id) const;
 
   // Recarrega os modelos 3d em caso de perda do contexto opengl.
   void Recarrega();

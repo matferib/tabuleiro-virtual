@@ -373,7 +373,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 
 void Tabuleiro::ConfiguraProjecao() {
   if (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao()) {
-    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(),
+    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, 1.0f,
                     DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
                     DISTANCIA_PLANO_CORTE_DISTANTE);
     return;
@@ -442,8 +442,10 @@ void Tabuleiro::ConfiguraOlhar() {
     AtualizaOlho(0, false);
     gl::OlharPara(
         // from.
+        //0.0f, 0.0f, 1.0f,
         olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
         // to.
+        //0.0f, 1.0f, 1.0f,
         alvo.x(), alvo.y(), alvo.z(),
         // up
         0, 0, 1.0);
@@ -473,7 +475,7 @@ void Tabuleiro::ConfiguraOlhar() {
 void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
-  // Zera as coisas nao usadas na sombra.
+  // Zera as coisas nao usadas durante oclusao.
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
@@ -651,7 +653,7 @@ int Tabuleiro::Desenha() {
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0);
     gl::MultiplicaMatriz(bias.get(), false);
-    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    ConfiguraProjecao();
     gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -2746,9 +2748,8 @@ void Tabuleiro::DesenhaCena() {
   //-------------
   // DESENHOS 2D.
   //-------------
-
-
-#if 0 && DEBUG
+#if 0
+  // Nao funciona mais porque o tipo da textura eh sombra, provavelmente.
   if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
@@ -2761,12 +2762,17 @@ void Tabuleiro::DesenhaCena() {
 
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
+    //gl::UnidadeTextura(GL_TEXTURE1);
+    //gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   }
+#elif 0
   if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
+    gl::Oclusao(false);
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
@@ -2778,6 +2784,9 @@ void Tabuleiro::DesenhaCena() {
 
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
+    gl::UnidadeTextura(GL_TEXTURE3);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_oclusao_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -5041,9 +5050,9 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
       escala->set_x(escala->x() * proto_composto.escala().x());
       escala->set_y(escala->y() * proto_composto.escala().y());
       escala->set_z(escala->z() * proto_composto.escala().z());
-      //nova_entidade->set_rotacao_x_graus(nova_entidade->rotacao_x_graus() + proto_composto.rotacao_x_graus());
-      //nova_entidade->set_rotacao_y_graus(nova_entidade->rotacao_y_graus() + proto_composto.rotacao_y_graus());
-      //nova_entidade->set_rotacao_z_graus(nova_entidade->rotacao_z_graus() + proto_composto.rotacao_z_graus());
+      nova_entidade->set_rotacao_x_graus(nova_entidade->rotacao_x_graus() + proto_composto.rotacao_x_graus());
+      nova_entidade->set_rotacao_y_graus(nova_entidade->rotacao_y_graus() + proto_composto.rotacao_y_graus());
+      nova_entidade->set_rotacao_z_graus(nova_entidade->rotacao_z_graus() + proto_composto.rotacao_z_graus());
       ++num_adicionados;
     }
     auto* notificacao_remocao = grupo_notificacoes.add_notificacao();

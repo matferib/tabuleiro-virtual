@@ -143,14 +143,14 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 
   if (proto.has_modelo_3d()) {
-    const auto* vbo = vd.m3d->Modelo(proto.modelo_3d().id());
-    if (vbo != nullptr) {
+    const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
+    if (modelo_3d != nullptr && modelo_3d->Valido()) {
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz(false);
       // Mesmo hack das entidades compostas.
       MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
       AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
-      gl::DesenhaVbo(*vbo);
+      modelo_3d->Desenha();
       return;
     } else {
       // Nem sempre eh erro.

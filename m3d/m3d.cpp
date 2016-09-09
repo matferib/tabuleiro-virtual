@@ -46,14 +46,15 @@ void LeModelo3d(const std::string& nome_arquivo, ntf::Notificacao* n) {
 
 }  // namespace
 
-struct Modelo3d {
-  int contador = 0;
-  gl::VboGravado vbo;
-};
-
 struct Modelos3d::Interno {
   std::unordered_map<std::string, Modelo3d> modelos;
 };
+
+void Modelo3d::Desenha() const {
+  for (const auto& vbo : vbos) {
+    gl::DesenhaVbo(vbo);
+  }
+}
 
 Modelos3d::Modelos3d(ntf::CentralNotificacoes* central) : interno_(new Interno), central_(central) {
   central_->RegistraReceptor(this);
@@ -117,9 +118,13 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     auto* n = ntf::NovaNotificacao(ntf::TN_ENVIAR_MODELOS_3D);
     for (const auto& id : ids_faltantes) {
-      auto* info = n->add_info_modelo_3d();
       std::vector<unsigned char> dados;
-      LeModelo3d(id, &dados);
+      try {
+        LeModelo3d(id, &dados);
+      } catch (...) {
+        continue;
+      }
+      auto* info = n->add_info_modelo_3d();
       info->mutable_bits_crus()->append(dados.begin(), dados.end());
       info->set_id(id);
     }
@@ -146,12 +151,12 @@ bool Modelos3d::TrataNotificacao(const ntf::Notificacao& notificacao) {
   return false;
 }
 
-const gl::VboGravado* Modelos3d::Modelo(const std::string& id) const {
+const Modelo3d* Modelos3d::Modelo(const std::string& id) const {
   auto it = interno_->modelos.find(id);
   if (it == interno_->modelos.end()) {
     return nullptr;
   } else {
-    return &(it->second.vbo);
+    return &(it->second);
   }
 }
 
@@ -175,15 +180,28 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
     VLOG(1) << "CarregaModelo3d apenas incrementou contador: " << interno_->modelos[id_interno].contador;
     return;
   }
+  // Ja cria, mesmo que invalido para evitar ficar lendo toda hora se der erro.
+  interno_->modelos[id_interno].contador = 1;
   std::string nome_arquivo = id_interno + ".binproto";
   ntf::Notificacao n;
-  LeModelo3d(nome_arquivo, &n);
+  try {
+    LeModelo3d(nome_arquivo, &n);
+  } catch (...) {
+    return;
+  }
+  if (n.tabuleiro().entidade_size() == 0) {
+    LOG(ERROR) << "Falha abrindo arquivo, nao ha entidades";
+    return;
+  }
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
   VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
   VLOG(2) << n.DebugString();
-  interno_->modelos[id_interno].vbo.Grava(std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0))[0]));
-  interno_->modelos[id_interno].contador = 1;
+  auto vbos = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0)));
+  interno_->modelos[id_interno].vbos.resize(vbos.size());
+  for (unsigned int i = 0; i < vbos.size(); ++i) {
+    interno_->modelos[id_interno].vbos[i].Grava(vbos[i]);
+  }
 }
 
 void Modelos3d::DescarregaModelo3d(const std::string& id_interno) {

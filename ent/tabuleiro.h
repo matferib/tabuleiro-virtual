@@ -793,7 +793,7 @@ class Tabuleiro : public ntf::Receptor {
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
 
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
-  bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_; }
+  bool MapeamentoOclusao() const { return false && opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
