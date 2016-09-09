@@ -455,8 +455,8 @@ void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto*
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
   contexto->pilha_prj_sombra.push(Matrix4());
-  contexto->pilha_prj_oclusao.push(Matrix4());
   contexto->pilha_mvm_oclusao.push(Matrix4());
+  contexto->pilha_prj_oclusao.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
@@ -564,37 +564,42 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   }
 }
 
-void AtualizaMatrizSombra(const Matrix4& m) {
+void AtualizaMatrizSombraOclusao(const Matrix4& m) {
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.top() *= m;
+  c->pilha_mvm_oclusao.top() *= m;
 }
 
-void IdentidadeMatrizSombra() {
+void IdentidadeMatrizSombraOclusao() {
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.top().identity();
+  c->pilha_mvm_oclusao.top().identity();
 }
 
-void EmpilhaMatrizSombra() {
+void EmpilhaMatrizSombraOclusao() {
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
-  Matrix4 m(c->pilha_mvm_sombra.top());
-  c->pilha_mvm_sombra.push(m);
+  Matrix4 ms(c->pilha_mvm_sombra.top());
+  c->pilha_mvm_sombra.push(ms);
+  Matrix4 mo(c->pilha_mvm_oclusao.top());
+  c->pilha_mvm_oclusao.push(mo);
 }
 
-void DesempilhaMatrizSombra() {
+void DesempilhaMatrizSombraOclusao() {
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.pop();
+  c->pilha_mvm_oclusao.pop();
 }
 
 }  // namespace interno
@@ -642,7 +647,7 @@ void EmpilhaMatriz(bool atualizar) {
   auto* c = interno::BuscaContexto();
   Matrix4 m(c->pilha_corrente->top());
   c->pilha_corrente->push(m);
-  interno::EmpilhaMatrizSombra();
+  interno::EmpilhaMatrizSombraOclusao();
   // Nao precisa porque a matriz empilhada eh igual.
   //if (atualizar) AtualizaMatrizes();
 }
@@ -656,7 +661,7 @@ void DesempilhaMatriz(bool atualizar) {
   }
 #endif
   c->pilha_corrente->pop();
-  interno::DesempilhaMatrizSombra();
+  interno::DesempilhaMatrizSombraOclusao();
   if (atualizar) AtualizaMatrizes();
 }
 
@@ -670,7 +675,7 @@ int ModoMatrizCorrente() {
   else if (c->pilha_corrente == &c->pilha_mvm_oclusao) { return MATRIZ_OCLUSAO; }
   else {
     LOG(ERROR) << "Nao ha matriz corrente!!";
-    return MATRIZ_SOMBRA;
+    return MATRIZ_MODELAGEM_CAMERA;
   }
 }
 
@@ -696,7 +701,7 @@ void MudarModoMatriz(int modo) {
 
 void CarregaIdentidade(bool atualizar) {
   interno::BuscaContexto()->pilha_corrente->top().identity();
-  interno::IdentidadeMatrizSombra();
+  interno::IdentidadeMatrizSombraOclusao();
   if (atualizar) AtualizaMatrizes();
 }
 
@@ -704,7 +709,7 @@ void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4(matriz);
   topo *= m4;
-  interno::AtualizaMatrizSombra(m4);
+  interno::AtualizaMatrizSombraOclusao(m4);
   if (atualizar) AtualizaMatrizes();
 }
 
@@ -712,7 +717,7 @@ void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().scale(x, y, z);
   topo *= m4;
-  interno::AtualizaMatrizSombra(m4);
+  interno::AtualizaMatrizSombraOclusao(m4);
   if (atualizar) AtualizaMatrizes();
 }
 
@@ -720,14 +725,14 @@ void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().translate(x, y, z);
   topo *= m4;
-  interno::AtualizaMatrizSombra(m4);
+  interno::AtualizaMatrizSombraOclusao(m4);
   if (atualizar) AtualizaMatrizes();
 }
 void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
   topo *= m4;
-  interno::AtualizaMatrizSombra(m4);
+  interno::AtualizaMatrizSombraOclusao(m4);
   if (atualizar) AtualizaMatrizes();
 }
 
@@ -1037,14 +1042,14 @@ Matrix4 LeMatriz(matriz_e modo) {
     return c->pilha_mvm.top();
   } else if (modo == MATRIZ_PROJECAO) {
     return c->pilha_prj.top();
-  } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
-    return c->pilha_prj_sombra.top();
-  } else if (modo == MATRIZ_PROJECAO_OCLUSAO) {
-    return c->pilha_prj_oclusao.top();
-  } else if (modo == MATRIZ_OCLUSAO) {
-    return c->pilha_mvm_oclusao.top();
   } else if (modo == MATRIZ_SOMBRA) {
     return c->pilha_mvm_sombra.top();
+  } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
+    return c->pilha_prj_sombra.top();
+  } else if (modo == MATRIZ_OCLUSAO) {
+    return c->pilha_mvm_oclusao.top();
+  } else if (modo == MATRIZ_PROJECAO_OCLUSAO) {
+    return c->pilha_prj_oclusao.top();
   } else {
     LOG(ERROR) << "Tipo de matriz invalido: " << (int)modo;
     return c->pilha_mvm_sombra.top();
@@ -1134,6 +1139,8 @@ GLint IdMatrizCorrente(const interno::VarShader& shader) {
     case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
+    case MATRIZ_PROJECAO_OCLUSAO: return shader.uni_gltab_prm_oclusao;
+    case MATRIZ_OCLUSAO:          return shader.uni_gltab_mvm_oclusao;
     case MATRIZ_SOMBRA:
     default:                      return shader.uni_gltab_mvm_sombra;
   }
