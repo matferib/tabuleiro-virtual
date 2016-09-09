@@ -54,10 +54,11 @@ const std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::Enti
       }
     }
   }
+  vbos[indice_corrente].Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
   vbos[indice_corrente].RodaX(proto.rotacao_x_graus());
   vbos[indice_corrente].RodaY(proto.rotacao_y_graus());
   vbos[indice_corrente].RodaZ(proto.rotacao_z_graus());
-  vbos[indice_corrente].Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
+
   // Mundo.
   vbos[indice_corrente].Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
   return vbos;
