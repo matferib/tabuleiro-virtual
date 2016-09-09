@@ -223,14 +223,14 @@ modelo {
 modelo {
   id: 'Enxame (morcegos)'
   entidade {
-    dados_vida: '3d8' achatado: true info_textura { id: 'swarm_bat.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada'
+    dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_bat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada' voadora: true
   }
 }
 modelo {
   id: 'Enxame (ratos)'
   entidade {
-    dados_vida: '4d8' achatado: true info_textura { id: 'swarm_rat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' } cor { r: 0.1 g: 0.1 b: 0.1 }
     rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
   }
 }
@@ -661,7 +661,7 @@ modelo {
 modelo {
   id: 'Rato Atroz'
   entidade {
-    dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'dire_rat.png' } cor { r: 0 g: 0 b: 0 }
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' } cor { r: 0 g: 0 b: 0 }
     rotulo_especial: 'ini +3\nat +4 1d4+doenca\nca 15/14/12\ndoenca fort 11 febre do esgoto '
   }
 }
