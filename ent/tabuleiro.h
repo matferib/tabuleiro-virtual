@@ -163,6 +163,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
   void DesenhaSombraProjetada();
+  void DesenhaMapaOclusao();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -792,6 +793,7 @@ class Tabuleiro : public ntf::Receptor {
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
 
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
+  bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_; }
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
@@ -956,6 +958,10 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
+  GLuint framebuffer_oclusao_ = 0;
+  GLuint textura_framebuffer_oclusao_ = 0;
+  GLuint renderbuffer_framebuffer_oclusao_ = 0;
+
   bool usar_sampler_sombras_ = true;
 
   // Sub cenarios. -1 para o principal.

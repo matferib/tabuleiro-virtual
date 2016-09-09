@@ -30,6 +30,7 @@ varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
 #if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
+varying highp vec4 v_Pos_oclusao;  // Posicao do pixel do fragmento na perspectiva de sombra.
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
@@ -57,11 +58,13 @@ uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 #if USAR_MAPEAMENTO_SOMBRAS
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+uniform highp sampler2DShadow gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
+uniform highp sampler2D gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #endif
 #endif
-uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
+uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = oclusao, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
@@ -90,6 +93,30 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 
 void main() {
   lowp vec4 cor_final = v_Color;
+#if USAR_MAPEAMENTO_SOMBRAS
+  if (gltab_nevoa_dados.z > 0.0f) {
+    highp float bias = 0.002;
+#if __VERSION__ == 130
+    lowp float visivel = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias));
+#elif __VERSION__ == 120
+    lowp float visivel = shadow2D(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias)).r;
+#elif defined(GL_EXT_shadow_samplers)
+    lowp float visivel = shadow2DEXT(
+        gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias));
+#else
+    // OpenGL ES 2.0.
+    lowp vec4 texprofcor = texture2D(gltab_unidade_textura_oclusao, v_Pos_oclusao.xy);
+    lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
+    lowp float visivel = (v_Pos_oclusao.z - bias) > texz ? 0.0 : 1.0;
+#endif
+#else
+    lowp float visivel = 1.0;
+#endif
+    if (visivel == 0.0f) {
+      discard;
+    }
+  }
+
   // luz ambiente.
   if (gltab_luz_ambiente.a > 0.0) {
     //lowp vec4 cor_luz = gltab_luz_ambiente;

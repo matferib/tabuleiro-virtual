@@ -25,6 +25,7 @@ varying highp vec4 v_Pos;  // posicao em coordenada de olho.
 varying highp vec4 v_Pos_model;
 #if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;
+varying highp vec4 v_Pos_oclusao;
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
@@ -34,6 +35,8 @@ uniform highp mat4 gltab_mvm;    // modelview.
 #if USAR_MAPEAMENTO_SOMBRAS
 uniform highp mat4 gltab_prm_sombra;    // projecao sombra.
 uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
+uniform highp mat4 gltab_prm_oclusao;    // projecao oclusao.
+uniform highp mat4 gltab_mvm_oclusao;    // modelagem oclusao.
 #endif
 uniform highp mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
@@ -52,6 +55,7 @@ void main() {
   gl_Position = gltab_prm * v_Pos;
 #if USAR_MAPEAMENTO_SOMBRAS
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
+  v_Pos_oclusao = gltab_prm_oclusao * gltab_mvm_oclusao * gltab_vertice;
 #endif
   gl_PointSize = gltab_dados_raster.p;
 }

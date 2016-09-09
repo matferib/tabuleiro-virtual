@@ -315,6 +315,9 @@ void Tabuleiro::LiberaFramebuffer() {
   gl::ApagaFramebuffers(1, &framebuffer_);
   gl::ApagaTexturas(1, &textura_framebuffer_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
+  gl::ApagaFramebuffers(1, &framebuffer_oclusao_);
+  gl::ApagaTexturas(1, &textura_framebuffer_oclusao_);
+  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_oclusao_);
 }
 
 
@@ -369,6 +372,12 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 }
 
 void Tabuleiro::ConfiguraProjecao() {
+  if (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao()) {
+    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(),
+                    DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
+                    DISTANCIA_PLANO_CORTE_DISTANTE);
+    return;
+  }
   if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
     float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
     gl::Ortogonal(-val, val, -val, val,
@@ -426,6 +435,22 @@ void Tabuleiro::ConfiguraOlhar() {
     return;
   }
   const Posicao& alvo = olho_.alvo();
+  if (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao()) {
+    camera_e salva_camera = camera_;
+    Olho salva_olho = olho_;
+    camera_ = CAMERA_PRIMEIRA_PESSOA;
+    AtualizaOlho(0, false);
+    gl::OlharPara(
+        // from.
+        olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
+        // to.
+        alvo.x(), alvo.y(), alvo.z(),
+        // up
+        0, 0, 1.0);
+    camera_ = salva_camera;
+    olho_ = salva_olho;
+    return;
+  }
   if (camera_ == CAMERA_ISOMETRICA) {
     gl::OlharPara(
         // from.
@@ -443,6 +468,58 @@ void Tabuleiro::ConfiguraOlhar() {
         // up
         0, 0, 1.0);
   }
+}
+
+void Tabuleiro::DesenhaMapaOclusao() {
+  parametros_desenho_.Clear();
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  // Zera as coisas nao usadas na sombra.
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_id_acao(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_coordenadas(false);
+  parametros_desenho_.set_desenha_mapa_oclusao(true);
+  parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
+
+  if (usar_sampler_sombras_) {
+    gl::UsaShader(gl::TSH_SIMPLES);
+  } else {
+    gl::UsaShader(gl::TSH_PROFUNDIDADE);
+  }
+  gl::UnidadeTextura(GL_TEXTURE3);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::Viewport(0, 0, 1024, 1024);
+  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade(false);
+  ConfiguraProjecao();
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
+  V_ERRO("LigacaoComFramebufferSombraProjetada");
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+  gl::BufferDesenho(GL_NONE);
+#endif
+  //LOG(INFO) << "DesenhaMapaOclusao";
+  DesenhaCena();
 }
 
 void Tabuleiro::DesenhaSombraProjetada() {
@@ -475,6 +552,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_sombra_projetada(true);
   parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_desenha_mapa_oclusao(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
 
@@ -496,6 +574,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::BufferDesenho(GL_NONE);
 #endif
+  //LOG(INFO) << "sombra projetada";
   DesenhaCena();
 }
 
@@ -554,6 +633,38 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("Antes desenha sombras");
 
+  if (MapeamentoOclusao()) {
+    GLint original;
+    gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+    ParametrosDesenho salva_pd(parametros_desenho_);
+    DesenhaMapaOclusao();
+    V_ERRO_RET("Depois Mapa Oclusao");
+    // Restaura os valores e usa a textura como sombra.
+    gl::UsaShader(tipo_shader);
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_OCLUSAO);
+    gl::CarregaIdentidade(false);
+    Matrix4 bias(
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0);
+    gl::MultiplicaMatriz(bias.get(), false);
+    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+    gl::BufferDesenho(GL_BACK);
+#endif
+    gl::UnidadeTextura(GL_TEXTURE3);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_oclusao_);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
+    parametros_desenho_ = salva_pd;
+  }
+
   if (MapeamentoSombras() && parametros_desenho_.desenha_sombras()) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -593,6 +704,7 @@ int Tabuleiro::Desenha() {
   gl::MudarModoMatriz(GL_PROJECTION);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
+  //LOG(INFO) << "Desenha";
   DesenhaCena();
   V_ERRO_RET("FimDesenha");
   return passou_ms;
@@ -2437,7 +2549,9 @@ void Tabuleiro::DesenhaCena() {
   bool desenhar_caixa_ceu = false;
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
   // da janela para cobrir o fundo todo.
-  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_picking_x() &&
+  if (!parametros_desenho_.desenha_sombra_projetada() &&
+      !parametros_desenho_.desenha_mapa_oclusao() &&
+      !parametros_desenho_.has_picking_x() &&
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && camera_ != CAMERA_ISOMETRICA) {
     desenhar_caixa_ceu = true;
   } else {
@@ -2464,10 +2578,19 @@ void Tabuleiro::DesenhaCena() {
   ConfiguraOlhar();
 
   if (MapeamentoSombras() && parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
+    // Configura a matriz de sombras para o modo normal.
     parametros_desenho_.set_desenha_sombra_projetada(true);
     gl::MudarModoMatriz(gl::MATRIZ_SOMBRA);
     ConfiguraOlhar();
     parametros_desenho_.set_desenha_sombra_projetada(false);
+    gl::MudarModoMatriz(GL_MODELVIEW);
+  }
+  if (MapeamentoOclusao() && !parametros_desenho_.desenha_mapa_oclusao()) {
+    // Configura a matriz de oclusao para o modo normal.
+    parametros_desenho_.set_desenha_mapa_oclusao(true);
+    gl::MudarModoMatriz(gl::MATRIZ_OCLUSAO);
+    ConfiguraOlhar();
+    parametros_desenho_.set_desenha_mapa_oclusao(false);
     gl::MudarModoMatriz(GL_MODELVIEW);
   }
 
@@ -2489,6 +2612,13 @@ void Tabuleiro::DesenhaCena() {
     gl::Desabilita(GL_FOG);
   }
   V_ERRO("desenhando luzes");
+
+  if (MapeamentoOclusao() && !parametros_desenho_.desenha_mapa_oclusao()) {
+    gl::Oclusao(true);
+  } else {
+    gl::Oclusao(false);
+  }
+
 
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
   // desenha tabuleiro do sul para o norte.
@@ -2608,13 +2738,16 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando entidades alfa");
 
-  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+  if ((MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) ||
+      (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao())) {
     return;
   }
 
   //-------------
   // DESENHOS 2D.
   //-------------
+
+
 #if 0 && DEBUG
   if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
     gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
@@ -2629,6 +2762,23 @@ void Tabuleiro::DesenhaCena() {
     MudaCor(COR_BRANCA);
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
+  if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
+    gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
+    gl::CarregaIdentidade();
+    // Eixo com origem embaixo esquerda.
+    gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
+    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::CarregaIdentidade(false);
+    gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+    gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+
+    MudaCor(COR_BRANCA);
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_oclusao_);
     gl::Retangulo(10, altura_ - 150, 110, altura_ - 50);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
@@ -2879,10 +3029,93 @@ void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
+namespace {
+void GeraFramebufferLocal(bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  LOG(INFO) << "gerando framebuffer";
+  gl::GeraFramebuffers(1, framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, *framebuffer);
+  V_ERRO("LigacaoComFramebuffer");
+  gl::GeraTexturas(1, textura_framebuffer);
+  V_ERRO("GeraTexturas");
+  gl::LigacaoComTextura(GL_TEXTURE_2D, *textura_framebuffer);
+  V_ERRO("LigacaoComTextura");
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+#ifndef GL_TEXTURE_COMPARE_MODE_EXT
+// Estes dois nao estao presentes no jni android 17 (4.4.2).
+// Como o lollipop da pau de rede, prefiro fazer isso.
+#define GL_TEXTURE_COMPARE_MODE_EXT 0x884C
+#define GL_COMPARE_REF_TO_TEXTURE_EXT 0x884E
+#endif
+  if (gl::TemExtensao("GL_OES_depth_texture")) {
+    *usar_sampler_sombras = true;
+    gl::ImagemTextura2d(
+        GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
+  } else {
+    *usar_sampler_sombras = false;
+    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  }
+#else
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+  // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
+  // Nas versoes mais nova, usa-se ref.
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+#endif
+
+  V_ERRO("ImagemTextura2d");
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  V_ERRO("ParametroTextura");
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+  if (*usar_sampler_sombras) {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, *textura_framebuffer, 0);
+  } else {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, *textura_framebuffer, 0);
+    gl::GeraRenderbuffers(1, renderbuffer);
+    gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
+  }
+#else
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, *textura_framebuffer, 0);
+#endif
+  V_ERRO("TexturaFramebuffer");
+
+  // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+#if __APPLE__ && !USAR_OPENGL_ES
+  gl::BufferDesenho(GL_NONE);
+  gl::BufferLeitura(GL_NONE);
+#endif
+  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer incompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer completo";
+  }
+
+  // Volta estado normal.
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer");
+  LOG(INFO) << "framebuffer gerado";
+}
+}  // namespace
+
 void Tabuleiro::GeraFramebuffer() {
   if (!MapeamentoSombras()) {
     return;
   }
+  GeraFramebufferLocal(&usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
+  GeraFramebufferLocal(&usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
+#if 0
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(INFO) << "gerando framebuffer";
@@ -2958,6 +3191,7 @@ void Tabuleiro::GeraFramebuffer() {
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   V_ERRO("Fim da Geracao de framebuffer");
   LOG(INFO) << "framebuffer gerado";
+#endif
 }
 
 namespace {

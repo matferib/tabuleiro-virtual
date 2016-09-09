@@ -86,12 +86,16 @@ enum matriz_e {
   MATRIZ_PROJECAO = GL_PROJECTION,
   MATRIZ_SOMBRA = GL_MODELVIEW + 2,
   MATRIZ_PROJECAO_SOMBRA = GL_MODELVIEW + 3,
+  MATRIZ_OCLUSAO = GL_MODELVIEW + 4,
+  MATRIZ_PROJECAO_OCLUSAO= GL_MODELVIEW + 5,
   MATRIZ_INVALIDA = GL_INVALID_ENUM
 };
 static_assert(MATRIZ_MODELAGEM_CAMERA != MATRIZ_PROJECAO &&
               MATRIZ_MODELAGEM_CAMERA != MATRIZ_SOMBRA &&
               MATRIZ_SOMBRA != MATRIZ_PROJECAO &&
-              MATRIZ_PROJECAO_SOMBRA != MATRIZ_PROJECAO,
+              MATRIZ_PROJECAO_SOMBRA != MATRIZ_PROJECAO &&
+              MATRIZ_OCLUSAO != MATRIZ_PROJECAO &&
+              MATRIZ_PROJECAO_OCLUSAO != MATRIZ_PROJECAO,
               "valores de matrizes devem ser diferentes");
 int ModoMatrizCorrente();
 void MudarModoMatriz(int modo);
@@ -389,6 +393,8 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
 
 /** Funcoes de nevoa. */
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
+/** Liga e desliga oclusao. */
+void Oclusao(bool valor);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);

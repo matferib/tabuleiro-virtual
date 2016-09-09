@@ -75,7 +75,6 @@ void main() {
 #else
   lowp vec4 cor_final = v_Color;
 #endif
-
   // O if saiu mais barato que o mix.
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);

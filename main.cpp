@@ -29,18 +29,20 @@ namespace {
 void CarregaConfiguracoes(ent::OpcoesProto* proto) {
   try {
     arq::LeArquivoAsciiProto(arq::TIPO_CONFIGURACOES, "configuracoes.asciiproto", proto);
-#if USAR_GFLAGS
-    proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
-    proto->set_mapeamento_sombras(FLAGS_mapeamento_de_sombras);
-#else
-    proto->set_iluminacao_por_pixel(true);
-    proto->set_mapeamento_sombras(true);
-#endif
-    LOG(INFO) << "Carregando opcoes de arquivo.";
+    LOG(INFO) << "Carregando opcoes de arquivo: ";
   } catch (...) {
     proto->CopyFrom(ent::OpcoesProto::default_instance());
     LOG(INFO) << "Carregando opcoes padroes.";
   }
+#if USAR_GFLAGS
+  proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
+  proto->set_mapeamento_sombras(FLAGS_mapeamento_de_sombras);
+#else
+  proto->set_iluminacao_por_pixel(true);
+  proto->set_mapeamento_sombras(true);
+#endif
+  LOG(INFO) << "Opcoes inciais: " << proto->ShortDebugString();
+
 }
 }  // namespace
 

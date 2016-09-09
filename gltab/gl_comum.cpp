@@ -353,13 +353,17 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_unidade_textura", &shader->uni_gltab_unidade_textura },
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
           {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
+          {"gltab_unidade_textura_oclusao", &shader->uni_gltab_unidade_textura_oclusao },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
+
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
+          {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
+          {"gltab_prm_oclusao", &shader->uni_gltab_prm_oclusao },
           {"gltab_nm", &shader->uni_gltab_nm },
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster},
   }) {
@@ -451,6 +455,8 @@ void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto*
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
   contexto->pilha_prj_sombra.push(Matrix4());
+  contexto->pilha_prj_oclusao.push(Matrix4());
+  contexto->pilha_mvm_oclusao.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
@@ -659,7 +665,13 @@ int ModoMatrizCorrente() {
   if (c->pilha_corrente == &c->pilha_mvm) { return MATRIZ_MODELAGEM_CAMERA; }
   else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
-  else { return MATRIZ_SOMBRA; }
+  else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
+  else if (c->pilha_corrente == &c->pilha_prj_oclusao) { return MATRIZ_PROJECAO_OCLUSAO; }
+  else if (c->pilha_corrente == &c->pilha_mvm_oclusao) { return MATRIZ_OCLUSAO; }
+  else {
+    LOG(ERROR) << "Nao ha matriz corrente!!";
+    return MATRIZ_SOMBRA;
+  }
 }
 
 void MudarModoMatriz(int modo) {
@@ -670,8 +682,14 @@ void MudarModoMatriz(int modo) {
     c->pilha_corrente = &c->pilha_prj;
   } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
     c->pilha_corrente = &c->pilha_prj_sombra;
-  } else {
+  } else if (modo == MATRIZ_SOMBRA) {
     c->pilha_corrente = &c->pilha_mvm_sombra;
+  } else if (modo == MATRIZ_PROJECAO_OCLUSAO) {
+    c->pilha_corrente = &c->pilha_prj_oclusao;
+  } else if (modo == MATRIZ_OCLUSAO) {
+    c->pilha_corrente = &c->pilha_mvm_oclusao;
+  } else {
+    LOG(ERROR) << "Modo invalido: " << (int)modo;
   }
   //AtualizaMatrizes();
 }
@@ -893,6 +911,17 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
   Uniforme(shader.uni_gltab_nevoa_cor, r, g, b, 1.0f);
 }
 
+void Oclusao(bool valor) {
+  if (!interno::UsandoShaderComNevoa()) {
+    return;
+  }
+  const auto& shader = interno::BuscaShader();
+  float nevoa[4];
+  LeUniforme(shader.programa, shader.uni_gltab_nevoa_dados, nevoa);
+  nevoa[2] = valor ? 1.0f : 0.0f;
+  Uniforme(shader.uni_gltab_nevoa_dados, nevoa[0], nevoa[1], nevoa[2], nevoa[3]);
+}
+
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
   // Copiado do glues.
   GLfloat m[4][4];
@@ -1010,7 +1039,14 @@ Matrix4 LeMatriz(matriz_e modo) {
     return c->pilha_prj.top();
   } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
     return c->pilha_prj_sombra.top();
+  } else if (modo == MATRIZ_PROJECAO_OCLUSAO) {
+    return c->pilha_prj_oclusao.top();
+  } else if (modo == MATRIZ_OCLUSAO) {
+    return c->pilha_mvm_oclusao.top();
+  } else if (modo == MATRIZ_SOMBRA) {
+    return c->pilha_mvm_sombra.top();
   } else {
+    LOG(ERROR) << "Tipo de matriz invalido: " << (int)modo;
     return c->pilha_mvm_sombra.top();
   }
 }
@@ -1082,6 +1118,7 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura, 0);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }
@@ -1127,6 +1164,9 @@ void AtualizaMatrizes() {
   if (shader.uni_gltab_mvm_sombra != -1) {
     Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
   }
+  if (shader.uni_gltab_mvm_oclusao != -1) {
+    Matriz4Uniforme(shader.uni_gltab_mvm_oclusao, 1, false, c->pilha_mvm_oclusao.top().get());
+  }
 }
 
 void AtualizaTodasMatrizes() {
@@ -1141,6 +1181,8 @@ void AtualizaTodasMatrizes() {
     { shader.uni_gltab_prm, &c->pilha_prj.top() },
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
+    { shader.uni_gltab_mvm_oclusao, &c->pilha_mvm_oclusao.top() },
+    { shader.uni_gltab_prm_oclusao, &c->pilha_prj_oclusao.top() },
   };
   for (const auto& dm : dados_matriz) {
     if (dm.id != -1) {
