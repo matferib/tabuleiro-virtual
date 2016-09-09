@@ -1,4 +1,5 @@
 Versao 2.3.0
+- Entidades com modelo so aceitam um objeto VBO (se for grande vira mais ao extrair)
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
 - Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz nao for visivel, descarta).
