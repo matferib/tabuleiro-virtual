@@ -1,9 +1,9 @@
-Versao 2.3.0
-- Entidades com modelo so aceitam um objeto VBO (se for grande vira mais ao extrair)
+Versao 2.3.1
+- Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz, nao for visivel, descarta).
+
+Versao 2.4.0
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
-- Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz nao for visivel, descarta).
-
 - Entidades montadas.
 - Relogio marcando horas e controlando iluminacao?
 - Voltou a dar problema da rede android (sera que eh porque usei platform android-21? Possivel, porque ocorreu entre as versoes).
@@ -42,8 +42,6 @@ Versao 2.3.0
 - Mais teclado ipad.
 - Descobrir pq a segunda auto conexao da pau (aparentemente bug no boost).
 - Texturas faltantes.
-
-Versao 2.4.0
 - Mais traducoes.
 - Traducoes ANDROID e IOS.
 - Modelar corretamente os efeitos de splash (acido, fogo grego).
