@@ -12,8 +12,8 @@ modelo {
   entidade { dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' }
 }
 modelo {
-	id: 'Dragontino'  # Monstros de faerun.
-	entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
+  id: 'Dragontino'  # Monstros de faerun.
+  entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
 modelo {
   id: 'Sniper Drow'  # MM4 pg 56
@@ -139,4 +139,3 @@ modelo {
     rotulo_especial: 'ini -1 mov 6\nat +18 6x garras dano 1d8+6, mordida dano 2d8+3\nferrao 2d6 + veneno CD 22 + implante\nca: 31/9/31, RM 29\nfeiticos CD 17 (19 en/ev): 6/8/8/8/7/7/7/7/6/4'
   }
 }
-

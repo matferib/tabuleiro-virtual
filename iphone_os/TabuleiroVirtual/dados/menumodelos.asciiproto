@@ -19,11 +19,19 @@ sub_menu {
   }
 }
 sub_menu {
+  id: 'Aberrações'
+  modelo { id: 'Abocanhador Matraqueante' }
+  modelo { id: 'Mantor' }
+  modelo { id: 'Monstro da Ferrugem' }
+  modelo { id: 'Otyugh' }
+}
+sub_menu {
   id: 'Animais'
   modelo { id: 'Águia' }
   modelo { id: 'Hiena' }
   modelo { id: 'Leão' }
   modelo { id: 'Leão Atroz' }
+  modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
   modelo { id: 'Tigre' }
   modelo { id: 'Urso Marrom' }
@@ -52,7 +60,12 @@ sub_menu {
   modelo { id: 'Drow Lider 6' }
 }
 modelo { id: 'Elemental do Ar (Pequeno)' }
-modelo { id: 'Enxame (centopéias)' }
+sub_menu {
+  id: 'Enxames'
+  modelo { id: 'Enxame (centopéias)' }
+  modelo { id: 'Enxame (morcegos)' }
+  modelo { id: 'Enxame (ratos)' }
+}
 sub_menu {
   id: 'Elfos'
   modelo { id: 'Elfo' }
@@ -99,6 +112,8 @@ sub_menu {
     id: 'Ladinos'
     modelo { id: 'Humano Ladino' }
     modelo { id: 'Humano Ladino 3' }
+    modelo { id: 'Humano Ladino 4' }
+    modelo { id: 'Humano Ladino 5' }
     modelo { id: 'Humano Ladino 7' }
   }
   modelo { id: 'Humano Mago' }
@@ -133,6 +148,13 @@ sub_menu {
 sub_menu {
   id: 'Plantas'
   modelo { id: 'Arbusto Errante' }
+  modelo { id: 'Fungo Guardião' }
+  modelo { id: 'Fungo Violeta' }
+}
+sub_menu {
+  id: 'Limo/Gosma'
+  modelo { id: 'Cubo Gelatinoso' }
+  modelo { id: 'Pudim Negro' }
 }
 modelo { id: 'Quimera' }
 modelo { id: 'Troll' }
@@ -141,6 +163,7 @@ sub_menu {
   id: 'Vermes'
   modelo { id: 'Aranha Gigante Enorme' }
   modelo { id: 'Besouro do Fogo' }
+  modelo { id: 'Centopéia Enorme' }
   modelo { id: 'Centopéia Imensa' }
   modelo { id: 'Escorpião Monstruoso Grande' }
   modelo { id: 'Escorpião Monstruoso Enorme' }
@@ -159,8 +182,8 @@ sub_menu {
   modelo { id: 'Baú (madeira)' }
   modelo { id: 'Barras' }
 }
-sub_menu {
-  id: 'Teste'
-  modelo { id: 'teste orc' }
-  modelo { id: 'teste geo' }
-}
+#sub_menu {
+#  id: 'Teste'
+#modelo { id: 'teste orc' }
+#  modelo { id: 'teste geo' }
+#}

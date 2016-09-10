@@ -1,5 +1,12 @@
 # Este arquivo é uma representação texto do proto ent::Modelos.
 modelo {
+  id: 'Abocanhador Matraqueante'
+  entidade {
+    dados_vida: '4d8+24' info_textura { id: 'gibbering_mouther.png' } cor { r: 0.635 g: 0.51 b: 0.427 }
+    rotulo_especial: 'ini +1\nagarrar +3 at +4/+4/+4/+4/+4/+4/+4 (toque) dano 1/1/1/1/1/1/1d4 acido + cegueira\nvarias outras'
+  }
+}
+modelo {
   id: 'Allip'
   entidade {
     dados_vida: '4d12' info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
@@ -49,6 +56,14 @@ modelo {
   entidade {
     dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'giantspider.png' } cor { r: 0 g: 0 b: 0 }
     rotulo_especial: 'ini: +3\nca 16/11/13 agarrar 18 mordida: +9 dano 2d6+6+veneno\nveneno cd 16 1d8 força'
+  }
+}
+modelo {
+  id: 'Mantor'
+  entidade {
+    dados_vida: '6d8+18' tamanho: TM_GRANDE info_textura { id: 'mantor.png' } cor { r: 0 g: 0 b: 0 }
+    voadora: true tipo_visao: VISAO_ESCURO alcance_visao: 12
+    rotulo_especial: 'ini +7\nat +8/+3 1d6+5, agarrar +13/1d4+2\nca 19/12/16\nlamento, engolfar e sombras'
   }
 }
 modelo {
@@ -104,11 +119,21 @@ modelo {
   }
 }
 modelo {
+  id: 'Centopéia Enorme'
+  entidade {
+    dados_vida: '12d8+12' tamanho: TM_ENORME info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini: +2\nagarrar: +15\nat: +5\ndano: 2d6+4+veneno\nca: 16\nveneno: fort 14 1d6 des/1d6 des'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '2d6+4' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+  }
+}
+modelo {
   id: 'Centopéia Imensa'
   entidade {
     dados_vida: '12d8+12' tamanho: TM_IMENSO info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    rotulo_especial: 'ini: +2\nagarrar: +27\nat: +11\ndano: 2d8+9+veneno/\nca: 18'
+    rotulo_especial: 'ini: +2\nagarrar: +27\nat: +11\ndano: 2d8+9+veneno\nca: 18\nfort 17 1d8 des/1d8 des'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 11 dano: '2d8+9' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
   }
@@ -190,7 +215,24 @@ modelo {
 }
 modelo {
   id: 'Enxame (centopéias)'
-  entidade { dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 } }
+  entidade {
+    dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +4\ndano: 2d6 + veneno + nausea\nveneno: fort 13 1d4 des/1d4 des\nnausea: for 13 por 1 rodada'
+  }
+}
+modelo {
+  id: 'Enxame (morcegos)'
+  entidade {
+    dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_bat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada' voadora: true
+  }
+}
+modelo {
+  id: 'Enxame (ratos)'
+  entidade {
+    dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
+  }
 }
 modelo {
   id: 'Esqueleto (Humano Combatente)'
@@ -223,6 +265,19 @@ modelo {
   entidade {
     dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'giantant_queen.png'} cor { r: 0.2 g: 0.0 b: 0.0 }
     rotulo_especial: 'ini -1\nca 17/10/17 at +5 dano 2d6+4\nagarrar aprimorado ferrao dano 2d4+1\n'
+  }
+}
+modelo {
+  id: 'Fungo Guardião'
+  entidade {
+    dados_vida: '2d8+2' modelo_3d { id: 'shrieker' }
+  }
+}
+modelo {
+  id: 'Fungo Violeta'
+  entidade {
+    dados_vida: '2d8+6' modelo_3d { id: 'violet_fungus' }
+    rotulo_especial: 'ini -1\nat +3/+3/+3/+3 dano 1d6+2+veneno\nca 13/9/13\nveneno fort 14/1d4 for e con/1d4 for e con\nalcance 2 quad'
   }
 }
 modelo {
@@ -425,10 +480,30 @@ modelo {
   id: 'Humano Ladino 3'
   entidade {
     dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6\nca: 18'
+    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6(x3)\nca: 18'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+  }
+}
+modelo {
+  id: 'Humano Ladino 4'
+  entidade {
+    dados_vida: '4d6+4' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    rotulo_especial: 'Humano Ladino 4\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 2d6'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+  }
+}
+modelo {
+  id: 'Humano Ladino 5'
+  entidade {
+    dados_vida: '5d6+5' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    rotulo_especial: 'Humano Ladino 5\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 3d6'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1(x3)' }
+    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
   }
 }
 modelo {
@@ -479,7 +554,18 @@ modelo {
 }
 modelo {
   id: 'Homem-Rato'
-  entidade { dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 } }
+  entidade {
+    dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    rotulo_especial: 'humano: ini 0 at +2 (sabre) ou +1 (besta) dano 1d6+1(18-20) ou 1d8(19-20)\nca 15/10/15\nrato: ini +3 at +6 1d4+1+doenca\nca 17/14/14\nhibrido: ini +3 at +4/-1 dano 1d6+1(18-20)/1d6+doenca\nca 16/13/13\ndoenca febre esgoto'
+  }
+}
+modelo {
+  id: 'Monstro da Ferrugem'
+  entidade {
+    dados_vida: '5d8+5' modelo_3d { id: 'rust_monster' } cor { r: 0.2 g: 0.2 b: 0.2 }
+    rotulo_especial: 'ini: +3\nat: +3/-2, dano: ferrugem/1d3\nca: 18/13/15'
+  }
 }
 modelo {
   id: 'Ogro'
@@ -528,6 +614,30 @@ modelo {
   }
 }
 modelo {
+  id: 'Otyugh'
+  entidade {
+    dados_vida: '6d8+9' modelo_3d { id: 'otyugh' } cor { r: 0.635 g: 0.51 b: 0.427 }
+    tipo_visao: VISAO_ESCURO alcance_visao: 12
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini: +0\nagarrar: +8 1d6\nat: +4/+4/-2\ndano: 1d6/1d6/1d4\nca: 17\ndoenca'
+  }
+}
+modelo {
+  id: 'Cubo Gelatinoso'
+  entidade {
+    dados_vida: '4d10+32' cor { r: 1 g: 1 b: 1 a: 0.3 }
+    tamanho: TM_GRANDE
+    rotulo_especial: 'ini -5\nat +2 1d6+1d6 acido\nengolfar, paralisia fort CD 20 3d6 rodadas'
+  }
+}
+modelo {
+  id: 'Pudim Negro'
+  entidade {
+    dados_vida: '10d10+60' cor { r: 0 b: 0 g: 0 } tamanho: TM_ENORME
+    rotulo_especial: 'ini -5\nat +8 2d6+4+2d6 acido\nconstricao 2d6+4'
+  }
+}
+modelo {
   id: 'Demônio Súcubo'
   entidade {
     dados_vida: '6d8+6' info_textura { id: 'succubus.png' } cor { r: 0.5 g: 0.1 b: 0.1 }
@@ -546,6 +656,13 @@ modelo {
   entidade {
     dados_vida: '9d10+27' tamanho: TM_GRANDE info_textura { id: 'chimera.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
     rotulo_especial: 'ini: +1\nat: +12/+12/+12/+10/+10\ndano:2d6+4/1d8+4/1d8+4/1d6+2/1d6+2\nca: 19'
+  }
+}
+modelo {
+  id: 'Rato Atroz'
+  entidade {
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' } cor { r: 0 g: 0 b: 0 }
+    rotulo_especial: 'ini +3\nat +4 1d4+doenca\nca 15/14/12\ndoenca fort 11 febre do esgoto '
   }
 }
 modelo {
