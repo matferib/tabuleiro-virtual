@@ -94,7 +94,7 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 void main() {
   lowp vec4 cor_final = v_Color;
 #if USAR_MAPEAMENTO_SOMBRAS
-  if (gltab_nevoa_dados.z > 0.0f) {
+  if (false && gltab_nevoa_dados.z > 0.0f) {
     highp float bias = 0.2f;
 #if __VERSION__ == 130
     lowp float visivel = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias));
@@ -108,8 +108,6 @@ void main() {
     lowp vec4 texprofcor = texture2D(gltab_unidade_textura_oclusao, v_Pos_oclusao.xy);
     lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
     lowp float visivel = (v_Pos_oclusao.z - bias) > texz ? 0.0 : 1.0;
-#else
-    lowp float visivel = 1.0;
 #endif
 
     if (visivel == 0.0f) {
