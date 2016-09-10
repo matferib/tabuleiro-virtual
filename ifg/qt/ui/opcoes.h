@@ -16,6 +16,7 @@
 #include <QtGui/QCheckBox>
 #include <QtGui/QDialog>
 #include <QtGui/QDialogButtonBox>
+#include <QtGui/QGroupBox>
 #include <QtGui/QHeaderView>
 
 namespace ifg {
@@ -32,15 +33,18 @@ public:
     QCheckBox *checkbox_anti_aliasing;
     QCheckBox *checkbox_grade;
     QCheckBox *checkbox_controle;
+    QGroupBox *groupBox;
+    QCheckBox *checkbox_mapeamento_de_sombras;
+    QCheckBox *checkbox_iluminacao_por_pixel;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
         if (ifg__qt__DialogoOpcoes->objectName().isEmpty())
             ifg__qt__DialogoOpcoes->setObjectName(QString::fromUtf8("ifg__qt__DialogoOpcoes"));
-        ifg__qt__DialogoOpcoes->resize(400, 300);
+        ifg__qt__DialogoOpcoes->resize(423, 394);
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-        buttonBox->setGeometry(QRect(30, 240, 341, 32));
+        buttonBox->setGeometry(QRect(60, 340, 341, 32));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         checkbox_mostrar_fps = new QCheckBox(ifg__qt__DialogoOpcoes);
@@ -64,6 +68,15 @@ public:
         checkbox_controle = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_controle->setObjectName(QString::fromUtf8("checkbox_controle"));
         checkbox_controle->setGeometry(QRect(10, 200, 271, 22));
+        groupBox = new QGroupBox(ifg__qt__DialogoOpcoes);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setGeometry(QRect(10, 230, 391, 91));
+        checkbox_mapeamento_de_sombras = new QCheckBox(groupBox);
+        checkbox_mapeamento_de_sombras->setObjectName(QString::fromUtf8("checkbox_mapeamento_de_sombras"));
+        checkbox_mapeamento_de_sombras->setGeometry(QRect(10, 30, 271, 22));
+        checkbox_iluminacao_por_pixel = new QCheckBox(groupBox);
+        checkbox_iluminacao_por_pixel->setObjectName(QString::fromUtf8("checkbox_iluminacao_por_pixel"));
+        checkbox_iluminacao_por_pixel->setGeometry(QRect(10, 60, 271, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -82,6 +95,9 @@ public:
         checkbox_anti_aliasing->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Anti Serrilhamento", 0, QApplication::UnicodeUTF8));
         checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Grade", 0, QApplication::UnicodeUTF8));
         checkbox_controle->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Controle Virtual", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "requer reinicializa\303\247\303\243o", 0, QApplication::UnicodeUTF8));
+        checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0, QApplication::UnicodeUTF8));
+        checkbox_iluminacao_por_pixel->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o por pixel (lento)", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

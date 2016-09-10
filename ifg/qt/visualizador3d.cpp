@@ -141,9 +141,9 @@ void PreencheComboTextura(const std::string& id_corrente, int id_cliente, std::f
     std::sort(texturas.begin(), texturas.end());
     return texturas;
   };
-  std::vector<std::string> texturas = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA, filtro)));
-  std::vector<std::string> texturas_baixadas = std::move(Ordena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA, filtro))));
-  std::vector<std::string> texturas_locais = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL, filtro)));
+  std::vector<std::string> texturas = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA, filtro));
+  std::vector<std::string> texturas_baixadas = Ordena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA, filtro)));
+  std::vector<std::string> texturas_locais = Ordena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL, filtro));
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
@@ -193,9 +193,9 @@ void PreencheComboTexturaCeu(const std::string& id_corrente, int id_cliente, QCo
     std::sort(texturas.begin(), texturas.end());
     return texturas;
   };
-  std::vector<std::string> texturas = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA)));
-  std::vector<std::string> texturas_baixadas = std::move(FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA))));
-  std::vector<std::string> texturas_locais = std::move(FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL)));
+  std::vector<std::string> texturas = FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA));
+  std::vector<std::string> texturas_baixadas = FiltraOrdena((arq::ConteudoDiretorio(arq::TIPO_TEXTURA_BAIXADA)));
+  std::vector<std::string> texturas_locais = FiltraOrdena(arq::ConteudoDiretorio(arq::TIPO_TEXTURA_LOCAL));
 
   AdicionaSeparador(combo_textura->tr("Globais"), combo_textura);
   for (const std::string& textura : texturas) {
@@ -227,8 +227,8 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
     std::sort(modelos.begin(), modelos.end());
     return modelos;
   };
-  std::vector<std::string> modelos_3d = std::move(Ordena(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d)));
-  std::vector<std::string> modelos_3d_baixados = std::move(Ordena((arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d))));
+  std::vector<std::string> modelos_3d = Ordena(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d));
+  std::vector<std::string> modelos_3d_baixados = Ordena((arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d)));
 
   AdicionaSeparador(combo_modelos_3d->tr("Globais"), combo_modelos_3d);
   for (const std::string& modelo_3d : modelos_3d) {
@@ -1116,6 +1116,10 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_grade->setCheckState(opcoes_proto.desenha_grade() ? Qt::Checked : Qt::Unchecked);
   // Controle virtual.
   gerador.checkbox_controle->setCheckState(opcoes_proto.desenha_controle_virtual() ? Qt::Checked : Qt::Unchecked);
+  // Mapeamento de sombras.
+  gerador.checkbox_mapeamento_de_sombras->setCheckState(opcoes_proto.mapeamento_sombras() ? Qt::Checked : Qt::Unchecked);
+  // Iluminacao por pixel.
+  gerador.checkbox_iluminacao_por_pixel->setCheckState(opcoes_proto.iluminacao_por_pixel() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -1131,6 +1135,10 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_controle_virtual(
         gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_mapeamento_sombras(
+        gerador.checkbox_mapeamento_de_sombras->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_iluminacao_por_pixel(
+        gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
