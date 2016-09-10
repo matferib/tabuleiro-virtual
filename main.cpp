@@ -34,15 +34,21 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
     proto->CopyFrom(ent::OpcoesProto::default_instance());
     LOG(INFO) << "Carregando opcoes padroes.";
   }
+  if (!proto->has_iluminacao_por_pixel()) {
 #if USAR_GFLAGS
-  proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
-  proto->set_mapeamento_sombras(FLAGS_mapeamento_de_sombras);
+    proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
 #else
-  proto->set_iluminacao_por_pixel(true);
-  proto->set_mapeamento_sombras(true);
+    proto->set_iluminacao_por_pixel(true);
 #endif
+  }
+  if (!proto->has_mapeamento_sombras()) {
+#if USAR_GFLAGS
+    proto->set_mapeamento_sombras(FLAGS_mapeamento_de_sombras);
+#else
+    proto->set_mapeamento_sombras(true);
+#endif
+  }
   LOG(INFO) << "Opcoes inciais: " << proto->ShortDebugString();
-
 }
 }  // namespace
 
