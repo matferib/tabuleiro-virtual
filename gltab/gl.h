@@ -98,7 +98,7 @@ static_assert(MATRIZ_MODELAGEM_CAMERA != MATRIZ_PROJECAO &&
               MATRIZ_PROJECAO_OCLUSAO != MATRIZ_PROJECAO,
               "valores de matrizes devem ser diferentes");
 int ModoMatrizCorrente();
-void MudarModoMatriz(int modo);
+void MudaModoMatriz(int modo);
 
 /** Salva a matriz corrente durante escopo da classe. Ou muda o modo de matriz e a salva, retornando ao modo anterior ao fim do escopo. */
 class MatrizEscopo {
@@ -110,18 +110,18 @@ class MatrizEscopo {
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
   explicit MatrizEscopo(int modo, bool atualizar = true) : atualizar_(atualizar), modo_(modo) {
     modo_anterior_ = ModoMatrizCorrente();
-    MudarModoMatriz(static_cast<matriz_e>(modo_));
+    MudaModoMatriz(static_cast<matriz_e>(modo_));
     EmpilhaMatriz(atualizar_);
   }
 
   /** Restaura matriz anterior ao escopo para o modo escolhido. */
   ~MatrizEscopo() {
     if (modo_ != GL_INVALID_ENUM) {
-      MudarModoMatriz(static_cast<matriz_e>(modo_));
+      MudaModoMatriz(static_cast<matriz_e>(modo_));
     }
     DesempilhaMatriz(atualizar_);
     if (modo_anterior_ != GL_INVALID_ENUM) {
-      MudarModoMatriz(static_cast<matriz_e>(modo_anterior_));
+      MudaModoMatriz(static_cast<matriz_e>(modo_anterior_));
     }
   }
 

@@ -679,7 +679,7 @@ int ModoMatrizCorrente() {
   }
 }
 
-void MudarModoMatriz(int modo) {
+void MudaModoMatriz(int modo) {
   auto* c = interno::BuscaContexto();
   if (modo == MATRIZ_MODELAGEM_CAMERA) {
     c->pilha_corrente = &c->pilha_mvm;
