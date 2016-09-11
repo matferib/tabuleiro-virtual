@@ -94,25 +94,38 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 void main() {
   lowp vec4 cor_final = v_Color;
 #if USAR_MAPEAMENTO_SOMBRAS
-  if (false && gltab_nevoa_dados.z > 0.0f) {
-    highp float bias = 0.2f;
+  if (gltab_nevoa_dados.z > 0.0f) {
+    highp float v_z = v_Pos_oclusao.z / v_Pos_oclusao.w;
+    highp vec2 v_xy = vec2(v_Pos_oclusao.xy / v_Pos_oclusao.w);
+    //if (v_z >= 0.0f) {
+    //  gl_FragColor = vec4(v_z, 0.0f, 0.0f, 1.0f);
+    //  return;
+    //}
+#if 1
+    highp float bias = 0.0f;
 #if __VERSION__ == 130
-    lowp float visivel = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias));
+    highp float visivel = 0.0f;
+    if (v_xy.x > 0.0f && v_xy.y >= 0.0f && v_xy.x <= 1.0f && v_xy.y <= 1.0f && v_z >= 0.0f && v_z <= 1.0f &&
+        texture(gltab_unidade_textura_oclusao, vec3(v_xy, v_z - bias)) > 0.0f) {
+      visivel = 1.0f;
+    }
 #elif __VERSION__ == 120
-    lowp float visivel = shadow2D(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias)).r;
+    lowp float visivel = shadow2D(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
 #elif defined(GL_EXT_shadow_samplers)
     lowp float visivel = shadow2DEXT(
-        gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy, v_Pos_oclusao.z - bias));
+        gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias));
 #else
     // OpenGL ES 2.0.
-    lowp vec4 texprofcor = texture2D(gltab_unidade_textura_oclusao, v_Pos_oclusao.xy);
+    lowp vec4 texprofcor = texture2D(gltab_unidade_textura_oclusao, v_Pos_oclusao.xy / v_Pos_oclusao.w);
     lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
-    lowp float visivel = (v_Pos_oclusao.z - bias) > texz ? 0.0 : 1.0;
+    lowp float visivel = ((v_Pos_oclusao.z / v_Pos_oclusao.w) - bias) > texz ? 0.0 : 1.0;
 #endif
 
     if (visivel == 0.0f) {
-      discard;
+      gl_FragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+      return;
     }
+#endif
   }
 #endif
 
