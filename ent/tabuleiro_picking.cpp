@@ -40,7 +40,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   // entra no modo de selecao e limpa a pilha de nomes e inicia com 0
   gl::ModoRenderizacao(gl::MR_SELECT);
 
-  gl::MudarModoMatriz(GL_PROJECTION);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
@@ -91,7 +91,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   //}
 
   // Restaura projecao manualmente por causa da pilha pequena.
-  gl::MudarModoMatriz(GL_PROJECTION);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
 }

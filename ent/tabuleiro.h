@@ -758,6 +758,8 @@ class Tabuleiro : public ntf::Receptor {
   void ConfiguraProjecao();
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
+  void ConfiguraOlharMapeamentoSombras();
+  void ConfiguraOlharMapeamentoOclusao();
 
   /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
   bool VisaoMestre() const { return (modo_mestre_ || modo_mestre_secundario_) && !visao_jogador_; }
@@ -793,7 +795,7 @@ class Tabuleiro : public ntf::Receptor {
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
 
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
-  bool MapeamentoOclusao() const { return false && opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
+  bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.

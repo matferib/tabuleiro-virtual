@@ -42,6 +42,16 @@
 #define USAR_MAPEAMENTO_SOMBRAS_OPENGLES 0
 #endif
 
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+#ifndef GL_TEXTURE_COMPARE_MODE_EXT
+// Estes dois nao estao presentes no jni android 17 (4.4.2).
+// Como o lollipop da pau de rede, prefiro fazer isso.
+#define GL_TEXTURE_COMPARE_MODE_EXT 0x884C
+#define GL_COMPARE_REF_TO_TEXTURE_EXT 0x884E
+#endif
+#endif
+
+
 using google::protobuf::RepeatedField;
 
 namespace ent {
@@ -402,74 +412,100 @@ void Tabuleiro::ConfiguraProjecao() {
 }
 
 void Tabuleiro::ConfiguraOlhar() {
-  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
-    Matrix4 mr;
-    mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
-    mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
-    mr.scale(150.0f);  // TODO valor.
-    Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
-    vl = mr * vl;
-    //LOG(INFO) << vl;
-    Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
-    if (fabs(vl.x) < 0.001f && fabs(vl.y) < 0.001f) {
-      up.x = 0.0f;
-      up.y = 1.0f;
-      up.z = 0.0f;
+  // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
+  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.desenha_mapa_oclusao()) {
+    if (MapeamentoSombras()) {
+      gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
+      ConfiguraOlharMapeamentoSombras();
+      gl::MudaModoMatriz(GL_MODELVIEW);
     }
-    // Para usar a posicao alvo do olho como referencia.
-    //const Posicao& alvo = olho_.alvo();
-    gl::OlharPara(
-        // from.
-        //alvo.x() + vl.x, alvo.y() + vl.y, alvo.z() + vl.z,
-        vl.x, vl.y, vl.z,
-        // to.
-        //alvo.x(), alvo.y(), alvo.z(),
-        0, 0, 0,
-        // up
-        up.x, up.y, up.z);
-    //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
-    //LOG(INFO) << "mt: " << mt;
-    //Vector4 vt(10.0f, 0.0f, 0.0f, 1.0f);
-    //vt = vt * mt;
-    //LOG(INFO) << "vt: " << (vt * mt);
+    if (MapeamentoOclusao()) {
+      gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
+      ConfiguraOlharMapeamentoOclusao();
+      gl::MudaModoMatriz(GL_MODELVIEW);
+    }
+    const Posicao& alvo = olho_.alvo();
+    if (camera_ == CAMERA_ISOMETRICA) {
+      gl::OlharPara(
+          // from.
+          alvo.x(), alvo.y(), olho_.pos().z(),
+          // to.
+          alvo.x(), alvo.y(), alvo.z(),
+          // up
+          alvo.x() - olho_.pos().x(), alvo.y() - olho_.pos().y(), 0.0);
+    } else {
+      gl::OlharPara(
+          // from.
+          olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
+          // to.
+          alvo.x(), alvo.y(), alvo.z(),
+          // up
+          0, 0, 1.0);
+    }
     return;
   }
-  const Posicao& alvo = olho_.alvo();
+
+  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+    ConfiguraOlharMapeamentoSombras();
+    return;
+  }
   if (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao()) {
-    camera_e salva_camera = camera_;
-    Olho salva_olho = olho_;
-    camera_ = CAMERA_PRIMEIRA_PESSOA;
-    AtualizaOlho(0, false);
-    gl::OlharPara(
-        // from.
-        //0.0f, 0.0f, 1.0f,
-        olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
-        // to.
-        //0.0f, 1.0f, 1.0f,
-        alvo.x(), alvo.y(), alvo.z(),
-        // up
-        0, 0, 1.0);
-    camera_ = salva_camera;
-    olho_ = salva_olho;
+    ConfiguraOlharMapeamentoOclusao();
     return;
   }
-  if (camera_ == CAMERA_ISOMETRICA) {
-    gl::OlharPara(
-        // from.
-        alvo.x(), alvo.y(), olho_.pos().z(),
-        // to.
-        alvo.x(), alvo.y(), alvo.z(),
-        // up
-        alvo.x() - olho_.pos().x(), alvo.y() - olho_.pos().y(), 0.0);
-  } else {
-    gl::OlharPara(
-        // from.
-        olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
-        // to.
-        alvo.x(), alvo.y(), alvo.z(),
-        // up
-        0, 0, 1.0);
+}
+
+void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
+  Matrix4 mr;
+  mr.rotateY(-proto_corrente_->luz_direcional().inclinacao_graus());
+  mr.rotateZ(proto_corrente_->luz_direcional().posicao_graus());
+  mr.scale(150.0f);  // TODO valor.
+  Vector4 vl(1.0f, 0.0f, 0.0f, 1.0f);
+  vl = mr * vl;
+  //LOG(INFO) << vl;
+  Vector4 up(0.0f, 0.0f, 1.0f, 1.0f);
+  if (fabs(vl.x) < 0.001f && fabs(vl.y) < 0.001f) {
+    up.x = 0.0f;
+    up.y = 1.0f;
+    up.z = 0.0f;
   }
+  // Para usar a posicao alvo do olho como referencia.
+  //const Posicao& alvo = olho_.alvo();
+  gl::OlharPara(
+      // from.
+      //alvo.x() + vl.x, alvo.y() + vl.y, alvo.z() + vl.z,
+      vl.x, vl.y, vl.z,
+      // to.
+      //alvo.x(), alvo.y(), alvo.z(),
+      0, 0, 0,
+      // up
+      up.x, up.y, up.z);
+  //Matrix4 mt = gl::LeMatriz(gl::MATRIZ_SOMBRA);
+  //LOG(INFO) << "mt: " << mt;
+  //Vector4 vt(10.0f, 0.0f, 0.0f, 1.0f);
+  //vt = vt * mt;
+  //LOG(INFO) << "vt: " << (vt * mt);
+}
+
+void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
+  camera_e salva_camera = camera_;
+  Olho salva_olho = olho_;
+  camera_ = CAMERA_PRIMEIRA_PESSOA;
+  AtualizaOlho(0, false);
+  const Posicao& alvo = olho_.alvo();
+  LOG(INFO) << "Olho: " << olho_.ShortDebugString();
+  gl::OlharPara(
+      // from.
+      //0.0f, 0.0f, 1.0f,
+      olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
+      // to.
+      //0.0f, 1.0f, 1.0f,
+      alvo.x(), alvo.y(), alvo.z(),
+      // up
+      0, 0, 1.0);
+  camera_ = salva_camera;
+  olho_ = salva_olho;
+  return;
 }
 
 void Tabuleiro::DesenhaMapaOclusao() {
@@ -512,7 +548,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
-  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
@@ -568,7 +604,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
-  gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
   ConfiguraProjecao();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
@@ -645,7 +681,7 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_OCLUSAO);
+    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_OCLUSAO);
     gl::CarregaIdentidade(false);
     Matrix4 bias(
         0.5, 0.0, 0.0, 0.0,
@@ -654,7 +690,7 @@ int Tabuleiro::Desenha() {
         0.5, 0.5, 0.5, 1.0);
     gl::MultiplicaMatriz(bias.get(), false);
     ConfiguraProjecao();
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::BufferDesenho(GL_BACK);
@@ -677,7 +713,7 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
+    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
     gl::CarregaIdentidade(false);
     Matrix4 bias(
         0.5, 0.0, 0.0, 0.0,
@@ -686,7 +722,7 @@ int Tabuleiro::Desenha() {
         0.5, 0.5, 0.5, 1.0);
     gl::MultiplicaMatriz(bias.get(), false);
     ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
-    gl::MudarModoMatriz(gl::MATRIZ_PROJECAO);
+    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::BufferDesenho(GL_BACK);
@@ -703,7 +739,7 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  gl::MudarModoMatriz(GL_PROJECTION);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha";
@@ -2575,26 +2611,9 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudarModoMatriz(GL_MODELVIEW);
+  gl::MudaModoMatriz(GL_MODELVIEW);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
-
-  if (MapeamentoSombras() && parametros_desenho_.desenha_sombras() && !parametros_desenho_.desenha_sombra_projetada()) {
-    // Configura a matriz de sombras para o modo normal.
-    parametros_desenho_.set_desenha_sombra_projetada(true);
-    gl::MudarModoMatriz(gl::MATRIZ_SOMBRA);
-    ConfiguraOlhar();
-    parametros_desenho_.set_desenha_sombra_projetada(false);
-    gl::MudarModoMatriz(GL_MODELVIEW);
-  }
-  if (MapeamentoOclusao() && !parametros_desenho_.desenha_mapa_oclusao()) {
-    // Configura a matriz de oclusao para o modo normal.
-    parametros_desenho_.set_desenha_mapa_oclusao(true);
-    gl::MudarModoMatriz(gl::MATRIZ_OCLUSAO);
-    ConfiguraOlhar();
-    parametros_desenho_.set_desenha_mapa_oclusao(false);
-    gl::MudarModoMatriz(GL_MODELVIEW);
-  }
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
@@ -3051,12 +3070,6 @@ void GeraFramebufferLocal(bool* usar_sampler_sombras, GLuint* framebuffer, GLuin
   gl::LigacaoComTextura(GL_TEXTURE_2D, *textura_framebuffer);
   V_ERRO("LigacaoComTextura");
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-#ifndef GL_TEXTURE_COMPARE_MODE_EXT
-// Estes dois nao estao presentes no jni android 17 (4.4.2).
-// Como o lollipop da pau de rede, prefiro fazer isso.
-#define GL_TEXTURE_COMPARE_MODE_EXT 0x884C
-#define GL_COMPARE_REF_TO_TEXTURE_EXT 0x884E
-#endif
   if (gl::TemExtensao("GL_OES_depth_texture")) {
     *usar_sampler_sombras = true;
     gl::ImagemTextura2d(
