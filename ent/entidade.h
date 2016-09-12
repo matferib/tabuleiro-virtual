@@ -54,8 +54,10 @@ class Entidade {
 
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
+  std::vector<gl::VboNaoGravado> ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), pd); }
+
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static const std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto);
+  static std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -239,8 +241,9 @@ class Entidade {
       const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
 
   // Extracao de VBO por tipo.
-  static const std::vector<gl::VboNaoGravado> ExtraiVboForma(const ent::EntidadeProto& proto);
-  static const std::vector<gl::VboNaoGravado> ExtraiVboComposta(const ent::EntidadeProto& proto);
+  static std::vector<gl::VboNaoGravado> ExtraiVboEntidade(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
+  static std::vector<gl::VboNaoGravado> ExtraiVboForma(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
+  static std::vector<gl::VboNaoGravado> ExtraiVboComposta(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
 
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();

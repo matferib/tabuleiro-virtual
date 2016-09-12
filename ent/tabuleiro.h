@@ -460,6 +460,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
+  // Desenha a cena baseado em VBOs.
+  void DesenhaCenaVbos();
+  void GeraVbosCena();
 
   /** Desenha o alvo do olho. */
   void DesenhaOlho();
@@ -493,6 +496,9 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra = false);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
+
+  // Apenas gera os VBOs das entidaes.
+  std::vector<gl::VboNaoGravado> GeraVbosEntidades();
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
@@ -952,7 +958,6 @@ class Tabuleiro : public ntf::Receptor {
   bool modo_dano_automatico_ = false;
 
   gl::VboGravado vbo_tabuleiro_;
-  gl::VboNaoGravado vbo_tabuleiro_normais_;
   gl::VboGravado vbo_grade_;
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
@@ -963,6 +968,11 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_oclusao_ = 0;
   GLuint textura_framebuffer_oclusao_ = 0;
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
+
+  // Vbos gerados por renderizacao de cena.
+  std::vector<gl::VboNaoGravado> vbos_entidades_cena_;
+  std::vector<gl::VboNaoGravado> vbos_acoes_cena_;
+  std::vector<gl::VboNaoGravado> vbos_entidades_translucidas_cena_;
 
   bool usar_sampler_sombras_ = true;
 

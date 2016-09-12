@@ -127,16 +127,111 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
 }
 
-const std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& proto) {
+std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
   if (proto.tipo() == TE_ENTIDADE) {
-    // TODO: retornar peao?
-    throw std::logic_error("Apenas entidades forma e composta podem gerar VBO.");
-  }
-  if (proto.tipo() == TE_COMPOSTA) {
-    return ExtraiVboComposta(proto);
+    return ExtraiVboEntidade(proto, pd);
+  } else if (proto.tipo() == TE_COMPOSTA) {
+    return ExtraiVboComposta(proto, pd);
   } else {
-    return ExtraiVboForma(proto);
+    return ExtraiVboForma(proto, pd);
   }
+}
+
+std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
+  std::vector<gl::VboNaoGravado> vbos;
+
+  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  const auto& pos = proto.pos();
+  if (true) { //proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
+    gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
+    gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
+    // Translada todos os Z da esfera em ALTURA.
+    for (unsigned int i = 2; i < vbo_esfera.coordenadas().size(); i += vbo_esfera.NumDimensoes()) {
+      vbo_esfera.coordenadas()[i] += ALTURA;
+    }
+    vbo.Concatena(vbo_esfera);
+    vbo.AtribuiCor(proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a());
+    vbos.resize(1);
+    vbos[0] = std::move(vbo);
+    return vbos;
+  }
+
+  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
+  // Ignorar.
+
+#if 0
+  if (proto.has_modelo_3d()) {
+    const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
+    if (modelo_3d != nullptr && modelo_3d->Valido()) {
+      // TODO vbo gravado
+      gl::MatrizEscopo salva_matriz(false);
+      // Mesmo hack das entidades compostas.
+      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+      modelo_3d->Desenha();
+      return;
+    } else {
+      // Nem sempre eh erro.
+      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
+    }
+  }
+#endif
+
+#if 0
+  // Moldura da textura.
+  bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
+  gl::MatrizEscopo salva_matriz(false);
+  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+  // Tijolo da moldura: nao roda selecionado (comentado).
+  if (achatar) {
+    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
+    //if (pd->entidade_selecionada()) {
+    //  gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    //}
+    gl::Roda(90.0f, -1.0f, 0.0f, 0.0f, false);
+    gl::Escala(0.8f, 1.0f, 0.8f, false);
+  } else {
+    // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
+    gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10, false);
+    float angulo = 0;
+    // So desenha a textura de frente pra entidades nao caidas.
+    if (pd->texturas_sempre_de_frente() && !proto.caida()) {
+      double dx = pos.x() - pd->pos_olho().x();
+      double dy = pos.y() - pd->pos_olho().y();
+      double r = sqrt(pow(dx, 2) + pow(dy, 2));
+      angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
+      if (dy < 0) {
+        // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
+        // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
+        angulo = -angulo;
+      }
+      gl::Roda(angulo - 90.0f, 0, 0, 1.0f, false);
+    } else if (!proto.caida()) {
+      gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
+    }
+    gl::MatrizEscopo salva_matriz(false);
+    gl::Escala(1.0f, 0.1f, 1.0f, false);
+    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
+  }
+#endif
+
+  // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
+#if 0
+  GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
+    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+  if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::Normal(0.0f, -1.0f, 0.0f);
+    Cor c;
+    c.set_r(1.0f);
+    c.set_g(1.0f);
+    c.set_b(1.0f);
+    c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
+    MudaCor(proto.morta() ? EscureceCor(c) : c);
+    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
+#endif
 }
 
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {

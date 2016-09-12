@@ -614,6 +614,8 @@ void Tabuleiro::DesenhaSombraProjetada() {
 #endif
   //LOG(INFO) << "sombra projetada";
   DesenhaCena();
+  //GeraVbosCena();
+  //DesenhaCenaVbos();
 }
 
 int Tabuleiro::Desenha() {
@@ -2857,6 +2859,148 @@ void Tabuleiro::DesenhaCena() {
   glFlush();
 }
 
+void Tabuleiro::DesenhaCenaVbos() {
+  //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
+  V_ERRO("ha algum erro no opengl, investigue");
+
+  gl::InicioCena();
+  gl::IniciaNomes();
+  V_ERRO("Inicio cena");
+
+  gl::Habilita(GL_DEPTH_TEST);
+  V_ERRO("Teste profundidade");
+  int bits_limpar = GL_DEPTH_BUFFER_BIT;
+  bits_limpar |= GL_COLOR_BUFFER_BIT;
+  if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
+    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+  } else {
+    gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
+                   proto_corrente_->luz_ambiente().g(),
+                   proto_corrente_->luz_ambiente().b(),
+                   proto_corrente_->luz_ambiente().a());
+  }
+
+  gl::Limpa(bits_limpar);
+  V_ERRO("Limpa");
+
+  for (int i = 1; i < 8; ++i) {
+    gl::Desabilita(GL_LIGHT0 + i);
+  }
+  V_ERRO("desabilitando luzes");
+
+  gl::MudaModoMatriz(GL_MODELVIEW);
+  gl::CarregaIdentidade();
+  ConfiguraOlhar();
+
+  parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
+  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
+  if (camera_ == CAMERA_ISOMETRICA ||
+      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
+    parametros_desenho_.set_desenha_texturas_para_cima(true);
+  } else {
+    parametros_desenho_.set_desenha_texturas_para_cima(false);
+  }
+  V_ERRO("configurando olhar");
+
+  gl::Desabilita(GL_LIGHTING);
+  gl::Desabilita(GL_FOG);
+  V_ERRO("desenhando luzes");
+
+  if (MapeamentoOclusao() && !parametros_desenho_.desenha_mapa_oclusao()) {
+    gl::Oclusao(true);
+  } else {
+    gl::Oclusao(false);
+  }
+
+  // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
+  // desenha tabuleiro do sul para o norte.
+  {
+    DesenhaTabuleiro();
+  }
+  V_ERRO("desenhando tabuleiro");
+
+  if (parametros_desenho_.desenha_entidades()) {
+    for (const auto& vbo : vbos_entidades_cena_) {
+      gl::DesenhaVbo(vbo);
+    }
+  }
+  V_ERRO("desenhando entidades");
+
+  if (parametros_desenho_.desenha_acoes()) {
+    // TODO
+  }
+  V_ERRO("desenhando acoes");
+
+  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
+  // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
+  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparente
+  // a outros nao transparentes durante o picking.
+  if (parametros_desenho_.desenha_entidades()) {
+    if (parametros_desenho_.transparencias()) {
+      gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
+      gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
+      parametros_desenho_.set_alfa_translucidos(0.5);
+      gl::HabilitaEscopo blend_escopo(GL_BLEND);
+      gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
+      for (const auto& vbo : vbos_entidades_translucidas_cena_) {
+        gl::DesenhaVbo(vbo);
+      }
+      parametros_desenho_.clear_alfa_translucidos();
+      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
+    } else {
+      gl::TipoEscopo nomes(OBJ_ENTIDADE);
+      // Desenha os translucidos de forma solida para picking.
+      for (const auto& vbo : vbos_entidades_translucidas_cena_) {
+        gl::DesenhaVbo(vbo);
+      }
+    }
+  }
+  V_ERRO("desenhando entidades alfa");
+}
+
+
+void Tabuleiro::GeraVbosCena() {
+  vbos_entidades_cena_.clear();
+  vbos_acoes_cena_.clear();
+  vbos_entidades_translucidas_cena_.clear();
+
+  //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
+  V_ERRO("ha algum erro no opengl, investigue");
+
+  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
+  if (camera_ == CAMERA_ISOMETRICA ||
+      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
+    parametros_desenho_.set_desenha_texturas_para_cima(true);
+  } else {
+    parametros_desenho_.set_desenha_texturas_para_cima(false);
+  }
+
+  {
+    // Tabuleiro ja eh Vbo.
+    //DesenhaTabuleiro();
+  }
+  V_ERRO("desenhando tabuleiro");
+
+  if (parametros_desenho_.desenha_entidades()) {
+    // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
+    // na hora do picking.
+    std::vector<gl::VboNaoGravado> vbos_entidades = GeraVbosEntidades();
+    std::move(std::begin(vbos_entidades), std::end(vbos_entidades), std::back_inserter(vbos_entidades_cena_));
+  }
+  V_ERRO("desenhando entidades");
+
+  if (parametros_desenho_.desenha_acoes()) {
+//#error TODO
+    //DesenhaAcoes();
+    //std::move(std::begin(vbos_acoes), std::end(vbos_acoes), std::back_inserter(vbos_acoes_cena_));
+  }
+  V_ERRO("desenhando acoes");
+
+  if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
+    vbos_entidades_translucidas_cena_.emplace_back(Entidade::ExtraiVbo(forma_proto_, &parametros_desenho_)[0]);
+  }
+}
+
 void Tabuleiro::DesenhaOlho() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   MudaCor(COR_AMARELA);
@@ -2982,7 +3126,6 @@ void Tabuleiro::RegeraVboTabuleiro() {
   tabuleiro_nao_gravado.AtribuiNormais(coordenadas_normais.data());
   V_ERRO("RegeraVboTabuleiro antes gravar");
   vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
-  //vbo_tabuleiro_normais_ = std::move(tabuleiro_nao_gravado.ExtraiVboNormais());
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
@@ -3475,7 +3618,6 @@ void Tabuleiro::DesenhaTabuleiro() {
   V_ERRO("textura");
 
   gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
-  //gl::DesenhaVbo(vbo_tabuleiro_normais_, GL_LINES);
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
@@ -3571,6 +3713,42 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
+}
+
+std::vector<gl::VboNaoGravado> Tabuleiro::GeraVbosEntidades() {
+  std::vector<gl::VboNaoGravado> vbos;
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    Entidade* entidade = it->second.get();
+    if (entidade == nullptr) {
+      LOG(ERROR) << "Entidade nao existe.";
+      continue;
+    }
+    if (entidade->Pos().id_cenario() != cenario_corrente_) {
+      continue;
+    }
+    if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_sombra_projetada()) {
+      continue;
+    }
+    // Nao roda disco se estiver arrastando.
+    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
+                                                 EntidadeEstaSelecionada(entidade->Id()));
+    bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
+    bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
+                              tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
+                              entidade->Id() == id_entidade_detalhada_;
+    parametros_desenho_.set_desenha_barra_vida(entidade_detalhada || detalhar_tudo);
+    // Rotulos apenas individualmente.
+    parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
+    parametros_desenho_.set_desenha_rotulo_especial(
+        entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
+    parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
+    //LOG(INFO) << "Desenhando: " << entidade->Id();
+    std::vector<gl::VboNaoGravado> vbos_entidade = entidade->ExtraiVbo(&parametros_desenho_);
+    std::move(std::begin(vbos_entidade), std::end(vbos_entidade), std::back_inserter(vbos));
+  }
+  parametros_desenho_.set_entidade_selecionada(false);
+  parametros_desenho_.set_desenha_barra_vida(false);
+  return vbos;
 }
 
 void Tabuleiro::DesenhaRastros() {

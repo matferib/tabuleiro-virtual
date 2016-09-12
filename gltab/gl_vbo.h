@@ -26,6 +26,7 @@ class VboNaoGravado {
   void RodaX(GLfloat angulo_graus);
   void RodaY(GLfloat angulo_graus);
   void RodaZ(GLfloat angulo_graus);
+  void Multiplica(const Matrix4& m);
   // Fim transformacoes vbo.
 
   void AtribuiIndices(const unsigned short* dados, unsigned int num_indices);
@@ -38,7 +39,7 @@ class VboNaoGravado {
 
   // Atribui a mesma cor a todas coordenadas.
   void AtribuiCor(float r, float g, float b, float a);
-  // Cores independentes.
+  // Cores independentes, como array por vertice.
   void AtribuiCores(const float* cores);
 
   // Concatena um vbo a outro, ajustando os indices.

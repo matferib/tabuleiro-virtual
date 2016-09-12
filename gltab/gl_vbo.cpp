@@ -73,6 +73,20 @@ void VboNaoGravado::Translada(GLfloat x, GLfloat y, GLfloat z) {
   }
 }
 
+void VboNaoGravado::Multiplica(const Matrix4& m) {
+  if (num_dimensoes_ != 3) {
+    LOG(ERROR) << "Operacao invalida, objeto nao tem tres dimensoes: " << num_dimensoes_;
+    return;
+  }
+  for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
+    Vector4 v(coordenadas_[i], coordenadas_[i + 1], coordenadas_[i + 2], 1.0f);
+    v = v * m;
+    coordenadas_[i] = v.x;
+    coordenadas_[i + 1] = v.y;
+    coordenadas_[i + 2] = v.z;
+  }
+}
+
 void VboNaoGravado::RodaX(GLfloat angulo_graus) {
   Matrix4 m;
   m.rotateX(angulo_graus);
