@@ -197,7 +197,7 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
   VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
   VLOG(2) << n.DebugString();
-  auto vbos = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0)));
+  auto vbos = std::move(ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance()));
   interno_->modelos[id_interno].vbos.resize(vbos.size());
   for (unsigned int i = 0; i < vbos.size(); ++i) {
     interno_->modelos[id_interno].vbos[i].Grava(vbos[i]);
