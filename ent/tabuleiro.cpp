@@ -382,8 +382,8 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 }
 
 void Tabuleiro::ConfiguraProjecao() {
-  if (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao()) {
-    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, 1.0f,
+  if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
+    gl::Perspectiva(90.0f, 1.0f,
                     DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
                     DISTANCIA_PLANO_CORTE_DISTANTE);
     return;
@@ -413,7 +413,7 @@ void Tabuleiro::ConfiguraProjecao() {
 
 void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
-  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.desenha_mapa_oclusao()) {
+  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
     if (MapeamentoSombras()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       ConfiguraOlharMapeamentoSombras();
@@ -449,7 +449,7 @@ void Tabuleiro::ConfiguraOlhar() {
     ConfiguraOlharMapeamentoSombras();
     return;
   }
-  if (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao()) {
+  if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
     ConfiguraOlharMapeamentoOclusao();
     return;
   }
@@ -488,24 +488,59 @@ void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
-  camera_e salva_camera = camera_;
-  Olho salva_olho = olho_;
-  camera_ = CAMERA_PRIMEIRA_PESSOA;
-  AtualizaOlho(0, false);
-  const Posicao& alvo = olho_.alvo();
-  LOG(INFO) << "Olho: " << olho_.ShortDebugString();
+  const auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  if (entidade_referencia == nullptr) {
+    LOG(ERROR) << "nao ha entidade de referencia!";
+    return;
+  }
+  const auto& pos = entidade_referencia->Pos();
+  float altura_olho = TAMANHO_LADO_QUADRADO * entidade_referencia->MultiplicadorTamanho() + entidade_referencia->Z(true  /*delta*/);
+  Posicao delta_alvo;
+  Posicao up;
+  int face = parametros_desenho_.desenha_mapa_oclusao();
+  if (!parametros_desenho_.has_desenha_mapa_oclusao()) {
+    GLfloat ref[] = { pos.x(), pos.y(), altura_olho };
+    gl::ReferenciaOclusao(ref);
+    delta_alvo.set_x(1.0f);
+    up.set_z(1.0f);
+    face = -1;
+  }
+  switch (face) {
+    case 0:  // GL_TEXTURE_CUBE_MAP_POSITIVE_X, right
+      delta_alvo.set_y(-1.0f);
+      up.set_z(-1.0f);
+      break;
+    case 1:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_X, left
+      delta_alvo.set_y(1.0f);
+      up.set_z(-1.0f);
+      break;
+    case 2:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Y, top
+      delta_alvo.set_z(1.0f);
+      up.set_x(-1.0f);
+      break;
+    case 3:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, bottom
+      delta_alvo.set_z(-1.0f);
+      up.set_x(1.0f);
+      break;
+    case 4:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Z, back
+      delta_alvo.set_x(-1.0f);
+      up.set_z(-1.0f);
+      break;
+    case 5:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, front
+      delta_alvo.set_x(1.0f);
+      up.set_z(-1.0f);
+      break;
+    default:
+      //LOG(ERROR) << "Face do mapa de oclusao invalida";
+      ;
+  }
   gl::OlharPara(
       // from.
-      //0.0f, 0.0f, 1.0f,
-      olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
+      pos.x(), pos.y(), altura_olho,
       // to.
-      //0.0f, 1.0f, 1.0f,
-      alvo.x(), alvo.y(), alvo.z(),
+      pos.x() + delta_alvo.x(), pos.y() + delta_alvo.y(), altura_olho + delta_alvo.z(),
       // up
-      0, 0, 1.0);
-  camera_ = salva_camera;
-  olho_ = salva_olho;
-  return;
+      up.x(), up.y(), up.z());
 }
 
 void Tabuleiro::DesenhaMapaOclusao() {
@@ -533,7 +568,6 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_coordenadas(false);
-  parametros_desenho_.set_desenha_mapa_oclusao(true);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
@@ -548,16 +582,24 @@ void Tabuleiro::DesenhaMapaOclusao() {
   gl::UnidadeTextura(GL_TEXTURE0);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
+  parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
   ConfiguraProjecao();
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
-  V_ERRO("LigacaoComFramebufferSombraProjetada");
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::BufferDesenho(GL_NONE);
 #endif
   //LOG(INFO) << "DesenhaMapaOclusao";
-  DesenhaCena();
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
+  V_ERRO("LigacaoComFramebufferOclusao");
+  for (int i = 0; i < 6; ++i) {
+    parametros_desenho_.set_desenha_mapa_oclusao(i);
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
+    V_ERRO("TexturaFramebufferOclusao");
+    DesenhaCena();
+  }
+
+  V_ERRO("LigacaoComFramebufferOclusao");
 }
 
 void Tabuleiro::DesenhaSombraProjetada() {
@@ -590,7 +632,6 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_sombra_projetada(true);
   parametros_desenho_.set_desenha_sombras(false);
-  parametros_desenho_.set_desenha_mapa_oclusao(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
 
@@ -678,11 +719,12 @@ int Tabuleiro::Desenha() {
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaMapaOclusao();
+    parametros_desenho_.set_desenha_mapa_oclusao(0);
     V_ERRO_RET("Depois Mapa Oclusao");
     // Restaura os valores e usa a textura como sombra.
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
+    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de oclusao.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_OCLUSAO);
     gl::CarregaIdentidade(false);
     Matrix4 bias(
@@ -698,7 +740,7 @@ int Tabuleiro::Desenha() {
     gl::BufferDesenho(GL_BACK);
 #endif
     gl::UnidadeTextura(GL_TEXTURE3);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_oclusao_);
+    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, textura_framebuffer_oclusao_);
     gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
@@ -744,7 +786,7 @@ int Tabuleiro::Desenha() {
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
-  //LOG(INFO) << "Desenha";
+  //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   DesenhaCena();
   V_ERRO_RET("FimDesenha");
   return passou_ms;
@@ -1777,7 +1819,12 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     case ETAB_ENTS_PRESSIONADAS: {
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
-      camera_presa_ = false;  // temporariamente.
+      for (unsigned int id : ids_entidades_selecionadas_) {
+        if (id == id_camera_presa_) {
+          camera_presa_ = false;  // temporariamente.
+          break;
+        }
+      }
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
@@ -1848,7 +1895,12 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         ultimo_x_ = x;
         ultimo_y_ = y;
       } else {
-        camera_presa_ = false;  // temporariamente.
+        for (unsigned int id : ids_entidades_selecionadas_) {
+          if (id == id_camera_presa_) {
+            camera_presa_ = false;  // temporariamente.
+            break;
+          }
+        }
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
         //gl::ModoMatriz(GL_MODELVIEW);
         gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
@@ -2590,7 +2642,7 @@ void Tabuleiro::DesenhaCena() {
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
   // da janela para cobrir o fundo todo.
   if (!parametros_desenho_.desenha_sombra_projetada() &&
-      !parametros_desenho_.desenha_mapa_oclusao() &&
+      !parametros_desenho_.has_desenha_mapa_oclusao() &&
       !parametros_desenho_.has_picking_x() &&
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && camera_ != CAMERA_ISOMETRICA) {
     desenhar_caixa_ceu = true;
@@ -2636,7 +2688,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando luzes");
 
-  if (MapeamentoOclusao() && !parametros_desenho_.desenha_mapa_oclusao()) {
+  if (MapeamentoOclusao() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
     gl::Oclusao(true);
   } else {
     gl::Oclusao(false);
@@ -2762,7 +2814,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando entidades alfa");
 
   if ((MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) ||
-      (MapeamentoOclusao() && parametros_desenho_.desenha_mapa_oclusao())) {
+      (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao())) {
     return;
   }
 
@@ -2906,7 +2958,7 @@ void Tabuleiro::DesenhaCenaVbos() {
   gl::Desabilita(GL_FOG);
   V_ERRO("desenhando luzes");
 
-  if (MapeamentoOclusao() && !parametros_desenho_.desenha_mapa_oclusao()) {
+  if (MapeamentoOclusao() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
     gl::Oclusao(true);
   } else {
     gl::Oclusao(false);
@@ -3201,7 +3253,9 @@ void Tabuleiro::RegeraVboTabuleiro() {
 }
 
 namespace {
-void GeraFramebufferLocal(bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
+// A variavel usar_sampler_sombras eh usado como input e output. Se ela for false, nem tentara usar o sampler de sombras. Se for true,
+// tentara se houver a extensao, caso contrario seta pra false e prossegue.
+void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(INFO) << "gerando framebuffer";
@@ -3210,46 +3264,100 @@ void GeraFramebufferLocal(bool* usar_sampler_sombras, GLuint* framebuffer, GLuin
   V_ERRO("LigacaoComFramebuffer");
   gl::GeraTexturas(1, textura_framebuffer);
   V_ERRO("GeraTexturas");
-  gl::LigacaoComTextura(GL_TEXTURE_2D, *textura_framebuffer);
+  gl::LigacaoComTextura(textura_cubo ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, *textura_framebuffer);
   V_ERRO("LigacaoComTextura");
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  if (gl::TemExtensao("GL_OES_depth_texture")) {
-    *usar_sampler_sombras = true;
-    gl::ImagemTextura2d(
-        GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
+  if (*usar_sampler_sombras  && gl::TemExtensao("GL_OES_depth_texture")) {
+    if (textura_cubo) {
+      for (int i = 0; i < 6; ++i) {
+        gl::ImagemTextura2d(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+      }
+    } else {
+      gl::ImagemTextura2d(
+          GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
+    }
   } else {
     *usar_sampler_sombras = false;
-    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    if (textura_cubo) {
+      for (int i = 0; i < 6; ++i) {
+        gl::ImagemTextura2d(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+      }
+    } else {
+      gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    }
   }
 #else
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-  // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
-  // Nas versoes mais nova, usa-se ref.
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  if (textura_cubo) {
+    for (int i = 0; i < 6; ++i) {
+      gl::ImagemTextura2d(
+          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    }
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  } else {
+    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
+    // Nas versoes mais nova, usa-se ref.
+    //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+  }
 #endif
 
   V_ERRO("ImagemTextura2d");
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  if (textura_cubo) {
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+#endif
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+#endif
+  } else {
+    //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  }
   V_ERRO("ParametroTextura");
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   if (*usar_sampler_sombras) {
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, *textura_framebuffer, 0);
+    if (textura_cubo) {
+      for (int i = 0; i < 6; ++i) {
+        gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *textura_framebuffer, 0);
+      }
+    } else {
+      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *textura_framebuffer, 0);
+    }
   } else {
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, *textura_framebuffer, 0);
+    if (textura_cubo) {
+      for (int i = 0; i < 6; ++i) {
+        gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *textura_framebuffer, 0);
+      }
+    } else {
+      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textura_framebuffer, 0);
+    }
     gl::GeraRenderbuffers(1, renderbuffer);
     gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
   }
 #else
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, *textura_framebuffer, 0);
+  if (textura_cubo) {
+    for (int i = 0; i < 6; ++i) {
+      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *textura_framebuffer, 0);
+      V_ERRO("Textura cubo");
+    }
+  } else {
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *textura_framebuffer, 0);
+  }
 #endif
   V_ERRO("TexturaFramebuffer");
 
@@ -3266,7 +3374,7 @@ void GeraFramebufferLocal(bool* usar_sampler_sombras, GLuint* framebuffer, GLuin
   }
 
   // Volta estado normal.
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::LigacaoComTextura(textura_cubo ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, 0);
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   V_ERRO("Fim da Geracao de framebuffer");
@@ -3278,85 +3386,8 @@ void Tabuleiro::GeraFramebuffer() {
   if (!MapeamentoSombras()) {
     return;
   }
-  GeraFramebufferLocal(&usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
-  GeraFramebufferLocal(&usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
-#if 0
-  GLint original;
-  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  LOG(INFO) << "gerando framebuffer";
-  gl::GeraFramebuffers(1, &framebuffer_);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
-  V_ERRO("LigacaoComFramebuffer");
-  gl::GeraTexturas(1, &textura_framebuffer_);
-  V_ERRO("GeraTexturas");
-  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
-  V_ERRO("LigacaoComTextura");
-#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-#ifndef GL_TEXTURE_COMPARE_MODE_EXT
-// Estes dois nao estao presentes no jni android 17 (4.4.2).
-// Como o lollipop da pau de rede, prefiro fazer isso.
-#define GL_TEXTURE_COMPARE_MODE_EXT 0x884C
-#define GL_COMPARE_REF_TO_TEXTURE_EXT 0x884E
-#endif
-  if (gl::TemExtensao("GL_OES_depth_texture")) {
-    usar_sampler_sombras_ = true;
-    gl::ImagemTextura2d(
-        GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
-    gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
-  } else {
-    usar_sampler_sombras_ = false;
-    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  }
-#else
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-  // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
-  // Nas versoes mais nova, usa-se ref.
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-#endif
-
-  V_ERRO("ImagemTextura2d");
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  V_ERRO("ParametroTextura");
-#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  if (usar_sampler_sombras_) {
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
-  } else {
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, textura_framebuffer_, 0);
-    gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_);
-    gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_);
-  }
-#else
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, textura_framebuffer_, 0);
-#endif
-  V_ERRO("TexturaFramebuffer");
-
-  // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
-#if __APPLE__ && !USAR_OPENGL_ES
-  gl::BufferDesenho(GL_NONE);
-  gl::BufferLeitura(GL_NONE);
-#endif
-  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
-  if (ret != GL_FRAMEBUFFER_COMPLETE) {
-    LOG(ERROR) << "Framebuffer incompleto: " << ret;
-  } else {
-    LOG(INFO) << "Framebuffer completo";
-  }
-
-  // Volta estado normal.
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-  V_ERRO("Fim da Geracao de framebuffer");
-  LOG(INFO) << "framebuffer gerado";
-#endif
+  GeraFramebufferLocal(false, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
+  GeraFramebufferLocal(true, &usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
 }
 
 namespace {
@@ -3690,10 +3721,13 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_ == CAMERA_PRIMEIRA_PESSOA &&
-        !(parametros_desenho_.desenha_sombra_projetada() || sombra) &&
-        entidade->Id() == id_camera_presa_) {
-      continue;
+    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !(parametros_desenho_.desenha_sombra_projetada() || sombra)) {
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+        continue;
+      }
+      if (parametros_desenho_.has_desenha_mapa_oclusao()) {
+        continue;
+      }
     }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&

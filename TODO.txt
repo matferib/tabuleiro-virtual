@@ -1,7 +1,6 @@
-Versao 2.3.1
-- Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz, nao for visivel, descarta).
-
 Versao 2.4.0
+- Mapa oclusao com cube texture
+- Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz, nao for visivel, descarta).
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
 - Entidades montadas.

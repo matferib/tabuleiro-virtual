@@ -141,7 +141,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
   std::vector<gl::VboNaoGravado> vbos;
 
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  const auto& pos = proto.pos();
+  //const auto& pos = proto.pos();
   if (true) { //proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
     gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);

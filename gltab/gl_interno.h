@@ -43,6 +43,7 @@ struct VarShader {
   GLint uni_gltab_mvm;                  // Matrix modelview.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
+  GLint uni_gltab_ref_oclusao;          // Referencia da oclusao.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.

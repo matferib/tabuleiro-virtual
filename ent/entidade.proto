@@ -248,7 +248,7 @@ message ParametrosDesenho {
   // Desenhar sombras.
   optional bool desenha_sombras = 13 [default=true];
   optional bool desenha_sombra_projetada = 45 [default=false];
-  optional bool desenha_mapa_oclusao = 46 [default=false];
+  optional int32 desenha_mapa_oclusao = 46 [default=0];  // o valor indica qual face do mapa, de [0 a 5]. Ausencia significa nao eh pra desenhar nenhuma das faces.
   // Modo de desenho.
   optional bool modo_mestre = 14 [default=true];
   // Alfa para translucidos.

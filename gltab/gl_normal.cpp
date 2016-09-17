@@ -228,8 +228,8 @@ void LigacaoComRenderbuffer(GLenum target, GLuint buffer) {
   ((PFNGLBINDRENDERBUFFERPROC)INTERNO->pglBindRenderbuffer)(target, buffer);
 }
 
-void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel) {
-  ((PFNGLFRAMEBUFFERTEXTURE2DPROC)INTERNO->pglFramebufferTexture2D)(alvo, anexo, GL_TEXTURE_2D, textura, nivel);
+void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, GLuint textura, GLint nivel) {
+  ((PFNGLFRAMEBUFFERTEXTURE2DPROC)INTERNO->pglFramebufferTexture2D)(alvo, anexo, alvo_textura, textura, nivel);
 }
 
 void GeraMipmap(GLenum alvo) {

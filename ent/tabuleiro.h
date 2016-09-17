@@ -966,7 +966,7 @@ class Tabuleiro : public ntf::Receptor {
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
   GLuint framebuffer_oclusao_ = 0;
-  GLuint textura_framebuffer_oclusao_ = 0;
+  GLuint textura_framebuffer_oclusao_ =  0;
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
 
   // Vbos gerados por renderizacao de cena.

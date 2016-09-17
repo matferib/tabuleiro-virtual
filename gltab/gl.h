@@ -232,7 +232,7 @@ void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer);
 void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers);
 void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers);
 void LigacaoComRenderbuffer(GLenum target, GLuint buffer);
-void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel);
+void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, GLuint textura, GLint nivel);
 void BufferDesenho(GLenum modo);
 void BufferLeitura(GLenum modo);
 void GeraMipmap(GLenum alvo);
@@ -276,8 +276,8 @@ inline GLenum VerificaFramebuffer(GLenum alvo) { return glCheckFramebufferStatus
 inline void GeraFramebuffers(GLsizei num, GLuint *ids) { glGenFramebuffers(num, ids); }
 inline void ApagaFramebuffers(GLsizei num, const GLuint *ids) { glDeleteFramebuffers(num, ids); }
 inline void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer) { glBindFramebuffer(alvo, framebuffer); }
-inline void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLuint textura, GLint nivel) {
-  glFramebufferTexture2D(alvo, anexo, GL_TEXTURE_2D, textura, nivel);
+inline void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, GLuint textura, GLint nivel) {
+  glFramebufferTexture2D(alvo, anexo, alvo_textura, textura, nivel);
 }
 inline void GeraMipmap(GLenum alvo) { glGenerateMipmap(alvo); }
 inline void CorMistura(GLfloat r, GLfloat g, GLfloat b, GLfloat a) { glBlendColor(r, g, b, a); }
@@ -395,6 +395,7 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 /** Liga e desliga oclusao. */
 void Oclusao(bool valor);
+void ReferenciaOclusao(const GLfloat* ref);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);

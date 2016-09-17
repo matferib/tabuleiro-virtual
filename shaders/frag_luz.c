@@ -7,6 +7,9 @@
 #if defined(GL_EXT_shadow_samplers)
 #extension GL_EXT_shadow_samplers : enable
 #endif
+#if defined(GL_EXT_gpu_shader4)
+#extension GL_EXT_gpu_shader4 : enable
+#endif
 #endif
 
 #if defined(GL_ES)
@@ -30,10 +33,12 @@ varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
 #if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
-varying highp vec4 v_Pos_oclusao;  // Posicao do pixel do fragmento na perspectiva de sombra.
+varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
+varying highp float v_Z_oclusao_com_projecao;  // Posicao do pixel do fragmento na perspectiva da oclusao.
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
+uniform highp mat4 gltab_prm_oclusao;    // projecao oclusao.
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
@@ -58,10 +63,13 @@ uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
 #if USAR_MAPEAMENTO_SOMBRAS
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
-uniform highp sampler2DShadow gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
-uniform highp sampler2D gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
+#endif
+#if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_gpu_shader4)
+uniform highp samplerCubeShadow gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
+#else
+uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #endif
 #endif
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = oclusao, w = escala.
@@ -95,25 +103,23 @@ void main() {
   lowp vec4 cor_final = v_Color;
 #if USAR_MAPEAMENTO_SOMBRAS
   if (gltab_nevoa_dados.z > 0.0f) {
-    highp float v_z = v_Pos_oclusao.z / v_Pos_oclusao.w;
-    highp vec2 v_xy = vec2(v_Pos_oclusao.xy / v_Pos_oclusao.w);
-    //if (v_z >= 0.0f) {
-    //  gl_FragColor = vec4(v_z, 0.0f, 0.0f, 1.0f);
-    //  return;
-    //}
-#if 1
-    highp float bias = 0.0f;
+    //highp vec4 distancia_projetada = gltab_prm_oclusao * vec4(0.0f, 0.0f, -length(v_Pos_oclusao), 1.0f);
+    // A projecao de oclusao ja tem a correcao para colocar em [0, 1].
+    //v_Z_oclusao_com_projecao = distancia_projetada.z;
+    highp float distancia = length(v_Pos_oclusao);
+    highp vec4 distancia_projetada = gltab_prm_oclusao * vec4(0.0f, 0.0f, -distancia, 1.0f);
+    highp float valor_comparacao = distancia_projetada.z / distancia_projetada.w;
+    //gl_FragColor = vec4(0.0f, 0.0f, distancia_projetada.z / 2.0f + 0.5f, 1.0f);
+    //return;
+
+    highp float bias = 0.003f;
 #if __VERSION__ == 130
-    highp float visivel = 0.0f;
-    if (v_xy.x > 0.0f && v_xy.y >= 0.0f && v_xy.x <= 1.0f && v_xy.y <= 1.0f && v_z >= 0.0f && v_z <= 1.0f &&
-        texture(gltab_unidade_textura_oclusao, vec3(v_xy, v_z - bias)) > 0.0f) {
-      visivel = 1.0f;
-    }
+    lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z, valor_comparacao - bias), 0.0f);
 #elif __VERSION__ == 120
-    lowp float visivel = shadow2D(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
-#elif defined(GL_EXT_shadow_samplers)
-    lowp float visivel = shadow2DEXT(
-        gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias));
+    lowp float visivel = shadowCube(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
+#elif defined(GL_EXT_gpu_shader4)
+    lowp float visivel = shadowCube(
+        gltab_unidade_textura_oclusao, vec4(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z, distancia_projetada - bias));
 #else
     // OpenGL ES 2.0.
     lowp vec4 texprofcor = texture2D(gltab_unidade_textura_oclusao, v_Pos_oclusao.xy / v_Pos_oclusao.w);
@@ -125,7 +131,6 @@ void main() {
       gl_FragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
       return;
     }
-#endif
   }
 #endif
 

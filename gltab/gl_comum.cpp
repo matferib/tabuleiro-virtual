@@ -361,6 +361,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
+          {"gltab_ref_oclusao", &shader->uni_gltab_ref_oclusao },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
           {"gltab_prm_oclusao", &shader->uni_gltab_prm_oclusao },
@@ -925,6 +926,14 @@ void Oclusao(bool valor) {
   LeUniforme(shader.programa, shader.uni_gltab_nevoa_dados, nevoa);
   nevoa[2] = valor ? 1.0f : 0.0f;
   Uniforme(shader.uni_gltab_nevoa_dados, nevoa[0], nevoa[1], nevoa[2], nevoa[3]);
+}
+
+void ReferenciaOclusao(const GLfloat* ref) {
+  if (!interno::UsandoShaderComNevoa()) {
+    return;
+  }
+  const auto& shader = interno::BuscaShader();
+  Uniforme(shader.uni_gltab_ref_oclusao, ref[0], ref[1], ref[2]);
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
