@@ -106,7 +106,7 @@ void main() {
     highp float bias = 0.5f;
 #if __VERSION__ == 130
     //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);
-    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z)).r * 160.0f;
+    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z)).r * gltab_plano_distante;
     lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
     //gl_FragColor = vec4(0.0f, 0.0f, length(v_Pos_oclusao), 1.0f);
     //return;

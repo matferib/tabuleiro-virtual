@@ -368,7 +368,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_prm_oclusao", &shader->uni_gltab_prm_oclusao },
           {"gltab_nm", &shader->uni_gltab_nm },
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
-          //{"gltab_plano_distante", &shader->uni_gltab_plano_distante },
+          {"gltab_plano_distante", &shader->uni_gltab_plano_distante },
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
     if (*d.var == -1) {
@@ -940,11 +940,10 @@ void ReferenciaOclusao(const GLfloat* ref) {
 }
 
 void PlanoDistante(GLfloat distancia) {
-  /*const auto& shader = interno::BuscaShader();
+  const auto& shader = interno::BuscaShader();
   interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia);
   auto* c = interno::BuscaContexto();
   c->plano_distante = distancia;  // salva no contexto, caso haja alguma mudanca de shaders.
-  */
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
@@ -1146,7 +1145,7 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
-  //interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
+  interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }

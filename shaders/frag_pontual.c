@@ -17,5 +17,5 @@ varying highp vec4 v_PosView;
 uniform highp float gltab_plano_distante;
 
 void main() {
-  gl_FragDepth = length(v_PosView.xyz / v_PosView.w) / 160.0f;
+  gl_FragDepth = length(v_PosView.xyz / v_PosView.w) / gltab_plano_distante;
 }

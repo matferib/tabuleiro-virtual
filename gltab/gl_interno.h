@@ -48,7 +48,7 @@ struct VarShader {
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
   GLint uni_gltab_prm_oclusao;          // Matrix projecao oclusao.
-  //GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
+  GLint uni_gltab_plano_distante;       // Distancia do plano de corte distante.
   // Atributos do vertex shader.
   GLint atr_gltab_vertice;
   GLint atr_gltab_normal;
@@ -89,7 +89,7 @@ class Contexto {
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
   Matrix3 matriz_normal;  // Computada da mvm corrente.
-  //float plano_distante;  // distancia de corte do plano distante.
+  float plano_distante;  // distancia de corte do plano distante.
 
   std::unique_ptr<ContextoDependente> interno;
 
