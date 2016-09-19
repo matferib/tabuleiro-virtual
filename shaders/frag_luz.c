@@ -32,9 +32,9 @@ varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
 #if USAR_MAPEAMENTO_SOMBRAS
+uniform highp float gltab_plano_distante;  // distancia do plano distante.
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
-varying highp float v_Z_oclusao_com_projecao;  // Posicao do pixel do fragmento na perspectiva da oclusao.
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
@@ -67,7 +67,7 @@ uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da text
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_gpu_shader4)
-uniform highp samplerCubeShadow gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
+uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #else
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #endif
@@ -103,18 +103,13 @@ void main() {
   lowp vec4 cor_final = v_Color;
 #if USAR_MAPEAMENTO_SOMBRAS
   if (gltab_nevoa_dados.z > 0.0f) {
-    //highp vec4 distancia_projetada = gltab_prm_oclusao * vec4(0.0f, 0.0f, -length(v_Pos_oclusao), 1.0f);
-    // A projecao de oclusao ja tem a correcao para colocar em [0, 1].
-    //v_Z_oclusao_com_projecao = distancia_projetada.z;
-    highp float distancia = length(v_Pos_oclusao);
-    highp vec4 distancia_projetada = gltab_prm_oclusao * vec4(0.0f, 0.0f, -distancia, 1.0f);
-    highp float valor_comparacao = distancia_projetada.z / distancia_projetada.w;
-    //gl_FragColor = vec4(0.0f, 0.0f, distancia_projetada.z / 2.0f + 0.5f, 1.0f);
-    //return;
-
-    highp float bias = 0.003f;
+    highp float bias = 0.5f;
 #if __VERSION__ == 130
-    lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z, valor_comparacao - bias), 0.0f);
+    //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);
+    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z)).r * 160.0f;
+    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
+    //gl_FragColor = vec4(0.0f, 0.0f, length(v_Pos_oclusao), 1.0f);
+    //return;
 #elif __VERSION__ == 120
     lowp float visivel = shadowCube(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
 #elif defined(GL_EXT_gpu_shader4)

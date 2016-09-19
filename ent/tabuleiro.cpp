@@ -502,9 +502,11 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
     GLfloat ref[] = { pos.x(), pos.y(), altura_olho };
     gl::ReferenciaOclusao(ref);
     delta_alvo.set_x(1.0f);
+    // No desenho normal, a gente nao inverte o vetor vertical.
     up.set_z(1.0f);
     face = -1;
   }
+  // No desenho da textura, o eixo vertical é invertido por causa da orientação do opengl.
   switch (face) {
     case 0:  // GL_TEXTURE_CUBE_MAP_POSITIVE_X, right
       delta_alvo.set_y(-1.0f);
@@ -572,11 +574,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
 
-  if (usar_sampler_sombras_) {
-    gl::UsaShader(gl::TSH_SIMPLES);
-  } else {
-    gl::UsaShader(gl::TSH_PROFUNDIDADE);
-  }
+  gl::UsaShader(gl::TSH_PONTUAL);
+
   gl::UnidadeTextura(GL_TEXTURE3);
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::UnidadeTextura(GL_TEXTURE0);
@@ -727,12 +726,13 @@ int Tabuleiro::Desenha() {
     // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de oclusao.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_OCLUSAO);
     gl::CarregaIdentidade(false);
-    Matrix4 bias(
-        0.5, 0.0, 0.0, 0.0,
-        0.0, 0.5, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0,
-        0.5, 0.5, 0.5, 1.0);
-    gl::MultiplicaMatriz(bias.get(), false);
+    // Nao funciona com perspectiva, porque o w varia.
+    //Matrix4 bias(
+    //    0.5, 0.0, 0.0, 0.0,
+    //    0.0, 0.5, 0.0, 0.0,
+    //    0.0, 0.0, 0.5, 0.0,
+    //    0.5, 0.5, 0.5, 1.0);
+    //gl::MultiplicaMatriz(bias.get(), false);
     ConfiguraProjecao();
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
@@ -1295,7 +1295,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       //auto passou_ms = INTERVALO_NOTIFICACAO_MS;
       timer_para_atualizacoes_.start();
       AtualizaEntidades(passou_ms);
-      AtualizaOlho(passou_ms, false  /*forcar*/);
+      // Em algumas situacoes, nao eh bom atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
+      // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
+      if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
+        AtualizaOlho(passou_ms, false  /*forcar*/);
+      }
       AtualizaAcoes(passou_ms);
       if (ciclos_para_atualizar_ == 0) {
         if (ModoClique() == MODO_TERRENO) {
@@ -1819,12 +1823,6 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     case ETAB_ENTS_PRESSIONADAS: {
       // Realiza o movimento da entidade paralelo ao XY na mesma altura do click original.
-      for (unsigned int id : ids_entidades_selecionadas_) {
-        if (id == id_camera_presa_) {
-          camera_presa_ = false;  // temporariamente.
-          break;
-        }
-      }
       parametros_desenho_.set_offset_terreno(ultimo_z_3d_);
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
@@ -1895,12 +1893,6 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         ultimo_x_ = x;
         ultimo_y_ = y;
       } else {
-        for (unsigned int id : ids_entidades_selecionadas_) {
-          if (id == id_camera_presa_) {
-            camera_presa_ = false;  // temporariamente.
-            break;
-          }
-        }
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
         //gl::ModoMatriz(GL_MODELVIEW);
         gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
@@ -2650,6 +2642,8 @@ void Tabuleiro::DesenhaCena() {
     bits_limpar |= GL_COLOR_BUFFER_BIT;
     if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
       gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
+    } else if (parametros_desenho_.has_desenha_mapa_oclusao()) {
+      gl::CorLimpeza(1.0f, 1.0f, 1.0f, 1.0f);
     } else {
       gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
                      proto_corrente_->luz_ambiente().g(),
@@ -3295,7 +3289,7 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
       gl::ImagemTextura2d(
           GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     }
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+    //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
   } else {
     gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
@@ -4463,17 +4457,9 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       return;
     case ETAB_DESLIZANDO:
       estado_ = estado_anterior_;
-      if (!camera_presa_ && id_camera_presa_ != Entidade::IdInvalido) {
-        // Restaura camera presa antes do movimento.
-        camera_presa_ = true;
-      }
       return;
     case ETAB_ENTS_PRESSIONADAS: {
       ciclos_para_atualizar_ = -1;
-      if (!camera_presa_ && id_camera_presa_ != Entidade::IdInvalido) {
-        // Restaura camera presa antes do movimento.
-        camera_presa_ = true;
-      }
       if (primeiro_x_3d_ == ultimo_x_3d_ &&
           primeiro_y_3d_ == ultimo_y_3d_) {
         // Nao houve movimento.

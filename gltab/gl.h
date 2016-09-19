@@ -155,12 +155,13 @@ void InicioCena();
 
 // Usado para indexar os shaders.
 enum TipoShader {
-  TSH_LUZ,
-  TSH_SIMPLES,
-  TSH_PICKING,
-  TSH_PROFUNDIDADE,
-  TSH_PRETO_BRANCO,
-  TSH_CAIXA_CEU,
+  TSH_LUZ,           // shader completo.
+  TSH_SIMPLES,       // bem simples, sem luz bom para 2d com textura.
+  TSH_PICKING,       // bem simples, bom pra picking.
+  TSH_PROFUNDIDADE,  // codifica profundidade com cor.
+  TSH_PRETO_BRANCO,  // para visao escuro.
+  TSH_CAIXA_CEU,     // para caixa do ceu.
+  TSH_PONTUAL,       // para luz e oclusao pontual.
   TSH_NUM,  // numero de shaders.
 };
 
@@ -396,6 +397,8 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
 /** Liga e desliga oclusao. */
 void Oclusao(bool valor);
 void ReferenciaOclusao(const GLfloat* ref);
+/** Passa para o shader o valor do plano distante. */
+void PlanoDistante(GLfloat distancia);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);

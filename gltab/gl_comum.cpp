@@ -34,6 +34,7 @@ using gl::TSH_PICKING;
 using gl::TSH_PROFUNDIDADE;
 using gl::TSH_PRETO_BRANCO;
 using gl::TSH_CAIXA_CEU;
+using gl::TSH_PONTUAL;
 
 // Comum.
 namespace gl {
@@ -366,7 +367,8 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
           {"gltab_prm_oclusao", &shader->uni_gltab_prm_oclusao },
           {"gltab_nm", &shader->uni_gltab_nm },
-          {"gltab_dados_raster", &shader->uni_gltab_dados_raster},
+          {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
+          //{"gltab_plano_distante", &shader->uni_gltab_plano_distante },
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
     if (*d.var == -1) {
@@ -428,6 +430,7 @@ void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Context
     { "programa_picking", TSH_PICKING, "vert_simples.c", "frag_picking.c", &contexto->shaders[TSH_PICKING] },
     { "programa_profundidade", TSH_PROFUNDIDADE, "vert_simples.c", "frag_profundidade.c", &contexto->shaders[TSH_PROFUNDIDADE] },
     { "programa_preto_branco", TSH_PRETO_BRANCO, "vert_preto_branco.c", "frag_preto_branco.c", &contexto->shaders[TSH_PRETO_BRANCO] },
+    { "programa_pontual", TSH_PONTUAL, "vert_pontual.c", "frag_pontual.c", &contexto->shaders[TSH_PONTUAL] },
   };
 
   for (auto& ds : dados_shaders) {
@@ -936,7 +939,17 @@ void ReferenciaOclusao(const GLfloat* ref) {
   Uniforme(shader.uni_gltab_ref_oclusao, ref[0], ref[1], ref[2]);
 }
 
+void PlanoDistante(GLfloat distancia) {
+  /*const auto& shader = interno::BuscaShader();
+  interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia);
+  auto* c = interno::BuscaContexto();
+  c->plano_distante = distancia;  // salva no contexto, caso haja alguma mudanca de shaders.
+  */
+}
+
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
+  PlanoDistante(zFar);
+
   // Copiado do glues.
   GLfloat m[4][4];
   GLfloat sine, cotangent, deltaZ;
@@ -944,8 +957,7 @@ void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
 
   deltaZ= zFar - zNear;
   sine= (GLfloat)sinf(radians);
-  if ((deltaZ==0.0f) || (sine==0.0f) || (aspect==0.0f))
-  {
+  if ((deltaZ==0.0f) || (sine==0.0f) || (aspect==0.0f)) {
       return;
   }
   cotangent= (GLfloat)(cos(radians)/sine);
@@ -1003,6 +1015,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
+  PlanoDistante(distante);
   float tx = - ((direita + esquerda) / (direita - esquerda));
   float ty = - ((cima + baixo) / (cima - baixo));
   float tz = - ((distante + proximo) / (distante - proximo));
@@ -1133,6 +1146,7 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
+  //interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
 }

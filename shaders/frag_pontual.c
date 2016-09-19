@@ -9,7 +9,7 @@
 #define highp
 #define mediump
 #if __VERSION__ == 130
-#define varying out
+#define varying in 
 #endif
 #endif
 

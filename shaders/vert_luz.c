@@ -26,7 +26,6 @@ varying highp vec4 v_Pos_model;
 #if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;
 varying highp vec3 v_Pos_oclusao;
-varying highp float v_Z_oclusao_com_projecao;
 #endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 // Uniformes nao variam por vertice, vem de fora.
@@ -57,14 +56,8 @@ void main() {
   gl_Position = gltab_prm * v_Pos;
 #if USAR_MAPEAMENTO_SOMBRAS
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
-  //highp vec4 ref_mvm = gltab_mvm * vec4(gltab_ref_oclusao, 1.0f);
-  highp vec4 v_Pos_oclusao_homo = gltab_mvm_oclusao * gltab_vertice;
-  v_Pos_oclusao = v_Pos_oclusao_homo.xyz / v_Pos_oclusao_homo.w;
-  //v_Z_oclusao_com_projecao = v_Pos_oclusao.y;
-  //highp vec4 distancia_projetada = gltab_prm_oclusao * vec4(0.0f, 0.0f, -length(v_Pos_oclusao), 1.0f);
-  // A projecao de oclusao ja tem a correcao para colocar em [0, 1].
-  //v_Z_oclusao_com_projecao = distancia_projetada.z;
-  //v_Z_oclusao_com_projecao = length(v_Pos_oclusao);
+  highp vec4 pos_oclusao = gltab_mvm_oclusao * gltab_vertice;
+  v_Pos_oclusao = pos_oclusao.xyz / pos_oclusao.w;
 #endif
   gl_PointSize = gltab_dados_raster.p;
 }
