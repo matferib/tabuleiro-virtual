@@ -233,6 +233,9 @@ message ParametrosDesenho {
   optional bool iluminacao = 5 [default=true];
   // Verdadeiro quando se quer desenhar as entidades e as formas.
   optional bool desenha_entidades = 6 [default=true];
+  // Uteis para mapa oclusao que ignora transparencias e selecionaveis.
+  optional bool nao_desenha_entidades_translucidas = 42 [default=false];
+  optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
   // Verdadeiro para desenhar texturas.
   optional bool desenha_texturas = 7 [default=true];
   // Desenha a grade do tabuleiro.

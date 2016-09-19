@@ -58,9 +58,6 @@ namespace ent {
 
 namespace {
 
-/** campo de visao vertical em graus. */
-const double CAMPO_VERTICAL_GRAUS = 60.0;
-
 /** altura inicial do olho. */
 const double OLHO_ALTURA_INICIAL = 10.0;
 /** altura maxima do olho. */
@@ -405,7 +402,7 @@ void Tabuleiro::ConfiguraProjecao() {
     gl::Ortogonal(-largura, largura, -altura, altura,
                   0.0f /*DISTANCIA_PLANO_CORTE_PROXIMO*/, distancia * 1.2f);
   } else {
-    gl::Perspectiva(CAMPO_VERTICAL_GRAUS, Aspecto(),
+    gl::Perspectiva(campo_visao_vertical_graus_, Aspecto(),
                     camera_ == CAMERA_PRIMEIRA_PESSOA ? DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA : DISTANCIA_PLANO_CORTE_PROXIMO,
                     DISTANCIA_PLANO_CORTE_DISTANTE);
   }
@@ -557,6 +554,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_detalhes(false);
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_nao_desenha_entidades_translucidas(true);  // nao devem afetar o mapa oclusao.
+  parametros_desenho_.set_nao_desenha_entidades_selecionaveis(true);  // nao devem afetar o mapa oclusao.
   parametros_desenho_.set_desenha_lista_objetos(false);
   parametros_desenho_.set_desenha_lista_jogadores(false);
   parametros_desenho_.set_desenha_fps(false);
@@ -1666,7 +1665,13 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     if (camera_ == CAMERA_ISOMETRICA) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
     } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      // TODO
+      campo_visao_vertical_graus_ -= (delta * SENSIBILIDADE_RODA * 2.0f);
+      const float kCampoVisaoMin = 30.0f;
+      const float kCampoVisaoMax = 110.0f;
+      campo_visao_vertical_graus_ =
+          std::max(campo_visao_vertical_graus_, kCampoVisaoMin);
+      campo_visao_vertical_graus_ =
+          std::min(campo_visao_vertical_graus_, kCampoVisaoMax);
     } else {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
@@ -2788,7 +2793,7 @@ void Tabuleiro::DesenhaCena() {
   // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
   // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparente
   // a outros nao transparentes durante o picking.
-  if (parametros_desenho_.desenha_entidades()) {
+  if (parametros_desenho_.desenha_entidades() && !parametros_desenho_.nao_desenha_entidades_translucidas()) {
     if (parametros_desenho_.transparencias()) {
       gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
       gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
@@ -3722,6 +3727,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       if (parametros_desenho_.has_desenha_mapa_oclusao()) {
         continue;
       }
+    }
+    if (parametros_desenho_.nao_desenha_entidades_selecionaveis() && entidade->Proto().selecionavel_para_jogador()) {
+      continue;
     }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&

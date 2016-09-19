@@ -1,11 +1,7 @@
 Versao 2.4.0
 - Separar a maldita matriz de view da modelagem.
 - Mapa oclusao com cube texture
--- Parametrizar o far plane (hard coded 160);
--- Tirar transparencias do desenho de oclusao.
--- Bug da luz que ta parando de funcionar com oclusao.
-
-- Primeira pessoa com mudanca de FoV.
+-- Fazer para opengl es.
 
 - Fazer visao de personagem baseado na camera presa (renderiza da visao de primeira pessoa tipo a luz e se o pixel em questao, transformado pela mesma matriz, nao for visivel, descarta).
 - Geracao de terrenos por tipo (arvores, relevo).
