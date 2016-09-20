@@ -36,6 +36,7 @@ public:
     QGroupBox *groupBox;
     QCheckBox *checkbox_mapeamento_de_sombras;
     QCheckBox *checkbox_iluminacao_por_pixel;
+    QCheckBox *checkbox_mapeamento_oclusao;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
@@ -70,13 +71,16 @@ public:
         checkbox_controle->setGeometry(QRect(10, 200, 271, 22));
         groupBox = new QGroupBox(ifg__qt__DialogoOpcoes);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 230, 391, 91));
+        groupBox->setGeometry(QRect(10, 260, 391, 91));
         checkbox_mapeamento_de_sombras = new QCheckBox(groupBox);
         checkbox_mapeamento_de_sombras->setObjectName(QString::fromUtf8("checkbox_mapeamento_de_sombras"));
         checkbox_mapeamento_de_sombras->setGeometry(QRect(10, 30, 271, 22));
         checkbox_iluminacao_por_pixel = new QCheckBox(groupBox);
         checkbox_iluminacao_por_pixel->setObjectName(QString::fromUtf8("checkbox_iluminacao_por_pixel"));
         checkbox_iluminacao_por_pixel->setGeometry(QRect(10, 60, 271, 22));
+        checkbox_mapeamento_oclusao = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_mapeamento_oclusao->setObjectName(QString::fromUtf8("checkbox_mapeamento_oclusao"));
+        checkbox_mapeamento_oclusao->setGeometry(QRect(10, 230, 271, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -98,6 +102,7 @@ public:
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "requer reinicializa\303\247\303\243o", 0, QApplication::UnicodeUTF8));
         checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0, QApplication::UnicodeUTF8));
         checkbox_iluminacao_por_pixel->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o por pixel (lento)", 0, QApplication::UnicodeUTF8));
+        checkbox_mapeamento_oclusao->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Oclus\303\243o", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

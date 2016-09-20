@@ -59,8 +59,15 @@ public:
     QSlider *slider_tamanho;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_6;
+    QHBoxLayout *horizontalLayout_24;
     QLabel *label_15;
     QComboBox *combo_textura;
+    QHBoxLayout *horizontalLayout_23;
+    QLabel *label_18;
+    QDoubleSpinBox *spin_tex_largura;
+    QHBoxLayout *horizontalLayout_22;
+    QLabel *label_17;
+    QDoubleSpinBox *spin_tex_altura;
     QWidget *horizontalLayoutWidget_7;
     QHBoxLayout *horizontalLayout_8;
     QCheckBox *checkbox_selecionavel;
@@ -247,20 +254,63 @@ public:
 
         horizontalLayoutWidget_5 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(410, 350, 361, 41));
+        horizontalLayoutWidget_5->setGeometry(QRect(410, 350, 364, 41));
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_24 = new QHBoxLayout();
+        horizontalLayout_24->setObjectName(QString::fromUtf8("horizontalLayout_24"));
         label_15 = new QLabel(horizontalLayoutWidget_5);
         label_15->setObjectName(QString::fromUtf8("label_15"));
         label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_6->addWidget(label_15);
+        horizontalLayout_24->addWidget(label_15);
 
         combo_textura = new QComboBox(horizontalLayoutWidget_5);
         combo_textura->setObjectName(QString::fromUtf8("combo_textura"));
 
-        horizontalLayout_6->addWidget(combo_textura);
+        horizontalLayout_24->addWidget(combo_textura);
+
+
+        horizontalLayout_6->addLayout(horizontalLayout_24);
+
+        horizontalLayout_23 = new QHBoxLayout();
+        horizontalLayout_23->setObjectName(QString::fromUtf8("horizontalLayout_23"));
+        label_18 = new QLabel(horizontalLayoutWidget_5);
+        label_18->setObjectName(QString::fromUtf8("label_18"));
+        label_18->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_23->addWidget(label_18);
+
+        spin_tex_largura = new QDoubleSpinBox(horizontalLayoutWidget_5);
+        spin_tex_largura->setObjectName(QString::fromUtf8("spin_tex_largura"));
+        spin_tex_largura->setDecimals(2);
+        spin_tex_largura->setMaximum(1);
+        spin_tex_largura->setSingleStep(0.1);
+
+        horizontalLayout_23->addWidget(spin_tex_largura);
+
+
+        horizontalLayout_6->addLayout(horizontalLayout_23);
+
+        horizontalLayout_22 = new QHBoxLayout();
+        horizontalLayout_22->setObjectName(QString::fromUtf8("horizontalLayout_22"));
+        label_17 = new QLabel(horizontalLayoutWidget_5);
+        label_17->setObjectName(QString::fromUtf8("label_17"));
+        label_17->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_22->addWidget(label_17);
+
+        spin_tex_altura = new QDoubleSpinBox(horizontalLayoutWidget_5);
+        spin_tex_altura->setObjectName(QString::fromUtf8("spin_tex_altura"));
+        spin_tex_altura->setDecimals(2);
+        spin_tex_altura->setMaximum(1);
+        spin_tex_altura->setSingleStep(0.1);
+
+        horizontalLayout_22->addWidget(spin_tex_altura);
+
+
+        horizontalLayout_6->addLayout(horizontalLayout_22);
 
         horizontalLayoutWidget_7 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
@@ -542,6 +592,14 @@ public:
         slider_tamanho->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho da entidade", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_15->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Textura", 0, QApplication::UnicodeUTF8));
+        label_18->setText(QApplication::translate("ifg::qt::DialogoEntidade", "largura", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_17->setText(QApplication::translate("ifg::qt::DialogoEntidade", "altura", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_tex_altura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         checkbox_selecionavel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, jogadores poder\303\243o ver as propriedades e controlar a entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP

@@ -797,6 +797,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   });
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
+  gerador.spin_tex_largura->setValue(entidade.info_textura().largura());
+  gerador.spin_tex_altura->setValue(entidade.info_textura().altura());
   // Modelo 3d.
   PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
@@ -857,6 +859,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->clear_info_textura();
     } else {
       PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+      proto_retornado->mutable_info_textura()->set_largura(gerador.spin_tex_largura->value());
+      proto_retornado->mutable_info_textura()->set_altura(gerador.spin_tex_altura->value());
     }
     if (gerador.combo_modelos_3d->currentIndex() == 0) {
       proto_retornado->clear_modelo_3d();
@@ -1120,6 +1124,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_mapeamento_de_sombras->setCheckState(opcoes_proto.mapeamento_sombras() ? Qt::Checked : Qt::Unchecked);
   // Iluminacao por pixel.
   gerador.checkbox_iluminacao_por_pixel->setCheckState(opcoes_proto.iluminacao_por_pixel() ? Qt::Checked : Qt::Unchecked);
+  // Oclusao.
+  gerador.checkbox_mapeamento_oclusao->setCheckState(opcoes_proto.mapeamento_oclusao() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -1139,6 +1145,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_mapeamento_de_sombras->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_iluminacao_por_pixel(
         gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_mapeamento_oclusao(
+        gerador.checkbox_mapeamento_oclusao->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {

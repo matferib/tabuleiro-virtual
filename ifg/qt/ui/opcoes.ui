@@ -124,7 +124,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>230</y>
+     <y>260</y>
      <width>391</width>
      <height>91</height>
     </rect>
@@ -158,6 +158,19 @@
      <string>Iluminação por pixel (lento)</string>
     </property>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="checkbox_mapeamento_oclusao">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>230</y>
+     <width>271</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Oclusão</string>
+   </property>
   </widget>
  </widget>
  <resources/>
