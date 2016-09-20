@@ -172,7 +172,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::Escala(0.8f, 1.0f, 0.8f, false);
   } else {
     // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
-    gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10, false);
+    gl::Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()), false);
     float angulo = 0;
     // So desenha a textura de frente pra entidades nao caidas.
     if (pd->texturas_sempre_de_frente() && !proto.caida()) {
@@ -190,7 +190,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
       gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
     }
     gl::MatrizEscopo salva_matriz(false);
-    gl::Escala(1.0f, 0.1f, 1.0f, false);
+    gl::Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura(), false);
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
@@ -207,7 +207,31 @@ void Entidade::DesenhaObjetoEntidadeProto(
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
     MudaCor(proto.morta() ? EscureceCor(c) : c);
-    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
+    {
+      const unsigned short indices[] = { 0, 1, 2, 3 };
+      float largura = TAMANHO_LADO_QUADRADO_2 * proto.info_textura().largura();
+      float altura = TAMANHO_LADO_QUADRADO_2 * proto.info_textura().altura();
+      float ajuste = -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f;
+      const float coordenadas[] = {
+        -largura, ajuste, -altura,
+        largura,  ajuste, -altura,
+        largura,  ajuste, altura,
+        -largura, ajuste, altura,
+      };
+      float sobra_largura = (1.0f - proto.info_textura().largura()) / 2.0f;
+      const float coordenadas_textura[] = {
+        sobra_largura,        1.0f,
+        1.0f - sobra_largura, 1.0f,
+        1.0f - sobra_largura, 1.0f - proto.info_textura().altura(),
+        sobra_largura,        1.0f - proto.info_textura().altura(),
+      };
+      gl::VboNaoGravado vbo;
+      vbo.AtribuiCoordenadas(3, coordenadas, 12);
+      vbo.AtribuiTexturas(coordenadas_textura);
+      vbo.AtribuiIndices(indices, 4);
+      gl::DesenhaVbo(vbo, GL_TRIANGLE_FAN);
+    }
+    //gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 }

@@ -78,6 +78,9 @@ message InfoTextura {
   // Identificador da textura. Normalmente o nome do arquivo. Para mapeamento de cubo, sera adicionado
   // pos{xyz} e neg{xyz} apos o nome.
   optional string id = 1;
+  // Os valores sao relativos a 1.0. 1.0 x 1.0 eh quadrado.
+  optional float largura = 13 [default = 1.0];
+  optional float altura = 14 [default = 1.0];
   // Para texturas de mapeamento de cubo.
   optional bool textura_cubo = 2;
   // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
