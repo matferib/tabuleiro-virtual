@@ -286,7 +286,6 @@ Visualizador3d::Visualizador3d(
        central_(central), tabuleiro_(tabuleiro) {
   const ent::OpcoesProto& opcoes = tabuleiro->Opcoes();
   luz_por_pixel_ = opcoes.iluminacao_por_pixel();
-  mapeamento_sombras_ = opcoes.mapeamento_sombras();
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
@@ -302,7 +301,7 @@ void Visualizador3d::initializeGL() {
   try {
     if (!once) {
       once = true;
-      gl::IniciaGl(luz_por_pixel_, mapeamento_sombras_);
+      gl::IniciaGl(luz_por_pixel_);
     }
     tabuleiro_->IniciaGL();
   } catch (const std::logic_error& erro) {
@@ -523,6 +522,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   if (!notificacao.modo_mestre() || entidade.fixa()) {
     gerador.checkbox_selecionavel->setEnabled(false);
   }
+  // Colisao.
+  gerador.checkbox_colisao->setCheckState(entidade.causa_colisao() ? Qt::Checked : Qt::Unchecked);
+
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
   // Cor da entidade.
@@ -653,6 +655,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
+    proto_retornado->set_causa_colisao(gerador.checkbox_colisao->checkState() == Qt::Checked);
     bool fixa = gerador.checkbox_fixa->checkState() == Qt::Checked;
     if (fixa) {
       // Override.
@@ -1141,7 +1144,7 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_grade->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_desenha_controle_virtual(
         gerador.checkbox_controle->checkState() == Qt::Checked ? true : false);
-    proto_retornado->set_mapeamento_sombras(
+   proto_retornado->set_mapeamento_sombras(
         gerador.checkbox_mapeamento_de_sombras->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_iluminacao_por_pixel(
         gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked ? true : false);

@@ -117,6 +117,7 @@ public:
     QHBoxLayout *horizontalLayout_17;
     QLabel *label_14;
     QDoubleSpinBox *spin_trans_z;
+    QCheckBox *checkbox_colisao;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -147,7 +148,7 @@ public:
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(470, 320, 221, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(470, 350, 221, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -271,7 +272,7 @@ public:
         spin_rotacao->setMaximum(180);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(470, 360, 221, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(470, 390, 221, 41));
         horizontalLayout_9 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -341,7 +342,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(470, 400, 221, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(470, 430, 221, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -566,6 +567,9 @@ public:
 
         verticalLayout_2->addLayout(horizontalLayout_14);
 
+        checkbox_colisao = new QCheckBox(ifg__qt__DialogoForma);
+        checkbox_colisao->setObjectName(QString::fromUtf8("checkbox_colisao"));
+        checkbox_colisao->setGeometry(QRect(470, 310, 83, 22));
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -624,6 +628,10 @@ public:
         label_12->setText(QApplication::translate("ifg::qt::DialogoForma", "X", 0, QApplication::UnicodeUTF8));
         label_13->setText(QApplication::translate("ifg::qt::DialogoForma", "Y", 0, QApplication::UnicodeUTF8));
         label_14->setText(QApplication::translate("ifg::qt::DialogoForma", "Z", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

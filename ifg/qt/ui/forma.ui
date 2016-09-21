@@ -59,7 +59,7 @@
    <property name="geometry">
     <rect>
      <x>470</x>
-     <y>320</y>
+     <y>350</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -311,7 +311,7 @@
    <property name="geometry">
     <rect>
      <x>470</x>
-     <y>360</y>
+     <y>390</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -421,7 +421,7 @@
    <property name="geometry">
     <rect>
      <x>470</x>
-     <y>400</y>
+     <y>430</y>
      <width>221</width>
      <height>41</height>
     </rect>
@@ -848,6 +848,22 @@
      </item>
     </layout>
    </widget>
+  </widget>
+  <widget class="QCheckBox" name="checkbox_colisao">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>310</y>
+     <width>83</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+   </property>
+   <property name="text">
+    <string>Colisão</string>
+   </property>
   </widget>
  </widget>
  <resources/>
