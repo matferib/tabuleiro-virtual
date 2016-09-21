@@ -1,12 +1,9 @@
 #version ${VERSAO}
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
-#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
 
-#if USAR_MAPEAMENTO_SOMBRAS
 #if defined(GL_EXT_shadow_samplers)
 #extension GL_EXT_shadow_samplers : enable
-#endif
 #endif
 
 #if defined(GL_ES)
@@ -25,16 +22,12 @@ struct InfoLuzDirecional {
 
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
-#if USAR_MAPEAMENTO_SOMBRAS
 varying lowp vec4 v_ColorSemDirecional;
-#endif
 varying mediump vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
-#if USAR_MAPEAMENTO_SOMBRAS
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp float v_Bias;
-#endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 
@@ -42,20 +35,17 @@ uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform lowp float gltab_textura;                // Textura ligada?
 uniform lowp float gltab_textura_cubo;           // Textura cubo ligada?
 uniform lowp sampler2D gltab_unidade_textura;    // handler da textura.
-#if USAR_MAPEAMENTO_SOMBRAS
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
-#endif
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
 
 void main() {
-#if USAR_MAPEAMENTO_SOMBRAS
 #if __VERSION__ == 130
   lowp float aplicar_luz_direcional =
       texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - v_Bias));
@@ -72,9 +62,6 @@ void main() {
   lowp float aplicar_luz_direcional = (v_Pos_sombra.z - v_Bias) > texz ? 0.0 : 1.0;
 #endif
   lowp vec4 cor_final = mix(v_ColorSemDirecional, v_Color, aplicar_luz_direcional);
-#else
-  lowp vec4 cor_final = v_Color;
-#endif
   // O if saiu mais barato que o mix.
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);

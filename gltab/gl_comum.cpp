@@ -275,7 +275,6 @@ void PreprocessaFonte(const std::string& nome, const VarShader& shader, std::str
 #define STRINGIFY_MACRO_VALUE(S) STRINGIFY(S)
 #define STRINGIFY(S) #S
   std::map<std::string, std::string> mapa = {
-    { "${USAR_MAPEAMENTO_SOMBRAS}", shader.mapeamento_sombras ? "1" : "0" },
 #if USAR_OPENGL_ES
     { "${VERSAO}", "100" },
 #elif __APPLE__
@@ -407,7 +406,7 @@ bool IniciaVariaveis(VarShader* shader) {
   return true;
 }
 
-void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto* contexto) {
+void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
   LOG(INFO) << "Tentando iniciar com shaders, luz por pixel? " << luz_por_pixel;
 
   V_ERRO("antes vertex shader");
@@ -435,7 +434,6 @@ void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Context
 
   for (auto& ds : dados_shaders) {
     LOG(INFO) << "Iniciando programa shaders: " << ds.nome_programa.c_str();
-    ds.shader->mapeamento_sombras = mapeamento_sombras;
     if (!IniciaShader(ds.nome_programa.c_str(), ds.tipo, ds.nome_vs.c_str(), ds.nome_fs.c_str(), ds.shader)) {
       LOG(ERROR) << "Erro carregando programa com " << ds.nome_vs.c_str() << " e " << ds.nome_fs.c_str();
       continue;
@@ -454,7 +452,7 @@ void IniciaShaders(bool luz_por_pixel, bool mapeamento_sombras, interno::Context
 }  // namespace
 
 
-void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto* contexto) {
+void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
@@ -466,7 +464,7 @@ void IniciaComum(bool luz_por_pixel, bool mapeamento_sombras, interno::Contexto*
   // a mensagem de erro.
   CarregaExtensoes();
   ImprimeExtensoes();
-  IniciaShaders(luz_por_pixel, mapeamento_sombras, contexto);
+  IniciaShaders(luz_por_pixel, contexto);
 }
 
 void FinalizaShaders(const VarShader& shader) {

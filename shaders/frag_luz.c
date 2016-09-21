@@ -1,15 +1,12 @@
 #version ${VERSAO}
 
 // Macros ${XXX} deverao ser substituidas pelo codigo fonte.
-#define USAR_MAPEAMENTO_SOMBRAS ${USAR_MAPEAMENTO_SOMBRAS}
 
-#if USAR_MAPEAMENTO_SOMBRAS
 #if defined(GL_EXT_shadow_samplers)
 #extension GL_EXT_shadow_samplers : enable
 #endif
 #if defined(GL_EXT_gpu_shader4)
 #extension GL_EXT_gpu_shader4 : enable
-#endif
 #endif
 
 #if defined(GL_ES)
@@ -31,11 +28,9 @@ varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
-#if USAR_MAPEAMENTO_SOMBRAS
 uniform highp float gltab_plano_distante;  // distancia do plano distante.
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
-#endif
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm_oclusao;    // projecao oclusao.
@@ -60,7 +55,6 @@ uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
 uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
 uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
 uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
-#if USAR_MAPEAMENTO_SOMBRAS
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #else
@@ -70,7 +64,6 @@ uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 #else
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
-#endif
 #endif
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = oclusao, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
@@ -101,7 +94,6 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 
 void main() {
   lowp vec4 cor_final = v_Color;
-#if USAR_MAPEAMENTO_SOMBRAS
   if (gltab_nevoa_dados.z > 0.0f) {
     highp float bias = 0.5f;
 #if __VERSION__ == 130
@@ -127,12 +119,10 @@ void main() {
       return;
     }
   }
-#endif
 
   // luz ambiente.
   if (gltab_luz_ambiente.a > 0.0) {
     //lowp vec4 cor_luz = gltab_luz_ambiente;
-#if USAR_MAPEAMENTO_SOMBRAS
     highp float cos_theta = clamp(dot(v_Normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
     highp float bias = 0.002 * tan(acos(cos_theta));
     bias = clamp(bias, 0.00, 0.0035);
@@ -148,9 +138,6 @@ void main() {
     lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
     lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
     lowp float aplicar_luz_direcional = (v_Pos_sombra.z - bias) > texz ? 0.0 : 1.0;
-#endif
-#else
-    lowp float aplicar_luz_direcional = 1.0;
 #endif
     // Outras luzes.
     lowp vec4 uns = vec4(1.0, 1.0, 1.0, 1.0);

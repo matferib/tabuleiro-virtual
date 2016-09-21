@@ -80,7 +80,7 @@ bool ImprimeSeShaderErro(GLuint shader);
 
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 
-void IniciaGl(bool luz_por_pixel, bool mapeamento_sombras) {
+void IniciaGl(bool luz_por_pixel) {
 #if WIN32
 #define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null "#x; } } while (0)
   LOG(INFO) << "pegando ponteiros";
@@ -140,7 +140,7 @@ void IniciaGl(bool luz_por_pixel, bool mapeamento_sombras) {
     throw std::logic_error(erro);
   }
 #endif
-  interno::IniciaComum(luz_por_pixel, mapeamento_sombras, BuscaContexto());
+  interno::IniciaComum(luz_por_pixel, BuscaContexto());
 }
 //#undef V_ERRO
 

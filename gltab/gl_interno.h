@@ -22,9 +22,6 @@ struct VarShader {
   GLuint vs_simples;
   GLuint fs_simples;
 
-  // Variaveis de inicializacao.
-  bool mapeamento_sombras = false;
-
   // Variaveis uniformes dos shaders.
   GLint uni_gltab_luz_ambiente_cor;     // Cor da luz ambiente. Alfa indica se iluminacao geral esta ligada.
   GLint uni_gltab_luz_direcional_cor;   // Cor da luz direcional.
@@ -136,8 +133,7 @@ inline bool UsandoShaderLuz() {
 void UniformeSeValido(GLint location, GLint v0);
 void UniformeSeValido(GLint location, GLfloat v0);
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
-bool MapeamentoSombras(int argc, const char* const * argv);  // Retorna true se encontrar --mapeamento_sombras.
-void IniciaComum(bool luz_por_vertice, bool mapeamento_sombras, interno::Contexto* contexto);
+void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap);
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap);
