@@ -19,7 +19,6 @@
 
 #if USAR_GFLAGS
 DEFINE_bool(iluminacao_por_pixel, true, "Se verdadeiro, usa luz por pixel (caro mas melhor).");
-DEFINE_bool(mapeamento_de_sombras, true, "Se verdadeiro, usa mapemento de sombras caro mas melhor)..");
 DEFINE_string(tabuleiro, "", "Se nao vazio, carrega o tabuleiro passado ao iniciar.");
 #endif
 
@@ -39,13 +38,6 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
     proto->set_iluminacao_por_pixel(FLAGS_iluminacao_por_pixel);
 #else
     proto->set_iluminacao_por_pixel(true);
-#endif
-  }
-  if (!proto->has_mapeamento_sombras()) {
-#if USAR_GFLAGS
-    proto->set_mapeamento_sombras(FLAGS_mapeamento_de_sombras);
-#else
-    proto->set_mapeamento_sombras(true);
 #endif
   }
   LOG(INFO) << "Opcoes inciais: " << proto->ShortDebugString();
