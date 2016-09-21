@@ -34,9 +34,9 @@ public:
     QCheckBox *checkbox_grade;
     QCheckBox *checkbox_controle;
     QGroupBox *groupBox;
-    QCheckBox *checkbox_mapeamento_de_sombras;
     QCheckBox *checkbox_iluminacao_por_pixel;
     QCheckBox *checkbox_mapeamento_oclusao;
+    QCheckBox *checkbox_mapeamento_de_sombras;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
@@ -45,7 +45,7 @@ public:
         ifg__qt__DialogoOpcoes->resize(423, 394);
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-        buttonBox->setGeometry(QRect(60, 340, 341, 32));
+        buttonBox->setGeometry(QRect(210, 340, 191, 32));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         checkbox_mostrar_fps = new QCheckBox(ifg__qt__DialogoOpcoes);
@@ -71,16 +71,16 @@ public:
         checkbox_controle->setGeometry(QRect(10, 200, 271, 22));
         groupBox = new QGroupBox(ifg__qt__DialogoOpcoes);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 260, 391, 91));
-        checkbox_mapeamento_de_sombras = new QCheckBox(groupBox);
-        checkbox_mapeamento_de_sombras->setObjectName(QString::fromUtf8("checkbox_mapeamento_de_sombras"));
-        checkbox_mapeamento_de_sombras->setGeometry(QRect(10, 30, 271, 22));
+        groupBox->setGeometry(QRect(10, 290, 201, 51));
         checkbox_iluminacao_por_pixel = new QCheckBox(groupBox);
         checkbox_iluminacao_por_pixel->setObjectName(QString::fromUtf8("checkbox_iluminacao_por_pixel"));
-        checkbox_iluminacao_por_pixel->setGeometry(QRect(10, 60, 271, 22));
+        checkbox_iluminacao_por_pixel->setGeometry(QRect(10, 30, 271, 22));
         checkbox_mapeamento_oclusao = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_mapeamento_oclusao->setObjectName(QString::fromUtf8("checkbox_mapeamento_oclusao"));
         checkbox_mapeamento_oclusao->setGeometry(QRect(10, 230, 271, 22));
+        checkbox_mapeamento_de_sombras = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_mapeamento_de_sombras->setObjectName(QString::fromUtf8("checkbox_mapeamento_de_sombras"));
+        checkbox_mapeamento_de_sombras->setGeometry(QRect(10, 260, 271, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -100,9 +100,9 @@ public:
         checkbox_grade->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Grade", 0, QApplication::UnicodeUTF8));
         checkbox_controle->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Desenhar Controle Virtual", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoOpcoes", "requer reinicializa\303\247\303\243o", 0, QApplication::UnicodeUTF8));
-        checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0, QApplication::UnicodeUTF8));
         checkbox_iluminacao_por_pixel->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o por pixel (lento)", 0, QApplication::UnicodeUTF8));
         checkbox_mapeamento_oclusao->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Oclus\303\243o", 0, QApplication::UnicodeUTF8));
+        checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

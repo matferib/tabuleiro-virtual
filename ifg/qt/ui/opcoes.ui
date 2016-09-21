@@ -16,9 +16,9 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>60</x>
+     <x>210</x>
      <y>340</y>
-     <width>341</width>
+     <width>191</width>
      <height>32</height>
     </rect>
    </property>
@@ -124,32 +124,19 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>260</y>
-     <width>391</width>
-     <height>91</height>
+     <y>290</y>
+     <width>201</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="title">
     <string>requer reinicialização</string>
    </property>
-   <widget class="QCheckBox" name="checkbox_mapeamento_de_sombras">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>30</y>
-      <width>271</width>
-      <height>22</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Mapeamento de sombras</string>
-    </property>
-   </widget>
    <widget class="QCheckBox" name="checkbox_iluminacao_por_pixel">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>30</y>
       <width>271</width>
       <height>22</height>
      </rect>
@@ -170,6 +157,19 @@
    </property>
    <property name="text">
     <string>Oclusão</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkbox_mapeamento_de_sombras">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>260</y>
+     <width>271</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Mapeamento de sombras</string>
    </property>
   </widget>
  </widget>
