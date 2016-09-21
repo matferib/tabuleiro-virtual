@@ -25,8 +25,8 @@ struct ContextoEs : public ContextoDependente {
 };
 }  // namespace interno
 
-void IniciaGl(bool luz_por_pixel, bool mapeamento_sombras) {
-  interno::IniciaComum(luz_por_pixel, mapeamento_sombras, BuscaContexto());
+void IniciaGl(bool luz_por_pixel) {
+  interno::IniciaComum(luz_por_pixel, BuscaContexto());
 }
 
 namespace interno {
