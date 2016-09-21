@@ -489,9 +489,6 @@ class Tabuleiro : public ntf::Receptor {
   /** funcao para desenhar os pontos de rolagem do tabuleiro. */
   void DesenhaPontosRolagem();
 
-  /** Desenha as sombras dos objetos. */
-  void DesenhaSombras();
-
   /** Desenha as entidades. O parametro sombra indica que a entidade so sera desenha se estiver fora do fog. */
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra = false);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
@@ -800,8 +797,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna a acao ou vazio se nao houver indice. */
   const AcaoProto& AcaoDoMapa(const std::string& id_acao) const;
 
-  bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
+  bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
