@@ -77,7 +77,7 @@ class Entidade {
 
   /** Incrementa a rotacao em Z da entidade. */
   void IncrementaRotacaoZGraus(float delta_rotacao_graus);
-  
+
   /** Altera a rotacao Z graus de uma entidade para o valor passado. */
   void AlteraRotacaoZGraus(float rotacao_graus);
 
@@ -138,9 +138,6 @@ class Entidade {
   /** Desenha aura da entidade. */
   void DesenhaAura(ParametrosDesenho* pd);
 
-  /** Monta a matriz de shear de acordo com posicao da luz, anula eixo Z e desenha o objeto com transparencia. */
-  void DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear);
-
   /** Retorna o proto da entidade. */
   const EntidadeProto& Proto() const { return proto_; }
 
@@ -149,6 +146,14 @@ class Entidade {
 
   /** Retorna se a entidade eh fixa (ou seja, nem o mestre pode mover). */
   bool Fixa() const { return proto_.fixa(); }
+
+  /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
+  * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
+  */
+  bool Colisao(const Posicao& pos, Vector3* direcao) const { return Colisao(proto_, pos, direcao); }
+  static bool Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
+  static bool ColisaoComposta(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
+  static bool ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
 
   /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
   * 1.0f para entidades medias.
@@ -172,7 +177,7 @@ class Entidade {
   * Implementado em entidade_desenha.cpp.
   */
   static void DesenhaObjetoProto(
-      const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear = nullptr);
+      const EntidadeProto& proto, ParametrosDesenho* pd);
 
   /** Carrega modelos usados pelas entidades. */
   static void IniciaGl();
@@ -262,7 +267,7 @@ class Entidade {
   void DesenhaObjetoComDecoracoes(ParametrosDesenho* pd);
 
   /** Realiza o desenho do objeto. */
-  void DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear = nullptr);
+  void DesenhaObjeto(ParametrosDesenho* pd);
 
   /** Desenha as decoracoes do objeto (pontos de vida, disco de selecao). */
   void DesenhaDecoracoes(ParametrosDesenho* pd);
@@ -279,23 +284,24 @@ class Entidade {
   * @param translacao_z se verdadeiro, transladar para posicao vertical do objeto.
   * @param proto da entidade.
   * @param pd os parametros de desenho.
-  * @param matriz_shear se nao null, eh porque esta desenhando sombra.
   */
   static void MontaMatriz(bool queda,
                           bool transladar_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
-                          const ParametrosDesenho* pd = nullptr,
-                          const float* matriz_shear = nullptr);
+                          const ParametrosDesenho* pd = nullptr);
+
+  static Matrix4 MontaMatrizModelagem(
+      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
 
   static void DesenhaObjetoProto(
-      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear = nullptr);
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
   static void DesenhaObjetoFormaProto(
-      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear);
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
   static void DesenhaObjetoEntidadeProto(
-      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear);
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
   static void DesenhaObjetoCompostoProto(
-      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear);
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
 
   /** Calcula o multiplicador para um determinado tamanho. */
   static float CalculaMultiplicador(TamanhoEntidade tamanho);

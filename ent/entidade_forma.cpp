@@ -140,28 +140,21 @@ bool TipoForma2d(TipoForma tipo) {
 
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
-                                       ParametrosDesenho* pd,
-                                       const float* matriz_shear) {
+                                       ParametrosDesenho* pd) {
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz(false);
-  if (matriz_shear != nullptr) {
-    gl::MultiplicaMatriz(matriz_shear, false);
-  }
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
   gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0, false);
   std::unique_ptr<gl::HabilitaEscopo> offset_escopo;
-  if (matriz_shear == nullptr && TipoForma2d(proto.sub_tipo())) {
+  if (TipoForma2d(proto.sub_tipo())) {
     offset_escopo.reset(new gl::HabilitaEscopo(GL_POLYGON_OFFSET_FILL));
     gl::DesvioProfundidade(-1.0, -40.0f);
   }
 
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
-      if (matriz_shear != nullptr) {
-        break;
-      }
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
       GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
           vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
@@ -189,7 +182,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       }
 #if 0
       // Debug de normais. So funciona se escala for igual nos eixos pois transformacao de normal eh diferente.
-      if (pd->desenha_barra_vida() && !pd->has_picking_x() && matriz_shear == nullptr) {
+      if (pd->desenha_barra_vida() && !pd->has_picking_x()) {
         try {
           auto vn = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6).ExtraiVboNormais();
           gl::DesenhaVbo(vn, GL_LINES);
@@ -273,7 +266,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
       // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
       // Para picking, deve-se ignorar o stencil tb.
-      bool usar_stencil = (matriz_shear == nullptr) && !pd->desenha_sombra_projetada() && !pd->has_picking_x();
+      bool usar_stencil = !pd->desenha_mapa_sombras();
       if (usar_stencil) {
         LigaStencil();
       }
@@ -305,6 +298,17 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
+}
+
+bool Entidade::ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
+  switch (proto.sub_tipo()) {
+    case TF_CUBO: {
+      break;
+    }
+    default:
+      ;
+  }
+  return false;
 }
 
 }  // namespace ent

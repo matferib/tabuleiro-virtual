@@ -79,8 +79,8 @@ void Entidade::DesenhaTranslucido(ParametrosDesenho* pd) {
   }
 }
 
-void Entidade::DesenhaObjeto(ParametrosDesenho* pd, const float* matriz_shear) {
-  DesenhaObjetoProto(proto_, vd_, pd, matriz_shear);
+void Entidade::DesenhaObjeto(ParametrosDesenho* pd) {
+  DesenhaObjetoProto(proto_, vd_, pd);
 }
 
 void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
@@ -96,20 +96,20 @@ void Entidade::DesenhaObjetoComDecoracoes(ParametrosDesenho* pd) {
   gl::Desabilita(GL_NORMALIZE);
 }
 
-void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd, const float* matriz_shear) {
-  DesenhaObjetoProto(proto, VariaveisDerivadas(), pd, matriz_shear);
+void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho* pd) {
+  DesenhaObjetoProto(proto, VariaveisDerivadas(), pd);
 }
 
-void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_ENTIDADE:
-      DesenhaObjetoEntidadeProto(proto, vd, pd, matriz_shear);
+      DesenhaObjetoEntidadeProto(proto, vd, pd);
       return;
     case TE_FORMA:
-      DesenhaObjetoFormaProto(proto, vd, pd, matriz_shear);
+      DesenhaObjetoFormaProto(proto, vd, pd);
       return;
     case TE_COMPOSTA: {
-      DesenhaObjetoCompostoProto(proto, vd, pd, matriz_shear);
+      DesenhaObjetoCompostoProto(proto, vd, pd);
       return;
     }
     return;
@@ -117,13 +117,13 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 }
 
 void Entidade::DesenhaObjetoEntidadeProto(
-    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
   AjustaCor(proto, pd);
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   const auto& pos = proto.pos();
   if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
     gl::MatrizEscopo salva_matriz(false);
-    MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+    MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
     gl::DesenhaVbo(g_vbos[VBO_PEAO]);
     return;
   }
@@ -133,7 +133,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/,
                 (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
-                proto, vd, pd, matriz_shear);
+                proto, vd, pd);
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2, false);
     gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2, false);
     if (pd->entidade_selecionada()) {
@@ -148,7 +148,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz(false);
       // Mesmo hack das entidades compostas.
-      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
       AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
       modelo_3d->Desenha();
       return;
@@ -161,7 +161,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   gl::MatrizEscopo salva_matriz(false);
-  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
@@ -197,7 +197,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-  if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
+  if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::Normal(0.0f, -1.0f, 0.0f);
@@ -393,7 +393,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       escala_efeito->set_x(1.2);
       escala_efeito->set_y(1.2);
       escala_efeito->set_z(1.2);
-      DesenhaObjetoProto(proto_, vd_, pd, nullptr);
+      DesenhaObjetoProto(proto_, vd_, pd);
       if (!tem_alfa) {
         pd->clear_alfa_translucidos();
       }
@@ -413,7 +413,7 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       for (int i = 0; i < num_imagens; ++i) {
         pd->mutable_rotacao_efeito()->set_z(i * inc_angulo_graus);
         pd->mutable_translacao_efeito()->set_x(1.0f);
-        DesenhaObjetoProto(proto_, vd_, pd, nullptr);
+        DesenhaObjetoProto(proto_, vd_, pd);
       }
       pd->clear_rotacao_efeito();
       pd->clear_translacao_efeito();
@@ -491,19 +491,6 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   }
   // A aura estende alem do tamanho da entidade.
   gl::EsferaSolida(proto_.aura_m(), NUM_FACES, NUM_FACES);
-}
-
-void Entidade::DesenhaSombra(ParametrosDesenho* pd, const float* matriz_shear) {
-  if (vd_.nao_desenhar && !pd->has_picking_x()) {
-    return;
-  }
-  if (!proto_.visivel() && !pd->modo_mestre() && !proto_.selecionavel_para_jogador()) {
-    return;
-  }
-  gl::Habilita(GL_POLYGON_OFFSET_FILL);
-  gl::DesvioProfundidade(-1.0f, -60.0f);
-  DesenhaObjeto(pd, matriz_shear);
-  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
 }
 
 float Entidade::MultiplicadorTamanho() const {

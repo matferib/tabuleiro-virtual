@@ -62,11 +62,8 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadePr
 }
 
 void Entidade::DesenhaObjetoCompostoProto(
-    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd, const float* matriz_shear) {
+    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
   gl::MatrizEscopo salva_matriz(false);
-  if (matriz_shear != nullptr) {
-    gl::MultiplicaMatriz(matriz_shear, false);
-  }
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
@@ -84,7 +81,7 @@ void Entidade::DesenhaObjetoCompostoProto(
       gl::DesenhaVbo(vbo);
 #if 0 && DEBUG
       // Debug de normais escala deve estar em 1.0.
-      if (pd->desenha_barra_vida() && !pd->has_picking_x() && matriz_shear == nullptr) {
+      if (pd->desenha_barra_vida() && !pd->has_picking_x()) {
         try {
           auto vn = vbo.ExtraiVboNormais();
           gl::DesenhaVbo(vn, GL_LINES);
@@ -96,6 +93,10 @@ void Entidade::DesenhaObjetoCompostoProto(
       gl::Desabilita(GL_TEXTURE_2D);
     }
   }
+}
+
+bool Entidade::ColisaoComposta(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
+  return false;
 }
 
 }  // namespace ent

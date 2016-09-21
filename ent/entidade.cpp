@@ -166,7 +166,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
       // TODO vbo gravado
       gl::MatrizEscopo salva_matriz(false);
       // Mesmo hack das entidades compostas.
-      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
       modelo_3d->Desenha();
       return;
     } else {
@@ -180,7 +180,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   gl::MatrizEscopo salva_matriz(false);
-  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd, matriz_shear);
+  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
   // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
@@ -218,7 +218,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
 #if 0
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-  if (matriz_shear == nullptr && id_textura != GL_INVALID_VALUE) {
+  if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     gl::Normal(0.0f, -1.0f, 0.0f);
@@ -699,25 +699,22 @@ float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
   return vd.altura_voo + (vd.angulo_disco_voo_rad > 0 ? sinf(vd.angulo_disco_voo_rad) * ALTURA_VOO / 4.0f : 0.0f);
 }
 
+// static
 void Entidade::MontaMatriz(bool queda,
                            bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
-                           const ParametrosDesenho* pd,
-                           const float* matriz_shear) {
+                           const ParametrosDesenho* pd) {
+  Matrix4 matriz(MontaMatrizModelagem(queda, transladar_z, proto, vd, pd));
+  gl::MultiplicaMatriz(matriz.get());
+#if 0
   const auto& pos = proto.pos();
   bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida() && !proto.has_modelo_3d();
   float translacao_z = ZChao(pos.x(), pos.y());
   if (transladar_z) {
     translacao_z += proto.pos().z() + DeltaVoo(vd);
   }
-  if (matriz_shear == nullptr) {
-    gl::Translada(pos.x(), pos.y(), translacao_z, false);
-  } else {
-    gl::Translada(pos.x(), pos.y(), 0, false);
-    gl::MultiplicaMatriz(matriz_shear, false);
-    gl::Translada(0, 0, translacao_z, false);
-  }
+  gl::Translada(pos.x(), pos.y(), translacao_z, false);
   bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
   if (!computar_queda && (proto.has_modelo_3d() || (pd != nullptr && !pd->texturas_sempre_de_frente()))) {
     gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
@@ -763,6 +760,73 @@ void Entidade::MontaMatriz(bool queda,
     const auto& te = pd->translacao_efeito();
     gl::Translada(te.x(), te.y(), te.z(), false);
   }
+#endif
+}
+
+// static
+Matrix4 Entidade::MontaMatrizModelagem(
+    bool queda,
+    bool transladar_z,
+    const EntidadeProto& proto,
+    const VariaveisDerivadas& vd,
+    const ParametrosDesenho* pd) {
+  Matrix4 matrix;
+
+  if (pd != nullptr && pd->has_translacao_efeito()) {
+    const auto& te = pd->translacao_efeito();
+    matrix.translate(te.x(), te.y(), te.z());
+  }
+  if (pd != nullptr && pd->has_rotacao_efeito()) {
+    const auto& re = pd->rotacao_efeito();
+    if (re.has_x()) {
+      matrix.rotateX(re.x());
+    } else if (re.has_y()) {
+      matrix.rotateY(re.y());
+    } else if (re.has_z()) {
+      matrix.rotateZ(re.z());
+    }
+  }
+
+  float multiplicador = CalculaMultiplicador(proto.tamanho());
+  if (pd != nullptr && pd->has_escala_efeito()) {
+    const auto& ee = pd->escala_efeito();
+    matrix.scale(ee.x(), ee.y(), ee.z());
+  }
+  matrix.scale(multiplicador);
+
+  bool achatar = (pd != nullptr && pd->desenha_texturas_para_cima()) && !proto.caida() && !proto.has_modelo_3d();
+  bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
+  if (computar_queda) {
+    if (!achatar) {
+      // Roda sobre o eixo X negativo para cair com a face para cima.
+//#error conferir
+      matrix.rotateX(- vd.angulo_disco_queda_graus);
+    }
+    // Roda pra direcao de queda.
+    const auto& dq = proto.direcao_queda();
+    if (dq.x() != 0.0f || dq.y() != 0) {
+      // Como a queda é sobre o eixo X, subtrai 90 para a direcao ficar certa.
+      float direcao_queda_graus = VetorParaRotacaoGraus(dq) - 90.0f;
+      matrix.rotateZ(direcao_queda_graus);
+    }
+  }
+
+  if (achatar && !proto.has_info_textura()) {
+    // Achata cone.
+    matrix.scale(1.0f, 1.0f, 0.1f);
+  }
+
+  if (!computar_queda && (proto.has_modelo_3d() || (pd != nullptr && !pd->texturas_sempre_de_frente()))) {
+    matrix.rotateZ(proto.rotacao_z_graus());
+  }
+
+  const auto& pos = proto.pos();
+  float translacao_z = ZChao(pos.x(), pos.y());
+  if (transladar_z) {
+    translacao_z += proto.pos().z() + DeltaVoo(vd);
+  }
+  matrix.translate(pos.x(), pos.y(), translacao_z);
+  return matrix;
 }
 
 void Entidade::AtualizaProximaSalvacao(ResultadoSalvacao rs) {
@@ -925,6 +989,20 @@ void Entidade::IniciaGl() {
   for (int i = 0; i < NUM_VBOS; ++i) {
     g_vbos[i].Grava(vbos_nao_gravados[i]);
   }
+}
+
+// static
+bool Entidade::Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
+  if (!proto.causa_colisao() || pos.id_cenario() != proto.pos().id_cenario()) {
+    return false;
+  }
+  // Fazer a transformada do ponto e do vetor para a modelagem do objeto, ficara bem mais facil calcular.
+  if (proto.tipo() == TE_FORMA) {
+    return ColisaoForma(proto, pos, direcao);
+  } else if (proto.tipo() == TE_COMPOSTA) {
+    return ColisaoComposta(proto, pos, direcao);
+  }
+  return false;
 }
 
 }  // namespace ent

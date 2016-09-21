@@ -315,9 +315,6 @@ void Tabuleiro::LiberaTextura() {
 }
 
 void Tabuleiro::LiberaFramebuffer() {
-  if (!MapeamentoSombras()) {
-    return;
-  }
   LOG(ERROR) << "Liberando framebuffer";
   gl::ApagaFramebuffers(1, &framebuffer_);
   gl::ApagaTexturas(1, &textura_framebuffer_);
@@ -385,7 +382,7 @@ void Tabuleiro::ConfiguraProjecao() {
                     DISTANCIA_PLANO_CORTE_DISTANTE);
     return;
   }
-  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+  if (parametros_desenho_.desenha_mapa_sombras()) {
     float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
     gl::Ortogonal(-val, val, -val, val,
                   0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
@@ -410,7 +407,8 @@ void Tabuleiro::ConfiguraProjecao() {
 
 void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
-  if (!parametros_desenho_.desenha_sombra_projetada() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
+  if (!parametros_desenho_.desenha_mapa_sombras() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
+    // Mapa de sombras.
     if (MapeamentoSombras()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       ConfiguraOlharMapeamentoSombras();
@@ -442,7 +440,7 @@ void Tabuleiro::ConfiguraOlhar() {
     return;
   }
 
-  if (MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
     ConfiguraOlharMapeamentoSombras();
     return;
   }
@@ -628,7 +626,7 @@ void Tabuleiro::DesenhaSombraProjetada() {
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
   parametros_desenho_.set_desenha_coordenadas(false);
-  parametros_desenho_.set_desenha_sombra_projetada(true);
+  parametros_desenho_.set_desenha_mapa_sombras(true);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
@@ -675,7 +673,7 @@ int Tabuleiro::Desenha() {
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
     parametros_desenho_.set_desenha_sombras(false);
-    parametros_desenho_.set_desenha_sombra_projetada(false);
+    parametros_desenho_.set_desenha_mapa_sombras(false);
     tipo_shader = gl::TSH_PRETO_BRANCO;
   } else if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_BAIXA_LUMINOSIDADE) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
@@ -698,7 +696,8 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_fps(false);
     parametros_desenho_.set_desenha_aura(false);
     parametros_desenho_.set_desenha_sombras(false);
-    parametros_desenho_.set_desenha_sombra_projetada(false);
+    parametros_desenho_.set_desenha_mapa_sombras(false);
+    parametros_desenho_.clear_desenha_mapa_oclusao();
     parametros_desenho_.set_limpa_fundo(false);
     parametros_desenho_.set_transparencias(false);
     parametros_desenho_.set_desenha_acoes(false);
@@ -746,7 +745,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   }
 
-  if (MapeamentoSombras() && parametros_desenho_.desenha_sombras()) {
+  if (parametros_desenho_.desenha_sombras()) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
@@ -764,7 +763,7 @@ int Tabuleiro::Desenha() {
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0);
     gl::MultiplicaMatriz(bias.get(), false);
-    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_sombra_projetada para configurar para luz.
+    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -2638,7 +2637,7 @@ void Tabuleiro::DesenhaCena() {
   bool desenhar_caixa_ceu = false;
   // A camera isometrica tem problemas com a caixa de ceu, porque ela teria que ser maior que as dimensoes
   // da janela para cobrir o fundo todo.
-  if (!parametros_desenho_.desenha_sombra_projetada() &&
+  if (!parametros_desenho_.desenha_mapa_sombras() &&
       !parametros_desenho_.has_desenha_mapa_oclusao() &&
       !parametros_desenho_.has_picking_x() &&
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) && camera_ != CAMERA_ISOMETRICA) {
@@ -2754,17 +2753,6 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando acoes");
 
-  // Sombras.
-  if (!MapeamentoSombras() && parametros_desenho_.desenha_sombras() &&
-      proto_corrente_->luz_direcional().inclinacao_graus() > 5.0 &&
-      proto_corrente_->luz_direcional().inclinacao_graus() < 180.0f) {
-    bool desenha_texturas = parametros_desenho_.desenha_texturas();
-    parametros_desenho_.set_desenha_texturas(false);
-    DesenhaSombras();
-    parametros_desenho_.set_desenha_texturas(desenha_texturas);
-  }
-  V_ERRO("desenhando sombras");
-
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     LigaStencil();
     DesenhaRastros();
@@ -2812,7 +2800,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando entidades alfa");
 
-  if ((MapeamentoSombras() && parametros_desenho_.desenha_sombra_projetada()) ||
+  if ((parametros_desenho_.desenha_mapa_sombras()) ||
       (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao())) {
     return;
   }
@@ -3382,9 +3370,6 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
 }  // namespace
 
 void Tabuleiro::GeraFramebuffer() {
-  if (!MapeamentoSombras()) {
-    return;
-  }
   GeraFramebufferLocal(false, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
   GeraFramebufferLocal(true, &usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
 }
@@ -3716,11 +3701,11 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (!entidade->Proto().faz_sombra() && (parametros_desenho_.desenha_sombra_projetada() || sombra)) {
+    if (!entidade->Proto().faz_sombra() && (parametros_desenho_.desenha_mapa_sombras() || sombra)) {
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !(parametros_desenho_.desenha_sombra_projetada() || sombra)) {
+    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !(parametros_desenho_.desenha_mapa_sombras() || sombra)) {
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         continue;
       }
@@ -3762,7 +3747,7 @@ std::vector<gl::VboNaoGravado> Tabuleiro::GeraVbosEntidades() {
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_sombra_projetada()) {
+    if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
       continue;
     }
     // Nao roda disco se estiver arrastando.
@@ -3827,7 +3812,7 @@ void Tabuleiro::DesenhaAcoes() {
 
 void Tabuleiro::DesenhaFormaSelecionada() {
   parametros_desenho_.set_alfa_translucidos(0.5);
-  Entidade::DesenhaObjetoProto(forma_proto_, &parametros_desenho_, nullptr);
+  Entidade::DesenhaObjetoProto(forma_proto_, &parametros_desenho_);
   parametros_desenho_.clear_alfa_translucidos();
 }
 
@@ -3937,37 +3922,6 @@ void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string&
     // Para desfazer;
     AdicionaNotificacaoListaEventos(grupo_notificacao);
   }
-}
-
-
-void Tabuleiro::DesenhaSombras() {
-  const float kAnguloInclinacao = proto_corrente_->luz_direcional().inclinacao_graus() * GRAUS_PARA_RAD;
-  const float kAnguloPosicao = proto_corrente_->luz_direcional().posicao_graus() * GRAUS_PARA_RAD;
-  float fator_shear = proto_corrente_->luz_direcional().inclinacao_graus() == 90.0f ?
-      0.0f : 1.0f / tanf(kAnguloInclinacao);
-  // A sombra nao pode ser totalmente solida..
-  float alfa_sombra = std::min(0.5f, sinf(kAnguloInclinacao));
-  // Matriz eh column major, ou seja, esta invertida.
-  // A ideia eh adicionar ao x a altura * fator de shear.
-  GLfloat matriz_shear[] = {
-    1.0f, 0.0f, 0.0f, 0.0f,
-    0.0f, 1.0f, 0.0f, 0.0f,
-    fator_shear * -cosf(kAnguloPosicao), fator_shear * -sinf(kAnguloPosicao), 0.0f, 0.0f,
-    0.0f, 0.0f, 0.0f, 1.0f,
-  };
-  // Habilita o stencil para desenhar apenas uma vez as sombras.
-  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
-  LigaStencil();
-  DesenhaEntidadesBase(
-      std::bind(&Entidade::DesenhaSombra, std::placeholders::_1, std::placeholders::_2, matriz_shear),
-      true);
-
-  // Neste ponto, os pixels desenhados tem 0xFF no stencil. Reabilita o desenho.
-  GLfloat cor_sombra[] = { 0.0f, 0.0f, 0.0f, alfa_sombra };
-  float tam_x = proto_.largura() * TAMANHO_LADO_QUADRADO;
-  float tam_y = proto_.altura() * TAMANHO_LADO_QUADRADO;
-  gl::HabilitaEscopo blend_escopo(GL_BLEND);
-  DesenhaStencil3d(tam_x, tam_y, cor_sombra);
 }
 
 void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
