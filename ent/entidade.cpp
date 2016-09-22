@@ -440,31 +440,27 @@ void Entidade::Atualiza(int intervalo_ms) {
       return;
     }
   }
-  double origens[] = { po->x(), po->y(), po->z() };
-  double destinos[] = { pd.x(), pd.y(), pd.z() };
-
   bool chegou = true;
   // deslocamento em cada eixo (x, y, z) por chamada de atualizacao.
-  const float VELOCIDADE_POR_EIXO = TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
-  for (int i = 0; i < 3; ++i) {
-    double delta = (origens[i] > destinos[i]) ? -VELOCIDADE_POR_EIXO : VELOCIDADE_POR_EIXO;
-    float diferenca = fabs(origens[i] - destinos[i]);
-    // Acelera para diferencas grandes.
-    if (diferenca <= VELOCIDADE_POR_EIXO) {
-      origens[i] = destinos[i];
-    } else {
-      if (diferenca > 5 * VELOCIDADE_POR_EIXO) {
-        delta *= 5;
-      } else if (diferenca > 3 * VELOCIDADE_POR_EIXO) {
-        delta *= 3;
-      }
-      chegou = false;
-      origens[i] += delta;
-    }
+  const float DESLOCAMENTO = TAMANHO_LADO_QUADRADO * (intervalo_ms / 1000.0f);  // anda 4 quadrados em 1s.
+  VLOG(3) << "po antes: " << po->ShortDebugString() << ", pd antes: " << pd.ShortDebugString();
+  Vector3 d(pd.x(), pd.y(), pd.z());
+  Vector3 o(po->x(), po->y(), po->z());
+  d -= o;
+  float falta = d.length();
+  if (falta <= DESLOCAMENTO) {
+  } else if (falta > 5.0f * DESLOCAMENTO) {
+    d *= 5.0f * DESLOCAMENTO / falta;  // anda 5 * DESLOCAMENTO.
+    chegou = false;
+  } else {
+    d *= DESLOCAMENTO / falta;  // anda DESLOCAMENTO.
+    chegou = false;
   }
-  po->set_x(origens[0]);
-  po->set_y(origens[1]);
-  po->set_z(origens[2]);
+  po->set_x(o.x + d.x);
+  po->set_y(o.y + d.y);
+  po->set_z(o.z + d.z);
+  VLOG(3) << "pos: " << po->ShortDebugString();
+
   if (chegou) {
     proto_.clear_destino();
   }
@@ -516,6 +512,10 @@ float Entidade::Y() const {
 float Entidade::Z(bool delta_voo) const {
   bool delta = delta_voo ? DeltaVoo(vd_) : 0;
   return proto_.pos().z() + delta;
+}
+
+float Entidade::ZOlho() const {
+  return TAMANHO_LADO_QUADRADO * MultiplicadorTamanho() + Z(true  /*delta*/);
 }
 
 int Entidade::IdCenario() const {
