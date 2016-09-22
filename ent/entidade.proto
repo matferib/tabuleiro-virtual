@@ -238,6 +238,7 @@ message ParametrosDesenho {
   optional bool iluminacao = 5 [default=true];
   // Verdadeiro quando se quer desenhar as entidades e as formas.
   optional bool desenha_entidades = 6 [default=true];
+  optional bool desenha_terreno = 47 [default=true];
   // Uteis para mapa oclusao que ignora transparencias e selecionaveis.
   optional bool nao_desenha_entidades_translucidas = 42 [default=false];
   optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
@@ -276,7 +277,7 @@ message ParametrosDesenho {
   // Se verdadeiro, desenha o quadrado de selecao.
   optional bool desenha_quadrado_selecao = 21 [default=true];
   // Se verdadeiro, desenha o rastro de movimento das unidades ao se moverem.
-  optional bool desenha_rastro_movimento = 22 [default=true];
+  optional bool desenha_rastro_movimento = 22 [default=false];
   // Se verdadeiro, as texturas serao viradas sempre para cima.
   optional bool desenha_texturas_para_cima = 23 [default=false];
   // Se verdadeiro, desenha a forma selecionada.
