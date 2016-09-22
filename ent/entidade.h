@@ -194,8 +194,8 @@ class Entidade {
   static constexpr unsigned int MaxNumAcoes = 3;
 
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 11;
-  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10;
+  constexpr static unsigned short NUM_VBOS = 13;
+  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11, VBO_CILINDRO_FECHADO = 12;
   static std::vector<gl::VboGravado> g_vbos;
 
   // Alguns efeitos tem complementos.
@@ -292,6 +292,10 @@ class Entidade {
                           const ParametrosDesenho* pd = nullptr);
 
   static Matrix4 MontaMatrizModelagem(
+      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
+  static Matrix4 MontaMatrizModelagemForma(
+      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
+  static Matrix4 MontaMatrizModelagemComposta(
       bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
 
   static void DesenhaObjetoProto(
