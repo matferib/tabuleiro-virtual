@@ -770,8 +770,13 @@ Matrix4 Entidade::MontaMatrizModelagem(
     const EntidadeProto& proto,
     const VariaveisDerivadas& vd,
     const ParametrosDesenho* pd) {
-  Matrix4 matrix;
+  if (proto.tipo() == TE_FORMA) {
+    return MontaMatrizModelagemForma(queda, transladar_z, proto, vd, pd);
+  } else if (proto.tipo() == TE_COMPOSTA) {
+    // TODO
+  }
 
+  Matrix4 matrix;
   if (pd != nullptr && pd->has_translacao_efeito()) {
     const auto& te = pd->translacao_efeito();
     matrix.translate(te.x(), te.y(), te.z());
@@ -955,6 +960,22 @@ void Entidade::IniciaGl() {
     vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
     vbo.Nomeia("Cilindro");
   }
+  // Cilindro fechado.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CILINDRO_FECHADO];
+    vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Translada(0.0f, 0.0f, 1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    vbo.Nomeia("CilindroFechado");
+  }
 
   // Disco.
   {
@@ -982,6 +1003,18 @@ void Entidade::IniciaGl() {
     auto& vbo = vbos_nao_gravados[VBO_CONE];
     vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
     vbo.Nomeia("Cone");
+  }
+
+  // Cone fechado.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CONE_FECHADO];
+    vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    vbo.Nomeia("ConeFechado");
   }
 
   // Gera os Vbos.
