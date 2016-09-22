@@ -79,6 +79,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_efeitos_entidades(false);
   parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
+  parametros_desenho_.set_desenha_grade(false);
 
   gl::Desabilita(GL_BLEND);
   DesenhaCena();

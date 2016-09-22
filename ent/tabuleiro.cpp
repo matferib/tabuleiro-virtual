@@ -2699,7 +2699,7 @@ void Tabuleiro::DesenhaCena() {
 
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
   // desenha tabuleiro do sul para o norte.
-  {
+  if (parametros_desenho_.desenha_terreno()) {
     gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
     DesenhaTabuleiro();
     if (parametros_desenho_.desenha_grade() &&
@@ -3694,7 +3694,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
   }
 }
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f, bool sombra) {
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   //LOG(INFO) << "LOOP";
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
@@ -3705,11 +3705,14 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (!entidade->Proto().faz_sombra() && (parametros_desenho_.desenha_mapa_sombras() || sombra)) {
+    if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
+      continue;
+    }
+    if (!entidade->Proto().causa_colisao() && parametros_desenho_.desenha_apenas_entidades_colidiveis()) {
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !(parametros_desenho_.desenha_mapa_sombras() || sombra)) {
+    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !parametros_desenho_.desenha_mapa_sombras()) {
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         continue;
       }
@@ -5269,7 +5272,51 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       RodaVetor2d(-90.0f, &vetor_camera);
       vetor_movimento = Vector2(vetor_camera.x(), vetor_camera.y());
     }
-    vetor_movimento.normalize() *= (TAMANHO_LADO_QUADRADO * valor);
+    if (valor < 0.0f) {
+      LOG(INFO) << "invertendo valor do vetor de movimento";
+      vetor_movimento *= -1;
+    }
+    // Verifica colisao nessa direcao.
+    float tamanho_movimento = TAMANHO_LADO_QUADRADO * valor;
+    {
+      unsigned int id, tipo_objeto;
+      float profundidade;
+      ParametrosDesenho pd(parametros_desenho_);
+      parametros_desenho_.set_desenha_terreno(false);
+      parametros_desenho_.set_desenha_entidades(true);
+      parametros_desenho_.set_desenha_apenas_entidades_colidiveis(true);
+      // Configura o olhar para a direcao do movimento.
+      Posicao alvo_temp;
+      alvo_temp.set_x(olho_.pos().x() + vetor_movimento.x);
+      alvo_temp.set_y(olho_.pos().y() + vetor_movimento.y);
+      alvo_temp.set_z(olho_.pos().z());
+      //LOG(INFO) << "pos: " << olho_.pos().ShortDebugString();
+      //LOG(INFO) << "alv: " << alvo_temp.ShortDebugString();
+      //LOG(INFO) << "vm : " << vetor_movimento;
+      olho_.mutable_alvo()->Swap(&alvo_temp);
+      BuscaHitMaisProximo(largura_ / 2, altura_ / 2, &id, &tipo_objeto, &profundidade);
+      olho_.mutable_alvo()->Swap(&alvo_temp);
+      parametros_desenho_.Swap(&pd);
+      auto* entidade_alvo = BuscaEntidade(id);
+      if (tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) {
+        LOG(INFO) << "com colisao";
+        float x3d, y3d, z3d;
+        MousePara3dComProfundidade(largura_ / 2, altura_ / 2, profundidade, &x3d, &y3d, &z3d);
+        auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+        Vector3 d(x3d, y3d, z3d);
+        Vector3 o(entidade_referencia->X(), entidade_referencia->Y(), entidade_referencia->ZOlho());
+        profundidade = (d - o).length();
+        if (profundidade < (TAMANHO_LADO_QUADRADO * abs(valor) + entidade_referencia->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2)) {
+          tamanho_movimento = profundidade - entidade_referencia->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+          if (tamanho_movimento < TAMANHO_LADO_QUADRADO_10) {
+            tamanho_movimento = 0.0f;
+          }
+        }
+      } else {
+        LOG(INFO) << "sem colisao";
+      }
+    }
+    vetor_movimento.normalize() *= abs(tamanho_movimento);
     dx = vetor_movimento.x;
     dy = vetor_movimento.y;
   } else {
@@ -5303,7 +5350,6 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       }
     }
   }
-  // TODO direito com eventos.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   std::unordered_set<unsigned int> ids;
