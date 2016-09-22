@@ -835,6 +835,9 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
       if (!Desfazendo()) {
         // Se a entidade selecionada for TE_ENTIDADE e a entidade adicionada for FORMA, deseleciona a entidade.
+        DeselecionaEntidades();
+#if 0
+        // Esse comportamento nao deseleciona outras formas.
         for (const auto id : ids_entidades_selecionadas_) {
           auto* e_selecionada = BuscaEntidade(id);
           if (e_selecionada == nullptr) {
@@ -845,6 +848,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
             break;
           }
         }
+#endif
         AdicionaEntidadesSelecionadas({ entidade->Id() });
       }
       if (!Desfazendo()) {
@@ -5265,7 +5269,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       RodaVetor2d(-90.0f, &vetor_camera);
       vetor_movimento = Vector2(vetor_camera.x(), vetor_camera.y());
     }
-    vetor_movimento.normalize() *= valor;
+    vetor_movimento.normalize() *= (TAMANHO_LADO_QUADRADO * valor);
     dx = vetor_movimento.x;
     dy = vetor_movimento.y;
   } else {
