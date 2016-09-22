@@ -138,11 +138,196 @@ bool TipoForma2d(TipoForma tipo) {
   }
 }
 
+// static
+Matrix4 Entidade::MontaMatrizModelagemForma(
+    bool queda,
+    bool transladar_z,
+    const EntidadeProto& proto,
+    const VariaveisDerivadas& vd,
+    const ParametrosDesenho* pd) {
+
+  Matrix4 matrix;
+  switch (proto.sub_tipo()) {
+    case TF_CIRCULO:
+      matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
+    break;
+    case TF_CILINDRO: {
+      // Aqui ignoro as transformacoes para os circulos que fecham o cilindro.
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
+    case TF_CONE: {
+      // Mesma coisa que cilindro.
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
+    case TF_CUBO: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+      matrix.translate(0, 0, proto.escala().z() / 2.0f);
+    }
+    break;
+    case TF_PIRAMIDE: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
+    case TF_RETANGULO: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
+    }
+    break;
+    case TF_TRIANGULO: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), 1.0f);
+      matrix.translate(0.0f, -proto.escala().y() / 2.0f, 0.0f);
+    }
+    break;
+    case TF_ESFERA: {
+      matrix.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    }
+    break;
+    case TF_LIVRE:
+    break;
+    default:
+      LOG(ERROR) << "Forma de desenho invalida";
+
+  }
+
+  if (pd != nullptr && pd->has_translacao_efeito()) {
+    const auto& te = pd->translacao_efeito();
+    matrix.translate(te.x(), te.y(), te.z());
+  }
+  if (pd != nullptr && pd->has_rotacao_efeito()) {
+    const auto& re = pd->rotacao_efeito();
+    if (re.has_x()) {
+      matrix.rotateX(re.x());
+    } else if (re.has_y()) {
+      matrix.rotateY(re.y());
+    } else if (re.has_z()) {
+      matrix.rotateZ(re.z());
+    }
+  }
+
+  float multiplicador = CalculaMultiplicador(proto.tamanho());
+  if (pd != nullptr && pd->has_escala_efeito()) {
+    const auto& ee = pd->escala_efeito();
+    matrix.scale(ee.x(), ee.y(), ee.z());
+  }
+  matrix.scale(multiplicador);
+
+  bool computar_queda = queda && (vd.angulo_disco_queda_graus > 0);
+  if (computar_queda) {
+    // Roda sobre o eixo X negativo para cair com a face para cima.
+    matrix.rotateX(- vd.angulo_disco_queda_graus);
+    // Roda pra direcao de queda.
+    const auto& dq = proto.direcao_queda();
+    if (dq.x() != 0.0f || dq.y() != 0) {
+      // Como a queda é sobre o eixo X, subtrai 90 para a direcao ficar certa.
+      float direcao_queda_graus = VetorParaRotacaoGraus(dq) - 90.0f;
+      matrix.rotateZ(direcao_queda_graus);
+    }
+  }
+
+  if (!computar_queda) {
+    matrix.rotateX(proto.rotacao_x_graus());
+    matrix.rotateY(proto.rotacao_y_graus());
+    matrix.rotateZ(proto.rotacao_z_graus());
+  }
+
+  const auto& pos = proto.pos();
+  // WTF esse 0.01!!??
+  matrix.translate(pos.x(), pos.y(), pos.z() + 0.01f);
+  return matrix;
+}
+
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd) {
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz(false);
+  gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
+  bool usar_textura = proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
+                      proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO;
+  if (usar_textura) {
+    GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+        vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+    if (id_textura != GL_INVALID_VALUE) {
+      gl::Habilita(GL_TEXTURE_2D);
+      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    }
+  }
+  switch (proto.sub_tipo()) {
+    case TF_CILINDRO: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_CILINDRO_FECHADO]);
+    }
+    break;
+    case TF_CONE: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_CONE_FECHADO]);
+    }
+    break;
+    case TF_CUBO: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_CUBO]);
+    }
+    break;
+    case TF_CIRCULO: {
+      gl::DesenhaVbo(g_vbos[VBO_DISCO]);
+    }
+    break;
+    case TF_PIRAMIDE: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE]);
+    }
+    break;
+    case TF_RETANGULO: {
+      gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
+    }
+    break;
+    case TF_TRIANGULO: {
+      gl::DesenhaVbo(g_vbos[VBO_TRIANGULO], GL_TRIANGLES);
+    }
+    break;
+    case TF_ESFERA: {
+      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+      gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
+    }
+    break;
+    case TF_LIVRE: {
+      // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
+      // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
+      // Para picking, deve-se ignorar o stencil tb.
+      bool usar_stencil = !pd->desenha_mapa_sombras();
+      if (usar_stencil) {
+        LigaStencil();
+      }
+      {
+        // Durante preenchimento do stencil nao pode usar o offset pois ele se aplicara ao retangulo da tela toda.
+        // Portanto escopo deve terminar aqui.
+        if (!vd.vbos.empty()) {
+          //gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
+          //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
+          for (const auto& vbo : vd.vbos) {
+            gl::DesenhaVbo(vbo);
+          }
+        } else {
+          std::vector<std::pair<float, float>> v;
+          for (const auto& p : proto.ponto()) {
+            v.push_back(std::make_pair(p.x(), p.y()));
+          }
+          gl::Livre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
+        }
+      }
+      if (usar_stencil) {
+        float xi, yi, xs, ys;
+        LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
+        //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
+        DesenhaStencil3d(xi, yi, xs, ys);
+      }
+    }
+    break;
+    default: ;
+  }
+  gl::Desabilita(GL_TEXTURE_2D);
+#if 0
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
   gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
@@ -298,6 +483,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
+#endif
 }
 
 bool Entidade::ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {
