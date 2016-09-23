@@ -242,7 +242,7 @@ message ParametrosDesenho {
   // Uteis para mapa oclusao que ignora transparencias e selecionaveis.
   optional bool nao_desenha_entidades_translucidas = 42 [default=false];
   optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
-  optional bool desenha_apenas_entidades_colidiveis = 48 [default=false];
+  optional bool desenha_apenas_entidades_colisivas = 48 [default=false];
   // Verdadeiro para desenhar texturas.
   optional bool desenha_texturas = 7 [default=true];
   // Desenha a grade do tabuleiro.
@@ -318,6 +318,8 @@ message ParametrosDesenho {
   optional bool desenha_lista_objetos = 38 [default=false];
   // Se verdadeiro, desenha a lista de jogadores.
   optional bool desenha_lista_jogadores = 41 [default=false];
+  // Tipo de camera: ver tabuleiro.h, enum camera_e.
+  optional int32 camera = 49;
 }
 
 // Para copiar e colar.
