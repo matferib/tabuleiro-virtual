@@ -220,6 +220,16 @@ message EntidadeProto {
   repeated DadosTesouro tesouro = 46;
 }
 
+message Projecao {
+  optional int32 tipo_camera = 1;
+  optional float plano_corte_proximo_m = 2;
+  optional float plano_corte_distante_m = 3;
+  optional float campo_visao_vertical_graus = 4;
+  optional float razao_aspecto = 5;
+  optional float largura_m = 6;
+  optional float altura_m = 7;
+}
+
 // Alguns estados são mantidos nesta variável.
 message ParametrosDesenho {
   // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.
@@ -318,8 +328,8 @@ message ParametrosDesenho {
   optional bool desenha_lista_objetos = 38 [default=false];
   // Se verdadeiro, desenha a lista de jogadores.
   optional bool desenha_lista_jogadores = 41 [default=false];
-  // Tipo de camera: ver tabuleiro.h, enum camera_e.
-  optional int32 camera = 49;
+  // Configuracao de projecao de camera.
+  optional Projecao projecao = 49;
 }
 
 // Para copiar e colar.
