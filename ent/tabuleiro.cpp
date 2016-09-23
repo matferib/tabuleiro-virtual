@@ -3708,7 +3708,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
       continue;
     }
-    if (!entidade->Proto().causa_colisao() && parametros_desenho_.desenha_apenas_entidades_colidiveis()) {
+    if (!entidade->Proto().causa_colisao() && parametros_desenho_.desenha_apenas_entidades_colisivas()) {
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
@@ -5257,99 +5257,119 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   }
 }
 
-void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
-  Posicao vetor_camera;
-  ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_camera);
-  // angulo da camera em relacao ao eixo X.
-  float rotacao_graus = VetorParaRotacaoGraus(vetor_camera.x(), vetor_camera.y());
-  float dx = 0;
-  float dy = 0;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    Vector2 vetor_movimento;
-    if (frente_atras) {
-      vetor_movimento = Vector2(vetor_camera.x(), vetor_camera.y());
-    } else {
-      RodaVetor2d(-90.0f, &vetor_camera);
-      vetor_movimento = Vector2(vetor_camera.x(), vetor_camera.y());
-    }
-    if (valor < 0.0f) {
-      LOG(INFO) << "invertendo valor do vetor de movimento";
-      vetor_movimento *= -1;
-    }
-    // Verifica colisao nessa direcao.
-    float tamanho_movimento = TAMANHO_LADO_QUADRADO * valor;
-    {
-      unsigned int id, tipo_objeto;
-      float profundidade;
-      ParametrosDesenho pd(parametros_desenho_);
-      parametros_desenho_.set_desenha_terreno(false);
-      parametros_desenho_.set_desenha_entidades(true);
-      parametros_desenho_.set_desenha_apenas_entidades_colidiveis(true);
-      // Configura o olhar para a direcao do movimento.
-      Posicao alvo_temp;
-      alvo_temp.set_x(olho_.pos().x() + vetor_movimento.x);
-      alvo_temp.set_y(olho_.pos().y() + vetor_movimento.y);
-      alvo_temp.set_z(olho_.pos().z());
-      //LOG(INFO) << "pos: " << olho_.pos().ShortDebugString();
-      //LOG(INFO) << "alv: " << alvo_temp.ShortDebugString();
-      //LOG(INFO) << "vm : " << vetor_movimento;
-      olho_.mutable_alvo()->Swap(&alvo_temp);
-      BuscaHitMaisProximo(largura_ / 2, altura_ / 2, &id, &tipo_objeto, &profundidade);
-      olho_.mutable_alvo()->Swap(&alvo_temp);
-      parametros_desenho_.Swap(&pd);
-      auto* entidade_alvo = BuscaEntidade(id);
-      if (tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) {
-        LOG(INFO) << "com colisao";
-        float x3d, y3d, z3d;
-        MousePara3dComProfundidade(largura_ / 2, altura_ / 2, profundidade, &x3d, &y3d, &z3d);
-        auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
-        Vector3 d(x3d, y3d, z3d);
-        Vector3 o(entidade_referencia->X(), entidade_referencia->Y(), entidade_referencia->ZOlho());
-        profundidade = (d - o).length();
-        if (profundidade < (TAMANHO_LADO_QUADRADO * abs(valor) + entidade_referencia->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2)) {
-          tamanho_movimento = profundidade - entidade_referencia->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-          if (tamanho_movimento < TAMANHO_LADO_QUADRADO_10) {
-            tamanho_movimento = 0.0f;
-          }
+Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento) {
+  ParametrosDesenho pd(parametros_desenho_);
+  parametros_desenho_.set_desenha_terreno(false);
+  parametros_desenho_.set_desenha_entidades(true);
+  parametros_desenho_.set_desenha_apenas_entidades_colisivas(true);
+  // Configura o olhar para a direcao do movimento.
+  Posicao origem_temp(entidade.Pos());
+  origem_temp.set_z(entidade.ZOlho());
+  Posicao alvo_temp;
+  alvo_temp.set_x(origem_temp.x() + movimento.x);
+  alvo_temp.set_y(origem_temp.y() + movimento.y);
+  alvo_temp.set_z(origem_temp.z());
+  olho_.mutable_pos()->Swap(&origem_temp);
+  olho_.mutable_alvo()->Swap(&alvo_temp);
+
+  unsigned int id, tipo_objeto;
+  float profundidade;
+  BuscaHitMaisProximo(largura_ / 2, altura_ / 2, &id, &tipo_objeto, &profundidade);
+  // restaura valores.
+  olho_.mutable_pos()->Swap(&origem_temp);
+  olho_.mutable_alvo()->Swap(&alvo_temp);
+  parametros_desenho_.Swap(&pd);
+
+  auto* entidade_alvo = BuscaEntidade(id);
+  float tamanho_movimento = movimento.length();
+  if (tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) {
+    float x3d, y3d, z3d;
+    MousePara3dComProfundidade(largura_ / 2, altura_ / 2, profundidade, &x3d, &y3d, &z3d);
+    Vector3 d(x3d, y3d, z3d);
+    Vector3 o(entidade.X(), entidade.Y(), entidade.ZOlho());
+    profundidade = (d - o).length();
+    LOG(INFO) << "colisao possivel, prof: " << profundidade;
+    float espaco_entidade = entidade.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+    LOG(INFO) << "espaco entidade: " << espaco_entidade;
+    if (profundidade < (tamanho_movimento + espaco_entidade)) {
+      if (profundidade > espaco_entidade) {
+        // Anda o que pode ate a extremidade bater na parede.
+        tamanho_movimento = profundidade - espaco_entidade;
+        if (tamanho_movimento < TAMANHO_LADO_QUADRADO_10) {
+          tamanho_movimento = 0.0f;
         }
+        LOG(INFO) << "reduzindo movimento para " << tamanho_movimento;
       } else {
-        LOG(INFO) << "sem colisao";
+        // nao da pra andar mais.
+        tamanho_movimento = 0.0f;
+        LOG(INFO) << "reduzindo 2 movimento para zero";
       }
     }
-    vetor_movimento.normalize() *= abs(tamanho_movimento);
-    dx = vetor_movimento.x;
-    dy = vetor_movimento.y;
   } else {
+    LOG(INFO) << "sem colisao, tamanho: " << tamanho_movimento;
+  }
+  // TODO normal.
+  return { tamanho_movimento, Vector3() };
+}
+
+void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
+  Posicao vetor_visao;
+  ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
+  // angulo da camera em relacao ao eixo X.
+  Vector2 vetor_movimento;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    if (frente_atras) {
+      vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
+    } else {
+      RodaVetor2d(-90.0f, &vetor_visao);
+      vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
+    }
+    vetor_movimento = vetor_movimento.normalize() * TAMANHO_LADO_QUADRADO;
+    if (valor < 0.0f) {
+      vetor_movimento *= -1;
+    }
+  } else {
+    float rotacao_graus = VetorParaRotacaoGraus(vetor_visao.x(), vetor_visao.y());
     if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
       // Camera apontando para x positivo.
       if (frente_atras) {
-        dx = TAMANHO_LADO_QUADRADO * valor;
+        vetor_movimento.x = TAMANHO_LADO_QUADRADO * valor;
       } else {
-        dy = TAMANHO_LADO_QUADRADO * -valor;
+        vetor_movimento.y = TAMANHO_LADO_QUADRADO * -valor;
       }
     } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
       // Camera apontando para y positivo.
       if (frente_atras) {
-        dy = TAMANHO_LADO_QUADRADO * valor;
+        vetor_movimento.y = TAMANHO_LADO_QUADRADO * valor;
       } else {
-        dx = TAMANHO_LADO_QUADRADO * valor;
+        vetor_movimento.x = TAMANHO_LADO_QUADRADO * valor;
       }
     } else if (rotacao_graus > 135 || rotacao_graus < -135) {
       // Camera apontando para x negativo.
       if (frente_atras) {
-        dx = TAMANHO_LADO_QUADRADO * -valor;
+        vetor_movimento.x = TAMANHO_LADO_QUADRADO * -valor;
       } else {
-        dy = TAMANHO_LADO_QUADRADO * valor;
+        vetor_movimento.y = TAMANHO_LADO_QUADRADO * valor;
       }
     } else {
       // Camera apontando para y negativo.
       if (frente_atras) {
-        dy = TAMANHO_LADO_QUADRADO * -valor;
+        vetor_movimento.y = TAMANHO_LADO_QUADRADO * -valor;
       } else {
-        dx = TAMANHO_LADO_QUADRADO * -valor;
+        vetor_movimento.x = TAMANHO_LADO_QUADRADO * -valor;
       }
     }
   }
+  // Colisao
+  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  if (entidade_referencia != nullptr) {
+    auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
+    vetor_movimento.normalize();
+    vetor_movimento *= res_colisao.profundidade;
+  }
+  float dx = vetor_movimento.x;
+  float dy = vetor_movimento.y;
+
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   std::unordered_set<unsigned int> ids;

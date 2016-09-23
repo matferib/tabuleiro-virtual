@@ -494,6 +494,13 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
 
+  /** Detecta se havera colisao no movimento da entidade. */
+  struct ResultadoColisao {
+    float profundidade;  // quanto movimentou ate a colisao, length de movimento se nao houver.
+    Vector3 normal;      // normal do ponto de colisao.
+  };
+  ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento);
+
   // Apenas gera os VBOs das entidaes.
   std::vector<gl::VboNaoGravado> GeraVbosEntidades();
 
