@@ -1092,7 +1092,10 @@ void DesenhaVbo(GLenum modo,
 
   V_ERRO("DesenhaVBO: meio");
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
+  V_ERRO("DesenhaVBO: mei ponteiro vertices");
+
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
+  V_ERRO("DesenhaVBO: mei elementos");
 
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {

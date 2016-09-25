@@ -68,6 +68,13 @@ void UniformeSeValido(GLint location, GLfloat v0) {
   Uniforme(location, v0);
 }
 
+void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3) {
+  if (location == -1) {
+    return;
+  }
+  Uniforme(location, v0, v1, v2, v3);
+}
+
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
   if (c->proximo_id > IdMaximoEntidade()) {
@@ -478,26 +485,26 @@ void FinalizaShaders(const VarShader& shader) {
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   const auto& shader = BuscaShader();
   if (cap == GL_LIGHTING) {
-    if (!UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(uniforme, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_LIGHT0) {
-    if (!UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luz_direcional_cor;
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 1.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
-    if (!UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
@@ -506,10 +513,10 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 1.0f);
   } else if (cap == GL_FOG) {
-    if (!UsandoShaderComNevoa()) {
+    GLint uniforme = shader.uni_gltab_nevoa_cor;
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_nevoa_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 1.0f);
@@ -524,26 +531,26 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   const auto& shader = BuscaShader();
   if (cap == GL_LIGHTING) {
-    if (!UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(uniforme, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_LIGHT0) {
-    if (!UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luz_direcional_cor;
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luz_direcional_cor, cor[0], cor[1], cor[2], 0.0f);
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
-    if (!UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
@@ -552,10 +559,10 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 0.0f);
   } else if (cap == GL_FOG) {
-    if (!UsandoShaderComNevoa()) {
+    GLint uniforme = shader.uni_gltab_nevoa_cor;
+    if (uniforme == -1) {
       return;
     }
-    GLint uniforme = shader.uni_gltab_nevoa_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_nevoa_cor, cor[0], cor[1], cor[2], 0.0f);
@@ -795,26 +802,26 @@ void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsize
 bool EstaHabilitado(GLenum cap) {
   const auto& shader = interno::BuscaShader();
   if (cap == GL_LIGHTING) {
-    if (!interno::UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
+    if (uniforme == -1) {
       return false;
     }
-    GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0.0f;
   } else if (cap == GL_LIGHT0) {
-    if (!interno::UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luz_direcional_cor;
+    if (uniforme == -1) {
       return false;
     }
-    GLint uniforme = shader.uni_gltab_luz_direcional_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0;
   } else if (cap >= GL_LIGHT1 && cap <= GL_LIGHT7) {
-    if (!interno::UsandoShaderLuz()) {
+    GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
+    if (uniforme == -1) {
       return false;
     }
-    GLint uniforme = shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)];
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0;
@@ -833,10 +840,10 @@ bool EstaHabilitado(GLenum cap) {
     LeUniforme(shader.programa, shader.uni_gltab_textura_cubo, &fret);
     return fret > 0.5f;
   } else if (cap == GL_FOG) {
-    if (!interno::UsandoShaderComNevoa()) {
+    GLint uniforme = shader.uni_gltab_nevoa_cor;
+    if (uniforme == 1) {
       return false;
     }
-    GLint uniforme = shader.uni_gltab_nevoa_cor;
     GLfloat cor[4];
     LeUniforme(shader.programa, uniforme, cor);
     return cor[3] > 0;

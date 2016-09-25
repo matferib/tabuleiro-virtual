@@ -132,6 +132,7 @@ inline bool UsandoShaderLuz() {
 // Atualiza um uniforme se ele for valido para o shader (ou seja, nao for -1).
 void UniformeSeValido(GLint location, GLint v0);
 void UniformeSeValido(GLint location, GLfloat v0);
+void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3);
 bool LuzPorVertice(int argc, const char* const * argv);  // Retorna true se encontrar --luz_por_vertice.
 void IniciaComum(bool luz_por_vertice, interno::Contexto* contexto);
 void FinalizaShaders(const VarShader& shader);
