@@ -150,6 +150,7 @@ Para resolver, basta remover gen/com/matferib/Tabuleiro/R.java.
 Colocar no manifest, dentro do elemento application android:debuggable="true"
 Compilar codigo nativo.
 Compilar modo debug (ant debug)
+cp ./libs/armeabi-v7a/gdb.setup ./libs/gdb.setup (bug no ndk, nao esta achando o setup)
 Instalar.
 Rodar no tablet.
 Diretorio do projeto (pai do jni):
