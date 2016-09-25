@@ -33,6 +33,7 @@ while [[ $# > 0 ]]; do
 done
 
 echo "Dispositivo: ${DISP:-universal}"
+echo "DEBUG: ${DEBUG}"
 pushd .
 cd jni && ${ANDROID_NDK}/ndk-build V=1 ${DISP} DEBUG=${DEBUG} && cd .. && \
 ${ANTROOT}/bin/ant ${MODO} && \
