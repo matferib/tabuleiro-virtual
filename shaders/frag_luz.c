@@ -51,10 +51,10 @@ struct InfoLuzPontual {
 
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
-uniform InfoLuzPontual gltab_luzes[7];     // Luzes pontuais.
-uniform lowp float gltab_textura;               // Textura ligada? 1.0 : 0.0
-uniform lowp float gltab_textura_cubo;          // Textura cubo ligada? 1.0 : 0.0
-uniform lowp sampler2D gltab_unidade_textura;   // handler da textura.
+uniform InfoLuzPontual gltab_luzes[7];           // Luzes pontuais.
+uniform lowp float gltab_textura;                // Textura ligada? 1.0 : 0.0
+uniform lowp float gltab_textura_cubo;           // Textura cubo ligada? 1.0 : 0.0
+uniform lowp sampler2D gltab_unidade_textura;    // handler da textura.
 #if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_shadow_samplers)
 uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #else
@@ -98,20 +98,22 @@ void main() {
     highp float bias = 0.5f;
 #if __VERSION__ == 130
     //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);
-    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z)).r * gltab_plano_distante;
+    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante;
     lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
-    //gl_FragColor = vec4(0.0f, 0.0f, length(v_Pos_oclusao), 1.0f);
-    //return;
 #elif __VERSION__ == 120
     lowp float visivel = shadowCube(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
-#elif defined(GL_EXT_gpu_shader4)
-    lowp float visivel = shadowCube(
-        gltab_unidade_textura_oclusao, vec4(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z, distancia_projetada - bias));
+//#elif defined(GL_EXT_gpu_shader4)
+//    lowp float visivel = shadowCube(
+//        gltab_unidade_textura_oclusao, vec4(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z, distancia_projetada - bias));
 #else
     // OpenGL ES 2.0.
-    lowp vec4 texprofcor = texture2D(gltab_unidade_textura_oclusao, v_Pos_oclusao.xy / v_Pos_oclusao.w);
-    lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
-    lowp float visivel = ((v_Pos_oclusao.z / v_Pos_oclusao.w) - bias) > texz ? 0.0 : 1.0;
+    highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
+    highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
+    gl_FragColor = vec4(0.0f, mais_proximo, 0.0f, 1.0);
+    mais_proximo *= gltab_plano_distante;
+    return;
+
+    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
 #endif
 
     if (visivel == 0.0f) {

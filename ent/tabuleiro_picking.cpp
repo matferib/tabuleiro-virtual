@@ -44,7 +44,10 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
-  gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
+  // Hack para testar projecao menor.
+  //if (!parametros_desenho_.projecao().has_largura_m()) {
+    gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
+  //}
   ConfiguraProjecao();
   //float glm[16];
   //gl::Le(GL_PROJECTION_MATRIX, glm);
@@ -92,9 +95,9 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   //  LOG(ERROR) << "Erro de picking: " << gluErrorString(e);
   //}
 
-  // Restaura projecao manualmente por causa da pilha pequena.
+  // Restaura projecao.
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraProjecao();
 }
 

@@ -162,7 +162,7 @@ class Tabuleiro : public ntf::Receptor {
   int Desenha();
 
   /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
-  void DesenhaSombraProjetada();
+  void DesenhaMapaSombra();
   void DesenhaMapaOclusao();
 
   /** Interface receptor. */

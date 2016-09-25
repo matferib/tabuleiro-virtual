@@ -19,7 +19,8 @@ uniform highp mat4 gltab_prm;    // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
-varying lowp vec4 v_PosView;
+
+varying highp vec4 v_PosView;
 
 void main() {
   v_PosView = gltab_mvm * gltab_vertice;
