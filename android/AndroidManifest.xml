@@ -3,7 +3,7 @@
       package="com.matferib.Tabuleiro"
       android:versionCode="38"
       android:versionName="2.3.1">
-    <application android:label="@string/app_name" android:icon="@mipmap/icone_tabuleiro" android:debuggable="false">
+    <application android:label="@string/app_name" android:icon="@mipmap/icone_tabuleiro" android:debuggable="true">
         <activity android:name=".SelecaoActivity"
                   android:label="@string/app_name">
             <intent-filter>

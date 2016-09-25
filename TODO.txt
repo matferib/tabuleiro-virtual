@@ -1,9 +1,10 @@
 Versao 2.4.0
+- Mapa oclusao  opengl es.
+- Versao opengles desktop nao funciona.
 - Separar a maldita matriz de view da modelagem.
-- Mapa oclusao com cube texture
--- Fazer para opengl es.
 - Informacao (PV e outros) da entidade presa quando em primeira pessoa.
-- Colisao.
+- Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
+- Bug oclusao com camera isometrica.
 
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
