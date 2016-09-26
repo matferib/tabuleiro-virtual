@@ -59,6 +59,7 @@
 #endif
 #endif
 
+#define TAM_MAPA_OCLUSAO 1024
 
 using google::protobuf::RepeatedField;
 
@@ -592,10 +593,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
   gl::UsaShader(gl::TSH_PONTUAL);
 
   gl::UnidadeTextura(GL_TEXTURE3);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::UnidadeTextura(GL_TEXTURE0);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::Viewport(0, 0, 1024, 1024);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
+  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
@@ -605,10 +604,15 @@ void Tabuleiro::DesenhaMapaOclusao() {
 #endif
   //LOG(INFO) << "DesenhaMapaOclusao";
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
+
   V_ERRO("LigacaoComFramebufferOclusao");
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
+#else
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
+#endif
     V_ERRO("TexturaFramebufferOclusao");
     DesenhaCena();
   }
@@ -3283,7 +3287,7 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
       gl::ImagemTextura2d(
-          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     }
   } else {
     if (*usar_sampler_sombras && (gl::TemExtensao("GL_OES_depth_texture") || gl::TemExtensao("GL_ARB_depth_texture"))) {
@@ -3301,7 +3305,7 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
       gl::ImagemTextura2d(
-          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT24, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     }
     //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
   } else {
@@ -3338,7 +3342,7 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
     }
     gl::GeraRenderbuffers(1, renderbuffer);
     gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
   } else {
     if (*usar_sampler_sombras) {
