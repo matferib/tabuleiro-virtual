@@ -94,8 +94,8 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 
 void main() {
   lowp vec4 cor_final = v_Color;
-  if (gltab_nevoa_dados.z > 0.0f) {
-    highp float bias = 0.5f;
+  if (gltab_nevoa_dados.z > 0.0) {
+    highp float bias = 0.5;
 #if __VERSION__ == 130
     //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);
     highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante;
@@ -109,15 +109,14 @@ void main() {
     // OpenGL ES 2.0.
     highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
     highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
-    gl_FragColor = vec4(0.0f, mais_proximo, 0.0f, 1.0);
+    //gl_FragColor = vec4(0.0f, mais_proximo, 0.0f, 1.0);
     mais_proximo *= gltab_plano_distante;
-    return;
-
-    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
+    //return;
+    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0 : 0.0;
 #endif
 
-    if (visivel == 0.0f) {
-      gl_FragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    if (visivel == 0.0) {
+      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
       return;
     }
   }
