@@ -43,7 +43,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   // Hack para testar projecao menor.
   //if (!parametros_desenho_.projecao().has_largura_m()) {
     gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
@@ -81,8 +81,10 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
   parametros_desenho_.set_desenha_coordenadas(false);
-  parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   parametros_desenho_.set_desenha_grade(false);
+  // Aplica opcoes do jogador.
+  parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
 
   gl::Desabilita(GL_BLEND);
   DesenhaCena();

@@ -6471,7 +6471,7 @@ std::vector<const Entidade*> Tabuleiro::EntidadesSelecionadas() const {
 
 void Tabuleiro::AlternaModoDebug() {
   gl::AlternaModoDebug();
-  //modo_debug_ = !modo_debug_;
+  modo_debug_ = !modo_debug_;
 }
 
 void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {

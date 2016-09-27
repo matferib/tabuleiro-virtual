@@ -1,6 +1,4 @@
-//# version 110
-// uniform: variaveis que nao variam durante primitiva.
-// attribute: variaveis que variam por vertice.
+#version ${VERSAO}
 
 #if defined(GL_ES)
 //precision highp float;
