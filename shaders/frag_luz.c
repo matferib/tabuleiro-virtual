@@ -28,12 +28,11 @@ varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
-uniform highp float gltab_plano_distante;  // distancia do plano distante.
+uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
-uniform highp mat4 gltab_prm_oclusao;    // projecao oclusao.
 
 // Luz ambiente e direcional.
 struct InfoLuzDirecional {
@@ -98,7 +97,7 @@ void main() {
     highp float bias = 0.5;
 #if __VERSION__ == 130
     //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);
-    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante;
+    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante_oclusao;
     lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
 #elif __VERSION__ == 120
     lowp float visivel = shadowCube(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
@@ -109,9 +108,8 @@ void main() {
     // OpenGL ES 2.0.
     highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
     highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
-    //gl_FragColor = vec4(0.0f, mais_proximo, 0.0f, 1.0);
-    mais_proximo *= gltab_plano_distante;
-    //return;
+    //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
+    mais_proximo *= gltab_plano_distante_oclusao;
     lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0 : 0.0;
 #endif
 

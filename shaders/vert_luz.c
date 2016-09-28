@@ -31,9 +31,7 @@ uniform highp mat4 gltab_prm;           // projecao.
 uniform highp mat4 gltab_mvm;    // modelview.
 uniform highp mat4 gltab_prm_sombra;    // projecao sombra.
 uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
-uniform highp mat4 gltab_prm_oclusao;    // projecao oclusao.
 uniform highp mat4 gltab_mvm_oclusao;    // modelagem oclusao.
-uniform highp vec3 gltab_ref_oclusao;    // modelagem oclusao.
 uniform highp mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 // Atributos variam por vertice.
