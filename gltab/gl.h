@@ -87,15 +87,13 @@ enum matriz_e {
   MATRIZ_SOMBRA = GL_MODELVIEW + 2,
   MATRIZ_PROJECAO_SOMBRA = GL_MODELVIEW + 3,
   MATRIZ_OCLUSAO = GL_MODELVIEW + 4,
-  MATRIZ_PROJECAO_OCLUSAO= GL_MODELVIEW + 5,
   MATRIZ_INVALIDA = GL_INVALID_ENUM
 };
 static_assert(MATRIZ_MODELAGEM_CAMERA != MATRIZ_PROJECAO &&
               MATRIZ_MODELAGEM_CAMERA != MATRIZ_SOMBRA &&
               MATRIZ_SOMBRA != MATRIZ_PROJECAO &&
               MATRIZ_PROJECAO_SOMBRA != MATRIZ_PROJECAO &&
-              MATRIZ_OCLUSAO != MATRIZ_PROJECAO &&
-              MATRIZ_PROJECAO_OCLUSAO != MATRIZ_PROJECAO,
+              MATRIZ_OCLUSAO != MATRIZ_PROJECAO,
               "valores de matrizes devem ser diferentes");
 int ModoMatrizCorrente();
 void MudaModoMatriz(int modo);
@@ -396,9 +394,8 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 /** Liga e desliga oclusao. */
 void Oclusao(bool valor);
-void ReferenciaOclusao(const GLfloat* ref);
-/** Passa para o shader o valor do plano distante. */
-void PlanoDistante(GLfloat distancia);
+/** Passa para o shader o valor do plano de corte distante durante a oclusao. */
+void PlanoDistanteOclusao(GLfloat distancia);
 
 /** Funcoes de normais. */
 void Normal(GLfloat x, GLfloat y, GLfloat z);

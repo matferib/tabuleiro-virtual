@@ -368,13 +368,11 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
-          {"gltab_ref_oclusao", &shader->uni_gltab_ref_oclusao },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
-          {"gltab_prm_oclusao", &shader->uni_gltab_prm_oclusao },
           {"gltab_nm", &shader->uni_gltab_nm },
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
-          {"gltab_plano_distante", &shader->uni_gltab_plano_distante },
+          {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
     if (*d.var == -1) {
@@ -680,7 +678,6 @@ int ModoMatrizCorrente() {
   else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
-  else if (c->pilha_corrente == &c->pilha_prj_oclusao) { return MATRIZ_PROJECAO_OCLUSAO; }
   else if (c->pilha_corrente == &c->pilha_mvm_oclusao) { return MATRIZ_OCLUSAO; }
   else {
     LOG(ERROR) << "Nao ha matriz corrente!!";
@@ -698,8 +695,6 @@ void MudaModoMatriz(int modo) {
     c->pilha_corrente = &c->pilha_prj_sombra;
   } else if (modo == MATRIZ_SOMBRA) {
     c->pilha_corrente = &c->pilha_mvm_sombra;
-  } else if (modo == MATRIZ_PROJECAO_OCLUSAO) {
-    c->pilha_corrente = &c->pilha_prj_oclusao;
   } else if (modo == MATRIZ_OCLUSAO) {
     c->pilha_corrente = &c->pilha_mvm_oclusao;
   } else {
@@ -936,15 +931,7 @@ void Oclusao(bool valor) {
   Uniforme(shader.uni_gltab_nevoa_dados, nevoa[0], nevoa[1], nevoa[2], nevoa[3]);
 }
 
-void ReferenciaOclusao(const GLfloat* ref) {
-  if (!interno::UsandoShaderComNevoa()) {
-    return;
-  }
-  const auto& shader = interno::BuscaShader();
-  Uniforme(shader.uni_gltab_ref_oclusao, ref[0], ref[1], ref[2]);
-}
-
-void PlanoDistante(GLfloat distancia) {
+void PlanoDistanteOclusao(GLfloat distancia) {
   const auto& shader = interno::BuscaShader();
   interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia);
   auto* c = interno::BuscaContexto();
@@ -952,8 +939,6 @@ void PlanoDistante(GLfloat distancia) {
 }
 
 void Perspectiva(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar) {
-  PlanoDistante(zFar);
-
   // Copiado do glues.
   GLfloat m[4][4];
   GLfloat sine, cotangent, deltaZ;
@@ -1019,7 +1004,6 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
-  PlanoDistante(distante);
   float tx = - ((direita + esquerda) / (direita - esquerda));
   float ty = - ((cima + baixo) / (cima - baixo));
   float tz = - ((distante + proximo) / (distante - proximo));
@@ -1074,8 +1058,6 @@ Matrix4 LeMatriz(matriz_e modo) {
     return c->pilha_prj_sombra.top();
   } else if (modo == MATRIZ_OCLUSAO) {
     return c->pilha_mvm_oclusao.top();
-  } else if (modo == MATRIZ_PROJECAO_OCLUSAO) {
-    return c->pilha_prj_oclusao.top();
   } else {
     LOG(ERROR) << "Tipo de matriz invalido: " << (int)modo;
     return c->pilha_mvm_sombra.top();
@@ -1166,7 +1148,6 @@ GLint IdMatrizCorrente(const interno::VarShader& shader) {
     case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
-    case MATRIZ_PROJECAO_OCLUSAO: return shader.uni_gltab_prm_oclusao;
     case MATRIZ_OCLUSAO:          return shader.uni_gltab_mvm_oclusao;
     case MATRIZ_SOMBRA:
     default:                      return shader.uni_gltab_mvm_sombra;
@@ -1216,7 +1197,6 @@ void AtualizaTodasMatrizes() {
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
     { shader.uni_gltab_mvm_oclusao, &c->pilha_mvm_oclusao.top() },
-    { shader.uni_gltab_prm_oclusao, &c->pilha_prj_oclusao.top() },
   };
   for (const auto& dm : dados_matriz) {
     if (dm.id != -1) {
