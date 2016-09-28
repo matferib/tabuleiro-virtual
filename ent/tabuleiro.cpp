@@ -391,7 +391,7 @@ void Tabuleiro::ConfiguraProjecao() {
                     DISTANCIA_PLANO_CORTE_DISTANTE);
     return;
   }
-  if (parametros_desenho_.desenha_mapa_sombras()) {
+  if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
     float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
     gl::Ortogonal(-val, val, -val, val,
                   0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
@@ -507,7 +507,7 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
     return;
   }
   const auto& pos = entidade_referencia->Pos();
-  float altura_olho = TAMANHO_LADO_QUADRADO * entidade_referencia->MultiplicadorTamanho() + entidade_referencia->Z(true  /*delta*/);
+  float altura_olho = entidade_referencia->ZOlho();
   Posicao delta_alvo;
   Posicao up;
   int face = parametros_desenho_.desenha_mapa_oclusao();
@@ -713,6 +713,16 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.set_desenha_grade(opcoes_.desenha_grade());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   parametros_desenho_.mutable_projecao()->set_tipo_camera(camera_);
+  if (camera_ == CAMERA_ISOMETRICA) {
+    const Posicao& alvo = olho_.alvo();
+    float dif_z = alvo.z() - olho_.pos().z();
+    float distancia_max =  TAMANHO_LADO_QUADRADO + fabs(dif_z);
+    auto* proj = parametros_desenho_.mutable_projecao();
+    proj->set_plano_corte_proximo_m(0.1f);
+    proj->set_plano_corte_distante_m(distancia_max);
+    proj->set_largura_m(distancia_max * Aspecto() / 2.0f);
+    proj->set_altura_m(distancia_max / 2.0f);
+  }
   if (modo_debug_) {
     parametros_desenho_.set_iluminacao(false);
     parametros_desenho_.set_desenha_texturas(false);
