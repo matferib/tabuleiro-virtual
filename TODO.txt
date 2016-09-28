@@ -1,5 +1,4 @@
 Versao 2.4.0
-- Bug oclusao com camera isometrica.
 - Separar a maldita matriz de view da modelagem.
 - Informacao (PV e outros) da entidade presa quando em primeira pessoa.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
