@@ -766,6 +766,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Configura a matriz de projecao de acordo com o tipo de camera. */
   void ConfiguraProjecao();
+  void ConfiguraProjecaoMapeamentoSombras();
+  void ConfiguraProjecaoMapeamentoOclusao();
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
   void ConfiguraOlharMapeamentoSombras();

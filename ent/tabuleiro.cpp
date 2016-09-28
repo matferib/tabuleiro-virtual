@@ -384,19 +384,20 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   }
 }
 
+void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
+  float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
+  gl::Ortogonal(-val, val, -val, val,
+                0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
+}
+
+void Tabuleiro::ConfiguraProjecaoMapeamentoOclusao() {
+  gl::Perspectiva(90.0f, 1.0f,
+                  DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
+                  DISTANCIA_PLANO_CORTE_DISTANTE);
+  gl::PlanoDistanteOclusao(DISTANCIA_PLANO_CORTE_DISTANTE);
+}
+
 void Tabuleiro::ConfiguraProjecao() {
-  if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
-    gl::Perspectiva(90.0f, 1.0f,
-                    DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
-                    DISTANCIA_PLANO_CORTE_DISTANTE);
-    return;
-  }
-  if (MapeamentoSombras() && parametros_desenho_.desenha_mapa_sombras()) {
-    float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
-    gl::Ortogonal(-val, val, -val, val,
-                  0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
-    return;
-  }
   if (parametros_desenho_.projecao().tipo_camera() == CAMERA_ISOMETRICA) {
     const Posicao& alvo = olho_.alvo();
     // o tamanho do vetor
@@ -427,12 +428,12 @@ void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
   if (!parametros_desenho_.desenha_mapa_sombras() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
     // Mapa de sombras.
-    if (MapeamentoSombras()) {
+    if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       ConfiguraOlharMapeamentoSombras();
       gl::MudaModoMatriz(GL_MODELVIEW);
     }
-    if (MapeamentoOclusao()) {
+    if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
       ConfiguraOlharMapeamentoOclusao();
       gl::MudaModoMatriz(GL_MODELVIEW);
@@ -512,8 +513,6 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
   Posicao up;
   int face = parametros_desenho_.desenha_mapa_oclusao();
   if (!parametros_desenho_.has_desenha_mapa_oclusao()) {
-    GLfloat ref[] = { pos.x(), pos.y(), altura_olho };
-    gl::ReferenciaOclusao(ref);
     delta_alvo.set_x(1.0f);
     // No desenho normal, a gente nao inverte o vetor vertical.
     up.set_z(1.0f);
@@ -598,7 +597,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
-  ConfiguraProjecao();
+  ConfiguraProjecaoMapeamentoOclusao();
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::BufferDesenho(GL_NONE);
 #endif
@@ -666,7 +665,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::Viewport(0, 0, 1024, 1024);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
-  ConfiguraProjecao();
+  ConfiguraProjecaoMapeamentoSombras();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   V_ERRO("LigacaoComFramebufferSombraProjetada");
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -723,6 +722,14 @@ int Tabuleiro::Desenha() {
     proj->set_largura_m(distancia_max * Aspecto() / 2.0f);
     proj->set_altura_m(distancia_max / 2.0f);
   }
+  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
+  if (camera_ == CAMERA_ISOMETRICA ||
+      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
+    parametros_desenho_.set_desenha_texturas_para_cima(true);
+  } else {
+    parametros_desenho_.set_desenha_texturas_para_cima(false);
+  }
+
   if (modo_debug_) {
     parametros_desenho_.set_iluminacao(false);
     parametros_desenho_.set_desenha_texturas(false);
@@ -752,21 +759,10 @@ int Tabuleiro::Desenha() {
     DesenhaMapaOclusao();
     parametros_desenho_.set_desenha_mapa_oclusao(0);
     V_ERRO_RET("Depois Mapa Oclusao");
-    // Restaura os valores e usa a textura como sombra.
+    // Restaura os valores e usa a textura como mapa de oclusao.
+    // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-    // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de oclusao.
-    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_OCLUSAO);
-    gl::CarregaIdentidade(false);
-    // Nao funciona com perspectiva, porque o w varia.
-    //Matrix4 bias(
-    //    0.5, 0.0, 0.0, 0.0,
-    //    0.0, 0.5, 0.0, 0.0,
-    //    0.0, 0.0, 0.5, 0.0,
-    //    0.5, 0.5, 0.5, 1.0);
-    //gl::MultiplicaMatriz(bias.get(), false);
-    ConfiguraProjecao();
-    gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::BufferDesenho(GL_BACK);
@@ -797,7 +793,7 @@ int Tabuleiro::Desenha() {
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0);
     gl::MultiplicaMatriz(bias.get(), false);
-    ConfiguraProjecao();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
+    ConfiguraProjecaoMapeamentoSombras();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -2708,13 +2704,6 @@ void Tabuleiro::DesenhaCena() {
   ConfiguraOlhar();
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
-  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
-  if (camera_ == CAMERA_ISOMETRICA ||
-      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
-    parametros_desenho_.set_desenha_texturas_para_cima(true);
-  } else {
-    parametros_desenho_.set_desenha_texturas_para_cima(false);
-  }
   V_ERRO("configurando olhar");
 
   if (parametros_desenho_.iluminacao()) {
