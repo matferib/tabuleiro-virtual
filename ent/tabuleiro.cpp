@@ -6710,6 +6710,7 @@ void Tabuleiro::AlternaCameraPrimeiraPessoa() {
     camera_= CAMERA_PRIMEIRA_PESSOA;
     LOG(INFO) << "Camera primeira pessoa";
   }
+  olho_.set_altura(OLHO_ALTURA_INICIAL);
   AtualizaOlho(0, true);
 }
 
