@@ -114,7 +114,8 @@ void main() {
 #endif
 
     if (visivel == 0.0) {
-      gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+      lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a);
+      gl_FragColor = mix(vec4(0.0, 0.0, 0.0, 1.0), gltab_nevoa_cor, peso_nevoa);
       return;
     }
   }
