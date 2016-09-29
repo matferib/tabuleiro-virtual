@@ -394,6 +394,7 @@ void LuzPontual(GLenum luz, GLfloat* pos, float r, float g, float b, float raio)
 void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_referencia);
 /** Liga e desliga oclusao. */
 void Oclusao(bool valor);
+bool OclusaoLigada();
 /** Passa para o shader o valor do plano de corte distante durante a oclusao. */
 void PlanoDistanteOclusao(GLfloat distancia);
 
@@ -490,13 +491,26 @@ class DesabilitaEscopo {
     valor_anterior_ = EstaHabilitado(cap);
     Desabilita(cap_);
   }
+  // Faz por funcao.
+  DesabilitaEscopo(std::function<bool()> query_f, std::function<void(bool)> reset_f) : query_f_(query_f), reset_f_(reset_f) {
+    //Le(cap, &valor_anterior_);
+    valor_anterior_ = query_f_();
+    reset_f_(false);
+  }
+
   ~DesabilitaEscopo() {
     if (valor_anterior_) {
-      Habilita(cap_);
+      if (reset_f_) {
+        reset_f_(false);
+      } else {
+        Habilita(cap_);
+      }
     }
   }
  private:
   GLenum cap_;
+  std::function<bool()> query_f_;
+  std::function<void(bool)> reset_f_;
   GLboolean valor_anterior_;
 };
 

@@ -171,7 +171,6 @@ class AcaoDeltaPontosVida : public Acao {
     } else {
       MudaCorAplicandoNevoa(COR_VERMELHA, pd);
     }
-    gl::DesabilitaEscopo nevoa_escopo(GL_FOG);
     DesenhaStringDelta();
   }
 
@@ -190,6 +189,7 @@ class AcaoDeltaPontosVida : public Acao {
  private:
   void DesenhaStringDelta() const {
     gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+    gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
     if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
       gl::DesenhaString(string_delta_);
     }

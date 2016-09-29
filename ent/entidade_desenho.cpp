@@ -308,6 +308,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       // Descricao (so quando nao for picking).
       if (!pd->has_picking_x() && !descricao.empty()) {
         gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+        gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
         gl::Translada(0.0f, 0.0f, 0.4f);
         if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
           MudaCorAplicandoNevoa(COR_AMARELA, pd);
@@ -325,6 +326,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     bool desenhou_rotulo = false;
     if (pd->desenha_rotulo()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+      gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
       if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
         MudaCorAplicandoNevoa(COR_AMARELA, pd);
         gl::DesenhaString(StringSemUtf8(proto_.rotulo()), false);
@@ -333,6 +335,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
     if (pd->desenha_rotulo_especial()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
+      gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
       MudaCorAplicandoNevoa(COR_AMARELA, pd);
       if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
         std::string rotulo;

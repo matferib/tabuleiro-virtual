@@ -931,6 +931,16 @@ void Oclusao(bool valor) {
   Uniforme(shader.uni_gltab_nevoa_dados, nevoa[0], nevoa[1], nevoa[2], nevoa[3]);
 }
 
+bool OclusaoLigada() {
+  if (!interno::UsandoShaderComNevoa()) {
+    return false;
+  }
+  const auto& shader = interno::BuscaShader();
+  float nevoa[4];
+  LeUniforme(shader.programa, shader.uni_gltab_nevoa_dados, nevoa);
+  return nevoa[2] > 0.0f;
+}
+
 void PlanoDistanteOclusao(GLfloat distancia) {
   const auto& shader = interno::BuscaShader();
   interno::UniformeSeValido(shader.uni_gltab_plano_distante, distancia);
