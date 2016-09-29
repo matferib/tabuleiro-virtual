@@ -85,6 +85,7 @@ class Entidade {
 
   /** @return o HP da unidade. */
   int PontosVida() const;
+  int MaximoPontosVida() const;
 
   /** @return a coordenada (x). */
   float X() const;

@@ -875,6 +875,37 @@ void Tabuleiro::DesenhaControleVirtual() {
     }
   }
 
+  // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
+  if (camera_presa_) {
+    const auto* entidade = BuscaEntidade(id_camera_presa_);
+    if (entidade != nullptr && entidade->MaximoPontosVida() > 0) {
+      gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+      gl::CarregaIdentidade(false);
+      if (parametros_desenho_.has_picking_x()) {
+        // Modo de picking faz a matriz de picking para projecao ortogonal.
+        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+      }
+      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+      gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+      gl::CarregaIdentidade();
+      float top_y = altura_botao * 7.0f;
+      float bottom_y = altura_botao * 4.0f;
+      float altura_maxima = (altura_botao * 7.0f) - (altura_botao * 4.0f);
+      float altura_pv_entidade = 0;
+      if (entidade->PontosVida() > 0) {
+        float fator = static_cast<float>(entidade->PontosVida()) / entidade->MaximoPontosVida();
+        altura_pv_entidade = std::min(altura_maxima, altura_maxima * fator);
+      }
+      gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
+      gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, top_y);
+      gl::MudaCor(0.0f, 1.0f, 0.0f, 1.0f);
+      gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, bottom_y + altura_pv_entidade);
+      MudaCor(COR_AMARELA);
+      PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f), viewport[2], viewport[3]);
+      gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
+    }
+  }
+
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
   }

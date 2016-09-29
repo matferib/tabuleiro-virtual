@@ -501,6 +501,10 @@ int Entidade::PontosVida() const {
   return proto_.pontos_vida();
 }
 
+int Entidade::MaximoPontosVida() const {
+  return proto_.max_pontos_vida();
+}
+
 float Entidade::X() const {
   return proto_.pos().x();
 }
