@@ -28,6 +28,7 @@ varying lowp vec4 v_Color;
 varying lowp vec3 v_Normal;
 varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
+uniform highp bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
@@ -93,7 +94,7 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 
 void main() {
   lowp vec4 cor_final = v_Color;
-  if (gltab_nevoa_dados.z > 0.0) {
+  if (gltab_oclusao_ligada) {
     highp float bias = 0.5;
 #if __VERSION__ == 130
     //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);

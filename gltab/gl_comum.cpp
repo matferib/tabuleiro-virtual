@@ -372,6 +372,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
           {"gltab_nm", &shader->uni_gltab_nm },
           {"gltab_dados_raster", &shader->uni_gltab_dados_raster },
+          {"gltab_oclusao_ligada", &shader->uni_gltab_oclusao_ligada },
           {"gltab_plano_distante_oclusao", &shader->uni_gltab_plano_distante },
   }) {
     *d.var = LocalUniforme(shader->programa, d.nome);
@@ -921,24 +922,15 @@ void Nevoa(GLfloat inicio, GLfloat fim, float r, float g, float b, GLfloat* pos_
 }
 
 void Oclusao(bool valor) {
-  if (!interno::UsandoShaderComNevoa()) {
-    return;
-  }
   const auto& shader = interno::BuscaShader();
-  float nevoa[4];
-  LeUniforme(shader.programa, shader.uni_gltab_nevoa_dados, nevoa);
-  nevoa[2] = valor ? 1.0f : 0.0f;
-  Uniforme(shader.uni_gltab_nevoa_dados, nevoa[0], nevoa[1], nevoa[2], nevoa[3]);
+  interno::UniformeSeValido(shader.uni_gltab_oclusao_ligada, valor ? 1.0f : 0.0f);
 }
 
 bool OclusaoLigada() {
-  if (!interno::UsandoShaderComNevoa()) {
-    return false;
-  }
   const auto& shader = interno::BuscaShader();
-  float nevoa[4];
-  LeUniforme(shader.programa, shader.uni_gltab_nevoa_dados, nevoa);
-  return nevoa[2] > 0.0f;
+  GLint oclusao;
+  LeUniforme(shader.programa, shader.uni_gltab_oclusao_ligada, &oclusao);
+  return oclusao > 0.0f;
 }
 
 void PlanoDistanteOclusao(GLfloat distancia) {
