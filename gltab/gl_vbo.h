@@ -26,6 +26,7 @@ class VboNaoGravado {
   void RodaX(GLfloat angulo_graus);
   void RodaY(GLfloat angulo_graus);
   void RodaZ(GLfloat angulo_graus);
+  // Pos multiplica o vbo pela matriz.
   void Multiplica(const Matrix4& m);
   // Fim transformacoes vbo.
 

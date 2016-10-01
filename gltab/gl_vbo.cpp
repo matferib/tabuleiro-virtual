@@ -80,10 +80,20 @@ void VboNaoGravado::Multiplica(const Matrix4& m) {
   }
   for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
     Vector4 v(coordenadas_[i], coordenadas_[i + 1], coordenadas_[i + 2], 1.0f);
-    v = v * m;
+    v = m * v;
     coordenadas_[i] = v.x;
     coordenadas_[i + 1] = v.y;
     coordenadas_[i + 2] = v.z;
+  }
+  Matrix4 mn = m;
+  mn.invert().transpose();
+  for (unsigned int i = 0; i < normais_.size(); i += 3) {
+    Vector4 c(normais_[i], normais_[i+1], normais_[i+2], 1.0f);
+    c = mn * c;
+    c.normalize();
+    normais_[i]   = c[0];
+    normais_[i+1] = c[1];
+    normais_[i+2] = c[2];
   }
 }
 
