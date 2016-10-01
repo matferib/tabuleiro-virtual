@@ -605,6 +605,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
 
   V_ERRO("LigacaoComFramebufferOclusao");
+
+  GeraVbosCena();
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -613,7 +615,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
 #endif
     V_ERRO("TexturaFramebufferOclusao");
-    DesenhaCena();
+    //DesenhaCena();
+    DesenhaCenaVbos();
   }
 
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -672,9 +675,9 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::BufferDesenho(GL_NONE);
 #endif
   //LOG(INFO) << "sombra projetada";
-  DesenhaCena();
-  //GeraVbosCena();
-  //DesenhaCenaVbos();
+  //DesenhaCena();
+  GeraVbosCena();
+  DesenhaCenaVbos();
 }
 
 int Tabuleiro::Desenha() {
@@ -815,6 +818,8 @@ int Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
+  //GeraVbosCena();
+  //DesenhaCenaVbos();
   DesenhaCena();
   V_ERRO_RET("FimDesenha");
   return passou_ms;
@@ -2974,12 +2979,6 @@ void Tabuleiro::DesenhaCenaVbos() {
   gl::Desabilita(GL_FOG);
   V_ERRO("desenhando luzes");
 
-  if (MapeamentoOclusao() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
-    gl::Oclusao(true);
-  } else {
-    gl::Oclusao(false);
-  }
-
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
   // desenha tabuleiro do sul para o norte.
   {
@@ -3035,17 +3034,9 @@ void Tabuleiro::GeraVbosCena() {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
-  // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
-  if (camera_ == CAMERA_ISOMETRICA ||
-      (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
-    parametros_desenho_.set_desenha_texturas_para_cima(true);
-  } else {
-    parametros_desenho_.set_desenha_texturas_para_cima(false);
-  }
-
   {
     // Tabuleiro ja eh Vbo.
-    //DesenhaTabuleiro();
+    DesenhaTabuleiro();
   }
   V_ERRO("desenhando tabuleiro");
 
@@ -3064,9 +3055,9 @@ void Tabuleiro::GeraVbosCena() {
   }
   V_ERRO("desenhando acoes");
 
-  if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
-    vbos_entidades_translucidas_cena_.emplace_back(Entidade::ExtraiVbo(forma_proto_, &parametros_desenho_)[0]);
-  }
+  //if (estado_ == ETAB_DESENHANDO && parametros_desenho_.desenha_forma_selecionada()) {
+  //  vbos_entidades_translucidas_cena_.emplace_back(Entidade::ExtraiVbo(forma_proto_, &parametros_desenho_)[0]);
+  //}
 }
 
 void Tabuleiro::DesenhaOlho() {
@@ -3787,6 +3778,10 @@ std::vector<gl::VboNaoGravado> Tabuleiro::GeraVbosEntidades() {
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
     parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
     //LOG(INFO) << "Desenhando: " << entidade->Id();
+    //Matrix4 matrix = entidade->MontaMatrizModelagem(&parametros_desenho_);
+    //LOG(INFO) << "matriz: " << matrix;
+    //Vector4 v(0, 0, 0, 1.0f);
+    //LOG(INFO) << "v * m: " << (matrix * v);
     std::vector<gl::VboNaoGravado> vbos_entidade = entidade->ExtraiVbo(&parametros_desenho_);
     std::move(std::begin(vbos_entidade), std::end(vbos_entidade), std::back_inserter(vbos));
   }

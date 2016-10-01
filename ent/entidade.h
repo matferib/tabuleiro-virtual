@@ -54,9 +54,8 @@ class Entidade {
 
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
-  std::vector<gl::VboNaoGravado> ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), pd); }
-
-  /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
+  std::vector<gl::VboNaoGravado> ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), vd_, pd); }
+  // essa versao eh pra quem nao tem objeto mas tem o proto e quer criar vbos. m3d por exemplo.
   static std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
@@ -184,6 +183,9 @@ class Entidade {
   /** Carrega modelos usados pelas entidades. */
   static void IniciaGl();
 
+  Matrix4 MontaMatrizModelagem(const ParametrosDesenho* pd = nullptr) const;
+
+
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
@@ -225,7 +227,7 @@ class Entidade {
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
-    // algumas formas possuem VBO.
+    // formas compostas possuem VBO. TODO colocar tudo em modelo 3d.
     std::vector<gl::VboNaoGravado> vbos;
 
     // As texturas da entidade.
@@ -237,6 +239,15 @@ class Entidade {
   // apos a extracao, pois elas serao reaplicadas durante o desenho da entidade.
   static void CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
 
+  /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
+  static std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  // Extracao de VBO por tipo.
+  static std::vector<gl::VboNaoGravado> ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static std::vector<gl::VboNaoGravado> ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static std::vector<gl::VboNaoGravado> ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+
+
+
   // Inicializacao por tipo.
   static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
   static void InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
@@ -246,11 +257,6 @@ class Entidade {
       const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
   static void AtualizaProtoComposta(
       const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd);
-
-  // Extracao de VBO por tipo.
-  static std::vector<gl::VboNaoGravado> ExtraiVboEntidade(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
-  static std::vector<gl::VboNaoGravado> ExtraiVboForma(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
-  static std::vector<gl::VboNaoGravado> ExtraiVboComposta(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
 
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();

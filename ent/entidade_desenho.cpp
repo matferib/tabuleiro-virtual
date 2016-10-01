@@ -128,20 +128,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
     return;
   }
 
-  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  if (!proto.morta() && !proto.has_modelo_3d()) {
-    gl::MatrizEscopo salva_matriz(false);
-    MontaMatriz(true  /*queda*/,
-                (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
-                proto, vd, pd);
-    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2, false);
-    gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2, false);
-    if (pd->entidade_selecionada()) {
-      gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f, false);
-    }
-    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
-  }
-
   if (proto.has_modelo_3d()) {
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
     if (modelo_3d != nullptr && modelo_3d->Valido()) {
@@ -156,6 +142,20 @@ void Entidade::DesenhaObjetoEntidadeProto(
       // Nem sempre eh erro.
       LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
     }
+  }
+
+  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
+  if (!proto.morta()) {
+    gl::MatrizEscopo salva_matriz(false);
+    MontaMatriz(true  /*queda*/,
+                (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
+                proto, vd, pd);
+    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2, false);
+    gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2, false);
+    if (pd->entidade_selecionada()) {
+      gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f, false);
+    }
+    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 
   // Moldura da textura.

@@ -16,7 +16,7 @@ namespace ent {
 
 void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
   try {
-    vd->vbos = std::move(ExtraiVbo(proto, &ParametrosDesenho::default_instance()));
+    vd->vbos = std::move(ExtraiVbo(proto, *vd, &ParametrosDesenho::default_instance()));
     CorrigeVboRaiz(proto, vd);
   } catch (...) {
     LOG(WARNING) << "Nao consegui extrair VBO de objeto composto: " << proto.id() << ", vai falhar ao desenhar";
@@ -28,15 +28,15 @@ void Entidade::AtualizaProtoComposta(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
 }
 
-std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
+std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   std::vector<gl::VboNaoGravado> vbos(1);
   std::vector<gl::VboNaoGravado> sub_vbos;
   int indice_corrente = 0;  // qual vbo esta sendo concatenado.
   for (const auto& sub : proto.sub_forma()) {
     if (sub.tipo() == TE_COMPOSTA) {
-      sub_vbos = std::move(ExtraiVboComposta(sub, pd));
+      sub_vbos = std::move(ExtraiVboComposta(sub, vd, pd));
     } else if (sub.tipo() == TE_FORMA) {
-      sub_vbos = std::move(ExtraiVboForma(sub, pd));
+      sub_vbos = std::move(ExtraiVboForma(sub, vd, pd));
     }
     for (const auto& svbo : sub_vbos) {
       try {

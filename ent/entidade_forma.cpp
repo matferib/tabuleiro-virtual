@@ -15,7 +15,7 @@ void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
 void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
   // Extrai o VBO da forma livre.
   try {
-    vd->vbos = std::move(ExtraiVboForma(proto, &ParametrosDesenho::default_instance()));
+    vd->vbos = std::move(ExtraiVboForma(proto, *vd, &ParametrosDesenho::default_instance()));
     CorrigeVboRaiz(proto, vd);
   } catch (...) {
     LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
@@ -29,7 +29,7 @@ void Entidade::AtualizaProtoForma(
     if (!vd->vbos.empty()) {
       // Extrai o VBO da forma livre.
       try {
-        vd->vbos = std::move(ExtraiVboForma(proto_novo, &ParametrosDesenho::default_instance()));
+        vd->vbos = std::move(ExtraiVboForma(proto_novo, *vd, &ParametrosDesenho::default_instance()));
         CorrigeVboRaiz(proto_novo, vd);
       } catch (...) {
         LOG(WARNING) << "Falha atualizando VBO de forma LIVRE, renderizacao sera custosa.";
@@ -39,7 +39,7 @@ void Entidade::AtualizaProtoForma(
   }
 }
 
-std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
+std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {

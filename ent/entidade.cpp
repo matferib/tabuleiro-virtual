@@ -127,22 +127,28 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   }
 }
 
+// static
 std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
+  return ExtraiVbo(proto, VariaveisDerivadas(), pd);
+}
+
+// static
+std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   if (proto.tipo() == TE_ENTIDADE) {
-    return ExtraiVboEntidade(proto, pd);
+    return ExtraiVboEntidade(proto, vd, pd);
   } else if (proto.tipo() == TE_COMPOSTA) {
-    return ExtraiVboComposta(proto, pd);
+    return ExtraiVboComposta(proto, vd, pd);
   } else {
-    return ExtraiVboForma(proto, pd);
+    return ExtraiVboForma(proto, vd, pd);
   }
 }
 
-std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
+std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   std::vector<gl::VboNaoGravado> vbos;
 
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   //const auto& pos = proto.pos();
-  if (true) { //proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
+  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
     gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
     // Translada todos os Z da esfera em ALTURA.
@@ -151,87 +157,66 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
     }
     vbo.Concatena(vbo_esfera);
     vbo.AtribuiCor(proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a());
+    vbo.Multiplica(MontaMatrizModelagem(proto.caida(), true /*trans z*/, proto, vd, pd));
     vbos.resize(1);
     vbos[0] = std::move(vbo);
     return vbos;
   }
 
-  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  // Ignorar.
-
-#if 0
   if (proto.has_modelo_3d()) {
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
     if (modelo_3d != nullptr && modelo_3d->Valido()) {
-      // TODO vbo gravado
-      gl::MatrizEscopo salva_matriz(false);
-      // Mesmo hack das entidades compostas.
-      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-      modelo_3d->Desenha();
-      return;
+      vbos = modelo_3d->vbos_nao_gravados;
+      Matrix4 matriz = MontaMatrizModelagem(proto.caida(), true /*trans z*/, proto, vd, pd);
+      for (auto& vbo : vbos) {
+        vbo.Multiplica(matriz);
+      }
+      return vbos;
     } else {
       // Nem sempre eh erro.
       LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
     }
   }
-#endif
 
-#if 0
-  // Moldura da textura.
-  bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
-  gl::MatrizEscopo salva_matriz(false);
-  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-  // Tijolo da moldura: nao roda selecionado (comentado).
-  if (achatar) {
-    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
-    //if (pd->entidade_selecionada()) {
-    //  gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
-    //}
-    gl::Roda(90.0f, -1.0f, 0.0f, 0.0f, false);
-    gl::Escala(0.8f, 1.0f, 0.8f, false);
-  } else {
-    // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
-    gl::Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10, false);
-    float angulo = 0;
-    // So desenha a textura de frente pra entidades nao caidas.
-    if (pd->texturas_sempre_de_frente() && !proto.caida()) {
-      double dx = pos.x() - pd->pos_olho().x();
-      double dy = pos.y() - pd->pos_olho().y();
-      double r = sqrt(pow(dx, 2) + pow(dy, 2));
-      angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
-      if (dy < 0) {
-        // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
-        // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
-        angulo = -angulo;
-      }
-      gl::Roda(angulo - 90.0f, 0, 0, 1.0f, false);
-    } else if (!proto.caida()) {
-      gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
+  // Moldura.
+  gl::VboNaoGravado vbo_moldura = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
+  vbo_moldura.Escala(1.0f, 0.1f, 1.0f);
+  float angulo = 0;
+  if (pd->texturas_sempre_de_frente() && !proto.caida()) {
+    double dx = proto.pos().x() - pd->pos_olho().x();
+    double dy = proto.pos().y() - pd->pos_olho().y();
+    double r = sqrt(pow(dx, 2) + pow(dy, 2));
+    angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
+    if (dy < 0) {
+      // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
+      // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
+      angulo = -angulo;
     }
-    gl::MatrizEscopo salva_matriz(false);
-    gl::Escala(1.0f, 0.1f, 1.0f, false);
-    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
+    vbo_moldura.RodaZ(angulo - 90.0f);
+  } else if (!proto.caida()) {
+    vbo_moldura.RodaZ(proto.rotacao_z_graus());
   }
-#endif
+  vbo_moldura.Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
+  vbo_moldura.Multiplica(MontaMatrizModelagem(proto.caida(), true /*trans z*/, proto, vd, pd));
 
-  // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
-#if 0
-  GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
-    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-  if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-    gl::Normal(0.0f, -1.0f, 0.0f);
-    Cor c;
-    c.set_r(1.0f);
-    c.set_g(1.0f);
-    c.set_b(1.0f);
-    c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
-    MudaCor(proto.morta() ? EscureceCor(c) : c);
-    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
-    gl::Desabilita(GL_TEXTURE_2D);
+  // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
+  if (!proto.morta()) {
+    gl::VboNaoGravado vbo_base = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
+    if (pd->entidade_selecionada()) {
+      vbo_base.RodaZ(vd.angulo_disco_selecao_graus);
+    }
+    vbo_base.Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+    vbo_base.Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
+    vbo_base.Multiplica(MontaMatrizModelagem(
+        true,  // queda.
+        (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
+        proto, vd, pd));
+    vbo_moldura.Concatena(vbo_base);
   }
-#endif
+
+  vbos.resize(1);
+  vbos[0] = std::move(vbo_moldura);
+  return vbos;
 }
 
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
@@ -774,10 +759,9 @@ Matrix4 Entidade::MontaMatrizModelagem(
     const EntidadeProto& proto,
     const VariaveisDerivadas& vd,
     const ParametrosDesenho* pd) {
-  if (proto.tipo() == TE_FORMA) {
+  if (proto.tipo() == TE_FORMA || proto.tipo() == TE_COMPOSTA) {
+    // Mesma matriz.
     return MontaMatrizModelagemForma(queda, transladar_z, proto, vd, pd);
-  } else if (proto.tipo() == TE_COMPOSTA) {
-    // TODO
   }
 
   Matrix4 matrix;
@@ -886,6 +870,10 @@ std::string Entidade::StringValorParaAcao(const std::string& id_acao) const {
     return da.dano();
   }
   return "";
+}
+
+Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {
+  return MontaMatrizModelagem(proto_.caida(), true, proto_, vd_, pd);
 }
 
 
