@@ -501,7 +501,7 @@ class DesabilitaEscopo {
   ~DesabilitaEscopo() {
     if (valor_anterior_) {
       if (reset_f_) {
-        reset_f_(false);
+        reset_f_(true);
       } else {
         Habilita(cap_);
       }
