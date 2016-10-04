@@ -234,6 +234,8 @@ if rodar_benchmark:
   env['CPPDEFINES']['USAR_WATCHDOG'] = '0'
   if sistema == 'apple':
     env['FRAMEWORKS'] += ['GLUT']
+  else:
+    env['LIBS'] += ['glut']
   env.Program(
       target = 'benchmark',
       source = ['benchmark.cpp', ] + objetos)

@@ -13,16 +13,17 @@
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "gltab/gl.h"
-#include "m3d/m3d.h" 
+#include "m3d/m3d.h"
 #include "ntf/notificacao.h"
 #include "log/log.h"
 #include "tex/texturas.h"
 
 #include <setjmp.h>
+#include <GL/glut.h>
 
 using namespace std;
 
-DEFINE_string(tabuleiro, "tabuleiros_salvos/castelo.binproto", "Tabuleiro de benchmark.");
+DEFINE_string(tabuleiro, "castelo.binproto", "Tabuleiro de benchmark.");
 DEFINE_int32(num_desenhos, 500, "Numero de vezes que o tabuleiro sera renderizado.");
 DEFINE_int32(tam_janela, 600, "Altura e largura da janela quadrada");
 
@@ -34,7 +35,6 @@ void render() {
   g_tabuleiro->Desenha();
   g_tabuleiro->TrataRotacaoPorDelta(0.01f);
   glutSwapBuffers();
-  LOG(INFO) << "aqui!!";
   if (++g_counter >= FLAGS_num_desenhos) {
     LOG(INFO) << "saindo!!";
     longjmp(g_buf, 1);
@@ -51,14 +51,15 @@ int main(int argc, char** argv) {
   glutInitWindowSize(FLAGS_tam_janela, FLAGS_tam_janela);
   glutInitWindowPosition(0, 0);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_ALPHA | GLUT_STENCIL | GLUT_DEPTH);
+  glutInit(&argc, argv);
   glutCreateWindow("benchmark");
-  gl::IniciaGl(true, true);  // inicia o glut.
+  gl::IniciaGl(true);  // inicia o glut.
   ntf::CentralNotificacoes central;
   tex::Texturas texturas(&central);
   ent::OpcoesProto opcoes;
   opcoes.set_iluminacao_por_pixel(true);
   opcoes.set_mapeamento_sombras(true);
-  m3d::Modelos3d modelos;
+  m3d::Modelos3d modelos(&central);
   ent::Tabuleiro tabuleiro(opcoes, &texturas, &modelos, &central);
   g_tabuleiro = &tabuleiro;
   tabuleiro.IniciaGL();
@@ -68,7 +69,7 @@ int main(int argc, char** argv) {
   {
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_DESERIALIZAR_TABULEIRO);
-    n.set_endereco(FLAGS_tabuleiro);
+    n.set_endereco("estatico://" + FLAGS_tabuleiro);
     tabuleiro.TrataNotificacao(n);
   }
   {
