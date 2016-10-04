@@ -606,7 +606,6 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
-  GeraVbosCena();
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
@@ -676,7 +675,6 @@ void Tabuleiro::DesenhaMapaSombra() {
 #endif
   //LOG(INFO) << "sombra projetada";
   //DesenhaCena();
-  GeraVbosCena();
   DesenhaCenaVbos();
 }
 
@@ -755,6 +753,8 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("Antes desenha sombras");
 
+  GeraVbosCena();
+
   if (MapeamentoOclusao()) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -818,7 +818,6 @@ int Tabuleiro::Desenha() {
   gl::CarregaIdentidade();
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
-  //GeraVbosCena();
   //DesenhaCenaVbos();
   DesenhaCena();
   V_ERRO_RET("FimDesenha");
@@ -2936,23 +2935,11 @@ void Tabuleiro::DesenhaCenaVbos() {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
-  gl::InicioCena();
-  gl::IniciaNomes();
-  V_ERRO("Inicio cena");
-
   gl::Habilita(GL_DEPTH_TEST);
   V_ERRO("Teste profundidade");
   int bits_limpar = GL_DEPTH_BUFFER_BIT;
   bits_limpar |= GL_COLOR_BUFFER_BIT;
-  if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
-    gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
-  } else {
-    gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
-                   proto_corrente_->luz_ambiente().g(),
-                   proto_corrente_->luz_ambiente().b(),
-                   proto_corrente_->luz_ambiente().a());
-  }
-
+  gl::CorLimpeza(1.0f, 1.0f, 1.0f, 1.0f);
   gl::Limpa(bits_limpar);
   V_ERRO("Limpa");
 
@@ -2962,7 +2949,7 @@ void Tabuleiro::DesenhaCenaVbos() {
   V_ERRO("desabilitando luzes");
 
   gl::MudaModoMatriz(GL_MODELVIEW);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraOlhar();
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
@@ -2979,15 +2966,18 @@ void Tabuleiro::DesenhaCenaVbos() {
   gl::Desabilita(GL_FOG);
   V_ERRO("desenhando luzes");
 
-  // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
-  // desenha tabuleiro do sul para o norte.
   {
     DesenhaTabuleiro();
   }
   V_ERRO("desenhando tabuleiro");
 
   if (parametros_desenho_.desenha_entidades()) {
-    for (const auto& vbo : vbos_entidades_cena_) {
+    if (!parametros_desenho_.nao_desenha_entidades_selecionaveis()) {
+      for (const auto& vbo : vbos_selecionaveis_cena_) {
+        gl::DesenhaVbo(vbo);
+      }
+    }
+    for (const auto& vbo : vbos_nao_selecionaveis_cena_) {
       gl::DesenhaVbo(vbo);
     }
   }
@@ -2997,55 +2987,23 @@ void Tabuleiro::DesenhaCenaVbos() {
     // TODO
   }
   V_ERRO("desenhando acoes");
-
-  // Transparencias devem vir por ultimo porque dependem do que esta atras. As transparencias nao atualizam
-  // o buffer de profundidade, ja que se dois objetos transparentes forem desenhados um atras do outro,
-  // a ordem nao importa. Ainda assim, o z buffer eh necessario para comparar o objeto transparente
-  // a outros nao transparentes durante o picking.
-  if (parametros_desenho_.desenha_entidades()) {
-    if (parametros_desenho_.transparencias()) {
-      gl::HabilitaEscopo teste_profundidade(GL_DEPTH_TEST);
-      gl::DesligaEscritaProfundidadeEscopo desliga_escrita_profundidade_escopo;
-      parametros_desenho_.set_alfa_translucidos(0.5);
-      gl::HabilitaEscopo blend_escopo(GL_BLEND);
-      gl::CorMistura(1.0f, 1.0f, 1.0f, parametros_desenho_.alfa_translucidos());
-      for (const auto& vbo : vbos_entidades_translucidas_cena_) {
-        gl::DesenhaVbo(vbo);
-      }
-      parametros_desenho_.clear_alfa_translucidos();
-      gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
-    } else {
-      gl::TipoEscopo nomes(OBJ_ENTIDADE);
-      // Desenha os translucidos de forma solida para picking.
-      for (const auto& vbo : vbos_entidades_translucidas_cena_) {
-        gl::DesenhaVbo(vbo);
-      }
-    }
-  }
-  V_ERRO("desenhando entidades alfa");
 }
 
-
 void Tabuleiro::GeraVbosCena() {
-  vbos_entidades_cena_.clear();
+  vbos_nao_selecionaveis_cena_.clear();
+  vbos_selecionaveis_cena_.clear();
   vbos_acoes_cena_.clear();
-  vbos_entidades_translucidas_cena_.clear();
 
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
   {
     // Tabuleiro ja eh Vbo.
-    DesenhaTabuleiro();
+    //DesenhaTabuleiro();
   }
   V_ERRO("desenhando tabuleiro");
 
-  if (parametros_desenho_.desenha_entidades()) {
-    // Desenha as entidades no segundo lugar da pilha, importante para diferenciar entidades do tabuleiro
-    // na hora do picking.
-    std::vector<gl::VboNaoGravado> vbos_entidades = GeraVbosEntidades();
-    std::move(std::begin(vbos_entidades), std::end(vbos_entidades), std::back_inserter(vbos_entidades_cena_));
-  }
+  GeraVbosEntidades();
   V_ERRO("desenhando entidades");
 
   if (parametros_desenho_.desenha_acoes()) {
@@ -3178,16 +3136,19 @@ void Tabuleiro::RegeraVboTabuleiro() {
                    &coordenadas_tabuleiro,
                    &coordenadas_normais,
                    &coordenadas_textura);
-  gl::VboNaoGravado tabuleiro_nao_gravado("tabuleiro_nao_gravado");
-  tabuleiro_nao_gravado.AtribuiIndices(indices_tabuleiro.data(), indices_tabuleiro.size());
-  tabuleiro_nao_gravado.AtribuiCoordenadas(3, coordenadas_tabuleiro.data(), coordenadas_tabuleiro.size());
-  tabuleiro_nao_gravado.AtribuiTexturas(coordenadas_textura.data());
-  tabuleiro_nao_gravado.AtribuiNormais(coordenadas_normais.data());
+  gl::VbosNaoGravados tabuleiro_nao_gravado;
+  gl::VboNaoGravado tabuleiro_parcial;
+  tabuleiro_parcial.AtribuiIndices(&indices_tabuleiro);
+  tabuleiro_parcial.AtribuiCoordenadas(3, &coordenadas_tabuleiro);
+  tabuleiro_parcial.AtribuiTexturas(&coordenadas_textura);
+  tabuleiro_parcial.AtribuiNormais(&coordenadas_normais);
+  tabuleiro_nao_gravado.Concatena(tabuleiro_parcial);
   V_ERRO("RegeraVboTabuleiro antes gravar");
-  vbo_tabuleiro_.Grava(tabuleiro_nao_gravado);
+  vbos_tabuleiro_.Grava(tabuleiro_nao_gravado);
   V_ERRO("RegeraVboTabuleiro depois gravar");
 
   // Regera a grade.
+  gl::VbosNaoGravados grade_nao_gravada;
   std::vector<float> coordenadas_grade;
   std::vector<unsigned short> indices_grade;
   int indice = 0;
@@ -3223,6 +3184,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
       }
     }
   }
+  gl::VboNaoGravado grade_vertical;
+  grade_vertical.AtribuiIndices(&indices_grade);
+  grade_vertical.AtribuiCoordenadas(3, &coordenadas_grade);
+  grade_nao_gravada.Concatena(&grade_vertical);
+  indice = 0;
   {
     for (int ycorrente = 0; ycorrente <= TamanhoY(); ++ycorrente) {
       float y_inicial = (ycorrente * TAMANHO_LADO_QUADRADO) - EXPESSURA_LINHA_2 + deslocamento_y;
@@ -3252,10 +3218,11 @@ void Tabuleiro::RegeraVboTabuleiro() {
       }
     }
   }
-  gl::VboNaoGravado grade_nao_gravada("grade_nao_gravada");
-  grade_nao_gravada.AtribuiIndices(indices_grade.data(), indices_grade.size());
-  grade_nao_gravada.AtribuiCoordenadas(3, coordenadas_grade.data(), coordenadas_grade.size());
-  vbo_grade_.Grava(grade_nao_gravada);
+  gl::VboNaoGravado grade_horizontal;
+  grade_horizontal.AtribuiIndices(&indices_grade);
+  grade_horizontal.AtribuiCoordenadas(3, &coordenadas_grade);
+  grade_nao_gravada.Concatena(&grade_horizontal);
+  vbos_grade_.Grava(grade_nao_gravada);
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
@@ -3643,7 +3610,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   }
   V_ERRO("textura");
 
-  gl::DesenhaVbo(vbo_tabuleiro_, GL_TRIANGLES);
+  vbos_tabuleiro_.Desenha();
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
   gl::Habilita(GL_CULL_FACE);
@@ -3750,8 +3717,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   parametros_desenho_.set_desenha_barra_vida(false);
 }
 
-std::vector<gl::VboNaoGravado> Tabuleiro::GeraVbosEntidades() {
-  std::vector<gl::VboNaoGravado> vbos;
+void Tabuleiro::GeraVbosEntidades() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
     if (entidade == nullptr) {
@@ -3764,30 +3730,26 @@ std::vector<gl::VboNaoGravado> Tabuleiro::GeraVbosEntidades() {
     if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
       continue;
     }
+    if (!entidade->Proto().visivel() &&
+        !entidade->Proto().selecionavel_para_jogador() &&
+        (!EmModoMestre(true) || visao_jogador_)) {
+      continue;
+    }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
                                                  EntidadeEstaSelecionada(entidade->Id()));
-    bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
-    bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
-                              tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
-                              entidade->Id() == id_entidade_detalhada_;
-    parametros_desenho_.set_desenha_barra_vida(entidade_detalhada || detalhar_tudo);
+    parametros_desenho_.set_desenha_barra_vida(false);
     // Rotulos apenas individualmente.
-    parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
-    parametros_desenho_.set_desenha_rotulo_especial(
-        entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
+    parametros_desenho_.set_desenha_rotulo(false);
+    parametros_desenho_.set_desenha_rotulo_especial(false);
     parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
-    //LOG(INFO) << "Desenhando: " << entidade->Id();
-    //Matrix4 matrix = entidade->MontaMatrizModelagem(&parametros_desenho_);
-    //LOG(INFO) << "matriz: " << matrix;
-    //Vector4 v(0, 0, 0, 1.0f);
-    //LOG(INFO) << "v * m: " << (matrix * v);
     std::vector<gl::VboNaoGravado> vbos_entidade = entidade->ExtraiVbo(&parametros_desenho_);
-    std::move(std::begin(vbos_entidade), std::end(vbos_entidade), std::back_inserter(vbos));
+    std::move(std::begin(vbos_entidade), std::end(vbos_entidade),
+              std::back_inserter(entidade->Proto().selecionavel_para_jogador()
+                ? vbos_selecionaveis_cena_ : vbos_nao_selecionaveis_cena_));
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);
-  return vbos;
 }
 
 void Tabuleiro::DesenhaRastros() {
@@ -5975,7 +5937,7 @@ void Tabuleiro::DesenhaGrade() {
   //gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   MudaCor(COR_PRETA);
   //gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
-  gl::DesenhaVbo(vbo_grade_, GL_TRIANGLES);
+  vbos_grade_.Desenha();
 }
 
 void Tabuleiro::DesenhaListaJogadores() {

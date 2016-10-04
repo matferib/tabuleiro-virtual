@@ -502,7 +502,7 @@ class Tabuleiro : public ntf::Receptor {
   ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento);
 
   // Apenas gera os VBOs das entidaes.
-  std::vector<gl::VboNaoGravado> GeraVbosEntidades();
+  void GeraVbosEntidades();
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
@@ -964,8 +964,8 @@ class Tabuleiro : public ntf::Receptor {
 
   bool modo_dano_automatico_ = false;
 
-  gl::VboGravado vbo_tabuleiro_;
-  gl::VboGravado vbo_grade_;
+  gl::VbosGravados vbos_tabuleiro_;
+  gl::VbosGravados vbos_grade_;
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
@@ -977,9 +977,9 @@ class Tabuleiro : public ntf::Receptor {
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
 
   // Vbos gerados por renderizacao de cena.
-  std::vector<gl::VboNaoGravado> vbos_entidades_cena_;
+  std::vector<gl::VboNaoGravado> vbos_selecionaveis_cena_;
+  std::vector<gl::VboNaoGravado> vbos_nao_selecionaveis_cena_;
   std::vector<gl::VboNaoGravado> vbos_acoes_cena_;
-  std::vector<gl::VboNaoGravado> vbos_entidades_translucidas_cena_;
 
   bool usar_sampler_sombras_ = true;
 
