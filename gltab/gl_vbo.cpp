@@ -29,6 +29,59 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 
 }  // namespace
 
+//----------------
+// VbosNaoGravados
+//----------------
+void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
+  if (vbos_.empty()) {
+    vbos_.emplace_back(rhs);
+  } else {
+    try {
+      vbos_.back().Concatena(rhs);
+    } catch (...) {
+      vbos_.push_back(rhs);
+    }
+  }
+}
+
+void VbosNaoGravados::Concatena(VboNaoGravado* rhs) {
+  if (vbos_.empty()) {
+    vbos_.resize(1);
+    vbos_[0] = std::move(*rhs);
+  } else {
+    VboNaoGravado dummy = std::move(*rhs);
+    try {
+      // Dummy apenas para retornar rhs vazio.
+      vbos_.back().Concatena(dummy);
+    } catch (...) {
+      vbos_.resize(vbos_.size() + 1);
+      vbos_.back() = std::move(dummy);
+    }
+  }
+}
+
+void VbosNaoGravados::Desenha() const {
+  for (const auto& vbo : vbos_) {
+    DesenhaVbo(vbo);
+  }
+}
+
+//-------------
+// VbosGravados
+//-------------
+void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
+  vbos_.resize(vbos_nao_gravados.vbos_.size());
+  for (unsigned int i = 0; i < vbos_nao_gravados.vbos_.size(); ++i) {
+    vbos_[i].Grava(vbos_nao_gravados.vbos_[i]);
+  }
+}
+
+void VbosGravados::Desenha() const {
+  for (const auto& vbo : vbos_) {
+    DesenhaVbo(vbo);
+  }
+}
+
 //--------------
 // VboNaoGravado
 //--------------
@@ -203,7 +256,7 @@ std::vector<float> VboNaoGravado::GeraBufferUnico(
   buffer_unico.insert(buffer_unico.end(), cores_.begin(), cores_.end());
   buffer_unico.insert(buffer_unico.end(), texturas_.begin(), texturas_.end());
   unsigned int pos_final = coordenadas_.size() * sizeof(float);
-  if (tem_normais_) {
+  if (tem_normais()) {
     *deslocamento_normais = pos_final;
     pos_final += normais_.size() * sizeof(float);
   }
@@ -223,6 +276,10 @@ void VboNaoGravado::AtribuiIndices(const unsigned short* dados, unsigned int num
   indices_.insert(indices_.end(), dados, dados + num_indices);
 }
 
+void VboNaoGravado::AtribuiIndices(std::vector<unsigned short>* dados) {
+  indices_.swap(*dados);
+}
+
 void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned int num_coordenadas) {
   if ((num_coordenadas / num_dimensoes) > std::numeric_limits<unsigned short>::max()) {
     LOG(WARNING) << "Nao eh possivel indexar mais que " <<  std::numeric_limits<unsigned short>::max() << " coordenadas";
@@ -232,15 +289,31 @@ void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, const float
   num_dimensoes_ = num_dimensoes;
 }
 
+void VboNaoGravado::AtribuiCoordenadas(unsigned short num_dimensoes, std::vector<float>* dados) {
+  int num_coordenadas = dados->size() / num_dimensoes;
+  if ((num_coordenadas / num_dimensoes) > std::numeric_limits<unsigned short>::max()) {
+    LOG(WARNING) << "Nao eh possivel indexar mais que " <<  std::numeric_limits<unsigned short>::max() << " coordenadas";
+  }
+  coordenadas_.swap(*dados);
+  num_dimensoes_ = num_dimensoes;
+}
+
 void VboNaoGravado::AtribuiNormais(const float* dados) {
   normais_.clear();
   normais_.insert(normais_.end(), dados, dados + coordenadas_.size());
-  tem_normais_ = true;
+}
+
+void VboNaoGravado::AtribuiNormais(std::vector<float>* dados) {
+  normais_.swap(*dados);
 }
 
 void VboNaoGravado::AtribuiTexturas(const float* dados) {
   texturas_.clear();
   texturas_.insert(texturas_.end(), dados, dados + (coordenadas_.size() * 2) / num_dimensoes_ );
+}
+
+void VboNaoGravado::AtribuiTexturas(std::vector<float>* dados) {
+  texturas_.swap(*dados);
 }
 
 void VboNaoGravado::AtribuiCor(float r, float g, float b, float a) {

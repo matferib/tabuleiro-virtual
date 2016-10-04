@@ -31,12 +31,16 @@ class VboNaoGravado {
   // Fim transformacoes vbo.
 
   void AtribuiIndices(const unsigned short* dados, unsigned int num_indices);
+  void AtribuiIndices(std::vector<unsigned short>* dados);
 
   void AtribuiCoordenadas(unsigned short num_dimensoes, const float* dados, unsigned int num_coordenadas);
+  void AtribuiCoordenadas(unsigned short num_dimensoes, std::vector<float>* dados);
 
   void AtribuiNormais(const float* dados);
+  void AtribuiNormais(std::vector<float>* dados);
 
   void AtribuiTexturas(const float* dados);
+  void AtribuiTexturas(std::vector<float>* dados);
 
   // Atribui a mesma cor a todas coordenadas.
   void AtribuiCor(float r, float g, float b, float a);
@@ -64,7 +68,7 @@ class VboNaoGravado {
 
   std::string ParaString() const;
 
-  bool tem_normais() const { return tem_normais_; }
+  bool tem_normais() const { return !normais_.empty(); }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
 
@@ -86,7 +90,6 @@ class VboNaoGravado {
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
-  bool tem_normais_ = false;
   bool tem_cores_ = false;
 };
 
@@ -163,6 +166,30 @@ class VboGravado {
 
   bool gravado_ = false;
 };
+
+/** Conjunto de VBOs nao gravados. */
+class VbosNaoGravados {
+ public:
+  void Concatena(const VboNaoGravado& rhs);
+  void Concatena(VboNaoGravado* rhs);
+  void Desenha() const;
+
+ private:
+  std::vector<VboNaoGravado> vbos_;
+  friend class VbosGravados;
+};
+
+/** Conjunto de Vbos gravados. */
+class VbosGravados {
+ public:
+  void Grava(const VbosNaoGravados& vbos_nao_gravados);
+  void Desenha() const;
+
+ private:
+  std::vector<VboGravado> vbos_;
+};
+
+
 
 // Desenha o vbo, assumindo que ele ja tenha sido gravado.
 void DesenhaVbo(const VboGravado& vbo, GLenum modo = GL_TRIANGLES);
