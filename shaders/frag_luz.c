@@ -60,11 +60,7 @@ uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da text
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
-#if __VERSION__ == 130 || __VERSION__ == 120 || defined(GL_EXT_gpu_shader4)
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
-#else
-uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
-#endif
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = oclusao, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
@@ -97,14 +93,8 @@ void main() {
   if (gltab_oclusao_ligada) {
     highp float bias = 0.5;
 #if __VERSION__ == 130
-    //lowp float visivel = texture(gltab_unidade_textura_oclusao, vec4(pos_oclusao.x, pos_oclusao.y, pos_oclusao.z, valor_comparacao - bias), 0.0f);
     highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante_oclusao;
     lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
-#elif __VERSION__ == 120
-    lowp float visivel = shadowCube(gltab_unidade_textura_oclusao, vec3(v_Pos_oclusao.xy / v_Pos_oclusao.w, (v_Pos_oclusao.z / v_Pos_oclusao.w) - bias)).r;
-//#elif defined(GL_EXT_gpu_shader4)
-//    lowp float visivel = shadowCube(
-//        gltab_unidade_textura_oclusao, vec4(v_Pos_oclusao.x, v_Pos_oclusao.y, v_Pos_oclusao.z, distancia_projetada - bias));
 #else
     // OpenGL ES 2.0.
     highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
