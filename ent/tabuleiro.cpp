@@ -2974,11 +2974,11 @@ void Tabuleiro::DesenhaCenaVbos() {
   if (parametros_desenho_.desenha_entidades()) {
     if (!parametros_desenho_.nao_desenha_entidades_selecionaveis()) {
       for (const auto& vbo : vbos_selecionaveis_cena_) {
-        gl::DesenhaVbo(vbo);
+        vbo->Desenha();
       }
     }
     for (const auto& vbo : vbos_nao_selecionaveis_cena_) {
-      gl::DesenhaVbo(vbo);
+      vbo->Desenha();
     }
   }
   V_ERRO("desenhando entidades");
@@ -3743,10 +3743,13 @@ void Tabuleiro::GeraVbosEntidades() {
     parametros_desenho_.set_desenha_rotulo(false);
     parametros_desenho_.set_desenha_rotulo_especial(false);
     parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
-    std::vector<gl::VboNaoGravado> vbos_entidade = entidade->ExtraiVbo(&parametros_desenho_);
-    std::move(std::begin(vbos_entidade), std::end(vbos_entidade),
-              std::back_inserter(entidade->Proto().selecionavel_para_jogador()
-                ? vbos_selecionaveis_cena_ : vbos_nao_selecionaveis_cena_));
+    std::vector<const gl::VbosGravados*>* dest = entidade->Proto().selecionavel_para_jogador()
+        ? &vbos_selecionaveis_cena_ : &vbos_nao_selecionaveis_cena_;
+    try {
+      dest->push_back(entidade->VboExtraido());
+    } catch (...) {
+      // Vbo vazio, pode acontecer. Ignora.
+    }
   }
   parametros_desenho_.set_entidade_selecionada(false);
   parametros_desenho_.set_desenha_barra_vida(false);

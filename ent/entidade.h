@@ -1,6 +1,7 @@
 #ifndef ENT_ENTIDADE_H
 #define ENT_ENTIDADE_H
 
+#include <stdexcept>
 #include <unordered_map>
 #include <vector>
 #include "ent/entidade.pb.h"
@@ -54,6 +55,19 @@ class Entidade {
 
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
+  /** Exporta o VBO ja extraido.
+  * @throw caso nao haja ainda (por exemplo, carregando modelo 3d).
+  */
+  const gl::VbosGravados* VboExtraido() const {
+    if (vd_.vbos_gravados.Vazio()) {
+      throw std::logic_error("vbo vazio");
+    }
+    return &vd_.vbos_gravados;
+  }
+
+  /** Extrai o VBO da entidade na posicao do mundo. Se desejavel a posicao
+  * de modelagem, usar CorrigeVboRaiz.
+  */
   std::vector<gl::VboNaoGravado> ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), vd_, pd); }
   // essa versao eh pra quem nao tem objeto mas tem o proto e quer criar vbos. m3d por exemplo.
   static std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
@@ -227,11 +241,16 @@ class Entidade {
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
-    // formas compostas possuem VBO. TODO colocar tudo em modelo 3d.
+    // formas compostas possuem VBO. TODO: acabar com isso.
     std::vector<gl::VboNaoGravado> vbos;
+
+    // Toda entidade deve possuir VBOs associados.
+    gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
+    gl::VbosGravados vbos_gravados;
 
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
+    // Modelo 3d para entidades que o possuem.
     const m3d::Modelos3d* m3d = nullptr;
   };
 
@@ -265,8 +284,12 @@ class Entidade {
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
   static void AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central);
+
   /** Realiza as notificacoes referentes a modelos 3d. */
   void AtualizaModelo3d(const EntidadeProto& novo_proto);
+
+  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto. */
+  void AtualizaVbo();
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);

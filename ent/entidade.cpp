@@ -125,6 +125,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
+  AtualizaVbo();
 }
 
 // static
@@ -146,9 +147,22 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVbo(const ent::EntidadeProto& pro
 std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   std::vector<gl::VboNaoGravado> vbos;
 
+  if (proto.has_modelo_3d()) {
+    const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
+    if (modelo_3d != nullptr && modelo_3d->Valido()) {
+      vbos = modelo_3d->vbos_nao_gravados;
+      Matrix4 matriz = MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd);
+      for (auto& vbo : vbos) {
+        vbo.Multiplica(matriz);
+      }
+    }
+    // Aqui pode retornar o vbo vazio, para o caso de nao ter carregado ainda.
+    return vbos;
+  }
+
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
   //const auto& pos = proto.pos();
-  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
+  if (proto.info_textura().id().empty()) {
     gl::VboNaoGravado vbo = gl::VboConeSolido(TAMANHO_LADO_QUADRADO_2 - 0.2, ALTURA, NUM_FACES, NUM_LINHAS);
     gl::VboNaoGravado vbo_esfera = gl::VboEsferaSolida(TAMANHO_LADO_QUADRADO_2 - 0.4, NUM_FACES, NUM_FACES / 2.0f);
     // Translada todos os Z da esfera em ALTURA.
@@ -157,30 +171,15 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
     }
     vbo.Concatena(vbo_esfera);
     vbo.AtribuiCor(proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a());
-    vbo.Multiplica(MontaMatrizModelagem(proto.caida(), true /*trans z*/, proto, vd, pd));
+    vbo.Multiplica(MontaMatrizModelagem(true /*queda*/, true /*trans z*/, proto, vd, pd));
     vbos.resize(1);
     vbos[0] = std::move(vbo);
     return vbos;
   }
 
-  if (proto.has_modelo_3d()) {
-    const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
-    if (modelo_3d != nullptr && modelo_3d->Valido()) {
-      vbos = modelo_3d->vbos_nao_gravados;
-      Matrix4 matriz = MontaMatrizModelagem(proto.caida(), true /*trans z*/, proto, vd, pd);
-      for (auto& vbo : vbos) {
-        vbo.Multiplica(matriz);
-      }
-      return vbos;
-    } else {
-      // Nem sempre eh erro.
-      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
-    }
-  }
-
   // Moldura.
   gl::VboNaoGravado vbo_moldura = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
-  vbo_moldura.Escala(1.0f, 0.1f, 1.0f);
+  vbo_moldura.Escala(1.0f, 0.1f, proto.info_textura().altura());
   float angulo = 0;
   if (pd->texturas_sempre_de_frente() && !proto.caida()) {
     double dx = proto.pos().x() - pd->pos_olho().x();
@@ -196,8 +195,8 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
   } else if (!proto.caida()) {
     vbo_moldura.RodaZ(proto.rotacao_z_graus());
   }
-  vbo_moldura.Translada(0, 0, TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10);
-  vbo_moldura.Multiplica(MontaMatrizModelagem(proto.caida(), true /*trans z*/, proto, vd, pd));
+  vbo_moldura.Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
+  vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
@@ -217,6 +216,12 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
   vbos.resize(1);
   vbos[0] = std::move(vbo_moldura);
   return vbos;
+}
+
+void Entidade::AtualizaVbo() {
+  vd_.vbos_nao_gravados = ExtraiVbo(&ParametrosDesenho::default_instance());
+  vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
+  V_ERRO("Erro atualizacao de VBOs");
 }
 
 void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
@@ -246,6 +251,8 @@ void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
   AtualizaTexturasProto(novo_proto, &proto_, central_);
+  // O modelo pode mudar se a textura muda (peao para moldura).
+  AtualizaVbo();
 }
 
 void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
@@ -306,7 +313,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     AtualizaProtoComposta(proto_original, proto_, &vd_);
   }
-
+  AtualizaVbo();
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
@@ -345,6 +352,16 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
 }
 
 void Entidade::Atualiza(int intervalo_ms) {
+  // Ao retornar, atualiza o vbo se necessario.
+  struct AtualizaVboEscopo {
+    AtualizaVboEscopo(std::function<void()> f) : f(f) {}
+    ~AtualizaVboEscopo() {
+      if (atualizar) f();
+    }
+    std::function<void()> f;
+    bool atualizar = false;
+  } vbo_escopo([this] () { AtualizaVbo(); });
+
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   AtualizaEfeitos();
@@ -358,6 +375,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
   if (proto_.voadora()) {
+    vbo_escopo.atualizar = true;
     if (vd_.altura_voo < ALTURA_VOO) {
       if (vd_.altura_voo == 0.0f) {
         vd_.angulo_disco_voo_rad = 0.0f;
@@ -374,6 +392,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   } else {
     if (vd_.altura_voo > 0) {
+      vbo_escopo.atualizar = true;
       const float DECREMENTO = ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
       if (Z() > vd_.z_antes_voo) {
         proto_.mutable_pos()->set_z(Z() - DECREMENTO);
@@ -395,6 +414,7 @@ void Entidade::Atualiza(int intervalo_ms) {
   const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
+      vbo_escopo.atualizar = true;
       vd_.angulo_disco_queda_graus += DELTA_QUEDA;
       if (vd_.angulo_disco_queda_graus > 90.0f) {
         vd_.angulo_disco_queda_graus = 90.0f;
@@ -402,6 +422,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   } else {
     if (vd_.angulo_disco_queda_graus > 0) {
+      vbo_escopo.atualizar = true;
       vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
       if (vd_.angulo_disco_queda_graus < 0) {
         vd_.angulo_disco_queda_graus = 0.0f;
@@ -409,10 +430,15 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   }
 
+  if (proto_.has_modelo_3d() && vd_.vbos_nao_gravados.Vazio()) {
+    vbo_escopo.atualizar = true;
+  }
+
   // Daqui pra baixo, tratamento de destino.
   if (!proto_.has_destino()) {
     return;
   }
+  vbo_escopo.atualizar = true;
   const auto& pd = proto_.destino();
   if (proto_.destino().has_id_cenario()) {
     bool mudou_cenario = proto_.destino().id_cenario() != proto_.pos().id_cenario();
@@ -459,6 +485,7 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
+  AtualizaVbo();
 }
 
 void Entidade::MoveDelta(float dx, float dy, float dz) {
@@ -472,14 +499,17 @@ void Entidade::Destino(const Posicao& pos) {
 void Entidade::IncrementaZ(float delta) {
   //proto_.set_translacao_z(proto_.translacao_z() + delta);
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
+  AtualizaVbo();
 }
 
 void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
+  AtualizaVbo();
 }
 
 void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
   proto_.set_rotacao_z_graus(rotacao_graus);
+  AtualizaVbo();
 }
 
 int Entidade::PontosVida() const {

@@ -977,9 +977,9 @@ class Tabuleiro : public ntf::Receptor {
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
 
   // Vbos gerados por renderizacao de cena.
-  std::vector<gl::VboNaoGravado> vbos_selecionaveis_cena_;
-  std::vector<gl::VboNaoGravado> vbos_nao_selecionaveis_cena_;
-  std::vector<gl::VboNaoGravado> vbos_acoes_cena_;
+  std::vector<const gl::VbosGravados*> vbos_selecionaveis_cena_;
+  std::vector<const gl::VbosGravados*> vbos_nao_selecionaveis_cena_;
+  std::vector<const gl::VbosGravados*> vbos_acoes_cena_;
 
   bool usar_sampler_sombras_ = true;
 

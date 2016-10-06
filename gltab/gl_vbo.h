@@ -170,9 +170,17 @@ class VboGravado {
 /** Conjunto de VBOs nao gravados. */
 class VbosNaoGravados {
  public:
+  VbosNaoGravados() {}
+  // Propositalmente nao explicito.
+  VbosNaoGravados(std::vector<VboNaoGravado>&& vbos) : vbos_(vbos) {}
+  VbosNaoGravados& operator=(std::vector<VboNaoGravado>&& vbos) {
+    vbos_ = std::move(vbos);
+    return *this;
+  }
   void Concatena(const VboNaoGravado& rhs);
   void Concatena(VboNaoGravado* rhs);
   void Desenha() const;
+  bool Vazio() const { return vbos_.empty(); }
 
  private:
   std::vector<VboNaoGravado> vbos_;
@@ -184,6 +192,7 @@ class VbosGravados {
  public:
   void Grava(const VbosNaoGravados& vbos_nao_gravados);
   void Desenha() const;
+  bool Vazio() const { return vbos_.empty(); }
 
  private:
   std::vector<VboGravado> vbos_;

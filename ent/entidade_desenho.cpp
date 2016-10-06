@@ -119,14 +119,6 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 void Entidade::DesenhaObjetoEntidadeProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
   AjustaCor(proto, pd);
-  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  const auto& pos = proto.pos();
-  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
-    gl::MatrizEscopo salva_matriz(false);
-    MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-    gl::DesenhaVbo(g_vbos[VBO_PEAO]);
-    return;
-  }
 
   if (proto.has_modelo_3d()) {
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
@@ -142,6 +134,15 @@ void Entidade::DesenhaObjetoEntidadeProto(
       // Nem sempre eh erro.
       LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
     }
+  }
+
+  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
+  const auto& pos = proto.pos();
+  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
+    gl::MatrizEscopo salva_matriz(false);
+    MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
+    gl::DesenhaVbo(g_vbos[VBO_PEAO]);
+    return;
   }
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
@@ -181,7 +182,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
       double r = sqrt(pow(dx, 2) + pow(dy, 2));
       angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
       if (dy < 0) {
-        // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
         // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
         angulo = -angulo;
       }
