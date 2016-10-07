@@ -118,8 +118,14 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 
 void Entidade::DesenhaObjetoEntidadeProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-  AjustaCor(proto, pd);
+#define DESENHAR_VBO 1
+  const auto& pos = proto.pos();
 
+#if DESENHAR_VBO
+  AjustaCor(proto, pd);
+  AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+  vd.vbos_gravados.Desenha();
+#else
   if (proto.has_modelo_3d()) {
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
     if (modelo_3d != nullptr && modelo_3d->Valido()) {
@@ -137,7 +143,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 
   // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  const auto& pos = proto.pos();
   if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
     gl::MatrizEscopo salva_matriz(false);
     MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
@@ -158,6 +163,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     }
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
+#endif
 
   // Moldura da textura.
   bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
@@ -180,7 +186,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
       double dx = pos.x() - pd->pos_olho().x();
       double dy = pos.y() - pd->pos_olho().y();
       double r = sqrt(pow(dx, 2) + pow(dy, 2));
-      angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
+      angulo = r > 0.1f ? (acosf(dx / r) * RAD_PARA_GRAUS) : 0.0f;
       if (dy < 0) {
         // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
         angulo = -angulo;
@@ -189,12 +195,12 @@ void Entidade::DesenhaObjetoEntidadeProto(
     } else if (!proto.caida()) {
       gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
     }
+#if !DESENHAR_VBO
     gl::MatrizEscopo salva_matriz(false);
     gl::Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura(), false);
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
+#endif
   }
-
-  // Tela onde a textura será desenhada face para o sul (nao desenha para sombra).
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {

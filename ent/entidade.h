@@ -28,7 +28,7 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -204,8 +204,8 @@ class Entidade {
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
  protected:
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*);
-  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
+  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
   // Numero maximo de acoes de uma entidade.
@@ -288,8 +288,10 @@ class Entidade {
   /** Realiza as notificacoes referentes a modelos 3d. */
   void AtualizaModelo3d(const EntidadeProto& novo_proto);
 
-  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto. */
-  void AtualizaVbo();
+  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto. 
+  * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
+  */
+  void AtualizaVbo(const ParametrosDesenho* pd);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);
@@ -344,6 +346,7 @@ class Entidade {
  private:
   EntidadeProto proto_;
   VariaveisDerivadas vd_;
+  const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.
   ntf::CentralNotificacoes* central_;

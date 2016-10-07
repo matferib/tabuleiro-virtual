@@ -18,12 +18,12 @@ bool ImprimeSeErro();
 namespace ent {
 
 // Factory.
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   switch (proto.tipo()) {
     case TE_COMPOSTA:
     case TE_ENTIDADE:
     case TE_FORMA: {
-      auto* entidade = new Entidade(texturas, m3d, central);
+      auto* entidade = new Entidade(texturas, m3d, central, pd);
       entidade->Inicializa(proto);
       return entidade;
     }
@@ -35,9 +35,10 @@ Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, con
 }
 
 // Entidade
-Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central) {
+Entidade::Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd) {
   vd_.texturas = texturas;
   vd_.m3d = m3d;
+  parametros_desenho_ = pd;
   central_ = central;
 }
 
@@ -125,7 +126,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
-  AtualizaVbo();
+  AtualizaVbo(parametros_desenho_);
 }
 
 // static
@@ -185,10 +186,8 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
     double dx = proto.pos().x() - pd->pos_olho().x();
     double dy = proto.pos().y() - pd->pos_olho().y();
     double r = sqrt(pow(dx, 2) + pow(dy, 2));
-    angulo = (acosf(dx / r) * RAD_PARA_GRAUS);
+    angulo = r > 0.1f ? (acosf(dx / r) * RAD_PARA_GRAUS) : 0.0f;
     if (dy < 0) {
-      // A funcao asin tem dois resultados mas sempre retorna o positivo [0, PI].
-      // Se o vetor estiver nos quadrantes de baixo, inverte o angulo.
       angulo = -angulo;
     }
     vbo_moldura.RodaZ(angulo - 90.0f);
@@ -218,8 +217,8 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboEntidade(const ent::EntidadePr
   return vbos;
 }
 
-void Entidade::AtualizaVbo() {
-  vd_.vbos_nao_gravados = ExtraiVbo(&ParametrosDesenho::default_instance());
+void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
+  vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd);
   vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
   V_ERRO("Erro atualizacao de VBOs");
 }
@@ -251,8 +250,6 @@ void Entidade::AtualizaModelo3d(const EntidadeProto& novo_proto) {
 
 void Entidade::AtualizaTexturas(const EntidadeProto& novo_proto) {
   AtualizaTexturasProto(novo_proto, &proto_, central_);
-  // O modelo pode mudar se a textura muda (peao para moldura).
-  AtualizaVbo();
 }
 
 void Entidade::AtualizaTexturasProto(const EntidadeProto& novo_proto, EntidadeProto* proto_atual, ntf::CentralNotificacoes* central) {
@@ -313,7 +310,7 @@ void Entidade::AtualizaProto(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     AtualizaProtoComposta(proto_original, proto_, &vd_);
   }
-  AtualizaVbo();
+  AtualizaVbo(parametros_desenho_);
   VLOG(1) << "Proto depois: " << proto_.ShortDebugString();
 }
 
@@ -360,7 +357,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
     std::function<void()> f;
     bool atualizar = false;
-  } vbo_escopo([this] () { AtualizaVbo(); });
+  } vbo_escopo([this] () { AtualizaVbo(parametros_desenho_); });
 
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
@@ -485,7 +482,7 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
-  AtualizaVbo();
+  AtualizaVbo(parametros_desenho_);
 }
 
 void Entidade::MoveDelta(float dx, float dy, float dz) {
@@ -499,17 +496,17 @@ void Entidade::Destino(const Posicao& pos) {
 void Entidade::IncrementaZ(float delta) {
   //proto_.set_translacao_z(proto_.translacao_z() + delta);
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
-  AtualizaVbo();
+  AtualizaVbo(parametros_desenho_);
 }
 
 void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
-  AtualizaVbo();
+  AtualizaVbo(parametros_desenho_);
 }
 
 void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
   proto_.set_rotacao_z_graus(rotacao_graus);
-  AtualizaVbo();
+  AtualizaVbo(parametros_desenho_);
 }
 
 int Entidade::PontosVida() const {
@@ -565,6 +562,7 @@ void Entidade::AtualizaPontosVida(int pontos_vida) {
 }
 
 void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
+  bool atualizar_vbo = false;
   int pontos_vida_antes = PontosVida();
   if (proto_parcial.has_cor()) {
     proto_.clear_cor();
@@ -580,9 +578,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   }
   if (proto_parcial.has_info_textura()) {
     AtualizaTexturas(proto_parcial);
+    atualizar_vbo = true;
   }
   if (proto_parcial.has_modelo_3d()) {
     AtualizaModelo3d(proto_parcial);
+    atualizar_vbo = true;
   }
   proto_.MergeFrom(proto_parcial);
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
@@ -609,6 +609,9 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // Restaura o que o merge fez para poder aplicar AtualizaPontosVida.
     proto_.set_pontos_vida(pontos_vida_antes);
     AtualizaPontosVida(proto_parcial.pontos_vida());
+  }
+  if (atualizar_vbo) {
+    AtualizaVbo(parametros_desenho_);
   }
 }
 
