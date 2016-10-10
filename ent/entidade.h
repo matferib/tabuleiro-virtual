@@ -28,7 +28,7 @@ class Texturas {
 };
 
 /** Constroi uma entidade de acordo com o proto passando, inicializando-a. */
-Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
 /** classe base para entidades.
 * Toda entidade devera possuir um identificador unico.
@@ -68,9 +68,9 @@ class Entidade {
   /** Extrai o VBO da entidade na posicao do mundo. Se desejavel a posicao
   * de modelagem, usar CorrigeVboRaiz.
   */
-  std::vector<gl::VboNaoGravado> ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), vd_, pd); }
+  gl::VbosNaoGravados ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), vd_, pd); }
   // essa versao eh pra quem nao tem objeto mas tem o proto e quer criar vbos. m3d por exemplo.
-  static std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -204,8 +204,8 @@ class Entidade {
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
 
  protected:
-  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*);
-  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central);
+  friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);
+  Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
   // Numero maximo de acoes de uma entidade.
@@ -227,8 +227,8 @@ class Entidade {
     VariaveisDerivadas() { }
     // Como esse estado é local e não precisa ser salvo, fica aqui.
     float angulo_disco_selecao_graus = 0.0f;
-    // Para entidades com texturas sempre de frente, o angulo para rodar.
-    float angulo_textura_sempre_de_frente = 0.0f;
+    // Para entidades com texturas sempre de frente, o angulo para rodar a modulra da textura.
+    float angulo_rotacao_textura_graus = 0.0f;
     // Qual a altura do voo da entidade.
     float altura_voo = 0.0f;
     // Salva z antes do voo para restaurar depois.
@@ -243,8 +243,6 @@ class Entidade {
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
-    // formas compostas possuem VBO. TODO: acabar com isso.
-    std::vector<gl::VboNaoGravado> vbos;
 
     // Toda entidade deve possuir VBOs associados.
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
@@ -261,11 +259,11 @@ class Entidade {
   static void CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static std::vector<gl::VboNaoGravado> ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
   // Extracao de VBO por tipo.
-  static std::vector<gl::VboNaoGravado> ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
-  static std::vector<gl::VboNaoGravado> ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
-  static std::vector<gl::VboNaoGravado> ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
 
 
 
@@ -290,8 +288,10 @@ class Entidade {
   /** Realiza as notificacoes referentes a modelos 3d. */
   void AtualizaModelo3d(const EntidadeProto& novo_proto);
 
-  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto. */
-  void AtualizaVbo();
+  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto. 
+  * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
+  */
+  void AtualizaVbo(const ParametrosDesenho* pd);
 
   /** A oscilacao de voo nao eh um movimento real (nao gera notificacoes). Esta funcao retorna o delta. */
   static float DeltaVoo(const VariaveisDerivadas& vd);
@@ -346,6 +346,7 @@ class Entidade {
  private:
   EntidadeProto proto_;
   VariaveisDerivadas vd_;
+  const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.
   ntf::CentralNotificacoes* central_;

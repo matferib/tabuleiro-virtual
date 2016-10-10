@@ -13,23 +13,16 @@ namespace ent {
 void AjustaCor(const EntidadeProto& proto, const ParametrosDesenho* pd);
 
 void Entidade::InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
-  // Extrai o VBO da forma livre.
-  try {
-    vd->vbos = std::move(ExtraiVboForma(proto, *vd, &ParametrosDesenho::default_instance()));
-    CorrigeVboRaiz(proto, vd);
-  } catch (...) {
-    LOG(WARNING) << "Falha extraindo VBO de forma LIVRE, renderizacao sera custosa.";
-    // sem VBO, vai desenhar na marra.
-  }
 }
 
 void Entidade::AtualizaProtoForma(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
+#if 0
   if (proto_novo.sub_tipo() == TF_LIVRE) {
     if (!vd->vbos.empty()) {
       // Extrai o VBO da forma livre.
       try {
-        vd->vbos = std::move(ExtraiVboForma(proto_novo, *vd, &ParametrosDesenho::default_instance()));
+        vd->vbos = ExtraiVboForma(proto_novo, *vd, &ParametrosDesenho::default_instance());
         CorrigeVboRaiz(proto_novo, vd);
       } catch (...) {
         LOG(WARNING) << "Falha atualizando VBO de forma LIVRE, renderizacao sera custosa.";
@@ -37,17 +30,18 @@ void Entidade::AtualizaProtoForma(
       }
     }
   }
+#endif
 }
 
-std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   gl::VboNaoGravado vbo;
   switch (proto.sub_tipo()) {
     case TF_CIRCULO: {
-      vbo = std::move(gl::VboDisco(0.5f, 12));
+      vbo = gl::VboDisco(0.5f, 12);
     }
     break;
     case TF_CILINDRO: {
-      vbo = std::move(gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/));
+      vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/);
       {
         gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
         vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
@@ -59,7 +53,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto
     }
     break;
     case TF_CONE: {
-      vbo = std::move(gl::VboConeSolido(0.5f/*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/));
+      vbo = gl::VboConeSolido(0.5f/*raio*/, 1.0f  /*altura*/, 12  /*fatias*/, 6  /*tocos*/);
       {
         gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
         vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
@@ -68,24 +62,24 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto
     }
     break;
     case TF_CUBO: {
-      vbo = std::move(gl::VboCuboSolido(1.0f));
+      vbo = gl::VboCuboSolido(1.0f);
       vbo.Translada(0, 0, 0.5f);
     }
     break;
     case TF_PIRAMIDE: {
-      vbo = std::move(gl::VboPiramideSolida(1.0f, 1.0f));
+      vbo = gl::VboPiramideSolida(1.0f, 1.0f);
     }
     break;
     case TF_RETANGULO: {
-      vbo = std::move(gl::VboRetangulo(1.0f));
+      vbo = gl::VboRetangulo(1.0f);
     }
     break;
     case TF_TRIANGULO: {
-      vbo = std::move(gl::VboTriangulo(1.0f));
+      vbo = gl::VboTriangulo(1.0f);
     }
     break;
     case TF_ESFERA: {
-      vbo = std::move(gl::VboEsferaSolida(0.5f, 24, 12));
+      vbo = gl::VboEsferaSolida(0.5f, 24, 12);
     }
     break;
     case TF_LIVRE: {
@@ -103,9 +97,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto
       vbo.RodaZ(proto.rotacao_z_graus());
       // Mundo.
       vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
-      std::vector<gl::VboNaoGravado> vbos;
-      vbos.emplace_back(std::move(vbo));
-      return vbos;
+      return gl::VbosNaoGravados(std::move(vbo));
     }
     break;
     default:
@@ -121,8 +113,7 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboForma(const ent::EntidadeProto
   // Mundo.
   vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
 
-  std::vector<gl::VboNaoGravado> vbos;
-  vbos.emplace_back(std::move(vbo));
+  gl::VbosNaoGravados vbos(std::move(vbo));
   return vbos;
 }
 
@@ -240,6 +231,48 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd) {
+  bool usar_stencil = false;
+  if (proto.sub_tipo() == TF_LIVRE) {
+    AjustaCor(proto, pd);
+    // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
+    // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
+    // Para picking, deve-se ignorar o stencil tb.
+    usar_stencil = !pd->desenha_mapa_sombras() && !pd->desenha_mapa_oclusao() && !pd->has_picking_x();
+    if (usar_stencil) {
+      LigaStencil();
+    }
+  }
+  AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+  if (EhForma2d(proto.sub_tipo()) && proto.pos().z() == 0.0f && proto.rotacao_x_graus() == 0.0f && proto.rotacao_y_graus() == 0.0f) {
+    gl::Habilita(GL_POLYGON_OFFSET_FILL);
+    gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
+  }
+  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  }
+  if (vd.vbos_gravados.Vazio()) {
+    // Para formas sendo desenhada, nao ha um VBO ainda.
+    gl::VbosNaoGravados vbo(ExtraiVboForma(proto, vd, pd));
+    vbo.Desenha();
+  } else {
+    vd.vbos_gravados.Desenha();
+  }
+  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
+  gl::Desabilita(GL_TEXTURE_2D);
+  if (usar_stencil) {
+    float xi, yi, xs, ys;
+    LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
+    //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
+    gl::MatrizEscopo salva_matriz(false);
+    gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
+    DesenhaStencil3d(xi, yi, xs, ys);
+  }
+
+
+#if 0
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz(false);
   gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
@@ -327,162 +360,6 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     default: ;
   }
   gl::Desabilita(GL_TEXTURE_2D);
-#if 0
-  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
-  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
-  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
-  gl::Roda(proto.rotacao_x_graus(), 1.0, 0.0f, 0, false);
-  std::unique_ptr<gl::HabilitaEscopo> offset_escopo;
-  if (TipoForma2d(proto.sub_tipo())) {
-    offset_escopo.reset(new gl::HabilitaEscopo(GL_POLYGON_OFFSET_FILL));
-    gl::DesvioProfundidade(-1.0, -40.0f);
-  }
-
-  switch (proto.sub_tipo()) {
-    case TF_CIRCULO: {
-      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
-      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-      if (id_textura != GL_INVALID_VALUE) {
-        gl::Habilita(GL_TEXTURE_2D);
-        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-      }
-      gl::DesenhaVbo(g_vbos[VBO_DISCO]);
-      gl::Desabilita(GL_TEXTURE_2D);
-    }
-    break;
-    case TF_CILINDRO: {
-      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-      gl::DesenhaVbo(g_vbos[VBO_CILINDRO]);
-      {
-        gl::MatrizEscopo salva(false);
-        gl::Escala(-1.0f, 1.0f, -1.0f, false);
-        gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
-      }
-      {
-        gl::MatrizEscopo salva(false);
-        gl::Translada(0.0f, 0.0f, 1.0f, false);
-        gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
-      }
-#if 0
-      // Debug de normais. So funciona se escala for igual nos eixos pois transformacao de normal eh diferente.
-      if (pd->desenha_barra_vida() && !pd->has_picking_x()) {
-        try {
-          auto vn = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6).ExtraiVboNormais();
-          gl::DesenhaVbo(vn, GL_LINES);
-        } catch (const std::exception& e) {
-          LOG_EVERY_N(INFO, 1000) << "erro vbo: " << e.what();
-        }
-      }
-#endif
-    }
-    break;
-    case TF_CONE: {
-      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-      gl::DesenhaVbo(g_vbos[VBO_CONE]);
-      {
-        gl::MatrizEscopo salva(false);
-        gl::Escala(-1.0f, 1.0f, -1.0f, false);
-        gl::DesenhaVbo(g_vbos[VBO_DISCO], GL_TRIANGLE_FAN);
-      }
-    }
-    break;
-    case TF_CUBO: {
-      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Translada(0, 0, proto.escala().z() / 2.0f, false);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-      if (id_textura != GL_INVALID_VALUE) {
-        gl::Habilita(GL_TEXTURE_2D);
-        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-      }
-      gl::DesenhaVbo(g_vbos[VBO_CUBO]);
-      gl::Desabilita(GL_TEXTURE_2D);
-    }
-    break;
-    case TF_PIRAMIDE: {
-      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-      if (id_textura != GL_INVALID_VALUE) {
-        gl::Habilita(GL_TEXTURE_2D);
-        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-      }
-      gl::DesenhaVbo(g_vbos[VBO_PIRAMIDE]);
-      gl::Desabilita(GL_TEXTURE_2D);
-    }
-    break;
-    case TF_RETANGULO: {
-      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
-      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-      if (id_textura != GL_INVALID_VALUE) {
-        gl::Habilita(GL_TEXTURE_2D);
-        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-      }
-      gl::DesenhaVbo(g_vbos[VBO_RETANGULO], GL_TRIANGLE_FAN);
-      gl::Desabilita(GL_TEXTURE_2D);
-    }
-    break;
-    case TF_TRIANGULO: {
-      gl::Translada(0.0f, -proto.escala().y() / 2.0f, 0.0f, false);
-      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f, false);
-      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-      if (id_textura != GL_INVALID_VALUE) {
-        gl::Habilita(GL_TEXTURE_2D);
-        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-      }
-      gl::DesenhaVbo(g_vbos[VBO_TRIANGULO], GL_TRIANGLES);
-      gl::Desabilita(GL_TEXTURE_2D);
-    }
-    break;
-    case TF_ESFERA: {
-      gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-      gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-      gl::DesenhaVbo(g_vbos[VBO_ESFERA]);
-    }
-    break;
-    case TF_LIVRE: {
-      // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
-      // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
-      // Para picking, deve-se ignorar o stencil tb.
-      bool usar_stencil = !pd->desenha_mapa_sombras();
-      if (usar_stencil) {
-        LigaStencil();
-      }
-      {
-        // Durante preenchimento do stencil nao pode usar o offset pois ele se aplicara ao retangulo da tela toda.
-        // Portanto escopo deve terminar aqui.
-        if (!vd.vbos.empty()) {
-          //gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
-          //gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-          for (const auto& vbo : vd.vbos) {
-            gl::DesenhaVbo(vbo);
-          }
-        } else {
-          std::vector<std::pair<float, float>> v;
-          for (const auto& p : proto.ponto()) {
-            v.push_back(std::make_pair(p.x(), p.y()));
-          }
-          gl::Livre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
-        }
-      }
-      if (usar_stencil) {
-        float xi, yi, xs, ys;
-        LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
-        //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
-        DesenhaStencil3d(xi, yi, xs, ys);
-      }
-    }
-    break;
-    default:
-      LOG(ERROR) << "Forma de desenho invalida";
-  }
 #endif
 }
 

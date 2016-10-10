@@ -32,6 +32,12 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
 //----------------
 // VbosNaoGravados
 //----------------
+void VbosNaoGravados::Multiplica(const Matrix4& m) {
+  for (auto& vbo : vbos_) {
+    vbo.Multiplica(m);
+  }
+}
+
 void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
   if (vbos_.empty()) {
     vbos_.emplace_back(rhs);
@@ -57,6 +63,12 @@ void VbosNaoGravados::Concatena(VboNaoGravado* rhs) {
       vbos_.resize(vbos_.size() + 1);
       vbos_.back() = std::move(dummy);
     }
+  }
+}
+
+void VbosNaoGravados::Concatena(VbosNaoGravados* rhs) {
+  for (auto& vbo : rhs->vbos_) {
+    Concatena(&vbo);
   }
 }
 
@@ -236,13 +248,13 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
     if (rhs.tem_texturas()) {
       texturas_.insert(texturas_.end(), rhs.texturas_.begin(), rhs.texturas_.end());
     } else {
-      LOG(WARNING) << "Limpando texturas ao concatenar porque rhs nao tem.";
+      //LOG(WARNING) << "Limpando texturas ao concatenar porque rhs nao tem.";
       texturas_.clear();
     }
   } else if (rhs.tem_texturas()) {
-    LOG(WARNING) << "Ignorando texturas ao concatenar porque lhs nao tem.";
+    //LOG(WARNING) << "Ignorando texturas ao concatenar porque lhs nao tem.";
   }
-  Nomeia(nome_ + "+" + rhs.nome_);
+  //Nomeia(nome_ + "+" + rhs.nome_);
 }
 
 std::vector<float> VboNaoGravado::GeraBufferUnico(

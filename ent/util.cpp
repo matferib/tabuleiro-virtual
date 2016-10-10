@@ -205,6 +205,12 @@ void DesenhaLinha3dBase(const T& pontos, float largura) {
 
 }  // namespace
 
+bool EhForma2d(int tipo_forma) {
+  return
+      (tipo_forma == TF_LIVRE || tipo_forma == TF_CIRCULO || tipo_forma == TF_LIVRE ||
+       tipo_forma == TF_RETANGULO || tipo_forma == TF_TRIANGULO);
+}
+
 void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura) {
   DesenhaLinha3dBase(pontos, largura);
 }

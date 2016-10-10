@@ -1,10 +1,10 @@
 Versao 2.4.0
+- Picking de objetos 2d no solo ta zoado.
 - VBO de acoes.
-- Atualizar VBOs de frente para camera quando rodar a mesma.
-
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
 - Slide de colisao.
+- Melhorar a UI do android.
 
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.

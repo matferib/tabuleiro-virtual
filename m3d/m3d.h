@@ -11,13 +11,10 @@ class VboNaoGravado;
 namespace m3d {
 
 struct Modelo3d {
-  std::vector<gl::VboGravado> vbos;
-  // Necessario para composicao.
-  std::vector<gl::VboNaoGravado> vbos_nao_gravados;
+  gl::VbosNaoGravados vbos_nao_gravados;
   // Uso interno.
   int contador = 0;
-  void Desenha() const;
-  bool Valido() const { return !vbos.empty(); }
+  bool Valido() const { return !vbos_nao_gravados.Vazio(); }
 }; 
 
 class Modelos3d : public ntf::Receptor {

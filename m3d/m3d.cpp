@@ -50,12 +50,6 @@ struct Modelos3d::Interno {
   std::unordered_map<std::string, Modelo3d> modelos;
 };
 
-void Modelo3d::Desenha() const {
-  for (const auto& vbo : vbos) {
-    gl::DesenhaVbo(vbo);
-  }
-}
-
 Modelos3d::Modelos3d(ntf::CentralNotificacoes* central) : interno_(new Interno), central_(central) {
   central_->RegistraReceptor(this);
 }
@@ -197,12 +191,7 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
   VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
   VLOG(2) << n.DebugString();
-  std::vector<gl::VboNaoGravado> vbos_nao_gravados = ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance());
-  interno_->modelos[id_interno].vbos.resize(vbos_nao_gravados.size());
-  for (unsigned int i = 0; i < vbos_nao_gravados.size(); ++i) {
-    interno_->modelos[id_interno].vbos[i].Grava(vbos_nao_gravados[i]);
-  }
-  interno_->modelos[id_interno].vbos_nao_gravados = std::move(vbos_nao_gravados);
+  interno_->modelos[id_interno].vbos_nao_gravados = ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance());
 }
 
 void Modelos3d::DescarregaModelo3d(const std::string& id_interno) {

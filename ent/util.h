@@ -56,6 +56,9 @@ inline float ZChao(float x3d, float y3d) {
   return 0;
 }
 
+// retorna true se o tipo da forma for 2d: circulo, retangulo, triangulo, livre.
+bool EhForma2d(int tipo_forma);
+
 /** Desenha uma linha 3d com a largura passada, passando pelos pontos. Em cada ponto, sera desenhado um disco para conectar. */
 void DesenhaLinha3d(const std::vector<Posicao>& pontos, float largura);
 void DesenhaLinha3d(const google::protobuf::RepeatedPtrField<Posicao>& pontos, float largura);

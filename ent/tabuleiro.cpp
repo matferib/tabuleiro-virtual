@@ -111,8 +111,6 @@ const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
 const float OFFSET_TERRENO_ESCALA_R  = 2.0f;
 //const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
 //const float OFFSET_GRADE_ESCALA_R    = 1.0f;
-const float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
-const float OFFSET_RASTRO_ESCALA_R  = -20.0f;
 
 /** Distancia minima entre pontos no desenho livre. */
 const float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
@@ -864,7 +862,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
           throw std::logic_error("Id da entidade já está sendo usado.");
         }
       }
-      auto* entidade = NovaEntidade(modelo, texturas_, m3d_, central_);
+      auto* entidade = NovaEntidade(modelo, texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
       // Selecao: queremos selecionar entidades criadas ou coladas, mas apenas quando nao estiver tratando comando de desfazer.
       if (!Desfazendo()) {
@@ -897,7 +895,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       central_->AdicionaNotificacaoRemota(n);
     } else {
       // Mensagem veio de fora.
-      auto* entidade = NovaEntidade(notificacao.entidade(), texturas_, m3d_, central_);
+      auto* entidade = NovaEntidade(notificacao.entidade(), texturas_, m3d_, central_, &parametros_desenho_);
       entidades_.insert(std::make_pair(entidade->Id(), std::unique_ptr<Entidade>(entidade)));
     }
   } catch (const std::logic_error& erro) {
@@ -3031,7 +3029,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
   const static float kLarguraSeta = 5.0f;
   const static float kTamanhoSeta = kRaioRosa * 0.8f;
 
-  gl::VboNaoGravado vbo_disco = std::move(gl::VboDisco(kRaioRosa, 8  /*faces*/));
+  gl::VboNaoGravado vbo_disco = gl::VboDisco(kRaioRosa, 8  /*faces*/);
   vbo_disco.AtribuiCor(1.0f, 1.0f, 1.0f, 1.0f);
   gl::VboNaoGravado vbo_seta("seta");
   {
@@ -3076,7 +3074,7 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
 void Tabuleiro::GeraVboCaixaCeu() {
   // O cubo tem que ser maior que a distancia do plano de corte minimo.
-  gl::VboNaoGravado vbo = std::move(gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 4.0));
+  gl::VboNaoGravado vbo = gl::VboCuboSolido(DISTANCIA_PLANO_CORTE_PROXIMO * 4.0);
   // Valores de referencia:
   // imagem 4x3.
   // x = 0.0f, 0.25f, 0.50f, 0.75f, 1.0f
@@ -4448,7 +4446,9 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       AdicionaNotificacaoListaEventos(g_desfazer);
       estado_ = ETAB_ENTS_SELECIONADAS;
       rastros_movimento_.clear();
-      parametros_desenho_.Clear();
+      //parametros_desenho_.Clear();
+      parametros_desenho_.clear_offset_terreno();
+      parametros_desenho_.clear_desenha_entidades();
       return;
     }
     case ETAB_SELECIONANDO_ENTIDADES: {
@@ -4815,7 +4815,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       // senao pode dar conflito.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
-    auto* e = NovaEntidade(ep, texturas_, m3d_, central_);
+    auto* e = NovaEntidade(ep, texturas_, m3d_, central_, &parametros_desenho_);
     if (!entidades_.insert(std::make_pair(e->Id(), std::unique_ptr<Entidade>(e))).second) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }

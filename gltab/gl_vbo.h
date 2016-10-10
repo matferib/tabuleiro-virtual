@@ -167,20 +167,44 @@ class VboGravado {
   bool gravado_ = false;
 };
 
-/** Conjunto de VBOs nao gravados. */
+/** Conjunto de VBOs nao gravados.
+* Esta classe é feita para ser eficiente, portanto todos os operadores e construtores que recebem algo recebem rvalue.
+*/
 class VbosNaoGravados {
  public:
   VbosNaoGravados() {}
-  // Propositalmente nao explicito.
+  VbosNaoGravados(VboNaoGravado&& vbo) {
+    vbos_.resize(1);
+    vbos_[0] = std::move(vbo);
+  }
   VbosNaoGravados(std::vector<VboNaoGravado>&& vbos) : vbos_(vbos) {}
+  VbosNaoGravados(VbosNaoGravados&& vbos_nao_gravados) : vbos_(vbos_nao_gravados.vbos_) {}
   VbosNaoGravados& operator=(std::vector<VboNaoGravado>&& vbos) {
     vbos_ = std::move(vbos);
     return *this;
   }
+  VbosNaoGravados& operator=(VbosNaoGravados&& rhs) {
+    vbos_ = std::move(rhs.vbos_);
+    return *this;
+  }
+  VbosNaoGravados& operator=(VboNaoGravado&& vbo_nao_gravado) {
+    vbos_.resize(1);
+    vbos_[0] = std::move(vbo_nao_gravado);
+    return *this;
+  }
+
+  // O motivo da funcao ser assim e nao um operator eh evitar que os operadores de copia sejam caros de forma silenciosa.
+  void CopiaDe(const VbosNaoGravados& rhs) {
+    vbos_ = rhs.vbos_;
+  }
+
+  // A concatenacao eh uma operacao cara. Ela tentara colocar objetos no mesmo VBO e caso nao consiga, criara um novo.
+  void Concatena(VbosNaoGravados* rhs);
   void Concatena(const VboNaoGravado& rhs);
   void Concatena(VboNaoGravado* rhs);
   void Desenha() const;
   bool Vazio() const { return vbos_.empty(); }
+  void Multiplica(const Matrix4& m);
 
  private:
   std::vector<VboNaoGravado> vbos_;

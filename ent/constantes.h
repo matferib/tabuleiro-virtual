@@ -84,6 +84,12 @@ extern const float COR_AZUL[];
 extern const float COR_AZUL_ALFA[];
 extern const float COR_AMARELA[];
 
+// Offset de profundidade para formas 2d sobre tabuleiro.
+constexpr float OFFSET_RASTRO_ESCALA_DZ  = -2.0f;
+constexpr float OFFSET_RASTRO_ESCALA_R  = -20.0f;
+constexpr float OFFSET_FORMAS_2D_ESCALA_DZ  = -4.0f;
+constexpr float OFFSET_FORMAS_2D_ESCALA_R  = -40.0f;
+
 }  // namespace ent
 
 #endif  // ENT_CONSTANTES_H
