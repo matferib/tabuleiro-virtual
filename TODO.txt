@@ -1,7 +1,10 @@
 Versao 2.4.0
-- Tirar a oclusao da uniform de nevoa.
+- VBO de acoes.
+- Atualizar VBOs de frente para camera quando rodar a mesma.
+
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
+- Slide de colisao.
 
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.

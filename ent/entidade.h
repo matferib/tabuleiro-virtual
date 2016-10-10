@@ -227,6 +227,8 @@ class Entidade {
     VariaveisDerivadas() { }
     // Como esse estado é local e não precisa ser salvo, fica aqui.
     float angulo_disco_selecao_graus = 0.0f;
+    // Para entidades com texturas sempre de frente, o angulo para rodar.
+    float angulo_textura_sempre_de_frente = 0.0f;
     // Qual a altura do voo da entidade.
     float altura_voo = 0.0f;
     // Salva z antes do voo para restaurar depois.
