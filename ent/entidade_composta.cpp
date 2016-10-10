@@ -16,7 +16,7 @@ namespace ent {
 
 void Entidade::InicializaComposta(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
   try {
-    vd->vbos = std::move(ExtraiVbo(proto, *vd, &ParametrosDesenho::default_instance()));
+    vd->vbos = ExtraiVbo(proto, *vd, &ParametrosDesenho::default_instance());
     CorrigeVboRaiz(proto, vd);
   } catch (...) {
     LOG(WARNING) << "Nao consegui extrair VBO de objeto composto: " << proto.id() << ", vai falhar ao desenhar";
@@ -34,9 +34,9 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadePr
   int indice_corrente = 0;  // qual vbo esta sendo concatenado.
   for (const auto& sub : proto.sub_forma()) {
     if (sub.tipo() == TE_COMPOSTA) {
-      sub_vbos = std::move(ExtraiVboComposta(sub, vd, pd));
+      sub_vbos = ExtraiVboComposta(sub, vd, pd);
     } else if (sub.tipo() == TE_FORMA) {
-      sub_vbos = std::move(ExtraiVboForma(sub, vd, pd));
+      sub_vbos = ExtraiVboForma(sub, vd, pd);
     }
     for (const auto& svbo : sub_vbos) {
       try {
@@ -63,6 +63,18 @@ std::vector<gl::VboNaoGravado> Entidade::ExtraiVboComposta(const ent::EntidadePr
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
+#define DESENHAR_VBO 1
+#if DESENHAR_VBO
+  AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  }
+  vd.vbos_gravados.Desenha();
+  gl::Desabilita(GL_TEXTURE_2D);
+#else
   gl::MatrizEscopo salva_matriz(false);
   gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
   gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
@@ -93,6 +105,7 @@ void Entidade::DesenhaObjetoCompostoProto(
       gl::Desabilita(GL_TEXTURE_2D);
     }
   }
+#endif
 }
 
 bool Entidade::ColisaoComposta(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao) {

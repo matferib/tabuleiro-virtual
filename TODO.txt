@@ -1,5 +1,6 @@
 Versao 2.4.0
-- Tirar a oclusao da uniform de nevoa.
+- Forma tem que funcionar sem VBO tambem para o caso de desenho.
+- Arrumar o VBO da entidade ao rodar a visao.
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
 

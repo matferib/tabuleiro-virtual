@@ -240,6 +240,18 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
 void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        const VariaveisDerivadas& vd,
                                        ParametrosDesenho* pd) {
+#define DESENHAR_VBO 1
+#if DESENHAR_VBO
+  AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+  GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
+    vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  }
+  vd.vbos_gravados.Desenha();
+  gl::Desabilita(GL_TEXTURE_2D);
+#else
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz(false);
   gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
@@ -483,6 +495,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     default:
       LOG(ERROR) << "Forma de desenho invalida";
   }
+#endif
 #endif
 }
 
