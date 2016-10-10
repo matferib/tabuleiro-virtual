@@ -236,13 +236,13 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
     if (rhs.tem_texturas()) {
       texturas_.insert(texturas_.end(), rhs.texturas_.begin(), rhs.texturas_.end());
     } else {
-      LOG(WARNING) << "Limpando texturas ao concatenar porque rhs nao tem.";
+      //LOG(WARNING) << "Limpando texturas ao concatenar porque rhs nao tem.";
       texturas_.clear();
     }
   } else if (rhs.tem_texturas()) {
-    LOG(WARNING) << "Ignorando texturas ao concatenar porque lhs nao tem.";
+    //LOG(WARNING) << "Ignorando texturas ao concatenar porque lhs nao tem.";
   }
-  Nomeia(nome_ + "+" + rhs.nome_);
+  //Nomeia(nome_ + "+" + rhs.nome_);
 }
 
 std::vector<float> VboNaoGravado::GeraBufferUnico(
