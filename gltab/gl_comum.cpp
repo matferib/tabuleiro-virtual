@@ -837,7 +837,7 @@ bool EstaHabilitado(GLenum cap) {
     return fret > 0.5f;
   } else if (cap == GL_FOG) {
     GLint uniforme = shader.uni_gltab_nevoa_cor;
-    if (uniforme == 1) {
+    if (uniforme == -1) {
       return false;
     }
     GLfloat cor[4];
@@ -928,6 +928,9 @@ void Oclusao(bool valor) {
 
 bool OclusaoLigada() {
   const auto& shader = interno::BuscaShader();
+  if (shader.uni_gltab_oclusao_ligada == -1) {
+    return false;
+  }
   GLint oclusao;
   LeUniforme(shader.programa, shader.uni_gltab_oclusao_ligada, &oclusao);
   return oclusao > 0.0f;
@@ -1265,9 +1268,10 @@ bool PosicaoRaster(GLint x, GLint y) {
 
 void AlternaModoDebug() {
   auto* c = interno::BuscaContexto();
-  //c->depurar_selecao_por_cor = !c->depurar_selecao_por_cor;
-  c->AlternaSelecaoPorCor();
-  LOG(INFO) << "selecao por cor: " << c->SelecaoPorCorHabilitada();
+  c->depurar_selecao_por_cor = !c->depurar_selecao_por_cor;
+  //c->AlternaSelecaoPorCor();
+  //LOG(INFO) << "selecao por cor: " << c->SelecaoPorCorHabilitada();
+  LOG(INFO) << "selecao por cor: " << c->depurar_selecao_por_cor;
 }
 
 void CarregaNome(GLuint id) {
@@ -1275,7 +1279,7 @@ void CarregaNome(GLuint id) {
   if (c->UsarSelecaoPorCor()) {
     GLubyte rgb[3];
     interno::MapeiaId(id, rgb);
-    VLOG(2) << "Mapeando " << id << ", bit pilha " << c->bit_pilha
+    VLOG(2) << "Mapeando " << id << ", tipo " << c->bit_pilha
             << " para " << (int)rgb[0] << ", " << (int)rgb[1] << ", " << (int)rgb[2];
     // Muda a cor para a mapeada.
     if (interno::BuscaShader().atr_gltab_cor != -1) {
@@ -1306,7 +1310,7 @@ void EmpilhaNome(GLuint id) {
       return;
     }
     c->bit_pilha = id;
-    VLOG(1) << "Empilhando bit pilha: " << c->bit_pilha;
+    VLOG(1) << "Empilhando tipo: " << c->bit_pilha;
   } else {
 #if !USAR_OPENGL_ES
     glPushName(id);
@@ -1384,7 +1388,9 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         }
         auto it = c->ids.find(id_mapeado);
         if (it == c->ids.end()) {
-          LOG(ERROR) << "Id nao mapeado: " << (void*)id_mapeado;
+          LOG(ERROR) << "Id nao mapeado, tipo: " << tipo_objeto
+                     << ", identificador: " << (id_mapeado & 0xFFFF)
+                     << ", tudo: " << (void*)id_mapeado;
           return 0;
         }
         unsigned int id_original = it->second;
