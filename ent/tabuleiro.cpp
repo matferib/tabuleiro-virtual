@@ -730,6 +730,7 @@ int Tabuleiro::Desenha() {
   }
 
   if (modo_debug_) {
+    tipo_shader = gl::TSH_PICKING;
     parametros_desenho_.set_iluminacao(false);
     parametros_desenho_.set_desenha_texturas(false);
     parametros_desenho_.set_desenha_grade(false);
@@ -753,7 +754,11 @@ int Tabuleiro::Desenha() {
 
   GeraVbosCena();
 
-  if (MapeamentoOclusao()) {
+#if !__APPLE__ || !USAR_OPENGL_ES
+  gl::Desabilita(GL_MULTISAMPLE);
+#endif
+
+  if (MapeamentoOclusao() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
@@ -776,7 +781,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   }
 
-  if (parametros_desenho_.desenha_sombras()) {
+  if (parametros_desenho_.desenha_sombras() & !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
@@ -810,6 +815,13 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(GL_TEXTURE0);
   }
+
+#if !__APPLE__ || !USAR_OPENGL_ES
+  if (opcoes_.anti_aliasing()) {
+    gl::Habilita(GL_MULTISAMPLE);
+  }
+#endif
+
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
@@ -2488,13 +2500,6 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
-#if !__APPLE__ || !USAR_OPENGL_ES
-  if (opcoes_.anti_aliasing()) {
-    gl::Habilita(GL_MULTISAMPLE);
-  } else {
-    gl::Desabilita(GL_MULTISAMPLE);
-  }
-#endif
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
@@ -4987,13 +4992,6 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
 
 void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
-#if !__APPLE__ || !USAR_OPENGL_ES
-  if (opcoes_.anti_aliasing()) {
-    gl::Habilita(GL_MULTISAMPLE);
-  } else {
-    gl::Desabilita(GL_MULTISAMPLE);
-  }
-#endif
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
 }
