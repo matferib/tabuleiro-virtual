@@ -90,6 +90,7 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 
 void main() {
   lowp vec4 cor_final = v_Color;
+  highp float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
   if (gltab_oclusao_ligada) {
     highp float bias = 0.5;
 #if __VERSION__ == 130
@@ -105,7 +106,7 @@ void main() {
 #endif
 
     if (visivel == 0.0) {
-      lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a);
+      lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
       gl_FragColor = mix(vec4(0.0, 0.0, 0.0, 1.0), gltab_nevoa_cor, peso_nevoa);
       return;
     }
@@ -153,8 +154,7 @@ void main() {
   //cor_final = vec4(cor, cor, cor, cor_final.a);
 
   // Nevoa.
-  highp float distancia = length(v_Pos - gltab_nevoa_referencia);
-  lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
+  lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
 #if 0
   if (gltab_textura == 0.0) {
     cor_final.r = 0.0;  //v_Pos_sombra.x; //v_Pos.x;
