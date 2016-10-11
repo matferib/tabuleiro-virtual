@@ -755,7 +755,10 @@ int Tabuleiro::Desenha() {
   GeraVbosCena();
 
 #if !__APPLE__ || !USAR_OPENGL_ES
-  gl::Desabilita(GL_MULTISAMPLE);
+  if (opcoes_.anti_aliasing()) {
+    // Colocando dentro do if para evitar erro de opengl com plataformas que nao suportam GL_MULTISAMPLE.
+    gl::Desabilita(GL_MULTISAMPLE);
+  }
 #endif
 
   if (MapeamentoOclusao() && !modo_debug_) {
@@ -2730,18 +2733,6 @@ void Tabuleiro::DesenhaCena() {
 
 
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
-  // desenha tabuleiro do sul para o norte.
-  if (parametros_desenho_.desenha_terreno()) {
-    gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
-    DesenhaTabuleiro();
-    if (parametros_desenho_.desenha_grade() &&
-        (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
-      DesenhaGrade();
-    }
-    DesenhaQuadradoSelecionado();
-  }
-  V_ERRO("desenhando tabuleiro");
-
   if (opcoes_.desenha_olho()) {
     DesenhaOlho();
   }
@@ -2788,6 +2779,18 @@ void Tabuleiro::DesenhaCena() {
     DesenhaAcoes();
   }
   V_ERRO("desenhando acoes");
+
+  // desenha tabuleiro do sul para o norte por ultimo para economizar.
+  if (parametros_desenho_.desenha_terreno()) {
+    gl::TipoEscopo nomes_tabuleiro(OBJ_TABULEIRO);
+    DesenhaTabuleiro();
+    if (parametros_desenho_.desenha_grade() &&
+        (proto_corrente_->desenha_grade() || (!VisaoMestre() && proto_corrente_->textura_mestre_apenas()))) {
+      DesenhaGrade();
+    }
+    DesenhaQuadradoSelecionado();
+  }
+  V_ERRO("desenhando tabuleiro");
 
   if (estado_ == ETAB_ENTS_PRESSIONADAS && parametros_desenho_.desenha_rastro_movimento() && !rastros_movimento_.empty()) {
     LigaStencil();
