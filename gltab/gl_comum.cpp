@@ -1466,11 +1466,11 @@ void Habilita(GLenum cap) {
   auto* c = interno::BuscaContexto();
   if (c->UsarSelecaoPorCor()) {
     if (cap == GL_LIGHTING) {
+      LOG(WARNING) << "Luz nao deve ser usada com selecao";
       return;
     }
-  } else {
-    interno::HabilitaComShader(c, cap);
   }
+  interno::HabilitaComShader(c, cap);
 }
 
 void Desabilita(GLenum cap) {
