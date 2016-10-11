@@ -1,5 +1,4 @@
 Versao 2.4.0
-- Picking de objetos 2d no solo ta zoado.
 - VBO de acoes.
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
