@@ -21,6 +21,7 @@ varying highp vec4 v_Pos_model;
 varying highp vec4 v_Pos_sombra;
 varying highp float v_Bias;
 varying lowp vec2 v_Tex;  // coordenada texel.
+varying highp vec3 v_Pos_oclusao;
 // Uniformes nao variam por vertice, vem de fora.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform highp mat4 gltab_prm;    // projecao.
@@ -29,6 +30,7 @@ uniform highp mat4 gltab_prm_sombra;    // projecao sombra.
 uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
 uniform mediump mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
+uniform highp mat4 gltab_mvm_oclusao;    // modelagem oclusao.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
@@ -114,5 +116,7 @@ void main() {
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
   highp float cos_theta = clamp(dot(normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
   v_Bias = clamp(0.002 * tan(acos(cos_theta)), 0.00, 0.0035);
+  highp vec4 pos_oclusao = gltab_mvm_oclusao * gltab_vertice;
+  v_Pos_oclusao = pos_oclusao.xyz / pos_oclusao.w;
   gl_PointSize = gltab_dados_raster.p;
 }

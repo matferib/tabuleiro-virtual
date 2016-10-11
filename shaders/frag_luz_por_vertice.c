@@ -29,9 +29,10 @@ varying highp vec4 v_Pos_model;
 varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
 varying highp float v_Bias;
 varying lowp vec2 v_Tex;  // coordenada texel.
-uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
+varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
 
 // Uniforms sao constantes durante desenho, setadas no codigo nativo.
+uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 uniform lowp float gltab_textura;                // Textura ligada?
 uniform lowp float gltab_textura_cubo;           // Textura cubo ligada?
 uniform lowp sampler2D gltab_unidade_textura;    // handler da textura.
@@ -40,12 +41,37 @@ uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da text
 #else
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
+uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 uniform InfoLuzDirecional gltab_luz_direcional;  // Luz direcional.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = ?, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa.
+uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
+uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
 
 void main() {
+  mediump float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
+  if (gltab_oclusao_ligada) {
+    highp float bias = 0.5;
+#if __VERSION__ == 130
+    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante_oclusao;
+    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
+#else
+    // OpenGL ES 2.0.
+    highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
+    highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
+    //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
+    mais_proximo *= gltab_plano_distante_oclusao;
+    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0 : 0.0;
+#endif
+
+    if (visivel == 0.0) {
+      lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
+      gl_FragColor = mix(vec4(0.0, 0.0, 0.0, 1.0), gltab_nevoa_cor, peso_nevoa);
+      return;
+    }
+  }
+
 #if __VERSION__ == 130
   lowp float aplicar_luz_direcional =
       texture(gltab_unidade_textura_sombra, vec3(v_Pos_sombra.xy, v_Pos_sombra.z - v_Bias));
@@ -72,8 +98,7 @@ void main() {
   //lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
   //gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
   if (gltab_nevoa_cor.a > 0.0) {
-    mediump float distancia = length(v_Pos - gltab_nevoa_referencia);
-    lowp float peso_nevoa = smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia);
+    lowp float peso_nevoa = smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
     cor_final = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
   }
   gl_FragColor = cor_final;
