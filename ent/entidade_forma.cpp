@@ -223,8 +223,7 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
   }
 
   const auto& pos = proto.pos();
-  // WTF esse 0.01!!??
-  matrix.translate(pos.x(), pos.y(), pos.z() + 0.01f);
+  matrix.translate(pos.x(), pos.y(), pos.z());
   return matrix;
 }
 
@@ -233,20 +232,12 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                                        ParametrosDesenho* pd) {
   bool usar_stencil = false;
   if (proto.sub_tipo() == TF_LIVRE) {
-    AjustaCor(proto, pd);
-    // Usar stencil nos dois casos (transparente ou solido) para que a cor do AjustaCor funcione.
-    // caso contrario, ao atualizar a cor do desenho livre, o VBO tera que ser regerado.
-    // Para picking, deve-se ignorar o stencil tb.
     usar_stencil = !pd->desenha_mapa_sombras() && !pd->desenha_mapa_oclusao() && !pd->has_picking_x();
     if (usar_stencil) {
       LigaStencil();
     }
   }
   AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
-  if (EhForma2d(proto.sub_tipo()) && proto.pos().z() == 0.0f && proto.rotacao_x_graus() == 0.0f && proto.rotacao_y_graus() == 0.0f) {
-    gl::Habilita(GL_POLYGON_OFFSET_FILL);
-    gl::DesvioProfundidade(OFFSET_RASTRO_ESCALA_DZ, OFFSET_RASTRO_ESCALA_R);
-  }
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
@@ -260,17 +251,15 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   } else {
     vd.vbos_gravados.Desenha();
   }
-  gl::Desabilita(GL_POLYGON_OFFSET_FILL);
-  gl::Desabilita(GL_TEXTURE_2D);
   if (usar_stencil) {
     float xi, yi, xs, ys;
     LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
     //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
     gl::MatrizEscopo salva_matriz(false);
     gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
-    DesenhaStencil3d(xi, yi, xs, ys);
+    float cor[] = { proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a() };
+    DesenhaStencil3d(xi, yi, xs, ys, cor);
   }
-
 
 #if 0
   AjustaCor(proto, pd);
