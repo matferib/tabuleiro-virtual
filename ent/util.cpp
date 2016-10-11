@@ -671,7 +671,10 @@ bool FiltroModelo3d(const std::string& nome) {
 }
 
 bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, float alfa) const {
-  if (pd->has_alfa_translucidos()) {
+  if (pd->has_picking_x()) {
+    // Durante picking, nao altera o blending.
+    return false;
+  } else if (pd->has_alfa_translucidos()) {
     // Blend ja ta ligado.
     gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
     gl::CorMistura(1.0f, 1.0f, 1.0f, alfa < 1.0f ? alfa : pd->alfa_translucidos());
