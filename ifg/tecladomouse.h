@@ -96,7 +96,8 @@ class TratadorTecladoMouse : public ntf::Receptor {
   void TrataTeclaLiberada(teclas_e tecla, modificadores_e modificadores);
 
   void TrataBotaoMousePressionado(botoesmouse_e botao, unsigned int modificadores, int x, int y);
-  void TrataMovimentoMouse(int x, int y);
+  /** @return true se o mouse deve ser restaurado. */
+  bool TrataMovimentoMouse(int x, int y);
   void TrataDuploCliqueMouse(botoesmouse_e botao, unsigned int modificadores, int x, int y);
   void TrataBotaoMouseLiberado();
   void TrataRodela(int delta);

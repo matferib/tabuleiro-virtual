@@ -188,8 +188,10 @@ class Tabuleiro : public ntf::Receptor {
   */
   void TrataTranslacaoPorDelta(int x, int y, int nx, int ny);
 
-  /** trata movimento do mouse (y ja em coordenadas opengl). */
-  void TrataMovimentoMouse(int x, int y);
+  /** trata movimento do mouse (y ja em coordenadas opengl).
+  * @return true se o mouse deve ser travado (para caso de rotacao).
+  */
+  bool TrataMovimentoMouse(int x, int y);
 
   /** Trata o movimento do mouse apos ficar em repouso. */
   void TrataMovimentoMouse();

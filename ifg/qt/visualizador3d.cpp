@@ -476,7 +476,14 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 void Visualizador3d::mouseMoveEvent(QMouseEvent* event) {
-  teclado_mouse_->TrataMovimentoMouse(event->x(), height() - event->y());
+  int x = event->globalX();
+  int y = event->globalY();
+  if (teclado_mouse_->TrataMovimentoMouse(event->x(), height() - event->y())) {
+    QCursor::setPos(x_antes_, y_antes_);
+  } else {
+    x_antes_ = x;
+    y_antes_ = y;
+  }
   event->accept();
 }
 

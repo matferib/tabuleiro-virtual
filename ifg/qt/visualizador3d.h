@@ -69,6 +69,9 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   ifg::TratadorTecladoMouse* teclado_mouse_;
   ntf::CentralNotificacoes* central_;
   ent::Tabuleiro* tabuleiro_;
+  // Para prender mouse no lugar.
+  int x_antes_ = 0;
+  int y_antes_ = 0;
 };
 
 }  // namespace qt

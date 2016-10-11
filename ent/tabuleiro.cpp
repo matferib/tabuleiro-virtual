@@ -680,6 +680,7 @@ int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
   TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
 
+  // Quanto passou desde a ultima renderizacao.
   auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
   timer_para_renderizacao_.start();
 
@@ -1340,9 +1341,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_TEMPORIZADOR: {
+      // quanto passou desde a ultima atualizacao.
       auto passou_ms = timer_para_atualizacoes_.elapsed().wall / 1000000ULL;
-      //auto passou_ms = INTERVALO_NOTIFICACAO_MS;
       timer_para_atualizacoes_.start();
+
+      //boost::timer::cpu_timer timer_temp;
+      //timer_temp.start();
       AtualizaEntidades(passou_ms);
       // Em algumas situacoes, nao eh bom atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
       // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
@@ -1367,6 +1371,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
 #if USAR_WATCHDOG
       watchdog_.Refresca();
 #endif
+      //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
+      //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
       return true;
     }
     case ntf::TN_REINICIAR_TABULEIRO: {
@@ -1798,14 +1804,14 @@ void Tabuleiro::TrataMovimentoMouse() {
   }
 }
 
-void Tabuleiro::TrataMovimentoMouse(int x, int y) {
+bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
   if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
     TrataBotaoRotacaoPressionado(x, y);
-    return;
+    return true;
   }
   if (x == ultimo_x_ && y == ultimo_y_) {
     // No tablet pode acontecer de gerar estes eventos com mesma coordenadas.
-    return;
+    return false;
   }
   switch (estado_) {
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
@@ -1827,7 +1833,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
           VLOG(1) << "Ainda indeciso";
           ultimo_x_ = x;
           ultimo_y_ = y;
-          return;
+          return false;
         }
         // Se chegou aqui eh pq mudou de estado. Comeca a temporizar.
         ciclos_para_atualizar_ = CICLOS_PARA_ATUALIZAR_MOVIMENTOS_PARCIAIS;
@@ -1849,7 +1855,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       }
       ultimo_x_ = x;
       ultimo_y_ = y;
-      return;
+      return false;
     }
     case ETAB_ROTACAO: {
       // Realiza a rotacao da tela.
@@ -1871,9 +1877,11 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         olho_altura = OLHO_ALTURA_MAXIMA;
       }
       olho_.set_altura(olho_altura);
-      ultimo_x_ = x;
-      ultimo_y_ = y;
+      // A rotacao nao altera o cursor, portanto nao deve atualizar o ultimo_xy.
+      //ultimo_x_ = x;
+      //ultimo_y_ = y;
       AtualizaOlho(0, true  /*forcar*/);
+      return true;
     }
     break;
     case ETAB_ENTS_PRESSIONADAS: {
@@ -1882,7 +1890,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       parametros_desenho_.set_desenha_entidades(false);
       float nx, ny, nz;
       if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
-        return;
+        return false;
       }
       float dx = nx - ultimo_x_3d_;
       float dy = ny - ultimo_y_3d_;
@@ -1956,7 +1964,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         // Faz picking do tabuleiro sem entidades.
         float nx, ny, nz;
         if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
-          return;
+          return false;
         }
 
         float delta_x = nx - ultimo_x_3d_;
@@ -1970,7 +1978,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
         const float maximo_y = TamanhoY() + TAMANHO_LADO_QUADRADO * tolerancia_quadrados;
         if (novo_x < -maximo_x || novo_x > maximo_x || novo_y < -maximo_y || novo_y > maximo_y) {
           VLOG(1) << "Olho fora do tabuleiro";
-          return;
+          return false;
         }
         p->set_x(novo_x);
         p->set_y(novo_y);
@@ -2005,7 +2013,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       parametros_desenho_.set_desenha_entidades(false);
       if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
-        return;
+        return false;
       }
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
@@ -2029,7 +2037,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
       parametros_desenho_.set_desenha_entidades(false);
       if (!MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d)) {
         // Mouse fora do tabuleiro.
-        return;
+        return false;
       }
       ultimo_x_3d_ = x3d;
       ultimo_y_3d_ = y3d;
@@ -2055,7 +2063,7 @@ void Tabuleiro::TrataMovimentoMouse(int x, int y) {
     break;
     default: ;
   }
-
+  return false;
 }
 
 void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
