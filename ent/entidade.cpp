@@ -177,11 +177,14 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto,
   }
 
   // Moldura.
-  gl::VboNaoGravado vbo_moldura = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
-  vbo_moldura.Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura());
-  vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
-  vbo_moldura.Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
-  vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+  gl::VboNaoGravado vbo_moldura;
+  if (!pd->desenha_texturas_para_cima()) {
+    vbo_moldura = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
+    vbo_moldura.Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura());
+    vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
+    vbo_moldura.Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
+    vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+  }
 
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
