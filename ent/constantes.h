@@ -90,6 +90,9 @@ constexpr float OFFSET_RASTRO_ESCALA_R  = -20.0f;
 constexpr float OFFSET_FORMAS_2D_ESCALA_DZ  = -4.0f;
 constexpr float OFFSET_FORMAS_2D_ESCALA_R  = -40.0f;
 
+constexpr float CAMPO_VISAO_MIN = 30.0f;
+constexpr float CAMPO_VISAO_MAX = 90.0f;
+
 }  // namespace ent
 
 #endif  // ENT_CONSTANTES_H
