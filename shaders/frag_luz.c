@@ -90,26 +90,15 @@ lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
 
 void main() {
   lowp vec4 cor_final = v_Color;
-  highp float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
+  lowp vec4 cor_oclusao = vec4(1.0, 1.0, 1.0, 1.0);
   if (gltab_oclusao_ligada) {
     highp float bias = 0.5;
-#if __VERSION__ == 130
-    highp float mais_proximo = texture(gltab_unidade_textura_oclusao, v_Pos_oclusao).r * gltab_plano_distante_oclusao;
-    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0f : 0.0f;
-#else
-    // OpenGL ES 2.0.
     highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
     highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
     //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
     mais_proximo *= gltab_plano_distante_oclusao;
-    lowp float visivel = length(v_Pos_oclusao) - bias < mais_proximo ? 1.0 : 0.0;
-#endif
-
-    if (visivel == 0.0) {
-      lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
-      gl_FragColor = mix(vec4(0.0, 0.0, 0.0, 1.0), gltab_nevoa_cor, peso_nevoa);
-      return;
-    }
+    lowp float visivel = sign(mais_proximo - (length(v_Pos_oclusao) - bias));
+    cor_oclusao = vec4(visivel, visivel, visivel, 1.0);
   }
 
   // luz ambiente.
@@ -154,24 +143,11 @@ void main() {
   //cor_final = vec4(cor, cor, cor, cor_final.a);
 
   // Nevoa.
-  lowp float peso_nevoa = step(0.1, gltab_nevoa_cor.a) * smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
-#if 0
-  if (gltab_textura == 0.0) {
-    cor_final.r = 0.0;  //v_Pos_sombra.x; //v_Pos.x;
-    cor_final.g = v_Pos_sombra.y;
-    cor_final.b = 0.0;
-    cor_final.a = 1.0;
-    //vec2 xy = vec2(v_Pos_sombra.y, 1.0 - v_Pos_sombra.x);
-    //cor_final.r = clamp(texture2D(gltab_unidade_textura_sombra, xy).z, 0.0, 1.0);
-    //cor_final.g = 0.0; //clamp(texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy).z, 0.0, 1.0);
-    //cor_final.b = 0.0;
-    //cor_final.a = 1.0;
-    //if (cor_final.r < cor_final.g){
-    //  cor_final = vec4(1.0, 0.0, 0.0, 1.0);
-    //} else {
-    //  cor_final = vec4(0.0, 1.0, 0.0, 1.0);
-    //}
+  cor_final *= cor_oclusao;
+  if (gltab_nevoa_cor.a > 0.0) {
+    mediump float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
+    lowp float peso_nevoa = smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
+    cor_final = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
   }
-#endif
-  gl_FragColor = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
+  gl_FragColor = cor_final;
 }
