@@ -1722,12 +1722,8 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
     } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
       campo_visao_vertical_graus_ -= (delta * SENSIBILIDADE_RODA * 2.0f);
-      const float kCampoVisaoMin = 30.0f;
-      const float kCampoVisaoMax = 110.0f;
-      campo_visao_vertical_graus_ =
-          std::max(campo_visao_vertical_graus_, kCampoVisaoMin);
-      campo_visao_vertical_graus_ =
-          std::min(campo_visao_vertical_graus_, kCampoVisaoMax);
+      campo_visao_vertical_graus_ = std::max(campo_visao_vertical_graus_, CAMPO_VISAO_MIN);
+      campo_visao_vertical_graus_ = std::min(campo_visao_vertical_graus_, CAMPO_VISAO_MAX);
     } else {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
@@ -1740,6 +1736,9 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
     // Eh possivel chegar aqui?
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    campo_visao_vertical_graus_ *= fator;
+    campo_visao_vertical_graus_ = std::max(campo_visao_vertical_graus_, CAMPO_VISAO_MIN);
+    campo_visao_vertical_graus_ = std::min(campo_visao_vertical_graus_, CAMPO_VISAO_MAX);
     return;
   } else {
     AtualizaRaioOlho(olho_.raio() / fator);
