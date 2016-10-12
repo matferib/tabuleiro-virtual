@@ -223,10 +223,11 @@ void CarregaExtensoes() {
 }  // namespace
 
 void ImprimeExtensoes() {
-  LOG(INFO) << "Extensoes:";
+  // Usa VLOG ao inves de info pra imprimir no android sempre.
+  VLOG(0) << "Extensoes:";
   auto* contexto = BuscaContexto();
   for (const auto& e : contexto->extensoes) {
-    LOG(INFO) << e;
+    VLOG(0) << e;
   }
 }
 
