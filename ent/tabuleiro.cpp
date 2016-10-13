@@ -2144,6 +2144,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_entidade.set_x(x3d);
     pos_entidade.set_y(y3d);
     pos_entidade.set_z(z3d);
+    pos_entidade.set_id_cenario(cenario_corrente_);
     // Depois tabuleiro.
     parametros_desenho_.set_desenha_entidades(false);
     BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
@@ -2159,6 +2160,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_tabuleiro.set_x(x3d);
     pos_tabuleiro.set_y(y3d);
     pos_tabuleiro.set_z(z3d);
+    pos_tabuleiro.set_id_cenario(cenario_corrente_);
   }
 
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
@@ -3827,6 +3829,10 @@ void Tabuleiro::DesenhaAuras() {
 void Tabuleiro::DesenhaAcoes() {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
+    auto* entidade_origem = BuscaEntidade(a->Proto().id_entidade_origem());
+    if (entidade_origem == nullptr || entidade_origem->IdCenario() != cenario_corrente_) {
+      continue;
+    }
     a->Desenha(&parametros_desenho_);
   }
 }
