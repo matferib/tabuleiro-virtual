@@ -32,4 +32,14 @@ const std::string to_string(int numero) {
 #endif
 }
 
+const std::string to_string(float numero) {
+#if WIN32 || ANDROID
+  char buffer[51];
+  snprintf(buffer, 51, "%.2f", numero);
+  return std::string(buffer);
+#else
+  return std::to_string(numero);
+#endif
+}
+
 }  // namespace net

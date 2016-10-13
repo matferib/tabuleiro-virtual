@@ -22,6 +22,8 @@ inline int PortaAnuncio() { return 11224; }
 
 // Conversao de numero para string independente de plataforma.
 const std::string to_string(int numero);
+inline const std::string to_string(unsigned int numero) { return to_string((int)numero); }
+const std::string to_string(float numero);
 
 }  // namespace net
 

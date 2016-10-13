@@ -238,7 +238,7 @@ void Cliente::RecebeDados() {
     if (!notificacao->ParseFromString(buffer_)) {
       std::string erro_str;
       erro_str = "Erro ParseFromString recebendo dados do servidor. Tamanho buffer_notificacao: " +
-                 to_string(buffer_.size());
+                 to_string((int)buffer_.size());
       delete notificacao;
       Desconecta(erro_str);
       return;

@@ -215,7 +215,8 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       if (erro.ConexaoFechada()) {
         erro_str += "Conexao fechada pela outra ponta.";
       } else {
-        erro_str += ": " + erro.mensagem() + ", esperava: " + to_string(cliente->buffer_recepcao.size()) + ", recebi: " + to_string(bytes_recebidos);
+        erro_str += ": " + erro.mensagem() + ", esperava: " + to_string((int)cliente->buffer_recepcao.size()) +
+                    ", recebi: " + to_string((int)bytes_recebidos);
       }
       n->set_erro(erro_str);
       central_->AdicionaNotificacao(n);
