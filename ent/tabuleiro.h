@@ -374,8 +374,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna se o tabuleiro esta no modo mestre ou jogador. Parametro secundario para considerar 
   * mestres secundarios tambem.
   */
-  bool EmModoMestre(bool secundario = false) const {
-    return modo_mestre_ || (secundario && modo_mestre_secundario_);
+  bool EmModoMestre() const {
+    return modo_mestre_;
+  }
+  bool EmModoMestreIncluindoSecundario() {
+    return EmModoMestre() || modo_mestre_secundario_;
   }
   // Debug.
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
@@ -431,26 +434,6 @@ class Tabuleiro : public ntf::Receptor {
   const OpcoesProto& Opcoes() const { return opcoes_; }
 
  private:
-  // Classe para computar o tempo de desenho da cena pelo escopo.
-  class TimerEscopo {
-   public:
-    TimerEscopo(Tabuleiro* tabuleiro, bool valido) : tabuleiro_(tabuleiro), valido_(valido) {
-      if (valido_) {
-        tabuleiro_->timer_.start();
-      }
-    }
-
-    ~TimerEscopo() {
-      if (valido_) {
-        tabuleiro_->DesenhaTempoRenderizacao();
-      }
-    }
-
-   private:
-    Tabuleiro* tabuleiro_;
-    bool valido_;
-  };
-
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);
 
@@ -513,8 +496,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha a forma de desenho selecionada. */
   void DesenhaFormaSelecionada();
 
-  /** Desenha o tempo de renderizacao da cena. */
-  void DesenhaTempoRenderizacao();
+  /** Desenha os tempos de renderizacao, atualizacao, etc. */
+  void DesenhaTempos();
+  /** Funcao auxiliar usada por DesenhaTempos. */
+  void DesenhaTempo(int linha, const std::string& prefixo, const std::list<uint64_t>& ultimos_tempos);
 
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada.
   * Se forcar for false, so atualiza se houver destino. Caso contrario, atualiza independente do destino.
@@ -947,11 +932,12 @@ class Tabuleiro : public ntf::Receptor {
   EntidadeProto forma_proto_;
 
   // Armazena os ultimos tempos de renderizacao.
-  boost::timer::cpu_timer timer_;
+  boost::timer::cpu_timer timer_entre_cenas_;
   boost::timer::cpu_timer timer_para_renderizacao_;
   boost::timer::cpu_timer timer_para_atualizacoes_;
-  std::list<uint64_t> tempos_renderizacao_;
-  constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
+  std::list<uint64_t> tempos_entre_cenas_;
+  std::list<uint64_t> tempos_renderizacoes_;
+  std::list<uint64_t> tempos_atualizacoes_;
 
   // Modo de depuracao do tabuleiro.
   bool modo_debug_ = false;
