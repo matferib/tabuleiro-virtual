@@ -691,7 +691,7 @@ void Tabuleiro::DesenhaMapaSombra() {
 int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
 
-  timer_para_renderizacao_.start();
+  timer_uma_renderizacao_completa_.start();
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
   // desenha a cena padrao, entao ela restaura os parametros para seus valores
@@ -845,8 +845,8 @@ int Tabuleiro::Desenha() {
   EnfileiraTempo(&timer_entre_cenas_, &tempos_entre_cenas_);
   timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
-  timer_para_renderizacao_.stop();
-  EnfileiraTempo(&timer_para_renderizacao_, &tempos_renderizacoes_);
+  timer_uma_renderizacao_completa_.stop();
+  EnfileiraTempo(&timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   return tempos_entre_cenas_.front();
 }
 
@@ -1354,8 +1354,12 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_TEMPORIZADOR: {
       // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-      auto passou_ms = tempos_entre_cenas_.front();
-      timer_para_atualizacoes_.start();
+      auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;;
+      timer_entre_atualizacoes_.start();
+      timer_uma_atualizacao_.start();
+      if (regerar_vbos_entidades_) {
+        parametros_desenho_.set_regera_vbo(true);
+      }
 
       //boost::timer::cpu_timer timer_temp;
       //timer_temp.start();
@@ -1366,8 +1370,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         AtualizaOlho(passou_ms, false  /*forcar*/);
       }
       AtualizaAcoes(passou_ms);
-      timer_para_atualizacoes_.stop();
-      EnfileiraTempo(&timer_para_atualizacoes_, &tempos_atualizacoes_);
+#if DEBUG
+      glFinish();
+#endif
+      timer_uma_atualizacao_.stop();
+      EnfileiraTempo(&timer_uma_atualizacao_, &tempos_uma_atualizacao_);
       if (ciclos_para_atualizar_ == 0) {
         if (ModoClique() == MODO_TERRENO) {
           RefrescaTerrenoParaClientes();
@@ -1398,6 +1405,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         }
       }
 #endif
+      if (regerar_vbos_entidades_) {
+        parametros_desenho_.clear_regera_vbo();
+        regerar_vbos_entidades_ = false;
+      }
+
       //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
       //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
       return true;
@@ -2555,6 +2567,8 @@ void Tabuleiro::IniciaGL() {
   RegeraVboTabuleiro();
   GeraFramebuffer();
   Entidade::IniciaGl();
+  regerar_vbos_entidades_ = true;
+
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
   //LOG(INFO) << "Extensoes: " << ext;
   V_ERRO("erro inicializando GL");
@@ -3048,7 +3062,7 @@ void Tabuleiro::GeraVbosCena() {
   }
   V_ERRO("desenhando tabuleiro");
 
-  GeraVbosEntidades();
+  ColetaVbosEntidades();
   V_ERRO("desenhando entidades");
 
   if (parametros_desenho_.desenha_acoes()) {
@@ -3763,7 +3777,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   parametros_desenho_.set_desenha_barra_vida(false);
 }
 
-void Tabuleiro::GeraVbosEntidades() {
+void Tabuleiro::ColetaVbosEntidades() {
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
     if (entidade == nullptr) {
@@ -6299,8 +6313,8 @@ void Tabuleiro::DesenhaTempos() {
   gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
 
   DesenhaTempo(0, "T", tempos_entre_cenas_);
-  DesenhaTempo(1, "R", tempos_renderizacoes_);
-  DesenhaTempo(2, "A", tempos_atualizacoes_);
+  DesenhaTempo(1, "R", tempos_uma_renderizacao_completa_);
+  DesenhaTempo(2, "A", tempos_uma_atualizacao_);
   V_ERRO("tempo de renderizacao");
 }
 

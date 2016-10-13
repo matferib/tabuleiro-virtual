@@ -347,6 +347,9 @@ void Entidade::Atualiza(int intervalo_ms) {
     std::function<void()> f;
     bool atualizar = false;
   } vbo_escopo([this] () { AtualizaVbo(parametros_desenho_); });
+  if (parametros_desenho_->regera_vbo()) {
+    vbo_escopo.atualizar = true;
+  }
 
   auto* po = proto_.mutable_pos();
   vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);

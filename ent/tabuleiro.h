@@ -486,8 +486,8 @@ class Tabuleiro : public ntf::Receptor {
   };
   ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento);
 
-  // Apenas gera os VBOs das entidaes.
-  void GeraVbosEntidades();
+  // Coleta os VBOs extraidos.
+  void ColetaVbosEntidades();
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
@@ -933,13 +933,20 @@ class Tabuleiro : public ntf::Receptor {
   Cor forma_cor_;  // idem.
   EntidadeProto forma_proto_;
 
-  // Armazena os ultimos tempos de renderizacao.
+  // Timers.
+  /** Cada vez que desenha cena eh chamado, este timer computa o tempo entre as chamadas. */
   boost::timer::cpu_timer timer_entre_cenas_;
-  boost::timer::cpu_timer timer_para_renderizacao_;
-  boost::timer::cpu_timer timer_para_atualizacoes_;
-  std::list<uint64_t> tempos_entre_cenas_;
-  std::list<uint64_t> tempos_renderizacoes_;
-  std::list<uint64_t> tempos_atualizacoes_;
+  /** Cada vez que o temporizador eh chamado, este timer computa o tempo entre as chamadas. Eh importante para o tempo real,
+  * pois computa o delta tempo a ser passado para as atualizacoes. */
+  boost::timer::cpu_timer timer_entre_atualizacoes_;
+  /** computa o tempo de renderizacao, debug apenas. */
+  boost::timer::cpu_timer timer_uma_renderizacao_completa_;
+  /** computa o tempo de uma atualizacao, debug apenas. */
+  boost::timer::cpu_timer timer_uma_atualizacao_;
+  // Listas que armazenam os ultimos tempos computados pelos timers.
+  std::list<uint64_t> tempos_entre_cenas_;    // timer_entre_cenas_
+  std::list<uint64_t> tempos_uma_renderizacao_completa_;  // timer_uma_renderizacao_completa_
+  std::list<uint64_t> tempos_uma_atualizacao_;   // timer_uma_atualizacao_
 
   // Modo de depuracao do tabuleiro.
   bool modo_debug_ = false;
@@ -986,7 +993,10 @@ class Tabuleiro : public ntf::Receptor {
   // String de informacao geral para display. Normalmente temporizada.
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
   std::string info_geral_;
-  int temporizador_info_geral_ms_;
+  int temporizador_info_geral_ms_ = 0;
+
+  // Usado para recuperacao de contexto IOS e android.
+  bool regerar_vbos_entidades_ = false;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);

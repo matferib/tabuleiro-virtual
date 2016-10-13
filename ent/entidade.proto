@@ -328,6 +328,8 @@ message ParametrosDesenho {
   optional bool desenha_lista_jogadores = 41 [default=false];
   // Configuracao de projecao de camera.
   optional Projecao projecao = 49;
+  // Se verdadeiro, as entidades regerarao os VBOs ao atualizarem.
+  optional bool regera_vbo = 53;
 }
 
 // Para copiar e colar.
