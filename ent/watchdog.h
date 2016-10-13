@@ -21,6 +21,9 @@ class Watchdog {
   // Reinicia o watchdog usando a funcao previamente definida em inicia.
   void Reinicia();
 
+  // Retorna se o watchdog esta iniciado.
+  bool Iniciado() const { return iniciado_; }
+
   // Para o watchdog.
   void Para();
 
@@ -37,6 +40,7 @@ class Watchdog {
   std::condition_variable cond_fim_;
   // Indica que watchdog foi refrescado.
   bool refrescado_ = false;
+  bool iniciado_ = false;
   std::function<void()> funcao_;
 
   // Intervalo maximo entre refrescagens.
