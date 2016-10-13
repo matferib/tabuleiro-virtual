@@ -145,6 +145,15 @@ void Tabuleiro::LiberaControleVirtual() {
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_ANGULO_VISAO_MAIS:
+      AlteraAnguloVisao(angulo_visao_vertical_graus_ + 5.0f);
+      break;
+    case CONTROLE_ANGULO_VISAO_MENOS:
+      AlteraAnguloVisao(angulo_visao_vertical_graus_ - 5.0f);
+      break;
+    case CONTROLE_ANGULO_VISAO_ORIGINAL:
+      AlteraAnguloVisao(60.0f);
+      break;
     case CONTROLE_NOP: {
       break;
     }
