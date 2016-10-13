@@ -229,6 +229,16 @@ void SalvaConfiguracoes(const OpcoesProto& proto) {
   }
 }
 
+// Usado pelas funcoes de timer para enfileiras os tempos.
+void EnfileiraTempo(boost::timer::cpu_timer* timer, std::list<uint64_t>* tempos) {
+  constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
+  auto passou_ms = timer->elapsed().wall / 1000000ULL;
+  if (tempos->size() == kMaximoTamTemposRenderizacao) {
+    tempos->pop_back();
+  }
+  tempos->push_front(passou_ms);
+}
+
 }  // namespace.
 
 Tabuleiro::Tabuleiro(
@@ -297,7 +307,7 @@ Tabuleiro::Tabuleiro(
 
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_SERIALIZAR_TABULEIRO);
-    notificacao.set_endereco("tabuleiros_salvos/tabuleiro_watchdog.binproto");
+    notificacao.set_endereco("dinamico://tabuleiro_watchdog.binproto");
     this->TrataNotificacao(notificacao);
   });
 #endif
@@ -368,8 +378,6 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   forma_proto_.Clear();
   forma_selecionada_ = TF_CUBO;
   CorParaProto(COR_BRANCA, &forma_cor_);
-  // Tempo renderizacao.
-  tempos_renderizacao_.clear();
   // Modo de acao.
   modo_clique_ = MODO_NORMAL;
   // Lista objetos.
@@ -678,10 +686,7 @@ void Tabuleiro::DesenhaMapaSombra() {
 
 int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
-  TimerEscopo timer_escopo(this, opcoes_.mostra_fps());
 
-  // Quanto passou desde a ultima renderizacao.
-  auto passou_ms = timer_para_renderizacao_.elapsed().wall / 1000000ULL;
   timer_para_renderizacao_.start();
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
@@ -834,15 +839,19 @@ int Tabuleiro::Desenha() {
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
   DesenhaCena();
+  EnfileiraTempo(&timer_entre_cenas_, &tempos_entre_cenas_);
+  timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
-  return passou_ms;
+  timer_para_renderizacao_.stop();
+  EnfileiraTempo(&timer_para_renderizacao_, &tempos_renderizacoes_);
+  return tempos_entre_cenas_.front();
 }
 
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
       EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_.second);
-      if (modelo.tipo() == TE_FORMA && !EmModoMestre(true)) {
+      if (modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
       }
@@ -868,8 +877,8 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
       // se a entidade eh visivel e selecionavel para os jogadores.
       if (!Desfazendo()) {
-        modelo.set_visivel(!EmModoMestre(true));
-        modelo.set_selecionavel_para_jogador(!EmModoMestre(true));
+        modelo.set_visivel(!EmModoMestreIncluindoSecundario());
+        modelo.set_selecionavel_para_jogador(!EmModoMestreIncluindoSecundario());
         modelo.set_id(id_entidade);
       } else {
         if (BuscaEntidade(modelo.id()) != nullptr) {
@@ -936,7 +945,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
     auto* proto_antes = n->mutable_entidade_antes();
     auto* proto_depois = n->mutable_entidade();
     if ((bits & BIT_VISIBILIDADE) > 0 &&
-        (EmModoMestre(true) || proto_original.selecionavel_para_jogador())) {
+        (EmModoMestreIncluindoSecundario() || proto_original.selecionavel_para_jogador())) {
       // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(valor);
@@ -999,10 +1008,6 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
-  if (estado_ != ETAB_ENTS_SELECIONADAS) {
-    VLOG(1) << "Não há entidade selecionada.";
-    return;
-  }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
@@ -1013,7 +1018,7 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
     auto* proto_antes = n->mutable_entidade_antes();
     auto* proto_depois = n->mutable_entidade();
     if ((bits & BIT_VISIBILIDADE) > 0 &&
-        (EmModoMestre(true) || proto_original.selecionavel_para_jogador())) {
+        (EmModoMestreIncluindoSecundario() || proto_original.selecionavel_para_jogador())) {
       // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(!proto_original.visivel());
@@ -1060,6 +1065,10 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
@@ -1341,8 +1350,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_TEMPORIZADOR: {
-      // quanto passou desde a ultima atualizacao.
-      auto passou_ms = timer_para_atualizacoes_.elapsed().wall / 1000000ULL;
+      // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
+      auto passou_ms = tempos_entre_cenas_.front();
       timer_para_atualizacoes_.start();
 
       //boost::timer::cpu_timer timer_temp;
@@ -1354,6 +1363,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         AtualizaOlho(passou_ms, false  /*forcar*/);
       }
       AtualizaAcoes(passou_ms);
+      timer_para_atualizacoes_.stop();
+      EnfileiraTempo(&timer_para_atualizacoes_, &tempos_atualizacoes_);
       if (ciclos_para_atualizar_ == 0) {
         if (ModoClique() == MODO_TERRENO) {
           RefrescaTerrenoParaClientes();
@@ -1369,7 +1380,15 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         temporizador_detalhamento_ms_ -= passou_ms;
       }
 #if USAR_WATCHDOG
-      watchdog_.Refresca();
+      if (EmModoMestre()) {
+        if (!watchdog_.Iniciado()) {
+          // Quando o watchdog eh ativado, ele para, evitando criar 1000 eventos.
+          // Caso volte a funcionar, aqui o reiniciamos.
+          watchdog_.Reinicia();
+        } else {
+          watchdog_.Refresca();
+        }
+      }
 #endif
       //auto at_passou = timer_temp.elapsed().wall / 1000000ULL;
       //LOG(INFO) << "Passou " << (int)at_passou << " atualizando";
@@ -1569,7 +1588,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       auto* n = new ntf::Notificacao(notificacao);
       central_->AdicionaNotificacao(n);
-      n->set_modo_mestre(EmModoMestre(true));
+      n->set_modo_mestre(EmModoMestreIncluindoSecundario());
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
       n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
       return true;
@@ -2313,7 +2332,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
     return;
   }
-  if (BuscaSubCenario(id_cenario) == nullptr && !EmModoMestre(true)) {
+  if (BuscaSubCenario(id_cenario) == nullptr && !EmModoMestreIncluindoSecundario()) {
     LOG(WARNING) << "Apenas o mestre pode criar cenarios";
     return;
   }
@@ -2941,7 +2960,12 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando interface grafica");
 
-  glFlush();
+  if (parametros_desenho_.desenha_fps()) {
+    DesenhaTempos();
+  }
+#if DEBUG
+  glFinish();
+#endif
 }
 
 void Tabuleiro::DesenhaCenaVbos() {
@@ -3358,6 +3382,7 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
   V_ERRO("Fim da Geracao de framebuffer");
   LOG(INFO) << "framebuffer gerado";
 }
+
 }  // namespace
 
 void Tabuleiro::GeraFramebuffer() {
@@ -3378,7 +3403,7 @@ void GeraPontoAleatorioMontanha(int x, int y, int tam_x, float altura_m, float m
 
 // TODO passar esse codigo pro terreno.
 void Tabuleiro::GeraMontanhaNotificando() {
-  if (!EmModoMestre(true  /*secundario*/)) {
+  if (!EmModoMestreIncluindoSecundario()) {
     LOG(INFO) << "Apenas mestre pode gerar montanha.";
     return;
   }
@@ -3474,7 +3499,7 @@ void Tabuleiro::GeraMontanhaNotificando() {
 }
 
 void Tabuleiro::GeraTerrenoAleatorioNotificando() {
-  if (!EmModoMestre(true  /*secundario*/)) {
+  if (!EmModoMestreIncluindoSecundario()) {
     LOG(INFO) << "Apenas mestre pode gerar terreno.";
     return;
   }
@@ -3520,7 +3545,7 @@ void AtualizaAlturaQuadrado(std::function<float(const RepeatedField<double>&, in
 }  // namespace
 
 void Tabuleiro::TrataDeltaTerreno(float delta) {
-  if (estado_ != ETAB_QUAD_SELECIONADO || !EmModoMestre(true  /*secundario*/)) {
+  if (estado_ != ETAB_QUAD_SELECIONADO || !EmModoMestreIncluindoSecundario()) {
     return;
   }
   ntf::Notificacao n_desfazer;
@@ -3745,7 +3770,7 @@ void Tabuleiro::GeraVbosEntidades() {
     }
     if (!entidade->Proto().visivel() &&
         !entidade->Proto().selecionavel_para_jogador() &&
-        (!EmModoMestre(true) || visao_jogador_)) {
+        (!EmModoMestreIncluindoSecundario() || visao_jogador_)) {
       continue;
     }
     // Nao roda disco se estiver arrastando.
@@ -3940,7 +3965,7 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         olho_.clear_destino();
         olho_.mutable_pos()->set_x(entidade_referencia->X());
         olho_.mutable_pos()->set_y(entidade_referencia->Y());
-        olho_.mutable_pos()->set_z(entidade_referencia->Z(true  /*delta_voo*/) + TAMANHO_LADO_QUADRADO * entidade_referencia->MultiplicadorTamanho());
+        olho_.mutable_pos()->set_z(entidade_referencia->ZOlho());
         // Aqui fazemos o inverso da visao normal. Colocamos o alvo no angulo oposto da rotacao para olhar na mesma direcao
         // que a camera de perspectiva.
         olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI));
@@ -4006,7 +4031,9 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   for (auto& id_ent : entidades_) {
+    parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     id_ent.second->Atualiza(intervalo_ms);
+    parametros_desenho_.clear_entidade_selecionada();
   }
 }
 
@@ -4210,7 +4237,7 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
-  if (!EmModoMestre(true)) {
+  if (!EmModoMestreIncluindoSecundario()) {
     VLOG(1) << "Apenas mestre pode desenhar.";
     // Apenas mestre pode desenhar.
     return;
@@ -4268,7 +4295,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     // Entidade.
     if (SelecionaEntidade(id, true  /*forcar_fixa*/)) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
-      n->set_modo_mestre(EmModoMestre(true));
+      n->set_modo_mestre(EmModoMestreIncluindoSecundario());
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
       n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
       central_->AdicionaNotificacao(n);
@@ -4299,7 +4326,7 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   if (entidade == nullptr) {
     throw std::logic_error("Entidade inválida");
   }
-  if ((!forcar_fixa && entidade->Fixa()) || (!EmModoMestre(true) && !entidade->SelecionavelParaJogador())) {
+  if ((!forcar_fixa && entidade->Fixa()) || (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
     DeselecionaEntidades();
     return false;
   }
@@ -4327,7 +4354,7 @@ void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& i
   for (unsigned int id : ids) {
     auto* entidade = BuscaEntidade(id);
     if (entidade == nullptr || entidade->Fixa() ||
-        (!EmModoMestre(true) && !entidade->SelecionavelParaJogador())) {
+        (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
       continue;
     }
     ids_entidades_selecionadas_.insert(id);
@@ -4340,7 +4367,7 @@ void Tabuleiro::AtualizaSelecaoEntidade(unsigned int id) {
     return;
   }
   auto* e = BuscaEntidade(id);
-  if (e == nullptr || (!EmModoMestre(true) && !e->SelecionavelParaJogador())) {
+  if (e == nullptr || (!EmModoMestreIncluindoSecundario() && !e->SelecionavelParaJogador())) {
     ids_entidades_selecionadas_.erase(id);
   }
   MudaEstadoAposSelecao();
@@ -5615,7 +5642,7 @@ void Tabuleiro::SelecionaTudo(bool fixas) {
     if (entidade == nullptr ||
         entidade->IdCenario() != proto_corrente_->id_cenario() ||
         (!fixas && entidade->Fixa()) ||
-        (!EmModoMestre(true) && !entidade->SelecionavelParaJogador())) {
+        (!EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador())) {
       continue;
     }
     ids.push_back(id_ent.first);
@@ -6211,51 +6238,52 @@ void Tabuleiro::DesenhaCoordenadas() {
   }
 }
 
-// Chamado pelo TimerEscopo no tabuleiro.h.
-void Tabuleiro::DesenhaTempoRenderizacao() {
-  auto passou_ms = timer_.elapsed().wall / 1000000ULL;
-  if (tempos_renderizacao_.size() == kMaximoTamTemposRenderizacao) {
-    tempos_renderizacao_.pop_back();
-  }
-  tempos_renderizacao_.push_front(passou_ms);
-  if (!parametros_desenho_.desenha_fps()) {
-    // Se nao eh pra desenhar, nao gasta tempo com o resto. A parte de cima eh importante
-    // para contabilizar os casos de picking.
-    return;
-  }
+void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::list<uint64_t>& ultimos_tempos) {
   // Acha o maior.
   uint64_t maior_tempo_ms = 0;
-  for (uint64_t tempo_ms : tempos_renderizacao_) {
+  for (uint64_t tempo_ms : ultimos_tempos) {
     if (tempo_ms > maior_tempo_ms) {
       maior_tempo_ms = tempo_ms;
     }
   }
-  gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(largura_, altura_, &largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;
 
-  std::string tempo_str = net::to_string(maior_tempo_ms);
+  std::string tempo_str(prefixo);
+  tempo_str.append(": ");
+  tempo_str.append(net::to_string(maior_tempo_ms));
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }
 
+  int yi = altura_ - altura_fonte * (linha + 1);
+  int ys = yi + altura_fonte;
   // Modo 2d.
   {
-    gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
-    gl::CarregaIdentidade();
-    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
     MudaCor(COR_PRETA);
     gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
     gl::CarregaIdentidade();
-    gl::Retangulo(0.0f, altura_ - altura_fonte - 2.0f, tempo_str.size() * largura_fonte + 2.0f, altura_);
+    gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
   }
   // Eixo com origem embaixo esquerda.
-  PosicionaRaster2d(2, altura_ - altura_fonte - 2, largura_, altura_);
+  PosicionaRaster2d(2, yi, largura_, altura_);
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
+}
+
+void Tabuleiro::DesenhaTempos() {
+  gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
+  gl::CarregaIdentidade(false);
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+
+  DesenhaTempo(0, "T", tempos_entre_cenas_);
+  DesenhaTempo(1, "R", tempos_renderizacoes_);
+  DesenhaTempo(2, "A", tempos_atualizacoes_);
   V_ERRO("tempo de renderizacao");
 }
 
@@ -6476,7 +6504,7 @@ void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
 }
 
 void Tabuleiro::PassaUmaRodadaNotificando() {
-  if (!EmModoMestre(true)) {
+  if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
   ntf::Notificacao grupo_notificacoes;
@@ -6523,7 +6551,7 @@ void Tabuleiro::PassaUmaRodadaNotificando() {
 }
 
 void Tabuleiro::ZeraRodadasNotificando() {
-  if (!EmModoMestre(true)) {
+  if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
   ntf::Notificacao nr;
@@ -6591,7 +6619,7 @@ void Tabuleiro::AlternaModoRegua() {
 }
 
 void Tabuleiro::AlternaModoTerreno() {
-  if (!EmModoMestre(true  /*secundario*/)) {
+  if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
   if (modo_clique_ == MODO_TERRENO) {
@@ -6701,18 +6729,12 @@ void Tabuleiro::AlternaCameraPresa() {
 
 void Tabuleiro::DesativaWatchdog() {
 #if USAR_WATCHDOG
-  if (!EmModoMestre()) {
-    return;
-  }
   watchdog_.Para();
 #endif
 }
 
 void Tabuleiro::ReativaWatchdog() {
 #if USAR_WATCHDOG
-  if (!EmModoMestre()) {
-    return;
-  }
   watchdog_.Reinicia();
 #endif
 }
