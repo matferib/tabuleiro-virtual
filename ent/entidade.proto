@@ -301,14 +301,12 @@ message ParametrosDesenho {
   optional bool desenha_nevoa = 27 [default=true];
   // Informacoes sobre a nevoa, se houver.
   optional Nevoa nevoa = 70;
-  // Se verdadeiro, desenha o id da acao corrente.
-  optional bool desenha_id_acao = 30 [default=true];
   // Se verdadeiro, desenha o controle virtual de acoes.
   optional bool desenha_controle_virtual = 31 [default=true];
   // Se false, os detalhes nao serao desenhados.
   optional bool desenha_detalhes = 33 [default=true];
-  // Se false, desenha as coordenadas do quadrado selecionado.
-  optional bool desenha_coordenadas = 37 [default=true];
+  // Se false, nao desenha as informacoes gerais (coordenadas, id acao etc). 
+  optional bool desenha_info_geral = 37 [default=true];
   // Tipo de visao da entidade presa.
   optional TipoVisao tipo_visao = 39;
   optional float multiplicador_visao_penumbra = 40 [default=1.2];

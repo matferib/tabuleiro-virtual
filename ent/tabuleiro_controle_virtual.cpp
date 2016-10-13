@@ -572,7 +572,7 @@ float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_alt
 void Tabuleiro::DesenhaBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura) {
   if ((db.picking_apenas() && !parametros_desenho_.has_picking_x()) ||
-      (db.mestre_apenas() && !EmModoMestreIncluindoSecundario())) {
+      (db.mestre_apenas() && !VisaoMestre())) {
     return;
   }
   gl::CarregaNome(db.id());
@@ -664,7 +664,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
   unsigned int id_textura = TexturaBotao(db);
   std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db));
-  if (parametros_desenho_.has_picking_x() || rotulo.empty() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !EmModoMestreIncluindoSecundario())) {
+  if (parametros_desenho_.has_picking_x() || rotulo.empty() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !VisaoMestre())) {
     return;
   }
 
@@ -703,7 +703,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
   largura_fonte *= escala;
   altura_fonte *= escala;
   raster_y = altura_ - altura_fonte;
-  raster_x = largura_ - (EmModoMestreIncluindoSecundario() ? 3.0f : 0.0f) * largura_botao - 2;
+  raster_x = largura_ - (VisaoMestre() ? 3.0f : 0.0f) * largura_botao - 2;
   PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
 
   MudaCor(COR_BRANCA);

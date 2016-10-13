@@ -382,12 +382,18 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   modo_clique_ = MODO_NORMAL;
   // Lista objetos.
   pagina_lista_objetos_ = 0;
+  info_geral_.clear();
   if (reiniciar_grafico) {
     LiberaTextura();
     IniciaGL();
     // Atencao V_ERRO so pode ser usado com contexto grafico.
     V_ERRO("estado inicial pos grafico");
   }
+}
+
+void Tabuleiro::EscreveInfoGeral(const std::string& info_geral) {
+  info_geral_ = info_geral;
+  temporizador_info_geral_ms_ = TEMPO_DETALHAMENTO_MS;
 }
 
 void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
@@ -571,7 +577,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
-  parametros_desenho_.set_desenha_id_acao(false);
+  parametros_desenho_.set_desenha_info_geral(false);
   parametros_desenho_.set_desenha_detalhes(false);
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
@@ -589,7 +595,6 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_rastro_movimento(false);
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
-  parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
@@ -638,7 +643,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
-  parametros_desenho_.set_desenha_id_acao(false);
+  parametros_desenho_.set_desenha_info_geral(false);
   parametros_desenho_.set_desenha_detalhes(false);
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
@@ -654,7 +659,6 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_desenha_rastro_movimento(false);
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_nevoa(false);
-  parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_mapa_sombras(true);
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
@@ -754,7 +758,6 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_forma_selecionada(false);
     parametros_desenho_.set_desenha_rosa_dos_ventos(false);
     parametros_desenho_.set_desenha_nevoa(false);
-    parametros_desenho_.set_desenha_coordenadas(false);
   }
   V_ERRO_RET("Antes desenha sombras");
 
@@ -1379,6 +1382,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (temporizador_detalhamento_ms_ > 0) {
         temporizador_detalhamento_ms_ -= passou_ms;
       }
+      if (temporizador_info_geral_ms_ > 0) {
+        temporizador_info_geral_ms_ -= passou_ms;
+      } else if (!info_geral_.empty()) {
+        info_geral_.clear();
+      }
 #if USAR_WATCHDOG
       if (EmModoMestre()) {
         if (!watchdog_.Iniciado()) {
@@ -1743,6 +1751,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       campo_visao_vertical_graus_ -= (delta * SENSIBILIDADE_RODA * 2.0f);
       campo_visao_vertical_graus_ = std::max(campo_visao_vertical_graus_, CAMPO_VISAO_MIN);
       campo_visao_vertical_graus_ = std::min(campo_visao_vertical_graus_, CAMPO_VISAO_MAX);
+      EscreveInfoGeral(std::string("Fov: ") + net::to_string(campo_visao_vertical_graus_));
     } else {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
@@ -1755,9 +1764,11 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
     // Eh possivel chegar aqui?
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    fator = 1.0f / fator;
     campo_visao_vertical_graus_ *= fator;
     campo_visao_vertical_graus_ = std::max(campo_visao_vertical_graus_, CAMPO_VISAO_MIN);
     campo_visao_vertical_graus_ = std::min(campo_visao_vertical_graus_, CAMPO_VISAO_MAX);
+    EscreveInfoGeral(std::string("Fov: ") + net::to_string(campo_visao_vertical_graus_));
     return;
   } else {
     AtualizaRaioOlho(olho_.raio() / fator);
@@ -2939,15 +2950,10 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desenhando lista de objetos");
 
-  if (parametros_desenho_.desenha_id_acao()) {
-    DesenhaIdAcaoEntidade();
+  if (parametros_desenho_.desenha_info_geral()) {
+    DesenhaInfoGeral();
   }
-  V_ERRO("desenhando id_acao");
-
-  if (parametros_desenho_.desenha_coordenadas()) {
-    DesenhaCoordenadas();
-  }
-  V_ERRO("desenhando coordenadas");
+  V_ERRO("desenhando info geral");
 
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
@@ -6198,18 +6204,11 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
   id_acao = "Ação: " + id_acao;
   id_acao = StringSemUtf8(id_acao);
 
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int largura_fonte, altura_fonte, escala;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  largura_fonte *= escala;
-  altura_fonte *= escala;
-  PosicionaRaster2d(largura_ / 2, altura_ - altura_fonte, largura_, altura_);
-  MudaCor(COR_BRANCA);
   gl::DesenhaString(id_acao);
 }
 
 void Tabuleiro::DesenhaCoordenadas() {
-  if (!VisaoMestre() || (estado_ != ETAB_QUAD_PRESSIONADO && estado_ != ETAB_QUAD_SELECIONADO)) {
+  if (!VisaoMestre()) {
     return;
   }
   char coordenadas[101] = { '\0' };
@@ -6221,26 +6220,38 @@ void Tabuleiro::DesenhaCoordenadas() {
   }
   snprintf(coordenadas, 100, "cenario: %d%s, x: %.1f, y: %.1f, z: %.1f", proto_corrente_->id_cenario(), descricao, x, y, z);
 
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  // Modo 2d: eixo com origem embaixo esquerda.
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-  {
-    gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-    gl::CarregaIdentidade();
-    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    int largura_fonte, altura_fonte, escala;
-    gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-    largura_fonte *= escala;
-    altura_fonte *= escala;
-    int raster_y = altura_ - (4 * altura_fonte);
-    int raster_x = largura_ / 2;
-    gl::PosicaoRaster(raster_x, raster_y);
-  }
+  gl::DesenhaString(coordenadas);
+}
 
-  {
-    MudaCor(COR_BRANCA);
-    gl::DesenhaString(coordenadas);
+void Tabuleiro::DesenhaInfoGeral() {
+  gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION, false);
+  gl::CarregaIdentidade(false);
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW, false);
+  gl::CarregaIdentidade();
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  int raster_y = altura_ - (4 * altura_fonte);
+  int raster_x = largura_ / 2;
+  gl::PosicaoRaster(raster_x, raster_y);
+  MudaCor(COR_BRANCA);
+  if (!info_geral_.empty()) {
+    gl::DesenhaString(info_geral_);
+    return;
+  }
+  switch (estado_) {
+    case ETAB_ENTS_SELECIONADAS:
+      DesenhaIdAcaoEntidade();
+      break;
+    case ETAB_QUAD_PRESSIONADO:
+    case ETAB_QUAD_SELECIONADO:
+      DesenhaCoordenadas();
+      break;
+    default:
+      ;
   }
 }
 
@@ -6260,7 +6271,7 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
 
   std::string tempo_str(prefixo);
   tempo_str.append(": ");
-  tempo_str.append(net::to_string(maior_tempo_ms));
+  tempo_str.append(net::to_string((int)maior_tempo_ms));
   while (tempo_str.size() < 4) {
     tempo_str.insert(0, "0");
   }

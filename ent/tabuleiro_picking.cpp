@@ -76,11 +76,10 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   parametros_desenho_.set_desenha_forma_selecionada(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   parametros_desenho_.set_desenha_nevoa(false);
-  parametros_desenho_.set_desenha_id_acao(false);
+  parametros_desenho_.set_desenha_info_geral(false);
   parametros_desenho_.set_desenha_detalhes(false);
   parametros_desenho_.set_desenha_eventos_entidades(false);
   parametros_desenho_.set_desenha_efeitos_entidades(false);
-  parametros_desenho_.set_desenha_coordenadas(false);
   parametros_desenho_.set_desenha_grade(false);
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());

@@ -706,11 +706,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Para debugar, desenha uma lista de objetos. */
   void DesenhaListaObjetos();
 
-  /** Desenha o identificador de acao da entidade selecionada. */
+  // Auxiliares de DesenhaInfoGeral.
   void DesenhaIdAcaoEntidade();
-
-  /** Desenha as coordenadas na tela, abaixo das acoes. */
   void DesenhaCoordenadas();
+  /** Desenha informacoes gerais: zoom, id acao, coordenadas etc. */
+  void DesenhaInfoGeral();
 
   /** Desenha o controle virtual. */
   void DesenhaControleVirtual();
@@ -795,6 +795,8 @@ class Tabuleiro : public ntf::Receptor {
 
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
+
+  void EscreveInfoGeral(const std::string& info_geral);
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
@@ -980,6 +982,11 @@ class Tabuleiro : public ntf::Receptor {
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
   std::set<std::string> texturas_entidades_;
   std::set<std::string> modelos_entidades_;
+
+  // String de informacao geral para display. Normalmente temporizada.
+  // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
+  std::string info_geral_;
+  int temporizador_info_geral_ms_;
 
   // elimina copia
   Tabuleiro(const Tabuleiro& t);
