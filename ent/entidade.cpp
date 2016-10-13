@@ -538,7 +538,7 @@ float Entidade::Y() const {
 }
 
 float Entidade::Z(bool delta_voo) const {
-  bool delta = delta_voo ? DeltaVoo(vd_) : 0;
+  float delta = delta_voo ? DeltaVoo(vd_) : 0.0f;
   return proto_.pos().z() + delta;
 }
 
