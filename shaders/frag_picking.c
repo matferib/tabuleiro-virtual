@@ -13,6 +13,7 @@
 // Varying sao interpoladas da saida do vertex.
 varying lowp vec4 v_Color;
 
+// Codifica a cor final tendo dois bytes de id e dois bytes de profundidade.
 void main() {
   lowp vec4 cor_final = v_Color;
   highp vec4 v4 = vec4(cor_final.rg, gl_FragCoord.z, fract(gl_FragCoord.z * 256.0));
