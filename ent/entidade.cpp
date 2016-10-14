@@ -351,8 +351,10 @@ void Entidade::Atualiza(int intervalo_ms) {
     vbo_escopo.atualizar = true;
   }
 
-  auto* po = proto_.mutable_pos();
-  vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+  if (parametros_desenho_->entidade_selecionada()) {
+    vbo_escopo.atualizar = true;
+    vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
+  }
   AtualizaEfeitos();
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
@@ -451,6 +453,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     return;
   }
   vbo_escopo.atualizar = true;
+  auto* po = proto_.mutable_pos();
   const auto& pd = proto_.destino();
   if (proto_.destino().has_id_cenario()) {
     bool mudou_cenario = proto_.destino().id_cenario() != proto_.pos().id_cenario();
@@ -711,21 +714,25 @@ std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::stri
 }
 
 const Posicao Entidade::PosicaoAcao() const {
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-  MontaMatriz(true  /*queda*/, true  /*z*/, proto_, vd_);
+  //gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  //gl::CarregaIdentidade();
+  Matrix4 matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
   if (!proto_.achatado()) {
-    gl::Translada(0.0f, 0.0f, ALTURA, false);
+    //gl::Translada(0.0f, 0.0f, ALTURA, false);
+    matriz.translate(0.0f, 0.0f, ALTURA);
   }
-  GLfloat matriz[16];
-  gl::Le(GL_MODELVIEW_MATRIX, matriz);
-  VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
-  VLOG(2) << "Matriz: " << matriz[4] << " " << matriz[5] << " " << matriz[6] << " " << matriz[7];
-  VLOG(2) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
-  VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
-  GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  MultiplicaMatrizVetor(matriz, ponto);
-  VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
+  //GLfloat matriz[16];
+  //gl::Le(GL_MODELVIEW_MATRIX, matriz);
+  //VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
+  //VLOG(2) << "Matriz: " << matriz[4] << " " << matriz[5] << " " << matriz[6] << " " << matriz[7];
+  //VLOG(2) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
+  //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
+  //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+  Vector4 ponto(0.0f, 0.0f, 0.0f, 1.0f);
+  //MultiplicaMatrizVetor(matriz, ponto);
+  ponto = matriz * ponto;
+
+  //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
   Posicao pos;
   pos.set_x(ponto[0]);
   pos.set_y(ponto[1]);
