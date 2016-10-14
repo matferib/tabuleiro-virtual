@@ -78,7 +78,7 @@ void UniformeSeValido(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloa
 void MapeiaId(unsigned int id, GLubyte rgb[3]) {
   auto* c = BuscaContexto();
   if (c->proximo_id > IdMaximoEntidade()) {
-    throw std::logic_error(std::string("Limite de ids alcancado: ") + net::to_string(c->proximo_id));
+    throw std::logic_error(std::string("Limite de ids alcancado: ") + net::to_string((int)c->proximo_id));
   }
   unsigned int id_mapeado = c->proximo_id | (c->bit_pilha << DeslocamentoPilha() );
   c->ids.insert(std::make_pair(id_mapeado, id));
@@ -863,10 +863,7 @@ void DesenhaStringAlinhadoDireita(const std::string& str, bool inverte_vertical)
 }
 
 void LuzAmbiente(float r, float g, float b) {
-  if (!interno::UsandoShaderLuz()) {
-    return;
-  }
-  Uniforme(interno::BuscaShader().uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
+  interno::UniformeSeValido(interno::BuscaShader().uni_gltab_luz_ambiente_cor, r, g, b, 1.0f);
 }
 
 void LuzDirecional(const GLfloat* pos, float r, float g, float b) {
