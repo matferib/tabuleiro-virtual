@@ -97,7 +97,8 @@ void main() {
     highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
     //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
     mais_proximo *= gltab_plano_distante_oclusao;
-    lowp float visivel = sign(mais_proximo - (length(v_Pos_oclusao) - bias));
+    // Se mais_proximo menor que valor computado, retorna 0.
+    lowp float visivel = step((length(v_Pos_oclusao) - bias), mais_proximo);
     cor_oclusao = vec4(visivel, visivel, visivel, 1.0);
   }
 
@@ -118,7 +119,8 @@ void main() {
     // OpenGL ES 2.0.
     lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
     lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
-    lowp float aplicar_luz_direcional = (v_Pos_sombra.z - bias) > texz ? 0.0 : 1.0;
+    // Se texz menor que valor computado, retorna 0.
+    lowp float aplicar_luz_direcional = step((v_Pos_sombra.z - bias), texz);
 #endif
     // Outras luzes.
     lowp vec4 uns = vec4(1.0, 1.0, 1.0, 1.0);
@@ -133,14 +135,9 @@ void main() {
     cor_final *= clamp(gltab_luz_ambiente + cor_luz * uns + cor_luz_2 * uns, 0.0, 1.0);
   }
 
-  // Ipad da pau usando o mix.
-  //cor_final *= mix(vec4(1.0), texture2D(gltab_unidade_textura, v_Tex.st), gltab_textura);
   if (gltab_textura > 0.0) {
     cor_final *= texture2D(gltab_unidade_textura, v_Tex.st);
   }
-
-  //lowp float cor = (cor_final.r + cor_final.g + cor_final.b) / 3.0;
-  //cor_final = vec4(cor, cor, cor, cor_final.a);
 
   // Nevoa.
   cor_final *= cor_oclusao;
