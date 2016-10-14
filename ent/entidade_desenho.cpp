@@ -119,10 +119,14 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 void Entidade::DesenhaObjetoEntidadeProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
 #define DESENHAR_VBO 1
+  // Tem mais coisa depois do if else.
 #if DESENHAR_VBO
   AjustaCor(proto, pd);
   AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
   vd.vbos_gravados.Desenha();
+  if (proto.has_modelo_3d()) {
+    return;
+  }
 #else
   if (proto.has_modelo_3d()) {
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
@@ -379,18 +383,11 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       }
       // Desenha a entidade maior e translucida.
       gl::MatrizEscopo salva_matriz(false);
-      bool tem_alfa = pd->has_alfa_translucidos();
-      if (!tem_alfa) {
-        pd->set_alfa_translucidos(0.5f);
-      }
       auto* escala_efeito = pd->mutable_escala_efeito();
       escala_efeito->set_x(1.2);
       escala_efeito->set_y(1.2);
       escala_efeito->set_z(1.2);
       DesenhaObjetoProto(proto_, vd_, pd);
-      if (!tem_alfa) {
-        pd->clear_alfa_translucidos();
-      }
       pd->clear_escala_efeito();
     }
     break;
