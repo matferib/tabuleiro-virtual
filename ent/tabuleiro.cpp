@@ -426,7 +426,7 @@ void Tabuleiro::ConfiguraProjecao() {
                   distancia_min, distancia_max * 1.2f);  // 1.2 necessario?
   } else {
     gl::Perspectiva(parametros_desenho_.projecao().has_campo_visao_vertical_graus()
-                        ? parametros_desenho_.projecao().campo_visao_vertical_graus() : campo_visao_vertical_graus_,
+                        ? parametros_desenho_.projecao().campo_visao_vertical_graus() : angulo_visao_vertical_graus_,
                     parametros_desenho_.projecao().has_razao_aspecto()
                         ? parametros_desenho_.projecao().razao_aspecto() : Aspecto(),
                     parametros_desenho_.projecao().tipo_camera() == CAMERA_PRIMEIRA_PESSOA
@@ -1354,7 +1354,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_TEMPORIZADOR: {
       // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
-      auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;;
+      auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
       timer_entre_atualizacoes_.start();
       timer_uma_atualizacao_.start();
       if (regerar_vbos_entidades_) {
@@ -1371,7 +1371,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       AtualizaAcoes(passou_ms);
 #if DEBUG
-      glFinish();
+      //glFinish();
 #endif
       timer_uma_atualizacao_.stop();
       EnfileiraTempo(&timer_uma_atualizacao_, &tempos_uma_atualizacao_);
@@ -1728,6 +1728,13 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 #endif
 }
 
+void Tabuleiro::AlteraAnguloVisao(float valor) {
+  valor = std::max(valor, CAMPO_VISAO_MIN);
+  valor = std::min(valor, CAMPO_VISAO_MAX);
+  angulo_visao_vertical_graus_ = valor;
+  EscreveInfoGeral(std::string("Fov: ") + net::to_string(angulo_visao_vertical_graus_));
+}
+
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
   if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
     if (estado_ == ETAB_ENTS_PRESSIONADAS) {
@@ -1760,10 +1767,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
     if (camera_ == CAMERA_ISOMETRICA) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
     } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      campo_visao_vertical_graus_ -= (delta * SENSIBILIDADE_RODA * 2.0f);
-      campo_visao_vertical_graus_ = std::max(campo_visao_vertical_graus_, CAMPO_VISAO_MIN);
-      campo_visao_vertical_graus_ = std::min(campo_visao_vertical_graus_, CAMPO_VISAO_MAX);
-      EscreveInfoGeral(std::string("Fov: ") + net::to_string(campo_visao_vertical_graus_));
+      AlteraAnguloVisao(angulo_visao_vertical_graus_ - (delta * SENSIBILIDADE_RODA * 2.0f));
     } else {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
@@ -1777,10 +1781,7 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     fator = 1.0f / fator;
-    campo_visao_vertical_graus_ *= fator;
-    campo_visao_vertical_graus_ = std::max(campo_visao_vertical_graus_, CAMPO_VISAO_MIN);
-    campo_visao_vertical_graus_ = std::min(campo_visao_vertical_graus_, CAMPO_VISAO_MAX);
-    EscreveInfoGeral(std::string("Fov: ") + net::to_string(campo_visao_vertical_graus_));
+    AlteraAnguloVisao(angulo_visao_vertical_graus_ * fator);
     return;
   } else {
     AtualizaRaioOlho(olho_.raio() / fator);
@@ -2986,7 +2987,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaTempos();
   }
 #if DEBUG
-  glFinish();
+  //glFinish();
 #endif
 }
 
@@ -5336,8 +5337,8 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
     Vector3 d(x3d, y3d, z3d);
     Vector3 o(entidade.X(), entidade.Y(), entidade.ZOlho());
     profundidade = (d - o).length();
-    LOG(INFO) << "colisao possivel, prof: " << profundidade;
-    LOG(INFO) << "espaco entidade: " << espaco_entidade;
+    VLOG(1) << "colisao possivel, prof: " << profundidade;
+    VLOG(1) << "espaco entidade: " << espaco_entidade;
     if (profundidade < (tamanho_movimento + espaco_entidade)) {
       if (profundidade > espaco_entidade) {
         // Anda o que pode ate a extremidade bater na parede.
@@ -5353,7 +5354,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
       }
     }
   } else {
-    LOG(INFO) << "sem colisao, tamanho: " << tamanho_movimento;
+    VLOG(1) << "sem colisao, tamanho: " << tamanho_movimento;
   }
   // TODO normal.
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);

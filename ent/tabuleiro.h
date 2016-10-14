@@ -177,6 +177,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata evento de escala por fator (pinca). Quanto maior o fator, mais proximo o olho ficara do foco. */
   void TrataEscalaPorFator(float fator);
 
+  /** Altera o campo de visao, mantendo-o entre um minimo e maximo. */
+  void AlteraAnguloVisao(float valor);
+
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
 
@@ -865,7 +868,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
-  float campo_visao_vertical_graus_ = 60.0f;  
+  float angulo_visao_vertical_graus_ = 60.0f;  
   enum camera_e {
     CAMERA_PERSPECTIVA,
     CAMERA_ISOMETRICA,
