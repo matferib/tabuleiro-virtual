@@ -471,6 +471,17 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
+    linha: 0
+    coluna: 18
+    rotulo: "FoV"
+    cor_rotulo {}
+    id: CONTROLE_ANGULO_VISAO_ORIGINAL
+    textura: "icon_camera_fov_default.png"
+    num_lados_botao: 4
+    dica: "Restaura angulo de visao para 60 graus."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 1
     coluna: 19
     rotulo: "Ve"
@@ -483,7 +494,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 18
+    coluna: 19
     rotulo: "Re"
     cor_rotulo {}
     textura: "icon_ruler.png"
