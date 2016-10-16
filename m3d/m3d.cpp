@@ -191,7 +191,9 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
   VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
   VLOG(2) << n.DebugString();
-  interno_->modelos[id_interno].vbos_nao_gravados = ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance());
+  // Extrai com mundo, por causa da escala. A posicao XY ja foi limpa.
+  interno_->modelos[id_interno].vbos_nao_gravados =
+      ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance(), true  /*mundo*/);
 }
 
 void Modelos3d::DescarregaModelo3d(const std::string& id_interno) {
