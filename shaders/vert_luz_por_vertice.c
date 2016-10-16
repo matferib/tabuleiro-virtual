@@ -31,6 +31,7 @@ uniform highp mat4 gltab_mvm_sombra;    // modelagem sombra.
 uniform mediump mat3 gltab_nm;     // normal matrix
 uniform mediump vec4 gltab_dados_raster;  // p = tamanho ponto.
 uniform highp mat4 gltab_mvm_oclusao;    // modelagem oclusao.
+uniform highp mat4 gltab_mvm_ajuste_textura;    // modelagem ajuste de textura.
 // Atributos variam por vertice.
 attribute highp vec4 gltab_vertice;
 attribute mediump vec3 gltab_normal;
@@ -111,7 +112,7 @@ void main() {
   }
   v_Normal = normal;
   v_Color = cor_vertice;
-  v_Tex.st = gltab_texel;
+  v_Tex.st = (gltab_mvm_ajuste_textura * vec4(gltab_texel.st, 1.0, 1.0)).st;
   gl_Position = gltab_prm * v_Pos;
   v_Pos_sombra = gltab_prm_sombra * gltab_mvm_sombra * gltab_vertice;
   highp float cos_theta = clamp(dot(normal, gltab_luz_direcional.pos.xyz), 0.0, 1.0);
