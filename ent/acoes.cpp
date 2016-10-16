@@ -305,9 +305,10 @@ class AcaoProjetil : public Acao {
 
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (estagio_ == INICIAL) {
-      AtualizaRotacaoZFonteRelativoTabuleiro(tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem()));
       estagio_ = VOO;
       AtualizaVoo(intervalo_ms);
+      // Atualiza depois, para ter dx, e dy.
+      AtualizaRotacaoZFonte(tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem()));
     } else if (estagio_ == VOO) {
       AtualizaVoo(intervalo_ms);
     } else if (estagio_ == ATINGIU_ALVO) {
