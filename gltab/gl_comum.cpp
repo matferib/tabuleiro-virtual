@@ -369,6 +369,7 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
+          {"gltab_mvm_ajuste_textura", &shader->uni_gltab_mvm_ajuste_textura },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
           {"gltab_nm", &shader->uni_gltab_nm },
@@ -466,6 +467,7 @@ void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   contexto->pilha_prj_sombra.push(Matrix4());
   contexto->pilha_mvm_oclusao.push(Matrix4());
   contexto->pilha_prj_oclusao.push(Matrix4());
+  contexto->pilha_mvm_ajuste_textura.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
   // a mensagem de erro.
@@ -681,6 +683,7 @@ int ModoMatrizCorrente() {
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_oclusao) { return MATRIZ_OCLUSAO; }
+  else if (c->pilha_corrente == &c->pilha_mvm_ajuste_textura) { return MATRIZ_AJUSTE_TEXTURA; }
   else {
     LOG(ERROR) << "Nao ha matriz corrente!!";
     return MATRIZ_MODELAGEM_CAMERA;
@@ -699,6 +702,8 @@ void MudaModoMatriz(int modo) {
     c->pilha_corrente = &c->pilha_mvm_sombra;
   } else if (modo == MATRIZ_OCLUSAO) {
     c->pilha_corrente = &c->pilha_mvm_oclusao;
+  } else if (modo == MATRIZ_AJUSTE_TEXTURA) {
+    c->pilha_corrente = &c->pilha_mvm_ajuste_textura;
   } else {
     LOG(ERROR) << "Modo invalido: " << (int)modo;
   }
@@ -1061,6 +1066,8 @@ Matrix4 LeMatriz(matriz_e modo) {
     return c->pilha_prj_sombra.top();
   } else if (modo == MATRIZ_OCLUSAO) {
     return c->pilha_mvm_oclusao.top();
+  } else if (modo == MATRIZ_AJUSTE_TEXTURA) {
+    return c->pilha_mvm_ajuste_textura.top();
   } else {
     LOG(ERROR) << "Tipo de matriz invalido: " << (int)modo;
     return c->pilha_mvm_sombra.top();
@@ -1078,6 +1085,10 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
     memcpy(valor, c->pilha_mvm.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == GL_PROJECTION_MATRIX) {
     memcpy(valor, c->pilha_prj.top().get(), 16 * sizeof(float));
+  } else if (nome_parametro == MATRIZ_AJUSTE_TEXTURA) {
+    memcpy(valor, c->pilha_mvm_ajuste_textura.top().get(), 16 * sizeof(float));
+  } else if (nome_parametro == MATRIZ_SOMBRA) {
+    memcpy(valor, c->pilha_mvm_sombra.top().get(), 16 * sizeof(float));
   } else {
     glGetFloatv(nome_parametro, valor);
   }
@@ -1149,6 +1160,7 @@ namespace {
 GLint IdMatrizCorrente(const interno::VarShader& shader) {
   switch (ModoMatrizCorrente()) {
     case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
+    case MATRIZ_AJUSTE_TEXTURA:   return shader.uni_gltab_mvm_ajuste_textura;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
     case MATRIZ_OCLUSAO:          return shader.uni_gltab_mvm_oclusao;
@@ -1200,6 +1212,7 @@ void AtualizaTodasMatrizes() {
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
     { shader.uni_gltab_mvm_oclusao, &c->pilha_mvm_oclusao.top() },
+    { shader.uni_gltab_mvm_ajuste_textura, &c->pilha_mvm_ajuste_textura.top() },
   };
   for (const auto& dm : dados_matriz) {
     if (dm.id != -1) {

@@ -66,7 +66,7 @@ class VboNaoGravado {
     return num_dimensoes_;
   }
 
-  std::string ParaString() const;
+  std::string ParaString(bool completo) const;
 
   bool tem_normais() const { return !normais_.empty(); }
   bool tem_cores() const { return tem_cores_; }
@@ -205,6 +205,7 @@ class VbosNaoGravados {
   void Desenha() const;
   bool Vazio() const { return vbos_.empty(); }
   void Multiplica(const Matrix4& m);
+  std::string ParaString(bool completo) const;
 
  private:
   std::vector<VboNaoGravado> vbos_;

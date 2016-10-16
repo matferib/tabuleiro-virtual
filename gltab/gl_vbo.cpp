@@ -78,6 +78,15 @@ void VbosNaoGravados::Desenha() const {
   }
 }
 
+std::string VbosNaoGravados::ParaString(bool completo) const {
+  std::string ret;
+  int i = 0;
+  for (const auto& vbo : vbos_) {
+    ret += net::to_string(i++) + ") " + vbo.ParaString(completo) + "\n";
+  }
+  return ret;
+}
+
 //-------------
 // VbosGravados
 //-------------
@@ -373,16 +382,27 @@ VboNaoGravado VboNaoGravado::ExtraiVboNormais() const {
   return vbo;
 }
 
-std::string VboNaoGravado::ParaString() const {
+std::string VboNaoGravado::ParaString(bool completo) const {
 #if WIN32 || ANDROID
   return std::string("vbo: ") + nome_;
 #else
+  std::string coords;
+  if (completo) {
+    for (unsigned int i = 0; i < coordenadas_.size(); ++i) {
+      coords += net::to_string(coordenadas_[i]);
+      if ((i > 0) && i % NumDimensoes() == 0) {
+        coords += ";";
+      }
+      coords += " ";
+    }
+  }
   return std::string("vbo: ") + nome_ + ", dimensoes: " + std::to_string(NumDimensoes()) +
          ", num indices: " + std::to_string(indices_.size()) +
          ", cores_size: " + std::to_string(tem_cores_ ? cores_.size() : 0) +
          ", normais_size: " + std::to_string(normais_.size()) +
          ", texturas_size: " + std::to_string(texturas_.size()) +
-         ", coordenadas_size: " + std::to_string(coordenadas_.size());
+         ", coordenadas_size: " + std::to_string(coordenadas_.size()) +
+         coords;
 #endif
 }
 

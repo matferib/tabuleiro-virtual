@@ -40,6 +40,7 @@ struct VarShader {
   GLint uni_gltab_mvm;                  // Matrix modelview.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
+  GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
   GLint uni_gltab_prm_sombra;           // Matrix projecao sombra.
@@ -82,6 +83,7 @@ class Contexto {
   std::stack<Matrix4> pilha_prj_sombra;
   std::stack<Matrix4> pilha_mvm_oclusao;
   std::stack<Matrix4> pilha_prj_oclusao;
+  std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;
   Matrix3 matriz_normal;  // Computada da mvm corrente.
