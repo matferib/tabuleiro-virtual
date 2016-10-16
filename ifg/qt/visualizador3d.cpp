@@ -809,6 +809,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
   gerador.spin_tex_largura->setValue(entidade.info_textura().largura());
   gerador.spin_tex_altura->setValue(entidade.info_textura().altura());
+  gerador.spin_tex_trans_x->setValue(entidade.info_textura().translacao_x());
+  gerador.spin_tex_trans_y->setValue(entidade.info_textura().translacao_y());
+
   // Modelo 3d.
   PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
@@ -871,6 +874,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
       proto_retornado->mutable_info_textura()->set_largura(gerador.spin_tex_largura->value());
       proto_retornado->mutable_info_textura()->set_altura(gerador.spin_tex_altura->value());
+      proto_retornado->mutable_info_textura()->set_translacao_x(gerador.spin_tex_trans_x->value());
+      proto_retornado->mutable_info_textura()->set_translacao_y(gerador.spin_tex_trans_y->value());
     }
     if (gerador.combo_modelos_3d->currentIndex() == 0) {
       proto_retornado->clear_modelo_3d();
