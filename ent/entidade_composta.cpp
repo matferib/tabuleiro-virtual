@@ -21,32 +21,36 @@ void Entidade::AtualizaProtoComposta(
     const ent::EntidadeProto& proto_original, const ent::EntidadeProto& proto_novo, VariaveisDerivadas* vd) {
 }
 
-gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   gl::VbosNaoGravados vbos;
   gl::VbosNaoGravados sub_vbos;
   for (const auto& sub : proto.sub_forma()) {
     if (sub.tipo() == TE_COMPOSTA) {
-      sub_vbos = ExtraiVboComposta(sub, vd, pd);
+      sub_vbos = ExtraiVboComposta(sub, vd, pd, true  /*mundo*/);
     } else if (sub.tipo() == TE_FORMA) {
-      sub_vbos = ExtraiVboForma(sub, vd, pd);
+      sub_vbos = ExtraiVboForma(sub, vd, pd, true   /*mundo*/);
     }
     vbos.Concatena(&sub_vbos);
   }
-  Matrix4 m;
-  m.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
-  m.rotateX(proto.rotacao_x_graus());
-  m.rotateY(proto.rotacao_y_graus());
-  m.rotateZ(proto.rotacao_z_graus());
-  m.translate(proto.pos().x(), proto.pos().y(), proto.pos().z());
-  vbos.Multiplica(m);
+  if (mundo) {
+    Matrix4 m;
+    m.scale(proto.escala().x(), proto.escala().y(), proto.escala().z());
+    m.rotateX(proto.rotacao_x_graus());
+    m.rotateY(proto.rotacao_y_graus());
+    m.rotateZ(proto.rotacao_z_graus());
+    m.translate(proto.pos().x(), proto.pos().y(), proto.pos().z());
+    vbos.Multiplica(m);
+  }
   return vbos;
 }
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-#define DESENHAR_VBO 1
-#if DESENHAR_VBO
   AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+#if !VBO_COM_MODELAGEM
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+  MontaMatriz(true, true, proto, vd, pd);
+#endif
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
@@ -55,23 +59,6 @@ void Entidade::DesenhaObjetoCompostoProto(
   }
   vd.vbos_gravados.Desenha();
   gl::Desabilita(GL_TEXTURE_2D);
-#else
-  gl::MatrizEscopo salva_matriz(false);
-  gl::Translada(proto.pos().x(), proto.pos().y(), proto.pos().z() + 0.01f, false);
-  gl::Roda(proto.rotacao_z_graus(), 0, 0, 1.0f, false);
-  gl::Roda(proto.rotacao_y_graus(), 0, 1.0f, 0, false);
-  gl::Roda(proto.rotacao_x_graus(), 1.0f, 0.0f, 0, false);
-  gl::Escala(proto.escala().x(), proto.escala().y(), proto.escala().z(), false);
-  if (!vd.vbos.empty()) {
-    AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
-    for (const auto& vbo : vd.vbos) {
-      GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() && vbo.tem_texturas() ?
-        vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-      if (id_textura != GL_INVALID_VALUE) {
-        gl::Habilita(GL_TEXTURE_2D);
-        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-      }
-      gl::DesenhaVbo(vbo);
 #if 0 && DEBUG
       // Debug de normais escala deve estar em 1.0.
       if (pd->desenha_barra_vida() && !pd->has_picking_x()) {
@@ -82,10 +69,6 @@ void Entidade::DesenhaObjetoCompostoProto(
           LOG_EVERY_N(INFO, 1000) << "erro vbo: " << e.what();
         }
       }
-#endif
-      gl::Desabilita(GL_TEXTURE_2D);
-    }
-  }
 #endif
 }
 

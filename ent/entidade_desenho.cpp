@@ -118,77 +118,64 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 
 void Entidade::DesenhaObjetoEntidadeProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-#define DESENHAR_VBO 1
-  // Tem mais coisa depois do if else.
-#if DESENHAR_VBO
+  bool achatar = !proto.has_modelo_3d() && !proto.info_textura().id().empty() &&
+                 (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   AjustaCor(proto, pd);
   AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
-  vd.vbos_gravados.Desenha();
-  if (proto.has_modelo_3d()) {
-    return;
-  }
-#else
-  if (proto.has_modelo_3d()) {
-    const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
-    if (modelo_3d != nullptr && modelo_3d->Valido()) {
-      // TODO vbo gravado
-      gl::MatrizEscopo salva_matriz(false);
-      // Mesmo hack das entidades compostas.
-      MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-      AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
-      modelo_3d->Desenha();
-      return;
-    } else {
-      // Nem sempre eh erro.
-      LOG_EVERY_N(INFO, 1000) << "Modelo3d invalido ou ainda nao carregado: " << proto.modelo_3d().id();
-    }
+  if (!achatar || VBO_COM_MODELAGEM) {
+#if !VBO_COM_MODELAGEM
+    gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+    Matrix4 m;
+    m.rotateZ(vd.angulo_rotacao_textura_graus);
+    m = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto, vd, pd) * m;
+    gl::MultiplicaMatriz(m.get());
+#endif
+    vd.vbos_gravados.Desenha();
   }
 
-  // desenha o cone com NUM_FACES faces com raio de RAIO e altura ALTURA
-  if (proto.info_textura().id().empty() && proto.modelo_3d().id().empty()) {
-    gl::MatrizEscopo salva_matriz(false);
-    MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-    gl::DesenhaVbo(g_vbos[VBO_PEAO]);
+  if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
     return;
   }
 
+#if !VBO_COM_MODELAGEM
+  // No caso de VBO com modelagem, o tijolo da base ja esta no modelo.
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
-    gl::MatrizEscopo salva_matriz(false);
-    MontaMatriz(true  /*queda*/,
-                (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
-                proto, vd, pd);
-    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 2, false);
-    gl::Escala(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2, false);
+    gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+    Matrix4 m;
     if (pd->entidade_selecionada()) {
-      gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f, false);
+      m.rotateZ(vd.angulo_disco_selecao_graus);
     }
+    m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+    m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
+    m = MontaMatrizModelagem(true,  // queda.
+                             (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
+                              proto, vd, pd) * m;
+    gl::MultiplicaMatriz(m.get());
     gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
   }
 #endif
 
-  // Moldura da textura.
-  bool achatar = (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
-  gl::MatrizEscopo salva_matriz(false);
+  // Tela da textura.
+  gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA, false);
+  if (!achatar) {
+    Matrix4 m;
+    m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
+    m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y(), 0.0f);
+    gl::MultiplicaMatriz(m.get());
+  }
+
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+
   MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-  // Tijolo da moldura: nao roda selecionado (comentado).
   if (achatar) {
     gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
-    //if (pd->entidade_selecionada()) {
-    //  gl::Roda(vd.angulo_disco_selecao_graus, 0, 0, 1.0f);
-    //}
     gl::Roda(90.0f, -1.0f, 0.0f, 0.0f, false);
-    gl::Escala(0.8f, 1.0f, 0.8f, false);
+    gl::Escala(0.8f, 1.0f, 0.8f, true);
   } else {
-    // Moldura da textura: acima do tijolo de base e achatado em Y (longe da camera).
     gl::Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()), false);
-    // So desenha a textura de frente pra entidades nao caidas.
     gl::Roda(vd.angulo_rotacao_textura_graus, 0.0f, 0.0f, 1.0f, false);
-#if !DESENHAR_VBO
-    gl::MatrizEscopo salva_matriz(false);
-    gl::Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura(), false);
-    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
-#endif
+    gl::Escala(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
   }
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
@@ -202,31 +189,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
     c.set_b(1.0f);
     c.set_a(pd->has_alfa_translucidos() ? pd->alfa_translucidos() : 1.0f);
     MudaCor(proto.morta() ? EscureceCor(c) : c);
-    {
-      const unsigned short indices[] = { 0, 1, 2, 3 };
-      float largura = TAMANHO_LADO_QUADRADO_2 * proto.info_textura().largura();
-      float altura = TAMANHO_LADO_QUADRADO_2 * proto.info_textura().altura();
-      float ajuste = -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f;
-      const float coordenadas[] = {
-        -largura, ajuste, -altura,
-        largura,  ajuste, -altura,
-        largura,  ajuste, altura,
-        -largura, ajuste, altura,
-      };
-      float sobra_largura = (1.0f - proto.info_textura().largura()) / 2.0f;
-      const float coordenadas_textura[] = {
-        sobra_largura,        1.0f,
-        1.0f - sobra_largura, 1.0f,
-        1.0f - sobra_largura, 1.0f - proto.info_textura().altura(),
-        sobra_largura,        1.0f - proto.info_textura().altura(),
-      };
-      gl::VboNaoGravado vbo;
-      vbo.AtribuiCoordenadas(3, coordenadas, 12);
-      vbo.AtribuiTexturas(coordenadas_textura);
-      vbo.AtribuiIndices(indices, 4);
-      gl::DesenhaVbo(vbo, GL_TRIANGLE_FAN);
-    }
-    //gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
+    gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
     gl::Desabilita(GL_TEXTURE_2D);
   }
 }

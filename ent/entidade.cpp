@@ -77,6 +77,15 @@ void CorrigeCamposDeprecated(EntidadeProto* proto) {
 }  // namespace
 
 void Entidade::CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd) {
+  Matrix4 m;
+  m.translate(-proto.pos().x(), -proto.pos().y(), -proto.pos().z());
+  m.rotateZ(-proto.rotacao_z_graus());
+  m.rotateY(-proto.rotacao_y_graus());
+  m.rotateX(-proto.rotacao_x_graus());
+  if (proto.tipo() != TE_FORMA || proto.sub_tipo() != TF_LIVRE) {
+    m.scale(1.0f / proto.escala().x(), 1.0f / proto.escala().y(), 1.0f / proto.escala().z());
+  }
+  vd->vbos_nao_gravados.Multiplica(m);
 #if 0
   for (auto& vbo : vd->vbos) {
     vbo.Translada(-proto.pos().x(), -proto.pos().y(), -proto.pos().z());
@@ -132,30 +141,33 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd) {
-  return ExtraiVbo(proto, VariaveisDerivadas(), pd);
+gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo) {
+  return ExtraiVbo(proto, VariaveisDerivadas(), pd, mundo);
 }
 
 // static
-gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
   if (proto.tipo() == TE_ENTIDADE) {
-    return ExtraiVboEntidade(proto, vd, pd);
+    return ExtraiVboEntidade(proto, vd, pd, mundo);
   } else if (proto.tipo() == TE_COMPOSTA) {
-    return ExtraiVboComposta(proto, vd, pd);
+    return ExtraiVboComposta(proto, vd, pd, mundo);
   } else {
-    return ExtraiVboForma(proto, vd, pd);
+    return ExtraiVboForma(proto, vd, pd, mundo);
   }
 }
 
-gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+// static
+gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
 
   if (proto.has_modelo_3d()) {
     gl::VbosNaoGravados vbos;
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
     if (modelo_3d != nullptr && modelo_3d->Valido()) {
       vbos.CopiaDe(modelo_3d->vbos_nao_gravados);
-      Matrix4 matriz = MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd);
-      vbos.Multiplica(matriz);
+      //LOG_EVERY_N(INFO, 10) << "VBO: " << vbos.ParaString(true);
+      if (mundo) {
+        vbos.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+      }
     }
     // Aqui pode retornar o vbo vazio, para o caso de nao ter carregado ainda.
     return vbos;
@@ -172,20 +184,25 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto,
     }
     vbo.Concatena(vbo_esfera);
     vbo.AtribuiCor(proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a());
-    vbo.Multiplica(MontaMatrizModelagem(true /*queda*/, true /*trans z*/, proto, vd, pd));
+    if (mundo) {
+      vbo.Multiplica(MontaMatrizModelagem(true /*queda*/, true /*trans z*/, proto, vd, pd));
+    }
     return gl::VbosNaoGravados(std::move(vbo));
   }
 
-  // Moldura.
+  // tijolo da tela de textura (moldura).
   gl::VboNaoGravado vbo_moldura;
   if (!pd->desenha_texturas_para_cima()) {
     vbo_moldura = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
     vbo_moldura.Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura());
-    vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
     vbo_moldura.Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
+#if VBO_COM_MODELAGEM
+    vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
     vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+#endif
   }
 
+#if VBO_COM_MODELAGEM
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
     gl::VboNaoGravado vbo_base = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
@@ -200,12 +217,13 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto,
         proto, vd, pd));
     vbo_moldura.Concatena(vbo_base);
   }
+#endif
 
   return gl::VbosNaoGravados(std::move(vbo_moldura));
 }
 
 void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
-  vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd);
+  vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, VBO_COM_MODELAGEM);
   vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
   V_ERRO("Erro atualizacao de VBOs");
 }
@@ -340,18 +358,18 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
 void Entidade::Atualiza(int intervalo_ms) {
   // Ao retornar, atualiza o vbo se necessario.
   struct AtualizaVboEscopo {
-    AtualizaVboEscopo(std::function<void()> f) : f(f) {}
+    AtualizaVboEscopo(Entidade* e) : e(e) {}
     ~AtualizaVboEscopo() {
-      if (atualizar) f();
+      if (atualizar) e->AtualizaVbo(e->parametros_desenho_);
     }
-    std::function<void()> f;
+    Entidade* e;
     bool atualizar = false;
-  } vbo_escopo([this] () { AtualizaVbo(parametros_desenho_); });
+  } vbo_escopo(this);
   if (parametros_desenho_->regera_vbo()) {
     vbo_escopo.atualizar = true;
   }
 
-  if (parametros_desenho_->entidade_selecionada()) {
+  if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
     vbo_escopo.atualizar = true;
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
@@ -366,7 +384,9 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_disco_luz_rad = fmod(vd_.angulo_disco_luz_rad + DELTA_LUZ, 2 * M_PI);
   }
   if (proto_.voadora()) {
+#if VBO_COM_MODELAGEM
     vbo_escopo.atualizar = true;
+#endif
     if (vd_.altura_voo < ALTURA_VOO) {
       if (vd_.altura_voo == 0.0f) {
         vd_.angulo_disco_voo_rad = 0.0f;
@@ -383,7 +403,9 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   } else {
     if (vd_.altura_voo > 0) {
+#if VBO_COM_MODELAGEM
       vbo_escopo.atualizar = true;
+#endif
       const float DECREMENTO = ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
       if (Z() > vd_.z_antes_voo) {
         proto_.mutable_pos()->set_z(Z() - DECREMENTO);
@@ -419,7 +441,9 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
     if (fabs(angulo - vd_.angulo_rotacao_textura_graus) > 0.1f) {
       vd_.angulo_rotacao_textura_graus = angulo;
+#if VBO_COM_MODELAGEM
       vbo_escopo.atualizar = true;
+#endif
       //LOG(INFO) << "atualizou angulo: " << angulo;
     }
   }
@@ -428,7 +452,9 @@ void Entidade::Atualiza(int intervalo_ms) {
   const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;
   if (proto_.caida()) {
     if (vd_.angulo_disco_queda_graus < 90.0f) {
+#if VBO_COM_MODELAGEM
       vbo_escopo.atualizar = true;
+#endif
       vd_.angulo_disco_queda_graus += DELTA_QUEDA;
       if (vd_.angulo_disco_queda_graus > 90.0f) {
         vd_.angulo_disco_queda_graus = 90.0f;
@@ -436,7 +462,9 @@ void Entidade::Atualiza(int intervalo_ms) {
     }
   } else {
     if (vd_.angulo_disco_queda_graus > 0) {
+#if VBO_COM_MODELAGEM
       vbo_escopo.atualizar = true;
+#endif
       vd_.angulo_disco_queda_graus -= DELTA_QUEDA;
       if (vd_.angulo_disco_queda_graus < 0) {
         vd_.angulo_disco_queda_graus = 0.0f;
@@ -452,7 +480,9 @@ void Entidade::Atualiza(int intervalo_ms) {
   if (!proto_.has_destino()) {
     return;
   }
+#if VBO_COM_MODELAGEM
   vbo_escopo.atualizar = true;
+#endif
   auto* po = proto_.mutable_pos();
   const auto& pd = proto_.destino();
   if (proto_.destino().has_id_cenario()) {
@@ -749,7 +779,8 @@ void Entidade::MontaMatriz(bool queda,
                            bool transladar_z,
                            const EntidadeProto& proto,
                            const VariaveisDerivadas& vd,
-                           const ParametrosDesenho* pd) {
+                           const ParametrosDesenho* pd,
+                           bool posicao_mundo) {
   Matrix4 matriz(MontaMatrizModelagem(queda, transladar_z, proto, vd, pd));
   gl::MultiplicaMatriz(matriz.get());
 #if 0
@@ -814,7 +845,8 @@ Matrix4 Entidade::MontaMatrizModelagem(
     bool transladar_z,
     const EntidadeProto& proto,
     const VariaveisDerivadas& vd,
-    const ParametrosDesenho* pd) {
+    const ParametrosDesenho* pd,
+    bool posicao_mundo) {
   if (proto.tipo() == TE_FORMA || proto.tipo() == TE_COMPOSTA) {
     // Mesma matriz.
     return MontaMatrizModelagemForma(queda, transladar_z, proto, vd, pd);
@@ -848,7 +880,6 @@ Matrix4 Entidade::MontaMatrizModelagem(
   if (computar_queda) {
     if (!achatar) {
       // Roda sobre o eixo X negativo para cair com a face para cima.
-//#error conferir
       matrix.rotateX(- vd.angulo_disco_queda_graus);
     }
     // Roda pra direcao de queda.
@@ -869,12 +900,14 @@ Matrix4 Entidade::MontaMatrizModelagem(
     matrix.rotateZ(proto.rotacao_z_graus());
   }
 
-  const auto& pos = proto.pos();
-  float translacao_z = ZChao(pos.x(), pos.y());
-  if (transladar_z) {
-    translacao_z += proto.pos().z() + DeltaVoo(vd);
+  if (posicao_mundo) {
+    const auto& pos = proto.pos();
+    float translacao_z = ZChao(pos.x(), pos.y());
+    if (transladar_z) {
+      translacao_z += proto.pos().z() + DeltaVoo(vd);
+    }
+    matrix.translate(pos.x(), pos.y(), translacao_z);
   }
-  matrix.translate(pos.x(), pos.y(), translacao_z);
   return matrix;
 }
 

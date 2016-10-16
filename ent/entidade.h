@@ -9,6 +9,8 @@
 #include "gltab/gl_vbo.h"
 #include "m3d/m3d.h"
 
+#define VBO_COM_MODELAGEM 0
+
 namespace ntf {
 class CentralNotificacoes;
 }  // namespace ntf
@@ -68,9 +70,9 @@ class Entidade {
   /** Extrai o VBO da entidade na posicao do mundo. Se desejavel a posicao
   * de modelagem, usar CorrigeVboRaiz.
   */
-  gl::VbosNaoGravados ExtraiVbo(const ParametrosDesenho* pd) const { return ExtraiVbo(Proto(), vd_, pd); }
+  gl::VbosNaoGravados ExtraiVbo(const ParametrosDesenho* pd, bool mundo) const { return ExtraiVbo(Proto(), vd_, pd, mundo); }
   // essa versao eh pra quem nao tem objeto mas tem o proto e quer criar vbos. m3d por exemplo.
-  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const ParametrosDesenho* pd, bool mundo);
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
@@ -259,13 +261,11 @@ class Entidade {
   static void CorrigeVboRaiz(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
 
   /** Retorna um VBO que representa a entidade (valido para FORMAS e COMPOSTAS). */
-  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static gl::VbosNaoGravados ExtraiVbo(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
   // Extracao de VBO por tipo.
-  static gl::VbosNaoGravados ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
-  static gl::VbosNaoGravados ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
-  static gl::VbosNaoGravados ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
-
-
+  static gl::VbosNaoGravados ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboForma(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
+  static gl::VbosNaoGravados ExtraiVboComposta(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo);
 
   // Inicializacao por tipo.
   static void InicializaForma(const ent::EntidadeProto& proto, VariaveisDerivadas* vd);
@@ -322,14 +322,18 @@ class Entidade {
                           bool transladar_z,
                           const EntidadeProto& proto,
                           const VariaveisDerivadas& vd,
-                          const ParametrosDesenho* pd = nullptr);
+                          const ParametrosDesenho* pd = nullptr,
+                          bool posicao_mundo = true);
 
   static Matrix4 MontaMatrizModelagem(
-      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
+      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
+      const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true);
   static Matrix4 MontaMatrizModelagemForma(
-      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
+      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
+      const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true);
   static Matrix4 MontaMatrizModelagemComposta(
-      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr);
+      bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
+      const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true);
 
   static void DesenhaObjetoProto(
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);

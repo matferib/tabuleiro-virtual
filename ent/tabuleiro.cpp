@@ -625,8 +625,8 @@ void Tabuleiro::DesenhaMapaOclusao() {
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
 #endif
     V_ERRO("TexturaFramebufferOclusao");
-    //DesenhaCena();
-    DesenhaCenaVbos();
+    DesenhaCena();
+    //DesenhaCenaVbos();
   }
 
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -684,8 +684,8 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::BufferDesenho(GL_NONE);
 #endif
   //LOG(INFO) << "sombra projetada";
-  //DesenhaCena();
-  DesenhaCenaVbos();
+  DesenhaCena();
+  //DesenhaCenaVbos();
 }
 
 int Tabuleiro::Desenha() {
