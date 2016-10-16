@@ -540,7 +540,7 @@ class AcaoCorpoCorpo : public Acao {
       return;
     }
     if (rotacao_graus_ == 0.0f) {
-      AtualizaRotacaoZFonteRelativoTabuleiro(eo);
+      AtualizaRotacaoZFonte(eo);
     }
 
     // TODO desenhar o impacto.
