@@ -670,20 +670,34 @@ bool FiltroModelo3d(const std::string& nome) {
   return !EhModelo3d(nome);
 }
 
-bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, float alfa) const {
+bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, const Cor& cor) const {
+  float rgb[3] = { 1.0f, 1.0f, 1.0f};
+  bool misturar_cor_raiz = false;
+  if (cor.has_r() && (cor.r() < 1.0f || cor.g() < 1.0f || cor.b() < 1.0f)) {
+    rgb[0] = cor.r();
+    rgb[1] = cor.g();
+    rgb[2] = cor.b();
+    misturar_cor_raiz = true;
+  }
   if (pd->has_picking_x()) {
     // Durante picking, nao altera o blending.
     return false;
   } else if (pd->has_alfa_translucidos()) {
     // Blend ja ta ligado.
     gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-    gl::CorMistura(1.0f, 1.0f, 1.0f, alfa < 1.0f ? alfa : pd->alfa_translucidos());
+    gl::CorMistura(rgb[0], rgb[1], rgb[2], cor.a() < 1.0f ? cor.a() : pd->alfa_translucidos());
     return true;
   } else if (pd->entidade_selecionada()) {
     // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
     gl::Habilita(GL_BLEND);
     gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
-    gl::CorMistura(0.9f, 0.9f, 0.9f, 1.0f);
+    gl::CorMistura(rgb[0] * 0.9f, rgb[1] * 0.9f, rgb[2] * 0.9f, 1.0f);
+    return true;
+  } else if (misturar_cor_raiz) {
+    // Mistura as cores com a cor do objeto raiz.
+    gl::Habilita(GL_BLEND);
+    gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ZERO);
+    gl::CorMistura(rgb[0], rgb[1], rgb[2], 1.0f);
     return true;
   }
   return false;

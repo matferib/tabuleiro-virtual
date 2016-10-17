@@ -174,12 +174,12 @@ bool FiltroTexturaTabuleiro(const std::string& textura);
 class AlteraBlendEscopo {
  public:
   // O valor alfa, se menor que 1.0, sera usado na transparencia no lugar do alfa_translucidos de pd.
-  explicit AlteraBlendEscopo(const ParametrosDesenho* pd, float alfa)
-      : pd_(pd), restaurar_(AlteraBlendEntidadeComposta(pd, alfa)) {}
+  explicit AlteraBlendEscopo(const ParametrosDesenho* pd, const Cor& cor)
+      : pd_(pd), restaurar_(AlteraBlendEntidadeComposta(pd, cor)) {}
   ~AlteraBlendEscopo() { if (restaurar_) RestauraBlend(pd_); }
 
  private:
-  bool AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, float alfa) const;
+  bool AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, const Cor& cor) const;
   void RestauraBlend(const ParametrosDesenho* pd) const;
 
   const ParametrosDesenho* pd_;
