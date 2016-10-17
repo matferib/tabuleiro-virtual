@@ -594,7 +594,8 @@ float Entidade::Z(bool delta_voo) const {
 }
 
 float Entidade::ZOlho() const {
-  return TAMANHO_LADO_QUADRADO * MultiplicadorTamanho() + Z(true  /*delta*/);
+  Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
+  return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * ponto).z);
 }
 
 int Entidade::IdCenario() const {
@@ -759,13 +760,8 @@ std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::stri
 }
 
 const Posicao Entidade::PosicaoAcao() const {
-  //gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  //gl::CarregaIdentidade();
-  Matrix4 matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_);
-  if (!proto_.achatado()) {
-    //gl::Translada(0.0f, 0.0f, ALTURA, false);
-    matriz.translate(0.0f, 0.0f, ALTURA);
-  }
+  Matrix4 matriz;
+  matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * matriz;
   //GLfloat matriz[16];
   //gl::Le(GL_MODELVIEW_MATRIX, matriz);
   //VLOG(2) << "Matriz: " << matriz[0] << " " << matriz[1] << " " << matriz[2] << " " << matriz[3];
@@ -773,8 +769,8 @@ const Posicao Entidade::PosicaoAcao() const {
   //VLOG(2) << "Matriz: " << matriz[8] << " " << matriz[9] << " " << matriz[10] << " " << matriz[11];
   //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-  Vector4 ponto(0.0f, 0.0f, 0.0f, 1.0f);
-  //MultiplicaMatrizVetor(matriz, ponto);
+  // A posicao da acao eh mais baixa que a altura.
+  Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA_ACAO, 1.0f);
   ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
