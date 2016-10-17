@@ -232,16 +232,16 @@ class AcaoDispersao : public Acao {
       ComputaVetorNormalizado(&vetor_direcao);
       ComputaMultiplicacaoEscalar(efeito_, vetor_direcao, &vetor_direcao);
       // Faz a translacao pra base do cone que eh a posicao da acao + o inverso do vetor de direcao.
-      gl::Translada(pos_acao.x() - vetor_direcao.x(), pos_acao.y() - vetor_direcao.y(), pos_tabuleiro.z() + z_acao);
+      gl::Translada(pos_acao.x() - vetor_direcao.x(), pos_acao.y() - vetor_direcao.y(), pos_tabuleiro.z() + z_acao, false);
       // Deixa o eixo X na direcao da base para a ponta (acao). Depois deita o cone, fazendo a ponta apontar para o eixo X+.
-      gl::Roda(VetorParaRotacaoGraus(vetor_direcao.x(), vetor_direcao.y()), 0.0f, 0.0f, 1.0f);
-      gl::Roda(90.0f, 0.0f, 1.0f, 0.0f);
+      gl::Roda(VetorParaRotacaoGraus(vetor_direcao.x(), vetor_direcao.y()), 0.0f, 0.0f, 1.0f, false);
+      gl::Roda(90.0f, 0.0f, 1.0f, 0.0f, false);
       // Escala o cone para o tamanho correto (vetor de direcao). Apesar de tecnicamente ser um cone, o efeito visual eh melhor
       // achatando-se o cone na vertical. Apos a ultima rotacao, o eixo X esta apontando para baixo.
       gl::Escala(efeito_ * 0.2f, efeito_, efeito_);
     } else {
       const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
-      gl::Translada(pos.x(), pos.y(), pos.z());
+      gl::Translada(pos.x(), pos.y(), pos.z(), false);
       gl::Escala(efeito_, efeito_, efeito_);
     }
     DesenhaGeometriaAcao(acao_proto_.geometria());
@@ -438,7 +438,7 @@ class AcaoRaio : public Acao {
       pos_d = ed->PosicaoAcao();
     } else {
       // Poe na mesma altura da origem.
-      pos_d.set_z(pos_o.z());
+      //pos_d.set_z(pos_o.z());
     }
     MudaCorProto(acao_proto_.cor());
     gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
@@ -446,8 +446,8 @@ class AcaoRaio : public Acao {
     float dy = pos_d.y() - pos_o.y();
     float dz = pos_d.z() - pos_o.z();
     float tam;
-    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
-    gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
+    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z(), false);
+    gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f, false);
     if (acao_proto_.has_distancia()) {
       tam = acao_proto_.distancia() * TAMANHO_LADO_QUADRADO;
     }
