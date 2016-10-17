@@ -109,8 +109,8 @@ const unsigned int TAMANHO_MAXIMO_LISTA = 10;
 // Valores positivos afastam, negativos aproximam.
 const float OFFSET_TERRENO_ESCALA_DZ = 1.0f;
 const float OFFSET_TERRENO_ESCALA_R  = 2.0f;
-//const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
-//const float OFFSET_GRADE_ESCALA_R    = 1.0f;
+const float OFFSET_GRADE_ESCALA_DZ   = 0.5f;
+const float OFFSET_GRADE_ESCALA_R    = 1.0f;
 
 /** Distancia minima entre pontos no desenho livre. */
 const float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
@@ -625,8 +625,11 @@ void Tabuleiro::DesenhaMapaOclusao() {
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
 #endif
     V_ERRO("TexturaFramebufferOclusao");
+#if VBO_COM_MODELAGEM
+    DesenhaCenaVbos();
+#else
     DesenhaCena();
-    //DesenhaCenaVbos();
+#endif
   }
 
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -684,8 +687,11 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::BufferDesenho(GL_NONE);
 #endif
   //LOG(INFO) << "sombra projetada";
+#if VBO_COM_MODELAGEM
+  DesenhaCenaVbos();
+#else
   DesenhaCena();
-  //DesenhaCenaVbos();
+#endif
 }
 
 int Tabuleiro::Desenha() {
@@ -761,7 +767,9 @@ int Tabuleiro::Desenha() {
   }
   V_ERRO_RET("Antes desenha sombras");
 
+#if VBO_COM_MODELAGEM
   GeraVbosCena();
+#endif
 
 #if !__APPLE__ || !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
@@ -5999,9 +6007,9 @@ void Tabuleiro::DesenhaCaixaCeu() {
 void Tabuleiro::DesenhaGrade() {
   gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  //gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
+  gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
   MudaCor(COR_PRETA);
-  //gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
+  gl::DesvioProfundidade(OFFSET_GRADE_ESCALA_DZ, OFFSET_GRADE_ESCALA_R);
   vbos_grade_.Desenha();
 }
 
