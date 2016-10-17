@@ -246,7 +246,7 @@ class Entidade {
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
 
-    // Toda entidade deve possuir VBOs associados.
+    // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
     gl::VbosGravados vbos_gravados;
 
@@ -288,7 +288,7 @@ class Entidade {
   /** Realiza as notificacoes referentes a modelos 3d. */
   void AtualizaModelo3d(const EntidadeProto& novo_proto);
 
-  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto. 
+  /** Atualiza o VBO da entidade. Deve ser chamado sempre que houver algo que mude a posicao, orientacao ou forma do objeto.
   * Teoricamente deveria sempre receber pd, mas se for nullptr vai usar valor padrao (o que implica em olho em 0,0).
   */
   void AtualizaVbo(const ParametrosDesenho* pd);

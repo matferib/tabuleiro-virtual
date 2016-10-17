@@ -25,6 +25,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
   gl::VbosNaoGravados vbos;
   gl::VbosNaoGravados sub_vbos;
   for (const auto& sub : proto.sub_forma()) {
+    // As subformas sempre extraem com modelagem de mundo, porque elas sao relativas ao pai.
     if (sub.tipo() == TE_COMPOSTA) {
       sub_vbos = ExtraiVboComposta(sub, vd, pd, true  /*mundo*/);
     } else if (sub.tipo() == TE_FORMA) {
@@ -46,7 +47,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboComposta(const ent::EntidadeProto& proto,
 
 void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-  AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+  AlteraBlendEscopo blend_escopo(pd, proto.cor());
 #if !VBO_COM_MODELAGEM
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
   MontaMatriz(true, true, proto, vd, pd);

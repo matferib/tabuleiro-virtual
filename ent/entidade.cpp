@@ -158,7 +158,6 @@ gl::VbosNaoGravados Entidade::ExtraiVbo(const ent::EntidadeProto& proto, const V
 
 // static
 gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd, bool mundo) {
-
   if (proto.has_modelo_3d()) {
     gl::VbosNaoGravados vbos;
     const auto* modelo_3d = vd.m3d->Modelo(proto.modelo_3d().id());
@@ -196,15 +195,14 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto,
     vbo_moldura = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
     vbo_moldura.Escala(proto.info_textura().largura(), 0.1f, proto.info_textura().altura());
     vbo_moldura.Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
-#if VBO_COM_MODELAGEM
-    vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
-    vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
-#endif
+    if (mundo) {
+      vbo_moldura.RodaZ(vd.angulo_rotacao_textura_graus);
+      vbo_moldura.Multiplica(MontaMatrizModelagem(true  /*queda*/, true /*trans z*/, proto, vd, pd));
+    }
   }
 
-#if VBO_COM_MODELAGEM
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  if (!proto.morta()) {
+  if (!proto.morta() && mundo) {
     gl::VboNaoGravado vbo_base = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
     if (pd->entidade_selecionada()) {
       vbo_base.RodaZ(vd.angulo_disco_selecao_graus);
@@ -217,14 +215,29 @@ gl::VbosNaoGravados Entidade::ExtraiVboEntidade(const ent::EntidadeProto& proto,
         proto, vd, pd));
     vbo_moldura.Concatena(vbo_base);
   }
-#endif
 
   return gl::VbosNaoGravados(std::move(vbo_moldura));
 }
 
 void Entidade::AtualizaVbo(const ParametrosDesenho* pd) {
+  // A atualizacao deve ser feita apenas para os tipos corretos.
+#if !VBO_COM_MODELAGEM
+  switch (proto_.tipo()) {
+    case TE_ENTIDADE: return;  // entidades simples nao possuem vbo.
+    case TE_FORMA:
+      // apenas LIVRE possui VBO proprio.
+      if (proto_.sub_tipo() != TF_LIVRE) {
+        return;
+      }
+      // Compostas sempre possuem VBO proprio.
+    case TE_COMPOSTA:
+    default: ;
+  }
+#endif
   vd_.vbos_nao_gravados = ExtraiVbo(pd == nullptr ? &ParametrosDesenho::default_instance() : pd, VBO_COM_MODELAGEM);
-  vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
+  if (!vd_.vbos_nao_gravados.Vazio()) {
+    vd_.vbos_gravados.Grava(vd_.vbos_nao_gravados);
+  }
   V_ERRO("Erro atualizacao de VBOs");
 }
 
@@ -365,12 +378,14 @@ void Entidade::Atualiza(int intervalo_ms) {
     Entidade* e;
     bool atualizar = false;
   } vbo_escopo(this);
+
   if (parametros_desenho_->regera_vbo()) {
     vbo_escopo.atualizar = true;
   }
-
   if (parametros_desenho_->entidade_selecionada() && Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d()) {
+#if VBO_COM_MODELAGEM
     vbo_escopo.atualizar = true;
+#endif
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
   AtualizaEfeitos();
@@ -969,6 +984,7 @@ Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {
 // Nome dos buffers de VBO.
 std::vector<gl::VboGravado> Entidade::g_vbos;
 
+// static
 void Entidade::IniciaGl() {
 
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);

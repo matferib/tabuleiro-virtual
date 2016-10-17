@@ -120,17 +120,36 @@ void Entidade::DesenhaObjetoEntidadeProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
   bool achatar = !proto.has_modelo_3d() && !proto.info_textura().id().empty() &&
                  (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
-  AjustaCor(proto, pd);
-  AlteraBlendEscopo blend_escopo(pd, proto.cor().a());
+  std::unique_ptr<AlteraBlendEscopo> blend_escopo;
+  if (proto.has_modelo_3d()) {
+    blend_escopo.reset(new AlteraBlendEscopo(pd, proto.cor()));
+  } else {
+    AjustaCor(proto, pd);
+  }
   if (!achatar || VBO_COM_MODELAGEM) {
-#if !VBO_COM_MODELAGEM
+#if VBO_COM_MODELAGEM
+    vd.vbos_gravados.Desenha();
+#else
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
     Matrix4 m;
+    if (!proto.has_modelo_3d() && !proto.info_textura().id().empty()) {
+      m.scale(proto.info_textura().largura(), 0.1f, proto.info_textura().altura());
+      m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
+    }
     m.rotateZ(vd.angulo_rotacao_textura_graus);
     m = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto, vd, pd) * m;
     gl::MultiplicaMatriz(m.get());
+    if (proto.has_modelo_3d()) {
+      const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
+      if (modelo != nullptr) {
+        modelo->vbos_nao_gravados.Desenha();
+      }
+    } else if (!proto.info_textura().id().empty()) {
+      gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
+    } else {
+      gl::DesenhaVbo(g_vbos[VBO_PEAO]);
+    }
 #endif
-    vd.vbos_gravados.Desenha();
   }
 
   if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
