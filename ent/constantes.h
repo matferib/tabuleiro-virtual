@@ -17,6 +17,8 @@
 #define ALTURA TAMANHO_LADO_QUADRADO
 /** Altura do voo dos objetos. */
 #define ALTURA_VOO ALTURA
+/** Altura da posicao da acao, mais baixo que o objeto. */
+#define ALTURA_ACAO (ALTURA * 0.6f)
 /** Numero de faces do cone. */
 #define NUM_FACES 8
 /** Numero de divisoes do eixo Z do cone. */
