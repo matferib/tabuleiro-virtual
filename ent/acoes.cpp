@@ -118,7 +118,8 @@ class AcaoDeltaPontosVida : public Acao {
         VLOG(1) << "Finalizando delta_pontos_vida precisa de entidade destino: " << acao_proto_.ShortDebugString();
         return;
       }
-      pos_ = entidade_destino->PosicaoAcao();
+      pos_ = entidade_destino->Pos();
+      pos_.set_z(entidade_destino->ZOlho());
     } else {
       pos_ = acao_proto_.pos_entidade();
     }
@@ -213,7 +214,7 @@ class AcaoDispersao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+    //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     MudaCorProto(acao_proto_.cor());
     gl::MatrizEscopo salva_matriz;
     const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
@@ -223,22 +224,19 @@ class AcaoDispersao : public Acao {
         return;
       }
       // Posicao da acao eh a ponta do cone. Computa tudo considerando nivel do solo, depois faz translacao pro nivel da acao.
-      Posicao pos_acao = entidade_origem->PosicaoAcao();
-      float z_acao = pos_acao.z();
-      pos_acao.set_z(pos_tabuleiro.z());
-      // Vetor de direcao aponta da base do cone para a ponta, onde ocorre a acao. Entao normaliza e o deixa do tamanho da acao.
-      Posicao vetor_direcao;
-      ComputaDiferencaVetor(pos_acao, pos_tabuleiro, &vetor_direcao);
-      ComputaVetorNormalizado(&vetor_direcao);
-      ComputaMultiplicacaoEscalar(efeito_, vetor_direcao, &vetor_direcao);
-      // Faz a translacao pra base do cone que eh a posicao da acao + o inverso do vetor de direcao.
-      gl::Translada(pos_acao.x() - vetor_direcao.x(), pos_acao.y() - vetor_direcao.y(), pos_tabuleiro.z() + z_acao, false);
-      // Deixa o eixo X na direcao da base para a ponta (acao). Depois deita o cone, fazendo a ponta apontar para o eixo X+.
-      gl::Roda(VetorParaRotacaoGraus(vetor_direcao.x(), vetor_direcao.y()), 0.0f, 0.0f, 1.0f, false);
-      gl::Roda(90.0f, 0.0f, 1.0f, 0.0f, false);
-      // Escala o cone para o tamanho correto (vetor de direcao). Apesar de tecnicamente ser um cone, o efeito visual eh melhor
-      // achatando-se o cone na vertical. Apos a ultima rotacao, o eixo X esta apontando para baixo.
-      gl::Escala(efeito_ * 0.2f, efeito_, efeito_);
+      const auto& pos_origem = entidade_origem->PosicaoAcao();
+      Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
+      Vector3 v_destino(pos_tabuleiro.x(), pos_tabuleiro.y(), pos_tabuleiro.z());
+      Vector3 diff = v_destino - v_origem;
+
+      Matrix4 m_cone;
+      m_cone.rotateY(90.0f);
+      m_cone.rotateZ(180.0f);
+      m_cone.translate(1.0f, 0.0f, 0.0f);
+      m_cone.scale(efeito_, efeito_, 0.2f * efeito_);
+      m_cone = MatrizRotacao(diff) * m_cone;
+      m_cone.translate(pos_origem.x(), pos_origem.y(), pos_origem.z());
+      gl::MultiplicaMatriz(m_cone.get());
     } else {
       const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
       gl::Translada(pos.x(), pos.y(), pos.z(), false);
