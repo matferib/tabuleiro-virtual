@@ -2184,7 +2184,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   Posicao pos_tabuleiro;
   if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
-    MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
+    MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
     unsigned int id_quadrado = IdQuadrado(x3d, y3d);
     VLOG(1) << "Acao no tabuleiro: " << id_quadrado;
     // Tabuleiro, posicao do quadrado clicado.
