@@ -194,6 +194,7 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   // Extrai com mundo, por causa da escala. A posicao XY ja foi limpa.
   interno_->modelos[id_interno].vbos_nao_gravados =
       ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance(), true  /*mundo*/);
+  interno_->modelos[id_interno].vbos_gravados.Grava(interno_->modelos[id_interno].vbos_nao_gravados);
 }
 
 void Modelos3d::DescarregaModelo3d(const std::string& id_interno) {

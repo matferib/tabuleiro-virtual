@@ -12,10 +12,11 @@ namespace m3d {
 
 struct Modelo3d {
   gl::VbosNaoGravados vbos_nao_gravados;
+  gl::VbosGravados vbos_gravados;
   // Uso interno.
   int contador = 0;
   bool Valido() const { return !vbos_nao_gravados.Vazio(); }
-}; 
+};
 
 class Modelos3d : public ntf::Receptor {
  public:
