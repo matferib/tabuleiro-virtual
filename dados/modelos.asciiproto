@@ -223,14 +223,14 @@ modelo {
 modelo {
   id: 'Enxame (morcegos)'
   entidade {
-    dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_bat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_bat' }
     rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada' voadora: true
   }
 }
 modelo {
   id: 'Enxame (ratos)'
   entidade {
-    dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' }
     rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
   }
 }
@@ -563,7 +563,7 @@ modelo {
 modelo {
   id: 'Monstro da Ferrugem'
   entidade {
-    dados_vida: '5d8+5' modelo_3d { id: 'rust_monster' } cor { r: 0.2 g: 0.2 b: 0.2 }
+    dados_vida: '5d8+5' modelo_3d { id: 'rust_monster' }
     rotulo_especial: 'ini: +3\nat: +3/-2, dano: ferrugem/1d3\nca: 18/13/15'
   }
 }
@@ -616,7 +616,7 @@ modelo {
 modelo {
   id: 'Otyugh'
   entidade {
-    dados_vida: '6d8+9' modelo_3d { id: 'otyugh' } cor { r: 0.635 g: 0.51 b: 0.427 }
+    dados_vida: '6d8+9' modelo_3d { id: 'otyugh' }
     tipo_visao: VISAO_ESCURO alcance_visao: 12
     tamanho: TM_GRANDE
     rotulo_especial: 'ini: +0\nagarrar: +8 1d6\nat: +4/+4/-2\ndano: 1d6/1d6/1d4\nca: 17\ndoenca'
@@ -661,7 +661,7 @@ modelo {
 modelo {
   id: 'Rato Atroz'
   entidade {
-    dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' } cor { r: 0 g: 0 b: 0 }
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
     rotulo_especial: 'ini +3\nat +4 1d4+doenca\nca 15/14/12\ndoenca fort 11 febre do esgoto '
   }
 }
@@ -717,14 +717,6 @@ modelo {
 modelo {
   id: 'Worg'
   entidade { dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 } }
-}
-modelo {
-  id: 'teste geo'
-  entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'geo' } }
-}
-modelo {
-  id: 'teste orc'
-  entidade { dados_vida: '1d8' tamanho: TM_MEDIO modelo_3d { id: 'orc' } }
 }
 modelo {
   id: 'Cactos'
