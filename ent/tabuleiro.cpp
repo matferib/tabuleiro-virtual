@@ -2167,6 +2167,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   // Primeiro, entidades.
   unsigned int id_entidade_destino = Entidade::IdInvalido;
   Posicao pos_entidade;
+  Posicao pos_tabuleiro;
   if (tipo_objeto == OBJ_ENTIDADE) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
@@ -2178,11 +2179,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     pos_entidade.set_z(z3d);
     pos_entidade.set_id_cenario(cenario_corrente_);
     // Depois tabuleiro.
-    parametros_desenho_.set_desenha_entidades(false);
-    BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
-  }
-  Posicao pos_tabuleiro;
-  if (tipo_objeto == OBJ_TABULEIRO) {
+    pos_tabuleiro.set_x(x3d);
+    pos_tabuleiro.set_y(y3d);
+    pos_tabuleiro.set_z(z3d);
+    pos_tabuleiro.set_id_cenario(cenario_corrente_);
+  } else if (tipo_objeto == OBJ_TABULEIRO) {
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
     unsigned int id_quadrado = IdQuadrado(x3d, y3d);
