@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
+#include "matrix/matrices.h"
 
 // Funcoes uteis de ent.
 namespace ent {
@@ -110,6 +111,9 @@ void MultiplicaMatrizVetor(const float* matriz, float* vetor);
 /** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(const Posicao& vetor, float* tamanho = nullptr);
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
+
+/** Matriz de rotacao para se chegar ao vetor v a partir do eixo X. */
+Matrix4 MatrizRotacao(const Vector3& v);
 
 /** Roda o vetor no eixo Z. */
 void RodaVetor2d(float graus, Posicao* vetor);

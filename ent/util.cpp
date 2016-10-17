@@ -167,6 +167,20 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   return (y >= 0 ? angulo : -angulo);
 }
 
+Matrix4 MatrizRotacao(const Vector3& vn) {
+  Vector3 a(1.0f, 0.0f, 0.0f);
+  Vector3 b(vn.x, vn.y, vn.z);
+  b.normalize();
+  Vector3 axis = a.cross(b);
+  if (fabs(axis.length()) == 0.0f) {
+    return Matrix4();
+  }
+  axis.normalize();
+  float cosang = a.dot(b);
+  // aparentemente, nao precisa resolver o caso > PI porque o cross sempre vai retornar o menor angulo entre eles..
+  return Matrix4().rotate(acosf(cosang) * RAD_PARA_GRAUS, axis);
+}
+
 void RodaVetor2d(float graus, Posicao* vetor) {
   float rad = graus * GRAUS_PARA_RAD;
   float sen_o = sinf(rad);
