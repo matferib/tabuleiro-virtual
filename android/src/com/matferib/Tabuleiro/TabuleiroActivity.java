@@ -220,6 +220,9 @@ class TabuleiroSurfaceView extends GLSurfaceView {
       if (estado_ != ESTADO_OCIOSO && estado_ != ESTADO_MULTITOQUE_2) {
         return true;
       }
+      if (estado_ == ESTADO_OCIOSO) {
+        // notifica os dois toques.
+      }
       detectorRotacao_.onTouch(event);
       detectorEscala_.onTouchEvent(event);
       detectorTranslacao_.onTouch(event);
@@ -718,6 +721,8 @@ class TabuleiroRenderer
         case Evento.ACAO_SINALIZACAO:
           nativeAction(true, evento.x(), evento.y());
           break;
+        case Evento.TOQUE_DUPLO:
+          nativeDoubleTouchPressed(evento.x(), evento.y(), evento.x2(), evento.y2());
         default:
       }
     }
@@ -843,6 +848,12 @@ class TabuleiroRenderer
     }
     //Log.d(TAG, "Rotate");
     eventos_.add(Evento.Rotacao(delta));
+  }
+
+  // Inicio da pinca.
+  @Override
+  public void onDoubleTouchPressed(int x1, int y1, int x2, int y2) {
+    eventos_.add(Evento.ToqueDuplo(x1, (int)(parent_.getHeight() - y1), x2, (int)(parent_.getHeight() - y2)));
   }
 
   // Detector de translacao.
@@ -974,6 +985,7 @@ class TabuleiroRenderer
   private native void nativeTimer();
   private static native void nativeDoubleClick(int x, int y);
   private static native void nativeTouchPressed(boolean toggle, int x, int y);
+  private static native void nativeDoubleTouchPressed(int x1, int y1, int x2, int y2);
   private static native void nativeTouchMoved(int x, int y);
   private static native void nativeAction(boolean signal, int x, int y);
   private static native void nativeTouchReleased();
@@ -1012,6 +1024,7 @@ class TabuleiroRenderer
 class RotationGestureDetector {
   public interface RotationListener {
     // Angulo em radianos.
+    public void onDoubleTouchPressed(int x1, int y1, int x2, int y2);
     public void onRotate(float deltaAngle);
   }
 
@@ -1030,11 +1043,13 @@ class RotationGestureDetector {
   }
 
   public void onTouch(MotionEvent e) {
-    if (e.getPointerCount() != 2)
+    if (e.getPointerCount() != 2) {
       return;
+    }
 
     if (e.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN) {
       mRotation = rotation(e);
+      mListener.onDoubleTouchPressed((int)e.getX(0), (int)e.getY(0), (int)e.getX(1), (int)e.getY(1));
     }
 
     float rotation = rotation(e);
@@ -1123,6 +1138,7 @@ class Evento {
   public static final int TECLADO = 14;
   public static final int ACAO = 15;
   public static final int ACAO_SINALIZACAO = 16;
+  public static final int TOQUE_DUPLO = 17;  // tipo pinca.
 
   public static Evento Teclado(int tecla, boolean shift, boolean ctrl, boolean alt) {
     Evento evento = new Evento(TECLADO);
@@ -1178,6 +1194,16 @@ class Evento {
     Evento evento = new Evento(PRESSIONADO);
     evento.x_ = x;
     evento.y_ = y;
+    return evento;
+  }
+
+  public static Evento ToqueDuplo(int x1,  int y1, int x2, int y2) {
+    Evento evento = new Evento(TOQUE_DUPLO);
+    evento.x_ = x1;
+    evento.y_ = y1;
+    evento.x2_ = x2;
+    evento.y2_ = y2;
+
     return evento;
   }
 
@@ -1251,6 +1277,7 @@ class Evento {
       case TECLADO: return "TECLADO";
       case ACAO: return "ACAO";
       case ACAO_SINALIZACAO: return "ACAO_SINALIZACAO";
+      case TOQUE_DUPLO: return "TOQUE_DUPLO";
       default: return "INVALIDO";
     }
   }
@@ -1331,6 +1358,8 @@ class Evento {
   public float rotacao() { return rotacao_; }
   public int x() { return x_; }
   public int y() { return y_; }
+  public int x2() { return x2_; }
+  public int y2() { return y2_; }
   public int nx() { return nx_; }
   public int ny() { return ny_; }
   public float delta() { return delta_; }
@@ -1342,6 +1371,8 @@ class Evento {
   private float rotacao_;
   private int x_;
   private int y_;
+  private int x2_;
+  private int y2_;
   private int nx_;
   private int ny_;
   private float delta_;

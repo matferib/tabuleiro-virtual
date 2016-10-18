@@ -251,6 +251,12 @@ void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchPressed(JNIEnv* en
   g_teclado_mouse->TrataBotaoMousePressionado(ifg::Botao_Esquerdo, toggle ? ifg::Modificador_Ctrl : 0, x, y);
 }
 
+void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeDoubleTouchPressed(
+    JNIEnv* env, jobject thiz, jint x1, jint y1, jint x2, jint y2) {
+  //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeDoubleTouchPressed: %d %d", x, y);
+  g_teclado_mouse->TrataInicioPinca(x1, y1, x2, y2);
+}
+
 void Java_com_matferib_Tabuleiro_TabuleiroRenderer_nativeTouchMoved(JNIEnv* env, jobject thiz, jint x, jint y) {
   //__android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativeTouchMoved: %d %d", x, y);
   g_tabuleiro->TrataMovimentoMouse(x, y);
