@@ -215,6 +215,9 @@ if compilar_testes:
       target = 'teste_ent_ent',
       source = ['ent/ent_test.cpp', 'gtest-all.cc' ] + objetos)
   env.Program(
+      target = 'teste_ent_acoes',
+      source = ['ent/acoes_test.cpp', 'gtest-all.cc' ] + objetos)
+  env.Program(
       target = 'teste_ent_util',
       source = ['ent/util_test.cpp', 'gtest-all.cc' ] + objetos)
   env.Program(
