@@ -115,6 +115,9 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 /** Matriz de rotacao para se chegar ao vetor v a partir do eixo X. */
 Matrix4 MatrizRotacao(const Vector3& v);
 
+/** @return quadrado da distancia entre as posicoes. */
+float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2);
+
 /** Roda o vetor no eixo Z. */
 void RodaVetor2d(float graus, Posicao* vetor);
 

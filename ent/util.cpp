@@ -181,6 +181,12 @@ Matrix4 MatrizRotacao(const Vector3& vn) {
   return Matrix4().rotate(acosf(cosang) * RAD_PARA_GRAUS, axis);
 }
 
+float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2) {
+  float distancia = powf(pos1.x() - pos2.x(), 2) + powf(pos1.y() - pos2.y(), 2) + powf(pos1.z() - pos2.z(), 2);
+  VLOG(4) << "Distancia: " << distancia;
+  return distancia;
+}
+
 void RodaVetor2d(float graus, Posicao* vetor) {
   float rad = graus * GRAUS_PARA_RAD;
   float sen_o = sinf(rad);
