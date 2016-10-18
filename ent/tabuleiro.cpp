@@ -1813,7 +1813,6 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
       proto.mutable_escala()->set_x(entidade->Proto().escala().x() * fator);
       proto.mutable_escala()->set_y(entidade->Proto().escala().y() * fator);
       proto.mutable_escala()->set_z(entidade->Proto().escala().z() * fator);
-      LOG(INFO) << "fator: " << fator << ", proto: " << proto.ShortDebugString();
       entidade->AtualizaParcial(proto);
     } else {
       LOG(WARNING) << "Nao eh possivel escalar, entidade nullptr";
@@ -3267,7 +3266,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
                << ", rhs: " << ((TamanhoX() + 1) * (TamanhoY() + 1));
     return;
   }
-  LOG(INFO) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
+  VLOG(2) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
   Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(),
                   Wrapper<RepeatedField<double>>(proto_corrente_->ponto_terreno()));
   terreno.Preenche(&indices_tabuleiro,
