@@ -51,6 +51,7 @@ enum etab_t {
   ETAB_SELECIONANDO_ENTIDADES,
   ETAB_DESENHANDO,
   ETAB_RELEVO,
+  ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA,
 };
 
 struct Sinalizador {
@@ -176,6 +177,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Trata evento de escala por fator (pinca). Quanto maior o fator, mais proximo o olho ficara do foco. */
   void TrataEscalaPorFator(float fator);
+
+  /** Verifica se os dois toques da pinca sao em um objeto, alterando escala por fator e rotacao por delta. */
+  void TrataInicioPinca(int x1, int y1, int x2, int y2);
 
   /** Altera o campo de visao, mantendo-o entre um minimo e maximo. */
   void AlteraAnguloVisao(float valor);
@@ -426,10 +430,10 @@ class Tabuleiro : public ntf::Receptor {
   float ZChao(float x, float y) const;
 
   /** Em algumas ocasioes eh interessante parar o watchdog (dialogos por exemplo). */
-  void DesativaWatchdog();
+  void DesativaWatchdogSeMestre() { if (EmModoMestre()) DesativaWatchdog(); }
 
   /** Para reativar o watchdog. */
-  void ReativaWatchdog();
+  void ReativaWatchdogSeMestre() { if (EmModoMestre()) ReativaWatchdog(); }
 
   // Ativa a interface opengl para dialogos de tipo abrir tabuleiro, janela etc.
   void AtivaInterfaceOpengl(InterfaceGraficaOpengl* gui) { gui_ = gui; }
@@ -576,7 +580,7 @@ class Tabuleiro : public ntf::Receptor {
   bool EntidadeEstaSelecionada(unsigned int id);
 
   /** seleciona a entidade pelo ID, deselecionando outras e colocando o tabuleiro no estado
-  * ETAB_ENT_SELECIONADA em case de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso
+  * ETAB_ENT_SELECIONADA em caso de sucesso. Pode falhar se a entidade nao for selecionavel, neste caso
   * o tabuleiro fica ocioso e retorna false.
   * Se forcar_fixa for verdadeiro, entidades fixas sao aceitas.
   */
@@ -801,6 +805,9 @@ class Tabuleiro : public ntf::Receptor {
 
   void EscreveInfoGeral(const std::string& info_geral);
 
+  void DesativaWatchdog();
+  void ReativaWatchdog();
+
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
   ParametrosDesenho parametros_desenho_;
@@ -920,8 +927,8 @@ class Tabuleiro : public ntf::Receptor {
   enum {
     TR_NENHUM, TR_TRANSLACAO, TR_ROTACAO
   } translacao_rotacao_;
-  // Para desfazer translacao rotacao.
-  std::unordered_map<unsigned int, std::pair<float, float>> translacoes_rotacoes_antes_;
+  // Para desfazer translacao rotacao escalas.
+  std::unordered_map<unsigned int, EntidadeProto> translacoes_rotacoes_escalas_antes_;
 
   // Usada para notificacoes de desfazer que comecam em um estado e terminam em outro.
   ntf::Notificacao notificacao_desfazer_;

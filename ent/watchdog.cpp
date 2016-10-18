@@ -38,6 +38,7 @@ void Watchdog::Reinicia() {
 
 void Watchdog::Para() {
   cond_lock_.lock();
+  iniciado_ = false;
   VLOG(1) << "Notificando termino do watchdog loop";
   cond_fim_.notify_one();
   cond_lock_.unlock();
@@ -45,7 +46,6 @@ void Watchdog::Para() {
     thread_->join();
     thread_.reset();
   }
-  iniciado_ = false;
 }
 
 void Watchdog::Refresca() {
@@ -64,7 +64,8 @@ void Watchdog::Loop() {
     if (!refrescado_) {
       LOG(ERROR) << "WATCHDOG NAO REFRESCADO";
       funcao_();
-      Para();
+      iniciado_ = false;
+      return;
     } else {
       refrescado_ = false;
     }

@@ -44,10 +44,10 @@ namespace {
 class DesativadorWatchdogEscopo {
  public:
   DesativadorWatchdogEscopo(ent::Tabuleiro* tabuleiro) : tabuleiro_(tabuleiro) {
-    tabuleiro_->DesativaWatchdog();
+    tabuleiro_->DesativaWatchdogSeMestre();
   }
   ~DesativadorWatchdogEscopo() {
-    tabuleiro_->ReativaWatchdog();
+    tabuleiro_->ReativaWatchdogSeMestre();
   }
 
  private:

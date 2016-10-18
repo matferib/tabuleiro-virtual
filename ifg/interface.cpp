@@ -39,15 +39,15 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
 // Mostra Mensagem
 //----------------
 void InterfaceGrafica::TrataMostraMensagem(bool erro, const std::string& mensagem) {
-  tabuleiro_->DesativaWatchdog();
-  MostraMensagem(erro, mensagem, [this] () { tabuleiro_->ReativaWatchdog(); });
+  tabuleiro_->DesativaWatchdogSeMestre();
+  MostraMensagem(erro, mensagem, [this] () { tabuleiro_->ReativaWatchdogSeMestre(); });
 }
 
 //----------------
 // Abrir Tabuleiro
 //----------------
 void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) {
-  tabuleiro_->DesativaWatchdog();
+  tabuleiro_->DesativaWatchdogSeMestre();
   std::vector<std::string> tab_estaticos;
   std::vector<std::string> tab_dinamicos;
   try {
@@ -65,7 +65,7 @@ void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) 
     auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
     ne->set_erro(std::string("Nao existem tabuleiros salvos"));
     central_->AdicionaNotificacao(ne);
-    tabuleiro_->ReativaWatchdog();
+    tabuleiro_->ReativaWatchdogSeMestre();
     return;
   }
   std::sort(tab_estaticos.begin(), tab_estaticos.end());
@@ -88,14 +88,14 @@ void InterfaceGrafica::VoltaAbrirTabuleiro(
     notificacao->mutable_tabuleiro()->set_manter_entidades(manter_entidades);
     central_->AdicionaNotificacao(notificacao);
   }
-  tabuleiro_->ReativaWatchdog();
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //-----------------
 // Salvar Tabuleiro
 //-----------------
 void InterfaceGrafica::TrataSalvarTabuleiro(const ntf::Notificacao& notificacao) {
-  tabuleiro_->DesativaWatchdog();
+  tabuleiro_->DesativaWatchdogSeMestre();
   EscolheArquivoSalvarTabuleiro(
       std::bind(
           &ifg::InterfaceGrafica::VoltaSalvarTabuleiro,
@@ -107,7 +107,7 @@ void InterfaceGrafica::VoltaSalvarTabuleiro(
   auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
   n->set_endereco(nome);
   central_->AdicionaNotificacao(n);
-  tabuleiro_->ReativaWatchdog();
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 }  // namespace ifg

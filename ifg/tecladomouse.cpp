@@ -426,6 +426,11 @@ void TratadorTecladoMouse::TrataPincaEscala(float fator) {
   tabuleiro_->TrataEscalaPorFator(fator);
 }
 
+void TratadorTecladoMouse::TrataInicioPinca(int x1, int y1, int x2, int y2) {
+  VLOG(1) << "Inicio Pinca: " << x1 << " " << y1 << "; " << x2 << " " << y2;
+  tabuleiro_->TrataInicioPinca(x1, y1, x2, y2);
+}
+
 void TratadorTecladoMouse::MudaEstado(estado_e novo_estado) {
   if (novo_estado == ESTADO_TEMPORIZANDO_MOUSE) {
     temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;

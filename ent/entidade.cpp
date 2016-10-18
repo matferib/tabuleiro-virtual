@@ -545,7 +545,9 @@ void Entidade::MovePara(float x, float y, float z) {
   p->set_z(z /*std::max(ZChao(x, y), z)*/);
   proto_.clear_destino();
   VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
+#if VBO_COM_MODELAGEM
   AtualizaVbo(parametros_desenho_);
+#endif
 }
 
 void Entidade::MoveDelta(float dx, float dy, float dz) {
@@ -559,17 +561,23 @@ void Entidade::Destino(const Posicao& pos) {
 void Entidade::IncrementaZ(float delta) {
   //proto_.set_translacao_z(proto_.translacao_z() + delta);
   proto_.mutable_pos()->set_z(proto_.pos().z() + delta);
+#if VBO_COM_MODELAGEM
   AtualizaVbo(parametros_desenho_);
+#endif
 }
 
 void Entidade::IncrementaRotacaoZGraus(float delta) {
   proto_.set_rotacao_z_graus(proto_.rotacao_z_graus() + delta);
+#if VBO_COM_MODELAGEM
   AtualizaVbo(parametros_desenho_);
+#endif
 }
 
 void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
   proto_.set_rotacao_z_graus(rotacao_graus);
+#if VBO_COM_MODELAGEM
   AtualizaVbo(parametros_desenho_);
+#endif
 }
 
 int Entidade::PontosVida() const {
@@ -649,7 +657,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     AtualizaModelo3d(proto_parcial);
     atualizar_vbo = true;
   }
+
+  // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
+
+  // casos especiis.
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
@@ -657,8 +669,16 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
     proto_.clear_transicao_cenario();
   }
+  if (proto_parcial.has_pos() && !proto_parcial.has_destino()) {
+    proto_.clear_destino();
+#if VBO_COM_MODELAGEM
+    atualizar_vbo = true;
+#endif
+  }
+  if (VBO_COM_MODELAGEM || (proto_parcial.has_escala() && Tipo() == TE_FORMA && proto_.sub_tipo() == TF_LIVRE)) {
+    atualizar_vbo = true;  
+  }
 
-  // Casos especiais.
   const auto* luz = proto_.has_luz() ? proto_.mutable_luz() : nullptr;
   if (luz != nullptr && luz->has_raio_m() && luz->raio_m() == 0.0f) {
     proto_.clear_luz();
