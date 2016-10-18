@@ -63,7 +63,6 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
     break;
     case TF_CUBO: {
       vbo = gl::VboCuboSolido(1.0f);
-      vbo.Translada(0, 0, 0.5f);
     }
     break;
     case TF_PIRAMIDE: {
@@ -89,16 +88,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
       for (const auto& p : proto.ponto()) {
         v.push_back(std::make_pair(p.x(), p.y()));
       }
-      vbo = std::move(gl::VboLivre(v, TAMANHO_LADO_QUADRADO * proto.escala().z()));
-      const auto& c = proto.cor();
-      vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
-      if (mundo) {
-        vbo.RodaX(proto.rotacao_x_graus());
-        vbo.RodaY(proto.rotacao_y_graus());
-        vbo.RodaZ(proto.rotacao_z_graus());
-        vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
-      }
-      return gl::VbosNaoGravados(std::move(vbo));
+      vbo = gl::VboLivre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
     }
     break;
     default:
@@ -108,11 +98,7 @@ gl::VbosNaoGravados Entidade::ExtraiVboForma(const ent::EntidadeProto& proto, co
   const auto& c = proto.cor();
   vbo.AtribuiCor(c.r(), c.g(), c.b(), c.a());
   if (mundo) {
-    vbo.Escala(proto.escala().x(), proto.escala().y(), proto.escala().z());
-    vbo.RodaX(proto.rotacao_x_graus());
-    vbo.RodaY(proto.rotacao_y_graus());
-    vbo.RodaZ(proto.rotacao_z_graus());
-    vbo.Translada(proto.pos().x(), proto.pos().y(), proto.pos().z());
+    vbo.Multiplica(MontaMatrizModelagemForma(true, true, proto, vd, pd, true));
   }
   return gl::VbosNaoGravados(std::move(vbo));
 }
@@ -176,6 +162,7 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
     }
     break;
     case TF_LIVRE:
+      // nao faz nada, pois nao possui escala.
     break;
     default:
       LOG(ERROR) << "Forma de desenho invalida";
@@ -211,12 +198,10 @@ Matrix4 Entidade::MontaMatrizModelagemForma(
   }
 
   if (posicao_mundo) {
-    float multiplicador = CalculaMultiplicador(proto.tamanho());
     if (pd != nullptr && pd->has_escala_efeito()) {
       const auto& ee = pd->escala_efeito();
       matrix.scale(ee.x(), ee.y(), ee.z());
     }
-    matrix.scale(multiplicador);
 
     if (!computar_queda) {
       matrix.rotateX(proto.rotacao_x_graus());
@@ -326,18 +311,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       if (usar_stencil) {
         LigaStencil();
       }
-      {
-        if (!vd.vbos_nao_gravados.Vazio()) {
-          vd.vbos_nao_gravados.Desenha();
-        } else {
-          // Este caso e necessario para desenhar enquanto a forma eh contruida.
-          std::vector<std::pair<float, float>> v;
-          for (const auto& p : proto.ponto()) {
-            v.push_back(std::make_pair(p.x(), p.y()));
-          }
-          gl::Livre(v, TAMANHO_LADO_QUADRADO * proto.escala().z());
-        }
-      }
+      vd.vbos_nao_gravados.Desenha();
       if (usar_stencil) {
         float xi, yi, xs, ys;
         LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);

@@ -3862,8 +3862,11 @@ void Tabuleiro::DesenhaAcoes() {
 }
 
 void Tabuleiro::DesenhaFormaSelecionada() {
+  // Quando alfa_translucido < 1.0f, assume-se blend ligado.
+  gl::HabilitaEscopo habilita_blend(GL_BLEND);
   parametros_desenho_.set_alfa_translucidos(0.5);
-  Entidade::DesenhaObjetoProto(forma_proto_, &parametros_desenho_);
+  AlteraBlendEscopo blend_escopo(&parametros_desenho_, forma_proto_.cor());
+  Entidade::ExtraiVbo(forma_proto_, &parametros_desenho_, true  /*mundo*/).Desenha();
   parametros_desenho_.clear_alfa_translucidos();
 }
 
