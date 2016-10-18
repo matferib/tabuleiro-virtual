@@ -152,7 +152,7 @@ class ElementoContainer : public ElementoInterface {
     AjustaFilhoAntesInserir(filho, preenche);
     VLOG(1) << "Filho x: " << filho->X() << ", y: " << filho->Y()
             << ", l: " << filho->Largura() << ", a: " << filho->Altura();
-    filhos_.push_back(std::move(std::unique_ptr<ElementoInterface>(filho)));
+    filhos_.push_back(std::unique_ptr<ElementoInterface>(filho));
   }
 
   bool Picking(int x, int y) override {
