@@ -4,6 +4,7 @@
 #include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
 #include "log/log.h"
+#include "net/util.h"
 
 namespace gl {
 
@@ -425,7 +426,7 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_normais_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
-  buffer_unico_ = std::move(vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_));
+  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_);
   num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
   tem_normais_ = (deslocamento_normais_ != static_cast<unsigned int>(-1));
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
@@ -1159,7 +1160,7 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     // Disco do ponto corrente.
-    vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));
+    vbo_disco = gl::VboDisco(largura / 2.0f, 8);
     vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
     vbo.Concatena(vbo_disco);
 
@@ -1168,13 +1169,13 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
     float tam;
     const float graus = VetorParaRotacaoGraus(proximo_ponto.first - ponto.first, proximo_ponto.second - ponto.second, &tam);
     const float largura_2 = largura / 2.0f;
-    vbo_retangulo = std::move(gl::VboRetangulo(0.0f, -largura_2, tam, largura_2));
+    vbo_retangulo = gl::VboRetangulo(0.0f, -largura_2, tam, largura_2);
     vbo_retangulo.RodaZ(graus);
     vbo_retangulo.Translada(ponto.first, ponto.second, 0.0f);
     vbo.Concatena(vbo_retangulo);
   }
   const auto& ponto = *pontos.rbegin();
-  vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));
+  vbo_disco = gl::VboDisco(largura / 2.0f, 8);
   vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
   vbo.Concatena(vbo_disco);
   char nome[50];
