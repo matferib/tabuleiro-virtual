@@ -42,6 +42,9 @@ class Acao {
 
   const AcaoProto& Proto() const { return acao_proto_; }
 
+  /** Retorna se o ponto eh afetado pela acao. Apenas acoes de area retornam true. */
+  static bool PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& proto);
+
  protected:
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const {}

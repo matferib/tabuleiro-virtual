@@ -160,12 +160,6 @@ float DistanciaHorizontalQuadrado(const Posicao& pos1, const Posicao& pos2) {
   return distancia;
 }
 
-float DistanciaQuadrado(const Posicao& pos1, const Posicao& pos2) {
-  float distancia = powf(pos1.x() - pos2.x(), 2) + powf(pos1.y() - pos2.y(), 2) + powf(pos1.z() - pos2.z(), 2);
-  VLOG(4) << "Distancia: " << distancia;
-  return distancia;
-}
-
 const std::string StringEstado(ent::etab_t estado) {
   switch (estado) {
     case ent::ETAB_OCIOSO:
@@ -6346,26 +6340,33 @@ void Tabuleiro::AlterarModoMestre(bool modo) {
 
 const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoProto& acao) {
   std::vector<unsigned int> ids_afetados;
-  const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
-  const Posicao& pos_destino = acao.pos_entidade();
+  //const Posicao& pos_tabuleiro = acao.pos_tabuleiro();
+  //const Posicao& pos_destino = acao.pos_entidade();
   const Entidade* entidade_origem = BuscaEntidade(acao.id_entidade_origem());
   int cenario_origem =  (entidade_origem != nullptr) ? entidade_origem->IdCenario() : cenario_corrente_;
   std::vector<const Entidade*> entidades_cenario;
+  Posicao pos_origem;
+  if (entidade_origem != nullptr) {
+    pos_origem = entidade_origem->PosicaoAcao();
+  }
   for (const auto& id_entidade_destino : entidades_) {
     auto* entidade = id_entidade_destino.second.get();
     if (entidade->IdCenario() == cenario_origem) {
-      entidades_cenario.push_back(entidade);
+      //entidades_cenario.push_back(entidade);
+      if (Acao::PontoAfetadoPorAcao(entidade->PosicaoAcao(), pos_origem, acao)) {
+        ids_afetados.push_back(id_entidade_destino.first);
+      }
     }
   }
+#if 0
   if (acao.tipo() == ACAO_DISPERSAO) {
     switch (acao.geometria()) {
       case ACAO_GEO_ESFERA: {
-        const Posicao pos_para_computar = pos_destino.has_x() ? pos_destino : pos_tabuleiro;
         for (const auto* entidade_destino : entidades_cenario) {
-          Posicao pos_entidade(entidade_destino->Pos());
-          pos_entidade.set_z(pos_entidade.z() + entidade_destino->Z());
-          float d2 = DistanciaQuadrado(pos_para_computar, pos_entidade);
-          if (d2 <= powf(acao.raio_area() * TAMANHO_LADO_QUADRADO, 2)) {
+          // Usa a posicao da acao para ver se pegou.
+          Posicao pos_entidade_destino(entidade_destino->PosicaoAcao());
+          float d2 = DistanciaQuadrado(pos_tabuleiro, pos_entidade_destino);
+          if (d2 <= powf(acao.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2)) {
             VLOG(1) << "Adicionando id: " << entidade_destino->Id();
             ids_afetados.push_back(entidade_destino->Id());
           }
@@ -6441,6 +6442,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
     LOG(WARNING) << "Tipo de acao nao reconhecido: " << acao.tipo();
   }
 
+#endif
   return ids_afetados;
 }
 
