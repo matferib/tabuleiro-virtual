@@ -837,21 +837,22 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
           return DistanciaQuadrado(pos_ponto, acao_proto.pos_tabuleiro()) <= powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
         case ACAO_GEO_CONE: {
           // Vetor do ponto com relacao a origem.
-          LOG(INFO) << "acao: " << acao_proto.DebugString();
           Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
           Vector3 v_destino(Vector3(pos_ponto.x(), pos_ponto.y(), pos_ponto.z()) - v_origem);
           float distancia = v_destino.length();
-          if (distancia > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
-            LOG(INFO) << "distancia baixa: " << distancia << ", raio: " << (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO);
+          if (distancia == 0.0f || distancia > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
             return false;
           }
           Vector3 direcao_cone(Vector3(acao_proto.pos_tabuleiro().x(), acao_proto.pos_tabuleiro().y(), acao_proto.pos_tabuleiro().z())  - v_origem);
+          if (direcao_cone == Vector3()) {
+            LOG(WARNING) << "Cone sem direcao: " << acao_proto.ShortDebugString();
+            return false;
+          }
           direcao_cone.normalize();
           v_destino.normalize();
           // Angulo entre os vetores.
           float angulo = acosf(direcao_cone.dot(v_destino)) * RAD_PARA_GRAUS;
           static float angulo_cone = atanf(0.5f) * RAD_PARA_GRAUS;
-          LOG(INFO) << "angulo: " << angulo << ", max: " << angulo_cone;
           return (angulo < angulo_cone);  // esse eh +- o angulo do cone.
         }
         break;
@@ -860,7 +861,33 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       }
       break;
     case ACAO_RAIO: {
-      // TODO
+      if (!acao_proto.efeito_area()) {
+        return false;
+      }
+      Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
+      Vector3 v_destino(Vector3(pos_ponto.x(), pos_ponto.y(), pos_ponto.z()) - v_origem);
+      float distancia = v_destino.length();
+      LOG(INFO) << "distancia: " << distancia;
+      if (distancia == 0.0f || distancia > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
+        return false;
+      }
+      Vector3 direcao_raio(Vector3(acao_proto.pos_tabuleiro().x(), acao_proto.pos_tabuleiro().y(), acao_proto.pos_tabuleiro().z())  - v_origem);
+      if (direcao_raio == Vector3()) {
+        LOG(WARNING) << "Raio sem direcao: " << acao_proto.ShortDebugString();
+        return false;
+      }
+      direcao_raio.normalize();
+      v_destino.normalize();
+      // Angulo entre os vetores.
+      float angulo_rad = acosf(direcao_raio.dot(v_destino));
+      float angulo = angulo_rad * RAD_PARA_GRAUS;
+      if (angulo > 90.0f) {
+        //LOG(INFO) << "angulo maior que 90.0f: " << angulo; 
+        return false;
+      }
+      float distancia_para_raio = sinf(angulo_rad) * distancia;
+      //LOG(INFO) << "angulo: " << angulo << ", distancia_para_raio: " << distancia_para_raio;
+      return distancia_para_raio < TAMANHO_LADO_QUADRADO_2;
     }
     break;
     default:

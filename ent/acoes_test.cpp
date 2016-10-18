@@ -8,7 +8,7 @@
 namespace ent {
 
 // Teste basico gera dados.
-TEST(TesteAcoes, TesteAreaAfetada) {
+TEST(TesteAcoes, TesteAreaAfetadaCone) {
   Posicao ponto;
   ponto.set_x(5.0f);
   Posicao origem;
@@ -32,6 +32,25 @@ TEST(TesteAcoes, TesteAreaAfetada) {
 
   // Dentro do alcance, fora do angulo do cone.
   ponto.set_y(3.1f);
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+}
+
+TEST(TesteAcoes, TesteAreaAfetadaRaio) {
+  Posicao ponto;
+  ponto.set_x(5.0f);
+  Posicao origem;
+  AcaoProto acao_proto;
+  acao_proto.set_tipo(ACAO_RAIO);
+  acao_proto.set_efeito_area(true);
+  acao_proto.set_distancia_quadrados(10);
+  acao_proto.mutable_pos_tabuleiro()->set_x(1.0f);  // direcao do raio
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+
+  ponto.set_x(-12.0f);
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+
+  ponto.set_x(12.0f);
+  ponto.set_y(1.0f);
   EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
 }
 
