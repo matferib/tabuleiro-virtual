@@ -47,9 +47,9 @@ message AcaoProto {
   // Tipo da acao.
   optional TipoAcao tipo = 2;
   // Raio da acao (para dispersao).
-  optional float raio_area = 3;  // quadrados.
+  optional float raio_quadrados = 3;  // quadrados.
   // Distancia da acao (para dispersao de cone e raio).
-  optional float distancia = 5;  // quadrados.
+  optional float distancia_quadrados = 5;  // quadrados.
   // Aplicada antes da escala.
   optional Translacao translacao = 17;
   // Escala sobre a geometria.
