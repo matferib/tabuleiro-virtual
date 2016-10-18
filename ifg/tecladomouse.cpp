@@ -404,9 +404,9 @@ void TratadorTecladoMouse::TrataBotaoMousePressionado(
 }
 
 bool TratadorTecladoMouse::TrataMovimentoMouse(int x, int y) {
-  VLOG(1) << "Movimento: " << x << ", " << y;
   ultimo_x_ = x;
   ultimo_y_ = y;
+  VLOG(1) << "Movimento: " << x << ", " << y << ", ultimo_x " << ultimo_x_ << ", ultimo_y: " << ultimo_y_;
   if (estado_ == ESTADO_TEMPORIZANDO_MOUSE) {
     temporizador_mouse_ = MAX_TEMPORIZADOR_MOUSE;
     tabuleiro_->TrataMovimentoMouse();
