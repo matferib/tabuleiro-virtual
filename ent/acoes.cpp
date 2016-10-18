@@ -210,7 +210,22 @@ class AcaoDispersao : public Acao {
   AcaoDispersao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
     efeito_ = 0;
     efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
-        acao_proto_.distancia() : acao_proto_.raio_area());
+        acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+  }
+
+  static Matrix4 MatrizCone(const AcaoProto& acao_proto, const Posicao& pos_origem, float distancia_m) {
+    Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
+    Vector3 v_destino(acao_proto.pos_tabuleiro().x(), acao_proto.pos_tabuleiro().y(), acao_proto.pos_tabuleiro().z());
+    Vector3 diff = v_destino - v_origem;
+
+    Matrix4 m_cone;
+    m_cone.rotateY(90.0f);
+    m_cone.rotateZ(180.0f);
+    m_cone.translate(1.0f, 0.0f, 0.0f);
+    m_cone.scale(distancia_m, distancia_m, 0.2f * distancia_m);
+    m_cone = MatrizRotacao(diff) * m_cone;
+    m_cone.translate(pos_origem.x(), pos_origem.y(), pos_origem.z());
+    return m_cone;
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
@@ -227,16 +242,7 @@ class AcaoDispersao : public Acao {
       const auto& pos_origem = entidade_origem->PosicaoAcao();
       Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
       Vector3 v_destino(pos_tabuleiro.x(), pos_tabuleiro.y(), pos_tabuleiro.z());
-      Vector3 diff = v_destino - v_origem;
-
-      Matrix4 m_cone;
-      m_cone.rotateY(90.0f);
-      m_cone.rotateZ(180.0f);
-      m_cone.translate(1.0f, 0.0f, 0.0f);
-      m_cone.scale(efeito_, efeito_, 0.2f * efeito_);
-      m_cone = MatrizRotacao(diff) * m_cone;
-      m_cone.translate(pos_origem.x(), pos_origem.y(), pos_origem.z());
-      gl::MultiplicaMatriz(m_cone.get());
+      gl::MultiplicaMatriz(MatrizCone(acao_proto_, pos_origem, efeito_).get());
     } else {
       const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
       gl::Translada(pos.x(), pos.y(), pos.z(), false);
@@ -248,8 +254,23 @@ class AcaoDispersao : public Acao {
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (efeito_ == 0.0f) {
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
-      const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : acao_proto_.pos_tabuleiro();
+      const Posicao& pos = acao_proto_.pos_tabuleiro();
       if (entidade_origem != nullptr) {
+        for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
+          auto* ed = tabuleiro_->BuscaEntidade(id_destino);
+          if (ed == nullptr) {
+            continue;
+          }
+          Vector3 v;
+          v.x = ed->Pos().x() - entidade_origem->X();
+          v.y = ed->Pos().y() - entidade_origem->Y();
+          v.z = ed->Pos().z() - entidade_origem->Z();
+          v.normalize() /= 10.0f;
+          dx_ = v.x;
+          dy_ = v.y;
+          dz_ = v.z;
+          AtualizaDirecaoQuedaAlvo(ed);
+        }
         Vector3 v;
         v.x = pos.x() - entidade_origem->X();
         v.y = pos.y() - entidade_origem->Y();
@@ -258,10 +279,7 @@ class AcaoDispersao : public Acao {
         dx_ = v.x;
         dy_ = v.y;
         dz_ = v.z;
-      }
-      AtualizaRotacaoZFonte(entidade_origem);
-      for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
-        AtualizaDirecaoQuedaAlvoRelativoTabuleiro(tabuleiro_->BuscaEntidade(id_destino));
+        AtualizaRotacaoZFonte(entidade_origem);
       }
     }
     efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / DURACAO_MS;
@@ -446,8 +464,8 @@ class AcaoRaio : public Acao {
     float tam;
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z(), false);
     gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f, false);
-    if (acao_proto_.has_distancia()) {
-      tam = acao_proto_.distancia() * TAMANHO_LADO_QUADRADO;
+    if (acao_proto_.has_distancia_quadrados()) {
+      tam = acao_proto_.distancia_quadrados() * TAMANHO_LADO_QUADRADO;
     }
     float tam2 = 0;
     //LOG(INFO) << "ang: " << VetorParaRotacaoGraus(dz, tam, &tam2) << ", tam2: " << tam2 << ", pos_d.z(): " << pos_d.z();
@@ -808,6 +826,47 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
   }
   disco_alvo_rad_ += dt * M_PI / 2.0f;
   return true;
+}
+
+// static
+bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto) {
+  switch (acao_proto.tipo()) {
+    case ACAO_DISPERSAO:
+      switch (acao_proto.geometria()) {
+        case ACAO_GEO_ESFERA:
+          return DistanciaQuadrado(pos_ponto, acao_proto.pos_tabuleiro()) <= powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
+        case ACAO_GEO_CONE: {
+          // Vetor do ponto com relacao a origem.
+          LOG(INFO) << "acao: " << acao_proto.DebugString();
+          Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
+          Vector3 v_destino(Vector3(pos_ponto.x(), pos_ponto.y(), pos_ponto.z()) - v_origem);
+          float distancia = v_destino.length();
+          if (distancia > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
+            LOG(INFO) << "distancia baixa: " << distancia << ", raio: " << (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO);
+            return false;
+          }
+          Vector3 direcao_cone(Vector3(acao_proto.pos_tabuleiro().x(), acao_proto.pos_tabuleiro().y(), acao_proto.pos_tabuleiro().z())  - v_origem);
+          direcao_cone.normalize();
+          v_destino.normalize();
+          // Angulo entre os vetores.
+          float angulo = acosf(direcao_cone.dot(v_destino)) * RAD_PARA_GRAUS;
+          static float angulo_cone = atanf(0.5f) * RAD_PARA_GRAUS;
+          LOG(INFO) << "angulo: " << angulo << ", max: " << angulo_cone;
+          return (angulo < angulo_cone);  // esse eh +- o angulo do cone.
+        }
+        break;
+        default:
+          return false;
+      }
+      break;
+    case ACAO_RAIO: {
+      // TODO
+    }
+    break;
+    default:
+      return false;
+  }
+  return false;
 }
 
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
