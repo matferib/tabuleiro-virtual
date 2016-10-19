@@ -593,22 +593,18 @@ void IdentidadeMatrizSombraOclusao() {
   c->pilha_mvm_oclusao.top().identity();
 }
 
-void EmpilhaMatrizSombraOclusao() {
+void EmpilhaMatrizSombraOclusao(interno::Contexto* c) {
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
-  auto* c = interno::BuscaContexto();
-  Matrix4 ms(c->pilha_mvm_sombra.top());
-  c->pilha_mvm_sombra.push(ms);
-  Matrix4 mo(c->pilha_mvm_oclusao.top());
-  c->pilha_mvm_oclusao.push(mo);
+  c->pilha_mvm_sombra.emplace(c->pilha_mvm_sombra.top().get());
+  c->pilha_mvm_oclusao.emplace(c->pilha_mvm_oclusao.top().get());
 }
 
-void DesempilhaMatrizSombraOclusao() {
+void DesempilhaMatrizSombraOclusao(interno::Contexto* c) {
   if (ModoMatrizCorrente() != MATRIZ_MODELAGEM_CAMERA) {
     return;
   }
-  auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.pop();
   c->pilha_mvm_oclusao.pop();
 }
@@ -656,9 +652,8 @@ void DesabilitaMipmapAniso(GLenum alvo) {
 
 void EmpilhaMatriz(bool atualizar) {
   auto* c = interno::BuscaContexto();
-  Matrix4 m(c->pilha_corrente->top());
-  c->pilha_corrente->push(m);
-  interno::EmpilhaMatrizSombraOclusao();
+  c->pilha_corrente->emplace(c->pilha_corrente->top().get());
+  interno::EmpilhaMatrizSombraOclusao(c);
   // Nao precisa porque a matriz empilhada eh igual.
   //if (atualizar) AtualizaMatrizes();
 }
@@ -672,7 +667,7 @@ void DesempilhaMatriz(bool atualizar) {
   }
 #endif
   c->pilha_corrente->pop();
-  interno::DesempilhaMatrizSombraOclusao();
+  interno::DesempilhaMatrizSombraOclusao(c);
   if (atualizar) AtualizaMatrizes();
 }
 
@@ -734,7 +729,7 @@ void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
 
 void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
-  Matrix4 m4 = Matrix4().translate(x, y, z);
+  auto& m4 = Matrix4().translate(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
   if (atualizar) AtualizaMatrizes();
