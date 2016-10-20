@@ -674,6 +674,9 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   } else if (x_meio + tam_dica_2_px > static_cast<float>(viewport[2])) {
     delta_x -= (x_meio + tam_dica_2_px - viewport[2]);
   }
+  if (yf + fonte_y > viewport[3]) {
+    yf = viewport[3] - fonte_y;
+  }
   PosicionaRaster2d(x_meio + delta_x, yf, viewport[2], viewport[3]);
   std::function<void(const std::string&, bool)> funcao_desenho;
   gl::DesenhaString(dica, false);
