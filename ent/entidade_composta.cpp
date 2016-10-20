@@ -50,7 +50,7 @@ void Entidade::DesenhaObjetoCompostoProto(
   AlteraBlendEscopo blend_escopo(pd, proto.cor());
 #if !VBO_COM_MODELAGEM
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
-  MontaMatriz(true, true, proto, vd, pd);
+  gl::MultiplicaMatriz(vd.matriz_modelagem.get());
 #endif
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;

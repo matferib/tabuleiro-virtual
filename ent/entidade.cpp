@@ -368,12 +368,61 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
   }
 }
 
+void Entidade::AtualizaMatrizes() {
+  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(parametros_desenho_);
+  vd_.matriz_modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd_.angulo_rotacao_textura_graus);
+  if (Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d() && !proto_.info_textura().id().empty()) {
+    bool achatar = Achatar();
+    // tijolo tela.
+    if (!achatar) {
+      Matrix4 m;
+      m.scale(proto_.info_textura().largura(), 0.1f, proto_.info_textura().altura());
+      m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto_.info_textura().altura()));
+      m.rotateZ(vd_.angulo_rotacao_textura_graus);
+      vd_.matriz_modelagem_tijolo_tela = matriz_modelagem_geral  * m;
+    }
+    // tela.
+    {
+      Matrix4 m;
+      if (achatar) {
+        m.scale(0.8f, 1.0f, 0.8f);
+        m.rotateX(-90.0f);
+        m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
+      } else {
+        m.scale(proto_.info_textura().largura(), 1.0f, proto_.info_textura().altura());
+        m.rotateZ(vd_.angulo_rotacao_textura_graus);
+        m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto_.info_textura().altura()));
+      }
+      vd_.matriz_modelagem_tela_textura = matriz_modelagem_geral * m;
+    }
+    // tijolo base.
+    if (!proto_.morta()) {
+      Matrix4 m;
+      if (parametros_desenho_->entidade_selecionada()) {
+        m.rotateZ(vd_.angulo_disco_selecao_graus);
+      }
+      m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+      m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
+      vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, (vd_.altura_voo == 0.0f)  /*z*/, proto_, vd_, parametros_desenho_) * m;
+    }
+    // Deslocamento de textura.
+    {
+      Matrix4 m;
+      m.scale(proto_.info_textura().largura(), proto_.info_textura().altura(), 1.0f);
+      m.translate(proto_.info_textura().translacao_x(), proto_.info_textura().translacao_y(), 0.0f);
+      vd_.matriz_deslocamento_textura = m;
+    }
+  }
+}
+
+
 void Entidade::Atualiza(int intervalo_ms) {
   // Ao retornar, atualiza o vbo se necessario.
-  struct AtualizaVboEscopo {
-    AtualizaVboEscopo(Entidade* e) : e(e) {}
-    ~AtualizaVboEscopo() {
+  struct AtualizaEscopo {
+    AtualizaEscopo(Entidade* e) : e(e) {}
+    ~AtualizaEscopo() {
       if (atualizar) e->AtualizaVbo(e->parametros_desenho_);
+      e->AtualizaMatrizes();
     }
     Entidade* e;
     bool atualizar = false;
@@ -1019,12 +1068,13 @@ void Entidade::IniciaGl() {
 
   // Vbo tijolo da base.
   {
-    auto& vbo = vbos_nao_gravados[VBO_TIJOLO_BASE];
+    auto& vbo = vbos_nao_gravados[VBO_TIJOLO];
     vbo = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
     vbo.Nomeia("tijolo da base");
   }
 
   // Tela para desenho de texturas de entidades.
+  // Virada para o sul, centralizada no meio da tela.
   {
     const unsigned short indices[] = { 0, 1, 2, 3 };
     const float coordenadas[] = {
@@ -1039,9 +1089,16 @@ void Entidade::IniciaGl() {
       1.0f, 0.0f,
       0.0f, 0.0f,
     };
+    const float coordenadas_normais[] = {
+      0.0f, -1.0f, 0.0f,
+      0.0f, -1.0f, 0.0f,
+      0.0f, -1.0f, 0.0f,
+      0.0f, -1.0f, 0.0f,
+    };
     auto& vbo = vbos_nao_gravados[VBO_TELA_TEXTURA];
     vbo.AtribuiCoordenadas(3, coordenadas, 12);
     vbo.AtribuiTexturas(coordenadas_textura);
+    vbo.AtribuiNormais(coordenadas_normais);
     vbo.AtribuiIndices(indices, 4);
     vbo.Nomeia("tela de textura");
   }

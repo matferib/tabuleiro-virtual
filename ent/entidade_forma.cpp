@@ -254,7 +254,7 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
 #else
   AjustaCor(proto, pd);
   gl::MatrizEscopo salva_matriz(false);
-  gl::MultiplicaMatriz(MontaMatrizModelagemForma(false  /*queda*/, true  /*translacao_z*/, proto, vd, pd).get());
+  gl::MultiplicaMatriz(vd.matriz_modelagem.get());
   bool usar_textura = proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
                       proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO;
   if (usar_textura) {

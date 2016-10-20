@@ -57,6 +57,10 @@ class Entidade {
 
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
+  bool Achatar() const {
+    return Achatar(proto_, parametros_desenho_);
+  }
+
   /** Exporta o VBO ja extraido.
   * @throw caso nao haja ainda (por exemplo, carregando modelo 3d).
   */
@@ -215,7 +219,7 @@ class Entidade {
 
   // Nome dos buffers de VBO.
   constexpr static unsigned short NUM_VBOS = 13;
-  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO_BASE = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11, VBO_CILINDRO_FECHADO = 12;
+  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11, VBO_CILINDRO_FECHADO = 12;
   static std::vector<gl::VboGravado> g_vbos;
 
   // Alguns efeitos tem complementos.
@@ -249,6 +253,12 @@ class Entidade {
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
     gl::VbosGravados vbos_gravados;
+    Matrix4 matriz_modelagem;
+    // Para entidades com textura.
+    Matrix4 matriz_modelagem_tijolo_base;
+    Matrix4 matriz_modelagem_tijolo_tela;
+    Matrix4 matriz_modelagem_tela_textura;
+    Matrix4 matriz_deslocamento_textura;
 
     // As texturas da entidade.
     const Texturas* texturas = nullptr;
@@ -311,6 +321,14 @@ class Entidade {
   void DesenhaEfeitos(ParametrosDesenho* pd);
   /** Desenha o efeito de uma entidade. */
   void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
+
+  /** Atualiza as matrizes do objeto. */
+  void AtualizaMatrizes();
+
+  /** @return true se a entidade deve ser achatada. */
+  static bool Achatar(const EntidadeProto& proto, const ParametrosDesenho* pd) {
+    return !proto.has_modelo_3d() && !proto.info_textura().id().empty() && (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
+  }
 
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
