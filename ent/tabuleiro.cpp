@@ -226,9 +226,9 @@ void SalvaConfiguracoes(const OpcoesProto& proto) {
 }
 
 // Usado pelas funcoes de timer para enfileiras os tempos.
-void EnfileiraTempo(boost::timer::cpu_timer* timer, std::list<uint64_t>* tempos) {
+void EnfileiraTempo(const boost::timer::cpu_timer& timer, std::list<uint64_t>* tempos) {
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
-  auto passou_ms = timer->elapsed().wall / 1000000ULL;
+  auto passou_ms = timer.elapsed().wall / 1000000ULL;
   if (tempos->size() == kMaximoTamTemposRenderizacao) {
     tempos->pop_back();
   }
@@ -848,11 +848,11 @@ int Tabuleiro::Desenha() {
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
   DesenhaCena();
-  EnfileiraTempo(&timer_entre_cenas_, &tempos_entre_cenas_);
+  EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
   timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
   timer_uma_renderizacao_completa_.stop();
-  EnfileiraTempo(&timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
+  EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   return tempos_entre_cenas_.front();
 }
 
@@ -1380,7 +1380,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       //glFinish();
 #endif
       timer_uma_atualizacao_.stop();
-      EnfileiraTempo(&timer_uma_atualizacao_, &tempos_uma_atualizacao_);
+      EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
       if (ciclos_para_atualizar_ == 0) {
         if (ModoClique() == MODO_TERRENO) {
           RefrescaTerrenoParaClientes();
@@ -3052,7 +3052,10 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
+    timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
+    timer_uma_renderizacao_controle_virtual_.stop();
+    EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   }
   V_ERRO("desenhando controle virtual");
 
@@ -6401,6 +6404,7 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(0, "T", tempos_entre_cenas_);
   DesenhaTempo(1, "R", tempos_uma_renderizacao_completa_);
   DesenhaTempo(2, "A", tempos_uma_atualizacao_);
+  DesenhaTempo(3, "C", tempos_uma_renderizacao_controle_virtual_);
   V_ERRO("tempo de renderizacao");
 }
 

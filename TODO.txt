@@ -1,4 +1,6 @@
 Versao 2.4.0
+- Controle virtual ta caro
+- As funcoes de GL estao usando VBOs nao gravados (Retangulo, Cubo, Triangulo etc).
 - regerar os VBOs com recarregamento de contexto ios e android.
 - Melhorar o zoom primeira pessoa (FoV).
 - VBO de acoes.
