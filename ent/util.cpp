@@ -555,12 +555,12 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 
 // Posiciona o raster no pixel.
 bool PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
   gl::CarregaIdentidade(false);
   gl::Ortogonal(0, largura_vp, 0, altura_vp, 0, 1);
 
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-  gl::CarregaIdentidade();
+  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW, false);
+  gl::CarregaIdentidade(true);
   return gl::PosicaoRaster(x, y);
 }
 

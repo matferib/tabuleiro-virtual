@@ -226,9 +226,9 @@ void SalvaConfiguracoes(const OpcoesProto& proto) {
 }
 
 // Usado pelas funcoes de timer para enfileiras os tempos.
-void EnfileiraTempo(boost::timer::cpu_timer* timer, std::list<uint64_t>* tempos) {
+void EnfileiraTempo(const boost::timer::cpu_timer& timer, std::list<uint64_t>* tempos) {
   constexpr static unsigned int kMaximoTamTemposRenderizacao = 10;
-  auto passou_ms = timer->elapsed().wall / 1000000ULL;
+  auto passou_ms = timer.elapsed().wall / 1000000ULL;
   if (tempos->size() == kMaximoTamTemposRenderizacao) {
     tempos->pop_back();
   }
@@ -594,6 +594,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
 
   gl::UsaShader(gl::TSH_PONTUAL);
@@ -662,6 +663,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_desenha_sombras(false);
   parametros_desenho_.set_modo_mestre(VisaoMestre());
   parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
 
   if (usar_sampler_sombras_) {
@@ -846,11 +848,11 @@ int Tabuleiro::Desenha() {
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
   DesenhaCena();
-  EnfileiraTempo(&timer_entre_cenas_, &tempos_entre_cenas_);
+  EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
   timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
   timer_uma_renderizacao_completa_.stop();
-  EnfileiraTempo(&timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
+  EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   return tempos_entre_cenas_.front();
 }
 
@@ -1378,7 +1380,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       //glFinish();
 #endif
       timer_uma_atualizacao_.stop();
-      EnfileiraTempo(&timer_uma_atualizacao_, &tempos_uma_atualizacao_);
+      EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
       if (ciclos_para_atualizar_ == 0) {
         if (ModoClique() == MODO_TERRENO) {
           RefrescaTerrenoParaClientes();
@@ -1813,7 +1815,6 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
       proto.mutable_escala()->set_x(entidade->Proto().escala().x() * fator);
       proto.mutable_escala()->set_y(entidade->Proto().escala().y() * fator);
       proto.mutable_escala()->set_z(entidade->Proto().escala().z() * fator);
-      LOG(INFO) << "fator: " << fator << ", proto: " << proto.ShortDebugString();
       entidade->AtualizaParcial(proto);
     } else {
       LOG(WARNING) << "Nao eh possivel escalar, entidade nullptr";
@@ -1894,7 +1895,9 @@ void Tabuleiro::TrataMovimentoMouse() {
 bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
   if (modo_clique_ == MODO_ROTACAO && estado_ != ETAB_ROTACAO) {
     TrataBotaoRotacaoPressionado(x, y);
-    return true;
+    // Aqui ainda retorna false, para nao voltar o cursor para a posicao anterior. A partir daqui,
+    // as rotacoes retornarao false.
+    return false;
   }
   if (x == ultimo_x_ && y == ultimo_y_) {
     // No tablet pode acontecer de gerar estes eventos com mesma coordenadas.
@@ -1975,11 +1978,13 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       // Realiza a rotacao da tela.
       float olho_rotacao = olho_.rotacao_rad();
       olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
+      VLOG(1) << "x: " << x << ", ultimo_x: " << ultimo_x_;
       if (olho_rotacao >= 2 * M_PI) {
         olho_rotacao -= 2 * M_PI;
       } else if (olho_rotacao <= - 2 * M_PI) {
         olho_rotacao += 2 * M_PI;
       }
+      VLOG(1) << "olho rotacao: " << olho_rotacao;
       olho_.set_rotacao_rad(olho_rotacao);
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       float olho_altura = olho_.altura();
@@ -1990,6 +1995,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       else if (olho_altura > OLHO_ALTURA_MAXIMA) {
         olho_altura = OLHO_ALTURA_MAXIMA;
       }
+      VLOG(1) << "olho altura: " << olho_altura;
       olho_.set_altura(olho_altura);
       // A rotacao nao altera o cursor, portanto nao deve atualizar o ultimo_xy.
       //ultimo_x_ = x;
@@ -3046,7 +3052,10 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
+    timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
+    timer_uma_renderizacao_controle_virtual_.stop();
+    EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
   }
   V_ERRO("desenhando controle virtual");
 
@@ -3262,7 +3271,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
                << ", rhs: " << ((TamanhoX() + 1) * (TamanhoY() + 1));
     return;
   }
-  LOG(INFO) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
+  VLOG(2) << "Regerando vbo tabuleiro, pontos: " << proto_corrente_->ponto_terreno_size();
   Terreno terreno(TamanhoX(), TamanhoY(), proto_corrente_->ladrilho(),
                   Wrapper<RepeatedField<double>>(proto_corrente_->ponto_terreno()));
   terreno.Preenche(&indices_tabuleiro,
@@ -4306,11 +4315,11 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
-  VLOG(1) << "Botao rotacao pressionado";
   primeiro_x_ = x;
   primeiro_y_ = y;
   ultimo_x_ = x;
   ultimo_y_ = y;
+  VLOG(1) << "Botao rotacao pressionado x: " << x << " y: " << y << ", ultimo_x: " << ultimo_x_ << ", ultimo_y: " << ultimo_y_;
   if (estado_ == ETAB_ENTS_PRESSIONADAS) {
     FinalizaEstadoCorrente();
     estado_ = ETAB_ENTS_TRANSLACAO_ROTACAO;
@@ -6395,6 +6404,7 @@ void Tabuleiro::DesenhaTempos() {
   DesenhaTempo(0, "T", tempos_entre_cenas_);
   DesenhaTempo(1, "R", tempos_uma_renderizacao_completa_);
   DesenhaTempo(2, "A", tempos_uma_atualizacao_);
+  DesenhaTempo(3, "C", tempos_uma_renderizacao_controle_virtual_);
   V_ERRO("tempo de renderizacao");
 }
 

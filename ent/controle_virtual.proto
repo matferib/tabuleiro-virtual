@@ -96,6 +96,12 @@ enum Alinhamento {
   ALINHAMENTO_BAIXO    = 5;
 }
 
+enum FormaBotao {
+  FORMA_TRIANGULO = 1;
+  FORMA_RETANGULO = 2;
+  FORMA_DISCO     = 3;
+}
+
 message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
   // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
@@ -117,8 +123,8 @@ message DadosBotao {
   optional string textura = 9;
   // Identifica o que o botao faz, ver IdBotao.
   optional IdBotao id = 10;
-  // numero de lados do botao.
-  optional int32 num_lados_botao = 11;
+  // Forma do botao. 
+  optional FormaBotao forma = 11;
   // Rotacao do botao.
   optional float rotacao_graus = 12;
   // Translacao do desenho em fator de escala da fonte (largura_botao * translacao_x).

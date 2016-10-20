@@ -9,7 +9,7 @@ fixo {
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save.png"
     id: CONTROLE_SALVAR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Salva tabuleiro."
   }
@@ -21,7 +21,7 @@ fixo {
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save_as.png"
     id: CONTROLE_SALVAR_COMO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Salva tabuleiro com outro nome."
   }
@@ -33,7 +33,7 @@ fixo {
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_open.png"
     id: CONTROLE_ABRIR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Restaura um tabuleiro."
   }
@@ -47,7 +47,7 @@ fixo {
     textura: "icon_terrain.png"
     rotulo: "MT"
     id: CONTROLE_MODO_TERRENO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Modo edição de terreno."
   }
@@ -61,7 +61,7 @@ fixo {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_CIMA_VERTICAL_TERRENO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Movimento vertical do terreno."
   }
@@ -75,7 +75,7 @@ fixo {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_BAIXO_VERTICAL_TERRENO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Movimento vertical do terreno."
   }
@@ -88,7 +88,7 @@ fixo {
     rotulo: "GM"
     id: CONTROLE_GERAR_MONTANHA
     textura: "icon_mountain.png"
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     mestre_apenas: true
     dica: "Gera uma montanha."
   }
@@ -101,7 +101,7 @@ fixo {
     coluna: -6
     rotulo: "<"
     id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona modelo de entidade anterior."
   }
   dados_botoes {
@@ -112,7 +112,7 @@ fixo {
     alinhamento_vertical: ALINHAMENTO_CIMA
     coluna: -5
     id: CONTROLE_MODELO_ENTIDADE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "O tipo de entidade adicionada por padrão."
   }
   dados_botoes {
@@ -123,7 +123,7 @@ fixo {
     coluna: 5
     rotulo: ">"
     id: CONTROLE_MODELO_ENTIDADE_PROXIMA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona próximo modelo de entidade."
   }
 }
@@ -134,7 +134,7 @@ pagina {
     linha: 2
     coluna: 1
     id: CONTROLE_ULTIMA_ACAO_0
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona esta ação para o personagem."
   }
   dados_botoes {
@@ -142,7 +142,7 @@ pagina {
     linha: 2
     coluna: 2
     id: CONTROLE_ULTIMA_ACAO_1
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona esta ação para o personagem."
   }
   dados_botoes {
@@ -150,7 +150,7 @@ pagina {
     linha: 2
     coluna: 3
     id: CONTROLE_ULTIMA_ACAO_2
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona esta ação para o personagem."
   }
   dados_botoes {
@@ -158,7 +158,7 @@ pagina {
     linha: 2
     coluna: 4
     id: CONTROLE_ACAO_SINALIZACAO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     textura: 'icon_signal.png'
     dica: "Seleciona ação de sinalização."
   }
@@ -170,7 +170,7 @@ pagina {
     rotulo: "A"
     cor_rotulo {}
     id: CONTROLE_ACAO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Prepara para executar ação."
   }
   # Botoes de acao.
@@ -182,7 +182,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ACAO_ANTERIOR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona ação anterior da lista completa."
   }
   dados_botoes {
@@ -193,7 +193,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ACAO_PROXIMA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Seleciona próxima ação da lista completa."
   }
   dados_botoes {
@@ -204,7 +204,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ALTERNA_CURA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Alterna entre cura e dano."
   }
   dados_botoes {
@@ -215,7 +215,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_DANO_AUTOMATICO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga dano automático."
   }
   dados_botoes {
@@ -226,7 +226,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_help.png"
     id: CONTROLE_AJUDA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Ajuda."
   }
   # Linha de baixo
@@ -238,7 +238,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ADICIONA_1
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Adiciona 1 ao dano acumulado."
   }
   dados_botoes {
@@ -249,7 +249,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ADICIONA_5
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Adiciona 5 ao dano acumulado."
   }
   dados_botoes {
@@ -260,7 +260,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ADICIONA_10
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Adiciona 10 ao dano acumulado."
   }
   dados_botoes {
@@ -271,7 +271,7 @@ pagina {
     cor_rotulo { r: 0 g: 0 b: 1}
     textura: ""
     id: CONTROLE_CONFIRMA_DANO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Acumula um novo valor de dano."
   }
   dados_botoes {
@@ -282,7 +282,7 @@ pagina {
     cor_rotulo { r: 1 g: 0 b: 0 }
     textura: ""
     id: CONTROLE_APAGA_DANO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Remove o último valor acumulado."
   }
 
@@ -296,7 +296,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_enter.png"
     id: CONTROLE_TRANSICAO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Entra em um objeto."
   }
 
@@ -309,7 +309,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_light.png"
     id: CONTROLE_LUZ
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga luz para entidades selecionadas."
   }
   dados_botoes {
@@ -320,7 +320,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_slide.png"
     id: CONTROLE_QUEDA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga queda para entidades selecionadas."
   }
   dados_botoes {
@@ -331,7 +331,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_feather.png"
     id: CONTROLE_VOO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga vôo para entidades selecionadas."
   }
   dados_botoes {
@@ -342,7 +342,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_hide.png"
     id: CONTROLE_VISIBILIDADE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga invisibilidade para entidades selecionadas."
   }
 
@@ -356,7 +356,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_NOP
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     picking_apenas: true
     dica: ""
   }
@@ -368,7 +368,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_CIMA
-    num_lados_botao: 3
+    forma: FORMA_TRIANGULO
     rotacao_graus: 180.0
     translacao_y: 0.3
     dica: "Move entidade selecionada para direcao contraria ao visualizador"
@@ -381,7 +381,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_BAIXO
-    num_lados_botao: 3
+    forma: FORMA_TRIANGULO
     rotacao_graus: 0.0
     translacao_y: -0.3
     dica: "Move entidade selecionada para direcao do visualizador"
@@ -394,7 +394,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ESQUERDA
-    num_lados_botao: 3
+    forma: FORMA_TRIANGULO
     rotacao_graus: 270.0
     translacao_y: 0.5
     dica: "Move entidade selecionada para esquerda do visualizador"
@@ -407,7 +407,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_DIREITA
-    num_lados_botao: 3
+    forma: FORMA_TRIANGULO
     rotacao_graus: 90.0
     translacao_y: 0.5
     dica: "Move entidade selecionada para direita do visualizador"
@@ -420,7 +420,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_CIMA_VERTICAL
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Movimento vertical."
   }
   dados_botoes {
@@ -431,7 +431,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_BAIXO_VERTICAL
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Movimento vertical."
   }
 
@@ -444,7 +444,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_isometric_camera.png"
     id: CONTROLE_CAMERA_ISOMETRICA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Câmera isométrica."
   }
   dados_botoes {
@@ -455,7 +455,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_tracking_camera.png"
     id: CONTROLE_CAMERA_PRESA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Prende a câmera a um personagem."
   }
   dados_botoes {
@@ -466,7 +466,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_first_person_camera.png"
     id: CONTROLE_CAMERA_PRIMEIRA_PESSOA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Poe a camera em primeira pessoa ao personagem selecionado."
   }
   dados_botoes {
@@ -477,7 +477,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_ANGULO_VISAO_ORIGINAL
     textura: "icon_camera_fov_default.png"
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Restaura angulo de visao para 60 graus."
   }
   dados_botoes {
@@ -488,7 +488,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_darkvision.png"
     id: CONTROLE_VISAO_ESCURO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga visão no escuro (requer câmera presa)."
   }
   dados_botoes {
@@ -499,7 +499,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_ruler.png"
     id: CONTROLE_REGUA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Modo régua (requer câmera presa)."
   }
 
@@ -511,7 +511,7 @@ pagina {
     cor_rotulo { r: 1.0 a: 1.0 }
     textura: "icon_trash.png"
     id: CONTROLE_APAGA_ENTIDADES
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Apaga entidades selecionadas."
   }
 
@@ -524,7 +524,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_undo.png"
     id: CONTROLE_DESFAZER
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desfaz última ação realizada neste dispositivo."
   }
   dados_botoes {
@@ -532,7 +532,7 @@ pagina {
     linha: 0
     coluna: 23
     id: CONTROLE_RODADA
-    num_lados_botao: 8
+    forma: FORMA_DISCO
     dica: "Passa uma rodada."
   }
   dados_botoes {
@@ -543,7 +543,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_PAGINACAO_PROXIMO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Próxima página."
   }
 }
@@ -557,7 +557,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_PAGINACAO_ANTERIOR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Página anterior."
   }
   # Desenho 2D.
@@ -569,7 +569,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_free.png"
     id: CONTROLE_DESENHO_LIVRE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenho livre."
   }
   dados_botoes {
@@ -580,7 +580,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_rectangle.png"
     id: CONTROLE_DESENHO_RETANGULO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha retângulo."
   }
   dados_botoes {
@@ -591,7 +591,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_circle.png"
     id: CONTROLE_DESENHO_CIRCULO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha círculo."
   }
   dados_botoes {
@@ -602,7 +602,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_triangle.png"
     id: CONTROLE_DESENHO_TRIANGULO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha triângulo."
   }
   # Desenho 3D.
@@ -614,7 +614,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_sphere.png"
     id: CONTROLE_DESENHO_ESFERA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desagrupa esfera."
   }
   dados_botoes {
@@ -625,7 +625,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_pyramid.png"
     id: CONTROLE_DESENHO_PIRAMIDE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha pirâmide."
   }
   dados_botoes {
@@ -636,7 +636,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_cube.png"
     id: CONTROLE_DESENHO_CUBO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha cubo."
   }
   dados_botoes {
@@ -647,7 +647,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_cone.png"
     id: CONTROLE_DESENHO_CONE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha cone."
   }
   dados_botoes {
@@ -658,7 +658,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_cylinder.png"
     id: CONTROLE_DESENHO_CILINDRO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desenha cilindro."
   }
   dados_botoes {
@@ -669,7 +669,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_hide.png"
     id: CONTROLE_VISIBILIDADE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Liga/desliga invisibilidade para entidades selecionadas."
   }
   # Agrupar/Desagrupar.
@@ -681,7 +681,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_group.png"
     id: CONTROLE_DESENHO_AGRUPAR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Agrupa formas."
   }
   dados_botoes {
@@ -692,7 +692,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_ungroup.png"
     id: CONTROLE_DESENHO_DESAGRUPAR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Desagrupa formas."
   }
 
@@ -703,7 +703,7 @@ pagina {
     coluna: 1
     rotulo: "<"
     id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     altura: 1
@@ -711,7 +711,7 @@ pagina {
     linha: 2
     coluna: 2
     id: CONTROLE_TEXTURA_ENTIDADE
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -719,7 +719,7 @@ pagina {
     coluna: 12
     rotulo: ">"
     id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   # Cores
   dados_botoes {
@@ -729,7 +729,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_VERMELHO
     cor_fundo { r: 1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -738,7 +738,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_VERDE
     cor_fundo { g: 1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -747,7 +747,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_AZUL
     cor_fundo { b: 1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -756,7 +756,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_AMARELO
     cor_fundo { r: 1.0 g: 1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -765,7 +765,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_MAGENTA
     cor_fundo { r: 1.0 b:1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -774,7 +774,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_CIANO
     cor_fundo { g: 1.0 b: 1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -783,7 +783,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_BRANCO
     cor_fundo { r: 1.0 g: 1.0 b:1.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
@@ -792,7 +792,7 @@ pagina {
     cor_rotulo {}
     id: CONTROLE_DESENHO_COR_PRETO
     cor_fundo { r: 0.0 g: 0.0 b: 0.0 }
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 2
@@ -800,7 +800,7 @@ pagina {
     coluna: 11
     textura: "icon_copy.png"
     id: CONTROLE_COPIAR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Copia selecionados."
   }
   dados_botoes {
@@ -809,7 +809,7 @@ pagina {
     coluna: 13
     textura: "icon_paste.png"
     id: CONTROLE_COLAR
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Cola entidades copiadas."
   }
 
@@ -819,7 +819,7 @@ pagina {
 #    coluna: 24
 #    rotulo: "TA"
 #    id: CONTROLE_GERAR_TERRENO_ALEATORIO
-#    num_lados_botao: 4
+#    forma: FORMA_RETANGULO
 #    dica: "Gera um terreno aleatório."
 #  }
 
@@ -835,7 +835,7 @@ pagina {
     cor_rotulo {}
     textura: "icon_rotation.png"
     id: CONTROLE_MODO_ROTACAO
-    num_lados_botao: 4
+    forma: FORMA_RETANGULO
     dica: "Modo de rotação."
   }
 }

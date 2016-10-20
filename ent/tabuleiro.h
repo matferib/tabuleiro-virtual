@@ -953,10 +953,13 @@ class Tabuleiro : public ntf::Receptor {
   boost::timer::cpu_timer timer_uma_renderizacao_completa_;
   /** computa o tempo de uma atualizacao, debug apenas. */
   boost::timer::cpu_timer timer_uma_atualizacao_;
+  /** computa tempo de desenho do controle virtual. */
+  boost::timer::cpu_timer timer_uma_renderizacao_controle_virtual_;
   // Listas que armazenam os ultimos tempos computados pelos timers.
   std::list<uint64_t> tempos_entre_cenas_;    // timer_entre_cenas_
   std::list<uint64_t> tempos_uma_renderizacao_completa_;  // timer_uma_renderizacao_completa_
   std::list<uint64_t> tempos_uma_atualizacao_;   // timer_uma_atualizacao_
+  std::list<uint64_t> tempos_uma_renderizacao_controle_virtual_;   // timer_uma_atualizacao_controle_virtual_.
 
   // Modo de depuracao do tabuleiro.
   bool modo_debug_ = false;

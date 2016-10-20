@@ -9,6 +9,8 @@ namespace gl {
 // Namespace para utilidades internas, nem deveria estar aqui.
 namespace interno {
 
+void IniciaVbos();
+
 // Variaveis de shaders.
 struct VarShader {
   std::string nome;  // Nome para o programa, depuracao apenas.

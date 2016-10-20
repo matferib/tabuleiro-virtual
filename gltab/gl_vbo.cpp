@@ -4,6 +4,7 @@
 #include "gltab/gl_interno.h"
 #include "gltab/gl_vbo.h"
 #include "log/log.h"
+#include "net/util.h"
 
 namespace gl {
 
@@ -27,7 +28,115 @@ float VetorParaRotacaoGraus(float x, float y, float* tamanho) {
   return (y >= 0 ? angulo : -angulo);
 }
 
+enum Vbos {
+  VBO_CUBO = 0,
+  VBO_ESFERA,
+  VBO_PIRAMIDE,
+  VBO_CILINDRO,
+  VBO_DISCO,
+  VBO_RETANGULO,
+  VBO_TRIANGULO,
+  VBO_CONE,
+  VBO_CONE_FECHADO,
+  VBO_CILINDRO_FECHADO,
+  VBO_NUM
+};
+static std::vector<gl::VboGravado> g_vbos;
+
 }  // namespace
+
+namespace interno {
+void IniciaVbos() {
+  std::vector<VboNaoGravado> vbos_nao_gravados(VBO_NUM);
+  // Cubo.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CUBO];
+    vbo = gl::VboCuboSolido(1.0f);
+    vbo.Nomeia("cubo unitario");
+  }
+
+  // Esfera.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_ESFERA];
+    vbo = gl::VboEsferaSolida(0.5f, 24, 12);
+    vbo.Nomeia("Esfera unitaria");
+  }
+
+  // Piramide.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_PIRAMIDE];
+    vbo = gl::VboPiramideSolida(1.0f, 1.0f);
+    vbo.Nomeia("Piramide");
+  }
+
+  // Cilindro.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CILINDRO];
+    vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
+    vbo.Nomeia("Cilindro");
+  }
+  // Cilindro fechado.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CILINDRO_FECHADO];
+    vbo = gl::VboCilindroSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 12, 6);
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Translada(0.0f, 0.0f, 1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    vbo.Nomeia("CilindroFechado");
+  }
+
+  // Disco.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_DISCO];
+    vbo = gl::VboDisco(0.5f  /*raio*/, 12);
+    vbo.Nomeia("Disco");
+  }
+
+  // Retangulo.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_RETANGULO];
+    vbo = gl::VboRetangulo(1.0f);
+    vbo.Nomeia("Retangulo");
+  }
+
+  // Triangulo.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_TRIANGULO];
+    vbo = gl::VboTriangulo(1.0f);
+    vbo.Nomeia("Triangulo");
+  }
+
+  // Cone.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CONE];
+    vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
+    vbo.Nomeia("Cone");
+  }
+
+  // Cone fechado.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_CONE_FECHADO];
+    vbo = gl::VboConeSolido(0.5f, 1.0f, 12, 6);
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(0.5f  /*raio*/, 12  /*fatias*/);
+      vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    vbo.Nomeia("ConeFechado");
+  }
+  g_vbos.resize(VBO_NUM);
+  for (int i = 0; i < VBO_NUM; ++i) {
+    g_vbos[i].Grava(vbos_nao_gravados[i]);
+  }
+}
+}  // namespace interno
 
 //----------------
 // VbosNaoGravados
@@ -413,7 +522,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
-  Desgrava();
+  Desgrava();  // TODO nao precisa desgravar.
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer.
@@ -425,7 +534,7 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_normais_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
-  buffer_unico_ = std::move(vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_));
+  buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_);
   num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
   tem_normais_ = (deslocamento_normais_ != static_cast<unsigned int>(-1));
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
@@ -1033,6 +1142,10 @@ VboNaoGravado VboRetangulo(GLfloat tam_x, GLfloat tam_y) {
   return VboRetangulo(-x, -y, x, y);
 }
 
+void RetanguloUnitario() {
+  DesenhaVbo(g_vbos[VBO_RETANGULO]);
+}
+
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
   const unsigned short indices[] = { 0, 1, 2, 3, 4, 5 };
   const float coordenadas[] = {
@@ -1122,6 +1235,9 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces) {
   vbo.Nomeia("disco");
   return vbo;
 }
+void DiscoUnitario() {
+  DesenhaVbo(g_vbos[VBO_DISCO]);
+}
 
 VboNaoGravado VboTriangulo(GLfloat lado) {
   unsigned short indices[] = { 0, 1, 2 };
@@ -1148,6 +1264,10 @@ VboNaoGravado VboTriangulo(GLfloat lado) {
   return vbo;
 }
 
+void TrianguloUnitario() {
+  DesenhaVbo(g_vbos[VBO_TRIANGULO]);
+}
+
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura) {
   VboNaoGravado vbo;
   if (pontos.size() == 0) {
@@ -1159,7 +1279,7 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
   for (auto it = pontos.begin(); it != pontos.end() - 1;) {
     const auto& ponto = *it;
     // Disco do ponto corrente.
-    vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));
+    vbo_disco = gl::VboDisco(largura / 2.0f, 8);
     vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
     vbo.Concatena(vbo_disco);
 
@@ -1168,13 +1288,13 @@ VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float
     float tam;
     const float graus = VetorParaRotacaoGraus(proximo_ponto.first - ponto.first, proximo_ponto.second - ponto.second, &tam);
     const float largura_2 = largura / 2.0f;
-    vbo_retangulo = std::move(gl::VboRetangulo(0.0f, -largura_2, tam, largura_2));
+    vbo_retangulo = gl::VboRetangulo(0.0f, -largura_2, tam, largura_2);
     vbo_retangulo.RodaZ(graus);
     vbo_retangulo.Translada(ponto.first, ponto.second, 0.0f);
     vbo.Concatena(vbo_retangulo);
   }
   const auto& ponto = *pontos.rbegin();
-  vbo_disco = std::move(gl::VboDisco(largura / 2.0f, 8));
+  vbo_disco = gl::VboDisco(largura / 2.0f, 8);
   vbo_disco.Translada(ponto.first, ponto.second, 0.0f);
   vbo.Concatena(vbo_disco);
   char nome[50];

@@ -118,8 +118,7 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
 
 void Entidade::DesenhaObjetoEntidadeProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
-  bool achatar = !proto.has_modelo_3d() && !proto.info_textura().id().empty() &&
-                 (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
+  bool achatar = Achatar(proto, pd);
   std::unique_ptr<AlteraBlendEscopo> blend_escopo;
   if (proto.has_modelo_3d()) {
     blend_escopo.reset(new AlteraBlendEscopo(pd, proto.cor()));
@@ -131,22 +130,17 @@ void Entidade::DesenhaObjetoEntidadeProto(
     vd.vbos_gravados.Desenha();
 #else
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
-    Matrix4 m;
-    if (!proto.has_modelo_3d() && !proto.info_textura().id().empty()) {
-      m.scale(proto.info_textura().largura(), 0.1f, proto.info_textura().altura());
-      m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()));
-    }
-    m.rotateZ(vd.angulo_rotacao_textura_graus);
-    m = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto, vd, pd) * m;
-    gl::MultiplicaMatriz(m.get());
     if (proto.has_modelo_3d()) {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
-        modelo->vbos_nao_gravados.Desenha();
+        gl::MultiplicaMatriz(vd.matriz_modelagem.get(), true);
+        modelo->vbos_gravados.Desenha();
       }
     } else if (!proto.info_textura().id().empty()) {
-      gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
+      gl::MultiplicaMatriz(vd.matriz_modelagem_tijolo_tela.get(), true);
+      gl::DesenhaVbo(g_vbos[VBO_TIJOLO]);
     } else {
+      gl::MultiplicaMatriz(vd.matriz_modelagem.get(), true);
       gl::DesenhaVbo(g_vbos[VBO_PEAO]);
     }
 #endif
@@ -161,47 +155,26 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
-    Matrix4 m;
-    if (pd->entidade_selecionada()) {
-      m.rotateZ(vd.angulo_disco_selecao_graus);
-    }
-    m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
-    m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
-    m = MontaMatrizModelagem(true,  // queda.
-                             (vd.altura_voo == 0.0f)  /*z*/,  // so desloca tijolo se nao estiver voando.
-                              proto, vd, pd) * m;
-    gl::MultiplicaMatriz(m.get());
-    gl::DesenhaVbo(g_vbos[VBO_TIJOLO_BASE]);
+    gl::MultiplicaMatriz(vd.matriz_modelagem_tijolo_base.get(), true);
+    gl::DesenhaVbo(g_vbos[VBO_TIJOLO]);
   }
 #endif
 
-  // Tela da textura.
+  // Deslocamento da textura.
   gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA, false);
-  if (!achatar) {
-    Matrix4 m;
-    m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
-    m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y(), 0.0f);
-    gl::MultiplicaMatriz(m.get());
+  {
+    gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get(), true);
   }
 
+  // Tela da textura.
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+  gl::MultiplicaMatriz(vd.matriz_modelagem_tela_textura.get(), true);
 
-  MontaMatriz(true  /*queda*/, true  /*z*/, proto, vd, pd);
-  if (achatar) {
-    gl::Translada(0.0, 0.0, TAMANHO_LADO_QUADRADO_10, false);
-    gl::Roda(90.0f, -1.0f, 0.0f, 0.0f, false);
-    gl::Escala(0.8f, 1.0f, 0.8f, true);
-  } else {
-    gl::Translada(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto.info_textura().altura()), false);
-    gl::Roda(vd.angulo_rotacao_textura_graus, 0.0f, 0.0f, 1.0f, false);
-    gl::Escala(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
-  }
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-    gl::Normal(0.0f, -1.0f, 0.0f);
     Cor c;
     c.set_r(1.0f);
     c.set_g(1.0f);
