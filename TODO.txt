@@ -1,11 +1,10 @@
 Versao 2.4.0
-- regerar os VBOs com recarregamento de contexto ios e android.
-- Melhorar o zoom primeira pessoa (FoV).
-- VBO de acoes.
+- Pinca: ipad e pinca com tres para vertical.
+- Instrumentar e ver o que ta caro sem VBO_COM_MODELAGEM. Se forem as matrizes, construi-las uma vez so durante atualizacao.
+- Efeitos quebraram (reflexos) VBO_COM_MODELAGEM.
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
 - Slide de colisao.
-- Melhorar a UI do android.
 
 - Geracao de terrenos por tipo (arvores, relevo).
 - Passar controle virtual para interface.
