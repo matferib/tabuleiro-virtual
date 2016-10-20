@@ -1770,7 +1770,7 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
 }
 
 void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
-  if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     return;
   }
   VLOG(1) << "Pinca iniciada";
