@@ -459,6 +459,7 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
 
 }  // namespace
 
+void IniciaVbos();
 
 void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
@@ -474,6 +475,7 @@ void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   CarregaExtensoes();
   ImprimeExtensoes();
   IniciaShaders(luz_por_pixel, contexto);
+  IniciaVbos();
 }
 
 void FinalizaShaders(const VarShader& shader) {

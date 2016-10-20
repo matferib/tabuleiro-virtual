@@ -272,6 +272,9 @@ inline void Retangulo(GLfloat tam_x, GLfloat tam_y) {
 inline void Retangulo(GLfloat tam) {
   DesenhaVbo(VboRetangulo(tam, tam));
 }
+// Eficiente, usa VBO gravado.
+void RetanguloUnitario();
+
 VboNaoGravado VboRetangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
 inline void Retangulo(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2) {
   DesenhaVbo(VboRetangulo(x1, y1, x2, y2));
@@ -281,12 +284,16 @@ VboNaoGravado VboDisco(GLfloat raio, GLfloat num_faces);
 inline void Disco(GLfloat raio, GLfloat num_faces) {
   DesenhaVbo(VboDisco(raio, num_faces));
 }
+// Disco de raio 0,5 (1 diametro) com 12 lados. Eficiente, usa VBO gravado.
+void DiscoUnitario();
 
 // Triangulo equilatero, pico para eixo y com a base no y=0.
 VboNaoGravado VboTriangulo(float lado);
 inline void Triangulo(GLfloat lado) {
   DesenhaVbo(VboTriangulo(lado));
 }
+// Triangulo equilatero unitario.
+void TrianguloUnitario();
 
 VboNaoGravado VboLivre(const std::vector<std::pair<float, float>>& pontos, float largura);
 inline void Livre(const std::vector<std::pair<float, float>>& pontos, float largura) {
