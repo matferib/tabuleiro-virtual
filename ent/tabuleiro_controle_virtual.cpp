@@ -593,7 +593,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   gl::MatrizEscopo salva(false);
-  if (db.num_lados_botao() == 4) {
+  if (db.forma() == FORMA_RETANGULO) {
     float trans_x = (db.translacao_x() * unidade_largura);
     float trans_y = (db.translacao_y() * unidade_altura);
     unsigned int id_textura = TexturaBotao(db);
@@ -603,19 +603,29 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
     }
     float tam_x = xf - (2.0f * padding) - xi;
     float tam_y = yf - (2.0f * padding) - yi;
-    gl::Translada(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f, false);
-    gl::Escala(tam_x, tam_y, 1.0f, false);
-    gl::Retangulo(1.0f);
+    Matrix4 m;
+    m.scale(tam_x, tam_y, 1.0f);
+    m.translate(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f);
+    gl::MultiplicaMatriz(m.get());
+    gl::RetanguloUnitario();
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
   } else {
-    gl::Translada(((xi + xf) / 2.0f) + (db.translacao_x() * unidade_largura),
-        ((yi + yf) / 2.0f) + (db.translacao_y() * unidade_altura), 0.0f, false);
-    gl::Roda(db.rotacao_graus(), 0.0f, 0.0f, 1.0f, false);
-    if (db.num_lados_botao() == 3) {
-      gl::Triangulo(xf - xi);
+    Matrix4 m;
+    float transx = ((xi + xf) / 2.0f) + (db.translacao_x() * unidade_largura);
+    float transy = ((yi + yf) / 2.0f) + (db.translacao_y() * unidade_altura);
+    if (db.forma() == FORMA_TRIANGULO) {
+      m.rotateZ(db.rotacao_graus());
+      m.scale(xf - xi, xf - xi, 1.0f);
+      m.translate(transx, transy, 0.0f);
+      gl::MultiplicaMatriz(m.get());
+      gl::TrianguloUnitario();
     } else {
-      gl::Disco((xf - xi) / 2.0f, db.num_lados_botao());
+      m.rotateZ(db.rotacao_graus());
+      m.scale((xf - xi), (xf - xi), 1.0f);
+      m.translate(transx, transy, 0.0f);
+      gl::MultiplicaMatriz(m.get());
+      gl::DiscoUnitario();
     }
   }
 }
