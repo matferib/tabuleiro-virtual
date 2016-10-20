@@ -2,9 +2,9 @@
 fixo {
   # Salvar e abrir.
   dados_botoes {
-    tamanho: 2
-    linha: -2
-    coluna: -2
+    tamanho: 1
+    linha: -1
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save.png"
@@ -14,9 +14,9 @@ fixo {
     dica: "Salva tabuleiro."
   }
   dados_botoes {
-    tamanho: 2
-    linha: -4
-    coluna: -2
+    tamanho: 1
+    linha: -2
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save_as.png"
@@ -26,9 +26,9 @@ fixo {
     dica: "Salva tabuleiro com outro nome."
   }
   dados_botoes {
-    tamanho: 2
-    linha: -6
-    coluna: -2
+    tamanho: 1
+    linha: -3
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_open.png"
@@ -39,9 +39,9 @@ fixo {
   }
   # Terreno.
   dados_botoes {
-    tamanho: 2
-    linha: -8
-    coluna: -2
+    tamanho: 1
+    linha: -4
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_terrain.png"
@@ -53,8 +53,8 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -7
-    coluna: -3
+    linha: -3
+    coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "^"
@@ -63,12 +63,12 @@ fixo {
     id: CONTROLE_CIMA_VERTICAL_TERRENO
     forma: FORMA_RETANGULO
     mestre_apenas: true
-    dica: "Movimento vertical do terreno."
+    dica: "Movimento vertical (cima) do terreno."
   }
   dados_botoes {
     tamanho: 1
-    linha: -8
-    coluna: -3
+    linha: -4
+    coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "v"
@@ -77,12 +77,12 @@ fixo {
     id: CONTROLE_BAIXO_VERTICAL_TERRENO
     forma: FORMA_RETANGULO
     mestre_apenas: true
-    dica: "Movimento vertical do terreno."
+    dica: "Movimento vertical (baixo) do terreno."
   }
   dados_botoes {
-    tamanho: 2
-    linha: -10
-    coluna: -2
+    tamanho: 1
+    linha: -5
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "GM"
