@@ -1042,7 +1042,7 @@ std::string Entidade::StringValorParaAcao(const std::string& id_acao) const {
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {
-  return MontaMatrizModelagem(proto_.caida(), true, proto_, vd_, pd);
+  return MontaMatrizModelagem(true, true, proto_, vd_, pd);
 }
 
 

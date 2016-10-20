@@ -1770,6 +1770,9 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
 }
 
 void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
+  if (camera_ != CAMERA_PRIMEIRA_PESSOA) {
+    return;
+  }
   VLOG(1) << "Pinca iniciada";
   parametros_desenho_.set_desenha_terreno(false);
   unsigned int id, tipo_objeto;
@@ -1779,7 +1782,7 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
   BuscaHitMaisProximo(x2, y2, &id2, &tipo_objeto2, &profundidade);
   if (tipo_objeto == tipo_objeto2 && id == id2) {
     const auto* e = BuscaEntidade(id);
-    if (e != nullptr) {
+    if (e != nullptr && (e->SelecionavelParaJogador() || EmModoMestreIncluindoSecundario())) {
       SelecionaEntidade(id);
       estado_anterior_ = estado_;
       estado_ = ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA;
