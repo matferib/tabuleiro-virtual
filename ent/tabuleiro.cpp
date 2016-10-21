@@ -1780,7 +1780,7 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
   BuscaHitMaisProximo(x1, y1, &id, &tipo_objeto, &profundidade);
   unsigned int id2, tipo_objeto2;
   BuscaHitMaisProximo(x2, y2, &id2, &tipo_objeto2, &profundidade);
-  if (tipo_objeto == tipo_objeto2 && id == id2) {
+  if (tipo_objeto == OBJ_ENTIDADE && tipo_objeto == tipo_objeto2 && id == id2) {
     const auto* e = BuscaEntidade(id);
     if (e != nullptr && (e->SelecionavelParaJogador() || EmModoMestreIncluindoSecundario())) {
       SelecionaEntidade(id);
