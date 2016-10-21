@@ -53,10 +53,6 @@
 #ifndef GL_TEXTURE_MAX_LEVEL
 #define GL_TEXTURE_MAX_LEVEL 0x813D
 #endif
-
-#ifndef GL_TEXTURE_WRAP_R
-#define GL_TEXTURE_WRAP_R 0x8072
-#endif
 #endif
 
 #define TAM_MAPA_OCLUSAO 1024
@@ -841,7 +837,7 @@ int Tabuleiro::Desenha() {
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
@@ -2844,7 +2840,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desabilitando luzes");
 
   gl::MudaModoMatriz(GL_MODELVIEW);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraOlhar();
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
@@ -3421,13 +3417,13 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
   if (textura_cubo) {
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
-#endif
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+#endif
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   } else {
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -6048,6 +6044,7 @@ void Tabuleiro::DesenhaLuzes() {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+#if 1
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
@@ -6083,6 +6080,31 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::FaceNula(GL_BACK);
   gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);
+#else
+  // Hack para ver textura de cubo.
+  if (!gl::OclusaoLigada()) {
+    return;
+  }
+  gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
+  gl::UsaShader(gl::TSH_CAIXA_CEU);
+  gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
+  gl::Translada(0.0f, 0.0f, 5.0f);
+
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
+  gl::UnidadeTextura(GL_TEXTURE2);
+  gl::Habilita(GL_TEXTURE_CUBE_MAP);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, textura_framebuffer_oclusao_);
+  vbo_caixa_ceu_.forca_texturas(true);
+
+  MudaCor(COR_BRANCA);
+  gl::CuboUnitario();
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
+  gl::Desabilita(GL_TEXTURE_CUBE_MAP);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  // Religa luzes.
+  gl::UsaShader(tipo_anterior);
+#endif
 }
 
 void Tabuleiro::DesenhaGrade() {
