@@ -25,7 +25,7 @@ void main() {
                            vec4(0.0, 1.0, -1.0 / 256.0, 0.0),
                            vec4(0.0, 0.0, 1.0, 0.0),
                            vec4(0.0, 0.0, 0.0, 1.0));
-  gl_FragColor = ajuste * v4;
+  gl_FragColor = v4 * ajuste;
 #else
   gl_FragDepth = length(v_PosView.xyz / v_PosView.w) / gltab_plano_distante_oclusao;
 #endif
