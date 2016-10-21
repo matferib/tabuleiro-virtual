@@ -1052,6 +1052,10 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
   return vbo;
 }
 
+void CuboUnitario() {
+  DesenhaVbo(g_vbos[VBO_CUBO]);
+}
+
 VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {
   const unsigned short indices[] = {
       0, 1, 2,  // sul
