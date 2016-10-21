@@ -3045,7 +3045,7 @@ void Tabuleiro::DesenhaCena() {
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
     timer_uma_renderizacao_controle_virtual_.stop();
-    EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
+    EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
   }
   V_ERRO("desenhando controle virtual");
 
@@ -3059,7 +3059,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaTempos();
   }
 #if DEBUG
-  //glFinish();
+  glFlush();
 #endif
 }
 
