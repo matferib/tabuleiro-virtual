@@ -17,7 +17,6 @@ varying highp vec4 v_PosView;
 uniform highp float gltab_plano_distante_oclusao;
 
 void main() {
-#if defined(GL_ES)
   highp float prof = length(v_PosView.xyz / v_PosView.w) / gltab_plano_distante_oclusao;
   // codifica como cor.
   highp vec4 v4 = vec4(prof, fract(prof * 256.0), fract(prof * 65536.0), 1.0);
@@ -26,7 +25,4 @@ void main() {
                            vec4(0.0, 0.0, 1.0, 0.0),
                            vec4(0.0, 0.0, 0.0, 1.0));
   gl_FragColor = v4 * ajuste;
-#else
-  gl_FragDepth = length(v_PosView.xyz / v_PosView.w) / gltab_plano_distante_oclusao;
-#endif
 }
