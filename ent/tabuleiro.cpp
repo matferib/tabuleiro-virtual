@@ -4909,12 +4909,12 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
 // Aqui ocorre a deserializacao do tabuleiro todo. As propriedades como iluminacao sao atualizadas
 // na funcao Tabuleiro::DeserializaPropriedades.
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
-  const auto& tabuleiro = notificacao.tabuleiro();
-  bool manter_entidades = tabuleiro.manter_entidades();
+  const auto& novo_tabuleiro = notificacao.tabuleiro();
+  bool manter_entidades = novo_tabuleiro.manter_entidades();
   if (manter_entidades) {
-    VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << tabuleiro.ShortDebugString();
+    VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << novo_tabuleiro.ShortDebugString();
   } else {
-    VLOG(1) << "Deserializando tabuleiro todo: " << tabuleiro.ShortDebugString();
+    VLOG(1) << "Deserializando tabuleiro todo: " << novo_tabuleiro.ShortDebugString();
     EstadoInicial(true);
   }
   if (notificacao.has_erro()) {
@@ -4927,12 +4927,12 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
   // Cria os sub cenarios dummy para atualizacao de textura funcionar,
   // caso contrario ela dira que o sub cenario nao existe e nao funcionara.
-  for (auto& sub_cenario : tabuleiro.sub_cenario()) {
+  for (auto& sub_cenario : novo_tabuleiro.sub_cenario()) {
     auto* cenario_dummy = proto_.add_sub_cenario();
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
   }
-  AtualizaTexturasIncluindoSubCenarios(tabuleiro);
-  proto_.CopyFrom(tabuleiro);
+  AtualizaTexturasIncluindoSubCenarios(novo_tabuleiro);
+  proto_.CopyFrom(novo_tabuleiro);
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
   }
@@ -4943,8 +4943,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.
-    VLOG(1) << "Alterando id de cliente para " << tabuleiro.id_cliente();
-    id_cliente_ = tabuleiro.id_cliente();
+    VLOG(1) << "Alterando id de cliente para " << novo_tabuleiro.id_cliente();
+    id_cliente_ = novo_tabuleiro.id_cliente();
   }
 
   // Remove as entidades do tabuleiro corrente.
@@ -4960,7 +4960,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
 
   // Recebe as entidades.
-  for (EntidadeProto ep : tabuleiro.entidade()) {
+  for (EntidadeProto ep : novo_tabuleiro.entidade()) {
     if (manter_entidades) {
       if (ep.selecionavel_para_jogador()) {
         continue;
@@ -4974,7 +4974,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
   }
-  VLOG(1) << "Foram adicionadas " << tabuleiro.entidade_size() << " entidades";
+  VLOG(1) << "Foram adicionadas " << novo_tabuleiro.entidade_size() << " entidades";
 }
 
 ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
@@ -6801,8 +6801,12 @@ void Tabuleiro::ReiniciaCamera() {
   // Vou ser conservador aqui e voltar para a camera de perspectiva. Caso contrario, posso correr o risco de um jogador
   // ficar preso em uma entidade que nao eh a dele (por exemplo, carregando o tabuleiro sem manter as entidades, a entidade
   // presa deixa de existir).
-  camera_ = CAMERA_PERSPECTIVA;
-  camera_presa_ = false;
+  if (camera_presa_) {
+    AlternaCameraPresa();
+  } else {
+    camera_ = CAMERA_PERSPECTIVA;
+    camera_presa_ = false;
+  }
   if (proto_.has_camera_inicial()) {
     if (proto_.camera_inicial().pos().has_id_cenario() && proto_.camera_inicial().pos().id_cenario() != proto_corrente_->id_cenario()) {
       CarregaSubCenario(proto_.camera_inicial().pos().id_cenario(), proto_.camera_inicial().alvo());
