@@ -4962,11 +4962,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   // Recebe as entidades.
   for (EntidadeProto ep : novo_tabuleiro.entidade()) {
     if (manter_entidades) {
-      if (ep.selecionavel_para_jogador()) {
-        continue;
-      }
       // Para manter as entidades, os ids tem que ser regerados para as entidades do tabuleiro,
-      // senao pode dar conflito.
+      // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
     auto* e = NovaEntidade(ep, texturas_, m3d_, central_, &parametros_desenho_);
