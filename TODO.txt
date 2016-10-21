@@ -1,8 +1,9 @@
 Versao 2.4.0
-- Pinca: ipad e pinca com tres para vertical.
+- IOS oclusao nao funciona (aparentemente so uma direcao).
+- Zfight ipad e mapa oclusao.
+- Pinca: com tres para vertical.
 - Efeitos quebraram (reflexos) VBO_COM_MODELAGEM.
 - Controle virtual ta caro
-- As funcoes de GL estao usando VBOs nao gravados (Retangulo, Cubo, Triangulo etc).
 - VBO de acoes.
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
