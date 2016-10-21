@@ -148,7 +148,7 @@ const int TAG_BOTAO_CANCELA = 101;
   if ([(UIPinchGestureRecognizer*)sender state] == UIGestureRecognizerStateBegan) {
     last_scale_ = 1.0;
   }
-  
+
   CGFloat scale = 1.0 - (last_scale_ - [(UIPinchGestureRecognizer*)sender scale]);
   nativeScale(scale);
   last_scale_ = [(UIPinchGestureRecognizer*)sender scale];
@@ -159,10 +159,10 @@ const int TAG_BOTAO_CANCELA = 101;
     last_rotation_ = 0.0;
     return;
   }
-  
+
   CGFloat rotation =
       0.0 - (last_rotation_ - [(UIRotationGestureRecognizer*)sender rotation]);
-  
+
   last_rotation_ = [(UIRotationGestureRecognizer*)sender rotation];
   nativeRotate(rotation);
 }
@@ -195,8 +195,27 @@ const int TAG_BOTAO_CANCELA = 101;
   }
   ret.x = x / [all_touches count];
   ret.y = y / [all_touches count];
-  
+
   return ret;
+}
+
+-(void)startGyro {
+#if USAR_GIROSCOPIO
+  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  [motion_manager_ startGyroUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:^(CMGyroData *gyro, NSError *error) {
+    float delta;
+    if (orientation == UIInterfaceOrientationLandscapeLeft) {
+      delta = gyro.rotationRate.y;
+    } else if (orientation == UIInterfaceOrientationLandscapeRight) {
+      delta = -gyro.rotationRate.y;
+    } else if (orientation == UIInterfaceOrientationPortrait) {
+      delta = gyro.rotationRate.x;
+    } else {
+      delta = -gyro.rotationRate.x;
+    }
+    nativeTilt(-delta);
+  }];
+#endif
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -206,30 +225,19 @@ const int TAG_BOTAO_CANCELA = 101;
   GLKView *view = (GLKView *)self.view;
   one_finger_ = [all_touches count] == 1;
   CGPoint point = [self touchAvg:all_touches];
-  //NSLog(@"Begin: %0.1f %0.1f", point.x, point.y);
-  nativeTouchPressed(
-      one_finger_ ? ifg::Botao_Esquerdo : ifg::Botao_Direito,
-      false,  // toggle
-      point.x * scale,
-      (view.bounds.size.height - point.y) * scale);
-#if USAR_GIROSCOPIO
-  UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
+  //NSLog(@"Begin: %0.1f %0.1f touches count: %d", point.x, point.y, [all_touches count]);
   if ([all_touches count] == 2) {
-    [motion_manager_ startGyroUpdatesToQueue:[NSOperationQueue mainQueue] withHandler:^(CMGyroData *gyro, NSError *error) {
-      float delta;
-      if (orientation == UIInterfaceOrientationLandscapeLeft) {
-        delta = gyro.rotationRate.y;
-      } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-        delta = -gyro.rotationRate.y;
-      } else if (orientation == UIInterfaceOrientationPortrait) {
-        delta = gyro.rotationRate.x;
-      } else {
-        delta = -gyro.rotationRate.x;
-      }
-      nativeTilt(-delta);
-    }];
+    NSArray* touches_array = [all_touches allObjects];
+    CGPoint touch0 = [((UITouch*)touches_array[0]) locationInView:self.view];
+    CGPoint touch1 = [((UITouch*)touches_array[1]) locationInView:self.view];
+    nativeDoubleTouchPressed(touch0.x * scale, (view.bounds.size.height - touch0.y) * scale,
+                             touch1.x * scale, (view.bounds.size.height - touch1.y) * scale);
+    [self startGyro];
   }
-#endif
+  nativeTouchPressed(one_finger_ ? ifg::Botao_Esquerdo : ifg::Botao_Direito,
+                     false,  // toggle
+                     point.x * scale,
+                     (view.bounds.size.height - point.y) * scale);
 }
 
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -246,6 +254,12 @@ const int TAG_BOTAO_CANCELA = 101;
     //NSLog(@"Switched: %0.1f %0.1f", point.x, point.y);
     one_finger_ = false;
     nativeTouchReleased();
+    NSArray* touches_array = [all_touches allObjects];
+    CGPoint touch0 = [((UITouch*)touches_array[0]) locationInView:self.view];
+    CGPoint touch1 = [((UITouch*)touches_array[1]) locationInView:self.view];
+    nativeDoubleTouchPressed(touch0.x * scale, (view.bounds.size.height - touch0.y) * scale,
+                             touch1.x * scale, (view.bounds.size.height - touch1.y) * scale);
+    [self startGyro];
     nativeTouchPressed(
         ifg::Botao_Direito,
         false,
@@ -256,6 +270,8 @@ const int TAG_BOTAO_CANCELA = 101;
     nativeTouchMoved(point.x * scale,
                      (view.bounds.size.height - point.y) * scale);
   }
+  
+
 }
 
 -(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -287,7 +303,7 @@ const int TAG_BOTAO_CANCELA = 101;
 
 
 // Arrendonda valor do slider.
--(void)arredonda
+-(void)arredondaAura
 {
   int valor = round(slider_aura_.value);
   slider_aura_.value = valor;
@@ -381,7 +397,7 @@ const int TAG_BOTAO_CANCELA = 101;
     [self mudaRaioVisao];
 
     slider_aura_ = (UISlider*)[view viewWithTag:TAG_AURA];
-    [slider_aura_ addTarget:self action:@selector(arredonda) forControlEvents:UIControlEventValueChanged];
+    [slider_aura_ addTarget:self action:@selector(arredondaAura) forControlEvents:UIControlEventValueChanged];
     [slider_aura_ setValue:(n.entidade().aura_m() / TAMANHO_LADO_QUADRADO)];
 
     texto_aura_ = (UITextField*)[view viewWithTag:TAG_TEXTO_AURA];

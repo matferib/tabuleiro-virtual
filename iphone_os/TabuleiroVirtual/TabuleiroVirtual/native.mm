@@ -120,7 +120,7 @@ void nativeCreate(void* view) {
   g_interface.reset(new ifg::InterfaceIos(view, g_teclado_mouse.get(), g_tabuleiro.get(), g_central.get()));
   g_tratador_dialogos.reset(new TratadorDialogos(g_central.get()));
 
-  gl::IniciaGl(g_view->usar_iluminacao_por_pixel_, g_view->usar_mapeamento_sombras_);
+  gl::IniciaGl(g_view->usar_iluminacao_por_pixel_);
   g_tabuleiro->IniciaGL();
   g_texturas->Recarrega();
 
@@ -199,6 +199,11 @@ void nativeTilt(float delta) {
 
 ntf::CentralNotificacoes* nativeCentral() {
   return g_central.get();
+}
+
+void nativeDoubleTouchPressed(int x1, int y1, int x2, int y2) {
+  //NSLog(@"nativeDoubleTouchPressed");
+  g_teclado_mouse->TrataInicioPinca(x1, y1, x2, y2);
 }
 
 // Teclado
