@@ -788,9 +788,6 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-    gl::BufferDesenho(GL_BACK);
-#endif
     gl::UnidadeTextura(GL_TEXTURE3);
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, textura_framebuffer_oclusao_);
     gl::UnidadeTextura(GL_TEXTURE0);
@@ -799,11 +796,12 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   }
 
-  if (parametros_desenho_.desenha_sombras() & !modo_debug_) {
+  if (parametros_desenho_.desenha_sombras() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaMapaSombra();
+
     V_ERRO_RET("Depois DesenhaMapaSombra");
     // Restaura os valores e usa a textura como sombra.
     gl::UsaShader(tipo_shader);
@@ -820,9 +818,6 @@ int Tabuleiro::Desenha() {
     ConfiguraProjecaoMapeamentoSombras();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-    gl::BufferDesenho(GL_BACK);
-#endif
     gl::UnidadeTextura(GL_TEXTURE1);
     gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
     gl::UnidadeTextura(GL_TEXTURE0);
@@ -840,6 +835,9 @@ int Tabuleiro::Desenha() {
   }
 #endif
 
+#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
+  gl::BufferDesenho(GL_BACK);
+#endif
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
