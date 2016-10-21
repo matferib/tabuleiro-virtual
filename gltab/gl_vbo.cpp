@@ -522,7 +522,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
-  Desgrava();  // TODO nao precisa desgravar.
+  //Desgrava();  // TODO nao precisa desgravar.
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer.

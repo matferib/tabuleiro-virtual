@@ -1027,7 +1027,7 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   AtualizaMatrizes();
 }
 
-void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport, bool atualizar) {
   if (delta_x <= 0 || delta_y <= 0) {
     return;
   }
@@ -1039,7 +1039,9 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
       (viewport[3] - 2 * (y - viewport[1])) / delta_y,
       0);
   topo *= mt;
-  AtualizaMatrizes();
+  if (atualizar) {
+    AtualizaMatrizes();
+  }
 }
 
 GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
