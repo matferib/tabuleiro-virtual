@@ -1051,6 +1051,7 @@ std::vector<gl::VboGravado> Entidade::g_vbos;
 
 // static
 void Entidade::IniciaGl() {
+  IniciaUtil();
 
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // Vbo peao.
