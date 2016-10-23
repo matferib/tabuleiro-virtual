@@ -9,6 +9,7 @@ namespace gl {
 // Namespace para utilidades internas, nem deveria estar aqui.
 namespace interno {
 
+void IniciaChar();
 void IniciaVbos();
 
 // Variaveis de shaders.
