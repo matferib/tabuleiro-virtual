@@ -121,7 +121,8 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
+  // Precisa salvar a projecao para a volta, senao ela fica bichada ja que nao eh alterada de novo.
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION, true);
   gl::CarregaIdentidade(false);
   gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
   gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW, false);
@@ -151,7 +152,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
       gl::DesenhaCaractere(c);
       gl::Translada(largura_fonte, 0.0f, 0.0f, false);
     }
-    // A translacao volta tudo que ela andou.
+    // A translacao volta tudo que ela andou e anda uma linha.
     gl::Translada(-static_cast<float>(str_linha.size() * largura_fonte) - translacao_x,
                   inverte_vertical ? altura_fonte : -altura_fonte,
                   0.0f,
@@ -1007,7 +1008,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   AtualizaMatrizes();
 }
 
-void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
+void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante, bool atualizar) {
   float tx = - ((direita + esquerda) / (direita - esquerda));
   float ty = - ((cima + baixo) / (cima - baixo));
   float tz = - ((distante + proximo) / (distante - proximo));
@@ -1023,7 +1024,7 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   // da na mesma.
   //c->pilha_corrente->top() = m * topo;
   c->pilha_corrente->top() = topo * m;
-  AtualizaMatrizes();
+  if (atualizar) AtualizaMatrizes();
 }
 
 void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport, bool atualizar) {
