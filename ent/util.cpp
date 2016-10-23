@@ -23,6 +23,36 @@
 
 namespace ent {
 
+namespace {
+std::map<std::string, std::string> g_mapa_utf8;
+}  // namespace
+
+void IniciaUtil() {
+  g_mapa_utf8 = {
+    { "á", "a" },
+    { "ã", "a" },
+    { "â", "a" },
+    { "é", "e" },
+    { "ê", "e" },
+    { "í", "i" },
+    { "ç", "c" },
+    { "ô", "o" },
+    { "ó", "o" },
+    { "õ", "o" },
+    { "Á", "A" },
+    { "Â", "A" },
+    { "É", "E" },
+    { "Ê", "E" },
+    { "Í", "I" },
+    { "Ç", "C" },
+    { "Ô", "O" },
+    { "Ó", "O" },
+    { "Ú", "U" },
+    { "ú", "u" },
+  };
+
+}
+
 void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
 }
@@ -554,14 +584,8 @@ bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& ver
 }
 
 // Posiciona o raster no pixel.
-bool PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp) {
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
-  gl::CarregaIdentidade(false);
-  gl::Ortogonal(0, largura_vp, 0, altura_vp, 0, 1);
-
-  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW, false);
-  gl::CarregaIdentidade(true);
-  return gl::PosicaoRaster(x, y);
+void PosicionaRaster2d(int x, int y) {
+  gl::PosicaoRasterAbsoluta(x, y);
 }
 
 efeitos_e StringParaEfeito(const std::string& s) {
@@ -614,29 +638,7 @@ google::protobuf::RepeatedPtrField<EntidadeProto::Evento> LeEventos(const std::s
 // Retorna a string sem os caracteres UTF-8 para desenho OpenGL.
 const std::string StringSemUtf8(const std::string& id_acao) {
   std::string ret(id_acao);
-  const static std::map<std::string, std::string> mapa = {
-    { "á", "a" },
-    { "ã", "a" },
-    { "â", "a" },
-    { "é", "e" },
-    { "ê", "e" },
-    { "í", "i" },
-    { "ç", "c" },
-    { "ô", "o" },
-    { "ó", "o" },
-    { "õ", "o" },
-    { "Á", "A" },
-    { "Â", "A" },
-    { "É", "E" },
-    { "Ê", "E" },
-    { "Í", "I" },
-    { "Ç", "C" },
-    { "Ô", "O" },
-    { "Ó", "O" },
-    { "Ú", "U" },
-    { "ú", "u" },
-  };
-  for (const auto& it_mapa : mapa) {
+  for (const auto& it_mapa : g_mapa_utf8) {
     auto it = ret.find(it_mapa.first);
     while (it != std::string::npos) {
       ret.replace(it, it_mapa.first.size(), it_mapa.second);

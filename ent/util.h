@@ -19,6 +19,8 @@ class ParametrosDesenho;
 class Posicao;
 class Tabuleiro;
 
+void IniciaUtil();
+
 /** Altera a cor correnta para cor. Nao considera alpha. */
 void MudaCor(const float* cor);
 void MudaCorAplicandoNevoa(const float* cor, const ParametrosDesenho* pd);
@@ -125,7 +127,7 @@ void RodaVetor2d(float graus, Posicao* vetor);
 bool PontoDentroDePoligono(const Posicao& ponto, const std::vector<Posicao>& vertices);
 
 /** Posicionamento do raster em 2d. */
-bool PosicionaRaster2d(int x, int y, int largura_vp, int altura_vp);
+void PosicionaRaster2d(int x, int y);
 
 // Tipos de efeitos possiveis.
 enum efeitos_e {
