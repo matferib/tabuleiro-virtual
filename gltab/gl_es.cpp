@@ -25,13 +25,18 @@ struct ContextoEs : public ContextoDependente {
 };
 }  // namespace interno
 
+namespace {
+interno::Contexto* g_contexto = nullptr;
+}  // namespace
+
+
 void IniciaGl(bool luz_por_pixel) {
+  g_contexto = new interno::Contexto(new interno::ContextoEs);
   interno::IniciaComum(luz_por_pixel, BuscaContexto());
 }
 
 namespace interno {
 Contexto* BuscaContexto() {
-  static Contexto* g_contexto = new Contexto(new ContextoEs);
   return g_contexto;
 }
 

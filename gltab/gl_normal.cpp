@@ -14,6 +14,10 @@ using gl::interno::BuscaContexto;
 
 namespace gl {
 
+namespace {
+interno::Contexto* g_contexto = nullptr;
+}  // namespace
+
 #define INTERNO dynamic_cast<interno::ContextoDesktop*>(BuscaContexto()->interno.get())
 
 namespace interno {
@@ -70,7 +74,6 @@ struct ContextoDesktop : public ContextoDependente {
 };
 
 Contexto* BuscaContexto() {
-  static Contexto* g_contexto = new Contexto(new ContextoDesktop);
   return g_contexto;
 }
 }  // namespace interno
@@ -81,6 +84,7 @@ bool ImprimeSeShaderErro(GLuint shader);
 #define V_ERRO_SHADER(s) do { if (ImprimeSeShaderErro(s)) return; } while (0)
 
 void IniciaGl(bool luz_por_pixel) {
+  g_contexto = new interno::Contexto(new interno::ContextoDesktop);
 #if WIN32
 #define PGL(x) do { interno->p##x = wglGetProcAddress(#x); if (interno->p##x == nullptr) { erro = "null "#x; } } while (0)
   LOG(INFO) << "pegando ponteiros";
