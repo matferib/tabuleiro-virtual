@@ -71,11 +71,12 @@ LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -landroid
 LOCAL_CPP_FEATURES := rtti exceptions
 
 ifneq ($(PROFILER_LIGADO),)
-	LOCAL_CFLAGS := -pg -DPROFILER_LIGADO
+	LOCAL_CFLAGS := -pg -DPROFILER_LIGADO -Iandroid-ndk-profiler
+	LOCAL_LDFLAGS := -pg
 	LOCAL_STATIC_LIBRARIES += android-ndk-profiler
 endif
 
 include $(BUILD_SHARED_LIBRARY)  # Monta biblioteca dinamica libtabuleiro.so.
 ifneq ($(PROFILER_LIGADO),)
-	$(call import-module,android-ndk-profiler)
+  $(call import-module,android-ndk-profiler)
 endif
