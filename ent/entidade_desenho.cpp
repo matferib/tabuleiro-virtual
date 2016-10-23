@@ -268,13 +268,14 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
     }
   }
 
-  if (pd->desenha_rotulo() || pd->desenha_rotulo_especial()) {
+  if ((pd->desenha_rotulo() && !proto_.rotulo().empty()) ||
+      (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty())) {
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA);
+    gl::Translada(0.0f, 0.0f, ALTURA * 1.5f + TAMANHO_BARRA_VIDA, false);
     bool desenhou_rotulo = false;
-    if (pd->desenha_rotulo()) {
+    if (pd->desenha_rotulo() && !proto_.rotulo().empty()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
       gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
       if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
@@ -283,7 +284,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         desenhou_rotulo = true;
       }
     }
-    if (pd->desenha_rotulo_especial()) {
+    if (pd->desenha_rotulo_especial() && !proto_.rotulo_especial().empty()) {
       gl::DesabilitaEscopo salva_nevoa(GL_FOG);
       gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
       MudaCorAplicandoNevoa(COR_AMARELA, pd);
