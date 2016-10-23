@@ -413,6 +413,8 @@ void TamanhoFonte(int largura_vp, int altura_vp, int* largura, int* altura, int*
 // Posiciona o raster, usando coordenadas 3d. Caso a projecao falhe ou fique atras, retorna false.
 bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z);
 bool PosicaoRaster(GLint x, GLint y);
+// Ignora as matrizes para posicionar o raster.
+bool PosicaoRasterAbsoluta(GLint x, GLint y);
 
 /** Raster. */
 void DesenhaCaractere(char c);

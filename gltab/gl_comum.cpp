@@ -123,7 +123,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
 
   gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
   gl::CarregaIdentidade(false);
-  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f, true);
+  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
   gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW, false);
   gl::CarregaIdentidade(false);
 
@@ -459,8 +459,6 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
 
 }  // namespace
 
-void IniciaVbos();
-
 void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
@@ -476,6 +474,7 @@ void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   ImprimeExtensoes();
   IniciaShaders(luz_por_pixel, contexto);
   IniciaVbos();
+  IniciaChar();
 }
 
 void FinalizaShaders(const VarShader& shader) {
@@ -1269,6 +1268,13 @@ bool PosicaoRaster(GLfloat x, GLfloat y, GLfloat z) {
   contexto->raster_x = x2d;
   contexto->raster_y = y2d;
   //LOG(INFO) << "raster_x: " << x2d << ", raster_y: " << y2d;
+  return true;
+}
+
+bool PosicaoRasterAbsoluta(GLint x, GLint y) {
+  auto* contexto = interno::BuscaContexto();
+  contexto->raster_x = x;
+  contexto->raster_y = y;
   return true;
 }
 
