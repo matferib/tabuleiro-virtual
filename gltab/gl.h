@@ -432,7 +432,7 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
 /** Transformacao de projecao. */
 void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante);
-void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport);
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport, bool atualizar = false);  // picking sempre vem projecao depois.
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
                  GLfloat* x3d, float* y3d, float* z3d);

@@ -257,6 +257,8 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado);
 inline void CuboSolido(GLfloat tam_lado) {
   DesenhaVbo(VboCuboSolido(tam_lado));
 }
+// Desenha cubo de lado 1.0f, centrado na posicao. Usa VBO.
+void CuboUnitario();
 
 VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura);
 inline void PiramideSolida(GLfloat tam_lado, GLfloat altura) {

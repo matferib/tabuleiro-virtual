@@ -522,7 +522,7 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
-  Desgrava();  // TODO nao precisa desgravar.
+  //Desgrava();  // TODO nao precisa desgravar.
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer.
@@ -1050,6 +1050,10 @@ VboNaoGravado VboCuboSolido(GLfloat tam_lado) {
   vbo.AtribuiTexturas(coordenadas_texel);
   vbo.Nomeia("cubo");
   return vbo;
+}
+
+void CuboUnitario() {
+  DesenhaVbo(g_vbos[VBO_CUBO]);
 }
 
 VboNaoGravado VboPiramideSolida(GLfloat tam_lado, GLfloat altura) {

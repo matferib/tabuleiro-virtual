@@ -53,10 +53,6 @@
 #ifndef GL_TEXTURE_MAX_LEVEL
 #define GL_TEXTURE_MAX_LEVEL 0x813D
 #endif
-
-#ifndef GL_TEXTURE_WRAP_R
-#define GL_TEXTURE_WRAP_R 0x8072
-#endif
 #endif
 
 #define TAM_MAPA_OCLUSAO 1024
@@ -606,9 +602,6 @@ void Tabuleiro::DesenhaMapaOclusao() {
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade(false);
   ConfiguraProjecaoMapeamentoOclusao();
-#if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-  gl::BufferDesenho(GL_NONE);
-#endif
   //LOG(INFO) << "DesenhaMapaOclusao";
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
 
@@ -616,11 +609,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
-#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
-#else
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
-#endif
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
     DesenhaCenaVbos();
@@ -841,7 +830,7 @@ int Tabuleiro::Desenha() {
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
@@ -2844,7 +2833,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desabilitando luzes");
 
   gl::MudaModoMatriz(GL_MODELVIEW);
-  gl::CarregaIdentidade();
+  gl::CarregaIdentidade(false);
   ConfiguraOlhar();
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
@@ -3056,7 +3045,7 @@ void Tabuleiro::DesenhaCena() {
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
     timer_uma_renderizacao_controle_virtual_.stop();
-    EnfileiraTempo(timer_uma_renderizacao_completa_, &tempos_uma_renderizacao_completa_);
+    EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
   }
   V_ERRO("desenhando controle virtual");
 
@@ -3070,7 +3059,7 @@ void Tabuleiro::DesenhaCena() {
     DesenhaTempos();
   }
 #if DEBUG
-  //glFinish();
+  glFlush();
 #endif
 }
 
@@ -3383,13 +3372,13 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
   V_ERRO("GeraTexturas");
   gl::LigacaoComTextura(textura_cubo ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, *textura_framebuffer);
   V_ERRO("LigacaoComTextura");
-#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
       gl::ImagemTextura2d(
           GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     }
   } else {
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     if (*usar_sampler_sombras && (gl::TemExtensao("GL_OES_depth_texture") || gl::TemExtensao("GL_ARB_depth_texture"))) {
       LOG(INFO) << "Gerando framebuffer com sampler de sombras.";
       gl::ImagemTextura2d(
@@ -3400,34 +3389,26 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
       *usar_sampler_sombras = false;
       gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     }
-  }
 #else
-  if (textura_cubo) {
-    for (int i = 0; i < 6; ++i) {
-      gl::ImagemTextura2d(
-          GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT24, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    }
-    //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-  } else {
     gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
     // Nas versoes mais nova, usa-se ref.
     //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
-  }
 #endif
+  }
 
   V_ERRO("ImagemTextura2d");
   if (textura_cubo) {
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_BASE_LEVEL, 0);
+    //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
+    //gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 #endif
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAX_LEVEL, 0);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    gl::ParametroTextura(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
   } else {
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -3435,7 +3416,6 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
     gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   }
   V_ERRO("ParametroTextura");
-#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
       gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *textura_framebuffer, 0);
@@ -3445,6 +3425,7 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
   } else {
+#if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     if (*usar_sampler_sombras) {
       LOG(INFO) << "Textura de sombras para shader de sombras";
       gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *textura_framebuffer, 0);
@@ -3456,23 +3437,18 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
       glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
     }
-  }
 #else
-  if (textura_cubo) {
-    for (int i = 0; i < 6; ++i) {
-      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *textura_framebuffer, 0);
-      V_ERRO("Textura cubo");
-    }
-  } else {
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *textura_framebuffer, 0);
-  }
 #endif
+  }
   V_ERRO("TexturaFramebuffer");
 
   // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
 #if __APPLE__ && !USAR_OPENGL_ES
-  gl::BufferDesenho(GL_NONE);
-  gl::BufferLeitura(GL_NONE);
+  if (!textura_cubo && *usar_sampler_sombras) {
+    gl::BufferDesenho(GL_NONE);
+    gl::BufferLeitura(GL_NONE);
+  }
 #endif
   auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
@@ -4913,12 +4889,12 @@ ntf::Notificacao* Tabuleiro::SerializaTabuleiro(const std::string& nome) {
 // Aqui ocorre a deserializacao do tabuleiro todo. As propriedades como iluminacao sao atualizadas
 // na funcao Tabuleiro::DeserializaPropriedades.
 void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
-  const auto& tabuleiro = notificacao.tabuleiro();
-  bool manter_entidades = tabuleiro.manter_entidades();
+  const auto& novo_tabuleiro = notificacao.tabuleiro();
+  bool manter_entidades = novo_tabuleiro.manter_entidades();
   if (manter_entidades) {
-    VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << tabuleiro.ShortDebugString();
+    VLOG(1) << "Deserializando tabuleiro mantendo entidades: " << novo_tabuleiro.ShortDebugString();
   } else {
-    VLOG(1) << "Deserializando tabuleiro todo: " << tabuleiro.ShortDebugString();
+    VLOG(1) << "Deserializando tabuleiro todo: " << novo_tabuleiro.ShortDebugString();
     EstadoInicial(true);
   }
   if (notificacao.has_erro()) {
@@ -4931,12 +4907,12 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
   // Cria os sub cenarios dummy para atualizacao de textura funcionar,
   // caso contrario ela dira que o sub cenario nao existe e nao funcionara.
-  for (auto& sub_cenario : tabuleiro.sub_cenario()) {
+  for (auto& sub_cenario : novo_tabuleiro.sub_cenario()) {
     auto* cenario_dummy = proto_.add_sub_cenario();
     cenario_dummy->set_id_cenario(sub_cenario.id_cenario());
   }
-  AtualizaTexturasIncluindoSubCenarios(tabuleiro);
-  proto_.CopyFrom(tabuleiro);
+  AtualizaTexturasIncluindoSubCenarios(novo_tabuleiro);
+  proto_.CopyFrom(novo_tabuleiro);
   if (proto_.has_camera_inicial()) {
     ReiniciaCamera();
   }
@@ -4947,8 +4923,8 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   bool usar_id = !notificacao.has_endereco();  // Se nao tem endereco, veio da rede.
   if (usar_id && id_cliente_ == 0) {
     // So usa o id novo se nao tiver.
-    VLOG(1) << "Alterando id de cliente para " << tabuleiro.id_cliente();
-    id_cliente_ = tabuleiro.id_cliente();
+    VLOG(1) << "Alterando id de cliente para " << novo_tabuleiro.id_cliente();
+    id_cliente_ = novo_tabuleiro.id_cliente();
   }
 
   // Remove as entidades do tabuleiro corrente.
@@ -4964,13 +4940,10 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
   }
 
   // Recebe as entidades.
-  for (EntidadeProto ep : tabuleiro.entidade()) {
+  for (EntidadeProto ep : novo_tabuleiro.entidade()) {
     if (manter_entidades) {
-      if (ep.selecionavel_para_jogador()) {
-        continue;
-      }
       // Para manter as entidades, os ids tem que ser regerados para as entidades do tabuleiro,
-      // senao pode dar conflito.
+      // senao pode dar conflito com as que ficaram.
       ep.set_id(GeraIdEntidade(id_cliente_));
     }
     auto* e = NovaEntidade(ep, texturas_, m3d_, central_, &parametros_desenho_);
@@ -4978,7 +4951,7 @@ void Tabuleiro::DeserializaTabuleiro(const ntf::Notificacao& notificacao) {
       LOG(ERROR) << "Erro adicionando entidade: " << ep.ShortDebugString();
     }
   }
-  VLOG(1) << "Foram adicionadas " << tabuleiro.entidade_size() << " entidades";
+  VLOG(1) << "Foram adicionadas " << novo_tabuleiro.entidade_size() << " entidades";
 }
 
 ntf::Notificacao* Tabuleiro::SerializaEntidadesSelecionaveis() const {
@@ -6048,6 +6021,7 @@ void Tabuleiro::DesenhaLuzes() {
 }
 
 void Tabuleiro::DesenhaCaixaCeu() {
+#if 1
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
   GLuint id_textura = texturas_->Textura(proto_corrente_->info_textura_ceu().id());
@@ -6083,6 +6057,31 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::FaceNula(GL_BACK);
   gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);
+#else
+  // Hack para ver textura de cubo.
+  if (!gl::OclusaoLigada()) {
+    return;
+  }
+  gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
+  gl::UsaShader(gl::TSH_CAIXA_CEU);
+  gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
+  gl::Translada(0.0f, 0.0f, 5.0f);
+
+  //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
+  //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
+  gl::UnidadeTextura(GL_TEXTURE2);
+  gl::Habilita(GL_TEXTURE_CUBE_MAP);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, textura_framebuffer_oclusao_);
+  vbo_caixa_ceu_.forca_texturas(true);
+
+  MudaCor(COR_BRANCA);
+  gl::CuboUnitario();
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
+  gl::Desabilita(GL_TEXTURE_CUBE_MAP);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  // Religa luzes.
+  gl::UsaShader(tipo_anterior);
+#endif
 }
 
 void Tabuleiro::DesenhaGrade() {
@@ -6779,8 +6778,12 @@ void Tabuleiro::ReiniciaCamera() {
   // Vou ser conservador aqui e voltar para a camera de perspectiva. Caso contrario, posso correr o risco de um jogador
   // ficar preso em uma entidade que nao eh a dele (por exemplo, carregando o tabuleiro sem manter as entidades, a entidade
   // presa deixa de existir).
-  camera_ = CAMERA_PERSPECTIVA;
-  camera_presa_ = false;
+  if (camera_presa_) {
+    AlternaCameraPresa();
+  } else {
+    camera_ = CAMERA_PERSPECTIVA;
+    camera_presa_ = false;
+  }
   if (proto_.has_camera_inicial()) {
     if (proto_.camera_inicial().pos().has_id_cenario() && proto_.camera_inicial().pos().id_cenario() != proto_corrente_->id_cenario()) {
       CarregaSubCenario(proto_.camera_inicial().pos().id_cenario(), proto_.camera_inicial().alvo());

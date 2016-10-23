@@ -143,6 +143,7 @@ void Tabuleiro::LiberaControleVirtual() {
 }
 
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
+  LOG(INFO) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
     case CONTROLE_ANGULO_VISAO_MAIS:
@@ -268,6 +269,11 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       break;
     case CONTROLE_QUEDA:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_CAIDA);
+      break;
+    case CONTROLE_SELECIONAVEL:
+      if (EmModoMestreIncluindoSecundario()) {
+        AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
+      }
       break;
     case CONTROLE_VOO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
@@ -801,6 +807,10 @@ void Tabuleiro::DesenhaControleVirtual() {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && e->Proto().caida();
     } },
+    { CONTROLE_SELECIONAVEL,        [this]() {
+      auto* e = EntidadePrimeiraPessoaOuSelecionada();
+      return e != nullptr && e->Proto().selecionavel_para_jogador();
+    } },
     { CONTROLE_VOO,          [this]() {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && e->Proto().voadora();
@@ -847,20 +857,21 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Desenha apenas os botoes.
   {
     // Modo 2d: eixo com origem embaixo esquerda.
-    gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+    gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
     gl::CarregaIdentidade(false);
     if (parametros_desenho_.has_picking_x()) {
       // Modo de picking faz a matriz de picking para projecao ortogonal.
-      gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+      gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport, false);
     }
     gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-    gl::CarregaIdentidade();
+    gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW, false);
+    gl::CarregaIdentidade(false);
     int pagina_corrente = controle_virtual_.pagina_corrente();
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
     std::vector<const DadosBotao*> botoes;
+    botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
     for (const auto& db : controle_virtual_.pagina(pagina_corrente).dados_botoes()) {
       botoes.push_back(&db);
     }
@@ -884,6 +895,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       cor[2] *= ajuste;
       gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
       DesenhaBotaoControleVirtual(*db, viewport, padding, largura_botao, altura_botao);
+      //LOG(INFO) << "timer: " << ((int)(timer_uma_renderizacao_completa_.elapsed().wall / 1000000ULL)) << ", botao: " << db->dica();
     }
 
     // Rotulos dos botoes.
@@ -906,7 +918,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       gl::CarregaIdentidade(false);
       if (parametros_desenho_.has_picking_x()) {
         // Modo de picking faz a matriz de picking para projecao ortogonal.
-        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport, false);
       }
       gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
       gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
