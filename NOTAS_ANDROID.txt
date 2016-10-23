@@ -86,7 +86,10 @@ OBS: Funciona apenas em dispositivos com um usuario (so consegui no telefone).
 - Colocar no AndroidManifest.xml para poder escrever o arquivo de profile:
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
-- Descompactar o android-ndk-profiler em android/jni (https://code.google.com/p/android-ndk-profiler/).
+- Descompactar o android-ndk-profiler em android/jni (https://code.google.com/p/android-ndk-profiler/). O diretorio jni dele (que contem Android.mk) deve ser chamado
+de android-ndk-profiler dentro do jni do tabuleiro.
+
+- Build TLDR: compila.sh -p
 
 - Adicionar no Android.mk:
 LOCAL_CFLAGS := -pg
@@ -111,7 +114,7 @@ ${ANDROID_NDK}/ndk-build NDK_MODULE_PATH=/home/matheus/Projetos/rpg/tabuleiro/an
 ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb pull /sdcard/gmon.out .
 
 - Analisar:
-${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.8/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
+${ANDROID_NDK}/toolchains/arm-linux-androideabi-4.9/prebuilt/linux-x86_64/bin/arm-linux-androideabi-gprof obj/local/armeabi-v7a/libtabuleiro.so > output.txt
 
 ===============================
 Protocol buffer no Android Java
