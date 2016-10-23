@@ -1762,6 +1762,7 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
   }
   VLOG(1) << "Pinca iniciada";
   parametros_desenho_.set_desenha_terreno(false);
+  parametros_desenho_.set_nao_desenha_entidades_fixas(true);
   unsigned int id, tipo_objeto;
   float profundidade;
   BuscaHitMaisProximo(x1, y1, &id, &tipo_objeto, &profundidade);
@@ -3788,6 +3789,24 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
   }
 }
 
+namespace {
+bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
+  if (!proto.faz_sombra() && pd.desenha_mapa_sombras()) {
+    return true;
+  }
+  if (!proto.causa_colisao() && pd.desenha_apenas_entidades_colisivas()) {
+    return true;
+  }
+  if (proto.fixa() && pd.nao_desenha_entidades_fixas()) {
+    return true;
+  }
+  if (proto.selecionavel_para_jogador() && pd.nao_desenha_entidades_selecionaveis()) {
+    return true;
+  }
+  return false;
+}
+}  // namespace
+
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   //LOG(INFO) << "LOOP";
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
@@ -3799,10 +3818,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (!entidade->Proto().faz_sombra() && parametros_desenho_.desenha_mapa_sombras()) {
-      continue;
-    }
-    if (!entidade->Proto().causa_colisao() && parametros_desenho_.desenha_apenas_entidades_colisivas()) {
+    if (PularEntidade(entidade->Proto(), parametros_desenho_)) {
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
@@ -3813,9 +3829,6 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       if (parametros_desenho_.has_desenha_mapa_oclusao()) {
         continue;
       }
-    }
-    if (parametros_desenho_.nao_desenha_entidades_selecionaveis() && entidade->Proto().selecionavel_para_jogador()) {
-      continue;
     }
     // Nao roda disco se estiver arrastando.
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS &&
@@ -6105,7 +6118,7 @@ void Tabuleiro::DesenhaListaJogadores() {
   raster_y = altura_ - ((altura_fonte * escala) * 2 + 4);
   raster_x = 2;
   if (!parametros_desenho_.has_picking_x()) {
-    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+    PosicionaRaster2d(raster_x, raster_y);
   }
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
@@ -6119,7 +6132,7 @@ void Tabuleiro::DesenhaListaJogadores() {
   // Lista de objetos.
   for (const auto& par : clientes_) {
     if (!parametros_desenho_.has_picking_x()) {
-      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      PosicionaRaster2d(raster_x, raster_y);
     }
     char rotulo[101];
     snprintf(rotulo, 100, "%u->%s%s", par.first, par.second.c_str(),
@@ -6181,7 +6194,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   raster_y = altura_ - (altura_fonte * escala);
   raster_x = 0 + 2;
   if (!parametros_desenho_.has_picking_x()) {
-    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+    PosicionaRaster2d(raster_x, raster_y);
   }
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
@@ -6210,7 +6223,7 @@ void Tabuleiro::DesenhaListaObjetos() {
     }
     if (!parametros_desenho_.has_picking_x()) {
       MudaCor(COR_AZUL);
-      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      PosicionaRaster2d(raster_x, raster_y);
       std::string page_up("^^^");
       gl::DesenhaStringAlinhadoEsquerda(page_up);
     }
@@ -6222,7 +6235,7 @@ void Tabuleiro::DesenhaListaObjetos() {
   for (int i = objeto_inicial; i < objeto_final; ++i) {
     const auto* e = entidades_cenario[i];
     if (!parametros_desenho_.has_picking_x()) {
-      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      PosicionaRaster2d(raster_x, raster_y);
     }
     char rotulo[10];
     snprintf(rotulo, 10, "%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str());
@@ -6274,7 +6287,7 @@ void Tabuleiro::DesenhaListaObjetos() {
     }
     if (!parametros_desenho_.has_picking_x()) {
       MudaCor(COR_AZUL);
-      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      PosicionaRaster2d(raster_x, raster_y);
       std::string page_down("vvv");
       gl::DesenhaStringAlinhadoEsquerda(page_down);
     }
@@ -6389,7 +6402,7 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
     gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
   }
   // Eixo com origem embaixo esquerda.
-  PosicionaRaster2d(2, yi, largura_, altura_);
+  PosicionaRaster2d(2, yi);
   MudaCor(COR_BRANCA);
   gl::DesenhaStringAlinhadoEsquerda(tempo_str);
 }

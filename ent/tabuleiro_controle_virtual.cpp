@@ -683,7 +683,7 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   if (yf + fonte_y > viewport[3]) {
     yf = viewport[3] - fonte_y;
   }
-  PosicionaRaster2d(x_meio + delta_x, yf, viewport[2], viewport[3]);
+  PosicionaRaster2d(x_meio + delta_x, yf);
   std::function<void(const std::string&, bool)> funcao_desenho;
   gl::DesenhaString(dica, false);
 }
@@ -691,8 +691,11 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
   unsigned int id_textura = TexturaBotao(db);
+  if (parametros_desenho_.has_picking_x() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !VisaoMestre())) {
+    return;
+  }
   std::string rotulo = StringSemUtf8(RotuloBotaoControleVirtual(db));
-  if (parametros_desenho_.has_picking_x() || rotulo.empty() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !VisaoMestre())) {
+  if (rotulo.empty()) {
     return;
   }
 
@@ -713,7 +716,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   }
   // Adiciona largura de um botao por causa do paginador inicial.
   int max_caracteres = (largura_botao * unidade_largura) / fonte_x;
-  PosicionaRaster2d(x_meio, y_base, viewport[2], viewport[3]);
+  PosicionaRaster2d(x_meio, y_base);
   gl::DesenhaString(rotulo.substr(0, max_caracteres));
 }
 
@@ -732,14 +735,14 @@ void Tabuleiro::DesenhaListaPontosVida() {
   altura_fonte *= escala;
   raster_y = altura_ - altura_fonte;
   raster_x = largura_ - (VisaoMestre() ? 3.0f : 0.0f) * largura_botao - 2;
-  PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+  PosicionaRaster2d(raster_x, raster_y);
 
   MudaCor(COR_BRANCA);
   std::string titulo("Lista PV");
   gl::DesenhaStringAlinhadoDireita(titulo);
   raster_y -= (altura_fonte + 2);
   if (modo_dano_automatico_) {
-    PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+    PosicionaRaster2d(raster_x, raster_y);
     raster_y -= (altura_fonte + 2);
     MudaCor(COR_BRANCA);
     const auto* entidade = EntidadeSelecionada();
@@ -759,7 +762,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
     gl::DesenhaStringAlinhadoDireita(valor);
   } else {
     for (int pv : lista_pontos_vida_) {
-      PosicionaRaster2d(raster_x, raster_y, largura_, altura_);
+      PosicionaRaster2d(raster_x, raster_y);
       raster_y -= (altura_fonte + 2);
       MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
       char str[4];
@@ -936,7 +939,7 @@ void Tabuleiro::DesenhaControleVirtual() {
       gl::MudaCor(0.0f, 1.0f, 0.0f, 1.0f);
       gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, bottom_y + altura_pv_entidade);
       MudaCor(COR_AMARELA);
-      PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f), viewport[2], viewport[3]);
+      PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f));
       gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
     }
   }
