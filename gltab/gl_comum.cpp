@@ -121,10 +121,10 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
 
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
   gl::CarregaIdentidade(false);
-  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
-  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
+  gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f, true);
+  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW, false);
   gl::CarregaIdentidade(false);
 
   int largura_fonte, altura_fonte, escala;
@@ -138,7 +138,7 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   gl::TamanhoPonto(escala);
-  gl::Escala(escala, escala, 1.0f);
+  gl::Escala(escala, escala, 1.0f, false);
   for (const std::string& str_linha : str_linhas) {
     float translacao_x = 0;
     if (alinhamento == 1) {  // direita.
