@@ -806,53 +806,65 @@ void DesenhaCaractere(char c) {
 }
 #else
 // glutes.
-int BitsToIndexedShorts(const GLubyte *bits, int ssx, int ssy, GLshort *points, int startx, int starty)
-{
-	int ssxsy = ssx * ssy; // total bit #
-	int x = 0;
-	int bit = 7, count = 0;
+int BitsToIndexedShorts(const GLubyte *bits, int ssx, int ssy, GLshort *points, int startx, int starty) {
+  int ssxsy = ssx * ssy; // total bit #
+  int x = 0;
+  int bit = 7, count = 0;
 
-	while(ssxsy--)
-	{
-		if(bits[0] & (1 << bit))
-		{
-			points[0] = startx + x;
-			points[1] = starty;
-			count++;
-			points += 2;
-		}
-		if(--bit == -1)
-		{
-			bit = 7;
-			bits++;
-		}
-		if(++x >= ssx)
-		{
-			x = 0;
-			starty++;
-		}
-	}
-	return count;
+  while (ssxsy--) {
+    if (bits[0] & (1 << bit)) {
+      points[0] = startx + x;
+      points[1] = starty;
+      count++;
+      points += 2;
+    }
+    if (--bit == -1) {
+      bit = 7;
+      bits++;
+    }
+    if (++x >= ssx) {
+      x = 0;
+      starty++;
+    }
+  }
+  return count;
 }
+
+namespace {
+// Cada face tem seus dados pre computados.
+struct FaceInfo {
+  GLushort indices[64 * 64];
+  std::vector<GLshort> points;
+  int nbpoints;
+};
+FaceInfo g_face_infos[255];
+
+}  // namespace
+
+namespace interno {
+void IniciaChar() {
+  for (int i = 0; i < 255; ++i) {
+    const GLubyte* face = Fixed8x13_Character_Map[i];
+    g_face_infos[i].points.resize(13 * face[0] * 2);
+    g_face_infos[i].nbpoints = BitsToIndexedShorts(face + 1, face[0], 13, &g_face_infos[i].points[0], 0, 0);
+    for (int j = 0; j < g_face_infos[i].nbpoints; j++) {
+      g_face_infos[i].indices[j] = j;
+    }
+  }
+}
+}  // namespace interno.
 
 // glutes.
 void BitmapCharacter(int character) {
   if (!(character >= 1) && (character < 256)) return;
 
-	int i, nbpoints;
-	GLushort indices[64*64];
-
-  const GLubyte* face = Fixed8x13_Character_Map[character - 1];
-  std::vector<GLshort> points(13 * face[0] * 2);
-  nbpoints = BitsToIndexedShorts(face + 1, face[0], 13, &points[0], 0, 0);
-
-  for (i = 0; i < nbpoints; i++) indices[i] = i;
+  const auto& face_info = g_face_infos[character - 1];
 
   //glEnable(GL_ALPHA_TEST);
   //glAlphaFunc(GL_NOTEQUAL, 0);
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::PonteiroVertices(2, GL_SHORT, 0, points.data());
-  gl::DesenhaElementos(GL_POINTS, nbpoints, GL_UNSIGNED_SHORT, indices);
+  gl::PonteiroVertices(2, GL_SHORT, 0, face_info.points.data());
+  gl::DesenhaElementos(GL_POINTS, face_info.nbpoints, GL_UNSIGNED_SHORT, face_info.indices);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
   //glDisable(GL_ALPHA_TEST);
 }
