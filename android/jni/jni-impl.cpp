@@ -26,6 +26,7 @@
 
 #if PROFILER_LIGADO
 #include "prof.h"
+//int mcount = 0;
 #endif
 
 namespace {
@@ -226,8 +227,8 @@ jint Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativeTempoEntreNotificaco
 
 void Java_com_matferib_Tabuleiro_TabuleiroSurfaceView_nativePause(JNIEnv* env, jobject thiz) {
   __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
-  //setenv("CPUPROFILE", "/data/data/com.matferib.Tabuleiro/files/gmon.out", 1);
 #if PROFILER_LIGADO
+  //setenv("CPUPROFILE", "/data/data/com.matferib.Tabuleiro/files/gmon.out", 1);
   moncleanup();
 #endif
 }
