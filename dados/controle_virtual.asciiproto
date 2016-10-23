@@ -53,7 +53,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -3
+    linha: -4
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -67,7 +67,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -4
+    linha: -5
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
