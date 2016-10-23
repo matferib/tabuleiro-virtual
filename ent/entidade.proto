@@ -255,6 +255,7 @@ message ParametrosDesenho {
   // Uteis para mapa oclusao que ignora transparencias e selecionaveis.
   optional bool nao_desenha_entidades_translucidas = 42 [default=false];
   optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
+  optional bool nao_desenha_entidades_fixas = 44 [default=false];
   optional bool desenha_apenas_entidades_colisivas = 48 [default=false];
   // Verdadeiro para desenhar texturas.
   optional bool desenha_texturas = 7 [default=true];
