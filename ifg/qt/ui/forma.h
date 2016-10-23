@@ -46,6 +46,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QHBoxLayout *horizontalLayout_7;
     QLabel *label_3;
+    QCheckBox *checkbox_cor;
     QPushButton *botao_cor;
     QGroupBox *groupBox;
     QWidget *verticalLayoutWidget;
@@ -164,6 +165,16 @@ public:
         label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_7->addWidget(label_3);
+
+        checkbox_cor = new QCheckBox(horizontalLayoutWidget_2);
+        checkbox_cor->setObjectName(QString::fromUtf8("checkbox_cor"));
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(checkbox_cor->sizePolicy().hasHeightForWidth());
+        checkbox_cor->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_7->addWidget(checkbox_cor);
 
 
         horizontalLayout_2->addLayout(horizontalLayout_7);
@@ -291,9 +302,6 @@ public:
         horizontalLayout_12->setObjectName(QString::fromUtf8("horizontalLayout_12"));
         slider_alfa = new QSlider(horizontalLayoutWidget_3);
         slider_alfa->setObjectName(QString::fromUtf8("slider_alfa"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(slider_alfa->sizePolicy().hasHeightForWidth());
         slider_alfa->setSizePolicy(sizePolicy1);
         slider_alfa->setMaximum(100);
@@ -583,6 +591,7 @@ public:
         ifg__qt__DialogoForma->setWindowTitle(QApplication::translate("ifg::qt::DialogoForma", "Dialog", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::DialogoForma", "Id", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("ifg::qt::DialogoForma", "Cor:", 0, QApplication::UnicodeUTF8));
+        checkbox_cor->setText(QString());
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Dimens\303\265es", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam X", 0, QApplication::UnicodeUTF8));

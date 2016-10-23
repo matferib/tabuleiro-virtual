@@ -45,6 +45,7 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QHBoxLayout *horizontalLayout_7;
     QLabel *label_3;
+    QCheckBox *checkbox_cor;
     QPushButton *botao_cor;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_3;
@@ -132,7 +133,7 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(870, 516);
+        ifg__qt__DialogoEntidade->resize(904, 522);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
@@ -175,6 +176,16 @@ public:
         label_3->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_7->addWidget(label_3);
+
+        checkbox_cor = new QCheckBox(horizontalLayoutWidget_2);
+        checkbox_cor->setObjectName(QString::fromUtf8("checkbox_cor"));
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(checkbox_cor->sizePolicy().hasHeightForWidth());
+        checkbox_cor->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_7->addWidget(checkbox_cor);
 
 
         horizontalLayout_2->addLayout(horizontalLayout_7);
@@ -224,22 +235,22 @@ public:
         horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
         label_2 = new QLabel(horizontalLayoutWidget_4);
         label_2->setObjectName(QString::fromUtf8("label_2"));
-        QSizePolicy sizePolicy1(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy2);
         label_2->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_5->addWidget(label_2);
 
         label_tamanho = new QLabel(horizontalLayoutWidget_4);
         label_tamanho->setObjectName(QString::fromUtf8("label_tamanho"));
-        QSizePolicy sizePolicy2(QSizePolicy::Minimum, QSizePolicy::Preferred);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(label_tamanho->sizePolicy().hasHeightForWidth());
-        label_tamanho->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy3(QSizePolicy::Minimum, QSizePolicy::Preferred);
+        sizePolicy3.setHorizontalStretch(0);
+        sizePolicy3.setVerticalStretch(0);
+        sizePolicy3.setHeightForWidth(label_tamanho->sizePolicy().hasHeightForWidth());
+        label_tamanho->setSizePolicy(sizePolicy3);
         label_tamanho->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_5->addWidget(label_tamanho);
@@ -249,11 +260,11 @@ public:
 
         slider_tamanho = new QSlider(horizontalLayoutWidget_4);
         slider_tamanho->setObjectName(QString::fromUtf8("slider_tamanho"));
-        QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        sizePolicy3.setHorizontalStretch(0);
-        sizePolicy3.setVerticalStretch(0);
-        sizePolicy3.setHeightForWidth(slider_tamanho->sizePolicy().hasHeightForWidth());
-        slider_tamanho->setSizePolicy(sizePolicy3);
+        QSizePolicy sizePolicy4(QSizePolicy::Expanding, QSizePolicy::Fixed);
+        sizePolicy4.setHorizontalStretch(0);
+        sizePolicy4.setVerticalStretch(0);
+        sizePolicy4.setHeightForWidth(slider_tamanho->sizePolicy().hasHeightForWidth());
+        slider_tamanho->setSizePolicy(sizePolicy4);
         slider_tamanho->setMaximum(8);
         slider_tamanho->setPageStep(2);
         slider_tamanho->setSliderPosition(4);
@@ -411,8 +422,8 @@ public:
 
         label_8 = new QLabel(verticalLayoutWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
-        sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
-        label_8->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy2);
         label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_15->addWidget(label_8);
@@ -430,8 +441,8 @@ public:
         horizontalLayout_18->setObjectName(QString::fromUtf8("horizontalLayout_18"));
         label_10 = new QLabel(verticalLayoutWidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
-        sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
-        label_10->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
+        label_10->setSizePolicy(sizePolicy2);
         label_10->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_18->addWidget(label_10);
@@ -452,8 +463,8 @@ public:
         horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
         label_11 = new QLabel(layoutWidget_2);
         label_11->setObjectName(QString::fromUtf8("label_11"));
-        sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
-        label_11->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy2);
         label_11->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_19->addWidget(label_11);
@@ -632,6 +643,7 @@ public:
 #endif // QT_NO_TOOLTIP
         label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", 0, QApplication::UnicodeUTF8));
+        checkbox_cor->setText(QString());
 #ifndef QT_NO_TOOLTIP
         botao_cor->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Cor da entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP

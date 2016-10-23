@@ -83,6 +83,19 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="checkbox_cor">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
     <item>
