@@ -700,6 +700,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Carrega o controle virtual. */
   void CarregaControleVirtual();
+  /** Chamado quando contexto opengl eh perdido. */
+  void IniciaGlControleVirtual();
 
   /** Libera o controle virtual. */
   void LiberaControleVirtual();
@@ -727,18 +729,20 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
-  bool AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std::function<bool()>>& mapa_botoes);
+  bool AtualizaBotaoControleVirtual(DadosBotao* db, const std::map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
 
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
 
-  void DesenhaBotaoControleVirtual(const DadosBotao& db, const GLint* viewport, float padding, float largura_botao, float altura_botao);
+  void DesenhaBotaoControleVirtual(
+      const DadosBotao& db, const GLint* viewport, float padding, float largura_botao, float altura_botao, const Entidade* entidade);
   void DesenhaRotuloBotaoControleVirtual(
-      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
+      const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding,
+      float largura_botao, float altura_botao, const Entidade* entidade);
   void DesenhaDicaBotaoControleVirtual(
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
   /** Retorna a textura correspondente a um botao (para botoes com texturas variaveis). */
-  unsigned int TexturaBotao(const DadosBotao& db) const;
+  unsigned int TexturaBotao(const DadosBotao& db, const Entidade* entidade) const;
 
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;

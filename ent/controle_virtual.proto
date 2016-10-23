@@ -122,6 +122,8 @@ message DadosBotao {
   optional Cor cor_fundo = 8;
   // Nome do arquivo de icone.
   optional string textura = 9;
+  // Apos carregado, contem o id da textura do botao.
+  optional uint32 id_textura = 20;
   // Identifica o que o botao faz, ver IdBotao.
   optional IdBotao id = 10;
   // Forma do botao. 

@@ -79,6 +79,17 @@ const std::string RotuloTexturaAnterior(const std::string& corrente, const std::
 
 }  // namespace
 
+void Tabuleiro::IniciaGlControleVirtual() {
+  for (auto& pagina : *controle_virtual_.mutable_pagina()) {
+    for (auto& db : *pagina.mutable_dados_botoes()) {
+      db.clear_id_textura();
+    }
+  }
+  for (auto& db : *controle_virtual_.mutable_fixo()->mutable_dados_botoes()) {
+    db.clear_id_textura();
+  }
+}
+
 void Tabuleiro::CarregaControleVirtual() {
   const char* ARQUIVO_CONTROLE_VIRTUAL = "controle_virtual.asciiproto";
   try {
@@ -131,6 +142,11 @@ void Tabuleiro::LiberaControleVirtual() {
   auto* n = ntf::NovaNotificacao(ntf::TN_DESCARREGAR_TEXTURA);
   for (const auto& pagina : controle_virtual_.pagina()) {
     for (const auto& db : pagina.dados_botoes()) {
+      n->add_info_textura()->set_id(db.textura());
+    }
+  }
+  for (const auto& db : controle_virtual_.fixo().dados_botoes()) {
+    if (!db.textura().empty()) {
       n->add_info_textura()->set_id(db.textura());
     }
   }
@@ -464,12 +480,19 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
   }
 }
 
-bool Tabuleiro::AtualizaBotaoControleVirtual(IdBotao id, const std::map<int, std::function<bool()>>& mapa_botoes) {
-  const auto& it = mapa_botoes.find(id);
-  if (it != mapa_botoes.end()) {
-    return it->second();
+bool Tabuleiro::AtualizaBotaoControleVirtual(
+    DadosBotao* db, const std::map<int, std::function<bool(const Entidade* entidade)>>& mapa_botoes, const Entidade* entidade) {
+  if (!db->textura().empty() && !db->has_id_textura()) {
+    unsigned int id_tex = texturas_->Textura(db->textura());
+    if (id_tex != GL_INVALID_VALUE) {
+      db->set_id_textura(id_tex);
+    }
   }
-  auto res = contador_pressao_por_controle_.find(id);
+  const auto& it = mapa_botoes.find(db->id());
+  if (it != mapa_botoes.end()) {
+    return it->second(entidade);
+  }
+  auto res = contador_pressao_por_controle_.find(db->id());
   if (res == contador_pressao_por_controle_.end()) {
     return false;
   }
@@ -517,11 +540,10 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
 }  // namespace
 
 // Retorna o id da textura para uma determinada acao.
-unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db) const {
+unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entidade) const {
   if (!db.textura().empty()) {
-    return texturas_->Textura(db.textura());
+    return db.has_id_textura() ? db.id_textura() : GL_INVALID_VALUE;
   }
-  auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
   switch (db.id()) {
     case CONTROLE_ACAO: {
       if (modo_clique_ == MODO_NORMAL || modo_clique_ == MODO_ACAO) {
@@ -585,7 +607,7 @@ float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_alt
 }  // namespace
 
 void Tabuleiro::DesenhaBotaoControleVirtual(
-    const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura) {
+    const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura, const Entidade* entidade) {
   if ((db.picking_apenas() && !parametros_desenho_.has_picking_x()) ||
       (db.mestre_apenas() && !VisaoMestre())) {
     return;
@@ -602,7 +624,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
   if (db.forma() == FORMA_RETANGULO) {
     float trans_x = (db.translacao_x() * unidade_largura);
     float trans_y = (db.translacao_y() * unidade_altura);
-    unsigned int id_textura = TexturaBotao(db);
+    unsigned int id_textura = TexturaBotao(db, entidade);
     if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
       gl::Habilita(GL_TEXTURE_2D);
       gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
@@ -689,8 +711,9 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
-    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float unidade_largura, float unidade_altura) {
-  unsigned int id_textura = TexturaBotao(db);
+    const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding,
+    float unidade_largura, float unidade_altura, const Entidade* entidade) {
+  unsigned int id_textura = TexturaBotao(db, entidade);
   if (parametros_desenho_.has_picking_x() || id_textura != GL_INVALID_VALUE || (db.mestre_apenas() && !VisaoMestre())) {
     return;
   }
@@ -792,64 +815,64 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
   // Mapeia id do botao para a funcao de estado.
-  static const std::map<int, std::function<bool()>> mapa_botoes = {
-    { CONTROLE_ACAO,              [this] () { return modo_clique_ != MODO_NORMAL; } },
-    { CONTROLE_AJUDA,             [this] () { return modo_clique_ == MODO_AJUDA; } },
-    { CONTROLE_TRANSICAO,         [this] () { return modo_clique_ == MODO_TRANSICAO; } },
-    { CONTROLE_REGUA,             [this] () { return modo_clique_ == MODO_REGUA; } },
-    { CONTROLE_MODO_TERRENO,      [this] () { return modo_clique_ == MODO_TERRENO; } },
-    { CONTROLE_CAMERA_ISOMETRICA, [this] () { return camera_ == CAMERA_ISOMETRICA; } },
-    { CONTROLE_CAMERA_PRESA,      [this] () { return camera_presa_; } },
-    { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] () { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
-    { CONTROLE_VISAO_ESCURO,      [this] () { return visao_escuro_; } },
-    { CONTROLE_LUZ,               [this]() {
+  static const std::map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
+    { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
+    { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
+    { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
+    { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
+    { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
+    { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
+    { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) { return camera_presa_; } },
+    { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] (const Entidade* entidade) { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
+    { CONTROLE_VISAO_ESCURO,      [this] (const Entidade* entidade) { return visao_escuro_; } },
+    { CONTROLE_LUZ,               [this] (const Entidade* entidade) {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && e->Proto().has_luz();
     } },
-    { CONTROLE_QUEDA,        [this]() {
+    { CONTROLE_QUEDA,        [this] (const Entidade* entidade) {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && e->Proto().caida();
     } },
-    { CONTROLE_SELECIONAVEL,        [this]() {
+    { CONTROLE_SELECIONAVEL,        [this] (const Entidade* entidade) {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && e->Proto().selecionavel_para_jogador();
     } },
-    { CONTROLE_VOO,          [this]() {
+    { CONTROLE_VOO,          [this] (const Entidade* entidade) {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && e->Proto().voadora();
     } },
-    { CONTROLE_VISIBILIDADE, [this]() {
+    { CONTROLE_VISIBILIDADE, [this] (const Entidade* entidade) {
       auto* e = EntidadePrimeiraPessoaOuSelecionada();
       return e != nullptr && !e->Proto().visivel();
     } },
-    { CONTROLE_DESENHO_LIVRE, [this]() {
+    { CONTROLE_DESENHO_LIVRE, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE;
     }, },
-    { CONTROLE_DESENHO_RETANGULO, [this]() {
+    { CONTROLE_DESENHO_RETANGULO, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_RETANGULO;
     }, },
-    { CONTROLE_DESENHO_CIRCULO, [this]() {
+    { CONTROLE_DESENHO_CIRCULO, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CIRCULO;
     }, },
-    { CONTROLE_DESENHO_ESFERA, [this]() {
+    { CONTROLE_DESENHO_ESFERA, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_ESFERA;
     }, },
-    { CONTROLE_DESENHO_PIRAMIDE, [this]() {
+    { CONTROLE_DESENHO_PIRAMIDE, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_PIRAMIDE;
     }, },
-    { CONTROLE_DESENHO_TRIANGULO, [this]() {
+    { CONTROLE_DESENHO_TRIANGULO, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_TRIANGULO;
     }, },
-    { CONTROLE_DESENHO_CUBO, [this]() {
+    { CONTROLE_DESENHO_CUBO, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CUBO;
     }, },
-    { CONTROLE_DESENHO_CILINDRO, [this]() {
+    { CONTROLE_DESENHO_CILINDRO, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CILINDRO;
     }, },
-    { CONTROLE_DESENHO_CONE, [this]() {
+    { CONTROLE_DESENHO_CONE, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_CONE;
     }, },
-    { CONTROLE_DANO_AUTOMATICO, [this]() {
+    { CONTROLE_DANO_AUTOMATICO, [this] (const Entidade* entidade) {
       return modo_dano_automatico_;
     }, },
   };
@@ -873,15 +896,16 @@ void Tabuleiro::DesenhaControleVirtual() {
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
-    std::vector<const DadosBotao*> botoes;
+    std::vector<DadosBotao*> botoes;
     botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
-    for (const auto& db : controle_virtual_.pagina(pagina_corrente).dados_botoes()) {
+    for (auto& db : *controle_virtual_.mutable_pagina(pagina_corrente)->mutable_dados_botoes()) {
       botoes.push_back(&db);
     }
-    for (const auto& db : controle_virtual_.fixo().dados_botoes()) {
+    for (auto& db : *controle_virtual_.mutable_fixo()->mutable_dados_botoes()) {
       botoes.push_back(&db);
     }
-    for (const auto* db : botoes) {
+    auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+    for (auto* db : botoes) {
       float cor[3];
       if (db->has_cor_fundo()) {
         cor[0] = db->cor_fundo().r();
@@ -892,18 +916,18 @@ void Tabuleiro::DesenhaControleVirtual() {
         cor[1] = cor_padrao[1];
         cor[2] = cor_padrao[2];
       }
-      float ajuste = AtualizaBotaoControleVirtual(db->id(), mapa_botoes) ? 0.5f : 1.0f;
+      float ajuste = AtualizaBotaoControleVirtual(db, mapa_botoes, entidade) ? 0.5f : 1.0f;
       cor[0] *= ajuste;
       cor[1] *= ajuste;
       cor[2] *= ajuste;
       gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
-      DesenhaBotaoControleVirtual(*db, viewport, padding, largura_botao, altura_botao);
+      DesenhaBotaoControleVirtual(*db, viewport, padding, largura_botao, altura_botao, entidade);
       //LOG(INFO) << "timer: " << ((int)(timer_uma_renderizacao_completa_.elapsed().wall / 1000000ULL)) << ", botao: " << db->dica();
     }
 
     // Rotulos dos botoes.
     for (const auto* db : botoes) {
-      DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao);
+      DesenhaRotuloBotaoControleVirtual(*db, viewport, fonte_x, fonte_y, padding, largura_botao, altura_botao, entidade);
     }
     // Dicas.
     if (tipo_entidade_detalhada_ == OBJ_CONTROLE_VIRTUAL) {

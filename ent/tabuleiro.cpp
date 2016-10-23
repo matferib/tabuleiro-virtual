@@ -2636,6 +2636,7 @@ void Tabuleiro::IniciaGL() {
   GeraVboRosaDosVentos();
 
   RegeraVboTabuleiro();
+  IniciaGlControleVirtual();
   GeraFramebuffer();
   Entidade::IniciaGl();
   regerar_vbos_entidades_ = true;
