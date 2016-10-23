@@ -338,7 +338,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna:13 
+    coluna:13
     rotulo: "<="
     cor_rotulo {}
     textura: "icon_undo.png"
