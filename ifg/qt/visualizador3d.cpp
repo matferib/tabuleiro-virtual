@@ -537,6 +537,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
+  gerador.checkbox_cor->setCheckState(entidade.has_cor() ? Qt::Checked : Qt::Unchecked);
   gerador.botao_cor->setStyleSheet(CorParaEstilo(entidade.cor()));
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
     QColor cor = QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
@@ -544,6 +545,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       return;
     }
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
+    gerador.checkbox_cor->setCheckState(Qt::Checked);
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
   gerador.slider_alfa->setValue(static_cast<int>(ent_cor.cor().a() * 100.0f));
@@ -657,7 +659,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     } else {
       proto_retornado->clear_luz();
     }
-    proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    if (gerador.checkbox_cor->checkState() == Qt::Checked) {
+      proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    } else {
+      proto_retornado->clear_cor();
+    }
     proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
@@ -770,14 +776,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
   gerador.botao_cor->setStyleSheet(CorParaEstilo(entidade.cor()));
+  gerador.checkbox_cor->setCheckState(entidade.has_cor() ? Qt::Checked : Qt::Unchecked);
   lambda_connect(gerador.botao_cor, SIGNAL(clicked()), [this, dialogo, &gerador, &ent_cor] {
     QColor cor = QColorDialog::getColor(ProtoParaCor(ent_cor.cor()), dialogo, QObject::tr("Cor do objeto"));
     if (!cor.isValid()) {
       return;
     }
+    gerador.checkbox_cor->setCheckState(Qt::Checked);
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
+
   // Cor da luz.
   ent::EntidadeProto luz_cor;
   if (entidade.has_luz()) {
@@ -861,7 +870,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->mutable_evento()->Swap(&eventos);
 
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
-    proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    if (gerador.checkbox_cor->checkState() == Qt::Checked) {
+      proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+    } else {
+      proto_retornado->clear_cor();
+    }
     if (gerador.spin_raio->value() > 0.0f) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
       proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio->value());
