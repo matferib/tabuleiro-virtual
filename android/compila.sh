@@ -6,6 +6,7 @@ PROF=
 MODO=debug
 DEBUG="1"
 INSTALAR="1"
+SUFIXO=debug
 
 #echo num args: $#
 while [[ $# > 0 ]]; do
@@ -25,12 +26,10 @@ while [[ $# > 0 ]]; do
       MODO=release
       DEBUG="0"
       INSTALAR="0"
-      shift
       ;;
     -p|--profile)
       PROF="PROFILER_LIGADO=1"
       NDK_MODULE_PATH=/home/matheus/Projetos/tabuleiro-virtual/android/jni
-      shift
       ;;
     *)
     ;;
@@ -41,8 +40,9 @@ done
 echo "Dispositivo: ${DISP:-universal}"
 echo "DEBUG: ${DEBUG}"
 echo "PROFILER: ${PROF}"
+echo "SUFIXO: ${SUFIXO}"
 pushd .
 cd jni && ${ANDROID_NDK}/ndk-build V=1 ${DISP} ${PROF} DEBUG=${DEBUG} && cd .. && \
 ${ANTROOT}/bin/ant ${MODO} && \
-test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-${MODO}.apk
+test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
 popd
