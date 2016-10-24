@@ -538,7 +538,7 @@ void InterfaceGraficaOpengl::Desenha(ParametrosDesenho* pd) {
   gl::CarregaNome(CONTROLE_INTERFACE_GRAFICA);
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   if (pd->has_picking_x()) {

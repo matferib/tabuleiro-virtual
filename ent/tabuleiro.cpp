@@ -392,6 +392,7 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
   float val = std::max(TamanhoX(), TamanhoY()) * TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO;
   gl::Ortogonal(-val, val, -val, val,
                 0.0 /*DISTANCIA_PLANO_CORTE_PROXIMO*/, 200.0f);
+  gl::AtualizaMatrizes();
 }
 
 void Tabuleiro::ConfiguraProjecaoMapeamentoOclusao() {
@@ -399,6 +400,7 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoOclusao() {
                   DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
                   DISTANCIA_PLANO_CORTE_DISTANTE);
   gl::PlanoDistanteOclusao(DISTANCIA_PLANO_CORTE_DISTANTE);
+  gl::AtualizaMatrizes();
 }
 
 void Tabuleiro::ConfiguraProjecao() {
@@ -426,6 +428,7 @@ void Tabuleiro::ConfiguraProjecao() {
                     parametros_desenho_.projecao().has_plano_corte_distante_m()
                         ? parametros_desenho_.projecao().plano_corte_distante_m() : DISTANCIA_PLANO_CORTE_DISTANTE);
   }
+  gl::AtualizaMatrizes();
 }
 
 void Tabuleiro::ConfiguraOlhar() {
@@ -600,7 +603,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoOclusao();
   //LOG(INFO) << "DesenhaMapaOclusao";
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
@@ -666,7 +669,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::Viewport(0, 0, 1024, 1024);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoSombras();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
   V_ERRO("LigacaoComFramebufferSombraProjetada");
@@ -797,13 +800,13 @@ int Tabuleiro::Desenha() {
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     // Desloca os componentes xyz do espaco [-1,1] para [0,1] que eh o formato armazenado no mapa de sombras.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO_SOMBRA);
-    gl::CarregaIdentidade(false);
+    gl::CarregaIdentidade();
     Matrix4 bias(
         0.5, 0.0, 0.0, 0.0,
         0.0, 0.5, 0.0, 0.0,
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0);
-    gl::MultiplicaMatriz(bias.get(), false);
+    gl::MultiplicaMatriz(bias.get());
     ConfiguraProjecaoMapeamentoSombras();  // antes de parametros_desenho_.set_desenha_mapa_sombras para configurar para luz.
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
@@ -830,7 +833,7 @@ int Tabuleiro::Desenha() {
   V_ERRO_RET("MeioDesenha");
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
@@ -2835,7 +2838,7 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desabilitando luzes");
 
   gl::MudaModoMatriz(GL_MODELVIEW);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   ConfiguraOlhar();
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
@@ -2980,7 +2983,7 @@ void Tabuleiro::DesenhaCena() {
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
     gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
-    gl::CarregaIdentidade(false);
+    gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
 
@@ -3002,7 +3005,7 @@ void Tabuleiro::DesenhaCena() {
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
     gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
-    gl::CarregaIdentidade(false);
+    gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
 
@@ -3020,6 +3023,22 @@ void Tabuleiro::DesenhaCena() {
 
   gl::Desabilita(GL_FOG);
   gl::UsaShader(gl::TSH_SIMPLES);
+
+  gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
+  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+
+  // Configura modo 2d.
+  GLint viewport[4];
+  gl::Le(GL_VIEWPORT, viewport);
+  gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  if (parametros_desenho_.has_picking_x()) {
+    gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+  }
+  gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
+  gl::AtualizaMatrizProjecao();
+  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+  gl::CarregaIdentidade();
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
     DesenhaRosaDosVentos();
@@ -3083,7 +3102,7 @@ void Tabuleiro::DesenhaCenaVbos() {
   V_ERRO("desabilitando luzes");
 
   gl::MudaModoMatriz(GL_MODELVIEW);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   ConfiguraOlhar();
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
@@ -3174,9 +3193,9 @@ void Tabuleiro::GeraVboRosaDosVentos() {
     unsigned short indices_seta[] = { 0, 1, 2 };
     vbo_seta.AtribuiIndices(indices_seta, 3);
     float coordenadas[] = {
-      -kLarguraSeta, 0.0f, 0.1f,
-      kLarguraSeta, 0.0f, 0.1f,
-      0.0f, kTamanhoSeta, 0.1f,
+      -kLarguraSeta, 0.0f, 0.0f,
+      kLarguraSeta, 0.0f, 0.0f,
+      0.0f, kTamanhoSeta, 0.0f,
     };
     vbo_seta.AtribuiCoordenadas(3, coordenadas, 9);
     vbo_seta.AtribuiCor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -3186,17 +3205,17 @@ void Tabuleiro::GeraVboRosaDosVentos() {
   unsigned short indices_n[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
   float coordenadas_n[] = {
     // Primeira perna N.
-    -4.0f, 0.0f + kRaioRosa, 0.1f,
-    -1.0f, 0.0f + kRaioRosa, 0.1f,
-    -4.0f, 13.0f + kRaioRosa , 0.1f,
+    -4.0f, 0.0f + kRaioRosa, 0.0f,
+    -1.0f, 0.0f + kRaioRosa, 0.0f,
+    -4.0f, 13.0f + kRaioRosa , 0.0f,
     // Segunda.
-    -4.0f, 13.0f + kRaioRosa , 0.1f,
-    -4.0f, 8.0f + kRaioRosa , 0.1f,
-    4.0f, 0.0f + kRaioRosa , 0.1f,
+    -4.0f, 13.0f + kRaioRosa , 0.0f,
+    -4.0f, 8.0f + kRaioRosa , 0.0f,
+    4.0f, 0.0f + kRaioRosa , 0.0f,
     // Terceira.
-    4.0f, 0.0f + kRaioRosa , 0.1f,
-    4.0f, 13.0f + kRaioRosa , 0.1f,
-    1.0f, 13.0f + kRaioRosa , 0.1f,
+    4.0f, 0.0f + kRaioRosa , 0.0f,
+    4.0f, 13.0f + kRaioRosa , 0.0f,
+    1.0f, 13.0f + kRaioRosa , 0.0f,
   };
   vbo_n.AtribuiIndices(indices_n, 9);
   vbo_n.AtribuiCoordenadas(3, coordenadas_n, 27);
@@ -3204,7 +3223,6 @@ void Tabuleiro::GeraVboRosaDosVentos() {
 
   vbo_disco.Concatena(vbo_seta);
   vbo_disco.Concatena(vbo_n);
-
   vbo_rosa_.Grava(vbo_disco);
 }
 
@@ -3713,8 +3731,7 @@ void Tabuleiro::DesenhaTabuleiro() {
   MudaCor(proto_corrente_->has_info_textura() ? COR_BRANCA : COR_CINZA_CLARO);
   gl::Translada(deltaX / 2.0f,
                 deltaY / 2.0f,
-                parametros_desenho_.offset_terreno(),
-                false);
+                parametros_desenho_.offset_terreno());
   GLuint id_textura = parametros_desenho_.desenha_texturas() &&
                       proto_corrente_->has_info_textura() &&
                       (!proto_corrente_->textura_mestre_apenas() || VisaoMestre()) ?
@@ -3941,31 +3958,26 @@ void Tabuleiro::DesenhaFormaSelecionada() {
 }
 
 void Tabuleiro::DesenhaRosaDosVentos() {
-  // Modo 2d.
-  gl::MatrizEscopo salva_matriz_proj(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  // Eixo com origem embaixo esquerda.
-  gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
-  gl::CarregaIdentidade(false);
-  gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
-  gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
+  gl::MatrizEscopo salva_matriz_mv;
   const float kRaioRosa = 20.0f;
   // Deixa espaco para o N.
-  gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f, false);
+  gl::Translada(largura_ - kRaioRosa - 15.0f, kRaioRosa + 15.0f, 0.0f);
   // Roda pra posicao correta.
   Posicao direcao;
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &direcao);
   // A diferenca eh em relacao ao leste e o norte esta a 90 graus. Quanto maior a diferenca, mais proximo do norte (ate 90.0f).
   float diferenca_graus = 90.0f - VetorParaRotacaoGraus(direcao.x(), direcao.y());
-  gl::Roda(diferenca_graus, 0.0f, 0.0f, 1.0f, false);
+  gl::Roda(diferenca_graus, 0.0f, 0.0f, 1.0f);
+  gl::AtualizaMatrizes();
+  //gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
+  //gl::Retangulo(10.0f);
   gl::DesenhaVbo(vbo_rosa_, GL_TRIANGLES);
 }
 
 void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
@@ -5985,12 +5997,11 @@ void Tabuleiro::DesenhaLuzes() {
 
   // Iluminação distante direcional.
   {
-    gl::MatrizEscopo salva_matriz(false);
-    //gl::CarregaIdentidade();
+    gl::MatrizEscopo salva_matriz;
     // O vetor inicial esta no leste (origem da luz). O quarte elemento indica uma luz no infinito.
     GLfloat pos_luz[] = { 1.0, 0.0f, 0.0f, 0.0f };
     // Roda no eixo Z (X->Y) em direcao a posicao entao inclina a luz no eixo -Y (de X->Z).
-    gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f, false);
+    gl::Roda(proto_corrente_->luz_direcional().posicao_graus(), 0.0f, 0.0f, 1.0f);
     gl::Roda(proto_corrente_->luz_direcional().inclinacao_graus(), 0.0f, -1.0f, 0.0f);
     // A cor da luz direcional.
     GLfloat cor_luz[] = {
@@ -6046,8 +6057,8 @@ void Tabuleiro::DesenhaCaixaCeu() {
     MudaCor(proto_corrente_->luz_ambiente());
   }
 
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
-  gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), false);
+  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
+  gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   //gl::DesligaEscritaProfundidadeEscopo desliga_escrita_escopo;
@@ -6078,7 +6089,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   }
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW, false);
+  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
   gl::Translada(0.0f, 0.0f, 5.0f);
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -6121,8 +6132,6 @@ void Tabuleiro::DesenhaListaJogadores() {
   if (!parametros_desenho_.has_picking_x()) {
     PosicionaRaster2d(raster_x, raster_y);
   }
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
 
   MudaCor(COR_BRANCA);
   if (!parametros_desenho_.has_picking_x()) {
@@ -6145,14 +6154,6 @@ void Tabuleiro::DesenhaListaJogadores() {
       continue;
     }
     {
-      gl::MatrizEscopo salva(GL_PROJECTION);
-      gl::CarregaIdentidade();
-      if (parametros_desenho_.has_picking_x()) {
-        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-      }
-      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-      gl::MatrizEscopo salva_2(GL_MODELVIEW);
-      gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
       gl::Retangulo(raster_x, raster_y, raster_x + (strlen(rotulo) * largura_fonte), raster_y + altura_fonte);
     }
@@ -6197,9 +6198,6 @@ void Tabuleiro::DesenhaListaObjetos() {
   if (!parametros_desenho_.has_picking_x()) {
     PosicionaRaster2d(raster_x, raster_y);
   }
-  GLint viewport[4];
-  gl::Le(GL_VIEWPORT, viewport);
-
   MudaCor(COR_BRANCA);
   if (!parametros_desenho_.has_picking_x()) {
     std::string titulo("Lista Objetos");
@@ -6211,14 +6209,6 @@ void Tabuleiro::DesenhaListaObjetos() {
     gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
     gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA);
     {
-      gl::MatrizEscopo salva(GL_PROJECTION);
-      gl::CarregaIdentidade();
-      if (parametros_desenho_.has_picking_x()) {
-        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-      }
-      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-      gl::MatrizEscopo salva_2(GL_MODELVIEW);
-      gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
       gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
     }
@@ -6252,14 +6242,6 @@ void Tabuleiro::DesenhaListaObjetos() {
       continue;
     }
     {
-      gl::MatrizEscopo salva(GL_PROJECTION);
-      gl::CarregaIdentidade();
-      if (parametros_desenho_.has_picking_x()) {
-        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-      }
-      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-      gl::MatrizEscopo salva_2(GL_MODELVIEW);
-      gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
       gl::Retangulo(raster_x, raster_y, raster_x + (strlen(str) * largura_fonte), raster_y + altura_fonte);
     }
@@ -6275,14 +6257,6 @@ void Tabuleiro::DesenhaListaObjetos() {
     gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
     gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO);
     {
-      gl::MatrizEscopo salva(GL_PROJECTION);
-      gl::CarregaIdentidade();
-      if (parametros_desenho_.has_picking_x()) {
-        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-      }
-      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-      gl::MatrizEscopo salva_2(GL_MODELVIEW);
-      gl::CarregaIdentidade(false);
       MudaCor(COR_BRANCA);
       gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
     }
@@ -6341,11 +6315,8 @@ void Tabuleiro::DesenhaCoordenadas() {
 }
 
 void Tabuleiro::DesenhaInfoGeral() {
-  gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION, false);
-  gl::CarregaIdentidade(false);
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW, false);
+  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
   gl::CarregaIdentidade();
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
@@ -6400,6 +6371,7 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
     MudaCor(COR_PRETA);
     gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
     gl::CarregaIdentidade();
+    gl::AtualizaMatrizes();
     gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
   }
   // Eixo com origem embaixo esquerda.
@@ -6411,9 +6383,6 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
 void Tabuleiro::DesenhaTempos() {
   gl::DesligaEscritaProfundidadeEscopo profundidade_escopo;
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
-  gl::CarregaIdentidade(false);
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
 
   DesenhaTempo(0, "T", tempos_entre_cenas_);
   DesenhaTempo(1, "R", tempos_uma_renderizacao_completa_);

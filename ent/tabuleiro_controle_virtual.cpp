@@ -169,7 +169,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       AlteraAnguloVisao(angulo_visao_vertical_graus_ - 5.0f);
       break;
     case CONTROLE_ANGULO_VISAO_ORIGINAL:
-      AlteraAnguloVisao(60.0f);
+      AlteraAnguloVisao(CAMPO_VISAO_PADRAO);
       break;
     case CONTROLE_NOP: {
       break;
@@ -620,7 +620,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
   xf = xi + largura_botao * unidade_largura;
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
-  gl::MatrizEscopo salva(false);
+  gl::MatrizEscopo salva;
   if (db.forma() == FORMA_RETANGULO) {
     float trans_x = (db.translacao_x() * unidade_largura);
     float trans_y = (db.translacao_y() * unidade_altura);
@@ -635,6 +635,7 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
     m.scale(tam_x, tam_y, 1.0f);
     m.translate(xi + padding + trans_x + (tam_x / 2.0f), yi + padding + trans_y + (tam_y / 2.0f), 0.0f);
     gl::MultiplicaMatriz(m.get());
+    gl::AtualizaMatrizes();
     gl::RetanguloUnitario();
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
@@ -647,12 +648,14 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
       m.scale(xf - xi, xf - xi, 1.0f);
       m.translate(transx, transy, 0.0f);
       gl::MultiplicaMatriz(m.get());
+      gl::AtualizaMatrizes();
       gl::TrianguloUnitario();
     } else {
       m.rotateZ(db.rotacao_graus());
       m.scale((xf - xi), (xf - xi), 1.0f);
       m.translate(transx, transy, 0.0f);
       gl::MultiplicaMatriz(m.get());
+      gl::AtualizaMatrizes();
       gl::DiscoUnitario();
     }
   }
@@ -796,8 +799,6 @@ void Tabuleiro::DesenhaListaPontosVida() {
 }
 
 void Tabuleiro::DesenhaControleVirtual() {
-  gl::Desabilita(GL_LIGHTING);
-  gl::Desabilita(GL_DEPTH_TEST);
   float cor_padrao[3];
   cor_padrao[0] = 0.8f;
   cor_padrao[1] = 0.8f;
@@ -876,22 +877,25 @@ void Tabuleiro::DesenhaControleVirtual() {
       return modo_dano_automatico_;
     }, },
   };
+
+  // Modo 2d: eixo com origem embaixo esquerda.
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
+  if (parametros_desenho_.has_picking_x()) {
+    // Modo de picking faz a matriz de picking para projecao ortogonal.
+    gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
+  }
+  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
+  gl::AtualizaMatrizes();
+
+  gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
+  gl::CarregaIdentidade();
 
   // Desenha em duas passadas por causa da limitacao de projecao do nexus 7.
   // Desenha apenas os botoes.
   {
-    // Modo 2d: eixo com origem embaixo esquerda.
-    gl::MatrizEscopo salva_matriz(GL_PROJECTION, false);
-    gl::CarregaIdentidade(false);
-    if (parametros_desenho_.has_picking_x()) {
-      // Modo de picking faz a matriz de picking para projecao ortogonal.
-      gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport, false);
-    }
-    gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-    gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW, false);
-    gl::CarregaIdentidade(false);
     int pagina_corrente = controle_virtual_.pagina_corrente();
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
@@ -941,13 +945,6 @@ void Tabuleiro::DesenhaControleVirtual() {
   if (camera_presa_) {
     const auto* entidade = BuscaEntidade(id_camera_presa_);
     if (entidade != nullptr && entidade->MaximoPontosVida() > 0) {
-      gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-      gl::CarregaIdentidade(false);
-      if (parametros_desenho_.has_picking_x()) {
-        // Modo de picking faz a matriz de picking para projecao ortogonal.
-        gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport, false);
-      }
-      gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
       gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
       gl::CarregaIdentidade();
       float top_y = altura_botao * 7.0f;

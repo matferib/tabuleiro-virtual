@@ -71,16 +71,17 @@ namespace gl {
 void IniciaGl(bool luz_por_pixel);
 void FinalizaGl();
 
-
 // Atualiza as matrizes do shader de acordo com o modo. Apenas as necessarias serao atualizadas.
 void AtualizaMatrizes();
+/** Atualiza a matriz de projecao do shader, independente do modo. */
+void AtualizaMatrizProjecao();
 // Atualiza todas as matrizes do shader.
 void AtualizaTodasMatrizes();
 void DebugaMatrizes();
 
 // Operacoes de matriz. Melhor usar MatrizEscopo.
-void EmpilhaMatriz(bool atualizar = true);
-void DesempilhaMatriz(bool atualizar = true);
+void EmpilhaMatriz();
+void DesempilhaMatriz();
 enum matriz_e {
   MATRIZ_MODELAGEM_CAMERA = GL_MODELVIEW,
   MATRIZ_PROJECAO = GL_PROJECTION,
@@ -97,14 +98,14 @@ void MudaModoMatriz(int modo);
 class MatrizEscopo {
  public:
   /** Salva a matriz corrente pelo escopo. */
-  MatrizEscopo(bool atualizar = true)
-      : atualizar_(atualizar), modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(atualizar_); }
+  MatrizEscopo()
+      : modo_anterior_(GL_INVALID_ENUM), modo_(GL_INVALID_ENUM) { EmpilhaMatriz(); }
 
   /** Muda matriz para matriz do modo e salva pelo escopo. Ao terminar, retorna para o modo anterior a chamada. */
-  explicit MatrizEscopo(int modo, bool atualizar = true) : atualizar_(atualizar), modo_(modo) {
+  explicit MatrizEscopo(int modo) : modo_(modo) {
     modo_anterior_ = ModoMatrizCorrente();
     MudaModoMatriz(static_cast<matriz_e>(modo_));
-    EmpilhaMatriz(atualizar_);
+    EmpilhaMatriz();
   }
 
   /** Restaura matriz anterior ao escopo para o modo escolhido. */
@@ -112,14 +113,17 @@ class MatrizEscopo {
     if (modo_ != GL_INVALID_ENUM) {
       MudaModoMatriz(static_cast<matriz_e>(modo_));
     }
-    DesempilhaMatriz(atualizar_);
+    DesempilhaMatriz();
+    // No caso da matriz de projecao, eh sempre interessante atualizar a volta, ja que ela so eh configurada uma vez.
+    if (modo_ == GL_PROJECTION) {
+      AtualizaMatrizProjecao();
+    }
     if (modo_anterior_ != GL_INVALID_ENUM) {
       MudaModoMatriz(static_cast<matriz_e>(modo_anterior_));
     }
   }
 
  private:
-  bool atualizar_;
   int modo_anterior_;
   // O valor GL_INVALID_ENUM indica que nao eh para restaurar a matriz.
   int modo_;
@@ -180,8 +184,8 @@ inline const GLubyte* Le(GLenum nome) { return glGetString(nome); }
 inline void DesvioProfundidade(GLfloat fator, GLfloat unidades) { glPolygonOffset(fator, unidades);  }
 bool TemExtensao(const std::string& nome_extensao);
 
-void CarregaIdentidade(bool atualizar = true);
-void MultiplicaMatriz(const GLfloat* matriz, bool atualizar = true);
+void CarregaIdentidade();
+void MultiplicaMatriz(const GLfloat* matriz);
 #if !USAR_OPENGL_ES
 inline void EmpilhaAtributo(GLbitfield mascara) { glPushAttrib(mascara); }
 inline void DesempilhaAtributo() { glPopAttrib(); }
@@ -376,9 +380,9 @@ class TipoEscopo {
 };
 
 /** Funcoes de escala, translacao e rotacao. */
-void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
-void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
-void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar = true);
+void Escala(GLfloat x, GLfloat y, GLfloat z);
+void Translada(GLfloat x, GLfloat y, GLfloat z);
+void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z);
 
 /** Funcoes de iluminacao. */
 void LuzAmbiente(float r, float g, float b);
@@ -433,8 +437,8 @@ void OlharPara(float olho_x, float olho_y, float olho_z,
 
 /** Transformacao de projecao. */
 void Perspectiva(float angulo_y, float aspecto, float z_perto, float z_longe);
-void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante, bool atualizar = true);
-void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport, bool atualizar = false);  // picking sempre vem projecao depois.
+void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante);
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport);
 GLint Desprojeta(float x_janela, float y_janela, float profundidade_3d,
                  const float* model, const float* proj, const GLint* view,
                  GLfloat* x3d, float* y3d, float* z3d);

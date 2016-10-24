@@ -122,11 +122,13 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   gl::Le(GL_VIEWPORT, viewport);
 
   // Precisa salvar a projecao para a volta, senao ela fica bichada ja que nao eh alterada de novo.
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION, true);
-  gl::CarregaIdentidade(false);
+  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
+  gl::CarregaIdentidade();
   gl::Ortogonal(0.0f, viewport[2], 0.0f, viewport[3], 0.0f, 1.0f);
-  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW, false);
-  gl::CarregaIdentidade(false);
+  AtualizaMatrizes();
+
+  gl::MatrizEscopo salva_matriz_proj(GL_MODELVIEW);
+  gl::CarregaIdentidade();
 
   int largura_fonte, altura_fonte, escala;
   TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
@@ -134,12 +136,12 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
   auto* contexto = BuscaContexto();
   float x2d = contexto->raster_x;
   float y2d = contexto->raster_y;
-  gl::Translada(x2d, y2d, 0.0f, false);
+  gl::Translada(x2d, y2d, 0.0f);
 
   //LOG(INFO) << "x2d: " << x2d << " y2d: " << y2d;
   std::vector<std::string> str_linhas(interno::QuebraString(str, '\n'));
   gl::TamanhoPonto(escala);
-  gl::Escala(escala, escala, 1.0f, false);
+  gl::Escala(escala, escala, 1.0f);
   for (const std::string& str_linha : str_linhas) {
     float translacao_x = 0;
     if (alinhamento == 1) {  // direita.
@@ -147,16 +149,16 @@ void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte
     } if (alinhamento == 0) {  // central.
       translacao_x = -static_cast<float>(str_linha.size() * largura_fonte) / 2.0f;
     }
-    gl::Translada(translacao_x, 0.0f, 0.0f, false);
+    gl::Translada(translacao_x, 0.0f, 0.0f);
     for (const char c : str_linha) {
+      gl::AtualizaMatrizes();
       gl::DesenhaCaractere(c);
-      gl::Translada(largura_fonte, 0.0f, 0.0f, false);
+      gl::Translada(largura_fonte, 0.0f, 0.0f);
     }
     // A translacao volta tudo que ela andou e anda uma linha.
     gl::Translada(-static_cast<float>(str_linha.size() * largura_fonte) - translacao_x,
                   inverte_vertical ? altura_fonte : -altura_fonte,
-                  0.0f,
-                  false);
+                  0.0f);
   }
 }
 
@@ -652,15 +654,14 @@ void DesabilitaMipmapAniso(GLenum alvo) {
 #endif
 }
 
-void EmpilhaMatriz(bool atualizar) {
+void EmpilhaMatriz() {
   auto* c = interno::BuscaContexto();
   c->pilha_corrente->emplace(c->pilha_corrente->top().get());
   interno::EmpilhaMatrizSombraOclusao(c);
   // Nao precisa porque a matriz empilhada eh igual.
-  //if (atualizar) AtualizaMatrizes();
 }
 
-void DesempilhaMatriz(bool atualizar) {
+void DesempilhaMatriz() {
   auto* c = interno::BuscaContexto();
 #if DEBUG
   if (c->pilha_corrente->empty()) {
@@ -670,7 +671,6 @@ void DesempilhaMatriz(bool atualizar) {
 #endif
   c->pilha_corrente->pop();
   interno::DesempilhaMatrizSombraOclusao(c);
-  if (atualizar) AtualizaMatrizes();
 }
 
 int ModoMatrizCorrente() {
@@ -707,41 +707,37 @@ void MudaModoMatriz(int modo) {
   //AtualizaMatrizes();
 }
 
-void CarregaIdentidade(bool atualizar) {
+void CarregaIdentidade() {
   interno::BuscaContexto()->pilha_corrente->top().identity();
   interno::IdentidadeMatrizSombraOclusao();
-  if (atualizar) AtualizaMatrizes();
 }
 
-void MultiplicaMatriz(const GLfloat* matriz, bool atualizar) {
+void MultiplicaMatriz(const GLfloat* matriz) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4(matriz);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
-  if (atualizar) AtualizaMatrizes();
 }
 
-void Escala(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
+void Escala(GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().scale(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
-  if (atualizar) AtualizaMatrizes();
 }
 
-void Translada(GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
+void Translada(GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   auto& m4 = Matrix4().translate(x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
-  if (atualizar) AtualizaMatrizes();
 }
-void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z, bool atualizar) {
+
+void Roda(GLfloat angulo_graus, GLfloat x, GLfloat y, GLfloat z) {
   auto& topo = interno::BuscaContexto()->pilha_corrente->top();
   Matrix4 m4 = Matrix4().rotate(angulo_graus, x, y, z);
   topo *= m4;
   interno::AtualizaMatrizSombraOclusao(m4);
-  if (atualizar) AtualizaMatrizes();
 }
 
 void TamanhoPonto(float tam) {
@@ -1008,7 +1004,7 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   AtualizaMatrizes();
 }
 
-void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante, bool atualizar) {
+void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
   float tx = - ((direita + esquerda) / (direita - esquerda));
   float ty = - ((cima + baixo) / (cima - baixo));
   float tz = - ((distante + proximo) / (distante - proximo));
@@ -1024,10 +1020,9 @@ void Ortogonal(float esquerda, float direita, float baixo, float cima, float pro
   // da na mesma.
   //c->pilha_corrente->top() = m * topo;
   c->pilha_corrente->top() = topo * m;
-  if (atualizar) AtualizaMatrizes();
 }
 
-void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport, bool atualizar) {
+void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewport) {
   if (delta_x <= 0 || delta_y <= 0) {
     return;
   }
@@ -1039,9 +1034,6 @@ void MatrizPicking(float x, float y, float delta_x, float delta_y, GLint *viewpo
       (viewport[3] - 2 * (y - viewport[1])) / delta_y,
       0);
   topo *= mt;
-  if (atualizar) {
-    AtualizaMatrizes();
-  }
 }
 
 GLint Desprojeta(GLfloat winx, GLfloat winy, GLfloat winz,
@@ -1168,6 +1160,13 @@ GLint IdMatrizCorrente(const interno::VarShader& shader) {
   }
 }
 }  // namespace
+
+void AtualizaMatrizProjecao() {
+  auto* c = interno::BuscaContexto();
+  const interno::VarShader& shader = interno::BuscaShader();
+  GLuint mloc = shader.uni_gltab_prm;
+  Matriz4Uniforme(mloc, 1, false, c->pilha_prj.top().get());
+}
 
 void AtualizaMatrizes() {
   auto* c = interno::BuscaContexto();

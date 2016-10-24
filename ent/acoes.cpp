@@ -245,7 +245,7 @@ class AcaoDispersao : public Acao {
       gl::MultiplicaMatriz(MatrizCone(acao_proto_, pos_origem, efeito_).get());
     } else {
       const Posicao& pos = acao_proto_.has_pos_entidade() ? acao_proto_.pos_entidade() : pos_tabuleiro;
-      gl::Translada(pos.x(), pos.y(), pos.z(), false);
+      gl::Translada(pos.x(), pos.y(), pos.z());
       gl::Escala(efeito_, efeito_, efeito_);
     }
     DesenhaGeometriaAcao(acao_proto_.geometria());
@@ -462,8 +462,8 @@ class AcaoRaio : public Acao {
     float dy = pos_d.y() - pos_o.y();
     float dz = pos_d.z() - pos_o.z();
     float tam;
-    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z(), false);
-    gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f, false);
+    gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
+    gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
     if (acao_proto_.has_distancia_quadrados()) {
       tam = acao_proto_.distancia_quadrados() * TAMANHO_LADO_QUADRADO;
     }

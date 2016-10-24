@@ -49,7 +49,7 @@ void Entidade::DesenhaObjetoCompostoProto(
     const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
   AlteraBlendEscopo blend_escopo(pd, proto.cor());
 #if !VBO_COM_MODELAGEM
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW, false);
+  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());
 #endif
   GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?

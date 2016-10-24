@@ -246,14 +246,14 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     float xi, yi, xs, ys;
     LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
     //LOG_EVERY_N(INFO, 100) << "Limites: xi: " << xi << ", yi: " << yi << ", xs: " << xs << ", ys: " << ys;
-    gl::MatrizEscopo salva_matriz(false);
+    gl::MatrizEscopo salva_matriz;
     gl::MultiplicaMatriz(MontaMatrizModelagemForma(false, false, proto, vd, pd).get());
     float cor[] = { proto.cor().r(), proto.cor().g(), proto.cor().b(), proto.cor().a() };
     DesenhaStencil3d(xi, yi, xs, ys, cor);
   }
 #else
   AjustaCor(proto, pd);
-  gl::MatrizEscopo salva_matriz(false);
+  gl::MatrizEscopo salva_matriz;
   gl::MultiplicaMatriz(vd.matriz_modelagem.get());
   bool usar_textura = proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
                       proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO;

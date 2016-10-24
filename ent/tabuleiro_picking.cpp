@@ -43,7 +43,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   // Hack para testar projecao menor.
   //if (!parametros_desenho_.projecao().has_largura_m()) {
     gl::MatrizPicking(x, y, 1.0, 1.0, viewport);
@@ -98,7 +98,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
 
   // Restaura projecao.
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
-  gl::CarregaIdentidade(false);
+  gl::CarregaIdentidade();
   ConfiguraProjecao();
 }
 
