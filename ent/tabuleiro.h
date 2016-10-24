@@ -570,6 +570,8 @@ class Tabuleiro : public ntf::Receptor {
   const Entidade* EntidadePrimeiraPessoaOuSelecionada() const;
   /** Retorna o vetor ou com o id da entidade primeira pessoa, ou das entidades selecionadas se nao for primeira pessoa. */
   std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadas() const;
+  /** O contrario, se houver selecao retorna o que esta selecionado. Caso contrario, retorna primeira pessoa (se houver). */
+  std::vector<unsigned int> IdsEntidadesSelecionadasOuPrimeiraPessoa() const;
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
   const Entidade* EntidadeSelecionada() const;

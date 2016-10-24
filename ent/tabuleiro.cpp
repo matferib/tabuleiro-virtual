@@ -516,40 +516,40 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
   }
   const auto& pos = entidade_referencia->Pos();
   float altura_olho = entidade_referencia->ZOlho();
-  Posicao delta_alvo;
-  Posicao up;
+  Vector3 delta_alvo;
+  Vector3 up;
   int face = parametros_desenho_.desenha_mapa_oclusao();
   if (!parametros_desenho_.has_desenha_mapa_oclusao()) {
-    delta_alvo.set_x(1.0f);
+    delta_alvo.x = 1.0f;
     // No desenho normal, a gente nao inverte o vetor vertical.
-    up.set_z(1.0f);
+    up.z = 1.0f;
     face = -1;
   }
   // No desenho da textura, o eixo vertical é invertido por causa da orientação do opengl.
   switch (face) {
     case 0:  // GL_TEXTURE_CUBE_MAP_POSITIVE_X, right
-      delta_alvo.set_y(-1.0f);
-      up.set_z(-1.0f);
+      delta_alvo.y = -1.0f;
+      up.z = -1.0f;
       break;
     case 1:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_X, left
-      delta_alvo.set_y(1.0f);
-      up.set_z(-1.0f);
+      delta_alvo.y = 1.0f;
+      up.z = -1.0f;
       break;
     case 2:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Y, top
-      delta_alvo.set_z(1.0f);
-      up.set_x(-1.0f);
+      delta_alvo.z = 1.0f;
+      up.x = -1.0f;
       break;
     case 3:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, bottom
-      delta_alvo.set_z(-1.0f);
-      up.set_x(1.0f);
+      delta_alvo.z = -1.0f;
+      up.x = 1.0f;
       break;
     case 4:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Z, back
-      delta_alvo.set_x(-1.0f);
-      up.set_z(-1.0f);
+      delta_alvo.x = -1.0f;
+      up.z = -1.0f;
       break;
     case 5:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, front
-      delta_alvo.set_x(1.0f);
-      up.set_z(-1.0f);
+      delta_alvo.x = 1.0f;
+      up.z = -1.0f;
       break;
     default:
       //LOG(ERROR) << "Face do mapa de oclusao invalida";
@@ -559,9 +559,9 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
       // from.
       pos.x(), pos.y(), altura_olho,
       // to.
-      pos.x() + delta_alvo.x(), pos.y() + delta_alvo.y(), altura_olho + delta_alvo.z(),
+      pos.x() + delta_alvo.x, pos.y() + delta_alvo.y, altura_olho + delta_alvo.z,
       // up
-      up.x(), up.y(), up.z());
+      up.x, up.y, up.z);
 }
 
 void Tabuleiro::DesenhaMapaOclusao() {
@@ -2263,12 +2263,8 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   // Executa a acao: se nao houver ninguem selecionado, faz sinalizacao. Se houver, ha dois modos de execucao:
   // - Efeito de area
   // - Efeito individual.
-  std::unordered_set<unsigned int> ids_origem;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids_origem.insert(id_camera_presa_);
-  } else {
-    ids_origem = ids_entidades_selecionadas_;
-  }
+  std::vector<unsigned int> ids_origem;
+  ids_origem = IdsEntidadesSelecionadasOuPrimeiraPessoa();
   if (acao_padrao || ids_origem.size() == 0) {
     AcaoProto acao_proto;
     // Sem entidade selecionada, realiza sinalizacao.
@@ -6521,6 +6517,15 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   } else {
     return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   }
+}
+
+std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() const {
+  if (ids_entidades_selecionadas_.empty()) {
+    if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+      return { id_camera_presa_ };
+    }
+  }
+  return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
 }
 
 Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
