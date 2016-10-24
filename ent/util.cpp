@@ -677,7 +677,8 @@ bool EhModelo3d(const std::string& nome) {
 }
 
 bool FiltroTexturaEntidade(const std::string& textura) {
-  return EhCaixaCeu(textura) || EhTerreno(textura) || EhIcone(textura) || !EhPng(textura);
+  // As texturas de terreno sao uteis para formas.
+  return EhCaixaCeu(textura) || /*EhTerreno(textura) || */EhIcone(textura) || !EhPng(textura);
 }
 
 bool FiltroTexturaCaixaCeu(const std::string& textura) {
