@@ -1,9 +1,6 @@
-Versao 2.4.0
-- IOS oclusao nao funciona (aparentemente so uma direcao).
+Versao 2.5.0
 - Zfight ipad e mapa oclusao.
 - Pinca: com tres para vertical.
-- Efeitos quebraram (reflexos) VBO_COM_MODELAGEM.
-- Controle virtual ta caro
 - VBO de acoes.
 - Separar a maldita matriz de view da modelagem.
 - Ver se eh possivel fazer a colisao mais precisa lendo mais pixels.
