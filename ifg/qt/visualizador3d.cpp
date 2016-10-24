@@ -661,10 +661,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     }
     if (gerador.checkbox_cor->checkState() == Qt::Checked) {
       proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+      proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     } else {
       proto_retornado->clear_cor();
     }
-    proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
