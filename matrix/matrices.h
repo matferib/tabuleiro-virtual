@@ -19,6 +19,7 @@
 #ifndef MATH_MATRICES_H
 #define MATH_MATRICES_H
 
+//#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include "matrix/vectors.h"
@@ -664,10 +665,15 @@ inline Matrix4::Matrix4(float m00, float m01, float m02, float m03,
 
 inline void Matrix4::set(const float src[16])
 {
+#if 0
+  // Descobrir se eh mais rapido.
+  memcpy(m, src, sizeof(float) * 16);
+#else
     m[0] = src[0];  m[1] = src[1];  m[2] = src[2];  m[3] = src[3];
     m[4] = src[4];  m[5] = src[5];  m[6] = src[6];  m[7] = src[7];
     m[8] = src[8];  m[9] = src[9];  m[10]= src[10]; m[11]= src[11];
     m[12]= src[12]; m[13]= src[13]; m[14]= src[14]; m[15]= src[15];
+#endif
 }
 
 
