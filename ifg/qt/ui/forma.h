@@ -280,7 +280,7 @@ public:
         spin_rotacao->setObjectName(QString::fromUtf8("spin_rotacao"));
         spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
         spin_rotacao->setMinimum(-180);
-        spin_rotacao->setMaximum(180);
+        spin_rotacao->setMaximum(360);
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
         horizontalLayoutWidget_3->setGeometry(QRect(470, 390, 221, 41));
