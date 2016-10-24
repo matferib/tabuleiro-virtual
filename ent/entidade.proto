@@ -95,6 +95,8 @@ message InfoTextura {
   optional bytes bits_crus_negx = 10;
   optional bytes bits_crus_negy = 11;
   optional bytes bits_crus_negz = 12;
+  // Um dos valores GL_REPEAT, GL_MIRRERED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER.
+  optional int32 modo_textura = 17;
 }
 
 message Modelo3d {

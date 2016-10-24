@@ -253,18 +253,26 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   }
 #else
   AjustaCor(proto, pd);
-  gl::MatrizEscopo salva_matriz;
-  gl::MultiplicaMatriz(vd.matriz_modelagem.get());
-  bool usar_textura = proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
-                      proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO;
-  if (usar_textura) {
-    GLuint id_textura = pd->desenha_texturas() && proto.has_info_textura() ?
-        vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
-    if (id_textura != GL_INVALID_VALUE) {
-      gl::Habilita(GL_TEXTURE_2D);
-      gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  bool usar_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() &&
+                      (proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
+                       proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO);
+  GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+
+  gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    if (proto.info_textura().has_modo_textura()) {
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, proto.info_textura().modo_textura());
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, proto.info_textura().modo_textura());
+      gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
+      gl::AtualizaMatrizes();
     }
   }
+
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MultiplicaMatriz(vd.matriz_modelagem.get());
+
   switch (proto.sub_tipo()) {
     case TF_CILINDRO: {
       gl::HabilitaEscopo habilita_normalizacao(GL_NORMALIZE);
@@ -322,6 +330,15 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
     break;
     default: ;
   }
+  if (id_textura != GL_INVALID_VALUE) {
+    if (proto.info_textura().has_modo_textura()) {
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+      gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
+
   gl::Desabilita(GL_TEXTURE_2D);
 #endif
 }
