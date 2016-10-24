@@ -1,0 +1,4 @@
+- Depurador: gede.
+- Profile: make benchmark_debug
+run
+gprof gmon.out
