@@ -91,6 +91,8 @@ de android-ndk-profiler dentro do jni do tabuleiro.
 
 - Build TLDR: compila.sh -p
 
+- Usar gcc no Application.mk (ao inves de clang).
+
 - Adicionar no Android.mk:
 LOCAL_CFLAGS := -pg
 LOCAL_STATIC_LIBRARIES += android-ndk-profiler
