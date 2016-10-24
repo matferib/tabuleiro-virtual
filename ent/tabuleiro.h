@@ -274,7 +274,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Muda para o modo de sinalizacao. */
   void SelecionaSinalizacao();
-  /** Seleciona a acao para as entidades selecionadas através do identificador. Ver dados/acoes.asciiproto. */
+  /** Seleciona a acao para a entidade. */
+  void SelecionaAcao(const std::string& id_acao, Entidade* entidade);
+  /** Igual, mas seleciona para as entidades selecionadas ou primeira pessoa. */
   void SelecionaAcao(const std::string& id_acao);
   void ProximaAcao();
   void AcaoAnterior();
@@ -572,6 +574,9 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadas() const;
   /** O contrario, se houver selecao retorna o que esta selecionado. Caso contrario, retorna primeira pessoa (se houver). */
   std::vector<unsigned int> IdsEntidadesSelecionadasOuPrimeiraPessoa() const;
+  /** Retorna a entidade selecionada se houver apenas uma, ou a primeira pessoa. */
+  Entidade* EntidadeSelecionadaOuPrimeiraPessoa();
+  const Entidade* EntidadeSelecionadaOuPrimeiraPessoa() const;
   /** Retorna a entidade selecionada, se houver. Se houver mais de uma, retorna nullptr. */
   Entidade* EntidadeSelecionada();
   const Entidade* EntidadeSelecionada() const;

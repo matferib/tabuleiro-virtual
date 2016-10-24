@@ -827,24 +827,19 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] (const Entidade* entidade) { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
     { CONTROLE_VISAO_ESCURO,      [this] (const Entidade* entidade) { return visao_escuro_; } },
     { CONTROLE_LUZ,               [this] (const Entidade* entidade) {
-      auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      return e != nullptr && e->Proto().has_luz();
+      return entidade != nullptr && entidade->Proto().has_luz();
     } },
     { CONTROLE_QUEDA,        [this] (const Entidade* entidade) {
-      auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      return e != nullptr && e->Proto().caida();
+      return entidade != nullptr && entidade->Proto().caida();
     } },
     { CONTROLE_SELECIONAVEL,        [this] (const Entidade* entidade) {
-      auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      return e != nullptr && e->Proto().selecionavel_para_jogador();
+      return entidade != nullptr && entidade->Proto().selecionavel_para_jogador();
     } },
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
-      auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      return e != nullptr && e->Proto().voadora();
+      return entidade != nullptr && entidade->Proto().voadora();
     } },
     { CONTROLE_VISIBILIDADE, [this] (const Entidade* entidade) {
-      auto* e = EntidadePrimeiraPessoaOuSelecionada();
-      return e != nullptr && !e->Proto().visivel();
+      return entidade != nullptr && !entidade->Proto().visivel();
     } },
     { CONTROLE_DESENHO_LIVRE, [this] (const Entidade* entidade) {
       return modo_clique_ == MODO_DESENHO && forma_selecionada_ == TF_LIVRE;
@@ -908,7 +903,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     for (auto& db : *controle_virtual_.mutable_fixo()->mutable_dados_botoes()) {
       botoes.push_back(&db);
     }
-    auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+    auto* entidade = EntidadeSelecionadaOuPrimeiraPessoa();
     for (auto* db : botoes) {
       float cor[3];
       if (db->has_cor_fundo()) {

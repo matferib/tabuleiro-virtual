@@ -568,6 +568,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   // Zera as coisas nao usadas durante oclusao.
+  parametros_desenho_.set_desenha_acoes(false);
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
@@ -2521,7 +2522,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
 }
 
 void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d) {
-  auto* entidade = EntidadePrimeiraPessoaOuSelecionada();
+  auto* entidade = EntidadeSelecionadaOuPrimeiraPessoa();
   if (entidade == nullptr) {
     VLOG(1) << "Ignorando clique de regua, ou nao ha entidade ou ha mais de uma selecionada.";
     return;
@@ -2668,6 +2669,15 @@ void Tabuleiro::SelecionaSinalizacao() {
   modo_clique_ = MODO_SINALIZACAO;
 }
 
+void Tabuleiro::SelecionaAcao(const std::string& id_acao, Entidade* entidade) {
+  auto it = mapa_acoes_.find(id_acao);
+  if (it == mapa_acoes_.end()) {
+    LOG(ERROR) << "Id de acao inválido: " << id_acao;
+    return;
+  }
+  entidade->AtualizaAcao(it->first);
+}
+
 void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
   auto it = mapa_acoes_.find(id_acao);
   if (it == mapa_acoes_.end()) {
@@ -2675,13 +2685,7 @@ void Tabuleiro::SelecionaAcao(const std::string& id_acao) {
     return;
   }
 
-  std::unordered_set<unsigned int> ids;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.insert(id_camera_presa_);
-  } else {
-    ids = ids_entidades_selecionadas_;
-  }
-  for (auto id_selecionado : ids) {
+  for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
       continue;
@@ -2698,7 +2702,7 @@ void Tabuleiro::AlternaDanoAutomatico() {
 }
 
 void Tabuleiro::SelecionaAcaoExecutada(int indice) {
-  Entidade* e = EntidadePrimeiraPessoaOuSelecionada();
+  Entidade* e = EntidadeSelecionadaOuPrimeiraPessoa();
   if (e == nullptr) {
     LOG(INFO) << "Nao selecionando acao pois ha 0 ou mais de uma entidade selecionada.";
     return;
@@ -2708,7 +2712,7 @@ void Tabuleiro::SelecionaAcaoExecutada(int indice) {
     VLOG(1) << "Selecionando acao padrao pois id eh invalido para a entidade.";
     id_acao = AcaoPadrao(indice).id();
   }
-  SelecionaAcao(id_acao);
+  SelecionaAcao(id_acao, e);
   modo_clique_ = MODO_ACAO;
 }
 
@@ -2740,7 +2744,7 @@ void Tabuleiro::ProximaAcao() {
   if (id_acoes_.size() == 0) {
     return;
   }
-  for (auto id_selecionado : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+  for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
       continue;
@@ -2767,7 +2771,7 @@ void Tabuleiro::AcaoAnterior() {
   if (id_acoes_.size() == 0) {
     return;
   }
-  for (auto id_selecionado : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+  for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
       continue;
@@ -6544,6 +6548,23 @@ const Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() const {
   }
 }
 
+const Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() const {
+  if (ids_entidades_selecionadas_.size() == 1) {
+    return EntidadeSelecionada();
+  } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return BuscaEntidade(id_camera_presa_);
+  }
+  return nullptr;
+}
+
+Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() {
+  if (ids_entidades_selecionadas_.size() == 1) {
+    return EntidadeSelecionada();
+  } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    return BuscaEntidade(id_camera_presa_);
+  }
+  return nullptr;
+}
 
 Entidade* Tabuleiro::EntidadeSelecionada() {
   if (ids_entidades_selecionadas_.size() != 1) {
