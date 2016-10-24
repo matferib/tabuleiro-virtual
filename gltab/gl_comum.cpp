@@ -1001,7 +1001,6 @@ void OlharPara(GLfloat eyex, GLfloat eyey, GLfloat eyez, GLfloat centerx,
   Matrix4& topo = c->pilha_corrente->top();
   topo *= Matrix4(&m[0][0]);
   topo *= Matrix4().translate(-eyex, -eyey, -eyez);
-  AtualizaMatrizes();
 }
 
 void Ortogonal(float esquerda, float direita, float baixo, float cima, float proximo, float distante) {
