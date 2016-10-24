@@ -1,4 +1,5 @@
 Versao 2.5.0
+- Texturas modo tile.
 - Zfight ipad e mapa oclusao.
 - Pinca: com tres para vertical.
 - VBO de acoes.
