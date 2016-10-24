@@ -879,7 +879,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
-  float angulo_visao_vertical_graus_ = 60.0f;  
+  float angulo_visao_vertical_graus_ = CAMPO_VISAO_PADRAO;  
   enum camera_e {
     CAMERA_PERSPECTIVA,
     CAMERA_ISOMETRICA,
