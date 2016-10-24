@@ -534,6 +534,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
 
   // Textura do objeto.
   PreencheComboTextura(entidade.info_textura().id(), notificacao.tabuleiro().id_cliente(), ent::FiltroTexturaEntidade, gerador.combo_textura);
+  gerador.checkbox_ladrilho->setCheckState(
+      entidade.info_textura().has_modo_textura()
+      ? (entidade.info_textura().modo_textura() == GL_REPEAT ? Qt::Checked : Qt::Unchecked)
+      : Qt::Unchecked);
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
   ent_cor.mutable_cor()->CopyFrom(entidade.cor());
@@ -709,6 +713,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       proto_retornado->clear_info_textura();
     } else {
       PreencheTexturaProtoRetornado(entidade.info_textura(), gerador.combo_textura, proto_retornado->mutable_info_textura());
+      if (gerador.checkbox_ladrilho->checkState() == Qt::Checked) {
+        proto_retornado->mutable_info_textura()->set_modo_textura(GL_REPEAT);
+      } else {
+        proto_retornado->mutable_info_textura()->clear_modo_textura();
+      }
     }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.

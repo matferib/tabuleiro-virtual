@@ -557,6 +557,22 @@
     <item>
      <widget class="QComboBox" name="combo_textura"/>
     </item>
+    <item>
+     <widget class="QCheckBox" name="checkbox_ladrilho">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip">
+       <string>Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.</string>
+      </property>
+      <property name="text">
+       <string>ladrilho</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
   <widget class="QWidget" name="horizontalLayoutWidget_6">

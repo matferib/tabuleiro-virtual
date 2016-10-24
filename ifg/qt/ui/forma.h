@@ -88,6 +88,7 @@ public:
     QHBoxLayout *horizontalLayout_8;
     QLabel *label_4;
     QComboBox *combo_textura;
+    QCheckBox *checkbox_ladrilho;
     QWidget *horizontalLayoutWidget_6;
     QHBoxLayout *horizontalLayout_11;
     QCheckBox *checkbox_fixa;
@@ -404,6 +405,13 @@ public:
 
         horizontalLayout_8->addWidget(combo_textura);
 
+        checkbox_ladrilho = new QCheckBox(horizontalLayoutWidget_5);
+        checkbox_ladrilho->setObjectName(QString::fromUtf8("checkbox_ladrilho"));
+        sizePolicy1.setHeightForWidth(checkbox_ladrilho->sizePolicy().hasHeightForWidth());
+        checkbox_ladrilho->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_8->addWidget(checkbox_ladrilho);
+
         horizontalLayoutWidget_6 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
         horizontalLayoutWidget_6->setGeometry(QRect(470, 270, 391, 31));
@@ -612,6 +620,10 @@ public:
         dial_rotacao_y->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "<html><head/><body><p>Rota\303\247\303\243o do objeto ao redor do eixo Y.</p></body></html>", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_4->setText(QApplication::translate("ifg::qt::DialogoForma", "Textura", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_ladrilho->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_ladrilho->setText(QApplication::translate("ifg::qt::DialogoForma", "ladrilho", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkbox_fixa->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
