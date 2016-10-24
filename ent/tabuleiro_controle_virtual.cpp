@@ -800,9 +800,9 @@ void Tabuleiro::DesenhaListaPontosVida() {
 
 void Tabuleiro::DesenhaControleVirtual() {
   float cor_padrao[3];
-  cor_padrao[0] = 0.8f;
-  cor_padrao[1] = 0.8f;
-  cor_padrao[2] = 0.8f;
+  cor_padrao[0] = 0.9f;
+  cor_padrao[1] = 0.9f;
+  cor_padrao[2] = 0.9f;
 
   int fonte_x_int, fonte_y_int, escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
