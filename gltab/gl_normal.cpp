@@ -31,6 +31,8 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglGenRenderbuffers;
   PROC pglDeleteRenderbuffers;
   PROC pglBindRenderbuffer;
+  PROC pglRenderbufferStorage;
+  PROC pglFramebufferRenderbuffer;
   PROC pglFramebufferTexture2D;
 
   PROC pglGenBuffers;
@@ -97,6 +99,8 @@ void IniciaGl(bool luz_por_pixel) {
   PGL(glGenRenderbuffers);
   PGL(glDeleteRenderbuffers);
   PGL(glBindRenderbuffer);
+  PGL(glRenderbufferStorage);
+  PGL(glFramebufferRenderbuffer);
   PGL(glFramebufferTexture2D);
 
   PGL(glBlendColor);
@@ -230,6 +234,14 @@ void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) {
 
 void LigacaoComRenderbuffer(GLenum target, GLuint buffer) {
   ((PFNGLBINDRENDERBUFFERPROC)INTERNO->pglBindRenderbuffer)(target, buffer);
+}
+
+void ArmazenamentoRenderbuffer(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) {
+  ((PFNGLRENDERBUFFERSTORAGEPROC)INTERNO->pglRenderbufferStorage)(target, internalformat, width, height);
+}
+
+void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
+  ((PFNGLFRAMEBUFFERRENDERBUFFERPROC)INTERNO->pglFramebufferRenderbuffer)(target, attachment, renderbuffertarget, renderbuffer);
 }
 
 void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, GLuint textura, GLint nivel) {

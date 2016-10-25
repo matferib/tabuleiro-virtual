@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <memory>
+#include <functional>
 #include <string>
 #include <stdexcept>
 #include <vector>
@@ -230,6 +231,8 @@ void LigacaoComFramebuffer(GLenum alvo, GLuint framebuffer);
 void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers);
 void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers);
 void LigacaoComRenderbuffer(GLenum target, GLuint buffer);
+void ArmazenamentoRenderbuffer(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 void TexturaFramebuffer(GLenum alvo, GLenum anexo, GLenum alvo_textura, GLuint textura, GLint nivel);
 void BufferDesenho(GLenum modo);
 void BufferLeitura(GLenum modo);
@@ -284,6 +287,10 @@ inline void LigacaoComBuffer(GLenum target, GLuint buffer) { glBindBuffer(target
 inline void LigacaoComRenderbuffer(GLenum target, GLuint buffer) { glBindRenderbuffer(target, buffer); }
 inline void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) { glGenRenderbuffers(n, renderbuffers); }
 inline void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) { glDeleteRenderbuffers(n, renderbuffers); }
+inline void ArmazenamentoRenderbuffer(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) { glRenderbufferStorage(target, internalformat, width, height); }
+inline void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
+  glRenderbufferDeFramebuffer(target, attachment, renderbuffertarget, renderbuffer); 
+}
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
 inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glGetShaderInfoLog(shader, maxLength, length, infoLog); }
