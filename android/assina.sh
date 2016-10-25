@@ -16,6 +16,8 @@ done
 
 test -z "$VERSAO" && echo "Preciso da versao" && exit 0 || echo "Assinando versao: ${VERSAO}"
 
+cat AndroidManifest.xml | grep 'android:debuggable="true"' && echo "Android manifest com debuggable." || echo "Android Manifest ok"
+
 bash compila.sh --release -v "${VERSAO}"
 
 rm -f bin/TabuleiroVirtual-release-${VERSAO}.apk && \
