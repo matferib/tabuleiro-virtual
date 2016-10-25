@@ -13,12 +13,12 @@
 		EA31EFE41AC9F5B80067BA40 /* arquivo_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE21AC9F5B80067BA40 /* arquivo_ios.mm */; settings = {COMPILER_FLAGS = "-O0"; }; };
 		EA31EFE51AC9F5B80067BA40 /* arquivo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE31AC9F5B80067BA40 /* arquivo.cpp */; settings = {COMPILER_FLAGS = "-O0"; }; };
 		EA33ED841B24ED9100FBDDBD /* gl_vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA33ED831B24ED9100FBDDBD /* gl_vbo.cpp */; };
+		EA34B46B1DBFCE6E00298FF2 /* dados in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0B11CB5F09000A8B02B /* dados */; };
 		EA38B7291ACBB2C700D66E95 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B7271ACBB2C700D66E95 /* socket.cpp */; };
 		EA38B72D1AD4C95600D66E95 /* m3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B72B1AD4C95600D66E95 /* m3d.cpp */; };
 		EA63E0AE1CB5F04300A8B02B /* modelos3d in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0AD1CB5F04300A8B02B /* modelos3d */; };
 		EA63E0B01CB5F07800A8B02B /* texturas in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0AF1CB5F07800A8B02B /* texturas */; };
 		EA63E0B41CB5F0AF00A8B02B /* tabuleiros_salvos in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */; };
-		EA63E0B61CB5F15300A8B02B /* dados in Resources */ = {isa = PBXBuildFile; fileRef = EA63E0B51CB5F15300A8B02B /* dados */; };
 		EA6B4A931B7716B9005A1E79 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */; };
 		EA6B4A951B844324005A1E79 /* shaders in Resources */ = {isa = PBXBuildFile; fileRef = EA6B4A941B844324005A1E79 /* shaders */; };
 		EA9253DA1A6A2B43007EF810 /* gl_es.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA9253D91A6A2B43007EF810 /* gl_es.cpp */; };
@@ -107,7 +107,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; path = tabuleiros_salvos; sourceTree = "<group>"; };
 		EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entidade_composta.cpp; path = ../../../../ent/entidade_composta.cpp; sourceTree = "<group>"; };
 		EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = entidade_forma.cpp; path = ../../../../ent/entidade_forma.cpp; sourceTree = "<group>"; };
 		EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_picking.cpp; path = ../../../../ent/tabuleiro_picking.cpp; sourceTree = "<group>"; };
@@ -119,13 +118,12 @@
 		EA38B72B1AD4C95600D66E95 /* m3d.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = m3d.cpp; path = ../../../m3d/m3d.cpp; sourceTree = "<group>"; };
 		EA38B72C1AD4C95600D66E95 /* m3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = m3d.h; path = ../../../m3d/m3d.h; sourceTree = "<group>"; };
 		EA5CE7541C757F350091039C /* tabuleiro_terreno.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = tabuleiro_terreno.h; path = ../../../../ent/tabuleiro_terreno.h; sourceTree = "<group>"; };
-		EA63E0AD1CB5F04300A8B02B /* modelos3d */ = {isa = PBXFileReference; lastKnownFileType = folder; name = modelos3d; path = ../../modelos3d; sourceTree = "<group>"; };
-		EA63E0AF1CB5F07800A8B02B /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; name = texturas; path = ../../texturas; sourceTree = "<group>"; };
-		EA63E0B11CB5F09000A8B02B /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dados; path = ../../dados; sourceTree = "<group>"; };
-		EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tabuleiros_salvos; path = ../../tabuleiros_salvos; sourceTree = "<group>"; };
-		EA63E0B51CB5F15300A8B02B /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dados; sourceTree = "<group>"; };
+		EA63E0AD1CB5F04300A8B02B /* modelos3d */ = {isa = PBXFileReference; lastKnownFileType = folder; name = modelos3d; path = ../../../modelos3d; sourceTree = "<group>"; };
+		EA63E0AF1CB5F07800A8B02B /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; name = texturas; path = ../../../texturas; sourceTree = "<group>"; };
+		EA63E0B11CB5F09000A8B02B /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dados; path = ../../../dados; sourceTree = "<group>"; };
+		EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */ = {isa = PBXFileReference; lastKnownFileType = folder; name = tabuleiros_salvos; path = ../../../tabuleiros_salvos; sourceTree = "<group>"; };
 		EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
-		EA6B4A941B844324005A1E79 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = ../../shaders; sourceTree = "<group>"; };
+		EA6B4A941B844324005A1E79 /* shaders */ = {isa = PBXFileReference; lastKnownFileType = folder; name = shaders; path = ../../../shaders; sourceTree = "<group>"; };
 		EA9253D91A6A2B43007EF810 /* gl_es.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_es.cpp; path = ../../../../gltab/gl_es.cpp; sourceTree = "<group>"; };
 		EA9253DB1A6A2B65007EF810 /* gl_comum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_comum.cpp; path = ../../../../gltab/gl_comum.cpp; sourceTree = "<group>"; };
 		EA9253DD1A7888BF007EF810 /* tabuleiro_controle_virtual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tabuleiro_controle_virtual.cpp; path = ../../../../ent/tabuleiro_controle_virtual.cpp; sourceTree = "<group>"; };
@@ -282,8 +280,6 @@
 		EACF27921A58D9AA0052E95A /* wire_format_lite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wire_format_lite.h; sourceTree = "<group>"; };
 		EACF27931A58D9AA0052E95A /* wire_format_lite_inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = wire_format_lite_inl.h; sourceTree = "<group>"; };
 		EACF27B91A58DB230052E95A /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
-		EACF27BB1A58DBFB0052E95A /* dados */ = {isa = PBXFileReference; lastKnownFileType = folder; path = dados; sourceTree = "<group>"; };
-		EACF27BC1A58DBFB0052E95A /* texturas */ = {isa = PBXFileReference; lastKnownFileType = folder; path = texturas; sourceTree = "<group>"; };
 		EAE207BB1C011E9F008057D3 /* controle_virtual.pb.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = controle_virtual.pb.cc; path = ../../../../ent/controle_virtual.pb.cc; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -331,16 +327,7 @@
 		EACF26501A58C6DA0052E95A = {
 			isa = PBXGroup;
 			children = (
-				EA63E0B51CB5F15300A8B02B /* dados */,
-				EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */,
-				EA63E0B11CB5F09000A8B02B /* dados */,
-				EA63E0AF1CB5F07800A8B02B /* texturas */,
-				EA63E0AD1CB5F04300A8B02B /* modelos3d */,
-				EA6B4A941B844324005A1E79 /* shaders */,
 				EA6B4A921B7716B9005A1E79 /* CoreMotion.framework */,
-				EA06FA2D1A5B858B008ABF75 /* tabuleiros_salvos */,
-				EACF27BB1A58DBFB0052E95A /* dados */,
-				EACF27BC1A58DBFB0052E95A /* texturas */,
 				EACF27B91A58DB230052E95A /* libz.dylib */,
 				EACF26D71A58D8930052E95A /* GLKit.framework */,
 				EACF26D51A58D7000052E95A /* boost.framework */,
@@ -362,6 +349,11 @@
 		EACF265B1A58C6DA0052E95A /* TabuleiroVirtual */ = {
 			isa = PBXGroup;
 			children = (
+				EA63E0B31CB5F0AF00A8B02B /* tabuleiros_salvos */,
+				EA63E0B11CB5F09000A8B02B /* dados */,
+				EA63E0AF1CB5F07800A8B02B /* texturas */,
+				EA63E0AD1CB5F04300A8B02B /* modelos3d */,
+				EA6B4A941B844324005A1E79 /* shaders */,
 				EA99CC2D1B86D28D009E759C /* matrix */,
 				EA38B72A1AD4C93300D66E95 /* m3d */,
 				EACF27331A58D9AA0052E95A /* google */,
@@ -727,7 +719,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EA63E0B61CB5F15300A8B02B /* dados in Resources */,
 				EA63E0B41CB5F0AF00A8B02B /* tabuleiros_salvos in Resources */,
 				EA63E0B01CB5F07800A8B02B /* texturas in Resources */,
 				EA63E0AE1CB5F04300A8B02B /* modelos3d in Resources */,
@@ -735,6 +726,7 @@
 				EACF26711A58C6DA0052E95A /* LaunchScreen.xib in Resources */,
 				EACF266C1A58C6DA0052E95A /* Main.storyboard in Resources */,
 				EACF266E1A58C6DA0052E95A /* Images.xcassets in Resources */,
+				EA34B46B1DBFCE6E00298FF2 /* dados in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
