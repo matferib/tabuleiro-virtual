@@ -53,7 +53,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -3
+    linha: -4
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -67,7 +67,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -4
+    linha: -5
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -325,6 +325,29 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
+    linha: 0
+    coluna: 13
+    rotulo: "S"
+    cor_rotulo {}
+    textura: "icon_selectable.png"
+    id: CONTROLE_SELECIONAVEL
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Torna entidades selecionadas selecionaveis para jogadores."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna:13
+    rotulo: "<="
+    cor_rotulo {}
+    textura: "icon_undo.png"
+    id: CONTROLE_DESFAZER
+    forma: FORMA_RETANGULO
+    dica: "Desfaz última ação realizada neste dispositivo."
+  }
+  dados_botoes {
+    tamanho: 1
     linha: 1
     coluna: 11
     rotulo: "Vo"
@@ -351,7 +374,7 @@ pagina {
     largura: 3.0
     altura: 2.0
     linha: 0
-    coluna: 13
+    coluna: 14
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -363,7 +386,7 @@ pagina {
   dados_botoes {
     tamanho: 1.2
     linha: 1
-    coluna: 14
+    coluna: 15
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -376,7 +399,7 @@ pagina {
   dados_botoes {
     tamanho: 1.2
     linha: 0
-    coluna: 14
+    coluna: 15
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -389,7 +412,7 @@ pagina {
   dados_botoes {
     tamanho: 1.2
     linha: 0
-    coluna: 13
+    coluna: 14
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -402,7 +425,7 @@ pagina {
   dados_botoes {
     tamanho: 1.2
     linha: 0
-    coluna: 15
+    coluna: 16
     rotulo: ""
     cor_rotulo {}
     textura: ""
@@ -415,7 +438,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 16
+    coluna: 17
     rotulo: "^"
     cor_rotulo {}
     textura: ""
@@ -426,7 +449,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 16
+    coluna: 17
     rotulo: "v"
     cor_rotulo {}
     textura: ""
@@ -439,7 +462,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 17
+    coluna: 18
     rotulo: "Is"
     cor_rotulo {}
     textura: "icon_isometric_camera.png"
@@ -450,7 +473,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 17
+    coluna: 18
     rotulo: "Is"
     cor_rotulo {}
     textura: "icon_tracking_camera.png"
@@ -461,7 +484,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 18
+    coluna: 19
     rotulo: "1p"
     cor_rotulo {}
     textura: "icon_first_person_camera.png"
@@ -472,7 +495,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 18
+    coluna: 19
     rotulo: "FoV"
     cor_rotulo {}
     id: CONTROLE_ANGULO_VISAO_ORIGINAL
@@ -483,7 +506,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 19
+    coluna: 20
     rotulo: "Ve"
     cor_rotulo {}
     textura: "icon_darkvision.png"
@@ -494,7 +517,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 19
+    coluna: 20
     rotulo: "Re"
     cor_rotulo {}
     textura: "icon_ruler.png"
@@ -506,26 +529,13 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 20
+    coluna: 21
     rotulo: "X"
     cor_rotulo { r: 1.0 a: 1.0 }
     textura: "icon_trash.png"
     id: CONTROLE_APAGA_ENTIDADES
     forma: FORMA_RETANGULO
     dica: "Apaga entidades selecionadas."
-  }
-
-  # Desfazer.
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 20
-    rotulo: "<="
-    cor_rotulo {}
-    textura: "icon_undo.png"
-    id: CONTROLE_DESFAZER
-    forma: FORMA_RETANGULO
-    dica: "Desfaz última ação realizada neste dispositivo."
   }
   dados_botoes {
     tamanho: 2

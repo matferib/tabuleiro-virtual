@@ -3,7 +3,7 @@ acao {
   id: 'Ácido'
   tipo: ACAO_DISPERSAO
   cor { r: 0.0 g: 0.5 b: 0.0 }
-  raio_area: 1.5  # quadrados.
+  raio_quadrados: 1.5  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
   textura: "icon_acid.png"
@@ -29,7 +29,7 @@ acao {
   id: 'Bola de Fogo'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
-  raio_area: 4  # quadrados.
+  raio_quadrados: 4  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
 	permite_salvacao: true
@@ -39,7 +39,7 @@ acao {
   id: 'Cone de Gelo'
   tipo: ACAO_DISPERSAO
   cor: { r: 0.3 b: 1.0 g: 0.3 }
-  distancia: 12  # quadrados
+  distancia_quadrados: 12  # quadrados
   geometria: ACAO_GEO_CONE
   efeito_area: true
 	permite_salvacao: true
@@ -58,7 +58,7 @@ acao {
   id: 'Fogo Grego'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
-  raio_area: 1.5  # quadrados.
+  raio_quadrados: 1.5  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
   textura: 'icon_alchemist_fire.png'
@@ -67,7 +67,7 @@ acao {
   id: 'Mãos Flamejantes'
   tipo: ACAO_DISPERSAO
   cor { r: 0.7 g: 0.7 b: 0 }
-  distancia: 3  # quadrados
+  distancia_quadrados: 3  # quadrados
   geometria: ACAO_GEO_CONE
   efeito_area: true
 	permite_salvacao: true
@@ -110,7 +110,7 @@ acao {
   cor { r: 0.0 g: 0 b: 1.0 }
   duracao_s: 0.5
   efeito_area: true
-	distancia: 14  # quadrados
+	distancia_quadrados: 14  # quadrados
 	permite_salvacao: true
   textura: "icon_lightning.png"
 }
