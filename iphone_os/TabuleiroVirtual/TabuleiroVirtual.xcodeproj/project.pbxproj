@@ -10,8 +10,8 @@
 		EA31EFDF1AC9D5A70067BA40 /* entidade_composta.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDC1AC9D5A70067BA40 /* entidade_composta.cpp */; };
 		EA31EFE01AC9D5A70067BA40 /* entidade_forma.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDD1AC9D5A70067BA40 /* entidade_forma.cpp */; };
 		EA31EFE11AC9D5A70067BA40 /* tabuleiro_picking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFDE1AC9D5A70067BA40 /* tabuleiro_picking.cpp */; };
-		EA31EFE41AC9F5B80067BA40 /* arquivo_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE21AC9F5B80067BA40 /* arquivo_ios.mm */; };
-		EA31EFE51AC9F5B80067BA40 /* arquivo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE31AC9F5B80067BA40 /* arquivo.cpp */; };
+		EA31EFE41AC9F5B80067BA40 /* arquivo_ios.mm in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE21AC9F5B80067BA40 /* arquivo_ios.mm */; settings = {COMPILER_FLAGS = "-O0"; }; };
+		EA31EFE51AC9F5B80067BA40 /* arquivo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA31EFE31AC9F5B80067BA40 /* arquivo.cpp */; settings = {COMPILER_FLAGS = "-O0"; }; };
 		EA33ED841B24ED9100FBDDBD /* gl_vbo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA33ED831B24ED9100FBDDBD /* gl_vbo.cpp */; };
 		EA38B7291ACBB2C700D66E95 /* socket.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B7271ACBB2C700D66E95 /* socket.cpp */; };
 		EA38B72D1AD4C95600D66E95 /* m3d.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B72B1AD4C95600D66E95 /* m3d.cpp */; };
