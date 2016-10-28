@@ -5371,6 +5371,7 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
     notificacao_remocao->mutable_entidade()->CopyFrom(proto_composto);
   }
   TrataNotificacao(grupo_notificacoes);
+  AdicionaEntidadesSelecionadas(ids_adicionados_);
   {
     // para desfazer
     if (ids_adicionados_.size() == num_adicionados) {
