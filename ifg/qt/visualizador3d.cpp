@@ -578,36 +578,25 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.checkbox_luz->setCheckState(Qt::Checked);
   });
 
-  // Rotacao em Z.
-  gerador.dial_rotacao->setSliderPosition(entidade.rotacao_z_graus() + 90.0f);
-  gerador.spin_rotacao->setValue(entidade.rotacao_z_graus());
-  lambda_connect(gerador.dial_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.spin_rotacao->setValue(fmod(gerador.dial_rotacao->value() - 90.0f, 360.0));
-  });
-  lambda_connect(gerador.spin_rotacao, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.dial_rotacao->setValue(fmod(gerador.spin_rotacao->value() + 90.0f, 360.0f));
-  });
-
   // Translacao em Z.
   gerador.spin_translacao->setValue(entidade.pos().z());
-  // Rotacao em Y.
-  gerador.dial_rotacao_y->setSliderPosition(-entidade.rotacao_y_graus() - 180.0f);
-  gerador.spin_rotacao_y->setValue(entidade.rotacao_y_graus());
-  lambda_connect(gerador.dial_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.spin_rotacao_y->setValue(180 - gerador.dial_rotacao_y->value());
-  });
-  lambda_connect(gerador.spin_rotacao_y, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.dial_rotacao_y->setValue(-gerador.spin_rotacao_y->value() - 180);
-  });
-  // Rotacao em X.
-  gerador.dial_rotacao_x->setSliderPosition(-entidade.rotacao_x_graus() - 180.0f);
-  gerador.spin_rotacao_x->setValue(entidade.rotacao_x_graus());
-  lambda_connect(gerador.dial_rotacao_x, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.spin_rotacao_x->setValue(180 - gerador.dial_rotacao_x->value());
-  });
-  lambda_connect(gerador.spin_rotacao_x, SIGNAL(valueChanged(int)), [gerador] {
-    gerador.dial_rotacao_x->setValue(-gerador.spin_rotacao_x->value() - 180);
-  });
+
+  // Rotacoes.
+  // Rotacao em Z.
+  auto AjustaSliderSpin = [] (float angulo, QDial* dial, QSpinBox* spin) {
+    angulo = fmodf(angulo, 180.0f);
+    dial->setSliderPosition(-angulo - 180.0f);
+    spin->setValue(angulo);
+    lambda_connect(dial, SIGNAL(valueChanged(int)), [spin, dial] {
+        spin->setValue(180 - dial->value());
+    });
+    lambda_connect(spin, SIGNAL(valueChanged(int)), [spin, dial] {
+        dial->setValue(-spin->value() - 180);
+    });
+  };
+  AjustaSliderSpin(entidade.rotacao_z_graus(), gerador.dial_rotacao, gerador.spin_rotacao);
+  AjustaSliderSpin(entidade.rotacao_y_graus(), gerador.dial_rotacao_y, gerador.spin_rotacao_y);
+  AjustaSliderSpin(entidade.rotacao_x_graus(), gerador.dial_rotacao_x, gerador.spin_rotacao_x);
 
   // Escalas.
   gerador.spin_escala_x->setValue(entidade.escala().x());

@@ -316,7 +316,7 @@
      <number>-180</number>
     </property>
     <property name="maximum">
-     <number>360</number>
+     <number>180</number>
     </property>
    </widget>
   </widget>
