@@ -4380,15 +4380,27 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_z_3d_ = z3d;
 
   if (tipo_objeto == OBJ_TABULEIRO) {
-    // Tabuleiro.
-    // Converte x3d y3d para id quadrado.
-    SelecionaQuadrado(IdQuadrado(x3d, y3d));
+    if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+      TrataBotaoRotacaoPressionado(x, y);
+      return;
+    } else {
+      // Tabuleiro.
+      // Converte x3d y3d para id quadrado.
+      SelecionaQuadrado(IdQuadrado(x3d, y3d));
+    }
   } else if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
       AlternaSelecaoEntidade(id);
     } else {
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+        const auto* entidade = BuscaEntidade(id);
+        if (entidade == nullptr || !entidade->Proto().selecionavel_para_jogador()) {
+          TrataBotaoRotacaoPressionado(x, y);
+          return;
+        }
+      }
       if (!EntidadeEstaSelecionada(id)) {
         // Se nao estava selecionada, so ela.
         SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
@@ -4429,6 +4441,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   } else if (tipo_objeto == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
+  } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    TrataBotaoRotacaoPressionado(x, y);
+    return;
   } else {
     VLOG(1) << "Picking lugar nenhum.";
     DeselecionaEntidades();
