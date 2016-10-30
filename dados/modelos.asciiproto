@@ -2,7 +2,7 @@
 modelo {
   id: 'Abocanhador Matraqueante'
   entidade {
-    dados_vida: '4d8+24' info_textura { id: 'gibbering_mouther.png' } cor { r: 0.635 g: 0.51 b: 0.427 }
+    dados_vida: '4d8+24' modelo_3d { id: 'gibbering_mouther' }
     rotulo_especial: 'ini +1\nagarrar +3 at +4/+4/+4/+4/+4/+4/+4 (toque) dano 1/1/1/1/1/1/1d4 acido + cegueira\nvarias outras'
   }
 }
@@ -61,7 +61,7 @@ modelo {
 modelo {
   id: 'Mantor'
   entidade {
-    dados_vida: '6d8+18' tamanho: TM_GRANDE info_textura { id: 'mantor.png' } cor { r: 0 g: 0 b: 0 }
+    dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'cloaker' }
     voadora: true tipo_visao: VISAO_ESCURO alcance_visao: 12
     rotulo_especial: 'ini +7\nat +8/+3 1d6+5, agarrar +13/1d4+2\nca 19/12/16\nlamento, engolfar e sombras'
   }
@@ -555,7 +555,7 @@ modelo {
 modelo {
   id: 'Homem-Rato'
   entidade {
-    dados_vida: '2d8+3' info_textura { id: 'wererat.png'} cor { r: 0.2 g: 0.2 b: 0.2 }
+    dados_vida: '2d8+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.2 g: 0.2 b: 0.2 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'humano: ini 0 at +2 (sabre) ou +1 (besta) dano 1d6+1(18-20) ou 1d8(19-20)\nca 15/10/15\nrato: ini +3 at +6 1d4+1+doenca\nca 17/14/14\nhibrido: ini +3 at +4/-1 dano 1d6+1(18-20)/1d6+doenca\nca 16/13/13\ndoenca febre esgoto'
   }
@@ -625,7 +625,7 @@ modelo {
 modelo {
   id: 'Cubo Gelatinoso'
   entidade {
-    dados_vida: '4d10+32' cor { r: 1 g: 1 b: 1 a: 0.3 }
+    dados_vida: '4d10+32' cor { r: 1 g: 1 b: 1 a: 0.3 } modelo_3d { id: 'gelatinous_cube' }
     tamanho: TM_GRANDE
     rotulo_especial: 'ini -5\nat +2 1d6+1d6 acido\nengolfar, paralisia fort CD 20 3d6 rodadas'
   }
@@ -633,7 +633,7 @@ modelo {
 modelo {
   id: 'Pudim Negro'
   entidade {
-    dados_vida: '10d10+60' cor { r: 0 b: 0 g: 0 } tamanho: TM_ENORME
+    dados_vida: '10d10+60' cor { r: 0.3 b: 0.3 g: 0.3 } modelo_3d { id: 'black_pudding' } tamanho: TM_ENORME
     rotulo_especial: 'ini -5\nat +8 2d6+4+2d6 acido\nconstricao 2d6+4'
   }
 }
