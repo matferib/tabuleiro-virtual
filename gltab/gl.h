@@ -289,7 +289,7 @@ inline void GeraRenderbuffers(GLsizei n, GLuint* renderbuffers) { glGenRenderbuf
 inline void ApagaRenderbuffers(GLsizei n, const GLuint* renderbuffers) { glDeleteRenderbuffers(n, renderbuffers); }
 inline void ArmazenamentoRenderbuffer(GLenum target, GLenum internalformat, GLsizei width, GLsizei height) { glRenderbufferStorage(target, internalformat, width, height); }
 inline void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer) {
-  glRenderbufferDeFramebuffer(target, attachment, renderbuffertarget, renderbuffer); 
+  glFramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
 }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
