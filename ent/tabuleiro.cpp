@@ -1010,7 +1010,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
     const auto& proto_original = entidade_selecionada->Proto();
@@ -1974,6 +1974,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float olho_rotacao = olho_.rotacao_rad();
       olho_rotacao -= (x - ultimo_x_) * SENSIBILIDADE_ROTACAO_X;
       VLOG(1) << "x: " << x << ", ultimo_x: " << ultimo_x_;
+      VLOG(1) << "y: " << x << ", ultimo_y: " << ultimo_x_;
       if (olho_rotacao >= 2 * M_PI) {
         olho_rotacao -= 2 * M_PI;
       } else if (olho_rotacao <= - 2 * M_PI) {
@@ -2223,6 +2224,12 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       estado_ = estado_anterior_;
       return;
     case ETAB_DESLIZANDO:
+      VLOG(1) << "primeiro_x_: " << primeiro_x_ << ", ultimo_x_: " << ultimo_x_
+              << ", primeiro_y_: " << primeiro_y_ << ", ultimo_y_: " << ultimo_y_;
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA && primeiro_x_ == ultimo_x_ && primeiro_y_ == ultimo_y_) {
+        // Isso provavelmente foi um clique convertido em deslize.
+        DeselecionaEntidades();
+      }
       estado_ = estado_anterior_;
       return;
     case ETAB_ENTS_PRESSIONADAS: {
@@ -4381,7 +4388,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
 
   if (tipo_objeto == OBJ_TABULEIRO) {
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      TrataBotaoRotacaoPressionado(x, y);
+      TrataBotaoDireitoPressionado(x, y);
       return;
     } else {
       // Tabuleiro.
@@ -4397,7 +4404,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         const auto* entidade = BuscaEntidade(id);
         if (entidade == nullptr || !entidade->Proto().selecionavel_para_jogador()) {
-          TrataBotaoRotacaoPressionado(x, y);
+          TrataBotaoDireitoPressionado(x, y);
           return;
         }
       }
@@ -4442,7 +4449,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    TrataBotaoRotacaoPressionado(x, y);
+    TrataBotaoDireitoPressionado(x, y);
     return;
   } else {
     VLOG(1) << "Picking lugar nenhum.";
@@ -4458,8 +4465,8 @@ void Tabuleiro::TrataBotaoDireitoPressionado(int x, int y) {
   MousePara3dParaleloZero(x, y, &x3d, &y3d, &z3d);
   ultimo_x_3d_ = x3d;
   ultimo_y_3d_ = y3d;
-  ultimo_x_ = x;
-  ultimo_y_ = y;
+  primeiro_x_ = ultimo_x_ = x;
+  primeiro_y_ = ultimo_y_ = y;
   if (estado_ != ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA) {
     estado_anterior_ = estado_;
     estado_ = ETAB_DESLIZANDO;
