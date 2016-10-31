@@ -493,7 +493,7 @@ class Tabuleiro : public ntf::Receptor {
     float profundidade;  // quanto movimentou ate a colisao, length de movimento se nao houver.
     Vector3 normal;      // normal do ponto de colisao.
   };
-  ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento);
+  ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade = false);
 
   // Coleta os VBOs extraidos.
   void ColetaVbosEntidades();

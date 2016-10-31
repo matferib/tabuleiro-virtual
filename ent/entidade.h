@@ -116,6 +116,9 @@ class Entidade {
   float Z(bool delta_voo = false) const;
   float ZOlho() const;
 
+  float ZAntesVoo() const { return vd_.z_antes_voo; }
+  void AtribuiZAntesVoo(float z) { vd_.z_antes_voo = z; }
+
   /** @return o id de cenario da entidade. */
   int IdCenario() const;
 

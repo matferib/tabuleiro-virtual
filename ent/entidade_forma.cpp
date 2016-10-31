@@ -258,13 +258,13 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
                        proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO);
   GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
 
-  gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
   if (id_textura != GL_INVALID_VALUE) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     if (proto.info_textura().has_modo_textura()) {
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, proto.info_textura().modo_textura());
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, proto.info_textura().modo_textura());
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
       gl::Escala(proto.escala().x(), proto.escala().y(), 1.0f);
       gl::AtualizaMatrizes();
     }
@@ -332,6 +332,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   }
   if (id_textura != GL_INVALID_VALUE) {
     if (proto.info_textura().has_modo_textura()) {
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::AtualizaMatrizes();
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }

@@ -455,13 +455,19 @@ void Tabuleiro::ConfiguraOlhar() {
           // up
           alvo.x() - olho_.pos().x(), alvo.y() - olho_.pos().y(), 0.0);
     } else {
+      Vector3 up;
+      if (olho_.pos().x() != alvo.x() || olho_.pos().y() != alvo.y()) {
+        up.z = 1.0f;
+      } else {
+        up.y = 1.0f;
+      }
       gl::OlharPara(
           // from.
           olho_.pos().x(), olho_.pos().y(), olho_.pos().z(),
           // to.
           alvo.x(), alvo.y(), alvo.z(),
           // up
-          0, 0, 1.0);
+          up.x, up.y, up.z);
     }
     return;
   }
@@ -1045,6 +1051,21 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
     if ((bits & BIT_VOO) > 0) {
       proto_antes->set_voadora(proto_original.voadora());
       proto_depois->set_voadora(!proto_original.voadora());
+      if (proto_antes->voadora()) {
+        // Detecta colisao vertical.
+        Vector3 vetor_movimento;
+        float z_olho = entidade_selecionada->ZOlho();
+        float tam_movimento = z_olho - entidade_selecionada->ZAntesVoo();
+        vetor_movimento.z = -tam_movimento;
+        // como movimento eh vertical, ignora o espaco da entidade.
+        auto res_colisao = DetectaColisao(*entidade_selecionada, vetor_movimento, true  /*ignora_espaco*/);
+        VLOG(1) << "tam_movimento: " << tam_movimento << ", colisao: " << res_colisao.profundidade << ", vetor: " << vetor_movimento;
+        if (res_colisao.profundidade < tam_movimento) {
+          float novo_z = z_olho - res_colisao.profundidade;
+          VLOG(1) << "colisao, novo_z: " << novo_z;
+          entidade_selecionada->AtribuiZAntesVoo(novo_z);
+        }
+      }
     }
     if (bits & BIT_CAIDA) {
       proto_antes->set_caida(proto_original.caida());
@@ -4288,7 +4309,8 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
-    id_ent.second->Atualiza(intervalo_ms);
+    auto* entidade = id_ent.second.get();
+    entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
   }
 }
@@ -5411,9 +5433,9 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   }
 }
 
-Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento) {
+Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
   float tamanho_movimento = movimento.length();
-  float espaco_entidade = entidade.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+  float espaco_entidade = ignora_espaco_entidade ? 0.0f : entidade.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 
   ParametrosDesenho pd(parametros_desenho_);
   parametros_desenho_.set_desenha_terreno(false);
@@ -5431,7 +5453,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
   Posicao alvo_temp;
   alvo_temp.set_x(origem_temp.x() + movimento.x);
   alvo_temp.set_y(origem_temp.y() + movimento.y);
-  alvo_temp.set_z(origem_temp.z());
+  alvo_temp.set_z(origem_temp.z() + movimento.z);
   olho_.mutable_pos()->Swap(&origem_temp);
   olho_.mutable_alvo()->Swap(&alvo_temp);
   //gl::Viewport(0, 0, 3, 3);
