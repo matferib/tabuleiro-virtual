@@ -160,13 +160,6 @@ void Entidade::DesenhaObjetoEntidadeProto(
   }
 #endif
 
-  // Deslocamento da textura.
-  gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-  {
-    gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
-    gl::AtualizaMatrizes();
-  }
-
   // Tela da textura.
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
   gl::MultiplicaMatriz(vd.matriz_modelagem_tela_textura.get());
@@ -174,6 +167,14 @@ void Entidade::DesenhaObjetoEntidadeProto(
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
+    // Deslocamento da textura.
+    bool ajustar_textura = (vd.matriz_deslocamento_textura != Matrix4());
+    if (ajustar_textura) {
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+      gl::AtualizaMatrizes();
+    }
+
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
     Cor c;
@@ -184,6 +185,12 @@ void Entidade::DesenhaObjetoEntidadeProto(
     MudaCor(proto.morta() ? EscureceCor(c) : c);
     gl::DesenhaVbo(g_vbos[VBO_TELA_TEXTURA], GL_TRIANGLE_FAN);
     gl::Desabilita(GL_TEXTURE_2D);
+
+    // restaura.
+    if (ajustar_textura) {
+      gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
+      gl::AtualizaMatrizes();
+    }
   }
 }
 
