@@ -5590,7 +5590,7 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
   } else {
     ntf::Notificacao grupo_notificacoes;
     grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    for (unsigned int id : IdsPrimeiraPessoaOuEntidadesSelecionadas()) {
+    for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
       auto* entidade_selecionada = BuscaEntidade(id);
       if (entidade_selecionada == nullptr) {
         continue;
@@ -5602,8 +5602,9 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       e->set_id(entidade_selecionada->Id());
       e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
       // Altera a translacao em Z.
-      entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
+      //entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
       e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
+      e->mutable_destino()->set_z(e->destino().z() + delta * TAMANHO_LADO_QUADRADO);
     }
     // Nop mas envia para os clientes.
     TrataNotificacao(grupo_notificacoes);
