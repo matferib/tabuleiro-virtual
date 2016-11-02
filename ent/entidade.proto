@@ -169,6 +169,7 @@ message EntidadeProto {
   optional bool visivel = 10 [default=true];
   // Verdadeiro se a entidade for voadora.
   optional bool voadora = 13 [default=false];
+  optional float z_antes_voo = 49;
   // Entidade esta caida.
   optional bool caida = 14 [default=false];
   // Entidade esta morta.
