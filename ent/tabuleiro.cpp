@@ -1056,16 +1056,21 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
         Vector3 vetor_movimento;
         float z_olho = entidade_selecionada->ZOlho();
         float tam_movimento = z_olho - entidade_selecionada->ZAntesVoo();
+        VLOG(1) << "z_olho: " << z_olho << ", z_antes_voo: " << entidade_selecionada->ZAntesVoo();
         vetor_movimento.z = -tam_movimento;
         // como movimento eh vertical, ignora o espaco da entidade.
         auto res_colisao = DetectaColisao(*entidade_selecionada, vetor_movimento, true  /*ignora_espaco*/);
         VLOG(1) << "tam_movimento: " << tam_movimento << ", colisao: " << res_colisao.profundidade << ", vetor: " << vetor_movimento;
         if (res_colisao.profundidade < tam_movimento) {
           float novo_z = z_olho - res_colisao.profundidade;
-          VLOG(1) << "colisao, novo_z: " << novo_z;
-          entidade_selecionada->AtribuiZAntesVoo(novo_z);
+          VLOG(1) << "colisao, novo_z: " << novo_z << ", antes: " << entidade_selecionada->ZAntesVoo();
+          proto_depois->set_z_antes_voo(novo_z);
+          //entidade_selecionada->AtribuiZAntesVoo(novo_z);
         }
+      } else {
+        proto_depois->set_z_antes_voo(entidade_selecionada->Z(true));
       }
+      proto_antes->set_z_antes_voo(entidade_selecionada->ZAntesVoo());
     }
     if (bits & BIT_CAIDA) {
       proto_antes->set_caida(proto_original.caida());
@@ -3685,6 +3690,14 @@ void Tabuleiro::GeraMontanhaNotificando() {
   // Gera o terreno se nao houver.
   proto_corrente_->mutable_ponto_terreno()->Resize((TamanhoX() + 1) * (TamanhoY() + 1), 0);
 
+  ntf::Notificacao n_desfazer;
+  n_desfazer.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
+  {
+    auto* cenario_antes = n_desfazer.mutable_tabuleiro_antes();
+    cenario_antes->set_id_cenario(proto_corrente_->id_cenario());
+    *cenario_antes->mutable_ponto_terreno() = proto_corrente_->ponto_terreno();
+  }
+
   int indice = Terreno::IndicePontoTabuleiro(x_quad, y_quad, TamanhoX());
   float altura_ponto_inicial_m = proto_corrente_->ponto_terreno(indice);
 
@@ -3752,8 +3765,6 @@ void Tabuleiro::GeraMontanhaNotificando() {
   }
   RegeraVboTabuleiro();
   RefrescaTerrenoParaClientes();
-  ntf::Notificacao n_desfazer;
-  n_desfazer.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
   {
     auto* cenario_depois = n_desfazer.mutable_tabuleiro();
     cenario_depois->set_id_cenario(proto_corrente_->id_cenario());
