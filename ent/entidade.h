@@ -116,8 +116,8 @@ class Entidade {
   float Z(bool delta_voo = false) const;
   float ZOlho() const;
 
-  float ZAntesVoo() const { return vd_.z_antes_voo; }
-  void AtribuiZAntesVoo(float z) { vd_.z_antes_voo = z; }
+  float ZAntesVoo() const { return proto_.z_antes_voo(); }
+  void AtribuiZAntesVoo(float z) { proto_.set_z_antes_voo(z); }
 
   /** @return o id de cenario da entidade. */
   int IdCenario() const;
@@ -240,8 +240,6 @@ class Entidade {
     float angulo_rotacao_textura_graus = 0.0f;
     // Qual a altura do voo da entidade.
     float altura_voo = 0.0f;
-    // Salva z antes do voo para restaurar depois.
-    float z_antes_voo = 0.0f;
     // Entidades em voo oscilam sobre a altura do voo. A oscilacao eh baseada no seno deste angulo.
     float angulo_disco_voo_rad = 0.0f;
     // Entidades em queda caem progressivamente ate 90 graus.

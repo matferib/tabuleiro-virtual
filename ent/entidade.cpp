@@ -454,7 +454,6 @@ void Entidade::Atualiza(int intervalo_ms) {
     if (vd_.altura_voo < ALTURA_VOO) {
       if (vd_.altura_voo == 0.0f) {
         vd_.angulo_disco_voo_rad = 0.0f;
-        vd_.z_antes_voo = Z();
       }
       // Decolando, ate chegar na altura do voo.
       vd_.altura_voo += ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
@@ -471,14 +470,14 @@ void Entidade::Atualiza(int intervalo_ms) {
       vbo_escopo.atualizar = true;
 #endif
       const float DECREMENTO = ALTURA_VOO * static_cast<float>(intervalo_ms) / DURACAO_POSICIONAMENTO_INICIAL_MS;
-      if (Z() > vd_.z_antes_voo) {
+      if (Z() > proto_.z_antes_voo()) {
         proto_.mutable_pos()->set_z(Z() - DECREMENTO);
       } else {
-        proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+        proto_.mutable_pos()->set_z(proto_.z_antes_voo());
         // Nao eh voadora e esta suspensa. Pousando.
         vd_.altura_voo -= DECREMENTO;
-        if (Z() < vd_.z_antes_voo) {
-          proto_.mutable_pos()->set_z(vd_.z_antes_voo);
+        if (Z() < proto_.z_antes_voo()) {
+          proto_.mutable_pos()->set_z(proto_.z_antes_voo());
         }
       }
     } else {
@@ -747,6 +746,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (atualizar_vbo) {
     AtualizaVbo(parametros_desenho_);
   }
+  VLOG(1) << "Entidade apos atualizacao parcial: " << proto_.ShortDebugString();
 }
 
 // Acao de display.
