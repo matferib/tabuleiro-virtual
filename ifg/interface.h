@@ -12,7 +12,11 @@ class Tabuleiro;
 }  // namespace ent
 namespace ifg {
 
+class MenuModelos;
 class TratadorTecladoMouse;
+
+// Funcao auxiliar para misturar protos de menu de tipos diferentes (srd e nao srd).
+void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida); 
 
 class InterfaceGrafica : public ntf::Receptor {
  public:
@@ -43,6 +47,11 @@ class InterfaceGrafica : public ntf::Receptor {
   virtual void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) = 0;
 
+  // Mostra o dialogo para escolher um modelo de entidade.
+  virtual void EscolheModeloEntidade(
+      const MenuModelos& modelos,
+      std::function<void(const std::string& nome)> funcao_volta) = 0;
+
  protected:
   TratadorTecladoMouse* teclado_mouse_ = nullptr;
   ent::Tabuleiro* tabuleiro_ = nullptr;
@@ -57,6 +66,9 @@ class InterfaceGrafica : public ntf::Receptor {
 
   void TrataSalvarTabuleiro(const ntf::Notificacao& notificacao);
   void VoltaSalvarTabuleiro(const std::string& nome);
+
+  void TrataEscolherModeloEntidade(const ntf::Notificacao& notificacao);
+  void VoltaEscolherModeloEntidade(const std::string& nome);
 };
 
 }  // namespace ifg

@@ -32,6 +32,8 @@ class InterfaceGraficaQt : public ifg::InterfaceGrafica {
   void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) override;
 
+  void EscolheModeloEntidade(const MenuModelos& modelos, std::function<void(const std::string& nome)> funcao_volta) override;
+
  private:
   QWidget* pai_ = nullptr;
 };

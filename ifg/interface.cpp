@@ -4,6 +4,7 @@
 #include "arq/arquivo.h"
 #include "ent/tabuleiro.h"
 #include "ifg/interface.h"
+#include "ifg/modelos.pb.h"
 #include "ifg/tecladomouse.h"
 #include "log/log.h"
 
@@ -14,6 +15,26 @@ using std::placeholders::_2;
 
 namespace ifg {
 
+void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
+  for (const auto& m : entrada.modelo()) {
+    saida->add_modelo()->CopyFrom(m);
+  }
+  for (const auto& sub_entrada : entrada.sub_menu()) {
+    MenuModelos* sub_saida = nullptr;
+    for (auto& esta_sub_saida : *saida->mutable_sub_menu()) {
+      if (esta_sub_saida.id() == sub_entrada.id()) {
+        sub_saida = &esta_sub_saida;
+        break;
+      }
+    }
+    if (sub_saida == nullptr) {
+      sub_saida = saida->add_sub_menu();
+      sub_saida->set_id(sub_entrada.id());
+    }
+    MisturaProtosMenu(sub_entrada, sub_saida);
+  }
+}
+
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
     case ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO: {
@@ -22,6 +43,10 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO: {
       TrataSalvarTabuleiro(notificacao);
+      return true;
+    }
+    case ntf::TN_ABRIR_DIALOGO_MODELO_ENTIDADE: {
+      TrataEscolherModeloEntidade(notificacao);
       return true;
     }
     case ntf::TN_INFO:
@@ -107,6 +132,40 @@ void InterfaceGrafica::VoltaSalvarTabuleiro(
   auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
   n->set_endereco(nome);
   central_->AdicionaNotificacao(n);
+  tabuleiro_->ReativaWatchdogSeMestre();
+}
+
+//--------------
+// EscolheModelo
+//--------------
+void InterfaceGrafica::TrataEscolherModeloEntidade(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
+  const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
+  const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
+  std::vector<ent::EntidadeProto*> entidades;
+  MenuModelos menu_modelos_proto;
+  for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
+    MenuModelos este_menu_modelos_proto;
+    try {
+      arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
+      MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
+    } catch (const std::logic_error& erro) {
+      LOG(ERROR) << erro.what();
+      VoltaEscolherModeloEntidade("");
+      return;
+    }
+  }
+  EscolheModeloEntidade(
+      menu_modelos_proto,
+      std::bind(
+          &ifg::InterfaceGrafica::VoltaEscolherModeloEntidade,
+          this, _1));
+}
+
+void InterfaceGrafica::VoltaEscolherModeloEntidade(
+    const std::string& nome) {
+  tabuleiro_->SelecionaModeloEntidade(nome);
   tabuleiro_->ReativaWatchdogSeMestre();
 }
 

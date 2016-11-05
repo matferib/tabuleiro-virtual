@@ -1,3 +1,6 @@
+#include <set>
+#include <stack>
+
 #include <QBoxLayout>
 #include <QColorDialog>
 #include <QDialog>
@@ -7,10 +10,12 @@
 #include <QString>
 
 #include "arq/arquivo.h"
+#include "ifg/modelos.pb.h"
 #include "ifg/qt/qt_interface.h"
 #include "ifg/qt/ui/entradastring.h"
 #include "ifg/qt/ui/listapaginada.h"
 #include "ifg/qt/util.h"
+#include "log/log.h"
 
 namespace ifg {
 namespace qt {
@@ -77,6 +82,59 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
       dialogo->accept();
     }
   };
+  lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
+  QObject::connect(gerador.botoes, SIGNAL(rejected()), dialogo, SLOT(reject()));
+  dialogo->exec();
+  delete dialogo;
+}
+
+namespace {
+
+std::set<std::string> ExtraiModelos(const MenuModelos& menu_modelos) {
+  std::stack<const MenuModelos*> menus;
+  menus.push(&menu_modelos);
+  std::set<std::string> ret;
+  do {
+    const auto* menu = menus.top();
+    for (const auto& modelo : menu->modelo()) {
+      // ATENCAO: Se o texto for usado, deve-se manter um mapeamento de texto->id porque o callback usa o id.
+      ret.insert(modelo.id());
+    }
+    menus.pop();
+    for (const auto& sub_menu : menu->sub_menu()) {
+      menus.push(&sub_menu);
+    }
+  } while (!menus.empty());
+  return ret;
+}
+
+}  // namespace
+
+void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, std::function<void(const std::string& nome)> funcao_volta) {
+  ifg::qt::Ui::ListaPaginada gerador;
+  auto* dialogo = new QDialog(pai_);
+  gerador.setupUi(dialogo);
+  auto* wie = new QListWidgetItem(pai_->tr("Modelos"), gerador.lista);
+  wie->setFlags(Qt::NoItemFlags);
+  std::set<std::string> modelos = ExtraiModelos(menu_modelos);
+  for (const auto& nome : modelos) {
+    new QListWidgetItem(pai_->tr(nome.c_str()), gerador.lista);
+  }
+  gerador.lista->setFocus();
+  auto lambda_aceito = [this, &gerador, dialogo, modelos, funcao_volta] () {
+    int indice = gerador.lista->currentRow();
+    // -1 por causa do label adicionado.
+    if (indice > 1) {
+      auto it = modelos.begin();
+      std::advance(it, indice - 1);
+      funcao_volta(*it);
+    } else {
+      funcao_volta("");
+    }
+    //LOG(INFO) << "aceitei: " << (indice > 0 ? modelos.begin() + (indice - 1) : "nada");
+    dialogo->accept();
+  };
+  lambda_connect(gerador.lista, SIGNAL(itemDoubleClicked(QListWidgetItem*)), lambda_aceito);
   lambda_connect(gerador.botoes, SIGNAL(accepted()), lambda_aceito);
   QObject::connect(gerador.botoes, SIGNAL(rejected()), dialogo, SLOT(reject()));
   dialogo->exec();

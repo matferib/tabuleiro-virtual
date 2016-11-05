@@ -22,6 +22,7 @@ Necessary for lupdate.
 #include <boost/asio/ip/host_name.hpp>
 
 #include "arq/arquivo.h"
+#include "ifg/interface.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/menuprincipal.h"
 #include "ifg/modelos.pb.h"
@@ -114,26 +115,6 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
     } else {
       PreencheMenu(*modelo, menu->addMenu(texto), grupo);
     }
-  }
-}
-
-void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
-  for (const auto& m : entrada.modelo()) {
-    saida->add_modelo()->CopyFrom(m);
-  }
-  for (const auto& sub_entrada : entrada.sub_menu()) {
-    MenuModelos* sub_saida = nullptr;
-    for (auto& esta_sub_saida : *saida->mutable_sub_menu()) {
-      if (esta_sub_saida.id() == sub_entrada.id()) {
-        sub_saida = &esta_sub_saida;
-        break;
-      }
-    }
-    if (sub_saida == nullptr) {
-      sub_saida = saida->add_sub_menu();
-      sub_saida->set_id(sub_entrada.id());
-    }
-    MisturaProtosMenu(sub_entrada, sub_saida);
   }
 }
 
