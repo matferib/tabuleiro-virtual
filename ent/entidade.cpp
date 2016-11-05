@@ -421,8 +421,8 @@ void Entidade::Atualiza(int intervalo_ms) {
   struct AtualizaEscopo {
     AtualizaEscopo(Entidade* e) : e(e) {}
     ~AtualizaEscopo() {
-      if (atualizar) e->AtualizaVbo(e->parametros_desenho_);
       e->AtualizaMatrizes();
+      if (atualizar) e->AtualizaVbo(e->parametros_desenho_);
     }
     Entidade* e;
     bool atualizar = false;
