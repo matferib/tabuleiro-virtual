@@ -319,7 +319,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
       if (usar_stencil) {
         LigaStencil();
       }
-      vd.vbos_nao_gravados.Desenha();
+      //vd.vbos_nao_gravados.Desenha();
+      vd.vbos_gravados.Desenha();
       if (usar_stencil) {
         float xi, yi, xs, ys;
         LimitesLinha3d(proto.ponto(), TAMANHO_LADO_QUADRADO * proto.escala().z(), &xi, &yi, &xs, &ys);
