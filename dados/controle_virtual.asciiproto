@@ -92,40 +92,6 @@ fixo {
     mestre_apenas: true
     dica: "Gera uma montanha."
   }
-  # Modelos.
-  dados_botoes {
-    tamanho: 1
-    linha: -1
-    alinhamento_horizontal: ALINHAMENTO_CENTRO
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    coluna: -6
-    rotulo: "<"
-    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
-    forma: FORMA_RETANGULO
-    dica: "Seleciona modelo de entidade anterior."
-  }
-  dados_botoes {
-    altura: 1
-    largura: 10
-    linha: -1
-    alinhamento_horizontal: ALINHAMENTO_CENTRO
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    coluna: -5
-    id: CONTROLE_MODELO_ENTIDADE
-    forma: FORMA_RETANGULO
-    dica: "O tipo de entidade adicionada por padrão."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -1
-    alinhamento_horizontal: ALINHAMENTO_CENTRO
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    coluna: 5
-    rotulo: ">"
-    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
-    forma: FORMA_RETANGULO
-    dica: "Seleciona próximo modelo de entidade."
-  }
 }
 pagina {
   # Botoes de ultimas acoes.
@@ -717,7 +683,7 @@ pagina {
   }
   dados_botoes {
     altura: 1
-    largura: 10
+    largura: 9
     linha: 2
     coluna: 2
     id: CONTROLE_TEXTURA_ENTIDADE
@@ -726,11 +692,39 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 12
+    coluna: 11
     rotulo: ">"
     id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
     forma: FORMA_RETANGULO
   }
+  # Modelos.
+#dados_botoes {
+#    tamanho: 1
+#    linha: 2
+#    coluna: 13
+#    rotulo: "<"
+#    id: CONTROLE_MODELO_ENTIDADE_ANTERIOR
+#    forma: FORMA_RETANGULO
+#    dica: "Seleciona modelo de entidade anterior."
+#  }
+  dados_botoes {
+    altura: 1
+    largura: 10
+    linha: 3
+    coluna: 1
+    id: CONTROLE_MODELO_ENTIDADE
+    forma: FORMA_RETANGULO
+    dica: "O modelo de entidade padrão (ao adicionar)."
+  }
+#  dados_botoes {
+#    tamanho: 1
+#    linha: 2
+#    coluna: 24
+#    rotulo: ">"
+#    id: CONTROLE_MODELO_ENTIDADE_PROXIMA
+#    forma: FORMA_RETANGULO
+#    dica: "Seleciona próximo modelo de entidade."
+#  }
   # Cores
   dados_botoes {
     tamanho: 1
@@ -805,9 +799,64 @@ pagina {
     forma: FORMA_RETANGULO
   }
   dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 11
+    rotulo: "?"
+    cor_rotulo {}
+    textura: "icon_help.png"
+    id: CONTROLE_AJUDA
+    forma: FORMA_RETANGULO
+    dica: "Ajuda."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 12
+    rotulo: "<="
+    cor_rotulo {}
+    textura: "icon_undo.png"
+    id: CONTROLE_DESFAZER
+    forma: FORMA_RETANGULO
+    dica: "Desfaz última ação realizada neste dispositivo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 12
+    rotulo: "X"
+    cor_rotulo { r: 1.0 a: 1.0 }
+    textura: "icon_trash.png"
+    id: CONTROLE_APAGA_ENTIDADES
+    forma: FORMA_RETANGULO
+    dica: "Apaga entidades selecionadas."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 13
+    rotulo: "^"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_CIMA_VERTICAL
+    forma: FORMA_RETANGULO
+    dica: "Movimento vertical."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 13
+    rotulo: "v"
+    cor_rotulo {}
+    textura: ""
+    id: CONTROLE_BAIXO_VERTICAL
+    forma: FORMA_RETANGULO
+    dica: "Movimento vertical."
+  }
+  dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 11
+    coluna: 14
     textura: "icon_copy.png"
     id: CONTROLE_COPIAR
     forma: FORMA_RETANGULO
@@ -816,7 +865,7 @@ pagina {
   dados_botoes {
     tamanho: 2
     linha: 0
-    coluna: 13
+    coluna: 16
     textura: "icon_paste.png"
     id: CONTROLE_COLAR
     forma: FORMA_RETANGULO
