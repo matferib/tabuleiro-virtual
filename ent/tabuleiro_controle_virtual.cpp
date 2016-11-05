@@ -373,6 +373,10 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       AlteraTexturaEntidadesSelecionadasNotificando(proximo_rotulo == ROTULO_PADRAO ? "" : proximo_rotulo);
       break;
     }
+    case CONTROLE_MODELO_ENTIDADE: {
+      central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_MODELO_ENTIDADE));
+      break;
+    }
     case CONTROLE_MODELO_ENTIDADE_ANTERIOR: {
       if (modelos_entidades_.size() < 2) {
         return;
