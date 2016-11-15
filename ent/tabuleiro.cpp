@@ -3921,7 +3921,6 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::Desabilita(GL_TEXTURE_2D);
   }
   V_ERRO("textura");
-
   vbos_tabuleiro_.Desenha();
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
