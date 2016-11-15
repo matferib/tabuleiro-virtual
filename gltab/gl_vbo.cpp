@@ -1312,7 +1312,7 @@ void DesenhaVbo(GLenum modo,
                 int num_vertices, int num_dimensoes, const void* indices, const void* dados,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
-                bool tem_cores, const void* cores, int d_cores) {
+                bool tem_cores, const void* cores, int d_cores, bool atualiza_matrizes = true) {
   V_ERRO("DesenhaVB0: antes");
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
@@ -1333,6 +1333,9 @@ void DesenhaVbo(GLenum modo,
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   V_ERRO("DesenhaVBO: mei ponteiro vertices");
 
+  if (atualiza_matrizes) {
+    gl::AtualizaMatrizes();
+  }
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
   V_ERRO("DesenhaVBO: mei elementos");
 
@@ -1352,7 +1355,7 @@ void DesenhaVbo(GLenum modo,
 
 }  // namespace
 
-void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
+void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
   if (!vbo.Gravado()) {
     LOG(WARNING) << "ignorando vbo nao gravado: " << vbo.nome();
     return;
@@ -1370,11 +1373,11 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo) {
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo) {
+void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
   DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
              vbo.tem_normais(), vbo.normais().data(), 0,
              vbo.tem_texturas(), vbo.texturas().data(), 0,
-             vbo.tem_cores(), vbo.cores().data(), 0);
+             vbo.tem_cores(), vbo.cores().data(), 0, atualiza_matrizes);
 }
 
 }  // namespace gl
