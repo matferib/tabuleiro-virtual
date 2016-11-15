@@ -336,10 +336,7 @@ inline void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, 
 
 
 /** Desenha elementos e afins. */
-inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
-  AtualizaMatrizes();
-  glDrawElements(modo, num_vertices, tipo, indices);
-}
+inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) { glDrawElements(modo, num_vertices, tipo, indices); }
 // Vertices.
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices);
 inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {
