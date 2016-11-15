@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="ent">
+      <UniqueIdentifier>{bcbbfa26-2704-414e-9ea9-706b4f7aa3ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="arq">
+      <UniqueIdentifier>{c9ca2d21-9b73-4baf-b7d0-670ce05683a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ifg">
+      <UniqueIdentifier>{835318e8-26a3-40e6-b2aa-5f8b1213fe71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="gl">
+      <UniqueIdentifier>{d06608e0-fa03-4a46-8216-93f53e0c9813}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tex">
+      <UniqueIdentifier>{65845550-a210-48d1-98fa-59a3776cd61e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="matrix">
+      <UniqueIdentifier>{f4f7ec56-a074-4ac7-86ab-63ee11f9927b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="m3d">
+      <UniqueIdentifier>{70f0b1c9-a43b-4d43-98d3-133502729afe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ntf">
+      <UniqueIdentifier>{cc7fcf51-77f7-4e50-a051-4c30a27a04a5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="net">
+      <UniqueIdentifier>{0d623d63-6b8f-4356-85b3-3be28eb90c5f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\ent\acoes.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\acoes.pb.cc">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\controle_virtual.pb.cc">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\entidade.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\entidade.pb.cc">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\entidade_composta.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\entidade_desenho.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\entidade_forma.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arq\arquivo.cpp">
+      <Filter>arq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\arq\arquivo_pc.cpp">
+      <Filter>arq</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\constantes.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\constantes.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gltab\gl_char.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gltab\gl_comum.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gltab\gl_normal.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gltab\gl_vbo.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gltab\glues.cpp">
+      <Filter>gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\menuprincipal.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\moc_menuprincipal.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\moc_principal.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\moc_util.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\principal.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\qt_interface.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabuleiro.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabuleiro.pb.cc">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabuleiro_controle_virtual.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabuleiro_interface.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabuleiro_picking.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\util.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\visualizador3d.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tex\lodepng.cpp">
+      <Filter>tex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tex\picopng.cpp">
+      <Filter>tex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\tex\texturas.cpp">
+      <Filter>tex</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\main.cpp" />
+    <ClCompile Include="..\..\matrix\matrices.cpp">
+      <Filter>matrix</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\qt\util.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\m3d\m3d.cpp">
+      <Filter>m3d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ntf\notificacao.cpp">
+      <Filter>ntf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ntf\notificacao.pb.cc">
+      <Filter>ntf</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\cliente.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\servidor.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\socket.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\net\util.cpp">
+      <Filter>net</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\watchdog.cpp" />
+    <ClCompile Include="..\..\ifg\interface.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\modelos.pb.cc">
+      <Filter>ifg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ifg\tecladomouse.cpp">
+      <Filter>ifg</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
