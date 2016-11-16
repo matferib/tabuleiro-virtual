@@ -552,6 +552,8 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   indices_ = vbo_nao_gravado.indices();
   gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
   V_ERRO("ao bufferizar elementos");
+  gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+  gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
   gravado_ = true;
 }
 
