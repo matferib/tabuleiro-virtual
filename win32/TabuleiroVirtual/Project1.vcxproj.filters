@@ -28,6 +28,9 @@
     <Filter Include="net">
       <UniqueIdentifier>{0d623d63-6b8f-4356-85b3-3be28eb90c5f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="log">
+      <UniqueIdentifier>{138e4987-5bbc-4c91-832d-aecf4c410db2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\ent\acoes.cpp">
@@ -167,5 +170,13 @@
     <ClCompile Include="..\..\ifg\tecladomouse.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\gltab\gl.h">
+      <Filter>gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\log\log.h">
+      <Filter>log</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
