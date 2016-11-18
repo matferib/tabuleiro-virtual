@@ -336,10 +336,8 @@ inline void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, 
 
 #endif
 
-inline void DesenhaArrays(GLenum modo, GLint primeiro, GLsizei num) {
-  AtualizaMatrizes();
-  glDrawArrays(modo, primeiro, num);
-}
+/** Desenha o array habilitado de forma sequencial (sem indice). */
+inline void DesenhaArrays(GLenum modo, GLint primeiro, GLsizei num) { glDrawArrays(modo, primeiro, num); }
 
 /** Desenha elementos e afins. */
 inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) { glDrawElements(modo, num_vertices, tipo, indices); }
