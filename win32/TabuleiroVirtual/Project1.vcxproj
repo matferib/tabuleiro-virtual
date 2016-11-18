@@ -19,8 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\arq\arquivo.cpp" />
-    <ClCompile Include="..\..\arq\arquivo_pc.cpp" />
+    <ClCompile Include="..\..\arq\arquivo.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Disabled</Optimization>
+    </ClCompile>
+    <ClCompile Include="..\..\arq\arquivo_pc.cpp">
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Disabled</Optimization>
+    </ClCompile>
     <ClCompile Include="..\..\ent\acoes.cpp" />
     <ClCompile Include="..\..\ent\acoes.pb.cc" />
     <ClCompile Include="..\..\ent\constantes.cpp">
@@ -83,6 +87,10 @@
     <ClCompile Include="..\..\tex\lodepng.cpp" />
     <ClCompile Include="..\..\tex\picopng.cpp" />
     <ClCompile Include="..\..\tex\texturas.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\gltab\gl.h" />
+    <ClInclude Include="..\..\log\log.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{5F7B8616-7D8D-41E0-B7B9-910BFB1F589E}</ProjectGuid>
@@ -179,7 +187,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\matheus\Projetos\TabuleiroVirtual\win32\include;C:\Users\matheus\Projetos\libs\boost_1_59_0;C:\Users\matheus\Projetos\TabuleiroVirtual;C:\Users\matheus\Projetos\libs\protobuf-2.6.1\protobuf-2.6.1\src;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtGui;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtCore;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QTGui;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QTCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)protobuf\protobuf-2.6.1\src;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtGui;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtCore;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QTGui;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QTCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -246,8 +254,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\matheus\Projetos\TabuleiroVirtual\win32\include;C:\Users\matheus\Projetos\libs\boost_1_59_0;C:\Users\matheus\Projetos\TabuleiroVirtual;C:\Users\matheus\Projetos\libs\protobuf-2.6.1\protobuf-2.6.1\src;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtGui;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtCore;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(SolutionDir)protobuf\protobuf-2.6.1\src;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtGui;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtCore;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_GLOG=1;USAR_GFLAGS=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
     </ClCompile>
@@ -255,9 +263,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>QtOpenGL4.lib;QtGui4.lib;QtCore4.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\x64\Release;C:\Users\matheus\Documents\Visual Studio 2013\Projects\TabuleiroVirtual\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>QtOpengl4.lib;QtGui4.lib;QtCore4.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;libglog_static.lib;gflags_static.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
@@ -269,7 +277,7 @@
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "c:\Users\matheus\Projetos\TabuleiroVirtual\tabvirt.exe"</Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" $(SolutionDir)\.. </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copia a saida para o tabuleiro</Message>
