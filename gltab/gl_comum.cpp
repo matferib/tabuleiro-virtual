@@ -111,6 +111,12 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
+#if !USAR_OPENGL_ES || !__APPLE__
+  // Multisampling pode causar problemas com pontos. Na radeon, os pontos somem pois o tamanho do ponto
+  // eh considerado no sampling e nao em pixels.
+  gl::DesabilitaEscopo salva_sampling(GL_MULTISAMPLE);
+#endif
+  
   // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
