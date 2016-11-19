@@ -583,9 +583,14 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_translacao->setValue(entidade.pos().z());
 
   // Rotacoes.
-  // Rotacao em Z.
   auto AjustaSliderSpin = [] (float angulo, QDial* dial, QSpinBox* spin) {
-    angulo = fmodf(angulo, 180.0f);
+    // Poe o angulo entre -180, 180
+    angulo = fmodf(angulo, 360.0f);
+    if (angulo < -180.0f) {
+      angulo += 360.0f;
+    } else if (angulo > 180.0f) {
+      angulo -= 360.0f;
+    }
     dial->setSliderPosition(-angulo - 180.0f);
     spin->setValue(angulo);
     lambda_connect(dial, SIGNAL(valueChanged(int)), [spin, dial] {
@@ -595,6 +600,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
         dial->setValue(-spin->value() - 180);
     });
   };
+  LOG(INFO) << "rotacao_z antes: " << entidade.rotacao_z_graus();
   AjustaSliderSpin(entidade.rotacao_z_graus(), gerador.dial_rotacao, gerador.spin_rotacao);
   AjustaSliderSpin(entidade.rotacao_y_graus(), gerador.dial_rotacao_y, gerador.spin_rotacao_y);
   AjustaSliderSpin(entidade.rotacao_x_graus(), gerador.dial_rotacao_x, gerador.spin_rotacao_x);
@@ -669,7 +675,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       proto_retornado->set_selecionavel_para_jogador(false);
     }
     proto_retornado->set_fixa(fixa);
-    proto_retornado->set_rotacao_z_graus(gerador.spin_rotacao->value());
+    proto_retornado->set_rotacao_z_graus(-gerador.dial_rotacao->sliderPosition() + 180.0f);
+    LOG(INFO) << "rotacao_z depois: " << proto_retornado->rotacao_z_graus();
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
