@@ -46,7 +46,7 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 									 net/util.cpp net/cliente.cpp net/servidor.cpp net/socket.cpp \
 									 ntf/notificacao.cpp ntf/notificacao.pb.cpp \
 									 ent/constantes.cpp ent/entidade.pb.cpp ent/tabuleiro.pb.cpp ent/acoes.pb.cpp ent/controle_virtual.pb.cpp ent/entidade.cpp ent/entidade_desenho.cpp ent/entidade_composta.cpp ent/entidade_forma.cpp ent/tabuleiro.cpp ent/tabuleiro_controle_virtual.cpp ent/tabuleiro_picking.cpp ent/acoes.cpp ent/util.cpp ent/tabuleiro_interface.cpp \
-                   ifg/tecladomouse.cpp ifg/interface.cpp ifg/interface_android.cpp \
+                   ifg/tecladomouse.cpp ifg/interface.cpp ifg/interface_android.cpp ifg/modelos.pb.cc \
                    tex/texturas.cpp tex/lodepng.cpp \
 									 m3d/m3d.cpp \
 									 arq/arquivo.cpp arq/arquivo_android.cpp
