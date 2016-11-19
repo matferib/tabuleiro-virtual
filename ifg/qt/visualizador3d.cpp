@@ -600,7 +600,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
         dial->setValue(-spin->value() - 180);
     });
   };
-  LOG(INFO) << "rotacao_z antes: " << entidade.rotacao_z_graus();
   AjustaSliderSpin(entidade.rotacao_z_graus(), gerador.dial_rotacao, gerador.spin_rotacao);
   AjustaSliderSpin(entidade.rotacao_y_graus(), gerador.dial_rotacao_y, gerador.spin_rotacao_y);
   AjustaSliderSpin(entidade.rotacao_x_graus(), gerador.dial_rotacao_x, gerador.spin_rotacao_x);
@@ -676,7 +675,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     }
     proto_retornado->set_fixa(fixa);
     proto_retornado->set_rotacao_z_graus(-gerador.dial_rotacao->sliderPosition() + 180.0f);
-    LOG(INFO) << "rotacao_z depois: " << proto_retornado->rotacao_z_graus();
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
     proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
