@@ -341,5 +341,6 @@ message ParametrosDesenho {
 
 // Para copiar e colar.
 message EntidadesCopiadas {
+  optional Tabuleiro origem = 2;
   repeated EntidadeProto entidade = 1;
 }
