@@ -933,6 +933,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para rastros de movimentos das unidades.
   std::unordered_map<unsigned int, std::vector<Posicao>> rastros_movimento_;
+  int quadrados_movimentados_ = 0;
 
   // Para decidir entre translacao e rotacao.
   enum {

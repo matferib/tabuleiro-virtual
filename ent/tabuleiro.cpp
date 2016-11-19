@@ -2036,6 +2036,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       }
       float dx = nx - ultimo_x_3d_;
       float dy = ny - ultimo_y_3d_;
+      int quantidade_movimento = 0;
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -2074,8 +2075,12 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             pos.set_x(vp.back().x());
           }
           vp.push_back(pos);
+          if (quantidade_movimento == 0) {
+            quantidade_movimento += (andou == 3) ? 2 : 1;
+          }
         }
       }
+      quadrados_movimentados_ += quantidade_movimento;
       ultimo_x_ = x;
       ultimo_y_ = y;
       ultimo_x_3d_ = nx;
@@ -2265,6 +2270,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         // Nao houve movimento.
         estado_ = ETAB_ENTS_SELECIONADAS;
         rastros_movimento_.clear();
+        quadrados_movimentados_ = 0;
         return;
       }
       // Para desfazer.
@@ -2303,6 +2309,7 @@ void Tabuleiro::FinalizaEstadoCorrente() {
       AdicionaNotificacaoListaEventos(g_desfazer);
       estado_ = ETAB_ENTS_SELECIONADAS;
       rastros_movimento_.clear();
+      quadrados_movimentados_ = 0;
       //parametros_desenho_.Clear();
       parametros_desenho_.clear_offset_terreno();
       parametros_desenho_.clear_desenha_entidades();
@@ -5256,6 +5263,8 @@ void Tabuleiro::CopiaEntidadesSelecionadas() {
       VLOG(1) << "Copiando: " << entidade->Proto().ShortDebugString();
     }
   }
+  entidades_copiadas.mutable_origem()->set_nome(proto_.nome());
+  entidades_copiadas.mutable_origem()->set_id_cenario(cenario_corrente_);
   std::string str_entidades;
   google::protobuf::TextFormat::PrintToString(entidades_copiadas, &str_entidades);
   QApplication::clipboard()->setText(QString::fromStdString(str_entidades));
