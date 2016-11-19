@@ -339,8 +339,4 @@ message ParametrosDesenho {
   optional bool regera_vbo = 53;
 }
 
-// Para copiar e colar.
-message EntidadesCopiadas {
-  optional Tabuleiro origem = 2;
-  repeated EntidadeProto entidade = 1;
-}
+

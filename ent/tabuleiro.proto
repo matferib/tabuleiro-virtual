@@ -93,3 +93,9 @@ message TabuleiroProto {
   // qual tabuleiro ela esta localizada.
   repeated TabuleiroProto sub_cenario = 18;
 }
+
+// Para copiar e colar.
+message EntidadesCopiadas {
+  optional TabuleiroProto origem = 2;
+  repeated EntidadeProto entidade = 1;
+}
