@@ -27,6 +27,10 @@ class InterfaceGraficaAndroid : public InterfaceGrafica {
   void EscolheArquivoSalvarTabuleiro(
       std::function<void(const std::string& nome)> funcao_volta) override;
 
+  void EscolheModeloEntidade(
+      const MenuModelos& modelos,
+      std::function<void(const std::string& nome)> funcao_volta) override;
+
  private:
   jmethodID Metodo(const char* nome_metodo, const char* assinatura_metodo);
 

@@ -1,6 +1,10 @@
+#include <stack>
+#include <string>
+#include <vector>
 #include <jni.h>
 
 #include "ifg/interface_android.h"
+#include "ifg/modelos.pb.h"
 
 namespace ifg {
 
@@ -64,7 +68,7 @@ void InterfaceGraficaAndroid::EscolheArquivoSalvarTabuleiro(
     return;
   }
   jmethodID metodo = Metodo("abreDialogoSalvarTabuleiro", "(J)V");
-  auto* copia_volta = new std::function<void(const std::string& nome)>(funcao_volta); 
+  auto* copia_volta = new std::function<void(const std::string& nome)>(funcao_volta);
   env_->CallVoidMethod(thisz_, metodo, (jlong)copia_volta);
 }
 
@@ -79,5 +83,55 @@ jmethodID InterfaceGraficaAndroid::Metodo(const char* nome_metodo, const char* a
   }
   return metodo;
 }
+
+namespace {
+
+std::set<std::string> ExtraiModelos(const MenuModelos& menu_modelos) {
+  std::stack<const MenuModelos*> menus;
+  menus.push(&menu_modelos);
+  std::set<std::string> ret;
+  do {
+    const auto* menu = menus.top();
+    for (const auto& modelo : menu->modelo()) {
+      // ATENCAO: Se o texto for usado, deve-se manter um mapeamento de texto->id porque o callback usa o id.
+      ret.insert(modelo.id());
+    }
+    menus.pop();
+    for (const auto& sub_menu : menu->sub_menu()) {
+      menus.push(&sub_menu);
+    }
+  } while (!menus.empty());
+  return ret;
+}
+
+}  // namespace
+
+void InterfaceGraficaAndroid::EscolheModeloEntidade(
+    const MenuModelos& menu_modelos,
+    std::function<void(const std::string& nome)> funcao_volta) {
+  if (env_ == nullptr) {
+    auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
+    n->set_erro("env_ null, esqueceu de chamar setEnvThisz?");
+    central_->AdicionaNotificacao(n);
+    return;
+  }
+  std::set<std::string> modelos = ExtraiModelos(menu_modelos);
+  jmethodID metodo = Metodo("abreDialogoAbrirTabuleiro", "([Ljava/lang/String;[Ljava/lang/String;J)V");
+  jobjectArray joa = (jobjectArray)env_->NewObjectArray(
+      modelos.size(),
+      env_->FindClass("java/lang/String"), env_->NewStringUTF(""));
+  {
+    int i = 0;
+    for (const auto& s : modelos) {
+      jstring sj = env_->NewStringUTF(s.c_str());
+      env_->SetObjectArrayElement(joa, i++, sj);
+    }
+  }
+
+  //auto* copia_volta = new std::function<void(const std::string& nome, arq::tipo_e tipo)>(
+  //    std::bind(funcao_volta, _1, ));
+  //env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)copia_volta);
+}
+
 
 }  // namespace ifg
