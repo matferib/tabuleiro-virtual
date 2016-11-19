@@ -876,21 +876,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     }, },
   };
 
-  // Modo 2d: eixo com origem embaixo esquerda.
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  gl::MatrizEscopo salva_matriz(GL_PROJECTION);
-  gl::CarregaIdentidade();
-  if (parametros_desenho_.has_picking_x()) {
-    // Modo de picking faz a matriz de picking para projecao ortogonal.
-    gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
-  }
-  gl::Ortogonal(0, largura_, 0, altura_, 0, 1);
-  gl::AtualizaMatrizes();
-
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-  gl::CarregaIdentidade();
-
+ 
   // Desenha em duas passadas por causa da limitacao de projecao do nexus 7.
   // Desenha apenas os botoes.
   {

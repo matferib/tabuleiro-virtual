@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 // QT
+#include <boost/timer/timer.hpp>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QDesktopWidget>
@@ -82,6 +83,8 @@ void Principal::Executa() {
   ql->setMenuBar(menu_principal_);
   ql->addWidget(v3d_);
 
+  LOG(INFO) << "Resolucao timer: " << INTERVALO_NOTIFICACAO_MS;
+  LOG(INFO) << "FPS: " << ATUALIZACOES_POR_SEGUNDO;
   q_timer_->start(INTERVALO_NOTIFICACAO_MS);
 
   // mostra a janela e entra no loop do QT
@@ -102,6 +105,12 @@ void Principal::closeEvent(QCloseEvent *event) {
 }
 
 void Principal::Temporizador() {
+  //static boost::timer::cpu_timer timer;
+
+  //auto passou_ms = timer.elapsed().wall / 1000000ULL;
+  //LOG(ERROR) << "tempo_ms: " << (int)passou_ms;
+  //timer.start();
+
   // Realiza a notificação de todos.
   auto* notificacao = new ntf::Notificacao;
   notificacao->set_tipo(ntf::TN_TEMPORIZADOR);

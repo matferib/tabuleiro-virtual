@@ -324,7 +324,7 @@ void Tabuleiro::LiberaTextura() {
 }
 
 void Tabuleiro::LiberaFramebuffer() {
-  LOG(ERROR) << "Liberando framebuffer";
+  LOG(INFO) << "Liberando framebuffer";
   gl::ApagaFramebuffers(1, &framebuffer_);
   gl::ApagaTexturas(1, &textura_framebuffer_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
@@ -768,8 +768,9 @@ int Tabuleiro::Desenha() {
   GeraVbosCena();
 #endif
 
-#if !__APPLE__ || !USAR_OPENGL_ES
+#if !USAR_OPENGL_ES || !__APPLE__
   if (opcoes_.anti_aliasing()) {
+    // Se estiver ligado, desliga aqui para desenhar mapas.
     // Colocando dentro do if para evitar erro de opengl com plataformas que nao suportam GL_MULTISAMPLE.
     gl::Desabilita(GL_MULTISAMPLE);
   }
@@ -828,9 +829,11 @@ int Tabuleiro::Desenha() {
     gl::UnidadeTextura(GL_TEXTURE0);
   }
 
-#if !__APPLE__ || !USAR_OPENGL_ES
+#if !USAR_OPENGL_ES || !__APPLE__
   if (opcoes_.anti_aliasing()) {
     gl::Habilita(GL_MULTISAMPLE);
+  } else {
+    gl::Desabilita(GL_MULTISAMPLE);
   }
 #endif
 
@@ -2799,6 +2802,7 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+  gl::Habilita(GL_PROGRAM_POINT_SIZE);  // deixa o shader decidir tamanho do ponto.
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
@@ -3033,7 +3037,6 @@ void Tabuleiro::DesenhaCena() {
     gl::Oclusao(false);
   }
 
-
   // Aqui podem ser desenhados objetos normalmente. Caso contrario, a caixa do ceu vai ferrar tudo.
   if (opcoes_.desenha_olho()) {
     DesenhaOlho();
@@ -3194,6 +3197,8 @@ void Tabuleiro::DesenhaCena() {
     gl::Desabilita(GL_TEXTURE_2D);
   }
 #endif
+
+
 
   gl::Desabilita(GL_FOG);
   gl::UsaShader(gl::TSH_SIMPLES);
@@ -3928,7 +3933,6 @@ void Tabuleiro::DesenhaTabuleiro() {
     gl::Desabilita(GL_TEXTURE_2D);
   }
   V_ERRO("textura");
-
   vbos_tabuleiro_.Desenha();
   V_ERRO("vbo_tabuleiro_");
   // Se a face nula foi desativada, reativa.
@@ -6149,7 +6153,6 @@ void Tabuleiro::DesenhaCaixaCeu() {
   gl::LigacaoComTextura(tipo_textura, 0);
   gl::Desabilita(tipo_textura);
   gl::UnidadeTextura(GL_TEXTURE0);
-  // Religa luzes.
   gl::FaceNula(GL_BACK);
   gl::FuncaoProfundidade(GL_LESS);
   gl::UsaShader(tipo_anterior);

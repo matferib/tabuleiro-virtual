@@ -226,9 +226,9 @@ class VbosGravados {
 
 
 // Desenha o vbo, assumindo que ele ja tenha sido gravado.
-void DesenhaVbo(const VboGravado& vbo, GLenum modo = GL_TRIANGLES);
+void DesenhaVbo(const VboGravado& vbo, GLenum modo = GL_TRIANGLES, bool atualiza_matrizes = true);
 // Desenha o vbo, assumindo que ele nao tenha sido gravado.
-void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo = GL_TRIANGLES);
+void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo = GL_TRIANGLES, bool atualiza_matrizes = true);
 
 //---------------------------------------------------------------------------
 // Todos VBOs retornados serao em modo triangulo, para permitir concatenacao.

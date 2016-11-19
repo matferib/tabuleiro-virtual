@@ -3,7 +3,8 @@
 #define LOG_LOG_H
 
 #if USAR_GLOG
-#include <gflags/gflags.h>
+//#include <gflags/gflags.h>
+#define GLOG_NO_ABBREVIATED_SEVERITIES
 #include <glog/logging.h>
 
 #elif ANDROID
@@ -71,7 +72,7 @@ namespace meulog {
 
 inline void Inicializa(int* argc, char*** argv) {
 #if USAR_GLOG
-  google::ParseCommandLineFlags(argc, argv, true);
+  //google::ParseCommandLineFlags(argc, argv, true);
   google::InitGoogleLogging((*argv)[0]);
 #endif
 }

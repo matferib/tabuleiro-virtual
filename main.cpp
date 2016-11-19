@@ -3,6 +3,9 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#if USAR_GFLAGS
+#include <gflags/gflags.h>
+#endif
 
 #include <boost/asio.hpp>
 #include "arq/arquivo.h"
@@ -46,7 +49,13 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
 
 
 int main(int argc, char** argv) {
+#if USAR_GLOG
   meulog::Inicializa(&argc, &argv);
+  google::ParseCommandLineFlags(&argc, &argv, true);
+#elif USAR_GFLAGS
+  google::ParseCommandLineFlags(&argc, &argv, true);
+#endif
+  
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);

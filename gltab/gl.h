@@ -224,6 +224,7 @@ inline void BufferLeitura(GLenum modo) {
 
 // Funcoes OpenGL 1.2 e acima.
 #if WIN32
+void LocalAtributo(GLuint program, GLuint index, const GLchar *name);
 GLenum VerificaFramebuffer(GLenum alvo);
 void GeraFramebuffers(GLsizei num, GLuint *ids);
 void ApagaFramebuffers(GLsizei num, const GLuint *ids);
@@ -273,6 +274,7 @@ void PonteiroAtributosVertices(GLuint index, GLint size, GLenum type, GLboolean 
 void Matriz3Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, const GLfloat *value);
 #else
+inline void LocalAtributo(GLuint program, GLuint index, const GLchar *name) { glBindAttribLocation(program, index, name); }
 inline GLenum VerificaFramebuffer(GLenum alvo) { return glCheckFramebufferStatus(alvo); }
 inline void GeraFramebuffers(GLsizei num, GLuint *ids) { glGenFramebuffers(num, ids); }
 inline void ApagaFramebuffers(GLsizei num, const GLuint *ids) { glDeleteFramebuffers(num, ids); }
@@ -334,12 +336,11 @@ inline void Matriz4Uniforme(GLint location, GLsizei count, GLboolean transpose, 
 
 #endif
 
+/** Desenha o array habilitado de forma sequencial (sem indice). */
+inline void DesenhaArrays(GLenum modo, GLint primeiro, GLsizei num) { glDrawArrays(modo, primeiro, num); }
 
 /** Desenha elementos e afins. */
-inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) {
-  AtualizaMatrizes();
-  glDrawElements(modo, num_vertices, tipo, indices);
-}
+inline void DesenhaElementos(GLenum modo, GLsizei num_vertices, GLenum tipo, const GLvoid* indices) { glDrawElements(modo, num_vertices, tipo, indices); }
 // Vertices.
 void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, GLsizei passo, const GLvoid* vertices);
 inline void PonteiroVertices(GLint vertices_por_coordenada, GLenum tipo, const GLvoid* vertices) {

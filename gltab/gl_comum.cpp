@@ -7,10 +7,6 @@
 #include <vector>
 #include <map>
 
-#if USAR_GFLAGS
-#include <google/gflags.h>
-#endif
-
 #if __APPLE__
   #include "TargetConditionals.h"
   #if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
@@ -115,6 +111,12 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
+#if !USAR_OPENGL_ES || !__APPLE__
+  // Multisampling pode causar problemas com pontos. Na radeon, os pontos somem pois o tamanho do ponto
+  // eh considerado no sampling e nao em pixels.
+  gl::DesabilitaEscopo salva_sampling(GL_MULTISAMPLE);
+#endif
+  
   // Melhor deixar comentado assim para as letras ficarem sempre em primeiro plano.
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
   //gl::DesligaEscritaProfundidadeEscopo mascara_escopo;
@@ -401,19 +403,29 @@ bool IniciaVariaveis(VarShader* shader) {
   }
 
   // Variaveis atributos.
-  for (const auto& d : std::vector<DadosVariavel> {
-          {"gltab_vertice", &shader->atr_gltab_vertice},
-          {"gltab_normal", &shader->atr_gltab_normal},
-          {"gltab_cor", &shader->atr_gltab_cor},
-          {"gltab_texel", &shader->atr_gltab_texel},
+  struct DadosAtributo {
+    DadosVariavel dv;
+    GLint indice;
+  };
+  for (const auto& d : std::vector<DadosAtributo> {
+          {{"gltab_vertice", &shader->atr_gltab_vertice}, 1},
+          {{"gltab_normal", &shader->atr_gltab_normal}, 2},
+          {{"gltab_cor", &shader->atr_gltab_cor}, 3},
+          {{"gltab_texel", &shader->atr_gltab_texel}, 4},
   }) {
-    *d.var = LeLocalAtributo(shader->programa, d.nome);
-    if (*d.var == -1) {
-      LOG(INFO) << "Shader nao possui atributo " << d.nome;
+    //*d.dv.var = LeLocalAtributo(shader->programa, d.dv.nome);
+    LocalAtributo(shader->programa, d.indice, d.dv.nome);
+    *d.dv.var = d.indice;
+    if (*d.dv.var == -1) {
+      LOG(INFO) << "Shader nao possui atributo " << d.dv.nome;
       continue;
     }
-    LOG(INFO) << "Atributo " << d.nome << " na posicao " << *d.var;
+    LOG(INFO) << "Atributo " << d.dv.nome << " na posicao " << *d.dv.var;
   }
+
+  // De novo.
+  LinkaPrograma(shader->programa);
+  V_ERRO_RET("linkando programa shader");
   return true;
 }
 

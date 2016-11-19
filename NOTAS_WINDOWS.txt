@@ -11,10 +11,32 @@ Versao 32 bits: instalar o redistributable 32 bits do VS 2015;
 Versao 64 bits: instalar o redistributable 64 bits do VS 2015;
 
 Compilando QT:
-- Usei o projeto para 32 bits que tem no QT.
-- Criei a plataforma 64 bits copiando do 32 (Gerenciador de configuracao, plataforma, nova: x64, copiar de 32);
--- Fiz isso para QtOpengl, QtGui e QtCore apenas.
+- Baixar qt-everywhere-opensource-src-4.8.6 e colocar no diretorio win32.
+- Abrir o prompt de comando do visual studio 64 bits (no menu iniciar. Atencao ha varios prompts, use o native x64))
+- Do diretorio, configure -opengl desktop -release
+- Sera criado um projeto de QT no diretorio, chamado projects.vcproj.
+-- Sera necessario remover generated files duplicados e o resource de cada um dos projetos (
+-- Compilar QtOpengl, QtGui e QtCore apenas.
 -- Nos Generated Files de cada um dos projetos acima, tirei os res do build pq tava dando conflito.
 -- Tive que mudar o caminho de linkagem deles tambem para usar da versao 64 bits que ele gera em x64/Release.
 
 
+Gerando os proto pb.cc pb.h:
+protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelo.proto 
+
+Gerando os moc:
+$ ./win32/bin/moc.exe -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
+$ ./win32/bin/moc.exe -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
+$ ./win32/bin/moc.exe -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
+
+Colocar no diretorio win32:
+- qt-everywhere-opensource-src-4.8.6
+- boost/boost_src (o ultimo eh o boost descompactado e renomeado sem versao)
+- proto
+
+
+Baixar o glext.h.
+
+
+ATENCAO: nao consegui nem a pau fazer o glog funcionar com gflags. Entao para passar as coisas para stderr tem que ser por variavel de ambiente:
+# GLOG_logtostderr=1 TabuleiroVirtual.exe
