@@ -759,7 +759,6 @@ void Tabuleiro::DesenhaListaPontosVida() {
   const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA * escala;
 
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  // Modo 2d: eixo com origem embaixo esquerda.
   int raster_x = 0, raster_y = 0;
   largura_fonte *= escala;
   altura_fonte *= escala;
@@ -941,11 +940,10 @@ void Tabuleiro::DesenhaControleVirtual() {
   }
 
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
+  // DesenhaInfoPrimeiraPessoa.
   if (camera_presa_) {
     const auto* entidade = BuscaEntidade(id_camera_presa_);
     if (entidade != nullptr && entidade->MaximoPontosVida() > 0) {
-      gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
-      gl::CarregaIdentidade();
       float top_y = altura_botao * 7.0f;
       float bottom_y = altura_botao * 4.0f;
       float altura_maxima = (altura_botao * 7.0f) - (altura_botao * 4.0f);
@@ -961,6 +959,8 @@ void Tabuleiro::DesenhaControleVirtual() {
       MudaCor(COR_AMARELA);
       PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f));
       gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
+      PosicionaRaster2d(largura_botao, top_y + (fonte_y * 0.5f));
+      gl::DesenhaStringAlinhadoEsquerda(std::string("mov: ") + net::to_string(quadrados_movimentados_), true  /*inverte vertical*/);
     }
   }
 
