@@ -80,7 +80,11 @@ void main() {
   lowp vec4 texprofcor = texture2D(gltab_unidade_textura_sombra, v_Pos_sombra.xy);
   lowp float texz = texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0);
   // Se valor da textura menor que o computado, retorna zero.
-  lowp float aplicar_luz_direcional = step((v_Pos_sombra.z - v_Bias), texz);
+  //lowp float aplicar_luz_direcional = step((v_Pos_sombra.z - v_Bias), texz);
+  lowp float aplicar_luz_direcional = 0.0;
+  if (v_Pos_sombra.z - v_Bias < texz) {
+    aplicar_luz_direcional = 1.0;
+  }
 #endif
   lowp vec4 cor_final = mix(v_ColorSemDirecional, v_Color, aplicar_luz_direcional);
 
