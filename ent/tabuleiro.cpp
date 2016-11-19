@@ -4630,10 +4630,28 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
     return;
   }
-  auto* p = olho_.mutable_destino();
-  p->set_x(x3d);
-  p->set_y(y3d);
-  p->set_z(z3d);
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    // Move entidade primeira pessoa.
+    auto* entidade = BuscaEntidade(id_camera_presa_);
+    if (entidade != nullptr) {
+      ntf::Notificacao n;
+      n.set_tipo(ntf::TN_MOVER_ENTIDADE);
+      auto* e = n.mutable_entidade();
+      e->set_id(entidade->Id());
+      *e->mutable_pos() = entidade->Pos();
+      auto* pos_depois = e->mutable_destino();
+      pos_depois->set_x(x3d);
+      pos_depois->set_y(y3d);
+      pos_depois->set_z(z3d);
+      AdicionaNotificacaoListaEventos(n);
+      MoveEntidadeNotificando(n);
+    }
+  } else {
+    auto* p = olho_.mutable_destino();
+    p->set_x(x3d);
+    p->set_y(y3d);
+    p->set_z(z3d);
+  }
 }
 
 bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
