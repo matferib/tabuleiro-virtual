@@ -67,6 +67,13 @@ modelo {
   }
 }
 modelo {
+  id: 'Barghest'
+  entidade {
+    dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao: 12
+    rotulo_especial: 'ini +6\nat +9/+4/+4 1d6+3/1d4+1/1d4+1\nca 18/12/16\nreducao dano 5/magia\nmudar forma\npiscar, levitar e outras smilares a magia'
+  }
+}
+modelo {
   id: 'Besouro do Fogo'
   entidade {
     dados_vida: '1d8' tamanho: TM_PEQUENO info_textura { id: 'firebeetle.png' } cor { r: 1 g: 0.1 b: 0.1 }

@@ -42,6 +42,7 @@ sub_menu {
   id: 'Anões'
   modelo { id: 'Anão' }
 }
+modelo { id: 'Barghest' }
 modelo { id: 'Bulette' }
 modelo { id: 'Cão Teleportador'}
 modelo { id: 'Coruja Gigante'}
