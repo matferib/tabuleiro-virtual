@@ -80,6 +80,15 @@ class ReceptorErro : public ntf::Receptor {
     env_->DeleteLocalRef(java_nstr);
   }
 
+  void TrataNotificacaoAbrirDialogoModeloEntidade(const ntf::Notificacao& notificacao) {
+    jmethodID metodo = Metodo("abreDialogoEntidade", "([B)V");
+    const std::string nstr = notificacao.entidade().SerializeAsString();
+    jbyteArray java_nstr = env_->NewByteArray(nstr.size());
+    env_->SetByteArrayRegion(java_nstr, 0, nstr.size(), (const jbyte*)nstr.c_str());
+    env_->CallVoidMethod(thisz_, metodo, java_nstr);
+    env_->DeleteLocalRef(java_nstr);
+  }
+
   JNIEnv* env_ = nullptr;
   jobject thisz_ = nullptr;
 };

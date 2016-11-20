@@ -1,3 +1,4 @@
+#include <functional>
 #include <stack>
 #include <string>
 #include <vector>
@@ -5,6 +6,8 @@
 
 #include "ifg/interface_android.h"
 #include "ifg/modelos.pb.h"
+
+using std::placeholders::_1;
 
 namespace ifg {
 
@@ -128,9 +131,10 @@ void InterfaceGraficaAndroid::EscolheModeloEntidade(
     }
   }
 
-  //auto* copia_volta = new std::function<void(const std::string& nome, arq::tipo_e tipo)>(
-  //    std::bind(funcao_volta, _1, ));
-  //env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)copia_volta);
+  auto adaptador = [funcao_volta] (const std::string& nome, arq::tipo_e tipo) {
+    funcao_volta(nome);
+  };
+  env_->CallVoidMethod(thisz_, metodo, joa, nullptr, (jlong)new std::function<void(const std::string&, arq::tipo_e)>(adaptador));
 }
 
 
