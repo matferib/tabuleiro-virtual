@@ -709,9 +709,21 @@ pagina {
 #  }
   dados_botoes {
     altura: 1
-    largura: 10
-    linha: 3
+    largura: 5
+    linha: -1
+    alinhamento_vertical: ALINHAMENTO_CIMA
     coluna: 1
+    id: CONTROLE_NOP
+    forma: FORMA_NULA
+    rotulo: "Modelo padrão:"
+    cor_rotulo { r: 1 g: 1 b: 1}
+  }
+  dados_botoes {
+    altura: 1
+    largura: 10
+    linha: -1
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    coluna: 6
     id: CONTROLE_MODELO_ENTIDADE
     forma: FORMA_RETANGULO
     dica: "O modelo de entidade padrão (ao adicionar)."

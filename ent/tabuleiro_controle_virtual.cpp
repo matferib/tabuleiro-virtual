@@ -613,7 +613,8 @@ float TranslacaoY(const DadosBotao& db, const GLint* viewport, float unidade_alt
 void Tabuleiro::DesenhaBotaoControleVirtual(
     const DadosBotao& db, const GLint* viewport, float padding, float unidade_largura, float unidade_altura, const Entidade* entidade) {
   if ((db.picking_apenas() && !parametros_desenho_.has_picking_x()) ||
-      (db.mestre_apenas() && !VisaoMestre())) {
+      (db.mestre_apenas() && !VisaoMestre()) ||
+      db.forma() == FORMA_NULA) {
     return;
   }
   gl::CarregaNome(db.id());
