@@ -405,7 +405,6 @@ class TabuleiroRenderer
         caixa.show();
       }
     });
-
   }
 
   // @param dados_volta eh um ponteiro para void* passado no callback do ok de volta ao codigo nativo.
@@ -435,11 +434,15 @@ class TabuleiroRenderer
             return view;
           }
         };
-        adapter.add("Estáticos");
-        adapter.addAll(tab_estaticos);
+        if (tab_estaticos != null) {
+          adapter.add("Estáticos");
+          adapter.addAll(tab_estaticos);
+        }
         //v.setSelectable(false);
-        adapter.add("Salvos");
-        adapter.addAll(tab_dinamicos);
+        if (tab_dinamicos != null) {
+          adapter.add("Salvos");
+          adapter.addAll(tab_dinamicos);
+        }
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
@@ -447,13 +450,17 @@ class TabuleiroRenderer
         builder.setView(view)
           .setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+              boolean tem_estaticos = tab_estaticos != null;
+              boolean tem_dinamicos = tab_dinamicos != null;
+              int tab_estatico_len = tem_estaticos ? tab_estaticos.length : -1;
+              int tab_dinamico_len = tem_dinamicos ? tab_estaticos.length : -1;
               int posicao = spinner.getSelectedItemPosition();
               if (posicao == spinner.INVALID_POSITION || posicao == 0 ||
-                  (posicao == tab_estaticos.length + 1) ||
-                  posicao >= (tab_estaticos.length + tab_dinamicos.length + 2)) {
+                  (posicao == tab_estatico_len + 1) ||
+                  posicao >= (tab_estatico_len + tab_dinamico_len + 2)) {
                 nativeOpenBoardName(dados_volta, "", false);
               }
-              boolean estatico = posicao < tab_estaticos.length + 1;
+              boolean estatico = posicao < tab_estatico_len + 1;
               nativeOpenBoardName(dados_volta, (String)spinner.getSelectedItem(), estatico);
               dialog.dismiss();
             }
@@ -469,7 +476,6 @@ class TabuleiroRenderer
         caixa.show();
       }
     });
-
   }
 
   /** Abre uma janela de dialogo na thread de UI. Chamado do codigo nativo, qualquer mudanca aqui deve ser refletida la. */
