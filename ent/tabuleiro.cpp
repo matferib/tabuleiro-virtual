@@ -2802,7 +2802,9 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
 }
 
 void Tabuleiro::IniciaGL() {
+#if !USAR_OPENGL_ES
   gl::Habilita(GL_PROGRAM_POINT_SIZE);  // deixa o shader decidir tamanho do ponto.
+#endif
   gl::Desabilita(GL_DITHER);
   // Faz com que AMBIENTE e DIFFUSE sigam as cores.
 
