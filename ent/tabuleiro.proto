@@ -45,6 +45,7 @@ message OpcoesProto {
   optional bool mapeamento_sombras = 11 [default=true];
   optional bool iluminacao_por_pixel = 12 [default=false];
   optional bool mapeamento_oclusao = 13 [default=true];
+  optional bool mostra_iniciativas = 14 [default=true];
 }
 
 // Mensagem enviada para os clientes de um jogo.
