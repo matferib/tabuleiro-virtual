@@ -171,6 +171,13 @@ class Entidade {
   /** Retorna se a entidade eh fixa (ou seja, nem o mestre pode mover). */
   bool Fixa() const { return proto_.fixa(); }
 
+  /** @return true se a entidade tiver iniciativa. */
+  bool TemIniciativa() const { return proto_.has_iniciativa(); }
+  /** @return a iniciativa da entidade. */
+  int Iniciativa() const { return proto_.iniciativa(); }
+  /** Rola a iniciativa da entidade, aplicando modificador. */
+  void RolaIniciativa();
+
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
   */

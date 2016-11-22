@@ -79,6 +79,7 @@ enum IdBotao {
   CONTROLE_ANGULO_VISAO_MENOS = 74;
   CONTROLE_ANGULO_VISAO_ORIGINAL = 75;
   CONTROLE_SELECIONAVEL = 76;
+  CONTROLE_ROLAR_INICIATIVA_JOGADORES_MAIS_ENTIDADES_SELECIONADAS = 77;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 100;
@@ -101,6 +102,7 @@ enum FormaBotao {
   FORMA_TRIANGULO = 1;
   FORMA_RETANGULO = 2;
   FORMA_DISCO     = 3;
+  FORMA_NULA      = 4;  // Botoes sem forma, apenas rotulo.
 }
 
 message DadosBotao {

@@ -224,6 +224,9 @@ message EntidadeProto {
     optional string tesouro = 1;
   }
   repeated DadosTesouro tesouro = 46;
+  // Dados de iniciativa da entidade.
+  optional int32 iniciativa = 55;
+  optional int32 modificador_iniciativa = 56;
 }
 
 message Projecao {
@@ -337,6 +340,8 @@ message ParametrosDesenho {
   optional Projecao projecao = 49;
   // Se verdadeiro, as entidades regerarao os VBOs ao atualizarem.
   optional bool regera_vbo = 53;
+  // se verdadeiro, desenha a lista de iniciativas.
+  optional bool desenha_iniciativas = 54 [default=true];
 }
 
 

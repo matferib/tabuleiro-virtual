@@ -578,6 +578,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_iniciativas(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   parametros_desenho_.set_desenha_info_geral(false);
   parametros_desenho_.set_desenha_detalhes(false);
@@ -641,6 +642,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_limpa_fundo(false);
   parametros_desenho_.set_transparencias(false);
   parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_iniciativas(false);
   parametros_desenho_.set_desenha_rosa_dos_ventos(false);
   parametros_desenho_.set_desenha_info_geral(false);
   parametros_desenho_.set_desenha_detalhes(false);
@@ -720,6 +722,7 @@ int Tabuleiro::Desenha() {
   // Aplica opcoes do jogador.
   parametros_desenho_.set_desenha_lista_objetos(opcoes_.mostra_lista_objetos());
   parametros_desenho_.set_desenha_lista_jogadores(opcoes_.mostra_lista_jogadores());
+  parametros_desenho_.set_desenha_iniciativas(opcoes_.mostra_iniciativas());
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
   parametros_desenho_.set_desenha_grade(opcoes_.desenha_grade());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
@@ -1390,7 +1393,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       //boost::timer::cpu_timer timer_temp;
       //timer_temp.start();
       AtualizaEntidades(passou_ms);
-      // Em algumas situacoes, nao eh bom atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
+      // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
       // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
       if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
         AtualizaOlho(passou_ms, false  /*forcar*/);
@@ -1740,6 +1743,21 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
       ;
   }
 #endif
+}
+
+void Tabuleiro::RolaIniciativasNotificando() {
+  if (!EmModoMestreIncluindoSecundario()) {
+    return;
+  }
+  for (auto& id_ent : entidades_) {
+    auto* entidade = id_ent.second.get();
+    if (entidade->Tipo() != TE_ENTIDADE ||
+        (!entidade->SelecionavelParaJogador() && ids_entidades_selecionadas_.find(id_ent.first) == ids_entidades_selecionadas_.end())) {
+      continue;
+    }
+    // TODO notificar e desfazer.
+    entidade->RolaIniciativa();
+  }
 }
 
 void Tabuleiro::AlteraAnguloVisao(float valor) {
@@ -4331,11 +4349,28 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 }
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
+  std::vector<Entidade*> entidades_com_iniciativa;
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
     entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
+    if ((entidade->SelecionavelParaJogador() || entidade->TemIniciativa()) && !entidade->Proto().morta()) {
+      entidades_com_iniciativa.push_back(entidade);
+    }
+  }
+  std::sort(entidades_com_iniciativa.begin(), entidades_com_iniciativa.end(), [this] (const Entidade* entidade1, const Entidade* entidade2) {
+    if ((entidade1->Iniciativa() > iniciativa_corrente_ && entidade2->Iniciativa() > iniciativa_corrente_) ||
+        (entidade1->Iniciativa() < iniciativa_corrente_ && entidade2->Iniciativa() < iniciativa_corrente_)) {
+      return entidade1->Iniciativa() > entidade2->Iniciativa();
+    } else if (entidade1->Iniciativa() > iniciativa_corrente_) {
+      return true;
+    }
+    return false;
+  });
+  entidades_ordenadas_por_iniciativa_.clear();
+  for (const auto* entidade : entidades_com_iniciativa) {
+    entidades_ordenadas_por_iniciativa_.push_back(entidade->Id());
   }
 }
 

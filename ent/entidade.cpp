@@ -1209,4 +1209,8 @@ bool Entidade::Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* 
   return false;
 }
 
+void Entidade::RolaIniciativa() {
+  proto_.set_iniciativa(RolaDado(20) + proto_.modificador_iniciativa());
+}
+
 }  // namespace ent

@@ -184,6 +184,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Altera o campo de visao, mantendo-o entre um minimo e maximo. */
   void AlteraAnguloVisao(float valor);
 
+  /** Rola iniciativa das entidades selecionadas mais dos jogadores. */
+  void RolaIniciativasNotificando();
+
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
 
@@ -722,6 +725,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Para debugar, desenha uma lista de objetos. */
   void DesenhaListaObjetos();
 
+  /** Desenha as iniciativas ordenadas. */
+  void DesenhaIniciativas();
+
   // Auxiliares de DesenhaInfoGeral.
   void DesenhaIdAcaoEntidade();
   void DesenhaCoordenadas();
@@ -1014,6 +1020,9 @@ class Tabuleiro : public ntf::Receptor {
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
   std::set<std::string> texturas_entidades_;
   std::set<std::string> modelos_entidades_;
+  // Este vetor contem os ids das entidades ordenadas por iniciativa.
+  std::vector<unsigned int> entidades_ordenadas_por_iniciativa_;
+  int iniciativa_corrente_;
 
   // String de informacao geral para display. Normalmente temporizada.
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.

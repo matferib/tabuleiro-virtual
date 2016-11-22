@@ -162,6 +162,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
   LOG(INFO) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_ROLAR_INICIATIVA_JOGADORES_MAIS_ENTIDADES_SELECIONADAS:
+      RolaIniciativasNotificando();
+      break;
     case CONTROLE_ANGULO_VISAO_MAIS:
       AlteraAnguloVisao(angulo_visao_vertical_graus_ + 5.0f);
       break;
@@ -751,6 +754,48 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
   gl::DesenhaString(rotulo.substr(0, max_caracteres));
 }
 
+void Tabuleiro::DesenhaIniciativas() {
+  if (entidades_ordenadas_por_iniciativa_.empty()) {
+    return;
+  }
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA * escala;
+
+  int raster_x = 0, raster_y = 0;
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  raster_y = altura_ - altura_fonte;
+  raster_x = largura_ - (VisaoMestre() ? 3.0f : 0.0f) * largura_botao - 2;
+  PosicionaRaster2d(raster_x, raster_y);
+
+  MudaCor(COR_BRANCA);
+  std::string titulo("Iniciativa");
+  gl::DesenhaStringAlinhadoDireita(titulo);
+  raster_y -= (altura_fonte + 2);
+  for (unsigned int id : entidades_ordenadas_por_iniciativa_) {
+    Entidade* entidade = BuscaEntidade(id);
+    if (entidade == nullptr || entidade->IdCenario() != cenario_corrente_ ||
+        (!VisaoMestre() && !entidade->SelecionavelParaJogador() && !entidade->Proto().visivel())) {
+      continue;
+    }
+    PosicionaRaster2d(raster_x, raster_y);
+    raster_y -= (altura_fonte + 2);
+    char str[51] = {'\0'};
+    std::string rotulo;
+    const auto& proto = entidade->Proto();
+    if (proto.has_rotulo()) {
+      rotulo = proto.rotulo();
+    } else if (!proto.modelo_3d().id().empty()) {
+      rotulo = proto.modelo_3d().id();
+    } else if (!proto.info_textura().id().empty()) {
+      rotulo = proto.info_textura().id().substr(0, proto.info_textura().id().find_last_of("."));
+    }
+    snprintf(str, 50, "%d-%s", entidade->Iniciativa(), rotulo.c_str());
+    gl::DesenhaStringAlinhadoDireita(str);
+  }
+}
+
 void Tabuleiro::DesenhaListaPontosVida() {
   if (lista_pontos_vida_.empty() && !modo_dano_automatico_) {
     return;
@@ -759,7 +804,6 @@ void Tabuleiro::DesenhaListaPontosVida() {
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA * escala;
 
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
   int raster_x = 0, raster_y = 0;
   largura_fonte *= escala;
   altura_fonte *= escala;
@@ -956,6 +1000,9 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
     DesenhaListaPontosVida();
+  }
+  if (parametros_desenho_.desenha_iniciativas()) {
+    DesenhaIniciativas();
   }
   V_ERRO("desenhando lista pontos de vida");
 
