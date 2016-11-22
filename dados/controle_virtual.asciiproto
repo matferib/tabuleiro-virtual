@@ -504,6 +504,16 @@ pagina {
     dica: "Apaga entidades selecionadas."
   }
   dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 23
+    id: CONTROLE_ROLAR_INICIATIVA_JOGADORES_MAIS_ENTIDADES_SELECIONADAS
+    rotulo: "R"
+    dica: "Rola iniciativas."
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+  }
+  dados_botoes {
     tamanho: 2
     linha: 0
     coluna: 23

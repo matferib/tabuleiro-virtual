@@ -3,6 +3,7 @@ modelo {
   id: 'Abocanhador Matraqueante'
   entidade {
     dados_vida: '4d8+24' modelo_3d { id: 'gibbering_mouther' }
+    modificador_iniciativa: 1
     rotulo_especial: 'ini +1\nagarrar +3 at +4/+4/+4/+4/+4/+4/+4 (toque) dano 1/1/1/1/1/1/1d4 acido + cegueira\nvarias outras'
   }
 }
@@ -10,6 +11,7 @@ modelo {
   id: 'Allip'
   entidade {
     dados_vida: '4d12' info_textura { id: 'allip.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    modificador_iniciativa: 5
     rotulo_especial: 'ini: +5\nat: +3 toque\ndano: 1d4 sab\nca: 15'
   }
 }
@@ -26,6 +28,7 @@ modelo {
   id: 'Águia'
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.4 g: 0.1 b: 0.1 } voadora: true info_textura { id: 'eagle.png' }
+    modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nat: +3 1d4\nca: 14'
   }
 }
@@ -48,6 +51,7 @@ modelo {
   id: 'Aparição'
   entidade {
     dados_vida: '5d12' info_textura { id: 'wraith.png' } cor { r: 1 g: 1 b: 1 a: 0.8 } voadora: true
+    modificador_iniciativa: 7
     rotulo_especial: 'ini +7\nca 15/15/12 toque +5 dano: 1d4 + 1d6 constituição\nmov 12 quadrados'
   }
 }
@@ -55,6 +59,7 @@ modelo {
   id: 'Aranha Gigante Enorme'
   entidade {
     dados_vida: '8d8+16' tamanho: TM_ENORME info_textura { id: 'giantspider.png' } cor { r: 0 g: 0 b: 0 }
+    modificador_iniciativa: 3
     rotulo_especial: 'ini: +3\nca 16/11/13 agarrar 18 mordida: +9 dano 2d6+6+veneno\nveneno cd 16 1d8 força'
   }
 }
@@ -63,6 +68,7 @@ modelo {
   entidade {
     dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'cloaker' }
     voadora: true tipo_visao: VISAO_ESCURO alcance_visao: 12
+    modificador_iniciativa: 7
     rotulo_especial: 'ini +7\nat +8/+3 1d6+5, agarrar +13/1d4+2\nca 19/12/16\nlamento, engolfar e sombras'
   }
 }
@@ -70,6 +76,7 @@ modelo {
   id: 'Barghest'
   entidade {
     dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao: 12
+    modificador_iniciativa: 6
     rotulo_especial: 'ini +6\nat +9/+4/+4 1d6+3/1d4+1/1d4+1\nca 18/12/16\nreducao dano 5/magia\nmudar forma\npiscar, levitar e outras smilares a magia'
   }
 }
@@ -84,6 +91,7 @@ modelo {
   id: 'Bulette'
   entidade {
     dados_vida: '9d10+45' tamanho: TM_ENORME info_textura { id: 'bulette.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nat mordida +16 2d8+8\nat 2 garras +10 2d6+4'
   }
 }
@@ -91,6 +99,7 @@ modelo {
   id: 'Cão Teleportador'
   entidade {
     dados_vida: '4d10' info_textura { id: 'blinkdog.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    modificador_iniciativa: 3
     rotulo_especial: 'ini: +3\nat: mordida: +4 dano: 1d6\nPiscar a vontade, porta dimensional uma vez por rodada como acao livre\nca 16/13/13'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
@@ -100,6 +109,7 @@ modelo {
   id: 'Coruja Gigante'
   entidade {
     dados_vida: '4d10+4' tamanho: TM_GRANDE voadora: true info_textura { id: 'giantowl.png' }
+    modificador_iniciativa: 3
     rotulo_especial: 'ini +3\nca 15/12/12 bicada/garrax2 +2/+7 dano 1d8+2/1d6+4\nvisao penumbra x5'
   }
 }
@@ -107,6 +117,7 @@ modelo {
   id: 'Demônio Bebilith'
   entidade {
     dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
+    modificador_iniciativa: 5
     rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
     tamanho: TM_ENORME
   }
@@ -115,6 +126,7 @@ modelo {
   id: 'Carniçal'
   entidade {
     dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nat: +2/+0/+0\ndano: 1d6+1+paralisia/1d3+paralisia\nca: 14'
   }
 }
@@ -122,6 +134,7 @@ modelo {
   id: 'Carneçal'
   entidade {
     dados_vida: '4d12' info_textura { id: 'ghast.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    modificador_iniciativa: 3
     rotulo_especial: 'ini: +3\nat: +5/+3/+3\ndano: 1d8+3+paralisia/1d4+1+paralisia\nca: 17'
   }
 }
@@ -130,6 +143,7 @@ modelo {
   entidade {
     dados_vida: '12d8+12' tamanho: TM_ENORME info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nagarrar: +15\nat: +5\ndano: 2d6+4+veneno\nca: 16\nveneno: fort 14 1d6 des/1d6 des'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '2d6+4' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
@@ -140,6 +154,7 @@ modelo {
   entidade {
     dados_vida: '12d8+12' tamanho: TM_IMENSO info_textura { id: 'centipede.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nagarrar: +27\nat: +11\ndano: 2d8+9+veneno\nca: 18\nfort 17 1d8 des/1d8 des'
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 11 dano: '2d8+9' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
@@ -157,14 +172,18 @@ modelo {
   id: 'Demônio Vrock'
   entidade {
     dados_vida: '10d8+70' tamanho: TM_GRANDE info_textura { id: 'vrock.png'} cor { r: 0.286 g: 0.275 b: 0.467 }
+    modificador_iniciativa: 2
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini +2\nat +15/+15/+13/+13/+13\ndano: 2d6+6/2d6+6/1d8+3/1d6+3/1d6+3\nreducao 10/bem, rm 17, imunidades e resistencias'
   }
 }
 modelo {
   id: 'Demônio Babau'
   entidade {
     dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
+    modificador_iniciativa: 1
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini +1\nat +12/+12/+7\ndano: 1d6+6/1d6+5/1d6+2\nreducao 10/ferro frio, furtivo 2d6, rm 14, imunidades e resistencias'
   }
 }
 modelo {
@@ -172,6 +191,7 @@ modelo {
   entidade {
     dados_vida: '2d8+4' info_textura { id: 'dretch.png' } cor { r: 0.439 g: 0.455 b: 0.494 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
+    rotulo_especial: 'ini 0\nat +4 dano 1d6+1\nreducao 5/ferro frio, resistencias, imunidades'
   }
 }
 modelo {
@@ -179,6 +199,7 @@ modelo {
   entidade {
     dados_vida: '1d8' cor { r: 0.1 g: 0.1 b: 0.1 } info_textura { id: 'drow.png' }
     rotulo_especial: 'ini: +1\nat: rapier +3 dano: 1d6+1\nat: +2 besta mao: 1d4\nca: 16'
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -186,6 +207,7 @@ modelo {
   entidade {
     dados_vida: '3d8' cor { r: 0.2 g: 0.2 b: 0.2 } info_textura { id: 'drow.png' }
     rotulo_especial: 'ini: +1\nat: rapier +5 dano: 1d6+1\nat: +4 besta mao: 1d4\nca: 16'
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -193,6 +215,7 @@ modelo {
   entidade {
     dados_vida: '6d8+6' cor { r: 0.3 g: 0.3 b: 0.3 } info_textura { id: 'drow.png' }
     rotulo_especial: 'ini: +2\nat: rapier +8/+3 dano: 1d6+2\nat: +7 besta mao: 1d4\nca: 20'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -203,6 +226,7 @@ modelo {
   id : 'Elfo'
   entidade {
     dados_vida: '1d8' cor { r: 0.1 g: 0.6 b: 0.3 } info_textura { id: 'elf.png' }
+    modificador_iniciativa: 1
     rotulo_especial: 'ini: +1\nat: espada +2 dano: 1d8+1\nat: +3 arco dano: 1d8\nca: 15'
   }
 }
@@ -224,6 +248,7 @@ modelo {
   id: 'Enxame (centopéias)'
   entidade {
     dados_vida: '9d8-9' achatado: true info_textura { id: 'centipedes.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    modificador_iniciativa: 4
     rotulo_especial: 'ini +4\ndano: 2d6 + veneno + nausea\nveneno: fort 13 1d4 des/1d4 des\nnausea: for 13 por 1 rodada'
   }
 }
@@ -231,6 +256,7 @@ modelo {
   id: 'Enxame (morcegos)'
   entidade {
     dados_vida: '3d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_bat' }
+    modificador_iniciativa: 2
     rotulo_especial: 'ini +2\ndano: 1d6 + ferimento 1/rodada' voadora: true
   }
 }
@@ -238,6 +264,7 @@ modelo {
   id: 'Enxame (ratos)'
   entidade {
     dados_vida: '4d8' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' }
+    modificador_iniciativa: 2
     rotulo_especial: 'ini +2\ndano: 1d6 + doenca'
   }
 }
