@@ -852,6 +852,14 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_raio_visao_escuro->setValue(entidade.has_alcance_visao() ? entidade.alcance_visao() : 18);
   gerador.spin_raio_visao_escuro->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
+  // Iniciativa.
+  gerador.checkbox_iniciativa->setCheckState(entidade.has_iniciativa() ? Qt::Checked : Qt::Unchecked);
+  gerador.spin_iniciativa->setValue(entidade.iniciativa());
+  gerador.spin_modificador_iniciativa->setValue(entidade.modificador_iniciativa());
+  lambda_connect(gerador.checkbox_iniciativa, SIGNAL(stateChanged(int)), [this, &gerador] () {
+    gerador.spin_iniciativa->setEnabled(gerador.checkbox_iniciativa->checkState() == Qt::Checked);
+  });
+
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
     proto_retornado->mutable_direcao_queda()->CopyFrom(entidade.direcao_queda());
@@ -919,6 +927,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro->value());
     }
+    if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {
+      proto_retornado->set_iniciativa(gerador.spin_iniciativa->value());
+    } else {
+      proto_retornado->clear_iniciativa();
+    }
+    proto_retornado->set_modificador_iniciativa(gerador.spin_modificador_iniciativa->value());
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

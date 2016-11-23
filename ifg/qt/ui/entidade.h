@@ -109,7 +109,7 @@ public:
     QHBoxLayout *horizontalLayout_21;
     QLabel *label_16;
     QComboBox *combo_modelos_3d;
-    QWidget *widget;
+    QWidget *layoutWidget1;
     QHBoxLayout *horizontalLayout_24;
     QLabel *label_15;
     QComboBox *combo_textura;
@@ -128,17 +128,23 @@ public:
     QHBoxLayout *horizontalLayout_23;
     QLabel *label_18;
     QDoubleSpinBox *spin_tex_largura;
+    QWidget *layoutWidget_3;
+    QHBoxLayout *horizontalLayout_28;
+    QCheckBox *checkbox_iniciativa;
+    QSpinBox *spin_iniciativa;
+    QLabel *label_22;
+    QSpinBox *spin_modificador_iniciativa;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(904, 522);
+        ifg__qt__DialogoEntidade->resize(874, 522);
         ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(480, 460, 341, 32));
+        botoes->setGeometry(QRect(490, 470, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
@@ -160,7 +166,7 @@ public:
 
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(410, 230, 421, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(410, 220, 421, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -197,7 +203,7 @@ public:
 
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(410, 270, 421, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(410, 260, 421, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -457,7 +463,7 @@ public:
 
         layoutWidget_2 = new QWidget(ifg__qt__DialogoEntidade);
         layoutWidget_2->setObjectName(QString::fromUtf8("layoutWidget_2"));
-        layoutWidget_2->setGeometry(QRect(410, 80, 421, 141));
+        layoutWidget_2->setGeometry(QRect(410, 70, 421, 141));
         horizontalLayout_19 = new QHBoxLayout(layoutWidget_2);
         horizontalLayout_19->setObjectName(QString::fromUtf8("horizontalLayout_19"));
         horizontalLayout_19->setContentsMargins(0, 0, 0, 0);
@@ -506,7 +512,7 @@ public:
 
         horizontalLayoutWidget_9 = new QWidget(ifg__qt__DialogoEntidade);
         horizontalLayoutWidget_9->setObjectName(QString::fromUtf8("horizontalLayoutWidget_9"));
-        horizontalLayoutWidget_9->setGeometry(QRect(410, 390, 421, 41));
+        horizontalLayoutWidget_9->setGeometry(QRect(410, 380, 421, 41));
         horizontalLayout_21 = new QHBoxLayout(horizontalLayoutWidget_9);
         horizontalLayout_21->setObjectName(QString::fromUtf8("horizontalLayout_21"));
         horizontalLayout_21->setContentsMargins(0, 0, 0, 0);
@@ -521,26 +527,26 @@ public:
 
         horizontalLayout_21->addWidget(combo_modelos_3d);
 
-        widget = new QWidget(ifg__qt__DialogoEntidade);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(410, 310, 141, 78));
-        horizontalLayout_24 = new QHBoxLayout(widget);
+        layoutWidget1 = new QWidget(ifg__qt__DialogoEntidade);
+        layoutWidget1->setObjectName(QString::fromUtf8("layoutWidget1"));
+        layoutWidget1->setGeometry(QRect(410, 300, 141, 78));
+        horizontalLayout_24 = new QHBoxLayout(layoutWidget1);
         horizontalLayout_24->setObjectName(QString::fromUtf8("horizontalLayout_24"));
         horizontalLayout_24->setContentsMargins(0, 0, 0, 0);
-        label_15 = new QLabel(widget);
+        label_15 = new QLabel(layoutWidget1);
         label_15->setObjectName(QString::fromUtf8("label_15"));
         label_15->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_24->addWidget(label_15);
 
-        combo_textura = new QComboBox(widget);
+        combo_textura = new QComboBox(layoutWidget1);
         combo_textura->setObjectName(QString::fromUtf8("combo_textura"));
 
         horizontalLayout_24->addWidget(combo_textura);
 
         gridLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
         gridLayoutWidget->setObjectName(QString::fromUtf8("gridLayoutWidget"));
-        gridLayoutWidget->setGeometry(QRect(550, 310, 281, 81));
+        gridLayoutWidget->setGeometry(QRect(550, 300, 281, 81));
         gridLayout = new QGridLayout(gridLayoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
@@ -626,6 +632,39 @@ public:
 
 
         gridLayout->addLayout(horizontalLayout_25, 1, 0, 1, 1);
+
+        layoutWidget_3 = new QWidget(ifg__qt__DialogoEntidade);
+        layoutWidget_3->setObjectName(QString::fromUtf8("layoutWidget_3"));
+        layoutWidget_3->setGeometry(QRect(410, 420, 421, 29));
+        horizontalLayout_28 = new QHBoxLayout(layoutWidget_3);
+        horizontalLayout_28->setObjectName(QString::fromUtf8("horizontalLayout_28"));
+        horizontalLayout_28->setContentsMargins(0, 0, 0, 0);
+        checkbox_iniciativa = new QCheckBox(layoutWidget_3);
+        checkbox_iniciativa->setObjectName(QString::fromUtf8("checkbox_iniciativa"));
+
+        horizontalLayout_28->addWidget(checkbox_iniciativa);
+
+        spin_iniciativa = new QSpinBox(layoutWidget_3);
+        spin_iniciativa->setObjectName(QString::fromUtf8("spin_iniciativa"));
+        spin_iniciativa->setMinimum(-100);
+        spin_iniciativa->setMaximum(999);
+
+        horizontalLayout_28->addWidget(spin_iniciativa);
+
+        label_22 = new QLabel(layoutWidget_3);
+        label_22->setObjectName(QString::fromUtf8("label_22"));
+        sizePolicy.setHeightForWidth(label_22->sizePolicy().hasHeightForWidth());
+        label_22->setSizePolicy(sizePolicy);
+        label_22->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_28->addWidget(label_22);
+
+        spin_modificador_iniciativa = new QSpinBox(layoutWidget_3);
+        spin_modificador_iniciativa->setObjectName(QString::fromUtf8("spin_modificador_iniciativa"));
+        spin_modificador_iniciativa->setMinimum(-100);
+        spin_modificador_iniciativa->setMaximum(999);
+
+        horizontalLayout_28->addWidget(spin_modificador_iniciativa);
 
 
         retranslateUi(ifg__qt__DialogoEntidade);
@@ -745,6 +784,17 @@ public:
         label_18->setText(QApplication::translate("ifg::qt::DialogoEntidade", "largura", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_tex_largura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Raio da vis\303\243o no escuro, em metros.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marco, entidade cair\303\241.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Iniciativa", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_22->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_modificador_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
     } // retranslateUi
 
