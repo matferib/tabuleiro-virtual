@@ -1749,15 +1749,32 @@ void Tabuleiro::RolaIniciativasNotificando() {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
+  // desfazer.
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_ent : entidades_) {
     auto* entidade = id_ent.second.get();
     if (entidade->Tipo() != TE_ENTIDADE ||
         (!entidade->SelecionavelParaJogador() && ids_entidades_selecionadas_.find(id_ent.first) == ids_entidades_selecionadas_.end())) {
       continue;
     }
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    if (entidade->TemIniciativa()) {
+      e_antes->set_iniciativa(entidade->Iniciativa());
+    } else {
+      e_antes->set_iniciativa(INICIATIVA_INVALIDA);
+    }
     // TODO notificar e desfazer.
-    entidade->RolaIniciativa();
+    int iniciativa = RolaDado(20) + entidade->ModificadorIniciativa();
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    e_depois->set_iniciativa(iniciativa);
+    TrataNotificacao(*n);
   }
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
 void Tabuleiro::AlteraAnguloVisao(float valor) {

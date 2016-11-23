@@ -68,6 +68,8 @@
 #define CENARIO_PRINCIPAL -1
 #define CENARIO_INVALIDO -2
 
+#define INICIATIVA_INVALIDA (-1000)
+
 // Nao ha um ENTIDADE_ID_INVALIDO pq a constante esta no proto: Entidade::IdInvalido.
 
 namespace ent {

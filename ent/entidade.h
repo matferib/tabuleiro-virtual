@@ -175,8 +175,7 @@ class Entidade {
   bool TemIniciativa() const { return proto_.has_iniciativa(); }
   /** @return a iniciativa da entidade. */
   int Iniciativa() const { return proto_.iniciativa(); }
-  /** Rola a iniciativa da entidade, aplicando modificador. */
-  void RolaIniciativa();
+  int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.

@@ -709,7 +709,10 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   // ATUALIZACAO.
   proto_.MergeFrom(proto_parcial);
 
-  // casos especiis.
+  // casos especiais.
+  if (proto_parcial.iniciativa() == INICIATIVA_INVALIDA) {
+    proto_.clear_iniciativa();
+  }
   if (proto_parcial.evento_size() == 1 && !proto_parcial.evento(0).has_rodadas()) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
@@ -1207,10 +1210,6 @@ bool Entidade::Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* 
     return ColisaoComposta(proto, pos, direcao);
   }
   return false;
-}
-
-void Entidade::RolaIniciativa() {
-  proto_.set_iniciativa(RolaDado(20) + proto_.modificador_iniciativa());
 }
 
 }  // namespace ent
