@@ -41,7 +41,6 @@ const float MULTIPLICADOR_LARGURA = 3.0f;
 const float MULTIPLICADOR_ALTURA = 2.5f;
 
 
-
 // Retorna a textura das entidades. Se nao houver entidade ou se houver mas nao tiver textura, retorna TEXTURA_VAZIA.
 // Se houver mais de uma e elas diferirem, retorna "~".
 std::string TexturaEntidade(const std::vector<const Entidade*>& entidades) {
@@ -164,6 +163,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
   switch (id) {
     case CONTROLE_ROLAR_INICIATIVA_JOGADORES_MAIS_ENTIDADES_SELECIONADAS:
       RolaIniciativasNotificando();
+      break;
+    case CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE:
+      IniciarIniciativaParaCombate();
+      break;
+    case CONTROLE_PROXIMA_INICIATIVA:
+      ProximaIniciativa();
       break;
     case CONTROLE_ANGULO_VISAO_MAIS:
       AlteraAnguloVisao(angulo_visao_vertical_graus_ + 5.0f);
@@ -755,25 +760,37 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaIniciativas() {
-  if (entidades_ordenadas_por_iniciativa_.empty()) {
+  if (entidades_ordenadas_por_iniciativa_.empty() || iniciativa_corrente_.id == Entidade::IdInvalido) {
     return;
   }
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  const float largura_botao = static_cast<float>(largura_fonte) * MULTIPLICADOR_LARGURA * escala;
 
   int raster_x = 0, raster_y = 0;
   largura_fonte *= escala;
   altura_fonte *= escala;
   raster_y = altura_ - altura_fonte;
-  raster_x = largura_ - (VisaoMestre() ? 3.0f : 0.0f) * largura_botao - 2;
+  raster_x = (opcoes_.mostra_fps() ? largura_fonte  * 9 : 0) + 2;
   PosicionaRaster2d(raster_x, raster_y);
 
-  MudaCor(COR_BRANCA);
+  MudaCor(COR_AMARELA);
   std::string titulo("Iniciativa");
-  gl::DesenhaStringAlinhadoDireita(titulo);
+
+  gl::DesenhaStringAlinhadoEsquerda(titulo);
+  MudaCor(COR_BRANCA);
   raster_y -= (altura_fonte + 2);
-  for (unsigned int id : entidades_ordenadas_por_iniciativa_) {
+  int num_desenhadas = 0;
+
+  std::vector<unsigned int> entidades_na_ordem_desenho;
+  entidades_na_ordem_desenho.reserve(entidades_ordenadas_por_iniciativa_.size());
+  auto it = std::find(entidades_ordenadas_por_iniciativa_.begin(), entidades_ordenadas_por_iniciativa_.end(), iniciativa_corrente_.id);
+  if (it == entidades_ordenadas_por_iniciativa_.end()) {
+    return;
+  }
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), it, entidades_ordenadas_por_iniciativa_.end());
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), entidades_ordenadas_por_iniciativa_.begin(), it);
+
+  for (unsigned int id : entidades_na_ordem_desenho) {
     Entidade* entidade = BuscaEntidade(id);
     if (entidade == nullptr || entidade->IdCenario() != cenario_corrente_ ||
         (!VisaoMestre() && !entidade->SelecionavelParaJogador() && !entidade->Proto().visivel())) {
@@ -792,7 +809,11 @@ void Tabuleiro::DesenhaIniciativas() {
       rotulo = proto.info_textura().id().substr(0, proto.info_textura().id().find_last_of("."));
     }
     snprintf(str, 50, "%d-%s", entidade->Iniciativa(), rotulo.c_str());
-    gl::DesenhaStringAlinhadoDireita(str);
+    gl::DesenhaStringAlinhadoEsquerda(str);
+    const int MAX_INICIATIVAS_DESENHADAS = 10;
+    if (++num_desenhadas > MAX_INICIATIVAS_DESENHADAS) {
+      break;
+    }
   }
 }
 

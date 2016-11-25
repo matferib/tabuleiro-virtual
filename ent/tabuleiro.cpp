@@ -283,6 +283,7 @@ Tabuleiro::Tabuleiro(
   opcoes_.set_mostra_fps(true);
   //opcoes_.set_desenha_olho(true);
 #endif
+  iniciativa_corrente_.valor = -1000;
 
   EstadoInicial(false);
 #if USAR_WATCHDOG
@@ -375,6 +376,12 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Lista objetos.
   pagina_lista_objetos_ = 0;
   info_geral_.clear();
+
+  // iniciativa.
+  iniciativa_corrente_.id = Entidade::IdInvalido;
+  iniciativa_corrente_.valor = 0;
+  iniciativa_corrente_.modificador = 0;
+
   if (reiniciar_grafico) {
     LiberaTextura();
     IniciaGL();
@@ -1775,6 +1782,53 @@ void Tabuleiro::RolaIniciativasNotificando() {
     TrataNotificacao(*n);
   }
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
+void Tabuleiro::IniciarIniciativaParaCombate() {
+  if (!EmModoMestreIncluindoSecundario()) {
+    LOG(INFO) << "Nao eh mestre";
+    return;
+  }
+  // TODO desfazer.
+  if (entidades_ordenadas_por_iniciativa_.empty()) {
+    LOG(INFO) << "entidades_ordenadas_por_iniciativa_.empty";
+    iniciativa_corrente_.id = Entidade::IdInvalido;
+    iniciativa_corrente_.valor = 0;
+    iniciativa_corrente_.modificador = 0;
+    return;
+  }
+  const auto* entidade = BuscaEntidade(entidades_ordenadas_por_iniciativa_[0]);
+  iniciativa_corrente_.id = entidade->Id();
+  iniciativa_corrente_.valor = entidade->Iniciativa();
+  iniciativa_corrente_.modificador = entidade->ModificadorIniciativa();
+  LOG(INFO) << "nova iniciativa: " << iniciativa_corrente_.valor;
+}
+
+void Tabuleiro::ProximaIniciativa() {
+  if (!EmModoMestreIncluindoSecundario() || entidades_ordenadas_por_iniciativa_.empty()) {
+    LOG(INFO) << "Nao eh mestre ou entidades_ordenadas_por_iniciativa_.empty";
+    return;
+  }
+  // TODO desfazer.
+  auto it = std::find_if(entidades_ordenadas_por_iniciativa_.begin(), entidades_ordenadas_por_iniciativa_.end(), [this] (unsigned int id) {
+    return id == iniciativa_corrente_.id;
+  });
+  if (it == entidades_ordenadas_por_iniciativa_.end()) {
+    LOG(ERROR) << "Nao consigo achar a entidade da iniciativa corrente";
+    return;
+  }
+  int indice = (it - entidades_ordenadas_por_iniciativa_.begin());
+  // Aqui temos o indice, agora eh so passar.
+  unsigned int proximo_indice = (indice + 1) % entidades_ordenadas_por_iniciativa_.size();
+  const auto* entidade = BuscaEntidade(entidades_ordenadas_por_iniciativa_[proximo_indice]);
+  iniciativa_corrente_.id = entidade->Id();
+  iniciativa_corrente_.valor = entidade->Iniciativa();
+  iniciativa_corrente_.modificador = entidade->ModificadorIniciativa();
+  LOG(INFO) << "nova iniciativa: " << iniciativa_corrente_.valor;
+  if (proximo_indice == 0) {
+    LOG(INFO) << "passando rodada...";
+    PassaUmaRodadaNotificando();
+  }
 }
 
 void Tabuleiro::AlteraAnguloVisao(float valor) {
@@ -4376,18 +4430,46 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
       entidades_com_iniciativa.push_back(entidade);
     }
   }
+  // Ordena as entidades por iniciativa.
   std::sort(entidades_com_iniciativa.begin(), entidades_com_iniciativa.end(), [this] (const Entidade* entidade1, const Entidade* entidade2) {
-    if ((entidade1->Iniciativa() > iniciativa_corrente_ && entidade2->Iniciativa() > iniciativa_corrente_) ||
-        (entidade1->Iniciativa() < iniciativa_corrente_ && entidade2->Iniciativa() < iniciativa_corrente_)) {
-      return entidade1->Iniciativa() > entidade2->Iniciativa();
-    } else if (entidade1->Iniciativa() > iniciativa_corrente_) {
-      return true;
-    }
-    return false;
+    return
+      entidade1->Iniciativa() > entidade2->Iniciativa() ||
+      (entidade1->Iniciativa() == entidade2->Iniciativa() && entidade1->ModificadorIniciativa() >  entidade2->ModificadorIniciativa());
   });
   entidades_ordenadas_por_iniciativa_.clear();
   for (const auto* entidade : entidades_com_iniciativa) {
     entidades_ordenadas_por_iniciativa_.push_back(entidade->Id());
+  }
+  if (entidades_ordenadas_por_iniciativa_.empty()) {
+    iniciativa_corrente_.id = Entidade::IdInvalido;
+    return;
+  }
+  // Arruma a entidade corrente da iniciativa se ela nao existir mais mas ha outras.
+  auto it = std::find_if(entidades_ordenadas_por_iniciativa_.begin(), entidades_ordenadas_por_iniciativa_.end(), [this] (unsigned int id) {
+    return id == iniciativa_corrente_.id;
+  });
+  if (it != entidades_ordenadas_por_iniciativa_.end()) {
+    return;
+  }
+  // Acha a menor iniciativa acima do corrente. Pode haver mais de uma, mas a informacao nao eh suficiente para saber exatamente qual.
+  // Para realmente arrumar isso, eu teria que atualizar as iniciativas quando uma entidade fosse removida ou morta.
+  int indice = 0;
+  for (unsigned int i = 1; i < entidades_ordenadas_por_iniciativa_.size(); ++i) {
+    const auto* entidade = BuscaEntidade(entidades_ordenadas_por_iniciativa_[i]);
+    if (entidade->Iniciativa() < iniciativa_corrente_.valor ||
+        (entidade->Iniciativa() == iniciativa_corrente_.valor && entidade->ModificadorIniciativa() < iniciativa_corrente_.modificador)) {
+      break;
+    }
+    indice = i;
+  }
+  iniciativa_corrente_.id = entidades_ordenadas_por_iniciativa_[indice];
+  const auto* entidade = BuscaEntidade(iniciativa_corrente_.id);
+  if (entidade != nullptr) {
+    iniciativa_corrente_.valor = entidade->Iniciativa();
+    iniciativa_corrente_.modificador = entidade->ModificadorIniciativa();
+  } else {
+    iniciativa_corrente_.valor = 0;
+    iniciativa_corrente_.modificador = 0;
   }
 }
 

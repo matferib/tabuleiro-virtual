@@ -186,6 +186,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Rola iniciativa das entidades selecionadas mais dos jogadores. */
   void RolaIniciativasNotificando();
+  void IniciarIniciativaParaCombate();
+  void ProximaIniciativa();
 
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
@@ -1022,7 +1024,12 @@ class Tabuleiro : public ntf::Receptor {
   std::set<std::string> modelos_entidades_;
   // Este vetor contem os ids das entidades ordenadas por iniciativa.
   std::vector<unsigned int> entidades_ordenadas_por_iniciativa_;
-  int iniciativa_corrente_;
+  struct DadosIniciativaCorrente {
+    int valor;
+    int modificador;  // para desempate.
+    unsigned int id;  // outro desempate, mas pode ser que nao exista.
+  };
+  DadosIniciativaCorrente iniciativa_corrente_;
 
   // String de informacao geral para display. Normalmente temporizada.
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
