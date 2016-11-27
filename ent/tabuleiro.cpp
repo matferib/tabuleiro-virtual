@@ -1753,16 +1753,26 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::RolaIniciativasNotificando() {
-  if (!EmModoMestreIncluindoSecundario()) {
-    return;
+  std::vector<const Entidade*> entidades; 
+  if (EmModoMestreIncluindoSecundario()) {
+    entidades = EntidadesSelecionadas();
+  } else {
+    if (estado_ == ETAB_ENTS_SELECIONADAS) {
+      entidades = EntidadesSelecionadas();
+    } else if (id_camera_presa_ != Entidade::IdInvalido) {
+      auto* entidade = EntidadeSelecionada();
+      entidades.push_back(entidade);
+    } else {
+      LOG(INFO) << "Nao ha unidade selecionada ou presa para rolar iniciativa";
+      return;
+    }
   }
+
   // desfazer.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (auto& id_ent : entidades_) {
-    auto* entidade = id_ent.second.get();
-    if (entidade->Tipo() != TE_ENTIDADE ||
-        (!entidade->SelecionavelParaJogador() && ids_entidades_selecionadas_.find(id_ent.first) == ids_entidades_selecionadas_.end())) {
+  for (const auto* entidade : entidades) {
+    if (entidade->Tipo() != TE_ENTIDADE) {
       continue;
     }
     auto* n = grupo_notificacoes.add_notificacao();

@@ -161,7 +161,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
   LOG(INFO) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
-    case CONTROLE_ROLAR_INICIATIVA_JOGADORES_MAIS_ENTIDADES_SELECIONADAS:
+    case CONTROLE_ROLAR_INICIATIVA:
       RolaIniciativasNotificando();
       break;
     case CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE:
