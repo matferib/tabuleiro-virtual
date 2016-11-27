@@ -299,6 +299,7 @@ modelo {
   entidade {
     dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'giantant_queen.png'} cor { r: 0.2 g: 0.0 b: 0.0 }
     rotulo_especial: 'ini -1\nca 17/10/17 at +5 dano 2d6+4\nagarrar aprimorado ferrao dano 2d4+1\n'
+    modificador_iniciativa: -1
   }
 }
 modelo {
@@ -312,6 +313,7 @@ modelo {
   entidade {
     dados_vida: '2d8+6' modelo_3d { id: 'violet_fungus' }
     rotulo_especial: 'ini -1\nat +3/+3/+3/+3 dano 1d6+2+veneno\nca 13/9/13\nveneno fort 14/1d4 for e con/1d4 for e con\nalcance 2 quad'
+    modificador_iniciativa: -1
   }
 }
 modelo {
@@ -321,15 +323,17 @@ modelo {
     rotulo_especial: 'ini -1\nat: +16/+11 2d8+10\npedrada: +8 2d6+7\nca: 20'
     lista_acoes: 'Ataque Corpo a Corpo'
     lista_acoes: 'Pedrada (gigante)'
+    modificador_iniciativa: -1
   }
 }
 modelo {
   id: 'Gigante das Pedras'
   entidade {
     dados_vida: '14d8+56' tamanho: TM_GRANDE info_textura { id: 'giant_stone.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
-    rotulo_especial: 'ini+2\nat: +17/+12 2d8+12\npedra: +11 2d8+12\nca:25'
+    rotulo_especial: 'ini +2\nat: +17/+12 2d8+12\npedra: +11 2d8+12\nca:25'
     lista_acoes: 'Ataque Corpo a Corpo'
     lista_acoes: 'Pedrada (gigante)'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -337,6 +341,7 @@ modelo {
   entidade {
     dados_vida: '19d8+114' tamanho: TM_ENORME info_textura { id: 'giant_storm.png' } cor { r: 0.627 g: 0.322 b: 0.176 }
     rotulo_especial: 'ini+2\nat: +26/+21/+16 4d6+21/19-20\narco: +14/+9/+4 3d6+14/x3\nca:27'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -345,6 +350,7 @@ modelo {
     dados_vida: '8d10+8' info_textura { id: 'gynosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
     tamanho: TM_GRANDE
     rotulo_especial: 'ini: +5\nat (2): +11 1d6+4\nca: 21'
+    modificador_iniciativa: 5
   }
 }
 modelo {
@@ -352,6 +358,7 @@ modelo {
   entidade {
     dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'ini: +2\nat: +11/+8/+8\ndano: 2d6+4/1d4+2/1d4+2\nca: 17'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -359,6 +366,7 @@ modelo {
   entidade {
     dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'ini +2\nat: +3 1d6+3\nca: 14'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -366,6 +374,7 @@ modelo {
   entidade {
     dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'ini: +2\nat: +6/+6/+1\ndano: 1d4+4/1d4+4/1d8+2\nca: 15'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -377,6 +386,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 15 }
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -388,6 +398,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 21 }
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -399,6 +410,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d10+6' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 20 }
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -410,6 +422,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 15 }
+    modificador_iniciativa: 1
   }
 }
 
@@ -418,6 +431,7 @@ modelo {
   entidade {
     dados_vida: '5d8+10' tamanho: TM_GRANDE info_textura { id: 'lion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'ini: +3\nat: +2/+7/+7\ndano: 1d8+2/1d4+5/1d4+5\nca: 15'
+    modificador_iniciativa: 3
   }
 }
 modelo {
@@ -425,6 +439,7 @@ modelo {
   entidade {
     dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'direlion.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
     rotulo_especial: 'ini: +2\nca 15/11/13 agarrar +17 mordida/garrax2 +7/+13/+13\ndano: 1d8+3/1d6+7/1d6+7\nagarrar aprimorado'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -442,6 +457,7 @@ modelo {
   entidade {
     dados_vida: '3d8' tamanho: TM_PEQUENO voadora: true info_textura { id: 'fire_mephit.png' } cor { r: 0.8 g: 0.3 b: 0 }
     rotulo_especial: 'ini: +5\nat: +4/+4, dano: 1d3+1d4(fogo) 1d3+1d4(fogo)\nca: 16'
+    modificador_iniciativa: 5
   }
 }
 modelo {
@@ -453,6 +469,7 @@ modelo {
     dados_ataque { tipo_ataque: 'Mãos Flamenjantes' bonus_ataque: 0 dano: '3d4' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d10' }
     dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 13 }
+    modificador_iniciativa: -1
   }
 }
 modelo {
@@ -576,6 +593,7 @@ modelo {
     dados_vida: '3d8+3' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -584,6 +602,7 @@ modelo {
     dados_vida: '9d10+18' info_textura { id: 'hieracosphinx.png' } cor { r: 0.65 g: 0.3 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
     tamanho: TM_GRANDE
     rotulo_especial: 'ini: +2\nat: +13/+8/+8\ndano: 1d10+5/1d6+2/1d6+2\nca: 21'
+    modificador_iniciativa: 2
   }
 }
 modelo {
@@ -592,6 +611,7 @@ modelo {
     dados_vida: '2d8+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.2 g: 0.2 b: 0.2 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'humano: ini 0 at +2 (sabre) ou +1 (besta) dano 1d6+1(18-20) ou 1d8(19-20)\nca 15/10/15\nrato: ini +3 at +6 1d4+1+doenca\nca 17/14/14\nhibrido: ini +3 at +4/-1 dano 1d6+1(18-20)/1d6+doenca\nca 16/13/13\ndoenca febre esgoto'
+    modificador_iniciativa: 3
   }
 }
 modelo {
@@ -599,6 +619,7 @@ modelo {
   entidade {
     dados_vida: '5d8+5' modelo_3d { id: 'rust_monster' }
     rotulo_especial: 'ini: +3\nat: +3/-2, dano: ferrugem/1d3\nca: 18/13/15'
+    modificador_iniciativa: 3
   }
 }
 modelo {
@@ -662,6 +683,7 @@ modelo {
     dados_vida: '4d10+32' cor { r: 1 g: 1 b: 1 a: 0.3 } modelo_3d { id: 'gelatinous_cube' }
     tamanho: TM_GRANDE
     rotulo_especial: 'ini -5\nat +2 1d6+1d6 acido\nengolfar, paralisia fort CD 20 3d6 rodadas'
+    modificador_iniciativa: -5
   }
 }
 modelo {
@@ -669,6 +691,7 @@ modelo {
   entidade {
     dados_vida: '10d10+60' cor { r: 0.3 b: 0.3 g: 0.3 } modelo_3d { id: 'black_pudding' } tamanho: TM_ENORME
     rotulo_especial: 'ini -5\nat +8 2d6+4+2d6 acido\nconstricao 2d6+4'
+    modificador_iniciativa: -5
   }
 }
 modelo {
@@ -690,6 +713,7 @@ modelo {
   entidade {
     dados_vida: '9d10+27' tamanho: TM_GRANDE info_textura { id: 'chimera.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
     rotulo_especial: 'ini: +1\nat: +12/+12/+12/+10/+10\ndano:2d6+4/1d8+4/1d8+4/1d6+2/1d6+2\nca: 19'
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -697,6 +721,7 @@ modelo {
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
     rotulo_especial: 'ini +3\nat +4 1d4+doenca\nca 15/14/12\ndoenca fort 11 febre do esgoto '
+    modificador_iniciativa: 3
   }
 }
 modelo {
@@ -712,17 +737,24 @@ modelo {
 }
 modelo {
   id: 'Troll'
-  entidade { dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 } }
+  entidade {
+    dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 }
+    modificador_iniciativa: 2
+  }
 }
 modelo {
   id: 'Uivante'
-  entidade { dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 } }
+  entidade {
+    dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 }
+    modificador_iniciativa: 7
+  }
 }
 modelo {
   id: 'Urso-Coruja'
   entidade {
     dados_vida: '5d10+25' tamanho: TM_GRANDE info_textura { id: 'owlbear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
     rotulo_especial: 'ini: +1\nat: 2 garras +9 1d6+5\nat: mordida +4 1d8+2\nca: 15'
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -730,6 +762,7 @@ modelo {
   entidade {
     dados_vida: '6d8+24' tamanho: TM_GRANDE info_textura { id: 'brown_bear.png' } cor { r: 0.5 g: 0.25 b: 0.05 }
     rotulo_especial: 'ini: +1\nat: 2x +11 1d8+8 +6 2d6+4\nca: 15'
+    modificador_iniciativa: 1
   }
 }
 modelo {
@@ -737,20 +770,30 @@ modelo {
   entidade {
     dados_vida: '3d8+6' info_textura { id: 'black_bear.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     rotulo_especial: 'ini: +1\nat: 2x +6 1d4+4 +1 1d6+2\nca: 13'
+    modificador_iniciativa: 1
   }
 }
 
 modelo {
   id: 'Zumbi (humano)'
-  entidade { dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+  entidade {
+    dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
+    modificador_iniciativa: -1
+  }
 }
 modelo {
   id: 'Zumbi (kobold)'
-  entidade { dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 } }
+  entidade {
+    dados_vida: '2d12+3' tamanho: TM_PEQUENO info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
+    modificador_iniciativa: 0
+  }
 }
 modelo {
   id: 'Worg'
-  entidade { dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 } }
+  entidade {
+    dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 }
+    modificador_iniciativa: 2
+  }
 }
 modelo {
   id: 'Cactos'
