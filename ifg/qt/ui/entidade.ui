@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>874</width>
+    <width>950</width>
     <height>522</height>
    </rect>
   </property>
@@ -26,8 +26,8 @@
   <widget class="QDialogButtonBox" name="botoes">
    <property name="geometry">
     <rect>
-     <x>490</x>
-     <y>470</y>
+     <x>570</x>
+     <y>460</y>
      <width>341</width>
      <height>32</height>
     </rect>
@@ -68,8 +68,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>220</y>
+     <x>490</x>
+     <y>210</y>
      <width>421</width>
      <height>41</height>
     </rect>
@@ -123,8 +123,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>260</y>
+     <x>490</x>
+     <y>250</y>
      <width>421</width>
      <height>41</height>
     </rect>
@@ -374,7 +374,7 @@
     <item>
      <widget class="QCheckBox" name="checkbox_caida">
       <property name="toolTip">
-       <string>Se marco, entidade cairá.</string>
+       <string>Se marcado, entidade cairá.</string>
       </property>
       <property name="text">
        <string>Caída</string>
@@ -406,7 +406,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="spin_aura">
         <property name="toolTip">
-         <string>Raio da visão no escuro, em metros.</string>
+         <string>Aura da entidade.</string>
         </property>
         <property name="decimals">
          <number>1</number>
@@ -582,8 +582,8 @@
   <widget class="QWidget" name="layoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>70</y>
+     <x>490</x>
+     <y>60</y>
      <width>421</width>
      <height>141</height>
     </rect>
@@ -684,8 +684,8 @@
   <widget class="QWidget" name="horizontalLayoutWidget_9">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>380</y>
+     <x>490</x>
+     <y>370</y>
      <width>421</width>
      <height>41</height>
     </rect>
@@ -709,8 +709,8 @@
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>300</y>
+     <x>490</x>
+     <y>290</y>
      <width>141</width>
      <height>78</height>
     </rect>
@@ -734,8 +734,8 @@
   <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>550</x>
-     <y>300</y>
+     <x>630</x>
+     <y>290</y>
      <width>281</width>
      <height>81</height>
     </rect>
@@ -756,7 +756,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="spin_tex_altura">
         <property name="toolTip">
-         <string>Raio da visão no escuro, em metros.</string>
+         <string>Altura da textura, de 0 a 1</string>
         </property>
         <property name="decimals">
          <number>2</number>
@@ -786,7 +786,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="spin_tex_trans_y">
         <property name="toolTip">
-         <string>Raio da visão no escuro, em metros.</string>
+         <string>Translação da textura</string>
         </property>
         <property name="decimals">
          <number>2</number>
@@ -819,7 +819,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="spin_tex_trans_x">
         <property name="toolTip">
-         <string>Raio da visão no escuro, em metros.</string>
+         <string>Translação da textura</string>
         </property>
         <property name="decimals">
          <number>2</number>
@@ -854,7 +854,7 @@
         <item>
          <widget class="QDoubleSpinBox" name="spin_tex_largura">
           <property name="toolTip">
-           <string>Raio da visão no escuro, em metros.</string>
+           <string>Largura da textura, de 0 a 1</string>
           </property>
           <property name="decimals">
            <number>2</number>
@@ -876,8 +876,8 @@
   <widget class="QWidget" name="layoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>420</y>
+     <x>490</x>
+     <y>410</y>
      <width>421</width>
      <height>29</height>
     </rect>
@@ -885,8 +885,14 @@
    <layout class="QHBoxLayout" name="horizontalLayout_28">
     <item>
      <widget class="QCheckBox" name="checkbox_iniciativa">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="toolTip">
-       <string>Se marco, entidade cairá.</string>
+       <string>Se marcado, entidade terá iniciativa</string>
       </property>
       <property name="text">
        <string>Iniciativa</string>
@@ -896,7 +902,7 @@
     <item>
      <widget class="QSpinBox" name="spin_iniciativa">
       <property name="toolTip">
-       <string>Pontos de vida para entidade.</string>
+       <string>Valor da iniciativa</string>
       </property>
       <property name="minimum">
        <number>-100</number>
@@ -925,7 +931,7 @@
     <item>
      <widget class="QSpinBox" name="spin_modificador_iniciativa">
       <property name="toolTip">
-       <string>Máximo de pontos de vida para entidade.</string>
+       <string>Modificador de iniciativa</string>
       </property>
       <property name="minimum">
        <number>-100</number>
