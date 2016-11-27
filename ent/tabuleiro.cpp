@@ -97,7 +97,7 @@ const float VELOCIDADE_OLHO_M_S = TAMANHO_LADO_QUADRADO * 10.0f;
 const int TEMPO_DETALHAMENTO_MS = 500;
 
 /** tamanho maximo da lista de eventos para desfazer. */
-const unsigned int TAMANHO_MAXIMO_LISTA = 10;
+const unsigned int TAMANHO_MAXIMO_LISTA = 50;
 
 // Os offsets servem para evitar zfight. Eles adicionam à profundidade um valor
 // dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
@@ -283,7 +283,6 @@ Tabuleiro::Tabuleiro(
   opcoes_.set_mostra_fps(true);
   //opcoes_.set_desenha_olho(true);
 #endif
-  iniciativa_corrente_.valor = -1000;
 
   EstadoInicial(false);
 #if USAR_WATCHDOG
@@ -378,9 +377,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   info_geral_.clear();
 
   // iniciativa.
-  iniciativa_corrente_.id = Entidade::IdInvalido;
-  iniciativa_corrente_.valor = 0;
-  iniciativa_corrente_.modificador = 0;
+  indice_iniciativa_ = -1;
 
   if (reiniciar_grafico) {
     LiberaTextura();
@@ -1400,6 +1397,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       //boost::timer::cpu_timer timer_temp;
       //timer_temp.start();
       AtualizaEntidades(passou_ms);
+      if (indice_iniciativa_ != -1) {
+        AtualizaIniciativas();
+      }
       // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
       // ao move-la, o olho ira se atualizar e o ponto de destino mudara, assim como as matrizes.
       if (estado_ != ETAB_ENTS_PRESSIONADAS && estado_ != ETAB_DESLIZANDO) {
@@ -1796,47 +1796,43 @@ void Tabuleiro::RolaIniciativasNotificando() {
 
 void Tabuleiro::IniciarIniciativaParaCombate() {
   if (!EmModoMestreIncluindoSecundario()) {
-    LOG(INFO) << "Nao eh mestre";
+    LOG(INFO) << "Apenas mestre pode iniciar as iniciativas para combate.";
     return;
   }
   // TODO desfazer.
-  if (entidades_ordenadas_por_iniciativa_.empty()) {
-    LOG(INFO) << "entidades_ordenadas_por_iniciativa_.empty";
-    iniciativa_corrente_.id = Entidade::IdInvalido;
-    iniciativa_corrente_.valor = 0;
-    iniciativa_corrente_.modificador = 0;
-    return;
+  std::vector<const Entidade*> entidades_com_iniciativa;
+  for (auto& id_ent : entidades_) {
+    auto* entidade = id_ent.second.get();
+    if (entidade->TemIniciativa() && !entidade->Proto().morta()) {
+      entidades_com_iniciativa.push_back(entidade);
+    }
   }
-  const auto* entidade = BuscaEntidade(entidades_ordenadas_por_iniciativa_[0]);
-  iniciativa_corrente_.id = entidade->Id();
-  iniciativa_corrente_.valor = entidade->Iniciativa();
-  iniciativa_corrente_.modificador = entidade->ModificadorIniciativa();
-  LOG(INFO) << "nova iniciativa: " << iniciativa_corrente_.valor;
+
+  // Ordena as entidades por iniciativa.
+  std::sort(entidades_com_iniciativa.begin(), entidades_com_iniciativa.end(), [this] (const Entidade* entidade1, const Entidade* entidade2) {
+    return
+      entidade1->Iniciativa() > entidade2->Iniciativa() ||
+      (entidade1->Iniciativa() == entidade2->Iniciativa() && entidade1->ModificadorIniciativa() >  entidade2->ModificadorIniciativa());
+  });
+  iniciativas_.clear();
+  iniciativas_.reserve(entidades_com_iniciativa.size());
+  for (const auto* entidade : entidades_com_iniciativa) {
+    DadosIniciativa dados;
+    dados.id = entidade->Id();
+    dados.iniciativa = entidade->Iniciativa();
+    dados.modificador = entidade->ModificadorIniciativa();
+    iniciativas_.push_back(dados);
+  }
+  indice_iniciativa_ = 0;
 }
 
 void Tabuleiro::ProximaIniciativa() {
-  if (!EmModoMestreIncluindoSecundario() || entidades_ordenadas_por_iniciativa_.empty()) {
+  if (!EmModoMestreIncluindoSecundario() || indice_iniciativa_ == -1) {
     LOG(INFO) << "Nao eh mestre ou entidades_ordenadas_por_iniciativa_.empty";
     return;
   }
-  // TODO desfazer.
-  auto it = std::find_if(entidades_ordenadas_por_iniciativa_.begin(), entidades_ordenadas_por_iniciativa_.end(), [this] (unsigned int id) {
-    return id == iniciativa_corrente_.id;
-  });
-  if (it == entidades_ordenadas_por_iniciativa_.end()) {
-    LOG(ERROR) << "Nao consigo achar a entidade da iniciativa corrente";
-    return;
-  }
-  int indice = (it - entidades_ordenadas_por_iniciativa_.begin());
-  // Aqui temos o indice, agora eh so passar.
-  unsigned int proximo_indice = (indice + 1) % entidades_ordenadas_por_iniciativa_.size();
-  const auto* entidade = BuscaEntidade(entidades_ordenadas_por_iniciativa_[proximo_indice]);
-  iniciativa_corrente_.id = entidade->Id();
-  iniciativa_corrente_.valor = entidade->Iniciativa();
-  iniciativa_corrente_.modificador = entidade->ModificadorIniciativa();
-  LOG(INFO) << "nova iniciativa: " << iniciativa_corrente_.valor;
-  if (proximo_indice == 0) {
-    LOG(INFO) << "passando rodada...";
+  if (++indice_iniciativa_ >= (int)iniciativas_.size()) {
+    indice_iniciativa_ = 0;
     PassaUmaRodadaNotificando();
   }
 }
@@ -4430,56 +4426,77 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 }
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
-  std::vector<Entidade*> entidades_com_iniciativa;
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
     entidade->Atualiza(intervalo_ms);
     parametros_desenho_.clear_entidade_selecionada();
-    if ((entidade->SelecionavelParaJogador() || entidade->TemIniciativa()) && !entidade->Proto().morta()) {
-      entidades_com_iniciativa.push_back(entidade);
+  }
+}
+
+void Tabuleiro::AtualizaIniciativas() {
+  std::unordered_map<unsigned int, DadosIniciativa*> mapa_iniciativas;
+  for (DadosIniciativa& di : iniciativas_) {
+    mapa_iniciativas[di.id] = &di;
+    di.presente = false;
+  }
+
+  std::vector<const Entidade*> entidades_adicionar;
+  for (auto& id_ent : entidades_) {
+    const auto* entidade = id_ent.second.get();
+    if (!entidade->TemIniciativa() || entidade->Proto().morta()) {
+      continue;
+    }
+    auto it = mapa_iniciativas.find(entidade->Id());
+    if (it == mapa_iniciativas.end()) {
+      entidades_adicionar.push_back(entidade);
+    } else {
+      if (entidade->Iniciativa() != it->second->iniciativa || entidade->ModificadorIniciativa() != it->second->modificador) {
+        // Como nao esta marcada como presente, sera removida. E depois, adicionada.
+        entidades_adicionar.push_back(entidade);
+      } else {
+        it->second->presente = true;
+      }
     }
   }
-  // Ordena as entidades por iniciativa.
-  std::sort(entidades_com_iniciativa.begin(), entidades_com_iniciativa.end(), [this] (const Entidade* entidade1, const Entidade* entidade2) {
-    return
-      entidade1->Iniciativa() > entidade2->Iniciativa() ||
-      (entidade1->Iniciativa() == entidade2->Iniciativa() && entidade1->ModificadorIniciativa() >  entidade2->ModificadorIniciativa());
-  });
-  entidades_ordenadas_por_iniciativa_.clear();
-  for (const auto* entidade : entidades_com_iniciativa) {
-    entidades_ordenadas_por_iniciativa_.push_back(entidade->Id());
-  }
-  if (entidades_ordenadas_por_iniciativa_.empty()) {
-    iniciativa_corrente_.id = Entidade::IdInvalido;
-    return;
-  }
-  // Arruma a entidade corrente da iniciativa se ela nao existir mais mas ha outras.
-  auto it = std::find_if(entidades_ordenadas_por_iniciativa_.begin(), entidades_ordenadas_por_iniciativa_.end(), [this] (unsigned int id) {
-    return id == iniciativa_corrente_.id;
-  });
-  if (it != entidades_ordenadas_por_iniciativa_.end()) {
-    return;
-  }
-  // Acha a menor iniciativa acima do corrente. Pode haver mais de uma, mas a informacao nao eh suficiente para saber exatamente qual.
-  // Para realmente arrumar isso, eu teria que atualizar as iniciativas quando uma entidade fosse removida ou morta.
-  int indice = 0;
-  for (unsigned int i = 1; i < entidades_ordenadas_por_iniciativa_.size(); ++i) {
-    const auto* entidade = BuscaEntidade(entidades_ordenadas_por_iniciativa_[i]);
-    if (entidade->Iniciativa() < iniciativa_corrente_.valor ||
-        (entidade->Iniciativa() == iniciativa_corrente_.valor && entidade->ModificadorIniciativa() < iniciativa_corrente_.modificador)) {
-      break;
+  // Remove nao presentes.
+  for (int i = 0; i < (int)iniciativas_.size();) {
+    DadosIniciativa& di = iniciativas_[i];
+    if (!di.presente) {
+      if (indice_iniciativa_ > i) {
+        --indice_iniciativa_;
+      } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
+        indice_iniciativa_ = 0;
+        PassaUmaRodadaNotificando();
+      }
+      // Senao, ignora pq nao faz diferennca, mesmo que i == indice.
+      // Agora pode remover.
+      iniciativas_.erase(iniciativas_.begin() + i);
+    } else {
+      ++i;
     }
-    indice = i;
   }
-  iniciativa_corrente_.id = entidades_ordenadas_por_iniciativa_[indice];
-  const auto* entidade = BuscaEntidade(iniciativa_corrente_.id);
-  if (entidade != nullptr) {
-    iniciativa_corrente_.valor = entidade->Iniciativa();
-    iniciativa_corrente_.modificador = entidade->ModificadorIniciativa();
-  } else {
-    iniciativa_corrente_.valor = 0;
-    iniciativa_corrente_.modificador = 0;
+  // Adiciona novas entidades (ou atualizadas).
+  for (const auto* entidade : entidades_adicionar) {
+    // Acha ponto de insercao.
+    int posicao = 0;
+    while (posicao < (int)iniciativas_.size() &&
+           (entidade->Iniciativa() < iniciativas_[posicao].iniciativa ||
+           (entidade->Iniciativa() == iniciativas_[posicao].iniciativa && entidade->ModificadorIniciativa() < iniciativas_[posicao].modificador))) {
+      ++posicao;
+    }
+    DadosIniciativa di;
+    di.id = entidade->Id();
+    di.iniciativa = entidade->Iniciativa();
+    di.modificador = entidade->ModificadorIniciativa();
+    iniciativas_.insert(iniciativas_.begin() + posicao, di);
+    if (indice_iniciativa_ >= posicao) {
+      ++indice_iniciativa_;
+    }
+  }
+
+  if (iniciativas_.empty()) {
+    indice_iniciativa_ = -1;
   }
 }
 

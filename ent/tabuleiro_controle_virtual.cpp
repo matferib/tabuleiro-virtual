@@ -760,7 +760,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaIniciativas() {
-  if (entidades_ordenadas_por_iniciativa_.empty() || iniciativa_corrente_.id == Entidade::IdInvalido) {
+  if (indice_iniciativa_ == -1) {
     return;
   }
   int largura_fonte, altura_fonte, escala;
@@ -781,17 +781,13 @@ void Tabuleiro::DesenhaIniciativas() {
   raster_y -= (altura_fonte + 2);
   int num_desenhadas = 0;
 
-  std::vector<unsigned int> entidades_na_ordem_desenho;
-  entidades_na_ordem_desenho.reserve(entidades_ordenadas_por_iniciativa_.size());
-  auto it = std::find(entidades_ordenadas_por_iniciativa_.begin(), entidades_ordenadas_por_iniciativa_.end(), iniciativa_corrente_.id);
-  if (it == entidades_ordenadas_por_iniciativa_.end()) {
-    return;
-  }
-  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), it, entidades_ordenadas_por_iniciativa_.end());
-  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), entidades_ordenadas_por_iniciativa_.begin(), it);
+  std::vector<DadosIniciativa> entidades_na_ordem_desenho;
+  entidades_na_ordem_desenho.reserve(iniciativas_.size());
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin() + indice_iniciativa_, iniciativas_.end());
+  entidades_na_ordem_desenho.insert(entidades_na_ordem_desenho.end(), iniciativas_.begin(), iniciativas_.begin() + indice_iniciativa_);
 
-  for (unsigned int id : entidades_na_ordem_desenho) {
-    Entidade* entidade = BuscaEntidade(id);
+  for (const auto& di : entidades_na_ordem_desenho) {
+    Entidade* entidade = BuscaEntidade(di.id);
     if (entidade == nullptr || entidade->IdCenario() != cenario_corrente_ ||
         (!VisaoMestre() && !entidade->SelecionavelParaJogador() && !entidade->Proto().visivel())) {
       continue;

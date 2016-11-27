@@ -111,6 +111,9 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
+  /** Atualiza a lista de iniciativas, caso alguma entidade nova tenha aparecido ou saido da lista. */
+  void AtualizaIniciativas();
+
   /** Inverte o bit da entidade. */
   enum bit_e {
     BIT_VISIBILIDADE     = 0x1,
@@ -1022,14 +1025,16 @@ class Tabuleiro : public ntf::Receptor {
   std::map<IdBotao, const DadosBotao*> mapa_botoes_controle_virtual_;
   std::set<std::string> texturas_entidades_;
   std::set<std::string> modelos_entidades_;
-  // Este vetor contem os ids das entidades ordenadas por iniciativa.
-  std::vector<unsigned int> entidades_ordenadas_por_iniciativa_;
-  struct DadosIniciativaCorrente {
-    int valor;
-    int modificador;  // para desempate.
-    unsigned int id;  // outro desempate, mas pode ser que nao exista.
+  // Qual iniciativa eh a corrente. -1 para nenhuma.
+  int indice_iniciativa_;
+  struct DadosIniciativa {
+    unsigned int id;
+    int iniciativa;
+    int modificador;
+    bool presente;  // usado durante atualizacao de iniciativa.
   };
-  DadosIniciativaCorrente iniciativa_corrente_;
+  // Iniciativas ordenadas.
+  std::vector<DadosIniciativa> iniciativas_;
 
   // String de informacao geral para display. Normalmente temporizada.
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
