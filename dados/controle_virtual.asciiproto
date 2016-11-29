@@ -509,7 +509,7 @@ pagina {
     coluna: 23
     id: CONTROLE_ROLAR_INICIATIVA
     rotulo: "R"
-    dica: "Rola iniciativas."
+    dica: "Rola iniciativas de entidades selecionadas."
     forma: FORMA_RETANGULO
   }
   dados_botoes {
@@ -518,7 +518,7 @@ pagina {
     coluna: 24
     id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
     rotulo: "I"
-    dica: "Inicia iniciativas."
+    dica: "Inicia iniciativas para combate."
     forma: FORMA_RETANGULO
     mestre_apenas: true
   }
