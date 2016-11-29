@@ -46,7 +46,6 @@ enum Tipo {
   TN_REINICIAR_TABULEIRO = 27;
   TN_REINICIAR_CAMERA = 28;
   TN_SALVAR_CAMERA = 31;
-  TN_PASSAR_UMA_RODADA = 34;  // Modo mestre: atualiza todas as entidades e notifica.
   TN_ATUALIZAR_RODADAS = 35;  // Notifica clientes sobre atualizacao de rodadas.
   TN_ENVIAR_ID_TEXTURAS_E_MODELOS_3D = 37;   // Local: pedido para texturas enviar os ids locais para servidor.
   TN_REQUISITAR_MODELOS_3D = 36;  // Remota: cliente pedindo modelos 3d para o servidor, incluindo os que ja tem.
@@ -58,6 +57,7 @@ enum Tipo {
   TN_GERAR_TERRENO_ALEATORIO = 47;  // Notifica geracao de terreno aleatorio.
   TN_GERAR_MONTANHA = 55;  // Notifica geracao de terreno aleatorio.
   TN_ATUALIZAR_RELEVO_TABULEIRO = 48;        // indica atualizacao de terreno.
+  TN_ATUALIZAR_LISTA_INICIATIVA = 52;
   TN_HACK_ANDROID = 99;
   // O objetivo principal do grupo eh agrupar acoes locais. Nunca se deve enviar um grupo para a central.
   TN_GRUPO_NOTIFICACOES = 100;
