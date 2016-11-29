@@ -189,8 +189,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Rola iniciativa das entidades selecionadas mais dos jogadores. */
   void RolaIniciativasNotificando();
-  void IniciarIniciativaParaCombate();
+  void IniciaIniciativaParaCombate();
   void ProximaIniciativa();
+  /** Realiza a atualizacao das iniciativas, notificando clientes. */
+  void AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao);
 
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
@@ -409,8 +411,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Adiciona evento de entidades as entidades selecionadas, para o numero de rodadas especificado. */
   void AdicionaEventoEntidadesSelecionadasNotificando(int rodadas);
-  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo. */
-  void PassaUmaRodadaNotificando();
+  /** O contador de eventos de todas as entidades sera decrementado em 1. Nenhum ficara negativo.
+  * Caso grupo nao seja null, a notificacao ira para ele e nao sera executada.
+  */
+  void PassaUmaRodadaNotificando(ntf::Notificacao* grupo = nullptr);
   /** Zera o contador de rodadas do tabuleiro. */
   void ZeraRodadasNotificando();
   /** Apaga os eventos que estao zerados para a entidade. */
@@ -451,6 +455,13 @@ class Tabuleiro : public ntf::Receptor {
   const OpcoesProto& Opcoes() const { return opcoes_; }
 
  private:
+  struct DadosIniciativa {
+    unsigned int id;
+    int iniciativa;
+    int modificador;
+    bool presente;  // usado durante atualizacao de iniciativa.
+  };
+
   /** Poe o tabuleiro nas condicoes iniciais. A parte grafica sera iniciada de acordo com o parametro. */
   void EstadoInicial(bool reiniciar_grafico);
 
@@ -827,6 +838,9 @@ class Tabuleiro : public ntf::Receptor {
 
   void EscreveInfoGeral(const std::string& info_geral);
 
+  void SerializaIniciativas(TabuleiroProto* tabuleiro) const;
+  void SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const;
+
   void DesativaWatchdog();
   void ReativaWatchdog();
 
@@ -1027,12 +1041,6 @@ class Tabuleiro : public ntf::Receptor {
   std::set<std::string> modelos_entidades_;
   // Qual iniciativa eh a corrente. -1 para nenhuma.
   int indice_iniciativa_;
-  struct DadosIniciativa {
-    unsigned int id;
-    int iniciativa;
-    int modificador;
-    bool presente;  // usado durante atualizacao de iniciativa.
-  };
   // Iniciativas ordenadas.
   std::vector<DadosIniciativa> iniciativas_;
 

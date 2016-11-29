@@ -93,6 +93,8 @@ message TabuleiroProto {
   // Os sub cenarios nao possuem entidades. Cada entidade possui informacao sobre
   // qual tabuleiro ela esta localizada.
   repeated TabuleiroProto sub_cenario = 18;
+  // Para atualizacao de iniciativa.
+  optional int32 indice_iniciativa = 22;
 }
 
 // Para copiar e colar.

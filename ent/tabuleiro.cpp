@@ -378,6 +378,7 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
 
   // iniciativa.
   indice_iniciativa_ = -1;
+  iniciativas_.clear();
 
   if (reiniciar_grafico) {
     LiberaTextura();
@@ -1285,13 +1286,13 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ATUALIZAR_LISTA_INICIATIVA: {
+      AtualizaIniciativaNotificando(notificacao);
+      return true;
+    }
     case ntf::TN_CONECTAR: {
       AlterarModoMestre(false);
       return true;
-    }
-    case ntf::TN_PASSAR_UMA_RODADA: {
-      PassaUmaRodadaNotificando();
-      break;
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
@@ -1397,7 +1398,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       //boost::timer::cpu_timer timer_temp;
       //timer_temp.start();
       AtualizaEntidades(passou_ms);
-      if (indice_iniciativa_ != -1) {
+      if (indice_iniciativa_ != -1 && EmModoMestre()) {
         AtualizaIniciativas();
       }
       // Em algumas situacoes, nao se deve atualizar o olho. Por exemplo, quando se esta pressionando entidades para mover,
@@ -1753,7 +1754,7 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 }
 
 void Tabuleiro::RolaIniciativasNotificando() {
-  std::vector<const Entidade*> entidades; 
+  std::vector<const Entidade*> entidades;
   if (EmModoMestreIncluindoSecundario()) {
     entidades = EntidadesSelecionadas();
   } else {
@@ -1794,7 +1795,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::IniciarIniciativaParaCombate() {
+void Tabuleiro::IniciaIniciativaParaCombate() {
   if (!EmModoMestreIncluindoSecundario()) {
     LOG(INFO) << "Apenas mestre pode iniciar as iniciativas para combate.";
     return;
@@ -1814,16 +1815,38 @@ void Tabuleiro::IniciarIniciativaParaCombate() {
       entidade1->Iniciativa() > entidade2->Iniciativa() ||
       (entidade1->Iniciativa() == entidade2->Iniciativa() && entidade1->ModificadorIniciativa() >  entidade2->ModificadorIniciativa());
   });
+  ntf::Notificacao n;
+  n.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
+  SerializaIniciativas(n.mutable_tabuleiro_antes());
+  {
+    auto* tabuleiro = n.mutable_tabuleiro();
+    for (const auto* entidade : entidades_com_iniciativa) {
+      auto* e = tabuleiro->add_entidade();
+      e->set_id(entidade->Id());
+      e->set_iniciativa(entidade->Iniciativa());
+      e->set_modificador_iniciativa(entidade->ModificadorIniciativa());
+    }
+    tabuleiro->set_indice_iniciativa(0);
+  }
+  AdicionaNotificacaoListaEventos(n);
+  TrataNotificacao(n);
+}
+
+void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao) {
   iniciativas_.clear();
-  iniciativas_.reserve(entidades_com_iniciativa.size());
-  for (const auto* entidade : entidades_com_iniciativa) {
+  iniciativas_.reserve(notificacao.tabuleiro().entidade_size());
+  for (const auto& entidade : notificacao.tabuleiro().entidade()) {
     DadosIniciativa dados;
-    dados.id = entidade->Id();
-    dados.iniciativa = entidade->Iniciativa();
-    dados.modificador = entidade->ModificadorIniciativa();
+    dados.id = entidade.id();
+    dados.iniciativa = entidade.iniciativa();
+    dados.modificador = entidade.modificador_iniciativa();
     iniciativas_.push_back(dados);
   }
-  indice_iniciativa_ = 0;
+  indice_iniciativa_ = notificacao.tabuleiro().indice_iniciativa();
+  // Repassa aos outros.
+  if (notificacao.local()) {
+    central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
+  }
 }
 
 void Tabuleiro::ProximaIniciativa() {
@@ -1831,10 +1854,32 @@ void Tabuleiro::ProximaIniciativa() {
     LOG(INFO) << "Nao eh mestre ou entidades_ordenadas_por_iniciativa_.empty";
     return;
   }
-  if (++indice_iniciativa_ >= (int)iniciativas_.size()) {
-    indice_iniciativa_ = 0;
-    PassaUmaRodadaNotificando();
+  ntf::Notificacao grupo;
+  grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  auto* n = grupo.add_notificacao();
+  n->set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
+  SerializaIniciativas(n->mutable_tabuleiro_antes());
+  SerializaIniciativas(n->mutable_tabuleiro());
+  n->mutable_tabuleiro()->set_indice_iniciativa(indice_iniciativa_ + 1);
+  if (indice_iniciativa_ + 1 >= (int)iniciativas_.size()) {
+    n->mutable_tabuleiro()->set_indice_iniciativa(0);
+    PassaUmaRodadaNotificando(&grupo);
   }
+  AdicionaNotificacaoListaEventos(grupo);
+  TrataNotificacao(grupo);
+}
+
+void Tabuleiro::SerializaIniciativas(TabuleiroProto* tabuleiro) const {
+  for (const DadosIniciativa& di : iniciativas_) {
+    SerializaIniciativaParaEntidade(di, tabuleiro->add_entidade());
+  }
+  tabuleiro->set_indice_iniciativa(indice_iniciativa_);
+}
+
+void Tabuleiro::SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const {
+  e->set_id(di.id);
+  e->set_iniciativa(di.iniciativa);
+  e->set_modificador_iniciativa(di.modificador);
 }
 
 void Tabuleiro::AlteraAnguloVisao(float valor) {
@@ -4435,11 +4480,15 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
 }
 
 void Tabuleiro::AtualizaIniciativas() {
+  // Ha tres casos: adicao de nova entidade, atualizacao e remocao.
+  bool atualizar_remoto = false;
   std::unordered_map<unsigned int, DadosIniciativa*> mapa_iniciativas;
   for (DadosIniciativa& di : iniciativas_) {
     mapa_iniciativas[di.id] = &di;
     di.presente = false;
   }
+
+  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
 
   std::vector<const Entidade*> entidades_adicionar;
   for (auto& id_ent : entidades_) {
@@ -4449,10 +4498,12 @@ void Tabuleiro::AtualizaIniciativas() {
     }
     auto it = mapa_iniciativas.find(entidade->Id());
     if (it == mapa_iniciativas.end()) {
+      atualizar_remoto = true;  // adicao.
       entidades_adicionar.push_back(entidade);
     } else {
       if (entidade->Iniciativa() != it->second->iniciativa || entidade->ModificadorIniciativa() != it->second->modificador) {
         // Como nao esta marcada como presente, sera removida. E depois, adicionada.
+        atualizar_remoto = true;  // atualizacao.
         entidades_adicionar.push_back(entidade);
       } else {
         it->second->presente = true;
@@ -4463,6 +4514,7 @@ void Tabuleiro::AtualizaIniciativas() {
   for (int i = 0; i < (int)iniciativas_.size();) {
     DadosIniciativa& di = iniciativas_[i];
     if (!di.presente) {
+      atualizar_remoto = true;  // remocao.
       if (indice_iniciativa_ > i) {
         --indice_iniciativa_;
       } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
@@ -4497,6 +4549,10 @@ void Tabuleiro::AtualizaIniciativas() {
 
   if (iniciativas_.empty()) {
     indice_iniciativa_ = -1;
+  }
+  if (atualizar_remoto) {
+    SerializaIniciativas(n->mutable_tabuleiro());
+    central_->AdicionaNotificacaoRemota(n.release());
   }
 }
 
@@ -5879,6 +5935,10 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
   n_inversa.set_tipo(ntf::TN_ERRO);
   switch (n_original.tipo()) {
     // Tipos de notificacao que podem ser desfeitas.
+    case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
+      *n_inversa.mutable_tabuleiro() = n_original.tabuleiro_antes();
+      break;
     case ntf::TN_GRUPO_NOTIFICACOES:
       n_inversa.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
       // TODO inverter a ordem das notificacoes.
@@ -6896,11 +6956,12 @@ void Tabuleiro::AdicionaEventoEntidadesSelecionadasNotificando(int rodadas) {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::PassaUmaRodadaNotificando() {
+void Tabuleiro::PassaUmaRodadaNotificando(ntf::Notificacao* grupo) {
   if (!EmModoMestreIncluindoSecundario()) {
     return;
   }
-  ntf::Notificacao grupo_notificacoes;
+  ntf::Notificacao alias_grupo;
+  ntf::Notificacao& grupo_notificacoes = (grupo == nullptr) ? alias_grupo : *grupo;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (auto& id_entidade : entidades_) {
     EntidadeProto proto_antes;
@@ -6939,8 +7000,10 @@ void Tabuleiro::PassaUmaRodadaNotificando() {
   nr->mutable_tabuleiro_antes()->set_contador_rodadas(proto_.contador_rodadas());
   nr->mutable_tabuleiro()->set_contador_rodadas(proto_.contador_rodadas() + 1);
 
-  TrataNotificacao(grupo_notificacoes);
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  if (grupo == nullptr) {
+    TrataNotificacao(grupo_notificacoes);
+    AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  }
 }
 
 void Tabuleiro::ZeraRodadasNotificando() {

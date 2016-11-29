@@ -158,14 +158,14 @@ void Tabuleiro::LiberaControleVirtual() {
 }
 
 void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
-  LOG(INFO) << "picking id: " << id;
+  VLOG(1) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
     case CONTROLE_ROLAR_INICIATIVA:
       RolaIniciativasNotificando();
       break;
     case CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE:
-      IniciarIniciativaParaCombate();
+      IniciaIniciativaParaCombate();
       break;
     case CONTROLE_PROXIMA_INICIATIVA:
       ProximaIniciativa();
@@ -760,7 +760,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaIniciativas() {
-  if (indice_iniciativa_ == -1) {
+  if (indice_iniciativa_ == -1 || iniciativas_.empty()) {
     return;
   }
   int largura_fonte, altura_fonte, escala;
