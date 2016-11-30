@@ -1770,6 +1770,9 @@ void Tabuleiro::RolaIniciativasNotificando() {
   }
 
   // desfazer.
+  ntf::Notificacao grupo_rotulo;
+  grupo_rotulo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  float atraso_rotulo_s;
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto* entidade : entidades) {
@@ -1791,8 +1794,24 @@ void Tabuleiro::RolaIniciativasNotificando() {
     e_depois->set_id(entidade->Id());
     e_depois->set_iniciativa(iniciativa);
     TrataNotificacao(*n);
+    {
+      auto* n_rotulo = grupo_rotulo.add_notificacao();
+      n_rotulo->set_tipo(ntf::TN_ADICIONAR_ACAO);
+      auto* acao = n_rotulo->mutable_acao();
+      acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+      acao->add_id_entidade_destino(entidade->Id());
+      char texto[20] = {'\0'};
+      snprintf(texto, 19, "d20+%d= %d", entidade->ModificadorIniciativa(), iniciativa);
+      acao->set_texto(texto);
+      acao->set_atraso_s(atraso_rotulo_s);
+      atraso_rotulo_s += 0.5f;
+      if (EmModoMestreIncluindoSecundario() && !entidade->SelecionavelParaJogador()) {
+        acao->set_local_apenas(true);
+      }
+    }
   }
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  TrataNotificacao(grupo_rotulo);
 }
 
 void Tabuleiro::IniciaIniciativaParaCombate() {
