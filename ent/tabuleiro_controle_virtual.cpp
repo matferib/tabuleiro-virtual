@@ -760,7 +760,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 }
 
 void Tabuleiro::DesenhaIniciativas() {
-  if (indice_iniciativa_ == -1 || iniciativas_.empty()) {
+  if (indice_iniciativa_ == -1 || iniciativas_.empty() || indice_iniciativa_ >= (int)iniciativas_.size()) {
     return;
   }
   int largura_fonte, altura_fonte, escala;
@@ -774,8 +774,9 @@ void Tabuleiro::DesenhaIniciativas() {
   PosicionaRaster2d(raster_x, raster_y);
 
   MudaCor(COR_AMARELA);
-  std::string titulo("Iniciativa");
-
+  char titulo[100] = { '\0' };
+  snprintf(titulo, 99, "Iniciativa: %d/%d",
+           iniciativas_[indice_iniciativa_].iniciativa, iniciativas_[indice_iniciativa_].modificador);
   gl::DesenhaStringAlinhadoEsquerda(titulo);
   MudaCor(COR_BRANCA);
   raster_y -= (altura_fonte + 2);
@@ -888,6 +889,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
+    { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE, [this] (const Entidade* entidade) { return indice_iniciativa_ != -1; } },
     { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) { return camera_presa_; } },
     { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] (const Entidade* entidade) { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
     { CONTROLE_VISAO_ESCURO,      [this] (const Entidade* entidade) { return visao_escuro_; } },
