@@ -508,9 +508,11 @@ pagina {
     linha: 2
     coluna: 23
     id: CONTROLE_ROLAR_INICIATIVA
+    forma: FORMA_RETANGULO
     rotulo: "R"
     dica: "Rola iniciativas de entidades selecionadas."
-    forma: FORMA_RETANGULO
+    textura: "icon_roll_initiative.png"
+    translacao_x: -0.53
   }
   dados_botoes {
     tamanho: 1
@@ -518,18 +520,21 @@ pagina {
     coluna: 24
     id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
     rotulo: "I"
-    dica: "Inicia iniciativas para combate."
-    forma: FORMA_RETANGULO
+    dica: "Inicia/Finaliza iniciativas para combate."
     mestre_apenas: true
+    textura: "icon_initiative.png"
+    forma: FORMA_RETANGULO
+    translacao_x: -0.53
   }
   dados_botoes {
     tamanho: 1
     linha: 2
     coluna: 25
     id: CONTROLE_PROXIMA_INICIATIVA
-    rotulo: "P"
+    forma: FORMA_TRIANGULO
+    rotacao_graus: -90.0
+    translacao_x: -0.86
     dica: "Proxima iniciativa."
-    forma: FORMA_RETANGULO
     mestre_apenas: true
   }
 
@@ -704,9 +709,19 @@ pagina {
 
   # Texturas.
   dados_botoes {
-    tamanho: 1
+    largura: 5
+    altura: 1
     linha: 2
     coluna: 1
+    rotulo: "Textura:"
+    id: CONTROLE_NOP
+    forma: FORMA_NULA
+    cor_rotulo { r: 1 g: 1 b: 1}
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 6
     rotulo: "<"
     id: CONTROLE_TEXTURA_ENTIDADE_ANTERIOR
     forma: FORMA_RETANGULO
@@ -715,14 +730,14 @@ pagina {
     altura: 1
     largura: 9
     linha: 2
-    coluna: 2
+    coluna: 7
     id: CONTROLE_TEXTURA_ENTIDADE
     forma: FORMA_RETANGULO
   }
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 11
+    coluna: 16
     rotulo: ">"
     id: CONTROLE_TEXTURA_ENTIDADE_PROXIMA
     forma: FORMA_RETANGULO
@@ -740,8 +755,7 @@ pagina {
   dados_botoes {
     altura: 1
     largura: 5
-    linha: -1
-    alinhamento_vertical: ALINHAMENTO_CIMA
+    linha: 3
     coluna: 1
     id: CONTROLE_NOP
     forma: FORMA_NULA
@@ -751,8 +765,7 @@ pagina {
   dados_botoes {
     altura: 1
     largura: 10
-    linha: -1
-    alinhamento_vertical: ALINHAMENTO_CIMA
+    linha: 3
     coluna: 6
     id: CONTROLE_MODELO_ENTIDADE
     forma: FORMA_RETANGULO
