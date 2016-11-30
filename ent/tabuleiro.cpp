@@ -1802,10 +1802,12 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   }
   // TODO desfazer.
   std::vector<const Entidade*> entidades_com_iniciativa;
-  for (auto& id_ent : entidades_) {
-    auto* entidade = id_ent.second.get();
-    if (entidade->TemIniciativa() && !entidade->Proto().morta()) {
-      entidades_com_iniciativa.push_back(entidade);
+  if (indice_iniciativa_ == -1) {
+    for (auto& id_ent : entidades_) {
+      auto* entidade = id_ent.second.get();
+      if (entidade->TemIniciativa() && !entidade->Proto().morta()) {
+        entidades_com_iniciativa.push_back(entidade);
+      }
     }
   }
 
@@ -1826,7 +1828,7 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
       e->set_iniciativa(entidade->Iniciativa());
       e->set_modificador_iniciativa(entidade->ModificadorIniciativa());
     }
-    tabuleiro->set_indice_iniciativa(0);
+    tabuleiro->set_indice_iniciativa(indice_iniciativa_ == -1 ? 0 : -1);
   }
   AdicionaNotificacaoListaEventos(n);
   TrataNotificacao(n);
