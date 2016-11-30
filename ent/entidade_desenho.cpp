@@ -297,9 +297,9 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       gl::DesabilitaEscopo salva_oclusao(gl::OclusaoLigada, gl::Oclusao);
       MudaCorAplicandoNevoa(COR_AMARELA, pd);
       if (gl::PosicaoRaster(0.0f, 0.0f, 0.0f)) {
-        std::string rotulo;
+        std::string rotulo(desenhou_rotulo ? std::string("\n") : std::string(""));
         for (const std::string& rotulo_especial : proto_.rotulo_especial()) {
-          rotulo += (desenhou_rotulo ? std::string("\n") : std::string("")) + rotulo_especial;
+          rotulo += rotulo_especial + "\n";
         }
         if (proto_.proxima_salvacao() != RS_FALHOU) {
           rotulo += "\nprox. salv.: ";
