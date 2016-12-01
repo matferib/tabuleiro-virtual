@@ -141,6 +141,17 @@ void InterfaceGraficaQt::EscolheModeloEntidade(const MenuModelos& menu_modelos, 
   delete dialogo;
 }
 
+void InterfaceGraficaQt::EscolheCor(
+    float r, float g, float b, float a, 
+    std::function<void(bool, float, float, float, float)> funcao_volta) {
+  QColor cor_ida(r, g, b);
+  QColor cor = QColorDialog::getColor(cor_ida, pai_, QObject::tr("Escolha Cor"));
+  if (!cor.isValid()) {
+    funcao_volta(false, r, g, b, a);
+  }
+  funcao_volta(true, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
+}
+
 }  // namespace qt
 }  // namespace ent
 

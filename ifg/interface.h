@@ -52,12 +52,23 @@ class InterfaceGrafica : public ntf::Receptor {
       const MenuModelos& modelos,
       std::function<void(const std::string& nome)> funcao_volta) = 0;
 
+  // Mostra o dialogo de selecao de cor. A funcao de volta recebe se houve selecao de cor e caso positivo,
+  // os componentes rgba.
+  virtual void EscolheCor(
+      float r, float g, float b, float a, 
+      std::function<void(bool, float, float, float, float)> funcao_volta) {
+    funcao_volta(true, r, g, b, a);
+  }
+
  protected:
   TratadorTecladoMouse* teclado_mouse_ = nullptr;
   ent::Tabuleiro* tabuleiro_ = nullptr;
   ntf::CentralNotificacoes* central_ = nullptr;
 
  private:
+  void TrataEscolheCor(const ntf::Notificacao& notificacao);
+  void VoltaEscolheCor(bool ok, float r, float g, float b, float a);
+
   void TrataMostraMensagem(bool erro, const std::string& mensagem);
 
   void TrataAbrirTabuleiro(const ntf::Notificacao& notificacao);

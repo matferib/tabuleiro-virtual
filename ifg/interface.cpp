@@ -10,7 +10,9 @@
 
 using std::placeholders::_1;
 using std::placeholders::_2;
-
+using std::placeholders::_3;
+using std::placeholders::_4;
+using std::placeholders::_5;
 
 
 namespace ifg {
@@ -37,6 +39,9 @@ void MisturaProtosMenu(const MenuModelos& entrada, MenuModelos* saida) {
 
 bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA:
+      TrataEscolheCor(notificacao);
+      return true;
     case ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO: {
       TrataAbrirTabuleiro(notificacao);
       return true;
@@ -58,6 +63,22 @@ bool InterfaceGrafica::TrataNotificacao(const ntf::Notificacao& notificacao) {
       break;
   }
   return false;
+}
+
+//----
+// Cor
+//----
+void InterfaceGrafica::TrataEscolheCor(const ntf::Notificacao& notificacao) {
+  tabuleiro_->DesativaWatchdogSeMestre();
+  const ent::Cor& c = notificacao.tabuleiro().luz_ambiente();
+  EscolheCor(c.r(), c.g(), c.b(), c.a(), std::bind(&InterfaceGrafica::VoltaEscolheCor, this, _1, _2, _3, _4, _5));
+}
+
+void InterfaceGrafica::VoltaEscolheCor(bool ok, float r, float g, float b, float a) {
+  if (ok) {
+    tabuleiro_->SelecionaCorPersonalizada(r, g, b, a);
+  }
+  tabuleiro_->ReativaWatchdogSeMestre();
 }
 
 //----------------
