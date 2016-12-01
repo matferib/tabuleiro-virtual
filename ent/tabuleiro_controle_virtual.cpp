@@ -741,7 +741,6 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
   yi = TranslacaoY(db, viewport, unidade_altura);
   yf = yi + altura_botao * unidade_altura;
   float x_meio = (xi + xf) / 2.0f;
-  MudaCor(COR_AMARELA);
   std::string dica = StringSemUtf8(db.dica());
   const float tam_dica_2_px = (dica.size() * fonte_x) / 2.0f;
   float delta_x = 0;
@@ -754,7 +753,11 @@ void Tabuleiro::DesenhaDicaBotaoControleVirtual(
     yf = viewport[3] - fonte_y;
   }
   PosicionaRaster2d(x_meio + delta_x, yf);
+  MudaCor(COR_PRETA);
+  gl::Retangulo(x_meio + delta_x - tam_dica_2_px - 2, yf - 2,
+                x_meio + delta_x + tam_dica_2_px + 2, yf + fonte_y + 2);
   std::function<void(const std::string&, bool)> funcao_desenho;
+  MudaCor(COR_AMARELA);
   gl::DesenhaString(dica, false);
 }
 
