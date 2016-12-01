@@ -2541,7 +2541,7 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
     AlternaSelecaoEntidade(id);
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking alternar selecao no controle virtual " << id;
-    PickingControleVirtual(x, y, true  /*alt*/, id);
+    PickingControleVirtual(x, y, true  /*alt*/, false  /*duplo*/, id);
   } else {
     VLOG(1) << "Picking alternar selecao ignorado.";
   }
@@ -2549,8 +2549,19 @@ void Tabuleiro::TrataBotaoAlternarSelecaoEntidadePressionado(int x, int y) {
   ultimo_y_ = y;
 }
 
+
+void Tabuleiro::AlternaVisaoJogador() {
+  visao_jogador_ = (visao_jogador_ > 0) ? 0 : 1;
+}
+
 void Tabuleiro::TrataBotaoAlternarIluminacaoMestre() {
-  opcoes_.set_iluminacao_mestre_igual_jogadores(!opcoes_.iluminacao_mestre_igual_jogadores());
+  if (visao_jogador_ == 1) {
+    visao_jogador_ = 2;
+  } else if (visao_jogador_ == 2) {
+    visao_jogador_ = 1;
+  } else {
+    opcoes_.set_iluminacao_mestre_igual_jogadores(!opcoes_.iluminacao_mestre_igual_jogadores());
+  }
 }
 
 void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
@@ -4728,7 +4739,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
     TrataRolagem(static_cast<dir_rolagem_e>(id));
   } else if (tipo_objeto == OBJ_CONTROLE_VIRTUAL) {
     VLOG(1) << "Picking no controle virtual " << id;
-    PickingControleVirtual(x, y, alterna_selecao, id);
+    PickingControleVirtual(x, y, alterna_selecao, false  /*duplo*/, id);
   } else if (tipo_objeto == OBJ_EVENTO_ENTIDADE) {
     VLOG(1) << "Picking em evento da entidade " << id;
     ApagaEventosZeradosDeEntidadeNotificando(id);
@@ -4858,7 +4869,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
       central_->AdicionaNotificacao(n);
     }
   } if (pos_pilha == OBJ_CONTROLE_VIRTUAL) {
-    PickingControleVirtual(x, y, false  /*alterna selecao*/, id);
+    PickingControleVirtual(x, y, false  /*alterna selecao*/, true  /*duplo*/, id);
   } else {
     ;
   }
@@ -6320,7 +6331,7 @@ void Tabuleiro::DesenhaLuzes() {
                                  proto_corrente_->luz_ambiente().g(),
                                  proto_corrente_->luz_ambiente().b(),
                                  proto_corrente_->luz_ambiente().a()};
-  if (VisaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
+  if (IluminacaoMestre() && !opcoes_.iluminacao_mestre_igual_jogadores()) {
     // Adiciona luz pro mestre ver melhor.
     cor_luz_ambiente[0] = std::max(0.65f, cor_luz_ambiente[0]);
     cor_luz_ambiente[1] = std::max(0.65f, cor_luz_ambiente[1]);
@@ -6356,7 +6367,7 @@ void Tabuleiro::DesenhaLuzes() {
   }
 
   if (parametros_desenho_.desenha_nevoa() && proto_corrente_->has_nevoa() &&
-      (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
+      (!IluminacaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
     float pos[4] = { olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), 1 };
     if (entidade_referencia != nullptr) {

@@ -82,6 +82,9 @@ class Tabuleiro : public ntf::Receptor {
   /** @return numero de quadrados no eixo N-S. */
   inline int TamanhoY() const { return proto_corrente_->altura(); }
 
+  /** Uma cor personalizada foi escolhida. */
+  void SelecionaCorPersonalizada(float r, float g, float b, float a);
+
   /** adiciona a entidade ao tabuleiro, através de uma notificação. Notifica clientes se a notificacao
   * for local.
   * @throw logic_error se o limite de entidades for alcançado.
@@ -396,7 +399,7 @@ class Tabuleiro : public ntf::Receptor {
   bool EmModoMestre() const {
     return modo_mestre_;
   }
-  bool EmModoMestreIncluindoSecundario() {
+  bool EmModoMestreIncluindoSecundario() const {
     return EmModoMestre() || modo_mestre_secundario_;
   }
   // Debug.
@@ -425,8 +428,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna entre a camera em primeira pessoa e a normal. */
   void AlternaCameraPrimeiraPessoa();
 
-  /** Alterna a visao de jogador para o mestre. */
-  void AlternaVisaoJogador() { visao_jogador_ = !visao_jogador_; }
+  /** Alterna entre visao do jogador e do mestre. */
+  void AlternaVisaoJogador();
 
   /** Alterna a camera presa a entidade. */
   void AlternaCameraPresa();
@@ -754,7 +757,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaControleVirtual();
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
-  void PickingControleVirtual(int x, int y, bool alterna_selecao, int id);
+  void PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id);
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
@@ -801,7 +804,9 @@ class Tabuleiro : public ntf::Receptor {
   void ConfiguraOlharMapeamentoOclusao();
 
   /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
-  bool VisaoMestre() const { return (modo_mestre_ || modo_mestre_secundario_) && !visao_jogador_; }
+  bool VisaoMestre() const { return EmModoMestreIncluindoSecundario() && visao_jogador_ == 0; }
+  /** Apenas a iluminacao do modo mestre. */
+  bool IluminacaoMestre() const { return EmModoMestreIncluindoSecundario() && (visao_jogador_ == 0 || visao_jogador_ == 2); }
 
   /** Regera o Vertex Buffer Object do tabuleiro. Deve ser chamado sempre que houver uma alteracao de tamanho ou textura. */
   void RegeraVboTabuleiro();
@@ -942,7 +947,8 @@ class Tabuleiro : public ntf::Receptor {
   // exclusivos do mestre, como quem sera mestre secundario ou a replicacao de algumas mensagens.
   bool modo_mestre_secundario_ = false;
   std::set<int> mestres_secundarios_;
-  bool visao_jogador_ = false;  // Para o mestre poder ver na visao do jogador.
+  // Para o mestre poder ver na visao do jogador. 1 igual jogador, 2 igual jogador mas com iluminacao do mestre.
+  int visao_jogador_ = 0;
   bool camera_presa_ = false;
   bool visao_escuro_ = false;  // Jogador ligou a visao no escuro (mas depende da entidade presa possuir).
   unsigned int id_camera_presa_ = Entidade::IdInvalido;  // A qual entidade a camera esta presa.
@@ -978,6 +984,7 @@ class Tabuleiro : public ntf::Receptor {
   // Desenho corrente.
   TipoForma forma_selecionada_;  // Necessario para poder limpar o proto em paz.
   Cor forma_cor_;  // idem.
+  Cor cor_personalizada_;  // Usada pelo controle virtual.
   EntidadeProto forma_proto_;
 
   // Timers.

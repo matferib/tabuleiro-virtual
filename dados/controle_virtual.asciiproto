@@ -507,23 +507,23 @@ pagina {
     tamanho: 1
     linha: 2
     coluna: 23
-    id: CONTROLE_ROLAR_INICIATIVA
-    forma: FORMA_RETANGULO
-    rotulo: "R"
-    dica: "Rola iniciativas de entidades selecionadas."
-    textura: "icon_roll_initiative.png"
-    translacao_x: -0.53
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 24
     id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
     rotulo: "I"
     dica: "Inicia/Finaliza iniciativas para combate."
     mestre_apenas: true
     textura: "icon_initiative.png"
     forma: FORMA_RETANGULO
+    translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 24
+    id: CONTROLE_ROLAR_INICIATIVA
+    forma: FORMA_RETANGULO
+    rotulo: "R"
+    dica: "Rola iniciativas de entidades selecionadas."
+    textura: "icon_roll_initiative.png"
     translacao_x: -0.53
   }
   dados_botoes {
@@ -537,7 +537,6 @@ pagina {
     dica: "Proxima iniciativa."
     mestre_apenas: true
   }
-
   dados_botoes {
     tamanho: 2
     linha: 0
@@ -852,6 +851,15 @@ pagina {
     id: CONTROLE_DESENHO_COR_PRETO
     cor_fundo { r: 0.0 g: 0.0 b: 0.0 }
     forma: FORMA_RETANGULO
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 11
+    cor_rotulo {}
+    id: CONTROLE_DESENHO_COR_PERSONALIZADA
+    forma: FORMA_DISCO
+    dica: "Cor personalizada. Clique duas vezes para escolher."
   }
   dados_botoes {
     tamanho: 1

@@ -76,6 +76,20 @@ const std::string RotuloTexturaAnterior(const std::string& corrente, const std::
   return (it == texturas.begin()) ? *(--texturas.end()) : *(--it);
 }
 
+// Retorna a cor de um botao.
+void CorBotao(const DadosBotao& db, float cor[3]) {
+  const static float cor_padrao[3] = { 0.9f, 0.9f, 0.9f};
+  if (db.has_cor_fundo()) {
+    cor[0] = db.cor_fundo().r();
+    cor[1] = db.cor_fundo().g();
+    cor[2] = db.cor_fundo().b();
+  } else {
+    cor[0] = cor_padrao[0];
+    cor[1] = cor_padrao[1];
+    cor[2] = cor_padrao[2];
+  }
+}
+
 }  // namespace
 
 void Tabuleiro::IniciaGlControleVirtual() {
@@ -157,7 +171,7 @@ void Tabuleiro::LiberaControleVirtual() {
   central_->AdicionaNotificacao(n);
 }
 
-void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int id) {
+void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id) {
   VLOG(1) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
@@ -456,6 +470,21 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, int i
       }
       break;
     }
+    case CONTROLE_DESENHO_COR_PERSONALIZADA:
+    {
+      if (duplo || alterna_selecao) {
+        auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_COR_PERSONALIZADA);
+        *n->mutable_tabuleiro()->mutable_luz_ambiente() = cor_personalizada_;
+        central_->AdicionaNotificacao(n);
+        break;
+      }
+      if (!ids_entidades_selecionadas_.empty()) {
+        AlteraCorEntidadesSelecionadasNotificando(cor_personalizada_);
+      } else {
+        SelecionaCorDesenho(cor_personalizada_);
+      }
+      break;
+    }
     case CONTROLE_ACAO_SINALIZACAO: {
       SelecionaSinalizacao();
       break;
@@ -499,6 +528,9 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(
     if (id_tex != GL_INVALID_VALUE) {
       db->set_id_textura(id_tex);
     }
+  }
+  if (db->id() == CONTROLE_DESENHO_COR_PERSONALIZADA) {
+    *db->mutable_cor_fundo() = cor_personalizada_;
   }
   const auto& it = mapa_botoes.find(db->id());
   if (it != mapa_botoes.end()) {
@@ -865,11 +897,6 @@ void Tabuleiro::DesenhaListaPontosVida() {
 }
 
 void Tabuleiro::DesenhaControleVirtual() {
-  float cor_padrao[3];
-  cor_padrao[0] = 0.9f;
-  cor_padrao[1] = 0.9f;
-  cor_padrao[2] = 0.9f;
-
   int fonte_x_int, fonte_y_int, escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
@@ -961,17 +988,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     }
     auto* entidade = EntidadeSelecionadaOuPrimeiraPessoa();
     for (auto* db : botoes) {
-      float cor[3];
-      if (db->has_cor_fundo()) {
-        cor[0] = db->cor_fundo().r();
-        cor[1] = db->cor_fundo().g();
-        cor[2] = db->cor_fundo().b();
-      } else {
-        cor[0] = cor_padrao[0];
-        cor[1] = cor_padrao[1];
-        cor[2] = cor_padrao[2];
-      }
       float ajuste = AtualizaBotaoControleVirtual(db, mapa_botoes, entidade) ? 0.5f : 1.0f;
+      float cor[3];
+      CorBotao(*db, cor);
       cor[0] *= ajuste;
       cor[1] *= ajuste;
       cor[2] *= ajuste;
@@ -1030,6 +1049,13 @@ void Tabuleiro::DesenhaControleVirtual() {
     gl::Habilita(GL_LIGHTING);
   }
   gl::Habilita(GL_DEPTH_TEST);
+}
+
+void Tabuleiro::SelecionaCorPersonalizada(float r, float g, float b, float a) {
+  cor_personalizada_.set_r(r);
+  cor_personalizada_.set_g(g);
+  cor_personalizada_.set_b(b);
+  cor_personalizada_.set_a(a);
 }
 
 }  // namespace ent
