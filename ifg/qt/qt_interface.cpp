@@ -148,8 +148,9 @@ void InterfaceGraficaQt::EscolheCor(
   QColor cor = QColorDialog::getColor(cor_ida, pai_, QObject::tr("Escolha Cor"));
   if (!cor.isValid()) {
     funcao_volta(false, r, g, b, a);
+  } else {
+    funcao_volta(true, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
   }
-  funcao_volta(true, cor.redF(), cor.greenF(), cor.blueF(), cor.alphaF());
 }
 
 }  // namespace qt
