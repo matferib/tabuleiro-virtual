@@ -859,6 +859,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.checkbox_iniciativa, SIGNAL(stateChanged(int)), [this, &gerador] () {
     gerador.spin_iniciativa->setEnabled(gerador.checkbox_iniciativa->checkState() == Qt::Checked);
   });
+  lambda_connect(gerador.spin_iniciativa, SIGNAL(valueChanged(int)), [this, &gerador] () {
+    gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
+  });
 
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
