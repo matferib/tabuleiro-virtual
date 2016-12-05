@@ -237,8 +237,8 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       }
       return;
     case Tecla_V:
-      if (modificadores == Modificador_Ctrl) {
-        tabuleiro_->ColaEntidadesSelecionadas();
+      if ((modificadores & Modificador_Ctrl) != 0) {
+        tabuleiro_->ColaEntidadesSelecionadas((modificadores & Modificador_Alt) != 0);
       } else if (modificadores == Modificador_Alt) {
         tabuleiro_->AtualizaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE, true);
       } else if (modificadores == Modificador_Shift) {
