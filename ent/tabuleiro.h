@@ -328,8 +328,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Copia todas as entidades selecionadas para 'entidades_copiadas_'. */
   void CopiaEntidadesSelecionadas();
 
-  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. */
-  void ColaEntidadesSelecionadas();
+  /** Cola as 'entidades_copiadas_', gerando entidades com ids diferentes. Se ref_camera, as entidades serao 
+  * coladas referentes a camera.
+  */
+  void ColaEntidadesSelecionadas(bool ref_camera);
 
   /** Agrupa as entidades selecionadas, criado uma so do tipo TE_FORMA, subtipo TF_COMPOSTA. */
   void AgrupaEntidadesSelecionadas();

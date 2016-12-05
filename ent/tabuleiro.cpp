@@ -1,6 +1,7 @@
 #if USAR_QT
 #include <QApplication>
 #include <QClipboard>
+#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/text_format.h>
 #else
 #endif
@@ -5553,7 +5554,59 @@ void Tabuleiro::CopiaEntidadesSelecionadas() {
 #endif
 }
 
-void Tabuleiro::ColaEntidadesSelecionadas() {
+namespace {
+
+Posicao& operator-=(Posicao& pos, const Posicao& delta) {
+  pos.set_x(pos.x() - delta.x());
+  pos.set_y(pos.y() - delta.y());
+  pos.set_z(pos.z() - delta.z());
+  return pos;
+}
+
+Posicao& operator-(Posicao& pos, const Posicao& delta) {
+  pos.set_x(pos.x() - delta.x());
+  pos.set_y(pos.y() - delta.y());
+  pos.set_z(pos.z() - delta.z());
+  return pos;
+}
+
+Posicao& operator+(Posicao& pos, const Posicao& delta) {
+  pos.set_x(pos.x() + delta.x());
+  pos.set_y(pos.y() + delta.y());
+  pos.set_z(pos.z() + delta.z());
+  return pos;
+}
+
+Posicao PosicaoMedia(const std::vector<EntidadeProto*>& entidades) {
+  float x_m = 0.0f;
+  float y_m = 0.0f;
+  float z_m = 0.0f;
+  int n = 0;
+  for (const auto* e : entidades) {
+    const auto& ep = e->pos();
+    x_m += ep.x();
+    y_m += ep.y();
+    z_m += ep.z();
+    ++n;
+  }
+  Posicao pos;
+  pos.set_x(x_m / n);
+  pos.set_y(y_m / n);
+  pos.set_z(z_m / n);
+  return pos;
+}
+
+void AjustaPosicoes(const Posicao& alvo, std::vector<EntidadeProto*>* entidades) {
+  Posicao media = PosicaoMedia(*entidades);
+  for (auto* e : *entidades) {
+    *(e->mutable_pos()) -= (media - alvo);
+  }
+}
+
+}  // namespace
+
+void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
+  std::vector<EntidadeProto*> entidades_coladas;
 #if USAR_QT
   std::string str_entidades(QApplication::clipboard()->text().toStdString());
   if (str_entidades.empty()) {
@@ -5571,6 +5624,7 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     n->mutable_entidade()->CopyFrom(ep);
+    entidades_coladas.push_back(n->mutable_entidade());
   }
 #else
   if (entidades_copiadas_.empty()) {
@@ -5583,8 +5637,12 @@ void Tabuleiro::ColaEntidadesSelecionadas() {
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
     n->mutable_entidade()->CopyFrom(ep);
+    entidades_coladas.push_back(n->mutable_entidade());
   }
 #endif
+  if (ref_camera) {
+    AjustaPosicoes(olho_.alvo(), &entidades_coladas);
+  }
   TrataNotificacao(grupo_notificacoes);
   SelecionaEntidadesAdicionadas();
   // Para desfazer

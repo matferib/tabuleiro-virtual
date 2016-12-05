@@ -494,7 +494,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     }
     case CONTROLE_COLAR: {
-      ColaEntidadesSelecionadas();
+      ColaEntidadesSelecionadas(alterna_selecao  /*ref_camera*/);
       break;
     }
     case CONTROLE_SALVAR: {
