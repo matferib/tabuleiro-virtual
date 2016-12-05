@@ -1,4 +1,5 @@
 # Este arquivo é uma representação texto do proto ent::Modelos.
+# Para aparecer no jogo, deve ser adicionado em menu_modelos.asciiproto tb.
 modelo {
   id: 'Abocanhador Matraqueante'
   entidade {
@@ -300,6 +301,14 @@ modelo {
     dados_vida: '4d8+4' tamanho: TM_GRANDE info_textura { id: 'giantant_queen.png'} cor { r: 0.2 g: 0.0 b: 0.0 }
     rotulo_especial: 'ini -1\nca 17/10/17 at +5 dano 2d6+4\nagarrar aprimorado ferrao dano 2d4+1\n'
     modificador_iniciativa: -1
+  }
+}
+modelo {
+  id: 'Fungo Fantasma'
+  entidade {
+    dados_vida: '2d8+6'
+    modificador_iniciativa: 0
+    rotulo_especial: 'at +3 1d6_3\ninvisibilidade maior' cor { r: 1 g: 1 b: 1 a: 0.5 }
   }
 }
 modelo {

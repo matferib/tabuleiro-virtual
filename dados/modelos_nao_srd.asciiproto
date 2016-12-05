@@ -8,6 +8,14 @@ modelo {
   entidade { max_pontos_vida: 1 tamanho: TM_MINUSCULO info_textura { id: 'sword_spider.png' } cor { r: 0 g: 0 b: 0 } }
 }
 modelo {
+  id: 'Beholder'
+  entidade {
+    dados_vida: '11d8+44' tamanho: TM_GRANDE voadora: true modelo_3d { id: 'beholder' }
+    modificador_iniciativa: 6
+    rotulo_especial: 'ini 6\nat 9/2 raio toque distancia/mordida\ndano raio/2d4\nca 26/11/24\nsalv 9/5/11'
+  }
+}
+modelo {
   id: 'Demônio Flecha'  # MM3
   entidade { dados_vida: '10d8+90' tamanho: TM_MEDIO info_textura { id: 'arrow_demon.png' } cor { r: 0 g: 0.3 b: 0.0 } ultima_acao: 'Ataque a Distância' }
 }
@@ -15,6 +23,15 @@ modelo {
   id: 'Dragontino'  # Monstros de faerun.
   entidade { dados_vida: '7d8+7' tamanho: TM_GRANDE info_textura { id: 'dragonkin.png' } cor { r: 0.7 g: 0.5 b: 0.25 } }
 }
+modelo {
+  id: 'Enxame (efêmero)'  # MM3
+  entidade {
+    dados_vida: '12d12+12' tamanho: TM_GRANDE modelo_3d { id: 'swarm_rat' } cor { r: 1 g: 1 b: 1 a: 0.5 }
+    modificador_iniciativa: 4
+    rotulo_especial: 'ini +4\ndano 1d6 for + nausea 1 rodada (salv 20 for)\nca 20/20/16\nincorporal'
+  }
+}
+
 modelo {
   id: 'Sniper Drow'  # MM4 pg 56
   entidade {
