@@ -1,5 +1,11 @@
 Versao 2.5.0
+- Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
+- Atualizar os dados de monstros com modificadores de iniciativas.
+- Botao de textura pode escolher.
+- Opcao de override de fixa. Ajuda na modelagem.
+- Mais botoes de cores.
 - Texturas modo tile.
+- Refazer a extracao de VBOs para mapas de oclusao e sombras.
 - Zfight ipad e mapa oclusao.
 - Pinca: com tres para vertical.
 - VBO de acoes.
