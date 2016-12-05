@@ -5563,18 +5563,20 @@ Posicao& operator-=(Posicao& pos, const Posicao& delta) {
   return pos;
 }
 
-Posicao& operator-(Posicao& pos, const Posicao& delta) {
-  pos.set_x(pos.x() - delta.x());
-  pos.set_y(pos.y() - delta.y());
-  pos.set_z(pos.z() - delta.z());
-  return pos;
+Posicao operator-(const Posicao& pos, const Posicao& delta) {
+  Posicao ret;
+  ret.set_x(pos.x() - delta.x());
+  ret.set_y(pos.y() - delta.y());
+  ret.set_z(pos.z() - delta.z());
+  return ret;
 }
 
-Posicao& operator+(Posicao& pos, const Posicao& delta) {
-  pos.set_x(pos.x() + delta.x());
-  pos.set_y(pos.y() + delta.y());
-  pos.set_z(pos.z() + delta.z());
-  return pos;
+Posicao operator+(const Posicao& pos, const Posicao& delta) {
+  Posicao ret;
+  ret.set_x(pos.x() + delta.x());
+  ret.set_y(pos.y() + delta.y());
+  ret.set_z(pos.z() + delta.z());
+  return ret;
 }
 
 Posicao PosicaoMedia(const std::vector<EntidadeProto*>& entidades) {
