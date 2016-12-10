@@ -308,20 +308,21 @@ modelo {
   entidade {
     dados_vida: '2d8+6'
     modificador_iniciativa: 0
-    rotulo_especial: 'at +3 1d6_3\ninvisibilidade maior' cor { r: 1 g: 1 b: 1 a: 0.5 }
+    rotulo_especial: 'Fungo Fantasma\nat +3 1d6_3\ninvisibilidade maior' cor { r: 1 g: 1 b: 1 a: 0.5 }
   }
 }
 modelo {
   id: 'Fungo Guardião'
   entidade {
     dados_vida: '2d8+2' modelo_3d { id: 'shrieker' }
+    rotulo_especial: 'Fungo Guardiao'
   }
 }
 modelo {
   id: 'Fungo Violeta'
   entidade {
     dados_vida: '2d8+6' modelo_3d { id: 'violet_fungus' }
-    rotulo_especial: 'ini -1\nat +3/+3/+3/+3 dano 1d6+2+veneno\nca 13/9/13\nveneno fort 14/1d4 for e con/1d4 for e con\nalcance 2 quad'
+    rotulo_especial: 'Fungo Violeta\nini -1\nat +3/+3/+3/+3 dano 1d6+2+veneno\nca 13/9/13\nveneno fort 14/1d4 for e con/1d4 for e con\nalcance 2 quad'
     modificador_iniciativa: -1
   }
 }
@@ -591,7 +592,8 @@ modelo {
 modelo {
   id: 'Goblin'
   entidade {
-    dados_vida: '1d8+1' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.745 g: 0.596 b: 0.388 }
+    dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.745 g: 0.596 b: 0.388 }
+    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     rotulo_especial: 'ini: +1\nca16\nmaca estrela: +4 1d6 azagaia: +6 1d4'
   }
@@ -599,7 +601,9 @@ modelo {
 modelo {
   id: 'Goblin Sargento'
   entidade {
-    dados_vida: '3d8+3' tamanho: TM_PEQUENO info_textura { id: 'goblin.png'} cor { r: 0.545 g: 0.396 b: 0.188 }
+    dados_vida: '3d8+3' tamanho: TM_PEQUENO
+    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
+    cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
     modificador_iniciativa: 1
