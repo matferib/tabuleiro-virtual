@@ -5786,12 +5786,13 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
   }
 }
 
-Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
+Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
+    float x, float y, float z_olho, float espaco_entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
   float tamanho_movimento = movimento.length();
-  float espaco_entidade = ignora_espaco_entidade ? 0.0f : entidade.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+  espaco_entidade = ignora_espaco_entidade ? 0.0f : espaco_entidade;
 
   ParametrosDesenho pd(parametros_desenho_);
-  parametros_desenho_.set_desenha_terreno(false);
+  parametros_desenho_.set_desenha_terreno(true);
   parametros_desenho_.set_desenha_entidades(true);
   parametros_desenho_.set_desenha_apenas_entidades_colisivas(true);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
@@ -5801,8 +5802,10 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
   parametros_desenho_.mutable_projecao()->set_altura_m(espaco_entidade + 0.01);
 
   // Configura o olhar para a direcao do movimento.
-  Posicao origem_temp(entidade.Pos());
-  origem_temp.set_z(entidade.ZOlho());
+  Posicao origem_temp;
+  origem_temp.set_x(x);
+  origem_temp.set_y(y);
+  origem_temp.set_z(z_olho);
   Posicao alvo_temp;
   alvo_temp.set_x(origem_temp.x() + movimento.x);
   alvo_temp.set_y(origem_temp.y() + movimento.y);
@@ -5821,12 +5824,13 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
   parametros_desenho_.Swap(&pd);
 
   auto* entidade_alvo = BuscaEntidade(id);
-  if (tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) {
+  if ((tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) || 
+      (tipo_objeto == OBJ_TABULEIRO)) {
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(largura_ / 2, altura_ / 2, profundidade, &x3d, &y3d, &z3d);
     //MousePara3dComProfundidade(1, 1, profundidade, &x3d, &y3d, &z3d);
     Vector3 d(x3d, y3d, z3d);
-    Vector3 o(entidade.X(), entidade.Y(), entidade.ZOlho());
+    Vector3 o(x, y, z_olho);
     profundidade = (d - o).length();
     VLOG(1) << "colisao possivel, prof: " << profundidade;
     VLOG(1) << "espaco entidade: " << espaco_entidade;
@@ -5837,11 +5841,11 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
         if (tamanho_movimento < TAMANHO_LADO_QUADRADO_10) {
           tamanho_movimento = 0.0f;
         }
-        LOG(INFO) << "reduzindo movimento para " << tamanho_movimento;
+        VLOG(1) << "reduzindo movimento para " << tamanho_movimento;
       } else {
         // nao da pra andar mais.
         tamanho_movimento = 0.0f;
-        LOG(INFO) << "reduzindo 2 movimento para zero";
+        VLOG(1) << "reduzindo 2 movimento para zero";
       }
     }
   } else {
@@ -5850,6 +5854,26 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
   // TODO normal.
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
   return { tamanho_movimento, Vector3() };
+}
+
+bool Tabuleiro::Apoiado(float x, float y, float z_olho, float altura_olho) {
+  auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
+                                    Vector3(0.0f, 0.0f, -altura_olho - 0.5f),
+                                    true  /*ignora espaco*/);
+  LOG(INFO) << "distancia apoio: " << res_colisao.profundidade << ", altura olho: " << altura_olho;
+  return (res_colisao.profundidade - altura_olho < 0.3f);
+}
+
+float Tabuleiro::ZApoio(float x, float y, float z_olho, float altura_olho) {
+  // Vai alem do Z porque o solo pode ter valor negativo. TODO criar um min Z do tabuleiro.
+  auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
+                                    Vector3(0.0f, 0.0f, -z_olho * 2.0f),
+                                    true  /*ignora espaco*/);
+  return z_olho - res_colisao.profundidade;
+}
+
+Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
+  return DetectaColisao(entidade.Pos().x(), entidade.Pos().y(), entidade.ZOlho(), entidade.Espaco(), movimento, ignora_espaco_entidade);
 }
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
@@ -5901,14 +5925,18 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     }
   }
   // Colisao
+  float dx = 0.0f, dy = 0.0f, dz = 0.0f;
   auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
-  if (entidade_referencia != nullptr) {
-    auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
-    vetor_movimento.normalize();
-    vetor_movimento *= res_colisao.profundidade;
+  {
+    if (entidade_referencia != nullptr) {
+      auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
+      vetor_movimento.normalize();
+      vetor_movimento *= res_colisao.profundidade;
+    }
+    dx = vetor_movimento.x;
+    dy = vetor_movimento.y;
   }
-  float dx = vetor_movimento.x;
-  float dy = vetor_movimento.y;
+
 
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -5923,25 +5951,33 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     if (entidade_selecionada == nullptr) {
       continue;
     }
-    VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy;
+    VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_MOVER_ENTIDADE);
     auto* e = n->mutable_entidade();
     e->set_id(id);
     float nx = entidade_selecionada->X() + dx;
     float ny = entidade_selecionada->Y() + dy;
+    float nz = entidade_selecionada->Z() + dz;
     auto* p = e->mutable_destino();
     p->set_x(nx);
     p->set_y(ny);
-    p->set_z(entidade_selecionada->Z());
+    p->set_z(nz);
     if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
-      float z_antes = entidade_selecionada->Z();
-      float z_chao_antes = ZChao(entidade_selecionada->X(), entidade_selecionada->Y());
+      float z_olho = entidade_selecionada->ZOlho();
+      float altura_olho = entidade_selecionada->AlturaOlho();
+      bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
       float z_chao_depois = ZChao(nx, ny);
-      bool manter_chao = (z_antes - z_chao_antes) < 0.001f;
       if (manter_chao) {
-        p->set_z(z_chao_depois);
+        LOG(INFO) << "mantendo apoio";
+        float z_apoio = ZApoio(nx, ny, z_olho, altura_olho);
+        if (z_chao_depois - z_apoio > 0.3f) {
+          // O z_apoio eh mais preciso, por isso o delta de 0.3f.
+          z_apoio = z_chao_depois;
+        }
+        p->set_z(z_apoio);
       } else {
+        LOG(INFO) << "nao mantendo apoio";
         p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
       }
     }

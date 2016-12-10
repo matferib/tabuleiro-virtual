@@ -115,6 +115,8 @@ class Entidade {
   /** @return a coordenada (z). Se delta voo for true, inclui o delta de voo tb. */
   float Z(bool delta_voo = false) const;
   float ZOlho() const;
+  /** Diferentemente da altura, considera apenas a altura do olho, sem deslocamento da entidade. */
+  float AlturaOlho() const;
 
   float ZAntesVoo() const { return proto_.z_antes_voo(); }
   void AtribuiZAntesVoo(float z) { proto_.set_z_antes_voo(z); }
@@ -189,6 +191,9 @@ class Entidade {
   * 1.0f para entidades medias.
   */
   float MultiplicadorTamanho() const;
+
+  /** O espaco da entidade, baseado no seu tamanho. */
+  float Espaco() const;
 
   /** Limpa a proxima salvacao para a entidade. */
   void AtualizaProximaSalvacao(ResultadoSalvacao rs);

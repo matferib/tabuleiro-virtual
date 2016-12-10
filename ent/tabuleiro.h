@@ -518,6 +518,12 @@ class Tabuleiro : public ntf::Receptor {
     Vector3 normal;      // normal do ponto de colisao.
   };
   ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade = false);
+  ResultadoColisao DetectaColisao(
+      float x, float y, float z_olho, float espaco_entidade, const Vector3& movimento, bool ignora_espaco_entidade = false);
+  /** Retorna true se a entidade estiver apoiada. */
+  bool Apoiado(float x, float y, float z_olho, float altura_olho);
+  /** Retorna o nivel de apoio para a entidade. */
+  float ZApoio(float x, float y, float z_olho, float altura_olho);
 
   // Coleta os VBOs extraidos.
   void ColetaVbosEntidades();
@@ -853,7 +859,7 @@ class Tabuleiro : public ntf::Receptor {
 
  private:
   // Parametros de desenho, importante para operacoes de picking e manter estado durante renderizacao.
-  ParametrosDesenho parametros_desenho_;
+  mutable ParametrosDesenho parametros_desenho_;
   // Parametros do tabuleiro (sem entidades).
   TabuleiroProto proto_;
   // Opcoes do usuario.

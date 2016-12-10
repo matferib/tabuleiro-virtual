@@ -654,6 +654,11 @@ float Entidade::ZOlho() const {
   return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * ponto).z);
 }
 
+float Entidade::AlturaOlho() const {
+  Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA, 1.0f);
+  return std::max(TAMANHO_LADO_QUADRADO_10, (MontaMatrizModelagem(true  /*queda*/, false  /*z*/, proto_, vd_) * ponto).z);
+}
+
 int Entidade::IdCenario() const {
   return proto_.pos().id_cenario();
 }
@@ -1048,6 +1053,13 @@ Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {
   return MontaMatrizModelagem(true, true, proto_, vd_, pd);
 }
 
+float Entidade::MultiplicadorTamanho() const {
+  return CalculaMultiplicador(proto_.tamanho());
+}
+
+float Entidade::Espaco() const {
+  return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+}
 
 // Nome dos buffers de VBO.
 std::vector<gl::VboGravado> Entidade::g_vbos;

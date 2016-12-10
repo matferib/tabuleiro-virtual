@@ -448,9 +448,4 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   gl::EsferaSolida(proto_.aura_m(), NUM_FACES, NUM_FACES);
 }
 
-float Entidade::MultiplicadorTamanho() const {
-  return CalculaMultiplicador(proto_.tamanho());
-}
-
-
 }  // namespace ent
