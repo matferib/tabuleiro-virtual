@@ -2214,14 +2214,20 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         float z_depois = entidade_selecionada->Z();
         // Apenas entidades respeitam o solo, formas podem entrar.
         if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
-          float z_antes = entidade_selecionada->Z();
-          float z_chao_antes = ZChao(ex0, ey0);
-          bool manter_no_chao = (z_antes - z_chao_antes) < 0.001f;
-          if (manter_no_chao) {
-            z_depois = ZChao(ex1, ey1);
+          float z_olho = entidade_selecionada->ZOlho();
+          float altura_olho = entidade_selecionada->AlturaOlho();
+          bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
+          float z_chao_depois = ZChao(nx, ny);
+          if (manter_chao) {
+            z_depois = ZApoio(nx, ny, z_olho, altura_olho);
+            if (z_chao_depois - z_depois > 0.3f) {
+              // O z_apoio eh mais preciso, por isso o delta de 0.3f.
+              z_depois = z_chao_depois;
+            }
+            VLOG(1) << "mantendo apoio: z_depois: " << z_depois;
           } else {
-            // mantem o mesmo Z de antes do movimento, acima do solo.
-            z_depois = std::max(z_antes, ZChao(ex1, ey1));
+            z_depois = std::max(z_chao_depois, entidade_selecionada->Z());
+            VLOG(1) << "nao mantendo apoio, z_depois " << z_depois;
           }
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
@@ -5800,6 +5806,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   parametros_desenho_.mutable_projecao()->set_plano_corte_distante_m(tamanho_movimento + espaco_entidade + 0.01f);
   parametros_desenho_.mutable_projecao()->set_largura_m(espaco_entidade + 0.01);
   parametros_desenho_.mutable_projecao()->set_altura_m(espaco_entidade + 0.01);
+  parametros_desenho_.clear_offset_terreno();
 
   // Configura o olhar para a direcao do movimento.
   Posicao origem_temp;
@@ -5969,7 +5976,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
       float z_chao_depois = ZChao(nx, ny);
       if (manter_chao) {
-        LOG(INFO) << "mantendo apoio";
+        VLOG(1) << "mantendo apoio";
         float z_apoio = ZApoio(nx, ny, z_olho, altura_olho);
         if (z_chao_depois - z_apoio > 0.3f) {
           // O z_apoio eh mais preciso, por isso o delta de 0.3f.
@@ -5977,7 +5984,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
         }
         p->set_z(z_apoio);
       } else {
-        LOG(INFO) << "nao mantendo apoio";
+        VLOG(1) << "nao mantendo apoio";
         p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
       }
     }
