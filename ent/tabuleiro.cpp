@@ -2229,10 +2229,10 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             } else {
               z_depois = res.z_apoio;
             }
-            LOG(INFO) << "mantendo apoio: z_depois: " << z_depois;
+            VLOG(1) << "mantendo apoio: z_depois: " << z_depois;
           } else {
             z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
-            LOG(INFO) << "nao mantendo apoio, z_depois " << z_depois;
+            VLOG(1) << "nao mantendo apoio, z_depois " << z_depois;
           }
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
@@ -6021,7 +6021,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
       float z_chao_depois = ZChao(nx, ny);
       if (manter_chao) {
-        LOG(INFO) << "mantendo apoio";
+        VLOG(1) << "mantendo apoio";
         ResultadoZApoio res = ZApoio(nx, ny, z_olho, altura_olho);
         if (z_chao_depois - res.z_apoio > 0.3f) {
           // O z_apoio eh mais preciso, por isso o delta de 0.3f.
@@ -6029,7 +6029,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
         }
         p->set_z(res.z_apoio);
       } else {
-        LOG(INFO) << "nao mantendo apoio";
+        VLOG(1) << "nao mantendo apoio";
         p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
       }
     }
