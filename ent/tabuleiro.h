@@ -523,7 +523,11 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna true se a entidade estiver apoiada. */
   bool Apoiado(float x, float y, float z_olho, float altura_olho);
   /** Retorna o nivel de apoio para a entidade. */
-  float ZApoio(float x, float y, float z_olho, float altura_olho);
+  struct ResultadoZApoio {
+    bool apoiado;
+    float z_apoio;
+  };
+  ResultadoZApoio ZApoio(float x, float y, float z_olho, float altura_olho);
 
   // Coleta os VBOs extraidos.
   void ColetaVbosEntidades();
@@ -1037,6 +1041,10 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_oclusao_ = 0;
   GLuint textura_framebuffer_oclusao_ =  0;
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
+  // Framebuffer usado apenas para detectar colisoes.
+  //GLuint framebuffer_colisao_ = 0;
+  //GLuint textura_framebuffer_colisao_=  0;
+  //GLuint renderbuffer_framebuffer_colisao_ = 0;
 
   // Vbos gerados por renderizacao de cena.
   std::vector<const gl::VbosGravados*> vbos_selecionaveis_cena_;

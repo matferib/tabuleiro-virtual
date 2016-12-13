@@ -41,6 +41,7 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::ModoRenderizacao(gl::MR_SELECT);
 
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+  //gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::CarregaIdentidade();
@@ -95,8 +96,9 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   //if (e != GL_NO_ERROR) {
   //  LOG(ERROR) << "Erro de picking: " << gluErrorString(e);
   //}
-
-  // Restaura projecao.
+ 
+  // Aqui restaura a projecao sem picking. Nao da pra salvar a projecao no inicio, porque ela eh diferente
+  // da projecao usada pelo picking. Entao a responsa eh de quem chama.
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
@@ -204,6 +206,11 @@ bool Tabuleiro::MousePara3dParaleloZero(int x, int y, float* x3d, float* y3d, fl
     return false;
   }
   float mult = (parametros_desenho_.offset_terreno() - p1z) / (p2z - p1z);
+  //LOG(INFO) << "mult: " << mult << ", x: " << x << ", y: " << y << ", p1z " << p1z << ", p2z " << p2z << " offset: " << parametros_desenho_.offset_terreno();
+  //LOG(INFO) << "mvm: " << Matrix4(modelview);
+  //LOG(INFO) << "prj: " << Matrix4(projection);
+  //LOG(INFO) << "viewport: " << viewport[0] << " " << viewport[1] << " " << viewport[2] << " " << viewport[3];
+
   *x3d = p1x + (p2x - p1x) * mult;
   *y3d = p1y + (p2y - p1y) * mult;
   *z3d = parametros_desenho_.offset_terreno();

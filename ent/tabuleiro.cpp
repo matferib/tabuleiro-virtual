@@ -332,6 +332,9 @@ void Tabuleiro::LiberaFramebuffer() {
   gl::ApagaFramebuffers(1, &framebuffer_oclusao_);
   gl::ApagaTexturas(1, &textura_framebuffer_oclusao_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_oclusao_);
+  //gl::ApagaFramebuffers(1, &framebuffer_colisao_);
+  //gl::ApagaTexturas(1, &textura_framebuffer_colisao_);
+  //gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_colisao_);
 }
 
 
@@ -2199,6 +2202,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (!MousePara3dParaleloZero(x, y, &nx, &ny, &nz)) {
         return false;
       }
+
       float dx = nx - ultimo_x_3d_;
       float dy = ny - ultimo_y_3d_;
       int quantidade_movimento = 0;
@@ -2216,18 +2220,20 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
           float z_olho = entidade_selecionada->ZOlho();
           float altura_olho = entidade_selecionada->AlturaOlho();
-          bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
-          float z_chao_depois = ZChao(nx, ny);
+          bool manter_chao = Apoiado(ex0, ey0, z_olho, altura_olho);
           if (manter_chao) {
-            z_depois = ZApoio(nx, ny, z_olho, altura_olho);
-            if (z_chao_depois - z_depois > 0.3f) {
+            ResultadoZApoio res = ZApoio(ex1, ey1, z_olho, altura_olho);
+            float z_chao_depois = ZChao(nx, ny);
+            if (z_chao_depois - res.z_apoio > 0.3f) {
               // O z_apoio eh mais preciso, por isso o delta de 0.3f.
               z_depois = z_chao_depois;
+            } else {
+              z_depois = res.z_apoio;
             }
-            VLOG(1) << "mantendo apoio: z_depois: " << z_depois;
+            LOG(INFO) << "mantendo apoio: z_depois: " << z_depois;
           } else {
-            z_depois = std::max(z_chao_depois, entidade_selecionada->Z());
-            VLOG(1) << "nao mantendo apoio, z_depois " << z_depois;
+            z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
+            LOG(INFO) << "nao mantendo apoio, z_depois " << z_depois;
           }
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
@@ -3741,7 +3747,7 @@ void Tabuleiro::RegeraVboTabuleiro() {
 namespace {
 // A variavel usar_sampler_sombras eh usado como input e output. Se ela for false, nem tentara usar o sampler de sombras. Se for true,
 // tentara se houver a extensao, caso contrario seta pra false e prossegue.
-void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
+void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(INFO) << "gerando framebuffer cubo ? " << textura_cubo;
@@ -3762,15 +3768,15 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
     if (*usar_sampler_sombras && (gl::TemExtensao("GL_OES_depth_texture") || gl::TemExtensao("GL_ARB_depth_texture"))) {
       LOG(INFO) << "Gerando framebuffer com sampler de sombras.";
       gl::ImagemTextura2d(
-          GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+          GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, tamanho, tamanho, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
       gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_EXT, GL_COMPARE_REF_TO_TEXTURE_EXT);
     } else {
       LOG(INFO) << "Gerando framebuffer com sampler de profundidade.";
       *usar_sampler_sombras = false;
-      gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+      gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, tamanho, tamanho, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     }
 #else
-    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, 1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, tamanho, tamanho, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     // Indica que vamos comparar o valor de referencia passado contra o valor armazenado no mapa de textura.
     // Nas versoes mais nova, usa-se ref.
     //gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
@@ -3848,8 +3854,12 @@ void GeraFramebufferLocal(bool textura_cubo, bool* usar_sampler_sombras, GLuint*
 }  // namespace
 
 void Tabuleiro::GeraFramebuffer() {
-  GeraFramebufferLocal(false, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
-  GeraFramebufferLocal(true, &usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
+  //GeraFramebufferLocal(
+  //    4, false  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_colisao_, &textura_framebuffer_colisao_, &renderbuffer_framebuffer_colisao_);
+  GeraFramebufferLocal(
+      1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
+  GeraFramebufferLocal(
+      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
 }
 
 namespace {
@@ -5794,6 +5804,8 @@ void Tabuleiro::DesagrupaEntidadesSelecionadas() {
 
 Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     float x, float y, float z_olho, float espaco_entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
+  gl::MatrizEscopo salva_mvm(gl::MATRIZ_MODELAGEM_CAMERA);
+  gl::MatrizEscopo salva_prj(gl::MATRIZ_PROJECAO);
   float tamanho_movimento = movimento.length();
   espaco_entidade = ignora_espaco_entidade ? 0.0f : espaco_entidade;
 
@@ -5819,22 +5831,25 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   alvo_temp.set_z(origem_temp.z() + movimento.z);
   olho_.mutable_pos()->Swap(&origem_temp);
   olho_.mutable_alvo()->Swap(&alvo_temp);
-  //gl::Viewport(0, 0, 3, 3);
+  gl::Viewport(0, 0, 4, 4);
+
+  //GLint original;
+  //gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  //gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
 
   unsigned int id, tipo_objeto;
   float profundidade;
-  BuscaHitMaisProximo(largura_ / 2, altura_ / 2, &id, &tipo_objeto, &profundidade);
+  BuscaHitMaisProximo(2, 2, &id, &tipo_objeto, &profundidade);
   //BuscaHitMaisProximo(1, 1, &id, &tipo_objeto, &profundidade);
   // restaura valores.
   olho_.mutable_pos()->Swap(&origem_temp);
   olho_.mutable_alvo()->Swap(&alvo_temp);
-  parametros_desenho_.Swap(&pd);
 
   auto* entidade_alvo = BuscaEntidade(id);
   if ((tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) || 
       (tipo_objeto == OBJ_TABULEIRO)) {
     float x3d, y3d, z3d;
-    MousePara3dComProfundidade(largura_ / 2, altura_ / 2, profundidade, &x3d, &y3d, &z3d);
+    MousePara3dComProfundidade(2, 2, profundidade, &x3d, &y3d, &z3d);
     //MousePara3dComProfundidade(1, 1, profundidade, &x3d, &y3d, &z3d);
     Vector3 d(x3d, y3d, z3d);
     Vector3 o(x, y, z_olho);
@@ -5859,7 +5874,9 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     VLOG(1) << "sem colisao, tamanho: " << tamanho_movimento;
   }
   // TODO normal.
+  parametros_desenho_.Swap(&pd);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+  //gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   return { tamanho_movimento, Vector3() };
 }
 
@@ -5867,16 +5884,19 @@ bool Tabuleiro::Apoiado(float x, float y, float z_olho, float altura_olho) {
   auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
                                     Vector3(0.0f, 0.0f, -altura_olho - 0.5f),
                                     true  /*ignora espaco*/);
-  LOG(INFO) << "distancia apoio: " << res_colisao.profundidade << ", altura olho: " << altura_olho;
+  //LOG(INFO) << "distancia apoio: " << res_colisao.profundidade << ", altura olho: " << altura_olho;
   return (res_colisao.profundidade - altura_olho < 0.3f);
 }
 
-float Tabuleiro::ZApoio(float x, float y, float z_olho, float altura_olho) {
+Tabuleiro::ResultadoZApoio Tabuleiro::ZApoio(float x, float y, float z_olho, float altura_olho) {
   // Vai alem do Z porque o solo pode ter valor negativo. TODO criar um min Z do tabuleiro.
   auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
                                     Vector3(0.0f, 0.0f, -z_olho * 2.0f),
                                     true  /*ignora espaco*/);
-  return z_olho - res_colisao.profundidade;
+  ResultadoZApoio res;
+  res.apoiado = res_colisao.profundidade - altura_olho < 0.3f;
+  res.z_apoio = z_olho - res_colisao.profundidade;
+  return res;
 }
 
 Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
@@ -5976,15 +5996,15 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
       float z_chao_depois = ZChao(nx, ny);
       if (manter_chao) {
-        VLOG(1) << "mantendo apoio";
-        float z_apoio = ZApoio(nx, ny, z_olho, altura_olho);
-        if (z_chao_depois - z_apoio > 0.3f) {
+        LOG(INFO) << "mantendo apoio";
+        ResultadoZApoio res = ZApoio(nx, ny, z_olho, altura_olho);
+        if (z_chao_depois - res.z_apoio > 0.3f) {
           // O z_apoio eh mais preciso, por isso o delta de 0.3f.
-          z_apoio = z_chao_depois;
+          res.z_apoio = z_chao_depois;
         }
-        p->set_z(z_apoio);
+        p->set_z(res.z_apoio);
       } else {
-        VLOG(1) << "nao mantendo apoio";
+        LOG(INFO) << "nao mantendo apoio";
         p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
       }
     }
