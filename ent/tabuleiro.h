@@ -1042,9 +1042,8 @@ class Tabuleiro : public ntf::Receptor {
   GLuint textura_framebuffer_oclusao_ =  0;
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
   // Framebuffer usado apenas para detectar colisoes.
-  //GLuint framebuffer_colisao_ = 0;
-  //GLuint textura_framebuffer_colisao_=  0;
-  //GLuint renderbuffer_framebuffer_colisao_ = 0;
+  GLuint framebuffer_colisao_ = 0;
+  GLuint renderbuffer_framebuffer_colisao_[2] = { 0 };
 
   // Vbos gerados por renderizacao de cena.
   std::vector<const gl::VbosGravados*> vbos_selecionaveis_cena_;

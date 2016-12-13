@@ -332,9 +332,8 @@ void Tabuleiro::LiberaFramebuffer() {
   gl::ApagaFramebuffers(1, &framebuffer_oclusao_);
   gl::ApagaTexturas(1, &textura_framebuffer_oclusao_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_oclusao_);
-  //gl::ApagaFramebuffers(1, &framebuffer_colisao_);
-  //gl::ApagaTexturas(1, &textura_framebuffer_colisao_);
-  //gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_colisao_);
+  gl::ApagaFramebuffers(1, &framebuffer_colisao_);
+  gl::ApagaRenderbuffers(2, renderbuffer_framebuffer_colisao_);
 }
 
 
@@ -3820,7 +3819,7 @@ void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_som
       gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textura_framebuffer, 0);
       gl::GeraRenderbuffers(1, renderbuffer);
       gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
-      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 1024, 1024);
+      glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, tamanho, tamanho);
       glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
     }
 #else
@@ -3854,8 +3853,34 @@ void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_som
 }  // namespace
 
 void Tabuleiro::GeraFramebuffer() {
-  //GeraFramebufferLocal(
-  //    4, false  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_colisao_, &textura_framebuffer_colisao_, &renderbuffer_framebuffer_colisao_);
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  gl::GeraFramebuffers(1, &framebuffer_colisao_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
+  gl::GeraRenderbuffers(2, renderbuffer_framebuffer_colisao_);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[0]);
+  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 4, 4);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[0]);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
+  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_RGBA4, 4, 4);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
+  // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
+#if __APPLE__ && !USAR_OPENGL_ES
+  gl::BufferDesenho(GL_NONE);
+  gl::BufferLeitura(GL_NONE);
+#endif
+  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer colisao ncompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer colisao completo";
+  }
+  // Volta estado normal.
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer");
+  LOG(INFO) << "framebuffer gerado";
+
   GeraFramebufferLocal(
       1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
   GeraFramebufferLocal(
@@ -5833,9 +5858,9 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   olho_.mutable_alvo()->Swap(&alvo_temp);
   gl::Viewport(0, 0, 4, 4);
 
-  //GLint original;
-  //gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  //gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
 
   unsigned int id, tipo_objeto;
   float profundidade;
@@ -5846,7 +5871,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   olho_.mutable_alvo()->Swap(&alvo_temp);
 
   auto* entidade_alvo = BuscaEntidade(id);
-  if ((tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) || 
+  if ((tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) ||
       (tipo_objeto == OBJ_TABULEIRO)) {
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(2, 2, profundidade, &x3d, &y3d, &z3d);
@@ -5876,7 +5901,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   // TODO normal.
   parametros_desenho_.Swap(&pd);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-  //gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   return { tamanho_movimento, Vector3() };
 }
 
