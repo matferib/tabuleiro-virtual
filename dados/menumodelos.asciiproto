@@ -1,7 +1,7 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
 modelo { id: 'Padrão' }
 sub_menu {
-  id: 'Mortos-Vivos' 
+  id: 'Mortos-Vivos'
   modelo { id: 'Allip' }
   modelo { id: 'Aparição' }
   modelo { id: 'Carneçal' }
@@ -33,6 +33,9 @@ sub_menu {
   modelo { id: 'Leão Atroz' }
   modelo { id: 'Rato Atroz' }
   modelo { id: 'Rinoceronte' }
+  modelo { id: 'Tubarão Médio' }
+  modelo { id: 'Tubarão Grande' }
+  modelo { id: 'Tubarão Imenso' }
   modelo { id: 'Tigre' }
   modelo { id: 'Urso Marrom' }
   modelo { id: 'Urso Negro' }

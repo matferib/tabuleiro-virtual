@@ -756,6 +756,31 @@ modelo {
   }
 }
 modelo {
+  id: 'Tubarão Médio'
+  entidade {
+    dados_vida: '3d8+3' tamnaho: TM_MEDIO cor { r: 0.2 g: 0.2 b: 0.2 }
+    modificador_iniciativa: 2
+    rotulo_especial: 'ini: 2\nat: +4 1d6+1\nmovimento 12 q'
+  }
+}
+modelo {
+  id: 'Tubarão Grande'
+  entidade {
+    dados_vida: '7d8+7' tamanho: TM_GRANDE cor { r: 0.2 g: 0.2 b: 0.2 }
+    modificador_iniciativa: 2
+    rotulo_especial: 'ini: 6\nat: +7 1d8+4\nmovimento 12 q'
+  }
+}
+modelo {
+  id: 'Tubarão Imenso'
+  entidade {
+    dados_vida: '10d8+10' tamanho: TM_ENORME cor { r: 0.2 g: 0.2 b: 0.2 }
+    modificador_iniciativa: 2
+    rotulo_especial: 'ini: 6\nat: +10 2d6+7\nmovimento 12 q'
+  }
+}
+
+modelo {
   id: 'Uivante'
   entidade {
     dados_vida: '6d8+12' tamanho: TM_GRANDE info_textura { id: 'howler.png'} cor { r: 0.878 g: 0.682 b: 0.576 }
