@@ -18,7 +18,7 @@
 #include <utility>
 #include <vector>
 
-#define VLOG_NIVEL 1
+//#define VLOG_NIVEL 1
 #include "arq/arquivo.h"
 #include "ent/acoes.h"
 #include "ent/acoes.pb.h"
@@ -333,7 +333,8 @@ void Tabuleiro::LiberaFramebuffer() {
   gl::ApagaTexturas(1, &textura_framebuffer_oclusao_);
   gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_oclusao_);
   gl::ApagaFramebuffers(1, &framebuffer_colisao_);
-  gl::ApagaRenderbuffers(2, renderbuffer_framebuffer_colisao_);
+  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_colisao_);
+  gl::ApagaTexturas(1, &textura_framebuffer_colisao_);
 }
 
 
@@ -779,7 +780,7 @@ int Tabuleiro::Desenha() {
   GeraVbosCena();
 #endif
 
-#if !USAR_OPENGL_ES || !__APPLE__
+#if !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
     // Se estiver ligado, desliga aqui para desenhar mapas.
     // Colocando dentro do if para evitar erro de opengl com plataformas que nao suportam GL_MULTISAMPLE.
@@ -840,7 +841,7 @@ int Tabuleiro::Desenha() {
     gl::UnidadeTextura(GL_TEXTURE0);
   }
 
-#if !USAR_OPENGL_ES || !__APPLE__
+#if !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
     gl::Habilita(GL_MULTISAMPLE);
   } else {
@@ -3857,13 +3858,23 @@ void Tabuleiro::GeraFramebuffer() {
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   gl::GeraFramebuffers(1, &framebuffer_colisao_);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
-  gl::GeraRenderbuffers(2, renderbuffer_framebuffer_colisao_);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[0]);
+  gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_colisao_);
+  // Depth attachment.
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_);
   gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 4, 4);
-  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[0]);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
-  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_RGBA4, 4, 4);
-  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_);
+  // Color attachment.
+  gl::GeraTexturas(1, &textura_framebuffer_colisao_);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_colisao_);
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 4, 4, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textura_framebuffer_colisao_, 0);
+  //gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
+  //gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_RGBA4, 4, 4);
+  //gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
   // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
 #if __APPLE__ && !USAR_OPENGL_ES
   gl::BufferDesenho(GL_NONE);
@@ -3871,11 +3882,12 @@ void Tabuleiro::GeraFramebuffer() {
 #endif
   auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
   if (ret != GL_FRAMEBUFFER_COMPLETE) {
-    LOG(ERROR) << "Framebuffer colisao ncompleto: " << ret;
+    LOG(ERROR) << "Framebuffer colisao incompleto: " << ret;
   } else {
     LOG(INFO) << "Framebuffer colisao completo";
   }
   // Volta estado normal.
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
   gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
   V_ERRO("Fim da Geracao de framebuffer");
@@ -6068,6 +6080,10 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       //entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
       e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
       e->mutable_destino()->set_z(e->destino().z() + delta * TAMANHO_LADO_QUADRADO);
+      const Posicao& pos = e->destino();
+      float altura_olho = entidade_selecionada->AlturaOlho();
+      e->set_apoiada(Apoiado(pos.x(), pos.y(), pos.z() + altura_olho, altura_olho));
+      n->mutable_entidade_antes()->set_apoiada(entidade_selecionada->Apoiada());
     }
     // Nop mas envia para os clientes.
     TrataNotificacao(grupo_notificacoes);
@@ -6181,6 +6197,7 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       // Usa o destino.
       n_inversa.mutable_entidade()->mutable_destino()->CopyFrom(n_original.entidade().pos());
       n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
+      n_inversa.mutable_entidade()->set_apoiada(n_original.entidade_antes().apoiada());
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE:
       if (!n_original.has_entidade_antes()) {
@@ -6269,6 +6286,7 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     return;
   }
   entidade->Destino(proto.destino());
+  entidade->Apoia(proto.apoiada());
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
     // Para desfazer: salva a posicao original e destino.
