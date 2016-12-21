@@ -186,6 +186,8 @@ message EntidadeProto {
   optional float alcance_visao = 37;
   // Entidade causa colisao.
   optional bool causa_colisao = 48;
+  // Indica que a entidade esta apoiada.
+  optional bool apoiada = 50 [default=true];
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
