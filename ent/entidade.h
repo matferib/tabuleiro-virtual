@@ -173,6 +173,9 @@ class Entidade {
   /** Retorna se a entidade eh fixa (ou seja, nem o mestre pode mover). */
   bool Fixa() const { return proto_.fixa(); }
 
+  bool Apoiada() const { return proto_.apoiada(); }
+  void Apoia(bool apoiada) { proto_.set_apoiada(apoiada); }
+
   /** @return true se a entidade tiver iniciativa. */
   bool TemIniciativa() const { return proto_.has_iniciativa(); }
   /** @return a iniciativa da entidade. */
@@ -342,6 +345,12 @@ class Entidade {
     return !proto.has_modelo_3d() && !proto.info_textura().id().empty() && (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   }
 
+  /** Tipo de translacao em Z desejado ao montar a matriz. */
+  enum translacao_z_e {
+    TZ_NENHUMA,  // sem translacao em Z.
+    TZ_SEM_VOO,  // translada em Z sem voo.
+    TZ_COMPLETA  // translada em Z incluindo voo.
+  };
   /** Auxiliar para montar a matriz de desenho do objeto.
   * @param queda se verdeiro, roda o eixo para desenhar a entidade caida.
   * @param translacao_z se verdadeiro, transladar para posicao vertical do objeto.
@@ -356,8 +365,13 @@ class Entidade {
                           bool posicao_mundo = true);
 
   static Matrix4 MontaMatrizModelagem(
+      bool queda, translacao_z_e tz, const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd = nullptr,
+      bool posicao_mundo = true);
+  static Matrix4 MontaMatrizModelagem(
       bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
-      const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true);
+      const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true) {
+    return MontaMatrizModelagem(queda, transladar_z ? TZ_COMPLETA : TZ_NENHUMA, proto, vd, pd, posicao_mundo);
+  }
   static Matrix4 MontaMatrizModelagemForma(
       bool queda, bool transladar_z, const EntidadeProto& proto, const VariaveisDerivadas& vd,
       const ParametrosDesenho* pd = nullptr, bool posicao_mundo = true);

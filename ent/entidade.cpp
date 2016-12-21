@@ -403,7 +403,7 @@ void Entidade::AtualizaMatrizes() {
       }
       m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
       m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
-      vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, (vd_.altura_voo == 0.0f)  /*z*/, proto_, vd_, parametros_desenho_) * m;
+      vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto_, vd_, parametros_desenho_) * m;
     }
     // Deslocamento de textura.
     {
@@ -930,14 +930,14 @@ void Entidade::MontaMatriz(bool queda,
 // static
 Matrix4 Entidade::MontaMatrizModelagem(
     bool queda,
-    bool transladar_z,
+    translacao_z_e tz,
     const EntidadeProto& proto,
     const VariaveisDerivadas& vd,
     const ParametrosDesenho* pd,
     bool posicao_mundo) {
   if (proto.tipo() == TE_FORMA || proto.tipo() == TE_COMPOSTA) {
     // Mesma matriz.
-    return MontaMatrizModelagemForma(queda, transladar_z, proto, vd, pd);
+    return MontaMatrizModelagemForma(queda, tz == TZ_NENHUMA ? false : true, proto, vd, pd);
   }
 
   Matrix4 matrix;
@@ -990,9 +990,12 @@ Matrix4 Entidade::MontaMatrizModelagem(
 
   if (posicao_mundo) {
     const auto& pos = proto.pos();
-    float translacao_z = ZChao(pos.x(), pos.y());
-    if (transladar_z) {
-      translacao_z += proto.pos().z() + DeltaVoo(vd);
+    float translacao_z = 0.0f;  //ZChao(pos.x(), pos.y());
+    if (tz != TZ_NENHUMA) {
+      translacao_z = proto.pos().z();
+      if (tz == TZ_COMPLETA) {
+        translacao_z += DeltaVoo(vd);
+      }
     }
     matrix.translate(pos.x(), pos.y(), translacao_z);
   }
