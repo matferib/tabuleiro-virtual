@@ -758,7 +758,7 @@ modelo {
 modelo {
   id: 'Tubarão Médio'
   entidade {
-    dados_vida: '3d8+3' tamnaho: TM_MEDIO cor { r: 0.2 g: 0.2 b: 0.2 }
+    dados_vida: '3d8+3' tamanho: TM_MEDIO cor { r: 0.2 g: 0.2 b: 0.2 }
     modificador_iniciativa: 2
     rotulo_especial: 'ini: 2\nat: +4 1d6+1\nmovimento 12 q'
   }
