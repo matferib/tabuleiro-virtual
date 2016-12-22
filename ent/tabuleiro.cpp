@@ -4930,7 +4930,6 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
 }
 
 void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
-  parametros_desenho_.set_desenha_entidades(false);
   float x3d, y3d, z3d;
   if (!MousePara3d(x, y, &x3d, &y3d, &z3d)) {
     return;
@@ -4948,6 +4947,8 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
       pos_depois->set_x(x3d);
       pos_depois->set_y(y3d);
       pos_depois->set_z(z3d);
+      n.mutable_entidade_antes()->set_apoiada(entidade->Apoiada());
+      e->set_apoiada(entidade->Apoiada());
       AdicionaNotificacaoListaEventos(n);
       MoveEntidadeNotificando(n);
     }
