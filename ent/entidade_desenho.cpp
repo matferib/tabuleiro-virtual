@@ -203,11 +203,11 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   if (proto_.modelo_3d().id().empty() && proto_.info_textura().id().empty() && pd->entidade_selecionada()) {
     // Volta pro chao.
     gl::MatrizEscopo salva_matriz;
-    MontaMatriz(true  /*queda*/,
-                (vd_.altura_voo == 0.0f)  /*z*/,  // so desloca disco se nao estiver voando mais.
-                proto_, vd_, pd);
     MudaCor(proto_.cor());
-    gl::Roda(vd_.angulo_disco_selecao_graus, 0, 0, 1.0f);
+    Matrix4 matriz_disco;
+    matriz_disco.rotateZ(vd_.angulo_disco_selecao_graus);
+    matriz_disco = vd_.matriz_modelagem_tijolo_base * matriz_disco;
+    gl::MultiplicaMatriz(matriz_disco.get());
     gl::Disco(TAMANHO_LADO_QUADRADO_2, 6);
   }
 

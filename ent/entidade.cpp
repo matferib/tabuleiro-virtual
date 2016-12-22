@@ -371,7 +371,20 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
 void Entidade::AtualizaMatrizes() {
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(parametros_desenho_);
   vd_.matriz_modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd_.angulo_rotacao_textura_graus);
-  if (Tipo() == TE_ENTIDADE && !proto_.has_modelo_3d() && !proto_.info_textura().id().empty()) {
+  if (Tipo() != TE_ENTIDADE || proto_.has_modelo_3d()) {
+    return;
+  }
+  // tijolo base. Usada para disco de peao tambem.
+  if (!proto_.morta()) {
+    Matrix4 m;
+    if (parametros_desenho_->entidade_selecionada()) {
+      m.rotateZ(vd_.angulo_disco_selecao_graus);
+    }
+    m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
+    m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
+    vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto_, vd_, parametros_desenho_) * m;
+  }
+  if (!proto_.info_textura().id().empty()) {
     bool achatar = Achatar();
     // tijolo tela.
     if (!achatar) {
@@ -394,16 +407,6 @@ void Entidade::AtualizaMatrizes() {
         m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto_.info_textura().altura()));
       }
       vd_.matriz_modelagem_tela_textura = matriz_modelagem_geral * m;
-    }
-    // tijolo base.
-    if (!proto_.morta()) {
-      Matrix4 m;
-      if (parametros_desenho_->entidade_selecionada()) {
-        m.rotateZ(vd_.angulo_disco_selecao_graus);
-      }
-      m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
-      m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
-      vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto_, vd_, parametros_desenho_) * m;
     }
     // Deslocamento de textura.
     {
