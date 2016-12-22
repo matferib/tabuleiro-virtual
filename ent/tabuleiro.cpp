@@ -2220,7 +2220,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
           float z_olho = entidade_selecionada->ZOlho();
           float altura_olho = entidade_selecionada->AlturaOlho();
-          bool manter_chao = Apoiado(ex0, ey0, z_olho, altura_olho);
+          bool manter_chao = entidade_selecionada->Apoiada(); //Apoiado(ex0, ey0, z_olho, altura_olho);
           if (manter_chao) {
             ResultadoZApoio res = ZApoio(ex1, ey1, z_olho, altura_olho);
             float z_chao_depois = ZChao(nx, ny);
@@ -6001,7 +6001,6 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     dy = vetor_movimento.y;
   }
 
-
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   std::unordered_set<unsigned int> ids;
@@ -6030,19 +6029,27 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
       float z_olho = entidade_selecionada->ZOlho();
       float altura_olho = entidade_selecionada->AlturaOlho();
-      bool manter_chao = Apoiado(entidade_selecionada->X(), entidade_selecionada->Y(), z_olho, altura_olho);
+      bool manter_chao = entidade_selecionada->Apoiada();
       float z_chao_depois = ZChao(nx, ny);
+      ResultadoZApoio res = ZApoio(nx, ny, z_olho, altura_olho);
       if (manter_chao) {
         VLOG(1) << "mantendo apoio";
-        ResultadoZApoio res = ZApoio(nx, ny, z_olho, altura_olho);
         if (z_chao_depois - res.z_apoio > 0.3f) {
           // O z_apoio eh mais preciso, por isso o delta de 0.3f.
           res.z_apoio = z_chao_depois;
         }
         p->set_z(res.z_apoio);
       } else {
-        VLOG(1) << "nao mantendo apoio";
-        p->set_z(std::max(z_chao_depois, entidade_selecionada->Z()));
+        float z_apoio = std::max(res.z_apoio, z_chao_depois);
+        if (z_apoio > entidade_selecionada->Z()) {
+          VLOG(1) << "apoiando entidade nao apoiada";
+          p->set_z(z_apoio);
+          e->set_apoiada(true);
+          n->mutable_entidade_antes()->set_apoiada(false);
+        } else {
+          VLOG(1) << "nao mantendo apoio";
+          p->set_z(entidade_selecionada->Z());
+        }
       }
     }
     // Para desfazer.
@@ -6197,7 +6204,9 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       // Usa o destino.
       n_inversa.mutable_entidade()->mutable_destino()->CopyFrom(n_original.entidade().pos());
       n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
-      n_inversa.mutable_entidade()->set_apoiada(n_original.entidade_antes().apoiada());
+      if (n_original.entidade_antes().has_apoiada()) {
+        n_inversa.mutable_entidade()->set_apoiada(n_original.entidade_antes().apoiada());
+      }
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE:
       if (!n_original.has_entidade_antes()) {
@@ -6285,8 +6294,11 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     LOG(ERROR) << "Entidade invalida: " << proto.ShortDebugString();
     return;
   }
+  bool apoiada_antes = entidade->Apoiada();
   entidade->Destino(proto.destino());
-  entidade->Apoia(proto.apoiada());
+  if (proto.has_apoiada()) {
+    entidade->Apoia(proto.apoiada());
+  }
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
     // Para desfazer: salva a posicao original e destino.
@@ -6295,6 +6307,10 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     n_desfazer.mutable_entidade()->set_id(entidade->Id());
     n_desfazer.mutable_entidade()->mutable_pos()->CopyFrom(entidade->Proto().pos());
     n_desfazer.mutable_entidade()->mutable_destino()->CopyFrom(proto.pos());
+    if (proto.has_apoiada()) {
+      n_desfazer.mutable_entidade()->set_apoiada(entidade->Apoiada());
+      n_desfazer.mutable_entidade_antes()->set_apoiada(apoiada_antes);
+    }
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
 }
