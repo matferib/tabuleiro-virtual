@@ -1,40 +1,29 @@
 LOCAL_PATH := $(call my-dir)
 
-# Protobuffer pre compilado.
-# Baseado em file:///opt/android-ndk-r9d/docs/PREBUILTS.html.
+# Proto: precisa gerar o config.
 include $(CLEAR_VARS)
-LOCAL_MODULE := protobuf-prebuilt
-LOCAL_SRC_FILES := protobuf-2.6.1/src/.libs/libprotobuf.a
+LOCAL_MODULE := protobuf
+LOCAL_CPP_FEATURES += rtti
+LOCAL_SRC_FILES := $(wildcard protobuf-2.6.1/src/google/protobuf/*.cc) \
+	                 $(wildcard protobuf-2.6.1/src/google/protobuf/stubs/*.cc) \
+	                 $(wildcard protobuf-2.6.1/src/google/protobuf/io/*.cc)
+LOCAL_SRC_FILES := $(filter-out %unittest.cc %test_util_lite.cc %test_util.cc,$(LOCAL_SRC_FILES))
+$(info $$LOCAL_SRC_FILES is [${LOCAL_SRC_FILES}])
+LOCAL_C_INCLUDES := protobuf-2.6.1/src protobuf-2.6.1
 LOCAL_EXPORT_C_INCLUDES := protobuf-2.6.1/src
-include $(PREBUILT_STATIC_LIBRARY)
+include $(BUILD_STATIC_LIBRARY)
 
-# Boost pre compilado.
-# System
+# Boost.
 include $(CLEAR_VARS)
-LOCAL_MODULE := boost-system-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/system/build/gcc-androidR8e/release/link-static/threading-multi/libboost_system-gcc-mt-1_55.a
+LOCAL_MODULE := boost
+LOCAL_CPP_FEATURES += exceptions
+LOCAL_SRC_FILES := $(wildcard boost_1_55_0/libs/filesystem/src/*.cpp) \
+	                 $(wildcard boost_1_55_0/libs/system/src/*.cpp) \
+									 $(wildcard boost_1_55_0/libs/timer/src/*.cpp) \
+									 $(wildcard boost_1_55_0/libs/chrono/src/*.cpp)
+LOCAL_C_INCLUDES := boost_1_55_0
 LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
-include $(PREBUILT_STATIC_LIBRARY)
-# Chrono.
-include $(CLEAR_VARS)
-LOCAL_MODULE := boost-chrono-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/chrono/build/gcc-androidR8e/release/link-static/threading-multi/libboost_chrono-gcc-mt-1_55.a
-LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
-include $(PREBUILT_STATIC_LIBRARY)
-# Timer.
-include $(CLEAR_VARS)
-LOCAL_MODULE := boost-timer-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/timer/build/gcc-androidR8e/release/link-static/threading-multi/libboost_timer-gcc-mt-1_55.a
-LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
-include $(PREBUILT_STATIC_LIBRARY)
-# Filesystem.
-include $(CLEAR_VARS)
-LOCAL_MODULE := boost-filesystem-prebuilt
-LOCAL_SRC_FILES := boost_1_55_0/bin.v2/libs/filesystem/build/gcc-androidR8e/release/link-static/threading-multi/libboost_filesystem-gcc-mt-1_55.a
-LOCAL_EXPORT_C_INCLUDES := boost_1_55_0
-include $(PREBUILT_STATIC_LIBRARY)
-
-
+include $(BUILD_STATIC_LIBRARY)
 
 # Tabuleiro.
 # Baseado em file:///opt/android-ndk-r9d/docs/ANDROID-MK.html.
@@ -66,7 +55,7 @@ endif
 ifneq ($(XOOM),)
 	LOCAL_CPPFLAGS += -DZBUFFER_16_BITS
 endif
-LOCAL_STATIC_LIBRARIES := protobuf-prebuilt boost-system-prebuilt boost-timer-prebuilt boost-chrono-prebuilt boost-filesystem-prebuilt
+LOCAL_STATIC_LIBRARIES := protobuf boost
 LOCAL_LDLIBS := -lGLESv1_CM -lGLESv2 -llog -landroid
 LOCAL_CPP_FEATURES := rtti exceptions
 
