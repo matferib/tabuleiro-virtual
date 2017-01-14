@@ -18,6 +18,8 @@
 #define INFO 1
 #define WARNING 2
 #define ERROR 3
+#else 
+#error info defined
 #endif
 
 class StringLogger {
@@ -45,9 +47,8 @@ class StringLogger {
 #ifndef VLOG_NIVEL
 #define VLOG_NIVEL 0
 #endif
-#define LOG(X) if (X > INFO || VLOG_NIVEL > 0) StringLogger(SHORT_FILE, __LINE__)
+#define LOG(X) if (X >= INFO || VLOG_NIVEL > 0) StringLogger(SHORT_FILE, __LINE__)
 #define VLOG(X) if (X <= VLOG_NIVEL) StringLogger(SHORT_FILE, __LINE__)
-// __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "nativePause");
 #define LOG_EVERY_N(X, N) if (true) StringLogger(SHORT_FILE, __LINE__)
 
 #else
