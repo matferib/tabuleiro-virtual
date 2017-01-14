@@ -402,8 +402,8 @@ modelo {
 modelo {
   id: 'Hobgoblin Sargento'
   entidade {
-    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' } cor { r: 0.3 g: 0.3 b: 0.15 }
-    rotulo_especial: 'ini: +2\nat: +7/\ndano: 1d8+2(19-20)\nca: 21'
+    dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
+    rotulo_especial: 'at: +7\ndano: 1d8+2(19-20)\nca: 21'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' }
