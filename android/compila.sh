@@ -42,7 +42,7 @@ echo "DEBUG: ${DEBUG}"
 echo "PROFILER: ${PROF}"
 echo "SUFIXO: ${SUFIXO}"
 pushd .
-cd jni && ${ANDROID_NDK}/ndk-build V=1 ${DISP} ${PROF} DEBUG=${DEBUG} && cd .. && \
+cd jni && ${ANDROID_NDK}/ndk-build -j 4 V=1 ${DISP} ${PROF} DEBUG=${DEBUG} && cd .. && \
 ${ANTROOT}/bin/ant ${MODO} && \
 test "${INSTALAR}" = "1" && echo "instalando" && ${ANDROID_DEV_TOOLKIT}/sdk/platform-tools/adb install -r bin/TabuleiroVirtual-debug.apk
 popd
