@@ -1340,7 +1340,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       processando_grupo_ = false;
       return true;
     case ntf::TN_REINICIAR_CAMERA:
-      ReiniciaCamera();
+      if (notificacao.tabuleiro().has_camera_inicial()) {
+        ReiniciaCamera(notificacao);
+      } else {
+        ReiniciaCamera();
+      }
       return true;
     case ntf::TN_SALVAR_CAMERA:
       SalvaCameraInicial();
@@ -2474,11 +2478,12 @@ void Tabuleiro::FinalizaEstadoCorrente() {
         auto* n_desfazer = g_desfazer.add_notificacao();
         n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
         n_desfazer->mutable_entidade()->set_id(id);
+        n_desfazer->mutable_entidade_antes()->set_id(id);
         auto* pos_final = n_desfazer->mutable_entidade()->mutable_destino();
         pos_final->set_x(entidade_selecionada->X());
         pos_final->set_y(entidade_selecionada->Y());
         pos_final->set_z(entidade_selecionada->Z());
-        auto* pos_original = n_desfazer->mutable_entidade()->mutable_pos();
+        auto* pos_original = n_desfazer->mutable_entidade_antes()->mutable_pos();
         pos_original->set_x(entidade_selecionada->X() - vetor_delta.x());
         pos_original->set_y(entidade_selecionada->Y() - vetor_delta.y());
         pos_original->set_z(entidade_selecionada->Z() - vetor_delta.z());
@@ -2831,13 +2836,14 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       auto* n = grupo_notificacoes.add_notificacao();
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       n->mutable_entidade()->set_id(id);
-      n->mutable_entidade()->mutable_pos()->CopyFrom(entidade_movendo->Pos());  // Para desfazer.
+      n->mutable_entidade_antes()->set_id(id);
+      n->mutable_entidade_antes()->mutable_pos()->CopyFrom(entidade_movendo->Pos());  // Para desfazer.
       float dx = entidade_movendo->X() - x_centro;
       float dy = entidade_movendo->Y() - y_centro;
-      n->mutable_entidade()->mutable_destino()->set_x(pos_destino.x() + dx);
-      n->mutable_entidade()->mutable_destino()->set_y(pos_destino.y() + dy);
-      n->mutable_entidade()->mutable_destino()->set_z(entidade_transicao->Proto().transicao_cenario().z() + entidade_movendo->Z());
-      n->mutable_entidade()->mutable_destino()->set_id_cenario(id_cenario);
+      n->mutable_entidade()->mutable_pos()->set_x(pos_destino.x() + dx);
+      n->mutable_entidade()->mutable_pos()->set_y(pos_destino.y() + dy);
+      n->mutable_entidade()->mutable_pos()->set_z(entidade_transicao->Proto().transicao_cenario().z() + entidade_movendo->Z());
+      n->mutable_entidade()->mutable_pos()->set_id_cenario(id_cenario);
     }
   }
   // Criacao vem por ultimo para a inversao do desfazer funcionar, pois se a remocao for feita antes de mover as entidades de volta,
@@ -2861,6 +2867,23 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       n->mutable_tabuleiro()->set_id_cenario(id_cenario);
     }
   }
+
+  {
+    // A camera vai para a posicao de transicao ou para a posicao do objeto no outro cenario.
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_REINICIAR_CAMERA);
+    Posicao pos_olho;
+    if (entidade_transicao->Proto().transicao_cenario().has_x()) {
+      pos_olho = entidade_transicao->Proto().transicao_cenario();
+    } else {
+      pos_olho = entidade_transicao->Pos();
+    }
+    pos_olho.set_id_cenario(id_cenario);
+    *n->mutable_tabuleiro_antes()->mutable_camera_inicial() = olho_;
+    *n->mutable_tabuleiro()->mutable_camera_inicial() = olho_;
+    *n->mutable_tabuleiro()->mutable_camera_inicial()->mutable_alvo() = pos_olho;
+  }
+
   if (grupo_notificacoes.notificacao_size() > 0) {
     TrataNotificacao(grupo_notificacoes);
     if (ids_adicionados_.size() == 1) {
@@ -2872,15 +2895,6 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
     }
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
-  // A camera vai para a posicao de transicao ou para a posicao do objeto no outro cenario.
-  Posicao pos_olho;
-  if (entidade_transicao->Proto().transicao_cenario().has_x()) {
-    pos_olho.CopyFrom(entidade_transicao->Proto().transicao_cenario());
-  } else {
-    pos_olho.CopyFrom(entidade_transicao->Pos());
-    pos_olho.set_id_cenario(id_cenario);
-  }
-  CarregaSubCenario(id_cenario, pos_olho);
 }
 
 void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d) {
@@ -2941,7 +2955,7 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
       // Posicao inicial para desfazer.
       n_desfazer->set_tipo(ntf::TN_MOVER_ENTIDADE);
       n_desfazer->mutable_entidade()->set_id(id_ent.first);
-      auto* pos_original = n_desfazer->mutable_entidade()->mutable_pos();
+      auto* pos_original = n_desfazer->mutable_entidade_antes()->mutable_pos();
       pos_original->set_x(entidade->X());
       pos_original->set_y(entidade->Y());
       pos_original->set_z(entidade->Z());
@@ -4481,8 +4495,8 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
       bool cenario_diferente = entidade_referencia->Pos().id_cenario() != proto_corrente_->id_cenario();
       if (cenario_diferente) {
         // Pode acontecer da entidade estar se movendo para o cenario novo.
-        if (entidade_referencia->Destino().has_id_cenario() &&
-            (entidade_referencia->Destino().id_cenario() == proto_corrente_->id_cenario())) {
+        if ((entidade_referencia->Destino().has_id_cenario() &&
+            (entidade_referencia->Destino().id_cenario() == proto_corrente_->id_cenario()))) {
           cenario_diferente = false;
         }
       }
@@ -4940,14 +4954,15 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
     if (entidade != nullptr) {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_MOVER_ENTIDADE);
+      *n.mutable_entidade_antes()->mutable_pos() = entidade->Pos();
+      n.mutable_entidade_antes()->set_id(entidade->Id());
+      n.mutable_entidade_antes()->set_apoiada(entidade->Apoiada());
       auto* e = n.mutable_entidade();
       e->set_id(entidade->Id());
-      *e->mutable_pos() = entidade->Pos();
       auto* pos_depois = e->mutable_destino();
       pos_depois->set_x(x3d);
       pos_depois->set_y(y3d);
       pos_depois->set_z(z3d);
-      n.mutable_entidade_antes()->set_apoiada(entidade->Apoiada());
       e->set_apoiada(entidade->Apoiada());
       AdicionaNotificacaoListaEventos(n);
       MoveEntidadeNotificando(n);
@@ -6019,7 +6034,9 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
     auto* n = grupo_notificacoes.add_notificacao();
     n->set_tipo(ntf::TN_MOVER_ENTIDADE);
     auto* e = n->mutable_entidade();
+    auto* e_antes = n->mutable_entidade_antes();
     e->set_id(id);
+    e_antes->set_id(id);
     float nx = entidade_selecionada->X() + dx;
     float ny = entidade_selecionada->Y() + dy;
     float nz = entidade_selecionada->Z() + dz;
@@ -6054,7 +6071,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       }
     }
     // Para desfazer.
-    p = e->mutable_pos();
+    p = e_antes->mutable_pos();
     p->set_x(entidade_selecionada->X());
     p->set_y(entidade_selecionada->Y());
     p->set_z(entidade_selecionada->Z());
@@ -6082,8 +6099,10 @@ void Tabuleiro::TrataTranslacaoZ(float delta) {
       auto* n = grupo_notificacoes.add_notificacao();
       n->set_tipo(ntf::TN_MOVER_ENTIDADE);
       auto* e = n->mutable_entidade();
+      auto* e_antes = n->mutable_entidade_antes();
       e->set_id(entidade_selecionada->Id());
-      e->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
+      e_antes->set_id(entidade_selecionada->Id());
+      e_antes->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
       // Altera a translacao em Z.
       //entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
       e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
@@ -6139,16 +6158,20 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
   n_inversa.set_tipo(ntf::TN_ERRO);
   switch (n_original.tipo()) {
     // Tipos de notificacao que podem ser desfeitas.
-    case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
-      n_inversa.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
-      *n_inversa.mutable_tabuleiro() = n_original.tabuleiro_antes();
-      break;
     case ntf::TN_GRUPO_NOTIFICACOES:
       n_inversa.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
       // TODO inverter a ordem das notificacoes.
       for (const auto& n : n_original.notificacao()) {
         n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
       }
+      break;
+    case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
+      n_inversa.set_tipo(ntf::TN_ATUALIZAR_LISTA_INICIATIVA);
+      *n_inversa.mutable_tabuleiro() = n_original.tabuleiro_antes();
+      break;
+    case ntf::TN_REINICIAR_CAMERA:
+      n_inversa.set_tipo(ntf::TN_REINICIAR_CAMERA);
+      *n_inversa.mutable_tabuleiro()->mutable_camera_inicial() = n_original.tabuleiro_antes().camera_inicial();
       break;
     case ntf::TN_ATUALIZAR_RELEVO_TABULEIRO:
       n_inversa.set_tipo(ntf::TN_ATUALIZAR_RELEVO_TABULEIRO);
@@ -6196,17 +6219,20 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
       n_inversa.mutable_entidade()->CopyFrom(n_original.entidade());
       break;
     case ntf::TN_MOVER_ENTIDADE:
-      if (!n_original.entidade().has_pos() || !n_original.entidade().has_id()) {
+      if (!n_original.entidade_antes().has_pos() || !n_original.entidade().has_id()) {
         LOG(ERROR) << "Impossivel inverter ntf::TN_MOVER_ENTIDADE sem a posicao original ou ID: "
                    << n_original.entidade().ShortDebugString();
         break;
       }
       n_inversa.set_tipo(ntf::TN_MOVER_ENTIDADE);
       // Usa o destino.
-      n_inversa.mutable_entidade()->mutable_destino()->CopyFrom(n_original.entidade().pos());
+      *n_inversa.mutable_entidade()->mutable_pos() = n_original.entidade_antes().pos();
       n_inversa.mutable_entidade()->set_id(n_original.entidade().id());
       if (n_original.entidade_antes().has_apoiada()) {
         n_inversa.mutable_entidade()->set_apoiada(n_original.entidade_antes().apoiada());
+      }
+      if (n_original.tabuleiro_antes().has_camera_inicial()) {
+        *n_inversa.mutable_tabuleiro()->mutable_camera_inicial() = n_original.tabuleiro_antes().camera_inicial();
       }
       break;
     case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE:
@@ -6296,7 +6322,11 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     return;
   }
   bool apoiada_antes = entidade->Apoiada();
-  entidade->Destino(proto.destino());
+  if (proto.has_destino()) {
+    entidade->Destino(proto.destino());
+  } else {
+    entidade->MovePara(proto.pos());
+  }
   if (proto.has_apoiada()) {
     entidade->Apoia(proto.apoiada());
   }
@@ -6306,7 +6336,8 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     ntf::Notificacao n_desfazer;
     n_desfazer.set_tipo(ntf::TN_MOVER_ENTIDADE);
     n_desfazer.mutable_entidade()->set_id(entidade->Id());
-    n_desfazer.mutable_entidade()->mutable_pos()->CopyFrom(entidade->Proto().pos());
+    n_desfazer.mutable_entidade_antes()->set_id(entidade->Id());
+    n_desfazer.mutable_entidade_antes()->mutable_pos()->CopyFrom(entidade->Proto().pos());
     n_desfazer.mutable_entidade()->mutable_destino()->CopyFrom(proto.pos());
     if (proto.has_apoiada()) {
       n_desfazer.mutable_entidade()->set_apoiada(entidade->Apoiada());
@@ -7316,6 +7347,7 @@ void Tabuleiro::SalvaCameraInicial() {
   proto_.mutable_camera_inicial()->clear_destino();
 }
 
+
 void Tabuleiro::ReiniciaCamera() {
   // Vou ser conservador aqui e voltar para a camera de perspectiva. Caso contrario, posso correr o risco de um jogador
   // ficar preso em uma entidade que nao eh a dele (por exemplo, carregando o tabuleiro sem manter as entidades, a entidade
@@ -7342,6 +7374,26 @@ void Tabuleiro::ReiniciaCamera() {
     olho_.set_raio(OLHO_RAIO_INICIAL);
     olho_.clear_destino();
   }
+  AtualizaOlho(0, true  /*forcar*/);
+}
+
+void Tabuleiro::ReiniciaCamera(const ntf::Notificacao& notificacao) {
+  // Vou ser conservador aqui e voltar para a camera de perspectiva. Caso contrario, posso correr o risco de um jogador
+  // ficar preso em uma entidade que nao eh a dele (por exemplo, carregando o tabuleiro sem manter as entidades, a entidade
+  // presa deixa de existir).
+  if (camera_presa_) {
+    AlternaCameraPresa();
+  } else {
+    camera_ = CAMERA_PERSPECTIVA;
+    camera_presa_ = false;
+  }
+  if (notificacao.tabuleiro().camera_inicial().alvo().id_cenario() != proto_corrente_->id_cenario()) {
+    LOG(INFO) << "Carregando cenario " << notificacao.tabuleiro().camera_inicial().alvo().id_cenario();
+    CarregaSubCenario(notificacao.tabuleiro().camera_inicial().alvo().id_cenario(), notificacao.tabuleiro().camera_inicial().alvo());
+  } else {
+    LOG(INFO) << "Mantendo cenario: " << notificacao.ShortDebugString();
+  }
+  olho_ = notificacao.tabuleiro().camera_inicial();
   AtualizaOlho(0, true  /*forcar*/);
 }
 

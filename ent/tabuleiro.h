@@ -802,6 +802,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Reinicia a camera para a posicao especificada no proto_.camera_inicial(). Caso nao haja, usa a posicao inicial. Pode carregar um cenario. */
   void ReiniciaCamera();
+  /** Igual a ReiniciaCamera(), mas para a posicao da notificacao ao inves de camera_inicial. */
+  void ReiniciaCamera(const ntf::Notificacao& n);
 
   /** Ao limpar o proto, a iluminacao vai a zero. Esta funcao restaura os valores que dao visibilidade ao tabuleiro. */
   void ReiniciaIluminacao(TabuleiroProto* sub_cenario);
