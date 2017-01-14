@@ -2842,7 +2842,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       float dy = entidade_movendo->Y() - y_centro;
       n->mutable_entidade()->mutable_pos()->set_x(pos_destino.x() + dx);
       n->mutable_entidade()->mutable_pos()->set_y(pos_destino.y() + dy);
-      n->mutable_entidade()->mutable_pos()->set_z(entidade_transicao->Proto().transicao_cenario().z() + entidade_movendo->Z());
+      n->mutable_entidade()->mutable_pos()->set_z(entidade_transicao->Proto().transicao_cenario().z());
       n->mutable_entidade()->mutable_pos()->set_id_cenario(id_cenario);
     }
   }
@@ -7378,15 +7378,6 @@ void Tabuleiro::ReiniciaCamera() {
 }
 
 void Tabuleiro::ReiniciaCamera(const ntf::Notificacao& notificacao) {
-  // Vou ser conservador aqui e voltar para a camera de perspectiva. Caso contrario, posso correr o risco de um jogador
-  // ficar preso em uma entidade que nao eh a dele (por exemplo, carregando o tabuleiro sem manter as entidades, a entidade
-  // presa deixa de existir).
-  if (camera_presa_) {
-    AlternaCameraPresa();
-  } else {
-    camera_ = CAMERA_PERSPECTIVA;
-    camera_presa_ = false;
-  }
   if (notificacao.tabuleiro().camera_inicial().alvo().id_cenario() != proto_corrente_->id_cenario()) {
     LOG(INFO) << "Carregando cenario " << notificacao.tabuleiro().camera_inicial().alvo().id_cenario();
     CarregaSubCenario(notificacao.tabuleiro().camera_inicial().alvo().id_cenario(), notificacao.tabuleiro().camera_inicial().alvo());
