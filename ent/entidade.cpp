@@ -601,6 +601,16 @@ void Entidade::MovePara(float x, float y, float z) {
 #endif
 }
 
+void Entidade::MovePara(const Posicao& pos) {
+  VLOG(1) << "Entidade antes de mover: " << proto_.pos().ShortDebugString();
+  *proto_.mutable_pos() = pos;
+  proto_.clear_destino();
+  VLOG(1) << "Movi entidade para: " << proto_.pos().ShortDebugString();
+#if VBO_COM_MODELAGEM
+  AtualizaVbo(parametros_desenho_);
+#endif
+}
+
 void Entidade::MoveDelta(float dx, float dy, float dz) {
   MovePara(X() + dx, Y() + dy, Z() + dz);
 }

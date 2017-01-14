@@ -80,7 +80,7 @@ class Entidade {
 
   /** Move a entidade para o ponto especificado. Limpa destino. */
   void MovePara(float x, float y, float z = 0);
-  void MovePara(const Posicao& proto);
+  void MovePara(const Posicao& pos);
 
   /** Move a entidade uma quantidade em cada eixo. Limpa destino. */
   void MoveDelta(float dx, float dy, float dz);
