@@ -829,7 +829,7 @@ modelo {
 modelo {
   id: 'Worg'
   entidade {
-    dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura {id: 'worg.png' } cor { r: 0.3 g: 0.2 b: 0.2 }
+    dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     modificador_iniciativa: 2
   }
 }
