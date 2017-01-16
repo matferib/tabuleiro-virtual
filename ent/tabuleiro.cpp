@@ -1294,6 +1294,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AtualizaIniciativaNotificando(notificacao);
       return true;
     }
+    case ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO: {
+      EntraModoClique(MODO_SELECAO_TRANSICAO);
+      notificacao_selecao_transicao_ = notificacao;
+      return true;
+    }
     case ntf::TN_CONECTAR: {
       AlterarModoMestre(false);
       return true;
@@ -2809,12 +2814,13 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
 
   // Posicao destino especificada, caso contrario usa a posicao do objeto de transicao.
   Posicao pos_destino(entidade_transicao->Proto().transicao_cenario().has_x() ? entidade_transicao->Proto().transicao_cenario() : entidade_transicao->Pos());
-  if (!ids_entidades_selecionadas_.empty()) {
+  auto ids_a_transitar = IdsPrimeiraPessoaIncluindoEntidadesSelecionadas();
+  if (!ids_a_transitar.empty()) {
     // Computa a posicao centro das entidades.
     Posicao centro;
     float x_centro = 0, y_centro = 0;
     int n_entidades = 0;
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : ids_a_transitar) {
       auto* entidade_movendo = BuscaEntidade(id);
       if (entidade_movendo == nullptr) {
         continue;
@@ -2828,7 +2834,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       y_centro /= n_entidades;
     }
 
-    for (unsigned int id : ids_entidades_selecionadas_) {
+    for (unsigned int id : ids_a_transitar) {
       auto* entidade_movendo = BuscaEntidade(id);
       if (entidade_movendo == nullptr) {
         continue;
@@ -4705,6 +4711,26 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   // funcione em outros modos, ao mesmo tempo que a ajuda possa ser mostrada para os botoes do controle.
   if (modo_clique_ == MODO_AJUDA || (modo_clique_ != MODO_NORMAL && tipo_objeto != OBJ_CONTROLE_VIRTUAL)) {
     switch (modo_clique_) {
+      case MODO_SELECAO_TRANSICAO: {
+        if (tipo_objeto != OBJ_TABULEIRO) {
+          return;
+        }
+        auto* entidade = BuscaEntidade(notificacao_selecao_transicao_.entidade().id());
+        if (entidade == nullptr) {
+          LOG(WARNING) << "Entidade nao existe mais.";
+          // para sair do modo.
+          break;
+        }
+        auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
+        *n->mutable_entidade() = entidade->Proto(); 
+        auto* trans = n->mutable_entidade()->mutable_transicao_cenario();
+        trans->set_x(x3d);
+        trans->set_y(y3d);
+        trans->set_z(z3d);
+        trans->set_id_cenario(cenario_corrente_);
+        central_->AdicionaNotificacao(n);
+        break;
+      }
       case MODO_ACAO:
         TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
         if (!lista_pontos_vida_.empty()) {
@@ -7082,6 +7108,14 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
   } else {
     return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   }
+}
+
+std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const {
+  std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    ids.push_back(id_camera_presa_);
+  }
+  return ids;
 }
 
 std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() const {

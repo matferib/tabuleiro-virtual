@@ -387,6 +387,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_SINALIZACAO,  // executa acao de sinalizacao.
     MODO_DESENHO,      // reservado.
     MODO_TRANSICAO,    // executa transicao no clique.
+    MODO_SELECAO_TRANSICAO,    // escolhe o local de transicao durante clique.
     MODO_REGUA,        // o clique executara uma medicao.
     MODO_AJUDA,        // o clique atuara como hover.
     MODO_ROTACAO,      // modo de rotacao da camera.
@@ -606,6 +607,8 @@ class Tabuleiro : public ntf::Receptor {
   const Entidade* EntidadePrimeiraPessoaOuSelecionada() const;
   /** Retorna o vetor ou com o id da entidade primeira pessoa, ou das entidades selecionadas se nao for primeira pessoa. */
   std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadas() const;
+  /** Retorna o vetor com o id da entidade de primeira pessoa mais as selecionadas. */
+  std::vector<unsigned int> IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const;
   /** O contrario, se houver selecao retorna o que esta selecionado. Caso contrario, retorna primeira pessoa (se houver). */
   std::vector<unsigned int> IdsEntidadesSelecionadasOuPrimeiraPessoa() const;
   /** Retorna a entidade selecionada se houver apenas uma, ou a primeira pessoa. */
@@ -1073,6 +1076,8 @@ class Tabuleiro : public ntf::Receptor {
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
   std::string info_geral_;
   int temporizador_info_geral_ms_ = 0;
+  
+  ntf::Notificacao notificacao_selecao_transicao_;
 
   // Usado para recuperacao de contexto IOS e android.
   bool regerar_vbos_entidades_ = false;

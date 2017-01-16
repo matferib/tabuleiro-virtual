@@ -643,6 +643,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
       gerador.checkbox_transicao_posicao->setCheckState(Qt::Unchecked);
     }
   }
+  // Esconde dialogo e entra no modo de selecao.
+  lambda_connect(gerador.botao_transicao_mapa, SIGNAL(clicked()), [this, dialogo, gerador, &entidade, &proto_retornado] {
+    auto* notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO);
+    notificacao->mutable_entidade()->set_id(entidade.id());
+    central_->AdicionaNotificacao(notificacao);
+    delete proto_retornado;
+    proto_retornado = nullptr;
+    dialogo->reject();
+    LOG(INFO) << "rejeitando...";
+  });
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),

@@ -109,6 +109,7 @@ public:
     QCheckBox *checkbox_transicao_cenario;
     QLineEdit *linha_transicao_cenario;
     QCheckBox *checkbox_transicao_posicao;
+    QPushButton *botao_transicao_mapa;
     QHBoxLayout *horizontalLayout_14;
     QHBoxLayout *horizontalLayout_15;
     QLabel *label_12;
@@ -513,6 +514,13 @@ public:
 
         horizontalLayout_19->addWidget(checkbox_transicao_posicao);
 
+        botao_transicao_mapa = new QPushButton(verticalLayoutWidget_2);
+        botao_transicao_mapa->setObjectName(QString::fromUtf8("botao_transicao_mapa"));
+        sizePolicy1.setHeightForWidth(botao_transicao_mapa->sizePolicy().hasHeightForWidth());
+        botao_transicao_mapa->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_19->addWidget(botao_transicao_mapa);
+
 
         verticalLayout_2->addLayout(horizontalLayout_19);
 
@@ -646,6 +654,7 @@ public:
         checkbox_transicao_cenario->setText(QApplication::translate("ifg::qt::DialogoForma", "Possui transi\303\247\303\243o?", 0, QApplication::UnicodeUTF8));
         linha_transicao_cenario->setPlaceholderText(QApplication::translate("ifg::qt::DialogoForma", "Id do cen\303\241rio", 0, QApplication::UnicodeUTF8));
         checkbox_transicao_posicao->setText(QApplication::translate("ifg::qt::DialogoForma", "Posi\303\247\303\243o?", 0, QApplication::UnicodeUTF8));
+        botao_transicao_mapa->setText(QApplication::translate("ifg::qt::DialogoForma", "Clicar", 0, QApplication::UnicodeUTF8));
         label_12->setText(QApplication::translate("ifg::qt::DialogoForma", "X", 0, QApplication::UnicodeUTF8));
         label_13->setText(QApplication::translate("ifg::qt::DialogoForma", "Y", 0, QApplication::UnicodeUTF8));
         label_14->setText(QApplication::translate("ifg::qt::DialogoForma", "Z", 0, QApplication::UnicodeUTF8));
