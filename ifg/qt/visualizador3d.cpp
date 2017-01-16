@@ -610,6 +610,12 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_escala_z->setValue(entidade.escala().z());
 
   // Transicao de cenario.
+  auto habilita_posicao = [gerador] {
+    gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
+  };
+  lambda_connect(gerador.spin_trans_x, SIGNAL(valueChanged(double)), habilita_posicao);
+  lambda_connect(gerador.spin_trans_y, SIGNAL(valueChanged(double)), habilita_posicao);
+  lambda_connect(gerador.spin_trans_z, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.checkbox_transicao_cenario, SIGNAL(stateChanged(int)), [gerador] {
     bool habilitado = gerador.checkbox_transicao_cenario->checkState() == Qt::Checked;
     gerador.linha_transicao_cenario->setEnabled(habilitado);
