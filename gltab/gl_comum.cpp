@@ -111,7 +111,7 @@ const std::vector<std::string> QuebraString(const std::string& entrada, char car
 
 // Alinhamento pode ser < 0 esquerda, = 0 centralizado, > 0 direita.
 void DesenhaStringAlinhado(const std::string& str, int alinhamento, bool inverte_vertical) {
-#if !USAR_OPENGL_ES || !__APPLE__
+#if !USAR_OPENGL_ES
   // Multisampling pode causar problemas com pontos. Na radeon, os pontos somem pois o tamanho do ponto
   // eh considerado no sampling e nao em pixels.
   gl::DesabilitaEscopo salva_sampling(GL_MULTISAMPLE);
@@ -1388,8 +1388,8 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
       case MR_SELECT:
         return 0;
       case MR_RENDER: {
-        glFlush();
-        glFinish();
+        //glFlush();
+        //glFinish();
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         GLubyte pixel[4] = { 0 };
         glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel);

@@ -1,4 +1,5 @@
 Versao 2.5.0
+- Colocar na lateral os stats do personagem.
 - Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
 - Atualizar os dados de monstros com modificadores de iniciativas.
 - Botao de textura pode escolher.
