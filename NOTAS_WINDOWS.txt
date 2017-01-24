@@ -22,7 +22,7 @@ Compilando QT:
 
 
 Gerando os proto pb.cc pb.h:
-protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelo.proto 
+protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto 
 
 Gerando os moc:
 $ ./win32/bin/moc.exe -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
