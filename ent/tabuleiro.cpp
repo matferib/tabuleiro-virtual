@@ -1785,7 +1785,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
   // desfazer.
   ntf::Notificacao grupo_rotulo;
   grupo_rotulo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  float atraso_rotulo_s;
+  float atraso_rotulo_s = 0.0f;
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto* entidade : entidades) {
