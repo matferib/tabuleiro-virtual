@@ -72,6 +72,7 @@ const int TAG_BOTAO_CANCELA = 101;
   [rotationRecognizer setDelegate:self];
 
   self.context_ = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+  //self.context_.multiThreaded = TRUE;
   if (!self.context_) {
     NSLog(@"Failed to create ES context");
   }
@@ -90,6 +91,18 @@ const int TAG_BOTAO_CANCELA = 101;
   tipo_visao_array_ = @[@"Normal", @"Visão na Penumbra", @"Visão no Escuro"];
 
   [self setupGL];
+  /*
+  CGLError err = 0;
+  CGLContextObj ctx = CGLGetCurrentContext();
+  
+  // Enable the multithreading
+  err =  CGLEnable( ctx, kCGLCEMPEngine);
+  
+  if (err != kCGLNoError )
+  {
+    // Multithreaded execution may not be available
+    // Insert your code to take appropriate action
+  }*/
 }
 
 - (void)viewDidUnload
