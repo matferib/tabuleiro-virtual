@@ -13,8 +13,10 @@ Versao 64 bits: instalar o redistributable 64 bits do VS 2015;
 Compilando QT:
 - Baixar qt-everywhere-opensource-src-4.8.6 e colocar no diretorio win32.
 - Abrir o prompt de comando do visual studio 64 bits (no menu iniciar. Atencao ha varios prompts, use o native x64))
-- Do diretorio, configure -opengl desktop -release
-- Sera criado um projeto de QT no diretorio, chamado projects.vcproj.
+- Do diretorio (lista de plataformas encontrada no diretorio mkspecs do qt).
+  configure -opengl desktop -release -platform win32-msvs2013
+
+- Sera criado um projeto de QT no diretorio, chamado projects.sln.
 -- Sera necessario remover generated files duplicados e o resource de cada um dos projetos (
 -- Compilar QtOpengl, QtGui e QtCore apenas.
 -- Nos Generated Files de cada um dos projetos acima, tirei os res do build pq tava dando conflito.
