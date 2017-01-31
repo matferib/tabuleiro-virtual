@@ -13,30 +13,40 @@ Versao 64 bits: instalar o redistributable 64 bits do VS 2015;
 Compilando QT:
 - Baixar qt-everywhere-opensource-src-4.8.6 e colocar no diretorio win32.
 - Abrir o prompt de comando do visual studio 64 bits (no menu iniciar. Atencao ha varios prompts, use o native x64))
-- Do diretorio, configure -opengl desktop -release
-- Sera criado um projeto de QT no diretorio, chamado projects.vcproj.
+- Do diretorio (lista de plataformas encontrada no diretorio mkspecs do qt).
+  configure -opengl desktop -release -platform win32-msvs2013
+
+- Sera criado um projeto de QT no diretorio, chamado projects.sln.
 -- Sera necessario remover generated files duplicados e o resource de cada um dos projetos (
 -- Compilar QtOpengl, QtGui e QtCore apenas.
 -- Nos Generated Files de cada um dos projetos acima, tirei os res do build pq tava dando conflito.
 -- Tive que mudar o caminho de linkagem deles tambem para usar da versao 64 bits que ele gera em x64/Release.
+
+Compilando glog:
+- Baixar o glog-0.3.4.zip e colocar no diretorio win32.
+- Abrir a solucao e compilar (pode ser necessario comentar o snprintf).
+- O projeto ja esta adicionado na Solucao do Tabuleiro.
 
 
 Gerando os proto pb.cc pb.h:
 protoc -I. --cpp_out=. ent/tabuleiro.proto ent/controle_virtual.proto ent/entidade.proto ent/acoes.proto ntf/notificacao.proto ifg/modelos.proto 
 
 Gerando os moc:
-$ ./win32/bin/moc.exe -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
-$ ./win32/bin/moc.exe -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
-$ ./win32/bin/moc.exe -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
+export MOC=./win32/qt-everywhere-opensource-src-4.8.6/bin/moc.exe
+$ $MOC -I. -oifg/qt/moc_menuprincipal.cpp ifg/qt/menuprincipal.h
+$ $MOC -I. -oifg/qt/moc_principal.cpp ifg/qt/principal.h
+$ $MOC -I. -oifg/qt/moc_util.cpp ifg/qt/util.h
 
 Colocar no diretorio win32:
 - qt-everywhere-opensource-src-4.8.6
 - boost/boost_src (o ultimo eh o boost descompactado e renomeado sem versao)
-- proto
-
+- protobuf-2.6.1
+- glog-0.3.4
 
 Baixar o glext.h.
 
 
 ATENCAO: nao consegui nem a pau fazer o glog funcionar com gflags. Entao para passar as coisas para stderr tem que ser por variavel de ambiente:
 # GLOG_logtostderr=1 TabuleiroVirtual.exe
+
+OBS: criar no diretorio do win32\boost o arquivo vazio ReadMe.txt para o vs parar de encher o saco na hora de compilar.

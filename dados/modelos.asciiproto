@@ -271,11 +271,20 @@ modelo {
 }
 modelo {
   id: 'Esqueleto (Humano Combatente)'
-  entidade { dados_vida: '1d12' info_textura { id: 'skeleton.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+  entidade {
+    dados_vida: '1d12' info_textura { id: 'skeleton.png' }
+    cor { r: 0.1 g: 0.1 b: 0.1}
+    modificador_iniciativa: 5
+    rotulo_especial: 'cimitarra +1 1d6+1/18-20\nca 15/11/14\nreducao 5/estourante'
+  }
 }
 modelo {
   id: 'Esqueleto (Lobo)'
-  entidade { dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1} }
+  entidade {
+    dados_vida: '2d12' info_textura { id: 'skeleton_wolf.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
+    modificador_iniciativa: 7
+    rotulo_especial: 'mordida +2 1d6+1\nca 15/13/12\nreducao 5/estourante'
+  }
 }
 modelo {
   id: 'Esqueleto (Troll)'
@@ -817,6 +826,7 @@ modelo {
   entidade {
     dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: -1
+    rotulo_especial: 'punho +2 1d6+1\nac 11/9/11\nreducao 5/cortante, acoes parciais apenas'
   }
 }
 modelo {
