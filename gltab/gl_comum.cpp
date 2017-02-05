@@ -413,9 +413,14 @@ bool IniciaVariaveis(VarShader* shader) {
           {{"gltab_cor", &shader->atr_gltab_cor}, 3},
           {{"gltab_texel", &shader->atr_gltab_texel}, 4},
   }) {
-    //*d.dv.var = LeLocalAtributo(shader->programa, d.dv.nome);
+#if __APPLE__
+    // OpenGL do mac nao curte atribuir o local do atributo.
+    *d.dv.var = LeLocalAtributo(shader->programa, d.dv.nome);
+#else
     LocalAtributo(shader->programa, d.indice, d.dv.nome);
+    V_ERRO_RET("atribuindo local de atributo");
     *d.dv.var = d.indice;
+#endif
     if (*d.dv.var == -1) {
       LOG(INFO) << "Shader nao possui atributo " << d.dv.nome;
       continue;
