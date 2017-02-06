@@ -467,6 +467,7 @@ void Visualizador3d::mouseDoubleClickEvent(QMouseEvent* event) {
     auto* event2 = new QMouseEvent(*event);
     mousePressEvent(event);
     mousePressEvent(event2);
+    delete event2;
     return;
   }
   teclado_mouse_->TrataDuploCliqueMouse(
