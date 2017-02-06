@@ -33,6 +33,14 @@ namespace ent {
 // basicamente, entra-se em um modo de desenho onde o buffer apenas recebe o identificador e a
 // profundidade de quem o acertou.
 void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned int* buffer_hits) {
+#if !USAR_OPENGL_ES
+  if (opcoes_.anti_aliasing()) {
+    // Se estiver ligado, desliga aqui para desenhar mapas.
+    // Colocando dentro do if para evitar erro de opengl com plataformas que nao suportam GL_MULTISAMPLE.
+    gl::Desabilita(GL_MULTISAMPLE);
+  }
+#endif
+
   gl::UsaShader(gl::TSH_PICKING);
   //gl::Viewport(0, 0, (GLint)1, (GLint)1);
   // inicia o buffer de picking (selecao)
@@ -102,6 +110,12 @@ void Tabuleiro::EncontraHits(int x, int y, unsigned int* numero_hits, unsigned i
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecao();
+
+#if !USAR_OPENGL_ES
+  if (opcoes_.anti_aliasing()) {
+    gl::Habilita(GL_MULTISAMPLE);
+  }
+#endif
 }
 
 // Operacoes de picking neste modulo.
