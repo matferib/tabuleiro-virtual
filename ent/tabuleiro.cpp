@@ -3769,6 +3769,43 @@ void Tabuleiro::RegeraVboTabuleiro() {
 }
 
 namespace {
+
+void GeraFramebufferColisao(int tamanho, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  gl::GeraFramebuffers(1, framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, *framebuffer);
+  gl::GeraRenderbuffers(1, renderbuffer);
+  // Depth attachment.
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
+  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, tamanho, tamanho);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
+  // Color attachment.
+  gl::GeraTexturas(1, textura_framebuffer);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, *textura_framebuffer);
+  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, tamanho, tamanho, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textura_framebuffer, 0);
+  //gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
+  //gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_RGBA4, 4, 4);
+  //gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
+  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
+  if (ret != GL_FRAMEBUFFER_COMPLETE) {
+    LOG(ERROR) << "Framebuffer colisao incompleto: " << ret;
+  } else {
+    LOG(INFO) << "Framebuffer colisao completo";
+  }
+  // Volta estado normal.
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  V_ERRO("Fim da Geracao de framebuffer");
+  LOG(INFO) << "framebuffer gerado";
+}
+
 // A variavel usar_sampler_sombras eh usado como input e output. Se ela for false, nem tentara usar o sampler de sombras. Se for true,
 // tentara se houver a extensao, caso contrario seta pra false e prossegue.
 void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
@@ -3878,45 +3915,7 @@ void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_som
 }  // namespace
 
 void Tabuleiro::GeraFramebuffer() {
-  GLint original;
-  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  gl::GeraFramebuffers(1, &framebuffer_colisao_);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
-  gl::GeraRenderbuffers(1, &renderbuffer_framebuffer_colisao_);
-  // Depth attachment.
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_);
-  gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, 4, 4);
-  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_);
-  // Color attachment.
-  gl::GeraTexturas(1, &textura_framebuffer_colisao_);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_colisao_);
-  gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, 4, 4, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-  gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textura_framebuffer_colisao_, 0);
-  //gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
-  //gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_RGBA4, 4, 4);
-  //gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
-  // No OSX o framebuffer fica incompleto se nao desabilitar o buffer de desenho e leitura para esse framebuffer.
-#if __APPLE__ && !USAR_OPENGL_ES
-  gl::BufferDesenho(GL_NONE);
-  gl::BufferLeitura(GL_NONE);
-#endif
-  auto ret = gl::VerificaFramebuffer(GL_FRAMEBUFFER);
-  if (ret != GL_FRAMEBUFFER_COMPLETE) {
-    LOG(ERROR) << "Framebuffer colisao incompleto: " << ret;
-  } else {
-    LOG(INFO) << "Framebuffer colisao completo";
-  }
-  // Volta estado normal.
-  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, 0);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-  V_ERRO("Fim da Geracao de framebuffer");
-  LOG(INFO) << "framebuffer gerado";
-
+  GeraFramebufferColisao(TAM_BUFFER_COLISAO, &framebuffer_colisao_, &textura_framebuffer_colisao_, &renderbuffer_framebuffer_colisao_);
   GeraFramebufferLocal(
       1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
   GeraFramebufferLocal(
@@ -5915,7 +5914,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   alvo_temp.set_z(origem_temp.z() + movimento.z);
   olho_.mutable_pos()->Swap(&origem_temp);
   olho_.mutable_alvo()->Swap(&alvo_temp);
-  gl::Viewport(0, 0, 4, 4);
+  gl::Viewport(0, 0, TAM_BUFFER_COLISAO, TAM_BUFFER_COLISAO);
 
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -5923,7 +5922,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
 
   unsigned int id, tipo_objeto;
   float profundidade;
-  BuscaHitMaisProximo(2, 2, &id, &tipo_objeto, &profundidade);
+  BuscaHitMaisProximo(TAM_BUFFER_COLISAO / 2, TAM_BUFFER_COLISAO / 2, &id, &tipo_objeto, &profundidade);
   //BuscaHitMaisProximo(1, 1, &id, &tipo_objeto, &profundidade);
   // restaura valores.
   olho_.mutable_pos()->Swap(&origem_temp);

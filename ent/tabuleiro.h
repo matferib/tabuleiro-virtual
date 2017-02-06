@@ -1050,6 +1050,7 @@ class Tabuleiro : public ntf::Receptor {
   GLuint framebuffer_colisao_ = 0;
   GLuint textura_framebuffer_colisao_ = 0;
   GLuint renderbuffer_framebuffer_colisao_ = 0;
+  constexpr static int TAM_BUFFER_COLISAO = 4;  // 4x4
 
   // Vbos gerados por renderizacao de cena.
   std::vector<const gl::VbosGravados*> vbos_selecionaveis_cena_;
