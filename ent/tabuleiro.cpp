@@ -5601,7 +5601,7 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
     auto* e = BuscaEntidade(id);
     if (e == nullptr ||
         ((e->Pos().id_cenario() != id_cenario) && (e->Destino().id_cenario() != id_cenario))) {
-      ids_a_deselecionar.push_back(e->Id());
+      ids_a_deselecionar.push_back(id);
     }
   }
   for (auto id : ids_a_deselecionar) {
@@ -5896,6 +5896,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   parametros_desenho_.set_desenha_terreno(true);
   parametros_desenho_.set_desenha_entidades(true);
   parametros_desenho_.set_desenha_apenas_entidades_colisivas(true);
+  parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
   parametros_desenho_.mutable_projecao()->set_plano_corte_proximo_m(0.0f);
   parametros_desenho_.mutable_projecao()->set_plano_corte_distante_m(tamanho_movimento + espaco_entidade + 0.01f);
