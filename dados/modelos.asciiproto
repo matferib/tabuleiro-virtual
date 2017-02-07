@@ -21,8 +21,7 @@ modelo {
   entidade {
     dados_vida: '3d10+12' tamanho: TM_GRANDE info_textura { id: 'ankheg.png' } cor { r: 0.3 g: 0.3 b: 0.3 } ultima_acao: 'Ataque Corpo a Corpo'
     rotulo_especial: 'ini 0\nataque: +7 dano: 2d6+7+1d4\nca 18/9/18'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' ca_normal: 18 }
   }
 }
 modelo {
@@ -102,8 +101,7 @@ modelo {
     dados_vida: '4d10' info_textura { id: 'blinkdog.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
     modificador_iniciativa: 3
     rotulo_especial: 'ini: +3\nat: mordida: +4 dano: 1d6\nPiscar a vontade, porta dimensional uma vez por rodada como acao livre\nca 16/13/13'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' ca_normal: 16 }
   }
 }
 modelo {
@@ -146,8 +144,7 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nagarrar: +15\nat: +5\ndano: 2d6+4+veneno\nca: 16\nveneno: fort 14 1d6 des/1d6 des'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '2d6+4' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '2d6+4' ca_normal: 16 }
   }
 }
 modelo {
@@ -157,8 +154,7 @@ modelo {
     tipo_visao: VISAO_ESCURO alcance_visao: 18
     modificador_iniciativa: 2
     rotulo_especial: 'ini: +2\nagarrar: +27\nat: +11\ndano: 2d8+9+veneno\nca: 18\nfort 17 1d8 des/1d8 des'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 11 dano: '2d8+9' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 11 dano: '2d8+9' ca_normal: 18 }
   }
 }
 modelo {
@@ -402,9 +398,8 @@ modelo {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'ini: +1\nat: +2/\ndano: 1d8+1(19-20)\nca: 15'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' ca_normal: 15 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' ca_normal: 14 }
     modificador_iniciativa: 1
   }
 }
@@ -414,9 +409,8 @@ modelo {
     dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
     rotulo_especial: 'at: +7\ndano: 1d8+2(19-20)\nca: 21'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 21 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' ca_normal: 21 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' ca_normal: 20 }
     modificador_iniciativa: 2
   }
 }
@@ -426,21 +420,8 @@ modelo {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
     rotulo_especial: 'ini: +1\nat: +10/\ndano: 1d10+6(19-20)\nca: 15'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d10+6' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 20 }
-    modificador_iniciativa: 1
-  }
-}
-modelo {
-  id: 'Hobgoblin Tenente'
-  entidade {
-    dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
-    rotulo_especial: 'ini: +1\nat: +2/\ndano: 1d8+1(19-20)\nca: 15'
-    tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d10+6' ca_normal: 20 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' ca_normal: 20 }
     modificador_iniciativa: 1
   }
 }
@@ -484,10 +465,9 @@ modelo {
   entidade {
     dados_vida: '3d6+6' info_textura { id: 'adept3.png'} cor { r: 0.898 g: 0.475 b: 0.475 }
     rotulo_especial: 'Humano Adepto 3\nini: -1\nat: +2 ou +1 (24 q)\ndano: 1d6 ou 1d10\nca: 13'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' }
-    dados_ataque { tipo_ataque: 'Mãos Flamenjantes' bonus_ataque: 0 dano: '3d4' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d10' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Mãos Flamenjantes' bonus_ataque: 0 dano: '3d4' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d10' ca_normal: 13 }
     modificador_iniciativa: -1
   }
 }
@@ -501,9 +481,8 @@ modelo {
   entidade {
     dados_vida: '1d8+4' info_textura { id: 'warrior1.png'} cor { r: 0.898 g: 0.663 b: 0.475 }
     rotulo_especial: 'Humano Combatente 1\nini: +0\nat: +3 ou +1 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' ca_normal: 16 }
   }
 }
 modelo {
@@ -511,9 +490,8 @@ modelo {
   entidade {
     dados_vida: '2d8+5' info_textura { id: 'warrior2.png'} cor { r: 0.7 g: 0.6 b: 0.45 }
     rotulo_especial: 'Humano Combatente 2\nini: +0\nat: +4 ou +2 (16 q)\ndano: 1d6+1 ou 1d8\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d8' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d8' ca_normal: 16 }
   }
 }
 modelo {
@@ -521,9 +499,8 @@ modelo {
   entidade {
     dados_vida: '4d8+7' info_textura { id: 'warrior4.png'} cor { r: 0.6 g: 0.5 b: 0.3 }
     rotulo_especial: 'Humano Combatente 4\nini: +0\nat: +8 ou +5 (24 q)\ndano: 1d8+2 ou 1d10\nca: 17'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d8+2' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d10' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d8+2' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d10' ca_normal: 16 }
   }
 }
 modelo {
@@ -550,10 +527,9 @@ modelo {
   id: 'Humano Ladino 3'
   entidade {
     dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6(x3)\nca: 18'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 16 }
+    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6(x3)\nca: 17'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' ca_normal: 16 }
   }
 }
 modelo {
@@ -561,9 +537,8 @@ modelo {
   entidade {
     dados_vida: '4d6+4' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
     rotulo_especial: 'Humano Ladino 4\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 2d6'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' ca_normal: 17}
   }
 }
 modelo {
@@ -571,9 +546,8 @@ modelo {
   entidade {
     dados_vida: '5d6+5' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
     rotulo_especial: 'Humano Ladino 5\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 3d6'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1(x3)' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1(x3)' ca_normal: 16 }
   }
 }
 modelo {
@@ -581,9 +555,8 @@ modelo {
   entidade {
     dados_vida: '7d6+7' info_textura { id: 'rogue7.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
     rotulo_especial: 'Humano Ladino 7\nini: +7\nat: +7 ou +9 (12 q)\ndano: 1d4+1 ou 1d6+1\nca: 18'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d6+1' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 18 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' ca_normal: 18 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d6+1' ca_normal: 17 }
   }
 }
 modelo {
@@ -657,9 +630,8 @@ modelo {
   entidade {
     dados_vida: '1d8+1' info_textura { id: 'orc.png'} cor { g: 1.0 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '2d4+4' }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d6+3' }
-    dados_defesa { tipo_defesa: 'Ataque Corpo a Corpo' classe_armadura: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '2d4+4' ca_normal: 13 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d6+3' ca_normal: 13 }
   }
 }
 modelo {
