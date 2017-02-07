@@ -54,6 +54,34 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
+int TipoParaIndice(const std::string& tipo_str) {
+  // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
+  // Os indices sao na ordem definida pela UI.
+  if (tipo_str == "Ataque Corpo a Corpo") {
+    return 0;
+  } else if (tipo_str == "Ataque a Distância") {
+    return 1;
+  } else if (tipo_str == "Míssil Mágico") {
+    return 2;
+  } else if (tipo_str == "Feitiço de Toque") {
+    return 3;
+  } else {
+    return 4;
+  }
+}
+
+std::string IndiceParaTipo(int indice) {
+  // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
+  // Os indices sao na ordem definida pela UI.
+  switch (indice) {
+    case 0: return "Ataque Corpo a Corpo";
+    case 1: return "Ataque a Distância";
+    case 2: return "Míssil Mágico";
+    case 3: return "Feitiço de Toque";
+    default: return "Ataque Corpo a Corpo";
+  }
+};
+
 // Retorna uma string de estilo para background-color baseada na cor passada.
 const QString CorParaEstilo(const QColor& cor) {
   QString estilo_fmt("background-color: rgb(%1, %2, %3);");
@@ -68,7 +96,6 @@ const QString CorParaEstilo(const ent::Cor& cor) {
 
 // Converte um tamanho em string.
 const QString TamanhoParaTexto(int tamanho) {
-  string str;
   switch (tamanho) {
     case ent::TM_MINUSCULO: return QObject::tr("(minúsculo)");
     case ent::TM_DIMINUTO: return QObject::tr("(diminuto)");
@@ -878,6 +905,58 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   });
   lambda_connect(gerador.spin_iniciativa, SIGNAL(valueChanged(int)), [this, &gerador] () {
     gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
+  });
+
+  // Dados de ataque.
+  auto RefrescaLista = [this, gerador, proto_retornado] () {
+    gerador.lista_ataques->clear();
+    for (const auto& da : proto_retornado->dados_ataque()) {
+      // Monta a string.
+      std::ostringstream oss;
+      oss << "id: " << da.tipo_ataque() << ", bonus: " << da.bonus_ataque() << ", dano: " << da.dano() << ", ca: " << da.ca_normal();
+      gerador.lista_ataques->addItem(QString(oss.str().c_str()));
+    }
+  };
+  RefrescaLista();
+  lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, gerador, proto_retornado] () {
+    if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
+      gerador.botao_remover_ataque->setEnabled(false);
+      gerador.botao_ataque->setText(QObject::tr("Adicionar ataque"));
+    } else {
+      gerador.botao_remover_ataque->setEnabled(true);
+      gerador.botao_ataque->setText(QObject::tr("Editar ataque"));
+      const auto& da = proto_retornado->dados_ataque(gerador.lista_ataques->currentRow());
+      gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
+      gerador.spin_ataque->setValue(da.bonus_ataque());
+      gerador.linha_dano->setText(da.dano().c_str());
+      gerador.spin_ca->setValue(da.ca_normal());
+    }
+  });
+  lambda_connect(gerador.botao_remover_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
+    if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
+      return;
+    }
+    proto_retornado->mutable_dados_ataque()->DeleteSubrange(gerador.lista_ataques->currentRow(), 1);
+    RefrescaLista();
+  });
+  lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
+    ent::EntidadeProto::DadosAtaque da;
+    int indice = gerador.lista_ataques->currentRow();
+    bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
+    if (gerador.combo_tipo_ataque->currentIndex() == 4 && indice_valido) {
+      da.set_tipo_ataque(proto_retornado->dados_ataque(indice).tipo_ataque());
+    } else {
+      da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
+    }
+    da.set_bonus_ataque(gerador.spin_ataque->value());
+    da.set_dano(gerador.linha_dano->text().toStdString());
+    da.set_ca_normal(gerador.spin_ca->value());
+    if (indice_valido) {
+      proto_retornado->mutable_dados_ataque(indice)->Swap(&da);
+    } else {
+      proto_retornado->add_dados_ataque()->Swap(&da);
+    }
+    RefrescaLista();
   });
 
   // Coisas que nao estao na UI.

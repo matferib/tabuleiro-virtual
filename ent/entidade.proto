@@ -188,6 +188,8 @@ message EntidadeProto {
   optional bool causa_colisao = 48;
   // Indica que a entidade esta apoiada.
   optional bool apoiada = 50 [default=true];
+  // Indica que a entidade esta espiando de um lado ou do outro. -1 esquerda, 1 direita.
+  optional int32 espiando = 58;
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
@@ -210,17 +212,23 @@ message EntidadeProto {
 
   // Dados para ataque automatico.
   message DadosAtaque {
+    // Deve casar com as strings do arquivo de dados das acoes.
     optional string tipo_ataque = 1;
     optional int32 bonus_ataque = 2;
+    // TODO string de critico. Parseavel.
     optional string dano = 3;
+    optional int32 ca_normal = 4;
+    optional int32 ca_surpreso = 5;
   }
   repeated DadosAtaque dados_ataque = 44;
-  // Dados para defesa de ataque automatico.
+
+  // Deprecated. Sumir com isso.
   message DadosDefesa {
     optional string tipo_defesa = 1;
     optional int32 classe_armadura = 2;
   }
-  repeated DadosDefesa dados_defesa = 45;
+  repeated DadosDefesa dados_defesa = 45 [deprecated=true];
+
   // Geracao de tesouro automatica?
   message DadosTesouro {
     optional string tesouro = 1;
