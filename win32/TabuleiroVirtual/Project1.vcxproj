@@ -279,7 +279,7 @@
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
-      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" $(SolutionDir)\.. </Command>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" $(SolutionDir)\..\tabvirt.exe </Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copia a saida para o tabuleiro</Message>
