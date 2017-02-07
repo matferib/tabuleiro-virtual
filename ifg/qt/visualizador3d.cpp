@@ -914,7 +914,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       // Monta a string.
       std::ostringstream oss;
       oss << "id: " << da.tipo_ataque() << ", bonus: " << da.bonus_ataque() << ", dano: " << da.dano() << ", ca: " << da.ca_normal();
-      gerador.lista_ataques->addItem(QString(oss.str().c_str()));
+      gerador.lista_ataques->addItem(QString::fromUtf8(oss.str().c_str()));
     }
   };
   RefrescaLista();
