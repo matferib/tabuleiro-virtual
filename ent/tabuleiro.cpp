@@ -5991,7 +5991,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
   // angulo da camera em relacao ao eixo X.
   Vector2 vetor_movimento;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA || !proto_corrente_->desenha_grade()) {
     if (frente_atras) {
       vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
     } else {
