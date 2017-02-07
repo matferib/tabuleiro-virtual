@@ -260,6 +260,8 @@ class Entidade {
     float angulo_disco_queda_graus = 0.0f;
     // Oscilacao da luz.
     float angulo_disco_luz_rad = 0.0f;
+    // Usado para escala da seta da iniciativa.
+    float angulo_disco_iniciativa = 0.0f;
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).

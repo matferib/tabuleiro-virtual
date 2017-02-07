@@ -441,6 +441,11 @@ void Entidade::Atualiza(int intervalo_ms) {
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
   AtualizaEfeitos();
+  if (parametros_desenho_->iniciativa_corrente()) {
+    const float DURACAO_OSCILACAO_MS = 4000.0f;
+    const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
+    vd_.angulo_disco_iniciativa = fmod(vd_.angulo_disco_iniciativa + DELTA_ANGULO_INICIATIVA, 2 * M_PI);
+  }
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
   const float DURACAO_VOO_MS = 4000.0f;

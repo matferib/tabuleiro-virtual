@@ -274,6 +274,20 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
         }
       }
     }
+    if (pd->iniciativa_corrente()) {
+      // Iniciativa.
+      gl::CarregaNome(Id());
+      gl::DesabilitaEscopo de(GL_LIGHTING);
+      MudaCor(COR_BRANCA);
+      gl::MatrizEscopo salva_matriz;
+      MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
+      float escala = 1.0f + sinf(vd_.angulo_disco_iniciativa) * 0.05;
+      gl::Escala(escala, escala, escala);
+      gl::Translada(0.0f, 0.0f, pd->desenha_barra_vida() ? ALTURA * 1.5f + TAMANHO_BARRA_VIDA * 1.2f: ALTURA * 1.5f);
+      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
+      gl::Translada(0.0f, 0.0f, TAMANHO_BARRA_VIDA / 1.5f);
+      gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
+    }
   }
 
   if ((pd->desenha_rotulo() && !proto_.rotulo().empty()) ||

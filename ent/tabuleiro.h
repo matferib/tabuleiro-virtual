@@ -1077,7 +1077,7 @@ class Tabuleiro : public ntf::Receptor {
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
   std::string info_geral_;
   int temporizador_info_geral_ms_ = 0;
-  
+
   ntf::Notificacao notificacao_selecao_transicao_;
 
   // Usado para recuperacao de contexto IOS e android.

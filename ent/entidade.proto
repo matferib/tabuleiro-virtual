@@ -330,6 +330,7 @@ message ParametrosDesenho {
   // Tipo de visao da entidade presa.
   optional TipoVisao tipo_visao = 39;
   optional float multiplicador_visao_penumbra = 40 [default=1.2];
+  optional bool iniciativa_corrente = 57;
 
   // Opcoes por entidade.
   // Se verdadeiro, desenha a barra de vida da entidade.
