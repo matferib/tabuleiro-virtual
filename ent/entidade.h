@@ -118,6 +118,9 @@ class Entidade {
   /** Diferentemente da altura, considera apenas a altura do olho, sem deslocamento da entidade. */
   float AlturaOlho() const;
 
+  /** Retorna um valor de -1.0f ate 1.0f referente a espiada. */
+  float Espiada() const { return vd_.progresso_espiada_; }
+
   float ZAntesVoo() const { return proto_.z_antes_voo(); }
   void AtribuiZAntesVoo(float z) { proto_.set_z_antes_voo(z); }
 
@@ -261,7 +264,9 @@ class Entidade {
     // Oscilacao da luz.
     float angulo_disco_luz_rad = 0.0f;
     // Usado para escala da seta da iniciativa.
-    float angulo_disco_iniciativa = 0.0f;
+    float angulo_disco_iniciativa_rad = 0.0f;
+    // Usado para inclinar o personagem, de -1.0f a 1.0f.
+    float progresso_espiada_ = 0.0f;
     // Efeitos da criatura e algum complemento.
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).

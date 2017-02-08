@@ -1,5 +1,10 @@
-Versao 2.5.0
+Versao 2.5.1
+- Ataque automatico.
+
+Versao 2.6.0
+- Rolador de dado remoto.
 - Colocar na lateral os stats do personagem.
+- Espiada com colisao.
 - Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
 - Atualizar os dados de monstros com modificadores de iniciativas.
 - Botao de textura pode escolher.

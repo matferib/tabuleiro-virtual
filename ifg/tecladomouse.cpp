@@ -203,11 +203,19 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       return;
     }
     case Tecla_Esquerda: {
+      if (((modificadores & Modificador_Ctrl) != 0)) {
+        tabuleiro_->TrataEspiada(-1);
+        return;
+      }
       float incremento = ((modificadores & Modificador_Shift) != 0) ? -0.1f : -1.0f;
       tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, incremento);
       return;
     }
     case Tecla_Direita: {
+      if (((modificadores & Modificador_Ctrl) != 0)) {
+        tabuleiro_->TrataEspiada(1);
+        return;
+      }
       float incremento = ((modificadores & Modificador_Shift) != 0) ? 0.1f : 1.0f;
       tabuleiro_->TrataMovimentoEntidadesSelecionadas(false, incremento);
       return;

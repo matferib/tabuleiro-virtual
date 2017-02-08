@@ -4541,23 +4541,47 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         olho_.mutable_pos()->set_z(entidade_referencia->ZOlho());
         // Aqui fazemos o inverso da visao normal. Colocamos o alvo no angulo oposto da rotacao para olhar na mesma direcao
         // que a camera de perspectiva.
-        olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI) * 5.0f);
-        olho_.mutable_alvo()->set_y(olho_.pos().y() + sinf(olho_.rotacao_rad() + M_PI) * 5.0f);
+        olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI));
+        olho_.mutable_alvo()->set_y(olho_.pos().y() + sinf(olho_.rotacao_rad() + M_PI));
         olho_.mutable_alvo()->set_z(olho_.pos().z() - (olho_.altura() - OLHO_ALTURA_INICIAL) / 4.0f);
 
         if (entidade_referencia->Espiada() != 0.0f) {
+          float altura_olho = entidade_referencia->AlturaOlho();
           Vector3 vetor_olho(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
           Vector3 vetor_alvo(olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z());
           Vector3 vetor_olhar = vetor_alvo - vetor_olho;
           vetor_olhar.normalize();
-          Vector4 vetor_up(0.0f, 0.0f, entidade_referencia->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO, 1.0f);
+
+          //Vector3 vetor_up(0.0f, 0.0f, 1.0f);
+          //Vector3 ajuste = vetor_olhar.cross(vetor_up) * entidade_referencia->Espiada() * TAMANHO_LADO_QUADRADO_2;
+
+          const float MAXIMA_INCLINACAO_ESPIADA_GRAUS = 25.0f;
+          const Vector4 vetor_up(0.0f, 0.0f, altura_olho, 1.0f);
           Matrix4 rotacao;
-          rotacao.rotate(entidade_referencia->Espiada() * 45.0f, vetor_olhar);
-          Vector4 ajuste = rotacao * Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-          LOG(INFO) << "ajuste: " << ajuste;
+          rotacao.rotate(entidade_referencia->Espiada() * MAXIMA_INCLINACAO_ESPIADA_GRAUS, vetor_olhar);
+          Vector4 ajuste4 = rotacao * vetor_up;
+          Vector3 ajuste(ajuste4.x, ajuste4.y, ajuste4.z);
+
+          // bloquear espiada em caso de colisao
+#if 0
+          Vector3 tentativa(vetor_olho.x + ajuste.x, vetor_olho.y + ajuste.y, vetor_olho.z - altura_olho + ajuste.z);
+          Vector3 direcao_tentativa = tentativa - vetor_olho;
+          auto res_colisao  = DetectaColisao(*entidade_referencia, direcao_tentativa, false  /*ignora*/);
+          float porcentagem = res_colisao.profundidade / tentativa.length();
+          rotacao.identity();
+          rotacao.rotate(entidade_referencia->Espiada() * MAXIMA_INCLINACAO_ESPIADA_GRAUS * porcentagem, vetor_olhar);
+          ajuste4 = rotacao * vetor_up;
+          ajuste = Vector3(ajuste4.x, ajuste4.y, ajuste4.z);
+#endif
+
+          // Posicao.
           olho_.mutable_pos()->set_x(vetor_olho.x + ajuste.x);
           olho_.mutable_pos()->set_y(vetor_olho.y + ajuste.y);
-          olho_.mutable_pos()->set_z(vetor_olho.z - entidade_referencia->AlturaOlho() + ajuste.z);
+          olho_.mutable_pos()->set_z(vetor_olho.z - altura_olho + ajuste.z);
+          // Alvo.
+          olho_.mutable_alvo()->set_x(olho_.alvo().x() + ajuste.x);
+          olho_.mutable_alvo()->set_y(olho_.alvo().y() + ajuste.y);
+          olho_.mutable_alvo()->set_z(olho_.alvo().z() - altura_olho + ajuste.z);
         }
         return;
       } else {

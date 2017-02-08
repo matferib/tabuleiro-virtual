@@ -444,7 +444,22 @@ void Entidade::Atualiza(int intervalo_ms) {
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
     const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
-    vd_.angulo_disco_iniciativa = fmod(vd_.angulo_disco_iniciativa + DELTA_ANGULO_INICIATIVA, 2 * M_PI);
+    vd_.angulo_disco_iniciativa_rad = fmod(vd_.angulo_disco_iniciativa_rad + DELTA_ANGULO_INICIATIVA, 2 * M_PI);
+  }
+  // Espiada vai ate 45 graus.
+  const float DURACAO_ESPIADA_MS = 250.0f;
+  const float DELTA_ESPIADA = intervalo_ms / DURACAO_ESPIADA_MS;
+  if (proto_.espiando() != 0) {
+    // Espiando.
+    if (fabs(vd_.progresso_espiada_) < 1.0f) {
+      vd_.progresso_espiada_ += proto_.espiando() * DELTA_ESPIADA;
+    }
+  } else {
+    // Nao esta espiando.
+    if (vd_.progresso_espiada_ != 0) {
+      float delta = vd_.progresso_espiada_ > 0 ? DELTA_ESPIADA : -DELTA_ESPIADA;
+      vd_.progresso_espiada_ = fabs(vd_.progresso_espiada_) > DELTA_ESPIADA ? vd_.progresso_espiada_ - delta : 0.0f;
+    }
   }
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
