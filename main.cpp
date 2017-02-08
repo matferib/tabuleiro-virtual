@@ -51,8 +51,9 @@ void CarregaConfiguracoes(ent::OpcoesProto* proto) {
 int main(int argc, char** argv) {
 #if USAR_GLOG
   meulog::Inicializa(&argc, &argv);
-  google::ParseCommandLineFlags(&argc, &argv, true);
-#elif USAR_GFLAGS
+  //google::ParseCommandLineFlags(&argc, &argv, true);
+#endif
+#if USAR_GFLAGS
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
   
