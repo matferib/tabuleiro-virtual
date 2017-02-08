@@ -196,6 +196,13 @@ class Tabuleiro : public ntf::Receptor {
   void ProximaIniciativa();
   /** Realiza a atualizacao das iniciativas, notificando clientes. */
   void AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao);
+  /** Retorna o id da iniciativa corrente, ou IdInvalido. */
+  unsigned int IniciativaCorrente() const {
+    if (indice_iniciativa_ < 0 || indice_iniciativa_ >= (int)iniciativas_.size()) {
+      return Entidade::IdInvalido;
+    }
+    return iniciativas_[indice_iniciativa_].id;
+  }
 
   /** Trata evento de rotacao por delta (pinca). */
   void TrataRotacaoPorDelta(float delta_rad);
@@ -343,6 +350,9 @@ class Tabuleiro : public ntf::Receptor {
   * o valor deve sera multiplicado pelo tamanho do quadrado. A movimentacao sera referente a posicao da camera.
   */
   void TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor);
+
+  /** Trata a espiada: movimento de pescoco lateral. */
+  void TrataEspiada(int espiada);
 
   /** Trata o movimento de entidades no eixo Z de acordo com modo, notificando clientes. No modo terreno, trata a translacao do terreno. */
   void TrataTranslacaoZ(float delta);

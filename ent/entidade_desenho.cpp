@@ -4,6 +4,7 @@
 #include <cmath>
 #include <memory>
 #include "ent/constantes.h"
+#include "ent/controle_virtual.pb.h"
 #include "ent/entidade.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
@@ -275,13 +276,14 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       }
     }
     if (pd->iniciativa_corrente()) {
+      gl::TipoEscopo nomes_eventos(OBJ_CONTROLE_VIRTUAL, OBJ_ENTIDADE);
       // Iniciativa.
-      gl::CarregaNome(Id());
+      gl::CarregaNome(CONTROLE_PROXIMA_INICIATIVA);
       gl::DesabilitaEscopo de(GL_LIGHTING);
       MudaCor(COR_BRANCA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-      float escala = 1.0f + sinf(vd_.angulo_disco_iniciativa) * 0.05;
+      float escala = 1.0f + sinf(vd_.angulo_disco_iniciativa_rad) * 0.05;
       gl::Escala(escala, escala, escala);
       gl::Translada(0.0f, 0.0f, pd->desenha_barra_vida() ? ALTURA * 1.5f + TAMANHO_BARRA_VIDA * 1.2f: ALTURA * 1.5f);
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);

@@ -1290,6 +1290,12 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_PROXIMA_INICIATIVA: {
+      if (notificacao.entidade().id() == IniciativaCorrente()) {
+        ProximaIniciativa();
+      }
+      return true;
+    }
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA: {
       AtualizaIniciativaNotificando(notificacao);
       return true;
@@ -1884,10 +1890,25 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
 }
 
 void Tabuleiro::ProximaIniciativa() {
-  if (!EmModoMestreIncluindoSecundario() || indice_iniciativa_ == -1) {
+  if (indice_iniciativa_ == -1) {
     LOG(INFO) << "Nao eh mestre ou entidades_ordenadas_por_iniciativa_.empty";
     return;
   }
+  if (!EmModoMestreIncluindoSecundario()) {
+    // So permite ao jogador passar se for a vez dele.
+    unsigned int id_iniciativa = IniciativaCorrente();
+    if (id_camera_presa_ == Entidade::IdInvalido || id_iniciativa != id_camera_presa_) {
+      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa_ << ", vez de " << iniciativas_[indice_iniciativa_].id;
+      return;
+    }
+    // Envia requisicao pro mestre passar a vez.
+    auto* n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
+    n->set_servidor_apenas(true);
+    n->mutable_entidade()->set_id(id_camera_presa_);
+    central_->AdicionaNotificacaoRemota(n);
+    return;
+  }
+
   ntf::Notificacao grupo;
   grupo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   auto* n = grupo.add_notificacao();
@@ -4520,9 +4541,24 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         olho_.mutable_pos()->set_z(entidade_referencia->ZOlho());
         // Aqui fazemos o inverso da visao normal. Colocamos o alvo no angulo oposto da rotacao para olhar na mesma direcao
         // que a camera de perspectiva.
-        olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI));
-        olho_.mutable_alvo()->set_y(olho_.pos().y() + sinf(olho_.rotacao_rad() + M_PI));
+        olho_.mutable_alvo()->set_x(olho_.pos().x() + cosf(olho_.rotacao_rad() + M_PI) * 5.0f);
+        olho_.mutable_alvo()->set_y(olho_.pos().y() + sinf(olho_.rotacao_rad() + M_PI) * 5.0f);
         olho_.mutable_alvo()->set_z(olho_.pos().z() - (olho_.altura() - OLHO_ALTURA_INICIAL) / 4.0f);
+
+        if (entidade_referencia->Espiada() != 0.0f) {
+          Vector3 vetor_olho(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+          Vector3 vetor_alvo(olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z());
+          Vector3 vetor_olhar = vetor_alvo - vetor_olho;
+          vetor_olhar.normalize();
+          Vector4 vetor_up(0.0f, 0.0f, entidade_referencia->MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO, 1.0f);
+          Matrix4 rotacao;
+          rotacao.rotate(entidade_referencia->Espiada() * 45.0f, vetor_olhar);
+          Vector4 ajuste = rotacao * Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+          LOG(INFO) << "ajuste: " << ajuste;
+          olho_.mutable_pos()->set_x(vetor_olho.x + ajuste.x);
+          olho_.mutable_pos()->set_y(vetor_olho.y + ajuste.y);
+          olho_.mutable_pos()->set_z(vetor_olho.z - entidade_referencia->AlturaOlho() + ajuste.z);
+        }
         return;
       } else {
         // Atualiza destino do olho caso a entidade tenha se afastado muito.
@@ -5986,6 +6022,25 @@ Tabuleiro::ResultadoZApoio Tabuleiro::ZApoio(float x, float y, float z_olho, flo
 
 Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade) {
   return DetectaColisao(entidade.Pos().x(), entidade.Pos().y(), entidade.ZOlho(), entidade.Espaco(), movimento, ignora_espaco_entidade);
+}
+
+void Tabuleiro::TrataEspiada(int espiada) {
+  Entidade* entidade = nullptr;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    entidade = BuscaEntidade(id_camera_presa_);
+  }
+  if (entidade == nullptr) {
+    return;
+  }
+  EntidadeProto proto;
+  int novo = entidade->Proto().espiando() + espiada;
+  if (novo > 1) {
+    novo = 1;
+  } else if (novo < -1) {
+    novo = -1;
+  }
+  proto.set_espiando(novo);
+  entidade->AtualizaParcial(proto);
 }
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
