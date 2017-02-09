@@ -12,6 +12,7 @@ acao {
   id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
   textura: 'icon_sword.png'
+  permite_defesa_armadura: true
 }
 acao {
   id: 'Ataque a Distância'
@@ -24,6 +25,7 @@ acao {
     tipo_aceleracao: ACAO_ACEL_ZERO
   }
   textura: 'icon_bow.png'
+  permite_defesa_armadura: true
 }
 acao {
   id: 'Bola de Fogo'
