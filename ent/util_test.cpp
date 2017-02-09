@@ -19,6 +19,44 @@ TEST(TesteGeraDados, TesteGeraDados) {
   EXPECT_EQ(11, pv);
 }
 
+TEST(TesteStringSemUtf8, TesteStringSemUtf8) {
+  std::string s("áÁéÉíÍóÓúÚç");
+  EXPECT_EQ("aAeEiIoOuUc", StringSemUtf8(s));
+}
+
+TEST(TesteDanoArma, TesteDanoArma) {
+  DanoArma dano_arma;
+  dano_arma = LeDanoArma("1d8");
+  EXPECT_EQ("1d8", dano_arma.dano);
+  EXPECT_EQ(20, dano_arma.margem_critico);
+  EXPECT_EQ(2, dano_arma.multiplicador);
+
+  dano_arma = LeDanoArma("1d8 (19-20)");
+  EXPECT_EQ("1d8", dano_arma.dano);
+  EXPECT_EQ(19, dano_arma.margem_critico);
+  EXPECT_EQ(2, dano_arma.multiplicador);
+
+  dano_arma = LeDanoArma("1d6 (x4)");
+  EXPECT_EQ("1d6", dano_arma.dano);
+  EXPECT_EQ(20, dano_arma.margem_critico);
+  EXPECT_EQ(4, dano_arma.multiplicador);
+
+  dano_arma = LeDanoArma("1d8+5(19-20/x3)");
+  EXPECT_EQ("1d8+5", dano_arma.dano);
+  EXPECT_EQ(19, dano_arma.margem_critico);
+  EXPECT_EQ(3, dano_arma.multiplicador);
+
+  dano_arma = LeDanoArma("1d8+5(19-20 /    x 4)");
+  EXPECT_EQ("1d8+5", dano_arma.dano);
+  EXPECT_EQ(19, dano_arma.margem_critico);
+  EXPECT_EQ(4, dano_arma.multiplicador);
+
+  dano_arma = LeDanoArma("1d8+5 (18 × 3)");
+  EXPECT_EQ("1d8+5", dano_arma.dano);
+  EXPECT_EQ(18, dano_arma.margem_critico);
+  EXPECT_EQ(3, dano_arma.multiplicador);
+}
+
 TEST(TesteMatriz, TesteMatriz) {
   {
     Vector3 v(1.0f, 0.0f, 0.0f); 

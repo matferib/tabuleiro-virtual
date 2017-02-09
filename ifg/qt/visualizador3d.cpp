@@ -907,19 +907,39 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
   });
 
+  auto StringDano = [] (const ent::EntidadeProto::DadosAtaque& da) -> std::string {
+    // Monta a string.
+    std::string critico;
+    if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
+      critico += "(";
+      if (da.margem_critico() < 20) {
+        critico += net::to_string(da.margem_critico()) + "-20";
+        if (da.multiplicador_critico() > 2) {
+          critico += "/";
+        }
+      }
+      if (da.multiplicador_critico() > 2) {
+        critico += "x" + net::to_string(da.multiplicador_critico());
+      }
+      critico += ")";
+    }
+    return da.dano() + critico;
+  };
 
   // Dados de ataque.
-  auto RefrescaLista = [this, gerador, proto_retornado] () {
+  auto RefrescaLista = [this, StringDano, gerador, proto_retornado] () {
     gerador.lista_ataques->clear();
     for (const auto& da : proto_retornado->dados_ataque()) {
       // Monta a string.
       std::ostringstream oss;
-      oss << "id: " << da.tipo_ataque() << ", bonus: " << da.bonus_ataque() << ", dano: " << da.dano() << ", ca: " << da.ca_normal();
+      oss << "id: " << da.tipo_ataque() << ", bonus: " << da.bonus_ataque()
+          << ", dano: " << StringDano(da)
+          << ", ca: " << da.ca_normal();
       gerador.lista_ataques->addItem(QString::fromUtf8(oss.str().c_str()));
     }
   };
   RefrescaLista();
-  lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, gerador, proto_retornado] () {
+  lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, StringDano, gerador, proto_retornado] () {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       gerador.botao_remover_ataque->setEnabled(false);
       gerador.botao_ataque->setText(QObject::tr("Adicionar ataque"));
@@ -929,7 +949,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       const auto& da = proto_retornado->dados_ataque(gerador.lista_ataques->currentRow());
       gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
       gerador.spin_ataque->setValue(da.bonus_ataque());
-      gerador.linha_dano->setText(da.dano().c_str());
+      gerador.linha_dano->setText(StringDano(da).c_str());
       gerador.spin_ca->setValue(da.ca_normal());
     }
   });
@@ -950,7 +970,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
     }
     da.set_bonus_ataque(gerador.spin_ataque->value());
-    da.set_dano(gerador.linha_dano->text().toUtf8().constData());
+    ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
+    da.set_dano(dano_arma.dano);
+    da.set_multiplicador_critico(dano_arma.multiplicador);
+    da.set_margem_critico(dano_arma.margem_critico);
     da.set_ca_normal(gerador.spin_ca->value());
     if (indice_valido) {
       proto_retornado->mutable_dados_ataque(indice)->Swap(&da);

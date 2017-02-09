@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/tokenizer.hpp>
 #include <chrono>
 #include <cmath>
@@ -24,11 +25,7 @@
 namespace ent {
 
 namespace {
-std::map<std::string, std::string> g_mapa_utf8;
-}  // namespace
-
-void IniciaUtil() {
-  g_mapa_utf8 = {
+const std::map<std::string, std::string> g_mapa_utf8 = {
     { "á", "a" },
     { "ã", "a" },
     { "â", "a" },
@@ -50,8 +47,7 @@ void IniciaUtil() {
     { "Ú", "U" },
     { "ú", "u" },
   };
-
-}
+}  // namespace
 
 void MudaCor(const float* cor) {
   gl::MudaCor(cor[0], cor[1], cor[2], 1.0f);
@@ -489,6 +485,98 @@ float Aleatorio() {
   int val = RolaDado(10001) - 1;  // [0-10000]
   return val / 10000.0f;
 }
+
+DanoArma LeDanoArma(const std::string& dano_arma) {
+  DanoArma ret;
+  auto pos_parentesis = dano_arma.find('(');
+  ret.dano = dano_arma.substr(0, pos_parentesis);
+  trim(ret.dano);
+  ret.margem_critico = 20;
+  ret.multiplicador = 2;
+
+  if (pos_parentesis == std::string::npos) {
+    return ret;
+  }
+
+  std::string entre_parentesis = dano_arma.substr(pos_parentesis + 1);
+  boost::replace_all(entre_parentesis, "×", "x");
+  boost::replace_all(entre_parentesis, "X", "x");
+  boost::replace_all(entre_parentesis, "–", "-");
+
+  boost::char_separator<char> sep("\t ", "-)x/");
+  boost::tokenizer<boost::char_separator<char>> tokenizador(entre_parentesis, sep);
+  enum EstadoTokenizer {
+    ET_INICIAL,
+    ET_LEU_MARGEM_INICIAL,
+    ET_LEU_SEPARADOR_MARGEM,
+    ET_LEU_MARGEM,
+    ET_FIM,
+    ET_ERRO,
+  } et = ET_INICIAL;
+  for (const auto& token : tokenizador) {
+    VLOG(2) << "token: " << token << ", estado: " << et;
+    switch (et) {
+      case ET_INICIAL:
+        if (token == "x") {
+          et = ET_LEU_MARGEM;
+          break;
+        } else if (std::all_of(token.begin(), token.end(), [] (char c) { return isdigit(c); })) {
+          int margem = 0;
+          if ((margem = atoi(token.c_str())) > 0 || margem <= 20) {
+            ret.margem_critico = margem;
+            et = ET_LEU_MARGEM_INICIAL;
+            break;
+          }
+        }
+        et = ET_ERRO;
+        break;
+      case ET_LEU_MARGEM_INICIAL:
+        if (token == "-") {
+          et = ET_LEU_SEPARADOR_MARGEM;
+        } else if (token == "/") {
+          et = ET_LEU_MARGEM;
+        } else if (token == "x") {
+          et = ET_LEU_MARGEM;
+        } else if (token == ")") {
+          et = ET_FIM;
+        }
+        break;
+      case ET_LEU_SEPARADOR_MARGEM:
+        if (std::all_of(token.begin(), token.end(), [] (char c) { return isdigit(c); })) {
+          // pode ignorar o resto.
+          et = ET_LEU_MARGEM;
+        } else {
+          et = ET_ERRO;
+        }
+        break;
+      case ET_LEU_MARGEM:
+        if (token == "/") {
+          break;
+        } else if (token == "x") {
+          break;
+        } else if (token == ")") {
+          et = ET_FIM;
+        } else if (std::all_of(token.begin(), token.end(), [] (char c) { return isdigit(c); })) {
+          int multiplicador = 0;
+          if ((multiplicador = atoi(token.c_str())) != 0) {
+            ret.multiplicador = multiplicador;
+            et = ET_FIM;
+            break;
+          }
+        } else {
+          et = ET_ERRO;
+        }
+        break;
+      case ET_ERRO:
+      case ET_FIM:
+      default:
+        return ret;
+        break;
+    }
+  }
+  return ret;
+}
+
 
 // Como gcc esta sem suporte a regex, vamos fazer na mao.
 int GeraPontosVida(const std::string& dados_vida) {

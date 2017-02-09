@@ -1197,6 +1197,17 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   TrataNotificacao(n);
 
   // Acao de pontos de vida sem efeito.
+  if (!acao.Proto().texto().empty()) {
+    ntf::Notificacao na;
+    na.set_tipo(ntf::TN_ADICIONAR_ACAO);
+    auto* a = na.mutable_acao();
+    a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+    a->add_id_entidade_destino(entidade->Id());
+    a->set_afeta_pontos_vida(false);
+    a->set_texto(acao.Proto().texto());
+    TrataNotificacao(na);
+  }
+
   ntf::Notificacao na;
   na.set_tipo(ntf::TN_ADICIONAR_ACAO);
   auto* a = na.mutable_acao();
@@ -1204,6 +1215,9 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   a->add_id_entidade_destino(entidade->Id());
   a->set_delta_pontos_vida(delta_pontos_vida);
   a->set_afeta_pontos_vida(false);
+  if (!acao.Proto().texto().empty()) {
+    a->set_atraso_s(0.5f);
+  }
   TrataNotificacao(na);
 }
 
@@ -1808,7 +1822,8 @@ void Tabuleiro::RolaIniciativasNotificando() {
       e_antes->set_iniciativa(INICIATIVA_INVALIDA);
     }
     // TODO notificar e desfazer.
-    int iniciativa = RolaDado(20) + entidade->ModificadorIniciativa();
+    int d20 = RolaDado(20);
+    int iniciativa = d20 + entidade->ModificadorIniciativa();
     auto* e_depois = n->mutable_entidade();
     e_depois->set_id(entidade->Id());
     e_depois->set_iniciativa(iniciativa);
@@ -1820,7 +1835,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
       acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
       acao->add_id_entidade_destino(entidade->Id());
       char texto[20] = {'\0'};
-      snprintf(texto, 19, "d20+%d= %d", entidade->ModificadorIniciativa(), iniciativa);
+      snprintf(texto, 19, "%d+%d= %d", d20, entidade->ModificadorIniciativa(), iniciativa);
       acao->set_texto(texto);
       acao->set_atraso_s(atraso_rotulo_s);
       atraso_rotulo_s += 0.5f;
@@ -2744,7 +2759,24 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
         if (HaValorListaPontosVida() && entidade_destino != nullptr) {
-          int delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
+          bool acertou = true;  // comportamento antigo.
+          int ataque_origem = entidade->BonusAtaque();
+          int ca_destino = entidade_destino->CA();
+          if (acao_proto.permite_defesa_armadura() && ataque_origem != Entidade::AtaqueCaInvalido && ca_destino != Entidade::AtaqueCaInvalido) {
+            VLOG(1) << "iniciando ataque vs defesa";
+            int d20 = RolaDado(20);
+            char texto[30] = {'\0'};
+            if (ataque_origem + d20 < ca_destino) {
+              acertou = false;
+              snprintf(texto, 29, "%d+%d= %d, < %d", d20, ataque_origem, ataque_origem + d20, ca_destino);
+            } else {
+              acertou = true;
+              snprintf(texto, 29, "%d+%d= %d, >= %d", d20, ataque_origem, ataque_origem + d20, ca_destino);
+            }
+            acao_proto.set_texto(texto);
+            VLOG(1) << "res: " << texto;
+          }
+          int delta_pontos_vida = acertou ? LeValorListaPontosVida(entidade, acao_proto.id()) : 0;
           int delta_pv_pos_salvacao = delta_pontos_vida;
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
@@ -5770,7 +5802,7 @@ void AjustaPosicoes(const Posicao& alvo, std::vector<EntidadeProto*>* entidades)
 void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
   std::vector<EntidadeProto*> entidades_coladas;
 #if USAR_QT
-  std::string str_entidades(QApplication::clipboard()->text().toStdString());
+  std::string str_entidades(QApplication::clipboard()->text().toUtf8().constData());
   if (str_entidades.empty()) {
     VLOG(1) << "Ignorando colar, não há entidades selecionadas";
     return;

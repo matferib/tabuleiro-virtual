@@ -217,6 +217,8 @@ message EntidadeProto {
     optional int32 bonus_ataque = 2;
     // TODO string de critico. Parseavel.
     optional string dano = 3;
+    optional int32 margem_critico = 6 [default=20];
+    optional int32 multiplicador_critico = 7 [default=2];
     optional int32 ca_normal = 4;
     optional int32 ca_surpreso = 5;
   }

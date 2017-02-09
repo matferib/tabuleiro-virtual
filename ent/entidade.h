@@ -185,6 +185,10 @@ class Entidade {
   int Iniciativa() const { return proto_.iniciativa(); }
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
+  // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
+  int BonusAtaque() const;
+  int CA() const;
+
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
   */
@@ -228,6 +232,8 @@ class Entidade {
 
   // Id de entidade invalido.
   static constexpr unsigned int IdInvalido = 0xFFFFFFFF;
+  // Valor de ataque ou ca invalido.
+  static constexpr int AtaqueCaInvalido = -100;
 
  protected:
   friend Entidade* NovaEntidade(const EntidadeProto& proto, const Texturas*, const m3d::Modelos3d*, ntf::CentralNotificacoes*, const ParametrosDesenho* pd);

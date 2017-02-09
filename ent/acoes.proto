@@ -79,6 +79,7 @@ message AcaoProto {
   // Acao tem efeito de area. Isso implica que os alvos serao calculados dinamicamente.
   optional bool efeito_area = 22;
   optional bool permite_salvacao = 23;
+  optional bool permite_defesa_armadura = 27;
   // A textura que representa a acao (icone).
   optional string textura = 25;
   // A acao deve ser feita apenas localmente.

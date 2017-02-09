@@ -1097,13 +1097,31 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
+int Entidade::BonusAtaque() const {
+  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() == ultima_acao) {
+      return da.bonus_ataque();
+    }
+  }
+  return AtaqueCaInvalido;
+}
+
+int Entidade::CA() const {
+  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() == ultima_acao) {
+      return da.ca_normal();
+    }
+  }
+  return AtaqueCaInvalido;
+}
+
 // Nome dos buffers de VBO.
 std::vector<gl::VboGravado> Entidade::g_vbos;
 
 // static
 void Entidade::IniciaGl() {
-  IniciaUtil();
-
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // Vbo peao.
   {

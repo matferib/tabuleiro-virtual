@@ -143,7 +143,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaParcialEntidadeNotificando(const ntf::Notificacao& notificacao);
 
   /** Atualiza os pontos de vida de uma entidade como consequencia de uma acao.
-  * Nao preocupa com desfazer, que ja foi feito no inicio da acao.
+  * Nao preocupa com desfazer, que ja foi feito no inicio da acao. Gera as ACAO_DELTA_PONTOS_VIDA.
   */
   void AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int id, int delta_pontos_vida);
 
