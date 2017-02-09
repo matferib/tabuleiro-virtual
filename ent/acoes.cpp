@@ -126,6 +126,10 @@ class AcaoDeltaPontosVida : public Acao {
     faltam_ms_ = 0;
     // Monta a string de delta.
     if (acao_proto_.has_delta_pontos_vida()) {
+      string_delta_ = "";
+      if (acao_proto_.has_texto()) {
+        string_delta_ = acao_proto_.texto() + "\n";
+      }
       int delta = abs(acao_proto_.delta_pontos_vida());
       if (!acao_proto_.has_delta_pontos_vida()) {
         faltam_ms_ = 0;
@@ -138,15 +142,12 @@ class AcaoDeltaPontosVida : public Acao {
         return;
       }
       if (delta == 0) {
-        string_delta_ = "X";
+        string_delta_ += "X";
       } else {
-        while (delta != 0) {
-          int d = delta % 10;
-          string_delta_.insert(string_delta_.end(), static_cast<char>(d + '0'));
-          delta /= 10;
-        }
+        char delta_texto[10] = {'\0'};
+        snprintf(delta_texto, 9, "%d", delta);
+        string_delta_ += delta_texto;
       }
-      std::reverse(string_delta_.begin(), string_delta_.end());
     } else if (acao_proto_.has_texto()) {
       string_delta_ = acao_proto_.texto();
     } else {
