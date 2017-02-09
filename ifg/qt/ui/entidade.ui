@@ -1137,24 +1137,49 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tab_entidade</tabstop>
+  <tabstop>checkbox_cor</tabstop>
+  <tabstop>botao_cor</tabstop>
+  <tabstop>checkbox_selecionavel</tabstop>
+  <tabstop>checkbox_voadora</tabstop>
+  <tabstop>checkbox_visibilidade</tabstop>
+  <tabstop>combo_textura</tabstop>
+  <tabstop>spin_pontos_vida</tabstop>
+  <tabstop>spin_max_pontos_vida</tabstop>
+  <tabstop>slider_tamanho</tabstop>
+  <tabstop>combo_salvacao</tabstop>
+  <tabstop>spin_translacao</tabstop>
+  <tabstop>combo_visao</tabstop>
+  <tabstop>spin_raio_visao_escuro</tabstop>
+  <tabstop>spin_tex_altura</tabstop>
+  <tabstop>spin_tex_trans_y</tabstop>
+  <tabstop>spin_tex_trans_x</tabstop>
+  <tabstop>spin_tex_largura</tabstop>
+  <tabstop>lista_eventos</tabstop>
+  <tabstop>spin_raio</tabstop>
+  <tabstop>botao_luz</tabstop>
+  <tabstop>combo_modelos_3d</tabstop>
+  <tabstop>checkbox_caida</tabstop>
+  <tabstop>checkbox_morta</tabstop>
+  <tabstop>spin_aura</tabstop>
+  <tabstop>campo_rotulo</tabstop>
+  <tabstop>lista_rotulos</tabstop>
+  <tabstop>checkbox_iniciativa</tabstop>
+  <tabstop>spin_iniciativa</tabstop>
+  <tabstop>spin_modificador_iniciativa</tabstop>
+  <tabstop>botao_remover_ataque</tabstop>
+  <tabstop>combo_tipo_ataque</tabstop>
+  <tabstop>spin_ataque</tabstop>
+  <tabstop>linha_dano</tabstop>
+  <tabstop>spin_ca</tabstop>
+  <tabstop>botao_ataque</tabstop>
+  <tabstop>lista_ataques</tabstop>
+  <tabstop>campo_id</tabstop>
+  <tabstop>botoes</tabstop>
+ </tabstops>
  <resources/>
  <connections>
-  <connection>
-   <sender>botoes</sender>
-   <signal>rejected()</signal>
-   <receiver>ifg::qt::DialogoEntidade</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
   <connection>
    <sender>botoes</sender>
    <signal>accepted()</signal>

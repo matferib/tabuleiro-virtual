@@ -299,7 +299,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
     EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
-      std::string id = acao->data().toString().toStdString();
+      std::string id = acao->data().toString().toUtf8().constData();
       const ent::EntidadeProto* e_proto = tabuleiro_->BuscaModelo(id);
       if (e_proto == nullptr) {
         LOG(ERROR) << "Falha ao buscar modelo: " << id;
@@ -312,11 +312,11 @@ void MenuPrincipal::Modo(modomenu_e modo){
 }
 
 void MenuPrincipal::TrataAcaoModelo(QAction* acao){
-  tabuleiro_->SelecionaModeloEntidade(acao->data().toString().toStdString());
+  tabuleiro_->SelecionaModeloEntidade(acao->data().toString().toUtf8().constData());
 }
 
 void MenuPrincipal::TrataAcaoAcoes(QAction* acao){
-  tabuleiro_->SelecionaAcao(acao->data().toString().toStdString());
+  tabuleiro_->SelecionaAcao(acao->data().toString().toUtf8().constData());
 }
 
 void MenuPrincipal::TrataAcaoItem(QAction* acao){
@@ -348,8 +348,8 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {
       notificacao = new ntf::Notificacao;
       notificacao->set_tipo(ntf::TN_CONECTAR);
-      notificacao->set_id_rede(nome_le->text().toStdString());
-      notificacao->set_endereco(ip_le->text().toStdString());
+      notificacao->set_id_rede(nome_le->text().toUtf8().constData());
+      notificacao->set_endereco(ip_le->text().toUtf8().constData());
       qd->accept();
     });
     // Botao Cancela.
@@ -379,7 +379,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       return;
     }
     notificacao = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_ENTIDADES_SELECIONAVEIS);
-    notificacao->set_endereco(file_str.toStdString());
+    notificacao->set_endereco(file_str.toUtf8().constData());
   } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
                                                     tr("Abrir entidades selecionáveis"),
@@ -389,7 +389,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       return;
     }
     notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
-    notificacao->set_endereco(file_str.toStdString());
+    notificacao->set_endereco(file_str.toUtf8().constData());
     notificacao->mutable_entidade()->set_selecionavel_para_jogador(true);
   } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_ENTIDADES_COMO_NAO_SELECIONAVEIS]) {
     QString file_str = QFileDialog::getOpenFileName(qobject_cast<QWidget*>(parent()),
@@ -400,7 +400,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
       return;
     }
     notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
-    notificacao->set_endereco(file_str.toStdString());
+    notificacao->set_endereco(file_str.toUtf8().constData());
     notificacao->mutable_entidade()->set_selecionavel_para_jogador(false);
   }
   // Tabuleiro.

@@ -78,7 +78,7 @@ void InterfaceGraficaQt::EscolheArquivoSalvarTabuleiro(
   gerador.nome->setFocus();
   auto lambda_aceito = [this, &gerador, dialogo, funcao_volta] () {
     if (gerador.nome->text().length() > 0) {
-      funcao_volta(gerador.nome->text().toStdString());
+      funcao_volta(gerador.nome->text().toUtf8().constData());
       dialogo->accept();
     }
   };

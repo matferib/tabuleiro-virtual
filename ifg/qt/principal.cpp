@@ -47,7 +47,7 @@ Principal* Principal::Cria(
   static QTranslator* tradutor_meu = new QTranslator;
   carregou = tradutor_meu->load("tabuleiro_" + QLocale::system().name(), "traducoes", "_", ".qm");
   LOG(INFO) << "Traducao minha carregada? " << carregou;
-  LOG(INFO) << "Arquivo: tabuleiro." << QLocale::system().name().toStdString();
+  LOG(INFO) << "Arquivo: tabuleiro." << QLocale::system().name().toUtf8().constData();
   q_app->installTranslator(tradutor_meu);
 
   QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
