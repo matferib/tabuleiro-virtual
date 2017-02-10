@@ -6104,6 +6104,9 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
 }
 
 bool Tabuleiro::Apoiado(float x, float y, float z_olho, float altura_olho) {
+  if (altura_olho <= 0) {
+    LOG(WARNING) << "Altura  do olho <= 0: " << altura_olho;
+  }
   auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
                                     Vector3(0.0f, 0.0f, -altura_olho - 0.5f),
                                     true  /*ignora espaco*/);
@@ -6113,7 +6116,7 @@ bool Tabuleiro::Apoiado(float x, float y, float z_olho, float altura_olho) {
 
 Tabuleiro::ResultadoZApoio Tabuleiro::ZApoio(float x, float y, float z_olho, float altura_olho) {
   auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
-                                    Vector3(0.0f, 0.0f, -MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO),
+                                    Vector3(0.0f, 0.0f, -fabs(z_olho - ZChao(x, y))),
                                     true  /*ignora espaco*/);
   ResultadoZApoio res;
   VLOG(1) << "res_colisao.profundidade: " << res_colisao.profundidade << ", altura_olho: " << altura_olho;
