@@ -101,6 +101,11 @@ const int TEMPO_DETALHAMENTO_MS = 500;
 /** tamanho maximo da lista de eventos para desfazer. */
 const unsigned int TAMANHO_MAXIMO_LISTA = 50;
 
+/** Diferencas menores que essa farao o tabuleiro usar o dado mais preciso. */
+const float PRECISAO_APOIO = 0.3f;
+/** Verifica a profundidade ate este maximo de distancia. */
+const float MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO = 10 * TAMANHO_LADO_QUADRADO;
+
 // Os offsets servem para evitar zfight. Eles adicionam à profundidade um valor
 // dz * escala + r * unidades, onde dz eh grande dependendo do angulo do poligono em relacao
 // a camera e r eh o menor offset que gera diferenca no zbuffer.
@@ -2270,10 +2275,12 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
           if (manter_chao) {
             ResultadoZApoio res = ZApoio(ex1, ey1, z_olho, altura_olho);
             float z_chao_depois = ZChao(nx, ny);
-            if (z_chao_depois - res.z_apoio > 0.3f) {
-              // O z_apoio eh mais preciso, por isso o delta de 0.3f.
+            VLOG(1) << "zchao_depois: " << z_chao_depois << ", res.z_apoio: " << res.z_apoio;
+            if (!res.apoiado) {
+              VLOG(1) << "usando chao";
               z_depois = z_chao_depois;
             } else {
+              VLOG(1) << "usando res apoio";
               z_depois = res.z_apoio;
             }
             VLOG(1) << "mantendo apoio: z_depois: " << z_depois;
@@ -6044,6 +6051,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   alvo_temp.set_z(origem_temp.z() + movimento.z);
   olho_.mutable_pos()->Swap(&origem_temp);
   olho_.mutable_alvo()->Swap(&alvo_temp);
+  VLOG(2) << "olho para colisao: " << olho_.ShortDebugString();
   gl::Viewport(0, 0, TAM_BUFFER_COLISAO, TAM_BUFFER_COLISAO);
 
   GLint original;
@@ -6058,6 +6066,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   olho_.mutable_pos()->Swap(&origem_temp);
   olho_.mutable_alvo()->Swap(&alvo_temp);
 
+  bool colisao = false;
   auto* entidade_alvo = BuscaEntidade(id);
   if ((tipo_objeto == OBJ_ENTIDADE && entidade_alvo != nullptr && entidade_alvo->Proto().causa_colisao()) ||
       (tipo_objeto == OBJ_TABULEIRO)) {
@@ -6070,6 +6079,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     VLOG(1) << "colisao possivel, prof: " << profundidade;
     VLOG(1) << "espaco entidade: " << espaco_entidade;
     if (profundidade < (tamanho_movimento + espaco_entidade)) {
+      colisao = true;
       if (profundidade > espaco_entidade) {
         // Anda o que pode ate a extremidade bater na parede.
         tamanho_movimento = profundidade - espaco_entidade;
@@ -6090,7 +6100,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
   parametros_desenho_.Swap(&pd);
   gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-  return { tamanho_movimento, Vector3() };
+  return { tamanho_movimento, colisao, Vector3() };
 }
 
 bool Tabuleiro::Apoiado(float x, float y, float z_olho, float altura_olho) {
@@ -6098,16 +6108,17 @@ bool Tabuleiro::Apoiado(float x, float y, float z_olho, float altura_olho) {
                                     Vector3(0.0f, 0.0f, -altura_olho - 0.5f),
                                     true  /*ignora espaco*/);
   //LOG(INFO) << "distancia apoio: " << res_colisao.profundidade << ", altura olho: " << altura_olho;
-  return (res_colisao.profundidade - altura_olho < 0.3f);
+  return res_colisao.colisao;
 }
 
 Tabuleiro::ResultadoZApoio Tabuleiro::ZApoio(float x, float y, float z_olho, float altura_olho) {
-  // Vai alem do Z porque o solo pode ter valor negativo. TODO criar um min Z do tabuleiro.
   auto res_colisao = DetectaColisao(x, y, z_olho, 0.0f,
-                                    Vector3(0.0f, 0.0f, -z_olho * 2.0f),
+                                    Vector3(0.0f, 0.0f, -MAXIMA_PROFUNDIDADE_PARA_VERIFICACAO),
                                     true  /*ignora espaco*/);
   ResultadoZApoio res;
-  res.apoiado = res_colisao.profundidade - altura_olho < 0.3f;
+  VLOG(1) << "res_colisao.profundidade: " << res_colisao.profundidade << ", altura_olho: " << altura_olho;
+  res.apoiado = res_colisao.colisao; //res_colisao.profundidade - altura_olho < PRECISAO_APOIO;
+  VLOG(1) << "apoiado: " << res.apoiado;
   res.z_apoio = z_olho - res_colisao.profundidade;
   return res;
 }
@@ -6231,8 +6242,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
       ResultadoZApoio res = ZApoio(nx, ny, z_olho, altura_olho);
       if (manter_chao) {
         VLOG(1) << "mantendo apoio";
-        if (z_chao_depois - res.z_apoio > 0.3f) {
-          // O z_apoio eh mais preciso, por isso o delta de 0.3f.
+        if (!res.apoiado) {
           res.z_apoio = z_chao_depois;
         }
         p->set_z(res.z_apoio);

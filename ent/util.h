@@ -54,11 +54,6 @@ void ClareiaCor(Cor* cor);
 void RealcaCor(Cor* cor);
 void RealcaCor(float* cor);
 
-// Placeholder para retornar a altura do chao em determinado ponto do tabuleiro.
-inline float ZChao(float x3d, float y3d) {
-  return 0;
-}
-
 // retorna true se o tipo da forma for 2d: circulo, retangulo, triangulo, livre.
 bool EhForma2d(int tipo_forma);
 

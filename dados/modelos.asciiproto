@@ -737,7 +737,7 @@ modelo {
 modelo {
   id: 'Troll'
   entidade {
-    dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png'} cor { g: 1.0 }
+    dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
     modificador_iniciativa: 2
   }
 }

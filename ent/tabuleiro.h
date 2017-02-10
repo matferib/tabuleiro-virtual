@@ -526,6 +526,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Detecta se havera colisao no movimento da entidade. */
   struct ResultadoColisao {
     float profundidade;  // quanto movimentou ate a colisao, length de movimento se nao houver.
+    bool colisao;        // Houve colisao?
     Vector3 normal;      // normal do ponto de colisao.
   };
   ResultadoColisao DetectaColisao(const Entidade& entidade, const Vector3& movimento, bool ignora_espaco_entidade = false);

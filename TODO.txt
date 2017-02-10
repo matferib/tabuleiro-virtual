@@ -1,3 +1,5 @@
+Versao 2.5.1
+
 Versao 2.6.0
 - Rolador de dado remoto.
 - Colocar na lateral os stats do personagem.
