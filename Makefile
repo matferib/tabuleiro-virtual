@@ -3,7 +3,7 @@ all_sem_testes:
 	scons -j 4
 
 all:
-	scons -j 4 testes=1 teste_ent_acoes 
+	scons -j 4 testes=1 teste_ent_util
 
 release:
 	scons -j 4 debug=0
