@@ -230,7 +230,7 @@ message EntidadeProto {
   message DadosDefesa {
     optional string tipo_defesa = 1 [deprecated=true];
     optional int32 classe_armadura = 2 [deprecated=true];
-    optional bool imune_criticos = 3;
+    optional bool imune_critico = 3;
   }
   optional DadosDefesa dados_defesa = 45;
 

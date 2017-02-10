@@ -2654,13 +2654,17 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
 
   // Se chegou aqui acertou.
   int vezes = 1;
-  if (d20 >= ea.MargemCritico() && !ed.ImuneCriticos()) {
-    int d20_critico = RolaDado(20);
-    if (ataque_origem + d20_critico >= ca_destino) {
-      snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
-      vezes = ea.MultiplicadorCritico();
+  if (d20 >= ea.MargemCritico()) {
+    if (ed.ImuneCritico()) {
+      snprintf(texto_critico, 49, ", imune a critico");
     } else {
-      snprintf(texto_critico, 49, ", critico falhou: %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+      int d20_critico = RolaDado(20);
+      if (ataque_origem + d20_critico >= ca_destino) {
+        snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+        vezes = ea.MultiplicadorCritico();
+      } else {
+        snprintf(texto_critico, 49, ", critico falhou: %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+      }
     }
   }
   snprintf(texto, 99, "acertou: %d+%d= %d%s", d20, ataque_origem, ataque_origem + d20, texto_critico);

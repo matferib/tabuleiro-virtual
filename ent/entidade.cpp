@@ -1137,8 +1137,8 @@ int Entidade::MultiplicadorCritico() const {
   return AtaqueCaInvalido;
 }
 
-bool Entidade::ImuneCriticos() const {
-  return proto_.dados_defesa().imune_criticos();
+bool Entidade::ImuneCritico() const {
+  return proto_.dados_defesa().imune_critico();
 
 }
 

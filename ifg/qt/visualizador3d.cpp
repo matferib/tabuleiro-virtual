@@ -907,6 +907,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
   });
 
+  // Imune critico.
+  gerador.checkbox_imune_critico->setCheckState(entidade.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
+
   auto StringDano = [] (const ent::EntidadeProto::DadosAtaque& da) -> std::string {
     // Monta a string.
     std::string critico;
@@ -1047,6 +1050,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
+    proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro->value());
     }
