@@ -676,16 +676,20 @@ modelo {
   entidade {
     dados_vida: '4d10+32' cor { r: 1 g: 1 b: 1 a: 0.3 } modelo_3d { id: 'gelatinous_cube' }
     tamanho: TM_GRANDE
-    rotulo_especial: 'ini -5\nat +2 1d6+1d6 acido\nengolfar, paralisia fort CD 20 3d6 rodadas'
+    rotulo_especial: 'movimento 3 quad\nengolfar, paralisia fort CD 20 3d6 rodadas'
     modificador_iniciativa: -5
+    dados_ataque { bonus_ataque: 2 dano: '1d6+1d6' ca_normal: 4 }
+    dados_defesa { imune_critico: true }
   }
 }
 modelo {
   id: 'Pudim Negro'
   entidade {
     dados_vida: '10d10+60' cor { r: 0.3 b: 0.3 g: 0.3 } modelo_3d { id: 'black_pudding' } tamanho: TM_ENORME
-    rotulo_especial: 'ini -5\nat +8 2d6+4+2d6 acido\nconstricao 2d6+4'
+    rotulo_especial: 'movimento 4\ndano possui ácido\nagarrar aprimorado +18\nconstricao 2d6+4+2d6'
     modificador_iniciativa: -5
+    dados_ataque { bonus_ataque: 8 dano: '2d6+4+2d6' ca_normal: 3 }
+    dados_defesa { imune_critico: true }
   }
 }
 modelo {
@@ -700,6 +704,7 @@ modelo {
   entidade {
     dados_vida: '8d8+24' tamanho: TM_GRANDE info_textura { id: 'shambling_mound.png' } cor { r: 0.2 g: 0.9 b: 0.1 }
     rotulo_especial: 'ini: +0\nat:+11 2d6+5\nag:+15 (2d6+7)\nca: 20'
+    dados_defesa { imune_critico: true }
   }
 }
 modelo {
