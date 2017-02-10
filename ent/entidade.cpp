@@ -1117,6 +1117,31 @@ int Entidade::CA() const {
   return AtaqueCaInvalido;
 }
 
+int Entidade::MargemCritico() const {
+  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() == ultima_acao) {
+      return da.margem_critico();
+    }
+  }
+  return AtaqueCaInvalido;
+}
+
+int Entidade::MultiplicadorCritico() const {
+  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() == ultima_acao) {
+      return da.multiplicador_critico();
+    }
+  }
+  return AtaqueCaInvalido;
+}
+
+bool Entidade::ImuneCriticos() const {
+  return proto_.dados_defesa().imune_criticos();
+
+}
+
 // Nome dos buffers de VBO.
 std::vector<gl::VboGravado> Entidade::g_vbos;
 

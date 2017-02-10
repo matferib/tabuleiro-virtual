@@ -187,7 +187,10 @@ class Entidade {
 
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
+  int MargemCritico() const;
+  int MultiplicadorCritico() const;
   int CA() const;
+  bool ImuneCriticos() const;
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.

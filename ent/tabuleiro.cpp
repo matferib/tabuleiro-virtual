@@ -7,6 +7,7 @@
 #endif
 #include <algorithm>
 #include <boost/filesystem.hpp>
+#include <tuple>
 #include <cassert>
 #include <climits>
 #include <cstdio>
@@ -2631,6 +2632,45 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
+namespace {
+
+// Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
+std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed) {
+  int ataque_origem = ea.BonusAtaque();
+  int ca_destino = ed.CA();
+  if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
+    VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
+    return std::make_tuple(1, "");
+  }
+
+  VLOG(1) << "iniciando ataque vs defesa";
+  int d20 = RolaDado(20);
+  char texto[100] = {'\0'};
+  char texto_critico[50] = {'\0'};
+  if (d20 != 20 && ataque_origem + d20 < ca_destino) {
+    snprintf(texto, 49, "falhou: %d+%d= %d", d20, ataque_origem, ataque_origem + d20);
+    return std::make_tuple(0, texto);
+  }
+
+  // Se chegou aqui acertou.
+  int vezes = 1;
+  if (d20 >= ea.MargemCritico() && !ed.ImuneCriticos()) {
+    int d20_critico = RolaDado(20);
+    if (ataque_origem + d20_critico >= ca_destino) {
+      snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+      vezes = ea.MultiplicadorCritico();
+    } else {
+      snprintf(texto_critico, 49, ", critico falhou: %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+    }
+  }
+  snprintf(texto, 99, "acertou: %d+%d= %d%s", d20, ataque_origem, ataque_origem + d20, texto_critico);
+
+  VLOG(1) << "Resultado ataque vs defesa: " << texto;
+  return std::make_tuple(vezes, texto);
+}
+
+}  // namespace
+
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE)) {
@@ -2759,24 +2799,16 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
         if (HaValorListaPontosVida() && entidade_destino != nullptr) {
-          bool acertou = true;  // comportamento antigo.
-          int ataque_origem = entidade->BonusAtaque();
-          int ca_destino = entidade_destino->CA();
-          if (acao_proto.permite_defesa_armadura() && ataque_origem != Entidade::AtaqueCaInvalido && ca_destino != Entidade::AtaqueCaInvalido) {
-            VLOG(1) << "iniciando ataque vs defesa";
-            int d20 = RolaDado(20);
-            char texto[30] = {'\0'};
-            if (ataque_origem + d20 < ca_destino) {
-              acertou = false;
-              snprintf(texto, 29, "%d+%d= %d, < %d", d20, ataque_origem, ataque_origem + d20, ca_destino);
-            } else {
-              acertou = true;
-              snprintf(texto, 29, "%d+%d= %d, >= %d", d20, ataque_origem, ataque_origem + d20, ca_destino);
-            }
+          int vezes = 1;
+          std::string texto;
+          if (acao_proto.permite_defesa_armadura()) {
+            std::tie(vezes, texto) = AtaqueVsDefesa(*entidade, *entidade_destino);
             acao_proto.set_texto(texto);
-            VLOG(1) << "res: " << texto;
           }
-          int delta_pontos_vida = acertou ? LeValorListaPontosVida(entidade, acao_proto.id()) : 0;
+          int delta_pontos_vida = 0;
+          for (int i = 0; i < vezes; ++i) {
+            delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
+          }
           int delta_pv_pos_salvacao = delta_pontos_vida;
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {

@@ -68,6 +68,8 @@ public:
     QSpinBox *spin_pontos_vida;
     QLabel *label_6;
     QSpinBox *spin_max_pontos_vida;
+    QLabel *label_26;
+    QSpinBox *spin_pontos_vida_temporarios;
     QWidget *horizontalLayoutWidget_4;
     QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout_5;
@@ -157,6 +159,7 @@ public:
     QSpacerItem *horizontalSpacer_4;
     QPushButton *botao_ataque;
     QListWidget *lista_ataques;
+    QCheckBox *checkbox_imune_critico;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -305,6 +308,21 @@ public:
         spin_max_pontos_vida->setMaximum(999);
 
         horizontalLayout_12->addWidget(spin_max_pontos_vida);
+
+        label_26 = new QLabel(horizontalLayoutWidget_8);
+        label_26->setObjectName(QString::fromUtf8("label_26"));
+        sizePolicy.setHeightForWidth(label_26->sizePolicy().hasHeightForWidth());
+        label_26->setSizePolicy(sizePolicy);
+        label_26->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_12->addWidget(label_26);
+
+        spin_pontos_vida_temporarios = new QSpinBox(horizontalLayoutWidget_8);
+        spin_pontos_vida_temporarios->setObjectName(QString::fromUtf8("spin_pontos_vida_temporarios"));
+        spin_pontos_vida_temporarios->setMinimum(-100);
+        spin_pontos_vida_temporarios->setMaximum(999);
+
+        horizontalLayout_12->addWidget(spin_pontos_vida_temporarios);
 
 
         horizontalLayout_11->addLayout(horizontalLayout_12);
@@ -775,6 +793,9 @@ public:
         lista_ataques = new QListWidget(tab_estatisticas);
         lista_ataques->setObjectName(QString::fromUtf8("lista_ataques"));
         lista_ataques->setGeometry(QRect(10, 110, 871, 181));
+        checkbox_imune_critico = new QCheckBox(tab_estatisticas);
+        checkbox_imune_critico->setObjectName(QString::fromUtf8("checkbox_imune_critico"));
+        checkbox_imune_critico->setGeometry(QRect(30, 340, 121, 22));
         tab_entidade->addTab(tab_estatisticas, QString());
         QWidget::setTabOrder(tab_entidade, checkbox_cor);
         QWidget::setTabOrder(checkbox_cor, botao_cor);
@@ -783,8 +804,7 @@ public:
         QWidget::setTabOrder(checkbox_voadora, checkbox_visibilidade);
         QWidget::setTabOrder(checkbox_visibilidade, combo_textura);
         QWidget::setTabOrder(combo_textura, spin_pontos_vida);
-        QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
-        QWidget::setTabOrder(spin_max_pontos_vida, slider_tamanho);
+        QWidget::setTabOrder(spin_pontos_vida, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, combo_salvacao);
         QWidget::setTabOrder(combo_salvacao, spin_translacao);
         QWidget::setTabOrder(spin_translacao, combo_visao);
@@ -818,7 +838,7 @@ public:
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
 
-        tab_entidade->setCurrentIndex(1);
+        tab_entidade->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);
@@ -857,6 +877,10 @@ public:
         label_6->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Max", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_max_pontos_vida->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_26->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Temp", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_pontos_vida_temporarios->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Pontos de vida para entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tamanho", 0, QApplication::UnicodeUTF8));
         label_tamanho->setText(QApplication::translate("ifg::qt::DialogoEntidade", "(m\303\251dio)", 0, QApplication::UnicodeUTF8));
@@ -959,8 +983,12 @@ public:
         );
         label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus Ataque", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 1d8+2 (19-20/x2)", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         label_25->setText(QApplication::translate("ifg::qt::DialogoEntidade", "CA", 0, QApplication::UnicodeUTF8));
         botao_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar ataque", 0, QApplication::UnicodeUTF8));
+        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
         tab_entidade->setTabText(tab_entidade->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

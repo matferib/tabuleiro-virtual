@@ -75,7 +75,7 @@
     </rect>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>0</number>
    </property>
    <widget class="QWidget" name="tab_geral">
     <attribute name="title">
@@ -267,6 +267,35 @@
          <widget class="QSpinBox" name="spin_max_pontos_vida">
           <property name="toolTip">
            <string>Máximo de pontos de vida para entidade.</string>
+          </property>
+          <property name="minimum">
+           <number>-100</number>
+          </property>
+          <property name="maximum">
+           <number>999</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_26">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Temp</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QSpinBox" name="spin_pontos_vida_temporarios">
+          <property name="toolTip">
+           <string>Pontos de vida para entidade.</string>
           </property>
           <property name="minimum">
            <number>-100</number>
@@ -1077,7 +1106,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="linha_dano"/>
+       <widget class="QLineEdit" name="linha_dano">
+        <property name="toolTip">
+         <string>Exemplo: 1d8+2 (19-20/x2)</string>
+        </property>
+       </widget>
       </item>
       <item>
        <spacer name="horizontalSpacer_3">
@@ -1134,6 +1167,19 @@
       </rect>
      </property>
     </widget>
+    <widget class="QCheckBox" name="checkbox_imune_critico">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>340</y>
+       <width>121</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Imune a Crítico</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
@@ -1146,7 +1192,6 @@
   <tabstop>checkbox_visibilidade</tabstop>
   <tabstop>combo_textura</tabstop>
   <tabstop>spin_pontos_vida</tabstop>
-  <tabstop>spin_max_pontos_vida</tabstop>
   <tabstop>slider_tamanho</tabstop>
   <tabstop>combo_salvacao</tabstop>
   <tabstop>spin_translacao</tabstop>

@@ -123,6 +123,8 @@ message EntidadeProto {
   optional uint32 id = 2;
   // Pontos de vida da entidade.
   optional int32 pontos_vida = 11;
+  // Pontos de vida temporarios.
+  optional int32 pontos_vida_temporarios = 59;
   // Maximo de pontos de vida da entidade.
   optional int32 max_pontos_vida = 12;
   // Exemplo: 4d8 + 8.
@@ -224,12 +226,13 @@ message EntidadeProto {
   }
   repeated DadosAtaque dados_ataque = 44;
 
-  // Deprecated. Sumir com isso.
+  // Dados de defesa global (independe de ataque).
   message DadosDefesa {
-    optional string tipo_defesa = 1;
-    optional int32 classe_armadura = 2;
+    optional string tipo_defesa = 1 [deprecated=true];
+    optional int32 classe_armadura = 2 [deprecated=true];
+    optional bool imune_criticos = 3;
   }
-  repeated DadosDefesa dados_defesa = 45 [deprecated=true];
+  optional DadosDefesa dados_defesa = 45;
 
   // Geracao de tesouro automatica?
   message DadosTesouro {
