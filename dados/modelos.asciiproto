@@ -69,7 +69,9 @@ modelo {
     dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'cloaker' }
     voadora: true tipo_visao: VISAO_ESCURO alcance_visao: 12
     modificador_iniciativa: 7
-    rotulo_especial: 'ini +7\nat +8/+3 1d6+5, agarrar +13/1d4+2\nca 19/12/16\nlamento, engolfar e sombras'
+    rotulo_especial: 'dois ataques, agarrar +13/1d4+2\nlamento, engolfar e sombras (reflexos, imagem silenciosa ou camuflagem 20%; 6o nivel)'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+5' ca_normal: 19 ca_surpreso: 12 ca_toque: 16 }
   }
 }
 modelo {
@@ -136,9 +138,14 @@ modelo {
 modelo {
   id: 'Carneçal'
   entidade {
-    dados_vida: '4d12' info_textura { id: 'ghast.png' } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    dados_vida: '4d12' info_textura { id: 'ghast.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 } cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
     modificador_iniciativa: 3
-    rotulo_especial: 'ini: +3\nat: +5/+3/+3\ndano: 1d8+3+paralisia/1d4+1+paralisia\nca: 17'
+    rotulo_especial: 'paralisia\nca: 17/12/14\nfor 1 ref 4 von 6'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d8+3' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 }
+    dados_defesa { imune_critico: true }
+    tipo_visao: VISAO_ESCURO alcance_visao: 12
   }
 }
 modelo {
@@ -531,34 +538,38 @@ modelo {
   id: 'Humano Ladino 3'
   entidade {
     dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 3\nini: +6\nat: +4 ou +5 (12 q)\ndano: 1d4+1 ou 1d6(x3)\nca: 17'
+    rotulo_especial: 'Humano Ladino 3\nFurtivo 2d6'
+    modificador_iniciativa: 6
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 }
   }
 }
 modelo {
   id: 'Humano Ladino 4'
   entidade {
     dados_vida: '4d6+4' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 4\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 2d6'
+    rotulo_especial: 'Humano Ladino 4\nfurtivo 2d6'
+    modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' ca_normal: 17}
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
   }
 }
 modelo {
   id: 'Humano Ladino 5'
   entidade {
     dados_vida: '5d6+5' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 5\nini: +7\nat: +5 ou +7 (12 q)\ndano: 1d4+1 ou 1d6+1(x3)\nca: 17/17/13 ou 16/16/13\nfurtivo 3d6'
+    rotulo_especial: 'Humano Ladino 5\nfurtivo 3d6'
+    modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1(x3)' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
   }
 }
 modelo {
   id: 'Humano Ladino 7'
   entidade {
     dados_vida: '7d6+7' info_textura { id: 'rogue7.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 7\nini: +7\nat: +7 ou +9 (12 q)\ndano: 1d4+1 ou 1d6+1\nca: 18'
+    rotulo_especial: 'Humano Ladino 7\nfurtivo 4d6'
+    modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' ca_normal: 18 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d6+1' ca_normal: 17 }
   }
@@ -609,10 +620,79 @@ modelo {
   entidade {
     dados_vida: '2d8+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.2 g: 0.2 b: 0.2 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
-    rotulo_especial: 'humano: ini 0 at +2 (sabre) ou +1 (besta) dano 1d6+1(18-20) ou 1d8(19-20)\nca 15/10/15\nrato: ini +3 at +6 1d4+1+doenca\nca 17/14/14\nhibrido: ini +3 at +4/-1 dano 1d6+1(18-20)/1d6+doenca\nca 16/13/13\ndoenca febre esgoto'
-    modificador_iniciativa: 0
+    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12'
+    modificador_iniciativa: 3
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    outras_formas {
+      # Humano.
+      rotulo: 'humano'
+      modificador_iniciativa: 0
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' margem_critico: 18 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
+      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d8' margem_critico: 19 ca_normal: 15 ca_surpreso: 10 ca_toque: 15 }
+    }
+    outras_formas {
+      # Rato.
+      rotulo: 'rato'
+      modificador_iniciativa: 3
+      rotulo_especial: 'doença febre esgoto CD 12'
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    }
   }
 }
+modelo {
+  id: 'Homem-Rato Ladino 3'
+  entidade {
+    dados_vida: '1d8+2+3d6+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.4 g: 0.6 b: 0.4 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 2d6\nevasao ref 7 for 9 von 5\npocao agilidade gato, pocao forca touro, pocao cura serio\n150 PO'
+    modificador_iniciativa: 4
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    outras_formas {
+      # Humano.
+      rotulo: 'humano'
+      modificador_iniciativa: 1
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8' margem_critico: 19 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    }
+    outras_formas {
+      # Rato.
+      rotulo: 'rato'
+      modificador_iniciativa: 3
+      rotulo_especial: 'doença febre esgoto CD 12'
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 8 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    }
+  }
+}
+modelo {
+  id: 'Homem-Rato Ladino 5'
+  entidade {
+    dados_vida: '1d8+2+5d6+5' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.6 g: 0.8 b: 0.5 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
+    rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12\nfurtivo 3d6 evasao, esquiva sobrenatural\nref 7 for 10 von 5\npocao cura serio\nsabre + 1, besta + 1, bracadura armadura + 2 anel prot 1\n250 PO'
+    modificador_iniciativa: 4
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    outras_formas {
+      # Humano.
+      rotulo: 'humano'
+      modificador_iniciativa: 1
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+1' margem_critico: 18 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+      dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d8' margem_critico: 19 ca_normal: 20 ca_surpreso: 17 ca_toque: 15 }
+    }
+    outras_formas {
+      # Rato.
+      rotulo: 'rato'
+      modificador_iniciativa: 3
+      rotulo_especial: 'doença febre esgoto CD 12'
+      dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d4+1' margem_critico: 18 ca_normal: 17 ca_surpreso: 14 ca_toque: 14 }
+    }
+  }
+}
+
 modelo {
   id: 'Monstro da Ferrugem'
   entidade {
@@ -750,8 +830,9 @@ modelo {
     dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     modificador_iniciativa: 2
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+9' ca_normal: 16 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+3' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+9' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+3' ca_normal: 16 ca_surpreso: 11 ca_toque: 14 }
     rotulo_especial: 'rend: acertar os dois da 2d6+9 automaticamente\nfort: 11 ref: 4 von: 3'
   }
 }

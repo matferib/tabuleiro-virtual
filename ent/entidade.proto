@@ -215,6 +215,7 @@ message EntidadeProto {
   // Dados para ataque automatico.
   message DadosAtaque {
     // Deve casar com as strings do arquivo de dados das acoes.
+    optional string rotulo = 9;
     optional string tipo_ataque = 1;
     optional int32 bonus_ataque = 2;
     // TODO string de critico. Parseavel.
@@ -223,6 +224,7 @@ message EntidadeProto {
     optional int32 multiplicador_critico = 7 [default=2];
     optional int32 ca_normal = 4;
     optional int32 ca_surpreso = 5;
+    optional int32 ca_toque = 8;
   }
   repeated DadosAtaque dados_ataque = 44;
 
@@ -242,6 +244,8 @@ message EntidadeProto {
   // Dados de iniciativa da entidade.
   optional int32 iniciativa = 55;
   optional int32 modificador_iniciativa = 56;
+  // Algumas entidades tem varias formas.
+  repeated EntidadeProto outras_formas = 60;
 }
 
 message Projecao {

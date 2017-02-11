@@ -1,6 +1,7 @@
-Versao 2.5.1
-
 Versao 2.6.0
+- separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
+- Multiplos ataques;
+- Formas hibridas (muda iniciativa, AC e ataques, tamanho e textura).
 - Rolador de dado remoto.
 - Colocar na lateral os stats do personagem.
 - Espiada com colisao.

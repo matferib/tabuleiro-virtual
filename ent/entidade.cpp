@@ -461,6 +461,12 @@ void Entidade::Atualiza(int intervalo_ms) {
       vd_.progresso_espiada_ = fabs(vd_.progresso_espiada_) > DELTA_ESPIADA ? vd_.progresso_espiada_ - delta : 0.0f;
     }
   }
+  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
+  vd_.ultimo_ataque_ms += intervalo_ms;
+  if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
+    vd_.ataques_na_rodada = 0;
+  }
+
   // Voo.
   const float DURACAO_POSICIONAMENTO_INICIAL_MS = 1000.0f;
   const float DURACAO_VOO_MS = 4000.0f;
@@ -1076,13 +1082,8 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
 }
 
 std::string Entidade::StringValorParaAcao(const std::string& id_acao) const {
-  for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() != id_acao) {
-      continue;
-    }
-    return da.dano();
-  }
-  return "";
+  const auto* dado_ataque = DadoCorrente();
+  return dado_ataque == nullptr ? "" : dado_ataque->dano();
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {
@@ -1097,14 +1098,35 @@ float Entidade::Espaco() const {
   return MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
 }
 
-int Entidade::BonusAtaque() const {
+const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
+  std::vector<const EntidadeProto::DadosAtaque*> ataques_casados; 
   std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao) {
-      return da.bonus_ataque();
+      ataques_casados.push_back(&da);
     }
   }
-  return AtaqueCaInvalido;
+  if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
+    return nullptr;
+  }
+  return ataques_casados[vd_.ataques_na_rodada];
+}
+
+int Entidade::BonusAtaque() {
+  std::vector<int> ataques_casados; 
+  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
+  for (const auto& da : proto_.dados_ataque()) {
+    if (da.tipo_ataque() == ultima_acao) {
+      ataques_casados.push_back(da.bonus_ataque());
+    }
+  }
+  if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
+    vd_.ataques_na_rodada = 0;
+    vd_.ultimo_ataque_ms = 0;
+    return AtaqueCaInvalido;
+  }
+  vd_.ultimo_ataque_ms = 0;
+  return ataques_casados[vd_.ataques_na_rodada++];
 }
 
 int Entidade::CA() const {

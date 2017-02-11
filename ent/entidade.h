@@ -186,7 +186,8 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
-  int BonusAtaque() const;
+  // A funcao BonusAtaque aumenta a quantidade de ataques na rodada.
+  int BonusAtaque();
   int MargemCritico() const;
   int MultiplicadorCritico() const;
   int CA() const;
@@ -243,6 +244,7 @@ class Entidade {
   Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
+  const EntidadeProto::DadosAtaque* DadoCorrente() const;
   // Numero maximo de acoes de uma entidade.
   static constexpr unsigned int MaxNumAcoes = 3;
 
@@ -280,6 +282,9 @@ class Entidade {
     std::unordered_map<int, ComplementoEfeito> complementos_efeitos;
     // Alguns efeitos podem fazer com que o desenho nao seja feito (piscar por exemplo).
     bool nao_desenhar = false;
+    // Numero de ataques realizado na rodada.
+    int ataques_na_rodada = 0;
+    unsigned int ultimo_ataque_ms = 0;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
