@@ -111,7 +111,7 @@ void PreencheMenu(const MenuModelos& menu_modelos, QMenu* menu, QActionGroup* gr
       QAction* acao = menu->addAction(texto);
       acao->setCheckable(true);
       grupo->addAction(acao);
-      acao->setData(QVariant::fromValue(QString(id.c_str())));
+      acao->setData(QVariant::fromValue(QString::fromUtf8(id.c_str())));
     } else {
       PreencheMenu(*modelo, menu->addMenu(texto), grupo);
     }
