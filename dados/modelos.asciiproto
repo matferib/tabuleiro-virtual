@@ -77,7 +77,11 @@ modelo {
   entidade {
     dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao: 12
     modificador_iniciativa: 6
-    rotulo_especial: 'ini +6\nat +9/+4/+4 1d6+3/1d4+1/1d4+1\nca 18/12/16\nreducao dano 5/magia\nmudar forma\npiscar, levitar e outras smilares a magia'
+    rotulo_especial: 'ca 18/12/16\nreducao dano 5/magia\nmudar forma\npiscar, levitar e outras smilares a magia'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+3' ca_normal: 18 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 }
+
   }
 }
 modelo {
@@ -606,15 +610,16 @@ modelo {
     dados_vida: '2d8+3' info_textura { id: 'wererat.png' translacao_x: 0.15 largura: 0.6  } cor { r: 0.2 g: 0.2 b: 0.2 }
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'humano: ini 0 at +2 (sabre) ou +1 (besta) dano 1d6+1(18-20) ou 1d8(19-20)\nca 15/10/15\nrato: ini +3 at +6 1d4+1+doenca\nca 17/14/14\nhibrido: ini +3 at +4/-1 dano 1d6+1(18-20)/1d6+doenca\nca 16/13/13\ndoenca febre esgoto'
-    modificador_iniciativa: 3
+    modificador_iniciativa: 0
   }
 }
 modelo {
   id: 'Monstro da Ferrugem'
   entidade {
     dados_vida: '5d8+5' modelo_3d { id: 'rust_monster' }
-    rotulo_especial: 'ini: +3\nat: +3/-2, dano: ferrugem/1d3\nca: 18/13/15'
+    rotulo_especial: 'at toque +3 ferrugem (outro mordida)\nca: 18/13/15'
     modificador_iniciativa: 3
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -2 dano: '1d3' ca_normal: 18 }
   }
 }
 modelo {
@@ -668,7 +673,11 @@ modelo {
     dados_vida: '6d8+9' modelo_3d { id: 'otyugh' }
     tipo_visao: VISAO_ESCURO alcance_visao: 12
     tamanho: TM_GRANDE
-    rotulo_especial: 'ini: +0\nagarrar: +8 1d6\nat: +4/+4/-2\ndano: 1d6/1d6/1d4\nca: 17\ndoenca'
+    rotulo_especial: 'agarrar aprimorado: +8 1d6\n3 ataques\nca: 17/9/17 for +3 ref +2 von +6\ndoenca febre esgoto CD 14 inc 1d3 dias dano 1d3 dez 1d3 con'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -2 dano: '1d4' ca_normal: 17 }
+    modificador_iniciativa: 0
   }
 }
 modelo {
@@ -678,7 +687,7 @@ modelo {
     tamanho: TM_GRANDE
     rotulo_especial: 'movimento 3 quad\nengolfar, paralisia fort CD 20 3d6 rodadas'
     modificador_iniciativa: -5
-    dados_ataque { bonus_ataque: 2 dano: '1d6+1d6' ca_normal: 4 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1d6' ca_normal: 4 }
     dados_defesa { imune_critico: true }
   }
 }
@@ -719,7 +728,8 @@ modelo {
   id: 'Rato Atroz'
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
-    rotulo_especial: 'ini +3\nat +4 1d4+doenca\nca 15/14/12\ndoenca fort 11 febre do esgoto '
+    rotulo_especial: 'dano da doenca fort 11 febre esgoto\nca 15/14/12'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4' ca_normal: 15 }
     modificador_iniciativa: 3
   }
 }
@@ -738,7 +748,11 @@ modelo {
   id: 'Troll'
   entidade {
     dados_vida: '6d8+36' tamanho: TM_GRANDE info_textura { id: 'troll.png' largura: 0.6 translacao_x: 0.2 altura: 0.85 translacao_y: 0.1 } cor { g: 1.0 }
+    tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     modificador_iniciativa: 2
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+9' ca_normal: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+3' ca_normal: 16 }
+    rotulo_especial: 'rend: acertar os dois da 2d6+9 automaticamente\nfort: 11 ref: 4 von: 3'
   }
 }
 modelo {
