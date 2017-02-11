@@ -1,4 +1,5 @@
 Versao 2.6.0
+- Salvar o ultimo endereco de IP.
 - separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
 - Multiplos ataques;
 - Formas hibridas (muda iniciativa, AC e ataques, tamanho e textura).

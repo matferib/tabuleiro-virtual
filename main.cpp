@@ -56,7 +56,6 @@ int main(int argc, char** argv) {
 #if USAR_GFLAGS
   google::ParseCommandLineFlags(&argc, &argv, true);
 #endif
-  
   LOG(INFO) << "Iniciando programa: LOG LIGADO";
   ent::OpcoesProto opcoes;
   CarregaConfiguracoes(&opcoes);
