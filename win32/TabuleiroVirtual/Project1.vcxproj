@@ -267,7 +267,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>QtOpengl4.lib;QtGui4.lib;QtCore4.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
     </Link>
     <PreBuildEvent>
