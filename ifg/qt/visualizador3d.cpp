@@ -934,11 +934,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.lista_ataques->clear();
     for (const auto& da : proto_retornado->dados_ataque()) {
       // Monta a string.
-      std::ostringstream oss;
-      oss << "id: " << da.tipo_ataque() << ", bonus: " << da.bonus_ataque()
-          << ", dano: " << StringDano(da)
-          << ", ca: " << da.ca_normal();
-      gerador.lista_ataques->addItem(QString::fromUtf8(oss.str().c_str()));
+      char string_dado[100];
+      snprintf(string_dado, 99, "id: %s, bonus: %d, dano: %s, ca: %d surpresa: %d toque: %d",
+               da.tipo_ataque().c_str(), da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_surpreso(), da.ca_toque());
+      gerador.lista_ataques->addItem(QString::fromUtf8(string_dado));
     }
   };
   RefrescaLista();
@@ -979,7 +978,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     da.set_margem_critico(dano_arma.margem_critico);
     da.set_ca_normal(gerador.spin_ca->value());
     if (indice_valido) {
-      proto_retornado->mutable_dados_ataque(indice)->Swap(&da);
+      proto_retornado->mutable_dados_ataque(indice)->MergeFrom(da);
     } else {
       proto_retornado->add_dados_ataque()->Swap(&da);
     }
