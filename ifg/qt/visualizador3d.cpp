@@ -539,7 +539,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
     rotulos_especiais += rotulo_especial + "\n";
   }
-  gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
+  gerador.lista_rotulos->appendPlainText(QString::fromUtf8(rotulos_especiais.c_str()));
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
@@ -790,7 +790,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
     rotulos_especiais += rotulo_especial + "\n";
   }
-  gerador.lista_rotulos->appendPlainText(rotulos_especiais.c_str());
+  gerador.lista_rotulos->appendPlainText(QString::fromUtf8(rotulos_especiais.c_str()));
   // Eventos entidades.
   std::string eventos;
   for (const auto& evento : entidade.evento()) {
