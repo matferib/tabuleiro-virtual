@@ -461,7 +461,7 @@ void Entidade::Atualiza(int intervalo_ms) {
       vd_.progresso_espiada_ = fabs(vd_.progresso_espiada_) > DELTA_ESPIADA ? vd_.progresso_espiada_ - delta : 0.0f;
     }
   }
-  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
+  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 5000;
   vd_.ultimo_ataque_ms += intervalo_ms;
   if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
     vd_.ataques_na_rodada = 0;
@@ -1070,8 +1070,9 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
 }
 
 int Entidade::ValorParaAcao(const std::string& id_acao) const {
-  std::string s = StringValorParaAcao(id_acao);
+  std::string s = StringDanoParaAcao(id_acao);
   if (s.empty()) {
+    VLOG(1) << "Acao nao encontrada: " << id_acao;
     return 0;
   }
   try {
@@ -1081,7 +1082,7 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
   }
 }
 
-std::string Entidade::StringValorParaAcao(const std::string& id_acao) const {
+std::string Entidade::StringDanoParaAcao(const std::string& id_acao) const {
   const auto* dado_ataque = DadoCorrente();
   return dado_ataque == nullptr ? "" : dado_ataque->dano();
 }
@@ -1103,16 +1104,20 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao) {
+      VLOG(3) << "Encontrei ataque para " << da.tipo_ataque();
       ataques_casados.push_back(&da);
     }
   }
   if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
+    VLOG(3) << "Dado corrente nao encontrado, empty? " << ataques_casados.empty()
+            << ", at: " << vd_.ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }
+  VLOG(3) << "Retornando " << vd_.ataques_na_rodada << "o. ataque para " << ataques_casados[vd_.ataques_na_rodada]->tipo_ataque();
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
-int Entidade::BonusAtaque() {
+int Entidade::BonusAtaque() const {
   std::vector<int> ataques_casados; 
   std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
   for (const auto& da : proto_.dados_ataque()) {
@@ -1121,12 +1126,9 @@ int Entidade::BonusAtaque() {
     }
   }
   if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
-    vd_.ataques_na_rodada = 0;
-    vd_.ultimo_ataque_ms = 0;
     return AtaqueCaInvalido;
   }
-  vd_.ultimo_ataque_ms = 0;
-  return ataques_casados[vd_.ataques_na_rodada++];
+  return ataques_casados[vd_.ataques_na_rodada];
 }
 
 int Entidade::CA() const {

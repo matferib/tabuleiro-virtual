@@ -1288,12 +1288,16 @@ void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
 int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao) {
   if (modo_dano_automatico_) {
     if (entidade == nullptr) {
+      LOG(WARNING) << "entidade eh nula";
       return 0;
     }
-    return -entidade->ValorParaAcao(id_acao);
+    int delta_pontos_vida = -entidade->ValorParaAcao(id_acao);
+    VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
+    return delta_pontos_vida;
   } else {
     int delta_pontos_vida = lista_pontos_vida_.front();
     lista_pontos_vida_.pop_front();
+    VLOG(1) << "Lendo valor da lista de pontos de vida: " << delta_pontos_vida;
     return delta_pontos_vida;
   }
 }
@@ -2676,7 +2680,7 @@ std::tuple<int, std::string> AtaqueVsDefesa(Entidade* ea, const Entidade& ed) {
   }
   snprintf(texto, 99, "acertou: %d+%d= %d%s", d20, ataque_origem, ataque_origem + d20, texto_critico);
 
-  VLOG(1) << "Resultado ataque vs defesa: " << texto;
+  VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
   return std::make_tuple(vezes, texto);
 }
 
@@ -2775,6 +2779,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
         int delta_pontos_vida = 0;
         if (HaValorListaPontosVida()) {
           delta_pontos_vida = LeValorListaPontosVida(entidade, acao_proto.id());
+          entidade->ProximoAtaque();
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
@@ -2812,7 +2817,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
         if (HaValorListaPontosVida() && entidade_destino != nullptr) {
           int vezes = 1;
           std::string texto;
-          if (acao_proto.permite_defesa_armadura()) {
+          if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
             std::tie(vezes, texto) = AtaqueVsDefesa(entidade, *entidade_destino);
             acao_proto.set_texto(texto);
           }
@@ -2820,6 +2825,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           for (int i = 0; i < vezes; ++i) {
             delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
           }
+          entidade->ProximoAtaque();
           int delta_pv_pos_salvacao = delta_pontos_vida;
           if (acao_proto.permite_salvacao()) {
             if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
@@ -4862,7 +4868,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
           break;
         }
         auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
-        *n->mutable_entidade() = entidade->Proto(); 
+        *n->mutable_entidade() = entidade->Proto();
         auto* trans = n->mutable_entidade()->mutable_transicao_cenario();
         trans->set_x(x3d);
         trans->set_y(y3d);
@@ -4873,7 +4879,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       }
       case MODO_ACAO:
         TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-        if (!lista_pontos_vida_.empty()) {
+        if (!lista_pontos_vida_.empty() && !modo_automatico_) {
           return;  // Mantem o MODO_ACAO.
         }
         break;
