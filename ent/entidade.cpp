@@ -461,7 +461,7 @@ void Entidade::Atualiza(int intervalo_ms) {
       vd_.progresso_espiada_ = fabs(vd_.progresso_espiada_) > DELTA_ESPIADA ? vd_.progresso_espiada_ - delta : 0.0f;
     }
   }
-  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 5000;
+  const unsigned int INTERVALO_ZERAR_ATAQUES_MS = 3000;
   vd_.ultimo_ataque_ms += intervalo_ms;
   if (vd_.ultimo_ataque_ms > INTERVALO_ZERAR_ATAQUES_MS) {
     vd_.ataques_na_rodada = 0;
@@ -1117,6 +1117,14 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
+std::string Entidade::TipoAtaque() const {
+  const auto* da = DadoCorrente();
+  if (da != nullptr) {
+    return da->tipo_ataque();
+  }
+  return "Ataque Corpo a Corpo";
+}
+
 int Entidade::BonusAtaque() const {
   std::vector<int> ataques_casados; 
   std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
@@ -1131,14 +1139,16 @@ int Entidade::BonusAtaque() const {
   return ataques_casados[vd_.ataques_na_rodada];
 }
 
-int Entidade::CA() const {
-  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
-  for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao) {
-      return da.ca_normal();
-    }
+int Entidade::CA(TipoCA tipo_ca) const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
+    return AtaqueCaInvalido;
   }
-  return AtaqueCaInvalido;
+  switch (tipo_ca) {
+    case CA_TOQUE: return da->ca_toque();
+    case CA_SURPRESO: return da->ca_surpreso();
+    default: return da->ca_normal();
+  }
 }
 
 int Entidade::MargemCritico() const {

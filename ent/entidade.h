@@ -187,9 +187,15 @@ class Entidade {
 
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
+  std::string TipoAtaque() const;
   int MargemCritico() const;
   int MultiplicadorCritico() const;
-  int CA() const;
+  enum TipoCA {
+    CA_NORMAL,
+    CA_TOQUE,
+    CA_SURPRESO
+  };
+  int CA(TipoCA tipo = CA_NORMAL) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
 

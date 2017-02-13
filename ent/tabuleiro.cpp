@@ -2645,10 +2645,19 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 
 namespace {
 
+Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
+  if (tipo_ataque == "Raio") {
+    return Entidade::CA_TOQUE;
+  } else if (tipo_ataque == "Feitiço de Toque") {
+    return Entidade::CA_TOQUE;
+  }
+  return Entidade::CA_NORMAL;
+}
+
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
-std::tuple<int, std::string> AtaqueVsDefesa(Entidade* ea, const Entidade& ed) {
-  int ataque_origem = ea->BonusAtaque();
-  int ca_destino = ed.CA();
+std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed) {
+  int ataque_origem = ea.BonusAtaque();
+  int ca_destino = ed.CA(CATipoAtaque(ea.TipoAtaque()));
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
     return std::make_tuple(1, "");
@@ -2665,14 +2674,14 @@ std::tuple<int, std::string> AtaqueVsDefesa(Entidade* ea, const Entidade& ed) {
 
   // Se chegou aqui acertou.
   int vezes = 1;
-  if (d20 >= ea->MargemCritico()) {
+  if (d20 >= ea.MargemCritico()) {
     if (ed.ImuneCritico()) {
       snprintf(texto_critico, 49, ", imune a critico");
     } else {
       int d20_critico = RolaDado(20);
       if (ataque_origem + d20_critico >= ca_destino) {
         snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
-        vezes = ea->MultiplicadorCritico();
+        vezes = ea.MultiplicadorCritico();
       } else {
         snprintf(texto_critico, 49, ", critico falhou: %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
       }
@@ -2818,7 +2827,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           int vezes = 1;
           std::string texto;
           if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
-            std::tie(vezes, texto) = AtaqueVsDefesa(entidade, *entidade_destino);
+            std::tie(vezes, texto) = AtaqueVsDefesa(*entidade, *entidade_destino);
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
