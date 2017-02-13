@@ -54,6 +54,7 @@ acao {
   escala { x: 0.5 y: 0.5 z: 0.5 }
   translacao { x: 0 y: -0.3 z: -0.3 }
   cor { r: 0.0 g: 0.0  b: 1.0 }
+  permite_defesa_armadura: true
   textura: 'icon_touch.png'
 }
 acao {
@@ -105,6 +106,7 @@ acao {
   cor { r: 1.0 g: 0 b: 0 }
   duracao_s: 0.5
   textura: 'icon_ray.png'
+  permite_defesa_armadura: true
 }
 acao {
   id: 'Relâmpago'
