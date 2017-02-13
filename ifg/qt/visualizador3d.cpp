@@ -65,10 +65,14 @@ int TipoParaIndice(const std::string& tipo_str) {
     return 2;
   } else if (tipo_str == "Feitiço de Toque") {
     return 3;
-  } else {
+  } else if (tipo_str == "Raio") {
     return 4;
+  } else {
+    return 5;
   }
 }
+
+constexpr int ULTIMO_TIPO_VALIDO = 4;
 
 std::string IndiceParaTipo(int indice) {
   // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
@@ -78,6 +82,7 @@ std::string IndiceParaTipo(int indice) {
     case 1: return "Ataque a Distância";
     case 2: return "Míssil Mágico";
     case 3: return "Feitiço de Toque";
+    case 4: return "Raio";
     default: return "Ataque Corpo a Corpo";
   }
 };
@@ -935,8 +940,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     for (const auto& da : proto_retornado->dados_ataque()) {
       // Monta a string.
       char string_dado[100];
-      snprintf(string_dado, 99, "id: %s, bonus: %d, dano: %s, ca: %d surpresa: %d toque: %d",
-               da.tipo_ataque().c_str(), da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_surpreso(), da.ca_toque());
+      snprintf(string_dado, 99, "id: %s, bonus: %d, dano: %s, ca: %d toque: %d surpresa: %d",
+               da.tipo_ataque().c_str(), da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_toque(), da.ca_surpreso());
       gerador.lista_ataques->addItem(QString::fromUtf8(string_dado));
     }
   };
@@ -945,6 +950,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       gerador.botao_remover_ataque->setEnabled(false);
       gerador.botao_ataque->setText(QObject::tr("Adicionar ataque"));
+      gerador.botao_ataque_cima->setEnabled(false);
+      gerador.botao_ataque_baixo->setEnabled(false);
+      gerador.botao_clonar_ataque->setEnabled(false);
     } else {
       gerador.botao_remover_ataque->setEnabled(true);
       gerador.botao_ataque->setText(QObject::tr("Editar ataque"));
@@ -953,8 +961,46 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       gerador.spin_ataque->setValue(da.bonus_ataque());
       gerador.linha_dano->setText(StringDano(da).c_str());
       gerador.spin_ca->setValue(da.ca_normal());
+      gerador.spin_ca_toque->setValue(da.ca_toque());
+      gerador.spin_ca_surpreso->setValue(da.ca_surpreso());
+      gerador.botao_clonar_ataque->setEnabled(true);
+      if (proto_retornado->dados_ataque().size() > 1) {
+        gerador.botao_ataque_cima->setEnabled(true);
+        gerador.botao_ataque_baixo->setEnabled(true);
+      }
     }
   });
+  lambda_connect(gerador.botao_clonar_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
+    int indice = gerador.lista_ataques->currentRow();
+    if (indice < 0 || indice >= proto_retornado->dados_ataque().size()) {
+      return;
+    }
+    *proto_retornado->mutable_dados_ataque()->Add() = proto_retornado->dados_ataque(indice);
+    RefrescaLista();
+    gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
+  });
+
+  lambda_connect(gerador.botao_ataque_cima, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
+    int indice = gerador.lista_ataques->currentRow();
+    if (indice <= 0 || indice >= proto_retornado->dados_ataque().size() ||
+        proto_retornado->dados_ataque().size() <= 1 || indice >= proto_retornado->dados_ataque().size()) {
+      return;
+    }
+    proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice - 1));
+    RefrescaLista();
+    gerador.lista_ataques->setCurrentRow(indice - 1);
+  });
+  lambda_connect(gerador.botao_ataque_baixo, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
+    int indice = gerador.lista_ataques->currentRow();
+    if (indice < 0 || indice >= proto_retornado->dados_ataque().size() - 1 ||
+        proto_retornado->dados_ataque().size() <= 1) {
+      return;
+    }
+    proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice + 1));
+    RefrescaLista();
+    gerador.lista_ataques->setCurrentRow(indice + 1);
+  });
+
   lambda_connect(gerador.botao_remover_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       return;
@@ -966,7 +1012,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     ent::EntidadeProto::DadosAtaque da;
     int indice = gerador.lista_ataques->currentRow();
     bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
-    if (gerador.combo_tipo_ataque->currentIndex() == 4 && indice_valido) {
+    if (gerador.combo_tipo_ataque->currentIndex() > ULTIMO_TIPO_VALIDO && indice_valido) {
       da.set_tipo_ataque(proto_retornado->dados_ataque(indice).tipo_ataque());
     } else {
       da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
@@ -977,6 +1023,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     da.set_multiplicador_critico(dano_arma.multiplicador);
     da.set_margem_critico(dano_arma.margem_critico);
     da.set_ca_normal(gerador.spin_ca->value());
+    da.set_ca_toque(gerador.spin_ca_toque->value());
+    da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
     if (indice_valido) {
       proto_retornado->mutable_dados_ataque(indice)->MergeFrom(da);
     } else {
