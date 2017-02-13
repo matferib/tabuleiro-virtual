@@ -4879,7 +4879,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       }
       case MODO_ACAO:
         TrataBotaoAcaoPressionadoPosPicking(false, x, y, id, tipo_objeto, profundidade);
-        if (!lista_pontos_vida_.empty() && !modo_automatico_) {
+        if (!lista_pontos_vida_.empty() && !modo_dano_automatico_) {
           return;  // Mantem o MODO_ACAO.
         }
         break;
