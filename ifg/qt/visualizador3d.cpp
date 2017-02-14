@@ -1006,6 +1006,15 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       return;
     }
     proto_retornado->mutable_dados_ataque()->DeleteSubrange(gerador.lista_ataques->currentRow(), 1);
+    gerador.spin_ataque->clear();
+    gerador.spin_ca->clear();
+    gerador.spin_ca_toque->clear();
+    gerador.spin_ca_surpreso->clear();
+    gerador.linha_dano->clear();
+    gerador.botao_ataque->setText("Adicionar ataque");
+    gerador.botao_clonar_ataque->setEnabled(false);
+    gerador.botao_ataque_cima->setEnabled(false);
+    gerador.botao_ataque_baixo->setEnabled(false);
     RefrescaLista();
   });
   lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
@@ -1031,6 +1040,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->add_dados_ataque()->Swap(&da);
     }
     RefrescaLista();
+    gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
   });
 
   // Coisas que nao estao na UI.
