@@ -946,6 +946,31 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
   };
   RefrescaLista();
+
+  auto AdicionaOuAtualizaAtaque = [this, gerador, proto_retornado] () {
+    ent::EntidadeProto::DadosAtaque da;
+    int indice = gerador.lista_ataques->currentRow();
+    bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
+    if (gerador.combo_tipo_ataque->currentIndex() > ULTIMO_TIPO_VALIDO && indice_valido) {
+      da.set_tipo_ataque(proto_retornado->dados_ataque(indice).tipo_ataque());
+    } else {
+      da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
+    }
+    da.set_bonus_ataque(gerador.spin_ataque->value());
+    ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
+    da.set_dano(dano_arma.dano);
+    da.set_multiplicador_critico(dano_arma.multiplicador);
+    da.set_margem_critico(dano_arma.margem_critico);
+    da.set_ca_normal(gerador.spin_ca->value());
+    da.set_ca_toque(gerador.spin_ca_toque->value());
+    da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
+    if (indice_valido) {
+      proto_retornado->mutable_dados_ataque(indice)->MergeFrom(da);
+    } else {
+      proto_retornado->add_dados_ataque()->Swap(&da);
+    }
+  };
+
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, StringDano, gerador, proto_retornado] () {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       gerador.botao_remover_ataque->setEnabled(false);
@@ -1017,28 +1042,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.botao_ataque_baixo->setEnabled(false);
     RefrescaLista();
   });
-  lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
-    ent::EntidadeProto::DadosAtaque da;
-    int indice = gerador.lista_ataques->currentRow();
-    bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
-    if (gerador.combo_tipo_ataque->currentIndex() > ULTIMO_TIPO_VALIDO && indice_valido) {
-      da.set_tipo_ataque(proto_retornado->dados_ataque(indice).tipo_ataque());
-    } else {
-      da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
-    }
-    da.set_bonus_ataque(gerador.spin_ataque->value());
-    ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
-    da.set_dano(dano_arma.dano);
-    da.set_multiplicador_critico(dano_arma.multiplicador);
-    da.set_margem_critico(dano_arma.margem_critico);
-    da.set_ca_normal(gerador.spin_ca->value());
-    da.set_ca_toque(gerador.spin_ca_toque->value());
-    da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
-    if (indice_valido) {
-      proto_retornado->mutable_dados_ataque(indice)->MergeFrom(da);
-    } else {
-      proto_retornado->add_dados_ataque()->Swap(&da);
-    }
+  lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado, AdicionaOuAtualizaAtaque] () {
+    AdicionaOuAtualizaAtaque();
     RefrescaLista();
     gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
   });
@@ -1050,7 +1055,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
-                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
+                 [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor, AdicionaOuAtualizaAtaque] () {
     if (gerador.campo_rotulo->text().isEmpty()) {
       proto_retornado->clear_rotulo();
     } else {
@@ -1117,6 +1122,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->clear_iniciativa();
     }
     proto_retornado->set_modificador_iniciativa(gerador.spin_modificador_iniciativa->value());
+
+    if ((gerador.lista_ataques->currentRow() >= 0 && gerador.lista_ataques->currentRow() < proto_retornado->dados_ataque().size()) ||
+        gerador.linha_dano->text().size() > 0) {
+      AdicionaOuAtualizaAtaque();
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

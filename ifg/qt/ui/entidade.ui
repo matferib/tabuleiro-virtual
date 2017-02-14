@@ -1190,6 +1190,9 @@
         <property name="text">
          <string>Adicionar ataque</string>
         </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>

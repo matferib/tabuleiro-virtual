@@ -814,6 +814,7 @@ public:
 
         botao_ataque = new QPushButton(horizontalLayoutWidget_5);
         botao_ataque->setObjectName(QString::fromUtf8("botao_ataque"));
+        botao_ataque->setDefault(true);
 
         horizontalLayout_6->addWidget(botao_ataque);
 
