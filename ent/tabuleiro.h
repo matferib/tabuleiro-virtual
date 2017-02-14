@@ -383,6 +383,9 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
 
+  /** Modo d20, o clique rola um dado. */
+  void AlternaModoD20();
+
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();
 
@@ -399,6 +402,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_TRANSICAO,    // executa transicao no clique.
     MODO_SELECAO_TRANSICAO,    // escolhe o local de transicao durante clique.
     MODO_REGUA,        // o clique executara uma medicao.
+    MODO_D20,          // o clique rolara um d20.
     MODO_AJUDA,        // o clique atuara como hover.
     MODO_ROTACAO,      // modo de rotacao da camera.
     MODO_TERRENO,      // modo de edicao de relevo do terreno.
@@ -583,6 +587,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Trata o botao pressionado no modo de regua, recebendo o destino do clique em coordenadas de mundo. */
   void TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d);
+
+  /** Rola um d20 para as entidades selecionadas e notifica. */
+  void TrataBotaoD20PressionadoPosPicking(float x3d, float y3d, float z3d);
 
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada

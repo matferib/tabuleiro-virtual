@@ -1796,6 +1796,22 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 #endif
 }
 
+void Tabuleiro::TrataBotaoD20PressionadoPosPicking(float x3d, float y3d, float z3d) {
+  char texto[31];
+  snprintf(texto, 30, "d20 = %d", RolaDado(20));
+  auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
+  auto* a = n->mutable_acao();
+  a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+  a->set_local_apenas(false);
+  auto* pd = a->mutable_pos_entidade();
+  pd->set_x(x3d);
+  pd->set_y(y3d);
+  pd->set_z(z3d);
+  pd->set_id_cenario(cenario_corrente_);
+  a->set_texto(texto);
+  central_->AdicionaNotificacao(n);
+}
+
 void Tabuleiro::RolaIniciativasNotificando() {
   std::vector<const Entidade*> entidades;
   if (EmModoMestreIncluindoSecundario()) {
@@ -4488,9 +4504,15 @@ void Tabuleiro::DesenhaAuras() {
 void Tabuleiro::DesenhaAcoes() {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
-    auto* entidade_origem = BuscaEntidade(a->Proto().id_entidade_origem());
-    if (entidade_origem == nullptr || entidade_origem->IdCenario() != cenario_corrente_) {
-      continue;
+    if (a->Proto().has_id_entidade_origem()) {
+      auto* entidade_origem = BuscaEntidade(a->Proto().id_entidade_origem());
+      if (entidade_origem == nullptr || entidade_origem->IdCenario() != cenario_corrente_) {
+        continue;
+      }
+    } else {
+      if (a->Proto().pos_entidade().id_cenario() != cenario_corrente_) {
+        continue;
+      }
     }
     a->Desenha(&parametros_desenho_);
   }
@@ -4904,6 +4926,9 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         break;
       case MODO_REGUA:
         TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
+        break;
+      case MODO_D20:
+        TrataBotaoD20PressionadoPosPicking(x3d, y3d, z3d);
         break;
       case MODO_DESENHO:
         TrataBotaoDesenhoPressionado(x, y);
@@ -7524,6 +7549,14 @@ void Tabuleiro::AlternaModoTransicao() {
     modo_clique_ = MODO_NORMAL;
   } else {
     modo_clique_ = MODO_TRANSICAO;
+  }
+}
+
+void Tabuleiro::AlternaModoD20() {
+  if (modo_clique_ == MODO_D20) {
+    modo_clique_ = MODO_NORMAL;
+  } else {
+    modo_clique_ = MODO_D20;
   }
 }
 
