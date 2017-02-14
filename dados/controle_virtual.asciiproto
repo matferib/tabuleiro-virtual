@@ -92,6 +92,19 @@ fixo {
     mestre_apenas: true
     dica: "Gera uma montanha."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: -6
+    coluna: -1
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "20"
+    id: CONTROLE_ROLAR_D20
+    textura: "icon_d20.png"
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Gera uma montanha."
+  }
 }
 pagina {
   # Botoes de ultimas acoes.
