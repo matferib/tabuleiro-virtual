@@ -6239,7 +6239,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   }
   // Colisao
   float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  auto* entidade_referencia = EntidadeSelecionadaOuPrimeiraPessoa();
   {
     if (entidade_referencia != nullptr) {
       auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
