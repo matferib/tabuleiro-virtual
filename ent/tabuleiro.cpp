@@ -197,7 +197,7 @@ const std::string StringEstado(ent::etab_t estado) {
 }
 
 // O delta de pontos de vida afeta outros bits tambem.
-void PreencheNotificacaoDeltaPontosVida(
+void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
   auto* entidade_depois = n->mutable_entidade();
@@ -216,6 +216,22 @@ void PreencheNotificacaoDeltaPontosVida(
     entidade_antes->set_aura(entidade.Proto().aura());
     entidade_antes->mutable_pos()->CopyFrom(entidade.Pos());
     entidade_antes->mutable_direcao_queda()->CopyFrom(entidade.Proto().direcao_queda());
+  }
+}
+
+void PreencheNotificacaoDerrubaOrigem(
+    const Entidade& entidade, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* entidade_depois = n->mutable_entidade();
+  entidade_depois->set_id(entidade.Id());
+  entidade_depois->set_caida(true);
+
+  if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    *n_desfazer->mutable_entidade() = *entidade_depois;
+    auto* e_antes = n_desfazer->mutable_entidade_antes();
+    e_antes->set_id(entidade.Id());
+    e_antes->set_caida(entidade.Proto().caida());
   }
 }
 
@@ -1138,10 +1154,10 @@ void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
       continue;
     }
     // Atualizacao.
-    PreencheNotificacaoDeltaPontosVida(*entidade_selecionada,
-                                       delta_pontos_vida,
-                                       grupo_notificacoes.add_notificacao(),
-                                       grupo_desfazer.add_notificacao());
+    PreencheNotificacaoAtualizaoPontosVida(*entidade_selecionada,
+                                           delta_pontos_vida,
+                                           grupo_notificacoes.add_notificacao(),
+                                           grupo_desfazer.add_notificacao());
     // Acao.
     auto* na = grupo_notificacoes.add_notificacao();
     na->set_tipo(ntf::TN_ADICIONAR_ACAO);
@@ -1199,7 +1215,7 @@ void Tabuleiro::AtualizaPontosVidaEntidadePorAcao(const Acao& acao, unsigned int
   // Atualizacao de pontos de vida. Nao preocupa com desfazer porque isso foi feito no inicio da acao.
   ntf::Notificacao n;
   n.set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-  PreencheNotificacaoDeltaPontosVida(*entidade, delta_pontos_vida, &n);
+  PreencheNotificacaoAtualizaoPontosVida(*entidade, delta_pontos_vida, &n);
   TrataNotificacao(n);
 
   // Acao de pontos de vida sem efeito.
@@ -2671,6 +2687,7 @@ Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
 }
 
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
+// Caso haja falha critica, retorna vezes = -1;
 std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed) {
   int ataque_origem = ea.BonusAtaque();
   int ca_destino = ed.CA(CATipoAtaque(ea.TipoAtaque()));
@@ -2683,7 +2700,9 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
   int d20 = RolaDado(20);
   char texto[100] = {'\0'};
   char texto_critico[50] = {'\0'};
-  if (d20 != 20 && ataque_origem + d20 < ca_destino) {
+  if (d20 == 1) {
+    return std::make_tuple(-1, "falha critica");
+  } else if (d20 != 20 && ataque_origem + d20 < ca_destino) {
     snprintf(texto, 49, "falhou: %d+%d= %d", d20, ataque_origem, ataque_origem + d20);
     return std::make_tuple(0, texto);
   }
@@ -2695,7 +2714,10 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
       snprintf(texto_critico, 49, ", imune a critico");
     } else {
       int d20_critico = RolaDado(20);
-      if (ataque_origem + d20_critico >= ca_destino) {
+      if (d20 == 1) {
+        snprintf(texto_critico, 49, ", critico falhou: 1");
+        vezes = ea.MultiplicadorCritico();
+      } else if (ataque_origem + d20_critico >= ca_destino) {
         snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
         vezes = ea.MultiplicadorCritico();
       } else {
@@ -2832,7 +2854,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             }
           }
           auto* nd = grupo_desfazer.add_notificacao();
-          PreencheNotificacaoDeltaPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
+          PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
         }
         VLOG(2) << "Acao de area: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
@@ -2847,24 +2869,35 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
-          for (int i = 0; i < vezes; ++i) {
-            delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
-          }
-          entidade->ProximoAtaque();
-          int delta_pv_pos_salvacao = delta_pontos_vida;
-          if (acao_proto.permite_salvacao()) {
-            if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
-              delta_pv_pos_salvacao /= 2;
-            } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
-              delta_pv_pos_salvacao /= 4;
-            } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
-              delta_pv_pos_salvacao = 0;
-            }
-          }
-          acao_proto.set_delta_pontos_vida(delta_pv_pos_salvacao);
-          acao_proto.set_afeta_pontos_vida(true);
           auto* nd = grupo_desfazer.add_notificacao();
-          PreencheNotificacaoDeltaPontosVida(*entidade_destino, delta_pv_pos_salvacao, nd, nd);
+          if (vezes < 0) {
+            PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
+            ntf::Notificacao n_texto;
+            n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
+            auto* acao_texto = n_texto.mutable_acao();
+            acao_texto->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+            acao_texto->set_texto(acao_proto.texto());
+            acao_texto->add_id_entidade_destino(entidade->Id());  // o destino eh a origem.
+            TrataNotificacao(n_texto);
+          } else {
+            // Ja faz a notificacao de desfazer aqui.
+            for (int i = 0; i < vezes; ++i) {
+              delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
+            }
+            entidade->ProximoAtaque();
+            if (acao_proto.permite_salvacao()) {
+              if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
+                delta_pontos_vida /= 2;
+              } else if (entidade_destino->ProximaSalvacao() == RS_QUARTO) {
+                delta_pontos_vida /= 4;
+              } else if (entidade_destino->ProximaSalvacao() == RS_ANULOU) {
+                delta_pontos_vida = 0;
+              }
+            }
+            acao_proto.set_delta_pontos_vida(delta_pontos_vida);
+            acao_proto.set_afeta_pontos_vida(true);
+            PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
+          }
         }
         VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
         n.mutable_acao()->CopyFrom(acao_proto);
@@ -4850,8 +4883,7 @@ void Tabuleiro::AtualizaAcoes(int intervalo_ms) {
     if (acao->EstadoAlvo() == Acao::ALVO_A_SER_ATINGIDO) {
       acao->AlvoProcessado();
       const auto& ap = acao->Proto();
-      if (ap.id_entidade_destino_size() > 0 &&
-          ap.afeta_pontos_vida()) {
+      if (ap.id_entidade_destino_size() > 0 && ap.afeta_pontos_vida()) {
         if (ap.permite_salvacao()) {
           limpar_salvacoes = true;
         }
