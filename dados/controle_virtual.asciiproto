@@ -103,7 +103,7 @@ fixo {
     textura: "icon_d20.png"
     forma: FORMA_RETANGULO
     mestre_apenas: false
-    dica: "Gera uma montanha."
+    dica: "Rola um d20."
   }
 }
 pagina {
@@ -519,6 +519,19 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
+    coluna: 22
+    id: CONTROLE_APAGAR_INICIATIVAS
+    rotulo: ""
+    dica: "Apaga iniciativas."
+    mestre_apenas: false
+    textura: "icon_erase_initiatives.png"
+    forma: FORMA_RETANGULO
+    #translacao_x: -0.53
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 2
     coluna: 23
     id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
     rotulo: "I"
@@ -526,7 +539,7 @@ pagina {
     mestre_apenas: true
     textura: "icon_initiative.png"
     forma: FORMA_RETANGULO
-    translacao_x: -0.53
+    #translacao_x: -0.53
   }
   dados_botoes {
     tamanho: 1
@@ -537,7 +550,7 @@ pagina {
     rotulo: "R"
     dica: "Rola iniciativas de entidades selecionadas."
     textura: "icon_roll_initiative.png"
-    translacao_x: -0.53
+    #translacao_x: -0.53
   }
   dados_botoes {
     tamanho: 1
@@ -546,9 +559,9 @@ pagina {
     id: CONTROLE_PROXIMA_INICIATIVA
     forma: FORMA_TRIANGULO
     rotacao_graus: -90.0
-    translacao_x: -0.86
     dica: "Proxima iniciativa."
     mestre_apenas: true
+    translacao_x: -0.3
   }
   dados_botoes {
     tamanho: 2

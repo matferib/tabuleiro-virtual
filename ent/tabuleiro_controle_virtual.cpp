@@ -178,6 +178,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_ROLAR_D20:
       AlternaModoD20();
       break;
+    case CONTROLE_APAGAR_INICIATIVAS:
+      LimpaIniciativasNotificando();
+      break;
     case CONTROLE_ROLAR_INICIATIVA:
       RolaIniciativasNotificando();
       break;
@@ -928,6 +931,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) { return camera_presa_; } },
     { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] (const Entidade* entidade) { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
     { CONTROLE_VISAO_ESCURO,      [this] (const Entidade* entidade) { return visao_escuro_; } },
+    { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE,  [this] (const Entidade* entidade) {
+      return indice_iniciativa_ != -1;
+    } },
     { CONTROLE_LUZ,               [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_luz();
     } },

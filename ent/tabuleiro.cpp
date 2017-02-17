@@ -1828,6 +1828,59 @@ void Tabuleiro::TrataBotaoD20PressionadoPosPicking(float x3d, float y3d, float z
   central_->AdicionaNotificacao(n);
 }
 
+void Tabuleiro::LimpaIniciativasNotificando() {
+  std::vector<const Entidade*> entidades;
+  if (EmModoMestreIncluindoSecundario()) {
+    if (estado_ == ETAB_ENTS_SELECIONADAS) {
+      entidades = EntidadesSelecionadas();
+    } else {
+      for (const auto& di : iniciativas_) {
+        auto* entidade = BuscaEntidade(di.id);
+        if (entidade != nullptr) {
+          entidades.push_back(entidade);
+        }
+      }
+    }
+  } else {
+    if (estado_ == ETAB_ENTS_SELECIONADAS) {
+      entidades = EntidadesSelecionadas();
+    } else if (id_camera_presa_ != Entidade::IdInvalido) {
+      auto* entidade = EntidadeSelecionada();
+      entidades.push_back(entidade);
+    } else {
+      LOG(INFO) << "Nao ha unidade selecionada ou presa para limpar iniciativas";
+      return;
+    }
+  }
+
+  // desfazer.
+  ntf::Notificacao grupo_rotulo;
+  grupo_rotulo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (const auto* entidade : entidades) {
+    if (entidade->Tipo() != TE_ENTIDADE) {
+      continue;
+    }
+    auto* n = grupo_notificacoes.add_notificacao();
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    auto* e_antes = n->mutable_entidade_antes();
+    e_antes->set_id(entidade->Id());
+    if (entidade->TemIniciativa()) {
+      e_antes->set_iniciativa(entidade->Iniciativa());
+    } else {
+      e_antes->set_iniciativa(INICIATIVA_INVALIDA);
+    }
+    // TODO notificar e desfazer.
+    auto* e_depois = n->mutable_entidade();
+    e_depois->set_id(entidade->Id());
+    e_depois->set_iniciativa(INICIATIVA_INVALIDA);
+    TrataNotificacao(*n);
+  }
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  TrataNotificacao(grupo_rotulo);
+}
+
 void Tabuleiro::RolaIniciativasNotificando() {
   std::vector<const Entidade*> entidades;
   if (EmModoMestreIncluindoSecundario()) {

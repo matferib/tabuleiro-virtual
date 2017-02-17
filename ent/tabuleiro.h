@@ -192,6 +192,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Rola iniciativa das entidades selecionadas mais dos jogadores. */
   void RolaIniciativasNotificando();
+  void LimpaIniciativasNotificando();
   void IniciaIniciativaParaCombate();
   void ProximaIniciativa();
   /** Realiza a atualizacao das iniciativas, notificando clientes. */
