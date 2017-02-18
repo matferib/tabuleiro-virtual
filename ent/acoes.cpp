@@ -792,6 +792,11 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     VLOG(1) << "Finalizando alvo, destino não existe.";
     return false;
   }
+  if (entidade_destino->Proto().fixa()) {
+    VLOG(1) << "Finalizando alvo fixo.";
+    dx_total_ = dy_total_ = dz_total_ = 0;
+    return false;
+  }
 
   // Move o alvo na direcao do impacto e volta se nao estiver caido.
   if (disco_alvo_rad_ >= (M_PI / 2.0f) && entidade_destino->Proto().morta()) {

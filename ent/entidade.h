@@ -186,12 +186,18 @@ class Entidade {
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
-  // A funcao BonusAtaque aumenta a quantidade de ataques na rodada.
-  int BonusAtaque();
+  int BonusAtaque() const;
+  std::string TipoAtaque() const;
   int MargemCritico() const;
   int MultiplicadorCritico() const;
-  int CA() const;
+  enum TipoCA {
+    CA_NORMAL,
+    CA_TOQUE,
+    CA_SURPRESO
+  };
+  int CA(TipoCA tipo = CA_NORMAL) const;
   bool ImuneCritico() const;
+  void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
@@ -220,7 +226,8 @@ class Entidade {
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. */
   int ValorParaAcao(const std::string& id_acao) const;
-  std::string StringValorParaAcao(const std::string& id_acao) const;
+  /** Retorna a string de dano para uma acao (ex: '1d8+3'). */
+  std::string StringDanoParaAcao(const std::string& id_acao) const;
 
   /** Desenha um objeto a partir de seu proto. Usado para desenhar de forma simples objetos (por exemplo, formas sendo adicionadas).
   * Implementado em entidade_desenha.cpp.

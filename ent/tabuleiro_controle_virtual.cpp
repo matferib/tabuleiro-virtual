@@ -175,6 +175,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
   VLOG(1) << "picking id: " << id;
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
+    case CONTROLE_ROLAR_D20:
+      AlternaModoD20();
+      break;
+    case CONTROLE_APAGAR_INICIATIVAS:
+      LimpaIniciativasNotificando();
+      break;
     case CONTROLE_ROLAR_INICIATIVA:
       RolaIniciativasNotificando();
       break;
@@ -576,6 +582,7 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
     case Tabuleiro::MODO_SINALIZACAO: return CONTROLE_ACAO_SINALIZACAO;
     case Tabuleiro::MODO_TRANSICAO:   return CONTROLE_TRANSICAO;
     case Tabuleiro::MODO_REGUA:       return CONTROLE_REGUA;
+    case Tabuleiro::MODO_D20:         return CONTROLE_ROLAR_D20;
     case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
     case Tabuleiro::MODO_TERRENO:     return CONTROLE_MODO_TERRENO;
     default:                          return CONTROLE_AJUDA;
@@ -875,7 +882,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
     const auto* entidade = EntidadeSelecionada();
     std::string valor = "AUTO";
     if (entidade != nullptr) {
-      const std::string s = entidade->StringValorParaAcao(entidade->Acao(AcoesPadroes()));
+      const std::string s = entidade->StringDanoParaAcao(entidade->Acao(AcoesPadroes()));
       if (s.empty()) {
         valor += ": SEM ACAO";
       } else {
@@ -917,12 +924,16 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
+    { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_D20; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE, [this] (const Entidade* entidade) { return indice_iniciativa_ != -1; } },
     { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) { return camera_presa_; } },
     { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] (const Entidade* entidade) { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
     { CONTROLE_VISAO_ESCURO,      [this] (const Entidade* entidade) { return visao_escuro_; } },
+    { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE,  [this] (const Entidade* entidade) {
+      return indice_iniciativa_ != -1;
+    } },
     { CONTROLE_LUZ,               [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_luz();
     } },

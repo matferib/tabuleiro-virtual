@@ -156,10 +156,17 @@ public:
     QSpacerItem *horizontalSpacer_3;
     QLabel *label_25;
     QSpinBox *spin_ca;
+    QLabel *label_27;
+    QSpinBox *spin_ca_toque;
+    QLabel *label_28;
+    QSpinBox *spin_ca_surpreso;
     QSpacerItem *horizontalSpacer_4;
     QPushButton *botao_ataque;
     QListWidget *lista_ataques;
     QCheckBox *checkbox_imune_critico;
+    QPushButton *botao_ataque_cima;
+    QPushButton *botao_ataque_baixo;
+    QPushButton *botao_clonar_ataque;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -781,25 +788,53 @@ public:
 
         horizontalLayout_6->addWidget(spin_ca);
 
+        label_27 = new QLabel(horizontalLayoutWidget_5);
+        label_27->setObjectName(QString::fromUtf8("label_27"));
+
+        horizontalLayout_6->addWidget(label_27);
+
+        spin_ca_toque = new QSpinBox(horizontalLayoutWidget_5);
+        spin_ca_toque->setObjectName(QString::fromUtf8("spin_ca_toque"));
+
+        horizontalLayout_6->addWidget(spin_ca_toque);
+
+        label_28 = new QLabel(horizontalLayoutWidget_5);
+        label_28->setObjectName(QString::fromUtf8("label_28"));
+
+        horizontalLayout_6->addWidget(label_28);
+
+        spin_ca_surpreso = new QSpinBox(horizontalLayoutWidget_5);
+        spin_ca_surpreso->setObjectName(QString::fromUtf8("spin_ca_surpreso"));
+
+        horizontalLayout_6->addWidget(spin_ca_surpreso);
+
         horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_6->addItem(horizontalSpacer_4);
 
         botao_ataque = new QPushButton(horizontalLayoutWidget_5);
         botao_ataque->setObjectName(QString::fromUtf8("botao_ataque"));
+        botao_ataque->setDefault(true);
 
         horizontalLayout_6->addWidget(botao_ataque);
 
         lista_ataques = new QListWidget(tab_estatisticas);
         lista_ataques->setObjectName(QString::fromUtf8("lista_ataques"));
-        lista_ataques->setGeometry(QRect(10, 110, 871, 181));
+        lista_ataques->setGeometry(QRect(10, 110, 831, 181));
         checkbox_imune_critico = new QCheckBox(tab_estatisticas);
         checkbox_imune_critico->setObjectName(QString::fromUtf8("checkbox_imune_critico"));
         checkbox_imune_critico->setGeometry(QRect(30, 340, 121, 22));
+        botao_ataque_cima = new QPushButton(tab_estatisticas);
+        botao_ataque_cima->setObjectName(QString::fromUtf8("botao_ataque_cima"));
+        botao_ataque_cima->setGeometry(QRect(850, 160, 31, 27));
+        botao_ataque_baixo = new QPushButton(tab_estatisticas);
+        botao_ataque_baixo->setObjectName(QString::fromUtf8("botao_ataque_baixo"));
+        botao_ataque_baixo->setGeometry(QRect(850, 200, 31, 27));
+        botao_clonar_ataque = new QPushButton(tab_estatisticas);
+        botao_clonar_ataque->setObjectName(QString::fromUtf8("botao_clonar_ataque"));
+        botao_clonar_ataque->setEnabled(false);
+        botao_clonar_ataque->setGeometry(QRect(630, 300, 121, 27));
         tab_entidade->addTab(tab_estatisticas, QString());
-        QWidget::setTabOrder(tab_entidade, checkbox_cor);
-        QWidget::setTabOrder(checkbox_cor, botao_cor);
-        QWidget::setTabOrder(botao_cor, checkbox_selecionavel);
         QWidget::setTabOrder(checkbox_selecionavel, checkbox_voadora);
         QWidget::setTabOrder(checkbox_voadora, checkbox_visibilidade);
         QWidget::setTabOrder(checkbox_visibilidade, combo_textura);
@@ -825,15 +860,26 @@ public:
         QWidget::setTabOrder(lista_rotulos, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_modificador_iniciativa);
-        QWidget::setTabOrder(spin_modificador_iniciativa, botao_remover_ataque);
-        QWidget::setTabOrder(botao_remover_ataque, combo_tipo_ataque);
+        QWidget::setTabOrder(spin_modificador_iniciativa, combo_tipo_ataque);
         QWidget::setTabOrder(combo_tipo_ataque, spin_ataque);
         QWidget::setTabOrder(spin_ataque, linha_dano);
         QWidget::setTabOrder(linha_dano, spin_ca);
-        QWidget::setTabOrder(spin_ca, botao_ataque);
-        QWidget::setTabOrder(botao_ataque, lista_ataques);
+        QWidget::setTabOrder(spin_ca, spin_ca_toque);
+        QWidget::setTabOrder(spin_ca_toque, spin_ca_surpreso);
+        QWidget::setTabOrder(spin_ca_surpreso, botao_ataque);
+        QWidget::setTabOrder(botao_ataque, checkbox_imune_critico);
+        QWidget::setTabOrder(checkbox_imune_critico, botao_ataque_cima);
+        QWidget::setTabOrder(botao_ataque_cima, botao_ataque_baixo);
+        QWidget::setTabOrder(botao_ataque_baixo, botoes);
+        QWidget::setTabOrder(botoes, spin_pontos_vida_temporarios);
+        QWidget::setTabOrder(spin_pontos_vida_temporarios, checkbox_cor);
+        QWidget::setTabOrder(checkbox_cor, botao_remover_ataque);
+        QWidget::setTabOrder(botao_remover_ataque, tab_entidade);
+        QWidget::setTabOrder(tab_entidade, lista_ataques);
         QWidget::setTabOrder(lista_ataques, campo_id);
-        QWidget::setTabOrder(campo_id, botoes);
+        QWidget::setTabOrder(campo_id, spin_max_pontos_vida);
+        QWidget::setTabOrder(spin_max_pontos_vida, botao_clonar_ataque);
+        QWidget::setTabOrder(botao_clonar_ataque, botao_cor);
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
@@ -979,6 +1025,7 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\255ssil M\303\241gico", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Toque", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
         );
         label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus Ataque", 0, QApplication::UnicodeUTF8));
@@ -987,8 +1034,22 @@ public:
         linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 1d8+2 (19-20/x2)", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_25->setText(QApplication::translate("ifg::qt::DialogoEntidade", "CA", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_ca->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Normal", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_27->setText(QApplication::translate("ifg::qt::DialogoEntidade", "T", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_ca_toque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_28->setText(QApplication::translate("ifg::qt::DialogoEntidade", "S", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_ca_surpreso->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Surpresa", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         botao_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar ataque", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
+        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "^", 0, QApplication::UnicodeUTF8));
+        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "v", 0, QApplication::UnicodeUTF8));
+        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", 0, QApplication::UnicodeUTF8));
         tab_entidade->setTabText(tab_entidade->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
