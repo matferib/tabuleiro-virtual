@@ -426,6 +426,7 @@ class Tabuleiro : public ntf::Receptor {
   // debug.
   void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); }
   void AlternaListaJogadores() { opcoes_.set_mostra_lista_jogadores(!opcoes_.mostra_lista_jogadores()); }
+  void AlternaMostraLogEventos() { opcoes_.set_mostra_log_eventos(!opcoes_.mostra_log_eventos()); }
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
@@ -562,6 +563,8 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaTempos();
   /** Funcao auxiliar usada por DesenhaTempos. */
   void DesenhaTempo(int linha, const std::string& prefixo, const std::list<uint64_t>& ultimos_tempos);
+
+  void DesenhaLogEventos();
 
   /** Atualiza a posição do olho na direção do quadrado selecionado ou da entidade selecionada.
   * Se forcar for false, so atualiza se houver destino. Caso contrario, atualiza independente do destino.

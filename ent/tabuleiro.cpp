@@ -755,6 +755,7 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.set_desenha_lista_jogadores(opcoes_.mostra_lista_jogadores());
   parametros_desenho_.set_desenha_iniciativas(opcoes_.mostra_iniciativas());
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
+  parametros_desenho_.set_desenha_log_eventos(opcoes_.mostra_log_eventos());
   parametros_desenho_.set_desenha_grade(opcoes_.desenha_grade());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   parametros_desenho_.mutable_projecao()->set_tipo_camera(camera_);
@@ -3682,6 +3683,10 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_fps()) {
     DesenhaTempos();
+  }
+
+  if (parametros_desenho_.desenha_log_eventos()) {
+    DesenhaLogEventos();
   }
 #if DEBUG
   glFlush();
@@ -7147,6 +7152,37 @@ void Tabuleiro::DesenhaListaObjetos() {
       gl::DesenhaStringAlinhadoEsquerda(page_down);
     }
     raster_y -= (altura_fonte + 2);
+  }
+}
+
+void Tabuleiro::DesenhaLogEventos() {
+  // Quadrado preto de 8 linhas.
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  int largura_fonte, altura_fonte, escala;
+  int kTamanhoMaximoCaracteres  = 100;
+  int kNumLinhas = 8;  // uma de titulo e duas de paginacoes.
+  // TODO paginacao.
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  int kTamanhoMaximoPixels = largura_fonte * kTamanhoMaximoCaracteres;
+
+  MudaCor(COR_PRETA);
+  gl::Retangulo(0, 0, kTamanhoMaximoPixels, (altura_fonte * escala) * 8);
+
+  MudaCor(COR_AMARELA);
+  int raster_x = kTamanhoMaximoPixels / 2, raster_y =  (altura_fonte * escala) * (kNumLinhas - 1);
+  PosicionaRaster2d(raster_x, raster_y);
+  gl::DesenhaString("Lista de Eventos");
+  raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
+  auto it = lista_eventos_.rbegin();
+  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++i, ++it) {
+    const auto& n = *it;
+    PosicionaRaster2d(2, raster_y);
+    char s[100];
+    snprintf(s, 99, "%s", n.ShortDebugString().c_str());
+    gl::DesenhaStringAlinhadoEsquerda(s);
+    raster_y -= altura_fonte;
   }
 }
 
