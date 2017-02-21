@@ -4757,27 +4757,12 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
           Vector3 vetor_olhar = vetor_alvo - vetor_olho;
           vetor_olhar.normalize();
 
-          //Vector3 vetor_up(0.0f, 0.0f, 1.0f);
-          //Vector3 ajuste = vetor_olhar.cross(vetor_up) * entidade_referencia->Espiada() * TAMANHO_LADO_QUADRADO_2;
-
           const float MAXIMA_INCLINACAO_ESPIADA_GRAUS = 25.0f;
           const Vector4 vetor_up(0.0f, 0.0f, altura_olho, 1.0f);
           Matrix4 rotacao;
           rotacao.rotate(entidade_referencia->Espiada() * MAXIMA_INCLINACAO_ESPIADA_GRAUS, vetor_olhar);
           Vector4 ajuste4 = rotacao * vetor_up;
           Vector3 ajuste(ajuste4.x, ajuste4.y, ajuste4.z);
-
-          // bloquear espiada em caso de colisao
-#if 0
-          Vector3 tentativa(vetor_olho.x + ajuste.x, vetor_olho.y + ajuste.y, vetor_olho.z - altura_olho + ajuste.z);
-          Vector3 direcao_tentativa = tentativa - vetor_olho;
-          auto res_colisao  = DetectaColisao(*entidade_referencia, direcao_tentativa, false  /*ignora*/);
-          float porcentagem = res_colisao.profundidade / tentativa.length();
-          rotacao.identity();
-          rotacao.rotate(entidade_referencia->Espiada() * MAXIMA_INCLINACAO_ESPIADA_GRAUS * porcentagem, vetor_olhar);
-          ajuste4 = rotacao * vetor_up;
-          ajuste = Vector3(ajuste4.x, ajuste4.y, ajuste4.z);
-#endif
 
           // Posicao.
           olho_.mutable_pos()->set_x(vetor_olho.x + ajuste.x);
@@ -6277,8 +6262,31 @@ void Tabuleiro::TrataEspiada(int espiada) {
   } else if (novo < -1) {
     novo = -1;
   }
-  proto.set_espiando(novo);
-  entidade->AtualizaParcial(proto);
+
+  if (novo == 0) {
+    proto.set_espiando(novo);
+    entidade->AtualizaParcial(proto);
+    return;
+  }
+
+  // Direcao do olhar.
+  LOG(INFO) << "olho: " << olho_.ShortDebugString();
+  Vector3 vetor_olho(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+  Vector3 vetor_alvo(olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z());
+  Vector3 vetor_olhar = vetor_alvo - vetor_olho;
+  vetor_olhar.normalize();
+
+  // bloquear espiada em caso de colisao
+  Vector3 vetor_up(0.0f, 0.0f, 1.0f);
+  Vector3 direcao_espiada = vetor_olhar.cross(vetor_up) * novo;
+  auto res_colisao  = DetectaColisao(*entidade, direcao_espiada, false  /*ignora*/);
+  if (!res_colisao.colisao) {
+    proto.set_espiando(novo);
+    entidade->AtualizaParcial(proto);
+    VLOG(1) << "Espiada ok";
+  } else {
+    VLOG(1) << "Espiada bloqueada";
+  }
 }
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
@@ -6286,6 +6294,16 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
   // angulo da camera em relacao ao eixo X.
   Vector2 vetor_movimento;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    // Ao andar na primeira pessoa, cancela espiada para evitar atravessar objetos ja que a deteccao de colisao eh feita
+    // so no inicio.
+    Entidade* entidade = BuscaEntidade(IdCameraPresa());
+    if (entidade->Proto().espiando() != 0) {
+      EntidadeProto proto;
+      proto.set_espiando(0);
+      entidade->AtualizaParcial(proto);
+    }
+  }
   if (camera_ == CAMERA_PRIMEIRA_PESSOA || !proto_corrente_->desenha_grade()) {
     if (frente_atras) {
       vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
