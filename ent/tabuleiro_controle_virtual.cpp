@@ -248,6 +248,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_CAMERA_PRESA:
       AlternaCameraPresa();
       break;
+    case CONTROLE_CAMERA_PRESA_PROXIMO:
+      MudaEntidadeCameraPresa();
+      break;
     case CONTROLE_CAMERA_PRIMEIRA_PESSOA:
       AlternaCameraPrimeiraPessoa();
       break;
@@ -1028,7 +1031,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
   // DesenhaInfoPrimeiraPessoa.
   if (camera_presa_) {
-    const auto* entidade = BuscaEntidade(id_camera_presa_);
+    const auto* entidade = BuscaEntidade(IdCameraPresa());
     if (entidade != nullptr && entidade->MaximoPontosVida() > 0) {
       float top_y = altura_botao * 7.0f;
       float bottom_y = altura_botao * 4.0f;

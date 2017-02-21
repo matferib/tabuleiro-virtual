@@ -546,7 +546,7 @@ void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
-  const auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (entidade_referencia == nullptr) {
     LOG(ERROR) << "nao ha entidade de referencia!";
     return;
@@ -735,7 +735,7 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::TipoShader tipo_shader;
-  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
@@ -1844,7 +1844,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   } else {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
-    } else if (id_camera_presa_ != Entidade::IdInvalido) {
+    } else if (IdCameraPresa() != Entidade::IdInvalido) {
       auto* entidade = EntidadeSelecionada();
       entidades.push_back(entidade);
     } else {
@@ -1888,7 +1888,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
   } else {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
-    } else if (id_camera_presa_ != Entidade::IdInvalido) {
+    } else if (IdCameraPresa() != Entidade::IdInvalido) {
       auto* entidade = EntidadeSelecionada();
       entidades.push_back(entidade);
     } else {
@@ -2007,14 +2007,15 @@ void Tabuleiro::ProximaIniciativa() {
   if (!EmModoMestreIncluindoSecundario()) {
     // So permite ao jogador passar se for a vez dele.
     unsigned int id_iniciativa = IniciativaCorrente();
-    if (id_camera_presa_ == Entidade::IdInvalido || id_iniciativa != id_camera_presa_) {
-      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa_ << ", vez de " << iniciativas_[indice_iniciativa_].id;
+    unsigned int id_camera_presa = IdCameraPresa();
+    if (id_camera_presa == Entidade::IdInvalido || id_iniciativa != id_camera_presa) {
+      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa << ", vez de " << iniciativas_[indice_iniciativa_].id;
       return;
     }
     // Envia requisicao pro mestre passar a vez.
     auto* n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
     n->set_servidor_apenas(true);
-    n->mutable_entidade()->set_id(id_camera_presa_);
+    n->mutable_entidade()->set_id(id_camera_presa);
     central_->AdicionaNotificacaoRemota(n);
     return;
   }
@@ -2970,7 +2971,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     return;
   }
   e->AdicionaAcaoExecutada(acao_executada);
-  if (!EmModoMestre() && id_camera_presa_ == e->Id()) {
+  if (!EmModoMestre() && IdCameraPresa() == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
     auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
     n->set_servidor_apenas(true);
@@ -4488,7 +4489,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !parametros_desenho_.desenha_mapa_sombras()) {
+    if (camera_presa_ &&  entidade->Id() == IdCameraPresa() && !parametros_desenho_.desenha_mapa_sombras()) {
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         continue;
       }
@@ -4717,7 +4718,7 @@ void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string&
 }
 
 void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
-  const auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (camera_presa_) {
     if (entidade_referencia == nullptr) {
       AlternaCameraPresa();
@@ -4731,8 +4732,9 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         }
       }
       if (cenario_diferente) {
-        AlternaCameraPresa();
-      } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+        CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
+      }
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         olho_.clear_destino();
         olho_.mutable_pos()->set_x(entidade_referencia->X());
         olho_.mutable_pos()->set_y(entidade_referencia->Y());
@@ -5241,7 +5243,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   }
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     // Move entidade primeira pessoa.
-    auto* entidade = BuscaEntidade(id_camera_presa_);
+    auto* entidade = BuscaEntidade(IdCameraPresa());
     if (entidade != nullptr) {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_MOVER_ENTIDADE);
@@ -6258,7 +6260,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
 void Tabuleiro::TrataEspiada(int espiada) {
   Entidade* entidade = nullptr;
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    entidade = BuscaEntidade(id_camera_presa_);
+    entidade = BuscaEntidade(IdCameraPresa());
   }
   if (entidade == nullptr) {
     return;
@@ -6339,7 +6341,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   std::unordered_set<unsigned int> ids;
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.insert(id_camera_presa_);
+    ids.insert(IdCameraPresa());
   } else {
     ids = ids_entidades_selecionadas_;
   }
@@ -6842,7 +6844,7 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
   parametros_desenho_.clear_nevoa();
-  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
@@ -7395,7 +7397,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
 
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return { id_camera_presa_ };
+    return { IdCameraPresa() };
   } else {
     return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   }
@@ -7404,7 +7406,7 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const {
   std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.push_back(id_camera_presa_);
+    ids.push_back(IdCameraPresa());
   }
   return ids;
 }
@@ -7412,7 +7414,7 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecion
 std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() const {
   if (ids_entidades_selecionadas_.empty()) {
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      return { id_camera_presa_ };
+      return { IdCameraPresa() };
     }
   }
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
@@ -7420,7 +7422,7 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
 
 Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   } else {
     return EntidadeSelecionada();
   }
@@ -7428,7 +7430,7 @@ Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
 
 const Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   } else {
     return EntidadeSelecionada();
   }
@@ -7438,7 +7440,7 @@ const Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() const {
   if (ids_entidades_selecionadas_.size() == 1) {
     return EntidadeSelecionada();
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   }
   return nullptr;
 }
@@ -7447,7 +7449,7 @@ Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() {
   if (ids_entidades_selecionadas_.size() == 1) {
     return EntidadeSelecionada();
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   }
   return nullptr;
 }
@@ -7764,18 +7766,32 @@ void Tabuleiro::AlternaCameraPrimeiraPessoa() {
 void Tabuleiro::AlternaCameraPresa() {
   if (camera_presa_) {
     camera_presa_ = false;
-    id_camera_presa_ = Entidade::IdInvalido;
+    ids_camera_presa_.clear();
     LOG(INFO) << "Camera solta.";
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
       AlternaCameraPrimeiraPessoa();
     }
-  } else if (ids_entidades_selecionadas_.size() == 1) {
+  } else if (!ids_entidades_selecionadas_.empty()) {
     camera_presa_ = true;
-    id_camera_presa_ = *ids_entidades_selecionadas_.begin();
+    ids_camera_presa_.insert(ids_camera_presa_.end(), ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
     LOG(INFO) << "Camera presa.";
   } else {
     LOG(INFO) << "Sem entidade selecionada.";
   }
+}
+
+void Tabuleiro::MudaEntidadeCameraPresa() {
+  if (!camera_presa_ || ids_camera_presa_.size() <= 1) {
+    LOG(INFO) << "Nao posso alternar camera, camera_presa_ " << camera_presa_
+              << ", ids_entidades_selecionadas_.size(): " << ids_entidades_selecionadas_.size();
+    return;
+  }
+
+  unsigned int primeiro = ids_camera_presa_.front();
+  LOG(INFO) << "Alternando id camera presa de " << primeiro;
+  ids_camera_presa_.pop_front();
+  ids_camera_presa_.push_back(primeiro);
+  LOG(INFO) << "Para " << ids_camera_presa_.front();
 }
 
 void Tabuleiro::DesativaWatchdog() {

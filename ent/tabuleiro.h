@@ -451,6 +451,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Alterna a camera presa a entidade. */
   void AlternaCameraPresa();
+  /** Se houver mais de uma entidade de camera presa, muda para a proxima. */
+  void MudaEntidadeCameraPresa();
 
   /** Alterna a visao no escuro. Ainda depende da entidade selecionada possuir a visao. */
   void AlternaVisaoEscuro() { visao_escuro_ = !visao_escuro_; }
@@ -882,6 +884,8 @@ class Tabuleiro : public ntf::Receptor {
   void SerializaIniciativas(TabuleiroProto* tabuleiro) const;
   void SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const;
 
+  unsigned int IdCameraPresa() const { return ids_camera_presa_.empty() ? Entidade::IdInvalido : ids_camera_presa_.front(); }
+
   void DesativaWatchdog();
   void ReativaWatchdog();
 
@@ -952,7 +956,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Para onde o olho olha.
   Olho olho_;
-  float angulo_visao_vertical_graus_ = CAMPO_VISAO_PADRAO;  
+  float angulo_visao_vertical_graus_ = CAMPO_VISAO_PADRAO;
   enum camera_e {
     CAMERA_PERSPECTIVA,
     CAMERA_ISOMETRICA,
@@ -987,8 +991,10 @@ class Tabuleiro : public ntf::Receptor {
   int visao_jogador_ = 0;
   bool camera_presa_ = false;
   bool visao_escuro_ = false;  // Jogador ligou a visao no escuro (mas depende da entidade presa possuir).
-  unsigned int id_camera_presa_ = Entidade::IdInvalido;  // A qual entidade a camera esta presa.
   std::list<int> lista_pontos_vida_;  // Usado para as acoes.
+  // unsigned int id_camera_presa_ = Entidade::IdInvalido;
+  // Lista de ids de camera presa. O corrente sempre é o front.
+  std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
