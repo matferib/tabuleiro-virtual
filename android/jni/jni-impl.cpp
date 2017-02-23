@@ -119,9 +119,8 @@ std::unique_ptr<ifg::InterfaceGraficaAndroid> g_interface_android;
 
 extern "C" {
 
-// Essa eh a primeira chamada, acontece ainda na SelecaoActivity.
 // Inicializa arquivo e o proto de opcoes.
-jint Java_com_matferib_Tabuleiro_SelecaoActivity_nativeBitsOpcoes(JNIEnv* env, jobject thiz, jobject assets, jstring dir_dados) {
+void Java_com_matferib_Tabuleiro_SelecaoActivity_nativeInitArqOpcoes(JNIEnv* env, jobject thiz, jobject assets, jstring dir_dados) {
   arq::Inicializa(env, assets, ConverteString(env, dir_dados));
   ent::OpcoesProto proto;
   try {
@@ -129,15 +128,22 @@ jint Java_com_matferib_Tabuleiro_SelecaoActivity_nativeBitsOpcoes(JNIEnv* env, j
   } catch (const std::exception& e) {
     __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Erro lendo opcoes iniciais, usando padrao: %s", e.what());
   }
-  int ret = 0;
-  if (proto.mapeamento_sombras()) {
+  g_opcoes.reset(new ent::OpcoesProto(proto));
+}
+
+jint Java_com_matferib_Tabuleiro_SelecaoActivity_nativeBitsOpcoes(JNIEnv* env, jobject thiz) {
+  jint ret;
+  if (g_opcoes->mapeamento_sombras()) {
     ret |= 1;
   }
-  if (proto.iluminacao_por_pixel()) {
+  if (g_opcoes->iluminacao_por_pixel()) {
     ret |= 2;
   }
-  g_opcoes.reset(new ent::OpcoesProto(proto));
   return ret;
+}
+
+jstring Java_com_matferib_Tabuleiro_SelecaoActivity_nativeUltimoEndereco(JNIEnv* env, jobject thiz) {
+  return env->NewStringUTF(g_opcoes->ultimo_endereco().c_str());
 }
 
 namespace {

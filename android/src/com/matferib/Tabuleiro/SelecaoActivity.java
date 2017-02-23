@@ -24,14 +24,18 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.janela_conexao);
-    int bits_opcoes = nativeBitsOpcoes(
-        getResources().getAssets(), ((android.content.Context)this).getFilesDir().getAbsolutePath());
+    nativeInitArqOpcoes(getResources().getAssets(), ((android.content.Context)this).getFilesDir().getAbsolutePath());
+    int bits_opcoes = nativeBitsOpcoes();
     ((CheckBox)findViewById(R.id.checkbox_mapeamento_sombras)).setChecked((bits_opcoes & 1) != 0);
     ((CheckBox)findViewById(R.id.checkbox_luz_por_pixel)).setChecked((bits_opcoes & 2) != 0);
     // Pega os campos do XML.
     id_ = (EditText)findViewById(R.id.texto_id_jogador);
     id_.setText(android.os.Build.MODEL);
     endereco_ = (EditText)findViewById(R.id.texto_endereco_ou_ip);
+    String ultimo_endereco = nativeUltimoEndereco();
+    if (ultimo_endereco.length() > 0) {
+      endereco_.setText(ultimo_endereco);
+    }
     botao_ = (Button)findViewById(R.id.botao_conectar);
     botao_.setOnClickListener(this);
     botaoServidor_ = (Button)findViewById(R.id.botao_abrir_servidor);
@@ -73,7 +77,9 @@ public class SelecaoActivity extends Activity implements View.OnClickListener {
   }
 
   // Retorna um bitwise das opcoes. 1 para mapeamento de sombras, 2 para luz por pixel.
-  private static native int nativeBitsOpcoes(Object assets, String dir);
+  private static native void nativeInitArqOpcoes(Object assets, String dir);
+  private static native int nativeBitsOpcoes();
+  private static native String nativeUltimoEndereco();
 
   // Membros.
   private EditText id_ = null;
