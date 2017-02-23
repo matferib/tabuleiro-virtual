@@ -494,7 +494,6 @@ pagina {
     linha: 1
     coluna: 20
     cor_rotulo {}
-    textura: "icon_tracking_camera_next.png"
     id: CONTROLE_CAMERA_PRESA_PROXIMO
     rotacao_graus: -90.0
     translacao_x: -0.3
