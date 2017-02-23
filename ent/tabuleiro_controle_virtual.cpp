@@ -597,6 +597,7 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
 unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entidade) const {
   if (!db.textura().empty()) {
     return db.has_id_textura() ? db.id_textura() : GL_INVALID_VALUE;
+    //return texturas_->Textura(db.textura());
   }
   switch (db.id()) {
     case CONTROLE_ACAO: {

@@ -1331,6 +1331,15 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ENVIAR_TEXTURAS: {
+      // Cliente recebendo texturas de servidor.
+      if (notificacao.local()) {
+        return false;
+      }
+      // Controle virtual tem que apagar as texturas dos botoes pois ele cacheia os ids.
+      IniciaGlControleVirtual();
+      return true;
+    }
     case ntf::TN_PROXIMA_INICIATIVA: {
       if (notificacao.entidade().id() == IniciativaCorrente()) {
         ProximaIniciativa();

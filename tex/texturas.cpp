@@ -427,6 +427,7 @@ bool Texturas::TrataNotificacao(const ntf::Notificacao& notificacao) {
         arq::EscreveArquivo(arq::TIPO_TEXTURA_BAIXADA, info.id(), info.bits_crus());
       }
       Recarrega(true  /*rele*/);
+      return true;
     }
     default: ;
   }
