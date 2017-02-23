@@ -7,18 +7,6 @@ fixo {
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
-    textura: "icon_save.png"
-    id: CONTROLE_SALVAR
-    forma: FORMA_RETANGULO
-    mestre_apenas: true
-    dica: "Salva tabuleiro."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -2
-    coluna: -1
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save_as.png"
     id: CONTROLE_SALVAR_COMO
     forma: FORMA_RETANGULO
@@ -27,8 +15,20 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -3
-    coluna: -1
+    linha: -1
+    coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    textura: "icon_save.png"
+    id: CONTROLE_SALVAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Salva tabuleiro."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -1
+    coluna: -3
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_open.png"
@@ -40,7 +40,7 @@ fixo {
   # Terreno.
   dados_botoes {
     tamanho: 1
-    linha: -4
+    linha: -3
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -53,7 +53,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -4
+    linha: -3
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -67,7 +67,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -5
+    linha: -4
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -81,7 +81,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -5
+    linha: -4
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -107,8 +107,8 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -7
-    coluna: -1
+    linha: -6
+    coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "Re"
@@ -120,7 +120,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -8
+    linha: -7
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -133,8 +133,8 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -9
-    coluna: -1
+    linha: -7
+    coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "X"

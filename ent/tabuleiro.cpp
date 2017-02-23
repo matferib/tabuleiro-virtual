@@ -1348,6 +1348,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_CONECTAR: {
       AlterarModoMestre(false);
+      opcoes_.set_ultimo_endereco(notificacao.endereco());
+      SalvaConfiguracoes(opcoes_);
       return true;
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
