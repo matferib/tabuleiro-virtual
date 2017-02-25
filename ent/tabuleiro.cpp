@@ -2753,18 +2753,17 @@ Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
 }
 
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
+// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  VLOG(1) << "--------------------------";
-  VLOG(1) << "iniciando ataque vs defesa";
-
+std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
   auto tipo_ataque = ea.TipoAtaque();
   int ataque_origem = ea.BonusAtaque();
   int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
+  int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
-    return std::make_tuple(1, "");
+    return std::make_tuple(1, "", true);
   }
   float alcance_m = ea.AlcanceAtaqueMetros();
   if (alcance_m >= 0) {
@@ -2794,22 +2793,33 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
     VLOG(1) << "distancia_m: " << distancia_m;
 
     if (distancia_m > alcance_m) {
-      // TODO incrementos.
-      char texto[50] = {'\0'};
-      snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm ", distancia_m, alcance_m);
-      return std::make_tuple(0, texto);
+      int total_incrementos = distancia_m / alcance_m;
+      if (total_incrementos > ea.IncrementosAtaque()) {
+        char texto[50] = {'\0'};
+        snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque());
+        return std::make_tuple(0, texto, false);
+      } else {
+        modificador_incrementos = total_incrementos * 2;
+        LOG(INFO) << "modificador_incrementos: " << modificador_incrementos;
+      }
     }
-    VLOG(1) << "alcance_m: " << alcance_m << " <= distancia_m: " << distancia_m;
+    VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
   }
 
   int d20 = RolaDado(20);
   char texto[100] = {'\0'};
   char texto_critico[50] = {'\0'};
+  char texto_incremento[50] = {'\0'};
+  if (modificador_incrementos) {
+    snprintf(texto_incremento, 49, "-%d", modificador_incrementos);
+  }
+
   if (d20 == 1) {
-    return std::make_tuple(-1, "falha critica");
-  } else if (d20 != 20 && ataque_origem + d20 < ca_destino) {
-    snprintf(texto, 49, "falhou: %d+%d= %d", d20, ataque_origem, ataque_origem + d20);
-    return std::make_tuple(0, texto);
+    VLOG(1) << "Falha critica";
+    return std::make_tuple(-1, "falha critica", false);
+  } else if (d20 != 20 && ataque_origem + d20 - modificador_incrementos < ca_destino) {
+    snprintf(texto, 49, "falhou: %d+%d%s= %d", d20, ataque_origem, texto_incremento, ataque_origem + d20);
+    return std::make_tuple(0, texto, true);
   }
 
   // Se chegou aqui acertou.
@@ -2822,19 +2832,18 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
       if (d20 == 1) {
         snprintf(texto_critico, 49, ", critico falhou: 1");
         vezes = ea.MultiplicadorCritico();
-      } else if (ataque_origem + d20_critico >= ca_destino) {
-        snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+      } else if (ataque_origem + d20_critico - modificador_incrementos >= ca_destino) {
+        snprintf(texto_critico, 49, ", critico %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico + modificador_incrementos);
         vezes = ea.MultiplicadorCritico();
       } else {
-        snprintf(texto_critico, 49, ", critico falhou: %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico);
       }
     }
   }
-  snprintf(texto, 99, "acertou: %d+%d= %d%s", d20, ataque_origem, ataque_origem + d20, texto_critico);
+  snprintf(texto, 99, "acertou: %d+%d%s= %d%s", d20, ataque_origem, texto_incremento, ataque_origem + d20, texto_critico);
 
   VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
-  VLOG(1) << "--------------------------";
-  return std::make_tuple(vezes, texto);
+  return std::make_tuple(vezes, texto, true);
 }
 
 }  // namespace
@@ -2967,17 +2976,23 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       } else {
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
+        bool realiza_acao = true;
         if (HaValorListaPontosVida() && entidade_destino != nullptr) {
           int vezes = 1;
           std::string texto;
           if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
-            std::tie(vezes, texto) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
+            VLOG(1) << "--------------------------";
+            VLOG(1) << "iniciando ataque vs defesa";
+            std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
+            VLOG(1) << "--------------------------";
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
           auto* nd = grupo_desfazer.add_notificacao();
-          if (vezes < 0) {
-            PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
+          if (vezes < 0 || !realiza_acao) {
+            if (vezes < 0) {
+              PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
+            }
             ntf::Notificacao n_texto;
             n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
             auto* acao_texto = n_texto.mutable_acao();
@@ -3005,8 +3020,10 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
           }
         }
-        VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
-        n.mutable_acao()->CopyFrom(acao_proto);
+        if (realiza_acao) {
+          VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
+          n.mutable_acao()->CopyFrom(acao_proto);
+        }
       }
       TrataNotificacao(n);
       atraso_segundos += 0.5f;
