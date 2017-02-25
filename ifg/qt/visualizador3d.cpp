@@ -984,8 +984,25 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->add_dados_ataque()->Swap(&da);
     }
   };
+  auto EditaRefrescaLista = [gerador, proto_retornado, RefrescaLista, AdicionaOuAtualizaAtaque] () {
+    int indice_antes = gerador.lista_ataques->currentRow();
+    if (indice_antes < 0 || indice_antes >= proto_retornado->dados_ataque().size()) {
+      // Vale apenas para edicao.
+      return;
+    }
+    AdicionaOuAtualizaAtaque();
+    RefrescaLista();
+    if (indice_antes < proto_retornado->dados_ataque().size()) {
+      gerador.lista_ataques->setCurrentRow(indice_antes);
+    } else {
+      gerador.lista_ataques->setCurrentRow(-1);
+    }
+  };
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, StringDano, gerador, proto_retornado] () {
+    std::vector<QObject*> objs =
+        {gerador.spin_ataque, gerador.spin_ca, gerador.spin_ca_toque, gerador.spin_ca_surpreso, gerador.spin_alcance, gerador.combo_tipo_ataque, gerador.linha_dano };
+    for (auto* obj : objs) obj->blockSignals(true);
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       gerador.botao_remover_ataque->setEnabled(false);
       gerador.botao_ataque->setText(QObject::tr("Adicionar"));
@@ -1009,6 +1026,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
         gerador.botao_ataque_cima->setEnabled(true);
         gerador.botao_ataque_baixo->setEnabled(true);
       }
+      for (auto* obj : objs) obj->blockSignals(false);
     }
   });
   lambda_connect(gerador.botao_clonar_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado] () {
@@ -1059,18 +1077,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.botao_ataque_baixo->setEnabled(false);
     RefrescaLista();
   });
-  lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado, AdicionaOuAtualizaAtaque] () {
-    int indice_antes = gerador.lista_ataques->currentRow();
-    AdicionaOuAtualizaAtaque();
-    RefrescaLista();
-    if (indice_antes < 0) {
-      gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
-    } else if (indice_antes < proto_retornado->dados_ataque().size()) {
-      gerador.lista_ataques->setCurrentRow(indice_antes);
-    } else {
-      gerador.lista_ataques->setCurrentRow(-1);
-    }
-  });
+  lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [EditaRefrescaLista] () { EditaRefrescaLista(); });
+  // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
+  lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaRefrescaLista]() { EditaRefrescaLista(); } );  // nao pode refrescar no meio pois tem processamento da string.
+  lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_ataque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_ca, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_ca_toque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_ca_surpreso, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_alcance, SIGNAL(valueChanged(double)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
 
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {

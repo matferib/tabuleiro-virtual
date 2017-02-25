@@ -1106,7 +1106,7 @@
       <item>
        <widget class="QDoubleSpinBox" name="spin_alcance">
         <property name="minimum">
-         <double>-1.500000000000000</double>
+         <double>-3.000000000000000</double>
         </property>
         <property name="singleStep">
          <double>1.500000000000000</double>

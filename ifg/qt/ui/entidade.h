@@ -777,7 +777,7 @@ public:
 
         spin_alcance = new QDoubleSpinBox(horizontalLayoutWidget_5);
         spin_alcance->setObjectName(QString::fromUtf8("spin_alcance"));
-        spin_alcance->setMinimum(-1.5);
+        spin_alcance->setMinimum(-3);
         spin_alcance->setSingleStep(1.5);
 
         horizontalLayout_6->addWidget(spin_alcance);
