@@ -2783,11 +2783,11 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
       vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
       const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
       distancia_m -= MARGEM_ERRO;
-      LOG(INFO) << "Usando posicao real, descontando " << MARGEM_ERRO;
+      VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
     } else {
       vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
       distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-      LOG(INFO) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
+      VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
     }
     distancia_m += (va - vd).length();
     VLOG(1) << "distancia_m: " << distancia_m;
@@ -2800,7 +2800,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
         return std::make_tuple(0, texto, false);
       } else {
         modificador_incrementos = total_incrementos * 2;
-        LOG(INFO) << "modificador_incrementos: " << modificador_incrementos;
+        VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
       }
     }
     VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
