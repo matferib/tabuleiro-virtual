@@ -2377,18 +2377,18 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
           if (manter_chao) {
             ResultadoZApoio res = ZApoio(ex1, ey1, z_olho, altura_olho);
             float z_chao_depois = ZChao(nx, ny);
-            VLOG(1) << "zchao_depois: " << z_chao_depois << ", res.z_apoio: " << res.z_apoio;
+            VLOG(2) << "zchao_depois: " << z_chao_depois << ", res.z_apoio: " << res.z_apoio;
             if (!res.apoiado) {
-              VLOG(1) << "usando chao";
+              VLOG(2) << "usando chao";
               z_depois = z_chao_depois;
             } else {
-              VLOG(1) << "usando res apoio";
+              VLOG(2) << "usando res apoio";
               z_depois = res.z_apoio;
             }
-            VLOG(1) << "mantendo apoio: z_depois: " << z_depois;
+            VLOG(2) << "mantendo apoio: z_depois: " << z_depois;
           } else {
             z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
-            VLOG(1) << "nao mantendo apoio, z_depois " << z_depois;
+            VLOG(2) << "nao mantendo apoio, z_depois " << z_depois;
           }
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
@@ -2754,15 +2754,54 @@ Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
 
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
 // Caso haja falha critica, retorna vezes = -1;
-std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed) {
+// Posicao ataque eh para calculo de distancia.
+std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  VLOG(1) << "--------------------------";
+  VLOG(1) << "iniciando ataque vs defesa";
+
+  auto tipo_ataque = ea.TipoAtaque();
   int ataque_origem = ea.BonusAtaque();
-  int ca_destino = ed.CA(CATipoAtaque(ea.TipoAtaque()));
+  int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
     return std::make_tuple(1, "");
   }
+  float alcance_m = ea.AlcanceAtaqueMetros();
+  if (alcance_m >= 0) {
+    Posicao pos_acao_a = ea.PosicaoAcao();
+    Posicao pos_acao_d = ed.PosicaoAcao();
 
-  VLOG(1) << "iniciando ataque vs defesa";
+    // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
+    float mult_tamanho = ea.MultiplicadorTamanho();
+    float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
+    VLOG(1) << "raio_a: " << raio_a;
+
+    // Distancia da acao ao alvo. Poderia usar o raio da defesa, mas é mais legal fazer a distancia precisa.
+    Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
+    Vector3 vd;
+    float distancia_m = - raio_a;
+    if (pos_alvo.has_x()) {
+      vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
+      const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
+      distancia_m -= MARGEM_ERRO;
+      LOG(INFO) << "Usando posicao real, descontando " << MARGEM_ERRO;
+    } else {
+      vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
+      distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+      LOG(INFO) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
+    }
+    distancia_m += (va - vd).length();
+    VLOG(1) << "distancia_m: " << distancia_m;
+
+    if (distancia_m > alcance_m) {
+      // TODO incrementos.
+      char texto[50] = {'\0'};
+      snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm ", distancia_m, alcance_m);
+      return std::make_tuple(0, texto);
+    }
+    VLOG(1) << "alcance_m: " << alcance_m << " <= distancia_m: " << distancia_m;
+  }
+
   int d20 = RolaDado(20);
   char texto[100] = {'\0'};
   char texto_critico[50] = {'\0'};
@@ -2794,6 +2833,7 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
   snprintf(texto, 99, "acertou: %d+%d= %d%s", d20, ataque_origem, ataque_origem + d20, texto_critico);
 
   VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
+  VLOG(1) << "--------------------------";
   return std::make_tuple(vezes, texto);
 }
 
@@ -2931,7 +2971,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           int vezes = 1;
           std::string texto;
           if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
-            std::tie(vezes, texto) = AtaqueVsDefesa(*entidade, *entidade_destino);
+            std::tie(vezes, texto) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
@@ -6204,8 +6244,8 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     Vector3 d(x3d, y3d, z3d);
     Vector3 o(x, y, z_olho);
     profundidade = (d - o).length();
-    VLOG(1) << "colisao possivel, prof: " << profundidade;
-    VLOG(1) << "espaco entidade: " << espaco_entidade;
+    VLOG(2) << "colisao possivel, prof: " << profundidade;
+    VLOG(2) << "espaco entidade: " << espaco_entidade;
     if (profundidade < (tamanho_movimento + espaco_entidade)) {
       colisao = true;
       if (profundidade > espaco_entidade) {
@@ -6214,15 +6254,15 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
         if (tamanho_movimento < TAMANHO_LADO_QUADRADO_10) {
           tamanho_movimento = 0.0f;
         }
-        VLOG(1) << "reduzindo movimento para " << tamanho_movimento;
+        VLOG(2) << "reduzindo movimento para " << tamanho_movimento;
       } else {
         // nao da pra andar mais.
         tamanho_movimento = 0.0f;
-        VLOG(1) << "reduzindo 2 movimento para zero";
+        VLOG(2) << "reduzindo 2 movimento para zero";
       }
     }
   } else {
-    VLOG(1) << "sem colisao, tamanho: " << tamanho_movimento;
+    VLOG(2) << "sem colisao, tamanho: " << tamanho_movimento;
   }
   // TODO normal.
   parametros_desenho_.Swap(&pd);
@@ -6247,9 +6287,9 @@ Tabuleiro::ResultadoZApoio Tabuleiro::ZApoio(float x, float y, float z_olho, flo
                                     Vector3(0.0f, 0.0f, -fabs(z_olho - ZChao(x, y))),
                                     true  /*ignora espaco*/);
   ResultadoZApoio res;
-  VLOG(1) << "res_colisao.profundidade: " << res_colisao.profundidade << ", altura_olho: " << altura_olho;
+  VLOG(2) << "res_colisao.profundidade: " << res_colisao.profundidade << ", altura_olho: " << altura_olho;
   res.apoiado = res_colisao.colisao; //res_colisao.profundidade - altura_olho < PRECISAO_APOIO;
-  VLOG(1) << "apoiado: " << res.apoiado;
+  VLOG(2) << "apoiado: " << res.apoiado;
   res.z_apoio = z_olho - res_colisao.profundidade;
   return res;
 }

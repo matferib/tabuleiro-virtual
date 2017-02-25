@@ -1125,8 +1125,17 @@ std::string Entidade::TipoAtaque() const {
   return "Ataque Corpo a Corpo";
 }
 
+float Entidade::AlcanceAtaqueMetros() const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr || !da->has_alcance_m()) {
+    return -1.5f;
+  }
+  return da->alcance_m();
+}
+
 int Entidade::BonusAtaque() const {
-  std::vector<int> ataques_casados; 
+  // TODO: usar DadoCorrente?
+  std::vector<int> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao) {

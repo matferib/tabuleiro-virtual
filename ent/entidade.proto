@@ -225,6 +225,8 @@ message EntidadeProto {
     optional int32 ca_normal = 4;
     optional int32 ca_surpreso = 5;
     optional int32 ca_toque = 8;
+    optional float alcance_m = 10;
+    optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
   }
   repeated DadosAtaque dados_ataque = 44;
 

@@ -190,6 +190,8 @@ class Entidade {
   std::string TipoAtaque() const;
   int MargemCritico() const;
   int MultiplicadorCritico() const;
+  // Retorna o alcance do ataque em m. Negativo se nao tiver.
+  float AlcanceAtaqueMetros() const;
   enum TipoCA {
     CA_NORMAL,
     CA_TOQUE,
@@ -208,7 +210,7 @@ class Entidade {
   static bool ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
 
   /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
-  * 1.0f para entidades medias.
+  * 1.0f para entidades medias. Multiplicado pelo tamanho do quadrado da o tamanho da entidade.
   */
   float MultiplicadorTamanho() const;
 

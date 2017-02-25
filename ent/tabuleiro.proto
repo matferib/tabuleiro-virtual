@@ -49,6 +49,7 @@ message OpcoesProto {
   optional bool mostra_iniciativas = 14 [default=true];
   optional string ultimo_endereco = 15;
   optional bool mostra_log_eventos = 16;
+  optional bool ataque_vs_defesa_posicao_real = 17;
 }
 
 // Mensagem enviada para os clientes de um jogo.
