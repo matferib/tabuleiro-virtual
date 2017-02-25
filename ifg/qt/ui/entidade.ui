@@ -1036,6 +1036,13 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
       <item>
+       <widget class="QLineEdit" name="linha_rotulo_ataque">
+        <property name="toolTip">
+         <string>Identificador do ataque</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_21">
         <property name="text">
          <string>Tipo</string>
@@ -1241,7 +1248,7 @@
       <item>
        <widget class="QPushButton" name="botao_ataque">
         <property name="text">
-         <string>Adicionar</string>
+         <string>+</string>
         </property>
         <property name="default">
          <bool>true</bool>

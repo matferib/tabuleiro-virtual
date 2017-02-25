@@ -939,13 +939,17 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.lista_ataques->clear();
     for (const auto& da : proto_retornado->dados_ataque()) {
       // Monta a string.
+      char string_rotulo[40] = { '\0' };
+      if (da.has_rotulo()) {
+        snprintf(string_rotulo, 39, "%s, ", da.rotulo().c_str());
+      }
       char string_alcance[40] = { '\0' };
       if (da.has_alcance_m()) {
         snprintf(string_alcance, 39, "alcance: %0.1f, ", da.alcance_m());
       }
-      char string_dado[100];
-      snprintf(string_dado, 99, "id: %s, %sbonus: %d, dano: %s, ca: %d toque: %d surpresa: %d",
-               da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_toque(), da.ca_surpreso());
+      char string_dado[150];
+      snprintf(string_dado, 149, "id: %s%s, %sbonus: %d, dano: %s, ca: %d toque: %d surpresa: %d",
+               string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_toque(), da.ca_surpreso());
       gerador.lista_ataques->addItem(QString::fromUtf8(string_dado));
     }
   };
@@ -968,6 +972,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     da.set_ca_normal(gerador.spin_ca->value());
     da.set_ca_toque(gerador.spin_ca_toque->value());
     da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
+    da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
     if (gerador.spin_alcance->value() >= 0) {
       da.set_alcance_m(gerador.spin_alcance->value());
     } else {
@@ -983,14 +988,15 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, StringDano, gerador, proto_retornado] () {
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
       gerador.botao_remover_ataque->setEnabled(false);
-      gerador.botao_ataque->setText(QObject::tr("Adicionar ataque"));
+      gerador.botao_ataque->setText(QObject::tr("Adicionar"));
       gerador.botao_ataque_cima->setEnabled(false);
       gerador.botao_ataque_baixo->setEnabled(false);
       gerador.botao_clonar_ataque->setEnabled(false);
     } else {
       gerador.botao_remover_ataque->setEnabled(true);
-      gerador.botao_ataque->setText(QObject::tr("Editar ataque"));
+      gerador.botao_ataque->setText(QObject::tr("Editar"));
       const auto& da = proto_retornado->dados_ataque(gerador.lista_ataques->currentRow());
+      gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
       gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
       gerador.spin_ataque->setValue(da.bonus_ataque());
       gerador.linha_dano->setText(StringDano(da).c_str());
@@ -1054,9 +1060,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     RefrescaLista();
   });
   lambda_connect(gerador.botao_ataque, SIGNAL(clicked()), [this, RefrescaLista, gerador, proto_retornado, AdicionaOuAtualizaAtaque] () {
+    int indice_antes = gerador.lista_ataques->currentRow();
     AdicionaOuAtualizaAtaque();
     RefrescaLista();
-    gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
+    if (indice_antes < 0) {
+      gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
+    } else if (indice_antes < proto_retornado->dados_ataque().size()) {
+      gerador.lista_ataques->setCurrentRow(indice_antes);
+    } else {
+      gerador.lista_ataques->setCurrentRow(-1);
+    }
   });
 
   // Coisas que nao estao na UI.

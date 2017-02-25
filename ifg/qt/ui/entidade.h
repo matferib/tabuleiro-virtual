@@ -146,6 +146,7 @@ public:
     QPushButton *botao_remover_ataque;
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_6;
+    QLineEdit *linha_rotulo_ataque;
     QLabel *label_21;
     QComboBox *combo_tipo_ataque;
     QSpacerItem *horizontalSpacer;
@@ -750,6 +751,11 @@ public:
         horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
+        linha_rotulo_ataque = new QLineEdit(horizontalLayoutWidget_5);
+        linha_rotulo_ataque->setObjectName(QString::fromUtf8("linha_rotulo_ataque"));
+
+        horizontalLayout_6->addWidget(linha_rotulo_ataque);
+
         label_21 = new QLabel(horizontalLayoutWidget_5);
         label_21->setObjectName(QString::fromUtf8("label_21"));
 
@@ -1056,6 +1062,9 @@ public:
         spin_modificador_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de iniciativa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", 0, QApplication::UnicodeUTF8));
         combo_tipo_ataque->clear();
         combo_tipo_ataque->insertItems(0, QStringList()
@@ -1085,7 +1094,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_ca_surpreso->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Surpresa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        botao_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar", 0, QApplication::UnicodeUTF8));
+        botao_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
         botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "^", 0, QApplication::UnicodeUTF8));
         botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "v", 0, QApplication::UnicodeUTF8));
