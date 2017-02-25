@@ -1076,7 +1076,12 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
     return 0;
   }
   try {
-    return GeraPontosVida(s);
+    // Nao deixa valor negativo para evitar danos que curam.
+    int valor = GeraPontosVida(s);
+    if (valor < 0) {
+      valor = 0;
+    }
+    return valor;
   } catch (const std::exception& e) {
     return 0;
   }
@@ -1131,6 +1136,14 @@ float Entidade::AlcanceAtaqueMetros() const {
     return -1.5f;
   }
   return da->alcance_m();
+}
+
+int Entidade::IncrementosAtaque() const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
+    return 0;
+  }
+  return da->incrementos();
 }
 
 int Entidade::BonusAtaque() const {
