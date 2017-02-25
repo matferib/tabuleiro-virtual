@@ -37,15 +37,16 @@ public:
     QCheckBox *checkbox_iluminacao_por_pixel;
     QCheckBox *checkbox_mapeamento_oclusao;
     QCheckBox *checkbox_mapeamento_de_sombras;
+    QCheckBox *checkbox_ataque_vs_defesa_posicao_real;
 
     void setupUi(QDialog *ifg__qt__DialogoOpcoes)
     {
         if (ifg__qt__DialogoOpcoes->objectName().isEmpty())
             ifg__qt__DialogoOpcoes->setObjectName(QString::fromUtf8("ifg__qt__DialogoOpcoes"));
-        ifg__qt__DialogoOpcoes->resize(423, 394);
+        ifg__qt__DialogoOpcoes->resize(423, 436);
         buttonBox = new QDialogButtonBox(ifg__qt__DialogoOpcoes);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
-        buttonBox->setGeometry(QRect(210, 340, 191, 32));
+        buttonBox->setGeometry(QRect(210, 380, 191, 32));
         buttonBox->setOrientation(Qt::Horizontal);
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         checkbox_mostrar_fps = new QCheckBox(ifg__qt__DialogoOpcoes);
@@ -71,7 +72,7 @@ public:
         checkbox_controle->setGeometry(QRect(10, 200, 271, 22));
         groupBox = new QGroupBox(ifg__qt__DialogoOpcoes);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(10, 290, 201, 51));
+        groupBox->setGeometry(QRect(10, 330, 201, 51));
         checkbox_iluminacao_por_pixel = new QCheckBox(groupBox);
         checkbox_iluminacao_por_pixel->setObjectName(QString::fromUtf8("checkbox_iluminacao_por_pixel"));
         checkbox_iluminacao_por_pixel->setGeometry(QRect(10, 30, 271, 22));
@@ -81,6 +82,9 @@ public:
         checkbox_mapeamento_de_sombras = new QCheckBox(ifg__qt__DialogoOpcoes);
         checkbox_mapeamento_de_sombras->setObjectName(QString::fromUtf8("checkbox_mapeamento_de_sombras"));
         checkbox_mapeamento_de_sombras->setGeometry(QRect(10, 260, 271, 22));
+        checkbox_ataque_vs_defesa_posicao_real = new QCheckBox(ifg__qt__DialogoOpcoes);
+        checkbox_ataque_vs_defesa_posicao_real->setObjectName(QString::fromUtf8("checkbox_ataque_vs_defesa_posicao_real"));
+        checkbox_ataque_vs_defesa_posicao_real->setGeometry(QRect(10, 290, 271, 22));
 
         retranslateUi(ifg__qt__DialogoOpcoes);
         QObject::connect(buttonBox, SIGNAL(accepted()), ifg__qt__DialogoOpcoes, SLOT(accept()));
@@ -103,6 +107,7 @@ public:
         checkbox_iluminacao_por_pixel->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ilumina\303\247\303\243o por pixel (lento)", 0, QApplication::UnicodeUTF8));
         checkbox_mapeamento_oclusao->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Oclus\303\243o", 0, QApplication::UnicodeUTF8));
         checkbox_mapeamento_de_sombras->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Mapeamento de sombras", 0, QApplication::UnicodeUTF8));
+        checkbox_ataque_vs_defesa_posicao_real->setText(QApplication::translate("ifg::qt::DialogoOpcoes", "Ataque vs Defesa posi\303\247\303\243o Real", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

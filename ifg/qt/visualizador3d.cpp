@@ -939,9 +939,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.lista_ataques->clear();
     for (const auto& da : proto_retornado->dados_ataque()) {
       // Monta a string.
+      char string_alcance[40] = { '\0' };
+      if (da.has_alcance_m()) {
+        snprintf(string_alcance, 39, "alcance: %0.1f, ", da.alcance_m());
+      }
       char string_dado[100];
-      snprintf(string_dado, 99, "id: %s, bonus: %d, dano: %s, ca: %d toque: %d surpresa: %d",
-               da.tipo_ataque().c_str(), da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_toque(), da.ca_surpreso());
+      snprintf(string_dado, 99, "id: %s, %sbonus: %d, dano: %s, ca: %d toque: %d surpresa: %d",
+               da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringDano(da).c_str(), da.ca_normal(), da.ca_toque(), da.ca_surpreso());
       gerador.lista_ataques->addItem(QString::fromUtf8(string_dado));
     }
   };
@@ -964,6 +968,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     da.set_ca_normal(gerador.spin_ca->value());
     da.set_ca_toque(gerador.spin_ca_toque->value());
     da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
+    if (gerador.spin_alcance->value() >= 0) {
+      da.set_alcance_m(gerador.spin_alcance->value());
+    } else {
+      da.clear_alcance_m();
+    }
     if (indice_valido) {
       proto_retornado->mutable_dados_ataque(indice)->MergeFrom(da);
     } else {
@@ -988,6 +997,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       gerador.spin_ca->setValue(da.ca_normal());
       gerador.spin_ca_toque->setValue(da.ca_toque());
       gerador.spin_ca_surpreso->setValue(da.ca_surpreso());
+      gerador.spin_alcance->setValue(da.has_alcance_m() ? da.alcance_m() : -1.5f);
       gerador.botao_clonar_ataque->setEnabled(true);
       if (proto_retornado->dados_ataque().size() > 1) {
         gerador.botao_ataque_cima->setEnabled(true);
@@ -1035,6 +1045,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.spin_ca->clear();
     gerador.spin_ca_toque->clear();
     gerador.spin_ca_surpreso->clear();
+    gerador.spin_alcance->clear();
     gerador.linha_dano->clear();
     gerador.botao_ataque->setText("Adicionar ataque");
     gerador.botao_clonar_ataque->setEnabled(false);
@@ -1366,6 +1377,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
   gerador.checkbox_iluminacao_por_pixel->setCheckState(opcoes_proto.iluminacao_por_pixel() ? Qt::Checked : Qt::Unchecked);
   // Oclusao.
   gerador.checkbox_mapeamento_oclusao->setCheckState(opcoes_proto.mapeamento_oclusao() ? Qt::Checked : Qt::Unchecked);
+  // Ataque vs defesa posicao real.
+  gerador.checkbox_ataque_vs_defesa_posicao_real->setCheckState(opcoes_proto.ataque_vs_defesa_posicao_real() ? Qt::Checked : Qt::Unchecked);
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()), [this, dialogo, &gerador, proto_retornado] {
@@ -1387,6 +1400,8 @@ ent::OpcoesProto* Visualizador3d::AbreDialogoOpcoes(
         gerador.checkbox_iluminacao_por_pixel->checkState() == Qt::Checked ? true : false);
     proto_retornado->set_mapeamento_oclusao(
         gerador.checkbox_mapeamento_oclusao->checkState() == Qt::Checked ? true : false);
+    proto_retornado->set_ataque_vs_defesa_posicao_real(
+        gerador.checkbox_ataque_vs_defesa_posicao_real->checkState() == Qt::Checked ? true : false);
   });
   // Cancelar.
   lambda_connect(dialogo, SIGNAL(rejected()), [&notificacao, &proto_retornado] {
