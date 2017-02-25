@@ -154,6 +154,8 @@ public:
     QDoubleSpinBox *spin_alcance;
     QLabel *label_30;
     QSpacerItem *horizontalSpacer_5;
+    QLabel *label_32;
+    QSpinBox *spin_incrementos;
     QLabel *label_23;
     QSpinBox *spin_ataque;
     QSpacerItem *horizontalSpacer_2;
@@ -167,7 +169,6 @@ public:
     QLabel *label_28;
     QSpinBox *spin_ca_surpreso;
     QSpacerItem *horizontalSpacer_4;
-    QPushButton *botao_ataque;
     QListWidget *lista_ataques;
     QCheckBox *checkbox_imune_critico;
     QPushButton *botao_ataque_cima;
@@ -791,6 +792,16 @@ public:
 
         horizontalLayout_6->addItem(horizontalSpacer_5);
 
+        label_32 = new QLabel(horizontalLayoutWidget_5);
+        label_32->setObjectName(QString::fromUtf8("label_32"));
+
+        horizontalLayout_6->addWidget(label_32);
+
+        spin_incrementos = new QSpinBox(horizontalLayoutWidget_5);
+        spin_incrementos->setObjectName(QString::fromUtf8("spin_incrementos"));
+
+        horizontalLayout_6->addWidget(spin_incrementos);
+
         label_23 = new QLabel(horizontalLayoutWidget_5);
         label_23->setObjectName(QString::fromUtf8("label_23"));
 
@@ -855,12 +866,6 @@ public:
 
         horizontalLayout_6->addItem(horizontalSpacer_4);
 
-        botao_ataque = new QPushButton(horizontalLayoutWidget_5);
-        botao_ataque->setObjectName(QString::fromUtf8("botao_ataque"));
-        botao_ataque->setDefault(true);
-
-        horizontalLayout_6->addWidget(botao_ataque);
-
         lista_ataques = new QListWidget(tab_estatisticas);
         lista_ataques->setObjectName(QString::fromUtf8("lista_ataques"));
         lista_ataques->setGeometry(QRect(10, 110, 861, 181));
@@ -875,7 +880,7 @@ public:
         botao_ataque_baixo->setGeometry(QRect(880, 200, 31, 27));
         botao_clonar_ataque = new QPushButton(tab_estatisticas);
         botao_clonar_ataque->setObjectName(QString::fromUtf8("botao_clonar_ataque"));
-        botao_clonar_ataque->setEnabled(false);
+        botao_clonar_ataque->setEnabled(true);
         botao_clonar_ataque->setGeometry(QRect(630, 300, 121, 27));
         tab_entidade->addTab(tab_estatisticas, QString());
         QWidget::setTabOrder(checkbox_selecionavel, checkbox_voadora);
@@ -909,8 +914,7 @@ public:
         QWidget::setTabOrder(linha_dano, spin_ca);
         QWidget::setTabOrder(spin_ca, spin_ca_toque);
         QWidget::setTabOrder(spin_ca_toque, spin_ca_surpreso);
-        QWidget::setTabOrder(spin_ca_surpreso, botao_ataque);
-        QWidget::setTabOrder(botao_ataque, checkbox_imune_critico);
+        QWidget::setTabOrder(spin_ca_surpreso, checkbox_imune_critico);
         QWidget::setTabOrder(checkbox_imune_critico, botao_ataque_cima);
         QWidget::setTabOrder(botao_ataque_cima, botao_ataque_baixo);
         QWidget::setTabOrder(botao_ataque_baixo, botoes);
@@ -1077,6 +1081,10 @@ public:
         );
         label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
         label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "m", 0, QApplication::UnicodeUTF8));
+        label_32->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inc", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus ", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -1094,7 +1102,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_ca_surpreso->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Surpresa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        botao_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
         botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "^", 0, QApplication::UnicodeUTF8));
         botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "v", 0, QApplication::UnicodeUTF8));

@@ -1134,6 +1134,20 @@
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="label_32">
+        <property name="text">
+         <string>Inc</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="spin_incrementos">
+        <property name="toolTip">
+         <string>Máximo de incrementos permitido pelo ataque</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="label_23">
         <property name="text">
          <string>Bonus </string>
@@ -1245,16 +1259,6 @@
         </property>
        </spacer>
       </item>
-      <item>
-       <widget class="QPushButton" name="botao_ataque">
-        <property name="text">
-         <string>+</string>
-        </property>
-        <property name="default">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
     <widget class="QListWidget" name="lista_ataques">
@@ -1308,7 +1312,7 @@
     </widget>
     <widget class="QPushButton" name="botao_clonar_ataque">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="geometry">
       <rect>
@@ -1358,7 +1362,6 @@
   <tabstop>spin_ca</tabstop>
   <tabstop>spin_ca_toque</tabstop>
   <tabstop>spin_ca_surpreso</tabstop>
-  <tabstop>botao_ataque</tabstop>
   <tabstop>checkbox_imune_critico</tabstop>
   <tabstop>botao_ataque_cima</tabstop>
   <tabstop>botao_ataque_baixo</tabstop>
