@@ -1420,9 +1420,10 @@ GLint ModoRenderizacao(modo_renderizacao_e modo) {
         }
         auto it = c->ids.find(id_mapeado);
         if (it == c->ids.end()) {
-          LOG(ERROR) << "Id nao mapeado, tipo: " << tipo_objeto
-                     << ", identificador: " << (id_mapeado & 0xFFFF)
-                     << ", tudo: " << (void*)id_mapeado;
+          // Em detecao de colisao, eh comum acontecer.
+          VLOG(1) << "Id nao mapeado, tipo: " << tipo_objeto
+                  << ", identificador: " << (id_mapeado & 0xFFFF)
+                  << ", tudo: " << (void*)id_mapeado;
           return 0;
         }
         unsigned int id_original = it->second;

@@ -546,7 +546,7 @@ void Tabuleiro::ConfiguraOlharMapeamentoSombras() {
 }
 
 void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
-  const auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (entidade_referencia == nullptr) {
     LOG(ERROR) << "nao ha entidade de referencia!";
     return;
@@ -735,7 +735,7 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   gl::TipoShader tipo_shader;
-  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (entidade_referencia != nullptr && entidade_referencia->Proto().tipo_visao() == VISAO_ESCURO && visao_escuro_ &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     parametros_desenho_.set_tipo_visao(entidade_referencia->Proto().tipo_visao());
@@ -755,6 +755,7 @@ int Tabuleiro::Desenha() {
   parametros_desenho_.set_desenha_lista_jogadores(opcoes_.mostra_lista_jogadores());
   parametros_desenho_.set_desenha_iniciativas(opcoes_.mostra_iniciativas());
   parametros_desenho_.set_desenha_fps(opcoes_.mostra_fps());
+  parametros_desenho_.set_desenha_log_eventos(opcoes_.mostra_log_eventos());
   parametros_desenho_.set_desenha_grade(opcoes_.desenha_grade());
   parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
   parametros_desenho_.mutable_projecao()->set_tipo_camera(camera_);
@@ -1330,6 +1331,15 @@ void Tabuleiro::LimpaUltimoListaPontosVida() {
 
 bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
   switch (notificacao.tipo()) {
+    case ntf::TN_ENVIAR_TEXTURAS: {
+      // Cliente recebendo texturas de servidor.
+      if (notificacao.local()) {
+        return false;
+      }
+      // Controle virtual tem que apagar as texturas dos botoes pois ele cacheia os ids.
+      IniciaGlControleVirtual();
+      return true;
+    }
     case ntf::TN_PROXIMA_INICIATIVA: {
       if (notificacao.entidade().id() == IniciativaCorrente()) {
         ProximaIniciativa();
@@ -1347,6 +1357,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_CONECTAR: {
       AlterarModoMestre(false);
+      opcoes_.set_ultimo_endereco(notificacao.endereco());
+      SalvaConfiguracoes(opcoes_);
       return true;
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
@@ -1844,7 +1856,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
   } else {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
-    } else if (id_camera_presa_ != Entidade::IdInvalido) {
+    } else if (IdCameraPresa() != Entidade::IdInvalido) {
       auto* entidade = EntidadeSelecionada();
       entidades.push_back(entidade);
     } else {
@@ -1888,7 +1900,7 @@ void Tabuleiro::RolaIniciativasNotificando() {
   } else {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
-    } else if (id_camera_presa_ != Entidade::IdInvalido) {
+    } else if (IdCameraPresa() != Entidade::IdInvalido) {
       auto* entidade = EntidadeSelecionada();
       entidades.push_back(entidade);
     } else {
@@ -2007,14 +2019,15 @@ void Tabuleiro::ProximaIniciativa() {
   if (!EmModoMestreIncluindoSecundario()) {
     // So permite ao jogador passar se for a vez dele.
     unsigned int id_iniciativa = IniciativaCorrente();
-    if (id_camera_presa_ == Entidade::IdInvalido || id_iniciativa != id_camera_presa_) {
-      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa_ << ", vez de " << iniciativas_[indice_iniciativa_].id;
+    unsigned int id_camera_presa = IdCameraPresa();
+    if (id_camera_presa == Entidade::IdInvalido || id_iniciativa != id_camera_presa) {
+      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa << ", vez de " << iniciativas_[indice_iniciativa_].id;
       return;
     }
     // Envia requisicao pro mestre passar a vez.
     auto* n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
     n->set_servidor_apenas(true);
-    n->mutable_entidade()->set_id(id_camera_presa_);
+    n->mutable_entidade()->set_id(id_camera_presa);
     central_->AdicionaNotificacaoRemota(n);
     return;
   }
@@ -2364,18 +2377,18 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
           if (manter_chao) {
             ResultadoZApoio res = ZApoio(ex1, ey1, z_olho, altura_olho);
             float z_chao_depois = ZChao(nx, ny);
-            VLOG(1) << "zchao_depois: " << z_chao_depois << ", res.z_apoio: " << res.z_apoio;
+            VLOG(2) << "zchao_depois: " << z_chao_depois << ", res.z_apoio: " << res.z_apoio;
             if (!res.apoiado) {
-              VLOG(1) << "usando chao";
+              VLOG(2) << "usando chao";
               z_depois = z_chao_depois;
             } else {
-              VLOG(1) << "usando res apoio";
+              VLOG(2) << "usando res apoio";
               z_depois = res.z_apoio;
             }
-            VLOG(1) << "mantendo apoio: z_depois: " << z_depois;
+            VLOG(2) << "mantendo apoio: z_depois: " << z_depois;
           } else {
             z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
-            VLOG(1) << "nao mantendo apoio, z_depois " << z_depois;
+            VLOG(2) << "nao mantendo apoio, z_depois " << z_depois;
           }
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
@@ -2740,24 +2753,73 @@ Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
 }
 
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
+// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
 // Caso haja falha critica, retorna vezes = -1;
-std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed) {
+// Posicao ataque eh para calculo de distancia.
+std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  auto tipo_ataque = ea.TipoAtaque();
   int ataque_origem = ea.BonusAtaque();
-  int ca_destino = ed.CA(CATipoAtaque(ea.TipoAtaque()));
+  int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
+  int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
-    return std::make_tuple(1, "");
+    return std::make_tuple(1, "", true);
+  }
+  float alcance_m = ea.AlcanceAtaqueMetros();
+  if (alcance_m >= 0) {
+    Posicao pos_acao_a = ea.PosicaoAcao();
+    Posicao pos_acao_d = ed.PosicaoAcao();
+
+    // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
+    float mult_tamanho = ea.MultiplicadorTamanho();
+    float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
+    VLOG(1) << "raio_a: " << raio_a;
+
+    // Distancia da acao ao alvo. Poderia usar o raio da defesa, mas é mais legal fazer a distancia precisa.
+    Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
+    Vector3 vd;
+    float distancia_m = - raio_a;
+    if (pos_alvo.has_x()) {
+      vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
+      const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
+      distancia_m -= MARGEM_ERRO;
+      VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
+    } else {
+      vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
+      distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+      VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
+    }
+    distancia_m += (va - vd).length();
+    VLOG(1) << "distancia_m: " << distancia_m;
+
+    if (distancia_m > alcance_m) {
+      int total_incrementos = distancia_m / alcance_m;
+      if (total_incrementos > ea.IncrementosAtaque()) {
+        char texto[50] = {'\0'};
+        snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque());
+        return std::make_tuple(0, texto, false);
+      } else {
+        modificador_incrementos = total_incrementos * 2;
+        VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
+      }
+    }
+    VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
   }
 
-  VLOG(1) << "iniciando ataque vs defesa";
   int d20 = RolaDado(20);
   char texto[100] = {'\0'};
   char texto_critico[50] = {'\0'};
+  char texto_incremento[50] = {'\0'};
+  if (modificador_incrementos) {
+    snprintf(texto_incremento, 49, "-%d", modificador_incrementos);
+  }
+
   if (d20 == 1) {
-    return std::make_tuple(-1, "falha critica");
-  } else if (d20 != 20 && ataque_origem + d20 < ca_destino) {
-    snprintf(texto, 49, "falhou: %d+%d= %d", d20, ataque_origem, ataque_origem + d20);
-    return std::make_tuple(0, texto);
+    VLOG(1) << "Falha critica";
+    return std::make_tuple(-1, "falha critica", false);
+  } else if (d20 != 20 && ataque_origem + d20 - modificador_incrementos < ca_destino) {
+    snprintf(texto, 49, "falhou: %d+%d%s= %d", d20, ataque_origem, texto_incremento, ataque_origem + d20);
+    return std::make_tuple(0, texto, true);
   }
 
   // Se chegou aqui acertou.
@@ -2770,18 +2832,18 @@ std::tuple<int, std::string> AtaqueVsDefesa(const Entidade& ea, const Entidade& 
       if (d20 == 1) {
         snprintf(texto_critico, 49, ", critico falhou: 1");
         vezes = ea.MultiplicadorCritico();
-      } else if (ataque_origem + d20_critico >= ca_destino) {
-        snprintf(texto_critico, 49, ", critico %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+      } else if (ataque_origem + d20_critico - modificador_incrementos >= ca_destino) {
+        snprintf(texto_critico, 49, ", critico %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico + modificador_incrementos);
         vezes = ea.MultiplicadorCritico();
       } else {
-        snprintf(texto_critico, 49, ", critico falhou: %d+%d= %d", d20_critico, ataque_origem, ataque_origem + d20_critico);
+        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico);
       }
     }
   }
-  snprintf(texto, 99, "acertou: %d+%d= %d%s", d20, ataque_origem, ataque_origem + d20, texto_critico);
+  snprintf(texto, 99, "acertou: %d+%d%s= %d%s", d20, ataque_origem, texto_incremento, ataque_origem + d20, texto_critico);
 
   VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
-  return std::make_tuple(vezes, texto);
+  return std::make_tuple(vezes, texto, true);
 }
 
 }  // namespace
@@ -2914,17 +2976,23 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       } else {
         Entidade* entidade_destino =
            id_entidade_destino != Entidade::IdInvalido ? BuscaEntidade(id_entidade_destino) : nullptr;
+        bool realiza_acao = true;
         if (HaValorListaPontosVida() && entidade_destino != nullptr) {
           int vezes = 1;
           std::string texto;
           if (modo_dano_automatico_ && acao_proto.permite_defesa_armadura()) {
-            std::tie(vezes, texto) = AtaqueVsDefesa(*entidade, *entidade_destino);
+            VLOG(1) << "--------------------------";
+            VLOG(1) << "iniciando ataque vs defesa";
+            std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
+            VLOG(1) << "--------------------------";
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
           auto* nd = grupo_desfazer.add_notificacao();
-          if (vezes < 0) {
-            PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
+          if (vezes < 0 || !realiza_acao) {
+            if (vezes < 0) {
+              PreencheNotificacaoDerrubaOrigem(*entidade, &n, nd);
+            }
             ntf::Notificacao n_texto;
             n_texto.set_tipo(ntf::TN_ADICIONAR_ACAO);
             auto* acao_texto = n_texto.mutable_acao();
@@ -2952,8 +3020,10 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             PreencheNotificacaoAtualizaoPontosVida(*entidade_destino, delta_pontos_vida, nd, nd);
           }
         }
-        VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
-        n.mutable_acao()->CopyFrom(acao_proto);
+        if (realiza_acao) {
+          VLOG(1) << "Acao individual: " << acao_proto.ShortDebugString();
+          n.mutable_acao()->CopyFrom(acao_proto);
+        }
       }
       TrataNotificacao(n);
       atraso_segundos += 0.5f;
@@ -2970,7 +3040,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     return;
   }
   e->AdicionaAcaoExecutada(acao_executada);
-  if (!EmModoMestre() && id_camera_presa_ == e->Id()) {
+  if (!EmModoMestre() && IdCameraPresa() == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
     auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
     n->set_servidor_apenas(true);
@@ -3681,6 +3751,10 @@ void Tabuleiro::DesenhaCena() {
 
   if (parametros_desenho_.desenha_fps()) {
     DesenhaTempos();
+  }
+
+  if (parametros_desenho_.desenha_log_eventos()) {
+    DesenhaLogEventos();
   }
 #if DEBUG
   glFlush();
@@ -4488,7 +4562,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
-    if (camera_presa_ &&  entidade->Id() == id_camera_presa_ && !parametros_desenho_.desenha_mapa_sombras()) {
+    if (camera_presa_ &&  entidade->Id() == IdCameraPresa() && !parametros_desenho_.desenha_mapa_sombras()) {
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         continue;
       }
@@ -4717,7 +4791,7 @@ void Tabuleiro::AlteraTexturaEntidadesSelecionadasNotificando(const std::string&
 }
 
 void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
-  const auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  const auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (camera_presa_) {
     if (entidade_referencia == nullptr) {
       AlternaCameraPresa();
@@ -4731,8 +4805,9 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         }
       }
       if (cenario_diferente) {
-        AlternaCameraPresa();
-      } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+        CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
+      }
+      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         olho_.clear_destino();
         olho_.mutable_pos()->set_x(entidade_referencia->X());
         olho_.mutable_pos()->set_y(entidade_referencia->Y());
@@ -4750,27 +4825,12 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
           Vector3 vetor_olhar = vetor_alvo - vetor_olho;
           vetor_olhar.normalize();
 
-          //Vector3 vetor_up(0.0f, 0.0f, 1.0f);
-          //Vector3 ajuste = vetor_olhar.cross(vetor_up) * entidade_referencia->Espiada() * TAMANHO_LADO_QUADRADO_2;
-
           const float MAXIMA_INCLINACAO_ESPIADA_GRAUS = 25.0f;
           const Vector4 vetor_up(0.0f, 0.0f, altura_olho, 1.0f);
           Matrix4 rotacao;
           rotacao.rotate(entidade_referencia->Espiada() * MAXIMA_INCLINACAO_ESPIADA_GRAUS, vetor_olhar);
           Vector4 ajuste4 = rotacao * vetor_up;
           Vector3 ajuste(ajuste4.x, ajuste4.y, ajuste4.z);
-
-          // bloquear espiada em caso de colisao
-#if 0
-          Vector3 tentativa(vetor_olho.x + ajuste.x, vetor_olho.y + ajuste.y, vetor_olho.z - altura_olho + ajuste.z);
-          Vector3 direcao_tentativa = tentativa - vetor_olho;
-          auto res_colisao  = DetectaColisao(*entidade_referencia, direcao_tentativa, false  /*ignora*/);
-          float porcentagem = res_colisao.profundidade / tentativa.length();
-          rotacao.identity();
-          rotacao.rotate(entidade_referencia->Espiada() * MAXIMA_INCLINACAO_ESPIADA_GRAUS * porcentagem, vetor_olhar);
-          ajuste4 = rotacao * vetor_up;
-          ajuste = Vector3(ajuste4.x, ajuste4.y, ajuste4.z);
-#endif
 
           // Posicao.
           olho_.mutable_pos()->set_x(vetor_olho.x + ajuste.x);
@@ -5241,7 +5301,7 @@ void Tabuleiro::TrataDuploCliqueDireito(int x, int y) {
   }
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
     // Move entidade primeira pessoa.
-    auto* entidade = BuscaEntidade(id_camera_presa_);
+    auto* entidade = BuscaEntidade(IdCameraPresa());
     if (entidade != nullptr) {
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_MOVER_ENTIDADE);
@@ -6201,8 +6261,8 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
     Vector3 d(x3d, y3d, z3d);
     Vector3 o(x, y, z_olho);
     profundidade = (d - o).length();
-    VLOG(1) << "colisao possivel, prof: " << profundidade;
-    VLOG(1) << "espaco entidade: " << espaco_entidade;
+    VLOG(2) << "colisao possivel, prof: " << profundidade;
+    VLOG(2) << "espaco entidade: " << espaco_entidade;
     if (profundidade < (tamanho_movimento + espaco_entidade)) {
       colisao = true;
       if (profundidade > espaco_entidade) {
@@ -6211,15 +6271,15 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
         if (tamanho_movimento < TAMANHO_LADO_QUADRADO_10) {
           tamanho_movimento = 0.0f;
         }
-        VLOG(1) << "reduzindo movimento para " << tamanho_movimento;
+        VLOG(2) << "reduzindo movimento para " << tamanho_movimento;
       } else {
         // nao da pra andar mais.
         tamanho_movimento = 0.0f;
-        VLOG(1) << "reduzindo 2 movimento para zero";
+        VLOG(2) << "reduzindo 2 movimento para zero";
       }
     }
   } else {
-    VLOG(1) << "sem colisao, tamanho: " << tamanho_movimento;
+    VLOG(2) << "sem colisao, tamanho: " << tamanho_movimento;
   }
   // TODO normal.
   parametros_desenho_.Swap(&pd);
@@ -6244,9 +6304,9 @@ Tabuleiro::ResultadoZApoio Tabuleiro::ZApoio(float x, float y, float z_olho, flo
                                     Vector3(0.0f, 0.0f, -fabs(z_olho - ZChao(x, y))),
                                     true  /*ignora espaco*/);
   ResultadoZApoio res;
-  VLOG(1) << "res_colisao.profundidade: " << res_colisao.profundidade << ", altura_olho: " << altura_olho;
+  VLOG(2) << "res_colisao.profundidade: " << res_colisao.profundidade << ", altura_olho: " << altura_olho;
   res.apoiado = res_colisao.colisao; //res_colisao.profundidade - altura_olho < PRECISAO_APOIO;
-  VLOG(1) << "apoiado: " << res.apoiado;
+  VLOG(2) << "apoiado: " << res.apoiado;
   res.z_apoio = z_olho - res_colisao.profundidade;
   return res;
 }
@@ -6258,7 +6318,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(const Entidade& entidade, 
 void Tabuleiro::TrataEspiada(int espiada) {
   Entidade* entidade = nullptr;
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    entidade = BuscaEntidade(id_camera_presa_);
+    entidade = BuscaEntidade(IdCameraPresa());
   }
   if (entidade == nullptr) {
     return;
@@ -6270,8 +6330,31 @@ void Tabuleiro::TrataEspiada(int espiada) {
   } else if (novo < -1) {
     novo = -1;
   }
-  proto.set_espiando(novo);
-  entidade->AtualizaParcial(proto);
+
+  if (novo == 0) {
+    proto.set_espiando(novo);
+    entidade->AtualizaParcial(proto);
+    return;
+  }
+
+  // Direcao do olhar.
+  LOG(INFO) << "olho: " << olho_.ShortDebugString();
+  Vector3 vetor_olho(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+  Vector3 vetor_alvo(olho_.alvo().x(), olho_.alvo().y(), olho_.alvo().z());
+  Vector3 vetor_olhar = vetor_alvo - vetor_olho;
+  vetor_olhar.normalize();
+
+  // bloquear espiada em caso de colisao
+  Vector3 vetor_up(0.0f, 0.0f, 1.0f);
+  Vector3 direcao_espiada = vetor_olhar.cross(vetor_up) * novo;
+  auto res_colisao  = DetectaColisao(*entidade, direcao_espiada, false  /*ignora*/);
+  if (!res_colisao.colisao) {
+    proto.set_espiando(novo);
+    entidade->AtualizaParcial(proto);
+    VLOG(1) << "Espiada ok";
+  } else {
+    VLOG(1) << "Espiada bloqueada";
+  }
 }
 
 void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
@@ -6279,6 +6362,16 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
   // angulo da camera em relacao ao eixo X.
   Vector2 vetor_movimento;
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
+    // Ao andar na primeira pessoa, cancela espiada para evitar atravessar objetos ja que a deteccao de colisao eh feita
+    // so no inicio.
+    Entidade* entidade = BuscaEntidade(IdCameraPresa());
+    if (entidade->Proto().espiando() != 0) {
+      EntidadeProto proto;
+      proto.set_espiando(0);
+      entidade->AtualizaParcial(proto);
+    }
+  }
   if (camera_ == CAMERA_PRIMEIRA_PESSOA || !proto_corrente_->desenha_grade()) {
     if (frente_atras) {
       vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
@@ -6339,7 +6432,7 @@ void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float val
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   std::unordered_set<unsigned int> ids;
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.insert(id_camera_presa_);
+    ids.insert(IdCameraPresa());
   } else {
     ids = ids_entidades_selecionadas_;
   }
@@ -6842,7 +6935,7 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
   parametros_desenho_.clear_nevoa();
-  auto* entidade_referencia = BuscaEntidade(id_camera_presa_);
+  auto* entidade_referencia = BuscaEntidade(IdCameraPresa());
   if (parametros_desenho_.desenha_nevoa() && parametros_desenho_.tipo_visao() == VISAO_ESCURO &&
       (!VisaoMestre() || opcoes_.iluminacao_mestre_igual_jogadores())) {
     gl::Habilita(GL_FOG);
@@ -7148,6 +7241,37 @@ void Tabuleiro::DesenhaListaObjetos() {
   }
 }
 
+void Tabuleiro::DesenhaLogEventos() {
+  // Quadrado preto de 8 linhas.
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  int largura_fonte, altura_fonte, escala;
+  int kTamanhoMaximoCaracteres  = 100;
+  int kNumLinhas = 8;  // uma de titulo e duas de paginacoes.
+  // TODO paginacao.
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  int kTamanhoMaximoPixels = largura_fonte * kTamanhoMaximoCaracteres;
+
+  MudaCor(COR_PRETA);
+  gl::Retangulo(0, 0, kTamanhoMaximoPixels, (altura_fonte * escala) * 8);
+
+  MudaCor(COR_AMARELA);
+  int raster_x = kTamanhoMaximoPixels / 2, raster_y =  (altura_fonte * escala) * (kNumLinhas - 1);
+  PosicionaRaster2d(raster_x, raster_y);
+  gl::DesenhaString("Lista de Eventos");
+  raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
+  auto it = lista_eventos_.rbegin();
+  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++i, ++it) {
+    const auto& n = *it;
+    PosicionaRaster2d(2, raster_y);
+    char s[100];
+    snprintf(s, 99, "%s", n.ShortDebugString().c_str());
+    gl::DesenhaStringAlinhadoEsquerda(s);
+    raster_y -= altura_fonte;
+  }
+}
+
 void Tabuleiro::DesenhaIdAcaoEntidade() {
   std::string id_acao;
   bool achou = false;
@@ -7395,7 +7519,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
 
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return { id_camera_presa_ };
+    return { IdCameraPresa() };
   } else {
     return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   }
@@ -7404,7 +7528,7 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaOuEntidadesSelecionadas() 
 std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecionadas() const {
   std::vector<unsigned int> ids(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.push_back(id_camera_presa_);
+    ids.push_back(IdCameraPresa());
   }
   return ids;
 }
@@ -7412,7 +7536,7 @@ std::vector<unsigned int> Tabuleiro::IdsPrimeiraPessoaIncluindoEntidadesSelecion
 std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() const {
   if (ids_entidades_selecionadas_.empty()) {
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      return { id_camera_presa_ };
+      return { IdCameraPresa() };
     }
   }
   return std::vector<unsigned int>(ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
@@ -7420,7 +7544,7 @@ std::vector<unsigned int> Tabuleiro::IdsEntidadesSelecionadasOuPrimeiraPessoa() 
 
 Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   } else {
     return EntidadeSelecionada();
   }
@@ -7428,7 +7552,7 @@ Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() {
 
 const Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() const {
   if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   } else {
     return EntidadeSelecionada();
   }
@@ -7438,7 +7562,7 @@ const Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() const {
   if (ids_entidades_selecionadas_.size() == 1) {
     return EntidadeSelecionada();
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   }
   return nullptr;
 }
@@ -7447,7 +7571,7 @@ Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() {
   if (ids_entidades_selecionadas_.size() == 1) {
     return EntidadeSelecionada();
   } else if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    return BuscaEntidade(id_camera_presa_);
+    return BuscaEntidade(IdCameraPresa());
   }
   return nullptr;
 }
@@ -7764,18 +7888,32 @@ void Tabuleiro::AlternaCameraPrimeiraPessoa() {
 void Tabuleiro::AlternaCameraPresa() {
   if (camera_presa_) {
     camera_presa_ = false;
-    id_camera_presa_ = Entidade::IdInvalido;
+    ids_camera_presa_.clear();
     LOG(INFO) << "Camera solta.";
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
       AlternaCameraPrimeiraPessoa();
     }
-  } else if (ids_entidades_selecionadas_.size() == 1) {
+  } else if (!ids_entidades_selecionadas_.empty()) {
     camera_presa_ = true;
-    id_camera_presa_ = *ids_entidades_selecionadas_.begin();
+    ids_camera_presa_.insert(ids_camera_presa_.end(), ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
     LOG(INFO) << "Camera presa.";
   } else {
     LOG(INFO) << "Sem entidade selecionada.";
   }
+}
+
+void Tabuleiro::MudaEntidadeCameraPresa() {
+  if (!camera_presa_ || ids_camera_presa_.size() <= 1) {
+    LOG(INFO) << "Nao posso alternar camera, camera_presa_ " << camera_presa_
+              << ", ids_entidades_selecionadas_.size(): " << ids_entidades_selecionadas_.size();
+    return;
+  }
+
+  unsigned int primeiro = ids_camera_presa_.front();
+  LOG(INFO) << "Alternando id camera presa de " << primeiro;
+  ids_camera_presa_.pop_front();
+  ids_camera_presa_.push_back(primeiro);
+  LOG(INFO) << "Para " << ids_camera_presa_.front();
 }
 
 void Tabuleiro::DesativaWatchdog() {

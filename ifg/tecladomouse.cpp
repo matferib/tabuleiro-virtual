@@ -259,6 +259,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       tabuleiro_->TrataBotaoAlternarIluminacaoMestre();
       return;
     case Tecla_L:
+      if ((modificadores & Modificador_Ctrl) != 0 && (modificadores & Modificador_Shift) != 0) {
+        tabuleiro_->AlternaMostraLogEventos();
+        return;
+      }
       tabuleiro_->AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ILUMINACAO);
       return;
     case Tecla_Y:

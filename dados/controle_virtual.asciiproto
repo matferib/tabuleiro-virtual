@@ -7,18 +7,6 @@ fixo {
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
-    textura: "icon_save.png"
-    id: CONTROLE_SALVAR
-    forma: FORMA_RETANGULO
-    mestre_apenas: true
-    dica: "Salva tabuleiro."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: -2
-    coluna: -1
-    alinhamento_vertical: ALINHAMENTO_CIMA
-    alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_save_as.png"
     id: CONTROLE_SALVAR_COMO
     forma: FORMA_RETANGULO
@@ -27,8 +15,20 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -3
-    coluna: -1
+    linha: -1
+    coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    textura: "icon_save.png"
+    id: CONTROLE_SALVAR
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Salva tabuleiro."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -1
+    coluna: -3
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     textura: "icon_open.png"
@@ -40,7 +40,7 @@ fixo {
   # Terreno.
   dados_botoes {
     tamanho: 1
-    linha: -4
+    linha: -3
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -53,7 +53,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -4
+    linha: -3
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -67,7 +67,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -5
+    linha: -4
     coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -81,7 +81,7 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
-    linha: -5
+    linha: -4
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
@@ -105,6 +105,46 @@ fixo {
     mestre_apenas: false
     dica: "Rola um d20."
   }
+  dados_botoes {
+    tamanho: 1
+    linha: -6
+    coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "Re"
+    cor_rotulo {}
+    textura: "icon_ruler.png"
+    id: CONTROLE_REGUA
+    forma: FORMA_RETANGULO
+    dica: "Modo régua (requer câmera presa)."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -7
+    coluna: -1
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "<="
+    cor_rotulo {}
+    textura: "icon_undo.png"
+    id: CONTROLE_DESFAZER
+    forma: FORMA_RETANGULO
+    dica: "Desfaz última ação realizada neste dispositivo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: -7
+    coluna: -2
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "X"
+    cor_rotulo { r: 1.0 a: 1.0 }
+    textura: "icon_trash.png"
+    id: CONTROLE_APAGA_ENTIDADES
+    forma: FORMA_RETANGULO
+    dica: "Apaga entidades selecionadas."
+  }
+
 }
 pagina {
   # Botoes de ultimas acoes.
@@ -317,17 +357,6 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna:13
-    rotulo: "<="
-    cor_rotulo {}
-    textura: "icon_undo.png"
-    id: CONTROLE_DESFAZER
-    forma: FORMA_RETANGULO
-    dica: "Desfaz última ação realizada neste dispositivo."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
     coluna: 11
     rotulo: "Vo"
     cor_rotulo {}
@@ -452,7 +481,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 18
+    coluna: 19
     rotulo: "Is"
     cor_rotulo {}
     textura: "icon_tracking_camera.png"
@@ -463,7 +492,19 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 19
+    coluna: 20
+    cor_rotulo {}
+    id: CONTROLE_CAMERA_PRESA_PROXIMO
+    rotacao_graus: -90.0
+    translacao_x: -0.3
+    forma: FORMA_TRIANGULO
+    dica: "Muda de entidade presa."
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 18
     rotulo: "1p"
     cor_rotulo {}
     textura: "icon_first_person_camera.png"
@@ -484,7 +525,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
+    linha: 0
     coluna: 20
     rotulo: "Ve"
     cor_rotulo {}
@@ -495,49 +536,25 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 0
-    coluna: 20
-    rotulo: "Re"
-    cor_rotulo {}
-    textura: "icon_ruler.png"
-    id: CONTROLE_REGUA
-    forma: FORMA_RETANGULO
-    dica: "Modo régua (requer câmera presa)."
-  }
-
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 21
-    rotulo: "X"
-    cor_rotulo { r: 1.0 a: 1.0 }
-    textura: "icon_trash.png"
-    id: CONTROLE_APAGA_ENTIDADES
-    forma: FORMA_RETANGULO
-    dica: "Apaga entidades selecionadas."
-  }
-  dados_botoes {
-    tamanho: 1
     linha: 2
     coluna: 22
-    id: CONTROLE_APAGAR_INICIATIVAS
-    rotulo: ""
-    dica: "Apaga iniciativas."
-    mestre_apenas: false
-    textura: "icon_erase_initiatives.png"
-    forma: FORMA_RETANGULO
-    #translacao_x: -0.53
-  }
-
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 23
     id: CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE
     rotulo: "I"
     dica: "Inicia/Finaliza iniciativas para combate."
     mestre_apenas: true
     textura: "icon_initiative.png"
+    forma: FORMA_RETANGULO
+    #translacao_x: -0.53
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 23
+    id: CONTROLE_APAGAR_INICIATIVAS
+    rotulo: ""
+    dica: "Apaga iniciativas."
+    mestre_apenas: false
+    textura: "icon_erase_initiatives.png"
     forma: FORMA_RETANGULO
     #translacao_x: -0.53
   }
@@ -560,7 +577,6 @@ pagina {
     forma: FORMA_TRIANGULO
     rotacao_graus: -90.0
     dica: "Proxima iniciativa."
-    mestre_apenas: true
     translacao_x: -0.3
   }
   dados_botoes {
@@ -897,28 +913,6 @@ pagina {
     id: CONTROLE_AJUDA
     forma: FORMA_RETANGULO
     dica: "Ajuda."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 12
-    rotulo: "<="
-    cor_rotulo {}
-    textura: "icon_undo.png"
-    id: CONTROLE_DESFAZER
-    forma: FORMA_RETANGULO
-    dica: "Desfaz última ação realizada neste dispositivo."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 12
-    rotulo: "X"
-    cor_rotulo { r: 1.0 a: 1.0 }
-    textura: "icon_trash.png"
-    id: CONTROLE_APAGA_ENTIDADES
-    forma: FORMA_RETANGULO
-    dica: "Apaga entidades selecionadas."
   }
   dados_botoes {
     tamanho: 1

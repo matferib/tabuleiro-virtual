@@ -1,11 +1,11 @@
+Bug do menu do windows.
+Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
+
 Versao 2.6.0
-- Salvar o ultimo endereco de IP.
 - separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
 - Multiplos ataques;
 - Formas hibridas (muda iniciativa, AC e ataques, tamanho e textura).
-- Rolador de dado remoto.
 - Colocar na lateral os stats do personagem.
-- Espiada com colisao.
 - Contador de movimento: terminar (e procurar por string mov: pra achar no controle virtual).
 - Atualizar os dados de monstros com modificadores de iniciativas.
 - Botao de textura pode escolher.

@@ -343,6 +343,10 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     ip_le->setPlaceholderText(tr("IP:porta ou nome do servidor"));
     ql->addWidget(ip_rotulo);
     ql->addWidget(ip_le);
+    const auto& opcoes = tabuleiro_->Opcoes();
+    if (!opcoes.ultimo_endereco().empty()) {
+      ip_le->setText(QString::fromUtf8(opcoes.ultimo_endereco().c_str()));
+    }
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     // Botao OK.
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, nome_le, ip_le] {

@@ -1076,7 +1076,12 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
     return 0;
   }
   try {
-    return GeraPontosVida(s);
+    // Nao deixa valor negativo para evitar danos que curam.
+    int valor = GeraPontosVida(s);
+    if (valor < 0) {
+      valor = 0;
+    }
+    return valor;
   } catch (const std::exception& e) {
     return 0;
   }
@@ -1125,8 +1130,25 @@ std::string Entidade::TipoAtaque() const {
   return "Ataque Corpo a Corpo";
 }
 
+float Entidade::AlcanceAtaqueMetros() const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr || !da->has_alcance_m()) {
+    return -1.5f;
+  }
+  return da->alcance_m();
+}
+
+int Entidade::IncrementosAtaque() const {
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
+    return 0;
+  }
+  return da->incrementos();
+}
+
 int Entidade::BonusAtaque() const {
-  std::vector<int> ataques_casados; 
+  // TODO: usar DadoCorrente?
+  std::vector<int> ataques_casados;
   std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao) {

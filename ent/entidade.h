@@ -185,11 +185,16 @@ class Entidade {
   int Iniciativa() const { return proto_.iniciativa(); }
   int ModificadorIniciativa() const { return proto_.modificador_iniciativa(); }
 
+  const EntidadeProto::DadosAtaque* DadoCorrente() const;
   // Funcoes retornam AtaqueCaInvalido o se nao possuirem.
   int BonusAtaque() const;
   std::string TipoAtaque() const;
   int MargemCritico() const;
   int MultiplicadorCritico() const;
+  // Retorna o alcance do ataque em m. Negativo se nao tiver.
+  float AlcanceAtaqueMetros() const;
+  // Retorna quantos incrementos o ataque permite.
+  int IncrementosAtaque() const;
   enum TipoCA {
     CA_NORMAL,
     CA_TOQUE,
@@ -208,7 +213,7 @@ class Entidade {
   static bool ColisaoForma(const EntidadeProto& proto, const Posicao& pos, Vector3* direcao);
 
   /** Retorna o multiplicador de tamanho para a entidade de acordo com seu tamanho. Por exemplo, retorna
-  * 1.0f para entidades medias.
+  * 1.0f para entidades medias. Multiplicado pelo tamanho do quadrado da o tamanho da entidade.
   */
   float MultiplicadorTamanho() const;
 
@@ -251,7 +256,6 @@ class Entidade {
   Entidade(const Texturas* texturas, const m3d::Modelos3d* m3d, ntf::CentralNotificacoes* central, const ParametrosDesenho* pd);
 
  private:
-  const EntidadeProto::DadosAtaque* DadoCorrente() const;
   // Numero maximo de acoes de uma entidade.
   static constexpr unsigned int MaxNumAcoes = 3;
 
