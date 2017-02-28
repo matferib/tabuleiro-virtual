@@ -369,8 +369,6 @@ class Entidade {
   /** Desenha o efeito de uma entidade. */
   void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
 
-  /** Atualiza as matrizes do objeto. */
-  void AtualizaMatrizes();
   struct MatrizesDesenho {
     Matrix4 modelagem;
     Matrix4 tijolo_base;
@@ -379,6 +377,9 @@ class Entidade {
     Matrix4 deslocamento_textura;
   };
   static MatrizesDesenho AtualizaMatrizes(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+
+  /** Atualiza as matrizes do objeto. */
+  void AtualizaMatrizes();
 
   /** @return true se a entidade deve ser achatada. */
   static bool Achatar(const EntidadeProto& proto, const ParametrosDesenho* pd) {

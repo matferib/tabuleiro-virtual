@@ -369,52 +369,15 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
 }
 
 void Entidade::AtualizaMatrizes() {
-  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(parametros_desenho_);
-  vd_.matriz_modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd_.angulo_rotacao_textura_graus);
-  if (Tipo() != TE_ENTIDADE || proto_.has_modelo_3d()) {
-    return;
-  }
-  // tijolo base. Usada para disco de peao tambem.
-  if (!proto_.morta()) {
-    Matrix4 m;
-    if (parametros_desenho_->entidade_selecionada()) {
-      m.rotateZ(vd_.angulo_disco_selecao_graus);
-    }
-    vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto_, vd_, parametros_desenho_) * m;
-  }
-  if (!proto_.info_textura().id().empty()) {
-    bool achatar = Achatar();
-    // tijolo tela.
-    if (!achatar) {
-      Matrix4 m;
-      m.scale(proto_.info_textura().largura(), 1.0f, proto_.info_textura().altura());
-      m.rotateZ(vd_.angulo_rotacao_textura_graus);
-      vd_.matriz_modelagem_tijolo_tela = matriz_modelagem_geral  * m;
-    }
-    // tela.
-    {
-      Matrix4 m;
-      if (achatar) {
-        m.translate(0.0, 0.0, -(TAMANHO_LADO_QUADRADO_10 + TAMANHO_LADO_QUADRADO_2));
-        m.rotateX(-90.0f);
-        m.scale(proto_.info_textura().largura(), proto_.info_textura().altura(), 1.0f);
-        m.translate(0.0f, 0.0f, TAMANHO_LADO_QUADRADO_10);
-      } else {
-        m.scale(proto_.info_textura().largura(), 1.0f, proto_.info_textura().altura());
-        m.rotateZ(vd_.angulo_rotacao_textura_graus);
-      }
-      vd_.matriz_modelagem_tela_textura = matriz_modelagem_geral * m;
-    }
-    // Deslocamento de textura.
-    {
-      Matrix4 m;
-      m.scale(proto_.info_textura().largura(), proto_.info_textura().altura(), 1.0f);
-      m.translate(proto_.info_textura().translacao_x(), proto_.info_textura().translacao_y(), 0.0f);
-      vd_.matriz_deslocamento_textura = m;
-    }
-  }
+  MatrizesDesenho md = AtualizaMatrizes(proto_, vd_, parametros_desenho_);
+  vd_.matriz_modelagem = md.modelagem;
+  vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
+  vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
+  vd_.matriz_modelagem_tela_textura = md.tela_textura;
+  vd_.matriz_deslocamento_textura = md.deslocamento_textura;
 }
 
+// static
 Entidade::MatrizesDesenho Entidade::AtualizaMatrizes(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   MatrizesDesenho md;
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
