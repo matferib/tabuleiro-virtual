@@ -415,6 +415,55 @@ void Entidade::AtualizaMatrizes() {
   }
 }
 
+Entidade::MatrizesDesenho Entidade::AtualizaMatrizes(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+  MatrizesDesenho md;
+  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
+  md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
+  if (proto.tipo() != TE_ENTIDADE || proto.has_modelo_3d()) {
+    return md;
+  }
+  // tijolo base. Usada para disco de peao tambem.
+  if (!proto.morta()) {
+    Matrix4 m;
+    if (pd->entidade_selecionada()) {
+      m.rotateZ(vd.angulo_disco_selecao_graus);
+    }
+    md.tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto, vd, pd) * m;
+  }
+  if (!proto.info_textura().id().empty()) {
+    bool achatar = Achatar(proto, pd);
+    // tijolo tela.
+    if (!achatar) {
+      Matrix4 m;
+      m.scale(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
+      m.rotateZ(vd.angulo_rotacao_textura_graus);
+      md.tijolo_tela = matriz_modelagem_geral  * m;
+    }
+    // tela.
+    {
+      Matrix4 m;
+      if (achatar) {
+        m.translate(0.0, 0.0, -(TAMANHO_LADO_QUADRADO_10 + TAMANHO_LADO_QUADRADO_2));
+        m.rotateX(-90.0f);
+        m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
+        m.translate(0.0f, 0.0f, TAMANHO_LADO_QUADRADO_10);
+      } else {
+        m.scale(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
+        m.rotateZ(vd.angulo_rotacao_textura_graus);
+      }
+      md.tela_textura = matriz_modelagem_geral * m;
+    }
+    // Deslocamento de textura.
+    {
+      Matrix4 m;
+      m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
+      m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y(), 0.0f);
+      md.deslocamento_textura = m;
+    }
+  }
+  return md;
+}
+
 
 void Entidade::Atualiza(int intervalo_ms) {
   // Ao retornar, atualiza o vbo se necessario.

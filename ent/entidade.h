@@ -371,6 +371,14 @@ class Entidade {
 
   /** Atualiza as matrizes do objeto. */
   void AtualizaMatrizes();
+  struct MatrizesDesenho {
+    Matrix4 modelagem;
+    Matrix4 tijolo_base;
+    Matrix4 tijolo_tela;
+    Matrix4 tela_textura;
+    Matrix4 deslocamento_textura;
+  };
+  static MatrizesDesenho AtualizaMatrizes(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
 
   /** @return true se a entidade deve ser achatada. */
   static bool Achatar(const EntidadeProto& proto, const ParametrosDesenho* pd) {
