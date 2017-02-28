@@ -139,7 +139,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
       }
     } else if (!proto.info_textura().id().empty()) {
       gl::MultiplicaMatriz(vd.matriz_modelagem_tijolo_tela.get());
-      gl::DesenhaVbo(g_vbos[VBO_TIJOLO]);
+      gl::DesenhaVbo(g_vbos[VBO_MOLDURA_PECA]);
     } else {
       gl::MultiplicaMatriz(vd.matriz_modelagem.get());
       gl::DesenhaVbo(g_vbos[VBO_PEAO]);
@@ -157,7 +157,7 @@ void Entidade::DesenhaObjetoEntidadeProto(
   if (!proto.morta()) {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
     gl::MultiplicaMatriz(vd.matriz_modelagem_tijolo_base.get());
-    gl::DesenhaVbo(g_vbos[VBO_TIJOLO]);
+    gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
   }
 #endif
 
