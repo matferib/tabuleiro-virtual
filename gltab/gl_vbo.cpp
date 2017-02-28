@@ -182,8 +182,9 @@ void VbosNaoGravados::Concatena(VbosNaoGravados* rhs) {
 }
 
 void VbosNaoGravados::Desenha() const {
+  AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo);
+    DesenhaVbo(vbo, GL_TRIANGLES, false);
   }
 }
 
@@ -207,8 +208,9 @@ void VbosGravados::Grava(const VbosNaoGravados& vbos_nao_gravados) {
 }
 
 void VbosGravados::Desenha() const {
+  AtualizaMatrizes();
   for (const auto& vbo : vbos_) {
-    DesenhaVbo(vbo);
+    DesenhaVbo(vbo, GL_TRIANGLES, false);
   }
 }
 
@@ -261,80 +263,90 @@ void VboNaoGravado::Multiplica(const Matrix4& m) {
     LOG(ERROR) << "Operacao invalida, objeto nao tem tres dimensoes: " << num_dimensoes_;
     return;
   }
+  // Acesso eficiente.
+  float* coordenadas = &(*coordenadas_.begin());
+  Vector4 v;
   for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
-    Vector4 v(coordenadas_[i], coordenadas_[i + 1], coordenadas_[i + 2], 1.0f);
+    v.set(coordenadas[i], coordenadas[i + 1], coordenadas[i + 2], 1.0f);
     v = m * v;
-    coordenadas_[i] = v.x;
-    coordenadas_[i + 1] = v.y;
-    coordenadas_[i + 2] = v.z;
+    coordenadas[i] = v.x;
+    coordenadas[i + 1] = v.y;
+    coordenadas[i + 2] = v.z;
   }
   Matrix4 mn = m;
   mn.invert().transpose();
+  float* normais = &(*normais_.begin());
   for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(normais_[i], normais_[i+1], normais_[i+2], 1.0f);
-    c = mn * c;
-    c.normalize();
-    normais_[i]   = c[0];
-    normais_[i+1] = c[1];
-    normais_[i+2] = c[2];
+    v.set(normais[i], normais[i+1], normais[i+2], 1.0f);
+    v = mn * v;
+    v.normalize();
+    normais[i]   = v[0];
+    normais[i+1] = v[1];
+    normais[i+2] = v[2];
   }
 }
 
 void VboNaoGravado::RodaX(GLfloat angulo_graus) {
   Matrix4 m;
   m.rotateX(angulo_graus);
+  float* coordenadas = &(*coordenadas_.begin());
   for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
-    Vector4 c(0.0f, coordenadas_[i + 1], coordenadas_[i + 2], 1.0f);
+    Vector4 c(0.0f, coordenadas[i + 1], coordenadas[i + 2], 1.0f);
     c = m * c;
-    coordenadas_[i + 1] = c[1];
-    coordenadas_[i + 2] = c[2];
+    coordenadas[i + 1] = c[1];
+    coordenadas[i + 2] = c[2];
   }
   // Mesma transformada.
+  float* normais = &(*normais_.begin());
   for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(0.0f, normais_[i + 1], normais_[i + 2], 1.0f);
+    Vector4 c(0.0f, normais[i + 1], normais[i + 2], 1.0f);
     c = m * c;
-    normais_[i + 1] = c[1];
-    normais_[i + 2] = c[2];
+    normais[i + 1] = c[1];
+    normais[i + 2] = c[2];
   }
 }
 
 void VboNaoGravado::RodaY(GLfloat angulo_graus) {
   Matrix4 m;
   m.rotateY(angulo_graus);
+  float* coordenadas = &(*coordenadas_.begin());
   for (unsigned int i = 0; i < coordenadas_.size(); i += 3) {
-    Vector4 c(coordenadas_[i], 0.0f, coordenadas_[i + 2], 1.0f);
+    Vector4 c(coordenadas[i], 0.0f, coordenadas[i + 2], 1.0f);
     c = m * c;
-    coordenadas_[i]     = c[0];
-    coordenadas_[i + 2] = c[2];
+    coordenadas[i]     = c[0];
+    coordenadas[i + 2] = c[2];
   }
   // Mesma transformada.
+  float* normais = &(*normais_.begin());
   for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(normais_[i], 0.0f, normais_[i+2], 1.0f);
+    Vector4 c(normais[i], 0.0f, normais[i+2], 1.0f);
     c = m * c;
-    normais_[i]   = c[0];
-    normais_[i+2] = c[2];
+    normais[i]   = c[0];
+    normais[i+2] = c[2];
   }
 }
 
 void VboNaoGravado::RodaZ(GLfloat angulo_graus) {
   Matrix4 m;
   m.rotateZ(angulo_graus);
+  float* coordenadas = &(*coordenadas_.begin());
   for (unsigned int i = 0; i < coordenadas_.size(); i += num_dimensoes_) {
-    Vector4 c(coordenadas_[i], coordenadas_[i + 1], 0.0f, 1.0f);
+    Vector4 c(coordenadas[i], coordenadas[i + 1], 0.0f, 1.0f);
     c = m * c;
-    coordenadas_[i]     = c[0];
-    coordenadas_[i + 1] = c[1];
+    coordenadas[i]     = c[0];
+    coordenadas[i + 1] = c[1];
   }
   if (num_dimensoes_ != 3) {
     // So rotacao Z tem essa verificacao.
     return;
   }
   // Mesma transformada.
+  float* normais = &(*normais_.begin());
   for (unsigned int i = 0; i < normais_.size(); i += 3) {
-    Vector4 c(normais_[i], normais_[i + 1], normais_[i + 2], 1.0f);
+    Vector4 c(normais[i], normais[i + 1], normais[i + 2], 1.0f);
     c = m * c;
-    normais_[i]     = c[0];
-    normais_[i + 1] = c[1];
+    normais[i]     = c[0];
+    normais[i + 1] = c[1];
   }
 }
 
@@ -356,14 +368,22 @@ void VboNaoGravado::Concatena(const VboNaoGravado& rhs) {
           std::numeric_limits<unsigned short>::max()) {
     throw std::logic_error("Nao eh possivel concatenar, limite de tamanho alcancado");
   }
+  coordenadas_.reserve(coordenadas_.size() + rhs.coordenadas_.size());
   coordenadas_.insert(coordenadas_.end(), rhs.coordenadas_.begin(), rhs.coordenadas_.end());
+  normais_.reserve(normais_.size() + rhs.normais_.size());
   normais_.insert(normais_.end(), rhs.normais_.begin(), rhs.normais_.end());
-  for (const auto& indice : rhs.indices_) {
-    indices_.push_back(indice + num_coordenadas_inicial);
+  auto indices_size_antes = indices_.size();
+  indices_.resize(indices_.size() + rhs.indices_.size());
+  unsigned short* indices = &(*indices_.begin());
+  const unsigned short* rhs_indices = &(*rhs.indices_.begin());
+  for (unsigned int i = 0; i < rhs.indices_.size(); ++i) {
+    indices[indices_size_antes + i] = rhs_indices[i] + num_coordenadas_inicial;
   }
+  cores_.reserve(cores_.size() + rhs.cores_.size());
   cores_.insert(cores_.end(), rhs.cores_.begin(), rhs.cores_.end());
   if (tem_texturas()) {
     if (rhs.tem_texturas()) {
+      texturas_.reserve(texturas_.size() + rhs.texturas_.size());
       texturas_.insert(texturas_.end(), rhs.texturas_.begin(), rhs.texturas_.end());
     } else {
       //LOG(WARNING) << "Limpando texturas ao concatenar porque rhs nao tem.";
@@ -1314,7 +1334,7 @@ void DesenhaVbo(GLenum modo,
                 int num_vertices, int num_dimensoes, const void* indices, const void* dados,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
-                bool tem_cores, const void* cores, int d_cores, bool atualiza_matrizes = true) {
+                bool tem_cores, const void* cores, int d_cores, bool atualiza_matrizes) {
   V_ERRO("DesenhaVB0: antes");
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
   if (tem_normais) {
@@ -1369,7 +1389,7 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
   DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
              vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
              vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
-             vbo.tem_cores(), nullptr, vbo.DeslocamentoCores());
+             vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(), atualiza_matrizes);
 
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);

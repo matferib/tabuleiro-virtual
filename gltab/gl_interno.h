@@ -40,8 +40,14 @@ struct VarShader {
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
-  GLint uni_gltab_mvm;                  // Matrix modelview.
+  GLint uni_gltab_model;                // Matrix modelagem.
+  GLint uni_gltab_view;                 // Matrix camera.
+  GLint uni_gltab_mvm;                  // Matrix camera * model.
+  GLint uni_gltab_model_sombra;         // Matrix modelagem sombra.
+  GLint uni_gltab_view_sombra;          // Matrix camera sombra.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
+  GLint uni_gltab_model_oclusao;        // Matrix modelagem oclusao.
+  GLint uni_gltab_view_oclusao;         // Matrix view oclusao.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_nm;                   // Matrix de normais.
@@ -81,6 +87,8 @@ class Contexto {
 
   // Matrizes correntes. Ambas as pilhas sao iniciadas com a identidade.
   std::stack<Matrix4> pilha_mvm;
+  std::stack<Matrix4> pilha_model;
+  std::stack<Matrix4> pilha_view;
   std::stack<Matrix4> pilha_prj;
   std::stack<Matrix4> pilha_mvm_sombra;
   std::stack<Matrix4> pilha_prj_sombra;

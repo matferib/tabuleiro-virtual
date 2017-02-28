@@ -469,12 +469,12 @@ void Tabuleiro::ConfiguraOlhar() {
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       ConfiguraOlharMapeamentoSombras();
-      gl::MudaModoMatriz(GL_MODELVIEW);
+      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
     }
     if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
       ConfiguraOlharMapeamentoOclusao();
-      gl::MudaModoMatriz(GL_MODELVIEW);
+      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
     }
     const Posicao& alvo = olho_.alvo();
     if (camera_ == CAMERA_ISOMETRICA) {
@@ -2256,7 +2256,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (entidade == nullptr) {
         break;
       }
-      gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+      gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
       gl::CarregaIdentidade();
       ConfiguraOlhar();
       // Faz picking do tabuleiro sem entidades.
@@ -2436,8 +2436,8 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         ultimo_y_ = y;
       } else {
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
-        //gl::ModoMatriz(GL_MODELVIEW);
-        gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+        //gl::ModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+        gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
         gl::CarregaIdentidade();
         ConfiguraOlhar();
         // Faz picking do tabuleiro sem entidades.
@@ -3509,7 +3509,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudaModoMatriz(GL_MODELVIEW);
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
@@ -3540,7 +3540,7 @@ void Tabuleiro::DesenhaCena() {
 #if 0
   // Algumas verificacoes.
   GLint depth = 0;
-  gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
+  gl::Le(gl::MATRIZ_MODELAGEM_CAMERA_STACK_DEPTH, &depth);
   if (depth > 2) {
     LOG(ERROR) << "Pilha MODELVIEW com vazamento: " << depth;
   }
@@ -3653,7 +3653,7 @@ void Tabuleiro::DesenhaCena() {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3675,7 +3675,7 @@ void Tabuleiro::DesenhaCena() {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3710,7 +3710,7 @@ void Tabuleiro::DesenhaCena() {
   }
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
   gl::AtualizaMatrizProjecao();
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
@@ -3778,7 +3778,7 @@ void Tabuleiro::DesenhaCenaVbos() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudaModoMatriz(GL_MODELVIEW);
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
@@ -4707,7 +4707,7 @@ void Tabuleiro::DesenhaRosaDosVentos() {
 void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
   float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
@@ -7029,7 +7029,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     MudaCor(proto_corrente_->luz_ambiente());
   }
 
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -7060,7 +7060,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   }
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::Translada(0.0f, 0.0f, 5.0f);
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -7318,7 +7318,7 @@ void Tabuleiro::DesenhaCoordenadas() {
 
 void Tabuleiro::DesenhaInfoGeral() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
@@ -7371,7 +7371,7 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
   // Modo 2d.
   {
     MudaCor(COR_PRETA);
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
     gl::CarregaIdentidade();
     gl::AtualizaMatrizes();
     gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
