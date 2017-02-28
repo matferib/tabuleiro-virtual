@@ -117,8 +117,9 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDer
   }
 }
 
-void Entidade::DesenhaObjetoEntidadeProto(
-    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
+void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
+    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd,
+    const Matrix4& modelagem, const Matrix4& tijolo_base, const Matrix4& tijolo_tela, const Matrix4& tela_textura, const Matrix4& deslocamento_textura) {
   bool achatar = Achatar(proto, pd);
   std::unique_ptr<AlteraBlendEscopo> blend_escopo;
   if (proto.has_modelo_3d()) {
@@ -134,14 +135,14 @@ void Entidade::DesenhaObjetoEntidadeProto(
     if (proto.has_modelo_3d()) {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
-        gl::MultiplicaMatriz(vd.matriz_modelagem.get());
+        gl::MultiplicaMatriz(modelagem.get());
         modelo->vbos_gravados.Desenha();
       }
     } else if (!proto.info_textura().id().empty()) {
-      gl::MultiplicaMatriz(vd.matriz_modelagem_tijolo_tela.get());
+      gl::MultiplicaMatriz(tijolo_tela.get());
       gl::DesenhaVbo(g_vbos[VBO_MOLDURA_PECA]);
     } else {
-      gl::MultiplicaMatriz(vd.matriz_modelagem.get());
+      gl::MultiplicaMatriz(modelagem.get());
       gl::DesenhaVbo(g_vbos[VBO_PEAO]);
     }
 #endif
@@ -156,23 +157,23 @@ void Entidade::DesenhaObjetoEntidadeProto(
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
   if (!proto.morta()) {
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-    gl::MultiplicaMatriz(vd.matriz_modelagem_tijolo_base.get());
+    gl::MultiplicaMatriz(tijolo_base.get());
     gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
   }
 #endif
 
   // Tela da textura.
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  gl::MultiplicaMatriz(vd.matriz_modelagem_tela_textura.get());
+  gl::MultiplicaMatriz(tela_textura.get());
 
   GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
     vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
   if (id_textura != GL_INVALID_VALUE) {
     // Deslocamento da textura.
-    bool ajustar_textura = (vd.matriz_deslocamento_textura != Matrix4());
+    bool ajustar_textura = (deslocamento_textura != Matrix4());
     if (ajustar_textura) {
       gl::MatrizEscopo salva_matriz_textura(gl::MATRIZ_AJUSTE_TEXTURA);
-      gl::MultiplicaMatriz(vd.matriz_deslocamento_textura.get());
+      gl::MultiplicaMatriz(deslocamento_textura.get());
       gl::AtualizaMatrizes();
     }
 
@@ -193,6 +194,14 @@ void Entidade::DesenhaObjetoEntidadeProto(
       gl::AtualizaMatrizes();
     }
   }
+}
+
+
+void Entidade::DesenhaObjetoEntidadeProto(
+    const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
+  DesenhaObjetoEntidadeProtoComMatrizes(
+      proto, vd, pd,
+      vd.matriz_modelagem, vd.matriz_modelagem_tijolo_base, vd.matriz_modelagem_tijolo_tela, vd.matriz_modelagem_tela_textura, vd.matriz_deslocamento_textura);
 }
 
 void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
@@ -367,7 +376,8 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       escala_efeito->set_x(1.2);
       escala_efeito->set_y(1.2);
       escala_efeito->set_z(1.2);
-      DesenhaObjetoProto(proto_, vd_, pd);
+      MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
+      DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
       pd->clear_escala_efeito();
     }
     break;
@@ -384,7 +394,8 @@ void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento&
       for (int i = 0; i < num_imagens; ++i) {
         pd->mutable_rotacao_efeito()->set_z(i * inc_angulo_graus);
         pd->mutable_translacao_efeito()->set_x(1.0f);
-        DesenhaObjetoProto(proto_, vd_, pd);
+        MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, pd);
+        DesenhaObjetoEntidadeProtoComMatrizes(proto_, vd_, pd, md.modelagem, md.tijolo_base, md.tijolo_tela, md.tela_textura, md.deslocamento_textura);
       }
       pd->clear_rotacao_efeito();
       pd->clear_translacao_efeito();

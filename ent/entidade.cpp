@@ -369,7 +369,7 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
 }
 
 void Entidade::AtualizaMatrizes() {
-  MatrizesDesenho md = AtualizaMatrizes(proto_, vd_, parametros_desenho_);
+  MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   vd_.matriz_modelagem = md.modelagem;
   vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
   vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
@@ -378,7 +378,7 @@ void Entidade::AtualizaMatrizes() {
 }
 
 // static
-Entidade::MatrizesDesenho Entidade::AtualizaMatrizes(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
   MatrizesDesenho md;
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
   md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);

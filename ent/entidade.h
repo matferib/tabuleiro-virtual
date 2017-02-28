@@ -376,7 +376,7 @@ class Entidade {
     Matrix4 tela_textura;
     Matrix4 deslocamento_textura;
   };
-  static MatrizesDesenho AtualizaMatrizes(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+  static MatrizesDesenho GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
 
   /** Atualiza as matrizes do objeto. */
   void AtualizaMatrizes();
@@ -426,6 +426,9 @@ class Entidade {
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
   static void DesenhaObjetoEntidadeProto(
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
+  static void DesenhaObjetoEntidadeProtoComMatrizes(
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd,
+      const Matrix4& modelagem, const Matrix4& tijolo_base, const Matrix4& tijolo_tela, const Matrix4& tela_textura, const Matrix4& deslocamento_textura);
   static void DesenhaObjetoCompostoProto(
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
 
