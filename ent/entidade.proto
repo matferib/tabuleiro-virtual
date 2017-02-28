@@ -337,7 +337,7 @@ message ParametrosDesenho {
   optional bool desenha_controle_virtual = 31 [default=true];
   // Se false, os detalhes nao serao desenhados.
   optional bool desenha_detalhes = 33 [default=true];
-  // Se false, nao desenha as informacoes gerais (coordenadas, id acao etc). 
+  // Se false, nao desenha as informacoes gerais (coordenadas, id acao etc).
   optional bool desenha_info_geral = 37 [default=true];
   // Tipo de visao da entidade presa.
   optional TipoVisao tipo_visao = 39;
