@@ -32,6 +32,9 @@ windows_debug:
 apple:
 	scons sistema=apple debug=0 -j 4
 
+apple_profile:
+	scons sistema=apple debug=1 gerar_profile=1 -j 4
+
 apple_opengles:
 	scons sistema=apple debug=0 usar_opengl_es=1 -j 4
 

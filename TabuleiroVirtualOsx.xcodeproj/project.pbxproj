@@ -534,18 +534,25 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ENABLE_TESTABILITY = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GENERATE_PROFILING_CODE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				New_Setting = "";
 				"New_Setting[sdk=macosx*]" = "";
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 			};
 			name = Debug;
 		};
 		EA9CE3701BAA3ADB003E22ED /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
+				GCC_INSTRUMENT_PROGRAM_FLOW_ARCS = YES;
+				GENERATE_PROFILING_CODE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				New_Setting = "";
 				"New_Setting[sdk=macosx*]" = "";
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 			};
 			name = Release;
 		};
@@ -675,7 +682,7 @@
 				EA9CE3701BAA3ADB003E22ED /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 		EAD073201DA4B65900F234A1 /* Build configuration list for PBXNativeTarget "TabuleiroVirtual" */ = {
 			isa = XCConfigurationList;
@@ -684,7 +691,7 @@
 				EAD073221DA4B65900F234A1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
