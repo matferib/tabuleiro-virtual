@@ -1,6 +1,6 @@
 Versoes:
 
-- instalador/tabvirt.iss: instalador windows.
+- instalador/tabvirt*.iss: instalador windows.
 - ifg/qt/menuprincipal.cpp: dialogo de versao.
 - android/AndroidManifest.xml: as duas versoes.
 - mac: ver NOTAS_MAC.
