@@ -4805,7 +4805,11 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         }
       }
       if (cenario_diferente) {
-        CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
+        // Carrega sub cenario chama AtualizaOlho.
+        //CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
+        AlternaCameraPresa();
+        LOG(WARNING) << "Nao consigo atualizar olho porque entidade presa esta em outro cenario";
+        return;
       }
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         olho_.clear_destino();
@@ -7886,19 +7890,37 @@ void Tabuleiro::AlternaCameraPrimeiraPessoa() {
 }
 
 void Tabuleiro::AlternaCameraPresa() {
-  if (camera_presa_) {
+  auto EntidadeParaAdicionar = [this] () {
+    std::vector<unsigned int> entidades_a_adicionar;
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      const Entidade* entidade = BuscaEntidade(id);
+      if (entidade != nullptr && entidade->Tipo() == TE_ENTIDADE) {
+        entidades_a_adicionar.push_back(id);
+      }
+    }
+    return entidades_a_adicionar;
+  };
+  std::vector<unsigned int> entidades_a_adicionar = EntidadeParaAdicionar();
+  if (camera_presa_ && entidades_a_adicionar.empty()) {
     camera_presa_ = false;
     ids_camera_presa_.clear();
     LOG(INFO) << "Camera solta.";
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
       AlternaCameraPrimeiraPessoa();
     }
-  } else if (!ids_entidades_selecionadas_.empty()) {
+  } else {
+    for (unsigned int id : entidades_a_adicionar) {
+      if (std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) == ids_camera_presa_.end()) {
+        ids_camera_presa_.push_back(id);
+      }
+    }
+  }
+
+  if (!ids_camera_presa_.empty()) {
     camera_presa_ = true;
-    ids_camera_presa_.insert(ids_camera_presa_.end(), ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
     LOG(INFO) << "Camera presa.";
   } else {
-    LOG(INFO) << "Sem entidade selecionada.";
+    LOG(INFO) << "Sem entidade selecionada, nada a fazer.";
   }
 }
 
@@ -7912,8 +7934,22 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   unsigned int primeiro = ids_camera_presa_.front();
   LOG(INFO) << "Alternando id camera presa de " << primeiro;
   ids_camera_presa_.pop_front();
+
+  const Entidade* entidade = BuscaEntidade(ids_camera_presa_.front());
+  for (; entidade == nullptr && !ids_camera_presa_.empty(); entidade = BuscaEntidade(ids_camera_presa_.front())) {
+    LOG(INFO) << "Alternando para entidada nao existente " << ids_camera_presa_.front();
+    ids_camera_presa_.pop_front();
+  }
+  if (entidade == nullptr) {
+    LOG(INFO) << "Nao ha outra entidade para prender, retornando a primeira.";
+  } else {
+    if (entidade->Pos().id_cenario() != cenario_corrente_) {
+      CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
+    }
+  }
   ids_camera_presa_.push_back(primeiro);
-  LOG(INFO) << "Para " << ids_camera_presa_.front();
+  LOG(INFO) << "Camera presa em " << ids_camera_presa_.front();
+  SelecionaEntidade(ids_camera_presa_.front());
 }
 
 void Tabuleiro::DesativaWatchdog() {

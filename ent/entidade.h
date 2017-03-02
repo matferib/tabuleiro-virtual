@@ -55,6 +55,7 @@ class Entidade {
   /** Retorna a cor da entidade. */
   const Cor& CorDesenho() const { return proto_.cor(); }
 
+  /** Retorna o tipo das entidade: TE_ENTIDADE, TE_FORMA, TE_COMPOSTA. */
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
   bool Achatar() const {
