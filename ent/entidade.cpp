@@ -1266,14 +1266,15 @@ void Entidade::IniciaGl() {
   {
     auto& vbo = vbos_nao_gravados[VBO_BASE_PECA];
     const float raio_peca = TAMANHO_LADO_QUADRADO_2 * 0.9f;
-    vbo = gl::VboCilindroSolido(raio_peca  /*raio*/, TAMANHO_LADO_QUADRADO_10  /*altura*/, 12, 1);
+    const int num_lados_peca = 6;
+    vbo = gl::VboCilindroSolido(raio_peca  /*raio*/, TAMANHO_LADO_QUADRADO_10  /*altura*/, num_lados_peca, 1);
     {
-      gl::VboNaoGravado vbo_disco = gl::VboDisco(raio_peca  /*raio*/, 12  /*fatias*/);
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(raio_peca  /*raio*/, num_lados_peca);
       vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
       vbo.Concatena(vbo_disco);
     }
     {
-      gl::VboNaoGravado vbo_disco = gl::VboDisco(raio_peca  /*raio*/, 12  /*fatias*/);
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(raio_peca  /*raio*/, num_lados_peca);
       vbo_disco.Translada(0.0f, 0.0f, TAMANHO_LADO_QUADRADO_10);
       vbo.Concatena(vbo_disco);
     }
