@@ -469,12 +469,12 @@ void Tabuleiro::ConfiguraOlhar() {
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
       ConfiguraOlharMapeamentoSombras();
-      gl::MudaModoMatriz(GL_MODELVIEW);
+      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
     }
     if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
       ConfiguraOlharMapeamentoOclusao();
-      gl::MudaModoMatriz(GL_MODELVIEW);
+      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
     }
     const Posicao& alvo = olho_.alvo();
     if (camera_ == CAMERA_ISOMETRICA) {
@@ -2256,7 +2256,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       if (entidade == nullptr) {
         break;
       }
-      gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+      gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
       gl::CarregaIdentidade();
       ConfiguraOlhar();
       // Faz picking do tabuleiro sem entidades.
@@ -2436,8 +2436,8 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         ultimo_y_ = y;
       } else {
         // Como pode ser chamado entre atualizacoes, atualiza a MODELVIEW.
-        //gl::ModoMatriz(GL_MODELVIEW);
-        gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+        //gl::ModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+        gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
         gl::CarregaIdentidade();
         ConfiguraOlhar();
         // Faz picking do tabuleiro sem entidades.
@@ -3509,7 +3509,7 @@ void Tabuleiro::DesenhaCena() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudaModoMatriz(GL_MODELVIEW);
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
@@ -3540,7 +3540,7 @@ void Tabuleiro::DesenhaCena() {
 #if 0
   // Algumas verificacoes.
   GLint depth = 0;
-  gl::Le(GL_MODELVIEW_STACK_DEPTH, &depth);
+  gl::Le(gl::MATRIZ_MODELAGEM_CAMERA_STACK_DEPTH, &depth);
   if (depth > 2) {
     LOG(ERROR) << "Pilha MODELVIEW com vazamento: " << depth;
   }
@@ -3653,7 +3653,7 @@ void Tabuleiro::DesenhaCena() {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3675,7 +3675,7 @@ void Tabuleiro::DesenhaCena() {
     gl::CarregaIdentidade();
     // Eixo com origem embaixo esquerda.
     gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
     gl::CarregaIdentidade();
     gl::DesabilitaEscopo salva_depth(GL_DEPTH_TEST);
     gl::DesabilitaEscopo salva_luz(GL_LIGHTING);
@@ -3710,7 +3710,7 @@ void Tabuleiro::DesenhaCena() {
   }
   gl::Ortogonal(0, largura_, 0, altura_, -1.0f, 1.0f);
   gl::AtualizaMatrizProjecao();
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
 
   if (parametros_desenho_.desenha_rosa_dos_ventos() && opcoes_.desenha_rosa_dos_ventos()) {
@@ -3778,7 +3778,7 @@ void Tabuleiro::DesenhaCenaVbos() {
   }
   V_ERRO("desabilitando luzes");
 
-  gl::MudaModoMatriz(GL_MODELVIEW);
+  gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
@@ -4707,7 +4707,7 @@ void Tabuleiro::DesenhaRosaDosVentos() {
 void Tabuleiro::DesenhaPontosRolagem() {
   // 4 pontos.
   MudaCor(COR_PRETA);
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz(gl::MATRIZ_MODELAGEM_CAMERA);
   float translacao_x = ((TamanhoX() / 2) + 1) * TAMANHO_LADO_QUADRADO +
                        ((TamanhoX() % 2 != 0) ? TAMANHO_LADO_QUADRADO_2 : 0);
   float translacao_y = ((TamanhoY() / 2) + 1) * TAMANHO_LADO_QUADRADO +
@@ -4805,7 +4805,11 @@ void Tabuleiro::AtualizaOlho(int intervalo_ms, bool forcar) {
         }
       }
       if (cenario_diferente) {
-        CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
+        // Carrega sub cenario chama AtualizaOlho.
+        //CarregaSubCenario(entidade_referencia->Pos().id_cenario(), entidade_referencia->Pos());
+        AlternaCameraPresa();
+        LOG(WARNING) << "Nao consigo atualizar olho porque entidade presa esta em outro cenario";
+        return;
       }
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         olho_.clear_destino();
@@ -7029,7 +7033,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
     MudaCor(proto_corrente_->luz_ambiente());
   }
 
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::Translada(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -7060,7 +7064,7 @@ void Tabuleiro::DesenhaCaixaCeu() {
   }
   gl::TipoShader tipo_anterior = gl::TipoShaderCorrente();
   gl::UsaShader(gl::TSH_CAIXA_CEU);
-  gl::MatrizEscopo salva_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::Translada(0.0f, 0.0f, 5.0f);
 
   //gl::DesabilitaEscopo profundidade_escopo(GL_DEPTH_TEST);
@@ -7318,7 +7322,7 @@ void Tabuleiro::DesenhaCoordenadas() {
 
 void Tabuleiro::DesenhaInfoGeral() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+  gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   int largura_fonte, altura_fonte, escala;
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
@@ -7371,7 +7375,7 @@ void Tabuleiro::DesenhaTempo(int linha, const std::string& prefixo, const std::l
   // Modo 2d.
   {
     MudaCor(COR_PRETA);
-    gl::MatrizEscopo salva_matriz_mv(GL_MODELVIEW);
+    gl::MatrizEscopo salva_matriz_mv(gl::MATRIZ_MODELAGEM_CAMERA);
     gl::CarregaIdentidade();
     gl::AtualizaMatrizes();
     gl::Retangulo(0.0f, yi, tempo_str.size() * largura_fonte + 2.0f, ys);
@@ -7886,19 +7890,37 @@ void Tabuleiro::AlternaCameraPrimeiraPessoa() {
 }
 
 void Tabuleiro::AlternaCameraPresa() {
-  if (camera_presa_) {
+  auto EntidadeParaAdicionar = [this] () {
+    std::vector<unsigned int> entidades_a_adicionar;
+    for (unsigned int id : ids_entidades_selecionadas_) {
+      const Entidade* entidade = BuscaEntidade(id);
+      if (entidade != nullptr && entidade->Tipo() == TE_ENTIDADE) {
+        entidades_a_adicionar.push_back(id);
+      }
+    }
+    return entidades_a_adicionar;
+  };
+  std::vector<unsigned int> entidades_a_adicionar = EntidadeParaAdicionar();
+  if (camera_presa_ && entidades_a_adicionar.empty()) {
     camera_presa_ = false;
     ids_camera_presa_.clear();
     LOG(INFO) << "Camera solta.";
     if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
       AlternaCameraPrimeiraPessoa();
     }
-  } else if (!ids_entidades_selecionadas_.empty()) {
+  } else {
+    for (unsigned int id : entidades_a_adicionar) {
+      if (std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) == ids_camera_presa_.end()) {
+        ids_camera_presa_.push_back(id);
+      }
+    }
+  }
+
+  if (!ids_camera_presa_.empty()) {
     camera_presa_ = true;
-    ids_camera_presa_.insert(ids_camera_presa_.end(), ids_entidades_selecionadas_.begin(), ids_entidades_selecionadas_.end());
     LOG(INFO) << "Camera presa.";
   } else {
-    LOG(INFO) << "Sem entidade selecionada.";
+    LOG(INFO) << "Sem entidade selecionada, nada a fazer.";
   }
 }
 
@@ -7912,8 +7934,22 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   unsigned int primeiro = ids_camera_presa_.front();
   LOG(INFO) << "Alternando id camera presa de " << primeiro;
   ids_camera_presa_.pop_front();
+
+  const Entidade* entidade = BuscaEntidade(ids_camera_presa_.front());
+  for (; entidade == nullptr && !ids_camera_presa_.empty(); entidade = BuscaEntidade(ids_camera_presa_.front())) {
+    LOG(INFO) << "Alternando para entidada nao existente " << ids_camera_presa_.front();
+    ids_camera_presa_.pop_front();
+  }
+  if (entidade == nullptr) {
+    LOG(INFO) << "Nao ha outra entidade para prender, retornando a primeira.";
+  } else {
+    if (entidade->Pos().id_cenario() != cenario_corrente_) {
+      CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
+    }
+  }
   ids_camera_presa_.push_back(primeiro);
-  LOG(INFO) << "Para " << ids_camera_presa_.front();
+  LOG(INFO) << "Camera presa em " << ids_camera_presa_.front();
+  SelecionaEntidade(ids_camera_presa_.front());
 }
 
 void Tabuleiro::DesativaWatchdog() {

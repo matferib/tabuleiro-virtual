@@ -371,6 +371,8 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
 
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
+          {"gltab_model", &shader->uni_gltab_model },
+          {"gltab_view", &shader->uni_gltab_view },
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
@@ -481,6 +483,8 @@ void IniciaShaders(bool luz_por_pixel, interno::Contexto* contexto) {
 
 void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   contexto->pilha_mvm.push(Matrix4());
+  contexto->pilha_model.push(Matrix4());
+  contexto->pilha_view.push(Matrix4());
   contexto->pilha_prj.push(Matrix4());
   contexto->pilha_mvm_sombra.push(Matrix4());
   contexto->pilha_prj_sombra.push(Matrix4());
@@ -693,6 +697,8 @@ void DesempilhaMatriz() {
 int ModoMatrizCorrente() {
   auto* c = interno::BuscaContexto();
   if (c->pilha_corrente == &c->pilha_mvm) { return MATRIZ_MODELAGEM_CAMERA; }
+  else if (c->pilha_corrente == &c->pilha_model) { return MATRIZ_MODELAGEM; }
+  else if (c->pilha_corrente == &c->pilha_view) { return MATRIZ_CAMERA; }
   else if (c->pilha_corrente == &c->pilha_prj) { return MATRIZ_PROJECAO; }
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
@@ -708,6 +714,10 @@ void MudaModoMatriz(int modo) {
   auto* c = interno::BuscaContexto();
   if (modo == MATRIZ_MODELAGEM_CAMERA) {
     c->pilha_corrente = &c->pilha_mvm;
+  } else if (modo == MATRIZ_MODELAGEM) {
+    c->pilha_corrente = &c->pilha_model;
+  } else if (modo == MATRIZ_CAMERA) {
+    c->pilha_corrente = &c->pilha_view;
   } else if (modo == MATRIZ_PROJECAO) {
     c->pilha_corrente = &c->pilha_prj;
   } else if (modo == MATRIZ_PROJECAO_SOMBRA) {
@@ -1065,6 +1075,10 @@ Matrix4 LeMatriz(matriz_e modo) {
   auto* c = interno::BuscaContexto();
   if (modo == MATRIZ_MODELAGEM_CAMERA) {
     return c->pilha_mvm.top();
+  } else if (modo == MATRIZ_MODELAGEM) {
+    return c->pilha_model.top();
+  } else if (modo == MATRIZ_CAMERA) {
+    return c->pilha_view.top();
   } else if (modo == MATRIZ_PROJECAO) {
     return c->pilha_prj.top();
   } else if (modo == MATRIZ_SOMBRA) {
@@ -1090,6 +1104,10 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
   auto* c = interno::BuscaContexto();
   if (nome_parametro == GL_MODELVIEW_MATRIX) {
     memcpy(valor, c->pilha_mvm.top().get(), 16 * sizeof(float));
+  } else if (nome_parametro == MATRIZ_MODELAGEM) {
+    memcpy(valor, c->pilha_model.top().get(), 16 * sizeof(float));
+  } else if (nome_parametro == MATRIZ_CAMERA) {
+    memcpy(valor, c->pilha_view.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == GL_PROJECTION_MATRIX) {
     memcpy(valor, c->pilha_prj.top().get(), 16 * sizeof(float));
   } else if (nome_parametro == MATRIZ_AJUSTE_TEXTURA) {
@@ -1167,6 +1185,8 @@ namespace {
 GLint IdMatrizCorrente(const interno::VarShader& shader) {
   switch (ModoMatrizCorrente()) {
     case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
+    case MATRIZ_MODELAGEM:        return shader.uni_gltab_model;
+    case MATRIZ_CAMERA:           return shader.uni_gltab_view;
     case MATRIZ_AJUSTE_TEXTURA:   return shader.uni_gltab_mvm_ajuste_textura;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
@@ -1222,6 +1242,8 @@ void AtualizaTodasMatrizes() {
   };
   std::vector<DadosMatriz> dados_matriz = {
     { shader.uni_gltab_mvm, &c->pilha_mvm.top() },
+    { shader.uni_gltab_model, &c->pilha_model.top() },
+    { shader.uni_gltab_view, &c->pilha_view.top() },
     { shader.uni_gltab_prm, &c->pilha_prj.top() },
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },

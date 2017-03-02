@@ -55,6 +55,7 @@ class Entidade {
   /** Retorna a cor da entidade. */
   const Cor& CorDesenho() const { return proto_.cor(); }
 
+  /** Retorna o tipo das entidade: TE_ENTIDADE, TE_FORMA, TE_COMPOSTA. */
   TipoEntidade Tipo() const { return proto_.tipo(); }
 
   bool Achatar() const {
@@ -260,8 +261,8 @@ class Entidade {
   static constexpr unsigned int MaxNumAcoes = 3;
 
   // Nome dos buffers de VBO.
-  constexpr static unsigned short NUM_VBOS = 13;
-  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11, VBO_CILINDRO_FECHADO = 12;
+  constexpr static unsigned short NUM_VBOS = 15;
+  constexpr static unsigned short VBO_PEAO = 0, VBO_TIJOLO = 1, VBO_TELA_TEXTURA = 2, VBO_CUBO = 3, VBO_ESFERA = 4, VBO_PIRAMIDE = 5, VBO_CILINDRO = 6, VBO_DISCO = 7, VBO_RETANGULO = 8, VBO_TRIANGULO = 9, VBO_CONE = 10, VBO_CONE_FECHADO = 11, VBO_CILINDRO_FECHADO = 12, VBO_BASE_PECA = 13, VBO_MOLDURA_PECA = 14;
   static std::vector<gl::VboGravado> g_vbos;
 
   // Alguns efeitos tem complementos.
@@ -369,6 +370,15 @@ class Entidade {
   /** Desenha o efeito de uma entidade. */
   void DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& evento, const ComplementoEfeito& complemento);
 
+  struct MatrizesDesenho {
+    Matrix4 modelagem;
+    Matrix4 tijolo_base;
+    Matrix4 tijolo_tela;
+    Matrix4 tela_textura;
+    Matrix4 deslocamento_textura;
+  };
+  static MatrizesDesenho GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd);
+
   /** Atualiza as matrizes do objeto. */
   void AtualizaMatrizes();
 
@@ -417,6 +427,9 @@ class Entidade {
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
   static void DesenhaObjetoEntidadeProto(
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
+  static void DesenhaObjetoEntidadeProtoComMatrizes(
+      const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd,
+      const Matrix4& modelagem, const Matrix4& tijolo_base, const Matrix4& tijolo_tela, const Matrix4& tela_textura, const Matrix4& deslocamento_textura);
   static void DesenhaObjetoCompostoProto(
       const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd);
 

@@ -9,6 +9,14 @@
       <Configuration>Debug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Release32|Win32">
+      <Configuration>Release32</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release32|x64">
+      <Configuration>Release32</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
@@ -21,17 +29,22 @@
   <ItemGroup>
     <ClCompile Include="..\..\arq\arquivo.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Disabled</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">Disabled</Optimization>
     </ClCompile>
     <ClCompile Include="..\..\arq\arquivo_pc.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Disabled</Optimization>
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">Disabled</Optimization>
     </ClCompile>
     <ClCompile Include="..\..\ent\acoes.cpp" />
     <ClCompile Include="..\..\ent\acoes.pb.cc" />
     <ClCompile Include="..\..\ent\constantes.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ent_constantes.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ent_constantes.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\ent_constantes.obj</ObjectFileName>
       <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)ent\</BrowseInformationFile>
       <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)ent\</BrowseInformationFile>
+      <BrowseInformationFile Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)ent\</BrowseInformationFile>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\ent_constantes.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ent\controle_virtual.pb.cc" />
     <ClCompile Include="..\..\ent\entidade.cpp" />
@@ -46,7 +59,9 @@
     <ClCompile Include="..\..\ent\tabuleiro_picking.cpp" />
     <ClCompile Include="..\..\ent\util.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ent_util.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ent_util.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\ent_util.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\ent_util.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ent\watchdog.cpp" />
     <ClCompile Include="..\..\gltab\glues.cpp" />
@@ -59,6 +74,7 @@
     <ClCompile Include="..\..\ifg\qt\constantes.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ifg_qt_constantes.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\menuprincipal.cpp" />
     <ClCompile Include="..\..\ifg\qt\moc_menuprincipal.cpp" />
@@ -68,7 +84,9 @@
     <ClCompile Include="..\..\ifg\qt\qt_interface.cpp" />
     <ClCompile Include="..\..\ifg\qt\util.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\ifg_qt_util.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ifg\qt\visualizador3d.cpp" />
     <ClCompile Include="..\..\ifg\tecladomouse.cpp" />
@@ -81,6 +99,8 @@
     <ClCompile Include="..\..\net\util.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IntDir)\net_util.cpp</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\net_util.cpp</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\net_util.cpp</ObjectFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)\net_util.cpp</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\ntf\notificacao.cpp" />
     <ClCompile Include="..\..\ntf\notificacao.pb.cc" />
@@ -118,7 +138,21 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140_xp</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140_xp</PlatformToolset>
@@ -137,7 +171,13 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -150,7 +190,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -243,6 +289,42 @@
       <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
     </ProjectReference>
     <PostBuildEvent>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "c:\Users\matheus\Projetos\TabuleiroVirtual\tabvirt32.exe"</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copia a saida para o tabuleiro</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Users\matheus\Projetos\TabuleiroVirtual\win32\include;C:\Users\matheus\Projetos\libs\boost_1_59_0;C:\Users\matheus\Projetos\TabuleiroVirtual;C:\Users\matheus\Projetos\libs\protobuf-2.6.1\protobuf-2.6.1\src;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtGui;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\QtCore;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>QtOpenGL4.lib;QtGui4.lib;QtCore4.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Boost\;C:\Users\matheus\Projetos\libs\qt-everywhere-opensource-src-4.8.6\lib;C:\Users\matheus\Projetos\libs\protobuf-2.6.1\protobuf-2.6.1\vsprojects\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+    </Link>
+    <PreBuildEvent>
+      <Command>"$(MSBuildStartupDirectory)\protoc.exe" -Ic:/Users/matheus/Projetos/TabuleiroVirtual ent/acoes.proto ent/controle_virtual.proto ent/entidade.proto ent/tabuleiro.proto ifg/modelos.proto ntf/notificacao.proto --cpp_out=c:/Users/matheus/Projetos/TabuleiroVirtual
+
+</Command>
+    </PreBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <PostBuildEvent>
       <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" "c:\Users\matheus\Projetos\TabuleiroVirtual\tabvirt.exe"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
@@ -250,6 +332,42 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)glog-0.3.4\src\windows;$(SolutionDir)gflags\include;$(SolutionDir)include;$(SolutionDir)..\;$(SolutionDir)boost\boost_src;$(SolutionDir)glog\src\windows;$(SolutionDir)protobuf-2.6.1\src;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtGui;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtOpenGL;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\QtCore;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32_LEAN_AND_MEAN=1;WIN32=1;_WINDOWS=1;_CRT_SECURE_NO_WARNINGS=1;_WIN32_WINNT=0x0601;WINVER=0x0601;_SCL_SECURE_NO_WARNINGS=1;NOMINMAX=1;USAR_SHADER=1;BOOST_ALL_NO_LIB=1;USAR_QT=1;USAR_GLOG=1;USAR_GFLAGS=0;USAR_WATCHDOG=1;_SILENCE_STDEXT_HASH_DEPRECATION_WARNINGS;USAR_FRAMEBUFFER=1;GOOGLE_GLOG_DLL_DECL=;GFLAGS_IS_A_DLL=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>QtOpengl4.lib;QtGui4.lib;QtCore4.lib;Boost.lib;libprotobuf.lib;glu32.lib;opengl32.lib;libglog_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)x64\Release;$(SolutionDir)qt-everywhere-opensource-src-4.8.6\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Windows</SubSystem>
+      <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
+    </Link>
+    <PreBuildEvent>
+      <Command>"$(MSBuildStartupDirectory)\protoc.exe" -proto_path=. -Ic:/Users/matheus/Projetos/TabuleiroVirtual ent/acoes.proto ent/controle_virtual.proto ent/entidade.proto ent/tabuleiro.proto ifg/modelos.proto ntf/notificacao.proto --cpp_out=c:/Users/matheus/Projetos/TabuleiroVirtual
+
+</Command>
+    </PreBuildEvent>
+    <ProjectReference>
+      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
+    </ProjectReference>
+    <PostBuildEvent>
+      <Command>copy "$(OutDir)$(TargetName)$(TargetExt)" $(SolutionDir)\..\tabvirt.exe </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copia a saida para o tabuleiro</Message>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>

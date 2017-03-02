@@ -153,6 +153,7 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         grupo->setExclusive(true);
         const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
         auto* menu_modelos = menu->addMenu(tr(menuitem_str));
+        menu_modelos->setStyleSheet("* { menu-scrollable: 1 }");
         std::vector<ent::EntidadeProto*> entidades;
         MenuModelos menu_modelos_proto;
         for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
@@ -463,7 +464,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 2.5.2\n"
+        tr("Tabuleiro virtual versão 2.5.3\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

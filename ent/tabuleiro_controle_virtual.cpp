@@ -700,12 +700,19 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
     float transx = ((xi + xf) / 2.0f) + (db.translacao_x() * unidade_largura);
     float transy = ((yi + yf) / 2.0f) + (db.translacao_y() * unidade_altura);
     if (db.forma() == FORMA_TRIANGULO) {
+      unsigned int id_textura = TexturaBotao(db, entidade);
+      if (parametros_desenho_.desenha_texturas() && id_textura != GL_INVALID_VALUE) {
+        gl::Habilita(GL_TEXTURE_2D);
+        gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+      }
       m.rotateZ(db.rotacao_graus());
       m.scale(xf - xi, xf - xi, 1.0f);
       m.translate(transx, transy, 0.0f);
       gl::MultiplicaMatriz(m.get());
       gl::AtualizaMatrizes();
       gl::TrianguloUnitario();
+      gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+      gl::Desabilita(GL_TEXTURE_2D);
     } else {
       m.rotateZ(db.rotacao_graus());
       m.scale((xf - xi), (xf - xi), 1.0f);

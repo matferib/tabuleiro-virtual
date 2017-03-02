@@ -369,53 +369,62 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
 }
 
 void Entidade::AtualizaMatrizes() {
-  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(parametros_desenho_);
-  vd_.matriz_modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd_.angulo_rotacao_textura_graus);
-  if (Tipo() != TE_ENTIDADE || proto_.has_modelo_3d()) {
-    return;
+  MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
+  vd_.matriz_modelagem = md.modelagem;
+  vd_.matriz_modelagem_tijolo_base = md.tijolo_base;
+  vd_.matriz_modelagem_tijolo_tela = md.tijolo_tela;
+  vd_.matriz_modelagem_tela_textura = md.tela_textura;
+  vd_.matriz_deslocamento_textura = md.deslocamento_textura;
+}
+
+// static
+Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& proto, const VariaveisDerivadas& vd, const ParametrosDesenho* pd) {
+  MatrizesDesenho md;
+  Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
+  md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
+  if (proto.tipo() != TE_ENTIDADE || proto.has_modelo_3d()) {
+    return md;
   }
   // tijolo base. Usada para disco de peao tambem.
-  if (!proto_.morta()) {
+  if (!proto.morta()) {
     Matrix4 m;
-    if (parametros_desenho_->entidade_selecionada()) {
-      m.rotateZ(vd_.angulo_disco_selecao_graus);
+    if (pd->entidade_selecionada()) {
+      m.rotateZ(vd.angulo_disco_selecao_graus);
     }
-    m.scale(0.8f, 0.8f, TAMANHO_LADO_QUADRADO_10 / 2);
-    m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10 / 4);
-    vd_.matriz_modelagem_tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto_, vd_, parametros_desenho_) * m;
+    md.tijolo_base = MontaMatrizModelagem(true  /*queda*/, TZ_SEM_VOO  /*z*/, proto, vd, pd) * m;
   }
-  if (!proto_.info_textura().id().empty()) {
-    bool achatar = Achatar();
+  if (!proto.info_textura().id().empty()) {
+    bool achatar = Achatar(proto, pd);
     // tijolo tela.
     if (!achatar) {
       Matrix4 m;
-      m.scale(proto_.info_textura().largura(), 0.1f, proto_.info_textura().altura());
-      m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto_.info_textura().altura()));
-      m.rotateZ(vd_.angulo_rotacao_textura_graus);
-      vd_.matriz_modelagem_tijolo_tela = matriz_modelagem_geral  * m;
+      m.scale(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
+      m.rotateZ(vd.angulo_rotacao_textura_graus);
+      md.tijolo_tela = matriz_modelagem_geral  * m;
     }
     // tela.
     {
       Matrix4 m;
       if (achatar) {
-        m.scale(0.8f, 1.0f, 0.8f);
+        m.translate(0.0, 0.0, -(TAMANHO_LADO_QUADRADO_10 + TAMANHO_LADO_QUADRADO_2));
         m.rotateX(-90.0f);
-        m.translate(0.0, 0.0, TAMANHO_LADO_QUADRADO_10);
+        m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
+        m.translate(0.0f, 0.0f, TAMANHO_LADO_QUADRADO_10);
       } else {
-        m.scale(proto_.info_textura().largura(), 1.0f, proto_.info_textura().altura());
-        m.rotateZ(vd_.angulo_rotacao_textura_graus);
-        m.translate(0, 0, (TAMANHO_LADO_QUADRADO_2 + TAMANHO_LADO_QUADRADO_10) - (1.0f - proto_.info_textura().altura()));
+        m.scale(proto.info_textura().largura(), 1.0f, proto.info_textura().altura());
+        m.rotateZ(vd.angulo_rotacao_textura_graus);
       }
-      vd_.matriz_modelagem_tela_textura = matriz_modelagem_geral * m;
+      md.tela_textura = matriz_modelagem_geral * m;
     }
     // Deslocamento de textura.
     {
       Matrix4 m;
-      m.scale(proto_.info_textura().largura(), proto_.info_textura().altura(), 1.0f);
-      m.translate(proto_.info_textura().translacao_x(), proto_.info_textura().translacao_y(), 0.0f);
-      vd_.matriz_deslocamento_textura = m;
+      m.scale(proto.info_textura().largura(), proto.info_textura().altura(), 1.0f);
+      m.translate(proto.info_textura().translacao_x(), proto.info_textura().translacao_y(), 0.0f);
+      md.deslocamento_textura = m;
     }
   }
+  return md;
 }
 
 
@@ -519,7 +528,7 @@ void Entidade::Atualiza(int intervalo_ms) {
     float angulo = 0.0f;
     if (proto_.caida()) {
       angulo = 0.0f;
-    } else if (parametros_desenho_->texturas_sempre_de_frente()) {
+    } else if (!Achatar() && parametros_desenho_->texturas_sempre_de_frente()) {
       double dx = proto_.pos().x() - parametros_desenho_->pos_olho().x();
       double dy = proto_.pos().y() - parametros_desenho_->pos_olho().y();
       double r = sqrt(pow(dx, 2) + pow(dy, 2));
@@ -1217,11 +1226,11 @@ void Entidade::IniciaGl() {
     vbo.Nomeia("peão");
   }
 
-  // Vbo tijolo da base.
+  // Vbo tijolo.
   {
     auto& vbo = vbos_nao_gravados[VBO_TIJOLO];
     vbo = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
-    vbo.Nomeia("tijolo da base");
+    vbo.Nomeia("tijolo");
   }
 
   // Tela para desenho de texturas de entidades.
@@ -1229,10 +1238,10 @@ void Entidade::IniciaGl() {
   {
     const unsigned short indices[] = { 0, 1, 2, 3 };
     const float coordenadas[] = {
-      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
-      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, -TAMANHO_LADO_QUADRADO_2,
-      TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
-      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_2 / 10.0f - 0.01f, TAMANHO_LADO_QUADRADO_2,
+      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_10 / 4.0f - 0.01f, TAMANHO_LADO_QUADRADO_10,
+      TAMANHO_LADO_QUADRADO_2,  -TAMANHO_LADO_QUADRADO_10 / 4.0f - 0.01f, TAMANHO_LADO_QUADRADO_10,
+      TAMANHO_LADO_QUADRADO_2,  -TAMANHO_LADO_QUADRADO_10 / 4.0f - 0.01f, TAMANHO_LADO_QUADRADO_10 + TAMANHO_LADO_QUADRADO,
+      -TAMANHO_LADO_QUADRADO_2, -TAMANHO_LADO_QUADRADO_10 / 4.0f - 0.01f, TAMANHO_LADO_QUADRADO_10 + TAMANHO_LADO_QUADRADO,
     };
     const float coordenadas_textura[] = {
       0.0f, 1.0f,
@@ -1252,6 +1261,32 @@ void Entidade::IniciaGl() {
     vbo.AtribuiNormais(coordenadas_normais);
     vbo.AtribuiIndices(indices, 4);
     vbo.Nomeia("tela de textura");
+  }
+  // Base peça.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_BASE_PECA];
+    const float raio_peca = TAMANHO_LADO_QUADRADO_2 * 0.9f;
+    const int num_lados_peca = 6;
+    vbo = gl::VboCilindroSolido(raio_peca  /*raio*/, TAMANHO_LADO_QUADRADO_10  /*altura*/, num_lados_peca, 1);
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(raio_peca  /*raio*/, num_lados_peca);
+      vbo_disco.Escala(-1.0f, 1.0f, -1.0f);
+      vbo.Concatena(vbo_disco);
+    }
+    {
+      gl::VboNaoGravado vbo_disco = gl::VboDisco(raio_peca  /*raio*/, num_lados_peca);
+      vbo_disco.Translada(0.0f, 0.0f, TAMANHO_LADO_QUADRADO_10);
+      vbo.Concatena(vbo_disco);
+    }
+    vbo.Nomeia("BasePeça");
+  }
+  // Moldura peça.
+  {
+    auto& vbo = vbos_nao_gravados[VBO_MOLDURA_PECA];
+    vbo = gl::VboCuboSolido(TAMANHO_LADO_QUADRADO);
+    vbo.Translada(0.0f, 0.0f, TAMANHO_LADO_QUADRADO_10 + TAMANHO_LADO_QUADRADO_2);
+    vbo.Escala(1.0f, 1.0f / 20.0f, 1.0f);
+    vbo.Nomeia("MolduraPeça");
   }
 
   // Cubo.

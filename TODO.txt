@@ -2,6 +2,7 @@ Bug do menu do windows.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 
 Versao 2.6.0
+- Ao atacar entidade com reflexos, escolher automaticamente se acertou imagens ou nao.
 - separar DesenhaObjeto de Decoracoes para arrumar os rotulos transparentes.
 - Multiplos ataques;
 - Formas hibridas (muda iniciativa, AC e ataques, tamanho e textura).
