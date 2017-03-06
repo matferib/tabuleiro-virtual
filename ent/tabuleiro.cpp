@@ -58,6 +58,7 @@
 #endif
 
 #define TAM_MAPA_OCLUSAO 1024
+#define APENAS_MESTRE_CRIA_FORMAS 0
 
 using google::protobuf::RepeatedField;
 
@@ -895,10 +896,12 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
   try {
     if (notificacao.local()) {
       EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_.second);
+#if APENAS_MESTRE_CRIA_FORMAS
       if (modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
       }
+#endif
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return;
@@ -5228,11 +5231,13 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
+#if APENAS_MESTRE_CRIA_FORMAS
   if (!EmModoMestreIncluindoSecundario()) {
     VLOG(1) << "Apenas mestre pode desenhar.";
     // Apenas mestre pode desenhar.
     return;
   }
+#endif
   VLOG(1) << "Botao desenho pressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;
