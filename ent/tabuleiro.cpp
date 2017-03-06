@@ -1901,8 +1901,12 @@ void Tabuleiro::RolaIniciativasNotificando() {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
     } else if (IdCameraPresa() != Entidade::IdInvalido) {
-      auto* entidade = EntidadeSelecionada();
-      entidades.push_back(entidade);
+      auto* entidade = BuscaEntidade(IdCameraPresa());
+      if (entidade != nullptr) {
+        entidades.push_back(entidade);
+      } else {
+        LOG(ERROR) << "Entidade presa eh nula";
+      }
     } else {
       LOG(INFO) << "Nao ha unidade selecionada ou presa para rolar iniciativa";
       return;
@@ -2763,7 +2767,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
     VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
-    return std::make_tuple(1, "", true);
+    return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
   }
   float alcance_m = ea.AlcanceAtaqueMetros();
   if (alcance_m >= 0) {
