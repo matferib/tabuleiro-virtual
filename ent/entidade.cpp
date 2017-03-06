@@ -1185,23 +1185,19 @@ int Entidade::CA(TipoCA tipo_ca) const {
 }
 
 int Entidade::MargemCritico() const {
-  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
-  for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao) {
-      return da.margem_critico();
-    }
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
+    return AtaqueCaInvalido;
   }
-  return AtaqueCaInvalido;
+  return da->margem_critico();
 }
 
 int Entidade::MultiplicadorCritico() const {
-  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
-  for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao) {
-      return da.multiplicador_critico();
-    }
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
+    return AtaqueCaInvalido;
   }
-  return AtaqueCaInvalido;
+  return da->multiplicador_critico();
 }
 
 bool Entidade::ImuneCritico() const {
