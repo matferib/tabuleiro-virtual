@@ -2768,7 +2768,8 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
   int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
-    VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
+    VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
+            << ", defesa: " << ca_destino;
     return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
   }
   float alcance_m = ea.AlcanceAtaqueMetros();

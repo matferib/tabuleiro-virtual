@@ -811,13 +811,18 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
 }
 
 std::string Entidade::Acao(const std::vector<std::string>& acoes_padroes) const {
-  if (!proto_.ultima_acao().empty()) {
-    return proto_.ultima_acao();
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
+    // Comportamento legado.
+    if (!proto_.ultima_acao().empty()) {
+      return proto_.ultima_acao();
+    }
+    if (acoes_padroes.empty()) {
+      return "";
+    }
+    return AcaoExecutada(0, acoes_padroes);
   }
-  if (acoes_padroes.empty()) {
-    return "";
-  }
-  return AcaoExecutada(0, acoes_padroes);
+  return da->tipo_ataque();
 }
 
 template<class T>
@@ -1160,18 +1165,11 @@ int Entidade::IncrementosAtaque() const {
 }
 
 int Entidade::BonusAtaque() const {
-  // TODO: usar DadoCorrente?
-  std::vector<int> ataques_casados;
-  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
-  for (const auto& da : proto_.dados_ataque()) {
-    if (da.tipo_ataque() == ultima_acao) {
-      ataques_casados.push_back(da.bonus_ataque());
-    }
-  }
-  if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
+  const auto* da = DadoCorrente();
+  if (da == nullptr) {
     return AtaqueCaInvalido;
   }
-  return ataques_casados[vd_.ataques_na_rodada];
+  return da->bonus_ataque();
 }
 
 int Entidade::CA(TipoCA tipo_ca) const {
