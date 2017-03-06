@@ -809,7 +809,9 @@ public:
 
         spin_alcance_quad = new QDoubleSpinBox(horizontalLayoutWidget_5);
         spin_alcance_quad->setObjectName(QString::fromUtf8("spin_alcance_quad"));
+        spin_alcance_quad->setDecimals(1);
         spin_alcance_quad->setMinimum(-3);
+        spin_alcance_quad->setMaximum(1000);
         spin_alcance_quad->setSingleStep(1);
 
         horizontalLayout_6->addWidget(spin_alcance_quad);

@@ -1079,7 +1079,7 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
 }
 
 int Entidade::ValorParaAcao(const std::string& id_acao) const {
-  std::string s = StringDanoParaAcao(id_acao);
+  std::string s = StringDanoParaAcao();
   if (s.empty()) {
     VLOG(1) << "Acao nao encontrada: " << id_acao;
     return 0;
@@ -1096,7 +1096,7 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
   }
 }
 
-std::string Entidade::StringDanoParaAcao(const std::string& id_acao) const {
+std::string Entidade::StringDanoParaAcao() const {
   const auto* dado_ataque = DadoCorrente();
   return dado_ataque == nullptr ? "" : dado_ataque->dano();
 }
@@ -1114,8 +1114,11 @@ float Entidade::Espaco() const {
 }
 
 const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
-  std::vector<const EntidadeProto::DadosAtaque*> ataques_casados; 
-  std::string ultima_acao = proto_.ultima_acao().empty() ? "Ataque Corpo a Corpo" : proto_.ultima_acao();
+  std::vector<const EntidadeProto::DadosAtaque*> ataques_casados;
+  std::string ultima_acao = proto_.ultima_acao();
+  if (ultima_acao.empty()) {
+    ultima_acao = proto_.dados_ataque().empty() ? "Ataque Corpo a Corpo" : proto_.dados_ataque(0).tipo_ataque();
+  }
   for (const auto& da : proto_.dados_ataque()) {
     if (da.tipo_ataque() == ultima_acao) {
       VLOG(3) << "Encontrei ataque para " << da.tipo_ataque();
@@ -1123,7 +1126,8 @@ const EntidadeProto::DadosAtaque* Entidade::DadoCorrente() const {
     }
   }
   if (ataques_casados.empty() || vd_.ataques_na_rodada >= (int)ataques_casados.size()) {
-    VLOG(3) << "Dado corrente nao encontrado, empty? " << ataques_casados.empty()
+    VLOG(3) << "Dado corrente nao encontrado, tipo ultima acao: " << ultima_acao
+            << ", empty? " << ataques_casados.empty()
             << ", at: " << vd_.ataques_na_rodada << ", size: " << ataques_casados.size();
     return nullptr;
   }

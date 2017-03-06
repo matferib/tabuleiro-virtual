@@ -232,8 +232,8 @@ class Entidade {
 
   /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. */
   int ValorParaAcao(const std::string& id_acao) const;
-  /** Retorna a string de dano para uma acao (ex: '1d8+3'). */
-  std::string StringDanoParaAcao(const std::string& id_acao) const;
+  /** Retorna a string de dano para a acao corrente: '1d8+3'. */
+  std::string StringDanoParaAcao() const;
 
   /** Desenha um objeto a partir de seu proto. Usado para desenhar de forma simples objetos (por exemplo, formas sendo adicionadas).
   * Implementado em entidade_desenha.cpp.
