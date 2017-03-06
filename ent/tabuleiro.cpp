@@ -2023,15 +2023,14 @@ void Tabuleiro::ProximaIniciativa() {
   if (!EmModoMestreIncluindoSecundario()) {
     // So permite ao jogador passar se for a vez dele.
     unsigned int id_iniciativa = IniciativaCorrente();
-    unsigned int id_camera_presa = IdCameraPresa();
-    if (id_camera_presa == Entidade::IdInvalido || id_iniciativa != id_camera_presa) {
-      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa << ", vez de " << iniciativas_[indice_iniciativa_].id;
+    if (!IdPresoACamera(id_iniciativa)) {
+      LOG(INFO) << "Jogador so pode passar sua propria iniciativa.";
       return;
     }
     // Envia requisicao pro mestre passar a vez.
     auto* n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
     n->set_servidor_apenas(true);
-    n->mutable_entidade()->set_id(id_camera_presa);
+    n->mutable_entidade()->set_id(id_iniciativa);
     central_->AdicionaNotificacaoRemota(n);
     return;
   }
