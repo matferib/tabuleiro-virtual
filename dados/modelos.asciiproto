@@ -404,11 +404,9 @@ modelo {
     dados_vida: '3d10+9' tamanho: TM_GRANDE info_textura { id: 'hippogriff.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     rotulo_especial: 'talentos: esquiva e wingover'
     modificador_iniciativa: 2
-    dados_ataque {
-      tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+4' ca_normal: 15 _ca_toque: 11 ca_surpreso: 13
-      tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+4' ca_normal: 15 _ca_toque: 11 ca_surpreso: 13
-      tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+2' ca_normal: 15 _ca_toque: 11 ca_surpreso: 13
-    }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d4+4' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+2' ca_normal: 15 ca_toque: 11 ca_surpreso: 13 }
   }
 }
 modelo {
