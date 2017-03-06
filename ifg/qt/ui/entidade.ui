@@ -452,7 +452,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="spin_translacao">
+       <widget class="QDoubleSpinBox" name="spin_translacao_quad">
         <property name="toolTip">
          <string>Para colocar a entidade acima do plano do tabuleiro.</string>
         </property>
@@ -470,6 +470,22 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QLabel" name="label_34">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>quadrados</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
     <widget class="QWidget" name="horizontalLayoutWidget_11">
@@ -484,8 +500,14 @@
      <layout class="QHBoxLayout" name="horizontalLayout_20">
       <item>
        <widget class="QLabel" name="label_13">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string>Tipo de Visão</string>
+         <string>Visão</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -516,6 +538,12 @@
       </item>
       <item>
        <widget class="QLabel" name="label_14">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Raio</string>
         </property>
@@ -525,7 +553,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="spin_raio_visao_escuro">
+       <widget class="QDoubleSpinBox" name="spin_raio_visao_escuro_quad">
         <property name="toolTip">
          <string>Raio da visão no escuro, em metros.</string>
         </property>
@@ -533,7 +561,23 @@
          <number>1</number>
         </property>
         <property name="singleStep">
-         <double>1.500000000000000</double>
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_33">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>quadrados</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -568,39 +612,6 @@
           </property>
           <property name="decimals">
            <number>2</number>
-          </property>
-          <property name="maximum">
-           <double>1.000000000000000</double>
-          </property>
-          <property name="singleStep">
-           <double>0.100000000000000</double>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="0" column="1">
-       <layout class="QHBoxLayout" name="horizontalLayout_27">
-        <item>
-         <widget class="QLabel" name="label_20">
-          <property name="text">
-           <string>trans y</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QDoubleSpinBox" name="spin_tex_trans_y">
-          <property name="toolTip">
-           <string>Translação da textura</string>
-          </property>
-          <property name="decimals">
-           <number>2</number>
-          </property>
-          <property name="minimum">
-           <double>-1.000000000000000</double>
           </property>
           <property name="maximum">
            <double>1.000000000000000</double>
@@ -648,11 +659,11 @@
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_25">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_23">
+         <layout class="QHBoxLayout" name="horizontalLayout_27">
           <item>
-           <widget class="QLabel" name="label_18">
+           <widget class="QLabel" name="label_20">
             <property name="text">
-             <string>largura</string>
+             <string>trans y</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -660,12 +671,15 @@
            </widget>
           </item>
           <item>
-           <widget class="QDoubleSpinBox" name="spin_tex_largura">
+           <widget class="QDoubleSpinBox" name="spin_tex_trans_y">
             <property name="toolTip">
-             <string>Largura da textura, de 0 a 1</string>
+             <string>Translação da textura</string>
             </property>
             <property name="decimals">
              <number>2</number>
+            </property>
+            <property name="minimum">
+             <double>-1.000000000000000</double>
             </property>
             <property name="maximum">
              <double>1.000000000000000</double>
@@ -676,6 +690,36 @@
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_23">
+        <item>
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>largura</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="spin_tex_largura">
+          <property name="toolTip">
+           <string>Largura da textura, de 0 a 1</string>
+          </property>
+          <property name="decimals">
+           <number>2</number>
+          </property>
+          <property name="maximum">
+           <double>1.000000000000000</double>
+          </property>
+          <property name="singleStep">
+           <double>0.100000000000000</double>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
@@ -739,7 +783,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="spin_raio">
+         <widget class="QDoubleSpinBox" name="spin_raio_quad">
           <property name="toolTip">
            <string>Raio da luz, em metros.</string>
           </property>
@@ -747,7 +791,7 @@
            <number>1</number>
           </property>
           <property name="singleStep">
-           <double>1.500000000000000</double>
+           <double>1.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -760,7 +804,7 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>m</string>
+           <string>quadrados</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -849,7 +893,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QDoubleSpinBox" name="spin_aura">
+         <widget class="QDoubleSpinBox" name="spin_aura_quad">
           <property name="toolTip">
            <string>Aura da entidade.</string>
           </property>
@@ -857,7 +901,23 @@
            <number>1</number>
           </property>
           <property name="singleStep">
-           <double>1.500000000000000</double>
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_35">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>quadrados</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>
@@ -1104,19 +1164,19 @@
        </widget>
       </item>
       <item>
-       <widget class="QDoubleSpinBox" name="spin_alcance">
+       <widget class="QDoubleSpinBox" name="spin_alcance_quad">
         <property name="minimum">
          <double>-3.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>1.500000000000000</double>
+         <double>1.000000000000000</double>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="label_30">
         <property name="text">
-         <string>m</string>
+         <string>quadrados</string>
         </property>
        </widget>
       </item>
@@ -1138,6 +1198,9 @@
         <property name="text">
          <string>Inc</string>
         </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
        </widget>
       </item>
       <item>
@@ -1151,6 +1214,9 @@
        <widget class="QLabel" name="label_23">
         <property name="text">
          <string>Bonus </string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1181,6 +1247,9 @@
        <widget class="QLabel" name="label_24">
         <property name="text">
          <string>Dano</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
       </item>
@@ -1330,51 +1399,54 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>campo_rotulo</tabstop>
+  <tabstop>lista_rotulos</tabstop>
+  <tabstop>slider_tamanho</tabstop>
+  <tabstop>spin_pontos_vida</tabstop>
+  <tabstop>spin_max_pontos_vida</tabstop>
+  <tabstop>spin_pontos_vida_temporarios</tabstop>
   <tabstop>checkbox_selecionavel</tabstop>
   <tabstop>checkbox_voadora</tabstop>
   <tabstop>checkbox_visibilidade</tabstop>
-  <tabstop>combo_textura</tabstop>
-  <tabstop>spin_pontos_vida</tabstop>
-  <tabstop>slider_tamanho</tabstop>
-  <tabstop>combo_salvacao</tabstop>
-  <tabstop>spin_translacao</tabstop>
-  <tabstop>combo_visao</tabstop>
-  <tabstop>spin_raio_visao_escuro</tabstop>
-  <tabstop>spin_tex_altura</tabstop>
-  <tabstop>spin_tex_trans_y</tabstop>
-  <tabstop>spin_tex_trans_x</tabstop>
-  <tabstop>spin_tex_largura</tabstop>
-  <tabstop>lista_eventos</tabstop>
-  <tabstop>spin_raio</tabstop>
-  <tabstop>botao_luz</tabstop>
-  <tabstop>combo_modelos_3d</tabstop>
   <tabstop>checkbox_caida</tabstop>
   <tabstop>checkbox_morta</tabstop>
-  <tabstop>spin_aura</tabstop>
-  <tabstop>campo_rotulo</tabstop>
-  <tabstop>lista_rotulos</tabstop>
+  <tabstop>spin_aura_quad</tabstop>
+  <tabstop>combo_visao</tabstop>
+  <tabstop>spin_raio_visao_escuro_quad</tabstop>
+  <tabstop>spin_translacao_quad</tabstop>
+  <tabstop>combo_salvacao</tabstop>
+  <tabstop>lista_eventos</tabstop>
+  <tabstop>checkbox_cor</tabstop>
+  <tabstop>botao_cor</tabstop>
+  <tabstop>spin_raio_quad</tabstop>
+  <tabstop>botao_luz</tabstop>
+  <tabstop>combo_textura</tabstop>
+  <tabstop>spin_tex_trans_x</tabstop>
+  <tabstop>spin_tex_largura</tabstop>
+  <tabstop>spin_tex_trans_y</tabstop>
+  <tabstop>spin_tex_altura</tabstop>
+  <tabstop>combo_modelos_3d</tabstop>
+  <tabstop>tab_entidade</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>spin_modificador_iniciativa</tabstop>
+  <tabstop>linha_rotulo_ataque</tabstop>
   <tabstop>combo_tipo_ataque</tabstop>
+  <tabstop>spin_alcance_quad</tabstop>
+  <tabstop>spin_incrementos</tabstop>
   <tabstop>spin_ataque</tabstop>
   <tabstop>linha_dano</tabstop>
   <tabstop>spin_ca</tabstop>
   <tabstop>spin_ca_toque</tabstop>
   <tabstop>spin_ca_surpreso</tabstop>
-  <tabstop>checkbox_imune_critico</tabstop>
+  <tabstop>lista_ataques</tabstop>
   <tabstop>botao_ataque_cima</tabstop>
   <tabstop>botao_ataque_baixo</tabstop>
-  <tabstop>botoes</tabstop>
-  <tabstop>spin_pontos_vida_temporarios</tabstop>
-  <tabstop>checkbox_cor</tabstop>
-  <tabstop>botao_remover_ataque</tabstop>
-  <tabstop>tab_entidade</tabstop>
-  <tabstop>lista_ataques</tabstop>
-  <tabstop>campo_id</tabstop>
-  <tabstop>spin_max_pontos_vida</tabstop>
   <tabstop>botao_clonar_ataque</tabstop>
-  <tabstop>botao_cor</tabstop>
+  <tabstop>botao_remover_ataque</tabstop>
+  <tabstop>checkbox_imune_critico</tabstop>
+  <tabstop>botoes</tabstop>
+  <tabstop>campo_id</tabstop>
  </tabstops>
  <resources/>
  <connections>

@@ -117,7 +117,7 @@
     </rect>
    </property>
    <property name="title">
-    <string>Dimensões</string>
+    <string>Dimensões (quadrados)</string>
    </property>
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
@@ -139,7 +139,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="spin_escala_x">
+        <widget class="QDoubleSpinBox" name="spin_escala_x_quad">
          <property name="decimals">
           <number>2</number>
          </property>
@@ -150,7 +150,7 @@
           <double>1000.000000000000000</double>
          </property>
          <property name="singleStep">
-          <double>0.500000000000000</double>
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -166,7 +166,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="spin_escala_y">
+        <widget class="QDoubleSpinBox" name="spin_escala_y_quad">
          <property name="decimals">
           <number>2</number>
          </property>
@@ -177,7 +177,7 @@
           <double>1000.000000000000000</double>
          </property>
          <property name="singleStep">
-          <double>0.500000000000000</double>
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -193,7 +193,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QDoubleSpinBox" name="spin_escala_z">
+        <widget class="QDoubleSpinBox" name="spin_escala_z_quad">
          <property name="decimals">
           <number>2</number>
          </property>
@@ -204,7 +204,7 @@
           <double>50.000000000000000</double>
          </property>
          <property name="singleStep">
-          <double>0.500000000000000</double>
+          <double>0.100000000000000</double>
          </property>
         </widget>
        </item>
@@ -216,9 +216,9 @@
   <widget class="QGroupBox" name="groupBox_2">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>50</x>
      <y>240</y>
-     <width>181</width>
+     <width>191</width>
      <height>131</height>
     </rect>
    </property>
@@ -268,12 +268,12 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="spin_translacao">
+   <widget class="QDoubleSpinBox" name="spin_translacao_quad">
     <property name="geometry">
      <rect>
       <x>80</x>
       <y>60</y>
-      <width>91</width>
+      <width>51</width>
       <height>24</height>
      </rect>
     </property>
@@ -300,7 +300,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Translação</string>
+     <string> Translação</string>
     </property>
    </widget>
    <widget class="QSpinBox" name="spin_rotacao">
@@ -317,6 +317,19 @@
     </property>
     <property name="maximum">
      <number>180</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>140</x>
+      <y>60</y>
+      <width>41</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>quad</string>
     </property>
    </widget>
   </widget>
@@ -908,6 +921,42 @@
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>spin_pontos_vida</tabstop>
+  <tabstop>spin_max_pontos_vida</tabstop>
+  <tabstop>lista_rotulos</tabstop>
+  <tabstop>dial_rotacao</tabstop>
+  <tabstop>spin_rotacao</tabstop>
+  <tabstop>spin_translacao_quad</tabstop>
+  <tabstop>dial_rotacao_y</tabstop>
+  <tabstop>spin_rotacao_y</tabstop>
+  <tabstop>dial_rotacao_x</tabstop>
+  <tabstop>spin_rotacao_x</tabstop>
+  <tabstop>spin_escala_x_quad</tabstop>
+  <tabstop>spin_escala_y_quad</tabstop>
+  <tabstop>spin_escala_z_quad</tabstop>
+  <tabstop>combo_textura</tabstop>
+  <tabstop>checkbox_ladrilho</tabstop>
+  <tabstop>checkbox_transicao_cenario</tabstop>
+  <tabstop>linha_transicao_cenario</tabstop>
+  <tabstop>checkbox_transicao_posicao</tabstop>
+  <tabstop>botao_transicao_mapa</tabstop>
+  <tabstop>spin_trans_x</tabstop>
+  <tabstop>spin_trans_y</tabstop>
+  <tabstop>spin_trans_z</tabstop>
+  <tabstop>checkbox_fixa</tabstop>
+  <tabstop>checkbox_selecionavel</tabstop>
+  <tabstop>checkbox_visibilidade</tabstop>
+  <tabstop>checkbox_faz_sombra</tabstop>
+  <tabstop>checkbox_colisao</tabstop>
+  <tabstop>checkbox_cor</tabstop>
+  <tabstop>botao_cor</tabstop>
+  <tabstop>slider_alfa</tabstop>
+  <tabstop>checkbox_luz</tabstop>
+  <tabstop>botao_luz</tabstop>
+  <tabstop>botoes</tabstop>
+  <tabstop>campo_id</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

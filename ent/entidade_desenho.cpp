@@ -460,19 +460,16 @@ void Entidade::DesenhaAura(ParametrosDesenho* pd) {
   if (!proto_.visivel() && !pd->modo_mestre()) {
     return;
   }
-  if (!pd->desenha_aura() || !proto_.has_aura_m() || proto_.aura_m() == 0) {
+  if (!pd->desenha_aura() || proto_.aura_m() == 0) {
     return;
   }
   gl::MatrizEscopo salva_matriz;
   gl::Translada(X(), Y(), Z() + DeltaVoo(vd_));
   const auto& cor = proto_.cor();
   gl::MudaCor(cor.r(), cor.g(), cor.b(), cor.a() * 0.2f);
-  float ent_quadrados = MultiplicadorTamanho();
-  if (ent_quadrados < 1.0f) {
-    ent_quadrados = 1.0f;
-  }
+  float raio = std::max(1.0f, MultiplicadorTamanho()) * TAMANHO_LADO_QUADRADO_2;
   // A aura estende alem do tamanho da entidade.
-  gl::EsferaSolida(proto_.aura_m(), NUM_FACES, NUM_FACES);
+  gl::EsferaSolida(proto_.aura_m() + raio, NUM_FACES, NUM_FACES);
 }
 
 }  // namespace ent
