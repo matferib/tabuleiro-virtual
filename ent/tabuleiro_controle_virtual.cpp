@@ -1037,28 +1037,10 @@ void Tabuleiro::DesenhaControleVirtual() {
   }
 
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
+  // Barra de pontos de vida.
   // DesenhaInfoPrimeiraPessoa.
   if (camera_presa_) {
-    const auto* entidade = BuscaEntidade(IdCameraPresa());
-    if (entidade != nullptr && entidade->MaximoPontosVida() > 0) {
-      float top_y = altura_botao * 7.0f;
-      float bottom_y = altura_botao * 4.0f;
-      float altura_maxima = (altura_botao * 7.0f) - (altura_botao * 4.0f);
-      float altura_pv_entidade = 0;
-      if (entidade->PontosVida() > 0) {
-        float fator = static_cast<float>(entidade->PontosVida()) / entidade->MaximoPontosVida();
-        altura_pv_entidade = std::min(altura_maxima, altura_maxima * fator);
-      }
-      gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
-      gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, top_y);
-      gl::MudaCor(0.0f, 1.0f, 0.0f, 1.0f);
-      gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, bottom_y + altura_pv_entidade);
-      MudaCor(COR_AMARELA);
-      PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f));
-      gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
-      //PosicionaRaster2d(largura_botao, top_y + (fonte_y * 0.5f));
-      //gl::DesenhaStringAlinhadoEsquerda(std::string("mov: ") + net::to_string(quadrados_movimentados_), true  /*inverte vertical*/);
-    }
+    DesenhaInfoCameraPresa();
   }
 
   if (parametros_desenho_.desenha_lista_pontos_vida()) {
@@ -1074,6 +1056,43 @@ void Tabuleiro::DesenhaControleVirtual() {
     gl::Habilita(GL_LIGHTING);
   }
   gl::Habilita(GL_DEPTH_TEST);
+}
+
+void Tabuleiro::DesenhaInfoCameraPresa() {
+  const auto* entidade = BuscaEntidade(IdCameraPresa());
+  if (entidade == nullptr || entidade->MaximoPontosVida() == 0) {
+    return;
+  }
+  int fonte_x_int, fonte_y_int, escala;
+  gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
+  fonte_x_int *= escala;
+  fonte_y_int *= escala;
+  const float fonte_x = fonte_x_int;
+  const float fonte_y = fonte_y_int;
+  const float altura_botao = fonte_y * MULTIPLICADOR_ALTURA;
+  const float largura_botao = fonte_x * MULTIPLICADOR_LARGURA;
+
+  float top_y = altura_botao * 7.0f;
+  float bottom_y = altura_botao * 4.0f;
+  float altura_maxima = (altura_botao * 7.0f) - (altura_botao * 4.0f);
+  float altura_pv_entidade = 0;
+  if (entidade->PontosVida() > 0) {
+    float fator = static_cast<float>(entidade->PontosVida()) / entidade->MaximoPontosVida();
+    altura_pv_entidade = std::min(altura_maxima, altura_maxima * fator);
+  }
+  gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
+  gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, top_y);
+  gl::MudaCor(0.0f, 1.0f, 0.0f, 1.0f);
+  gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, bottom_y + altura_pv_entidade);
+  MudaCor(COR_AMARELA);
+  PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f));
+  gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
+  if (!entidade->Proto().rotulo().empty()) {
+    PosicionaRaster2d(largura_botao, top_y);
+    gl::DesenhaStringAlinhadoEsquerda(entidade->Proto().rotulo());
+  }
+  //PosicionaRaster2d(largura_botao, top_y + (fonte_y * 0.5f));
+  //gl::DesenhaStringAlinhadoEsquerda(std::string("mov: ") + net::to_string(quadrados_movimentados_), true  /*inverte vertical*/);
 }
 
 void Tabuleiro::SelecionaCorPersonalizada(float r, float g, float b, float a) {

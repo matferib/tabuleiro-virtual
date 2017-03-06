@@ -795,6 +795,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o controle virtual. */
   void DesenhaControleVirtual();
+  /** Dentro do controle virtual, informacoes de primeira pessoa ou camera presa. */
+  void DesenhaInfoCameraPresa();
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
   void PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id);
