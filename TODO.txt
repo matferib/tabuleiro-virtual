@@ -1,7 +1,5 @@
-Controle virtual mostrando corpo a corpo quando nao tem acao ainda.
 Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
-Criaturas a adicionar invocar criaturas: hipogrifo celestial.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 
 Versao 2.6.0
