@@ -6,6 +6,17 @@
 #include "gltab/gl.h"
 #include "log/log.h"
 
+#if USAR_FREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+#include FT_TYPES_H
+#include FT_OUTLINE_H
+#include FT_RENDER_H
+
+#include "arq/arquivo.h"
+#endif
+
 namespace gl {
 
 #if 0
@@ -431,7 +442,7 @@ const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres
 
   //Q(I(), I(), I(), I(),),
 };
-#endif
+#elif !USAR_FREETYPE
 // GLUTES font data.
 static const GLubyte Fixed8x13_Character_032[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}; /* blank */
 static const GLubyte Fixed8x13_Character_097[] = {  8,  0,  0,116,140,132,124,  4,120,  0,  0,  0,  0,  0}; /* "a" */
@@ -804,7 +815,7 @@ void DesenhaCaractere(char c) {
   gl::DesenhaElementos(GL_TRIANGLES, caractere_it->second.size(), GL_UNSIGNED_SHORT, &caractere_it->second[0]);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
-#else
+#endif
 // glutes.
 int BitsToIndexedShorts(const GLubyte *bits, int ssx, int ssy, GLshort *points, int startx, int starty) {
   int ssxsy = ssx * ssy; // total bit #
@@ -873,6 +884,113 @@ void DesenhaCaractere(char c) {
   BitmapCharacter((int)c);
 }
 
+#else  // USAR_FREETYPE
+
+namespace {
+struct FaceInfo {
+  std::vector<GLshort> vertices;
+  std::vector<GLushort> indices;
+};
+
+FaceInfo g_face_infos[256];
+
+std::vector<GLshort> BitsToIndexedShorts(const GLubyte *bits, int tam_x, int tam_y) {
+  std::vector<GLshort> pontos;
+  int total = tam_x * tam_y; // total bit #
+  int x = 0, y = 0;
+  int bit = 7;
+
+  while (total--) {
+    if (bits[0] & (1 << bit)) {
+      pontos.push_back(x);
+      pontos.push_back(tam_y - y);
+    }
+    if (--bit == -1) {
+      bit = 7;
+      bits++;
+    }
+    if (++x >= tam_x) {
+      x = 0;
+      y++;
+    }
+  }
+  return pontos;
+}
+
+}  // namespace
+
+namespace interno {
+void IniciaChar() {
+  FT_Error error = FT_Err_Ok;
+  FT_Face m_face = 0;
+  FT_Library m_library = 0;
+
+  // For simplicity, the error handling is very rudimentary.
+  error = FT_Init_FreeType(&m_library);
+  if (error) {
+    LOG(ERROR) << "Falha iniciando freetype";
+    return;
+  }
+  std::string caminho_fonte = arq::Diretorio(arq::TIPO_FONTES) + "/mono.ttf";
+  error = FT_New_Face(m_library, caminho_fonte.c_str(), 0, &m_face);
+  if (error) {
+    LOG(ERROR) << "Falha iniciando mono";
+    return;
+  }
+  int tam_x = 16;
+  int tam_y = 16;
+  //int escala;
+  //TamanhoFonte(&tam_x, &tam_y, &escala);
+  CHECK(tam_x % 8 == 0);
+  error = FT_Set_Pixel_Sizes(m_face, tam_x, tam_y);
+  if (error) {
+    LOG(ERROR) << "Erro FT_Set_Pixel_Sizes";
+    return;
+  }
+
+  for (int c = 0; c < 256; ++c) {
+
+    auto glyph_index = FT_Get_Char_Index(m_face, c);
+    error = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_DEFAULT);
+    if (error) {
+      LOG(ERROR) << "Erro com caractere " << (int)c;
+      continue;
+    }
+    std::vector<unsigned char> buffer(tam_x * tam_y);
+    FT_Bitmap bitmap;
+    bitmap.rows = tam_y;
+    bitmap.width = tam_x;
+    bitmap.pitch = tam_x / 8;
+    bitmap.buffer = buffer.data();
+    bitmap.pixel_mode = FT_PIXEL_MODE_MONO;
+    error = FT_Outline_Get_Bitmap(m_library, &m_face->glyph->outline, &bitmap);
+    if (error) {
+      LOG(ERROR) << "Erro lendo bitmap de caractere " << c;
+      continue;
+    }
+    g_face_infos[(int)c].vertices = BitsToIndexedShorts(buffer.data(), tam_x, tam_y);
+    for (unsigned int i = 0; i < g_face_infos[(int)c].vertices.size() / 2; ++i) {
+      g_face_infos[(int)c].indices.push_back(i);
+    }
+  }
+  FT_Done_Face(m_face);
+  LOG(INFO) << "Fonte carregada";
+}
+
+void FinalizaChar() {}
+
+}  // namespace interno.
+
+void DesenhaCaractere(char character) {
+  if (!(character >= 1) && (character < 256)) return;
+  const auto& info = g_face_infos[(int)character];
+  if (info.vertices.empty()) return;
+
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::PonteiroVertices(2, GL_SHORT, 0, info.vertices.data());
+  gl::DesenhaElementos(GL_POINTS, info.indices.size(), GL_UNSIGNED_SHORT, info.indices.data());
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+}
 #endif
 
 }

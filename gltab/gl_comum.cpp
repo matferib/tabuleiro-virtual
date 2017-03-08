@@ -1285,6 +1285,9 @@ void TamanhoFonte(int largura_viewport, int altura_viewport, int* largura_fonte,
   *escala = std::max(media_tela / 500, 1U);
 #else
   *escala = 1;
+  *largura_fonte = 8;
+  *altura = 13;
+  return;
 #endif
   *largura_fonte = 8;
   *altura = 13;
