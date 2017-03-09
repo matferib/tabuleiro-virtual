@@ -4,6 +4,8 @@
 #include <utility>
 #include <vector>
 #include "gltab/gl.h"
+#include "gltab/gl_vbo.h"
+#include "gltab/gl_interno.h"
 #include "log/log.h"
 
 #if USAR_FREETYPE
@@ -886,14 +888,18 @@ void DesenhaCaractere(char c) {
 
 #else  // USAR_FREETYPE
 
+#define VERSAO_PONTOS 1
 namespace {
 struct FaceInfo {
   std::vector<GLshort> vertices;
   std::vector<GLushort> indices;
+  GLuint textura;
 };
 
 FaceInfo g_face_infos[256];
+gl::VboNaoGravado g_vbot;
 
+#if VERSAO_PONTOS
 std::vector<GLshort> BitsToIndexedShorts(const GLubyte *bits, int tam_x, int tam_y) {
   std::vector<GLshort> pontos;
   int total = tam_x * tam_y; // total bit #
@@ -910,17 +916,93 @@ std::vector<GLshort> BitsToIndexedShorts(const GLubyte *bits, int tam_x, int tam
       bits++;
     }
     if (++x >= tam_x) {
+      if (tam_x % 8 != 0) {
+        bits++;
+        bit = 7;
+      }
       x = 0;
       y++;
     }
   }
   return pontos;
 }
+#else
+std::vector<unsigned char> BitsParaLuminancia(const GLubyte *bits, int tam_x, int tam_y) {
+  std::vector<unsigned char> pontos;
+  int total = tam_x * tam_y; // total bit #
+  int bit = 7;
 
+  while (total--) {
+    if (bits[0] & (1 << bit)) {
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+    } else {
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+    }
+    if (--bit == -1) {
+      bit = 7;
+      bits++;
+    }
+  }
+  return pontos;
+}
+
+std::vector<unsigned char> ParaRgba(const GLubyte *input, int tam_x, int tam_y) {
+  std::vector<unsigned char> pontos;
+  for (int i = 0; i < tam_x * tam_y; ++i) {
+    if (*input > 0) {
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(*input);
+    } else {
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+    }
+    ++input;
+  }
+  return pontos;
+}
+#endif
 }  // namespace
 
 namespace interno {
 void IniciaChar() {
+  float tam_y = 13.0f;
+#if !VERSAO_PONTOS
+  float tam_x = 8.0f;
+
+  float x_sobre_y = tam_x / tam_y;
+  const unsigned short indices[] = { 0, 1, 2, 3, 4, 5 };
+  const float coordenadas[] = {
+    0,     0,
+    tam_x, 0,
+    tam_x, tam_y,
+    0,     0,
+    tam_x, tam_y,
+    0,     tam_y,
+  };
+  const float coordenadas_texel[] = {
+    0.0f, 1.0f,  // x1, y1
+    x_sobre_y, 1.0f,  // x2, y1
+    x_sobre_y, 0.0f,  // x2, y2
+    0.0f, 1.0f,  // x1, y1
+    x_sobre_y, 0.0f,  // x2, y2
+    0.0f, 0.0f,  // x1, y2
+  };
+  g_vbot.AtribuiCoordenadas(2, coordenadas, sizeof(coordenadas) / sizeof(float));
+  g_vbot.AtribuiTexturas(coordenadas_texel);
+  g_vbot.AtribuiIndices(indices, sizeof(indices) / sizeof(unsigned short));
+  g_vbot.Nomeia("chartex");
+#endif
+
   FT_Error error = FT_Err_Ok;
   FT_Face m_face = 0;
   FT_Library m_library = 0;
@@ -937,30 +1019,32 @@ void IniciaChar() {
     LOG(ERROR) << "Falha iniciando mono";
     return;
   }
-  int tam_x = 16;
-  int tam_y = 16;
-  //int escala;
-  //TamanhoFonte(&tam_x, &tam_y, &escala);
-  CHECK(tam_x % 8 == 0);
-  error = FT_Set_Pixel_Sizes(m_face, tam_x, tam_y);
+
+#if VERSAO_PONTOS
+  const int tam_text = 16;
+#else
+  const int tam_text = tam_y;
+#endif
+  error = FT_Set_Pixel_Sizes(m_face, tam_text, tam_text);
   if (error) {
     LOG(ERROR) << "Erro FT_Set_Pixel_Sizes";
     return;
   }
 
   for (int c = 0; c < 256; ++c) {
-
     auto glyph_index = FT_Get_Char_Index(m_face, c);
     error = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_DEFAULT);
     if (error) {
-      LOG(ERROR) << "Erro com caractere " << (int)c;
+      LOG(ERROR) << "Erro com caractere " << c;
       continue;
     }
-    std::vector<unsigned char> buffer(tam_x * tam_y);
+#if VERSAO_PONTOS
+    int pitch = (tam_text / 8 + (tam_text % 8 ? 1 : 0));
+    std::vector<unsigned char> buffer(tam_text * pitch);
     FT_Bitmap bitmap;
-    bitmap.rows = tam_y;
-    bitmap.width = tam_x;
-    bitmap.pitch = tam_x / 8;
+    bitmap.rows = tam_text;
+    bitmap.width = tam_text;
+    bitmap.pitch = pitch;
     bitmap.buffer = buffer.data();
     bitmap.pixel_mode = FT_PIXEL_MODE_MONO;
     error = FT_Outline_Get_Bitmap(m_library, &m_face->glyph->outline, &bitmap);
@@ -968,10 +1052,50 @@ void IniciaChar() {
       LOG(ERROR) << "Erro lendo bitmap de caractere " << c;
       continue;
     }
-    g_face_infos[(int)c].vertices = BitsToIndexedShorts(buffer.data(), tam_x, tam_y);
-    for (unsigned int i = 0; i < g_face_infos[(int)c].vertices.size() / 2; ++i) {
-      g_face_infos[(int)c].indices.push_back(i);
+
+    // Versao pontos.
+    auto& face = g_face_infos[c];
+    face.vertices = BitsToIndexedShorts(buffer.data(), tam_text, tam_text);
+    for (unsigned int i = 0; i < face.vertices.size() / 2; ++i) {
+      face.indices.push_back(i);
     }
+#else
+    std::vector<unsigned char> buffer(tam_text * tam_text);
+    FT_Bitmap bitmap;
+    bitmap.rows = tam_text;
+    bitmap.width = tam_text;
+    bitmap.pitch = tam_text;
+    bitmap.buffer = buffer.data();
+    bitmap.num_grays = 256;
+    bitmap.pixel_mode = FT_PIXEL_MODE_GRAY;
+    error = FT_Outline_Get_Bitmap(m_library, &m_face->glyph->outline, &bitmap);
+    if (error) {
+      LOG(ERROR) << "Erro lendo bitmap de caractere " << c;
+      continue;
+    }
+
+    // Versao textura
+    gl::GeraTexturas(1, &face.textura);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, face.textura);
+    gl::HabilitaMipmapAniso(GL_TEXTURE_2D);
+    V_ERRO("Ligacao");
+    // Carrega a textura.
+    //std::vector<unsigned char> dados = BitsParaLuminancia(buffer.data(), tam_x, tam_y);
+    std::vector<unsigned char> dados = ParaRgba(buffer.data(), tam_text, tam_text);
+    gl::ImagemTextura2d(GL_TEXTURE_2D,
+                        0, GL_RGBA,
+                        tam_text, tam_text,
+                        0, GL_RGBA, GL_UNSIGNED_BYTE,
+                        dados.data());
+    V_ERRO("Imagem");
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
+    // TODO wrapper para outros...
+    gl::GeraMipmap(GL_TEXTURE_2D);
+#endif
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::DesabilitaMipmapAniso(GL_TEXTURE_2D);
+    V_ERRO("CriaTexturaOpenGl id: " << face.textura);
+#endif
   }
   FT_Done_Face(m_face);
   LOG(INFO) << "Fonte carregada";
@@ -983,13 +1107,26 @@ void FinalizaChar() {}
 
 void DesenhaCaractere(char character) {
   if (!(character >= 1) && (character < 256)) return;
-  const auto& info = g_face_infos[(int)character];
-  if (info.vertices.empty()) return;
-
+  const auto& face = g_face_infos[(int)character];
+#if VERSAO_PONTOS
+  if (face.vertices.empty()) return;
   gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
-  gl::PonteiroVertices(2, GL_SHORT, 0, info.vertices.data());
-  gl::DesenhaElementos(GL_POINTS, info.indices.size(), GL_UNSIGNED_SHORT, info.indices.data());
+  gl::PonteiroVertices(2, GL_SHORT, 0, face.vertices.data());
+  gl::DesenhaElementos(GL_POINTS, face.indices.size(), GL_UNSIGNED_SHORT, face.indices.data());
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#else
+  //gl::HabilitaEscopo blend_escopo(GL_BLEND);
+  //gl::DesabilitaEscopo depth_escopo(GL_DEPTH_TEST);
+
+  gl::HabilitaEscopo textura(GL_TEXTURE_2D);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, face.textura);
+  //auto* c = interno::BuscaContexto();
+  //gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
+  gl::DesenhaVbo(g_vbot);
+  //gl::Retangulo(g_vbot);
+  //gl::Retangulo(100, 100, 500, 500);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+#endif
 }
 #endif
 
