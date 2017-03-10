@@ -19,6 +19,7 @@
 #include <QtGui/QDialogButtonBox>
 #include <QtGui/QDoubleSpinBox>
 #include <QtGui/QGridLayout>
+#include <QtGui/QGroupBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
@@ -147,12 +148,21 @@ public:
     QLabel *label_22;
     QSpinBox *spin_modificador_iniciativa;
     QPushButton *botao_remover_ataque;
-    QWidget *horizontalLayoutWidget_5;
-    QHBoxLayout *horizontalLayout_6;
+    QListWidget *lista_ataques;
+    QCheckBox *checkbox_imune_critico;
+    QPushButton *botao_ataque_cima;
+    QPushButton *botao_ataque_baixo;
+    QPushButton *botao_clonar_ataque;
+    QGroupBox *groupBox;
+    QWidget *verticalLayoutWidget_2;
+    QVBoxLayout *verticalLayout_2;
+    QHBoxLayout *horizontalLayout_29;
+    QLabel *label_36;
     QLineEdit *linha_rotulo_ataque;
     QLabel *label_21;
     QComboBox *combo_tipo_ataque;
-    QSpacerItem *horizontalSpacer;
+    QSpacerItem *horizontalSpacer_6;
+    QHBoxLayout *horizontalLayout_6;
     QLabel *label_29;
     QDoubleSpinBox *spin_alcance_quad;
     QLabel *label_30;
@@ -171,12 +181,6 @@ public:
     QSpinBox *spin_ca_toque;
     QLabel *label_28;
     QSpinBox *spin_ca_surpreso;
-    QSpacerItem *horizontalSpacer_4;
-    QListWidget *lista_ataques;
-    QCheckBox *checkbox_imune_critico;
-    QPushButton *botao_ataque_cima;
-    QPushButton *botao_ataque_baixo;
-    QPushButton *botao_clonar_ataque;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -209,7 +213,7 @@ public:
 
         tab_entidade = new QTabWidget(ifg__qt__DialogoEntidade);
         tab_entidade->setObjectName(QString::fromUtf8("tab_entidade"));
-        tab_entidade->setGeometry(QRect(10, 80, 921, 481));
+        tab_entidade->setGeometry(QRect(10, 80, 931, 481));
         tab_geral = new QWidget();
         tab_geral->setObjectName(QString::fromUtf8("tab_geral"));
         horizontalLayoutWidget_2 = new QWidget(tab_geral);
@@ -776,38 +780,78 @@ public:
         botao_remover_ataque = new QPushButton(tab_estatisticas);
         botao_remover_ataque->setObjectName(QString::fromUtf8("botao_remover_ataque"));
         botao_remover_ataque->setEnabled(false);
-        botao_remover_ataque->setGeometry(QRect(760, 300, 121, 27));
-        horizontalLayoutWidget_5 = new QWidget(tab_estatisticas);
-        horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
-        horizontalLayoutWidget_5->setGeometry(QRect(10, 50, 899, 51));
-        horizontalLayout_6 = new QHBoxLayout(horizontalLayoutWidget_5);
-        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
-        horizontalLayout_6->setContentsMargins(0, 0, 0, 0);
-        linha_rotulo_ataque = new QLineEdit(horizontalLayoutWidget_5);
+        botao_remover_ataque->setGeometry(QRect(760, 370, 121, 27));
+        lista_ataques = new QListWidget(tab_estatisticas);
+        lista_ataques->setObjectName(QString::fromUtf8("lista_ataques"));
+        lista_ataques->setGeometry(QRect(10, 180, 861, 181));
+        checkbox_imune_critico = new QCheckBox(tab_estatisticas);
+        checkbox_imune_critico->setObjectName(QString::fromUtf8("checkbox_imune_critico"));
+        checkbox_imune_critico->setGeometry(QRect(30, 410, 121, 22));
+        botao_ataque_cima = new QPushButton(tab_estatisticas);
+        botao_ataque_cima->setObjectName(QString::fromUtf8("botao_ataque_cima"));
+        botao_ataque_cima->setGeometry(QRect(880, 230, 31, 27));
+        botao_ataque_baixo = new QPushButton(tab_estatisticas);
+        botao_ataque_baixo->setObjectName(QString::fromUtf8("botao_ataque_baixo"));
+        botao_ataque_baixo->setGeometry(QRect(880, 270, 31, 27));
+        botao_clonar_ataque = new QPushButton(tab_estatisticas);
+        botao_clonar_ataque->setObjectName(QString::fromUtf8("botao_clonar_ataque"));
+        botao_clonar_ataque->setEnabled(true);
+        botao_clonar_ataque->setGeometry(QRect(630, 370, 121, 27));
+        groupBox = new QGroupBox(tab_estatisticas);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        groupBox->setGeometry(QRect(10, 50, 891, 101));
+        verticalLayoutWidget_2 = new QWidget(groupBox);
+        verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
+        verticalLayoutWidget_2->setGeometry(QRect(10, 10, 869, 80));
+        verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
+        verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        verticalLayout_2->setContentsMargins(0, 0, 0, 0);
+        horizontalLayout_29 = new QHBoxLayout();
+        horizontalLayout_29->setObjectName(QString::fromUtf8("horizontalLayout_29"));
+        label_36 = new QLabel(verticalLayoutWidget_2);
+        label_36->setObjectName(QString::fromUtf8("label_36"));
+        sizePolicy5.setHeightForWidth(label_36->sizePolicy().hasHeightForWidth());
+        label_36->setSizePolicy(sizePolicy5);
+
+        horizontalLayout_29->addWidget(label_36);
+
+        linha_rotulo_ataque = new QLineEdit(verticalLayoutWidget_2);
         linha_rotulo_ataque->setObjectName(QString::fromUtf8("linha_rotulo_ataque"));
+        sizePolicy1.setHeightForWidth(linha_rotulo_ataque->sizePolicy().hasHeightForWidth());
+        linha_rotulo_ataque->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_6->addWidget(linha_rotulo_ataque);
+        horizontalLayout_29->addWidget(linha_rotulo_ataque);
 
-        label_21 = new QLabel(horizontalLayoutWidget_5);
+        label_21 = new QLabel(verticalLayoutWidget_2);
         label_21->setObjectName(QString::fromUtf8("label_21"));
+        sizePolicy5.setHeightForWidth(label_21->sizePolicy().hasHeightForWidth());
+        label_21->setSizePolicy(sizePolicy5);
 
-        horizontalLayout_6->addWidget(label_21);
+        horizontalLayout_29->addWidget(label_21);
 
-        combo_tipo_ataque = new QComboBox(horizontalLayoutWidget_5);
+        combo_tipo_ataque = new QComboBox(verticalLayoutWidget_2);
         combo_tipo_ataque->setObjectName(QString::fromUtf8("combo_tipo_ataque"));
+        sizePolicy1.setHeightForWidth(combo_tipo_ataque->sizePolicy().hasHeightForWidth());
+        combo_tipo_ataque->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_6->addWidget(combo_tipo_ataque);
+        horizontalLayout_29->addWidget(combo_tipo_ataque);
 
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_6->addItem(horizontalSpacer);
+        horizontalLayout_29->addItem(horizontalSpacer_6);
 
-        label_29 = new QLabel(horizontalLayoutWidget_5);
+
+        verticalLayout_2->addLayout(horizontalLayout_29);
+
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        label_29 = new QLabel(verticalLayoutWidget_2);
         label_29->setObjectName(QString::fromUtf8("label_29"));
+        label_29->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_29);
 
-        spin_alcance_quad = new QDoubleSpinBox(horizontalLayoutWidget_5);
+        spin_alcance_quad = new QDoubleSpinBox(verticalLayoutWidget_2);
         spin_alcance_quad->setObjectName(QString::fromUtf8("spin_alcance_quad"));
         spin_alcance_quad->setDecimals(1);
         spin_alcance_quad->setMinimum(-3);
@@ -816,7 +860,7 @@ public:
 
         horizontalLayout_6->addWidget(spin_alcance_quad);
 
-        label_30 = new QLabel(horizontalLayoutWidget_5);
+        label_30 = new QLabel(verticalLayoutWidget_2);
         label_30->setObjectName(QString::fromUtf8("label_30"));
 
         horizontalLayout_6->addWidget(label_30);
@@ -825,24 +869,24 @@ public:
 
         horizontalLayout_6->addItem(horizontalSpacer_5);
 
-        label_32 = new QLabel(horizontalLayoutWidget_5);
+        label_32 = new QLabel(verticalLayoutWidget_2);
         label_32->setObjectName(QString::fromUtf8("label_32"));
         label_32->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_32);
 
-        spin_incrementos = new QSpinBox(horizontalLayoutWidget_5);
+        spin_incrementos = new QSpinBox(verticalLayoutWidget_2);
         spin_incrementos->setObjectName(QString::fromUtf8("spin_incrementos"));
 
         horizontalLayout_6->addWidget(spin_incrementos);
 
-        label_23 = new QLabel(horizontalLayoutWidget_5);
+        label_23 = new QLabel(verticalLayoutWidget_2);
         label_23->setObjectName(QString::fromUtf8("label_23"));
         label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_23);
 
-        spin_ataque = new QSpinBox(horizontalLayoutWidget_5);
+        spin_ataque = new QSpinBox(verticalLayoutWidget_2);
         spin_ataque->setObjectName(QString::fromUtf8("spin_ataque"));
         spin_ataque->setMinimum(-50);
         spin_ataque->setMaximum(50);
@@ -853,13 +897,13 @@ public:
 
         horizontalLayout_6->addItem(horizontalSpacer_2);
 
-        label_24 = new QLabel(horizontalLayoutWidget_5);
+        label_24 = new QLabel(verticalLayoutWidget_2);
         label_24->setObjectName(QString::fromUtf8("label_24"));
         label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_24);
 
-        linha_dano = new QLineEdit(horizontalLayoutWidget_5);
+        linha_dano = new QLineEdit(verticalLayoutWidget_2);
         linha_dano->setObjectName(QString::fromUtf8("linha_dano"));
 
         horizontalLayout_6->addWidget(linha_dano);
@@ -868,56 +912,42 @@ public:
 
         horizontalLayout_6->addItem(horizontalSpacer_3);
 
-        label_25 = new QLabel(horizontalLayoutWidget_5);
+        label_25 = new QLabel(verticalLayoutWidget_2);
         label_25->setObjectName(QString::fromUtf8("label_25"));
+        label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_25);
 
-        spin_ca = new QSpinBox(horizontalLayoutWidget_5);
+        spin_ca = new QSpinBox(verticalLayoutWidget_2);
         spin_ca->setObjectName(QString::fromUtf8("spin_ca"));
 
         horizontalLayout_6->addWidget(spin_ca);
 
-        label_27 = new QLabel(horizontalLayoutWidget_5);
+        label_27 = new QLabel(verticalLayoutWidget_2);
         label_27->setObjectName(QString::fromUtf8("label_27"));
+        label_27->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_27);
 
-        spin_ca_toque = new QSpinBox(horizontalLayoutWidget_5);
+        spin_ca_toque = new QSpinBox(verticalLayoutWidget_2);
         spin_ca_toque->setObjectName(QString::fromUtf8("spin_ca_toque"));
 
         horizontalLayout_6->addWidget(spin_ca_toque);
 
-        label_28 = new QLabel(horizontalLayoutWidget_5);
+        label_28 = new QLabel(verticalLayoutWidget_2);
         label_28->setObjectName(QString::fromUtf8("label_28"));
+        label_28->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_28);
 
-        spin_ca_surpreso = new QSpinBox(horizontalLayoutWidget_5);
+        spin_ca_surpreso = new QSpinBox(verticalLayoutWidget_2);
         spin_ca_surpreso->setObjectName(QString::fromUtf8("spin_ca_surpreso"));
 
         horizontalLayout_6->addWidget(spin_ca_surpreso);
 
-        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_6->addItem(horizontalSpacer_4);
+        verticalLayout_2->addLayout(horizontalLayout_6);
 
-        lista_ataques = new QListWidget(tab_estatisticas);
-        lista_ataques->setObjectName(QString::fromUtf8("lista_ataques"));
-        lista_ataques->setGeometry(QRect(10, 110, 861, 181));
-        checkbox_imune_critico = new QCheckBox(tab_estatisticas);
-        checkbox_imune_critico->setObjectName(QString::fromUtf8("checkbox_imune_critico"));
-        checkbox_imune_critico->setGeometry(QRect(30, 340, 121, 22));
-        botao_ataque_cima = new QPushButton(tab_estatisticas);
-        botao_ataque_cima->setObjectName(QString::fromUtf8("botao_ataque_cima"));
-        botao_ataque_cima->setGeometry(QRect(880, 160, 31, 27));
-        botao_ataque_baixo = new QPushButton(tab_estatisticas);
-        botao_ataque_baixo->setObjectName(QString::fromUtf8("botao_ataque_baixo"));
-        botao_ataque_baixo->setGeometry(QRect(880, 200, 31, 27));
-        botao_clonar_ataque = new QPushButton(tab_estatisticas);
-        botao_clonar_ataque->setObjectName(QString::fromUtf8("botao_clonar_ataque"));
-        botao_clonar_ataque->setEnabled(true);
-        botao_clonar_ataque->setGeometry(QRect(630, 300, 121, 27));
         tab_entidade->addTab(tab_estatisticas, QString());
         QWidget::setTabOrder(campo_rotulo, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, slider_tamanho);
@@ -949,9 +979,7 @@ public:
         QWidget::setTabOrder(tab_entidade, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_modificador_iniciativa);
-        QWidget::setTabOrder(spin_modificador_iniciativa, linha_rotulo_ataque);
-        QWidget::setTabOrder(linha_rotulo_ataque, combo_tipo_ataque);
-        QWidget::setTabOrder(combo_tipo_ataque, spin_alcance_quad);
+        QWidget::setTabOrder(spin_modificador_iniciativa, spin_alcance_quad);
         QWidget::setTabOrder(spin_alcance_quad, spin_incrementos);
         QWidget::setTabOrder(spin_incrementos, spin_ataque);
         QWidget::setTabOrder(spin_ataque, linha_dano);
@@ -1108,6 +1136,12 @@ public:
         spin_modificador_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador de iniciativa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
+        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
+        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "^", 0, QApplication::UnicodeUTF8));
+        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "v", 0, QApplication::UnicodeUTF8));
+        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados Ataque", 0, QApplication::UnicodeUTF8));
+        label_36->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         linha_rotulo_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador do ataque", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -1122,7 +1156,7 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
         );
         label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
-        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", 0, QApplication::UnicodeUTF8));
+        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quads", 0, QApplication::UnicodeUTF8));
         label_32->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inc", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
@@ -1144,10 +1178,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_ca_surpreso->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Surpresa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
-        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "^", 0, QApplication::UnicodeUTF8));
-        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "v", 0, QApplication::UnicodeUTF8));
-        botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", 0, QApplication::UnicodeUTF8));
         tab_entidade->setTabText(tab_entidade->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
