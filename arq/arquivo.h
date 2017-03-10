@@ -34,6 +34,7 @@ enum tipo_e {
   TIPO_TABULEIRO_ESTATICO,  // quando vem de assets.
   TIPO_ENTIDADES,
   TIPO_SHADER,
+  TIPO_FONTES,
   TIPO_TESTE
 };
 

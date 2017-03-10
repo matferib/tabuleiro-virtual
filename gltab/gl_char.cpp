@@ -4,434 +4,24 @@
 #include <utility>
 #include <vector>
 #include "gltab/gl.h"
+#include "gltab/gl_vbo.h"
+#include "gltab/gl_interno.h"
 #include "log/log.h"
+
+#if USAR_FREETYPE
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include FT_GLYPH_H
+#include FT_TYPES_H
+#include FT_OUTLINE_H
+#include FT_RENDER_H
+
+#include "arq/arquivo.h"
+#endif
 
 namespace gl {
 
-#if 0
-namespace  {
-// Atlas de caracteres. Aqui estao vertices usados para construi-los. Cada caractere esta em um espaco
-// de 1.0 x 1.0 dividido em pontos em ordem crescente de 0.0, 0.1, 0.2 ... 1.0 de baixo para cima, depois
-// da esquerda para a direita.
-const int kResX = 10;
-const int kResY = 10;
-
-
-// Retorna o indice do vertice coordenada x, y.
-unsigned short I(int x, int y) {
-  return x * (kResY + 1) + y;
-}
-
-}  // namespace
-
-// As coordenadas do quadrado 1x1 com resolucao 0.1.
-const std::vector<float> g_vertices_caracteres = []() {
-  std::vector<float> coordenadas;
-  for (int l = 0; l <= kResX; ++l) {
-    float x = 0.1f * static_cast<float>(l);
-    for (int a = 0; a <= kResY; ++a) {
-      float y = 0.1f * static_cast<float>(a);
-      coordenadas.push_back(x);
-      coordenadas.push_back(y);
-    }
-  }
-  return coordenadas;
-}();
-
-// Quadrado de triangulos de coordenadas
-#define Q(V1, V2, V3, V4) V1, V2, V3, V1, V3, V4
-
-// Letras deslocadas em 3 pixels.
-const std::unordered_set<char> g_caracteres_baixos = { 'g', 'j', 'p', 'q', 'y' };
-
-// O atlas de caracteres.
-const std::unordered_map<char, std::vector<unsigned short>> g_indices_caracteres = {
-  {
-    '?', {
-      Q(I(1, 7), I(3, 7), I(3, 8), I(1, 8)),  // NW
-      Q(I(1, 8), I(9, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(7, 6), I(9, 6), I(9, 8), I(7, 8)),  // NE
-      Q(I(4, 5), I(6, 5), I(9, 6), I(7, 6)),  // Meio-E
-      Q(I(4, 3), I(6, 3), I(6, 5), I(4, 5)),  // Meio
-      Q(I(4, 1), I(6, 1), I(6, 2), I(4, 2)),  // S
-    },
-  }, {
-    '-', {
-      Q(I(1, 4), I(9, 4), I(9, 5), I(1, 5)),  // WE
-    },
-  }, {
-    '=', {
-      Q(I(1, 4), I(9, 4), I(9, 5), I(1, 5)),  // N
-      Q(I(1, 2), I(9, 2), I(9, 3), I(1, 3)),  // S
-    },
-  }, {
-    '+', {
-      Q(I(1, 4), I(9, 4), I(9, 5), I(1, 5)),  // WE
-      Q(I(4, 2), I(6, 2), I(6, 7), I(4, 7)),  // SN
-    },
-  }, {
-    '^', {
-      Q(I(1, 4), I(3, 4) ,I(6, 9), I(4, 9)) ,  // W
-      Q(I(6, 9), I(4, 9), I(7, 4), I(9, 4)),   // E
-    },
-  }, {
-    '<', {
-      Q(I(1, 3), I(4, 3), I(4, 4), I(1, 4)),  // Meio
-      Q(I(1, 3), I(9, 1), I(9, 2), I(4, 3)),  // S
-      Q(I(1, 4), I(4, 4), I(9, 5), I(9, 6)),  // N
-    },
-  }, {
-    '>', {
-      Q(I(6, 3), I(9, 3), I(9, 4), I(6, 4)),  // Meio
-      Q(I(1, 1), I(9, 3), I(6, 3), I(1, 2)),  // S
-      Q(I(1, 5), I(6, 4), I(9, 4), I(1, 6)),  // N
-    },
-  }, {
-    ':', {
-      Q(I(3, 1), I(5, 1), I(5, 2), I(3, 2)),  // S
-      Q(I(3, 4), I(5, 4), I(5, 5), I(3, 5)),  // N
-    },
-  }, {
-    '.', {
-      Q(I(3, 1), I(5, 1), I(5, 2), I(3, 2)),  // S
-    },
-  }, {
-    '/', {
-      Q(I(1, 1), I(3, 1), I(9, 9), I(7, 9)),
-    },
-  }, {
-    '0', {
-      Q(I(3, 8), I(7, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(1, 2), I(3, 1), I(3, 9), I(1, 8)),  // W
-      Q(I(3, 1), I(7, 1), I(7, 2), I(3, 2)),  // S
-      Q(I(7, 1), I(9, 2), I(9, 8), I(7, 9)),  // E
-    },
-  }, {
-    '1', {
-      Q(I(2, 1), I(8, 1), I(8, 2), I(2, 2)),  // Base.
-      Q(I(4, 2), I(6, 2), I(6, 9), I(4, 9)),  // Corpo
-      I(2, 7), I(4, 7), I(4, 9),  // Cabeca
-    },
-  }, {
-    '2', {
-      Q(I(1, 8), I(9, 8), I(7, 9), I(3, 9)),  // N.
-      Q(I(1, 2), I(3, 2), I(9, 8), I(7, 8)),  // Meio.
-      Q(I(1, 1), I(9, 1), I(9, 2), I(1, 2)),  // S.
-    },
-  }, {
-    '3', {
-      Q(I(1, 8), I(9, 8), I(9, 9), I(1, 9)),  // N.
-      Q(I(4, 6), I(6, 6), I(9, 8), I(7, 8)),  // NE
-      Q(I(4, 6), I(7, 5), I(9, 5), I(6, 6)),  // NEE.
-      Q(I(7, 2), I(9, 2), I(9, 5), I(7, 5)),  // E.
-      Q(I(1, 1), I(7, 1), I(9, 2), I(1, 2)),  // S.
-    },
-  }, {
-    '4', {
-      Q(I(1, 2), I(9, 2), I(9, 3), I(1, 3)), // S
-      Q(I(6, 1), I(8, 1), I(8, 9), I(6, 9)), // E
-      Q(I(1, 3), I(3, 3), I(6, 7), I(6, 9)), // W
-    },
-  }, {
-    '5', {
-      Q(I(1, 1), I(7, 1), I(9, 2), I(1, 2)),  // S
-      Q(I(7, 2), I(9, 2), I(9, 5), I(7, 5)),  // E
-      Q(I(1, 5), I(9, 5), I(7, 6), I(1, 6)),  // Meio
-      Q(I(1, 6), I(3, 6), I(3, 8), I(1, 8)),  // W
-      Q(I(1, 8), I(9, 8), I(9, 9), I(1, 9)),  // N
-    },
-  }, {
-    '6', {
-      Q(I(1, 6), I(3, 6), I(7, 9), I(5, 9)),  // N
-      Q(I(1, 2), I(3, 1), I(3, 6), I(1, 6)),  // W
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-      Q(I(7, 2), I(9, 2), I(9, 5), I(7, 5)),  // E
-      Q(I(3, 5), I(9, 5), I(7, 6), I(3, 6)),  // Meio
-    },
-  }, {
-    '7', {
-      Q(I(1, 8), I(9, 8), I(9, 9), I(1, 9)),  // N
-      Q(I(1, 1), I(3, 1), I(9, 8), I(7, 8)),  // S
-    },
-  }, {
-    '8', {
-      Q(I(4, 8), I(6, 8), I(6, 9), I(4, 9)),  // N
-      Q(I(2, 6), I(4, 5), I(4, 9), I(2, 8)),  // NW
-      Q(I(6, 5), I(8, 6), I(8, 8), I(6, 9)),  // NE
-      Q(I(1, 5), I(9, 5), I(7, 6), I(3, 6)),  // Meio
-      Q(I(7, 2), I(9, 2), I(9, 5), I(7, 5)),  // SE
-      Q(I(1, 2), I(3, 2), I(3, 5), I(1, 5)),  // SW
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    '9', {
-      Q(I(1, 5), I(3, 4), I(3, 9), I(1, 8)),  // W
-      Q(I(3, 4), I(7, 4), I(7, 5), I(3, 5)),  // Meio
-      Q(I(7, 2), I(9, 2), I(9, 8), I(7, 8)),  // E
-      Q(I(3, 8), I(9, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    'A', {
-      Q(I(1, 1), I(3, 1), I(6, 9), I(4, 9)), // W
-      Q(I(7, 1), I(9, 1), I(6, 9), I(4, 9)), // E
-      Q(I(3, 3), I(7, 3), I(7, 4), I(3, 4)), // Meio
-    },
-  }, {
-    'a', {
-      Q(I(1, 5), I(8, 5), I(7, 6), I(2, 6)),  // N
-      Q(I(7, 2), I(8, 2), I(8, 5), I(7, 5)),  // E
-      Q(I(1, 3), I(7, 3), I(7, 4), I(2, 4)),  // Meio
-      Q(I(1, 2), I(2, 2), I(2, 3), I(1, 3)),  // SW
-      Q(I(1, 2), I(2, 1), I(9, 1), I(8, 2)),  // S
-    },
-  }, {
-    'B', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(3, 1), I(7, 1), I(9, 2), I(3, 2)),  // S
-      Q(I(3, 8), I(8, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(3, 5), I(7, 5), I(7, 6), I(3, 6)),  // Meio
-      Q(I(6, 8), I(6, 5), I(8, 6), I(8, 8)),  // NE
-      Q(I(7, 2), I(9, 2), I(9, 5), I(7, 6)),  // SE
-    },
-  }, {
-    'b', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(7, 1), I(9, 2), I(9, 5), I(7, 6)),  // E
-      Q(I(3, 5), I(7, 5), I(7, 6), I(3, 6)),  // Meio
-      Q(I(3, 1), I(7, 1), I(7, 2), I(3, 2)),  // S
-    },
-  }, {
-    'C', {
-      Q(I(1, 2), I(3, 1), I(3, 8), I(1, 8)),  // W
-      Q(I(1, 8), I(9, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    'c', {
-      Q(I(1, 2), I(3, 1), I(3, 6), I(1, 5)),  // W
-      Q(I(1, 5), I(9, 5), I(7, 6), I(3, 6)),  // N
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    'd', {
-      Q(I(1, 2), I(3, 1), I(7, 1), I(7, 2)),  // S
-      Q(I(1, 2), I(3, 2), I(3, 5), I(1, 5)),  // W
-      Q(I(1, 5), I(7, 5), I(7, 6), I(3, 6)),  // N
-      Q(I(7, 1), I(9, 1), I(9, 9), I(7, 9)),  // E
-    },
-  }, {
-    'E', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(3, 1), I(9, 1), I(9, 2), I(3, 2)),  // S
-      Q(I(3, 8), I(9, 8), I(9, 9), I(3, 9)),  // N
-      Q(I(3, 5), I(7, 5), I(7, 6), I(3, 6)),  // Meio
-    },
-  }, {
-    'e', {
-      Q(I(1, 2), I(3, 1), I(3, 6), I(1, 5)),  // W
-      Q(I(3, 1), I(7, 1), I(9, 2), I(3, 2)),  // S
-      Q(I(3, 3), I(7, 3), I(9, 4), I(3, 4)),  // Meio
-      Q(I(7, 4), I(9, 4), I(9, 5), I(7, 5)),  // E
-      Q(I(3, 5), I(9, 5), I(7, 6), I(3, 6)),  // N
-    },
-  }, {
-    'F', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(3, 8), I(9, 8), I(9, 9), I(3, 9)),  // N
-      Q(I(3, 5), I(7, 5), I(7, 6), I(3, 6)),  // Meio
-    },
-  }, {
-    'f', {
-      Q(I(3, 1), I(5, 1), I(5, 8), I(3, 8)),  // S-N
-      Q(I(2, 5), I(7, 5), I(7, 6), I(2, 6)),  // Meio
-      Q(I(3, 8), I(9, 8), I(7, 9), I(5, 9)),
-    },
-  }, {
-    'G', {
-      Q(I(1, 2), I(3, 1), I(3, 8), I(1, 8)),  // W
-      Q(I(5, 4), I(9, 4), I(8, 5), I(5, 5)),  // NE
-      Q(I(1, 8), I(9, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(7, 2), I(9, 2), I(9, 4), I(7, 4)),  // SE
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    'g', {
-      Q(I(1, 5), I(3, 4), I(3, 9), I(1, 8)),  // W
-      Q(I(1, 8), I(8, 8), I(6, 9), I(3, 9)),  // N
-      Q(I(7, 1), I(9, 2), I(9, 9), I(7, 9)),  // E
-      Q(I(3, 4), I(7, 4), I(7, 5), I(3, 5)),  // Meio
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    'H', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(7, 1), I(9, 1), I(9, 9), I(7, 9)),  // E
-      Q(I(3, 5), I(7, 5), I(7, 6), I(3, 6)),  // Meio
-    },
-  }, {
-    'h', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(7, 1), I(9, 1), I(9, 5), I(7, 6)),  // E
-      Q(I(3, 5), I(9, 5), I(7, 6), I(3, 6)),  // Meio
-    },
-  }, {
-    'I', {
-      Q(I(2, 8), I(8, 8), I(8, 9), I(2, 9)),  // N
-      Q(I(4, 2), I(6, 2), I(6, 8), I(4, 8)),  // Meio
-      Q(I(2, 1), I(8, 1), I(8, 2), I(2, 2)),  // S
-    },
-  }, {
-    'i', {
-      Q(I(4, 1), I(6, 1), I(6, 6), I(4, 6)),
-      Q(I(4, 7), I(6, 7), I(6, 8), I(4, 8)),
-    },
-  }, {
-    'J', {
-      Q(I(1, 2), I(3, 2), I(3, 3), I(1, 3)),  // W
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-      Q(I(7, 2), I(9, 2), I(9, 9), I(7, 9)),  // E
-      Q(I(6, 8), I(7, 8), I(7, 9), I(6, 9)),  // N
-    },
-  }, {
-    'j', {
-      Q(I(1, 2), I(2, 1), I(5, 1), I(6, 2)),  // S
-      Q(I(4, 2), I(6, 2), I(6, 7), I(4, 7)),  // Meio
-      Q(I(4, 8), I(6, 8), I(6, 9), I(4, 9)),  // N
-    },
-  }, {
-    'k', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(3, 4), I(9, 6), I(7, 6), I(1, 5)),  // NE
-      Q(I(3, 3), I(7, 1), I(9, 1), I(3, 4)),  // SE
-    },
-  }, {
-    'L', {
-      Q(I(1, 1), I(3, 1), I(3, 9), I(1, 9)),  // W
-      Q(I(3, 1), I(9, 1), I(9, 2), I(3, 2)),  // S
-    },
-  }, {
-    'l', {
-      Q(I(2, 8), I(4, 8), I(4, 9), I(2, 9)),  // N
-      Q(I(4, 2), I(6, 2), I(6, 9), I(4, 9)),  // Meio
-      Q(I(4, 1), I(8, 1), I(8, 2), I(4, 2)),  // S
-    },
-  }, {
-    'm', {
-      Q(I(1, 1), I(3, 1), I(3, 5), I(1, 5)),  // W
-      Q(I(4, 1), I(6, 1), I(6, 5), I(4, 5)),  // Meio
-      Q(I(7, 1), I(9, 1), I(9, 5), I(7, 5)),  // E
-      Q(I(1, 5), I(9, 5), I(7, 6), I(1, 6)),  // N
-    },
-  }, {
-    'n', {
-      Q(I(1, 1), I(3, 1), I(3, 6), I(1, 6)),  // W
-      Q(I(3, 5), I(9, 5), I(7, 6), I(3, 6)),  // N
-      Q(I(7, 1), I(9, 1), I(9, 5), I(7, 5)),  // E
-    },
-  }, {
-    'o', {
-      Q(I(1, 2), I(3, 2), I(3, 5), I(1, 5)),  // W
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-      Q(I(7, 2), I(9, 2), I(9, 5), I(7, 5)),  // E
-      Q(I(1, 5), I(9, 5), I(7, 6), I(3, 6)),  // N
-    },
-  }, {
-    'p', {
-      Q(I(1, 8), I(9, 8), I(7, 9), I(1, 9)),  // N
-      Q(I(1, 1), I(3, 1), I(3, 8), I(1, 8)),  // W
-      Q(I(7, 5), I(9, 5), I(9, 8), I(7, 8)),  // E
-      Q(I(3, 4), I(7, 4), I(9, 5), I(3, 5)),  // Meio
-    },
-  }, {
-    'P', {
-      Q(I(1, 8), I(9, 8), I(7, 9), I(1, 9)),  // N
-      Q(I(1, 1), I(3, 1), I(3, 8), I(1, 8)),  // W
-      Q(I(7, 5), I(9, 5), I(9, 8), I(7, 8)),  // E
-      Q(I(3, 4), I(7, 4), I(9, 5), I(3, 5)),  // Meio
-    },
-  }, {
-    'q', {
-      Q(I(1, 5), I(3, 4), I(3, 9), I(1, 8)),  // W
-      Q(I(3, 4), I(7, 4), I(7, 5), I(3, 5)),  // Meio
-      Q(I(7, 1), I(9, 1), I(9, 9), I(7, 9)),  // E
-      Q(I(3, 8), I(7, 8), I(7, 9), I(3, 9)),  // N
-    },
-  }, {
-    'Q', {
-      Q(I(3, 8), I(7, 8), I(7, 9), I(3, 9)),  // N
-      Q(I(1, 2), I(3, 1), I(3, 9), I(1, 8)),  // W
-      Q(I(3, 1), I(7, 1), I(7, 2), I(3, 2)),  // S
-      Q(I(7, 1), I(9, 2), I(9, 8), I(7, 9)),  // E
-      I(6, 1), I(7, 0), I(7, 1),  // perninha.
-    },
-  }, {
-    'r', {
-      Q(I(3, 1), I(5, 1), I(5, 6), I(3, 6)),  // W
-      Q(I(5, 4), I(9, 4), I(9, 6), I(7, 6)),  // meio
-    },
-  }, {
-    's', {
-      Q(I(1, 5), I(9, 5), I(8, 6), I(2, 6)),  // N
-      Q(I(1, 4), I(2, 4), I(2, 5), I(1, 5)),  // NW
-      Q(I(1, 4), I(2, 3), I(9 ,3), I(8, 4)),  // Meio
-      Q(I(8, 2), I(9, 2), I(9, 3), I(8, 3)),  // SE
-      Q(I(1, 1), I(8, 1), I(9, 2), I(1, 2)),  // S
-    },
-  }, {
-    't', {
-      Q(I(4, 1), I(6, 1), I(6, 9), I(4, 9)),  // S-N
-      Q(I(1, 6), I(9, 6), I(9, 7), I(1, 7)),  // W-E
-    },
-  }, {
-    'T', {
-      Q(I(4, 1), I(6, 1), I(6, 8), I(4, 8)),  // S-N
-      Q(I(1, 8), I(9, 8), I(9, 9), I(1, 9)),  // W-E
-    },
-  }, {
-    'u', {
-      Q(I(1, 2), I(3, 2), I(3, 6), I(1, 6)),  // W
-      Q(I(6, 2), I(8, 2), I(8, 6), I(6, 6)),  // E
-      Q(I(1, 2), I(3, 1), I(9, 1), I(8, 2)),  // S
-    },
-  }, {
-    'v', {
-      Q(I(1, 6), I(4, 1), I(6, 1), I(3, 6)),  // W
-      Q(I(4, 1), I(6, 1), I(9, 6), I(7, 6)),  // E
-    },
-  }, {
-    'V', {
-      Q(I(1, 9), I(4, 1), I(6, 1), I(3, 9)),  // W
-      Q(I(4, 1), I(6, 1), I(9, 9), I(7, 9)),  // E
-    },
-  }, {
-    'x', {
-      Q(I(1, 1), I(3, 1), I(9, 6), I(7, 6)),  // SW-NE
-      Q(I(7, 1), I(9, 1), I(3, 6), I(1, 6)),  // SE-NW
-    },
-  }, {
-    'w', {
-      Q(I(1, 2), I(3, 2), I(3, 6), I(1, 6)),  // W
-      Q(I(4, 2), I(6, 2), I(6, 6), I(4, 6)),  // Meio
-      Q(I(7, 2), I(9, 2), I(9, 6), I(7, 6)),  // E
-      Q(I(1, 2), I(3, 1), I(7, 1), I(9, 2)),  // S
-    },
-  }, {
-    'y', {
-      Q(I(1, 1), I(3, 1), I(9, 9), I(7, 9)),  // SW-NE
-      Q(I(1, 9), I(4, 4), I(5, 4), I(3, 9)),  // SE-NW
-    },
-  }, {
-    'z', {
-      Q(I(1, 1), I(9, 1), I(9, 2), I(1, 2)),  // S
-      Q(I(1, 5), I(9, 5), I(9, 6), I(1, 6)),  // N
-      Q(I(1, 1), I(9, 5), I(9, 6), I(1, 2)),  // SW-NE
-    },
-  },
-
-  //Q(I(), I(), I(), I(),),
-};
-#endif
+#if !USAR_FREETYPE
 // GLUTES font data.
 static const GLubyte Fixed8x13_Character_032[] = {  8,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0}; /* blank */
 static const GLubyte Fixed8x13_Character_097[] = {  8,  0,  0,116,140,132,124,  4,120,  0,  0,  0,  0,  0}; /* "a" */
@@ -804,7 +394,7 @@ void DesenhaCaractere(char c) {
   gl::DesenhaElementos(GL_TRIANGLES, caractere_it->second.size(), GL_UNSIGNED_SHORT, &caractere_it->second[0]);
   gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
 }
-#else
+#endif
 // glutes.
 int BitsToIndexedShorts(const GLubyte *bits, int ssx, int ssy, GLshort *points, int startx, int starty) {
   int ssxsy = ssx * ssy; // total bit #
@@ -873,6 +463,276 @@ void DesenhaCaractere(char c) {
   BitmapCharacter((int)c);
 }
 
+#else  // USAR_FREETYPE
+
+#define VERSAO_PONTOS 1
+namespace {
+struct FaceInfo {
+  std::vector<GLshort> vertices;
+  std::vector<GLushort> indices;
+  GLuint textura;
+};
+
+FaceInfo g_face_infos[256];
+gl::VboNaoGravado g_vbot;
+
+#if VERSAO_PONTOS
+std::vector<GLshort> BitsParaPosicoes(const GLubyte *bits, int tam_x, int tam_y, bool print, int delta_y) {
+  std::vector<GLshort> pontos;
+  int total = tam_x * tam_y; // total bit #
+  int x = 0, y = -delta_y;
+  int bit = 7;
+
+  if (print) {
+    std::cout << "0x" << std::hex << (int)*bits << ": " << std::flush;
+  }
+
+  while (total--) {
+    if (bits[0] & (1 << bit)) {
+      pontos.push_back(x);
+      pontos.push_back(tam_y - y);
+      if (print) {
+        std::cout << "[" << x << ", " << (tam_y - y) << "]; " << std::flush;
+      }
+    }
+    if (--bit == -1) {
+      bit = 7;
+      bits++;
+      if (print && total > 0) {
+        std::cout << std::endl << "0x" << std::hex << (int)*bits << ": " << std::flush;
+      }
+    }
+    if (++x >= tam_x) {
+      if (tam_x % 8 != 0) {
+        bits++;
+        bit = 7;
+        if (print && total > 0) {
+          std::cout << std::endl << "0x" << std::hex << (int)*bits << ": " << std::flush;
+        }
+      }
+      x = 0;
+      y++;
+    }
+  }
+  if (print) {
+    std::cout << std::endl;
+  }
+
+  return pontos;
+}
+#else
+std::vector<unsigned char> BitsParaLuminancia(const GLubyte *bits, int tam_x, int tam_y) {
+  std::vector<unsigned char> pontos;
+  int total = tam_x * tam_y; // total bit #
+  int bit = 7;
+
+  while (total--) {
+    if (bits[0] & (1 << bit)) {
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+    } else {
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+    }
+    if (--bit == -1) {
+      bit = 7;
+      bits++;
+    }
+  }
+  return pontos;
+}
+
+std::vector<unsigned char> ParaRgba(const GLubyte *input, int tam_x, int tam_y) {
+  std::vector<unsigned char> pontos;
+  for (int i = 0; i < tam_x * tam_y; ++i) {
+    if (*input > 0) {
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(0xFF);
+      pontos.push_back(*input);
+    } else {
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+      pontos.push_back(0x00);
+    }
+    ++input;
+  }
+  return pontos;
+}
+#endif
+}  // namespace
+
+namespace interno {
+void IniciaChar() {
+  float tam_y = 13.0f;
+#if !VERSAO_PONTOS
+  float tam_x = 8.0f;
+
+  float x_sobre_y = tam_x / tam_y;
+  const unsigned short indices[] = { 0, 1, 2, 3, 4, 5 };
+  const float coordenadas[] = {
+    0,     0,
+    tam_x, 0,
+    tam_x, tam_y,
+    0,     0,
+    tam_x, tam_y,
+    0,     tam_y,
+  };
+  const float coordenadas_texel[] = {
+    0.0f, 1.0f,  // x1, y1
+    x_sobre_y, 1.0f,  // x2, y1
+    x_sobre_y, 0.0f,  // x2, y2
+    0.0f, 1.0f,  // x1, y1
+    x_sobre_y, 0.0f,  // x2, y2
+    0.0f, 0.0f,  // x1, y2
+  };
+  g_vbot.AtribuiCoordenadas(2, coordenadas, sizeof(coordenadas) / sizeof(float));
+  g_vbot.AtribuiTexturas(coordenadas_texel);
+  g_vbot.AtribuiIndices(indices, sizeof(indices) / sizeof(unsigned short));
+  g_vbot.Nomeia("chartex");
+#endif
+
+  FT_Error error = FT_Err_Ok;
+  FT_Face m_face = 0;
+  FT_Library m_library = 0;
+
+  // For simplicity, the error handling is very rudimentary.
+  error = FT_Init_FreeType(&m_library);
+  if (error) {
+    LOG(ERROR) << "Falha iniciando freetype";
+    return;
+  }
+  std::string caminho_fonte = arq::Diretorio(arq::TIPO_FONTES) + "/mono.ttf";
+  error = FT_New_Face(m_library, caminho_fonte.c_str(), 0, &m_face);
+  if (error) {
+    LOG(ERROR) << "Falha iniciando mono";
+    return;
+  }
+
+#if VERSAO_PONTOS
+  const int tam_text = 16;
+#else
+  const int tam_text = tam_y;
+#endif
+  error = FT_Set_Pixel_Sizes(m_face, tam_text, tam_text);
+  if (error) {
+    LOG(ERROR) << "Erro FT_Set_Pixel_Sizes";
+    return;
+  }
+
+  for (int c = 0; c < 256; ++c) {
+    auto glyph_index = FT_Get_Char_Index(m_face, c);
+    error = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_DEFAULT);
+    if (error) {
+      LOG(ERROR) << "Erro com caractere " << c;
+      continue;
+    }
+#if VERSAO_PONTOS
+    int pitch = (tam_text / 8 + (tam_text % 8 ? 1 : 0));
+    std::vector<unsigned char> buffer(tam_text * pitch);
+    FT_Bitmap bitmap;
+    bitmap.rows = tam_text;
+    bitmap.width = tam_text;
+    bitmap.pitch = pitch;
+    bitmap.buffer = buffer.data();
+    bitmap.pixel_mode = FT_PIXEL_MODE_MONO;
+    LOG(INFO) << "char: " << (char)c
+              << "height: " << m_face->glyph->metrics.height
+              << ", hby: " <<  m_face->glyph->metrics.horiBearingY;
+    int delta_y = m_face->glyph->metrics.height > m_face->glyph->metrics.horiBearingY
+        ? m_face->glyph->metrics.height - m_face->glyph->metrics.horiBearingY : 0;
+    float delta_percentage = delta_y / static_cast<float>(m_face->glyph->metrics.height);
+    FT_Outline_Translate(&m_face->glyph->outline, 0, delta_y);
+    error = FT_Outline_Get_Bitmap(m_library, &m_face->glyph->outline, &bitmap);
+    if (error) {
+      LOG(ERROR) << "Erro lendo bitmap de caractere " << c;
+      continue;
+    }
+    if (c == 'y') {
+      LOG(INFO) << "bitmap rows: " << bitmap.rows;
+      LOG(INFO) << "bitmap width: " << bitmap.width;
+      LOG(INFO) << "bitmap pitch: " << bitmap.pitch;
+    }
+    // Versao pontos.
+    auto& face = g_face_infos[c];
+    face.vertices = BitsParaPosicoes(buffer.data(), tam_text, tam_text, c == 'y', -tam_text * delta_percentage);
+    for (unsigned int i = 0; i < face.vertices.size() / 2; ++i) {
+      face.indices.push_back(i);
+    }
+#else
+    std::vector<unsigned char> buffer(tam_text * tam_text);
+    FT_Bitmap bitmap;
+    bitmap.rows = tam_text;
+    bitmap.width = tam_text;
+    bitmap.pitch = tam_text;
+    bitmap.buffer = buffer.data();
+    bitmap.num_grays = 256;
+    bitmap.pixel_mode = FT_PIXEL_MODE_GRAY;
+    error = FT_Outline_Get_Bitmap(m_library, &m_face->glyph->outline, &bitmap);
+    if (error) {
+      LOG(ERROR) << "Erro lendo bitmap de caractere " << c;
+      continue;
+    }
+
+    // Versao textura
+    gl::GeraTexturas(1, &face.textura);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, face.textura);
+    gl::HabilitaMipmapAniso(GL_TEXTURE_2D);
+    V_ERRO("Ligacao");
+    // Carrega a textura.
+    //std::vector<unsigned char> dados = BitsParaLuminancia(buffer.data(), tam_x, tam_y);
+    std::vector<unsigned char> dados = ParaRgba(buffer.data(), tam_text, tam_text);
+    gl::ImagemTextura2d(GL_TEXTURE_2D,
+                        0, GL_RGBA,
+                        tam_text, tam_text,
+                        0, GL_RGBA, GL_UNSIGNED_BYTE,
+                        dados.data());
+    V_ERRO("Imagem");
+#if WIN32 || MAC_OSX || TARGET_OS_IPHONE || (__linux__ && !ANDROID)
+    // TODO wrapper para outros...
+    gl::GeraMipmap(GL_TEXTURE_2D);
+#endif
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::DesabilitaMipmapAniso(GL_TEXTURE_2D);
+    V_ERRO("CriaTexturaOpenGl id: " << face.textura);
+#endif
+  }
+  FT_Done_Face(m_face);
+  LOG(INFO) << "Fonte carregada";
+}
+
+void FinalizaChar() {}
+
+}  // namespace interno.
+
+void DesenhaCaractere(char character) {
+  if (!(character >= 1) && (character < 256)) return;
+  const auto& face = g_face_infos[(int)character];
+#if VERSAO_PONTOS
+  if (face.vertices.empty()) return;
+  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::PonteiroVertices(2, GL_SHORT, 0, face.vertices.data());
+  gl::DesenhaElementos(GL_POINTS, face.indices.size(), GL_UNSIGNED_SHORT, face.indices.data());
+  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+#else
+  //gl::HabilitaEscopo blend_escopo(GL_BLEND);
+  //gl::DesabilitaEscopo depth_escopo(GL_DEPTH_TEST);
+
+  gl::HabilitaEscopo textura(GL_TEXTURE_2D);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, face.textura);
+  //auto* c = interno::BuscaContexto();
+  //gl::MudaCor(1.0f, 0.0f, 0.0f, 1.0f);
+  gl::DesenhaVbo(g_vbot);
+  //gl::Retangulo(g_vbot);
+  //gl::Retangulo(100, 100, 500, 500);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+#endif
+}
 #endif
 
 }

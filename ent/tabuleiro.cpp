@@ -58,6 +58,7 @@
 #endif
 
 #define TAM_MAPA_OCLUSAO 1024
+#define APENAS_MESTRE_CRIA_FORMAS 0
 
 using google::protobuf::RepeatedField;
 
@@ -895,10 +896,12 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
   try {
     if (notificacao.local()) {
       EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_.second);
+#if APENAS_MESTRE_CRIA_FORMAS
       if (modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
       }
+#endif
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return;
@@ -1901,8 +1904,12 @@ void Tabuleiro::RolaIniciativasNotificando() {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
     } else if (IdCameraPresa() != Entidade::IdInvalido) {
-      auto* entidade = EntidadeSelecionada();
-      entidades.push_back(entidade);
+      auto* entidade = BuscaEntidade(IdCameraPresa());
+      if (entidade != nullptr) {
+        entidades.push_back(entidade);
+      } else {
+        LOG(ERROR) << "Entidade presa eh nula";
+      }
     } else {
       LOG(INFO) << "Nao ha unidade selecionada ou presa para rolar iniciativa";
       return;
@@ -2019,15 +2026,14 @@ void Tabuleiro::ProximaIniciativa() {
   if (!EmModoMestreIncluindoSecundario()) {
     // So permite ao jogador passar se for a vez dele.
     unsigned int id_iniciativa = IniciativaCorrente();
-    unsigned int id_camera_presa = IdCameraPresa();
-    if (id_camera_presa == Entidade::IdInvalido || id_iniciativa != id_camera_presa) {
-      LOG(INFO) << "Jogador so pode passar sua propria iniciativa. Id: " << id_camera_presa << ", vez de " << iniciativas_[indice_iniciativa_].id;
+    if (!IdPresoACamera(id_iniciativa)) {
+      LOG(INFO) << "Jogador so pode passar sua propria iniciativa.";
       return;
     }
     // Envia requisicao pro mestre passar a vez.
     auto* n = ntf::NovaNotificacao(ntf::TN_PROXIMA_INICIATIVA);
     n->set_servidor_apenas(true);
-    n->mutable_entidade()->set_id(id_camera_presa);
+    n->mutable_entidade()->set_id(id_iniciativa);
     central_->AdicionaNotificacaoRemota(n);
     return;
   }
@@ -2762,8 +2768,9 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
   int modificador_incrementos = 0;
   if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
-    VLOG(1) << "Ignorando ataque vs defesa por falta de dados";
-    return std::make_tuple(1, "", true);
+    VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
+            << ", defesa: " << ca_destino;
+    return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
   }
   float alcance_m = ea.AlcanceAtaqueMetros();
   if (alcance_m >= 0) {
@@ -5225,11 +5232,13 @@ void Tabuleiro::TrataBotaoRotacaoPressionado(int x, int y) {
 }
 
 void Tabuleiro::TrataBotaoDesenhoPressionado(int x, int y) {
+#if APENAS_MESTRE_CRIA_FORMAS
   if (!EmModoMestreIncluindoSecundario()) {
     VLOG(1) << "Apenas mestre pode desenhar.";
     // Apenas mestre pode desenhar.
     return;
   }
+#endif
   VLOG(1) << "Botao desenho pressionado";
   ultimo_x_ = x;
   ultimo_y_ = y;

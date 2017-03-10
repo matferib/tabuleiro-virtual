@@ -613,7 +613,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   });
 
   // Translacao em Z.
-  gerador.spin_translacao->setValue(entidade.pos().z());
+  gerador.spin_translacao_quad->setValue(entidade.pos().z() * METROS_PARA_QUADRADOS);
 
   // Rotacoes.
   auto AjustaSliderSpin = [] (float angulo, QDial* dial, QSpinBox* spin) {
@@ -638,9 +638,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   AjustaSliderSpin(entidade.rotacao_x_graus(), gerador.dial_rotacao_x, gerador.spin_rotacao_x);
 
   // Escalas.
-  gerador.spin_escala_x->setValue(entidade.escala().x());
-  gerador.spin_escala_y->setValue(entidade.escala().y());
-  gerador.spin_escala_z->setValue(entidade.escala().z());
+  gerador.spin_escala_x_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().x());
+  gerador.spin_escala_y_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().y());
+  gerador.spin_escala_z_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().z());
 
   // Transicao de cenario.
   auto habilita_posicao = [gerador] {
@@ -726,11 +726,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->set_rotacao_z_graus(-gerador.dial_rotacao->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_y_graus(-gerador.dial_rotacao_y->sliderPosition() + 180.0f);
     proto_retornado->set_rotacao_x_graus(-gerador.dial_rotacao_x->sliderPosition() + 180.0f);
-    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * QUADRADOS_PARA_METROS);
     proto_retornado->clear_translacao_z_deprecated();
-    proto_retornado->mutable_escala()->set_x(gerador.spin_escala_x->value());
-    proto_retornado->mutable_escala()->set_y(gerador.spin_escala_y->value());
-    proto_retornado->mutable_escala()->set_z(gerador.spin_escala_z->value());
+    proto_retornado->mutable_escala()->set_x(QUADRADOS_PARA_METROS * gerador.spin_escala_x_quad->value());
+    proto_retornado->mutable_escala()->set_y(QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
+    proto_retornado->mutable_escala()->set_z(QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
     if (gerador.checkbox_transicao_cenario->checkState() == Qt::Checked) {
       bool ok = false;
       int val = gerador.linha_transicao_cenario->text().toInt(&ok);
@@ -845,7 +845,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_luz()) {
     luz_cor.mutable_cor()->CopyFrom(entidade.luz().cor());
     gerador.botao_luz->setStyleSheet(CorParaEstilo(entidade.luz().cor()));
-    gerador.spin_raio->setValue(entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f);
+    gerador.spin_raio_quad->setValue(METROS_PARA_QUADRADOS * (entidade.luz().has_raio_m() ? entidade.luz().raio_m() : 6.0f));
   } else {
     ent::Cor branco;
     branco.set_r(1.0f);
@@ -853,7 +853,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     branco.set_b(1.0f);
     luz_cor.mutable_cor()->CopyFrom(branco);
     gerador.botao_luz->setStyleSheet(CorParaEstilo(branco));
-    gerador.spin_raio->setValue(0.0f);
+    gerador.spin_raio_quad->setValue(0.0f);
   }
   lambda_connect(gerador.botao_luz, SIGNAL(clicked()), [this, dialogo, &gerador, &luz_cor] {
     QColor cor =
@@ -863,8 +863,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
     luz_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
     gerador.botao_luz->setStyleSheet(CorParaEstilo(cor));
-    if (gerador.spin_raio->value() == 0.0) {
-      gerador.spin_raio->setValue(6.0f);
+    if (gerador.spin_raio_quad->value() == 0.0) {
+      gerador.spin_raio_quad->setValue(METROS_PARA_QUADRADOS * 6.0f);
     }
   });
   // Textura do objeto.
@@ -880,7 +880,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   // Aura.
-  gerador.spin_aura->setValue(entidade.aura_m());
+  gerador.spin_aura_quad->setValue(entidade.aura_m() * METROS_PARA_QUADRADOS);
   // Voo.
   gerador.checkbox_voadora->setCheckState(entidade.voadora() ? Qt::Checked : Qt::Unchecked);
   // Caida.
@@ -888,7 +888,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Morta.
   gerador.checkbox_morta->setCheckState(entidade.morta() ? Qt::Checked : Qt::Unchecked);
   // Translacao em Z.
-  gerador.spin_translacao->setValue(entidade.pos().z());
+  gerador.spin_translacao_quad->setValue(entidade.pos().z() * METROS_PARA_QUADRADOS);
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
@@ -896,10 +896,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Tipo de visao.
   gerador.combo_visao->setCurrentIndex((int)entidade.tipo_visao());
   lambda_connect(gerador.combo_visao, SIGNAL(currentIndexChanged(int)), [this, &gerador] () {
-    gerador.spin_raio_visao_escuro->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
+    gerador.spin_raio_visao_escuro_quad->setEnabled(gerador.combo_visao->currentIndex() == ent::VISAO_ESCURO);
   });
-  gerador.spin_raio_visao_escuro->setValue(entidade.has_alcance_visao() ? entidade.alcance_visao() : 18);
-  gerador.spin_raio_visao_escuro->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
+  gerador.spin_raio_visao_escuro_quad->setValue(METROS_PARA_QUADRADOS * (entidade.has_alcance_visao() ? entidade.alcance_visao() : 18));
+  gerador.spin_raio_visao_escuro_quad->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
   // Iniciativa.
   gerador.checkbox_iniciativa->setCheckState(entidade.has_iniciativa() ? Qt::Checked : Qt::Unchecked);
@@ -935,6 +935,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   };
 
   // Dados de ataque.
+  gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
   auto RefrescaLista = [this, StringDano, gerador, proto_retornado] () {
     gerador.lista_ataques->clear();
     for (const auto& da : proto_retornado->dados_ataque()) {
@@ -978,8 +979,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
     da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
     da.set_incrementos(gerador.spin_incrementos->value());
-    if (gerador.spin_alcance->value() > 0) {
-      da.set_alcance_m(gerador.spin_alcance->value());
+    if (gerador.spin_alcance_quad->value() > 0) {
+      da.set_alcance_m(gerador.spin_alcance_quad->value() * QUADRADOS_PARA_METROS);
     } else {
       da.clear_alcance_m();
     }
@@ -1006,7 +1007,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [this, StringDano, gerador, proto_retornado] () {
     std::vector<QObject*> objs =
-        {gerador.spin_ataque, gerador.spin_ca, gerador.spin_ca_toque, gerador.spin_ca_surpreso, gerador.spin_alcance, gerador.spin_incrementos,
+        {gerador.spin_ataque, gerador.spin_ca, gerador.spin_ca_toque, gerador.spin_ca_surpreso, gerador.spin_alcance_quad, gerador.spin_incrementos,
          gerador.combo_tipo_ataque, gerador.linha_dano };
     for (auto* obj : objs) obj->blockSignals(true);
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
@@ -1025,7 +1026,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       gerador.spin_ca_toque->setValue(da.ca_toque());
       gerador.spin_ca_surpreso->setValue(da.ca_surpreso());
       gerador.spin_incrementos->setValue(da.incrementos());
-      gerador.spin_alcance->setValue(da.has_alcance_m() ? da.alcance_m() : -1.5f);
+      gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
       gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
       if (proto_retornado->dados_ataque().size() > 1) {
         gerador.botao_ataque_cima->setEnabled(true);
@@ -1076,7 +1077,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.spin_ca_toque->clear();
     gerador.spin_ca_surpreso->clear();
     gerador.spin_incrementos->clear();
-    gerador.spin_alcance->clear();
+    gerador.spin_alcance_quad->clear();
     gerador.linha_dano->clear();
     gerador.linha_rotulo_ataque->clear();
     gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
@@ -1093,7 +1094,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.spin_ca, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_ca_toque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_ca_surpreso, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_alcance, SIGNAL(valueChanged(double)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(double)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
 
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
@@ -1122,9 +1123,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->clear_cor();
     }
-    if (gerador.spin_raio->value() > 0.0f) {
+    if (gerador.spin_raio_quad->value() > 0.0f) {
       proto_retornado->mutable_luz()->mutable_cor()->Swap(luz_cor.mutable_cor());
-      proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio->value());
+      proto_retornado->mutable_luz()->set_raio_m(gerador.spin_raio_quad->value() * QUADRADOS_PARA_METROS);
     } else {
       proto_retornado->clear_luz();
     }
@@ -1144,9 +1145,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
-    int aura = gerador.spin_aura->value();
-    if (aura > 0) {
-      proto_retornado->set_aura_m(aura);
+    float aura_m = gerador.spin_aura_quad->value() * QUADRADOS_PARA_METROS;
+    if (aura_m > 0) {
+      proto_retornado->set_aura_m(aura_m);
     } else {
       proto_retornado->clear_aura_m();
     }
@@ -1155,13 +1156,13 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_morta(gerador.checkbox_morta->checkState() == Qt::Checked);
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
-    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao->value());
+    proto_retornado->mutable_pos()->set_z(gerador.spin_translacao_quad->value() * QUADRADOS_PARA_METROS);
     proto_retornado->clear_translacao_z_deprecated();
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
-      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro->value());
+      proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * QUADRADOS_PARA_METROS);
     }
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {
       proto_retornado->set_iniciativa(gerador.spin_iniciativa->value());

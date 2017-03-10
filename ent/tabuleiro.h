@@ -1,6 +1,7 @@
 #ifndef ENT_TABULEIRO_H
 #define ENT_TABULEIRO_H
 
+#include <algorithm>
 #include <boost/timer/timer.hpp>
 #include <functional>
 #include <memory>
@@ -794,6 +795,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha o controle virtual. */
   void DesenhaControleVirtual();
+  /** Dentro do controle virtual, informacoes de primeira pessoa ou camera presa. */
+  void DesenhaInfoCameraPresa();
 
   /** Faz o picking do controle virtual, recebendo o id do objeto pressionado. */
   void PickingControleVirtual(int x, int y, bool alterna_selecao, bool duplo, int id);
@@ -888,6 +891,9 @@ class Tabuleiro : public ntf::Receptor {
   void SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const;
 
   unsigned int IdCameraPresa() const { return ids_camera_presa_.empty() ? Entidade::IdInvalido : ids_camera_presa_.front(); }
+  bool IdPresoACamera(unsigned int id) const { 
+    return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
+  }
 
   void DesativaWatchdog();
   void ReativaWatchdog();

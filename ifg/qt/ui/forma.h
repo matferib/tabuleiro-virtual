@@ -53,18 +53,19 @@ public:
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_7;
-    QDoubleSpinBox *spin_escala_x;
+    QDoubleSpinBox *spin_escala_x_quad;
     QHBoxLayout *horizontalLayout_5;
     QLabel *label_5;
-    QDoubleSpinBox *spin_escala_y;
+    QDoubleSpinBox *spin_escala_y_quad;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_6;
-    QDoubleSpinBox *spin_escala_z;
+    QDoubleSpinBox *spin_escala_z_quad;
     QGroupBox *groupBox_2;
     QDial *dial_rotacao;
-    QDoubleSpinBox *spin_translacao;
+    QDoubleSpinBox *spin_translacao_quad;
     QLabel *label_2;
     QSpinBox *spin_rotacao;
+    QLabel *label_15;
     QWidget *horizontalLayoutWidget_3;
     QHBoxLayout *horizontalLayout_9;
     QHBoxLayout *horizontalLayout_10;
@@ -202,14 +203,14 @@ public:
 
         horizontalLayout_4->addWidget(label_7);
 
-        spin_escala_x = new QDoubleSpinBox(verticalLayoutWidget);
-        spin_escala_x->setObjectName(QString::fromUtf8("spin_escala_x"));
-        spin_escala_x->setDecimals(2);
-        spin_escala_x->setMinimum(-1000);
-        spin_escala_x->setMaximum(1000);
-        spin_escala_x->setSingleStep(0.5);
+        spin_escala_x_quad = new QDoubleSpinBox(verticalLayoutWidget);
+        spin_escala_x_quad->setObjectName(QString::fromUtf8("spin_escala_x_quad"));
+        spin_escala_x_quad->setDecimals(2);
+        spin_escala_x_quad->setMinimum(-1000);
+        spin_escala_x_quad->setMaximum(1000);
+        spin_escala_x_quad->setSingleStep(0.1);
 
-        horizontalLayout_4->addWidget(spin_escala_x);
+        horizontalLayout_4->addWidget(spin_escala_x_quad);
 
 
         verticalLayout->addLayout(horizontalLayout_4);
@@ -221,14 +222,14 @@ public:
 
         horizontalLayout_5->addWidget(label_5);
 
-        spin_escala_y = new QDoubleSpinBox(verticalLayoutWidget);
-        spin_escala_y->setObjectName(QString::fromUtf8("spin_escala_y"));
-        spin_escala_y->setDecimals(2);
-        spin_escala_y->setMinimum(-1000);
-        spin_escala_y->setMaximum(1000);
-        spin_escala_y->setSingleStep(0.5);
+        spin_escala_y_quad = new QDoubleSpinBox(verticalLayoutWidget);
+        spin_escala_y_quad->setObjectName(QString::fromUtf8("spin_escala_y_quad"));
+        spin_escala_y_quad->setDecimals(2);
+        spin_escala_y_quad->setMinimum(-1000);
+        spin_escala_y_quad->setMaximum(1000);
+        spin_escala_y_quad->setSingleStep(0.1);
 
-        horizontalLayout_5->addWidget(spin_escala_y);
+        horizontalLayout_5->addWidget(spin_escala_y_quad);
 
 
         verticalLayout->addLayout(horizontalLayout_5);
@@ -240,21 +241,21 @@ public:
 
         horizontalLayout_6->addWidget(label_6);
 
-        spin_escala_z = new QDoubleSpinBox(verticalLayoutWidget);
-        spin_escala_z->setObjectName(QString::fromUtf8("spin_escala_z"));
-        spin_escala_z->setDecimals(2);
-        spin_escala_z->setMinimum(-50);
-        spin_escala_z->setMaximum(50);
-        spin_escala_z->setSingleStep(0.5);
+        spin_escala_z_quad = new QDoubleSpinBox(verticalLayoutWidget);
+        spin_escala_z_quad->setObjectName(QString::fromUtf8("spin_escala_z_quad"));
+        spin_escala_z_quad->setDecimals(2);
+        spin_escala_z_quad->setMinimum(-50);
+        spin_escala_z_quad->setMaximum(50);
+        spin_escala_z_quad->setSingleStep(0.1);
 
-        horizontalLayout_6->addWidget(spin_escala_z);
+        horizontalLayout_6->addWidget(spin_escala_z_quad);
 
 
         verticalLayout->addLayout(horizontalLayout_6);
 
         groupBox_2 = new QGroupBox(ifg__qt__DialogoForma);
         groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        groupBox_2->setGeometry(QRect(70, 240, 181, 131));
+        groupBox_2->setGeometry(QRect(50, 240, 191, 131));
         dial_rotacao = new QDial(groupBox_2);
         dial_rotacao->setObjectName(QString::fromUtf8("dial_rotacao"));
         dial_rotacao->setGeometry(QRect(10, 20, 71, 71));
@@ -268,13 +269,13 @@ public:
         dial_rotacao->setWrapping(true);
         dial_rotacao->setNotchTarget(45);
         dial_rotacao->setNotchesVisible(true);
-        spin_translacao = new QDoubleSpinBox(groupBox_2);
-        spin_translacao->setObjectName(QString::fromUtf8("spin_translacao"));
-        spin_translacao->setGeometry(QRect(80, 60, 91, 24));
-        spin_translacao->setDecimals(2);
-        spin_translacao->setMinimum(-100);
-        spin_translacao->setMaximum(100);
-        spin_translacao->setSingleStep(0.1);
+        spin_translacao_quad = new QDoubleSpinBox(groupBox_2);
+        spin_translacao_quad->setObjectName(QString::fromUtf8("spin_translacao_quad"));
+        spin_translacao_quad->setGeometry(QRect(80, 60, 51, 24));
+        spin_translacao_quad->setDecimals(2);
+        spin_translacao_quad->setMinimum(-100);
+        spin_translacao_quad->setMaximum(100);
+        spin_translacao_quad->setSingleStep(0.1);
         label_2 = new QLabel(groupBox_2);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setGeometry(QRect(80, 40, 111, 16));
@@ -283,6 +284,9 @@ public:
         spin_rotacao->setGeometry(QRect(20, 100, 51, 24));
         spin_rotacao->setMinimum(-180);
         spin_rotacao->setMaximum(180);
+        label_15 = new QLabel(groupBox_2);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+        label_15->setGeometry(QRect(140, 60, 41, 16));
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
         horizontalLayoutWidget_3->setGeometry(QRect(470, 390, 221, 41));
@@ -594,6 +598,39 @@ public:
         checkbox_colisao = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_colisao->setObjectName(QString::fromUtf8("checkbox_colisao"));
         checkbox_colisao->setGeometry(QRect(470, 310, 83, 22));
+        QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
+        QWidget::setTabOrder(spin_max_pontos_vida, lista_rotulos);
+        QWidget::setTabOrder(lista_rotulos, dial_rotacao);
+        QWidget::setTabOrder(dial_rotacao, spin_rotacao);
+        QWidget::setTabOrder(spin_rotacao, spin_translacao_quad);
+        QWidget::setTabOrder(spin_translacao_quad, dial_rotacao_y);
+        QWidget::setTabOrder(dial_rotacao_y, spin_rotacao_y);
+        QWidget::setTabOrder(spin_rotacao_y, dial_rotacao_x);
+        QWidget::setTabOrder(dial_rotacao_x, spin_rotacao_x);
+        QWidget::setTabOrder(spin_rotacao_x, spin_escala_x_quad);
+        QWidget::setTabOrder(spin_escala_x_quad, spin_escala_y_quad);
+        QWidget::setTabOrder(spin_escala_y_quad, spin_escala_z_quad);
+        QWidget::setTabOrder(spin_escala_z_quad, combo_textura);
+        QWidget::setTabOrder(combo_textura, checkbox_ladrilho);
+        QWidget::setTabOrder(checkbox_ladrilho, checkbox_transicao_cenario);
+        QWidget::setTabOrder(checkbox_transicao_cenario, linha_transicao_cenario);
+        QWidget::setTabOrder(linha_transicao_cenario, checkbox_transicao_posicao);
+        QWidget::setTabOrder(checkbox_transicao_posicao, botao_transicao_mapa);
+        QWidget::setTabOrder(botao_transicao_mapa, spin_trans_x);
+        QWidget::setTabOrder(spin_trans_x, spin_trans_y);
+        QWidget::setTabOrder(spin_trans_y, spin_trans_z);
+        QWidget::setTabOrder(spin_trans_z, checkbox_fixa);
+        QWidget::setTabOrder(checkbox_fixa, checkbox_selecionavel);
+        QWidget::setTabOrder(checkbox_selecionavel, checkbox_visibilidade);
+        QWidget::setTabOrder(checkbox_visibilidade, checkbox_faz_sombra);
+        QWidget::setTabOrder(checkbox_faz_sombra, checkbox_colisao);
+        QWidget::setTabOrder(checkbox_colisao, checkbox_cor);
+        QWidget::setTabOrder(checkbox_cor, botao_cor);
+        QWidget::setTabOrder(botao_cor, slider_alfa);
+        QWidget::setTabOrder(slider_alfa, checkbox_luz);
+        QWidget::setTabOrder(checkbox_luz, botao_luz);
+        QWidget::setTabOrder(botao_luz, botoes);
+        QWidget::setTabOrder(botoes, campo_id);
 
         retranslateUi(ifg__qt__DialogoForma);
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoForma, SLOT(reject()));
@@ -609,7 +646,7 @@ public:
         label_3->setText(QApplication::translate("ifg::qt::DialogoForma", "Cor:", 0, QApplication::UnicodeUTF8));
         checkbox_cor->setText(QString());
         botao_cor->setText(QApplication::translate("ifg::qt::DialogoForma", "Escolher Cor", 0, QApplication::UnicodeUTF8));
-        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Dimens\303\265es", 0, QApplication::UnicodeUTF8));
+        groupBox->setTitle(QApplication::translate("ifg::qt::DialogoForma", "Dimens\303\265es (quadrados)", 0, QApplication::UnicodeUTF8));
         label_7->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam X", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("ifg::qt::DialogoForma", "Tam Y", 0, QApplication::UnicodeUTF8));
         label_6->setText(QApplication::translate("ifg::qt::DialogoForma", "Altura", 0, QApplication::UnicodeUTF8));
@@ -617,7 +654,8 @@ public:
 #ifndef QT_NO_TOOLTIP
         dial_rotacao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Rota\303\247\303\243o do objeto ao redor do eixo Z.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        label_2->setText(QApplication::translate("ifg::qt::DialogoForma", "Transla\303\247\303\243o", 0, QApplication::UnicodeUTF8));
+        label_2->setText(QApplication::translate("ifg::qt::DialogoForma", " Transla\303\247\303\243o", 0, QApplication::UnicodeUTF8));
+        label_15->setText(QApplication::translate("ifg::qt::DialogoForma", "quad", 0, QApplication::UnicodeUTF8));
         label_9->setText(QApplication::translate("ifg::qt::DialogoForma", "Alfa", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("ifg::qt::DialogoForma", "Pontos de Vida:", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("ifg::qt::DialogoForma", "Max", 0, QApplication::UnicodeUTF8));

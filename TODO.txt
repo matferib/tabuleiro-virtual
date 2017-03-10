@@ -1,4 +1,5 @@
-Bug do menu do windows.
+Modelar esquiva (usar ultimo alvo).
+Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
 
 Versao 2.6.0
