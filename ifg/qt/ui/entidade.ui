@@ -1521,5 +1521,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>botoes</sender>
+   <signal>rejected()</signal>
+   <receiver>ifg::qt::DialogoEntidade</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>730</x>
+     <y>585</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>480</x>
+     <y>315</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
