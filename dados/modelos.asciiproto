@@ -285,7 +285,9 @@ modelo {
     dados_vida: '1d12' info_textura { id: 'skeleton.png' }
     cor { r: 0.1 g: 0.1 b: 0.1}
     modificador_iniciativa: 5
-    rotulo_especial: 'cimitarra +1 1d6+1/18-20\nca 15/11/14\nreducao 5/estourante'
+    rotulo_especial: 'reducao 5/estourante'
+    dados_ataque {
+      rotulo: 'cimitarra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d6+1 (18-20)' ca_normal: 15 ca_toque: 11 ca_surpreso: 14 }
   }
 }
 modelo {
@@ -413,9 +415,8 @@ modelo {
   id: 'Hobgoblin'
   entidade {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
-    rotulo_especial: 'ini: +1\nat: +2/\ndano: 1d8+1(19-20)\nca: 15'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' ca_normal: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1 (19-20)' ca_normal: 15 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' ca_normal: 14 }
     modificador_iniciativa: 1
   }
@@ -426,7 +427,7 @@ modelo {
     dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
     rotulo_especial: 'at: +7\ndano: 1d8+2(19-20)\nca: 21'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' ca_normal: 21 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2 (19-20)' ca_normal: 21 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' ca_normal: 20 }
     modificador_iniciativa: 2
   }
@@ -435,9 +436,9 @@ modelo {
   id: 'Hobgoblin Tenente 5'
   entidade {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    rotulo_especial: 'ini: +1\nat: +10/\ndano: 1d10+6(19-20)\nca: 15'
+    rotulo_especial: ''
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d10+6' ca_normal: 20 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 10 dano: '1d10+6 (19-20)' ca_normal: 20 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' ca_normal: 20 }
     modificador_iniciativa: 1
   }
@@ -598,18 +599,26 @@ modelo {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO cor { r: 0.745 g: 0.596 b: 0.388 }
     info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    rotulo_especial: 'ini: +1\nca16\nmaca estrela: +4 1d6 azagaia: +6 1d4'
+    modificador_iniciativa: 1
+    dados_ataque {
+      rotulo: 'maça estrela' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
+    dados_ataque {
+      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' bonus_ataque: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
   }
 }
 modelo {
   id: 'Goblin Sargento'
   entidade {
     dados_vida: '3d8+3' tamanho: TM_PEQUENO
-    info_textura { id: 'goblin.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
+    info_textura { id: 'goblin_sargent.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    rotulo_especial: 'ini: +1\nca15\nmaca estrela: +2 1d6 azagaia: +3 1d4'
+    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3\n1d00 PO'
     modificador_iniciativa: 1
+    dados_ataque {
+      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
+    dados_ataque {
+      rotulo: 'besta leve OP' tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {
@@ -759,10 +768,10 @@ modelo {
     dados_vida: '6d8+9' modelo_3d { id: 'otyugh' }
     tipo_visao: VISAO_ESCURO alcance_visao: 12
     tamanho: TM_GRANDE
-    rotulo_especial: 'agarrar aprimorado: +8 1d6\n3 ataques\nca: 17/9/17 for +3 ref +2 von +6\ndoenca febre esgoto CD 14 inc 1d3 dias dano 1d3 dez 1d3 con'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -2 dano: '1d4' ca_normal: 17 }
+    rotulo_especial: 'agarrar aprimorado: +8 livre tentáculo\nfor +3 ref +2 von +6\ndoenca febre esgoto CD 14 inc 1d3 dias dano 1d3 dez 1d3 con'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -2 dano: '1d4' ca_normal: 17 ca_toque: 9 ca_surpreso: 17 }
     modificador_iniciativa: 0
   }
 }
@@ -904,7 +913,10 @@ modelo {
   entidade {
     dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: -1
-    rotulo_especial: 'punho +2 1d6+1\nac 11/9/11\nreducao 5/cortante, acoes parciais apenas'
+    rotulo_especial: 'reducao 5/cortante, acoes parciais apenas'
+    dados_ataque {
+      rotulo: 'punho' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' ca_normal: 11 ca_toque: 9 ca_surpreso: 11 }
+
   }
 }
 modelo {
@@ -919,6 +931,8 @@ modelo {
   entidade {
     dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     modificador_iniciativa: 2
+    rotulo_especial: 'derrubar como ação livre se acertar mordida'
+    dados_ataque { rotulo: 'mordida' tipo: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
   }
 }
 modelo {
