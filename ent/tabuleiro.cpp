@@ -3428,6 +3428,10 @@ void Tabuleiro::ProximaAcao() {
     if (entidade == nullptr) {
       continue;
     }
+    if (entidade->ProximaAcao()) {
+      // entidade possui acao, usa as dela.
+      continue;
+    }
     std::string acao(entidade->Acao(AcoesPadroes()));
     if (acao.empty()) {
       acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
@@ -3453,6 +3457,10 @@ void Tabuleiro::AcaoAnterior() {
   for (auto id_selecionado : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     Entidade* entidade = BuscaEntidade(id_selecionado);
     if (entidade == nullptr) {
+      continue;
+    }
+    if (entidade->AcaoAnterior()) {
+      // entidade possui acao, usa as dela.
       continue;
     }
     std::string acao(entidade->Acao(AcoesPadroes()));
@@ -4556,8 +4564,30 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
 
 void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
   //LOG(INFO) << "LOOP";
+#if 0
+  auto MaisProximoOlho = [this] (Entidade* lhs, Entidade* rhs) {
+    if (lhs->IdCenario() != cenario_corrente_) {
+      return false;
+    }
+    if (lhs->IdCenario() == cenario_corrente_ && rhs->IdCenario() != cenario_corrente_) {
+      return true;
+    }
+    Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
+    Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
+    Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
+    Vector3 olho_lhs = olho_pos - lhs_pos;
+    Vector3 olho_rhs = olho_pos - rhs_pos;
+    return olho_lhs.length() < olho_rhs.length();
+  };
+  std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisProximoOlho);
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    set_entidades.insert(it->second.get());
+  }
+  for (Entidade* entidade : set_entidades) {
+#else
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     Entidade* entidade = it->second.get();
+#endif
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
       continue;

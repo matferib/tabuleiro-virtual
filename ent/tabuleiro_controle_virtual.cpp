@@ -893,7 +893,7 @@ void Tabuleiro::DesenhaListaPontosVida() {
     const auto* entidade = EntidadeSelecionada();
     std::string valor = "AUTO";
     if (entidade != nullptr) {
-      const std::string s = entidade->StringDanoParaAcao();
+      const std::string s = StringSemUtf8(entidade->DetalhesAcao());
       if (s.empty()) {
         valor += ": SEM ACAO";
       } else {

@@ -810,6 +810,34 @@ void Entidade::AtualizaAcao(const std::string& id_acao) {
   proto_.set_ultima_acao(id_acao);
 }
 
+bool Entidade::ProximaAcao() {
+  if (proto_.dados_ataque().empty()) {
+    return false;
+  }
+  if (proto_.dados_ataque().size() == 1) {
+    return true;
+  }
+  for (int i = 0; i < static_cast<int>(proto_.dados_ataque().size()) - 1; ++i) {
+    proto_.mutable_dados_ataque()->SwapElements(i, i + 1);
+  }
+  proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  return true;
+}
+
+bool Entidade::AcaoAnterior() {
+  if (proto_.dados_ataque().empty()) {
+    return false;
+  }
+  if (proto_.dados_ataque().size() == 1) {
+    return true;
+  }
+  for (int i = proto_.dados_ataque().size() - 1; i > 0; --i) {
+    proto_.mutable_dados_ataque()->SwapElements(i, i - 1);
+  }
+  proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  return true;
+}
+
 std::string Entidade::Acao(const std::vector<std::string>& acoes_padroes) const {
   const auto* da = DadoCorrente();
   if (da == nullptr) {
@@ -1099,6 +1127,14 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
   } catch (const std::exception& e) {
     return 0;
   }
+}
+
+std::string Entidade::DetalhesAcao() const {
+  const auto* dado_ataque = DadoCorrente();
+  if (dado_ataque == nullptr) {
+    return "";
+  }
+  return dado_ataque->rotulo() + ": " + (dado_ataque->bonus_ataque() > 0 ? "+" : "") + net::to_string(dado_ataque->bonus_ataque()) + ", " + dado_ataque->dano();
 }
 
 std::string Entidade::StringDanoParaAcao() const {
