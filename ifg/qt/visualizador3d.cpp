@@ -649,8 +649,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.spin_trans_x, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_y, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_z, SIGNAL(valueChanged(double)), habilita_posicao);
-  lambda_connect(gerador.checkbox_transicao_cenario, SIGNAL(stateChanged(int)), [gerador] {
-    bool habilitado = gerador.checkbox_transicao_cenario->checkState() == Qt::Checked;
+  lambda_connect(gerador.combo_transicao, SIGNAL(currentIndexChanged(int)), [gerador] {
+    bool habilitado = gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO;
     gerador.linha_transicao_cenario->setEnabled(habilitado);
     gerador.checkbox_transicao_posicao->setEnabled(habilitado);
     gerador.spin_trans_x->setEnabled(habilitado);
@@ -658,14 +658,14 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     gerador.spin_trans_z->setEnabled(habilitado);
   });
   if (!entidade.transicao_cenario().has_id_cenario()) {
-    gerador.checkbox_transicao_cenario->setCheckState(Qt::Unchecked);
+    gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_NENHUMA);
     gerador.linha_transicao_cenario->setEnabled(false);
     gerador.checkbox_transicao_posicao->setEnabled(false);
     gerador.spin_trans_x->setEnabled(false);
     gerador.spin_trans_y->setEnabled(false);
     gerador.spin_trans_z->setEnabled(false);
   } else {
-    gerador.checkbox_transicao_cenario->setCheckState(Qt::Checked);
+    gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_CENARIO);
     gerador.linha_transicao_cenario->setText(QString::number(entidade.transicao_cenario().id_cenario()));
     if (entidade.transicao_cenario().has_x()) {
       gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
@@ -731,7 +731,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_x(QUADRADOS_PARA_METROS * gerador.spin_escala_x_quad->value());
     proto_retornado->mutable_escala()->set_y(QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
     proto_retornado->mutable_escala()->set_z(QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
-    if (gerador.checkbox_transicao_cenario->checkState() == Qt::Checked) {
+    if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
       bool ok = false;
       int val = gerador.linha_transicao_cenario->text().toInt(&ok);
       if (!ok || (val < CENARIO_PRINCIPAL)) {

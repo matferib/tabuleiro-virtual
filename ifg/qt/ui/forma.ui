@@ -775,10 +775,22 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_19">
        <item>
-        <widget class="QCheckBox" name="checkbox_transicao_cenario">
-         <property name="text">
-          <string>Possui transição?</string>
-         </property>
+        <widget class="QComboBox" name="combo_transicao">
+         <item>
+          <property name="text">
+           <string>Sem Transição</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cenário</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Tesouro</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
@@ -825,6 +837,9 @@
            <property name="text">
             <string>X</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
          </item>
          <item>
@@ -852,6 +867,9 @@
            <property name="text">
             <string>Y</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
          </item>
          <item>
@@ -878,6 +896,9 @@
           <widget class="QLabel" name="label_14">
            <property name="text">
             <string>Z</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -937,7 +958,6 @@
   <tabstop>spin_escala_z_quad</tabstop>
   <tabstop>combo_textura</tabstop>
   <tabstop>checkbox_ladrilho</tabstop>
-  <tabstop>checkbox_transicao_cenario</tabstop>
   <tabstop>linha_transicao_cenario</tabstop>
   <tabstop>checkbox_transicao_posicao</tabstop>
   <tabstop>botao_transicao_mapa</tabstop>

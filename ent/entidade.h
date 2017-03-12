@@ -108,6 +108,13 @@ class Entidade {
   int MaximoPontosVida() const;
   int PontosVidaTemporarios() const;
 
+  /** Retorna o tipo de transicao do objeto. Considera codigo legado tambem. */
+  EntidadeProto::TipoTransicao TipoTransicao() const;
+  /** Retorna -2 caso nao haja. */
+  int TransicaoCenario() const;
+  /** Retorna a posicao de transicao do cenario. */
+  const Posicao& PosTransicao() const;
+
   /** @return a coordenada (x). */
   float X() const;
 

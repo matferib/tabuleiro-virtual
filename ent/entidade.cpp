@@ -676,6 +676,26 @@ void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
 #endif
 }
 
+EntidadeProto::TipoTransicao Entidade::TipoTransicao() const {
+  // Legado.
+  if (proto_.has_transicao_cenario()) {
+    return EntidadeProto::TRANS_CENARIO;
+  }
+  return proto_.tipo_transicao();
+}
+
+int Entidade::TransicaoCenario() const {
+  // Legado.
+  if (TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
+    return -2;
+  }
+  return proto_.transicao_cenario().id_cenario();
+}
+
+const Posicao& Entidade::PosTransicao() const {
+  return proto_.transicao_cenario();
+}
+
 int Entidade::PontosVida() const {
   return proto_.pontos_vida();
 }

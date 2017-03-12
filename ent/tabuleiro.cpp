@@ -1361,6 +1361,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO: {
+      const Entidade* e = BuscaEntidade(notificacao.entidade().id());
+      if (e == nullptr || e->TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
+        return true;
+      }
+      int id_cenario = e->TransicaoCenario();
+      if (id_cenario != cenario_corrente_) {
+        CarregaSubCenario(id_cenario, e->PosTransicao());
+      }
       EntraModoClique(MODO_SELECAO_TRANSICAO);
       notificacao_selecao_transicao_ = notificacao;
       return true;
@@ -7844,6 +7852,7 @@ void Tabuleiro::EntraModoClique(modo_clique_e modo) {
     // A rotacao eh diferente pq eh sem clique.
     estado_ = estado_anterior_;
   }
+  // Muda para o cenario caso nao seja o corrente.
   modo_clique_ = modo;
 }
 
