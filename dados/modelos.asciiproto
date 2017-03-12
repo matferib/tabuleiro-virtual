@@ -79,11 +79,10 @@ modelo {
   entidade {
     dados_vida: '6d8+6' modelo_3d { id: 'barghest' } tipo_visao: VISAO_ESCURO alcance_visao: 12
     modificador_iniciativa: 6
-    rotulo_especial: 'ca 18/12/16\nreducao dano 5/magia\nmudar forma\npiscar, levitar e outras smilares a magia'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+3' ca_normal: 18 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 }
-
+    rotulo_especial: 'for 6, ref 7, von 7\nreducao dano 5/magia\nmudar forma\npiscar, levitar, confundir detecao cd 14, furia cd 15: a vontade\nencantar monstro, desespero esmagador, porta dimensional cd 16 1/dia'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+3' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 18 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {
@@ -282,7 +281,7 @@ modelo {
 modelo {
   id: 'Esqueleto (Humano Combatente)'
   entidade {
-    dados_vida: '1d12' info_textura { id: 'skeleton.png' }
+    dados_vida: '1d12' info_textura { id: 'skeleton.png' translacao_x: 0.25 largura: 0.5 }
     cor { r: 0.1 g: 0.1 b: 0.1}
     modificador_iniciativa: 5
     rotulo_especial: 'reducao 5/estourante'
@@ -823,8 +822,8 @@ modelo {
   id: 'Rato Atroz'
   entidade {
     dados_vida: '1d8+1' tamanho: TM_PEQUENO modelo_3d { id: 'rat' }
-    rotulo_especial: 'dano da doenca fort 11 febre esgoto\nca 15/14/12'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4' ca_normal: 15 }
+    rotulo_especial: 'dano da doenca fort 11 febre esgoto'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4' ca_normal: 15 ca_toque: 14 ca_surpreso: 12 }
     modificador_iniciativa: 3
   }
 }
@@ -911,7 +910,7 @@ modelo {
 modelo {
   id: 'Zumbi (humano)'
   entidade {
-    dados_vida: '2d12+3' info_textura { id: 'zombie.png'} cor { r: 0.31 g: 0.306 b: 0.231 }
+    dados_vida: '2d12+3' info_textura { id: 'zombie.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.31 g: 0.306 b: 0.231 }
     modificador_iniciativa: -1
     rotulo_especial: 'reducao 5/cortante, acoes parciais apenas'
     dados_ataque {
@@ -932,7 +931,7 @@ modelo {
     dados_vida: '4d10+8' tamanho: TM_MEDIO info_textura { id: 'worg.png' translacao_y: 0.25 altura: 0.5 } cor { r: 0.3 g: 0.2 b: 0.2 }
     modificador_iniciativa: 2
     rotulo_especial: 'derrubar como ação livre se acertar mordida'
-    dados_ataque { rotulo: 'mordida' tipo: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d6+4' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
   }
 }
 modelo {
