@@ -58,7 +58,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>610</x>
      <y>350</y>
      <width>221</width>
      <height>41</height>
@@ -336,7 +336,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>610</x>
      <y>390</y>
      <width>221</width>
      <height>41</height>
@@ -446,7 +446,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget_4">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>610</x>
      <y>430</y>
      <width>221</width>
      <height>41</height>
@@ -775,10 +775,22 @@
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_19">
        <item>
-        <widget class="QCheckBox" name="checkbox_transicao_cenario">
-         <property name="text">
-          <string>Possui transição?</string>
-         </property>
+        <widget class="QComboBox" name="combo_transicao">
+         <item>
+          <property name="text">
+           <string>Sem Transição</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Cenário</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Tesouro</string>
+          </property>
+         </item>
         </widget>
        </item>
        <item>
@@ -825,6 +837,9 @@
            <property name="text">
             <string>X</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
          </item>
          <item>
@@ -852,6 +867,9 @@
            <property name="text">
             <string>Y</string>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
           </widget>
          </item>
          <item>
@@ -878,6 +896,9 @@
           <widget class="QLabel" name="label_14">
            <property name="text">
             <string>Z</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
@@ -920,6 +941,41 @@
     <string>Colisão</string>
    </property>
   </widget>
+  <widget class="QWidget" name="layoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>380</y>
+     <width>221</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_20">
+    <item>
+     <widget class="QLabel" name="label_16">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Tesouro</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="lista_tesouro">
+      <property name="toolTip">
+       <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>spin_pontos_vida</tabstop>
@@ -937,7 +993,6 @@
   <tabstop>spin_escala_z_quad</tabstop>
   <tabstop>combo_textura</tabstop>
   <tabstop>checkbox_ladrilho</tabstop>
-  <tabstop>checkbox_transicao_cenario</tabstop>
   <tabstop>linha_transicao_cenario</tabstop>
   <tabstop>checkbox_transicao_posicao</tabstop>
   <tabstop>botao_transicao_mapa</tabstop>

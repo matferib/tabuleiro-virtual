@@ -149,6 +149,14 @@ message EntidadeProto {
   optional float rotacao_x_graus = 33;  // rotacao do objeto ao redor de X em graus.
   optional float translacao_z_deprecated = 24 [deprecated=true];
   repeated EntidadeProto sub_forma = 25;  // Para entidades compostas.
+  enum TipoTransicao {
+    TRANS_NENHUMA = 0;
+    // Acao na entidade transita cenario.
+    TRANS_CENARIO = 1;
+    // Acao na entidade recolhe tesouro.
+    TRANS_TESOURO = 2;
+  }
+  optional TipoTransicao tipo_transicao = 61;
   // Algumas formas permitem a transicao de um cenario para outro. Quando presente, esta forma tera a capacidade de transitar
   // entidades e a camera para outro cenario. Valor de -1 eh usado para cenario principal e -2 eh reservado para limpar a transicao.
   optional Posicao transicao_cenario = 35;

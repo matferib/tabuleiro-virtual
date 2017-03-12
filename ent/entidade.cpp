@@ -676,12 +676,36 @@ void Entidade::AlteraRotacaoZGraus(float rotacao_graus) {
 #endif
 }
 
+EntidadeProto::TipoTransicao Entidade::TipoTransicao() const {
+  // Legado.
+  if (proto_.has_transicao_cenario()) {
+    return EntidadeProto::TRANS_CENARIO;
+  }
+  return proto_.tipo_transicao();
+}
+
+int Entidade::TransicaoCenario() const {
+  // Legado.
+  if (TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
+    return -2;
+  }
+  return proto_.transicao_cenario().id_cenario();
+}
+
+const Posicao& Entidade::PosTransicao() const {
+  return proto_.transicao_cenario();
+}
+
 int Entidade::PontosVida() const {
   return proto_.pontos_vida();
 }
 
 int Entidade::MaximoPontosVida() const {
   return proto_.max_pontos_vida();
+}
+
+int Entidade::PontosVidaTemporarios() const {
+  return proto_.pontos_vida_temporarios();
 }
 
 float Entidade::X() const {
@@ -808,6 +832,34 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 // Acao de display.
 void Entidade::AtualizaAcao(const std::string& id_acao) {
   proto_.set_ultima_acao(id_acao);
+}
+
+bool Entidade::ProximaAcao() {
+  if (proto_.dados_ataque().empty()) {
+    return false;
+  }
+  if (proto_.dados_ataque().size() == 1) {
+    return true;
+  }
+  for (int i = 0; i < static_cast<int>(proto_.dados_ataque().size()) - 1; ++i) {
+    proto_.mutable_dados_ataque()->SwapElements(i, i + 1);
+  }
+  proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  return true;
+}
+
+bool Entidade::AcaoAnterior() {
+  if (proto_.dados_ataque().empty()) {
+    return false;
+  }
+  if (proto_.dados_ataque().size() == 1) {
+    return true;
+  }
+  for (int i = proto_.dados_ataque().size() - 1; i > 0; --i) {
+    proto_.mutable_dados_ataque()->SwapElements(i, i - 1);
+  }
+  proto_.set_ultima_acao(proto_.dados_ataque(0).tipo_ataque());
+  return true;
 }
 
 std::string Entidade::Acao(const std::vector<std::string>& acoes_padroes) const {
@@ -1099,6 +1151,14 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
   } catch (const std::exception& e) {
     return 0;
   }
+}
+
+std::string Entidade::DetalhesAcao() const {
+  const auto* dado_ataque = DadoCorrente();
+  if (dado_ataque == nullptr) {
+    return "";
+  }
+  return dado_ataque->rotulo() + ": " + (dado_ataque->bonus_ataque() > 0 ? "+" : "") + net::to_string(dado_ataque->bonus_ataque()) + ", " + dado_ataque->dano();
 }
 
 std::string Entidade::StringDanoParaAcao() const {
