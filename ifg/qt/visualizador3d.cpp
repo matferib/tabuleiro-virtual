@@ -878,6 +878,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   PreencheComboModelo3d(entidade.modelo_3d().id(), gerador.combo_modelos_3d);
   // Pontos de vida.
   gerador.spin_pontos_vida->setValue(entidade.pontos_vida());
+  gerador.spin_pontos_vida_temporarios->setValue(entidade.pontos_vida_temporarios());
   gerador.spin_max_pontos_vida->setValue(entidade.max_pontos_vida());
   // Aura.
   gerador.spin_aura_quad->setValue(entidade.aura_m() * METROS_PARA_QUADRADOS);
@@ -1144,6 +1145,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->mutable_modelo_3d()->set_id(gerador.combo_modelos_3d->currentText().toUtf8().constData());
     }
     proto_retornado->set_pontos_vida(gerador.spin_pontos_vida->value());
+    proto_retornado->set_pontos_vida_temporarios(gerador.spin_pontos_vida_temporarios->value());
     proto_retornado->set_max_pontos_vida(gerador.spin_max_pontos_vida->value());
     float aura_m = gerador.spin_aura_quad->value() * QUADRADOS_PARA_METROS;
     if (aura_m > 0) {
