@@ -1,3 +1,4 @@
+Colocar as features em um menu separado e adicionar varias do features.binproto.
 Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.

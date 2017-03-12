@@ -58,7 +58,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>610</x>
      <y>350</y>
      <width>221</width>
      <height>41</height>
@@ -336,7 +336,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget_3">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>610</x>
      <y>390</y>
      <width>221</width>
      <height>41</height>
@@ -446,7 +446,7 @@
   <widget class="QWidget" name="horizontalLayoutWidget_4">
    <property name="geometry">
     <rect>
-     <x>470</x>
+     <x>610</x>
      <y>430</y>
      <width>221</width>
      <height>41</height>
@@ -940,6 +940,41 @@
    <property name="text">
     <string>Colisão</string>
    </property>
+  </widget>
+  <widget class="QWidget" name="layoutWidget_3">
+   <property name="geometry">
+    <rect>
+     <x>330</x>
+     <y>380</y>
+     <width>221</width>
+     <height>141</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_20">
+    <item>
+     <widget class="QLabel" name="label_16">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="text">
+       <string>Tesouro</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPlainTextEdit" name="lista_tesouro">
+      <property name="toolTip">
+       <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <tabstops>
