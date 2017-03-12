@@ -203,6 +203,13 @@ void PreencheNotificacaoAtualizaoPontosVida(
   n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
   auto* entidade_depois = n->mutable_entidade();
   entidade_depois->set_id(entidade.Id());
+  if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
+    int temp = entidade.PontosVidaTemporarios();
+    int minpv = std::min(std::abs(delta_pontos_vida), temp);
+    delta_pontos_vida += minpv;
+    temp -= minpv;
+    entidade_depois->set_pontos_vida_temporarios(temp);
+  }
   entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
 
   if (n_desfazer != nullptr) {
