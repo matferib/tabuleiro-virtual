@@ -789,7 +789,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.campo_id->setText(id_str.setNum(entidade.id()));
   // Rotulo.
   QString rotulo_str;
-  gerador.campo_rotulo->setText(entidade.rotulo().c_str());
+  gerador.campo_rotulo->setText(QString::fromUtf8(entidade.rotulo().c_str()));
   // Rotulos especiais.
   std::string rotulos_especiais;
   for (const std::string& rotulo_especial : entidade.rotulo_especial()) {
