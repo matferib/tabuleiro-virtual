@@ -8,6 +8,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "net/util.h"
 
 #include "log/log.h"
 
