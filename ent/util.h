@@ -203,6 +203,9 @@ class AlteraBlendEscopo {
   bool restaurar_;
 };
 
+// Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
+int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

@@ -824,4 +824,45 @@ void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed) {
+  int modificador = 0;
+  // ataque.
+  if (ea.flanqueando() && !distancia) {
+    modificador += 2;
+  }
+  if (ea.atirando_cac() && distancia) {
+    modificador -= 4;
+  }
+  if (ea.atacando_cobertura()) {
+    modificador -= 4;
+  }
+  if (ea.caida() && !distancia) {
+    modificador -= 4;
+  }
+  if (ea.ataque_menos_1()) {
+    modificador -= 1;
+  }
+  if (ea.ataque_menos_2()) {
+    modificador -= 2;
+  }
+  if (ea.ataque_menos_4()) {
+    modificador -= 4;
+  }
+  if (ea.ataque_mais_1()) {
+    modificador += 1;
+  }
+  if (ea.ataque_mais_2()) {
+    modificador += 2;
+  }
+  if (ea.ataque_mais_4()) {
+    modificador += 4;
+  }
+  // Defesa.
+  if (ed.caida()) {
+    if (distancia) modificador -= 4;
+    else modificador += 4;
+  }
+  return modificador;
+}
+
 }  // namespace ent

@@ -322,6 +322,36 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       }
       break;
+
+    // Bits locais.
+    case CONTROLE_FLANQUEANDO:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_FLANQUEANDO);
+      break;
+    case CONTROLE_ATIRANDO_CAC:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATIRANDO_CAC);
+      break;
+    case CONTROLE_ATACANDO_COBERTURA:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATACANDO_COBERTURA);
+      break;
+    case CONTROLE_ATAQUE_MAIS_1:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MAIS_1);
+      break;
+    case CONTROLE_ATAQUE_MAIS_2:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MAIS_2);
+      break;
+    case CONTROLE_ATAQUE_MAIS_4:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MAIS_4);
+      break;
+    case CONTROLE_ATAQUE_MENOS_1:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MENOS_1);
+      break;
+    case CONTROLE_ATAQUE_MENOS_2:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MENOS_2);
+      break;
+    case CONTROLE_ATAQUE_MENOS_4:
+      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MENOS_4);
+      break;
+
     case CONTROLE_VOO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
@@ -954,6 +984,34 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_SELECIONAVEL,        [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().selecionavel_para_jogador();
     } },
+    { CONTROLE_ATIRANDO_CAC,        [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().atirando_cac();
+    } },
+    { CONTROLE_ATACANDO_COBERTURA,  [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().atacando_cobertura();
+    } },
+    { CONTROLE_FLANQUEANDO,        [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().flanqueando();
+    } },
+    { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_mais_1();
+    } },
+    { CONTROLE_ATAQUE_MAIS_2,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_mais_2();
+    } },
+    { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_mais_4();
+    } },
+    { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_menos_1();
+    } },
+    { CONTROLE_ATAQUE_MENOS_2,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_menos_2();
+    } },
+    { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_menos_4();
+    } },
+
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().voadora();
     } },

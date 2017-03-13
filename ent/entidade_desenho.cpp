@@ -432,7 +432,7 @@ void Entidade::DesenhaLuz(ParametrosDesenho* pd) {
 
   int id_luz = pd->luz_corrente();
   if (id_luz == 0 || id_luz >= pd->max_num_luzes()) {
-    LOG(ERROR) << "Limite de luzes alcançado: " << id_luz;
+    LOG_EVERY_N(WARNING, 1000) << "Limite de luzes alcançado: " << id_luz;
   } else {
     // Objeto de luz. O quarto componente indica que a luz é posicional.
     // Se for 0, a luz é direcional e os componentes indicam sua direção.

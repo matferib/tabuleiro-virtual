@@ -1061,6 +1061,66 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
+void Tabuleiro::AlternaBitsEntidadeSemNotificar(int bits) {
+  ntf::Notificacao grupo_notificacoes;
+  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
+    auto* n = grupo_notificacoes.add_notificacao();
+    auto* entidade_selecionada = BuscaEntidade(id);
+    const auto& proto_original = entidade_selecionada->Proto();
+    // Para desfazer.
+    auto* proto_antes = n->mutable_entidade_antes();
+    auto* proto_depois = n->mutable_entidade();
+    if (bits & BIT_FLANQUEANDO) {
+      proto_antes->set_flanqueando(proto_original.flanqueando());
+      proto_depois->set_flanqueando(!proto_original.flanqueando());
+    }
+    if (bits & BIT_ATIRANDO_CAC) {
+      proto_antes->set_atirando_cac(proto_original.atirando_cac());
+      proto_depois->set_atirando_cac(!proto_original.atirando_cac());
+    }
+    if (bits & BIT_ATACANDO_COBERTURA) {
+      proto_antes->set_atacando_cobertura(proto_original.atacando_cobertura());
+      proto_depois->set_atacando_cobertura(!proto_original.atacando_cobertura());
+    }
+    if (bits & BIT_ATAQUE_MAIS_1) {
+      proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
+      proto_depois->set_ataque_mais_1(!proto_original.ataque_mais_1());
+    }
+    if (bits & BIT_ATAQUE_MAIS_2) {
+      proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
+      proto_depois->set_ataque_mais_2(!proto_original.ataque_mais_2());
+    }
+    if (bits & BIT_ATAQUE_MAIS_4) {
+      proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
+      proto_depois->set_ataque_mais_4(!proto_original.ataque_mais_4());
+    }
+    if (bits & BIT_ATAQUE_MENOS_1) {
+      proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
+      proto_depois->set_ataque_menos_1(!proto_original.ataque_menos_1());
+    }
+    if (bits & BIT_ATAQUE_MENOS_2) {
+      proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
+      proto_depois->set_ataque_menos_2(!proto_original.ataque_menos_2());
+    }
+    if (bits & BIT_ATAQUE_MENOS_4) {
+      proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
+      proto_depois->set_ataque_menos_4(!proto_original.ataque_menos_4());
+    }
+
+    proto_antes->set_id(id);
+    proto_depois->set_id(id);
+    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  }
+  if (grupo_notificacoes.notificacao_size() == 0) {
+    VLOG(1) << "Não há entidade selecionada.";
+    return;
+  }
+  TrataNotificacao(grupo_notificacoes);
+  // Para desfazer.
+  AdicionaNotificacaoListaEventos(grupo_notificacoes);
+}
+
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
@@ -2828,19 +2888,25 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
   }
 
+  int outros_modificadores = ModificadorAtaque(tipo_ataque != "Ataque Corpo a Corpo", ea.Proto(), ed.Proto());
   int d20 = RolaDado(20);
   char texto[100] = {'\0'};
   char texto_critico[50] = {'\0'};
   char texto_incremento[50] = {'\0'};
+  char texto_outros_modificadores[50] = {'\0'};
   if (modificador_incrementos) {
     snprintf(texto_incremento, 49, "-%d", modificador_incrementos);
   }
+  if (outros_modificadores != 0) {
+    snprintf(texto_outros_modificadores, 49, "%+d", outros_modificadores);
+  }
 
+  int total = ataque_origem + d20 - modificador_incrementos + outros_modificadores;
   if (d20 == 1) {
     VLOG(1) << "Falha critica";
     return std::make_tuple(-1, "falha critica", false);
-  } else if (d20 != 20 && ataque_origem + d20 - modificador_incrementos < ca_destino) {
-    snprintf(texto, 49, "falhou: %d+%d%s= %d", d20, ataque_origem, texto_incremento, ataque_origem + d20);
+  } else if (d20 != 20 && total < ca_destino) {
+    snprintf(texto, 49, "falhou: %d+%d%s%s= %d", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total);
     return std::make_tuple(0, texto, true);
   }
 
@@ -2851,18 +2917,18 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
       snprintf(texto_critico, 49, ", imune a critico");
     } else {
       int d20_critico = RolaDado(20);
+      int total_critico = ataque_origem + d20_critico - modificador_incrementos + outros_modificadores;
       if (d20 == 1) {
         snprintf(texto_critico, 49, ", critico falhou: 1");
-        vezes = ea.MultiplicadorCritico();
-      } else if (ataque_origem + d20_critico - modificador_incrementos >= ca_destino) {
-        snprintf(texto_critico, 49, ", critico %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico + modificador_incrementos);
+      } else if (total_critico >= ca_destino) {
+        snprintf(texto_critico, 49, ", critico %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
         vezes = ea.MultiplicadorCritico();
       } else {
-        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico);
+        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
       }
     }
   }
-  snprintf(texto, 99, "acertou: %d+%d%s= %d%s", d20, ataque_origem, texto_incremento, ataque_origem + d20, texto_critico);
+  snprintf(texto, 99, "acertou: %d+%d%s%s= %d%s", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, texto_critico);
 
   VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
   return std::make_tuple(vezes, texto, true);

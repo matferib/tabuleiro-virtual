@@ -120,18 +120,29 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Inverte o bit da entidade. */
   enum bit_e {
-    BIT_VISIBILIDADE     = 0x1,
-    BIT_ILUMINACAO       = 0x2,
-    BIT_VOO              = 0x4,
-    BIT_MORTA            = 0x8,
-    BIT_CAIDA            = 0x10,
-    BIT_SELECIONAVEL     = 0x20,
-    BIT_FIXA             = 0x40,
+    BIT_VISIBILIDADE         = 0x1,
+    BIT_ILUMINACAO           = 0x2,
+    BIT_VOO                  = 0x4,
+    BIT_MORTA                = 0x8,
+    BIT_CAIDA                = 0x10,
+    BIT_SELECIONAVEL         = 0x20,
+    BIT_FIXA                 = 0x40,
+    BIT_FLANQUEANDO          = 0x80,
+    BIT_ATIRANDO_CAC         = 0x100,
+    BIT_ATACANDO_COBERTURA   = 0x200,
+    BIT_ATAQUE_MAIS_1        = 0x400,
+    BIT_ATAQUE_MAIS_2        = 0x800,
+    BIT_ATAQUE_MAIS_4        = 0x1000,
+    BIT_ATAQUE_MENOS_1       = 0x2000,
+    BIT_ATAQUE_MENOS_2       = 0x4000,
+    BIT_ATAQUE_MENOS_4       = 0x8000,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
   */
   void AlternaBitsEntidadeNotificando(int bits);
+  /** Alguns bits sao locais. */
+  void AlternaBitsEntidadeSemNotificar(int bits);
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
