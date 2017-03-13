@@ -687,7 +687,7 @@ EntidadeProto::TipoTransicao Entidade::TipoTransicao() const {
 int Entidade::TransicaoCenario() const {
   // Legado.
   if (TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
-    return -2;
+    return CENARIO_INVALIDO;
   }
   return proto_.transicao_cenario().id_cenario();
 }
@@ -794,7 +794,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
   }
-  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
+  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO || proto_parcial.tipo_transicao() == EntidadeProto::TRANS_NENHUMA) {
     proto_.clear_transicao_cenario();
   }
   if (proto_parcial.has_pos() && !proto_parcial.has_destino()) {

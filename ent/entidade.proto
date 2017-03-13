@@ -250,7 +250,7 @@ message EntidadeProto {
   message DadosTesouro {
     optional string tesouro = 1;
   }
-  repeated DadosTesouro tesouro = 46;
+  optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
   optional int32 iniciativa = 55;
   optional int32 modificador_iniciativa = 56;
