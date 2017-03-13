@@ -357,6 +357,109 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
+    coluna: 13
+    rotulo: "F"
+    cor_rotulo {}
+    textura: "icon_flanking.png"
+    id: CONTROLE_FLANQUEANDO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Flanqueando."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 13
+    rotulo: "FM"
+    cor_rotulo {}
+    textura: "icon_firing_melee.png"
+    id: CONTROLE_ATIRANDO_CAC
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Atirando contra corpo a corpo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 12
+    rotulo: "AC"
+    cor_rotulo {}
+    textura: "icon_attack_cover.png"
+    id: CONTROLE_ATACANDO_COBERTURA
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Atirando contra cobertura."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 11
+    rotulo: "-1"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_1
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-1 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 10
+    rotulo: "-2"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_2
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-2 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 9
+    rotulo: "-4"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_4
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-4 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 11
+    rotulo: "+1"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_1
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+1 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 10
+    rotulo: "+2"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_2
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+2 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 3
+    coluna: 9
+    rotulo: "+4"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_4
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+4 ataque."
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 1
     coluna: 11
     rotulo: "Vo"
     cor_rotulo {}
@@ -576,6 +679,7 @@ pagina {
     coluna: 25
     id: CONTROLE_PROXIMA_INICIATIVA
     forma: FORMA_TRIANGULO
+    textura: "icon_initiative.png"
     rotacao_graus: -90.0
     dica: "Proxima iniciativa."
     translacao_x: -0.3
