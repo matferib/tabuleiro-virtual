@@ -4661,7 +4661,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                                                  EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_iniciativa_corrente(indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
                                                 iniciativas_[indice_iniciativa_].id == entidade->Id());
-    bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
+    bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+                         (detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO);
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
                               tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
                               entidade->Id() == id_entidade_detalhada_;
