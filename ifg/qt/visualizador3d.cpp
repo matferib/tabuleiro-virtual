@@ -642,6 +642,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_escala_y_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().y());
   gerador.spin_escala_z_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().z());
 
+  if (entidade.has_tesouro()) {
+    gerador.lista_tesouro->appendPlainText(entidade.tesouro().tesouro().c_str());
+  }
+
   // Transicao de cenario.
   auto habilita_posicao = [gerador] {
     gerador.checkbox_transicao_posicao->setCheckState(Qt::Checked);
@@ -731,6 +735,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     proto_retornado->mutable_escala()->set_x(QUADRADOS_PARA_METROS * gerador.spin_escala_x_quad->value());
     proto_retornado->mutable_escala()->set_y(QUADRADOS_PARA_METROS * gerador.spin_escala_y_quad->value());
     proto_retornado->mutable_escala()->set_z(QUADRADOS_PARA_METROS * gerador.spin_escala_z_quad->value());
+    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO) {
       bool ok = false;
       int val = gerador.linha_transicao_cenario->text().toInt(&ok);
@@ -749,8 +754,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
           proto_retornado->mutable_transicao_cenario()->clear_z();
         }
       }
+    } else if (gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_TESOURO) {
+      proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_TESOURO);
     } else {
       // Valor especial para denotar ausencia.
+      proto_retornado->set_tipo_transicao(ent::EntidadeProto::TRANS_NENHUMA);
       proto_retornado->mutable_transicao_cenario()->set_id_cenario(CENARIO_INVALIDO);
     }
     if (gerador.combo_textura->currentIndex() == 0) {
@@ -807,7 +815,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     }
     eventos += ": " + net::to_string(evento.rodadas()) + "\n";
   }
-  gerador.lista_eventos->appendPlainText(eventos.c_str());
+  gerador.lista_eventos->appendPlainText(QString::fromUtf8(eventos.c_str()));
 
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
@@ -891,6 +899,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Translacao em Z.
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * METROS_PARA_QUADRADOS);
 
+  if (entidade.has_tesouro()) {
+    gerador.lista_tesouro->appendPlainText(entidade.tesouro().tesouro().c_str());
+  }
+
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
 
@@ -951,7 +963,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
         if (da.has_incrementos()) {
           snprintf(string_incrementos, 39, ", inc %d", da.incrementos());
         }
-        snprintf(string_alcance, 39, "alcance: %0.1f%s, ", da.alcance_m(), string_incrementos);
+        snprintf(string_alcance, 39, "alcance: %0.0f q%s, ", da.alcance_m() * METROS_PARA_QUADRADOS, string_incrementos);
       }
       char string_dado[150];
       snprintf(string_dado, 149, "id: %s%s, %sbonus: %d, dano: %s, ca: %d toque: %d surpresa: %d",
@@ -1166,6 +1178,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * QUADRADOS_PARA_METROS);
     }
+    proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {
       proto_retornado->set_iniciativa(gerador.spin_iniciativa->value());
     } else {

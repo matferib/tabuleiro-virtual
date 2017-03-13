@@ -65,7 +65,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QTabWidget" name="tab_entidade">
+  <widget class="QTabWidget" name="tab_tesouro">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -1281,18 +1281,9 @@
           </widget>
          </item>
          <item>
-          <widget class="QDoubleSpinBox" name="spin_alcance_quad">
-           <property name="decimals">
-            <number>1</number>
-           </property>
+          <widget class="QSpinBox" name="spin_alcance_quad">
            <property name="minimum">
-            <double>-3.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>1000.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
+            <number>-1</number>
            </property>
           </widget>
          </item>
@@ -1453,6 +1444,46 @@
      </widget>
     </widget>
    </widget>
+   <widget class="QWidget" name="tab">
+    <attribute name="title">
+     <string>Tesouro</string>
+    </attribute>
+    <widget class="QWidget" name="layoutWidget_4">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>10</y>
+       <width>481</width>
+       <height>221</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_30">
+      <item>
+       <widget class="QLabel" name="label_37">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Tesouro</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="lista_tesouro">
+        <property name="toolTip">
+         <string>Rótulos para a entidade. Aparece sobre ela quando a entidade é detalhada.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </widget>
   </widget>
  </widget>
  <tabstops>
@@ -1483,7 +1514,7 @@
   <tabstop>spin_tex_trans_y</tabstop>
   <tabstop>spin_tex_altura</tabstop>
   <tabstop>combo_modelos_3d</tabstop>
-  <tabstop>tab_entidade</tabstop>
+  <tabstop>tab_tesouro</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>spin_modificador_iniciativa</tabstop>

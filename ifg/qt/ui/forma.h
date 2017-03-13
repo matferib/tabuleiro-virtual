@@ -122,6 +122,10 @@ public:
     QLabel *label_14;
     QDoubleSpinBox *spin_trans_z;
     QCheckBox *checkbox_colisao;
+    QWidget *layoutWidget_3;
+    QHBoxLayout *horizontalLayout_20;
+    QLabel *label_16;
+    QPlainTextEdit *lista_tesouro;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -152,7 +156,7 @@ public:
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         horizontalLayoutWidget_2 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(470, 350, 221, 41));
+        horizontalLayoutWidget_2->setGeometry(QRect(610, 350, 221, 41));
         horizontalLayout_2 = new QHBoxLayout(horizontalLayoutWidget_2);
         horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
         horizontalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -289,7 +293,7 @@ public:
         label_15->setGeometry(QRect(140, 60, 41, 16));
         horizontalLayoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_3->setObjectName(QString::fromUtf8("horizontalLayoutWidget_3"));
-        horizontalLayoutWidget_3->setGeometry(QRect(470, 390, 221, 41));
+        horizontalLayoutWidget_3->setGeometry(QRect(610, 390, 221, 41));
         horizontalLayout_9 = new QHBoxLayout(horizontalLayoutWidget_3);
         horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
         horizontalLayout_9->setContentsMargins(0, 0, 0, 0);
@@ -356,7 +360,7 @@ public:
 
         horizontalLayoutWidget_4 = new QWidget(ifg__qt__DialogoForma);
         horizontalLayoutWidget_4->setObjectName(QString::fromUtf8("horizontalLayoutWidget_4"));
-        horizontalLayoutWidget_4->setGeometry(QRect(470, 430, 221, 41));
+        horizontalLayoutWidget_4->setGeometry(QRect(610, 430, 221, 41));
         horizontalLayout_3 = new QHBoxLayout(horizontalLayoutWidget_4);
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         horizontalLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -601,6 +605,28 @@ public:
         checkbox_colisao = new QCheckBox(ifg__qt__DialogoForma);
         checkbox_colisao->setObjectName(QString::fromUtf8("checkbox_colisao"));
         checkbox_colisao->setGeometry(QRect(470, 310, 83, 22));
+        layoutWidget_3 = new QWidget(ifg__qt__DialogoForma);
+        layoutWidget_3->setObjectName(QString::fromUtf8("layoutWidget_3"));
+        layoutWidget_3->setGeometry(QRect(330, 380, 221, 141));
+        horizontalLayout_20 = new QHBoxLayout(layoutWidget_3);
+        horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
+        horizontalLayout_20->setContentsMargins(0, 0, 0, 0);
+        label_16 = new QLabel(layoutWidget_3);
+        label_16->setObjectName(QString::fromUtf8("label_16"));
+        QSizePolicy sizePolicy5(QSizePolicy::Fixed, QSizePolicy::Preferred);
+        sizePolicy5.setHorizontalStretch(0);
+        sizePolicy5.setVerticalStretch(0);
+        sizePolicy5.setHeightForWidth(label_16->sizePolicy().hasHeightForWidth());
+        label_16->setSizePolicy(sizePolicy5);
+        label_16->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_20->addWidget(label_16);
+
+        lista_tesouro = new QPlainTextEdit(layoutWidget_3);
+        lista_tesouro->setObjectName(QString::fromUtf8("lista_tesouro"));
+
+        horizontalLayout_20->addWidget(lista_tesouro);
+
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
         QWidget::setTabOrder(spin_max_pontos_vida, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, dial_rotacao);
@@ -707,6 +733,10 @@ public:
         checkbox_colisao->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nao sera movel. Selecionavel apenas com duplo clique.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         checkbox_colisao->setText(QApplication::translate("ifg::qt::DialogoForma", "Colis\303\243o", 0, QApplication::UnicodeUTF8));
+        label_16->setText(QApplication::translate("ifg::qt::DialogoForma", "Tesouro", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
     } // retranslateUi
 
 };
