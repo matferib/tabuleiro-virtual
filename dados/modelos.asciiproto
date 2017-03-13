@@ -602,7 +602,7 @@ modelo {
     dados_ataque {
       rotulo: 'maça estrela' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
     dados_ataque {
-      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' bonus_ataque: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
+      rotulo: 'azagaia' alcance_m: 9 incrementos: 5 tipo_ataque: 'Ataque a Distância' bonus_ataque: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
   }
 }
 modelo {
@@ -612,12 +612,13 @@ modelo {
     info_textura { id: 'goblin_sargent.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3\n1d00 PO'
+    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3'
+    tesouro { tesouro: '1d100 PO' }
     modificador_iniciativa: 1
     dados_ataque {
       rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
     dados_ataque {
-      rotulo: 'besta leve OP' tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
+      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {
