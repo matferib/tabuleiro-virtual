@@ -5432,6 +5432,10 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   }
   ids_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
+  if (IdPresoACamera(id) && camera_ != CAMERA_PRIMEIRA_PESSOA) {
+    auto it = std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id);
+    ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
+  }
   estado_ = ETAB_ENTS_SELECIONADAS;
   return true;
 }
@@ -5459,6 +5463,9 @@ void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& i
     }
     ids_entidades_selecionadas_.insert(id);
   }
+  if (ids_entidades_selecionadas_.size() == 1) {
+    SelecionaEntidade(ids[0]);
+  }
   MudaEstadoAposSelecao();
 }
 
@@ -5469,6 +5476,9 @@ void Tabuleiro::AtualizaSelecaoEntidade(unsigned int id) {
   auto* e = BuscaEntidade(id);
   if (e == nullptr || (!EmModoMestreIncluindoSecundario() && !e->SelecionavelParaJogador())) {
     ids_entidades_selecionadas_.erase(id);
+  }
+  if (ids_entidades_selecionadas_.size() == 1) {
+    SelecionaEntidade(*ids_entidades_selecionadas_.begin());
   }
   MudaEstadoAposSelecao();
 }
@@ -5482,6 +5492,9 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 
   if (EntidadeEstaSelecionada(id)) {
     ids_entidades_selecionadas_.erase(id);
+    if (ids_entidades_selecionadas_.size() == 1) {
+      SelecionaEntidade(*ids_entidades_selecionadas_.begin());
+    }
     MudaEstadoAposSelecao();
   } else {
     AdicionaEntidadesSelecionadas({id});
@@ -5516,6 +5529,9 @@ void Tabuleiro::DeselecionaEntidades() {
 
 void Tabuleiro::DeselecionaEntidade(unsigned int id) {
   ids_entidades_selecionadas_.erase(id);
+  if (ids_entidades_selecionadas_.size() == 1) {
+    SelecionaEntidade(id);
+  }
   if (!ids_entidades_selecionadas_.empty()) {
     estado_ = ETAB_OCIOSO;
   }
