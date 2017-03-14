@@ -1090,7 +1090,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
   // Barra de pontos de vida.
-  // DesenhaInfoPrimeiraPessoa.
+  // aka DesenhaInfoPrimeiraPessoa.
   if (camera_presa_) {
     DesenhaInfoCameraPresa();
   }
