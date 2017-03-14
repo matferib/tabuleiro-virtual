@@ -5079,7 +5079,7 @@ void Tabuleiro::AtualizaIniciativas() {
   std::vector<const Entidade*> entidades_adicionar;
   for (auto& id_ent : entidades_) {
     const auto* entidade = id_ent.second.get();
-    if (!entidade->TemIniciativa() || entidade->Proto().morta()) {
+    if (!entidade->TemIniciativa()) {
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
