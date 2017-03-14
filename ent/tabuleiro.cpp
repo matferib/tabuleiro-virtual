@@ -1052,69 +1052,41 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_antes->set_fixa(proto_original.fixa());
       proto_depois->set_fixa(valor);
     }
-    proto_antes->set_id(id);
-    proto_depois->set_id(id);
-    n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-  }
-  TrataNotificacao(grupo_notificacoes);
-  // Para desfazer.
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
-}
-
-void Tabuleiro::AlternaBitsEntidadeSemNotificar(int bits) {
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
-    auto* n = grupo_notificacoes.add_notificacao();
-    auto* entidade_selecionada = BuscaEntidade(id);
-    const auto& proto_original = entidade_selecionada->Proto();
-    // Para desfazer.
-    auto* proto_antes = n->mutable_entidade_antes();
-    auto* proto_depois = n->mutable_entidade();
-    if (bits & BIT_FLANQUEANDO) {
-      proto_antes->set_flanqueando(proto_original.flanqueando());
-      proto_depois->set_flanqueando(!proto_original.flanqueando());
+    if (bits & BIT_SURPRESO) {
+      proto_antes->set_surpreso(proto_original.surpreso());
+      proto_depois->set_surpreso(valor);
     }
-    if (bits & BIT_ATIRANDO_CAC) {
-      proto_antes->set_atirando_cac(proto_original.atirando_cac());
-      proto_depois->set_atirando_cac(!proto_original.atirando_cac());
-    }
-    if (bits & BIT_ATACANDO_COBERTURA) {
-      proto_antes->set_atacando_cobertura(proto_original.atacando_cobertura());
-      proto_depois->set_atacando_cobertura(!proto_original.atacando_cobertura());
+    if (bits & BIT_FURTIVO) {
+      proto_antes->set_furtivo(proto_original.furtivo());
+      proto_depois->set_furtivo(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_1) {
       proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
-      proto_depois->set_ataque_mais_1(!proto_original.ataque_mais_1());
+      proto_depois->set_ataque_mais_1(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_2) {
       proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
-      proto_depois->set_ataque_mais_2(!proto_original.ataque_mais_2());
+      proto_depois->set_ataque_mais_2(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_4) {
       proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
-      proto_depois->set_ataque_mais_4(!proto_original.ataque_mais_4());
+      proto_depois->set_ataque_mais_4(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_1) {
       proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
-      proto_depois->set_ataque_menos_1(!proto_original.ataque_menos_1());
+      proto_depois->set_ataque_menos_1(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_2) {
       proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
-      proto_depois->set_ataque_menos_2(!proto_original.ataque_menos_2());
+      proto_depois->set_ataque_menos_2(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_4) {
       proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
-      proto_depois->set_ataque_menos_4(!proto_original.ataque_menos_4());
+      proto_depois->set_ataque_menos_4(valor);
     }
-
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-  }
-  if (grupo_notificacoes.notificacao_size() == 0) {
-    VLOG(1) << "Não há entidade selecionada.";
-    return;
   }
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
@@ -1196,6 +1168,39 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_antes->set_fixa(proto_original.fixa());
       proto_depois->set_fixa(!proto_original.fixa());
     }
+    if (bits & BIT_SURPRESO) {
+      proto_antes->set_surpreso(proto_original.surpreso());
+      proto_depois->set_surpreso(!proto_original.surpreso());
+    }
+    if (bits & BIT_FURTIVO) {
+      proto_antes->set_furtivo(proto_original.furtivo());
+      proto_depois->set_furtivo(!proto_original.furtivo());
+    }
+    if (bits & BIT_ATAQUE_MAIS_1) {
+      proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
+      proto_depois->set_ataque_mais_1(!proto_original.ataque_mais_1());
+    }
+    if (bits & BIT_ATAQUE_MAIS_2) {
+      proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
+      proto_depois->set_ataque_mais_2(!proto_original.ataque_mais_2());
+    }
+    if (bits & BIT_ATAQUE_MAIS_4) {
+      proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
+      proto_depois->set_ataque_mais_4(!proto_original.ataque_mais_4());
+    }
+    if (bits & BIT_ATAQUE_MENOS_1) {
+      proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
+      proto_depois->set_ataque_menos_1(!proto_original.ataque_menos_1());
+    }
+    if (bits & BIT_ATAQUE_MENOS_2) {
+      proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
+      proto_depois->set_ataque_menos_2(!proto_original.ataque_menos_2());
+    }
+    if (bits & BIT_ATAQUE_MENOS_4) {
+      proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
+      proto_depois->set_ataque_menos_4(!proto_original.ataque_menos_4());
+    }
+
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -2821,120 +2826,6 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   BuscaHitMaisProximo(x, y, &id, &tipo_objeto, &profundidade);
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
-
-namespace {
-
-Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
-  if (tipo_ataque == "Raio") {
-    return Entidade::CA_TOQUE;
-  } else if (tipo_ataque == "Feitiço de Toque") {
-    return Entidade::CA_TOQUE;
-  }
-  return Entidade::CA_NORMAL;
-}
-
-// Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
-// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
-// Caso haja falha critica, retorna vezes = -1;
-// Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  auto tipo_ataque = ea.TipoAtaque();
-  int ataque_origem = ea.BonusAtaque();
-  int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
-  int modificador_incrementos = 0;
-  if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
-    VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
-            << ", defesa: " << ca_destino;
-    return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
-  }
-  float alcance_m = ea.AlcanceAtaqueMetros();
-  if (alcance_m >= 0) {
-    Posicao pos_acao_a = ea.PosicaoAcao();
-    Posicao pos_acao_d = ed.PosicaoAcao();
-
-    // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
-    float mult_tamanho = ea.MultiplicadorTamanho();
-    float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
-    VLOG(1) << "raio_a: " << raio_a;
-
-    // Distancia da acao ao alvo. Poderia usar o raio da defesa, mas é mais legal fazer a distancia precisa.
-    Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
-    Vector3 vd;
-    float distancia_m = - raio_a;
-    if (pos_alvo.has_x()) {
-      vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
-      const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
-      distancia_m -= MARGEM_ERRO;
-      VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
-    } else {
-      vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
-      distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-      VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
-    }
-    distancia_m += (va - vd).length();
-    VLOG(1) << "distancia_m: " << distancia_m;
-
-    if (distancia_m > alcance_m) {
-      int total_incrementos = distancia_m / alcance_m;
-      if (total_incrementos > ea.IncrementosAtaque()) {
-        char texto[50] = {'\0'};
-        snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque());
-        return std::make_tuple(0, texto, false);
-      } else {
-        modificador_incrementos = total_incrementos * 2;
-        VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
-      }
-    }
-    VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
-  }
-
-  int outros_modificadores = ModificadorAtaque(tipo_ataque != "Ataque Corpo a Corpo", ea.Proto(), ed.Proto());
-  int d20 = RolaDado(20);
-  char texto[100] = {'\0'};
-  char texto_critico[50] = {'\0'};
-  char texto_incremento[50] = {'\0'};
-  char texto_outros_modificadores[50] = {'\0'};
-  if (modificador_incrementos) {
-    snprintf(texto_incremento, 49, "-%d", modificador_incrementos);
-  }
-  if (outros_modificadores != 0) {
-    snprintf(texto_outros_modificadores, 49, "%+d", outros_modificadores);
-  }
-
-  int total = ataque_origem + d20 - modificador_incrementos + outros_modificadores;
-  if (d20 == 1) {
-    VLOG(1) << "Falha critica";
-    return std::make_tuple(-1, "falha critica", false);
-  } else if (d20 != 20 && total < ca_destino) {
-    snprintf(texto, 49, "falhou: %d+%d%s%s= %d", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total);
-    return std::make_tuple(0, texto, true);
-  }
-
-  // Se chegou aqui acertou.
-  int vezes = 1;
-  if (d20 >= ea.MargemCritico()) {
-    if (ed.ImuneCritico()) {
-      snprintf(texto_critico, 49, ", imune a critico");
-    } else {
-      int d20_critico = RolaDado(20);
-      int total_critico = ataque_origem + d20_critico - modificador_incrementos + outros_modificadores;
-      if (d20 == 1) {
-        snprintf(texto_critico, 49, ", critico falhou: 1");
-      } else if (total_critico >= ca_destino) {
-        snprintf(texto_critico, 49, ", critico %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
-        vezes = ea.MultiplicadorCritico();
-      } else {
-        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
-      }
-    }
-  }
-  snprintf(texto, 99, "acertou: %d+%d%s%s= %d%s", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, texto_critico);
-
-  VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
-  return std::make_tuple(vezes, texto, true);
-}
-
-}  // namespace
 
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {

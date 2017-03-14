@@ -324,32 +324,29 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
 
     // Bits locais.
-    case CONTROLE_FLANQUEANDO:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_FLANQUEANDO);
+    case CONTROLE_FURTIVO:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FURTIVO);
       break;
-    case CONTROLE_ATIRANDO_CAC:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATIRANDO_CAC);
-      break;
-    case CONTROLE_ATACANDO_COBERTURA:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATACANDO_COBERTURA);
+    case CONTROLE_SURPRESO:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SURPRESO);
       break;
     case CONTROLE_ATAQUE_MAIS_1:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MAIS_1);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_1);
       break;
     case CONTROLE_ATAQUE_MAIS_2:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MAIS_2);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_2);
       break;
     case CONTROLE_ATAQUE_MAIS_4:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MAIS_4);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_4);
       break;
     case CONTROLE_ATAQUE_MENOS_1:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MENOS_1);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_1);
       break;
     case CONTROLE_ATAQUE_MENOS_2:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MENOS_2);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_2);
       break;
     case CONTROLE_ATAQUE_MENOS_4:
-      AlternaBitsEntidadeSemNotificar(ent::Tabuleiro::BIT_ATAQUE_MENOS_4);
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_4);
       break;
 
     case CONTROLE_VOO:
@@ -975,23 +972,20 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE,  [this] (const Entidade* entidade) {
       return indice_iniciativa_ != -1;
     } },
-    { CONTROLE_LUZ,               [this] (const Entidade* entidade) {
+    { CONTROLE_LUZ,                [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_luz();
     } },
-    { CONTROLE_QUEDA,        [this] (const Entidade* entidade) {
+    { CONTROLE_QUEDA,              [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().caida();
     } },
-    { CONTROLE_SELECIONAVEL,        [this] (const Entidade* entidade) {
+    { CONTROLE_SELECIONAVEL,       [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().selecionavel_para_jogador();
     } },
-    { CONTROLE_ATIRANDO_CAC,        [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().atirando_cac();
+    { CONTROLE_FURTIVO,            [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().furtivo();
     } },
-    { CONTROLE_ATACANDO_COBERTURA,  [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().atacando_cobertura();
-    } },
-    { CONTROLE_FLANQUEANDO,        [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().flanqueando();
+    { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().surpreso();
     } },
     { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().ataque_mais_1();

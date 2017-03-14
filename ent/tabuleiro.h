@@ -127,9 +127,8 @@ class Tabuleiro : public ntf::Receptor {
     BIT_CAIDA                = 0x10,
     BIT_SELECIONAVEL         = 0x20,
     BIT_FIXA                 = 0x40,
-    BIT_FLANQUEANDO          = 0x80,
-    BIT_ATIRANDO_CAC         = 0x100,
-    BIT_ATACANDO_COBERTURA   = 0x200,
+    BIT_FURTIVO              = 0x80,
+    BIT_SURPRESO             = 0x100,
     BIT_ATAQUE_MAIS_1        = 0x400,
     BIT_ATAQUE_MAIS_2        = 0x800,
     BIT_ATAQUE_MAIS_4        = 0x1000,
@@ -142,7 +141,6 @@ class Tabuleiro : public ntf::Receptor {
   */
   void AlternaBitsEntidadeNotificando(int bits);
   /** Alguns bits sao locais. */
-  void AlternaBitsEntidadeSemNotificar(int bits);
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */

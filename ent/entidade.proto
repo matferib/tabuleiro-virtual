@@ -203,12 +203,9 @@ message EntidadeProto {
 
   // TODO implementar as coisas de surpresa.
   optional bool surpreso = 64;
+  optional bool furtivo = 62;
 
   // Ver funcao ModificadorAtaque em util.
-  // Alguns status comuns que afetam ataque. Sempre referentes ao atacante.
-  optional bool flanqueando = 62;
-  optional bool atirando_cac = 63;
-  optional bool atacando_cobertura = 65;
   // Alguns bonus de ataque genericos.
   optional bool ataque_menos_1 = 67;
   optional bool ataque_menos_2 = 68;
@@ -257,7 +254,7 @@ message EntidadeProto {
   message DadosAtaqueGlobal {
     optional string dano_furtivo = 1;
   }
-  optional DadosAtaqueGlobal dados_ataque_global = 73;
+  optional DadosAtaqueGlobal dados_ataque_globais = 73;
 
   // Dados de defesa global (independe de ataque).
   message DadosDefesa {

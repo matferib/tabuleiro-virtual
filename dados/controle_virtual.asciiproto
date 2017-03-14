@@ -120,6 +120,20 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
+    linha: -6
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "T"
+    cor_rotulo {}
+    textura: "icon_enter.png"
+    id: CONTROLE_TRANSICAO
+    forma: FORMA_RETANGULO
+    dica: "Entra em um objeto."
+  }
+
+  dados_botoes {
+    tamanho: 1
     linha: -7
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
@@ -144,7 +158,6 @@ fixo {
     forma: FORMA_RETANGULO
     dica: "Apaga entidades selecionadas."
   }
-
 }
 pagina {
   # Botoes de ultimas acoes.
@@ -306,19 +319,6 @@ pagina {
   }
 
 
-  # Transicao.
-  dados_botoes {
-    tamanho: 2
-    linha: 0
-    coluna: 9
-    rotulo: "T"
-    cor_rotulo {}
-    textura: "icon_enter.png"
-    id: CONTROLE_TRANSICAO
-    forma: FORMA_RETANGULO
-    dica: "Entra em um objeto."
-  }
-
   # Status.
    dados_botoes {
     tamanho: 1
@@ -357,42 +357,30 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 13
+    coluna: 12
     rotulo: "F"
     cor_rotulo {}
-    textura: "icon_flanking.png"
-    id: CONTROLE_FLANQUEANDO
+    textura: "icon_sneak.png"
+    id: CONTROLE_FURTIVO
     forma: FORMA_RETANGULO
     mestre_apenas: false
-    dica: "Flanqueando."
+    dica: "Ataque furtivo."
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 1
     coluna: 13
-    rotulo: "FM"
+    rotulo: "S"
     cor_rotulo {}
-    textura: "icon_firing_melee.png"
-    id: CONTROLE_ATIRANDO_CAC
+    textura: "icon_surprise.png"
+    id: CONTROLE_SURPRESO
     forma: FORMA_RETANGULO
     mestre_apenas: false
-    dica: "Atirando contra corpo a corpo."
+    dica: "Surpreso."
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
-    coluna: 12
-    rotulo: "AC"
-    cor_rotulo {}
-    textura: "icon_attack_cover.png"
-    id: CONTROLE_ATACANDO_COBERTURA
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "Atirando contra cobertura."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
+    linha: 1
     coluna: 11
     rotulo: "-1"
     cor_rotulo {}
@@ -403,7 +391,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 1
     coluna: 10
     rotulo: "-2"
     cor_rotulo {}
@@ -414,7 +402,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
+    linha: 1
     coluna: 9
     rotulo: "-4"
     cor_rotulo {}
@@ -425,7 +413,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 3
+    linha: 2
     coluna: 11
     rotulo: "+1"
     cor_rotulo {}
@@ -436,7 +424,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 3
+    linha: 2
     coluna: 10
     rotulo: "+2"
     cor_rotulo {}
@@ -447,7 +435,7 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 3
+    linha: 2
     coluna: 9
     rotulo: "+4"
     cor_rotulo {}
@@ -459,8 +447,8 @@ pagina {
 
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 11
+    linha: 0
+    coluna: 9
     rotulo: "Vo"
     cor_rotulo {}
     textura: "icon_feather.png"
@@ -470,8 +458,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 12
+    linha: 0
+    coluna: 10
     rotulo: "Vi"
     cor_rotulo {}
     textura: "icon_hide.png"
