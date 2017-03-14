@@ -8,6 +8,7 @@
 #include <vector>
 #include <google/protobuf/repeated_field.h>
 #include "matrix/matrices.h"
+#include "ntf/notificacao.pb.h"
 
 // Funcoes uteis de ent.
 namespace ent {
@@ -211,6 +212,9 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
 // Caso haja falha critica, retorna vezes = -1;
 // Posicao ataque eh para calculo de distancia.
 std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+
+// Gera um resumo sobre a notificacao, ou vazio.
+std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
 
 }  // namespace ent
 

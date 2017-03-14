@@ -970,7 +970,39 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   return std::make_tuple(vezes, texto, true);
 }
 
+namespace {
 
+std::string EntidadeNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
+  auto* entidade = tabuleiro.BuscaEntidade(n.entidade().id());
+  if (entidade != nullptr && !entidade->Proto().rotulo().empty()) {
+    return entidade->Proto().rotulo() + " ";
+  }
+  return std::string("Entidade ");
+}
 
+}  // namespace
+
+std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
+  switch (n.tipo()) {
+    case ntf::TN_GRUPO_NOTIFICACOES: {
+      std::string resumo;
+      for (const auto& nf : n.notificacao()) {
+        auto resumo_parcial = ResumoNotificacao(tabuleiro, nf);
+        if (!resumo_parcial.empty()) {
+          resumo += resumo_parcial + ", ";
+        }
+      }
+      return resumo;
+    }
+    case ntf::TN_ADICIONAR_ACAO: {
+      return "";
+    }
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE: {
+      return EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
+    }
+    default:
+      return "";
+  }
+}
 
 }  // namespace ent

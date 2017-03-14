@@ -7345,13 +7345,18 @@ void Tabuleiro::DesenhaLogEventos() {
   gl::DesenhaString("Lista de Eventos");
   raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
   auto it = lista_eventos_.rbegin();
-  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++i, ++it) {
+  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++it) {
     const auto& n = *it;
+    std::string resumo_mensagem = ResumoNotificacao(*this, n);
+    if (resumo_mensagem.empty()) {
+      continue;
+    }
     PosicionaRaster2d(2, raster_y);
     char s[100];
-    snprintf(s, 99, "%s", n.ShortDebugString().c_str());
+    snprintf(s, 99, "%s", resumo_mensagem.c_str());
     gl::DesenhaStringAlinhadoEsquerda(s);
     raster_y -= altura_fonte;
+    ++i;
   }
 }
 
