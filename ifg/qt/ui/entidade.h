@@ -181,6 +181,8 @@ public:
     QSpinBox *spin_ca_toque;
     QLabel *label_28;
     QSpinBox *spin_ca_surpreso;
+    QLabel *label_38;
+    QLineEdit *linha_furtivo;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -950,6 +952,13 @@ public:
 
         verticalLayout_2->addLayout(horizontalLayout_6);
 
+        label_38 = new QLabel(tab_estatisticas);
+        label_38->setObjectName(QString::fromUtf8("label_38"));
+        label_38->setGeometry(QRect(171, 400, 41, 34));
+        label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        linha_furtivo = new QLineEdit(tab_estatisticas);
+        linha_furtivo->setObjectName(QString::fromUtf8("linha_furtivo"));
+        linha_furtivo->setGeometry(QRect(218, 403, 129, 27));
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -1203,6 +1212,11 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_ca_surpreso->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Surpresa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Furtivo", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        linha_furtivo->setText(QString());
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

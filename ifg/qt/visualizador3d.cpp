@@ -927,6 +927,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(entidade.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
+  // Furtivo
+  gerador.linha_furtivo->setText(QString::fromUtf8(entidade.dados_ataque_globais().dano_furtivo().c_str()));
 
   auto StringDano = [] (const ent::EntidadeProto::DadosAtaque& da) -> std::string {
     // Monta a string.
@@ -1107,7 +1109,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.spin_ca, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_ca_toque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_ca_surpreso, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(double)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
 
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
@@ -1175,6 +1177,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_proxima_salvacao((ent::ResultadoSalvacao)gerador.combo_salvacao->currentIndex());
     proto_retornado->set_tipo_visao((ent::TipoVisao)gerador.combo_visao->currentIndex());
     proto_retornado->mutable_dados_defesa()->set_imune_critico(gerador.checkbox_imune_critico->checkState() == Qt::Checked);
+    proto_retornado->mutable_dados_ataque_globais()->set_dano_furtivo(gerador.linha_furtivo->text().toUtf8().constData());
     if (proto_retornado->tipo_visao() == ent::VISAO_ESCURO) {
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * QUADRADOS_PARA_METROS);
     }
