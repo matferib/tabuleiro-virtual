@@ -1394,6 +1394,20 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
   }
 }
 
+int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
+  if (modo_dano_automatico_) {
+    if (entidade == nullptr) {
+      LOG(WARNING) << "entidade eh nula";
+      return 0;
+    }
+    if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_globais().dano_furtivo().empty()) {
+      return 0;
+    }
+    return -GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+  }
+  return 0;
+}
+
 bool Tabuleiro::HaValorListaPontosVida() {
   return !lista_pontos_vida_.empty() || modo_dano_automatico_;
 }
@@ -2983,6 +2997,9 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             // Ja faz a notificacao de desfazer aqui.
             for (int i = 0; i < vezes; ++i) {
               delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
+            }
+            if (vezes > 0) {
+              delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
             }
             entidade->ProximoAtaque();
             if (acao_proto.permite_salvacao()) {

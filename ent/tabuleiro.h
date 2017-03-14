@@ -174,6 +174,8 @@ class Tabuleiro : public ntf::Receptor {
   bool HaValorListaPontosVida();
   /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
   int LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao);
+  /** Retorna o valor de ataque furtivo, se estiver ligado e houver. */
+  int LeValorAtaqueFurtivo(const Entidade* entidade);
 
   /** desenha o mundo. Retorna o tempo em ms. */
   int Desenha();
