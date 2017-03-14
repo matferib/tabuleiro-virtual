@@ -1,3 +1,5 @@
+Mais informacoes na primeira pessoa.
+unit test AtaqueVsDefesa.
 Colocar as features em um menu separado e adicionar varias do features.binproto.
 Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.

@@ -201,6 +201,19 @@ message EntidadeProto {
   // Indica que a entidade esta espiando de um lado ou do outro. -1 esquerda, 1 direita.
   optional int32 espiando = 58;
 
+  // TODO implementar as coisas de surpresa.
+  optional bool surpreso = 64;
+  optional bool furtivo = 62;
+
+  // Ver funcao ModificadorAtaque em util.
+  // Alguns bonus de ataque genericos.
+  optional bool ataque_menos_1 = 67;
+  optional bool ataque_menos_2 = 68;
+  optional bool ataque_menos_4 = 69;
+  optional bool ataque_mais_1 = 70;
+  optional bool ataque_mais_2 = 71;
+  optional bool ataque_mais_4 = 72;
+
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
   // Ultimas acoes executadas da unidade. Funciona como uma fila onde o indice 0 eh a acao mais recente e o
@@ -237,6 +250,11 @@ message EntidadeProto {
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
   }
   repeated DadosAtaque dados_ataque = 44;
+  // Independe de ataque especifico.
+  message DadosAtaqueGlobal {
+    optional string dano_furtivo = 1;
+  }
+  optional DadosAtaqueGlobal dados_ataque_globais = 73;
 
   // Dados de defesa global (independe de ataque).
   message DadosDefesa {
@@ -250,7 +268,7 @@ message EntidadeProto {
   message DadosTesouro {
     optional string tesouro = 1;
   }
-  repeated DadosTesouro tesouro = 46;
+  optional DadosTesouro tesouro = 46;
   // Dados de iniciativa da entidade.
   optional int32 iniciativa = 55;
   optional int32 modificador_iniciativa = 56;

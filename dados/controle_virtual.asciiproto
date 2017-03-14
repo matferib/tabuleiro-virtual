@@ -120,6 +120,20 @@ fixo {
   }
   dados_botoes {
     tamanho: 1
+    linha: -6
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "T"
+    cor_rotulo {}
+    textura: "icon_enter.png"
+    id: CONTROLE_TRANSICAO
+    forma: FORMA_RETANGULO
+    dica: "Entra em um objeto."
+  }
+
+  dados_botoes {
+    tamanho: 1
     linha: -7
     coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
@@ -144,7 +158,6 @@ fixo {
     forma: FORMA_RETANGULO
     dica: "Apaga entidades selecionadas."
   }
-
 }
 pagina {
   # Botoes de ultimas acoes.
@@ -306,19 +319,6 @@ pagina {
   }
 
 
-  # Transicao.
-  dados_botoes {
-    tamanho: 2
-    linha: 0
-    coluna: 9
-    rotulo: "T"
-    cor_rotulo {}
-    textura: "icon_enter.png"
-    id: CONTROLE_TRANSICAO
-    forma: FORMA_RETANGULO
-    dica: "Entra em um objeto."
-  }
-
   # Status.
    dados_botoes {
     tamanho: 1
@@ -357,7 +357,98 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
+    coluna: 12
+    rotulo: "F"
+    cor_rotulo {}
+    textura: "icon_sneak.png"
+    id: CONTROLE_FURTIVO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Ataque furtivo."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 13
+    rotulo: "S"
+    cor_rotulo {}
+    textura: "icon_surprise.png"
+    id: CONTROLE_SURPRESO
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "Surpreso."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
     coluna: 11
+    rotulo: "-1"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_1
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-1 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 10
+    rotulo: "-2"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_2
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-2 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 9
+    rotulo: "-4"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_4
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-4 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 11
+    rotulo: "+1"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_1
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+1 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 10
+    rotulo: "+2"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_2
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+2 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 9
+    rotulo: "+4"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_4
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+4 ataque."
+  }
+
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 9
     rotulo: "Vo"
     cor_rotulo {}
     textura: "icon_feather.png"
@@ -367,8 +458,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 12
+    linha: 0
+    coluna: 10
     rotulo: "Vi"
     cor_rotulo {}
     textura: "icon_hide.png"
@@ -576,6 +667,7 @@ pagina {
     coluna: 25
     id: CONTROLE_PROXIMA_INICIATIVA
     forma: FORMA_TRIANGULO
+    textura: "icon_initiative.png"
     rotacao_graus: -90.0
     dica: "Proxima iniciativa."
     translacao_x: -0.3

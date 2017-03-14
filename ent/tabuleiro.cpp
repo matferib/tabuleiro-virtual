@@ -1052,6 +1052,38 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_antes->set_fixa(proto_original.fixa());
       proto_depois->set_fixa(valor);
     }
+    if (bits & BIT_SURPRESO) {
+      proto_antes->set_surpreso(proto_original.surpreso());
+      proto_depois->set_surpreso(valor);
+    }
+    if (bits & BIT_FURTIVO) {
+      proto_antes->set_furtivo(proto_original.furtivo());
+      proto_depois->set_furtivo(valor);
+    }
+    if (bits & BIT_ATAQUE_MAIS_1) {
+      proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
+      proto_depois->set_ataque_mais_1(valor);
+    }
+    if (bits & BIT_ATAQUE_MAIS_2) {
+      proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
+      proto_depois->set_ataque_mais_2(valor);
+    }
+    if (bits & BIT_ATAQUE_MAIS_4) {
+      proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
+      proto_depois->set_ataque_mais_4(valor);
+    }
+    if (bits & BIT_ATAQUE_MENOS_1) {
+      proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
+      proto_depois->set_ataque_menos_1(valor);
+    }
+    if (bits & BIT_ATAQUE_MENOS_2) {
+      proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
+      proto_depois->set_ataque_menos_2(valor);
+    }
+    if (bits & BIT_ATAQUE_MENOS_4) {
+      proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
+      proto_depois->set_ataque_menos_4(valor);
+    }
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -1136,6 +1168,39 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_antes->set_fixa(proto_original.fixa());
       proto_depois->set_fixa(!proto_original.fixa());
     }
+    if (bits & BIT_SURPRESO) {
+      proto_antes->set_surpreso(proto_original.surpreso());
+      proto_depois->set_surpreso(!proto_original.surpreso());
+    }
+    if (bits & BIT_FURTIVO) {
+      proto_antes->set_furtivo(proto_original.furtivo());
+      proto_depois->set_furtivo(!proto_original.furtivo());
+    }
+    if (bits & BIT_ATAQUE_MAIS_1) {
+      proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
+      proto_depois->set_ataque_mais_1(!proto_original.ataque_mais_1());
+    }
+    if (bits & BIT_ATAQUE_MAIS_2) {
+      proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
+      proto_depois->set_ataque_mais_2(!proto_original.ataque_mais_2());
+    }
+    if (bits & BIT_ATAQUE_MAIS_4) {
+      proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
+      proto_depois->set_ataque_mais_4(!proto_original.ataque_mais_4());
+    }
+    if (bits & BIT_ATAQUE_MENOS_1) {
+      proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
+      proto_depois->set_ataque_menos_1(!proto_original.ataque_menos_1());
+    }
+    if (bits & BIT_ATAQUE_MENOS_2) {
+      proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
+      proto_depois->set_ataque_menos_2(!proto_original.ataque_menos_2());
+    }
+    if (bits & BIT_ATAQUE_MENOS_4) {
+      proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
+      proto_depois->set_ataque_menos_4(!proto_original.ataque_menos_4());
+    }
+
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -1327,6 +1392,20 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
     VLOG(1) << "Lendo valor da lista de pontos de vida: " << delta_pontos_vida;
     return delta_pontos_vida;
   }
+}
+
+int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
+  if (modo_dano_automatico_) {
+    if (entidade == nullptr) {
+      LOG(WARNING) << "entidade eh nula";
+      return 0;
+    }
+    if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_globais().dano_furtivo().empty()) {
+      return 0;
+    }
+    return -GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+  }
+  return 0;
 }
 
 bool Tabuleiro::HaValorListaPontosVida() {
@@ -2762,114 +2841,6 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
   TrataBotaoAcaoPressionadoPosPicking(acao_padrao, x, y, id, tipo_objeto, profundidade);
 }
 
-namespace {
-
-Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
-  if (tipo_ataque == "Raio") {
-    return Entidade::CA_TOQUE;
-  } else if (tipo_ataque == "Feitiço de Toque") {
-    return Entidade::CA_TOQUE;
-  }
-  return Entidade::CA_NORMAL;
-}
-
-// Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
-// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
-// Caso haja falha critica, retorna vezes = -1;
-// Posicao ataque eh para calculo de distancia.
-std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
-  auto tipo_ataque = ea.TipoAtaque();
-  int ataque_origem = ea.BonusAtaque();
-  int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
-  int modificador_incrementos = 0;
-  if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
-    VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
-            << ", defesa: " << ca_destino;
-    return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
-  }
-  float alcance_m = ea.AlcanceAtaqueMetros();
-  if (alcance_m >= 0) {
-    Posicao pos_acao_a = ea.PosicaoAcao();
-    Posicao pos_acao_d = ed.PosicaoAcao();
-
-    // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
-    float mult_tamanho = ea.MultiplicadorTamanho();
-    float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
-    VLOG(1) << "raio_a: " << raio_a;
-
-    // Distancia da acao ao alvo. Poderia usar o raio da defesa, mas é mais legal fazer a distancia precisa.
-    Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
-    Vector3 vd;
-    float distancia_m = - raio_a;
-    if (pos_alvo.has_x()) {
-      vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
-      const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
-      distancia_m -= MARGEM_ERRO;
-      VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
-    } else {
-      vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
-      distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
-      VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
-    }
-    distancia_m += (va - vd).length();
-    VLOG(1) << "distancia_m: " << distancia_m;
-
-    if (distancia_m > alcance_m) {
-      int total_incrementos = distancia_m / alcance_m;
-      if (total_incrementos > ea.IncrementosAtaque()) {
-        char texto[50] = {'\0'};
-        snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque());
-        return std::make_tuple(0, texto, false);
-      } else {
-        modificador_incrementos = total_incrementos * 2;
-        VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
-      }
-    }
-    VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
-  }
-
-  int d20 = RolaDado(20);
-  char texto[100] = {'\0'};
-  char texto_critico[50] = {'\0'};
-  char texto_incremento[50] = {'\0'};
-  if (modificador_incrementos) {
-    snprintf(texto_incremento, 49, "-%d", modificador_incrementos);
-  }
-
-  if (d20 == 1) {
-    VLOG(1) << "Falha critica";
-    return std::make_tuple(-1, "falha critica", false);
-  } else if (d20 != 20 && ataque_origem + d20 - modificador_incrementos < ca_destino) {
-    snprintf(texto, 49, "falhou: %d+%d%s= %d", d20, ataque_origem, texto_incremento, ataque_origem + d20);
-    return std::make_tuple(0, texto, true);
-  }
-
-  // Se chegou aqui acertou.
-  int vezes = 1;
-  if (d20 >= ea.MargemCritico()) {
-    if (ed.ImuneCritico()) {
-      snprintf(texto_critico, 49, ", imune a critico");
-    } else {
-      int d20_critico = RolaDado(20);
-      if (d20 == 1) {
-        snprintf(texto_critico, 49, ", critico falhou: 1");
-        vezes = ea.MultiplicadorCritico();
-      } else if (ataque_origem + d20_critico - modificador_incrementos >= ca_destino) {
-        snprintf(texto_critico, 49, ", critico %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico + modificador_incrementos);
-        vezes = ea.MultiplicadorCritico();
-      } else {
-        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s= %d", d20_critico, ataque_origem, texto_incremento, ataque_origem + d20_critico);
-      }
-    }
-  }
-  snprintf(texto, 99, "acertou: %d+%d%s= %d%s", d20, ataque_origem, texto_incremento, ataque_origem + d20, texto_critico);
-
-  VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
-  return std::make_tuple(vezes, texto, true);
-}
-
-}  // namespace
-
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
   if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE)) {
@@ -3027,6 +2998,9 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             for (int i = 0; i < vezes; ++i) {
               delta_pontos_vida += LeValorListaPontosVida(entidade, acao_proto.id());
             }
+            if (vezes > 0) {
+              delta_pontos_vida += LeValorAtaqueFurtivo(entidade);
+            }
             entidade->ProximoAtaque();
             if (acao_proto.permite_salvacao()) {
               if (entidade_destino->ProximaSalvacao() == RS_MEIO) {
@@ -3094,6 +3068,40 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
   Entidade* entidade_transicao = BuscaEntidade(id);
   if (entidade_transicao == nullptr) {
     LOG(ERROR) << "Entidade " << id << " nao encontrada";
+    return;
+  }
+  if (entidade_transicao->TipoTransicao() == EntidadeProto::TRANS_TESOURO) {
+    LOG(INFO) << "Transicao de tesouro";
+    auto ids_receber = IdsPrimeiraPessoaIncluindoEntidadesSelecionadas();
+    if (ids_receber.size() != 1) {
+      LOG(INFO) << "So pode transitar tesouro para uma entidade";
+      return;
+    }
+    auto* receptor = BuscaEntidade(ids_receber[0]);
+    if (receptor == nullptr) {
+      LOG(INFO) << "Receptor eh nullptr";
+      return;
+    }
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+    auto* n_perdeu = n.add_notificacao();
+    n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_perdeu->mutable_entidade()->set_id(id);
+    n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
+    n_perdeu->mutable_entidade_antes()->set_id(id);
+    n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
+
+    auto* n_ganhou = n.add_notificacao();
+    const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
+    n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
+    n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
+        tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
+    n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
+    n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
+
+    TrataNotificacao(n);
+    AdicionaNotificacaoListaEventos(n);
     return;
   }
   if (!entidade_transicao->Proto().transicao_cenario().has_id_cenario()) {
@@ -4627,7 +4635,8 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                                                  EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_iniciativa_corrente(indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
                                                 iniciativas_[indice_iniciativa_].id == entidade->Id());
-    bool detalhar_tudo = detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO;
+    bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+                         (detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO);
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
                               tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
                               entidade->Id() == id_entidade_detalhada_;
@@ -4978,7 +4987,7 @@ void Tabuleiro::AtualizaIniciativas() {
   std::vector<const Entidade*> entidades_adicionar;
   for (auto& id_ent : entidades_) {
     const auto* entidade = id_ent.second.get();
-    if (!entidade->TemIniciativa() || entidade->Proto().morta()) {
+    if (!entidade->TemIniciativa()) {
       continue;
     }
     auto it = mapa_iniciativas.find(entidade->Id());
@@ -5397,6 +5406,10 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
   }
   ids_entidades_selecionadas_.insert(entidade->Id());
   quadrado_selecionado_ = -1;
+  if (IdPresoACamera(id) && camera_ != CAMERA_PRIMEIRA_PESSOA) {
+    auto it = std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id);
+    ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
+  }
   estado_ = ETAB_ENTS_SELECIONADAS;
   return true;
 }
@@ -5424,6 +5437,9 @@ void Tabuleiro::AdicionaEntidadesSelecionadas(const std::vector<unsigned int>& i
     }
     ids_entidades_selecionadas_.insert(id);
   }
+  if (ids_entidades_selecionadas_.size() == 1) {
+    SelecionaEntidade(ids[0]);
+  }
   MudaEstadoAposSelecao();
 }
 
@@ -5434,6 +5450,9 @@ void Tabuleiro::AtualizaSelecaoEntidade(unsigned int id) {
   auto* e = BuscaEntidade(id);
   if (e == nullptr || (!EmModoMestreIncluindoSecundario() && !e->SelecionavelParaJogador())) {
     ids_entidades_selecionadas_.erase(id);
+  }
+  if (ids_entidades_selecionadas_.size() == 1) {
+    SelecionaEntidade(*ids_entidades_selecionadas_.begin());
   }
   MudaEstadoAposSelecao();
 }
@@ -5447,6 +5466,9 @@ void Tabuleiro::AlternaSelecaoEntidade(unsigned int id) {
 
   if (EntidadeEstaSelecionada(id)) {
     ids_entidades_selecionadas_.erase(id);
+    if (ids_entidades_selecionadas_.size() == 1) {
+      SelecionaEntidade(*ids_entidades_selecionadas_.begin());
+    }
     MudaEstadoAposSelecao();
   } else {
     AdicionaEntidadesSelecionadas({id});
@@ -5481,6 +5503,9 @@ void Tabuleiro::DeselecionaEntidades() {
 
 void Tabuleiro::DeselecionaEntidade(unsigned int id) {
   ids_entidades_selecionadas_.erase(id);
+  if (ids_entidades_selecionadas_.size() == 1) {
+    SelecionaEntidade(id);
+  }
   if (!ids_entidades_selecionadas_.empty()) {
     estado_ = ETAB_OCIOSO;
   }
@@ -7320,13 +7345,18 @@ void Tabuleiro::DesenhaLogEventos() {
   gl::DesenhaString("Lista de Eventos");
   raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
   auto it = lista_eventos_.rbegin();
-  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++i, ++it) {
+  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++it) {
     const auto& n = *it;
+    std::string resumo_mensagem = ResumoNotificacao(*this, n);
+    if (resumo_mensagem.empty()) {
+      continue;
+    }
     PosicionaRaster2d(2, raster_y);
     char s[100];
-    snprintf(s, 99, "%s", n.ShortDebugString().c_str());
+    snprintf(s, 99, "%s", resumo_mensagem.c_str());
     gl::DesenhaStringAlinhadoEsquerda(s);
     raster_y -= altura_fonte;
+    ++i;
   }
 }
 

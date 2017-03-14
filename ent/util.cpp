@@ -824,4 +824,185 @@ void AlteraBlendEscopo::RestauraBlend(const ParametrosDesenho* pd) const {
   gl::FuncaoMistura(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed) {
+  int modificador = 0;
+  // ataque.
+  if (ea.caida() && !distancia) {
+    modificador -= 4;
+  }
+  if (ea.ataque_menos_1()) {
+    modificador -= 1;
+  }
+  if (ea.ataque_menos_2()) {
+    modificador -= 2;
+  }
+  if (ea.ataque_menos_4()) {
+    modificador -= 4;
+  }
+  if (ea.ataque_mais_1()) {
+    modificador += 1;
+  }
+  if (ea.ataque_mais_2()) {
+    modificador += 2;
+  }
+  if (ea.ataque_mais_4()) {
+    modificador += 4;
+  }
+  // Defesa.
+  if (ed.caida()) {
+    if (distancia) modificador -= 4;
+    else modificador += 4;
+  }
+  return modificador;
+}
+
+namespace {
+
+Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
+  if (tipo_ataque == "Raio") {
+    return Entidade::CA_TOQUE;
+  } else if (tipo_ataque == "Feitiço de Toque") {
+    return Entidade::CA_TOQUE;
+  }
+  return Entidade::CA_NORMAL;
+}
+
+}  // namespace
+
+// Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
+// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
+// Caso haja falha critica, retorna vezes = -1;
+// Posicao ataque eh para calculo de distancia.
+std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo) {
+  auto tipo_ataque = ea.TipoAtaque();
+  int ataque_origem = ea.BonusAtaque();
+  int ca_destino = ed.CA(CATipoAtaque(tipo_ataque));
+  int modificador_incrementos = 0;
+  if (ataque_origem == Entidade::AtaqueCaInvalido || ca_destino == Entidade::AtaqueCaInvalido) {
+    VLOG(1) << "Ignorando ataque vs defesa por falta de dados: ataque: " << ataque_origem
+            << ", defesa: " << ca_destino;
+    return std::make_tuple(0, "Ataque sem bonus ou defensor sem armadura", true);
+  }
+  float alcance_m = ea.AlcanceAtaqueMetros();
+  if (alcance_m >= 0) {
+    Posicao pos_acao_a = ea.PosicaoAcao();
+    Posicao pos_acao_d = ed.PosicaoAcao();
+
+    // Raio de acao da entidade. A partir do raio dela, numero de quadrados multiplicado pelo tamanho.
+    float mult_tamanho = ea.MultiplicadorTamanho();
+    float raio_a = mult_tamanho * TAMANHO_LADO_QUADRADO_2;
+    VLOG(1) << "raio_a: " << raio_a;
+
+    // Distancia da acao ao alvo. Poderia usar o raio da defesa, mas é mais legal fazer a distancia precisa.
+    Vector3 va(pos_acao_a.x(), pos_acao_a.y(), pos_acao_a.z());
+    Vector3 vd;
+    float distancia_m = - raio_a;
+    if (pos_alvo.has_x()) {
+      vd = Vector3(pos_alvo.x(), pos_alvo.y(), pos_alvo.z());
+      const float MARGEM_ERRO = TAMANHO_LADO_QUADRADO_2;
+      distancia_m -= MARGEM_ERRO;
+      VLOG(1) << "Usando posicao real, descontando " << MARGEM_ERRO;
+    } else {
+      vd = Vector3(pos_acao_d.x(), pos_acao_d.y(), pos_acao_d.z());
+      distancia_m -= ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2;
+      VLOG(1) << "Usando posicao fixa, descontando" << (ed.MultiplicadorTamanho() * TAMANHO_LADO_QUADRADO_2);
+    }
+    distancia_m += (va - vd).length();
+    VLOG(1) << "distancia_m: " << distancia_m;
+
+    if (distancia_m > alcance_m) {
+      int total_incrementos = distancia_m / alcance_m;
+      if (total_incrementos > ea.IncrementosAtaque()) {
+        char texto[50] = {'\0'};
+        snprintf(texto, 49, "Fora de alcance: %0.1fm > %0.1fm, inc: %d, max: %d", distancia_m, alcance_m, total_incrementos, ea.IncrementosAtaque());
+        return std::make_tuple(0, texto, false);
+      } else {
+        modificador_incrementos = total_incrementos * 2;
+        VLOG(1) << "modificador_incrementos: " << modificador_incrementos;
+      }
+    }
+    VLOG(1) << "alcance_m: " << alcance_m << ", distancia_m: " << distancia_m;
+  }
+
+  int outros_modificadores = ModificadorAtaque(tipo_ataque != "Ataque Corpo a Corpo", ea.Proto(), ed.Proto());
+  int d20 = RolaDado(20);
+  char texto[100] = {'\0'};
+  char texto_critico[50] = {'\0'};
+  char texto_incremento[50] = {'\0'};
+  char texto_outros_modificadores[50] = {'\0'};
+  if (modificador_incrementos) {
+    snprintf(texto_incremento, 49, "-%d", modificador_incrementos);
+  }
+  if (outros_modificadores != 0) {
+    snprintf(texto_outros_modificadores, 49, "%+d", outros_modificadores);
+  }
+
+  int total = ataque_origem + d20 - modificador_incrementos + outros_modificadores;
+  if (d20 == 1) {
+    VLOG(1) << "Falha critica";
+    return std::make_tuple(-1, "falha critica", false);
+  } else if (d20 != 20 && total < ca_destino) {
+    snprintf(texto, 49, "falhou: %d+%d%s%s= %d", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total);
+    return std::make_tuple(0, texto, true);
+  }
+
+  // Se chegou aqui acertou.
+  int vezes = 1;
+  if (d20 >= ea.MargemCritico()) {
+    if (ed.ImuneCritico()) {
+      snprintf(texto_critico, 49, ", imune a critico");
+    } else {
+      int d20_critico = RolaDado(20);
+      int total_critico = ataque_origem + d20_critico - modificador_incrementos + outros_modificadores;
+      if (d20 == 1) {
+        snprintf(texto_critico, 49, ", critico falhou: 1");
+      } else if (total_critico >= ca_destino) {
+        snprintf(texto_critico, 49, ", critico %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
+        vezes = ea.MultiplicadorCritico();
+      } else {
+        snprintf(texto_critico, 49, ", critico falhou: %d+%d%s%s= %d", d20_critico, ataque_origem, texto_incremento, texto_outros_modificadores, total_critico);
+      }
+    }
+  }
+  snprintf(texto, 99, "acertou: %d+%d%s%s= %d%s", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total, texto_critico);
+
+  VLOG(1) << "Resultado ataque vs defesa: " << texto << ", vezes: " << vezes;
+  return std::make_tuple(vezes, texto, true);
+}
+
+namespace {
+
+std::string EntidadeNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
+  auto* entidade = tabuleiro.BuscaEntidade(n.entidade().id());
+  if (entidade != nullptr && !entidade->Proto().rotulo().empty()) {
+    return entidade->Proto().rotulo() + " ";
+  }
+  return std::string("Entidade ");
+}
+
+}  // namespace
+
+std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n) {
+  switch (n.tipo()) {
+    case ntf::TN_GRUPO_NOTIFICACOES: {
+      std::string resumo;
+      for (const auto& nf : n.notificacao()) {
+        auto resumo_parcial = ResumoNotificacao(tabuleiro, nf);
+        if (!resumo_parcial.empty()) {
+          resumo += resumo_parcial + ", ";
+        }
+      }
+      return resumo;
+    }
+    case ntf::TN_ADICIONAR_ACAO: {
+      return "";
+    }
+    case ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE: {
+      return EntidadeNotificacao(tabuleiro, n) + " atualizada: " + n.entidade().ShortDebugString();
+    }
+    default:
+      return "";
+  }
+}
+
 }  // namespace ent

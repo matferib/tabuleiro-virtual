@@ -322,6 +322,33 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
         AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SELECIONAVEL);
       }
       break;
+
+    // Bits locais.
+    case CONTROLE_FURTIVO:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FURTIVO);
+      break;
+    case CONTROLE_SURPRESO:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_SURPRESO);
+      break;
+    case CONTROLE_ATAQUE_MAIS_1:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_1);
+      break;
+    case CONTROLE_ATAQUE_MAIS_2:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_2);
+      break;
+    case CONTROLE_ATAQUE_MAIS_4:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_4);
+      break;
+    case CONTROLE_ATAQUE_MENOS_1:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_1);
+      break;
+    case CONTROLE_ATAQUE_MENOS_2:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_2);
+      break;
+    case CONTROLE_ATAQUE_MENOS_4:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_4);
+      break;
+
     case CONTROLE_VOO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
@@ -945,15 +972,40 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE,  [this] (const Entidade* entidade) {
       return indice_iniciativa_ != -1;
     } },
-    { CONTROLE_LUZ,               [this] (const Entidade* entidade) {
+    { CONTROLE_LUZ,                [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().has_luz();
     } },
-    { CONTROLE_QUEDA,        [this] (const Entidade* entidade) {
+    { CONTROLE_QUEDA,              [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().caida();
     } },
-    { CONTROLE_SELECIONAVEL,        [this] (const Entidade* entidade) {
+    { CONTROLE_SELECIONAVEL,       [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().selecionavel_para_jogador();
     } },
+    { CONTROLE_FURTIVO,            [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().furtivo();
+    } },
+    { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().surpreso();
+    } },
+    { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_mais_1();
+    } },
+    { CONTROLE_ATAQUE_MAIS_2,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_mais_2();
+    } },
+    { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_mais_4();
+    } },
+    { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_menos_1();
+    } },
+    { CONTROLE_ATAQUE_MENOS_2,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_menos_2();
+    } },
+    { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().ataque_menos_4();
+    } },
+
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().voadora();
     } },
@@ -1038,7 +1090,7 @@ void Tabuleiro::DesenhaControleVirtual() {
 
   // Informacao da entidade primeira pessoa. Uma barra na esquerda, com número abaixo.
   // Barra de pontos de vida.
-  // DesenhaInfoPrimeiraPessoa.
+  // aka DesenhaInfoPrimeiraPessoa.
   if (camera_presa_) {
     DesenhaInfoCameraPresa();
   }

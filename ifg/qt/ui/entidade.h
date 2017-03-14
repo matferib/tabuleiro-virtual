@@ -45,7 +45,7 @@ public:
     QHBoxLayout *horizontalLayout;
     QLabel *label;
     QLineEdit *campo_id;
-    QTabWidget *tab_entidade;
+    QTabWidget *tab_tesouro;
     QWidget *tab_geral;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *horizontalLayout_2;
@@ -164,7 +164,7 @@ public:
     QSpacerItem *horizontalSpacer_6;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_29;
-    QDoubleSpinBox *spin_alcance_quad;
+    QSpinBox *spin_alcance_quad;
     QLabel *label_30;
     QSpacerItem *horizontalSpacer_5;
     QLabel *label_32;
@@ -181,6 +181,13 @@ public:
     QSpinBox *spin_ca_toque;
     QLabel *label_28;
     QSpinBox *spin_ca_surpreso;
+    QLabel *label_38;
+    QLineEdit *linha_furtivo;
+    QWidget *tab;
+    QWidget *layoutWidget_4;
+    QHBoxLayout *horizontalLayout_30;
+    QLabel *label_37;
+    QPlainTextEdit *lista_tesouro;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -211,9 +218,9 @@ public:
 
         horizontalLayout->addWidget(campo_id, 0, Qt::AlignLeft);
 
-        tab_entidade = new QTabWidget(ifg__qt__DialogoEntidade);
-        tab_entidade->setObjectName(QString::fromUtf8("tab_entidade"));
-        tab_entidade->setGeometry(QRect(10, 80, 931, 481));
+        tab_tesouro = new QTabWidget(ifg__qt__DialogoEntidade);
+        tab_tesouro->setObjectName(QString::fromUtf8("tab_tesouro"));
+        tab_tesouro->setGeometry(QRect(10, 80, 931, 481));
         tab_geral = new QWidget();
         tab_geral->setObjectName(QString::fromUtf8("tab_geral"));
         horizontalLayoutWidget_2 = new QWidget(tab_geral);
@@ -739,7 +746,7 @@ public:
 
         verticalLayout->addLayout(horizontalLayout_18);
 
-        tab_entidade->addTab(tab_geral, QString());
+        tab_tesouro->addTab(tab_geral, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
         layoutWidget_3 = new QWidget(tab_estatisticas);
@@ -851,12 +858,9 @@ public:
 
         horizontalLayout_6->addWidget(label_29);
 
-        spin_alcance_quad = new QDoubleSpinBox(verticalLayoutWidget_2);
+        spin_alcance_quad = new QSpinBox(verticalLayoutWidget_2);
         spin_alcance_quad->setObjectName(QString::fromUtf8("spin_alcance_quad"));
-        spin_alcance_quad->setDecimals(1);
-        spin_alcance_quad->setMinimum(-3);
-        spin_alcance_quad->setMaximum(1000);
-        spin_alcance_quad->setSingleStep(1);
+        spin_alcance_quad->setMinimum(-1);
 
         horizontalLayout_6->addWidget(spin_alcance_quad);
 
@@ -948,7 +952,36 @@ public:
 
         verticalLayout_2->addLayout(horizontalLayout_6);
 
-        tab_entidade->addTab(tab_estatisticas, QString());
+        label_38 = new QLabel(tab_estatisticas);
+        label_38->setObjectName(QString::fromUtf8("label_38"));
+        label_38->setGeometry(QRect(171, 400, 41, 34));
+        label_38->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        linha_furtivo = new QLineEdit(tab_estatisticas);
+        linha_furtivo->setObjectName(QString::fromUtf8("linha_furtivo"));
+        linha_furtivo->setGeometry(QRect(218, 403, 129, 27));
+        tab_tesouro->addTab(tab_estatisticas, QString());
+        tab = new QWidget();
+        tab->setObjectName(QString::fromUtf8("tab"));
+        layoutWidget_4 = new QWidget(tab);
+        layoutWidget_4->setObjectName(QString::fromUtf8("layoutWidget_4"));
+        layoutWidget_4->setGeometry(QRect(0, 10, 481, 221));
+        horizontalLayout_30 = new QHBoxLayout(layoutWidget_4);
+        horizontalLayout_30->setObjectName(QString::fromUtf8("horizontalLayout_30"));
+        horizontalLayout_30->setContentsMargins(0, 0, 0, 0);
+        label_37 = new QLabel(layoutWidget_4);
+        label_37->setObjectName(QString::fromUtf8("label_37"));
+        sizePolicy5.setHeightForWidth(label_37->sizePolicy().hasHeightForWidth());
+        label_37->setSizePolicy(sizePolicy5);
+        label_37->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_30->addWidget(label_37);
+
+        lista_tesouro = new QPlainTextEdit(layoutWidget_4);
+        lista_tesouro->setObjectName(QString::fromUtf8("lista_tesouro"));
+
+        horizontalLayout_30->addWidget(lista_tesouro);
+
+        tab_tesouro->addTab(tab, QString());
         QWidget::setTabOrder(campo_rotulo, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, spin_pontos_vida);
@@ -975,8 +1008,8 @@ public:
         QWidget::setTabOrder(spin_tex_largura, spin_tex_trans_y);
         QWidget::setTabOrder(spin_tex_trans_y, spin_tex_altura);
         QWidget::setTabOrder(spin_tex_altura, combo_modelos_3d);
-        QWidget::setTabOrder(combo_modelos_3d, tab_entidade);
-        QWidget::setTabOrder(tab_entidade, checkbox_iniciativa);
+        QWidget::setTabOrder(combo_modelos_3d, tab_tesouro);
+        QWidget::setTabOrder(tab_tesouro, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_modificador_iniciativa);
         QWidget::setTabOrder(spin_modificador_iniciativa, spin_alcance_quad);
@@ -999,7 +1032,7 @@ public:
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
         QObject::connect(botoes, SIGNAL(rejected()), ifg__qt__DialogoEntidade, SLOT(reject()));
 
-        tab_entidade->setCurrentIndex(0);
+        tab_tesouro->setCurrentIndex(0);
 
 
         QMetaObject::connectSlotsByName(ifg__qt__DialogoEntidade);
@@ -1124,7 +1157,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        tab_entidade->setTabText(tab_entidade->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade ter\303\241 iniciativa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -1179,7 +1212,17 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_ca_surpreso->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Surpresa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        tab_entidade->setTabText(tab_entidade->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
+        label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Furtivo", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        linha_furtivo->setText(QString());
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
+        label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

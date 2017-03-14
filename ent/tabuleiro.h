@@ -120,18 +120,27 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Inverte o bit da entidade. */
   enum bit_e {
-    BIT_VISIBILIDADE     = 0x1,
-    BIT_ILUMINACAO       = 0x2,
-    BIT_VOO              = 0x4,
-    BIT_MORTA            = 0x8,
-    BIT_CAIDA            = 0x10,
-    BIT_SELECIONAVEL     = 0x20,
-    BIT_FIXA             = 0x40,
+    BIT_VISIBILIDADE         = 0x1,
+    BIT_ILUMINACAO           = 0x2,
+    BIT_VOO                  = 0x4,
+    BIT_MORTA                = 0x8,
+    BIT_CAIDA                = 0x10,
+    BIT_SELECIONAVEL         = 0x20,
+    BIT_FIXA                 = 0x40,
+    BIT_FURTIVO              = 0x80,
+    BIT_SURPRESO             = 0x100,
+    BIT_ATAQUE_MAIS_1        = 0x400,
+    BIT_ATAQUE_MAIS_2        = 0x800,
+    BIT_ATAQUE_MAIS_4        = 0x1000,
+    BIT_ATAQUE_MENOS_1       = 0x2000,
+    BIT_ATAQUE_MENOS_2       = 0x4000,
+    BIT_ATAQUE_MENOS_4       = 0x8000,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
   */
   void AlternaBitsEntidadeNotificando(int bits);
+  /** Alguns bits sao locais. */
   void AtualizaBitsEntidadeNotificando(int bits, bool valor);
 
   /** Adiciona delta_pontos_vida aos pontos de vida da entidade selecionada. */
@@ -165,6 +174,8 @@ class Tabuleiro : public ntf::Receptor {
   bool HaValorListaPontosVida();
   /** Retorna a frente da lista e a remove. Caso o dano seja automatico, le da entidade para o tipo de acao. */
   int LeValorListaPontosVida(const Entidade* entidade, const std::string& id_acao);
+  /** Retorna o valor de ataque furtivo, se estiver ligado e houver. */
+  int LeValorAtaqueFurtivo(const Entidade* entidade);
 
   /** desenha o mundo. Retorna o tempo em ms. */
   int Desenha();

@@ -8,6 +8,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "net/util.h"
 
 #include "log/log.h"
 
@@ -687,7 +688,7 @@ EntidadeProto::TipoTransicao Entidade::TipoTransicao() const {
 int Entidade::TransicaoCenario() const {
   // Legado.
   if (TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
-    return -2;
+    return CENARIO_INVALIDO;
   }
   return proto_.transicao_cenario().id_cenario();
 }
@@ -794,7 +795,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
   }
-  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) {
+  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO || proto_parcial.tipo_transicao() == EntidadeProto::TRANS_NENHUMA) {
     proto_.clear_transicao_cenario();
   }
   if (proto_parcial.has_pos() && !proto_parcial.has_destino()) {
@@ -1158,7 +1159,21 @@ std::string Entidade::DetalhesAcao() const {
   if (dado_ataque == nullptr) {
     return "";
   }
-  return dado_ataque->rotulo() + ": " + (dado_ataque->bonus_ataque() > 0 ? "+" : "") + net::to_string(dado_ataque->bonus_ataque()) + ", " + dado_ataque->dano();
+
+  int modificador = ModificadorAtaque(dado_ataque->tipo_ataque() != "Ataque Corpo a Corpo", proto_, EntidadeProto());
+  char texto_modificador[100] = { '\0' };
+  if (modificador != 0) snprintf(texto_modificador, 99, "%+d", modificador);
+
+  char texto_furtivo[100] = { '\0' };
+  if (proto_.furtivo() && !proto_.dados_ataque_globais().dano_furtivo().empty()) {
+    snprintf(texto_furtivo, 99, "+%s", proto_.dados_ataque_globais().dano_furtivo().c_str());
+  }
+
+  char texto[100] = { '\0' };
+  snprintf(texto, 99, "%s: %+d%s, %s%s", dado_ataque->rotulo().c_str(), dado_ataque->bonus_ataque(),
+                                        texto_modificador,
+                                        dado_ataque->dano().c_str(), texto_furtivo);
+  return texto;
 }
 
 std::string Entidade::StringDanoParaAcao() const {

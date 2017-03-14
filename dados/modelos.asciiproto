@@ -544,40 +544,44 @@ modelo {
   id: 'Humano Ladino 3'
   entidade {
     dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 3\nFurtivo 2d6'
+    rotulo_especial: 'Humano Ladino 3'
     modificador_iniciativa: 6
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque_globais { dano_furtivo: '2d6' }
   }
 }
 modelo {
   id: 'Humano Ladino 4'
   entidade {
     dados_vida: '4d6+4' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 4\nfurtivo 2d6'
+    rotulo_especial: 'Humano Ladino 4'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque_globais { dano_furtivo: '2d6' }
   }
 }
 modelo {
   id: 'Humano Ladino 5'
   entidade {
     dados_vida: '5d6+5' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 5\nfurtivo 3d6'
+    rotulo_especial: 'Humano Ladino 5'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 7 dano: '1d6+1' multiplicador_critico: 3 ca_normal: 16 }
+    dados_ataque_globais { dano_furtivo: '3d6' }
   }
 }
 modelo {
   id: 'Humano Ladino 7'
   entidade {
     dados_vida: '7d6+7' info_textura { id: 'rogue7.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
-    rotulo_especial: 'Humano Ladino 7\nfurtivo 4d6'
+    rotulo_especial: 'Humano Ladino 7'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' ca_normal: 18 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 9 dano: '1d6+1' ca_normal: 17 }
+    dados_ataque_globais { dano_furtivo: '4d6' }
   }
 }
 modelo {
@@ -602,7 +606,7 @@ modelo {
     dados_ataque {
       rotulo: 'maça estrela' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
     dados_ataque {
-      rotulo: 'azagaia' tipo_ataque: 'Ataque a Distância' bonus_ataque: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
+      rotulo: 'azagaia' alcance_m: 9 incrementos: 5 tipo_ataque: 'Ataque a Distância' bonus_ataque: 3 dano: '1d4' ca_normal: 15 ca_toque: 12 ca_surpreso: 14 }
   }
 }
 modelo {
@@ -612,12 +616,13 @@ modelo {
     info_textura { id: 'goblin_sargent.png' translacao_x: 0.2 translacao_y: 0.1 largura: 0.6 altura: 0.8 }
     cor { r: 0.545 g: 0.396 b: 0.188 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3\n1d00 PO'
+    rotulo_especial: 'pocao: forca touro, agilidade gato, curar leve x3'
+    tesouro { tesouro: '1d100 PO' }
     modificador_iniciativa: 1
     dados_ataque {
       rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
     dados_ataque {
-      rotulo: 'besta leve OP' tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
+      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {

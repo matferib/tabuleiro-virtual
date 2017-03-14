@@ -8,6 +8,7 @@
 #include <vector>
 #include <google/protobuf/repeated_field.h>
 #include "matrix/matrices.h"
+#include "ntf/notificacao.pb.h"
 
 // Funcoes uteis de ent.
 namespace ent {
@@ -202,6 +203,18 @@ class AlteraBlendEscopo {
   const ParametrosDesenho* pd_;
   bool restaurar_;
 };
+
+// Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
+int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed);
+
+// Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
+// O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).
+// Caso haja falha critica, retorna vezes = -1;
+// Posicao ataque eh para calculo de distancia.
+std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Entidade& ed, const Posicao& pos_alvo);
+
+// Gera um resumo sobre a notificacao, ou vazio.
+std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao& n);
 
 }  // namespace ent
 
