@@ -459,7 +459,8 @@ void Tabuleiro::ConfiguraProjecao() {
                   distancia_min, distancia_max * 1.2f);  // 1.2 necessario?
   } else {
     gl::Perspectiva(parametros_desenho_.projecao().has_campo_visao_vertical_graus()
-                        ? parametros_desenho_.projecao().campo_visao_vertical_graus() : angulo_visao_vertical_graus_,
+                        ? parametros_desenho_.projecao().campo_visao_vertical_graus()
+                        : camera_ == CAMERA_PRIMEIRA_PESSOA ? angulo_visao_vertical_graus_ : CAMPO_VISAO_PADRAO,
                     parametros_desenho_.projecao().has_razao_aspecto()
                         ? parametros_desenho_.projecao().razao_aspecto() : Aspecto(),
                     parametros_desenho_.projecao().tipo_camera() == CAMERA_PRIMEIRA_PESSOA
