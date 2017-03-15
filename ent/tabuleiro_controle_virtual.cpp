@@ -885,7 +885,7 @@ void Tabuleiro::DesenhaIniciativas() {
     } else if (!proto.info_textura().id().empty()) {
       rotulo = proto.info_textura().id().substr(0, proto.info_textura().id().find_last_of("."));
     }
-    snprintf(str, 50, "%d-%s", entidade->Iniciativa(), rotulo.c_str());
+    snprintf(str, 50, "%d-%s", entidade->Iniciativa(), StringSemUtf8(rotulo).c_str());
     gl::DesenhaStringAlinhadoEsquerda(str);
     const int MAX_INICIATIVAS_DESENHADAS = 10;
     if (++num_desenhadas > MAX_INICIATIVAS_DESENHADAS) {

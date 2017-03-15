@@ -1944,7 +1944,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
       entidades = EntidadesSelecionadas();
     } else {
       for (const auto& di : iniciativas_) {
-        auto* entidade = BuscaEntidade(di.id);
+        const auto* entidade = BuscaEntidade(di.id);
         if (entidade != nullptr) {
           entidades.push_back(entidade);
         }
@@ -2002,11 +2002,11 @@ void Tabuleiro::RolaIniciativasNotificando() {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
     } else if (IdCameraPresa() != Entidade::IdInvalido) {
-      auto* entidade = BuscaEntidade(IdCameraPresa());
-      if (entidade != nullptr) {
-        entidades.push_back(entidade);
-      } else {
-        LOG(ERROR) << "Entidade presa eh nula";
+      for (const unsigned int id : ids_camera_presa_) {
+        const auto* entidade = BuscaEntidade(id);
+        if (entidade != nullptr) {
+          entidades.push_back(entidade);
+        }
       }
     } else {
       LOG(INFO) << "Nao ha unidade selecionada ou presa para rolar iniciativa";
