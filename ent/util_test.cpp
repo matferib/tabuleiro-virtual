@@ -1,5 +1,6 @@
 #include "ent/util.h"
 #include "gtest/gtest.h"
+#include "log/log.h"
 
 namespace ent {
 
@@ -22,6 +23,23 @@ TEST(TesteGeraDados, TesteGeraDados) {
 TEST(TesteStringSemUtf8, TesteStringSemUtf8) {
   std::string s("áÁéÉíÍóÓúÚç");
   EXPECT_EQ("aAeEiIoOuUc", StringSemUtf8(s));
+}
+
+TEST(TesteDados, Dados) {
+  std::map<int, int> valores;
+  for (int i = 0; i < 1000000; ++i) {
+    valores[RolaDado(20)]++;
+  }
+  int min = std::numeric_limits<int>::max();
+  int max = 0;
+  for (auto it : valores) {
+    LOG(INFO) << "valor: " << it.first << ": " << it.second;
+    min = std::min(min, it.second);
+    max = std::max(max, it.second);
+  }
+  float max_min = static_cast<float>(max) / min;
+  LOG(INFO) << "max / min: " << max_min;
+  EXPECT_LT(max_min, 1.04);
 }
 
 TEST(TesteDanoArma, TesteDanoArma) {
