@@ -1954,8 +1954,12 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
     } else if (IdCameraPresa() != Entidade::IdInvalido) {
-      auto* entidade = EntidadeSelecionada();
-      entidades.push_back(entidade);
+      for (const unsigned int id : ids_camera_presa_) {
+        auto* entidade = BuscaEntidade(id);
+        if (entidade != nullptr) {
+          entidades.push_back(entidade);
+        }
+      }
     } else {
       LOG(INFO) << "Nao ha unidade selecionada ou presa para limpar iniciativas";
       return;

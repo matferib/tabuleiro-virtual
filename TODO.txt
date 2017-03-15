@@ -1,3 +1,6 @@
+Rotulo ainda aparecendo.
+Apagar iniciativa: pau cliente.
+Botao ok: pau cliente.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
 Colocar as features em um menu separado e adicionar varias do features.binproto.
