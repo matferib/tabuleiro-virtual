@@ -4650,7 +4650,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
-    parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
+    parametros_desenho_.set_desenha_eventos_entidades(
+        !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+        (VisaoMestre() || entidade->SelecionavelParaJogador()));
     //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
   }
