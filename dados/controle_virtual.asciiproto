@@ -613,7 +613,7 @@ pagina {
     id: CONTROLE_ANGULO_VISAO_ORIGINAL
     textura: "icon_camera_fov_default.png"
     forma: FORMA_RETANGULO
-    dica: "Restaura angulo de visao para 60 graus."
+    dica: "Restaura angulo de visao para 70 graus."
   }
   dados_botoes {
     tamanho: 1
