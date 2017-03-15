@@ -459,7 +459,8 @@ void Tabuleiro::ConfiguraProjecao() {
                   distancia_min, distancia_max * 1.2f);  // 1.2 necessario?
   } else {
     gl::Perspectiva(parametros_desenho_.projecao().has_campo_visao_vertical_graus()
-                        ? parametros_desenho_.projecao().campo_visao_vertical_graus() : angulo_visao_vertical_graus_,
+                        ? parametros_desenho_.projecao().campo_visao_vertical_graus()
+                        : camera_ == CAMERA_PRIMEIRA_PESSOA ? angulo_visao_vertical_graus_ : CAMPO_VISAO_PADRAO,
                     parametros_desenho_.projecao().has_razao_aspecto()
                         ? parametros_desenho_.projecao().razao_aspecto() : Aspecto(),
                     parametros_desenho_.projecao().tipo_camera() == CAMERA_PRIMEIRA_PESSOA
@@ -1944,7 +1945,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
       entidades = EntidadesSelecionadas();
     } else {
       for (const auto& di : iniciativas_) {
-        auto* entidade = BuscaEntidade(di.id);
+        const auto* entidade = BuscaEntidade(di.id);
         if (entidade != nullptr) {
           entidades.push_back(entidade);
         }
@@ -2002,11 +2003,11 @@ void Tabuleiro::RolaIniciativasNotificando() {
     if (estado_ == ETAB_ENTS_SELECIONADAS) {
       entidades = EntidadesSelecionadas();
     } else if (IdCameraPresa() != Entidade::IdInvalido) {
-      auto* entidade = BuscaEntidade(IdCameraPresa());
-      if (entidade != nullptr) {
-        entidades.push_back(entidade);
-      } else {
-        LOG(ERROR) << "Entidade presa eh nula";
+      for (const unsigned int id : ids_camera_presa_) {
+        const auto* entidade = BuscaEntidade(id);
+        if (entidade != nullptr) {
+          entidades.push_back(entidade);
+        }
       }
     } else {
       LOG(INFO) << "Nao ha unidade selecionada ou presa para rolar iniciativa";
@@ -4649,7 +4650,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo(entidade_detalhada);
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
-    parametros_desenho_.set_desenha_eventos_entidades(VisaoMestre() || entidade->SelecionavelParaJogador());
+    parametros_desenho_.set_desenha_eventos_entidades(
+        !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+        (VisaoMestre() || entidade->SelecionavelParaJogador()));
     //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
   }

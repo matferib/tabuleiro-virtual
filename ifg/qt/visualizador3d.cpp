@@ -654,15 +654,16 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.spin_trans_y, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.spin_trans_z, SIGNAL(valueChanged(double)), habilita_posicao);
   lambda_connect(gerador.combo_transicao, SIGNAL(currentIndexChanged(int)), [gerador] {
-    bool habilitado = gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO;
-    gerador.linha_transicao_cenario->setEnabled(habilitado);
-    gerador.checkbox_transicao_posicao->setEnabled(habilitado);
-    gerador.spin_trans_x->setEnabled(habilitado);
-    gerador.spin_trans_y->setEnabled(habilitado);
-    gerador.spin_trans_z->setEnabled(habilitado);
+    bool trans_cenario = gerador.combo_transicao->currentIndex() == ent::EntidadeProto::TRANS_CENARIO;
+    gerador.linha_transicao_cenario->setEnabled(trans_cenario);
+    gerador.checkbox_transicao_posicao->setEnabled(trans_cenario);
+    gerador.spin_trans_x->setEnabled(trans_cenario);
+    gerador.spin_trans_y->setEnabled(trans_cenario);
+    gerador.spin_trans_z->setEnabled(trans_cenario);
   });
   if (!entidade.transicao_cenario().has_id_cenario()) {
-    gerador.combo_transicao->setCurrentIndex(ent::EntidadeProto::TRANS_NENHUMA);
+    bool trans_tesouro = entidade.tipo_transicao() == ent::EntidadeProto::TRANS_TESOURO;
+    gerador.combo_transicao->setCurrentIndex(trans_tesouro ? ent::EntidadeProto::TRANS_TESOURO : ent::EntidadeProto::TRANS_NENHUMA);
     gerador.linha_transicao_cenario->setEnabled(false);
     gerador.checkbox_transicao_posicao->setEnabled(false);
     gerador.spin_trans_x->setEnabled(false);
