@@ -477,8 +477,11 @@ const std::vector<MultDadoSoma> DesmembraDadosVida(const std::string& dados_vida
 // Rola um dado de nfaces.
 int RolaDado(unsigned int nfaces) {
   // TODO inicializacao do motor de baseada no timestamp.
-  static std::minstd_rand motor_aleatorio(std::chrono::system_clock::now().time_since_epoch().count());
-  return (motor_aleatorio() % nfaces) + 1;
+  static std::default_random_engine motor(std::chrono::system_clock::now().time_since_epoch().count());
+  std::uniform_int_distribution<int> distribution(1, nfaces);
+  //static int min = motor_aleatorio.min();
+  //static int max = motor_aleatorio.max();
+  return distribution(motor);
 }
 
 float Aleatorio() {
