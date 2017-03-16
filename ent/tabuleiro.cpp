@@ -2954,17 +2954,22 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
+        acao_proto.clear_id_entidade_destino();
         std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao_proto);
         for (auto id : ids_afetados) {
-          acao_proto.add_id_entidade_destino(id);
-          // Para desfazer.
-          if (delta_pontos_vida == 0) {
-            continue;
-          }
           const Entidade* entidade_destino = BuscaEntidade(id);
           if (entidade_destino == nullptr) {
             // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
             LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+            continue;
+          }
+          if (entidade_destino->MaximoPontosVida() <= 0) {
+            VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
+            continue;
+          }
+          acao_proto.add_id_entidade_destino(id);
+          // Para desfazer.
+          if (delta_pontos_vida == 0) {
             continue;
           }
           int delta_pv_pos_salvacao = delta_pontos_vida;
