@@ -60,6 +60,8 @@
 #define TAM_MAPA_OCLUSAO 1024
 #define APENAS_MESTRE_CRIA_FORMAS 0
 
+#define ORDENAR_ENTIDADES 0
+
 using google::protobuf::RepeatedField;
 
 namespace ent {
@@ -660,6 +662,9 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
+#if ORDENAR_ENTIDADES
+    parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
+#endif
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
@@ -706,6 +711,9 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
+#if ORDENAR_ENTIDADES
+  parametros_desenho_.set_ordena_entidades_apos_configura_olhar(true);
+#endif
 
   if (usar_sampler_sombras_) {
     gl::UsaShader(gl::TSH_SIMPLES);
@@ -891,6 +899,9 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
+#if ORDENAR_ENTIDADES
+  parametros_desenho_.set_ordena_entidades_apos_configura_olhar(true);
+#endif
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
   timer_entre_cenas_.start();
@@ -3555,6 +3566,11 @@ void Tabuleiro::DesenhaCena() {
   gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+#if ORDENAR_ENTIDADES
+  if (parametros_desenho_.ordena_entidades_apos_configura_olhar()) {
+    OrdenaEntidades();
+  }
+#endif
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   V_ERRO("configurando olhar");
@@ -4590,16 +4606,8 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
 }
 }  // namespace
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
-  //LOG(INFO) << "LOOP";
-#if 0
+void Tabuleiro::OrdenaEntidades() {
   auto MaisProximoOlho = [this] (Entidade* lhs, Entidade* rhs) {
-    if (lhs->IdCenario() != cenario_corrente_) {
-      return false;
-    }
-    if (lhs->IdCenario() == cenario_corrente_ && rhs->IdCenario() != cenario_corrente_) {
-      return true;
-    }
     Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
     Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
     Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
@@ -4609,12 +4617,24 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   };
   std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisProximoOlho);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    set_entidades.insert(it->second.get());
+    auto* entidade = it->second.get();
+    if (entidade->IdCenario() == cenario_corrente_) {
+      set_entidades.insert(entidade);
+    }
   }
-  for (Entidade* entidade : set_entidades) {
+  entidades_ordenadas_.clear();
+  for (auto* entidade : set_entidades) {
+    entidades_ordenadas_.push_back(entidade);
+  }
+}
+
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
+  //LOG(INFO) << "LOOP";
+#if ORDENAR_ENTIDADES
+  for (Entidade* entidade : entidades_ordenadas_) {
 #else
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    Entidade* entidade = it->second.get();
+  for (auto& it : entidades_) {
+    auto* entidade = it.second.get();
 #endif
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";

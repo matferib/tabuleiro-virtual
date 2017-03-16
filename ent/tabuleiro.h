@@ -542,6 +542,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
+  void OrdenaEntidades();
 
   /** Detecta se havera colisao no movimento da entidade. */
   struct ResultadoColisao {
@@ -1122,6 +1123,8 @@ class Tabuleiro : public ntf::Receptor {
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
   std::string info_geral_;
   int temporizador_info_geral_ms_ = 0;
+
+  std::vector<Entidade*> entidades_ordenadas_;
 
   ntf::Notificacao notificacao_selecao_transicao_;
 
