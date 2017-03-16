@@ -22,6 +22,8 @@ class Acao {
   // Desenha a acao.
   void Desenha(ParametrosDesenho* pd) const;
   void DesenhaTranslucido(ParametrosDesenho* pd) const;
+  // Retorna onde a acao sera desenhada.
+  int IdCenario() const;
 
   enum estado_alvo_e {
     ALVO_NAO_ATINGIDO,          // acao ainda nao afetou o alvo.

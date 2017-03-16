@@ -3098,23 +3098,39 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       LOG(INFO) << "Receptor eh nullptr";
       return;
     }
+    if (receptor->Id() == entidade_transicao->Id()) {
+      LOG(INFO) << "Receptor tem que ser diferente";
+      return;
+    }
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    auto* n_perdeu = n.add_notificacao();
-    n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-    n_perdeu->mutable_entidade()->set_id(id);
-    n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
-    n_perdeu->mutable_entidade_antes()->set_id(id);
-    n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
+    {
+      auto* n_perdeu = n.add_notificacao();
+      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_perdeu->mutable_entidade()->set_id(id);
+      n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
+      n_perdeu->mutable_entidade_antes()->set_id(id);
+      n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
 
-    auto* n_ganhou = n.add_notificacao();
-    const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
-    n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-    n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
-    n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
-        tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
-    n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
-    n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
+      auto* n_ganhou = n.add_notificacao();
+      const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
+      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
+      n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
+          tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
+      n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
+      n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
+    }
+    {
+      // Texto de transicao.
+      auto* n_texto = n.add_notificacao();
+      n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
+      auto* acao = n_texto->mutable_acao();
+      acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+      acao->set_texto(entidade_transicao->Proto().tesouro().tesouro());
+      acao->add_id_entidade_destino(receptor->Id());
+      //*acao->mutable_pos_entidade() = receptor->Pos();
+    }
 
     TrataNotificacao(n);
     AdicionaNotificacaoListaEventos(n);
@@ -4752,15 +4768,8 @@ void Tabuleiro::DesenhaAuras() {
 void Tabuleiro::DesenhaAcoes() {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
-    if (a->Proto().has_id_entidade_origem()) {
-      auto* entidade_origem = BuscaEntidade(a->Proto().id_entidade_origem());
-      if (entidade_origem == nullptr || entidade_origem->IdCenario() != cenario_corrente_) {
-        continue;
-      }
-    } else {
-      if (a->Proto().pos_entidade().id_cenario() != cenario_corrente_) {
-        continue;
-      }
+    if (a->IdCenario() != cenario_corrente_) {
+      continue;
     }
     a->Desenha(&parametros_desenho_);
   }

@@ -699,6 +699,28 @@ void Acao::Atualiza(int intervalo_ms) {
   AtualizaAposAtraso(intervalo_ms);
 }
 
+int Acao::IdCenario() const {
+  if (acao_proto_.has_id_entidade_origem()) {
+    auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+    if (entidade_origem != nullptr) {
+      return entidade_origem->IdCenario();
+    } else {
+      LOG(WARNING) << "Cenario invalido para acao";
+      return CENARIO_INVALIDO;
+    }
+  } else if (acao_proto_.has_pos_entidade()) {
+    return acao_proto_.pos_entidade().id_cenario();
+  } else if (acao_proto_.id_entidade_destino_size() > 0) {
+    auto* entidade_destino = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_destino(0));
+    if (entidade_destino != nullptr) {
+      return entidade_destino->IdCenario();
+    } else {
+      return CENARIO_INVALIDO;
+    }
+  }
+  return CENARIO_INVALIDO;
+}
+
 void Acao::Desenha(ParametrosDesenho* pd) const {
   if (atraso_s_ > 0) {
     return;
