@@ -135,6 +135,12 @@ class Tabuleiro : public ntf::Receptor {
     BIT_ATAQUE_MENOS_1       = 0x2000,
     BIT_ATAQUE_MENOS_2       = 0x4000,
     BIT_ATAQUE_MENOS_4       = 0x8000,
+    BIT_DANO_MAIS_1          = 0x10000,
+    BIT_DANO_MAIS_2          = 0x20000,
+    BIT_DANO_MAIS_4          = 0x40000,
+    BIT_DANO_MENOS_1         = 0x80000,
+    BIT_DANO_MENOS_2         = 0x100000,
+    BIT_DANO_MENOS_4         = 0x200000,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.
@@ -378,6 +384,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao);
 
+  /** Adiciona um evento ao log. */
+  void AdicionaLogEvento(const std::string& evento);
+
   /** Desfaz a ultima acao local. */
   void TrataComandoDesfazer();
 
@@ -542,6 +551,7 @@ class Tabuleiro : public ntf::Receptor {
   void DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f);
   void DesenhaEntidades() { DesenhaEntidadesBase(&Entidade::Desenha); }
   void DesenhaEntidadesTranslucidas() { DesenhaEntidadesBase(&Entidade::DesenhaTranslucido); }
+  void OrdenaEntidades();
 
   /** Detecta se havera colisao no movimento da entidade. */
   struct ResultadoColisao {
@@ -815,6 +825,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
   bool AtualizaBotaoControleVirtual(DadosBotao* db, const std::map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
+  /** Alguns botoes ficam invisiveis em algumas situacoes, por exemplo, ataque automatico. */
+  bool BotaoVisivel(const DadosBotao& db) const;
 
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
@@ -1016,6 +1028,8 @@ class Tabuleiro : public ntf::Receptor {
   // Lista de ids de camera presa. O corrente sempre é o front.
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
 
+  std::list<std::string> log_eventos_;
+
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
 #endif
@@ -1122,6 +1136,8 @@ class Tabuleiro : public ntf::Receptor {
   // Nao escrever diretamente aqui. Ver funcao EscreveInfoGeral.
   std::string info_geral_;
   int temporizador_info_geral_ms_ = 0;
+
+  std::vector<Entidade*> entidades_ordenadas_;
 
   ntf::Notificacao notificacao_selecao_transicao_;
 

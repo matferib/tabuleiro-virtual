@@ -205,15 +205,6 @@ message EntidadeProto {
   optional bool surpreso = 64;
   optional bool furtivo = 62;
 
-  // Ver funcao ModificadorAtaque em util.
-  // Alguns bonus de ataque genericos.
-  optional bool ataque_menos_1 = 67;
-  optional bool ataque_menos_2 = 68;
-  optional bool ataque_menos_4 = 69;
-  optional bool ataque_mais_1 = 70;
-  optional bool ataque_mais_2 = 71;
-  optional bool ataque_mais_4 = 72;
-
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
   // Ultimas acoes executadas da unidade. Funciona como uma fila onde o indice 0 eh a acao mais recente e o
@@ -253,6 +244,21 @@ message EntidadeProto {
   // Independe de ataque especifico.
   message DadosAtaqueGlobal {
     optional string dano_furtivo = 1;
+    // Ver funcao ModificadorAtaque em util.
+    // Alguns bonus de ataque genericos.
+    optional bool ataque_menos_1 = 2;
+    optional bool ataque_menos_2 = 3;
+    optional bool ataque_menos_4 = 4;
+    optional bool ataque_mais_1 = 5;
+    optional bool ataque_mais_2 = 6;
+    optional bool ataque_mais_4 = 7;
+    // Dano generico.
+    optional bool dano_menos_1 = 8;
+    optional bool dano_menos_2 = 9;
+    optional bool dano_menos_4 = 10;
+    optional bool dano_mais_1 = 11;
+    optional bool dano_mais_2 = 12;
+    optional bool dano_mais_4 = 13;
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
 
@@ -391,6 +397,8 @@ message ParametrosDesenho {
   optional bool regera_vbo = 53;
   // se verdadeiro, desenha a lista de iniciativas.
   optional bool desenha_iniciativas = 54 [default=true];
+  // Se verdadeiro, ordenara as entidades apos a funcao ConfiguraOlhar.
+  optional bool ordena_entidades_apos_configura_olhar = 55 [default=false];
 }
 
 

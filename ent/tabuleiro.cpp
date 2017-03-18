@@ -60,6 +60,8 @@
 #define TAM_MAPA_OCLUSAO 1024
 #define APENAS_MESTRE_CRIA_FORMAS 0
 
+#define ORDENAR_ENTIDADES 0
+
 using google::protobuf::RepeatedField;
 
 namespace ent {
@@ -660,6 +662,9 @@ void Tabuleiro::DesenhaMapaOclusao() {
 
   for (int i = 0; i < 6; ++i) {
     parametros_desenho_.set_desenha_mapa_oclusao(i);
+#if ORDENAR_ENTIDADES
+    parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
+#endif
     gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
@@ -706,6 +711,9 @@ void Tabuleiro::DesenhaMapaSombra() {
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_ISOMETRICA);
+#if ORDENAR_ENTIDADES
+  parametros_desenho_.set_ordena_entidades_apos_configura_olhar(true);
+#endif
 
   if (usar_sampler_sombras_) {
     gl::UsaShader(gl::TSH_SIMPLES);
@@ -891,6 +899,9 @@ int Tabuleiro::Desenha() {
   ConfiguraProjecao();
   //LOG(INFO) << "Desenha sombra: " << parametros_desenho_.desenha_sombras();
   //DesenhaCenaVbos();
+#if ORDENAR_ENTIDADES
+  parametros_desenho_.set_ordena_entidades_apos_configura_olhar(true);
+#endif
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
   timer_entre_cenas_.start();
@@ -1062,29 +1073,54 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_depois->set_furtivo(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_1) {
-      proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
-      proto_depois->set_ataque_mais_1(valor);
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_1(proto_original.dados_ataque_globais().ataque_mais_1());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_1(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_2) {
-      proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
-      proto_depois->set_ataque_mais_2(valor);
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_2(proto_original.dados_ataque_globais().ataque_mais_2());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_2(valor);
     }
     if (bits & BIT_ATAQUE_MAIS_4) {
-      proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
-      proto_depois->set_ataque_mais_4(valor);
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_4(proto_original.dados_ataque_globais().ataque_mais_4());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_4(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_1) {
-      proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
-      proto_depois->set_ataque_menos_1(valor);
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_1(proto_original.dados_ataque_globais().ataque_menos_1());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_1(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_2) {
-      proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
-      proto_depois->set_ataque_menos_2(valor);
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_2(proto_original.dados_ataque_globais().ataque_menos_2());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_2(valor);
     }
     if (bits & BIT_ATAQUE_MENOS_4) {
-      proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
-      proto_depois->set_ataque_menos_4(valor);
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_4(proto_original.dados_ataque_globais().ataque_menos_4());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_4(valor);
     }
+    if (bits & BIT_DANO_MAIS_1) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_1(proto_original.dados_ataque_globais().dano_mais_1());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_1(valor);
+    }
+    if (bits & BIT_DANO_MAIS_2) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_2(proto_original.dados_ataque_globais().dano_mais_2());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_2(valor);
+    }
+    if (bits & BIT_DANO_MAIS_4) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_4(proto_original.dados_ataque_globais().dano_mais_4());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_4(valor);
+    }
+    if (bits & BIT_DANO_MENOS_1) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_1(proto_original.dados_ataque_globais().dano_menos_1());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_1(valor);
+    }
+    if (bits & BIT_DANO_MENOS_2) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_2(proto_original.dados_ataque_globais().dano_menos_2());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_2(valor);
+    }
+    if (bits & BIT_DANO_MENOS_4) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_4(proto_original.dados_ataque_globais().dano_menos_4());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_4(valor);
+    }
+
     proto_antes->set_id(id);
     proto_depois->set_id(id);
     n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
@@ -1178,28 +1214,52 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_depois->set_furtivo(!proto_original.furtivo());
     }
     if (bits & BIT_ATAQUE_MAIS_1) {
-      proto_antes->set_ataque_mais_1(proto_original.ataque_mais_1());
-      proto_depois->set_ataque_mais_1(!proto_original.ataque_mais_1());
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_1(proto_original.dados_ataque_globais().ataque_mais_1());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_1(!proto_original.dados_ataque_globais().ataque_mais_1());
     }
     if (bits & BIT_ATAQUE_MAIS_2) {
-      proto_antes->set_ataque_mais_2(proto_original.ataque_mais_2());
-      proto_depois->set_ataque_mais_2(!proto_original.ataque_mais_2());
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_2(proto_original.dados_ataque_globais().ataque_mais_2());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_2(!proto_original.dados_ataque_globais().ataque_mais_2());
     }
     if (bits & BIT_ATAQUE_MAIS_4) {
-      proto_antes->set_ataque_mais_4(proto_original.ataque_mais_4());
-      proto_depois->set_ataque_mais_4(!proto_original.ataque_mais_4());
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_mais_4(proto_original.dados_ataque_globais().ataque_mais_4());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_mais_4(!proto_original.dados_ataque_globais().ataque_mais_4());
     }
     if (bits & BIT_ATAQUE_MENOS_1) {
-      proto_antes->set_ataque_menos_1(proto_original.ataque_menos_1());
-      proto_depois->set_ataque_menos_1(!proto_original.ataque_menos_1());
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_1(proto_original.dados_ataque_globais().ataque_menos_1());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_1(!proto_original.dados_ataque_globais().ataque_menos_1());
     }
     if (bits & BIT_ATAQUE_MENOS_2) {
-      proto_antes->set_ataque_menos_2(proto_original.ataque_menos_2());
-      proto_depois->set_ataque_menos_2(!proto_original.ataque_menos_2());
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_2(proto_original.dados_ataque_globais().ataque_menos_2());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_2(!proto_original.dados_ataque_globais().ataque_menos_2());
     }
     if (bits & BIT_ATAQUE_MENOS_4) {
-      proto_antes->set_ataque_menos_4(proto_original.ataque_menos_4());
-      proto_depois->set_ataque_menos_4(!proto_original.ataque_menos_4());
+      proto_antes->mutable_dados_ataque_globais()->set_ataque_menos_4(proto_original.dados_ataque_globais().ataque_menos_4());
+      proto_depois->mutable_dados_ataque_globais()->set_ataque_menos_4(!proto_original.dados_ataque_globais().ataque_menos_4());
+    }
+    if (bits & BIT_DANO_MAIS_1) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_1(proto_original.dados_ataque_globais().dano_mais_1());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_1(!proto_original.dados_ataque_globais().dano_mais_1());
+    }
+    if (bits & BIT_DANO_MAIS_2) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_2(proto_original.dados_ataque_globais().dano_mais_2());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_2(!proto_original.dados_ataque_globais().dano_mais_2());
+    }
+    if (bits & BIT_DANO_MAIS_4) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_mais_4(proto_original.dados_ataque_globais().dano_mais_4());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_mais_4(!proto_original.dados_ataque_globais().dano_mais_4());
+    }
+    if (bits & BIT_DANO_MENOS_1) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_1(proto_original.dados_ataque_globais().dano_menos_1());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_1(!proto_original.dados_ataque_globais().dano_menos_1());
+    }
+    if (bits & BIT_DANO_MENOS_2) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_2(proto_original.dados_ataque_globais().dano_menos_2());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_2(!proto_original.dados_ataque_globais().dano_menos_2());
+    }
+    if (bits & BIT_DANO_MENOS_4) {
+      proto_antes->mutable_dados_ataque_globais()->set_dano_menos_4(proto_original.dados_ataque_globais().dano_menos_4());
+      proto_depois->mutable_dados_ataque_globais()->set_dano_menos_4(!proto_original.dados_ataque_globais().dano_menos_4());
     }
 
     proto_antes->set_id(id);
@@ -1384,8 +1444,14 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
       LOG(WARNING) << "entidade eh nula";
       return 0;
     }
-    int delta_pontos_vida = -entidade->ValorParaAcao(id_acao);
+    int delta_pontos_vida;
+    std::string texto_pontos_vida;
+    std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao);
+    delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
+    AdicionaLogEvento(std::string("entidade ") +
+                      (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) +
+                      ": " + texto_pontos_vida);
     return delta_pontos_vida;
   } else {
     int delta_pontos_vida = lista_pontos_vida_.front();
@@ -1404,7 +1470,15 @@ int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
     if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_globais().dano_furtivo().empty()) {
       return 0;
     }
-    return -GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+    int total;
+    std::vector<std::pair<int, int>> dados;
+    std::tie(total, dados) = GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+    total = -total;
+    std::string texto_dados;
+    for (const auto& fv : dados) {
+      texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
+    }
+    LOG(INFO) << "valor dos dados para furtivo. Total: " << total << ", dados: " << texto_dados;
   }
   return 0;
 }
@@ -2943,17 +3017,22 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
           acao_proto.set_delta_pontos_vida(delta_pontos_vida);
           acao_proto.set_afeta_pontos_vida(true);
         }
+        acao_proto.clear_id_entidade_destino();
         std::vector<unsigned int> ids_afetados = EntidadesAfetadasPorAcao(acao_proto);
         for (auto id : ids_afetados) {
-          acao_proto.add_id_entidade_destino(id);
-          // Para desfazer.
-          if (delta_pontos_vida == 0) {
-            continue;
-          }
           const Entidade* entidade_destino = BuscaEntidade(id);
           if (entidade_destino == nullptr) {
             // Nunca deveria acontecer pois a funcao EntidadesAfetadasPorAcao ja buscou a entidade.
             LOG(ERROR) << "Entidade nao encontrada, nunca deveria acontecer.";
+            continue;
+          }
+          if (entidade_destino->MaximoPontosVida() <= 0) {
+            VLOG(1) << "Ignorando entidade que nao pode ser afetada por acao de area";
+            continue;
+          }
+          acao_proto.add_id_entidade_destino(id);
+          // Para desfazer.
+          if (delta_pontos_vida == 0) {
             continue;
           }
           int delta_pv_pos_salvacao = delta_pontos_vida;
@@ -2983,6 +3062,9 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             VLOG(1) << "iniciando ataque vs defesa";
             std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
             VLOG(1) << "--------------------------";
+            AdicionaLogEvento(std::string("entidade ") +
+                (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) + " " +
+                texto);
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
@@ -3087,23 +3169,39 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
       LOG(INFO) << "Receptor eh nullptr";
       return;
     }
+    if (receptor->Id() == entidade_transicao->Id()) {
+      LOG(INFO) << "Receptor tem que ser diferente";
+      return;
+    }
     ntf::Notificacao n;
     n.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    auto* n_perdeu = n.add_notificacao();
-    n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-    n_perdeu->mutable_entidade()->set_id(id);
-    n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
-    n_perdeu->mutable_entidade_antes()->set_id(id);
-    n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
+    {
+      auto* n_perdeu = n.add_notificacao();
+      n_perdeu->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_perdeu->mutable_entidade()->set_id(id);
+      n_perdeu->mutable_entidade()->mutable_tesouro()->set_tesouro("");
+      n_perdeu->mutable_entidade_antes()->set_id(id);
+      n_perdeu->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(entidade_transicao->Proto().tesouro().tesouro());
 
-    auto* n_ganhou = n.add_notificacao();
-    const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
-    n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
-    n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
-    n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
-        tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
-    n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
-    n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
+      auto* n_ganhou = n.add_notificacao();
+      const std::string& tesouro_corrente = receptor->Proto().tesouro().tesouro();
+      n_ganhou->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+      n_ganhou->mutable_entidade()->set_id(ids_receber[0]);
+      n_ganhou->mutable_entidade()->mutable_tesouro()->set_tesouro(
+          tesouro_corrente + (tesouro_corrente.empty() ? "" : "\n") + entidade_transicao->Proto().tesouro().tesouro());
+      n_ganhou->mutable_entidade_antes()->set_id(ids_receber[0]);
+      n_ganhou->mutable_entidade_antes()->mutable_tesouro()->set_tesouro(tesouro_corrente);
+    }
+    {
+      // Texto de transicao.
+      auto* n_texto = n.add_notificacao();
+      n_texto->set_tipo(ntf::TN_ADICIONAR_ACAO);
+      auto* acao = n_texto->mutable_acao();
+      acao->set_tipo(ACAO_DELTA_PONTOS_VIDA);
+      acao->set_texto(entidade_transicao->Proto().tesouro().tesouro());
+      acao->add_id_entidade_destino(receptor->Id());
+      //*acao->mutable_pos_entidade() = receptor->Pos();
+    }
 
     TrataNotificacao(n);
     AdicionaNotificacaoListaEventos(n);
@@ -3555,6 +3653,11 @@ void Tabuleiro::DesenhaCena() {
   gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
   gl::CarregaIdentidade();
   ConfiguraOlhar();
+#if ORDENAR_ENTIDADES
+  if (parametros_desenho_.ordena_entidades_apos_configura_olhar()) {
+    OrdenaEntidades();
+  }
+#endif
 
   parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
   V_ERRO("configurando olhar");
@@ -4590,16 +4693,8 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
 }
 }  // namespace
 
-void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
-  //LOG(INFO) << "LOOP";
-#if 0
+void Tabuleiro::OrdenaEntidades() {
   auto MaisProximoOlho = [this] (Entidade* lhs, Entidade* rhs) {
-    if (lhs->IdCenario() != cenario_corrente_) {
-      return false;
-    }
-    if (lhs->IdCenario() == cenario_corrente_ && rhs->IdCenario() != cenario_corrente_) {
-      return true;
-    }
     Vector3 lhs_pos(lhs->X(), lhs->Y(), lhs->Z());
     Vector3 rhs_pos(rhs->X(), rhs->Y(), rhs->Z());
     Vector3 olho_pos(olho_.pos().x(), olho_.pos().y(), olho_.pos().z());
@@ -4609,12 +4704,24 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
   };
   std::set<Entidade*, std::function<bool(Entidade*, Entidade*)>> set_entidades(MaisProximoOlho);
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    set_entidades.insert(it->second.get());
+    auto* entidade = it->second.get();
+    if (entidade->IdCenario() == cenario_corrente_) {
+      set_entidades.insert(entidade);
+    }
   }
-  for (Entidade* entidade : set_entidades) {
+  entidades_ordenadas_.clear();
+  for (auto* entidade : set_entidades) {
+    entidades_ordenadas_.push_back(entidade);
+  }
+}
+
+void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, ParametrosDesenho*)>& f) {
+  //LOG(INFO) << "LOOP";
+#if ORDENAR_ENTIDADES
+  for (Entidade* entidade : entidades_ordenadas_) {
 #else
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    Entidade* entidade = it->second.get();
+  for (auto& it : entidades_) {
+    auto* entidade = it.second.get();
 #endif
     if (entidade == nullptr) {
       LOG(ERROR) << "Entidade nao existe.";
@@ -4732,15 +4839,8 @@ void Tabuleiro::DesenhaAuras() {
 void Tabuleiro::DesenhaAcoes() {
   for (auto& a : acoes_) {
     VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
-    if (a->Proto().has_id_entidade_origem()) {
-      auto* entidade_origem = BuscaEntidade(a->Proto().id_entidade_origem());
-      if (entidade_origem == nullptr || entidade_origem->IdCenario() != cenario_corrente_) {
-        continue;
-      }
-    } else {
-      if (a->Proto().pos_entidade().id_cenario() != cenario_corrente_) {
-        continue;
-      }
+    if (a->IdCenario() != cenario_corrente_) {
+      continue;
     }
     a->Desenha(&parametros_desenho_);
   }
@@ -6632,6 +6732,16 @@ void Tabuleiro::Hack() {
   }
 }
 
+void Tabuleiro::AdicionaLogEvento(const std::string& evento) {
+  if (evento.empty()) {
+    return;
+  }
+  log_eventos_.push_front(evento);
+  if (log_eventos_.size() > 30) {
+    log_eventos_.pop_back();
+  }
+}
+
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
   if (processando_grupo_ || ignorar_lista_eventos_) {
     VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer pois (processando_grupo_ || ignorar_lista_eventos_) == true";
@@ -6641,6 +6751,8 @@ void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notifica
     // Remove tudo do corrente para a frente.
     lista_eventos_.erase(evento_corrente_, lista_eventos_.end());
   }
+  AdicionaLogEvento(ResumoNotificacao(*this, notificacao));
+
   lista_eventos_.emplace_back(notificacao);
   evento_corrente_ = lista_eventos_.end();
   if (lista_eventos_.size() > TAMANHO_MAXIMO_LISTA) {
@@ -7351,16 +7463,11 @@ void Tabuleiro::DesenhaLogEventos() {
   PosicionaRaster2d(raster_x, raster_y);
   gl::DesenhaString("Lista de Eventos");
   raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
-  auto it = lista_eventos_.rbegin();
-  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++it) {
-    const auto& n = *it;
-    std::string resumo_mensagem = ResumoNotificacao(*this, n);
-    if (resumo_mensagem.empty()) {
-      continue;
-    }
+  auto it = log_eventos_.begin();
+  for (int i = 0; i < (kNumLinhas - 3) && it != log_eventos_.end(); ++it) {
     PosicionaRaster2d(2, raster_y);
     char s[100];
-    snprintf(s, 99, "%s", resumo_mensagem.c_str());
+    snprintf(s, 99, "%s", it->c_str());
     gl::DesenhaStringAlinhadoEsquerda(s);
     raster_y -= altura_fonte;
     ++i;

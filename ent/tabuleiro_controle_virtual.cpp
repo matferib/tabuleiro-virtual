@@ -323,7 +323,6 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       }
       break;
 
-    // Bits locais.
     case CONTROLE_FURTIVO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_FURTIVO);
       break;
@@ -347,6 +346,25 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_ATAQUE_MENOS_4:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_4);
+      break;
+
+    case CONTROLE_DANO_MAIS_1:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_1);
+      break;
+    case CONTROLE_DANO_MAIS_2:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_2);
+      break;
+    case CONTROLE_DANO_MAIS_4:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_4);
+      break;
+    case CONTROLE_DANO_MENOS_1:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MENOS_1);
+      break;
+    case CONTROLE_DANO_MENOS_2:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MENOS_2);
+      break;
+    case CONTROLE_DANO_MENOS_4:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MENOS_4);
       break;
 
     case CONTROLE_VOO:
@@ -751,6 +769,27 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
   }
 }
 
+bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
+  switch (db.id()) {
+    case CONTROLE_ALTERNA_CURA:
+    case CONTROLE_ADICIONA_1:
+    case CONTROLE_ADICIONA_5:
+    case CONTROLE_ADICIONA_10:
+    case CONTROLE_CONFIRMA_DANO:
+    case CONTROLE_APAGA_DANO:
+      return !modo_dano_automatico_;
+    case CONTROLE_DANO_MAIS_1:
+    case CONTROLE_DANO_MAIS_2:
+    case CONTROLE_DANO_MAIS_4:
+    case CONTROLE_DANO_MENOS_1:
+    case CONTROLE_DANO_MENOS_2:
+    case CONTROLE_DANO_MENOS_4:
+      return modo_dano_automatico_;
+    default:
+      return true;
+  }
+}
+
 std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
   if (db.has_rotulo()) {
     return db.rotulo();
@@ -987,23 +1026,43 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().surpreso();
     } },
+    // Ataque.
     { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_mais_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_1();
     } },
     { CONTROLE_ATAQUE_MAIS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_mais_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_2();
     } },
     { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_mais_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_4();
     } },
     { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_menos_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_1();
     } },
     { CONTROLE_ATAQUE_MENOS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_menos_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_2();
     } },
     { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_menos_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_4();
+    } },
+    // Dano.
+    { CONTROLE_DANO_MAIS_1,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_1();
+    } },
+    { CONTROLE_DANO_MAIS_2,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_2();
+    } },
+    { CONTROLE_DANO_MAIS_4,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_4();
+    } },
+    { CONTROLE_DANO_MENOS_1,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_1();
+    } },
+    { CONTROLE_DANO_MENOS_2,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_2();
+    } },
+    { CONTROLE_DANO_MENOS_4,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_4();
     } },
 
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
@@ -1047,9 +1106,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
   gl::MatrizEscopo salva_matriz_2(GL_MODELVIEW);
- 
-  // Desenha em duas passadas por causa da limitacao de projecao do nexus 7.
-  // Desenha apenas os botoes.
+
   {
     int pagina_corrente = controle_virtual_.pagina_corrente();
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
@@ -1058,9 +1115,11 @@ void Tabuleiro::DesenhaControleVirtual() {
     std::vector<DadosBotao*> botoes;
     botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
     for (auto& db : *controle_virtual_.mutable_pagina(pagina_corrente)->mutable_dados_botoes()) {
+      if (!BotaoVisivel(db)) continue;
       botoes.push_back(&db);
     }
     for (auto& db : *controle_virtual_.mutable_fixo()->mutable_dados_botoes()) {
+      if (!BotaoVisivel(db)) continue;
       botoes.push_back(&db);
     }
     auto* entidade = EntidadeSelecionadaOuPrimeiraPessoa();

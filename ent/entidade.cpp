@@ -112,7 +112,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {
-      int pv = GeraPontosVida(proto_.dados_vida());
+      int pv;
+      std::tie(pv, std::ignore) = GeraPontosVida(proto_.dados_vida());
       if (pv == 0) {
         pv = 1;
       }
@@ -1136,22 +1137,29 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   proto_.mutable_direcao_queda()->Swap(&v);
 }
 
-int Entidade::ValorParaAcao(const std::string& id_acao) const {
+std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao) const {
   std::string s = StringDanoParaAcao();
   if (s.empty()) {
     VLOG(1) << "Acao nao encontrada: " << id_acao;
-    return 0;
+    return std::make_tuple(0, "ação não encontrada");
   }
   try {
     // Nao deixa valor negativo para evitar danos que curam.
-    int valor = GeraPontosVida(s);
+    int valor;
+    std::vector<std::pair<int, int>> dados;
+    std::tie(valor, dados) = GeraPontosVida(s);
+    std::string texto_dados;
+    for (const auto& fv : dados) {
+      texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
+    }
     if (valor < 0) {
       valor = 0;
     }
-    return valor;
+    return std::make_tuple(valor, std::string("Valor para acao. ") + s + ", total: " + net::to_string(valor) + ", dados: " + texto_dados);
   } catch (const std::exception& e) {
-    return 0;
+    return std::make_tuple(0, std::string("string de dano malformada: ") + s);
   }
+  return std::make_tuple(0, "nunca deveria chegar aqui");
 }
 
 std::string Entidade::DetalhesAcao() const {
@@ -1172,13 +1180,23 @@ std::string Entidade::DetalhesAcao() const {
   char texto[100] = { '\0' };
   snprintf(texto, 99, "%s: %+d%s, %s%s", dado_ataque->rotulo().c_str(), dado_ataque->bonus_ataque(),
                                         texto_modificador,
-                                        dado_ataque->dano().c_str(), texto_furtivo);
+                                        StringDanoParaAcao().c_str(), texto_furtivo);
   return texto;
 }
 
 std::string Entidade::StringDanoParaAcao() const {
   const auto* dado_ataque = DadoCorrente();
-  return dado_ataque == nullptr ? "" : dado_ataque->dano();
+  if (dado_ataque == nullptr) {
+   return "";
+  }
+  char texto_dano[100] = { '\0' };
+  char texto_modificador_dano[100] = { '\0' };
+  int modificador_dano = ModificadorDano(proto_);
+  if (modificador_dano != 0) {
+    snprintf(texto_modificador_dano, 99, "%+d", modificador_dano);
+  }
+  snprintf(texto_dano, 99, "%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
+  return texto_dano;
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {

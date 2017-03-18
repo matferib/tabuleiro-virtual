@@ -582,17 +582,20 @@ DanoArma LeDanoArma(const std::string& dano_arma) {
 
 
 // Como gcc esta sem suporte a regex, vamos fazer na mao.
-int GeraPontosVida(const std::string& dados_vida) {
+std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
+  std::vector<std::pair<int, int>> dados;
   int res = 0;
   for (const auto& mds : vetor_mds) {
     //mds.Imprime();
     for (unsigned int i = 0; i < mds.mult; ++i) {
-      res += RolaDado(mds.dado);
+      int valor_dado = RolaDado(mds.dado);
+      dados.push_back(std::make_pair(mds.dado, valor_dado));
+      res += valor_dado;
     }
     res += mds.soma;
   }
-  return res;
+  return std::make_tuple(res, dados);
 }
 
 int GeraMaxPontosVida(const std::string& dados_vida) {
@@ -833,28 +836,51 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   if (ea.caida() && !distancia) {
     modificador -= 4;
   }
-  if (ea.ataque_menos_1()) {
+  if (ea.dados_ataque_globais().ataque_menos_1()) {
     modificador -= 1;
   }
-  if (ea.ataque_menos_2()) {
+  if (ea.dados_ataque_globais().ataque_menos_2()) {
     modificador -= 2;
   }
-  if (ea.ataque_menos_4()) {
+  if (ea.dados_ataque_globais().ataque_menos_4()) {
     modificador -= 4;
   }
-  if (ea.ataque_mais_1()) {
+  if (ea.dados_ataque_globais().ataque_mais_1()) {
     modificador += 1;
   }
-  if (ea.ataque_mais_2()) {
+  if (ea.dados_ataque_globais().ataque_mais_2()) {
     modificador += 2;
   }
-  if (ea.ataque_mais_4()) {
+  if (ea.dados_ataque_globais().ataque_mais_4()) {
     modificador += 4;
   }
   // Defesa.
   if (ed.caida()) {
     if (distancia) modificador -= 4;
     else modificador += 4;
+  }
+  return modificador;
+}
+
+int ModificadorDano(const EntidadeProto& ea) {
+  int modificador = 0;
+  if (ea.dados_ataque_globais().dano_menos_1()) {
+    modificador -= 1;
+  }
+  if (ea.dados_ataque_globais().dano_menos_2()) {
+    modificador -= 2;
+  }
+  if (ea.dados_ataque_globais().dano_menos_4()) {
+    modificador -= 4;
+  }
+  if (ea.dados_ataque_globais().dano_mais_1()) {
+    modificador += 1;
+  }
+  if (ea.dados_ataque_globais().dano_mais_2()) {
+    modificador += 2;
+  }
+  if (ea.dados_ataque_globais().dano_mais_4()) {
+    modificador += 4;
   }
   return modificador;
 }
