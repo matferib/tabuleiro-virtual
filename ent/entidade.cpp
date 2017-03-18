@@ -112,7 +112,8 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   if (proto_.has_dados_vida() && !proto_.has_max_pontos_vida()) {
     // Geracao automatica de pontos de vida.
     try {
-      int pv = GeraPontosVida(proto_.dados_vida());
+      int pv;
+      std::tie(pv, std::ignore) = GeraPontosVida(proto_.dados_vida());
       if (pv == 0) {
         pv = 1;
       }
@@ -1144,7 +1145,14 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
   }
   try {
     // Nao deixa valor negativo para evitar danos que curam.
-    int valor = GeraPontosVida(s);
+    int valor;
+    std::vector<std::pair<int, int>> dados;
+    std::tie(valor, dados) = GeraPontosVida(s);
+    std::string texto_dados;
+    for (const auto& fv : dados) {
+      texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
+    }
+    LOG(INFO) << "Valor para acao. " << s << ", total: " << valor << ", dados: " << texto_dados;
     if (valor < 0) {
       valor = 0;
     }
@@ -1172,7 +1180,7 @@ std::string Entidade::DetalhesAcao() const {
   char texto[100] = { '\0' };
   snprintf(texto, 99, "%s: %+d%s, %s%s", dado_ataque->rotulo().c_str(), dado_ataque->bonus_ataque(),
                                         texto_modificador,
-                                        dado_ataque->dano().c_str(), texto_furtivo);
+                                        StringDanoParaAcao().c_str(), texto_furtivo);
   return texto;
 }
 
@@ -1185,7 +1193,7 @@ std::string Entidade::StringDanoParaAcao() const {
   char texto_modificador_dano[100] = { '\0' };
   int modificador_dano = ModificadorDano(proto_);
   if (modificador_dano != 0) {
-    snprintf(texto_dano, 99, "%+d", modificador_dano);
+    snprintf(texto_modificador_dano, 99, "%+d", modificador_dano);
   }
   snprintf(texto_dano, 99, "%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
   return texto_dano;

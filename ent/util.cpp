@@ -582,17 +582,20 @@ DanoArma LeDanoArma(const std::string& dano_arma) {
 
 
 // Como gcc esta sem suporte a regex, vamos fazer na mao.
-int GeraPontosVida(const std::string& dados_vida) {
+std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
+  std::vector<std::pair<int, int>> dados;
   int res = 0;
   for (const auto& mds : vetor_mds) {
     //mds.Imprime();
     for (unsigned int i = 0; i < mds.mult; ++i) {
-      res += RolaDado(mds.dado);
+      int valor_dado = RolaDado(mds.dado);
+      dados.push_back(std::make_pair(mds.dado, valor_dado));
+      res += valor_dado;
     }
     res += mds.soma;
   }
-  return res;
+  return std::make_tuple(res, dados);
 }
 
 int GeraMaxPontosVida(const std::string& dados_vida) {

@@ -5,6 +5,7 @@
 #include <cctype>
 #include <functional>
 #include <string>
+#include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
 #include "matrix/matrices.h"
@@ -80,9 +81,10 @@ int RolaDado(unsigned int nfaces);
 float Aleatorio();
 
 /** Gera pontos de vida baseado nos dados de vida, da forma 4d8+8 por exemplo.
+* O valor de retorno é o total, e um vetor com o valor de cada dado rolado (o primeiro elemento eh o numero de facoes, o segundo eh o valor).
 * Da excecao se dados_vida for mal formado.
 */
-int GeraPontosVida(const std::string& dados_vida);
+std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida);
 
 // Le o resultado de um dano de uma arma.
 // Exemplos:

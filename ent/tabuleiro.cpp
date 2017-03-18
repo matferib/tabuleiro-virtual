@@ -1464,7 +1464,15 @@ int Tabuleiro::LeValorAtaqueFurtivo(const Entidade* entidade) {
     if (!entidade->Proto().furtivo() || entidade->Proto().dados_ataque_globais().dano_furtivo().empty()) {
       return 0;
     }
-    return -GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+    int total;
+    std::vector<std::pair<int, int>> dados;
+    std::tie(total, dados) = GeraPontosVida(entidade->Proto().dados_ataque_globais().dano_furtivo());
+    total = -total;
+    std::string texto_dados;
+    for (const auto& fv : dados) {
+      texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
+    }
+    LOG(INFO) << "valor dos dados para furtivo. Total: " << total << ", dados: " << texto_dados;
   }
   return 0;
 }

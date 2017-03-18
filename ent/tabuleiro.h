@@ -822,6 +822,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
   bool AtualizaBotaoControleVirtual(DadosBotao* db, const std::map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
+  /** Alguns botoes ficam invisiveis em algumas situacoes, por exemplo, ataque automatico. */
+  bool BotaoVisivel(const DadosBotao& db) const;
 
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
