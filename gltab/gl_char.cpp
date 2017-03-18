@@ -569,7 +569,7 @@ std::vector<unsigned char> ParaRgba(const GLubyte *input, int tam_x, int tam_y) 
 
 namespace interno {
 void IniciaChar() {
-  float tam_y = 13.0f;
+  //float tam_y = 13.0f;
 #if !VERSAO_PONTOS
   float tam_x = 8.0f;
 
