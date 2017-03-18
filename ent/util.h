@@ -206,6 +206,8 @@ class AlteraBlendEscopo {
 
 // Retorna alguns modificadores de ataque para a entidade de acordo com seus status e do defensor.
 int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadeProto& ed);
+// Retorna alguns modificadores de dano genericos para a entidade de acordo com seus status.
+int ModificadorDano(const EntidadeProto& ea);
 
 // Rola o dado de ataque vs defesa, retornando o numero de vezes que o dano deve ser aplicado e o texto da jogada.
 // O ultimo parametro indica se a acao deve ser desenhada (em caso de distancia maxima atingida, retorna false).

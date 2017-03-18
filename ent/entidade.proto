@@ -252,6 +252,13 @@ message EntidadeProto {
     optional bool ataque_mais_1 = 5;
     optional bool ataque_mais_2 = 6;
     optional bool ataque_mais_4 = 7;
+    // Dano generico.
+    optional bool dano_menos_1 = 8;
+    optional bool dano_menos_2 = 9;
+    optional bool dano_menos_4 = 10;
+    optional bool dano_mais_1 = 11;
+    optional bool dano_mais_2 = 12;
+    optional bool dano_mais_4 = 13;
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
 

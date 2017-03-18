@@ -1178,7 +1178,17 @@ std::string Entidade::DetalhesAcao() const {
 
 std::string Entidade::StringDanoParaAcao() const {
   const auto* dado_ataque = DadoCorrente();
-  return dado_ataque == nullptr ? "" : dado_ataque->dano();
+  if (dado_ataque == nullptr) {
+   return "";
+  }
+  char texto_dano[100] = { '\0' };
+  char texto_modificador_dano[100] = { '\0' };
+  int modificador_dano = ModificadorDano(proto_);
+  if (modificador_dano != 0) {
+    snprintf(texto_dano, 99, "%+d", modificador_dano);
+  }
+  snprintf(texto_dano, 99, "%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
+  return texto_dano;
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {

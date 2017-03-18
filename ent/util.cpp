@@ -859,6 +859,29 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   return modificador;
 }
 
+int ModificadorDano(const EntidadeProto& ea) {
+  int modificador = 0;
+  if (ea.dados_ataque_globais().dano_menos_1()) {
+    modificador -= 1;
+  }
+  if (ea.dados_ataque_globais().dano_menos_2()) {
+    modificador -= 2;
+  }
+  if (ea.dados_ataque_globais().dano_menos_4()) {
+    modificador -= 4;
+  }
+  if (ea.dados_ataque_globais().dano_mais_1()) {
+    modificador += 1;
+  }
+  if (ea.dados_ataque_globais().dano_mais_2()) {
+    modificador += 2;
+  }
+  if (ea.dados_ataque_globais().dano_mais_4()) {
+    modificador += 4;
+  }
+  return modificador;
+}
+
 namespace {
 
 Entidade::TipoCA CATipoAtaque(const std::string& tipo_ataque) {
