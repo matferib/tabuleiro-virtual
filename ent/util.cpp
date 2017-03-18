@@ -833,22 +833,22 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   if (ea.caida() && !distancia) {
     modificador -= 4;
   }
-  if (ea.ataque_menos_1()) {
+  if (ea.dados_ataque_globais().ataque_menos_1()) {
     modificador -= 1;
   }
-  if (ea.ataque_menos_2()) {
+  if (ea.dados_ataque_globais().ataque_menos_2()) {
     modificador -= 2;
   }
-  if (ea.ataque_menos_4()) {
+  if (ea.dados_ataque_globais().ataque_menos_4()) {
     modificador -= 4;
   }
-  if (ea.ataque_mais_1()) {
+  if (ea.dados_ataque_globais().ataque_mais_1()) {
     modificador += 1;
   }
-  if (ea.ataque_mais_2()) {
+  if (ea.dados_ataque_globais().ataque_mais_2()) {
     modificador += 2;
   }
-  if (ea.ataque_mais_4()) {
+  if (ea.dados_ataque_globais().ataque_mais_4()) {
     modificador += 4;
   }
   // Defesa.

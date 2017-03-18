@@ -988,22 +988,22 @@ void Tabuleiro::DesenhaControleVirtual() {
       return entidade != nullptr && entidade->Proto().surpreso();
     } },
     { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_mais_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_1();
     } },
     { CONTROLE_ATAQUE_MAIS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_mais_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_2();
     } },
     { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_mais_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_4();
     } },
     { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_menos_1();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_1();
     } },
     { CONTROLE_ATAQUE_MENOS_2,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_menos_2();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_2();
     } },
     { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
-      return entidade != nullptr && entidade->Proto().ataque_menos_4();
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_4();
     } },
 
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
