@@ -131,7 +131,19 @@ fixo {
     forma: FORMA_RETANGULO
     dica: "Entra em um objeto."
   }
-
+  dados_botoes {
+    tamanho: 1
+    linha: -7
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    rotulo: "?"
+    cor_rotulo {}
+    textura: "icon_help.png"
+    id: CONTROLE_AJUDA
+    forma: FORMA_RETANGULO
+    dica: "Ajuda."
+  }
   dados_botoes {
     tamanho: 1
     linha: -7
@@ -241,25 +253,14 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 6
+    linha: 2
+    coluna: 5
     rotulo: "A"
     cor_rotulo {}
     textura: ""
     id: CONTROLE_DANO_AUTOMATICO
     forma: FORMA_RETANGULO
     dica: "Liga/desliga dano automático."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 7
-    rotulo: "?"
-    cor_rotulo {}
-    textura: "icon_help.png"
-    id: CONTROLE_AJUDA
-    forma: FORMA_RETANGULO
-    dica: "Ajuda."
   }
   # Linha de baixo
   dados_botoes {
@@ -316,6 +317,74 @@ pagina {
     id: CONTROLE_APAGA_DANO
     forma: FORMA_RETANGULO
     dica: "Remove o último valor acumulado."
+  }
+
+  # Botoes de dano automatico.
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 5
+    rotulo: "+1"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MAIS_1
+    forma: FORMA_RETANGULO
+    dica: "Modificador +1 dano"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "+2"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MAIS_2
+    forma: FORMA_RETANGULO
+    dica: "Modificador +2 dano"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 7
+    rotulo: "+4"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MAIS_4
+    forma: FORMA_RETANGULO
+    dica: "Modificador +4 dano"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 5
+    rotulo: "-1"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MENOS_1
+    forma: FORMA_RETANGULO
+    dica: "Modificador -1 dano"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 6
+    rotulo: "-2"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MENOS_2
+    forma: FORMA_RETANGULO
+    dica: "Modificador -2 dano"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 7
+    rotulo: "-4"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MENOS_4
+    forma: FORMA_RETANGULO
+    dica: "Modificador -4 dano"
   }
 
 
@@ -995,17 +1064,6 @@ pagina {
     id: CONTROLE_DESENHO_COR_PERSONALIZADA
     forma: FORMA_DISCO
     dica: "Cor personalizada. Clique duas vezes para escolher."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 11
-    rotulo: "?"
-    cor_rotulo {}
-    textura: "icon_help.png"
-    id: CONTROLE_AJUDA
-    forma: FORMA_RETANGULO
-    dica: "Ajuda."
   }
   dados_botoes {
     tamanho: 1
