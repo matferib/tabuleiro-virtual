@@ -241,8 +241,8 @@ class Entidade {
   /** Atribui a direcao de queda da entidade. */
   void AtualizaDirecaoDeQueda(float x, float y, float z);
 
-  /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. */
-  int ValorParaAcao(const std::string& id_acao) const;
+  /** Retorna o valor automatico de uma acao, se houver. Retorna zero se nao houver. A string eh a descricao. */
+  std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao) const;
   /** Retorna a string de dano para a acao corrente: '1d8+3'. */
   std::string StringDanoParaAcao() const;
   /** Retorna alguns detalhes da acao: rotulo, string dano. */

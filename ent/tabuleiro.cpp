@@ -1444,8 +1444,14 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
       LOG(WARNING) << "entidade eh nula";
       return 0;
     }
-    int delta_pontos_vida = -entidade->ValorParaAcao(id_acao);
+    int delta_pontos_vida;
+    std::string texto_pontos_vida;
+    std::tie(delta_pontos_vida, texto_pontos_vida) = entidade->ValorParaAcao(id_acao);
+    delta_pontos_vida = -delta_pontos_vida;
     VLOG(1) << "Lendo valor automatico de dano para entidade, acao: " << id_acao << ", delta: " << delta_pontos_vida;
+    AdicionaLogEvento(std::string("entidade ") +
+                      (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) +
+                      ": " + texto_pontos_vida);
     return delta_pontos_vida;
   } else {
     int delta_pontos_vida = lista_pontos_vida_.front();
@@ -3056,6 +3062,9 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
             VLOG(1) << "iniciando ataque vs defesa";
             std::tie(vezes, texto, realiza_acao) = AtaqueVsDefesa(*entidade, *entidade_destino, opcoes_.ataque_vs_defesa_posicao_real() ? pos_entidade : Posicao());
             VLOG(1) << "--------------------------";
+            AdicionaLogEvento(std::string("entidade ") +
+                (entidade->Proto().rotulo().empty() ? net::to_string(entidade->Id()) : entidade->Proto().rotulo()) + " " +
+                texto);
             acao_proto.set_texto(texto);
           }
           int delta_pontos_vida = 0;
@@ -6723,6 +6732,16 @@ void Tabuleiro::Hack() {
   }
 }
 
+void Tabuleiro::AdicionaLogEvento(const std::string& evento) {
+  if (evento.empty()) {
+    return;
+  }
+  log_eventos_.push_front(evento);
+  if (log_eventos_.size() > 30) {
+    log_eventos_.pop_back();
+  }
+}
+
 void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao) {
   if (processando_grupo_ || ignorar_lista_eventos_) {
     VLOG(2) << "Ignorando notificacao adicionada a lista de desfazer pois (processando_grupo_ || ignorar_lista_eventos_) == true";
@@ -6732,6 +6751,8 @@ void Tabuleiro::AdicionaNotificacaoListaEventos(const ntf::Notificacao& notifica
     // Remove tudo do corrente para a frente.
     lista_eventos_.erase(evento_corrente_, lista_eventos_.end());
   }
+  AdicionaLogEvento(ResumoNotificacao(*this, notificacao));
+
   lista_eventos_.emplace_back(notificacao);
   evento_corrente_ = lista_eventos_.end();
   if (lista_eventos_.size() > TAMANHO_MAXIMO_LISTA) {
@@ -7442,16 +7463,11 @@ void Tabuleiro::DesenhaLogEventos() {
   PosicionaRaster2d(raster_x, raster_y);
   gl::DesenhaString("Lista de Eventos");
   raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
-  auto it = lista_eventos_.rbegin();
-  for (int i = 0; i < (kNumLinhas - 3) && it != lista_eventos_.rend(); ++it) {
-    const auto& n = *it;
-    std::string resumo_mensagem = ResumoNotificacao(*this, n);
-    if (resumo_mensagem.empty()) {
-      continue;
-    }
+  auto it = log_eventos_.begin();
+  for (int i = 0; i < (kNumLinhas - 3) && it != log_eventos_.end(); ++it) {
     PosicionaRaster2d(2, raster_y);
     char s[100];
-    snprintf(s, 99, "%s", resumo_mensagem.c_str());
+    snprintf(s, 99, "%s", it->c_str());
     gl::DesenhaStringAlinhadoEsquerda(s);
     raster_y -= altura_fonte;
     ++i;

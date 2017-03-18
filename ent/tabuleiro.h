@@ -384,6 +384,9 @@ class Tabuleiro : public ntf::Receptor {
   */
   void AdicionaNotificacaoListaEventos(const ntf::Notificacao& notificacao);
 
+  /** Adiciona um evento ao log. */
+  void AdicionaLogEvento(const std::string& evento);
+
   /** Desfaz a ultima acao local. */
   void TrataComandoDesfazer();
 
@@ -1024,6 +1027,8 @@ class Tabuleiro : public ntf::Receptor {
   // unsigned int id_camera_presa_ = Entidade::IdInvalido;
   // Lista de ids de camera presa. O corrente sempre é o front.
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
+
+  std::list<std::string> log_eventos_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;

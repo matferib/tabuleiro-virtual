@@ -1137,11 +1137,11 @@ void Entidade::AtualizaDirecaoDeQueda(float x, float y, float z) {
   proto_.mutable_direcao_queda()->Swap(&v);
 }
 
-int Entidade::ValorParaAcao(const std::string& id_acao) const {
+std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao) const {
   std::string s = StringDanoParaAcao();
   if (s.empty()) {
     VLOG(1) << "Acao nao encontrada: " << id_acao;
-    return 0;
+    return std::make_tuple(0, "ação não encontrada");
   }
   try {
     // Nao deixa valor negativo para evitar danos que curam.
@@ -1152,14 +1152,14 @@ int Entidade::ValorParaAcao(const std::string& id_acao) const {
     for (const auto& fv : dados) {
       texto_dados += std::string("d") + net::to_string(fv.first) + "=" + net::to_string(fv.second) + ", ";
     }
-    LOG(INFO) << "Valor para acao. " << s << ", total: " << valor << ", dados: " << texto_dados;
     if (valor < 0) {
       valor = 0;
     }
-    return valor;
+    return std::make_tuple(valor, std::string("Valor para acao. ") + s + ", total: " + net::to_string(valor) + ", dados: " + texto_dados);
   } catch (const std::exception& e) {
-    return 0;
+    return std::make_tuple(0, std::string("string de dano malformada: ") + s);
   }
+  return std::make_tuple(0, "nunca deveria chegar aqui");
 }
 
 std::string Entidade::DetalhesAcao() const {
