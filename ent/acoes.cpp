@@ -120,8 +120,10 @@ class AcaoDeltaPontosVida : public Acao {
       }
       pos_ = entidade_destino->Pos();
       pos_.set_z(entidade_destino->ZOlho());
+      VLOG(2) << "Acao usando entidade destino " << pos_.ShortDebugString();
     } else {
       pos_ = acao_proto_.pos_entidade();
+      VLOG(2) << "Acao usando posicao entidade " << pos_.ShortDebugString();
     }
     faltam_ms_ = 0;
     // Monta a string de delta.

@@ -560,7 +560,7 @@ modelo {
   id: 'Humano Ladino 4'
   entidade {
     dados_vida: '4d6+4' cor { r: 0.250 g: 0.250 b: 0.250 }
-    info_textura { id: 'rogue4.png' translacao_x: 0.25 largura: 0.5 }
+    info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 4'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
