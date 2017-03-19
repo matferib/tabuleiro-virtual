@@ -430,7 +430,12 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
 }
 
 
-void Entidade::Atualiza(int intervalo_ms) {
+void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
+#if DEBUG
+    glFinish();
+#endif
+    timer->stop();
+
   // Ao retornar, atualiza o vbo se necessario.
   struct AtualizaEscopo {
     AtualizaEscopo(Entidade* e) : e(e) {}
@@ -451,6 +456,7 @@ void Entidade::Atualiza(int intervalo_ms) {
 #endif
     vd_.angulo_disco_selecao_graus = fmod(vd_.angulo_disco_selecao_graus + 1.0, 360.0);
   }
+
   AtualizaEfeitos();
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
@@ -550,6 +556,7 @@ void Entidade::Atualiza(int intervalo_ms) {
       //LOG(INFO) << "atualizou angulo: " << angulo;
     }
   }
+
   // Queda.
   const double DURACAO_QUEDA_MS = 500.0f;
   const float DELTA_QUEDA = (static_cast<float>(intervalo_ms) / DURACAO_QUEDA_MS) * 90.0f;

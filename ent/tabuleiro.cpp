@@ -744,6 +744,9 @@ void Tabuleiro::DesenhaMapaSombra() {
 int Tabuleiro::Desenha() {
   V_ERRO_RET("InicioDesenha");
 
+#if DEBUG
+  glFinish();
+#endif
   timer_uma_renderizacao_completa_.start();
 
   // Varios lugares chamam desenha cena com parametros especifico. Essa funcao
@@ -828,6 +831,10 @@ int Tabuleiro::Desenha() {
   }
 #endif
 
+#if DEBUG
+  glFinish();
+#endif
+  timer_renderizacao_mapas_.start();
   if (MapeamentoOclusao() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -880,6 +887,11 @@ int Tabuleiro::Desenha() {
     gl::UsaShader(tipo_shader);
     gl::UnidadeTextura(GL_TEXTURE0);
   }
+#if DEBUG
+  glFinish();
+#endif
+  timer_renderizacao_mapas_.stop();
+  EnfileiraTempo(timer_renderizacao_mapas_, &tempos_renderizacao_mapas_);
 
 #if !USAR_OPENGL_ES
   if (opcoes_.anti_aliasing()) {
@@ -904,6 +916,9 @@ int Tabuleiro::Desenha() {
 #endif
   DesenhaCena();
   EnfileiraTempo(timer_entre_cenas_, &tempos_entre_cenas_);
+#if DEBUG
+  glFinish();
+#endif
   timer_entre_cenas_.start();
   V_ERRO_RET("FimDesenha");
   timer_uma_renderizacao_completa_.stop();
@@ -1632,15 +1647,17 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_TEMPORIZADOR: {
       // quanto passou desde a ultima atualizacao. Usa o tempo entre cenas pois este timer eh do da atualizacao.
       auto passou_ms = timer_entre_atualizacoes_.elapsed().wall / 1000000ULL;
+#if DEBUG
+      glFinish();
+#endif
       timer_entre_atualizacoes_.start();
       timer_uma_atualizacao_.start();
       if (regerar_vbos_entidades_) {
         parametros_desenho_.set_regera_vbo(true);
       }
 
-      //boost::timer::cpu_timer timer_temp;
-      //timer_temp.start();
       AtualizaEntidades(passou_ms);
+
       if (indice_iniciativa_ != -1 && EmModoMestre()) {
         AtualizaIniciativas();
       }
@@ -1651,7 +1668,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
       AtualizaAcoes(passou_ms);
 #if DEBUG
-      //glFinish();
+      glFinish();
 #endif
       timer_uma_atualizacao_.stop();
       EnfileiraTempo(timer_uma_atualizacao_, &tempos_uma_atualizacao_);
@@ -3882,8 +3899,14 @@ void Tabuleiro::DesenhaCena() {
   if (parametros_desenho_.desenha_controle_virtual() && opcoes_.desenha_controle_virtual()) {
     // Controle na quarta posicao da pilha.
     gl::TipoEscopo controle(OBJ_CONTROLE_VIRTUAL);
+#if DEBUG
+    glFinish();
+#endif
     timer_uma_renderizacao_controle_virtual_.start();
     DesenhaControleVirtual();
+#if DEBUG
+    glFinish();
+#endif
     timer_uma_renderizacao_controle_virtual_.stop();
     EnfileiraTempo(timer_uma_renderizacao_controle_virtual_, &tempos_uma_renderizacao_controle_virtual_);
   }
@@ -5072,12 +5095,22 @@ void Tabuleiro::AtualizaRaioOlho(float raio) {
 }
 
 void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
+  boost::timer::cpu_timer timer;
+#if DEBUG
+  glFinish();
+#endif
+
   for (auto& id_ent : entidades_) {
     parametros_desenho_.set_entidade_selecionada(estado_ != ETAB_ENTS_PRESSIONADAS && EntidadeEstaSelecionada(id_ent.first));
     auto* entidade = id_ent.second.get();
-    entidade->Atualiza(intervalo_ms);
+#if DEBUG
+    glFinish();
+#endif
+    timer.resume();
+    entidade->Atualiza(intervalo_ms, &timer);
     parametros_desenho_.clear_entidade_selecionada();
   }
+  EnfileiraTempo(timer, &tempos_atualiza_parcial_);
 }
 
 void Tabuleiro::AtualizaIniciativas() {
@@ -7589,9 +7622,11 @@ void Tabuleiro::DesenhaTempos() {
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
 
   DesenhaTempo(0, "T", tempos_entre_cenas_);
-  DesenhaTempo(1, "R", tempos_uma_renderizacao_completa_);
-  DesenhaTempo(2, "A", tempos_uma_atualizacao_);
-  DesenhaTempo(3, "C", tempos_uma_renderizacao_controle_virtual_);
+  DesenhaTempo(1, "M", tempos_renderizacao_mapas_);
+  DesenhaTempo(2, "R", tempos_uma_renderizacao_completa_);
+  DesenhaTempo(3, "A", tempos_uma_atualizacao_);
+  DesenhaTempo(4, "B", tempos_atualiza_parcial_);
+  DesenhaTempo(5, "C", tempos_uma_renderizacao_controle_virtual_);
   V_ERRO("tempo de renderizacao");
 }
 
