@@ -3355,6 +3355,7 @@ void Tabuleiro::TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float
   pd->set_x(x3d);
   pd->set_y(y3d);
   pd->set_z(z3d);
+  pd->set_id_cenario(entidade->IdCenario());
   a->set_texto(texto);
   central_->AdicionaNotificacao(n);
 }
