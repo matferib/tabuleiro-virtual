@@ -1,6 +1,7 @@
 #ifndef ENT_ENTIDADE_H
 #define ENT_ENTIDADE_H
 
+#include <boost/timer/timer.hpp>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -44,7 +45,7 @@ class Entidade {
   void AtualizaProto(const EntidadeProto& novo_proto);
 
   /** Atualiza a posição da entidade em direção a seu destino. Ao alcançar o destino, o limpa. */
-  void Atualiza(int intervalo_ms);
+  void Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer);
 
   /** Destroi a entidade. */
   ~Entidade();

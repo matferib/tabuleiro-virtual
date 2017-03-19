@@ -60,6 +60,9 @@ struct VarShader {
   GLint atr_gltab_normal;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
+
+  // Alguns bits de estado para diminuir comunicacao com a placa.
+  bool textura_ligada = false;
 };
 
 // Depende de plataforma.
@@ -132,6 +135,7 @@ class Contexto {
 Contexto* BuscaContexto();
 inline const VarShader& BuscaShader(TipoShader ts) { return BuscaContexto()->shaders[ts]; }
 inline const VarShader& BuscaShader() { return *BuscaContexto()->shader_corrente; }
+inline VarShader& BuscaShaderMutavel() { return *BuscaContexto()->shader_corrente; }
 inline bool UsandoShaderComNevoa() {
   auto* c = BuscaContexto();
   return c->shader_corrente == &c->shaders[TSH_LUZ] || c->shader_corrente == &c->shaders[TSH_PRETO_BRANCO];

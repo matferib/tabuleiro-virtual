@@ -1,4 +1,4 @@
-Tesouro: texto ao transitar.
+Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
 Colocar as features em um menu separado e adicionar varias do features.binproto.

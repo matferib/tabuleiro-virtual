@@ -430,6 +430,9 @@ bool IniciaVariaveis(VarShader* shader) {
     LOG(INFO) << "Atributo " << d.dv.nome << " na posicao " << *d.dv.var;
   }
 
+  // Variaveis de software, otimizacoes.
+  shader->textura_ligada = false;
+
   // De novo.
   LinkaPrograma(shader->programa);
   V_ERRO_RET("linkando programa shader");
@@ -510,7 +513,7 @@ void FinalizaShaders(const VarShader& shader) {
 }
 
 void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
-  const auto& shader = BuscaShader();
+  auto& shader = BuscaShaderMutavel();
   if (cap == GL_LIGHTING) {
     GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
     if (uniforme == -1) {
@@ -536,7 +539,10 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 1.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    interno::UniformeSeValido(shader.uni_gltab_textura, 1.0f);
+    if (!shader.textura_ligada) {
+      interno::UniformeSeValido(shader.uni_gltab_textura, 1.0f);
+      shader.textura_ligada = true;
+    }
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 1.0f);
   } else if (cap == GL_FOG) {
@@ -556,7 +562,7 @@ void HabilitaComShader(interno::Contexto* contexto, GLenum cap) {
 }
 
 void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
-  const auto& shader = BuscaShader();
+  auto& shader = BuscaShaderMutavel();
   if (cap == GL_LIGHTING) {
     GLint uniforme = shader.uni_gltab_luz_ambiente_cor;
     if (uniforme == -1) {
@@ -582,7 +588,10 @@ void DesabilitaComShader(interno::Contexto* contexto, GLenum cap) {
     LeUniforme(shader.programa, uniforme, cor);
     Uniforme(shader.uni_gltab_luzes[interno::IndiceLuzCor(cap - GL_LIGHT1)], cor[0], cor[1], cor[2], 0.0f);
   } else if (cap == GL_TEXTURE_2D) {
-    interno::UniformeSeValido(shader.uni_gltab_textura, 0.0f);
+    if (shader.textura_ligada) {
+      interno::UniformeSeValido(shader.uni_gltab_textura, 0.0f);
+      shader.textura_ligada = false;
+    }
   } else if (cap == GL_TEXTURE_CUBE_MAP) {
     interno::UniformeSeValido(shader.uni_gltab_textura_cubo, 0.0f);
   } else if (cap == GL_FOG) {
