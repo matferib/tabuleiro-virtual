@@ -129,21 +129,25 @@ modelo {
 modelo {
   id: 'Carniçal'
   entidade {
-    dados_vida: '2d12' info_textura { id: 'ghoul.png' } cor { r: 0.1 g: 0.1 b: 0.1 } ultima_acao: 'Ataque Corpo a Corpo'
+    dados_vida: '2d12' info_textura { id: 'ghoul.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
+    cor { r: 0.1 g: 0.1 b: 0.1 }
     modificador_iniciativa: 2
-    rotulo_especial: 'ini: +2\nat: +2/+0/+0\ndano: 1d6+1+paralisia/1d3+paralisia\nca: 14'
+    rotulo_especial: 'paralisia CD 12 for (exceto elfo), mordida febre, 1 dia, CD 12 for 1d3 con, 1d3 dex\nfor 0 ref 2 von 5'
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d6+1' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
+    dados_ataque { rotulo: 'garra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 0 dano: '1d3' ca_normal: 14 ca_toque: 12 ca_surpreso: 12 }
   }
 }
 modelo {
   id: 'Carneçal'
   entidade {
     dados_vida: '4d12' info_textura { id: 'ghast.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
-    cor { r: 0.2 g: 0.2 b: 0.2 } ultima_acao: 'Ataque Corpo a Corpo'
+    cor { r: 0.2 g: 0.2 b: 0.2 }
     modificador_iniciativa: 3
-    rotulo_especial: 'paralisia\nca: 17/12/14\nfor 1 ref 4 von 6'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d8+3' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 }
+    rotulo_especial: 'catinga da morte 2 quad CD 15 for\nparalisia CD 15 for (inclui elfo)\nmordida doença CD 15 inc 1 dia, dano 1d3 con 1d3 dex\nfor 1 ref 4 von 6'
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d8+3' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d4+1' ca_normal: 17 ca_toque: 12 ca_surpreso: 14 }
     dados_defesa { imune_critico: true }
     tipo_visao: VISAO_ESCURO alcance_visao: 12
   }
@@ -543,7 +547,8 @@ modelo {
 modelo {
   id: 'Humano Ladino 3'
   entidade {
-    dados_vida: '3d6+3' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '3d6+3' cor { r: 0.250 g: 0.250 b: 0.250 }
+    info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 3'
     modificador_iniciativa: 6
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d4+1' ca_normal: 17 }
@@ -554,7 +559,8 @@ modelo {
 modelo {
   id: 'Humano Ladino 4'
   entidade {
-    dados_vida: '4d6+4' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '4d6+4' cor { r: 0.250 g: 0.250 b: 0.250 }
+    info_textura { id: 'rogue4.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 4'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
@@ -565,7 +571,8 @@ modelo {
 modelo {
   id: 'Humano Ladino 5'
   entidade {
-    dados_vida: '5d6+5' info_textura { id: 'rogue3.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '5d6+5' cor { r: 0.250 g: 0.250 b: 0.250 }
+    info_textura { id: 'rogue3.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 5'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d4+1' ca_normal: 17 }
@@ -576,7 +583,8 @@ modelo {
 modelo {
   id: 'Humano Ladino 7'
   entidade {
-    dados_vida: '7d6+7' info_textura { id: 'rogue7.png'} cor { r: 0.250 g: 0.250 b: 0.250 }
+    dados_vida: '7d6+7' cor { r: 0.250 g: 0.250 b: 0.250 }
+    info_textura { id: 'rogue7.png' translacao_x: 0.25 largura: 0.5 }
     rotulo_especial: 'Humano Ladino 7'
     modificador_iniciativa: 7
     dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d4+1' ca_normal: 18 }
