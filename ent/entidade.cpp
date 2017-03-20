@@ -803,9 +803,11 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     // Evento dummy so para limpar eventos.
     proto_.clear_evento();
   }
-  if (proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO || proto_parcial.tipo_transicao() == EntidadeProto::TRANS_NENHUMA) {
-    proto_.clear_transicao_cenario();
-  }
+  // Transicao nunca eh atualizacao parcial. Se for, deve considerar se ha transicao.
+  // if ((proto_parcial.has_transicao_cenario && proto_parcial.transicao_cenario().id_cenario() == CENARIO_INVALIDO) ||
+  //     (proto_parcial.has_tipo_transicao() && proto_parcial.tipo_transicao() == EntidadeProto::TRANS_NENHUMA)) {
+  //  proto_.clear_transicao_cenario();
+  //}
   if (proto_parcial.has_pos() && !proto_parcial.has_destino()) {
     proto_.clear_destino();
 #if VBO_COM_MODELAGEM
@@ -813,7 +815,7 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
 #endif
   }
   if (VBO_COM_MODELAGEM || (proto_parcial.has_escala() && Tipo() == TE_FORMA && proto_.sub_tipo() == TF_LIVRE)) {
-    atualizar_vbo = true;  
+    atualizar_vbo = true;
   }
 
   const auto* luz = proto_.has_luz() ? proto_.mutable_luz() : nullptr;
