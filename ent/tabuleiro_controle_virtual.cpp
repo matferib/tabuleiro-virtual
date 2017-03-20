@@ -1200,7 +1200,7 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
   if (!entidade->Proto().rotulo().empty()) {
     PosicionaRaster2d(largura_botao, top_y);
-    gl::DesenhaStringAlinhadoEsquerda(entidade->Proto().rotulo());
+    gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(entidade->Proto().rotulo()));
   }
   //PosicionaRaster2d(largura_botao, top_y + (fonte_y * 0.5f));
   //gl::DesenhaStringAlinhadoEsquerda(std::string("mov: ") + net::to_string(quadrados_movimentados_), true  /*inverte vertical*/);
