@@ -513,9 +513,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
 
-  /** Libera o framebuffer de sombra. */
-  void LiberaFramebuffer();
-
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
   // Desenha a cena baseado em VBOs.
@@ -918,6 +915,17 @@ class Tabuleiro : public ntf::Receptor {
     return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
   }
 
+  struct DadosFramebuffer {
+    ~DadosFramebuffer();
+    GLuint framebuffer = 0;
+    GLuint textura = 0;
+    GLuint renderbuffer = 0;
+  };
+
+  // Gera um framebuffer.
+  void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb);
+  void GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb);
+
   void DesativaWatchdog();
   void ReativaWatchdog();
 
@@ -1104,16 +1112,21 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
+  DadosFramebuffer dfb_luz_direcional_;
+  DadosFramebuffer dfb_oclusao_;
+  DadosFramebuffer dfb_colisao_;
+
+#if 0
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
   GLuint framebuffer_oclusao_ = 0;
   GLuint textura_framebuffer_oclusao_ =  0;
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
-  // Framebuffer usado apenas para detectar colisoes.
   GLuint framebuffer_colisao_ = 0;
   GLuint textura_framebuffer_colisao_ = 0;
   GLuint renderbuffer_framebuffer_colisao_ = 0;
+#endif
   constexpr static int TAM_BUFFER_COLISAO = 4;  // 4x4
 
   // Vbos gerados por renderizacao de cena.
