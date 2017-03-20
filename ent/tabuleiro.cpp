@@ -5306,28 +5306,23 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
 
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA &&
+      (tipo_objeto == OBJ_TABULEIRO || tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA ||
+       tipo_objeto == OBJ_EVENTO_ENTIDADE)) {
+    TrataBotaoDireitoPressionado(x, y);
+    return;
+  }
+
   if (tipo_objeto == OBJ_TABULEIRO) {
-    if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      TrataBotaoDireitoPressionado(x, y);
-      return;
-    } else {
-      // Tabuleiro.
-      // Converte x3d y3d para id quadrado.
-      SelecionaQuadrado(IdQuadrado(x3d, y3d));
-    }
+    // Tabuleiro.
+    // Converte x3d y3d para id quadrado.
+    SelecionaQuadrado(IdQuadrado(x3d, y3d));
   } else if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
       AlternaSelecaoEntidade(id);
     } else {
-      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-        const auto* entidade = BuscaEntidade(id);
-        if (entidade == nullptr || !entidade->Proto().selecionavel_para_jogador()) {
-          TrataBotaoDireitoPressionado(x, y);
-          return;
-        }
-      }
       if (!EntidadeEstaSelecionada(id)) {
         // Se nao estava selecionada, so ela.
         SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
