@@ -649,8 +649,9 @@ modelo {
     tipo_visao: VISAO_BAIXA_LUMINOSIDADE
     rotulo_especial: 'hibrido doenca no segundo ataque febre esgoto CD 12'
     modificador_iniciativa: 3
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'sabre' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+1' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'mordida' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: -1 dano: '1d6' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
+    dados_ataque { rotulo: 'besta leve' tipo_ataque: 'Ataque a Distância' bonus_ataque: 4 dano: '1d8' margem_critico: 18 ca_normal: 16 ca_surpreso: 13 ca_toque: 13 }
     outras_formas {
       # Humano.
       rotulo: 'humano'
