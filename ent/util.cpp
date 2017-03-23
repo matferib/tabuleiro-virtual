@@ -580,8 +580,45 @@ DanoArma LeDanoArma(const std::string& dano_arma) {
   return ret;
 }
 
+std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados) {
+  std::string s("rolado total: ");
+  s += net::to_string(total) + ", ";
+  for (const auto& dado_valor : dados) {
+    char ds[100];
+    snprintf(ds, 99, "d%d=%d, ", dado_valor.first, dado_valor.second);
+    s += ds;
+  }
+  return s;
+}
 
-// Como gcc esta sem suporte a regex, vamos fazer na mao.
+void AtualizaStringDadosVida(int delta, std::string* dados_vida) {
+  std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(*dados_vida);
+  if (vetor_mds.empty()) {
+    vetor_mds.resize(1);
+  }
+  vetor_mds[0].soma += delta;
+  std::string s;
+  bool first = true;
+  for (const auto& mds : vetor_mds) {
+    char texto[100];
+    if (first) {
+      if (mds.mult == 0) {
+        snprintf(texto, 99, "%d", mds.soma);
+      } else {
+        snprintf(texto, 99, "%dd%d%+d", mds.mult, mds.dado, mds.soma);
+      }
+    } else {
+      if (mds.mult == 0) {
+        snprintf(texto, 99, "%+d", mds.soma);
+      } else {
+        snprintf(texto, 99, "%+dd%d%+d", mds.mult, mds.dado, mds.soma);
+      }
+    }
+    s += texto;
+  }
+  *dados_vida = s;
+}
+
 std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida) {
   const std::vector<MultDadoSoma> vetor_mds = DesmembraDadosVida(dados_vida);
   std::vector<std::pair<int, int>> dados;

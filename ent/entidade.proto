@@ -399,6 +399,8 @@ message ParametrosDesenho {
   optional bool desenha_iniciativas = 54 [default=true];
   // Se verdadeiro, ordenara as entidades apos a funcao ConfiguraOlhar.
   optional bool ordena_entidades_apos_configura_olhar = 55 [default=false];
+
+  optional bool desenha_mapa_luzes = 56;
 }
 
 

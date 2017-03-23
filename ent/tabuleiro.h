@@ -167,7 +167,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
 
   /** Adiciona a lista_pv no final da lista de pontos de vida acumulados. */
-  void AcumulaPontosVida(const std::vector<int>& lista_pv);
+  void AcumulaPontosVida(const std::vector<std::pair<int, std::string>>& lista_pv);
   /** Limpa a lista de pontos de vida. */
   void LimpaListaPontosVida();
   /** Limpa a ultima entrada da lista de pontos de vida. */
@@ -189,6 +189,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
   void DesenhaMapaSombra();
   void DesenhaMapaOclusao();
+  void DesenhaMapaLuz();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -1031,7 +1032,9 @@ class Tabuleiro : public ntf::Receptor {
   int visao_jogador_ = 0;
   bool camera_presa_ = false;
   bool visao_escuro_ = false;  // Jogador ligou a visao no escuro (mas depende da entidade presa possuir).
-  std::list<int> lista_pontos_vida_;  // Usado para as acoes.
+  // Usado para acoes. Cada entrada indica se eh dano ou cura, e a string pode ter valor de dado (tipo 1d8+3).
+  // O primeiro valor eh 1 para positivo, -1 para negativo.
+  std::list<std::pair<int, std::string>> lista_pontos_vida_;
   // unsigned int id_camera_presa_ = Entidade::IdInvalido;
   // Lista de ids de camera presa. O corrente sempre é o front.
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
@@ -1101,7 +1104,6 @@ class Tabuleiro : public ntf::Receptor {
   bool detalhar_todas_entidades_ = false;
 
   modo_clique_e modo_clique_ = MODO_NORMAL;
-  bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
 
@@ -1115,6 +1117,7 @@ class Tabuleiro : public ntf::Receptor {
   DadosFramebuffer dfb_luz_direcional_;
   DadosFramebuffer dfb_oclusao_;
   DadosFramebuffer dfb_colisao_;
+  std::vector<DadosFramebuffer> dfb_luzes_;
 
 #if 0
   GLuint framebuffer_ = 0;

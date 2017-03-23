@@ -80,11 +80,17 @@ int RolaDado(unsigned int nfaces);
 /** Gera um aleatorio entre [0.0 e 1.0]. Os valores tem precisao de duas casas. */
 float Aleatorio();
 
+/** Adiciona o delta ao dados_vida. */
+void AtualizaStringDadosVida(int delta, std::string* dados_vida);
+
 /** Gera pontos de vida baseado nos dados de vida, da forma 4d8+8 por exemplo.
-* O valor de retorno é o total, e um vetor com o valor de cada dado rolado (o primeiro elemento eh o numero de facoes, o segundo eh o valor).
+* O valor de retorno é o total, e um vetor com o valor de cada dado rolado (o primeiro elemento eh o numero de faces, o segundo eh o valor).
 * Da excecao se dados_vida for mal formado.
 */
 std::tuple<int, std::vector<std::pair<int, int>>> GeraPontosVida(const std::string& dados_vida);
+
+/** Converte a resposta para string. */
+std::string DadosParaString(int total, std::vector<std::pair<int, int>>& dados);
 
 // Le o resultado de um dano de uma arma.
 // Exemplos:

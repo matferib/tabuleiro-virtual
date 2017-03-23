@@ -668,6 +668,70 @@ void Tabuleiro::DesenhaMapaOclusao() {
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
+void Tabuleiro::DesenhaMapaLuz() {
+  parametros_desenho_.Clear();
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  // Zera as coisas nao usadas durante luzes.
+  parametros_desenho_.set_desenha_acoes(false);
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_iniciativas(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_info_geral(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_nao_desenha_entidades_translucidas(true);  // nao devem afetar o mapa oclusao.
+  parametros_desenho_.set_nao_desenha_entidades_selecionaveis(true);  // nao devem afetar o mapa oclusao.
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_pontos_rolagem(false);
+  parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
+
+  gl::UsaShader(gl::TSH_PONTUAL);
+
+  gl::UnidadeTextura(GL_TEXTURE3);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
+  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  parametros_desenho_.set_desenha_mapa_oclusao(0);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  ConfiguraProjecaoMapeamentoOclusao();
+  //LOG(INFO) << "DesenhaMapaOclusao";
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_oclusao_.framebuffer);
+
+  V_ERRO("LigacaoComFramebufferOclusao");
+
+  for (int i = 0; i < 6; ++i) {
+    parametros_desenho_.set_desenha_mapa_oclusao(i);
+#if ORDENAR_ENTIDADES
+    parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
+#endif
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[0].textura, 0);
+    V_ERRO("TexturaFramebufferOclusao");
+#if VBO_COM_MODELAGEM
+    DesenhaCenaVbos();
+#else
+    DesenhaCena();
+#endif
+  }
+  V_ERRO("LigacaoComFramebufferOclusao");
+}
+
 void Tabuleiro::DesenhaMapaSombra() {
   if (!parametros_desenho_.desenha_sombras()) {
     return;
@@ -840,6 +904,25 @@ int Tabuleiro::Desenha() {
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
     gl::UnidadeTextura(GL_TEXTURE3);
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_oclusao_.textura);
+    gl::UnidadeTextura(GL_TEXTURE0);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+    gl::Desabilita(GL_TEXTURE_2D);
+    parametros_desenho_ = salva_pd;
+  }
+
+  if (parametros_desenho_.desenha_mapa_luzes()) {
+    GLint original;
+    gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+    ParametrosDesenho salva_pd(parametros_desenho_);
+    DesenhaMapaLuz();
+    parametros_desenho_.set_desenha_mapa_luzes(true);
+    // Restaura os valores e usa a textura como mapa de oclusao.
+    // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
+    gl::UsaShader(tipo_shader);
+    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+    gl::UnidadeTextura(GL_TEXTURE3);
+    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
     gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
@@ -1408,13 +1491,9 @@ void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::AcumulaPontosVida(const std::vector<int>& lista_pv) {
-  for (int pv : lista_pv) {
-    if (pv >= 1000 || pv <= -1000) {
-      LOG(ERROR) << "Ignorando pv: " << pv;
-      continue;
-    }
-    lista_pontos_vida_.emplace_back(pv);
+void Tabuleiro::AcumulaPontosVida(const std::vector<std::pair<int, std::string>>& lista_pv) {
+  for (const auto& sinal_valor : lista_pv) {
+    lista_pontos_vida_.emplace_back(sinal_valor);
   }
 }
 
@@ -1423,23 +1502,17 @@ void Tabuleiro::LimpaListaPontosVida() {
 }
 
 void Tabuleiro::AlteraUltimoPontoVidaListaPontosVida(int delta) {
-  int valor = 0;
   if (!lista_pontos_vida_.empty()) {
-    valor = lista_pontos_vida_.back();
-    lista_pontos_vida_.pop_back();
+    AtualizaStringDadosVida(delta, &lista_pontos_vida_.back().second);
+  } else {
+    lista_pontos_vida_.push_back({ -1  /*padrao: dano*/, net::to_string(delta)});
   }
-  lista_pontos_vida_.push_back(valor + delta);
   modo_clique_ = MODO_ACAO;
 }
 
 void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   if (!lista_pontos_vida_.empty()) {
-    int valor = -lista_pontos_vida_.back();
-    lista_pontos_vida_.pop_back();
-    lista_pontos_vida_.push_back(valor);
-    modo_acao_cura_ = valor >= 0;
-  } else {
-    modo_acao_cura_ = !modo_acao_cura_;
+    lista_pontos_vida_.back().first *= -1;
   }
   modo_clique_ = MODO_ACAO;
 }
@@ -1460,8 +1533,14 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
                       ": " + texto_pontos_vida);
     return delta_pontos_vida;
   } else {
-    int delta_pontos_vida = lista_pontos_vida_.front();
+    int delta_pontos_vida;
+    std::vector<std::pair<int, int>> dados;
+    std::tie(delta_pontos_vida, dados) = GeraPontosVida(lista_pontos_vida_.front().second);
+    AdicionaLogEvento(std::string("resultado de ") + lista_pontos_vida_.front().second + ": " +
+                      ent::DadosParaString(delta_pontos_vida, dados));
+    delta_pontos_vida *= lista_pontos_vida_.front().first;
     lista_pontos_vida_.pop_front();
+
     VLOG(1) << "Lendo valor da lista de pontos de vida: " << delta_pontos_vida;
     return delta_pontos_vida;
   }
@@ -4365,6 +4444,9 @@ void Tabuleiro::GeraFramebuffer() {
       1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
   GeraFramebufferLocal(
       1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
+  dfb_luzes_.resize(1);
+  GeraFramebufferLocal(
+      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
 }
 
 namespace {
