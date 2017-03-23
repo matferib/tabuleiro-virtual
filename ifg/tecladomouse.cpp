@@ -2,6 +2,7 @@
 #include "ent/acoes.h"
 #include "ent/constantes.h"
 #include "ent/tabuleiro.h"
+#include "ent/util.h"
 #include "log/log.h"
 
 namespace ifg {
@@ -15,37 +16,43 @@ const float MAX_TEMPORIZADOR_MOUSE_S = 1;
 const float MAX_TEMPORIZADOR_TECLADO = MAX_TEMPORIZADOR_TECLADO_S * ATUALIZACOES_POR_SEGUNDO;
 const float MAX_TEMPORIZADOR_MOUSE = MAX_TEMPORIZADOR_MOUSE_S * ATUALIZACOES_POR_SEGUNDO;
 
-int CalculaDanoSimples(const std::vector<teclas_e>::const_iterator& inicio_teclas_normal,
-                       const std::vector<teclas_e>::const_iterator& fim_teclas_normal) {
-  std::vector<teclas_e>::const_reverse_iterator inicio_teclas(fim_teclas_normal);
-  std::vector<teclas_e>::const_reverse_iterator fim_teclas(inicio_teclas_normal);
-
-  int delta = 0;
-  int multiplicador = 1;
-  for (auto it = inicio_teclas; it < fim_teclas; ++it) {
-    if (*it < Tecla_0 || *it > Tecla_9) {
-      LOG(WARNING) << "Tecla inválida para delta pontos de vida";
+std::string CalculaDanoSimples(const std::vector<teclas_e>::const_iterator& inicio_teclas_normal,
+                               const std::vector<teclas_e>::const_iterator& fim_teclas_normal) {
+  std::string s;
+  for (auto it = inicio_teclas_normal; it < fim_teclas_normal; ++it) {
+    if (*it >= Tecla_0 && *it <= Tecla_9) {
+      s.push_back('0' + *it - Tecla_0);
       continue;
     }
-    delta += (*it - Tecla_0) * multiplicador;
-    multiplicador *= 10;
+    if (*it == Tecla_D) {
+      s.push_back('d');
+      continue;
+    }
+    // Igual com shift eh mais.
+    if (*it == Tecla_Mais || *it == Tecla_Igual) {
+      s.push_back('+');
+      continue;
+    }
+    if (*it == Tecla_Menos) {
+      s.push_back('-');
+      continue;
+    }
   }
-  VLOG(1) << "Tratando acao de delta pontos de vida, total: " << delta;
-  return delta;
+  return s;
 }
 
-// Calcula o dano acumulado no vetor de teclas.
-const std::vector<int> CalculaDano(const std::vector<teclas_e>::const_iterator& inicio_teclas,
-                                   const std::vector<teclas_e>::const_iterator& fim_teclas) {
-  std::vector<int> result;
+// Calcula o dano acumulado no vetor de teclas. Sempre retorna o valor como positivo.
+const std::vector<std::pair<int, std::string>> CalculaDano(const std::vector<teclas_e>::const_iterator& inicio_teclas,
+                                                           const std::vector<teclas_e>::const_iterator& fim_teclas) {
+  std::vector<std::pair<int, std::string>> result;
   auto it_inicio = inicio_teclas;
   for (auto it = inicio_teclas; it < fim_teclas; ++it) {
     if (*it == Tecla_Espaco) {
-      result.push_back(CalculaDanoSimples(it_inicio, it));
+      result.push_back(std::make_pair(1, CalculaDanoSimples(it_inicio, it)));
       it_inicio = it + 1;  // pula o espaco.
     }
   }
-  result.push_back(CalculaDanoSimples(it_inicio, fim_teclas));
+  result.push_back(std::make_pair(1, CalculaDanoSimples(it_inicio, fim_teclas)));
   return result;
 }
 
@@ -84,11 +91,11 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         if (teclas_.size() < 2) {
           break;
         }
-        auto lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
+        std::vector<std::pair<int, std::string>> lista_dano = CalculaDano(teclas_.begin() + 2, teclas_.end());
         if (teclas_[1] == Tecla_D) {
           // Inverte o dano.
-          for (int& pv : lista_dano) {
-            pv = -pv;
+          for (auto& dano : lista_dano) {
+            dano.first *= -1;
           }
         }
         tabuleiro_->AcumulaPontosVida(lista_dano);
@@ -96,23 +103,28 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
         if (teclas_.size() < 2) {
           break;
         }
-        auto rodadas = CalculaDano(teclas_.begin() + 2, teclas_.end());
-        for (const auto& r : rodadas) {
-          tabuleiro_->AdicionaEventoEntidadesSelecionadasNotificando(r);
+        std::vector<std::pair<int, std::string>> lista_rodadas = CalculaDano(teclas_.begin() + 2, teclas_.end());
+        for (const auto& rs : lista_rodadas) {
+          int rodadas;
+          std::tie(rodadas, std::ignore) = ent::GeraPontosVida(rs.second);
+          tabuleiro_->AdicionaEventoEntidadesSelecionadasNotificando(rodadas);
         }
       }
     }
     break;
     case Tecla_C:
     case Tecla_D: {
-      auto lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
+      std::vector<std::pair<int, std::string>> lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
       if (lista_pv.size() != 1) {
         break;
       }
+      int res;
+      std::vector<std::pair<int, int>> dados;
+      std::tie(res, dados) = ent::GeraPontosVida(lista_pv[0].second);
       if (primeira_tecla == Tecla_D) {
-        lista_pv[0] = -lista_pv[0];
+        res *= -1;
       }
-      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(lista_pv[0]);
+      tabuleiro_->TrataAcaoAtualizarPontosVidaEntidades(res);
     }
     break;
     case Tecla_R: {
