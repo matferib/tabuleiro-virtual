@@ -255,7 +255,8 @@ void Entidade::DesenhaObjetoFormaProto(const EntidadeProto& proto,
   AjustaCor(proto, pd);
   bool usar_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() &&
                       (proto.sub_tipo() == TF_CUBO || proto.sub_tipo() == TF_CIRCULO || proto.sub_tipo() == TF_PIRAMIDE ||
-                       proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO || proto.sub_tipo() == TF_ESFERA);
+                       proto.sub_tipo() == TF_RETANGULO || proto.sub_tipo() == TF_TRIANGULO || proto.sub_tipo() == TF_ESFERA ||
+                       proto.sub_tipo() == TF_CILINDRO);
   GLuint id_textura = usar_textura ? vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
 
   if (id_textura != GL_INVALID_VALUE) {

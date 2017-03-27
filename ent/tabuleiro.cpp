@@ -669,6 +669,20 @@ void Tabuleiro::DesenhaMapaOclusao() {
 }
 
 void Tabuleiro::DesenhaMapaLuz() {
+  // Encontra a entidade com luz.
+  Entidade* entidade = nullptr;
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    auto* e = it->second.get();
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
+      continue;
+    }
+    entidade = e;
+    break;
+  }
+  if (entidade == nullptr) {
+    return;
+  }
+
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
   // Zera as coisas nao usadas durante luzes.
@@ -702,6 +716,8 @@ void Tabuleiro::DesenhaMapaLuz() {
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
 
+  *parametros_desenho_.mutable_pos_olho() = entidade->Pos();
+
   gl::UsaShader(gl::TSH_PONTUAL);
 
   gl::UnidadeTextura(GL_TEXTURE3);
@@ -712,7 +728,7 @@ void Tabuleiro::DesenhaMapaLuz() {
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoOclusao();
   //LOG(INFO) << "DesenhaMapaOclusao";
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_oclusao_.framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[0].framebuffer);
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
@@ -3747,7 +3763,9 @@ void Tabuleiro::DesenhaCena() {
   }
 #endif
 
-  parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
+  if (!parametros_desenho_.has_pos_olho()) {
+    *parametros_desenho_.mutable_pos_olho() = olho_.pos();
+  }
   V_ERRO("configurando olhar");
 
   if (parametros_desenho_.iluminacao()) {
@@ -4022,7 +4040,9 @@ void Tabuleiro::DesenhaCenaVbos() {
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
-  parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
+  if (!parametros_desenho_.has_pos_olho()) {
+    *parametros_desenho_.mutable_pos_olho() = olho_.pos();
+  }
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (camera_ == CAMERA_ISOMETRICA ||
       (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
