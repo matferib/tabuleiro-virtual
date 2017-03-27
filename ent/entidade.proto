@@ -400,7 +400,8 @@ message ParametrosDesenho {
   // Se verdadeiro, ordenara as entidades apos a funcao ConfiguraOlhar.
   optional bool ordena_entidades_apos_configura_olhar = 55 [default=false];
 
-  optional bool desenha_mapa_luzes = 56;
+  // Valor indica qual face esta sendo desenhada. Ausencia indica para nao desenhar.
+  optional int32 desenha_mapa_luzes = 56;
 }
 
 

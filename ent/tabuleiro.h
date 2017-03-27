@@ -525,6 +525,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha as luzes do tabuleiro. */
   void DesenhaLuzes();
+  void AtualizaLuzesPontuais();
 
   /** Desenha o skybox ao redor da camera. */
   void DesenhaCaixaCeu();
@@ -862,11 +863,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Configura a matriz de projecao de acordo com o tipo de camera. */
   void ConfiguraProjecao();
   void ConfiguraProjecaoMapeamentoSombras();
-  void ConfiguraProjecaoMapeamentoOclusao();
+  void ConfiguraProjecaoMapeamentoOclusaoLuzes();
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
   void ConfiguraOlharMapeamentoSombras();
   void ConfiguraOlharMapeamentoOclusao();
+  void ConfiguraOlharMapeamentoLuzes();
 
   /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
   bool VisaoMestre() const { return EmModoMestreIncluindoSecundario() && visao_jogador_ == 0; }
@@ -905,6 +907,7 @@ class Tabuleiro : public ntf::Receptor {
 
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
+  bool MapeamentoLuzes() const { return opcoes_.mapeamento_luzes(); }
 
   void EscreveInfoGeral(const std::string& info_geral);
 
@@ -1161,6 +1164,9 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<Entidade*> entidades_ordenadas_;
 
   ntf::Notificacao notificacao_selecao_transicao_;
+
+  // Posicao das luzes.
+  std::vector<Posicao> luzes_pontuais_;
 
   // Usado para recuperacao de contexto IOS e android.
   bool regerar_vbos_entidades_ = false;

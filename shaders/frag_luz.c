@@ -30,8 +30,9 @@ varying highp vec4 v_Pos;  // Posicao do pixel do fragmento.
 varying highp vec4 v_Pos_model;
 uniform bool gltab_oclusao_ligada;          // true se oclusao estiver ligada.
 uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de corte distante durante o mapeamento de oclusao.
-varying highp vec4 v_Pos_sombra;  // Posicao do pixel do fragmento na perspectiva de sombra.
-varying highp vec3 v_Pos_oclusao;  // Posicao do pixel do fragmento com relacao a primeira pesssoa.
+varying highp vec4 v_Pos_sombra;   // Posicao do fragmento na perspectiva de sombra.
+varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeira pesssoa.
+varying highp vec3 v_Pos_luz;      // Posicao do fragmento com relacao a luz.
 varying lowp vec2 v_Tex;  // coordenada texel.
 uniform lowp vec4 gltab_luz_ambiente;      // Cor da luz ambiente.
 
@@ -61,11 +62,22 @@ uniform highp sampler2DShadow gltab_unidade_textura_sombra;   // handler da text
 uniform highp sampler2D gltab_unidade_textura_sombra;   // handler da textura do mapa da sombra.
 #endif
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
+uniform highp samplerCube gltab_unidade_textura_luz;       // handler da textura do mapa da luz.
 uniform mediump vec4 gltab_nevoa_dados;            // x = perto, y = longe, z = oclusao, w = escala.
 uniform lowp vec4 gltab_nevoa_cor;              // Cor da nevoa. alfa para presenca.
 uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para computar distancia da nevoa em coordenadas de olho.
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
 //uniform bool gltab_stencil;              // Stencil ligado?
+
+lowp float Visivel(samplerCube sampler, vec3 pos) {
+  highp float bias = 0.5;
+  highp vec4 texprofcor = textureCube(sampler, pos, 0.0);
+  highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
+  //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
+  mais_proximo *= gltab_plano_distante_oclusao;
+  // Se mais_proximo menor que valor computado, retorna 0.
+  return step((length(pos) - bias), mais_proximo);
+}
 
 lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcional) {
   // Converte normal para coordenadas de olho.
@@ -77,28 +89,22 @@ lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcio
   return cor_final * step(0.1, luz_direcional.cor.a);
 }
 
-lowp vec4 CorLuzPontual(in lowp vec3 normal, in InfoLuzPontual luz) {
+lowp vec4 CorLuzPontual(in bool testa_visibilidade, in lowp vec3 normal, in InfoLuzPontual luz) {
   if (luz.cor.a == 0.0) return vec4(0.0);
   // Vetor objeto luz.
+  lowp float visibilidade = testa_visibilidade ? Visivel(gltab_unidade_textura_luz, v_Pos_luz) : 1.0f;
   highp vec3 objeto_luz = vec3(luz.pos - v_Pos);
   highp float tam = length(objeto_luz);
-  lowp float atenuacao = 0.5 * step(tam, luz.atributos.r);
-  atenuacao += 0.5 * step(tam, luz.atributos.r * 2.0);
+  lowp float atenuacao = (0.5 * step(tam, luz.atributos.r) + 0.5 * step(tam, luz.atributos.r * 2.0));
   lowp float cos_com_normal = dot(normal, normalize(objeto_luz));
-  return clamp(luz.cor * cos_com_normal, 0.0, 1.0) * atenuacao;
+  return visibilidade * clamp(luz.cor * cos_com_normal, 0.0, 1.0) * atenuacao;
 }
 
 void main() {
   lowp vec4 cor_final = v_Color;
   lowp vec4 cor_oclusao = vec4(1.0, 1.0, 1.0, 1.0);
   if (gltab_oclusao_ligada) {
-    highp float bias = 0.5;
-    highp vec4 texprofcor = textureCube(gltab_unidade_textura_oclusao, v_Pos_oclusao, 0.0);
-    highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
-    //gl_FragColor = vec4(mais_proximo, 0.0, 0.0, 1.0);
-    mais_proximo *= gltab_plano_distante_oclusao;
-    // Se mais_proximo menor que valor computado, retorna 0.
-    lowp float visivel = step((length(v_Pos_oclusao) - bias), mais_proximo);
+    lowp float visivel = Visivel(gltab_unidade_textura_oclusao, v_Pos_oclusao);
     cor_oclusao = vec4(visivel, visivel, visivel, 1.0);
   }
 
@@ -125,13 +131,13 @@ void main() {
     // Outras luzes.
     lowp vec4 uns = vec4(1.0, 1.0, 1.0, 1.0);
     lowp mat4 cor_luz = mat4(aplicar_luz_direcional * CorLuzDirecional(v_Normal, gltab_luz_direcional),
-                             CorLuzPontual(v_Normal, gltab_luzes[0]),
-                             CorLuzPontual(v_Normal, gltab_luzes[1]),
-                             CorLuzPontual(v_Normal, gltab_luzes[2]));
-    lowp mat4 cor_luz_2 = mat4(CorLuzPontual(v_Normal, gltab_luzes[3]),
-                               CorLuzPontual(v_Normal, gltab_luzes[4]),
-                               CorLuzPontual(v_Normal, gltab_luzes[5]),
-                               CorLuzPontual(v_Normal, gltab_luzes[6]));
+                             CorLuzPontual(true, v_Normal, gltab_luzes[0]),
+                             CorLuzPontual(false, v_Normal, gltab_luzes[1]),
+                             CorLuzPontual(false, v_Normal, gltab_luzes[2]));
+    lowp mat4 cor_luz_2 = mat4(CorLuzPontual(false, v_Normal, gltab_luzes[3]),
+                               CorLuzPontual(false, v_Normal, gltab_luzes[4]),
+                               CorLuzPontual(false, v_Normal, gltab_luzes[5]),
+                               CorLuzPontual(false, v_Normal, gltab_luzes[6]));
     cor_final *= clamp(gltab_luz_ambiente + cor_luz * uns + cor_luz_2 * uns, 0.0, 1.0);
   }
 

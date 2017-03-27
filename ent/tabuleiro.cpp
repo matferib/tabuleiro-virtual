@@ -427,7 +427,7 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
   gl::AtualizaMatrizes();
 }
 
-void Tabuleiro::ConfiguraProjecaoMapeamentoOclusao() {
+void Tabuleiro::ConfiguraProjecaoMapeamentoOclusaoLuzes() {
   gl::Perspectiva(90.0f, 1.0f,
                   DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
                   DISTANCIA_PLANO_CORTE_DISTANTE);
@@ -466,7 +466,9 @@ void Tabuleiro::ConfiguraProjecao() {
 
 void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
-  if (!parametros_desenho_.desenha_mapa_sombras() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
+  if (!parametros_desenho_.desenha_mapa_sombras() &&
+      !parametros_desenho_.has_desenha_mapa_oclusao() &&
+      !parametros_desenho_.has_desenha_mapa_luzes()) {
     // Mapa de sombras.
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
@@ -476,6 +478,11 @@ void Tabuleiro::ConfiguraOlhar() {
     if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
       ConfiguraOlharMapeamentoOclusao();
+      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      gl::MudaModoMatriz(gl::MATRIZ_LUZ);
+      ConfiguraOlharMapeamentoLuzes();
       gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
     }
     const Posicao& alvo = olho_.alvo();
@@ -511,6 +518,10 @@ void Tabuleiro::ConfiguraOlhar() {
   }
   if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
     ConfiguraOlharMapeamentoOclusao();
+    return;
+  }
+  if (parametros_desenho_.has_desenha_mapa_luzes()) {
+    ConfiguraOlharMapeamentoLuzes();
     return;
   }
 }
@@ -603,6 +614,59 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
       up.x, up.y, up.z);
 }
 
+void Tabuleiro::ConfiguraOlharMapeamentoLuzes() {
+  if (luzes_pontuais_.empty()) {
+    return;
+  }
+  const auto& pos = luzes_pontuais_[0];
+  Vector3 delta_alvo;
+  Vector3 up;
+  int face = parametros_desenho_.desenha_mapa_luzes();
+  if (!parametros_desenho_.has_desenha_mapa_luzes()) {
+    delta_alvo.x = 1.0f;
+    // No desenho normal, a gente nao inverte o vetor vertical.
+    up.z = 1.0f;
+    face = -1;
+  }
+  // No desenho da textura, o eixo vertical é invertido por causa da orientação do opengl.
+  switch (face) {
+    case 0:  // GL_TEXTURE_CUBE_MAP_POSITIVE_X, right
+      delta_alvo.y = -1.0f;
+      up.z = -1.0f;
+      break;
+    case 1:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_X, left
+      delta_alvo.y = 1.0f;
+      up.z = -1.0f;
+      break;
+    case 2:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Y, top
+      delta_alvo.z = 1.0f;
+      up.x = -1.0f;
+      break;
+    case 3:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, bottom
+      delta_alvo.z = -1.0f;
+      up.x = 1.0f;
+      break;
+    case 4:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Z, back
+      delta_alvo.x = -1.0f;
+      up.z = -1.0f;
+      break;
+    case 5:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, front
+      delta_alvo.x = 1.0f;
+      up.z = -1.0f;
+      break;
+    default:
+      //LOG(ERROR) << "Face do mapa de luzes invalida";
+      ;
+  }
+  gl::OlharPara(
+      // from.
+      pos.x(), pos.y(), pos.z(),
+      // to.
+      pos.x() + delta_alvo.x, pos.y() + delta_alvo.y, pos.z() + delta_alvo.z,
+      // up
+      up.x, up.y, up.z);
+}
+
 void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
@@ -645,7 +709,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
-  ConfiguraProjecaoMapeamentoOclusao();
+  ConfiguraProjecaoMapeamentoOclusaoLuzes();
   //LOG(INFO) << "DesenhaMapaOclusao";
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_oclusao_.framebuffer);
 
@@ -669,17 +733,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
 }
 
 void Tabuleiro::DesenhaMapaLuz() {
-  // Encontra a entidade com luz.
-  Entidade* entidade = nullptr;
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    auto* e = it->second.get();
-    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
-      continue;
-    }
-    entidade = e;
-    break;
-  }
-  if (entidade == nullptr) {
+  if (luzes_pontuais_.empty()) {
     return;
   }
 
@@ -716,24 +770,24 @@ void Tabuleiro::DesenhaMapaLuz() {
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
 
-  *parametros_desenho_.mutable_pos_olho() = entidade->Pos();
+  *parametros_desenho_.mutable_pos_olho() = luzes_pontuais_[0];
 
   gl::UsaShader(gl::TSH_PONTUAL);
 
-  gl::UnidadeTextura(GL_TEXTURE3);
+  gl::UnidadeTextura(GL_TEXTURE4);
   gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
   gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
-  parametros_desenho_.set_desenha_mapa_oclusao(0);
+  parametros_desenho_.set_desenha_mapa_luzes(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
-  ConfiguraProjecaoMapeamentoOclusao();
-  //LOG(INFO) << "DesenhaMapaOclusao";
+  ConfiguraProjecaoMapeamentoOclusaoLuzes();
   gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[0].framebuffer);
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
   for (int i = 0; i < 6; ++i) {
-    parametros_desenho_.set_desenha_mapa_oclusao(i);
+    //LOG(INFO) << "DesenhaMapaLuzes " << i;
+    parametros_desenho_.set_desenha_mapa_luzes(i);
 #if ORDENAR_ENTIDADES
     parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
 #endif
@@ -878,6 +932,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
     parametros_desenho_.clear_desenha_mapa_oclusao();
+    parametros_desenho_.clear_desenha_mapa_luzes();
     parametros_desenho_.set_limpa_fundo(false);
     parametros_desenho_.set_transparencias(false);
     parametros_desenho_.set_desenha_acoes(false);
@@ -926,18 +981,19 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   }
 
-  if (parametros_desenho_.desenha_mapa_luzes()) {
+  if (!modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
     ParametrosDesenho salva_pd(parametros_desenho_);
     DesenhaMapaLuz();
-    parametros_desenho_.set_desenha_mapa_luzes(true);
-    // Restaura os valores e usa a textura como mapa de oclusao.
+    parametros_desenho_.set_desenha_mapa_luzes(0);
+    // TODO XXX desenhar apenas as entidades fixas.
+    // Restaura os valores e usa a textura como mapa de luz.
     // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
     gl::UsaShader(tipo_shader);
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-    gl::UnidadeTextura(GL_TEXTURE3);
+    gl::UnidadeTextura(GL_TEXTURE4);
     gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
     gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
@@ -1743,6 +1799,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
 
       AtualizaEntidades(passou_ms);
+      AtualizaLuzesPontuais();
 
       if (indice_iniciativa_ != -1 && EmModoMestre()) {
         AtualizaIniciativas();
@@ -3728,6 +3785,7 @@ void Tabuleiro::DesenhaCena() {
   // da janela para cobrir o fundo todo.
   if (!parametros_desenho_.desenha_mapa_sombras() &&
       !parametros_desenho_.has_desenha_mapa_oclusao() &&
+      !parametros_desenho_.has_desenha_mapa_luzes() &&
       !parametros_desenho_.has_picking_x() &&
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) &&
        parametros_desenho_.projecao().tipo_camera() != CAMERA_ISOMETRICA) {
@@ -3736,7 +3794,8 @@ void Tabuleiro::DesenhaCena() {
     bits_limpar |= GL_COLOR_BUFFER_BIT;
     if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
       gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
-    } else if (parametros_desenho_.has_desenha_mapa_oclusao()) {
+    } else if (parametros_desenho_.has_desenha_mapa_oclusao() ||
+               parametros_desenho_.has_desenha_mapa_luzes()) {
       gl::CorLimpeza(1.0f, 1.0f, 1.0f, 1.0f);
     } else {
       gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
@@ -3891,7 +3950,8 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando entidades alfa");
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
-      (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao())) {
+      (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) ||
+       parametros_desenho_.has_desenha_mapa_luzes()) {
     return;
   }
 
@@ -4852,7 +4912,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         continue;
       }
-      if (parametros_desenho_.has_desenha_mapa_oclusao()) {
+      if (parametros_desenho_.has_desenha_mapa_oclusao() || parametros_desenho_.has_desenha_mapa_luzes()) {
         continue;
       }
     }
@@ -4861,7 +4921,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                                                  EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_iniciativa_corrente(indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
                                                 iniciativas_[indice_iniciativa_].id == entidade->Id());
-    bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+    bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() ||
+                           parametros_desenho_.has_desenha_mapa_oclusao() ||
+                           parametros_desenho_.has_desenha_mapa_luzes()) &&
                          (detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO);
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
                               tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
@@ -4872,7 +4934,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
     parametros_desenho_.set_desenha_eventos_entidades(
-        !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+        !(parametros_desenho_.desenha_mapa_sombras() ||
+          parametros_desenho_.has_desenha_mapa_oclusao() ||
+          parametros_desenho_.has_desenha_mapa_luzes()) &&
         (VisaoMestre() || entidade->SelecionavelParaJogador()));
     //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
@@ -7251,6 +7315,21 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
                              proto_a_atualizar->has_info_textura_ceu(), proto_a_atualizar->mutable_info_textura_ceu(),
                              central_)) {
     proto_a_atualizar->clear_info_textura_ceu();
+  }
+}
+
+void Tabuleiro::AtualizaLuzesPontuais() {
+  luzes_pontuais_.clear();
+  // Posiciona as luzes dinâmicas.
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    auto* e = it->second.get();
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
+      continue;
+    }
+    Posicao pos = e->Pos();
+    pos.set_z(pos.z() + e->AlturaOlho());
+    luzes_pontuais_.push_back(pos);
+    return;
   }
 }
 
