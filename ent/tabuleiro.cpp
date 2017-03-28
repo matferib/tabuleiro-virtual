@@ -2027,7 +2027,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.has_entidade()) {
         return false;
       }
-      if (estado_ != ETAB_ENTS_SELECIONADAS || ids_entidades_selecionadas_.size() > 1) {
+      Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+      if (entidade == nullptr) {
         auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
         ne->set_erro("Deve haver uma entidade (e apenas uma) selecionada.");
         central_->AdicionaNotificacao(ne);
@@ -2037,7 +2038,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       n->set_modo_mestre(EmModoMestreIncluindoSecundario());
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
-      n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
+      n->mutable_entidade()->CopyFrom(entidade->Proto());
       return true;
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
