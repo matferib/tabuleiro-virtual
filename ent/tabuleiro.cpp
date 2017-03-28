@@ -5735,7 +5735,8 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
     auto it = std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id);
     ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
   }
-  estado_ = ETAB_ENTS_SELECIONADAS;
+  // Nao precisa mudar porque a funcao MudaEstadoAposSelecao fara isso.
+  // estado_ = ETAB_ENTS_SELECIONADAS;
   return true;
 }
 
