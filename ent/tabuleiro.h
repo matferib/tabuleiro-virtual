@@ -1165,7 +1165,7 @@ class Tabuleiro : public ntf::Receptor {
 
   ntf::Notificacao notificacao_selecao_transicao_;
 
-  // Posicao das luzes.
+  // Posicao das luzes, para mapeamento de luzes. Apenas a primeira é usada por enquanto.
   std::vector<Posicao> luzes_pontuais_;
 
   // Usado para recuperacao de contexto IOS e android.

@@ -981,26 +981,6 @@ int Tabuleiro::Desenha() {
     parametros_desenho_ = salva_pd;
   }
 
-  if (!modo_debug_) {
-    GLint original;
-    gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-    ParametrosDesenho salva_pd(parametros_desenho_);
-    DesenhaMapaLuz();
-    parametros_desenho_.set_desenha_mapa_luzes(0);
-    // TODO XXX desenhar apenas as entidades fixas.
-    // Restaura os valores e usa a textura como mapa de luz.
-    // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
-    gl::UsaShader(tipo_shader);
-    gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
-    gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
-    gl::UnidadeTextura(GL_TEXTURE4);
-    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
-    gl::UnidadeTextura(GL_TEXTURE0);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
-    gl::Desabilita(GL_TEXTURE_2D);
-    parametros_desenho_ = salva_pd;
-  }
-
   if (parametros_desenho_.desenha_sombras() && !modo_debug_) {
     GLint original;
     gl::Le(GL_FRAMEBUFFER_BINDING, &original);
@@ -1154,6 +1134,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro(erro.what());
     central_->AdicionaNotificacao(n);
+    return;
   }
 }
 
@@ -1164,6 +1145,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  bool atualizar_mapa_luzes = false;
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
@@ -1176,6 +1158,9 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(valor);
+      if (proto_original.tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit. Mas tem que setar pra um valor para mostrar que o ha atualizacao no campo.
@@ -1289,11 +1274,15 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  bool atualizar_mapa_luzes = false;
   for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
@@ -1306,6 +1295,9 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(!proto_original.visivel());
+      if (proto_original.tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit.
@@ -1434,6 +1426,9 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
@@ -2407,6 +2402,7 @@ void Tabuleiro::AlteraAnguloVisao(float valor) {
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
+  bool atualizar_mapa_luzes = false;
   if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
     if (estado_ == ETAB_ENTS_PRESSIONADAS) {
       FinalizaEstadoCorrente();
@@ -2428,12 +2424,16 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       e->mutable_escala()->set_x(e->escala().x() * fator);
       e->mutable_escala()->set_y(e->escala().y() * fator);
       e->mutable_escala()->set_z(e->escala().z() * fator);
+      if (entidade->Tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     }
     TrataNotificacao(grupo_notificacoes);
     // Para desfazer.
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   } else if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
+    atualizar_mapa_luzes = true;
   } else {
     if (camera_ == CAMERA_ISOMETRICA) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
@@ -2443,6 +2443,9 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
     }
+  }
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
   }
 }
 
@@ -2477,6 +2480,7 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
+  bool atualizar_mapa_luzes = false;
   if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     // Eh possivel chegar aqui?
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
@@ -2497,21 +2501,31 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
       proto.mutable_escala()->set_y(entidade->Proto().escala().y() * fator);
       proto.mutable_escala()->set_z(entidade->Proto().escala().z() * fator);
       entidade->AtualizaParcial(proto);
+      if (entidade->Tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     } else {
       LOG(WARNING) << "Nao eh possivel escalar, entidade nullptr";
     }
   } else {
     AtualizaRaioOlho(olho_.raio() / fator);
   }
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
+  bool atualizar_mapa_luzes = false;
   if (camera_ != CAMERA_PRIMEIRA_PESSOA && estado_ == ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA) {
     if (translacoes_rotacoes_escalas_antes_.empty()) {
       return;
     }
     auto* entidade = BuscaEntidade(translacoes_rotacoes_escalas_antes_.begin()->first);
     if (entidade != nullptr) {
+      if (entidade->Tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
       entidade->IncrementaRotacaoZGraus(-delta_rad * RAD_PARA_GRAUS);
       return;
     }
@@ -2528,6 +2542,9 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
   }
   olho_.set_rotacao_rad(olho_rotacao);
   AtualizaOlho(0, true  /*forcar*/);
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
@@ -2613,6 +2630,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
+      bool atualizar_mapa_luzes = false;
       if (translacao_rotacao_ == TR_NENHUM) {
         int abs_delta_x = abs(primeiro_x_ - x);
         int abs_delta_y = abs(primeiro_y_ - y);
@@ -2650,6 +2668,12 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->IncrementaZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
         }
+        if (e->Tipo() != TE_ENTIDADE) {
+          atualizar_mapa_luzes = true;
+        }
+      }
+      if (atualizar_mapa_luzes) {
+        luzes_pontuais_.clear();
       }
       ultimo_x_ = x;
       ultimo_y_ = y;
@@ -2698,6 +2722,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float dx = nx - ultimo_x_3d_;
       float dy = ny - ultimo_y_3d_;
       int quantidade_movimento = 0;
+      bool atualizar_mapa_luzes = false;
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -2729,6 +2754,8 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
             VLOG(2) << "nao mantendo apoio, z_depois " << z_depois;
           }
+        } else {
+          atualizar_mapa_luzes = true;
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
         Posicao pos;
@@ -2750,6 +2777,9 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             quantidade_movimento += (andou == 3) ? 2 : 1;
           }
         }
+      }
+      if (atualizar_mapa_luzes) {
+        luzes_pontuais_.clear();
       }
       quadrados_movimentados_ += quantidade_movimento;
       ultimo_x_ = x;
@@ -4861,6 +4891,10 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
     return true;
   }
   if (proto.selecionavel_para_jogador() && pd.nao_desenha_entidades_selecionaveis()) {
+    return true;
+  }
+  if (proto.tipo() == TE_ENTIDADE && (pd.has_desenha_mapa_luzes() || pd.has_desenha_mapa_oclusao())) {
+    // Para luzes pontuais e oclusao, entidades nao contam (performance).
     return true;
   }
   return false;
@@ -7141,6 +7175,9 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     }
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
+  if (entidade->Tipo() != TE_ENTIDADE) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
@@ -7148,6 +7185,10 @@ void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
   if (entidade == nullptr) {
     return;
   }
+  if (entidade->Tipo() != TE_ENTIDADE) {
+    luzes_pontuais_.clear();
+  }
+
   {
     // Para desfazer.
     ntf::Notificacao n_desfazer;
@@ -7319,18 +7360,70 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
 }
 
 void Tabuleiro::AtualizaLuzesPontuais() {
-  luzes_pontuais_.clear();
   // Posiciona as luzes dinâmicas.
+  std::vector<const Entidade*> entidades_com_luz;
   for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
     auto* e = it->second.get();
     if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
       continue;
     }
-    Posicao pos = e->Pos();
-    pos.set_z(pos.z() + e->AlturaOlho());
-    luzes_pontuais_.push_back(pos);
+    entidades_com_luz.push_back(e);
+  }
+  if (entidades_com_luz.empty()) {
     return;
   }
+  // Posicao para comparacao.
+  Vector3 pos_comp;
+  const auto* entidade_presa = BuscaEntidade(IdCameraPresa());
+  if (entidade_presa != nullptr) {
+    pos_comp = PosParaVector3(entidade_presa->Pos());
+    pos_comp.z += entidade_presa->AlturaOlho();
+  } else {
+    pos_comp = PosParaVector3(olho_.pos());
+  }
+  // Ordena as luzes pela distancia.
+  std::sort(entidades_com_luz.begin(), entidades_com_luz.end(), [entidade_presa, &pos_comp] (const Entidade* lhs, const Entidade* rhs) {
+    if (lhs == entidade_presa) {
+      return true;
+    } else if (rhs == entidade_presa) {
+      return false;
+    }
+    float ld = (PosParaVector3(lhs->Pos()) - pos_comp).length();
+    float rd = (PosParaVector3(rhs->Pos()) - pos_comp).length();
+    return ld < rd;
+  });
+  // Quando entidade estiver travada, ela tera oclusao, portanto, usa a segunda luz se houver.
+  int indice = (entidade_presa != nullptr && entidades_com_luz.size() > 1) ? 1 : 0;
+  Posicao pos = entidades_com_luz[indice]->Pos();
+  pos.set_z(entidades_com_luz[indice]->ZOlho());
+  Vector3 pv = PosParaVector3(pos);
+
+  if (!luzes_pontuais_.empty()) {
+    Vector3 pt = PosParaVector3(luzes_pontuais_[0]);
+    if ((pv - pt).length() < TAMANHO_LADO_QUADRADO_10) {
+      return;
+    }
+    luzes_pontuais_[0] = pos;
+  } else {
+    luzes_pontuais_.push_back(pos);
+  }
+
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  ParametrosDesenho salva_pd(parametros_desenho_);
+  DesenhaMapaLuz();
+  parametros_desenho_.set_desenha_mapa_luzes(0);
+  // TODO XXX desenhar apenas as entidades fixas.
+  // Restaura os valores e usa a textura como mapa de luz.
+  // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
+  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  gl::UnidadeTextura(GL_TEXTURE4);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::Desabilita(GL_TEXTURE_2D);
+  parametros_desenho_ = salva_pd;
 }
 
 void Tabuleiro::DesenhaLuzes() {
