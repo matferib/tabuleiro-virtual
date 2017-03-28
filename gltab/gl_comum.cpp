@@ -367,15 +367,15 @@ bool IniciaVariaveis(VarShader* shader) {
           {"gltab_unidade_textura_sombra", &shader->uni_gltab_unidade_textura_sombra },
           {"gltab_unidade_textura_cubo", &shader->uni_gltab_unidade_textura_cubo },
           {"gltab_unidade_textura_oclusao", &shader->uni_gltab_unidade_textura_oclusao },
+          {"gltab_unidade_textura_luz", &shader->uni_gltab_unidade_textura_luz },
           {"gltab_nevoa_dados", &shader->uni_gltab_nevoa_dados },
           {"gltab_nevoa_cor", &shader->uni_gltab_nevoa_cor},
 
           {"gltab_nevoa_referencia", &shader->uni_gltab_nevoa_referencia },
-          {"gltab_model", &shader->uni_gltab_model },
-          {"gltab_view", &shader->uni_gltab_view },
           {"gltab_mvm", &shader->uni_gltab_mvm },
           {"gltab_mvm_sombra", &shader->uni_gltab_mvm_sombra },
           {"gltab_mvm_oclusao", &shader->uni_gltab_mvm_oclusao },
+          {"gltab_mvm_luz", &shader->uni_gltab_mvm_luz },
           {"gltab_mvm_ajuste_textura", &shader->uni_gltab_mvm_ajuste_textura },
           {"gltab_prm", &shader->uni_gltab_prm },
           {"gltab_prm_sombra", &shader->uni_gltab_prm_sombra },
@@ -492,7 +492,7 @@ void IniciaComum(bool luz_por_pixel, interno::Contexto* contexto) {
   contexto->pilha_mvm_sombra.push(Matrix4());
   contexto->pilha_prj_sombra.push(Matrix4());
   contexto->pilha_mvm_oclusao.push(Matrix4());
-  contexto->pilha_prj_oclusao.push(Matrix4());
+  contexto->pilha_mvm_luz.push(Matrix4());
   contexto->pilha_mvm_ajuste_textura.push(Matrix4());
   contexto->pilha_corrente = &contexto->pilha_mvm;
   // Essa funcao pode dar excecao, entao eh melhor colocar depois das matrizes pra aplicacao nao crashar e mostrar
@@ -616,6 +616,7 @@ void AtualizaMatrizSombraOclusao(const Matrix4& m) {
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.top() *= m;
   c->pilha_mvm_oclusao.top() *= m;
+  c->pilha_mvm_luz.top() *= m;
 }
 
 void IdentidadeMatrizSombraOclusao() {
@@ -625,6 +626,7 @@ void IdentidadeMatrizSombraOclusao() {
   auto* c = interno::BuscaContexto();
   c->pilha_mvm_sombra.top().identity();
   c->pilha_mvm_oclusao.top().identity();
+  c->pilha_mvm_luz.top().identity();
 }
 
 void EmpilhaMatrizSombraOclusao(interno::Contexto* c) {
@@ -633,6 +635,7 @@ void EmpilhaMatrizSombraOclusao(interno::Contexto* c) {
   }
   c->pilha_mvm_sombra.emplace(c->pilha_mvm_sombra.top().get());
   c->pilha_mvm_oclusao.emplace(c->pilha_mvm_oclusao.top().get());
+  c->pilha_mvm_luz.emplace(c->pilha_mvm_luz.top().get());
 }
 
 void DesempilhaMatrizSombraOclusao(interno::Contexto* c) {
@@ -641,6 +644,7 @@ void DesempilhaMatrizSombraOclusao(interno::Contexto* c) {
   }
   c->pilha_mvm_sombra.pop();
   c->pilha_mvm_oclusao.pop();
+  c->pilha_mvm_luz.pop();
 }
 
 }  // namespace interno
@@ -712,6 +716,7 @@ int ModoMatrizCorrente() {
   else if (c->pilha_corrente == &c->pilha_prj_sombra) { return MATRIZ_PROJECAO_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_sombra) { return MATRIZ_SOMBRA; }
   else if (c->pilha_corrente == &c->pilha_mvm_oclusao) { return MATRIZ_OCLUSAO; }
+  else if (c->pilha_corrente == &c->pilha_mvm_luz) { return MATRIZ_LUZ; }
   else if (c->pilha_corrente == &c->pilha_mvm_ajuste_textura) { return MATRIZ_AJUSTE_TEXTURA; }
   else {
     LOG(ERROR) << "Nao ha matriz corrente!!";
@@ -735,6 +740,8 @@ void MudaModoMatriz(int modo) {
     c->pilha_corrente = &c->pilha_mvm_sombra;
   } else if (modo == MATRIZ_OCLUSAO) {
     c->pilha_corrente = &c->pilha_mvm_oclusao;
+  } else if (modo == MATRIZ_LUZ) {
+    c->pilha_corrente = &c->pilha_mvm_luz;
   } else if (modo == MATRIZ_AJUSTE_TEXTURA) {
     c->pilha_corrente = &c->pilha_mvm_ajuste_textura;
   } else {
@@ -1096,6 +1103,8 @@ Matrix4 LeMatriz(matriz_e modo) {
     return c->pilha_prj_sombra.top();
   } else if (modo == MATRIZ_OCLUSAO) {
     return c->pilha_mvm_oclusao.top();
+  } else if (modo == MATRIZ_LUZ) {
+    return c->pilha_mvm_luz.top();
   } else if (modo == MATRIZ_AJUSTE_TEXTURA) {
     return c->pilha_mvm_ajuste_textura.top();
   } else {
@@ -1180,6 +1189,7 @@ void UsaShader(TipoShader ts) {
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_sombra, 1);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_cubo, 2);
   interno::UniformeSeValido(shader->uni_gltab_unidade_textura_oclusao, 3);
+  interno::UniformeSeValido(shader->uni_gltab_unidade_textura_luz, 4);
   interno::UniformeSeValido(shader->uni_gltab_plano_distante, c->plano_distante);
 
   VLOG(3) << "Alternando para programa de shader: " << c->shader_corrente->nome;
@@ -1194,12 +1204,11 @@ namespace {
 GLint IdMatrizCorrente(const interno::VarShader& shader) {
   switch (ModoMatrizCorrente()) {
     case MATRIZ_MODELAGEM_CAMERA: return shader.uni_gltab_mvm;
-    case MATRIZ_MODELAGEM:        return shader.uni_gltab_model;
-    case MATRIZ_CAMERA:           return shader.uni_gltab_view;
     case MATRIZ_AJUSTE_TEXTURA:   return shader.uni_gltab_mvm_ajuste_textura;
     case MATRIZ_PROJECAO:         return shader.uni_gltab_prm;
     case MATRIZ_PROJECAO_SOMBRA:  return shader.uni_gltab_prm_sombra;
     case MATRIZ_OCLUSAO:          return shader.uni_gltab_mvm_oclusao;
+    case MATRIZ_LUZ:              return shader.uni_gltab_mvm_luz;
     case MATRIZ_SOMBRA:
     default:                      return shader.uni_gltab_mvm_sombra;
   }
@@ -1240,6 +1249,9 @@ void AtualizaMatrizes() {
   if (shader.uni_gltab_mvm_oclusao != -1) {
     Matriz4Uniforme(shader.uni_gltab_mvm_oclusao, 1, false, c->pilha_mvm_oclusao.top().get());
   }
+  if (shader.uni_gltab_mvm_luz != -1) {
+    Matriz4Uniforme(shader.uni_gltab_mvm_luz, 1, false, c->pilha_mvm_luz.top().get());
+  }
 }
 
 void AtualizaTodasMatrizes() {
@@ -1251,12 +1263,11 @@ void AtualizaTodasMatrizes() {
   };
   std::vector<DadosMatriz> dados_matriz = {
     { shader.uni_gltab_mvm, &c->pilha_mvm.top() },
-    { shader.uni_gltab_model, &c->pilha_model.top() },
-    { shader.uni_gltab_view, &c->pilha_view.top() },
     { shader.uni_gltab_prm, &c->pilha_prj.top() },
     { shader.uni_gltab_mvm_sombra, &c->pilha_mvm_sombra.top() },
     { shader.uni_gltab_prm_sombra, &c->pilha_prj_sombra.top() },
     { shader.uni_gltab_mvm_oclusao, &c->pilha_mvm_oclusao.top() },
+    { shader.uni_gltab_mvm_luz, &c->pilha_mvm_luz.top() },
     { shader.uni_gltab_mvm_ajuste_textura, &c->pilha_mvm_ajuste_textura.top() },
   };
   for (const auto& dm : dados_matriz) {
