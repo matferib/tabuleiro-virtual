@@ -618,7 +618,7 @@ void Tabuleiro::ConfiguraOlharMapeamentoLuzes() {
   if (luzes_pontuais_.empty()) {
     return;
   }
-  const auto& pos = luzes_pontuais_[0];
+  const auto& pos = luzes_pontuais_[0].pos;
   Vector3 delta_alvo;
   Vector3 up;
   int face = parametros_desenho_.desenha_mapa_luzes();
@@ -769,8 +769,6 @@ void Tabuleiro::DesenhaMapaLuz() {
   parametros_desenho_.set_desenha_controle_virtual(false);
   parametros_desenho_.set_desenha_pontos_rolagem(false);
   parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
-
-  *parametros_desenho_.mutable_pos_olho() = luzes_pontuais_[0];
 
   gl::UsaShader(gl::TSH_PONTUAL);
 
@@ -7400,13 +7398,14 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   Vector3 pv = PosParaVector3(pos);
 
   if (!luzes_pontuais_.empty()) {
-    Vector3 pt = PosParaVector3(luzes_pontuais_[0]);
-    if ((pv - pt).length() < TAMANHO_LADO_QUADRADO_10) {
+    Vector3 pt = PosParaVector3(luzes_pontuais_[0].pos);
+    if ((pv - pt).length() < TAMANHO_LADO_QUADRADO_10 && luzes_pontuais_[0].entidade == entidades_com_luz[indice]) {
       return;
     }
-    luzes_pontuais_[0] = pos;
+    luzes_pontuais_[0].entidade = entidades_com_luz[indice];
+    luzes_pontuais_[0].pos = pos;
   } else {
-    luzes_pontuais_.push_back(pos);
+    luzes_pontuais_.push_back({entidades_com_luz[indice], pos});
   }
 
   GLint original;
