@@ -1167,7 +1167,7 @@ class Tabuleiro : public ntf::Receptor {
 
   // Posicao das luzes, para mapeamento de luzes. Apenas a primeira é usada por enquanto.
   struct LuzPontual {
-    const Entidade* entidade;
+    unsigned int id;
     Posicao pos;
   };
   std::vector<LuzPontual> luzes_pontuais_;

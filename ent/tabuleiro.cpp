@@ -7392,22 +7392,36 @@ void Tabuleiro::AtualizaLuzesPontuais() {
     return ld < rd;
   });
   // Quando entidade estiver travada, ela tera oclusao, portanto, usa a segunda luz se houver.
-  int indice = (entidade_presa != nullptr && entidades_com_luz.size() > 1) ? 1 : 0;
-  Posicao pos = entidades_com_luz[indice]->Pos();
-  pos.set_z(entidades_com_luz[indice]->ZOlho());
-  Vector3 pv = PosParaVector3(pos);
-
-  if (!luzes_pontuais_.empty()) {
-    Vector3 pt = PosParaVector3(luzes_pontuais_[0].pos);
-    if ((pv - pt).length() < TAMANHO_LADO_QUADRADO_10 && luzes_pontuais_[0].entidade == entidades_com_luz[indice]) {
-      return;
-    }
-    luzes_pontuais_[0].entidade = entidades_com_luz[indice];
-    luzes_pontuais_[0].pos = pos;
-  } else {
-    luzes_pontuais_.push_back({entidades_com_luz[indice], pos});
+  if (entidade_presa != nullptr && entidades_com_luz[0] == entidade_presa && entidades_com_luz.size() > 1) {
+    std::swap(entidades_com_luz[0], entidades_com_luz[1]);
   }
 
+  bool atualizar_mapa = false;
+  if (!luzes_pontuais_.empty()) {
+    Posicao pos = entidades_com_luz[0]->Pos();
+    pos.set_z(entidades_com_luz[0]->ZOlho());
+    Vector3 pv = PosParaVector3(pos);
+    Vector3 pt = PosParaVector3(luzes_pontuais_[0].pos);
+    if ((pv - pt).length() > TAMANHO_LADO_QUADRADO_10 || luzes_pontuais_[0].id != entidades_com_luz[0]->Id()) {
+      atualizar_mapa = true;
+    }
+  } else {
+    atualizar_mapa = true;
+  }
+  unsigned int num = std::min((unsigned int)8, (unsigned int)entidades_com_luz.size());
+  luzes_pontuais_.resize(num);
+  for (unsigned int i = 0; i < num; ++i) {
+    luzes_pontuais_[i].id = entidades_com_luz[i]->Id();
+    if (atualizar_mapa || i > 0) {
+      luzes_pontuais_[i].pos = entidades_com_luz[i]->Pos();
+      luzes_pontuais_[i].pos.set_z(entidades_com_luz[i]->ZOlho());
+    }
+  }
+
+  if (!atualizar_mapa) {
+    return;
+  }
+  //LOG(INFO) << "atualizando mapa de luz";
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   ParametrosDesenho salva_pd(parametros_desenho_);
@@ -7502,12 +7516,11 @@ void Tabuleiro::DesenhaLuzes() {
   }
 
   // Posiciona as luzes dinâmicas.
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    auto* e = it->second.get();
-    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario()) {
-      continue;
+  for (const auto& luz : luzes_pontuais_) {
+    auto* e = BuscaEntidade(luz.id);
+    if (e != nullptr) {
+      e->DesenhaLuz(&parametros_desenho_);
     }
-    e->DesenhaLuz(&parametros_desenho_);
   }
 }
 
