@@ -735,10 +735,12 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
   const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos * 2;
   const int num_indices_total = num_indices_por_toco * num_tocos * 2;
+  const int num_coordenadas_textura_total = num_vertices_por_toco * 2 * num_tocos * 2;
 
   float angulo_h_rad = (90.0f * GRAUS_PARA_RAD) / num_tocos;
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   std::vector<float> coordenadas(num_coordenadas_total);
+  std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
   std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
   float sen_fatia = sinf(angulo_fatia);
@@ -755,7 +757,12 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   int i_indices = 0;
   int coordenada_inicial = 0;
 
+  int i_coordenadas_textura = 0;
+
   float raio_topo = raio;
+  float inc_textura_h = 1.0f / num_fatias;
+  float inc_textura_v = -0.5f / num_tocos;  // vai pros dois lados.
+
   for (int i = 1; i <= num_tocos; ++i) {
     float h_base = h_topo;
     // Novas alturas e base.
@@ -766,13 +773,20 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
     v_topo[0] = 0.0f;
     raio_topo = raio * cosf(angulo_h_rad_vezes_i);
     v_topo[1] = raio_topo;
+    float coordenada_textura_h = 0.0f;
+    float coordenada_textura_v = 0.5f + (i - 1) * inc_textura_v;
 
     for (int i = 0; i < num_fatias; ++i) {
-      // Cada faceta da esfera possui 4 vertices (anti horario). Cada vertices sera a propria normal.
+      // Cada faceta da esfera possui 4 vertices (anti horario). Cada vertice sera a propria normal.
       // V0 = vbase.
       coordenadas[i_coordenadas] = v_base[0];
       coordenadas[i_coordenadas + 1] = v_base[1];
       coordenadas[i_coordenadas + 2] = h_base;
+      coordenadas_textura[i_coordenadas_textura]     = coordenada_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 1] = coordenada_textura_v;
+      coordenadas_textura[i_coordenadas_textura + 8] = coordenada_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 9] = 1.0f - coordenada_textura_v;
+
       // V1 = vbase rodado.
       float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
       float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
@@ -781,10 +795,18 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       coordenadas[i_coordenadas + 3] = v_base[0];
       coordenadas[i_coordenadas + 4] = v_base[1];
       coordenadas[i_coordenadas + 5] = h_base;
+      coordenadas_textura[i_coordenadas_textura + 2]  = coordenada_textura_h + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 3]  = coordenada_textura_v;
+      coordenadas_textura[i_coordenadas_textura + 10] = coordenada_textura_h + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 11] = 1.0f - coordenada_textura_v;
       // v3 = vtopo.
       coordenadas[i_coordenadas + 9] = v_topo[0];
       coordenadas[i_coordenadas + 10] = v_topo[1];
       coordenadas[i_coordenadas + 11] = h_topo;
+      coordenadas_textura[i_coordenadas_textura + 6] = coordenada_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 7] = coordenada_textura_v + inc_textura_v;
+      coordenadas_textura[i_coordenadas_textura + 14] = coordenada_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 15] = 1.0f - coordenada_textura_v - inc_textura_v;
       // V2 = vtopo rodado.
       float v_topo_0_rodado = v_topo[0] * cos_fatia - v_topo[1] * sen_fatia;
       float v_topo_1_rodado = v_topo[0] * sen_fatia + v_topo[1] * cos_fatia;
@@ -793,11 +815,15 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
       coordenadas[i_coordenadas + 6] = v_topo[0];
       coordenadas[i_coordenadas + 7] = v_topo[1];
       coordenadas[i_coordenadas + 8] = h_topo;
+      coordenadas_textura[i_coordenadas_textura + 4]  = coordenada_textura_h + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 5]  = coordenada_textura_v + inc_textura_v;
+      coordenadas_textura[i_coordenadas_textura + 12] = coordenada_textura_h + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 13] = 1.0f - coordenada_textura_v - inc_textura_v;
 
       // Simetria na parte de baixo.
       memcpy(coordenadas.data() + i_coordenadas + 12, coordenadas.data() + i_coordenadas, sizeof(float) * 12);
-      for (int i = 2; i < 12 ; i += 3) {
-        coordenadas[i_coordenadas + 12 + i] = -coordenadas[i_coordenadas + i];
+      for (int c = 2; c < 12 ; c += 3) {
+        coordenadas[i_coordenadas + 12 + c] = -coordenadas[i_coordenadas + c];
       }
 
       // Indices: V0, V1, V2, V0, V2, V3.
@@ -816,6 +842,8 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
 
       i_indices += 12;
       i_coordenadas += 24;
+      i_coordenadas_textura += 16;
+      coordenada_textura_h += inc_textura_h;
       coordenada_inicial += 8;
     }
   }
@@ -832,6 +860,7 @@ VboNaoGravado VboEsferaSolida(GLfloat raio, GLint num_fatias, GLint num_tocos) {
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
   vbo.AtribuiNormais(coordenadas.data());  // TODO normalizar as normais. Por enquanto fica igual as coordenadas.
   vbo.AtribuiIndices(indices.data(), num_indices_total);
+  vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.Nomeia("esfera");
   return vbo;
 }
@@ -844,11 +873,12 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   const int num_indices_por_fatia = 6;
   const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
   const int num_coordenadas_total = num_coordenadas_por_toco * num_tocos;
+  const int num_coordenadas_textura_total = num_vertices_por_toco * num_tocos * 2;
   const int num_indices_total = num_indices_por_toco * num_tocos;
 
   float angulo_fatia = (360.0f * GRAUS_PARA_RAD) / num_fatias;
   std::vector<float> coordenadas(num_coordenadas_total);
-  //std::vector<float> coordenadas_texturas(num_vertices_por_toco * 2 * num_tocos);
+  std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
   std::vector<float> normais(num_coordenadas_total);
   std::vector<unsigned short> indices(num_indices_total);
   float cos_fatia = cosf(angulo_fatia);
@@ -893,14 +923,21 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
   float h_topo = 0;
 
   int i_coordenadas = 0;
+  int i_coordenadas_textura = 0;
   int i_indices = 0;
   int coordenada_inicial = 0;
+  float inc_textura_h = 1.0f / num_fatias;
+  float inc_textura_v = 1.0f / num_tocos;
+  float h_textura = 0.0f;
+  float v_textura = 1.0f;
   for (int toco = 1; toco <= num_tocos; ++toco) {
     float h_base = h_topo;
     h_topo += h_delta;
     // Novas alturas e base.
     v_base[0] = 0.0f;
     v_base[1] = raio;
+    h_textura = 0.0f;
+    v_textura = 1.0f - (toco - 1) * inc_textura_v;
 
     for (int i = 0; i < num_fatias; ++i) {
       // Cada faceta possui 4 vertices (anti horario).
@@ -908,10 +945,15 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
       coordenadas[i_coordenadas] = v_base[0];
       coordenadas[i_coordenadas + 1] = v_base[1];
       coordenadas[i_coordenadas + 2] = h_base;
+      coordenadas_textura[i_coordenadas_textura]     = h_textura;
+      coordenadas_textura[i_coordenadas_textura + 1] = v_textura;
       // v3 = vbase topo.
       coordenadas[i_coordenadas + 9] = v_base[0];
       coordenadas[i_coordenadas + 10] = v_base[1];
       coordenadas[i_coordenadas + 11] = h_topo;
+      coordenadas_textura[i_coordenadas_textura + 6] = h_textura;
+      coordenadas_textura[i_coordenadas_textura + 7] = v_textura - inc_textura_v;
+
       // V1 = vbase rodado.
       float v_base_0_rodado = v_base[0] * cos_fatia - v_base[1] * sen_fatia;
       float v_base_1_rodado = v_base[0] * sen_fatia + v_base[1] * cos_fatia;
@@ -920,10 +962,15 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
       coordenadas[i_coordenadas + 3] = v_base[0];
       coordenadas[i_coordenadas + 4] = v_base[1];
       coordenadas[i_coordenadas + 5] = h_base;
+      coordenadas_textura[i_coordenadas_textura + 2] = h_textura + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 3] = v_textura;
+
       // V2 = vtopo rodado.
       coordenadas[i_coordenadas + 6] = v_base[0];
       coordenadas[i_coordenadas + 7] = v_base[1];
       coordenadas[i_coordenadas + 8] = h_topo;
+      coordenadas_textura[i_coordenadas_textura + 4] = h_textura + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 5] = v_textura - inc_textura_v;
 
       // Indices: V0, V1, V2, V0, V2, V3.
       indices[i_indices] = coordenada_inicial;
@@ -935,7 +982,9 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
 
       i_indices += 6;
       i_coordenadas += 12;
+      i_coordenadas_textura += 8;
       coordenada_inicial += 4;
+      h_textura += inc_textura_h;
     }
   }
   //LOG(INFO) << "raio: " << raio;
@@ -949,6 +998,7 @@ VboNaoGravado VboCilindroSolido(GLfloat raio, GLfloat altura, GLint num_fatias, 
 
   VboNaoGravado vbo;
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
+  vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.AtribuiNormais(normais.data());
   vbo.AtribuiIndices(indices.data(), num_indices_total);
   vbo.Nomeia("cilindro");

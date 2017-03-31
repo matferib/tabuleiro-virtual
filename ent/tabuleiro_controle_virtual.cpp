@@ -294,16 +294,17 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       ProximaAcao();
       break;
     case CONTROLE_ADICIONA_1:
-      AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 1 : -1);
+      AlteraUltimoPontoVidaListaPontosVida(1);
       break;
     case CONTROLE_ADICIONA_5:
-      AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 5 : -5);
+      AlteraUltimoPontoVidaListaPontosVida(5);
       break;
     case CONTROLE_ADICIONA_10:
-      AlteraUltimoPontoVidaListaPontosVida(modo_acao_cura_ ? 10 : -10);
+      AlteraUltimoPontoVidaListaPontosVida(10);
       break;
     case CONTROLE_CONFIRMA_DANO:
-      AcumulaPontosVida({0});
+      // Padrao dano.
+      AcumulaPontosVida({{-1/*dano/cura*/, "0" /*valor*/}});
       break;
     case CONTROLE_APAGA_DANO:
       LimpaUltimoListaPontosVida();
@@ -972,12 +973,12 @@ void Tabuleiro::DesenhaListaPontosVida() {
     }
     gl::DesenhaStringAlinhadoDireita(valor);
   } else {
-    for (int pv : lista_pontos_vida_) {
+    for (const auto& sinal_valor : lista_pontos_vida_) {
       PosicionaRaster2d(raster_x, raster_y);
       raster_y -= (altura_fonte + 2);
-      MudaCor(pv >= 0 ? COR_VERDE : COR_VERMELHA);
-      char str[4];
-      snprintf(str, 4, "%d", abs(pv));
+      MudaCor(sinal_valor.first >= 0 ? COR_VERDE : COR_VERMELHA);
+      char str[20];
+      snprintf(str, 19, "%s", sinal_valor.second.c_str());
       gl::DesenhaStringAlinhadoDireita(str);
     }
   }
@@ -1200,7 +1201,7 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);
   if (!entidade->Proto().rotulo().empty()) {
     PosicionaRaster2d(largura_botao, top_y);
-    gl::DesenhaStringAlinhadoEsquerda(entidade->Proto().rotulo());
+    gl::DesenhaStringAlinhadoEsquerda(StringSemUtf8(entidade->Proto().rotulo()));
   }
   //PosicionaRaster2d(largura_botao, top_y + (fonte_y * 0.5f));
   //gl::DesenhaStringAlinhadoEsquerda(std::string("mov: ") + net::to_string(quadrados_movimentados_), true  /*inverte vertical*/);

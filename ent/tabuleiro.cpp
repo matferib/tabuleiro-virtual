@@ -339,7 +339,6 @@ Tabuleiro::Tabuleiro(
 }
 
 Tabuleiro::~Tabuleiro() {
-  LiberaFramebuffer();
   LiberaTextura();
   LiberaControleVirtual();
 }
@@ -356,19 +355,11 @@ void Tabuleiro::LiberaTextura() {
   AtualizaTexturas(dummy);
 }
 
-void Tabuleiro::LiberaFramebuffer() {
-  LOG(INFO) << "Liberando framebuffer";
-  gl::ApagaFramebuffers(1, &framebuffer_);
-  gl::ApagaTexturas(1, &textura_framebuffer_);
-  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_);
-  gl::ApagaFramebuffers(1, &framebuffer_oclusao_);
-  gl::ApagaTexturas(1, &textura_framebuffer_oclusao_);
-  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_oclusao_);
-  gl::ApagaFramebuffers(1, &framebuffer_colisao_);
-  gl::ApagaRenderbuffers(1, &renderbuffer_framebuffer_colisao_);
-  gl::ApagaTexturas(1, &textura_framebuffer_colisao_);
+Tabuleiro::DadosFramebuffer::~DadosFramebuffer() {
+  gl::ApagaFramebuffers(1, &framebuffer);
+  gl::ApagaTexturas(1, &textura);
+  gl::ApagaRenderbuffers(1, &renderbuffer);
 }
-
 
 void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Proto do tabuleiro.
@@ -436,7 +427,7 @@ void Tabuleiro::ConfiguraProjecaoMapeamentoSombras() {
   gl::AtualizaMatrizes();
 }
 
-void Tabuleiro::ConfiguraProjecaoMapeamentoOclusao() {
+void Tabuleiro::ConfiguraProjecaoMapeamentoOclusaoLuzes() {
   gl::Perspectiva(90.0f, 1.0f,
                   DISTANCIA_PLANO_CORTE_PROXIMO_PRIMEIRA_PESSOA,
                   DISTANCIA_PLANO_CORTE_DISTANTE);
@@ -475,7 +466,9 @@ void Tabuleiro::ConfiguraProjecao() {
 
 void Tabuleiro::ConfiguraOlhar() {
   // Desenho normal, tem que configurar as matrizes de sombra e oclusao.
-  if (!parametros_desenho_.desenha_mapa_sombras() && !parametros_desenho_.has_desenha_mapa_oclusao()) {
+  if (!parametros_desenho_.desenha_mapa_sombras() &&
+      !parametros_desenho_.has_desenha_mapa_oclusao() &&
+      !parametros_desenho_.has_desenha_mapa_luzes()) {
     // Mapa de sombras.
     if (MapeamentoSombras() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_SOMBRA);
@@ -485,6 +478,11 @@ void Tabuleiro::ConfiguraOlhar() {
     if (MapeamentoOclusao() && !parametros_desenho_.has_picking_x()) {
       gl::MudaModoMatriz(gl::MATRIZ_OCLUSAO);
       ConfiguraOlharMapeamentoOclusao();
+      gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      gl::MudaModoMatriz(gl::MATRIZ_LUZ);
+      ConfiguraOlharMapeamentoLuzes();
       gl::MudaModoMatriz(gl::MATRIZ_MODELAGEM_CAMERA);
     }
     const Posicao& alvo = olho_.alvo();
@@ -520,6 +518,10 @@ void Tabuleiro::ConfiguraOlhar() {
   }
   if (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) {
     ConfiguraOlharMapeamentoOclusao();
+    return;
+  }
+  if (parametros_desenho_.has_desenha_mapa_luzes()) {
+    ConfiguraOlharMapeamentoLuzes();
     return;
   }
 }
@@ -612,6 +614,59 @@ void Tabuleiro::ConfiguraOlharMapeamentoOclusao() {
       up.x, up.y, up.z);
 }
 
+void Tabuleiro::ConfiguraOlharMapeamentoLuzes() {
+  if (luzes_pontuais_.empty()) {
+    return;
+  }
+  const auto& pos = luzes_pontuais_[0].pos;
+  Vector3 delta_alvo;
+  Vector3 up;
+  int face = parametros_desenho_.desenha_mapa_luzes();
+  if (!parametros_desenho_.has_desenha_mapa_luzes()) {
+    delta_alvo.x = 1.0f;
+    // No desenho normal, a gente nao inverte o vetor vertical.
+    up.z = 1.0f;
+    face = -1;
+  }
+  // No desenho da textura, o eixo vertical é invertido por causa da orientação do opengl.
+  switch (face) {
+    case 0:  // GL_TEXTURE_CUBE_MAP_POSITIVE_X, right
+      delta_alvo.y = -1.0f;
+      up.z = -1.0f;
+      break;
+    case 1:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_X, left
+      delta_alvo.y = 1.0f;
+      up.z = -1.0f;
+      break;
+    case 2:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Y, top
+      delta_alvo.z = 1.0f;
+      up.x = -1.0f;
+      break;
+    case 3:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, bottom
+      delta_alvo.z = -1.0f;
+      up.x = 1.0f;
+      break;
+    case 4:  // GL_TEXTURE_CUBE_MAP_POSITIVE_Z, back
+      delta_alvo.x = -1.0f;
+      up.z = -1.0f;
+      break;
+    case 5:  // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, front
+      delta_alvo.x = 1.0f;
+      up.z = -1.0f;
+      break;
+    default:
+      //LOG(ERROR) << "Face do mapa de luzes invalida";
+      ;
+  }
+  gl::OlharPara(
+      // from.
+      pos.x(), pos.y(), pos.z(),
+      // to.
+      pos.x() + delta_alvo.x, pos.y() + delta_alvo.y, pos.z() + delta_alvo.z,
+      // up
+      up.x, up.y, up.z);
+}
+
 void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.Clear();
   parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
@@ -654,9 +709,9 @@ void Tabuleiro::DesenhaMapaOclusao() {
   parametros_desenho_.set_desenha_mapa_oclusao(0);
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
-  ConfiguraProjecaoMapeamentoOclusao();
+  ConfiguraProjecaoMapeamentoOclusaoLuzes();
   //LOG(INFO) << "DesenhaMapaOclusao";
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_oclusao_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_oclusao_.framebuffer);
 
   V_ERRO("LigacaoComFramebufferOclusao");
 
@@ -665,7 +720,7 @@ void Tabuleiro::DesenhaMapaOclusao() {
 #if ORDENAR_ENTIDADES
     parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
 #endif
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, textura_framebuffer_oclusao_, 0);
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_oclusao_.textura, 0);
     V_ERRO("TexturaFramebufferOclusao");
 #if VBO_COM_MODELAGEM
     DesenhaCenaVbos();
@@ -674,6 +729,74 @@ void Tabuleiro::DesenhaMapaOclusao() {
 #endif
   }
 
+  V_ERRO("LigacaoComFramebufferOclusao");
+}
+
+void Tabuleiro::DesenhaMapaLuz() {
+  if (luzes_pontuais_.empty()) {
+    return;
+  }
+
+  parametros_desenho_.Clear();
+  parametros_desenho_.set_tipo_visao(VISAO_NORMAL);
+  // Zera as coisas nao usadas durante luzes.
+  parametros_desenho_.set_desenha_acoes(false);
+  parametros_desenho_.set_limpa_fundo(false);
+  parametros_desenho_.set_transparencias(false);
+  parametros_desenho_.set_desenha_lista_pontos_vida(false);
+  parametros_desenho_.set_desenha_iniciativas(false);
+  parametros_desenho_.set_desenha_rosa_dos_ventos(false);
+  parametros_desenho_.set_desenha_info_geral(false);
+  parametros_desenho_.set_desenha_detalhes(false);
+  parametros_desenho_.set_desenha_eventos_entidades(false);
+  parametros_desenho_.set_desenha_efeitos_entidades(false);
+  parametros_desenho_.set_nao_desenha_entidades_translucidas(true);  // nao devem afetar o mapa oclusao.
+  parametros_desenho_.set_nao_desenha_entidades_selecionaveis(true);  // nao devem afetar o mapa oclusao.
+  parametros_desenho_.set_desenha_lista_objetos(false);
+  parametros_desenho_.set_desenha_lista_jogadores(false);
+  parametros_desenho_.set_desenha_fps(false);
+  parametros_desenho_.set_texturas_sempre_de_frente(opcoes_.texturas_sempre_de_frente());
+  parametros_desenho_.set_iluminacao(false);
+  parametros_desenho_.set_desenha_texturas(false);
+  parametros_desenho_.set_desenha_grade(false);
+  parametros_desenho_.set_desenha_aura(false);
+  parametros_desenho_.set_desenha_quadrado_selecao(false);
+  parametros_desenho_.set_desenha_rastro_movimento(false);
+  parametros_desenho_.set_desenha_forma_selecionada(false);
+  parametros_desenho_.set_desenha_nevoa(false);
+  parametros_desenho_.set_desenha_sombras(false);
+  parametros_desenho_.set_modo_mestre(VisaoMestre());
+  parametros_desenho_.set_desenha_controle_virtual(false);
+  parametros_desenho_.set_desenha_pontos_rolagem(false);
+  parametros_desenho_.mutable_projecao()->set_tipo_camera(CAMERA_PERSPECTIVA);
+
+  gl::UsaShader(gl::TSH_PONTUAL);
+
+  gl::UnidadeTextura(GL_TEXTURE4);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, 0);
+  gl::Viewport(0, 0, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
+  parametros_desenho_.set_desenha_mapa_luzes(0);
+  gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
+  gl::CarregaIdentidade();
+  ConfiguraProjecaoMapeamentoOclusaoLuzes();
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luzes_[0].framebuffer);
+
+  V_ERRO("LigacaoComFramebufferOclusao");
+
+  for (int i = 0; i < 6; ++i) {
+    //LOG(INFO) << "DesenhaMapaLuzes " << i;
+    parametros_desenho_.set_desenha_mapa_luzes(i);
+#if ORDENAR_ENTIDADES
+    parametros_desenho_.set_ordena_entidades_apos_configura_olhar(i == 0);
+#endif
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb_luzes_[0].textura, 0);
+    V_ERRO("TexturaFramebufferOclusao");
+#if VBO_COM_MODELAGEM
+    DesenhaCenaVbos();
+#else
+    DesenhaCena();
+#endif
+  }
   V_ERRO("LigacaoComFramebufferOclusao");
 }
 
@@ -728,7 +851,7 @@ void Tabuleiro::DesenhaMapaSombra() {
   gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   ConfiguraProjecaoMapeamentoSombras();
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_luz_direcional_.framebuffer);
   V_ERRO("LigacaoComFramebufferSombraProjetada");
 #if !USAR_MAPEAMENTO_SOMBRAS_OPENGLES
   gl::BufferDesenho(GL_NONE);
@@ -807,6 +930,7 @@ int Tabuleiro::Desenha() {
     parametros_desenho_.set_desenha_sombras(false);
     parametros_desenho_.set_desenha_mapa_sombras(false);
     parametros_desenho_.clear_desenha_mapa_oclusao();
+    parametros_desenho_.clear_desenha_mapa_luzes();
     parametros_desenho_.set_limpa_fundo(false);
     parametros_desenho_.set_transparencias(false);
     parametros_desenho_.set_desenha_acoes(false);
@@ -848,7 +972,7 @@ int Tabuleiro::Desenha() {
     gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
     gl::UnidadeTextura(GL_TEXTURE3);
-    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, textura_framebuffer_oclusao_);
+    gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_oclusao_.textura);
     gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
@@ -878,7 +1002,7 @@ int Tabuleiro::Desenha() {
     gl::MudaModoMatriz(gl::MATRIZ_PROJECAO);
     gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
     gl::UnidadeTextura(GL_TEXTURE1);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, textura_framebuffer_);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, dfb_luz_direcional_.textura);
     gl::UnidadeTextura(GL_TEXTURE0);
     gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
     gl::Desabilita(GL_TEXTURE_2D);
@@ -1008,6 +1132,7 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
     auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
     n->set_erro(erro.what());
     central_->AdicionaNotificacao(n);
+    return;
   }
 }
 
@@ -1018,6 +1143,7 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   }
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  bool atualizar_mapa_luzes = false;
   for (unsigned int id : ids_entidades_selecionadas_) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
@@ -1030,6 +1156,9 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(valor);
+      if (proto_original.tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit. Mas tem que setar pra um valor para mostrar que o ha atualizacao no campo.
@@ -1143,11 +1272,15 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  bool atualizar_mapa_luzes = false;
   for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
     auto* n = grupo_notificacoes.add_notificacao();
     auto* entidade_selecionada = BuscaEntidade(id);
@@ -1160,6 +1293,9 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       // Apenas modo mestre ou para selecionaveis.
       proto_antes->set_visivel(proto_original.visivel());
       proto_depois->set_visivel(!proto_original.visivel());
+      if (proto_original.tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     }
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit.
@@ -1288,6 +1424,9 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
   TrataNotificacao(grupo_notificacoes);
   // Para desfazer.
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::TrataAcaoAtualizarPontosVidaEntidades(int delta_pontos_vida) {
@@ -1417,13 +1556,9 @@ void Tabuleiro::AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs) {
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::AcumulaPontosVida(const std::vector<int>& lista_pv) {
-  for (int pv : lista_pv) {
-    if (pv >= 1000 || pv <= -1000) {
-      LOG(ERROR) << "Ignorando pv: " << pv;
-      continue;
-    }
-    lista_pontos_vida_.emplace_back(pv);
+void Tabuleiro::AcumulaPontosVida(const std::vector<std::pair<int, std::string>>& lista_pv) {
+  for (const auto& sinal_valor : lista_pv) {
+    lista_pontos_vida_.emplace_back(sinal_valor);
   }
 }
 
@@ -1432,23 +1567,17 @@ void Tabuleiro::LimpaListaPontosVida() {
 }
 
 void Tabuleiro::AlteraUltimoPontoVidaListaPontosVida(int delta) {
-  int valor = 0;
   if (!lista_pontos_vida_.empty()) {
-    valor = lista_pontos_vida_.back();
-    lista_pontos_vida_.pop_back();
+    AtualizaStringDadosVida(delta, &lista_pontos_vida_.back().second);
+  } else {
+    lista_pontos_vida_.push_back({ -1  /*padrao: dano*/, net::to_string(delta)});
   }
-  lista_pontos_vida_.push_back(valor + delta);
   modo_clique_ = MODO_ACAO;
 }
 
 void Tabuleiro::AlternaUltimoPontoVidaListaPontosVida() {
   if (!lista_pontos_vida_.empty()) {
-    int valor = -lista_pontos_vida_.back();
-    lista_pontos_vida_.pop_back();
-    lista_pontos_vida_.push_back(valor);
-    modo_acao_cura_ = valor >= 0;
-  } else {
-    modo_acao_cura_ = !modo_acao_cura_;
+    lista_pontos_vida_.back().first *= -1;
   }
   modo_clique_ = MODO_ACAO;
 }
@@ -1469,8 +1598,14 @@ int Tabuleiro::LeValorListaPontosVida(const Entidade* entidade, const std::strin
                       ": " + texto_pontos_vida);
     return delta_pontos_vida;
   } else {
-    int delta_pontos_vida = lista_pontos_vida_.front();
+    int delta_pontos_vida;
+    std::vector<std::pair<int, int>> dados;
+    std::tie(delta_pontos_vida, dados) = GeraPontosVida(lista_pontos_vida_.front().second);
+    AdicionaLogEvento(std::string("resultado de ") + lista_pontos_vida_.front().second + ": " +
+                      ent::DadosParaString(delta_pontos_vida, dados));
+    delta_pontos_vida *= lista_pontos_vida_.front().first;
     lista_pontos_vida_.pop_front();
+
     VLOG(1) << "Lendo valor da lista de pontos de vida: " << delta_pontos_vida;
     return delta_pontos_vida;
   }
@@ -1657,6 +1792,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       }
 
       AtualizaEntidades(passou_ms);
+      AtualizaLuzesPontuais();
 
       if (indice_iniciativa_ != -1 && EmModoMestre()) {
         AtualizaIniciativas();
@@ -1891,7 +2027,8 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       if (notificacao.has_entidade()) {
         return false;
       }
-      if (estado_ != ETAB_ENTS_SELECIONADAS || ids_entidades_selecionadas_.size() > 1) {
+      Entidade* entidade = EntidadePrimeiraPessoaOuSelecionada();
+      if (entidade == nullptr) {
         auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
         ne->set_erro("Deve haver uma entidade (e apenas uma) selecionada.");
         central_->AdicionaNotificacao(ne);
@@ -1901,7 +2038,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       central_->AdicionaNotificacao(n);
       n->set_modo_mestre(EmModoMestreIncluindoSecundario());
       n->mutable_tabuleiro()->set_id_cliente(id_cliente_);
-      n->mutable_entidade()->CopyFrom(EntidadeSelecionada()->Proto());
+      n->mutable_entidade()->CopyFrom(entidade->Proto());
       return true;
     }
     case ntf::TN_ATUALIZAR_TABULEIRO: {
@@ -2264,6 +2401,7 @@ void Tabuleiro::AlteraAnguloVisao(float valor) {
 }
 
 void Tabuleiro::TrataEscalaPorDelta(int delta) {
+  bool atualizar_mapa_luzes = false;
   if (estado_ == ETAB_ENTS_PRESSIONADAS || estado_ == ETAB_ENTS_ESCALA) {
     if (estado_ == ETAB_ENTS_PRESSIONADAS) {
       FinalizaEstadoCorrente();
@@ -2285,12 +2423,16 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       e->mutable_escala()->set_x(e->escala().x() * fator);
       e->mutable_escala()->set_y(e->escala().y() * fator);
       e->mutable_escala()->set_z(e->escala().z() * fator);
+      if (entidade->Tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     }
     TrataNotificacao(grupo_notificacoes);
     // Para desfazer.
     AdicionaNotificacaoListaEventos(grupo_notificacoes);
   } else if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     TrataDeltaTerreno(delta > 0 ? TAMANHO_LADO_QUADRADO : -TAMANHO_LADO_QUADRADO);
+    atualizar_mapa_luzes = true;
   } else {
     if (camera_ == CAMERA_ISOMETRICA) {
       TrataInclinacaoPorDelta(-delta * SENSIBILIDADE_RODA);
@@ -2300,6 +2442,9 @@ void Tabuleiro::TrataEscalaPorDelta(int delta) {
       // move o olho no eixo Z de acordo com o eixo Y do movimento
       AtualizaRaioOlho(olho_.raio() - (delta * SENSIBILIDADE_RODA));
     }
+  }
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
   }
 }
 
@@ -2334,6 +2479,7 @@ void Tabuleiro::TrataInicioPinca(int x1, int y1, int x2, int y2) {
 }
 
 void Tabuleiro::TrataEscalaPorFator(float fator) {
+  bool atualizar_mapa_luzes = false;
   if (estado_ == ETAB_QUAD_SELECIONADO && ModoClique() == MODO_TERRENO) {
     // Eh possivel chegar aqui?
     TrataDeltaTerreno(fator * TAMANHO_LADO_QUADRADO);
@@ -2354,21 +2500,31 @@ void Tabuleiro::TrataEscalaPorFator(float fator) {
       proto.mutable_escala()->set_y(entidade->Proto().escala().y() * fator);
       proto.mutable_escala()->set_z(entidade->Proto().escala().z() * fator);
       entidade->AtualizaParcial(proto);
+      if (entidade->Tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
     } else {
       LOG(WARNING) << "Nao eh possivel escalar, entidade nullptr";
     }
   } else {
     AtualizaRaioOlho(olho_.raio() / fator);
   }
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
+  bool atualizar_mapa_luzes = false;
   if (camera_ != CAMERA_PRIMEIRA_PESSOA && estado_ == ETAB_ESCALANDO_ROTACIONANDO_ENTIDADE_PINCA) {
     if (translacoes_rotacoes_escalas_antes_.empty()) {
       return;
     }
     auto* entidade = BuscaEntidade(translacoes_rotacoes_escalas_antes_.begin()->first);
     if (entidade != nullptr) {
+      if (entidade->Tipo() != TE_ENTIDADE) {
+        atualizar_mapa_luzes = true;
+      }
       entidade->IncrementaRotacaoZGraus(-delta_rad * RAD_PARA_GRAUS);
       return;
     }
@@ -2385,6 +2541,9 @@ void Tabuleiro::TrataRotacaoPorDelta(float delta_rad) {
   }
   olho_.set_rotacao_rad(olho_rotacao);
   AtualizaOlho(0, true  /*forcar*/);
+  if (atualizar_mapa_luzes) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::TrataInclinacaoPorDelta(float delta) {
@@ -2470,6 +2629,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
     }
     break;
     case ETAB_ENTS_TRANSLACAO_ROTACAO: {
+      bool atualizar_mapa_luzes = false;
       if (translacao_rotacao_ == TR_NENHUM) {
         int abs_delta_x = abs(primeiro_x_ - x);
         int abs_delta_y = abs(primeiro_y_ - y);
@@ -2507,6 +2667,12 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
         } else if (translacao_rotacao_ == TR_TRANSLACAO) {
           e->IncrementaZ(delta_y * SENSIBILIDADE_ROTACAO_Y);
         }
+        if (e->Tipo() != TE_ENTIDADE) {
+          atualizar_mapa_luzes = true;
+        }
+      }
+      if (atualizar_mapa_luzes) {
+        luzes_pontuais_.clear();
       }
       ultimo_x_ = x;
       ultimo_y_ = y;
@@ -2555,6 +2721,7 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
       float dx = nx - ultimo_x_3d_;
       float dy = ny - ultimo_y_3d_;
       int quantidade_movimento = 0;
+      bool atualizar_mapa_luzes = false;
       for (unsigned int id : ids_entidades_selecionadas_) {
         auto* entidade_selecionada = BuscaEntidade(id);
         if (entidade_selecionada == nullptr) {
@@ -2586,6 +2753,8 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             z_depois = std::max(ZChao(nx, ny), entidade_selecionada->Z());
             VLOG(2) << "nao mantendo apoio, z_depois " << z_depois;
           }
+        } else {
+          atualizar_mapa_luzes = true;
         }
         entidade_selecionada->MovePara(ex1, ey1, z_depois);
         Posicao pos;
@@ -2607,6 +2776,9 @@ bool Tabuleiro::TrataMovimentoMouse(int x, int y) {
             quantidade_movimento += (andou == 3) ? 2 : 1;
           }
         }
+      }
+      if (atualizar_mapa_luzes) {
+        luzes_pontuais_.clear();
       }
       quadrados_movimentados_ += quantidade_movimento;
       ultimo_x_ = x;
@@ -3642,6 +3814,7 @@ void Tabuleiro::DesenhaCena() {
   // da janela para cobrir o fundo todo.
   if (!parametros_desenho_.desenha_mapa_sombras() &&
       !parametros_desenho_.has_desenha_mapa_oclusao() &&
+      !parametros_desenho_.has_desenha_mapa_luzes() &&
       !parametros_desenho_.has_picking_x() &&
       (parametros_desenho_.tipo_visao() != VISAO_ESCURO) &&
        parametros_desenho_.projecao().tipo_camera() != CAMERA_ISOMETRICA) {
@@ -3650,7 +3823,8 @@ void Tabuleiro::DesenhaCena() {
     bits_limpar |= GL_COLOR_BUFFER_BIT;
     if (parametros_desenho_.tipo_visao() == VISAO_ESCURO) {
       gl::CorLimpeza(0.0f, 0.0f, 0.0f, 1.0f);
-    } else if (parametros_desenho_.has_desenha_mapa_oclusao()) {
+    } else if (parametros_desenho_.has_desenha_mapa_oclusao() ||
+               parametros_desenho_.has_desenha_mapa_luzes()) {
       gl::CorLimpeza(1.0f, 1.0f, 1.0f, 1.0f);
     } else {
       gl::CorLimpeza(proto_corrente_->luz_ambiente().r(),
@@ -3677,7 +3851,9 @@ void Tabuleiro::DesenhaCena() {
   }
 #endif
 
-  parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
+  if (!parametros_desenho_.has_pos_olho()) {
+    *parametros_desenho_.mutable_pos_olho() = olho_.pos();
+  }
   V_ERRO("configurando olhar");
 
   if (parametros_desenho_.iluminacao()) {
@@ -3803,7 +3979,8 @@ void Tabuleiro::DesenhaCena() {
   V_ERRO("desenhando entidades alfa");
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
-      (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao())) {
+      (MapeamentoOclusao() && parametros_desenho_.has_desenha_mapa_oclusao()) ||
+       parametros_desenho_.has_desenha_mapa_luzes()) {
     return;
   }
 
@@ -3952,7 +4129,9 @@ void Tabuleiro::DesenhaCenaVbos() {
   gl::CarregaIdentidade();
   ConfiguraOlhar();
 
-  parametros_desenho_.mutable_pos_olho()->CopyFrom(olho_.pos());
+  if (!parametros_desenho_.has_pos_olho()) {
+    *parametros_desenho_.mutable_pos_olho() = olho_.pos();
+  }
   // Verifica o angulo em relacao ao tabuleiro para decidir se as texturas ficarao viradas para cima.
   if (camera_ == CAMERA_ISOMETRICA ||
       (camera_ != CAMERA_PRIMEIRA_PESSOA && (olho_.altura() > (2 * olho_.raio())))) {
@@ -4225,27 +4404,25 @@ void Tabuleiro::RegeraVboTabuleiro() {
   V_ERRO("RegeraVboTabuleiro fim");
 }
 
-namespace {
-
-void GeraFramebufferColisao(int tamanho, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
+void Tabuleiro::GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb) {
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  gl::GeraFramebuffers(1, framebuffer);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, *framebuffer);
-  gl::GeraRenderbuffers(1, renderbuffer);
+  gl::GeraFramebuffers(1, &dfb->framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb->framebuffer);
+  gl::GeraRenderbuffers(1, &dfb->renderbuffer);
   // Depth attachment.
-  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
+  gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
   gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, tamanho, tamanho);
-  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
+  gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
   // Color attachment.
-  gl::GeraTexturas(1, textura_framebuffer);
-  gl::LigacaoComTextura(GL_TEXTURE_2D, *textura_framebuffer);
+  gl::GeraTexturas(1, &dfb->textura);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, dfb->textura);
   gl::ImagemTextura2d(GL_TEXTURE_2D, 0, GL_RGBA, tamanho, tamanho, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   gl::ParametroTextura(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textura_framebuffer, 0);
+  gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb->textura, 0);
   //gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
   //gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_RGBA4, 4, 4);
   //gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, renderbuffer_framebuffer_colisao_[1]);
@@ -4265,16 +4442,16 @@ void GeraFramebufferColisao(int tamanho, GLuint* framebuffer, GLuint* textura_fr
 
 // A variavel usar_sampler_sombras eh usado como input e output. Se ela for false, nem tentara usar o sampler de sombras. Se for true,
 // tentara se houver a extensao, caso contrario seta pra false e prossegue.
-void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, GLuint* framebuffer, GLuint* textura_framebuffer, GLuint* renderbuffer) {
+void Tabuleiro::GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb) {
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   LOG(INFO) << "gerando framebuffer cubo ? " << textura_cubo;
-  gl::GeraFramebuffers(1, framebuffer);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, *framebuffer);
+  gl::GeraFramebuffers(1, &dfb->framebuffer);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb->framebuffer);
   V_ERRO("LigacaoComFramebuffer");
-  gl::GeraTexturas(1, textura_framebuffer);
+  gl::GeraTexturas(1, &dfb->textura);
   V_ERRO("GeraTexturas");
-  gl::LigacaoComTextura(textura_cubo ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, *textura_framebuffer);
+  gl::LigacaoComTextura(textura_cubo ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, dfb->textura);
   V_ERRO("LigacaoComTextura");
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
@@ -4322,27 +4499,27 @@ void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_som
   V_ERRO("ParametroTextura");
   if (textura_cubo) {
     for (int i = 0; i < 6; ++i) {
-      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, *textura_framebuffer, 0);
+      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, dfb->textura, 0);
     }
-    gl::GeraRenderbuffers(1, renderbuffer);
-    gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
+    gl::GeraRenderbuffers(1, &dfb->renderbuffer);
+    gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
     gl::ArmazenamentoRenderbuffer(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, TAM_MAPA_OCLUSAO, TAM_MAPA_OCLUSAO);
-    gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
+    gl::RenderbufferDeFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
   } else {
 #if USAR_MAPEAMENTO_SOMBRAS_OPENGLES
     if (*usar_sampler_sombras) {
       LOG(INFO) << "Textura de sombras para shader de sombras";
-      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *textura_framebuffer, 0);
+      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dfb->textura, 0);
     } else {
       LOG(INFO) << "Textura de completa para shader de profundidade";
-      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, *textura_framebuffer, 0);
-      gl::GeraRenderbuffers(1, renderbuffer);
-      gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, *renderbuffer);
+      gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, dfb->textura, 0);
+      gl::GeraRenderbuffers(1, &dfb->renderbuffer);
+      gl::LigacaoComRenderbuffer(GL_RENDERBUFFER, dfb->renderbuffer);
       glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, tamanho, tamanho);
-      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *renderbuffer);
+      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, dfb->renderbuffer);
     }
 #else
-    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, *textura_framebuffer, 0);
+    gl::TexturaFramebuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, dfb->textura, 0);
 #endif
   }
   V_ERRO("TexturaFramebuffer");
@@ -4369,14 +4546,16 @@ void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_som
   LOG(INFO) << "framebuffer gerado";
 }
 
-}  // namespace
 
 void Tabuleiro::GeraFramebuffer() {
-  GeraFramebufferColisao(TAM_BUFFER_COLISAO, &framebuffer_colisao_, &textura_framebuffer_colisao_, &renderbuffer_framebuffer_colisao_);
+  GeraFramebufferColisao(TAM_BUFFER_COLISAO, &dfb_colisao_);
   GeraFramebufferLocal(
-      1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_, &textura_framebuffer_, &renderbuffer_framebuffer_);
+      1024, false  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luz_direcional_);
   GeraFramebufferLocal(
-      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &framebuffer_oclusao_, &textura_framebuffer_oclusao_, &renderbuffer_framebuffer_oclusao_);
+      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_oclusao_);
+  dfb_luzes_.resize(1);
+  GeraFramebufferLocal(
+      1024, true  /*textura_cubo*/, &usar_sampler_sombras_, &dfb_luzes_[0]);
 }
 
 namespace {
@@ -4713,6 +4892,10 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (proto.selecionavel_para_jogador() && pd.nao_desenha_entidades_selecionaveis()) {
     return true;
   }
+  if (proto.tipo() == TE_ENTIDADE && (pd.has_desenha_mapa_luzes() || pd.has_desenha_mapa_oclusao())) {
+    // Para luzes pontuais e oclusao, entidades nao contam (performance).
+    return true;
+  }
   return false;
 }
 }  // namespace
@@ -4762,7 +4945,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
       if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
         continue;
       }
-      if (parametros_desenho_.has_desenha_mapa_oclusao()) {
+      if (parametros_desenho_.has_desenha_mapa_oclusao() || parametros_desenho_.has_desenha_mapa_luzes()) {
         continue;
       }
     }
@@ -4771,7 +4954,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
                                                  EntidadeEstaSelecionada(entidade->Id()));
     parametros_desenho_.set_iniciativa_corrente(indice_iniciativa_ >= 0 && indice_iniciativa_ < (int)iniciativas_.size() &&
                                                 iniciativas_[indice_iniciativa_].id == entidade->Id());
-    bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+    bool detalhar_tudo = !(parametros_desenho_.desenha_mapa_sombras() ||
+                           parametros_desenho_.has_desenha_mapa_oclusao() ||
+                           parametros_desenho_.has_desenha_mapa_luzes()) &&
                          (detalhar_todas_entidades_ || modo_clique_ == MODO_ACAO);
     bool entidade_detalhada = parametros_desenho_.desenha_detalhes() &&
                               tipo_entidade_detalhada_ == OBJ_ENTIDADE &&
@@ -4782,7 +4967,9 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     parametros_desenho_.set_desenha_rotulo_especial(
         entidade_detalhada && (VisaoMestre() || entidade->SelecionavelParaJogador()));
     parametros_desenho_.set_desenha_eventos_entidades(
-        !(parametros_desenho_.desenha_mapa_sombras() || parametros_desenho_.desenha_mapa_oclusao()) &&
+        !(parametros_desenho_.desenha_mapa_sombras() ||
+          parametros_desenho_.has_desenha_mapa_oclusao() ||
+          parametros_desenho_.has_desenha_mapa_luzes()) &&
         (VisaoMestre() || entidade->SelecionavelParaJogador()));
     //LOG(INFO) << "Desenhando: " << entidade->Id();
     f(entidade, &parametros_desenho_);
@@ -5306,28 +5493,23 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
   primeiro_y_3d_ = y3d;
   primeiro_z_3d_ = z3d;
 
+  if (camera_ == CAMERA_PRIMEIRA_PESSOA &&
+      (tipo_objeto == OBJ_TABULEIRO || tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA ||
+       tipo_objeto == OBJ_EVENTO_ENTIDADE)) {
+    TrataBotaoDireitoPressionado(x, y);
+    return;
+  }
+
   if (tipo_objeto == OBJ_TABULEIRO) {
-    if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-      TrataBotaoDireitoPressionado(x, y);
-      return;
-    } else {
-      // Tabuleiro.
-      // Converte x3d y3d para id quadrado.
-      SelecionaQuadrado(IdQuadrado(x3d, y3d));
-    }
+    // Tabuleiro.
+    // Converte x3d y3d para id quadrado.
+    SelecionaQuadrado(IdQuadrado(x3d, y3d));
   } else if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     // Entidade.
     VLOG(1) << "Picking entidade id " << id;
     if (alterna_selecao) {
       AlternaSelecaoEntidade(id);
     } else {
-      if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-        const auto* entidade = BuscaEntidade(id);
-        if (entidade == nullptr || !entidade->Proto().selecionavel_para_jogador()) {
-          TrataBotaoDireitoPressionado(x, y);
-          return;
-        }
-      }
       if (!EntidadeEstaSelecionada(id)) {
         // Se nao estava selecionada, so ela.
         SelecionaEntidade(id, tipo_objeto == OBJ_ENTIDADE_LISTA);
@@ -5552,7 +5734,8 @@ bool Tabuleiro::SelecionaEntidade(unsigned int id, bool forcar_fixa) {
     auto it = std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id);
     ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
   }
-  estado_ = ETAB_ENTS_SELECIONADAS;
+  // Nao precisa mudar porque a funcao MudaEstadoAposSelecao fara isso.
+  // estado_ = ETAB_ENTS_SELECIONADAS;
   return true;
 }
 
@@ -6466,7 +6649,7 @@ Tabuleiro::ResultadoColisao Tabuleiro::DetectaColisao(
 
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
-  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, framebuffer_colisao_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, dfb_colisao_.framebuffer);
 
   unsigned int id, tipo_objeto;
   float profundidade;
@@ -6992,6 +7175,9 @@ void Tabuleiro::MoveEntidadeNotificando(const ntf::Notificacao& notificacao) {
     }
     AdicionaNotificacaoListaEventos(n_desfazer);
   }
+  if (entidade->Tipo() != TE_ENTIDADE) {
+    luzes_pontuais_.clear();
+  }
 }
 
 void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
@@ -6999,6 +7185,10 @@ void Tabuleiro::RemoveEntidadeNotificando(unsigned int id_remocao) {
   if (entidade == nullptr) {
     return;
   }
+  if (entidade->Tipo() != TE_ENTIDADE) {
+    luzes_pontuais_.clear();
+  }
+
   {
     // Para desfazer.
     ntf::Notificacao n_desfazer;
@@ -7169,6 +7359,88 @@ void Tabuleiro::AtualizaTexturas(const TabuleiroProto& novo_proto) {
   }
 }
 
+void Tabuleiro::AtualizaLuzesPontuais() {
+  // Posiciona as luzes dinâmicas.
+  std::vector<const Entidade*> entidades_com_luz;
+  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
+    auto* e = it->second.get();
+    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario() || !e->Proto().has_luz()) {
+      continue;
+    }
+    entidades_com_luz.push_back(e);
+  }
+  if (entidades_com_luz.empty()) {
+    return;
+  }
+  // Posicao para comparacao.
+  Vector3 pos_comp;
+  const auto* entidade_presa = BuscaEntidade(IdCameraPresa());
+  if (entidade_presa != nullptr) {
+    pos_comp = PosParaVector3(entidade_presa->Pos());
+    pos_comp.z += entidade_presa->AlturaOlho();
+  } else {
+    pos_comp = PosParaVector3(olho_.pos());
+  }
+  // Ordena as luzes pela distancia.
+  std::sort(entidades_com_luz.begin(), entidades_com_luz.end(), [entidade_presa, &pos_comp] (const Entidade* lhs, const Entidade* rhs) {
+    if (lhs == entidade_presa) {
+      return true;
+    } else if (rhs == entidade_presa) {
+      return false;
+    }
+    float ld = (PosParaVector3(lhs->Pos()) - pos_comp).length();
+    float rd = (PosParaVector3(rhs->Pos()) - pos_comp).length();
+    return ld < rd;
+  });
+  // Quando entidade estiver travada, ela tera oclusao, portanto, usa a segunda luz se houver.
+  if (entidade_presa != nullptr && entidades_com_luz[0] == entidade_presa && entidades_com_luz.size() > 1) {
+    std::swap(entidades_com_luz[0], entidades_com_luz[1]);
+  }
+
+  bool atualizar_mapa = false;
+  if (!luzes_pontuais_.empty()) {
+    Posicao pos = entidades_com_luz[0]->Pos();
+    pos.set_z(entidades_com_luz[0]->ZOlho());
+    Vector3 pv = PosParaVector3(pos);
+    Vector3 pt = PosParaVector3(luzes_pontuais_[0].pos);
+    if ((pv - pt).length() > TAMANHO_LADO_QUADRADO_10 || luzes_pontuais_[0].id != entidades_com_luz[0]->Id()) {
+      atualizar_mapa = true;
+    }
+  } else {
+    atualizar_mapa = true;
+  }
+  unsigned int num = std::min((unsigned int)8, (unsigned int)entidades_com_luz.size());
+  luzes_pontuais_.resize(num);
+  for (unsigned int i = 0; i < num; ++i) {
+    luzes_pontuais_[i].id = entidades_com_luz[i]->Id();
+    if (atualizar_mapa || i > 0) {
+      luzes_pontuais_[i].pos = entidades_com_luz[i]->Pos();
+      luzes_pontuais_[i].pos.set_z(entidades_com_luz[i]->ZOlho());
+    }
+  }
+
+  if (!atualizar_mapa) {
+    return;
+  }
+  //LOG(INFO) << "atualizando mapa de luz";
+  GLint original;
+  gl::Le(GL_FRAMEBUFFER_BINDING, &original);
+  ParametrosDesenho salva_pd(parametros_desenho_);
+  DesenhaMapaLuz();
+  parametros_desenho_.set_desenha_mapa_luzes(0);
+  // TODO XXX desenhar apenas as entidades fixas.
+  // Restaura os valores e usa a textura como mapa de luz.
+  // Note que ao mudar o shader, o valor do plano distante de corte para oclusao permanecera o mesmo.
+  gl::Viewport(0, 0, (GLint)largura_, (GLint)altura_);
+  gl::LigacaoComFramebuffer(GL_FRAMEBUFFER, original);
+  gl::UnidadeTextura(GL_TEXTURE4);
+  gl::LigacaoComTextura(GL_TEXTURE_CUBE_MAP, dfb_luzes_[0].textura);
+  gl::UnidadeTextura(GL_TEXTURE0);
+  gl::LigacaoComTextura(GL_TEXTURE_2D, 0);
+  gl::Desabilita(GL_TEXTURE_2D);
+  parametros_desenho_ = salva_pd;
+}
+
 void Tabuleiro::DesenhaLuzes() {
   // Entidade de referencia para camera presa.
   parametros_desenho_.clear_nevoa();
@@ -7245,12 +7517,11 @@ void Tabuleiro::DesenhaLuzes() {
   }
 
   // Posiciona as luzes dinâmicas.
-  for (MapaEntidades::iterator it = entidades_.begin(); it != entidades_.end(); ++it) {
-    auto* e = it->second.get();
-    if (e == nullptr || e->IdCenario() != proto_corrente_->id_cenario()) {
-      continue;
+  for (const auto& luz : luzes_pontuais_) {
+    auto* e = BuscaEntidade(luz.id);
+    if (e != nullptr) {
+      e->DesenhaLuz(&parametros_desenho_);
     }
-    e->DesenhaLuz(&parametros_desenho_);
   }
 }
 

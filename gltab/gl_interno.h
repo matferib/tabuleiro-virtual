@@ -36,19 +36,15 @@ struct VarShader {
   GLint uni_gltab_unidade_textura_sombra;
   GLint uni_gltab_unidade_textura_cubo;
   GLint uni_gltab_unidade_textura_oclusao;
+  GLint uni_gltab_unidade_textura_luz;
   GLint uni_gltab_nevoa_dados;          // Dados da nevoa: inicio, fim, escala.
   GLint uni_gltab_nevoa_cor;            // Cor da nevoa.
   GLint uni_gltab_nevoa_referencia;     // Ponto de referencia da nevoa.
   GLint uni_gltab_dados_raster;         // p = Tamanho do ponto.
-  GLint uni_gltab_model;                // Matrix modelagem.
-  GLint uni_gltab_view;                 // Matrix camera.
   GLint uni_gltab_mvm;                  // Matrix camera * model.
-  GLint uni_gltab_model_sombra;         // Matrix modelagem sombra.
-  GLint uni_gltab_view_sombra;          // Matrix camera sombra.
   GLint uni_gltab_mvm_sombra;           // Matrix modelview sombra.
-  GLint uni_gltab_model_oclusao;        // Matrix modelagem oclusao.
-  GLint uni_gltab_view_oclusao;         // Matrix view oclusao.
   GLint uni_gltab_mvm_oclusao;          // Matrix modelview oclusao.
+  GLint uni_gltab_mvm_luz;              // Matrix modelview luz.
   GLint uni_gltab_mvm_ajuste_textura;   // Matrix modelview ajuste de textura.
   GLint uni_gltab_nm;                   // Matrix de normais.
   GLint uni_gltab_prm;                  // Matrix projecao.
@@ -96,7 +92,7 @@ class Contexto {
   std::stack<Matrix4> pilha_mvm_sombra;
   std::stack<Matrix4> pilha_prj_sombra;
   std::stack<Matrix4> pilha_mvm_oclusao;
-  std::stack<Matrix4> pilha_prj_oclusao;
+  std::stack<Matrix4> pilha_mvm_luz;
   std::stack<Matrix4> pilha_mvm_ajuste_textura;
 
   std::stack<Matrix4>* pilha_corrente = nullptr;

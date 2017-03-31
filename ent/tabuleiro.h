@@ -167,7 +167,7 @@ class Tabuleiro : public ntf::Receptor {
   void AtualizaSalvacaoEntidadesSelecionadas(ResultadoSalvacao rs);
 
   /** Adiciona a lista_pv no final da lista de pontos de vida acumulados. */
-  void AcumulaPontosVida(const std::vector<int>& lista_pv);
+  void AcumulaPontosVida(const std::vector<std::pair<int, std::string>>& lista_pv);
   /** Limpa a lista de pontos de vida. */
   void LimpaListaPontosVida();
   /** Limpa a ultima entrada da lista de pontos de vida. */
@@ -189,6 +189,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Desenha o mundo do ponto de vista da luz, gerando o framebuffer de sombra projetada. */
   void DesenhaMapaSombra();
   void DesenhaMapaOclusao();
+  void DesenhaMapaLuz();
 
   /** Interface receptor. */
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
@@ -513,9 +514,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
 
-  /** Libera o framebuffer de sombra. */
-  void LiberaFramebuffer();
-
   /** funcao que desenha a cena independente do modo. */
   void DesenhaCena();
   // Desenha a cena baseado em VBOs.
@@ -527,6 +525,7 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha as luzes do tabuleiro. */
   void DesenhaLuzes();
+  void AtualizaLuzesPontuais();
 
   /** Desenha o skybox ao redor da camera. */
   void DesenhaCaixaCeu();
@@ -864,11 +863,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Configura a matriz de projecao de acordo com o tipo de camera. */
   void ConfiguraProjecao();
   void ConfiguraProjecaoMapeamentoSombras();
-  void ConfiguraProjecaoMapeamentoOclusao();
+  void ConfiguraProjecaoMapeamentoOclusaoLuzes();
   /** Configura o olho, de acordo com o tipo de camera. */
   void ConfiguraOlhar();
   void ConfiguraOlharMapeamentoSombras();
   void ConfiguraOlharMapeamentoOclusao();
+  void ConfiguraOlharMapeamentoLuzes();
 
   /** Similar ao modo mestre, mas leva em consideracao se o mestre quer ver como jogador tambem. */
   bool VisaoMestre() const { return EmModoMestreIncluindoSecundario() && visao_jogador_ == 0; }
@@ -907,6 +907,7 @@ class Tabuleiro : public ntf::Receptor {
 
   bool MapeamentoOclusao() const { return opcoes_.mapeamento_oclusao() && camera_presa_ && camera_ != CAMERA_PRIMEIRA_PESSOA; }
   bool MapeamentoSombras() const { return opcoes_.mapeamento_sombras(); }
+  bool MapeamentoLuzes() const { return opcoes_.mapeamento_luzes(); }
 
   void EscreveInfoGeral(const std::string& info_geral);
 
@@ -917,6 +918,17 @@ class Tabuleiro : public ntf::Receptor {
   bool IdPresoACamera(unsigned int id) const { 
     return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
   }
+
+  struct DadosFramebuffer {
+    ~DadosFramebuffer();
+    GLuint framebuffer = 0;
+    GLuint textura = 0;
+    GLuint renderbuffer = 0;
+  };
+
+  // Gera um framebuffer.
+  void GeraFramebufferLocal(int tamanho, bool textura_cubo, bool* usar_sampler_sombras, DadosFramebuffer* dfb);
+  void GeraFramebufferColisao(int tamanho, DadosFramebuffer* dfb);
 
   void DesativaWatchdog();
   void ReativaWatchdog();
@@ -1023,7 +1035,9 @@ class Tabuleiro : public ntf::Receptor {
   int visao_jogador_ = 0;
   bool camera_presa_ = false;
   bool visao_escuro_ = false;  // Jogador ligou a visao no escuro (mas depende da entidade presa possuir).
-  std::list<int> lista_pontos_vida_;  // Usado para as acoes.
+  // Usado para acoes. Cada entrada indica se eh dano ou cura, e a string pode ter valor de dado (tipo 1d8+3).
+  // O primeiro valor eh 1 para positivo, -1 para negativo.
+  std::list<std::pair<int, std::string>> lista_pontos_vida_;
   // unsigned int id_camera_presa_ = Entidade::IdInvalido;
   // Lista de ids de camera presa. O corrente sempre é o front.
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
@@ -1093,7 +1107,6 @@ class Tabuleiro : public ntf::Receptor {
   bool detalhar_todas_entidades_ = false;
 
   modo_clique_e modo_clique_ = MODO_NORMAL;
-  bool modo_acao_cura_ = false;  // Indica se os incrementos de PV do controle vao adicionar ou subtrair valores.
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
 
@@ -1104,16 +1117,22 @@ class Tabuleiro : public ntf::Receptor {
   gl::VboGravado vbo_caixa_ceu_;
   gl::VboGravado vbo_cubo_;
   gl::VboGravado vbo_rosa_;
+  DadosFramebuffer dfb_luz_direcional_;
+  DadosFramebuffer dfb_oclusao_;
+  DadosFramebuffer dfb_colisao_;
+  std::vector<DadosFramebuffer> dfb_luzes_;
+
+#if 0
   GLuint framebuffer_ = 0;
   GLuint textura_framebuffer_ = 0;
   GLuint renderbuffer_framebuffer_ = 0;
   GLuint framebuffer_oclusao_ = 0;
   GLuint textura_framebuffer_oclusao_ =  0;
   GLuint renderbuffer_framebuffer_oclusao_ = 0;
-  // Framebuffer usado apenas para detectar colisoes.
   GLuint framebuffer_colisao_ = 0;
   GLuint textura_framebuffer_colisao_ = 0;
   GLuint renderbuffer_framebuffer_colisao_ = 0;
+#endif
   constexpr static int TAM_BUFFER_COLISAO = 4;  // 4x4
 
   // Vbos gerados por renderizacao de cena.
@@ -1145,6 +1164,13 @@ class Tabuleiro : public ntf::Receptor {
   std::vector<Entidade*> entidades_ordenadas_;
 
   ntf::Notificacao notificacao_selecao_transicao_;
+
+  // Posicao das luzes, para mapeamento de luzes. Apenas a primeira é usada por enquanto.
+  struct LuzPontual {
+    unsigned int id;
+    Posicao pos;
+  };
+  std::vector<LuzPontual> luzes_pontuais_;
 
   // Usado para recuperacao de contexto IOS e android.
   bool regerar_vbos_entidades_ = false;
