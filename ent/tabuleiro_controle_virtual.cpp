@@ -1175,6 +1175,9 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   if (entidade == nullptr || entidade->MaximoPontosVida() == 0) {
     return;
   }
+  gl::TipoEscopo tipo_escopo(OBJ_ENTIDADE_LISTA);
+  gl::CarregaNome(entidade->Id());
+
   int fonte_x_int, fonte_y_int, escala;
   gl::TamanhoFonte(&fonte_x_int, &fonte_y_int, &escala);
   fonte_x_int *= escala;
@@ -1196,6 +1199,10 @@ void Tabuleiro::DesenhaInfoCameraPresa() {
   gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, top_y);
   gl::MudaCor(0.0f, 1.0f, 0.0f, 1.0f);
   gl::Retangulo(largura_botao, bottom_y, 2.0f * largura_botao, bottom_y + altura_pv_entidade);
+  if (parametros_desenho_.has_picking_x()) {
+    return;
+  }
+
   MudaCor(COR_AMARELA);
   PosicionaRaster2d(largura_botao, bottom_y - (fonte_y * 1.1f));
   gl::DesenhaStringAlinhadoEsquerda(net::to_string(entidade->PontosVida()) + "/" + net::to_string(entidade->MaximoPontosVida()), true  /*inverte vertical*/);

@@ -3111,7 +3111,7 @@ void Tabuleiro::TrataBotaoAcaoPressionado(bool acao_padrao, int x, int y) {
 
 void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
     bool acao_padrao, int x, int y, unsigned int id, unsigned int tipo_objeto, float profundidade) {
-  if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE)) {
+  if ((tipo_objeto != OBJ_TABULEIRO) && (tipo_objeto != OBJ_ENTIDADE) && (tipo_objeto != OBJ_ENTIDADE_LISTA)) {
     // invalido.
     return;
   }
@@ -3119,7 +3119,7 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   unsigned int id_entidade_destino = Entidade::IdInvalido;
   Posicao pos_entidade;
   Posicao pos_tabuleiro;
-  if (tipo_objeto == OBJ_ENTIDADE) {
+  if (tipo_objeto == OBJ_ENTIDADE || tipo_objeto == OBJ_ENTIDADE_LISTA) {
     VLOG(1) << "Acao em entidade: " << id;
     // Entidade.
     id_entidade_destino = id;
