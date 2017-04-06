@@ -1006,7 +1006,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE, [this] (const Entidade* entidade) { return indice_iniciativa_ != -1; } },
-    { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) { return camera_presa_; } },
+    { CONTROLE_CAMERA_PRESA,      [this] (const Entidade* entidade) {
+      return (entidade != nullptr && IdPresoACamera(entidade->Id())) || (camera_presa_ && entidade == nullptr);
+    } },
     { CONTROLE_CAMERA_PRIMEIRA_PESSOA,      [this] (const Entidade* entidade) { return camera_ == CAMERA_PRIMEIRA_PESSOA; } },
     { CONTROLE_VISAO_ESCURO,      [this] (const Entidade* entidade) { return visao_escuro_; } },
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE,  [this] (const Entidade* entidade) {
