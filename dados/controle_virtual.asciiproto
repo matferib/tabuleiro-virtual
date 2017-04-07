@@ -220,8 +220,8 @@ pagina {
   # Botoes de acao.
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 3
+    linha: 2
+    coluna: 5
     rotulo: "<"
     cor_rotulo {}
     textura: ""
@@ -231,8 +231,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 4
+    linha: 2
+    coluna: 6
     rotulo: ">"
     cor_rotulo {}
     textura: ""
@@ -243,7 +243,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 5
+    coluna: 3
     rotulo: "+-"
     cor_rotulo {}
     textura: ""
@@ -254,7 +254,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 5
+    coluna: 7
     rotulo: "A"
     cor_rotulo {}
     textura: ""
@@ -298,8 +298,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 0
-    coluna: 6
+    linha: 1
+    coluna: 4
     rotulo: "v"
     cor_rotulo { r: 0 g: 0 b: 1}
     textura: ""
@@ -309,8 +309,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 0
-    coluna: 7
+    linha: 1
+    coluna: 5
     rotulo: "x"
     cor_rotulo { r: 1 g: 0 b: 0 }
     textura: ""
@@ -323,7 +323,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 5
+    coluna: 3
     rotulo: "+1"
     cor_rotulo { b: 1 }
     textura: ""
@@ -334,7 +334,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 6
+    coluna: 4
     rotulo: "+2"
     cor_rotulo { b: 1 }
     textura: ""
@@ -345,7 +345,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 7
+    coluna: 5
     rotulo: "+4"
     cor_rotulo { b: 1 }
     textura: ""
@@ -355,8 +355,31 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "+8"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MAIS_8
+    forma: FORMA_RETANGULO
+    dica: "Modificador +8 dano"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 7
+    rotulo: "16"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MAIS_16
+    forma: FORMA_RETANGULO
+    dica: "Modificador +16 dano"
+  }
+
+  dados_botoes {
+    tamanho: 1
     linha: 0
-    coluna: 5
+    coluna: 3
     rotulo: "-1"
     cor_rotulo { r: 1 }
     textura: ""
@@ -367,7 +390,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 6
+    coluna: 4
     rotulo: "-2"
     cor_rotulo { r: 1 }
     textura: ""
@@ -378,7 +401,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 7
+    coluna: 5
     rotulo: "-4"
     cor_rotulo { r: 1 }
     textura: ""
@@ -386,7 +409,17 @@ pagina {
     forma: FORMA_RETANGULO
     dica: "Modificador -4 dano"
   }
-
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 6
+    rotulo: "-8"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_DANO_MENOS_8
+    forma: FORMA_RETANGULO
+    dica: "Modificador -8 dano"
+  }
 
   # Status.
    dados_botoes {
@@ -425,8 +458,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 12
+    linha: 2
+    coluna: 13
     rotulo: "F"
     cor_rotulo {}
     textura: "icon_sneak.png"
@@ -450,7 +483,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 11
+    coluna: 9
     rotulo: "-1"
     cor_rotulo {}
     id: CONTROLE_ATAQUE_MENOS_1
@@ -472,7 +505,7 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 1
-    coluna: 9
+    coluna: 11
     rotulo: "-4"
     cor_rotulo {}
     id: CONTROLE_ATAQUE_MENOS_4
@@ -482,8 +515,20 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
+    linha: 1
+    coluna: 12
+    rotulo: "-8"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MENOS_8
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "-8 ataque."
+  }
+
+  dados_botoes {
+    tamanho: 1
     linha: 2
-    coluna: 11
+    coluna: 9
     rotulo: "+1"
     cor_rotulo {}
     id: CONTROLE_ATAQUE_MAIS_1
@@ -505,13 +550,24 @@ pagina {
   dados_botoes {
     tamanho: 1
     linha: 2
-    coluna: 9
+    coluna: 11
     rotulo: "+4"
     cor_rotulo {}
     id: CONTROLE_ATAQUE_MAIS_4
     forma: FORMA_RETANGULO
     mestre_apenas: false
     dica: "+4 ataque."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 12
+    rotulo: "+8"
+    cor_rotulo {}
+    id: CONTROLE_ATAQUE_MAIS_8
+    forma: FORMA_RETANGULO
+    mestre_apenas: false
+    dica: "+8 ataque."
   }
 
   dados_botoes {

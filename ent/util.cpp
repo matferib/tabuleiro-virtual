@@ -882,6 +882,9 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   if (ea.dados_ataque_globais().ataque_menos_4()) {
     modificador -= 4;
   }
+  if (ea.dados_ataque_globais().ataque_menos_8()) {
+    modificador -= 8;
+  }
   if (ea.dados_ataque_globais().ataque_mais_1()) {
     modificador += 1;
   }
@@ -891,6 +894,10 @@ int ModificadorAtaque(bool distancia, const EntidadeProto& ea, const EntidadePro
   if (ea.dados_ataque_globais().ataque_mais_4()) {
     modificador += 4;
   }
+  if (ea.dados_ataque_globais().ataque_mais_8()) {
+    modificador += 8;
+  }
+
   // Defesa.
   if (ed.caida()) {
     if (distancia) modificador -= 4;
@@ -910,6 +917,9 @@ int ModificadorDano(const EntidadeProto& ea) {
   if (ea.dados_ataque_globais().dano_menos_4()) {
     modificador -= 4;
   }
+  if (ea.dados_ataque_globais().dano_menos_8()) {
+    modificador -= 8;
+  }
   if (ea.dados_ataque_globais().dano_mais_1()) {
     modificador += 1;
   }
@@ -918,6 +928,15 @@ int ModificadorDano(const EntidadeProto& ea) {
   }
   if (ea.dados_ataque_globais().dano_mais_4()) {
     modificador += 4;
+  }
+  if (ea.dados_ataque_globais().dano_mais_8()) {
+    modificador += 8;
+  }
+  if (ea.dados_ataque_globais().dano_mais_16()) {
+    modificador += 16;
+  }
+  if (ea.dados_ataque_globais().dano_mais_32()) {
+    modificador += 32;
   }
   return modificador;
 }
