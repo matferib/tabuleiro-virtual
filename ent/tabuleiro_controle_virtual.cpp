@@ -339,6 +339,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_ATAQUE_MAIS_4:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_4);
       break;
+    case CONTROLE_ATAQUE_MAIS_8:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MAIS_8);
+      break;
     case CONTROLE_ATAQUE_MENOS_1:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_1);
       break;
@@ -347,6 +350,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_ATAQUE_MENOS_4:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_4);
+      break;
+    case CONTROLE_ATAQUE_MENOS_8:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_ATAQUE_MENOS_8);
       break;
 
     case CONTROLE_DANO_MAIS_1:
@@ -358,6 +364,16 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_DANO_MAIS_4:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_4);
       break;
+    case CONTROLE_DANO_MAIS_8:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_8);
+      break;
+    case CONTROLE_DANO_MAIS_16:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_16);
+      break;
+    case CONTROLE_DANO_MAIS_32:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MAIS_32);
+      break;
+
     case CONTROLE_DANO_MENOS_1:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MENOS_1);
       break;
@@ -366,6 +382,9 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       break;
     case CONTROLE_DANO_MENOS_4:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MENOS_4);
+      break;
+    case CONTROLE_DANO_MENOS_8:
+      AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_DANO_MENOS_8);
       break;
 
     case CONTROLE_VOO:
@@ -782,9 +801,13 @@ bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
     case CONTROLE_DANO_MAIS_1:
     case CONTROLE_DANO_MAIS_2:
     case CONTROLE_DANO_MAIS_4:
+    case CONTROLE_DANO_MAIS_8:
+    case CONTROLE_DANO_MAIS_16:
+    case CONTROLE_DANO_MAIS_32:
     case CONTROLE_DANO_MENOS_1:
     case CONTROLE_DANO_MENOS_2:
     case CONTROLE_DANO_MENOS_4:
+    case CONTROLE_DANO_MENOS_8:
       return modo_dano_automatico_;
     default:
       return true;
@@ -1039,6 +1062,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ATAQUE_MAIS_4,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_4();
     } },
+    { CONTROLE_ATAQUE_MAIS_8,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_mais_8();
+    } },
+
     { CONTROLE_ATAQUE_MENOS_1,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_1();
     } },
@@ -1048,6 +1075,10 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_ATAQUE_MENOS_4,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_4();
     } },
+    { CONTROLE_ATAQUE_MENOS_8,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().ataque_menos_8();
+    } },
+
     // Dano.
     { CONTROLE_DANO_MAIS_1,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_1();
@@ -1058,6 +1089,16 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_DANO_MAIS_4,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_4();
     } },
+    { CONTROLE_DANO_MAIS_8,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_8();
+    } },
+    { CONTROLE_DANO_MAIS_16,     [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_16();
+    } },
+    { CONTROLE_DANO_MAIS_32,     [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_mais_32();
+    } },
+
     { CONTROLE_DANO_MENOS_1,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_1();
     } },
@@ -1066,6 +1107,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_DANO_MENOS_4,      [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_4();
+    } },
+    { CONTROLE_DANO_MENOS_8,      [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().dano_menos_8();
     } },
 
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
