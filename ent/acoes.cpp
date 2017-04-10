@@ -44,7 +44,8 @@ void DesenhaGeometriaAcao(int geometria) {
 class AcaoSinalizacao : public Acao {
  public:
   constexpr static float TAMANHO_MAXIMO = TAMANHO_LADO_QUADRADO * 2.0f;
-  AcaoSinalizacao(const AcaoProto& acao_proto) : Acao(acao_proto, nullptr), estado_(TAMANHO_MAXIMO) {
+  AcaoSinalizacao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) :
+      Acao(acao_proto, tabuleiro), estado_(TAMANHO_MAXIMO) {
     if (!acao_proto_.has_pos_tabuleiro()) {
       estado_ = -1.0f;
     }
@@ -929,7 +930,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
 Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
   switch (acao_proto.tipo()) {
     case ACAO_SINALIZACAO:
-      return new AcaoSinalizacao(acao_proto);
+      return new AcaoSinalizacao(acao_proto, tabuleiro);
     case ACAO_PROJETIL:
       return new AcaoProjetil(acao_proto, tabuleiro);
     case ACAO_DISPERSAO:

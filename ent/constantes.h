@@ -98,6 +98,41 @@ constexpr float CAMPO_VISAO_PADRAO = 70.0f;
 constexpr float CAMPO_VISAO_MIN = 50.0f;
 constexpr float CAMPO_VISAO_MAX = 90.0f;
 
+/** Tempo que o detalhamento mostra os detalhes no hover. */
+constexpr int TEMPO_DETALHAMENTO_MS = 500;
+
+/** Distancia minima entre pontos no desenho livre. */
+constexpr float DELTA_MINIMO_DESENHO_LIVRE = TAMANHO_LADO_QUADRADO / 2.0f;
+
+/** A Translacao e a rotacao de objetos so ocorre depois que houver essa distancia de pixels percorrida pelo mouse. */
+constexpr int DELTA_MINIMO_TRANSLACAO_ROTACAO = 5;
+
+constexpr const char* ID_ACAO_ATAQUE_CORPO_A_CORPO = "Ataque Corpo a Corpo";
+
+/** sensibilidade da rodela do mouse. */
+constexpr double SENSIBILIDADE_RODA = 0.01;
+/** sensibilidade da rotacao lateral do olho. */
+constexpr double SENSIBILIDADE_ROTACAO_X = 0.01;
+/** sensibilidade da altura do olho. */
+constexpr double SENSIBILIDADE_ROTACAO_Y = 0.08;
+
+/** altura inicial do olho. */
+constexpr double OLHO_ALTURA_INICIAL = 10.0;
+/** altura maxima do olho. */
+constexpr double OLHO_ALTURA_MAXIMA = 45.0;
+/** altura minima do olho. */
+constexpr double OLHO_ALTURA_MINIMA = 1.5;
+
+/** raio (distancia) inicial do olho. */
+constexpr double OLHO_RAIO_INICIAL = 20.0;
+/** raio maximo do olho. */
+constexpr double OLHO_RAIO_MAXIMO = 40.0;
+/** raio minimo do olho. */
+constexpr double OLHO_RAIO_MINIMO = 1.5;
+
+/** Distancia maxima do olho da entidade de referencia. */
+constexpr float OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA = 5.0f * TAMANHO_LADO_QUADRADO;
+
 }  // namespace ent
 
 #endif  // ENT_CONSTANTES_H

@@ -1090,4 +1090,34 @@ std::string ResumoNotificacao(const Tabuleiro& tabuleiro, const ntf::Notificacao
   }
 }
 
+// O delta de pontos de vida afeta outros bits tambem.
+void PreencheNotificacaoAtualizaoPontosVida(
+    const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer) {
+  n->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+  auto* entidade_depois = n->mutable_entidade();
+  entidade_depois->set_id(entidade.Id());
+  if (delta_pontos_vida < 0 && entidade.PontosVidaTemporarios() > 0) {
+    int temp = entidade.PontosVidaTemporarios();
+    int minpv = std::min(std::abs(delta_pontos_vida), temp);
+    delta_pontos_vida += minpv;
+    temp -= minpv;
+    entidade_depois->set_pontos_vida_temporarios(temp);
+  }
+  entidade_depois->set_pontos_vida(entidade.PontosVida() + delta_pontos_vida);
+
+  if (n_desfazer != nullptr) {
+    n_desfazer->set_tipo(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);
+    n_desfazer->mutable_entidade()->CopyFrom(*entidade_depois);
+    auto* entidade_antes = n_desfazer->mutable_entidade_antes();
+    entidade_antes->set_id(entidade.Id());
+    entidade_antes->set_pontos_vida(entidade.PontosVida());
+    entidade_antes->set_morta(entidade.Proto().morta());
+    entidade_antes->set_caida(entidade.Proto().caida());
+    entidade_antes->set_voadora(entidade.Proto().voadora());
+    entidade_antes->set_aura(entidade.Proto().aura());
+    entidade_antes->mutable_pos()->CopyFrom(entidade.Pos());
+    entidade_antes->mutable_direcao_queda()->CopyFrom(entidade.Proto().direcao_queda());
+  }
+}
+
 }  // namespace ent
