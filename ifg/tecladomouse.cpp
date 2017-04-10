@@ -114,7 +114,7 @@ void TratadorTecladoMouse::TrataAcaoTemporizadaTeclado() {
     break;
     case Tecla_C:
     case Tecla_D: {
-      std::vector<std::pair<int, std::string>> lista_pv = CalculaDano(teclas_.begin(), teclas_.end());
+      std::vector<std::pair<int, std::string>> lista_pv = CalculaDano(teclas_.begin() + 1, teclas_.end());
       if (lista_pv.size() != 1) {
         break;
       }
