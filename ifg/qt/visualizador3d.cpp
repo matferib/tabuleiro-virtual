@@ -643,7 +643,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   gerador.spin_escala_z_quad->setValue(METROS_PARA_QUADRADOS * entidade.escala().z());
 
   if (entidade.has_tesouro()) {
-    gerador.lista_tesouro->appendPlainText(entidade.tesouro().tesouro().c_str());
+    gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
   }
 
   // Transicao de cenario.
@@ -901,7 +901,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_translacao_quad->setValue(entidade.pos().z() * METROS_PARA_QUADRADOS);
 
   if (entidade.has_tesouro()) {
-    gerador.lista_tesouro->appendPlainText(entidade.tesouro().tesouro().c_str());
+    gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
   }
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
