@@ -129,6 +129,7 @@ cModelos3d = env.Object('m3d/m3d.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cTabuleiroControleVirtual = env.Object('ent/tabuleiro_controle_virtual.cpp')
+cTabuleiroTratador = env.Object('ent/tabuleiro_tratador.cpp')
 cTabuleiroInterface = env.Object('ent/tabuleiro_interface.cpp')
 cTabuleiroPicking = env.Object('ent/tabuleiro_picking.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
@@ -187,7 +188,7 @@ objetos = [
     cModelos3d,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
     ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6],
-    cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking, cTabuleiroInterface,
+    cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking, cTabuleiroInterface, cTabuleiroTratador,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar, cGlVbo, cGlues,
