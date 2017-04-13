@@ -321,6 +321,10 @@ message ParametrosDesenho {
   optional bool nao_desenha_entidades_translucidas = 42 [default=false];
   optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
   optional bool nao_desenha_entidades_fixas = 44 [default=false];
+  // Essas entidades normalmente sao decorativas, entao ha casos onde eh interessante nao desenha-las para
+  // o picking funcionar atraves dela (exemplo, agua).
+  optional bool nao_desenha_entidades_fixas_translucidas = 59 [default=false];
+
   optional bool desenha_apenas_entidades_colisivas = 48 [default=false];
   // Verdadeiro para desenhar texturas.
   optional bool desenha_texturas = 7 [default=true];

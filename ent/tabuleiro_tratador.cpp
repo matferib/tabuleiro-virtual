@@ -1313,10 +1313,47 @@ void Tabuleiro::TrataRolagem(dir_rolagem_e direcao) {
   AdicionaNotificacaoListaEventos(g_desfazer);
 }
 
+namespace {
+
+// De acordo com o modo de desenho, altera as configuracoes de pd.
+// tipo_objeto: um dos OBJ_*.
+void ConfiguraParametrosDesenho(Tabuleiro::modo_clique_e modo_clique, ParametrosDesenho* pd) {
+  pd->set_nao_desenha_entidades_fixas_translucidas(true);
+  switch (modo_clique) {
+    case Tabuleiro::MODO_NORMAL:
+      break;
+    case Tabuleiro::MODO_SELECAO_TRANSICAO:
+      break;
+    case Tabuleiro::MODO_ACAO:
+      break;
+    case Tabuleiro::MODO_TERRENO:
+      return;
+    case Tabuleiro::MODO_SINALIZACAO:
+      break;
+    case Tabuleiro::MODO_TRANSICAO:
+      break;
+    case Tabuleiro::MODO_REGUA:
+      break;
+    case Tabuleiro::MODO_D20:
+      break;
+    case Tabuleiro::MODO_DESENHO:
+      break;
+    case Tabuleiro::MODO_ROTACAO:
+      break;
+    case Tabuleiro::MODO_AJUDA:
+      break;
+    default:
+      ;
+  }
+}
+
+}  // namespace
+
 void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao) {
   ultimo_x_ = x;
   ultimo_y_ = y;
 
+  ConfiguraParametrosDesenho(modo_clique_, &parametros_desenho_);
   unsigned int id, tipo_objeto;
   float profundidade;
   // Tem que ter uma forma de nao desenhar entidades fixas transparentes. Para poder fazer picking dentro dagua.

@@ -3591,7 +3591,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
 }
 
 namespace {
-bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
+bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (!proto.faz_sombra() && pd.desenha_mapa_sombras()) {
     return true;
   }
@@ -3606,6 +3606,9 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   }
   if (proto.tipo() == TE_ENTIDADE && (pd.has_desenha_mapa_luzes() || pd.has_desenha_mapa_oclusao())) {
     // Para luzes pontuais e oclusao, entidades nao contam (performance).
+    return true;
+  }
+  if (proto.fixa() && proto.cor().a() < 1.0f && pd.nao_desenha_entidades_fixas_translucidas()) {
     return true;
   }
   return false;
@@ -3649,7 +3652,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (PularEntidade(entidade->Proto(), parametros_desenho_)) {
+    if (PulaEntidade(entidade->Proto(), parametros_desenho_)) {
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
