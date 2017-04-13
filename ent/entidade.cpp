@@ -1057,6 +1057,10 @@ Matrix4 Entidade::MontaMatrizModelagem(
   }
 
   Matrix4 matrix;
+  if (proto.modelo_3d().has_translacao()) {
+    const auto& t = proto.modelo_3d().translacao();
+    matrix.translate(t.x(), t.y(), t.z());
+  }
   if (pd != nullptr && pd->has_translacao_efeito()) {
     const auto& te = pd->translacao_efeito();
     matrix.translate(te.x(), te.y(), te.z());

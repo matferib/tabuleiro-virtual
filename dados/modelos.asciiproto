@@ -118,15 +118,6 @@ modelo {
   }
 }
 modelo {
-  id: 'Demônio Bebilith'
-  entidade {
-    dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
-    modificador_iniciativa: 5
-    rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
-    tamanho: TM_ENORME
-  }
-}
-modelo {
   id: 'Carniçal'
   entidade {
     dados_vida: '2d12' info_textura { id: 'ghoul.png' largura: 0.7 translacao_x: 0.15 altura: 0.9 translacao_y: 0.05 }
@@ -192,6 +183,15 @@ modelo {
   }
 }
 modelo {
+  id: 'Demônio Bebilith'
+  entidade {
+    dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
+    modificador_iniciativa: 5
+    rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
+    tamanho: TM_ENORME
+  }
+}
+modelo {
   id: 'Demônio Babau'
   entidade {
     dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
@@ -230,6 +230,18 @@ modelo {
     dados_vida: '6d8+6' cor { r: 0.3 g: 0.3 b: 0.3 } info_textura { id: 'drow.png' }
     rotulo_especial: 'ini: +2\nat: rapier +8/+3 dano: 1d6+2\nat: +7 besta mao: 1d4\nca: 20'
     modificador_iniciativa: 2
+  }
+}
+modelo {
+  id: 'Esfera Flamejante'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    aura_m: 1.5  # 1 quadrado de raio
+    cor { r: 1 g: 0.5 b: 0 a: 1 }
+    luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
+    dados_ataque {
+      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' bonus_ataque: 100 dano: '2d6'
+    }
   }
 }
 modelo {

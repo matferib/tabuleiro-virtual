@@ -63,6 +63,7 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Selecionar modelo para &feitiço"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"),
     nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Adicionar"),
@@ -149,6 +150,30 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         // Esse sub menu tem tratamento especial.
         const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
         const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
+        auto* grupo = new QActionGroup(this);
+        grupo->setExclusive(true);
+        const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
+        auto* menu_modelos = menu->addMenu(tr(menuitem_str));
+        menu_modelos->setStyleSheet("* { menu-scrollable: 1 }");
+        std::vector<ent::EntidadeProto*> entidades;
+        MenuModelos menu_modelos_proto;
+        for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
+          MenuModelos este_menu_modelos_proto;
+          try {
+            arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
+            VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
+            MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
+          } catch (const std::logic_error& erro) {
+            LOG(ERROR) << erro.what();
+          }
+        }
+        VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString();
+        PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
+        connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
+      } else if (std::string(menuitem_str) == "Selecionar modelo para &feitiço") {
+        // Esse sub menu tem tratamento especial.
+        const char* ARQUIVO_MENU_MODELOS = "menumodelosfeiticos.asciiproto";
+        const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelosfeiticos_nao_srd.asciiproto";
         auto* grupo = new QActionGroup(this);
         grupo->setExclusive(true);
         const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };

@@ -104,6 +104,8 @@ message Modelo3d {
   optional string id = 1;
   // Para transmissao. Bits do arquivo de modelo.
   optional bytes bits_crus = 6;
+  // Translacao do modelo 3d.
+  optional Posicao translacao = 7;
 }
 
 // A escala nos tres eixos.
