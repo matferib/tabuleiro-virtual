@@ -84,6 +84,10 @@ message AcaoProto {
   optional string icone = 25;
   // A acao deve ser feita apenas localmente.
   optional bool local_apenas = 26;
+  // Acoes com textura.
+  optional InfoTextura info_textura = 28;
+  // Se verdadeiro, desliga a luz para desenha a acao.
+  optional bool ignora_luz = 29;
 }
 
 // O arquivo de acoes é serializado desta forma.

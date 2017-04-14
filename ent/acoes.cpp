@@ -13,6 +13,7 @@
 #include "ntf/notificacao.h"
 #include "ntf/notificacao.pb.h"
 #include "log/log.h"
+#include "tex/texturas.h"
 
 namespace ent {
 
@@ -21,6 +22,10 @@ namespace {
 void MudaCorProto(const Cor& cor) {
   const GLfloat corgl[3] = { cor.r(), cor.g(), cor.b() };
   MudaCor(corgl);
+}
+void MudaCorProtoAlfa(const Cor& cor) {
+  const GLfloat corgl[4] = { cor.r(), cor.g(), cor.b(), cor.a() };
+  MudaCorAlfa(corgl);
 }
 
 // Geometria deve ser do tipo GeometriaAcao. O tamanho sera unitario na unidade da geometria (ou seja, raio para esfera,
@@ -44,8 +49,8 @@ void DesenhaGeometriaAcao(int geometria) {
 class AcaoSinalizacao : public Acao {
  public:
   constexpr static float TAMANHO_MAXIMO = TAMANHO_LADO_QUADRADO * 2.0f;
-  AcaoSinalizacao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) :
-      Acao(acao_proto, tabuleiro), estado_(TAMANHO_MAXIMO) {
+  AcaoSinalizacao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) :
+      Acao(acao_proto, tabuleiro, texturas), estado_(TAMANHO_MAXIMO) {
     if (!acao_proto_.has_pos_tabuleiro()) {
       estado_ = -1.0f;
     }
@@ -75,7 +80,6 @@ class AcaoSinalizacao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::HabilitaEscopo normalizacao_escopo(GL_NORMALIZE);
     gl::Normal(0, 0, 1.0f);
     gl::HabilitaEscopo offset_escopo(GL_POLYGON_OFFSET_FILL);
@@ -110,7 +114,7 @@ gl::VboGravado AcaoSinalizacao::vbo_;
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:
-  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     Entidade* entidade_destino = nullptr;
     if (!acao_proto_.has_pos_entidade()) {
       if (acao_proto_.id_entidade_destino_size() == 0 ||
@@ -167,7 +171,6 @@ class AcaoDeltaPontosVida : public Acao {
       return;
     }
     gl::MatrizEscopo salva_matriz;
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::Translada(pos_.x(), pos_.y(), pos_.z());
     if (acao_proto_.delta_pontos_vida() > 0) {
       MudaCorAplicandoNevoa(COR_VERDE, pd);
@@ -211,10 +214,13 @@ class AcaoDeltaPontosVida : public Acao {
 // Acao de dispersao, estilo bola de fogo.
 class AcaoDispersao : public Acao {
  public:
-  AcaoDispersao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoDispersao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     efeito_ = 0;
     efeito_maximo_ = TAMANHO_LADO_QUADRADO * (acao_proto.geometria() == ACAO_GEO_CONE ?
         acao_proto_.distancia_quadrados() : acao_proto_.raio_quadrados());
+  }
+
+  ~AcaoDispersao() {
   }
 
   static Matrix4 MatrizCone(const AcaoProto& acao_proto, const Posicao& pos_origem, float distancia_m) {
@@ -233,10 +239,10 @@ class AcaoDispersao : public Acao {
   }
 
   void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const override {
-    //gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-    MudaCorProto(acao_proto_.cor());
+    MudaCorProtoAlfa(acao_proto_.cor());
     gl::MatrizEscopo salva_matriz;
     const Posicao& pos_tabuleiro = acao_proto_.pos_tabuleiro();
+
     if (acao_proto_.geometria() == ACAO_GEO_CONE) {
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
       if (entidade_origem == nullptr) {
@@ -252,6 +258,7 @@ class AcaoDispersao : public Acao {
       gl::Translada(pos.x(), pos.y(), pos.z());
       gl::Escala(efeito_, efeito_, efeito_);
     }
+    gl::DesabilitaEscopo luz(GL_LIGHTING);
     DesenhaGeometriaAcao(acao_proto_.geometria());
   }
 
@@ -286,7 +293,7 @@ class AcaoDispersao : public Acao {
         AtualizaRotacaoZFonte(entidade_origem);
       }
     }
-    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / DURACAO_MS;
+    efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000);
   }
 
   bool Finalizada() const override {
@@ -294,7 +301,6 @@ class AcaoDispersao : public Acao {
   }
 
  private:
-  constexpr static int DURACAO_MS = 500;
   float efeito_maximo_;
   float efeito_;
 };
@@ -302,7 +308,7 @@ class AcaoDispersao : public Acao {
 // Uma acao de projetil, tipo flecha ou missil magico.
 class AcaoProjetil : public Acao {
  public:
-  AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoProjetil(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     estagio_ = INICIAL;
     auto* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
     if (entidade_origem == nullptr) {
@@ -346,7 +352,6 @@ class AcaoProjetil : public Acao {
       return;
     }
     // TODO desenha impacto.
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
     MudaCorProto(acao_proto_.cor());
     gl::Translada(pos_.x(), pos_.y(), pos_.z());
@@ -422,7 +427,7 @@ class AcaoProjetil : public Acao {
 // Acao de raio.
 class AcaoRaio : public Acao {
  public:
-  AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoRaio(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     duracao_ = acao_proto.duracao_s();
     if (!acao_proto_.has_id_entidade_origem()) {
       duracao_ = 0.0f;
@@ -461,7 +466,6 @@ class AcaoRaio : public Acao {
       //pos_d.set_z(pos_o.z());
     }
     MudaCorProto(acao_proto_.cor());
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     float dx = pos_d.x() - pos_o.x();
     float dy = pos_d.y() - pos_o.y();
     float dz = pos_d.z() - pos_o.z();
@@ -516,7 +520,7 @@ class AcaoRaio : public Acao {
 // Acao ACAO_CORPO_A_CORPO.
 class AcaoCorpoCorpo : public Acao {
  public:
-  AcaoCorpoCorpo(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoCorpoCorpo(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     rotacao_graus_ = 0.0f;
     if (!acao_proto_.has_id_entidade_origem()) {
       VLOG(1) << "Acao corpo a corpo requer id origem.";
@@ -623,7 +627,7 @@ class AcaoCorpoCorpo : public Acao {
 // Acao de feitico de toque.
 class AcaoFeiticoToque : public Acao {
  public:
-  AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) : Acao(acao_proto, tabuleiro) {
+  AcaoFeiticoToque(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
     if (!acao_proto_.has_id_entidade_origem() || acao_proto_.id_entidade_destino_size() == 0) {
       VLOG(1) << "Acao de feitico de toque requer origem e destino";
       terminado_ = true;
@@ -641,7 +645,6 @@ class AcaoFeiticoToque : public Acao {
     }
     const Posicao& pos = e->PosicaoAcao();
     MudaCorProto(acao_proto_.cor());
-    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::Translada(pos.x() + acao_proto_.translacao().x(),
                   pos.y() + acao_proto_.translacao().y(),
                   pos.z() + acao_proto_.translacao().z());
@@ -684,14 +687,29 @@ class AcaoFeiticoToque : public Acao {
 }  // namespace
 
 // Acao.
-Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro)
-    : acao_proto_(acao_proto), tabuleiro_(tabuleiro) {
+Acao::Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas)
+    : acao_proto_(acao_proto), tabuleiro_(tabuleiro), texturas_(texturas) {
   velocidade_m_ms_ = acao_proto.velocidade().inicial_m_s() / 1000.0f;
   aceleracao_m_ms_2_ = acao_proto.velocidade().aceleracao_m_s_2() / 1000.0f;
   dx_ = dy_ = dz_ = 0;
   dx_total_ = dy_total_ = dz_total_ = 0;
   disco_alvo_rad_ = 0;
   atraso_s_ = acao_proto_.atraso_s();
+  if (!acao_proto_.info_textura().id().empty()) {
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_CARREGAR_TEXTURA);
+    n.add_info_textura()->set_id(acao_proto_.info_textura().id());
+    texturas_->TrataNotificacao(n);
+  }
+}
+
+Acao::~Acao() {
+  if (!acao_proto_.info_textura().id().empty()) {
+    ntf::Notificacao n;
+    n.set_tipo(ntf::TN_DESCARREGAR_TEXTURA);
+    n.add_info_textura()->set_id(acao_proto_.info_textura().id());
+    texturas_->TrataNotificacao(n);
+  }
 }
 
 void Acao::Atualiza(int intervalo_ms) {
@@ -720,6 +738,8 @@ int Acao::IdCenario() const {
     } else {
       return CENARIO_INVALIDO;
     }
+  } else if (acao_proto_.has_pos_tabuleiro()) {
+    return acao_proto_.pos_tabuleiro().id_cenario();
   }
   return CENARIO_INVALIDO;
 }
@@ -728,19 +748,36 @@ void Acao::Desenha(ParametrosDesenho* pd) const {
   if (atraso_s_ > 0) {
     return;
   }
-  if (Finalizada()) {
+  if (acao_proto_.cor().a() < 1.0f || Finalizada()) {
     return;
   }
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  GLuint id_textura = acao_proto_.info_textura().id().empty() ? GL_INVALID_VALUE : texturas_->Textura(acao_proto_.info_textura().id());
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  }
+  std::unique_ptr<gl::DesabilitaEscopo> luz_escopo(acao_proto_.ignora_luz() ? new gl::DesabilitaEscopo(GL_LIGHTING): nullptr);
   DesenhaSeNaoFinalizada(pd);
+  gl::Desabilita(GL_TEXTURE_2D);
 }
 
 void Acao::DesenhaTranslucido(ParametrosDesenho* pd) const {
-  if (Finalizada()) {
+  if (atraso_s_ > 0) {
     return;
   }
+  if (acao_proto_.cor().a() >= 1.0f || Finalizada()) {
+    return;
+  }
+  std::unique_ptr<gl::DesabilitaEscopo> luz_escopo(acao_proto_.ignora_luz() ? new gl::DesabilitaEscopo(GL_LIGHTING): nullptr);
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
+  GLuint id_textura = acao_proto_.info_textura().id().empty() ? GL_INVALID_VALUE : texturas_->Textura(acao_proto_.info_textura().id());
+  if (id_textura != GL_INVALID_VALUE) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+  }
   DesenhaTranslucidoSeNaoFinalizada(pd);
+  gl::Desabilita(GL_TEXTURE_2D);
 }
 
 void Acao::AtualizaVelocidade(int intervalo_ms) {
@@ -913,7 +950,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       float angulo_rad = acosf(direcao_raio.dot(v_destino));
       float angulo = angulo_rad * RAD_PARA_GRAUS;
       if (angulo > 90.0f) {
-        //LOG(INFO) << "angulo maior que 90.0f: " << angulo; 
+        //LOG(INFO) << "angulo maior que 90.0f: " << angulo;
         return false;
       }
       float distancia_para_raio = sinf(angulo_rad) * distancia;
@@ -927,22 +964,23 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
   return false;
 }
 
-Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro) {
+Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) {
+  VLOG(1) << "NovaAcao: " << acao_proto.DebugString();
   switch (acao_proto.tipo()) {
     case ACAO_SINALIZACAO:
-      return new AcaoSinalizacao(acao_proto, tabuleiro);
+      return new AcaoSinalizacao(acao_proto, tabuleiro, texturas);
     case ACAO_PROJETIL:
-      return new AcaoProjetil(acao_proto, tabuleiro);
+      return new AcaoProjetil(acao_proto, tabuleiro, texturas);
     case ACAO_DISPERSAO:
-      return new AcaoDispersao(acao_proto, tabuleiro);
+      return new AcaoDispersao(acao_proto, tabuleiro, texturas);
     case ACAO_DELTA_PONTOS_VIDA:
-      return new AcaoDeltaPontosVida(acao_proto, tabuleiro);
+      return new AcaoDeltaPontosVida(acao_proto, tabuleiro, texturas);
     case ACAO_RAIO:
-      return new AcaoRaio(acao_proto, tabuleiro);
+      return new AcaoRaio(acao_proto, tabuleiro, texturas);
     case ACAO_CORPO_A_CORPO:
-      return new AcaoCorpoCorpo(acao_proto, tabuleiro);
+      return new AcaoCorpoCorpo(acao_proto, tabuleiro, texturas);
     case ACAO_FEITICO_TOQUE:
-      return new AcaoFeiticoToque(acao_proto, tabuleiro);
+      return new AcaoFeiticoToque(acao_proto, tabuleiro, texturas);
     default:
       LOG(ERROR) << "Acao invalida: " << acao_proto.ShortDebugString();
       return nullptr;
