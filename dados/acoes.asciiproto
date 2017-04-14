@@ -6,12 +6,12 @@ acao {
   raio_quadrados: 1.5  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
-  textura: "icon_acid.png"
+  icone: "icon_acid.png"
 }
 acao {
   id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
-  textura: 'icon_sword.png'
+  icone: 'icon_sword.png'
   permite_defesa_armadura: true
 }
 acao {
@@ -24,7 +24,7 @@ acao {
     inicial_m_s: 50
     tipo_aceleracao: ACAO_ACEL_ZERO
   }
-  textura: 'icon_bow.png'
+  icone: 'icon_bow.png'
   permite_defesa_armadura: true
 }
 acao {
@@ -35,7 +35,7 @@ acao {
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
 	permite_salvacao: true
-  textura: 'icon_fireball.png'
+  icone: 'icon_fireball.png'
 }
 acao {
   id: 'Cone de Gelo'
@@ -45,7 +45,7 @@ acao {
   geometria: ACAO_GEO_CONE
   efeito_area: true
 	permite_salvacao: true
-  textura: 'icon_ice.png'
+  icone: 'icon_ice.png'
 }
 acao {
   id: 'Feitiço de Toque'
@@ -55,7 +55,7 @@ acao {
   translacao { x: 0 y: -0.3 z: -0.3 }
   cor { r: 0.0 g: 0.0  b: 1.0 }
   permite_defesa_armadura: true
-  textura: 'icon_touch.png'
+  icone: 'icon_touch.png'
 }
 acao {
   id: 'Fogo Grego'
@@ -64,7 +64,7 @@ acao {
   raio_quadrados: 1.5  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
-  textura: 'icon_alchemist_fire.png'
+  icone: 'icon_alchemist_fire.png'
 }
 acao {
   id: 'Mãos Flamejantes'
@@ -74,7 +74,7 @@ acao {
   geometria: ACAO_GEO_CONE
   efeito_area: true
 	permite_salvacao: true
-  textura: 'icon_burning_hands.png'
+  icone: 'icon_burning_hands.png'
 }
 acao {
   id: 'Míssil Mágico'
@@ -86,7 +86,7 @@ acao {
     tipo_aceleracao: ACAO_ACEL_CONSTANTE
     aceleracao_m_s_2: 0.04
   }
-  textura: 'icon_magic_missile.png'
+  icone: 'icon_magic_missile.png'
 }
 acao {
   id: 'Pedrada (gigante)'
@@ -98,14 +98,14 @@ acao {
     tipo_aceleracao: ACAO_ACEL_ZERO
     inicial_m_s: 35.0
   }
-  textura: 'icon_stone.png'
+  icone: 'icon_stone.png'
 }
 acao {
   id: 'Raio'
   tipo: ACAO_RAIO
   cor { r: 1.0 g: 0 b: 0 }
   duracao_s: 0.5
-  textura: 'icon_ray.png'
+  icone: 'icon_ray.png'
   permite_defesa_armadura: true
 }
 acao {
@@ -116,10 +116,10 @@ acao {
   efeito_area: true
 	distancia_quadrados: 14  # quadrados
 	permite_salvacao: true
-  textura: "icon_lightning.png"
+  icone: "icon_lightning.png"
 }
 acao {
   id: 'Sinalização'
   tipo: ACAO_SINALIZACAO
-  textura: 'icon_signal.png'
+  icone: 'icon_signal.png'
 }

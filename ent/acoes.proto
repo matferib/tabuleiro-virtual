@@ -81,7 +81,7 @@ message AcaoProto {
   optional bool permite_salvacao = 23;
   optional bool permite_defesa_armadura = 27;
   // A textura que representa a acao (icone).
-  optional string textura = 25;
+  optional string icone = 25;
   // A acao deve ser feita apenas localmente.
   optional bool local_apenas = 26;
 }
