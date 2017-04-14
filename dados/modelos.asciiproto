@@ -236,11 +236,12 @@ modelo {
   id: 'Esfera Flamejante'
   entidade {
     modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    info_textura { id: 'fire.png' }
     aura_m: 1.5  # 1 quadrado de raio
-    cor { r: 1 g: 0.5 b: 0 a: 1 }
+    cor { r: 1 g: 1 b: 1 a: 1 }
     luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
     dados_ataque {
-      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' bonus_ataque: 100 dano: '2d6'
+      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque Sem Defesa' dano: '2d6'
     }
   }
 }
