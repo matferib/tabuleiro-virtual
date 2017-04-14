@@ -246,6 +246,17 @@ modelo {
   }
 }
 modelo {
+  id: 'Tentáculos Negros'
+  entidade {
+    modelo_3d { id: 'black_tentacles' }
+    cor { r: 0.1 g: 0.1 b: 0.1 a: 1 }
+    dados_ataque {
+      rotulo: 'Agarrar' tipo_ataque: 'Feitiço de Toque Sem Defesa' dano: '1d6+4'
+    }
+  }
+}
+
+modelo {
   id: 'Elemental do Ar (Pequeno)'
   entidade { dados_vida: '2d8' tamanho: TM_PEQUENO cor { r: 0.7 g: 0.7 b: 1.0 } }
 }
