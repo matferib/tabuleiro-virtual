@@ -135,8 +135,15 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     if (proto.has_modelo_3d()) {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
+        GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
+          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+        if (id_textura != GL_INVALID_VALUE) {
+          gl::Habilita(GL_TEXTURE_2D);
+          gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+        }
         gl::MultiplicaMatriz(modelagem.get());
         modelo->vbos_gravados.Desenha();
+        gl::Desabilita(GL_TEXTURE_2D);
       }
     } else if (!proto.info_textura().id().empty()) {
       gl::MultiplicaMatriz(tijolo_tela.get());
