@@ -1690,7 +1690,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadeNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this));
+      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
@@ -2681,6 +2681,9 @@ void Tabuleiro::DesenhaCena() {
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
+      if (parametros_desenho_.desenha_acoes()) {
+        DesenhaAcoesTranslucidas();
+      }
       gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
@@ -2688,6 +2691,7 @@ void Tabuleiro::DesenhaCena() {
       DesenhaEntidadesTranslucidas();
     }
   }
+
   V_ERRO("desenhando entidades alfa");
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
@@ -3769,6 +3773,16 @@ void Tabuleiro::DesenhaAcoes() {
       continue;
     }
     a->Desenha(&parametros_desenho_);
+  }
+}
+
+void Tabuleiro::DesenhaAcoesTranslucidas() {
+  for (auto& a : acoes_) {
+    VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
+    if (a->IdCenario() != cenario_corrente_) {
+      continue;
+    }
+    a->DesenhaTranslucido(&parametros_desenho_);
   }
 }
 

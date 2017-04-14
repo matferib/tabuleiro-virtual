@@ -581,6 +581,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
+  void DesenhaAcoesTranslucidas();
+
   void DesenhaAuras();
 
   /** Desenha a forma de desenho selecionada. */
