@@ -4862,6 +4862,10 @@ void AjustaPosicoes(const Posicao& alvo, std::vector<EntidadeProto*>* entidades)
 
 void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
   std::vector<EntidadeProto*> entidades_coladas;
+  if (!EmModoMestreIncluindoSecundario()) {
+    // Jogadores sempre referente a camera.
+    ref_camera = true;
+  }
 #if USAR_QT
   std::string str_entidades(QApplication::clipboard()->text().toUtf8().constData());
   if (str_entidades.empty()) {
