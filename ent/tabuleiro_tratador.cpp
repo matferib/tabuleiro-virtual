@@ -860,10 +860,15 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   std::vector<unsigned int> ids_origem;
   ids_origem = IdsPrimeiraPessoaOuEntidadesSelecionadas();
   if (acao_padrao || ids_origem.size() == 0) {
+    auto it = mapa_acoes_.find("Sinalização");
     AcaoProto acao_proto;
+    if (it == mapa_acoes_.end()) {
+      acao_proto.set_tipo(ACAO_SINALIZACAO);
+    } else {
+      acao_proto = *it->second;
+    }
     // Sem entidade selecionada, realiza sinalizacao.
     VLOG(1) << "Acao de sinalizacao: " << acao_proto.ShortDebugString();
-    acao_proto.set_tipo(ACAO_SINALIZACAO);
     if (id_entidade_destino != Entidade::IdInvalido) {
       acao_proto.add_id_entidade_destino(id_entidade_destino);
     }
