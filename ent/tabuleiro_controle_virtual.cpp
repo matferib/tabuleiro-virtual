@@ -131,8 +131,8 @@ void Tabuleiro::CarregaControleVirtual() {
     }
   }
   for (const auto& par_id_acao : mapa_acoes_) {
-    if (!par_id_acao.second->textura().empty()) {
-      n->add_info_textura()->set_id(par_id_acao.second->textura());
+    if (!par_id_acao.second->icone().empty()) {
+      n->add_info_textura()->set_id(par_id_acao.second->icone());
     }
   }
   central_->AdicionaNotificacao(n);
@@ -164,8 +164,8 @@ void Tabuleiro::LiberaControleVirtual() {
     }
   }
   for (const auto& par_id_acao : mapa_acoes_) {
-    if (!par_id_acao.second->textura().empty()) {
-      n->add_info_textura()->set_id(par_id_acao.second->textura());
+    if (!par_id_acao.second->icone().empty()) {
+      n->add_info_textura()->set_id(par_id_acao.second->icone());
     }
   }
   central_->AdicionaNotificacao(n);
@@ -212,6 +212,10 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       ntf::Notificacao n;
       n.set_tipo(ntf::TN_GERAR_TERRENO_ALEATORIO);
       TrataNotificacao(n);
+      break;
+    }
+    case CONTROLE_ILUMINACAO_MESTRE: {
+      TrataBotaoAlternarIluminacaoMestre();
       break;
     }
     case CONTROLE_GERAR_MONTANHA: {
@@ -675,7 +679,7 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
         if (it == mapa_acoes_.end()) {
           return textura_espada;
         }
-        unsigned int textura = texturas_->Textura(it->second->textura());
+        unsigned int textura = texturas_->Textura(it->second->icone());
         return textura == GL_INVALID_VALUE ? textura_espada : textura;
       } else {
         auto it = mapa_botoes_controle_virtual_.find(ModoCliqueParaId(modo_clique_, forma_selecionada_));
@@ -690,9 +694,9 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
     {
       int indice_acao = db.id() - CONTROLE_ULTIMA_ACAO_0;
       if (entidade == nullptr) {
-        return texturas_->Textura(AcaoPadrao(indice_acao).textura());
+        return texturas_->Textura(AcaoPadrao(indice_acao).icone());
       }
-      return texturas_->Textura(AcaoDoMapa(entidade->AcaoExecutada(indice_acao, AcoesPadroes())).textura());
+      return texturas_->Textura(AcaoDoMapa(entidade->AcaoExecutada(indice_acao, AcoesPadroes())).icone());
     }
     default:
       ;
@@ -1049,6 +1053,9 @@ void Tabuleiro::DesenhaControleVirtual() {
     } },
     { CONTROLE_SURPRESO,           [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().surpreso();
+    } },
+    { CONTROLE_ILUMINACAO_MESTRE,  [this] (const Entidade* entidade) {
+      return !opcoes_.iluminacao_mestre_igual_jogadores();
     } },
     // Ataque.
     { CONTROLE_ATAQUE_MAIS_1,      [this] (const Entidade* entidade) {
