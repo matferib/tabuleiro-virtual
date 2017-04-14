@@ -31,6 +31,7 @@
 #include "ifg/qt/visualizador3d.h"
 #include "ifg/tecladomouse.h"
 #include "log/log.h"
+#include "m3d/m3d.h"
 #include "net/util.h"
 #include "ntf/notificacao.pb.h"
 #include "tex/texturas.h"
@@ -260,8 +261,8 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
     std::sort(modelos.begin(), modelos.end());
     return modelos;
   };
-  std::vector<std::string> modelos_3d = Ordena(arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d));
-  std::vector<std::string> modelos_3d_baixados = Ordena((arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d)));
+  std::vector<std::string> modelos_3d = Ordena(m3d::Modelos3d::ModelosDisponiveis(true  /*global*/));
+  std::vector<std::string> modelos_3d_baixados = Ordena(m3d::Modelos3d::ModelosDisponiveis(false  /*global*/));
 
   AdicionaSeparador(combo_modelos_3d->tr("Globais"), combo_modelos_3d);
   for (const std::string& modelo_3d : modelos_3d) {

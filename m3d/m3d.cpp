@@ -46,6 +46,16 @@ void LeModelo3d(const std::string& nome_arquivo, ntf::Notificacao* n) {
 
 }  // namespace
 
+std::vector<std::string> Modelos3d::ModelosDisponiveis(bool global) {
+  if (global) {
+    std::vector<std::string> ret = arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d);
+    ret.push_back("builtin:esfera");
+    return ret;
+  } else {
+    return arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d);
+  }
+}
+
 struct Modelos3d::Interno {
   std::unordered_map<std::string, Modelo3d> modelos;
 };
@@ -176,27 +186,43 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
   }
   // Ja cria, mesmo que invalido para evitar ficar lendo toda hora se der erro.
   interno_->modelos[id_interno].contador = 1;
-  std::string nome_arquivo = id_interno + ".binproto";
   ntf::Notificacao n;
-  try {
-    LeModelo3d(nome_arquivo, &n);
-  } catch (...) {
-    return;
-  }
-  if (n.tabuleiro().entidade_size() == 0) {
-    LOG(ERROR) << "Falha abrindo arquivo, nao ha entidades";
-    return;
-  }
-  n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
-  n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
-  VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
-  VLOG(2) << n.DebugString();
-  // Extrai com mundo, por causa da escala. A posicao XY ja foi limpa.
-  interno_->modelos[id_interno].vbos_nao_gravados =
-      ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance(), true  /*mundo*/);
+  if (id_interno.find("builtin:") == 0) {
+    VLOG(1) << "Carregando builtin " << id_interno;
+    gl::VboNaoGravado vbo_nao_gravado;
+    if (id_interno == "builtin:esfera") {
+      vbo_nao_gravado = gl::VboEsferaSolida(0.75f, 6, 6);
+    } else {
+      LOG(ERROR) << "modelo desconhecido: " << id_interno;
+      return;
+    }
+    vbo_nao_gravado.AtribuiCor(1.0f, 1.0f, 1.0f, 1.0f);
+    interno_->modelos[id_interno].vbos_nao_gravados = std::move(vbo_nao_gravado);
 #if !VBO_COM_MODELAGEM
-  interno_->modelos[id_interno].vbos_gravados.Grava(interno_->modelos[id_interno].vbos_nao_gravados);
+    interno_->modelos[id_interno].vbos_gravados.Grava(interno_->modelos[id_interno].vbos_nao_gravados);
 #endif
+  } else {
+    try {
+      std::string nome_arquivo = id_interno + ".binproto";
+      VLOG(1) << "Carregando modelo 3d " << id_interno << " (" << nome_arquivo << ")";
+      LeModelo3d(nome_arquivo, &n);
+      if (n.tabuleiro().entidade_size() == 0) {
+        LOG(ERROR) << "Falha abrindo arquivo, nao ha entidades";
+        return;
+      }
+      n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_x();
+      n.mutable_tabuleiro()->mutable_entidade(0)->mutable_pos()->clear_y();
+      VLOG(2) << n.DebugString();
+      // Extrai com mundo, por causa da escala. A posicao XY ja foi limpa.
+      interno_->modelos[id_interno].vbos_nao_gravados =
+        ent::Entidade::ExtraiVbo(n.tabuleiro().entidade(0), &ent::ParametrosDesenho::default_instance(), true  /*mundo*/);
+#if !VBO_COM_MODELAGEM
+      interno_->modelos[id_interno].vbos_gravados.Grava(interno_->modelos[id_interno].vbos_nao_gravados);
+#endif
+    } catch (...) {
+      return;
+    }
+  }
 }
 
 void Modelos3d::DescarregaModelo3d(const std::string& id_interno) {
