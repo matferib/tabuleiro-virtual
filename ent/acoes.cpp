@@ -114,7 +114,8 @@ gl::VboGravado AcaoSinalizacao::vbo_;
 // TODO fonte maior?
 class AcaoDeltaPontosVida : public Acao {
  public:
-  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas) : Acao(acao_proto, tabuleiro, texturas) {
+  AcaoDeltaPontosVida(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas)
+      : Acao(acao_proto, tabuleiro, texturas) {
     Entidade* entidade_destino = nullptr;
     if (!acao_proto_.has_pos_entidade()) {
       if (acao_proto_.id_entidade_destino_size() == 0 ||
@@ -170,9 +171,13 @@ class AcaoDeltaPontosVida : public Acao {
     if (!pd->desenha_detalhes()) {
       return;
     }
+    gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
     gl::MatrizEscopo salva_matriz;
     gl::Translada(pos_.x(), pos_.y(), pos_.z());
-    if (acao_proto_.delta_pontos_vida() > 0) {
+    if (acao_proto_.has_cor()) {
+      const float cor[] = { acao_proto_.cor().r(), acao_proto_.cor().g(), acao_proto_.cor().b() };
+      MudaCorAplicandoNevoa(cor, pd);
+    } else if (acao_proto_.delta_pontos_vida() > 0) {
       MudaCorAplicandoNevoa(COR_VERDE, pd);
     } else if (acao_proto_.delta_pontos_vida() == 0) {
       MudaCorAplicandoNevoa(COR_BRANCA, pd);
