@@ -102,6 +102,7 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho*
 }
 
 void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
+  std::unique_ptr<gl::DesabilitaEscopo> ignora_luz(proto.ignora_luz() ? new gl::DesabilitaEscopo(GL_LIGHTING) : nullptr);
   switch (proto.tipo()) {
     case TE_ENTIDADE:
       DesenhaObjetoEntidadeProto(proto, vd, pd);

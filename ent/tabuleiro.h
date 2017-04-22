@@ -831,9 +831,13 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
-  bool AtualizaBotaoControleVirtual(DadosBotao* db, const std::map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
+  bool AtualizaBotaoControleVirtual(
+      DadosBotao* db,
+      const std::unordered_map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
   /** Alguns botoes ficam invisiveis em algumas situacoes, por exemplo, ataque automatico. */
   bool BotaoVisivel(const DadosBotao& db) const;
+  /** Caso o botao tenha um estado associado (como uma variavel booleana), retorna. Caso contrario, retorna false. */
+  bool EstadoBotao(IdBotao id_botao) const;
 
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
@@ -1118,7 +1122,10 @@ class Tabuleiro : public ntf::Receptor {
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
 
+  // Variaveis de estado de alguns botoes.
   bool modo_dano_automatico_ = false;
+  bool bonus_dano_negativo_ = false;
+  bool bonus_ataque_negativo_ = false;
 
   gl::VbosGravados vbos_tabuleiro_;
   gl::VbosGravados vbos_grade_;

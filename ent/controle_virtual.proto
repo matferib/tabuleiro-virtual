@@ -108,6 +108,8 @@ enum IdBotao {
   CONTROLE_DANO_MENOS_4 = 106;
   CONTROLE_DANO_MENOS_8 = 107;
   CONTROLE_ILUMINACAO_MESTRE = 108;
+  CONTROLE_BONUS_ATAQUE_NEGATIVO = 109;
+  CONTROLE_BONUS_DANO_NEGATIVO = 110;
 
   // Acoes devem ser consecutivas sempre.
   CONTROLE_ACAO_SINALIZACAO = 200;
@@ -133,6 +135,22 @@ enum FormaBotao {
   FORMA_NULA      = 4;  // Botoes sem forma, apenas rotulo.
 }
 
+enum TipoVisibilidade {
+  // A visibilidade do botao é igual ao do id de referencia.
+  VIS_IGUAL_A = 0;
+  // A visibilidade do botao é inversa ao id de referencia.
+  VIS_INVERSO_DE = 1;
+}
+
+message Visibilidade {
+  message Referencia {
+    optional TipoVisibilidade tipo = 1;
+    optional IdBotao id = 2;
+  }
+  // A operacao sera um AND das referencias.
+  repeated Referencia referencia = 1;
+}
+
 message DadosBotao {
   // Tamanho do botao. Ha uma unidade ficticia que eh computada de acordo com a resolucao. O tamanho 1 ocupa
   // uma unidade, o 2 ocupa 4 (2x2). O valor em x e y eh diferente.
@@ -156,7 +174,7 @@ message DadosBotao {
   optional uint32 id_textura = 20;
   // Identifica o que o botao faz, ver IdBotao.
   optional IdBotao id = 10;
-  // Forma do botao. 
+  // Forma do botao. Use FORMA_NULA para botoes de label apenas.
   optional FormaBotao forma = 11;
   // Rotacao do botao.
   optional float rotacao_graus = 12;
@@ -173,6 +191,8 @@ message DadosBotao {
   // Alinhamento do botao.
   optional Alinhamento alinhamento_horizontal = 18 [default=ALINHAMENTO_ESQUERDA];
   optional Alinhamento alinhamento_vertical = 19 [default=ALINHAMENTO_BAIXO];
+  // Alguns botoes sao visiveis apenas em situacoes especificas.
+  optional Visibilidade visibilidade = 21;
 }
 
 // Uma pagina contem varios botoes. As paginas servem para organizar os botoes.

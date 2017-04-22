@@ -243,6 +243,14 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       AlternaDanoAutomatico();
       break;
     }
+    case CONTROLE_BONUS_ATAQUE_NEGATIVO: {
+      bonus_ataque_negativo_ = !bonus_ataque_negativo_;
+      break;
+    }
+    case CONTROLE_BONUS_DANO_NEGATIVO: {
+      bonus_dano_negativo_ = !bonus_dano_negativo_;
+      break;
+    }
     case CONTROLE_TRANSICAO:
       AlternaModoTransicao();
       break;
@@ -600,7 +608,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
 }
 
 bool Tabuleiro::AtualizaBotaoControleVirtual(
-    DadosBotao* db, const std::map<int, std::function<bool(const Entidade* entidade)>>& mapa_botoes, const Entidade* entidade) {
+    DadosBotao* db, const std::unordered_map<int, std::function<bool(const Entidade* entidade)>>& mapa_botoes, const Entidade* entidade) {
   if (!db->textura().empty() && !db->has_id_textura()) {
     unsigned int id_tex = texturas_->Textura(db->textura());
     if (id_tex != GL_INVALID_VALUE) {
@@ -793,29 +801,32 @@ void Tabuleiro::DesenhaBotaoControleVirtual(
   }
 }
 
-bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
-  switch (db.id()) {
-    case CONTROLE_ALTERNA_CURA:
-    case CONTROLE_ADICIONA_1:
-    case CONTROLE_ADICIONA_5:
-    case CONTROLE_ADICIONA_10:
-    case CONTROLE_CONFIRMA_DANO:
-    case CONTROLE_APAGA_DANO:
-      return !modo_dano_automatico_;
-    case CONTROLE_DANO_MAIS_1:
-    case CONTROLE_DANO_MAIS_2:
-    case CONTROLE_DANO_MAIS_4:
-    case CONTROLE_DANO_MAIS_8:
-    case CONTROLE_DANO_MAIS_16:
-    case CONTROLE_DANO_MAIS_32:
-    case CONTROLE_DANO_MENOS_1:
-    case CONTROLE_DANO_MENOS_2:
-    case CONTROLE_DANO_MENOS_4:
-    case CONTROLE_DANO_MENOS_8:
+bool Tabuleiro::EstadoBotao(IdBotao id) const {
+  switch (id) {
+    case CONTROLE_DANO_AUTOMATICO:
       return modo_dano_automatico_;
+    case CONTROLE_BONUS_ATAQUE_NEGATIVO:
+      return bonus_ataque_negativo_;
+    case CONTROLE_BONUS_DANO_NEGATIVO:
+      return bonus_dano_negativo_;
     default:
-      return true;
+      return false;
   }
+}
+
+bool Tabuleiro::BotaoVisivel(const DadosBotao& db) const {
+  if (db.has_visibilidade()) {
+    for (const auto& ref : db.visibilidade().referencia()) {
+      bool parcial = EstadoBotao(ref.id());
+      if (ref.tipo() == VIS_INVERSO_DE) {
+        parcial = !parcial;
+      }
+      if (!parcial) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
@@ -1024,7 +1035,7 @@ void Tabuleiro::DesenhaControleVirtual() {
   const float padding = parametros_desenho_.has_picking_x() ? 0 : fonte_x / 4;
 
   // Mapeia id do botao para a funcao de estado.
-  static const std::map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
+  static const std::unordered_map<int, std::function<bool(const Entidade* entidade)>> mapa_botoes = {
     { CONTROLE_ACAO,              [this] (const Entidade* entidade) { return modo_clique_ != MODO_NORMAL; } },
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
@@ -1153,6 +1164,12 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_DANO_AUTOMATICO, [this] (const Entidade* entidade) {
       return modo_dano_automatico_;
     }, },
+    { CONTROLE_BONUS_ATAQUE_NEGATIVO, [this] (const Entidade* entidade) {
+      return bonus_ataque_negativo_;
+    }, },
+    { CONTROLE_BONUS_DANO_NEGATIVO, [this] (const Entidade* entidade) {
+      return bonus_dano_negativo_;
+    }, },
   };
 
   GLint viewport[4];
@@ -1164,6 +1181,7 @@ void Tabuleiro::DesenhaControleVirtual() {
     if (pagina_corrente < 0 || pagina_corrente >= controle_virtual_.pagina_size()) {
       return;
     }
+    // Todos botoes, mapeados por id.
     std::vector<DadosBotao*> botoes;
     botoes.reserve(controle_virtual_.pagina(pagina_corrente).dados_botoes_size() + controle_virtual_.fixo().dados_botoes_size());
     for (auto& db : *controle_virtual_.mutable_pagina(pagina_corrente)->mutable_dados_botoes()) {

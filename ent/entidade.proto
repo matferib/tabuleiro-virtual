@@ -202,6 +202,7 @@ message EntidadeProto {
   optional bool apoiada = 50 [default=true];
   // Indica que a entidade esta espiando de um lado ou do outro. -1 esquerda, 1 direita.
   optional int32 espiando = 58;
+  optional bool ignora_luz = 75;
 
   // TODO implementar as coisas de surpresa.
   optional bool surpreso = 64;
