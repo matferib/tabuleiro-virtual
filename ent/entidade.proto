@@ -99,6 +99,13 @@ message InfoTextura {
   optional int32 modo_textura = 17;
 }
 
+// A escala nos tres eixos.
+message Escala {
+  optional float x = 1 [default=1.0];
+  optional float y = 2 [default=1.0];
+  optional float z = 3 [default=1.0];
+}
+
 message Modelo3d {
   // Identificador do modelo 3d.
   optional string id = 1;
@@ -106,14 +113,10 @@ message Modelo3d {
   optional bytes bits_crus = 6;
   // Translacao do modelo 3d.
   optional Posicao translacao = 7;
+  // Escala aplicada, apos translacao.
+  optional Escala escala = 8;
 }
 
-// A escala nos tres eixos.
-message Escala {
-  optional float x = 1 [default=1.0];
-  optional float y = 2 [default=1.0];
-  optional float z = 3 [default=1.0];
-}
 
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -202,7 +205,10 @@ message EntidadeProto {
   optional bool apoiada = 50 [default=true];
   // Indica que a entidade esta espiando de um lado ou do outro. -1 esquerda, 1 direita.
   optional int32 espiando = 58;
+  // Se verdadeiro, desligara luz para desenho.
   optional bool ignora_luz = 75;
+  // Se verdadeiro, desligara backface culling.
+  optional bool dois_lados = 76;
 
   // TODO implementar as coisas de surpresa.
   optional bool surpreso = 64;
