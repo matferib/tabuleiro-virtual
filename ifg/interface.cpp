@@ -163,7 +163,9 @@ void InterfaceGrafica::TrataEscolherModeloEntidade(const ntf::Notificacao& notif
   tabuleiro_->DesativaWatchdogSeMestre();
   const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
   const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
-  const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
+  const char* ARQUIVO_MENU_MODELOS_FEITICOS = "menumodelosfeiticos.asciiproto";
+  const std::string arquivos_menu_modelos[] = {
+      ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD, ARQUIVO_MENU_MODELOS_FEITICOS };
   std::vector<ent::EntidadeProto*> entidades;
   MenuModelos menu_modelos_proto;
   for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
@@ -173,8 +175,7 @@ void InterfaceGrafica::TrataEscolherModeloEntidade(const ntf::Notificacao& notif
       MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
     } catch (const std::logic_error& erro) {
       LOG(ERROR) << erro.what();
-      VoltaEscolherModeloEntidade("");
-      return;
+      continue;
     }
   }
   EscolheModeloEntidade(
