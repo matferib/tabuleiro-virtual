@@ -147,6 +147,12 @@ void VbosNaoGravados::Multiplica(const Matrix4& m) {
   }
 }
 
+void VbosNaoGravados::AtribuiCor(float r, float g, float b, float a) {
+  for (auto& vbo : vbos_) {
+    vbo.AtribuiCor(r, g, b, a);
+  }
+}
+
 void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
   if (vbos_.empty()) {
     vbos_.emplace_back(rhs);
