@@ -827,10 +827,10 @@ bool FiltroModelo3d(const std::string& nome) {
 bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd, const Cor& cor) const {
   float rgb[3] = { 1.0f, 1.0f, 1.0f};
   bool misturar_cor_raiz = false;
-  if (cor.has_r() && (cor.r() < 1.0f || cor.g() < 1.0f || cor.b() < 1.0f)) {
-    rgb[0] = cor.r();
-    rgb[1] = cor.g();
-    rgb[2] = cor.b();
+  if (cor.has_r() || cor.has_g() || cor.has_b()) {
+    rgb[0] = cor.has_r() ? cor.r() : 1.0f;
+    rgb[1] = cor.has_g() ? cor.g() : 1.0f;
+    rgb[2] = cor.has_b() ? cor.b() : 1.0f;
     misturar_cor_raiz = true;
   }
   if (pd->has_picking_x()) {
@@ -838,8 +838,16 @@ bool AlteraBlendEscopo::AlteraBlendEntidadeComposta(const ParametrosDesenho* pd,
     return false;
   } else if (pd->has_alfa_translucidos()) {
     // Blend ja ta ligado.
-    gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
-    gl::CorMistura(rgb[0], rgb[1], rgb[2], cor.a() < 1.0f ? cor.a() : pd->alfa_translucidos());
+    float a = cor.a() < 1.0f ? cor.a() : pd->alfa_translucidos();
+    if (misturar_cor_raiz) {
+      // realiza a mistura na mao da cor fonte na cor de mistura. A cor de destino escala pelo alfa normalmente.
+      gl::FuncaoMistura(GL_CONSTANT_COLOR, GL_ONE_MINUS_CONSTANT_ALPHA);
+      gl::CorMistura(rgb[0] * a, rgb[1] * a, rgb[2] * a, a);
+    } else {
+      // A cor fonte eh afetada apenas pelo alfa.
+      gl::FuncaoMistura(GL_CONSTANT_ALPHA, GL_ONE_MINUS_CONSTANT_ALPHA);
+      gl::CorMistura(rgb[0], rgb[1], rgb[2], a);
+    }
     return true;
   } else if (pd->entidade_selecionada()) {
     // Ignora a cor de destino (que ja esta la) e escurence a cor fonte (sendo escrita).
