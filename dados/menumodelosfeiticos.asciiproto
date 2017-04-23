@@ -1,3 +1,5 @@
 # Este arquivo é uma representação texto do proto ifg::MenuModelos.
+modelo { id: 'Arma Espiritual' }
 modelo { id: 'Esfera Flamejante' }
 modelo { id: 'Tentáculos Negros' }
+modelo { id: 'Tempestade Glacial' }
