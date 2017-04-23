@@ -1061,6 +1061,11 @@ Matrix4 Entidade::MontaMatrizModelagem(
     const auto& t = proto.modelo_3d().translacao();
     matrix.translate(t.x(), t.y(), t.z());
   }
+  if (proto.modelo_3d().has_escala()) {
+    const auto& e = proto.modelo_3d().escala();
+    matrix.scale(e.x(), e.y(), e.z());
+  }
+
   if (pd != nullptr && pd->has_translacao_efeito()) {
     const auto& te = pd->translacao_efeito();
     matrix.translate(te.x(), te.y(), te.z());
