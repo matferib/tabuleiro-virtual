@@ -50,6 +50,7 @@ std::vector<std::string> Modelos3d::ModelosDisponiveis(bool global) {
   if (global) {
     std::vector<std::string> ret = arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D, ent::FiltroModelo3d);
     ret.push_back("builtin:esfera");
+    ret.push_back("builtin:cilindro");
     return ret;
   } else {
     return arq::ConteudoDiretorio(arq::TIPO_MODELOS_3D_BAIXADOS, ent::FiltroModelo3d);
@@ -191,7 +192,9 @@ void Modelos3d::CarregaModelo3d(const std::string& id_interno) {
     VLOG(1) << "Carregando builtin " << id_interno;
     gl::VboNaoGravado vbo_nao_gravado;
     if (id_interno == "builtin:esfera") {
-      vbo_nao_gravado = gl::VboEsferaSolida(0.75f, 6, 6);
+      vbo_nao_gravado = gl::VboEsferaSolida(0.75f, 12, 12);
+    } else if (id_interno == "builtin:cilindro") {
+      vbo_nao_gravado = gl::VboCilindroSolido(0.75f, 1.0f, 12, 1);
     } else {
       LOG(ERROR) << "modelo desconhecido: " << id_interno;
       return;
