@@ -984,6 +984,98 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, ent::En
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
 }
 
+// Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela.
+void AdicionaOuEditaNivel(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  int indice = gerador.lista_niveis->currentRow();
+  ent::InfoClasse* info_classe = (indice < 0 || indice >= proto_retornado->info_classes().size())
+      ? proto_retornado->add_info_classes() : proto_retornado->mutable_info_classes(indice);
+  info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
+  info_classe->set_nivel(gerador.spin_nivel_classe->value());
+  info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
+}
+
+void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+  auto AtualizaNivelTotal = [&gerador, proto_retornado] () {
+    int total = 0;
+    for (const auto& info_classe : proto_retornado->info_classes()) {
+      total += info_classe.nivel();
+    }
+    gerador.linha_nivel->setText(QString::number(total));
+  };
+  auto RefrescaNiveis = [&gerador, proto_retornado, AtualizaNivelTotal] () {
+    gerador.lista_niveis->clear();
+    for (const auto& info_classe : proto_retornado->info_classes()) {
+      std::string string_nivel = "classe: ";
+      string_nivel += info_classe.id() + ", nível: " + net::to_string(info_classe.nivel());
+      if (info_classe.nivel_conjurador() > 0) {
+        string_nivel += ", conjurador: " + net::to_string(info_classe.nivel_conjurador());
+      }
+      gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
+    }
+    AtualizaNivelTotal();
+  };
+  RefrescaNiveis();
+
+  auto EditaRefrescaNiveis = [&gerador, proto_retornado, RefrescaNiveis] () {
+    int indice_antes = gerador.lista_niveis->currentRow();
+    if (indice_antes < 0 || indice_antes >= proto_retornado->info_classes().size()) {
+      return;
+    }
+    AdicionaOuEditaNivel(gerador, proto_retornado);
+    RefrescaNiveis();
+    if (indice_antes < proto_retornado->info_classes().size()) {
+      gerador.lista_niveis->setCurrentRow(indice_antes);
+    } else {
+      gerador.lista_niveis->setCurrentRow(-1);
+    }
+  };
+
+  lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&gerador, proto_retornado] () {
+    std::vector<QObject*> objs =
+        {gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe};
+    for (auto* obj : objs) obj->blockSignals(true);
+    if (gerador.lista_niveis->currentRow() == -1 ||
+        gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
+      gerador.botao_remover_nivel->setEnabled(false);
+    } else {
+      gerador.botao_remover_nivel->setEnabled(true);
+      const auto& info_classe = proto_retornado->info_classes(gerador.lista_niveis->currentRow());
+      gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
+      gerador.spin_nivel_classe->setValue(info_classe.nivel());
+      gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
+      for (auto* obj : objs) obj->blockSignals(false);
+    }
+  });
+  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [RefrescaNiveis, &gerador, proto_retornado] () {
+    auto* info_classe = proto_retornado->mutable_info_classes()->Add();
+    if (gerador.lista_niveis->currentRow() < 0 ||
+        gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
+      // So usa os campos se for um novo nivel.
+      info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
+      info_classe->set_nivel(gerador.spin_nivel_classe->value());
+      info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
+    }
+    RefrescaNiveis();
+    gerador.lista_niveis->setCurrentRow(proto_retornado->info_classes().size() - 1);
+  });
+
+  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [RefrescaNiveis, &gerador, proto_retornado] () {
+    if (gerador.lista_niveis->currentRow() == -1 ||
+        gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
+      return;
+    }
+    proto_retornado->mutable_info_classes()->DeleteSubrange(gerador.lista_niveis->currentRow(), 1);
+    gerador.linha_classe->clear();
+    gerador.spin_nivel_classe->clear();
+    gerador.spin_nivel_conjurador->clear();
+    RefrescaNiveis();
+  });
+  // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals).
+  lambda_connect(gerador.linha_classe, SIGNAL(textEdited(const QString&)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
+  lambda_connect(gerador.spin_nivel_classe, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
+  lambda_connect(gerador.spin_nivel_conjurador, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
+}
+
 }  // namespace
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
@@ -1135,6 +1227,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Dados de ataque.
   PreencheConfiguraDadosAtaque(gerador, proto_retornado);
+
+  // Preenche configura niveis.
+  PreencheConfiguraNiveis(gerador, proto_retornado);
+
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
     proto_retornado->mutable_direcao_queda()->CopyFrom(entidade.direcao_queda());
@@ -1218,6 +1314,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
         gerador.linha_dano->text().size() > 0) {
       AdicionaOuAtualizaAtaqueEntidade(gerador, proto_retornado);
     }
+    AdicionaOuEditaNivel(gerador, proto_retornado);
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 

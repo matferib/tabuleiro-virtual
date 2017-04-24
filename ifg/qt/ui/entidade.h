@@ -142,15 +142,15 @@ public:
     QWidget *horizontalLayoutWidget_5;
     QHBoxLayout *horizontalLayout_31;
     QLabel *label_39;
-    QLineEdit *campo_id_2;
+    QLineEdit *linha_nivel;
     QLabel *label_40;
     QLabel *label_41;
     QSpinBox *spin_nivel_classe;
     QLineEdit *linha_classe;
     QLabel *label_42;
-    QSpinBox *spin_conjurador;
+    QSpinBox *spin_nivel_conjurador;
     QPushButton *botao_adicionar_nivel;
-    QListWidget *lista_ataques_2;
+    QListWidget *lista_niveis;
     QPushButton *botao_remover_nivel;
     QWidget *tab_estatisticas;
     QWidget *layoutWidget_3;
@@ -779,11 +779,11 @@ public:
 
         horizontalLayout_31->addWidget(label_39, 0, Qt::AlignRight);
 
-        campo_id_2 = new QLineEdit(horizontalLayoutWidget_5);
-        campo_id_2->setObjectName(QString::fromUtf8("campo_id_2"));
-        campo_id_2->setReadOnly(true);
+        linha_nivel = new QLineEdit(horizontalLayoutWidget_5);
+        linha_nivel->setObjectName(QString::fromUtf8("linha_nivel"));
+        linha_nivel->setReadOnly(true);
 
-        horizontalLayout_31->addWidget(campo_id_2, 0, Qt::AlignLeft);
+        horizontalLayout_31->addWidget(linha_nivel, 0, Qt::AlignLeft);
 
         label_40 = new QLabel(tab_nivel);
         label_40->setObjectName(QString::fromUtf8("label_40"));
@@ -807,17 +807,17 @@ public:
         label_42->setObjectName(QString::fromUtf8("label_42"));
         label_42->setGeometry(QRect(310, 60, 81, 34));
         label_42->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        spin_conjurador = new QSpinBox(tab_nivel);
-        spin_conjurador->setObjectName(QString::fromUtf8("spin_conjurador"));
-        spin_conjurador->setGeometry(QRect(400, 60, 44, 27));
-        spin_conjurador->setMinimum(-1);
+        spin_nivel_conjurador = new QSpinBox(tab_nivel);
+        spin_nivel_conjurador->setObjectName(QString::fromUtf8("spin_nivel_conjurador"));
+        spin_nivel_conjurador->setGeometry(QRect(400, 60, 44, 27));
+        spin_nivel_conjurador->setMinimum(-1);
         botao_adicionar_nivel = new QPushButton(tab_nivel);
         botao_adicionar_nivel->setObjectName(QString::fromUtf8("botao_adicionar_nivel"));
         botao_adicionar_nivel->setEnabled(true);
         botao_adicionar_nivel->setGeometry(QRect(190, 290, 121, 27));
-        lista_ataques_2 = new QListWidget(tab_nivel);
-        lista_ataques_2->setObjectName(QString::fromUtf8("lista_ataques_2"));
-        lista_ataques_2->setGeometry(QRect(10, 100, 451, 181));
+        lista_niveis = new QListWidget(tab_nivel);
+        lista_niveis->setObjectName(QString::fromUtf8("lista_niveis"));
+        lista_niveis->setGeometry(QRect(10, 100, 451, 181));
         botao_remover_nivel = new QPushButton(tab_nivel);
         botao_remover_nivel->setObjectName(QString::fromUtf8("botao_remover_nivel"));
         botao_remover_nivel->setEnabled(false);
@@ -1234,7 +1234,7 @@ public:
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
         label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        campo_id_2->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", 0, QApplication::UnicodeUTF8));
+        linha_nivel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_40->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Classe", 0, QApplication::UnicodeUTF8));
         label_41->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
@@ -1246,7 +1246,7 @@ public:
 #endif // QT_NO_TOOLTIP
         label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", 0, QApplication::UnicodeUTF8));
+        spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", 0, QApplication::UnicodeUTF8));
         botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", 0, QApplication::UnicodeUTF8));

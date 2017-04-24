@@ -1042,7 +1042,7 @@
        </widget>
       </item>
       <item alignment="Qt::AlignLeft">
-       <widget class="QLineEdit" name="campo_id_2">
+       <widget class="QLineEdit" name="linha_nivel">
         <property name="toolTip">
          <string>Nível do Personagem</string>
         </property>
@@ -1139,7 +1139,7 @@
       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
-    <widget class="QSpinBox" name="spin_conjurador">
+    <widget class="QSpinBox" name="spin_nivel_conjurador">
      <property name="geometry">
       <rect>
        <x>400</x>
@@ -1171,7 +1171,7 @@
       <string>Adicionar Nível</string>
      </property>
     </widget>
-    <widget class="QListWidget" name="lista_ataques_2">
+    <widget class="QListWidget" name="lista_niveis">
      <property name="geometry">
       <rect>
        <x>10</x>
