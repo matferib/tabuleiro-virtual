@@ -1058,6 +1058,7 @@ public:
         horizontalLayout_30->addWidget(lista_tesouro);
 
         tab_tesouro->addTab(tab, QString());
+        QWidget::setTabOrder(campo_rotulo, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, spin_pontos_vida);
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
@@ -1075,7 +1076,8 @@ public:
         QWidget::setTabOrder(combo_salvacao, lista_eventos);
         QWidget::setTabOrder(lista_eventos, checkbox_cor);
         QWidget::setTabOrder(checkbox_cor, botao_cor);
-        QWidget::setTabOrder(botao_cor, spin_raio_quad);
+        QWidget::setTabOrder(botao_cor, slider_alfa);
+        QWidget::setTabOrder(slider_alfa, spin_raio_quad);
         QWidget::setTabOrder(spin_raio_quad, botao_luz);
         QWidget::setTabOrder(botao_luz, combo_textura);
         QWidget::setTabOrder(combo_textura, spin_tex_trans_x);
@@ -1083,11 +1085,18 @@ public:
         QWidget::setTabOrder(spin_tex_largura, spin_tex_trans_y);
         QWidget::setTabOrder(spin_tex_trans_y, spin_tex_altura);
         QWidget::setTabOrder(spin_tex_altura, combo_modelos_3d);
-        QWidget::setTabOrder(combo_modelos_3d, tab_tesouro);
-        QWidget::setTabOrder(tab_tesouro, checkbox_iniciativa);
+        QWidget::setTabOrder(combo_modelos_3d, linha_classe);
+        QWidget::setTabOrder(linha_classe, spin_nivel_classe);
+        QWidget::setTabOrder(spin_nivel_classe, spin_nivel_conjurador);
+        QWidget::setTabOrder(spin_nivel_conjurador, lista_niveis);
+        QWidget::setTabOrder(lista_niveis, botao_adicionar_nivel);
+        QWidget::setTabOrder(botao_adicionar_nivel, botao_remover_nivel);
+        QWidget::setTabOrder(botao_remover_nivel, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_modificador_iniciativa);
-        QWidget::setTabOrder(spin_modificador_iniciativa, spin_alcance_quad);
+        QWidget::setTabOrder(spin_modificador_iniciativa, linha_rotulo_ataque);
+        QWidget::setTabOrder(linha_rotulo_ataque, combo_tipo_ataque);
+        QWidget::setTabOrder(combo_tipo_ataque, spin_alcance_quad);
         QWidget::setTabOrder(spin_alcance_quad, spin_incrementos);
         QWidget::setTabOrder(spin_incrementos, spin_ataque);
         QWidget::setTabOrder(spin_ataque, linha_dano);
@@ -1100,7 +1109,12 @@ public:
         QWidget::setTabOrder(botao_ataque_baixo, botao_clonar_ataque);
         QWidget::setTabOrder(botao_clonar_ataque, botao_remover_ataque);
         QWidget::setTabOrder(botao_remover_ataque, checkbox_imune_critico);
-        QWidget::setTabOrder(checkbox_imune_critico, botoes);
+        QWidget::setTabOrder(checkbox_imune_critico, linha_furtivo);
+        QWidget::setTabOrder(linha_furtivo, lista_tesouro);
+        QWidget::setTabOrder(lista_tesouro, botoes);
+        QWidget::setTabOrder(botoes, tab_tesouro);
+        QWidget::setTabOrder(tab_tesouro, campo_id);
+        QWidget::setTabOrder(campo_id, linha_nivel);
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));

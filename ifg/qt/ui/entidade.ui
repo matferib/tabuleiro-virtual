@@ -1722,6 +1722,7 @@
   </widget>
  </widget>
  <tabstops>
+  <tabstop>campo_rotulo</tabstop>
   <tabstop>lista_rotulos</tabstop>
   <tabstop>slider_tamanho</tabstop>
   <tabstop>spin_pontos_vida</tabstop>
@@ -1740,6 +1741,7 @@
   <tabstop>lista_eventos</tabstop>
   <tabstop>checkbox_cor</tabstop>
   <tabstop>botao_cor</tabstop>
+  <tabstop>slider_alfa</tabstop>
   <tabstop>spin_raio_quad</tabstop>
   <tabstop>botao_luz</tabstop>
   <tabstop>combo_textura</tabstop>
@@ -1748,10 +1750,17 @@
   <tabstop>spin_tex_trans_y</tabstop>
   <tabstop>spin_tex_altura</tabstop>
   <tabstop>combo_modelos_3d</tabstop>
-  <tabstop>tab_tesouro</tabstop>
+  <tabstop>linha_classe</tabstop>
+  <tabstop>spin_nivel_classe</tabstop>
+  <tabstop>spin_nivel_conjurador</tabstop>
+  <tabstop>lista_niveis</tabstop>
+  <tabstop>botao_adicionar_nivel</tabstop>
+  <tabstop>botao_remover_nivel</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>spin_modificador_iniciativa</tabstop>
+  <tabstop>linha_rotulo_ataque</tabstop>
+  <tabstop>combo_tipo_ataque</tabstop>
   <tabstop>spin_alcance_quad</tabstop>
   <tabstop>spin_incrementos</tabstop>
   <tabstop>spin_ataque</tabstop>
@@ -1765,7 +1774,12 @@
   <tabstop>botao_clonar_ataque</tabstop>
   <tabstop>botao_remover_ataque</tabstop>
   <tabstop>checkbox_imune_critico</tabstop>
+  <tabstop>linha_furtivo</tabstop>
+  <tabstop>lista_tesouro</tabstop>
   <tabstop>botoes</tabstop>
+  <tabstop>tab_tesouro</tabstop>
+  <tabstop>campo_id</tabstop>
+  <tabstop>linha_nivel</tabstop>
  </tabstops>
  <resources/>
  <connections>
