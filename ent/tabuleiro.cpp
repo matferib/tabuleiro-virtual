@@ -975,7 +975,8 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       }
 #endif
       if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
-        const auto* referencia = BuscaEntidade(IdCameraPresa());
+        // Na pratica so funciona com camera presa porque o duplo clique tira a selecao.
+        const auto* referencia = EntidadeCameraPresaOuSelecionada();
         if (referencia != nullptr) {
           PreencheModeloComParametros(modelo_selecionado_com_parametros_.second->parametros(), *referencia, &modelo);
         }
@@ -6364,6 +6365,14 @@ const Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() const {
   } else {
     return EntidadeSelecionada();
   }
+}
+
+const Entidade* Tabuleiro::EntidadeCameraPresaOuSelecionada() const {
+  const auto* entidade = BuscaEntidade(IdCameraPresa());
+  if (entidade == nullptr) {
+    entidade = EntidadeSelecionada();
+  }
+  return entidade;
 }
 
 const Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() const {

@@ -650,6 +650,8 @@ class Tabuleiro : public ntf::Receptor {
   */
   Entidade* EntidadePrimeiraPessoaOuSelecionada();
   const Entidade* EntidadePrimeiraPessoaOuSelecionada() const;
+  /** Retorna a entidade camera presa ou selecionada, se houver apenas uma. */
+  const Entidade* EntidadeCameraPresaOuSelecionada() const;
   /** Retorna o vetor ou com o id da entidade primeira pessoa, ou das entidades selecionadas se nao for primeira pessoa. */
   std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadas() const;
   /** Retorna o vetor com o id da entidade de primeira pessoa mais as selecionadas. */
@@ -919,7 +921,7 @@ class Tabuleiro : public ntf::Receptor {
   void SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const;
 
   unsigned int IdCameraPresa() const { return ids_camera_presa_.empty() ? Entidade::IdInvalido : ids_camera_presa_.front(); }
-  bool IdPresoACamera(unsigned int id) const { 
+  bool IdPresoACamera(unsigned int id) const {
     return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
   }
 
