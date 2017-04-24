@@ -63,16 +63,6 @@ acao {
   icone: 'icon_touch.png'
 }
 acao {
-  id: 'Feitiço de Toque Sem Defesa'
-  tipo: ACAO_FEITICO_TOQUE
-  geometria: ACAO_GEO_ESFERA
-  escala { x: 0.5 y: 0.5 z: 0.5 }
-  translacao { x: 0 y: -0.3 z: -0.3 }
-  cor { r: 1.0 g: 1.0  b: 0.0 }
-  permite_defesa_armadura: false
-  icone: 'icon_touch.png'
-}
-acao {
   id: 'Fogo Grego'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
