@@ -2460,13 +2460,13 @@ void Tabuleiro::ProximaAcao() {
       // entidade possui acao, usa as dela.
       continue;
     }
-    std::string acao(entidade->Acao(AcoesPadroes()));
-    if (acao.empty()) {
-      acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
+    std::string acao_str(entidade->Acao(mapa_acoes_).id());
+    if (acao_str.empty()) {
+      acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
-    auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao);
+    auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao_str);
     if (it == id_acoes_.end()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
+      LOG(ERROR) << "Id de acao inválido: " << acao_str;
       continue;
     }
     ++it;
@@ -2491,13 +2491,13 @@ void Tabuleiro::AcaoAnterior() {
       // entidade possui acao, usa as dela.
       continue;
     }
-    std::string acao(entidade->Acao(AcoesPadroes()));
-    if (acao.empty()) {
-      acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
+    std::string acao_str(entidade->Acao(mapa_acoes_).id());
+    if (acao_str.empty()) {
+      acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
-    auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao);
+    auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao_str);
     if (it == id_acoes_.rend()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
+      LOG(ERROR) << "Id de acao inválido: " << acao_str;
       continue;
     }
     ++it;
@@ -6046,9 +6046,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       continue;
     }
     if (!achou) {
-      id_acao.assign(entidade->Acao(AcoesPadroes()));
+      id_acao.assign(entidade->Acao(mapa_acoes_).id());
       achou = true;
-    } else if (id_acao != entidade->Acao(AcoesPadroes())) {
+    } else if (id_acao != entidade->Acao(mapa_acoes_).id()) {
       id_acao.assign("acoes diferem");
       break;
     }

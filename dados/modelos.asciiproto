@@ -890,7 +890,15 @@ modelo {
     modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.
     cor { r: 0.6 g: 0.6 b: 1 a: 0.5 }
     dados_ataque {
-      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque Sem Defesa' dano: '2d6+3d6'
+      rotulo: 'Área' tipo_ataque: 'Bola de Fogo' dano: '2d6+3d6'
+      acao {
+        permite_defesa_armadura: false permite_salvacao: false
+        cor { r: 0.6 g: 0.6 b: 1 a: 0.5 }
+        info_textura { id: 'icon_ice.png' }
+      }
+    }
+    dados_ataque {
+      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano: '2d6+3d6' acao { permite_defesa_armadura: false }
     }
     info_textura { id: 'icon_ice.png' }
     faz_sombra: false

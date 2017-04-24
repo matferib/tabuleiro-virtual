@@ -890,14 +890,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
       if (entidade == nullptr || entidade->Tipo() != TE_ENTIDADE) {
         continue;
       }
-      std::string ultima_acao = entidade->Acao(AcoesPadroes()).empty()
-         ? ID_ACAO_ATAQUE_CORPO_A_CORPO : entidade->Acao(AcoesPadroes());
-      auto acao_it = mapa_acoes_.find(ultima_acao);
-      if (acao_it == mapa_acoes_.end()) {
-        LOG(ERROR) << "Acao invalida da entidade: '" << ultima_acao << "'";
+      AcaoProto acao_proto = entidade->Acao(mapa_acoes_);
+      if (!acao_proto.has_tipo()) {
+        LOG(ERROR) << "Acao invalida da entidade";
         continue;
       }
-      AcaoProto acao_proto(*acao_it->second);
       if (id_entidade_destino != Entidade::IdInvalido) {
         acao_proto.add_id_entidade_destino(id_entidade_destino);
       }
@@ -1019,11 +1016,11 @@ void Tabuleiro::TrataBotaoAcaoPressionadoPosPicking(
   if (e == nullptr) {
     return;
   }
-  std::string acao_executada = e->Acao(AcoesPadroes());
-  if (acao_executada.empty() || acao_executada == "Sinalização") {
+  AcaoProto acao_executada = e->Acao(mapa_acoes_);
+  if (!acao_executada.has_tipo() || acao_executada.tipo() == ACAO_SINALIZACAO || acao_executada.id().empty()) {
     return;
   }
-  e->AdicionaAcaoExecutada(acao_executada);
+  e->AdicionaAcaoExecutada(acao_executada.id());
   if (!EmModoMestre() && IdCameraPresa() == e->Id()) {
     // Envia para o mestre as lista de acoes executadas da entidade.
     auto* n = ntf::NovaNotificacao(ntf::TN_ATUALIZAR_PARCIAL_ENTIDADE);

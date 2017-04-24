@@ -873,19 +873,29 @@ bool Entidade::AcaoAnterior() {
   return true;
 }
 
-std::string Entidade::Acao(const std::vector<std::string>& acoes_padroes) const {
+AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
   const auto* da = DadoCorrente();
-  if (da == nullptr) {
-    // Comportamento legado.
-    if (!proto_.ultima_acao().empty()) {
-      return proto_.ultima_acao();
+  auto StringAcao = [this, da] () {
+    if (da == nullptr) {
+      // Entidade nao possui ataques.
+      if (!proto_.ultima_acao().empty()) {
+        return proto_.ultima_acao();
+      }
+      return AcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
     }
-    if (acoes_padroes.empty()) {
-      return "";
-    }
-    return AcaoExecutada(0, acoes_padroes);
+    return da->tipo_ataque();
+  };
+  std::string string_acao = StringAcao();
+  auto it = mapa_acoes.find(string_acao);
+  if (it == mapa_acoes.end()) {
+    return AcaoProto();
   }
-  return da->tipo_ataque();
+  AcaoProto acao = *it->second;
+  if (da != nullptr && da->has_acao()) {
+    // Merge das informacoes dos DadosAtaque.
+    acao.MergeFrom(da->acao());
+  }
+  return acao;
 }
 
 template<class T>

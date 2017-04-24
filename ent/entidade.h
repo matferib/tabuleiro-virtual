@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+#include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
@@ -152,13 +153,14 @@ class Entidade {
   /** Atualiza apenas os campos presentes no proto para a entidade. */
   void AtualizaParcial(const EntidadeProto& proto_parcial);
 
+  using MapaIdAcao = std::unordered_map<std::string, std::unique_ptr<AcaoProto>>;
   // Retorna true se entidade possui acao propria.
   bool AcaoAnterior();
   bool ProximaAcao();
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
   /** Retorna a acao mais recente da entidade. Caso nao haja, retorna a primeira acao padrao. */
-  std::string Acao(const std::vector<std::string>& acoes_padroes) const;
+  AcaoProto Acao(const MapaIdAcao& mapa_acoes) const;
 
   /** Atualiza a acao da entidade para o indice passado. */
   void AdicionaAcaoExecutada(const std::string& id_acao);

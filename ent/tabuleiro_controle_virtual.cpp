@@ -680,14 +680,10 @@ unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entid
     case CONTROLE_ACAO: {
       if (modo_clique_ == MODO_NORMAL || modo_clique_ == MODO_ACAO) {
         unsigned int textura_espada = texturas_->Textura("icon_sword.png");
-        if (entidade == nullptr || entidade->Acao(AcoesPadroes()).empty()) {
+        if (entidade == nullptr) {
           return textura_espada;
         }
-        const auto& it = mapa_acoes_.find(entidade->Acao(AcoesPadroes()));
-        if (it == mapa_acoes_.end()) {
-          return textura_espada;
-        }
-        unsigned int textura = texturas_->Textura(it->second->icone());
+        unsigned int textura = texturas_->Textura(entidade->Acao(mapa_acoes_).icone());
         return textura == GL_INVALID_VALUE ? textura_espada : textura;
       } else {
         auto it = mapa_botoes_controle_virtual_.find(ModoCliqueParaId(modo_clique_, forma_selecionada_));
