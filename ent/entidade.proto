@@ -248,6 +248,7 @@ message EntidadeProto {
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
+    optional bool sem_defesa = 12;    // Se verdadeiro, ataque não permite defesa.
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
