@@ -854,6 +854,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.botao_cor->setStyleSheet(CorParaEstilo(cor));
     ent_cor.mutable_cor()->CopyFrom(CorParaProto(cor));
   });
+  gerador.slider_alfa->setValue(static_cast<int>(ent_cor.cor().a() * 100.0f));
 
   // Cor da luz.
   ent::EntidadeProto luz_cor;
@@ -1142,6 +1143,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     proto_retornado->set_tamanho(static_cast<ent::TamanhoEntidade>(gerador.slider_tamanho->sliderPosition()));
     if (gerador.checkbox_cor->checkState() == Qt::Checked) {
       proto_retornado->mutable_cor()->Swap(ent_cor.mutable_cor());
+      proto_retornado->mutable_cor()->set_a(gerador.slider_alfa->value() / 100.0f);
     } else {
       proto_retornado->clear_cor();
     }

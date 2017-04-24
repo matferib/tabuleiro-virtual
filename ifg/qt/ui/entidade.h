@@ -53,6 +53,7 @@ public:
     QLabel *label_3;
     QCheckBox *checkbox_cor;
     QPushButton *botao_cor;
+    QSlider *slider_alfa;
     QWidget *horizontalLayoutWidget_7;
     QHBoxLayout *horizontalLayout_8;
     QCheckBox *checkbox_selecionavel;
@@ -259,6 +260,15 @@ public:
         botao_cor->setObjectName(QString::fromUtf8("botao_cor"));
 
         horizontalLayout_2->addWidget(botao_cor);
+
+        slider_alfa = new QSlider(horizontalLayoutWidget_2);
+        slider_alfa->setObjectName(QString::fromUtf8("slider_alfa"));
+        sizePolicy1.setHeightForWidth(slider_alfa->sizePolicy().hasHeightForWidth());
+        slider_alfa->setSizePolicy(sizePolicy1);
+        slider_alfa->setMaximum(100);
+        slider_alfa->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_2->addWidget(slider_alfa);
 
         horizontalLayoutWidget_7 = new QWidget(tab_geral);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
