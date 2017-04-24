@@ -1,5 +1,6 @@
 package ent;
 
+import "ent/aux.proto";
 import "ent/entidade.proto";
 
 enum IdBotao {

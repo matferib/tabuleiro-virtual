@@ -1,5 +1,5 @@
 // Tudo relacionado as acoes que os jogadores podem realizar.
-import "ent/entidade.proto";
+import "ent/aux.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";

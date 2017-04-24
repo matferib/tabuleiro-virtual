@@ -1,3 +1,6 @@
+import "ent/acoes.proto";
+import "ent/aux.proto";
+
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
 
@@ -38,85 +41,6 @@ enum ResultadoSalvacao {
   RS_QUARTO = 2;
   RS_ANULOU = 3;
 }
-
-enum TipoVisao {
-  VISAO_NORMAL = 0;
-  VISAO_BAIXA_LUMINOSIDADE = 1;
-  VISAO_ESCURO = 2;
-}
-
-// Tambem usado como vetor.
-message Posicao {
-  optional float x = 3;
-  optional float y = 4;
-  optional float z = 5;
-  optional int32 id_cenario = 6 [default=-1];
-}
-
-message Cor {
-  optional float r = 1 [default=0.0];
-  optional float g = 2 [default=0.0];
-  optional float b = 3 [default=0.0];
-  optional float a = 4 [default=1.0];
-}
-
-message IluminacaoPontual {
-  optional Cor cor = 1;
-  // Metros. Passar para quadrados.
-  optional float raio_m = 2;
-  optional float atenuacao = 3 [deprecated=true];
-}
-
-message Nevoa {
-  optional float minimo = 1;
-  optional float maximo = 2;
-  optional Posicao referencia = 3;  // coordenadas da camera.
-  optional Cor cor = 4;
-}
-
-message InfoTextura {
-  // Identificador da textura. Normalmente o nome do arquivo. Para mapeamento de cubo, sera adicionado
-  // pos{xyz} e neg{xyz} apos o nome.
-  optional string id = 1;
-  // Os valores sao relativos a 1.0. 1.0 x 1.0 eh quadrado.
-  optional float largura = 13 [default = 1.0];
-  optional float altura = 14 [default = 1.0];
-  // Se presente, realiza translacao das coordenadas de textura apos a escala.
-  optional float translacao_x = 15 [default = 0.0];
-  optional float translacao_y = 16 [default = 0.0];
-  // Para texturas de mapeamento de cubo.
-  optional bool textura_cubo = 2;
-  // Os bits da texturas lidos de forma crua do arquivo, ainda nao processado. Util para enviar texturas ou armazenar texturas locais
-  // dentro de tabuleiros.
-  optional bytes bits_crus = 6;
-  optional bytes bits_crus_posx = 7;
-  optional bytes bits_crus_posy = 8;
-  optional bytes bits_crus_posz = 9;
-  optional bytes bits_crus_negx = 10;
-  optional bytes bits_crus_negy = 11;
-  optional bytes bits_crus_negz = 12;
-  // Um dos valores GL_REPEAT, GL_MIRRERED_REPEAT, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_BORDER.
-  optional int32 modo_textura = 17;
-}
-
-// A escala nos tres eixos.
-message Escala {
-  optional float x = 1 [default=1.0];
-  optional float y = 2 [default=1.0];
-  optional float z = 3 [default=1.0];
-}
-
-message Modelo3d {
-  // Identificador do modelo 3d.
-  optional string id = 1;
-  // Para transmissao. Bits do arquivo de modelo.
-  optional bytes bits_crus = 6;
-  // Translacao do modelo 3d.
-  optional Posicao translacao = 7;
-  // Escala aplicada, apos translacao.
-  optional Escala escala = 8;
-}
-
 
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
@@ -248,7 +172,7 @@ message EntidadeProto {
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
-    optional bool sem_defesa = 12;    // Se verdadeiro, ataque não permite defesa.
+    optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
@@ -297,131 +221,3 @@ message EntidadeProto {
   // Algumas entidades tem varias formas.
   repeated EntidadeProto outras_formas = 60;
 }
-
-message Projecao {
-  optional int32 tipo_camera = 1;
-  optional float plano_corte_proximo_m = 2;
-  optional float plano_corte_distante_m = 3;
-  optional float campo_visao_vertical_graus = 4;
-  optional float razao_aspecto = 5;
-  optional float largura_m = 6;
-  optional float altura_m = 7;
-}
-
-// Alguns estados são mantidos nesta variável.
-message ParametrosDesenho {
-  // Identificador da proxima luz dinamica usada. A luz zero é usado para iluminação ambiente direcional.
-  optional int32 luz_corrente = 1 [default=1];
-  // OpenGL permite até 8 luzes simultaneas.
-  optional int32 max_num_luzes = 2 [default=8];
-  // Usado para fazer sliding: a gente cria um plano na altura do click inicial para fazer o movimento
-  // paralelo ao plano XY.
-  optional float offset_terreno = 3 [default=0];
-  // Coordenadas de picking. A presenca de qualquer um destes campos indica picking.
-  optional int32 picking_x = 28;
-  optional int32 picking_y = 29;
-  // Verdadeiro quando se esta desenhando a entidade selecionada.
-  optional bool entidade_selecionada = 4 [default=false];
-  // Verdadeiro quando se quer desenhar as luzes.
-  optional bool iluminacao = 5 [default=true];
-  // Verdadeiro quando se quer desenhar as entidades e as formas.
-  optional bool desenha_entidades = 6 [default=true];
-  optional bool desenha_terreno = 47 [default=true];
-  // Uteis para mapa oclusao que ignora transparencias e selecionaveis.
-  optional bool nao_desenha_entidades_translucidas = 42 [default=false];
-  optional bool nao_desenha_entidades_selecionaveis = 43 [default=false];
-  optional bool nao_desenha_entidades_fixas = 44 [default=false];
-  // Essas entidades normalmente sao decorativas, entao ha casos onde eh interessante nao desenha-las para
-  // o picking funcionar atraves dela (exemplo, agua).
-  optional bool nao_desenha_entidades_fixas_translucidas = 59 [default=false];
-
-  optional bool desenha_apenas_entidades_colisivas = 48 [default=false];
-  // Verdadeiro para desenhar texturas.
-  optional bool desenha_texturas = 7 [default=true];
-  // Desenha a grade do tabuleiro.
-  optional bool desenha_grade = 8 [default=true];
-  // Desenha a aura das entidades.
-  optional bool desenha_aura = 9 [default=true];
-  // Desenha o indicador de FPS.
-  optional bool desenha_fps = 10 [default=false];
-  // Operacao de limpeza eh cara, alguns modos nao precisam dela.
-  optional bool limpa_fundo = 11 [default=true];
-  // Usar transparencia.
-  optional bool transparencias = 12 [default=true];
-  // Desenhar sombras.
-  optional bool desenha_sombras = 13 [default=true];
-  optional bool desenha_mapa_sombras = 45 [default=false];  // quando verdadeiro, estara desenhando mapa de sombras.
-  optional int32 desenha_mapa_oclusao = 46 [default=0];  // o valor indica qual face do mapa, de [0 a 5]. Ausencia significa nao eh pra desenhar nenhuma das faces.
-  optional bool desenha_log_eventos = 58;
-  // Modo de desenho.
-  optional bool modo_mestre = 14 [default=true];
-  // Alfa para translucidos.
-  optional float alfa_translucidos = 15 [default=0.5];
-  // Alguns efeitos usam escala e translacao pos transformacoes para desenharem. Sao aplicados na ordem que aparecem abaixo.
-  optional Posicao escala_efeito = 50;
-  optional Posicao rotacao_efeito = 51;  // nesse caso, o angulo esta no eixo.
-  optional Posicao translacao_efeito = 52;
-  // Caso verdadeiro, a textura sempre ficara de frente para a camera.
-  optional bool texturas_sempre_de_frente = 16 [default=true];
-  // Posicao do olho.
-  optional Posicao pos_olho = 17;
-  // Desenhar acoes de jogadores.
-  optional bool desenha_acoes = 18 [default=true];
-  // Se verdadeiro, desenha a lista de pontos de vida.
-  optional bool desenha_lista_pontos_vida = 20 [default=true];
-  // Se verdadeiro, desenha o quadrado de selecao.
-  optional bool desenha_quadrado_selecao = 21 [default=true];
-  // Se verdadeiro, desenha o rastro de movimento das unidades ao se moverem.
-  optional bool desenha_rastro_movimento = 22 [default=false];
-  // Se verdadeiro, as texturas serao viradas sempre para cima.
-  optional bool desenha_texturas_para_cima = 23 [default=false];
-  // Se verdadeiro, desenha a forma selecionada.
-  optional bool desenha_forma_selecionada = 24 [default=true];
-  // Se verdadeiro, desenha a rosa dos ventos.
-  optional bool desenha_rosa_dos_ventos = 25 [default=true];
-  // Se verdadeiro, desenha os pontos de rolagem do tabuleiro.
-  optional bool desenha_pontos_rolagem = 26 [default=true];
-  // Se verdadeiro, aplica efeito de nevoa.
-  optional bool desenha_nevoa = 27 [default=true];
-  // Informacoes sobre a nevoa, se houver.
-  optional Nevoa nevoa = 70;
-  // Se verdadeiro, desenha o controle virtual de acoes.
-  optional bool desenha_controle_virtual = 31 [default=true];
-  // Se false, os detalhes nao serao desenhados.
-  optional bool desenha_detalhes = 33 [default=true];
-  // Se false, nao desenha as informacoes gerais (coordenadas, id acao etc).
-  optional bool desenha_info_geral = 37 [default=true];
-  // Tipo de visao da entidade presa.
-  optional TipoVisao tipo_visao = 39;
-  optional float multiplicador_visao_penumbra = 40 [default=1.2];
-  optional bool iniciativa_corrente = 57;
-
-  // Opcoes por entidade.
-  // Se verdadeiro, desenha a barra de vida da entidade.
-  optional bool desenha_barra_vida = 19 [default=false];
-  // Se verdadeiro, desenha o rotulo da entidade.
-  optional bool desenha_rotulo = 32 [default=false];
-  // Se verdadeiro, desenha o rotulo especial da entidade.
-  optional bool desenha_rotulo_especial = 34 [default=false];
-  // Desenha sinalizacao de eventos.
-  optional bool desenha_eventos_entidades = 35 [default=true];
-  // Efeitos das entidades.
-  optional bool desenha_efeitos_entidades = 36 [default=true];
-  // Se verdadeiro, desenha a lista de objetos (depuracao).
-  optional bool desenha_lista_objetos = 38 [default=false];
-  // Se verdadeiro, desenha a lista de jogadores.
-  optional bool desenha_lista_jogadores = 41 [default=false];
-  // Configuracao de projecao de camera.
-  optional Projecao projecao = 49;
-  // Se verdadeiro, as entidades regerarao os VBOs ao atualizarem.
-  optional bool regera_vbo = 53;
-  // se verdadeiro, desenha a lista de iniciativas.
-  optional bool desenha_iniciativas = 54 [default=true];
-  // Se verdadeiro, ordenara as entidades apos a funcao ConfiguraOlhar.
-  optional bool ordena_entidades_apos_configura_olhar = 55 [default=false];
-
-  // Valor indica qual face esta sendo desenhada. Ausencia indica para nao desenhar.
-  optional int32 desenha_mapa_luzes = 56;
-}
-
-
