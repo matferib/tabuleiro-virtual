@@ -231,7 +231,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
 
   // Desenha a barra de vida.
-  if (pd->desenha_barra_vida()) {
+  if (pd->desenha_barra_vida() && proto_.max_pontos_vida() > 0) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
@@ -276,7 +276,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::Translada(pd->desenha_barra_vida() && proto_.max_pontos_vida() > 0 ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
       gl::EsferaSolida(0.2f, 4, 2);
       gl::Translada(0.0f, 0.0f, 0.3f);
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);
