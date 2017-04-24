@@ -146,7 +146,7 @@ void Tabuleiro::CarregaControleVirtual() {
     LOG(ERROR) << "Erro carregando lista de texturas do controle virtual: " << e.what();
   }
 
-  for (const auto& modelo : mapa_modelos_) {
+  for (const auto& modelo : mapa_modelos_com_parametros_) {
     modelos_entidades_.insert(modelo.first);
   }
 }
@@ -489,7 +489,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2) {
         return;
       }
-      auto it = modelos_entidades_.find(modelo_selecionado_.first);
+      auto it = modelos_entidades_.find(modelo_selecionado_com_parametros_.first);
       if (it == modelos_entidades_.begin()) {
         SelecionaModeloEntidade(*--modelos_entidades_.end());
       } else {
@@ -501,7 +501,7 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
       if (modelos_entidades_.size() < 2) {
         return;
       }
-      auto it = modelos_entidades_.find(modelo_selecionado_.first);
+      auto it = modelos_entidades_.find(modelo_selecionado_com_parametros_.first);
       if (it == modelos_entidades_.end() || it == --modelos_entidades_.end()) {
         SelecionaModeloEntidade(*modelos_entidades_.begin());
       } else {
@@ -837,7 +837,7 @@ std::string Tabuleiro::RotuloBotaoControleVirtual(const DadosBotao& db) const {
       return rotulo.empty() ? "-" : rotulo;
     }
     case CONTROLE_MODELO_ENTIDADE: {
-      std::string rotulo = modelo_selecionado_.first;
+      std::string rotulo = modelo_selecionado_com_parametros_.first;
       return rotulo.empty() ? "-" : rotulo;
     }
     default:

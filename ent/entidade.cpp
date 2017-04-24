@@ -717,6 +717,23 @@ int Entidade::PontosVidaTemporarios() const {
   return proto_.pontos_vida_temporarios();
 }
 
+int Entidade::NivelPersonagem() const {
+  int total = 0;
+  for (const auto& info_classe : proto_.info_classes()) {
+    total += info_classe.nivel();
+  }
+  return total;
+}
+
+int Entidade::NivelConjurador() const {
+  for (const auto& info_classe : proto_.info_classes()) {
+    if (info_classe.nivel_conjurador() > 0) {
+      return info_classe.nivel_conjurador();
+    }
+  }
+  return 0;
+}
+
 float Entidade::X() const {
   return proto_.pos().x();
 }

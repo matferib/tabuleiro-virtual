@@ -6,6 +6,7 @@
 #else
 #endif
 #include <algorithm>
+#include <memory>
 #include <boost/filesystem.hpp>
 #include <tuple>
 #include <cassert>
@@ -157,11 +158,11 @@ Tabuleiro::Tabuleiro(
   central_->RegistraReceptor(this);
 
   // Modelos.
-  auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
-  modelo_padrao->mutable_cor()->set_g(1.0f);
-  mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<EntidadeProto>(modelo_padrao)));
-  modelo_selecionado_.first = "Padrão";
-  modelo_selecionado_.second = modelo_padrao;
+  Modelo* modelo_padrao_com_parametros = new Modelo;
+  modelo_padrao_com_parametros->mutable_entidade()->mutable_cor()->set_g(1.0f);
+  mapa_modelos_com_parametros_.insert(std::make_pair("Padrão", std::unique_ptr<Modelo>(modelo_padrao_com_parametros)));
+  modelo_selecionado_com_parametros_.first = "Padrão";
+  modelo_selecionado_com_parametros_.second = modelo_padrao_com_parametros;
   Modelos modelos;
   const std::string arquivos_modelos[] = { ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD };
   for (const std::string& nome_arquivo_modelo : arquivos_modelos) {
@@ -173,6 +174,7 @@ Tabuleiro::Tabuleiro(
     for (const auto& m : modelos.modelo()) {
       mapa_modelos_.insert(std::make_pair(
             m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
+      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
     }
   }
   // Acoes.
@@ -929,16 +931,55 @@ int Tabuleiro::Desenha() {
   return tempos_entre_cenas_.front();
 }
 
+void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
+  if (parametros.has_tipo_duracao()) {
+    int duracao_rodadas = -1;
+    int nivel = referencia.NivelConjurador();
+    switch (parametros.tipo_duracao()) {
+      case TD_RODADAS_NIVEL:
+        duracao_rodadas = nivel;
+        break;
+      case TD_MINUTOS_NIVEL:
+        duracao_rodadas = nivel * MINUTOS_PARA_RODADAS;
+        break;
+      case TD_HORAS_NIVEL:
+        duracao_rodadas = nivel * HORAS_PARA_RODADAS;
+        break;
+      default:
+        break;
+    }
+    if (duracao_rodadas > 0) {
+      // Procura a duracao no modelo, caso nao haja, coloca.
+      for (int i = 0; i < modelo->evento_size(); ++i) {
+        if (StringSemUtf8(modelo->evento(i).descricao()) == "duracao") {
+          modelo->mutable_evento()->DeleteSubrange(i, 1);
+          break;
+       }
+      }
+      auto* evento = modelo->add_evento();
+      evento->set_descricao("duração");
+      evento->set_rodadas(duracao_rodadas);
+    }
+  }
+}
+
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
-      EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_.second);
+      EntidadeProto modelo(notificacao.has_entidade()
+          ? notificacao.entidade() : modelo_selecionado_com_parametros_.second->entidade());
 #if APENAS_MESTRE_CRIA_FORMAS
       if (modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
       }
 #endif
+      if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
+        const auto* referencia = BuscaEntidade(IdCameraPresa());
+        if (referencia != nullptr) {
+          PreencheModeloComParametros(modelo_selecionado_com_parametros_.second->parametros(), *referencia, &modelo);
+        }
+      }
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return;
@@ -2354,22 +2395,22 @@ void Tabuleiro::IniciaGL() {
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
-  auto it = mapa_modelos_.find(id_modelo);
-  if (it == mapa_modelos_.end()) {
+  auto it = mapa_modelos_com_parametros_.find(id_modelo);
+  if (it == mapa_modelos_com_parametros_.end()) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return;
   }
-  modelo_selecionado_.first = id_modelo;
-  modelo_selecionado_.second = it->second.get();
+  modelo_selecionado_com_parametros_.first = id_modelo;
+  modelo_selecionado_com_parametros_.second = it->second.get();
 }
 
 const EntidadeProto* Tabuleiro::BuscaModelo(const std::string& id_modelo) const {
-  auto it = mapa_modelos_.find(id_modelo);
-  if (it == mapa_modelos_.end()) {
+  auto it = mapa_modelos_com_parametros_.find(id_modelo);
+  if (it == mapa_modelos_com_parametros_.end()) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return nullptr;
   }
-  return it->second.get();
+  return &it->second->entidade();
 }
 
 void Tabuleiro::SelecionaSinalizacao() {

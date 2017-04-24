@@ -71,8 +71,11 @@ modelo {
     dados_ataque {
       rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' ca_toque: 12 ca_normal: 12 ca_surpreso: 12
     }
-    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- duracao (rodadas por nivel)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
+    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
     evento { rodadas: 3 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
   }
 }
 modelo {
@@ -258,6 +261,9 @@ modelo {
     ignora_luz: true
     evento { rodadas: 3 descricao: 'duração' }
   }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
 }
 modelo {
   id: 'Tentáculos Negros'
@@ -269,6 +275,9 @@ modelo {
       rotulo: 'Agarrar' tipo_ataque: 'Feitiço de Toque' dano: '1d6+4' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_defesa_armadura: false }
     }
     evento { rodadas: 7 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
   }
 }
 modelo {

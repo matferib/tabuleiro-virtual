@@ -307,14 +307,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Busca um dos modelos pelo id. */
   const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
 
-  /** Acesso ao modelo de entidade selecionado. */
-  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_.second; }
-
-  /** Acesso ao mapa de modelos. */
-  const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const {
-    return mapa_modelos_;
-  }
-
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
 
@@ -1021,8 +1013,9 @@ class Tabuleiro : public ntf::Receptor {
   camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  std::pair<std::string, const ent::EntidadeProto*> modelo_selecionado_;
+  std::pair<std::string, const Modelo*> modelo_selecionado_com_parametros_;
   std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
+  std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */
   MapaIdAcao mapa_acoes_;

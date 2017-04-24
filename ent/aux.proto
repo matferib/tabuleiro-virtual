@@ -205,5 +205,3 @@ message ParametrosDesenho {
   // Valor indica qual face esta sendo desenhada. Ausencia indica para nao desenhar.
   optional int32 desenha_mapa_luzes = 56;
 }
-
-

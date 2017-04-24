@@ -109,6 +109,11 @@ class Entidade {
   int PontosVida() const;
   int MaximoPontosVida() const;
   int PontosVidaTemporarios() const;
+  
+  /** @return o total dos niveis das classes. */
+  int NivelPersonagem() const;
+  /** @return o nivel de conjurador do personagem. */
+  int NivelConjurador() const;
 
   /** Retorna o tipo de transicao do objeto. Considera codigo legado tambem. */
   EntidadeProto::TipoTransicao TipoTransicao() const;

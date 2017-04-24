@@ -42,6 +42,13 @@ enum ResultadoSalvacao {
   RS_ANULOU = 3;
 }
 
+// Informacoes sobre a classe de um personagem.
+message InfoClasse {
+  optional string id = 1;
+  optional int32 nivel = 2;
+  optional int32 nivel_conjurador = 3;
+}
+
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   optional TipoEntidade tipo = 1;
@@ -220,4 +227,7 @@ message EntidadeProto {
   optional int32 modificador_iniciativa = 56;
   // Algumas entidades tem varias formas.
   repeated EntidadeProto outras_formas = 60;
+
+  // Informacoes sobre a classe do personagem.
+  repeated InfoClasse info_classes = 63;
 }

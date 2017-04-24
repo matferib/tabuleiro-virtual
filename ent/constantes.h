@@ -133,6 +133,9 @@ constexpr double OLHO_RAIO_MINIMO = 1.5;
 /** Distancia maxima do olho da entidade de referencia. */
 constexpr float OLHO_DISTANCIA_MAXIMA_CAMERA_PRESA = 5.0f * TAMANHO_LADO_QUADRADO;
 
+constexpr int MINUTOS_PARA_RODADAS = 10;
+constexpr int HORAS_PARA_RODADAS = 60 * MINUTOS_PARA_RODADAS;
+
 }  // namespace ent
 
 #endif  // ENT_CONSTANTES_H
