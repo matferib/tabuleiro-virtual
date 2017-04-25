@@ -1257,6 +1257,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_direcao_queda()) {
     proto_retornado->mutable_direcao_queda()->CopyFrom(entidade.direcao_queda());
   }
+  if (entidade.has_desenha_base()) {
+    proto_retornado->set_desenha_base(entidade.desenha_base());
+  }
 
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
