@@ -1855,6 +1855,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
       if (TemNome()) {
         auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        if (notificacao.entidade().has_modelo_3d()) {
+          n->mutable_entidade()->mutable_modelo_3d();
+        }
         n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
         central_->AdicionaNotificacao(n);
         break;
@@ -1882,16 +1885,18 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         try {
           boost::filesystem::path caminho(caminho_str);
           proto_.set_nome(caminho.filename().string());
-          arq::EscreveArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
+          arq::EscreveArquivoBinProto(notificacao.entidade().has_modelo_3d()
+              ? arq::TIPO_MODELOS_3D_BAIXADOS : arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
         } catch (const std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(erro.what());
           central_->AdicionaNotificacao(ne);
           return true;
         }
-        auto* notificacao = ntf::NovaNotificacao(ntf::TN_INFO);
-        notificacao->set_erro(std::string("Tabuleiro '") + caminho_str + "' salvo.");
-        central_->AdicionaNotificacao(notificacao);
+        auto* notificacao_info = ntf::NovaNotificacao(ntf::TN_INFO);
+        notificacao_info->set_erro(google::protobuf::StringPrintf(
+              "%s salvo em %s", notificacao.entidade().has_modelo_3d() ? "Modelo 3d" : "Tabuleiro", caminho_str.c_str()));
+        central_->AdicionaNotificacao(notificacao_info);
       } else {
         // Enviar remotamente.
         if (notificacao.clientes_pendentes()) {
@@ -1930,11 +1935,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
                 std::string(":// não encontrado no nome do arquivo: ") + notificacao.endereco());
           }
           std::string nome_arquivo = notificacao.endereco().substr(pos_separador + 3);
-          std::string tipo_arquivo = notificacao.endereco().substr(0, pos_separador);
-          arq::LeArquivoBinProto(tipo_arquivo == "estatico" ?
-              arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO,
-              nome_arquivo,
-              &nt_tabuleiro);
+          std::string prefixo = notificacao.endereco().substr(0, pos_separador);
+          arq::tipo_e tipo;
+          if (prefixo == "estatico") {
+            tipo = notificacao.entidade().has_modelo_3d() ? arq::TIPO_MODELOS_3D : arq::TIPO_TABULEIRO_ESTATICO;
+          } else {
+            tipo = notificacao.entidade().has_modelo_3d() ? arq::TIPO_MODELOS_3D_BAIXADOS : arq::TIPO_TABULEIRO;
+          }
+          arq::LeArquivoBinProto(tipo, nome_arquivo, &nt_tabuleiro);
           nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
         } catch (std::logic_error&) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);

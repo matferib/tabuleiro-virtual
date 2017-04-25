@@ -96,13 +96,14 @@ void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) 
   tabuleiro_->DesativaWatchdogSeMestre();
   std::vector<std::string> tab_estaticos;
   std::vector<std::string> tab_dinamicos;
+  bool tabuleiro = !notificacao.entidade().has_modelo_3d();
   try {
-    tab_estaticos = arq::ConteudoDiretorio(arq::TIPO_TABULEIRO_ESTATICO);
+    tab_estaticos = arq::ConteudoDiretorio(tabuleiro ? arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_MODELOS_3D);
   }
   catch (...) {
   }
   try {
-    tab_dinamicos = arq::ConteudoDiretorio(arq::TIPO_TABULEIRO);
+    tab_dinamicos = arq::ConteudoDiretorio(tabuleiro ? arq::TIPO_TABULEIRO : arq::TIPO_MODELOS_3D_BAIXADOS);
   }
   catch (...) {
   }
@@ -122,15 +123,19 @@ void InterfaceGrafica::TrataAbrirTabuleiro(const ntf::Notificacao& notificacao) 
           &ifg::InterfaceGrafica::VoltaAbrirTabuleiro,
           this,
           notificacao.tabuleiro().manter_entidades(),
+          notificacao.entidade().has_modelo_3d(),
           _1, _2));
 }
 
 void InterfaceGrafica::VoltaAbrirTabuleiro(
-    bool manter_entidades, const std::string& nome, arq::tipo_e tipo) {
+    bool manter_entidades, bool modelo_3d, const std::string& nome, arq::tipo_e tipo_retornado) {
   if (!nome.empty()) {
     auto* notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_TABULEIRO);
+    if (modelo_3d) {
+      notificacao->mutable_entidade()->mutable_modelo_3d();
+    }
     notificacao->set_endereco(
-        std::string(tipo == arq::TIPO_TABULEIRO_ESTATICO ? "estatico://" : "dinamico://") + nome);
+        std::string(tipo_retornado == arq::TIPO_TABULEIRO_ESTATICO ? "estatico://" : "dinamico://") + nome);
     notificacao->mutable_tabuleiro()->set_manter_entidades(manter_entidades);
     central_->AdicionaNotificacao(notificacao);
   }
@@ -145,13 +150,16 @@ void InterfaceGrafica::TrataSalvarTabuleiro(const ntf::Notificacao& notificacao)
   EscolheArquivoSalvarTabuleiro(
       std::bind(
           &ifg::InterfaceGrafica::VoltaSalvarTabuleiro,
-          this, _1));
+          this, notificacao.entidade().has_modelo_3d(),_1));
 }
 
 void InterfaceGrafica::VoltaSalvarTabuleiro(
-    const std::string& nome) {
+    bool modelo_3d, const std::string& nome) {
   auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
   n->set_endereco(nome);
+  if (modelo_3d) {
+    n->mutable_entidade()->mutable_modelo_3d();
+  }
   central_->AdicionaNotificacao(n);
   tabuleiro_->ReativaWatchdogSeMestre();
 }

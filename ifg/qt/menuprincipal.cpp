@@ -72,6 +72,9 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionáveis"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar selecionáveis"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar como não selecionáveis"),
+    nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar modelo 3D"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar modelo 3D"),
     g_fim,
   // Acoes.
   g_fim,
@@ -323,6 +326,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
     EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
+    EstadoItemMenu(false, ME_ENTIDADES, { MI_SALVAR_MODELO_3D, MI_RESTAURAR_MODELO_3D, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
       std::string id = acao->data().toString().toUtf8().constData();
@@ -432,6 +436,12 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
     notificacao->set_endereco(file_str.toUtf8().constData());
     notificacao->mutable_entidade()->set_selecionavel_para_jogador(false);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_MODELO_3D]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO);
+    notificacao->mutable_entidade()->mutable_modelo_3d();
+  } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_MODELO_3D]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO);
+    notificacao->mutable_entidade()->mutable_modelo_3d();
   }
   // Tabuleiro.
   else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {

@@ -72,11 +72,12 @@ class InterfaceGrafica : public ntf::Receptor {
   void TrataMostraMensagem(bool erro, const std::string& mensagem);
 
   void TrataAbrirTabuleiro(const ntf::Notificacao& notificacao);
+  // A saida sera sempre TIPO_TABULEIRO_ESTATICO ou TIPO_TABULEIRO_DINAMICO, mesmo quando a entrada eh modelo3d.
   void VoltaAbrirTabuleiro(
-    bool manter_entidades, const std::string& nome, arq::tipo_e tipo);
+    bool manter_entidades, bool modelo_3d, const std::string& nome, arq::tipo_e tipo_retornado);
 
   void TrataSalvarTabuleiro(const ntf::Notificacao& notificacao);
-  void VoltaSalvarTabuleiro(const std::string& nome);
+  void VoltaSalvarTabuleiro(bool modelo_3d, const std::string& nome);
 
   void TrataEscolherModeloEntidade(const ntf::Notificacao& notificacao);
   void VoltaEscolherModeloEntidade(const std::string& nome);
