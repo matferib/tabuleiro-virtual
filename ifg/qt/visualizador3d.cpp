@@ -554,6 +554,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   // Visibilidade.
   gerador.checkbox_visibilidade->setCheckState(entidade.visivel() ? Qt::Checked : Qt::Unchecked);
   gerador.checkbox_faz_sombra->setCheckState(entidade.faz_sombra() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_dois_lados->setCheckState(entidade.dois_lados() ? Qt::Checked : Qt::Unchecked);
+
   // Fixa.
   gerador.checkbox_fixa->setCheckState(entidade.fixa() ? Qt::Checked : Qt::Unchecked);
   if (!notificacao.modo_mestre()) {
@@ -726,6 +728,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
     }
     proto_retornado->set_visivel(gerador.checkbox_visibilidade->checkState() == Qt::Checked);
     proto_retornado->set_faz_sombra(gerador.checkbox_faz_sombra->checkState() == Qt::Checked);
+    proto_retornado->set_dois_lados(gerador.checkbox_dois_lados->checkState() == Qt::Checked);
     proto_retornado->set_selecionavel_para_jogador(gerador.checkbox_selecionavel->checkState() == Qt::Checked);
     proto_retornado->set_causa_colisao(gerador.checkbox_colisao->checkState() == Qt::Checked);
     bool fixa = gerador.checkbox_fixa->checkState() == Qt::Checked;

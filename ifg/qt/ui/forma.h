@@ -126,6 +126,7 @@ public:
     QHBoxLayout *horizontalLayout_20;
     QLabel *label_16;
     QPlainTextEdit *lista_tesouro;
+    QCheckBox *checkbox_dois_lados;
 
     void setupUi(QDialog *ifg__qt__DialogoForma)
     {
@@ -627,6 +628,9 @@ public:
 
         horizontalLayout_20->addWidget(lista_tesouro);
 
+        checkbox_dois_lados = new QCheckBox(ifg__qt__DialogoForma);
+        checkbox_dois_lados->setObjectName(QString::fromUtf8("checkbox_dois_lados"));
+        checkbox_dois_lados->setGeometry(QRect(560, 310, 101, 22));
         QWidget::setTabOrder(spin_pontos_vida, spin_max_pontos_vida);
         QWidget::setTabOrder(spin_max_pontos_vida, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, dial_rotacao);
@@ -737,6 +741,10 @@ public:
 #ifndef QT_NO_TOOLTIP
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_dois_lados->setToolTip(QApplication::translate("ifg::qt::DialogoForma", "Se verdadeiro, nos dois lados da primitiva ser\303\243o desenhados.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_dois_lados->setText(QApplication::translate("ifg::qt::DialogoForma", "Dois Lados", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

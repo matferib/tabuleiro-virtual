@@ -976,6 +976,22 @@
     </item>
    </layout>
   </widget>
+  <widget class="QCheckBox" name="checkbox_dois_lados">
+   <property name="geometry">
+    <rect>
+     <x>560</x>
+     <y>310</y>
+     <width>101</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Se verdadeiro, nos dois lados da primitiva serão desenhados.</string>
+   </property>
+   <property name="text">
+    <string>Dois Lados</string>
+   </property>
+  </widget>
  </widget>
  <tabstops>
   <tabstop>spin_pontos_vida</tabstop>
