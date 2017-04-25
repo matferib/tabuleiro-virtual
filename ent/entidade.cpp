@@ -384,11 +384,11 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   MatrizesDesenho md;
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
   md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
-  if (proto.tipo() != TE_ENTIDADE || proto.has_modelo_3d()) {
+  if (proto.tipo() != TE_ENTIDADE || (proto.has_modelo_3d() && !proto.desenha_base())) {
     return md;
   }
   // tijolo base. Usada para disco de peao tambem.
-  if (!proto.morta()) {
+  if (DesenhaBase(proto)) {
     Matrix4 m;
     if (pd->entidade_selecionada()) {
       m.rotateZ(vd.angulo_disco_selecao_graus);
@@ -1358,6 +1358,17 @@ int Entidade::MultiplicadorCritico() const {
 bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico();
 
+}
+
+// static
+bool Entidade::DesenhaBase(const EntidadeProto& proto) {
+  if (proto.morta()) {
+    return false;
+  }
+  if (proto.has_modelo_3d()) {
+    return proto.desenha_base();
+  }
+  return proto.has_info_textura();
 }
 
 // Nome dos buffers de VBO.

@@ -412,6 +412,9 @@ class Entidade {
     return !proto.has_modelo_3d() && !proto.info_textura().id().empty() && (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   }
 
+  /** Retorna se a peca de base deve ser desenhada. */
+  static bool DesenhaBase(const EntidadeProto& proto);
+
   /** Tipo de translacao em Z desejado ao montar a matriz. */
   enum translacao_z_e {
     TZ_NENHUMA,  // sem translacao em Z.

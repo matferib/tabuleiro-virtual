@@ -157,19 +157,22 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
 #endif
   }
 
-  if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
-    return;
-  }
-
 #if !VBO_COM_MODELAGEM
   // No caso de VBO com modelagem, o tijolo da base ja esta no modelo.
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  if (!proto.morta()) {
+  if (DesenhaBase(proto)) {
+    if (proto.has_modelo_3d()) {
+      AjustaCor(proto, pd);
+    }
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
     gl::MultiplicaMatriz(tijolo_base.get());
     gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
   }
 #endif
+
+  if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
+    return;
+  }
 
   // Tela da textura.
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
