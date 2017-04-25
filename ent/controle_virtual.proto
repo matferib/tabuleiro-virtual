@@ -217,7 +217,7 @@ enum TipoDuracao {
   TD_RODADAS_NIVEL = 0;
   TD_MINUTOS_NIVEL = 1;
   TD_HORAS_NIVEL   = 2;
-  TD_OUTRO         = 20;
+  TD_OUTRA_DURACAO = 20;
 }
 
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
@@ -226,6 +226,9 @@ message Modelo {
   // Para entidades templatizadas.
   message Parametros {
     optional TipoDuracao tipo_duracao = 1;
+    optional string dano_fixo = 2;
+    optional float multiplicador_nivel_dano = 3;
+    optional int32 maximo_modificador_dano = 4;
   }
   optional Parametros parametros = 3;
   optional EntidadeProto entidade = 2;

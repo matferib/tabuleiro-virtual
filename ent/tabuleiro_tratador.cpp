@@ -1111,7 +1111,7 @@ void Tabuleiro::TrataBotaoTransicaoPressionadoPosPicking(int x, int y, unsigned 
   }
   int id_cenario = entidade_transicao->Proto().transicao_cenario().id_cenario();
   if (id_cenario < CENARIO_PRINCIPAL) {
-    LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL";
+    LOG(ERROR) << "Id de cenario deve ser >= CENARIO_PRINCIPAL, id: " << id_cenario;
     return;
   }
   if (BuscaSubCenario(id_cenario) == nullptr && !EmModoMestreIncluindoSecundario()) {

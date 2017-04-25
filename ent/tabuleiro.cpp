@@ -1,8 +1,6 @@
 #if USAR_QT
 #include <QApplication>
 #include <QClipboard>
-#include <google/protobuf/repeated_field.h>
-#include <google/protobuf/text_format.h>
 #else
 #endif
 #include <algorithm>
@@ -19,6 +17,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <google/protobuf/repeated_field.h>
+#include <google/protobuf/text_format.h>
 
 //#define VLOG_NIVEL 1
 #include "arq/arquivo.h"
@@ -33,6 +33,7 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
@@ -932,9 +933,9 @@ int Tabuleiro::Desenha() {
 }
 
 void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
+  const int nivel = referencia.NivelConjurador();
   if (parametros.has_tipo_duracao()) {
     int duracao_rodadas = -1;
-    int nivel = referencia.NivelConjurador();
     switch (parametros.tipo_duracao()) {
       case TD_RODADAS_NIVEL:
         duracao_rodadas = nivel;
@@ -959,6 +960,17 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       auto* evento = modelo->add_evento();
       evento->set_descricao("duração");
       evento->set_rodadas(duracao_rodadas);
+    }
+  }
+  if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
+    std::string dano_str = parametros.dano_fixo();
+    int modificador = nivel * parametros.multiplicador_nivel_dano();
+    if (parametros.has_maximo_modificador_dano()) {
+      modificador = std::min(parametros.maximo_modificador_dano(), modificador);
+    }
+    google::protobuf::StringAppendF(&dano_str, "%+d", modificador);
+    for (auto& da : *modelo->mutable_dados_ataque()) {
+      da.set_dano(dano_str);
     }
   }
 }
@@ -4810,6 +4822,8 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   olho_.mutable_alvo()->CopyFrom(camera);
   olho_.clear_destino();
   AtualizaOlho(0, true  /*forcar*/);
+  // Atualiza luzes e oclusao.
+  luzes_pontuais_.clear();
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
