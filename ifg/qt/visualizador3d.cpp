@@ -21,6 +21,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "ifg/qt/constantes.h"
 #include "ifg/qt/ui/entidade.h"
 #include "ifg/qt/texturas.h"
@@ -995,24 +996,32 @@ void AdicionaOuEditaNivel(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadePr
   info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
   info_classe->set_nivel(gerador.spin_nivel_classe->value());
   info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
+  info_classe->set_bba(gerador.spin_bba->value());
+  info_classe->set_modificador_atributo_conjuracao(gerador.spin_mod_conjuracao->value());
 }
 
 void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   auto AtualizaNivelTotal = [&gerador, proto_retornado] () {
     int total = 0;
+    int total_bba = 0;
     for (const auto& info_classe : proto_retornado->info_classes()) {
       total += info_classe.nivel();
+      total_bba += info_classe.bba();
     }
     gerador.linha_nivel->setText(QString::number(total));
+    gerador.linha_bba->setText(QString::number(total_bba));
   };
   auto RefrescaNiveis = [&gerador, proto_retornado, AtualizaNivelTotal] () {
     gerador.lista_niveis->clear();
     for (const auto& info_classe : proto_retornado->info_classes()) {
-      std::string string_nivel = "classe: ";
-      string_nivel += info_classe.id() + ", nível: " + net::to_string(info_classe.nivel());
+      std::string string_nivel;
+      google::protobuf::StringAppendF(&string_nivel, "classe: %s, nível: %d", info_classe.id().c_str(), info_classe.nivel());
       if (info_classe.nivel_conjurador() > 0) {
-        string_nivel += ", conjurador: " + net::to_string(info_classe.nivel_conjurador());
+        google::protobuf::StringAppendF(
+            &string_nivel, ", conjurador: %d, mod: %d",
+            info_classe.nivel_conjurador(), info_classe.modificador_atributo_conjuracao());
       }
+      google::protobuf::StringAppendF(&string_nivel, ", BBA: %d", info_classe.bba());
       gerador.lista_niveis->addItem(QString::fromUtf8(string_nivel.c_str()));
     }
     AtualizaNivelTotal();
@@ -1034,8 +1043,10 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
   };
 
   lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&gerador, proto_retornado] () {
-    std::vector<QObject*> objs =
-        {gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe};
+    std::vector<QObject*> objs = {
+        gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
+        gerador.spin_mod_conjuracao
+    };
     for (auto* obj : objs) obj->blockSignals(true);
     if (gerador.lista_niveis->currentRow() == -1 ||
         gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
@@ -1046,6 +1057,8 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
       gerador.linha_classe->setText(QString::fromUtf8(info_classe.id().c_str()));
       gerador.spin_nivel_classe->setValue(info_classe.nivel());
       gerador.spin_nivel_conjurador->setValue(info_classe.nivel_conjurador());
+      gerador.spin_bba->setValue(info_classe.bba());
+      gerador.spin_mod_conjuracao->setValue(info_classe.modificador_atributo_conjuracao());
       for (auto* obj : objs) obj->blockSignals(false);
     }
   });
@@ -1057,6 +1070,8 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
       info_classe->set_id(gerador.linha_classe->text().toUtf8().constData());
       info_classe->set_nivel(gerador.spin_nivel_classe->value());
       info_classe->set_nivel_conjurador(gerador.spin_nivel_conjurador->value());
+      info_classe->set_bba(gerador.spin_bba->value());
+      info_classe->set_modificador_atributo_conjuracao(gerador.spin_mod_conjuracao->value());
     }
     RefrescaNiveis();
     gerador.lista_niveis->setCurrentRow(proto_retornado->info_classes().size() - 1);
@@ -1071,12 +1086,16 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
     gerador.linha_classe->clear();
     gerador.spin_nivel_classe->clear();
     gerador.spin_nivel_conjurador->clear();
+    gerador.spin_bba->clear();
+    gerador.spin_mod_conjuracao->clear();
     RefrescaNiveis();
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals).
   lambda_connect(gerador.linha_classe, SIGNAL(textEdited(const QString&)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
   lambda_connect(gerador.spin_nivel_classe, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
   lambda_connect(gerador.spin_nivel_conjurador, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
+  lambda_connect(gerador.spin_bba, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
+  lambda_connect(gerador.spin_mod_conjuracao, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
 }
 
 }  // namespace

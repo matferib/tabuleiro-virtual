@@ -1053,108 +1053,6 @@
       </item>
      </layout>
     </widget>
-    <widget class="QLabel" name="label_40">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>60</y>
-       <width>41</width>
-       <height>34</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Classe</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_41">
-     <property name="geometry">
-      <rect>
-       <x>190</x>
-       <y>60</y>
-       <width>48</width>
-       <height>34</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Nível</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="spin_nivel_classe">
-     <property name="geometry">
-      <rect>
-       <x>250</x>
-       <y>60</y>
-       <width>44</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Nível da Classe</string>
-     </property>
-     <property name="minimum">
-      <number>-1</number>
-     </property>
-    </widget>
-    <widget class="QLineEdit" name="linha_classe">
-     <property name="geometry">
-      <rect>
-       <x>60</x>
-       <y>60</y>
-       <width>129</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>Identificador da Classe</string>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_42">
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>60</y>
-       <width>81</width>
-       <height>34</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Conjurador</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-     </property>
-    </widget>
-    <widget class="QSpinBox" name="spin_nivel_conjurador">
-     <property name="geometry">
-      <rect>
-       <x>400</x>
-       <y>60</y>
-       <width>44</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Nível de Conjurador</string>
-     </property>
-     <property name="minimum">
-      <number>-1</number>
-     </property>
-    </widget>
     <widget class="QPushButton" name="botao_adicionar_nivel">
      <property name="enabled">
       <bool>true</bool>
@@ -1162,7 +1060,7 @@
      <property name="geometry">
       <rect>
        <x>190</x>
-       <y>290</y>
+       <y>350</y>
        <width>121</width>
        <height>27</height>
       </rect>
@@ -1175,7 +1073,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>100</y>
+       <y>160</y>
        <width>451</width>
        <height>181</height>
       </rect>
@@ -1188,7 +1086,7 @@
      <property name="geometry">
       <rect>
        <x>340</x>
-       <y>290</y>
+       <y>350</y>
        <width>121</width>
        <height>27</height>
       </rect>
@@ -1196,6 +1094,218 @@
      <property name="text">
       <string>Remover</string>
      </property>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_12">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>10</y>
+       <width>181</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_33">
+      <item alignment="Qt::AlignRight">
+       <widget class="QLabel" name="label_46">
+        <property name="text">
+         <string>BBA</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignLeft">
+       <widget class="QLineEdit" name="linha_bba">
+        <property name="toolTip">
+         <string>Bônus Base de Ataque Total</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>661</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Dados Nível</string>
+     </property>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>20</y>
+        <width>631</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_40">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Classe</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="linha_classe">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Identificador da Classe</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_41">
+         <property name="text">
+          <string>Nível</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_nivel_classe">
+         <property name="toolTip">
+          <string>Nível da Classe</string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_43">
+         <property name="text">
+          <string>BBA</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_bba">
+         <property name="toolTip">
+          <string>Bônus Base de Ataque </string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_42">
+         <property name="text">
+          <string>Conjurador</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_nivel_conjurador">
+         <property name="toolTip">
+          <string>Nível de Conjurador</string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_44">
+         <property name="text">
+          <string>Mod</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_mod_conjuracao">
+         <property name="toolTip">
+          <string>Modificador do atributo de conjuração (exemplo: sabedoria para clérigos)</string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_estatisticas">
@@ -1752,7 +1862,9 @@
   <tabstop>combo_modelos_3d</tabstop>
   <tabstop>linha_classe</tabstop>
   <tabstop>spin_nivel_classe</tabstop>
+  <tabstop>spin_bba</tabstop>
   <tabstop>spin_nivel_conjurador</tabstop>
+  <tabstop>spin_mod_conjuracao</tabstop>
   <tabstop>lista_niveis</tabstop>
   <tabstop>botao_adicionar_nivel</tabstop>
   <tabstop>botao_remover_nivel</tabstop>
@@ -1780,6 +1892,8 @@
   <tabstop>tab_tesouro</tabstop>
   <tabstop>campo_id</tabstop>
   <tabstop>linha_nivel</tabstop>
+  <tabstop>linha_nivel_2</tabstop>
+  <tabstop>linha_bba</tabstop>
  </tabstops>
  <resources/>
  <connections>
