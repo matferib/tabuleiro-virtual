@@ -79,6 +79,8 @@ modelo {
     multiplicador_nivel_dano: 0.334
     dano_fixo: '1d8'
     maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
   }
 }
 modelo {
@@ -97,6 +99,8 @@ modelo {
     multiplicador_nivel_dano: 0.334
     dano_fixo: '1d8'
     maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
   }
 }
 modelo {
@@ -115,6 +119,8 @@ modelo {
     multiplicador_nivel_dano: 0.334
     dano_fixo: '1d8'
     maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
   }
 }
 modelo {

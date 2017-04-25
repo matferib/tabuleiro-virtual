@@ -973,6 +973,25 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
       da.set_dano(dano_str);
     }
   }
+  if (parametros.has_tipo_modificador_ataque()) {
+    int modificador_ataque = -100;
+    switch (parametros.tipo_modificador_ataque()) {
+      case TMA_BBA_MAIS_ATRIBUTO_CONJURACAO:
+        modificador_ataque = referencia.BonusBaseAtaque() + referencia.ModificadorAtributoConjuracao();
+        break;
+      default:
+        break;
+    }
+    // Hack para quando o personagem nao tiver modificadores.
+    if (modificador_ataque > -50) {
+      for (auto& da : *modelo->mutable_dados_ataque()) {
+        da.set_bonus_ataque(modificador_ataque);
+      }
+    }
+  }
+  if (!parametros.rotulo_especial().empty()) {
+    *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
+  }
 }
 
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {

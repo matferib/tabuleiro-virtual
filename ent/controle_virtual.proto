@@ -220,15 +220,26 @@ enum TipoDuracao {
   TD_OUTRA_DURACAO = 20;
 }
 
+enum TipoModificadorAtaque {
+  // Usa BBA + modificador do atributo de conjurador.
+  TMA_BBA_MAIS_ATRIBUTO_CONJURACAO = 0;
+  TMA_OUTROS                       = 100;
+}
+
 // Cada modelo de entidade que pode ser adicionada. Inclui parametrizacao de alguns campos.
 message Modelo {
   optional string id = 1;
   // Para entidades templatizadas.
   message Parametros {
     optional TipoDuracao tipo_duracao = 1;
+    // Dano.
     optional string dano_fixo = 2;
     optional float multiplicador_nivel_dano = 3;
     optional int32 maximo_modificador_dano = 4;
+    // Ataque.
+    optional TipoModificadorAtaque tipo_modificador_ataque = 5;
+    // Outros.
+    repeated string rotulo_especial = 10;
   }
   optional Parametros parametros = 3;
   optional EntidadeProto entidade = 2;

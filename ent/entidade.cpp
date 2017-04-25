@@ -734,6 +734,23 @@ int Entidade::NivelConjurador() const {
   return 0;
 }
 
+int Entidade::ModificadorAtributoConjuracao() const {
+  for (const auto& info_classe : proto_.info_classes()) {
+    if (info_classe.nivel_conjurador() > 0) {
+      return info_classe.modificador_atributo_conjuracao();
+    }
+  }
+  return 0;
+}
+
+int Entidade::BonusBaseAtaque() const {
+  int bba = 0;
+  for (const auto& info_classe : proto_.info_classes()) {
+    bba += info_classe.bba();
+  }
+  return bba;
+}
+
 float Entidade::X() const {
   return proto_.pos().x();
 }

@@ -114,6 +114,10 @@ class Entidade {
   int NivelPersonagem() const;
   /** @return o nivel de conjurador do personagem. */
   int NivelConjurador() const;
+  /** Bonus base de ataque total do personagem. */
+  int BonusBaseAtaque() const;
+  /** Modificador do atributo de conjuracao. Exemplo: sab para clérigos. */
+  int ModificadorAtributoConjuracao() const;
 
   /** Retorna o tipo de transicao do objeto. Considera codigo legado tambem. */
   EntidadeProto::TipoTransicao TipoTransicao() const;
