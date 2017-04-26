@@ -1536,12 +1536,42 @@
            </property>
            <item>
             <property name="text">
-             <string>Corpo a Corpo</string>
+             <string>Ácido</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Distância</string>
+             <string>Ataque Corpo a Corpo</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Ataque a Distância</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Bola de Fogo</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cone de Gelo</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Feitiço de Toque</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Fogo Alquímico</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Mãos Flamejantes</string>
             </property>
            </item>
            <item>
@@ -1551,12 +1581,17 @@
            </item>
            <item>
             <property name="text">
-             <string>Toque</string>
+             <string>Pedrada</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Raio</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Relâmpago</string>
             </property>
            </item>
            <item>
@@ -1892,7 +1927,6 @@
   <tabstop>tab_tesouro</tabstop>
   <tabstop>campo_id</tabstop>
   <tabstop>linha_nivel</tabstop>
-  <tabstop>linha_nivel_2</tabstop>
   <tabstop>linha_bba</tabstop>
  </tabstops>
  <resources/>

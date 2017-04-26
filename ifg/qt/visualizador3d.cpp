@@ -56,26 +56,36 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
-constexpr int ULTIMO_TIPO_VALIDO = 6;
+constexpr int ULTIMO_TIPO_VALIDO = 11;
 int TipoParaIndice(const std::string& tipo_str) {
   // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
   // Os indices sao na ordem definida pela UI.
-  if (tipo_str == "Ataque Corpo a Corpo") {
+  if (tipo_str == "Ácido") {
     return 0;
-  } else if (tipo_str == "Ataque a Distância") {
+  } else if (tipo_str == "Ataque Corpo a Corpo") {
     return 1;
-  } else if (tipo_str == "Míssil Mágico") {
+  } else if (tipo_str == "Ataque a Distância") {
     return 2;
-  } else if (tipo_str == "Feitiço de Toque") {
-    return 3;
-  } else if (tipo_str == "Feitiço de Toque Sem Defesa") {
-    return 4;
-  } else if (tipo_str == "Raio") {
-    return 5;
   } else if (tipo_str == "Bola de Fogo") {
+    return 3;
+  } else if (tipo_str == "Cone de Gelo") {
+    return 4;
+  } else if (tipo_str == "Feitiço de Toque") {
+    return 5;
+  } else if (tipo_str == "Fogo Alquímico") {
     return 6;
-  } else {
+  } else if (tipo_str == "Mãos Flamejantes") {
     return 7;
+  } else if (tipo_str == "Míssil Mágico") {
+    return 8;
+  } else if (tipo_str == "Pedrada (gigante)") {
+    return 9;
+  } else if (tipo_str == "Raio") {
+    return 10;
+  } else if (tipo_str == "Relâmpago") {
+    return 11;
+  } else {
+    return 12;
   }
 }
 
@@ -83,13 +93,18 @@ std::string IndiceParaTipo(int indice) {
   // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
   // Os indices sao na ordem definida pela UI.
   switch (indice) {
-    case 0: return "Ataque Corpo a Corpo";
-    case 1: return "Ataque a Distância";
-    case 2: return "Míssil Mágico";
-    case 3: return "Feitiço de Toque";
-    case 4: return "Feitiço de Toque Sem Defesa";
-    case 5: return "Raio";
-    case 6: return "Bola de Fogo";
+    case 0: return "Ácido";
+    case 1: return "Ataque Corpo a Corpo";
+    case 2: return "Ataque a Distância";
+    case 3: return "Bola de Fogo";
+    case 4: return "Cone de Gelo";
+    case 5: return "Feitiço de Toque";
+    case 6: return "Fogo Alquímico";
+    case 7: return "Mãos Flamejantes";
+    case 8: return "Míssil Mágico";
+    case 9: return "Pedrada (gigante)";
+    case 10: return "Raio";
+    case 11: return "Relâmpago";
     default: return "Ataque Corpo a Corpo";
   }
 };
