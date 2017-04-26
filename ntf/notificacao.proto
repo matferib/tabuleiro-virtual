@@ -1,4 +1,5 @@
 import "ent/acoes.proto";
+import "ent/aux.proto";
 import "ent/entidade.proto";
 import "ent/tabuleiro.proto";
 
