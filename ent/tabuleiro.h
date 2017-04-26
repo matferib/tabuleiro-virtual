@@ -962,6 +962,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** as entidades selecionada. */
   std::unordered_set<unsigned int> ids_entidades_selecionadas_;
+  /** No caso do duplo clique, a gente perde a selecao no primeiro clique. Essa variavel eh uma tentativa de reverter isso. */
+  unsigned int ultima_entidade_selecionada_ = Entidade::IdInvalido;
 
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;

@@ -1603,6 +1603,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == OBJ_TABULEIRO) {
+    unsigned int id = ultima_entidade_selecionada_;
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
     // Tabuleiro: cria uma entidade nova.
@@ -1610,6 +1611,9 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
     estado_ = ETAB_QUAD_SELECIONADO;
     ntf::Notificacao notificacao;
     notificacao.set_tipo(ntf::TN_ADICIONAR_ENTIDADE);
+    if (id != Entidade::IdInvalido) {
+      notificacao.set_id_referencia(id);
+    }
     TrataNotificacao(notificacao);
   } else if (pos_pilha == OBJ_ENTIDADE || pos_pilha == OBJ_ENTIDADE_LISTA) {
     // Entidade.

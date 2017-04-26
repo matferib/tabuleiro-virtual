@@ -1008,6 +1008,9 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
         // Na pratica so funciona com camera presa porque o duplo clique tira a selecao.
         const auto* referencia = EntidadeCameraPresaOuSelecionada();
+        if (referencia == nullptr && notificacao.has_id_referencia()) {
+          referencia = BuscaEntidade(notificacao.id_referencia());
+        }
         if (referencia != nullptr) {
           PreencheModeloComParametros(modelo_selecionado_com_parametros_.second->parametros(), *referencia, &modelo);
         }
@@ -4348,6 +4351,8 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
     //return;
   }
   quadrado_selecionado_ = id_quadrado;
+  auto* entidade = EntidadeSelecionada();
+  ultima_entidade_selecionada_ = entidade == nullptr ? Entidade::IdInvalido : entidade->Id();
   ids_entidades_selecionadas_.clear();
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
