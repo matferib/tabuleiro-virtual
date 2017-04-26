@@ -975,17 +975,25 @@ void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Ent
   }
   if (parametros.has_tipo_modificador_ataque()) {
     int modificador_ataque = -100;
+    int ref_bba = referencia.BonusBaseAtaque();
+    int num_ataques = 1 + (ref_bba / 6);
     switch (parametros.tipo_modificador_ataque()) {
       case TMA_BBA_MAIS_ATRIBUTO_CONJURACAO:
-        modificador_ataque = referencia.BonusBaseAtaque() + referencia.ModificadorAtributoConjuracao();
+        modificador_ataque = ref_bba + referencia.ModificadorAtributoConjuracao();
         break;
       default:
         break;
     }
     // Hack para quando o personagem nao tiver modificadores.
     if (modificador_ataque > -50) {
-      for (auto& da : *modelo->mutable_dados_ataque()) {
-        da.set_bonus_ataque(modificador_ataque);
+      // Salva o ataque como modelo para usar ao criar os demais.
+      auto da = modelo->dados_ataque().empty() ? EntidadeProto::DadosAtaque() : modelo->dados_ataque(0);
+      modelo->clear_dados_ataque();
+      while (num_ataques-- > 0) {
+        auto* nda = modelo->add_dados_ataque();
+        *nda = da;
+        nda->set_bonus_ataque(modificador_ataque);
+        modificador_ataque -= 5;
       }
     }
   }
