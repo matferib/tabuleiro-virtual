@@ -415,7 +415,7 @@ class TabuleiroRenderer
       @Override
       public void run() {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity_);
-        builder.setTitle("Abrir Tabuleiro");
+        builder.setTitle("Abrir");
         LayoutInflater inflater = activity_.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialogo_abrir_tabuleiro, null);
         final Spinner spinner = (Spinner)view.findViewById(R.id.spinner_abrir);
