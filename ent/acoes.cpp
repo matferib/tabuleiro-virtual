@@ -920,19 +920,22 @@ Posicao Acao::AjustaPonto(
         case ACAO_GEO_ESFERA:
         case ACAO_GEO_CILINDRO:
         case ACAO_GEO_CONE: {
-          Vector3 objeto_fonte(
-              PosParaVector3(acao_proto.geometria() == ACAO_GEO_CONE
-                ? acao_proto.pos_tabuleiro() : pos_origem) -
-              PosParaVector3(pos_ponto));
-          if (objeto_fonte.length() < correcao) {
-            correcao = objeto_fonte.length();
+          Vector3 v_objeto(
+              PosParaVector3(pos_ponto) -
+              PosParaVector3(
+                  acao_proto.geometria() == ACAO_GEO_CONE ? pos_origem : acao_proto.pos_tabuleiro()));
+          const float v_objeto_length = v_objeto.length();
+          if (v_objeto_length < correcao) {
+            correcao = v_objeto.length();
           }
-          objeto_fonte.normalize();
-          objeto_fonte *= correcao;
+          if (fabs(v_objeto_length) > 0.01) {
+            v_objeto.normalize();
+            v_objeto *= correcao;
+          }
           Posicao pos_corrigida(pos_ponto);
-          pos_corrigida.set_x(pos_ponto.x() + objeto_fonte.x);
-          pos_corrigida.set_y(pos_ponto.y() + objeto_fonte.y);
-          pos_corrigida.set_z(pos_ponto.z() + objeto_fonte.z);
+          pos_corrigida.set_x(pos_ponto.x() - v_objeto.x);
+          pos_corrigida.set_y(pos_ponto.y() - v_objeto.y);
+          pos_corrigida.set_z(pos_ponto.z() - v_objeto.z);
           return pos_corrigida;
         }
         break;
@@ -1024,7 +1027,9 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
           const float dq =
             DistanciaQuadrado(
                 pos_ponto, acao_proto.pos_tabuleiro());
-          return dq <= powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
+          const float distancia_maxima = powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
+          VLOG(1) << "Distancia quadrado: " << dq << ", maximo: " << distancia_maxima;
+          return dq <= distancia_maxima;
         }
         case ACAO_GEO_CILINDRO: {
           // Corte rapido por z. cilindro tem duas vezes o tamanho do raio.

@@ -75,8 +75,8 @@ TEST(TesteAcoes, TesteAreaAfetadaRaio) {
     EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao));
   }
 
-  // Mais de meio quadrado.
-  ponto.set_x(1.8f);
+  // Mais de meio quadrado com tolerancia de 10%.
+  ponto.set_x(1.9f);
   ponto.set_y(2.0f);
   EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
 
@@ -116,18 +116,28 @@ TEST(TesteAcoes, TesteAreaAfetadaEsfera) {
 }
 
 TEST(TesteAcoes, TesteAjustePontoDispersao) {
+  Posicao origem;  // nao faz diferenca para ESFERA.
+
   Posicao ponto;
   ponto.set_x(5.0);
-  Posicao origem;
+
   AcaoProto acao_proto;
   acao_proto.set_tipo(ACAO_DISPERSAO);
   acao_proto.set_geometria(ACAO_GEO_ESFERA);
   acao_proto.set_efeito_area(true);
   acao_proto.set_raio_quadrados(3);  // 4.5m
   acao_proto.mutable_pos_tabuleiro()->set_x(1.0f);
-  Posicao ponto_ajustado = Acao::AjustaPonto(ponto, 1.0f, origem, acao_proto);
 
+  Posicao ponto_ajustado = Acao::AjustaPonto(ponto, 1.0f, origem, acao_proto);
   EXPECT_FLOAT_EQ(4.25, ponto_ajustado.x());
+
+  ponto.set_x(1.0f);
+  ponto_ajustado = Acao::AjustaPonto(ponto, 1.0f, origem, acao_proto);
+  EXPECT_FLOAT_EQ(1.0f, ponto_ajustado.x());
+
+  ponto.set_x(1.3f);
+  ponto_ajustado = Acao::AjustaPonto(ponto, 1.0f, origem, acao_proto);
+  EXPECT_FLOAT_EQ(1.0f, ponto_ajustado.x());
 }
 
 TEST(TesteAcoes, TesteAjustePontoRaio) {
