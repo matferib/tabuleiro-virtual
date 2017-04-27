@@ -18,6 +18,7 @@ enum GeometriaAcao {
   ACAO_GEO_ESFERA = 1;
   ACAO_GEO_CUBO = 2;
   ACAO_GEO_CONE = 3;
+  ACAO_GEO_CILINDRO = 4;
 }
 
 enum TipoAceleracao {
@@ -88,6 +89,8 @@ message AcaoProto {
   optional InfoTextura info_textura = 28;
   // Se verdadeiro, desliga a luz para desenha a acao.
   optional bool ignora_luz = 29;
+  // Se verdadeiro, desliga face nula (culling).
+  optional bool dois_lados = 30;
 }
 
 // O arquivo de acoes é serializado desta forma.

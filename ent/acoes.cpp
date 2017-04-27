@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cmath>
+#include <functional>
 
 //#define VLOG_NIVEL 2
 #include "ent/acoes.h"
@@ -19,6 +20,8 @@ namespace ent {
 
 namespace {
 
+using std::placeholders::_1;
+
 void MudaCorProto(const Cor& cor) {
   const GLfloat corgl[3] = { cor.r(), cor.g(), cor.b() };
   MudaCor(corgl);
@@ -37,6 +40,9 @@ void DesenhaGeometriaAcao(int geometria) {
       return;
     case ACAO_GEO_CONE:
       gl::ConeSolido(0.5f  /*raio*/, 1.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
+      return;
+    case ACAO_GEO_CILINDRO:
+      gl::CilindroSolido(1.0f  /*raio*/, 2.0f  /*altura*/, 10  /*divisoes base*/, 3  /*divisoes altura*/);
       return;
     case ACAO_GEO_ESFERA:
     default:
@@ -749,11 +755,8 @@ int Acao::IdCenario() const {
   return CENARIO_INVALIDO;
 }
 
-void Acao::Desenha(ParametrosDesenho* pd) const {
-  if (atraso_s_ > 0) {
-    return;
-  }
-  if (acao_proto_.cor().a() < 1.0f || Finalizada()) {
+void Acao::DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDesenho*)> f_desenho) const {
+  if (atraso_s_ > 0 || Finalizada()) {
     return;
   }
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
@@ -763,26 +766,23 @@ void Acao::Desenha(ParametrosDesenho* pd) const {
     gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
   }
   std::unique_ptr<gl::DesabilitaEscopo> luz_escopo(acao_proto_.ignora_luz() ? new gl::DesabilitaEscopo(GL_LIGHTING): nullptr);
-  DesenhaSeNaoFinalizada(pd);
+  std::unique_ptr<gl::DesabilitaEscopo> cull_escopo(acao_proto_.dois_lados() ? new gl::DesabilitaEscopo(GL_CULL_FACE): nullptr);
+  f_desenho(pd);
   gl::Desabilita(GL_TEXTURE_2D);
 }
 
+void Acao::Desenha(ParametrosDesenho* pd) const {
+  if (acao_proto_.cor().a() < 1.0f) {
+    return;
+  }
+  DesenhaComum(pd, std::bind(&Acao::DesenhaSeNaoFinalizada, this, _1));
+}
+
 void Acao::DesenhaTranslucido(ParametrosDesenho* pd) const {
-  if (atraso_s_ > 0) {
+  if (acao_proto_.cor().a() >= 1.0f) {
     return;
   }
-  if (acao_proto_.cor().a() >= 1.0f || Finalizada()) {
-    return;
-  }
-  std::unique_ptr<gl::DesabilitaEscopo> luz_escopo(acao_proto_.ignora_luz() ? new gl::DesabilitaEscopo(GL_LIGHTING): nullptr);
-  gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
-  GLuint id_textura = acao_proto_.info_textura().id().empty() ? GL_INVALID_VALUE : texturas_->Textura(acao_proto_.info_textura().id());
-  if (id_textura != GL_INVALID_VALUE) {
-    gl::Habilita(GL_TEXTURE_2D);
-    gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
-  }
-  DesenhaTranslucidoSeNaoFinalizada(pd);
-  gl::Desabilita(GL_TEXTURE_2D);
+  DesenhaComum(pd, std::bind(&Acao::DesenhaTranslucidoSeNaoFinalizada, this, _1));
 }
 
 void Acao::AtualizaVelocidade(int intervalo_ms) {
@@ -902,12 +902,143 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
 }
 
 // static
-bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto) {
+Posicao Acao::AjustaPonto(
+    const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& acao_proto) {
+  if (multiplicador_tamanho < 1.0f) {
+    // Muito pequeno para se preocupar.
+    return pos_ponto;
+  }
+  float correcao = multiplicador_tamanho * TAMANHO_LADO_QUADRADO_2;
+  VLOG(1) << "Ajustando ponto: " << pos_ponto.ShortDebugString()
+          << ", origem: " << pos_origem.ShortDebugString()
+          << ", pos_tabuleiro: " << acao_proto.pos_tabuleiro().ShortDebugString()
+          << ", correcao maxima: " << correcao;
+
   switch (acao_proto.tipo()) {
     case ACAO_DISPERSAO:
       switch (acao_proto.geometria()) {
         case ACAO_GEO_ESFERA:
-          return DistanciaQuadrado(pos_ponto, acao_proto.pos_tabuleiro()) <= powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
+        case ACAO_GEO_CILINDRO:
+        case ACAO_GEO_CONE: {
+          Vector3 objeto_fonte(
+              PosParaVector3(acao_proto.geometria() == ACAO_GEO_CONE
+                ? acao_proto.pos_tabuleiro() : pos_origem) -
+              PosParaVector3(pos_ponto));
+          if (objeto_fonte.length() < correcao) {
+            correcao = objeto_fonte.length();
+          }
+          objeto_fonte.normalize();
+          objeto_fonte *= correcao;
+          Posicao pos_corrigida(pos_ponto);
+          pos_corrigida.set_x(pos_ponto.x() + objeto_fonte.x);
+          pos_corrigida.set_y(pos_ponto.y() + objeto_fonte.y);
+          pos_corrigida.set_z(pos_ponto.z() + objeto_fonte.z);
+          return pos_corrigida;
+        }
+        break;
+        default:
+          return pos_ponto;
+      }
+      break;
+    case ACAO_RAIO: {
+      if (!acao_proto.efeito_area()) {
+        break;;
+      }
+      // Para achar a direcao que aponta para o raio, temos:
+      //   Raio = R
+      //      |\    .
+      //      | \   .
+      //   H1 |__\  Objeto = Ob
+      //      |  /  .
+      //      | /   .
+      //      |/    .
+      //   Origem = Or
+      // O vetor de interesse é o traço do meio, chamemos de Q.
+      Vector3 v_origem(PosParaVector3(pos_origem));
+      Vector3 v_raio(PosParaVector3(acao_proto.pos_tabuleiro()) - v_origem);
+      Vector3 v_objeto(PosParaVector3(pos_ponto) - v_origem);
+
+      // Ob + Q = H1, portanto: Q = H1 - Ob.
+      // Para achar H1, usa-se seu tamanho: cos(a) = |H1| / |Ob|, portanto:
+      // |H1| = cos(a) * |Ob|.
+      // Para encontrar cos(a), R dot Ob = |R|.|Ob|.cos(a), portanto:
+      // cos(a) = R dot Ob / (|R|.|Ob|)
+      const float v_raio_length = v_raio.length();
+      const float v_objeto_length = v_objeto.length();
+      const float cos_a = (v_raio_length < 0.01 || v_objeto_length < 0.01)
+          ? 1.0f : v_raio.dot(v_objeto) / (v_raio_length * v_objeto_length);
+      if (fabs(cos_a) > 0.99) {
+        VLOG(1) << "cos(a) ~= 1.0f";
+        // Objetos com mesma direcao. So aponta na direcao contraria.
+        if (correcao > v_objeto_length) {
+          correcao = v_objeto_length;
+        }
+        v_objeto.normalize();
+        v_objeto *= -correcao;
+        Posicao pos_corrigida;
+        pos_corrigida.set_x(pos_ponto.x() + v_objeto.x);
+        pos_corrigida.set_y(pos_ponto.y() + v_objeto.y);
+        pos_corrigida.set_z(pos_ponto.z() + v_objeto.z);
+        return pos_corrigida;
+      }
+      VLOG(1) << "cos(a) = " << cos_a;
+      float h1 = cos_a * v_objeto_length;
+      // H1 = norm(R) * |H1|.
+      Vector3 v_h1 = v_raio.normalize() * h1;
+      // Ob + Q = H1, portanto: Q = H1 - Ob.
+      Vector3 v_q = v_h1 - v_objeto;
+      const float v_q_length = v_q.length();
+      if (correcao > v_q_length) {
+        correcao = v_q_length;
+      }
+      if (v_q_length > 0.01f) {
+        v_q.normalize();
+      }
+      v_q *= correcao;
+      Posicao pos_corrigida(pos_ponto);
+      pos_corrigida.set_x(pos_ponto.x() + v_q.x);
+      pos_corrigida.set_y(pos_ponto.y() + v_q.y);
+      pos_corrigida.set_z(pos_ponto.z() + v_q.z);
+      VLOG(1) << "Retornando: " << pos_corrigida.ShortDebugString();
+      return pos_corrigida;
+    }
+    break;
+    default: ;
+  }
+  VLOG(1) << "Retornando proprio ponto.";
+  return pos_ponto;
+}
+
+
+// static
+bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto) {
+  switch (acao_proto.tipo()) {
+    case ACAO_DISPERSAO:
+      switch (acao_proto.geometria()) {
+        case ACAO_GEO_ESFERA: {
+          const float dq =
+            DistanciaQuadrado(
+                pos_ponto, acao_proto.pos_tabuleiro());
+          return dq <= powf(acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2);
+        }
+        case ACAO_GEO_CILINDRO: {
+          // Corte rapido por z. cilindro tem duas vezes o tamanho do raio.
+          const float altura = acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO * 2;
+          const auto& pos_tabuleiro = acao_proto.pos_tabuleiro();
+          if (pos_ponto.z() < pos_tabuleiro.z() ||
+              pos_ponto.z() > (pos_tabuleiro.z() + altura)) {
+            return false;
+          }
+          const float raio = acao_proto.raio_quadrados() * TAMANHO_LADO_QUADRADO;
+          const float diff_x = pos_ponto.x() - pos_tabuleiro.x();
+          const float diff_y = pos_ponto.y() - pos_tabuleiro.y();
+          if (fabs(diff_x) > raio || fabs(diff_y) > raio) {
+            return false;
+          }
+          // A entidade está dentro do cubo. Agora ve se esta dentro do circulo.
+          float distancia_quadrado = powf(diff_x, 2) * pow(diff_y, 2);
+          return distancia_quadrado <= raio * raio;
+        }
         case ACAO_GEO_CONE: {
           // Vetor do ponto com relacao a origem.
           Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
@@ -937,28 +1068,32 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       if (!acao_proto.efeito_area()) {
         return false;
       }
-      Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
-      Vector3 v_destino(Vector3(pos_ponto.x(), pos_ponto.y(), pos_ponto.z()) - v_origem);
-      float distancia = v_destino.length();
-      LOG(INFO) << "distancia: " << distancia;
-      if (distancia == 0.0f || distancia > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
+      Vector3 v_origem(PosParaVector3(pos_origem));
+      Vector3 v_objeto(PosParaVector3(pos_ponto) - v_origem);
+      const float v_objeto_length = v_objeto.length();
+      if (v_objeto_length < 0.01f) {
+        return true;
+      }
+      if (v_objeto_length > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
         return false;
       }
-      Vector3 direcao_raio(Vector3(acao_proto.pos_tabuleiro().x(), acao_proto.pos_tabuleiro().y(), acao_proto.pos_tabuleiro().z())  - v_origem);
-      if (direcao_raio == Vector3()) {
+      Vector3 v_raio(PosParaVector3(acao_proto.pos_tabuleiro()) - v_origem);
+      const float v_raio_length = v_raio.length();
+      if (v_raio_length < 0.01f) {
         LOG(WARNING) << "Raio sem direcao: " << acao_proto.ShortDebugString();
         return false;
       }
-      direcao_raio.normalize();
-      v_destino.normalize();
+      v_raio.normalize();
+      v_objeto.normalize();
       // Angulo entre os vetores.
-      float angulo_rad = acosf(direcao_raio.dot(v_destino));
-      float angulo = angulo_rad * RAD_PARA_GRAUS;
+      const float angulo_rad = acosf(v_raio.dot(v_objeto));
+      const float angulo = angulo_rad * RAD_PARA_GRAUS;
       if (angulo > 90.0f) {
+        // Objeto atras do raio.
         //LOG(INFO) << "angulo maior que 90.0f: " << angulo;
         return false;
       }
-      float distancia_para_raio = sinf(angulo_rad) * distancia;
+      const float distancia_para_raio = sinf(angulo_rad) * v_objeto_length;
       //LOG(INFO) << "angulo: " << angulo << ", distancia_para_raio: " << distancia_para_raio;
       return distancia_para_raio < TAMANHO_LADO_QUADRADO_2;
     }

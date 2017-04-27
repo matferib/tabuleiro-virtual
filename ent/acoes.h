@@ -50,8 +50,13 @@ class Acao {
 
   /** Retorna se o ponto eh afetado pela acao. Apenas acoes de area retornam true. */
   static bool PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& proto);
+  /** Retorna um ponto auxiliar para ver se tb eh afetado. */
+  static Posicao AjustaPonto(
+      const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
 
  protected:
+  // Desenho comum. Retorna false se deve encerrar.
+  void DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDesenho*)> f_desenho) const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
   virtual void AtualizaAposAtraso(int intervalo_ms) = 0;

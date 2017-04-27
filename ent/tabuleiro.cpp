@@ -6286,97 +6286,12 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   for (const auto& id_entidade_destino : entidades_) {
     auto* entidade = id_entidade_destino.second.get();
     if (entidade->IdCenario() == cenario_origem) {
-      //entidades_cenario.push_back(entidade);
-      if (Acao::PontoAfetadoPorAcao(entidade->PosicaoAcao(), pos_origem, acao)) {
+      Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
+      if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao)) {
         ids_afetados.push_back(id_entidade_destino.first);
       }
     }
   }
-#if 0
-  if (acao.tipo() == ACAO_DISPERSAO) {
-    switch (acao.geometria()) {
-      case ACAO_GEO_ESFERA: {
-        for (const auto* entidade_destino : entidades_cenario) {
-          // Usa a posicao da acao para ver se pegou.
-          Posicao pos_entidade_destino(entidade_destino->PosicaoAcao());
-          float d2 = DistanciaQuadrado(pos_tabuleiro, pos_entidade_destino);
-          if (d2 <= powf(acao.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2)) {
-            VLOG(1) << "Adicionando id: " << entidade_destino->Id();
-            ids_afetados.push_back(entidade_destino->Id());
-          }
-        }
-      }
-      break;
-      case ACAO_GEO_CONE: {
-        if (entidade_origem == nullptr) {
-          LOG(WARNING) << "Entidade de origem nao encontrada";
-          return ids_afetados;
-        }
-        // Vetor de direcao.
-        const Posicao& pos_o = entidade_origem->Pos();
-        Posicao vetor_direcao;
-        vetor_direcao.set_x(pos_tabuleiro.x() - pos_o.x());
-        vetor_direcao.set_y(pos_tabuleiro.y() - pos_o.y());
-        float rotacao = VetorParaRotacaoGraus(vetor_direcao);
-        // Ja temos a direcao, agora eh so rodar o triangulo.
-        float distancia = acao.distancia() * TAMANHO_LADO_QUADRADO;
-        float distancia_2 = distancia / 2.0f;
-        std::vector<Posicao> vertices(3);
-        vertices[1].set_x(distancia);
-        vertices[1].set_y(-distancia_2);
-        vertices[2].set_x(distancia);
-        vertices[2].set_y(distancia_2);
-        for (unsigned int i = 0; i < vertices.size(); ++i) {
-          RodaVetor2d(rotacao, &vertices[i]);
-          vertices[i].set_x(vertices[i].x() + pos_o.x());
-          vertices[i].set_y(vertices[i].y() + pos_o.y());
-        }
-        for (const auto* entidade_destino : entidades_cenario) {
-          if (entidade_destino != entidade_origem && PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
-            VLOG(1) << "Adicionando id: " << entidade_destino->Id();
-            ids_afetados.push_back(entidade_destino->Id());
-          }
-        }
-      }
-      break;
-      default:
-        LOG(WARNING) << "Geometria da acao nao implementada: " << acao.tipo();
-    }
-  } else if (acao.tipo() == ACAO_RAIO) {
-    if (entidade_origem == nullptr) {
-      LOG(WARNING) << "Entidade de origem nao encontrada";
-      return ids_afetados;
-    }
-    // Vetor de direcao.
-    const Posicao& pos_o = entidade_origem->Pos();
-    Posicao vetor_direcao;
-    vetor_direcao.set_x(pos_tabuleiro.x() - pos_o.x());
-    vetor_direcao.set_y(pos_tabuleiro.y() - pos_o.y());
-    float rotacao = VetorParaRotacaoGraus(vetor_direcao);
-    // Ja temos a direcao, agora eh so rodar o retangulo.
-    std::vector<Posicao> vertices(4);
-    vertices[0].set_y(-TAMANHO_LADO_QUADRADO_2);
-    vertices[1].set_y(TAMANHO_LADO_QUADRADO_2);
-    vertices[2].set_y(TAMANHO_LADO_QUADRADO_2);
-    vertices[2].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
-    vertices[3].set_y(-TAMANHO_LADO_QUADRADO_2);
-    vertices[3].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
-    for (unsigned int i = 0; i < vertices.size(); ++i) {
-      RodaVetor2d(rotacao, &vertices[i]);
-      vertices[i].set_x(vertices[i].x() + pos_o.x());
-      vertices[i].set_y(vertices[i].y() + pos_o.y());
-    }
-    for (const auto* entidade_destino : entidades_cenario) {
-      if (entidade_destino != entidade_origem && PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
-        VLOG(1) << "Adicionando id: " << entidade_destino->Id();
-        ids_afetados.push_back(entidade_destino->Id());
-      }
-    }
-  } else {
-    LOG(WARNING) << "Tipo de acao nao reconhecido: " << acao.tipo();
-  }
-
-#endif
   return ids_afetados;
 }
 
