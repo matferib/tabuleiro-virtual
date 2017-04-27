@@ -51,6 +51,7 @@ acao {
 	permite_salvacao: true
   icone: 'icon_ice.png'
   duracao_s: 0.350
+  dois_lados: true
 }
 acao {
   id: 'Feitiço de Toque'
@@ -63,7 +64,7 @@ acao {
   icone: 'icon_touch.png'
 }
 acao {
-  id: 'Fogo Grego'
+  id: 'Fogo Alquímico'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
   raio_quadrados: 1.5  # quadrados.
@@ -126,6 +127,19 @@ acao {
 	distancia_quadrados: 14  # quadrados
 	permite_salvacao: true
   icone: "icon_lightning.png"
+}
+acao {
+  id: 'Tempestade Glacial'
+  tipo: ACAO_DISPERSAO
+  cor { r: 1 g: 1 b: 1 a: 0.5 }
+  raio_quadrados: 4  # quadrados.
+  geometria: ACAO_GEO_CILINDRO
+  efeito_area: true
+	permite_salvacao: false
+  icone: 'icon_ice.png'
+  info_textura { id: 'ice.png' }
+  duracao_s: 0.350
+  dois_lados: true
 }
 acao {
   id: 'Sinalização'

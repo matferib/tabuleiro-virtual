@@ -965,6 +965,10 @@ Posicao Acao::AjustaPonto(
       // cos(a) = R dot Ob / (|R|.|Ob|)
       const float v_raio_length = v_raio.length();
       const float v_objeto_length = v_objeto.length();
+      if (fabs(v_objeto_length) < 0.01) {
+        VLOG(1) << "Diferenca muito pequena, retornando proprio ponto";
+        return pos_ponto;
+      }
       const float cos_a = (v_raio_length < 0.01 || v_objeto_length < 0.01)
           ? 1.0f : v_raio.dot(v_objeto) / (v_raio_length * v_objeto_length);
       if (fabs(cos_a) > 0.99) {
@@ -979,6 +983,7 @@ Posicao Acao::AjustaPonto(
         pos_corrigida.set_x(pos_ponto.x() + v_objeto.x);
         pos_corrigida.set_y(pos_ponto.y() + v_objeto.y);
         pos_corrigida.set_z(pos_ponto.z() + v_objeto.z);
+        VLOG(1) << "Retornando: " << pos_corrigida.ShortDebugString();
         return pos_corrigida;
       }
       VLOG(1) << "cos(a) = " << cos_a;
@@ -1072,9 +1077,11 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       Vector3 v_objeto(PosParaVector3(pos_ponto) - v_origem);
       const float v_objeto_length = v_objeto.length();
       if (v_objeto_length < 0.01f) {
+        VLOG(1) << "Diferença muito pequena, retornando true";
         return true;
       }
       if (v_objeto_length > (acao_proto.distancia_quadrados() * TAMANHO_LADO_QUADRADO)) {
+        VLOG(1) << "Objeto fora de alcance, retornando false";
         return false;
       }
       Vector3 v_raio(PosParaVector3(acao_proto.pos_tabuleiro()) - v_origem);
@@ -1090,12 +1097,13 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       const float angulo = angulo_rad * RAD_PARA_GRAUS;
       if (angulo > 90.0f) {
         // Objeto atras do raio.
-        //LOG(INFO) << "angulo maior que 90.0f: " << angulo;
+        VLOG(1) << "angulo maior que 90.0f: " << angulo << ", retornando false";
         return false;
       }
       const float distancia_para_raio = sinf(angulo_rad) * v_objeto_length;
-      //LOG(INFO) << "angulo: " << angulo << ", distancia_para_raio: " << distancia_para_raio;
-      return distancia_para_raio < TAMANHO_LADO_QUADRADO_2;
+      VLOG(1) << "angulo: " << angulo << ", distancia_para_raio: " << distancia_para_raio;
+      // 10% de tolerancia, porque criaturas grandes tende a errar quando o clique nao eh no centro.
+      return distancia_para_raio < (TAMANHO_LADO_QUADRADO_2 * 1.10f);
     }
     break;
     default:
