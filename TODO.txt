@@ -1,9 +1,9 @@
-Multiplos ataques arma espiritual.
+Dispersao nao esta afetando origem. Mas cuidado com o cone.
+Paginar lista de eventos.
+
 Campo para automatico e sem critico nos dados de ataque.
 Alguns ataques continuam sem funcionar.
 Mapa de luz no shader simples.
-Olho abaixo do nivel 0: na verdade, ta funcionando, so que a referencia esta acima do nivel 0. Se clicar duas vezes com direito ela
-muda para o nivel correto. O certo seria pegar a referencia na hora do clique de rotacao inclinacao?
 
 Entidades forma nao tem olho, tratar isso na questao de desenho de luz e oclusao.
 Terminar a oclusao de luz.
@@ -12,7 +12,7 @@ Algema no inicio.
 Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
-Colocar as features (baus, portas, grades etc)  em um menu separado e adicionar varias do features.binproto.
+Colocar as features (baus, portas, grades etc) em um menu separado e adicionar varias do features.binproto.
 Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.
