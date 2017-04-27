@@ -56,7 +56,7 @@ class DesativadorWatchdogEscopo {
   ent::Tabuleiro* tabuleiro_;
 };
 
-constexpr int ULTIMO_TIPO_VALIDO = 11;
+constexpr int ULTIMO_TIPO_VALIDO = 12;
 int TipoParaIndice(const std::string& tipo_str) {
   // Os tipos sao encontrados no arquivo dados/acoes.asciiproto.
   // Os indices sao na ordem definida pela UI.
@@ -84,8 +84,10 @@ int TipoParaIndice(const std::string& tipo_str) {
     return 10;
   } else if (tipo_str == "Relâmpago") {
     return 11;
-  } else {
+  } else if (tipo_str == "Tempestade Glacial") {
     return 12;
+  } else {
+    return 13;
   }
 }
 
@@ -105,6 +107,7 @@ std::string IndiceParaTipo(int indice) {
     case 9: return "Pedrada (gigante)";
     case 10: return "Raio";
     case 11: return "Relâmpago";
+    case 12: return "Tempestade Glacial";
     default: return "Ataque Corpo a Corpo";
   }
 };

@@ -1596,6 +1596,11 @@
            </item>
            <item>
             <property name="text">
+             <string>Tempestade Glacial</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Outro</string>
             </property>
            </item>
