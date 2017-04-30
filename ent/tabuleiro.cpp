@@ -286,8 +286,8 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   info_geral_.clear();
 
   // LogEventos.
-  log_eventos_pagina_ = 0;
   log_eventos_.clear();
+  pagina_log_eventos_ = 0;
 
   // iniciativa.
   indice_iniciativa_ = -1;
@@ -5955,8 +5955,8 @@ void Tabuleiro::DesenhaGrade() {
 }
 
 void Tabuleiro::DesenhaListaGenerica(
-    int raster_x, int raster_y, int pagina_corrente, const char* titulo,
-    int tipo_objeto, int nome_cima, int nome_baixo, int tipo_lista, const std::vector<std::string>& lista,
+    int coluna, int linha, int pagina_corrente, const char* titulo,
+    int nome_cima, int nome_baixo, int tipo_lista, const std::vector<std::string>& lista,
     std::function<int(int)> f_id) {
   const int n_objetos = lista.size();
   const int objs_por_pagina = 10;
@@ -5975,8 +5975,21 @@ void Tabuleiro::DesenhaListaGenerica(
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;
-  raster_y = altura_ - (altura_fonte * escala);
-  raster_x = 0 + 2;
+  int altura_linha = altura_fonte + 2;
+  int raster_y;
+  if (linha < 0) {
+    // Linha eh negativo, entao descontara do limite.
+    raster_y = altura_ + linha * altura_linha;
+  } else {
+    raster_y = linha * altura_linha;
+  }
+  int raster_x;
+  if (coluna < 0) {
+    // ditto.
+    raster_x = largura_ + coluna * largura_fonte;
+  } else {
+    raster_x = coluna * largura_fonte;
+  }
   if (!parametros_desenho_.has_picking_x()) {
     PosicionaRaster2d(raster_x, raster_y);
   }
@@ -5984,14 +5997,14 @@ void Tabuleiro::DesenhaListaGenerica(
   if (!parametros_desenho_.has_picking_x()) {
     gl::DesenhaStringAlinhadoEsquerda(titulo);
   }
-  raster_y -= (altura_fonte + 2);
+  raster_y -= altura_linha;
   // Paginacao inicial.
   if (pagina_corrente > 0) {
-    gl::TipoEscopo tipo(tipo_objeto);
+    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
     gl::CarregaNome(nome_cima);
     {
       MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_linha);
     }
     if (!parametros_desenho_.has_picking_x()) {
       MudaCor(COR_AZUL);
@@ -6001,7 +6014,7 @@ void Tabuleiro::DesenhaListaGenerica(
     }
   }
   // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
-  raster_y -= (altura_fonte + 2);
+  raster_y -= altura_linha;
 
   // Lista de objetos.
   for (int i = objeto_inicial; i < objeto_final; ++i) {
@@ -6016,22 +6029,22 @@ void Tabuleiro::DesenhaListaGenerica(
     }
     {
       MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (lista[i].size() * largura_fonte), raster_y + altura_fonte);
+      gl::Retangulo(raster_x, raster_y, raster_x + (lista[i].size() * largura_fonte), raster_y + altura_linha);
     }
     MudaCor(COR_AZUL);
     if (!parametros_desenho_.has_picking_x()) {
       gl::DesenhaStringAlinhadoEsquerda(lista[i]);
     }
-    raster_y -= (altura_fonte + 2);
+    raster_y -= altura_linha;
   }
 
   // Paginacao final.
   if (pagina_corrente < (num_paginas - 1)) {
-    gl::TipoEscopo tipo(tipo_objeto);
+    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
     gl::CarregaNome(nome_baixo);
     {
       MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_linha);
     }
     if (!parametros_desenho_.has_picking_x()) {
       MudaCor(COR_AZUL);
@@ -6039,7 +6052,7 @@ void Tabuleiro::DesenhaListaGenerica(
       std::string page_down("vvv");
       gl::DesenhaStringAlinhadoEsquerda(page_down);
     }
-    raster_y -= (altura_fonte + 2);
+    raster_y -= altura_linha;
   }
 }
 
@@ -6111,7 +6124,7 @@ void Tabuleiro::DesenhaListaObjetos() {
     return mapa_indice_ids[i];
   };
 
-  DesenhaListaGenerica(0, 0, pagina_lista_objetos_, "Lista de Objetos do cenário", OBJ_CONTROLE_VIRTUAL,
+  DesenhaListaGenerica(0, -1, pagina_lista_objetos_, "Lista de Objetos do cenário",
                        CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA, CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO,
                        OBJ_ENTIDADE_LISTA, lista, Mapeia);
 }
@@ -6119,31 +6132,16 @@ void Tabuleiro::DesenhaListaObjetos() {
 void Tabuleiro::DesenhaLogEventos() {
   // Quadrado preto de 8 linhas.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int largura_fonte, altura_fonte, escala;
-  int kTamanhoMaximoCaracteres  = 100;
-  int kNumLinhas = 8;  // uma de titulo e duas de paginacoes.
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  largura_fonte *= escala;
-  altura_fonte *= escala;
-  int kTamanhoMaximoPixels = largura_fonte * kTamanhoMaximoCaracteres;
+  int kNumLinhas = 12;  // Abaixo do titulo tem 12 linhas (10 items e duas paginacoes).
 
-  MudaCor(COR_PRETA);
-  gl::Retangulo(0, 0, kTamanhoMaximoPixels, (altura_fonte * escala) * 8);
+  //MudaCor(COR_AMARELA);
+  std::vector<std::string> lista;
+  for (const auto& log : log_eventos_) lista.push_back(log);
 
-  MudaCor(COR_AMARELA);
-  int raster_x = kTamanhoMaximoPixels / 2, raster_y =  (altura_fonte * escala) * (kNumLinhas - 1);
-  PosicionaRaster2d(raster_x, raster_y);
-  gl::DesenhaString("Lista de Eventos");
-  raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
-  auto it = log_eventos_.begin();
-  for (int i = 0; i < (kNumLinhas - 3) && it != log_eventos_.end(); ++it) {
-    PosicionaRaster2d(2, raster_y);
-    char s[100];
-    snprintf(s, 99, "%s", it->c_str());
-    gl::DesenhaStringAlinhadoEsquerda(s);
-    raster_y -= altura_fonte;
-    ++i;
-  }
+  DesenhaListaGenerica(0, kNumLinhas,
+                       pagina_log_eventos_, "Log de Eventos Locais",
+                       CONTROLE_PAGINACAO_LISTA_LOG_CIMA, CONTROLE_PAGINACAO_LISTA_LOG_BAIXO,
+                       OBJ_CONTROLE_VIRTUAL, lista, [](int) { return CONTROLE_PAGINACAO_DUMMY; });
 }
 
 void Tabuleiro::DesenhaIdAcaoEntidade() {

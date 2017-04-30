@@ -425,6 +425,12 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO:
       ++pagina_lista_objetos_;
       break;
+    case CONTROLE_PAGINACAO_LISTA_LOG_CIMA:
+      --pagina_log_eventos_;
+      break;
+    case CONTROLE_PAGINACAO_LISTA_LOG_BAIXO:
+      ++pagina_log_eventos_;
+      break;
     case CONTROLE_PAGINACAO_ANTERIOR:
       if (controle_virtual_.pagina_corrente() > 0) {
         controle_virtual_.set_pagina_corrente(controle_virtual_.pagina_corrente() - 1);

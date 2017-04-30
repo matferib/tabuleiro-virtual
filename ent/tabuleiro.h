@@ -808,9 +808,10 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha uma lista generica de strings de forma paginada. A funcao f_id recebe um indice da lista e retorna o id
   * de callback para controle virtual.
+  * Os valores coluna e linha sao usados para posicionar o raster inicialmente. A origem eh esquerda embaixo.
   */
-  void DesenhaListaGenerica(int raster_x, int raster_y, int pagina_corrente, const char* titulo,
-      int tipo_objeto, int nome_cima, int nome_baixo, int tipo_lista, const std::vector<std::string>& lista,
+  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, const char* titulo,
+      int nome_cima, int nome_baixo, int tipo_lista, const std::vector<std::string>& lista,
       std::function<int(int)> f_id);
 
   /** Desenha as iniciativas ordenadas. */
@@ -1059,7 +1060,7 @@ class Tabuleiro : public ntf::Receptor {
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
 
   std::list<std::string> log_eventos_;
-  int log_eventos_pagina_;
+  int pagina_log_eventos_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
