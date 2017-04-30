@@ -285,6 +285,10 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   pagina_lista_objetos_ = 0;
   info_geral_.clear();
 
+  // LogEventos.
+  log_eventos_pagina_ = 0;
+  log_eventos_.clear();
+
   // iniciativa.
   indice_iniciativa_ = -1;
   iniciativas_.clear();
@@ -5950,6 +5954,95 @@ void Tabuleiro::DesenhaGrade() {
   vbos_grade_.Desenha();
 }
 
+void Tabuleiro::DesenhaListaGenerica(
+    int raster_x, int raster_y, int pagina_corrente, const char* titulo,
+    int tipo_objeto, int nome_cima, int nome_baixo, int tipo_lista, const std::vector<std::string>& lista,
+    std::function<int(int)> f_id) {
+  const int n_objetos = lista.size();
+  const int objs_por_pagina = 10;
+  const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
+  pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas : pagina_corrente;
+  const int objeto_inicial = pagina_corrente * objs_por_pagina;
+  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0))
+      ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
+  if (pagina_corrente > num_paginas - 1) {
+    pagina_corrente = std::max(num_paginas - 1, 0);
+  }
+
+  // Modo 2d: eixo com origem embaixo esquerda.
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  raster_y = altura_ - (altura_fonte * escala);
+  raster_x = 0 + 2;
+  if (!parametros_desenho_.has_picking_x()) {
+    PosicionaRaster2d(raster_x, raster_y);
+  }
+  MudaCor(COR_BRANCA);
+  if (!parametros_desenho_.has_picking_x()) {
+    gl::DesenhaStringAlinhadoEsquerda(titulo);
+  }
+  raster_y -= (altura_fonte + 2);
+  // Paginacao inicial.
+  if (pagina_corrente > 0) {
+    gl::TipoEscopo tipo(tipo_objeto);
+    gl::CarregaNome(nome_cima);
+    {
+      MudaCor(COR_BRANCA);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      MudaCor(COR_AZUL);
+      PosicionaRaster2d(raster_x, raster_y);
+      std::string page_up("^^^");
+      gl::DesenhaStringAlinhadoEsquerda(page_up);
+    }
+  }
+  // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
+  raster_y -= (altura_fonte + 2);
+
+  // Lista de objetos.
+  for (int i = objeto_inicial; i < objeto_final; ++i) {
+    if (!parametros_desenho_.has_picking_x()) {
+      PosicionaRaster2d(raster_x, raster_y);
+    }
+    gl::TipoEscopo tipo(tipo_lista);
+    try {
+      gl::CarregaNome(f_id(i));
+    } catch (...) {
+      continue;
+    }
+    {
+      MudaCor(COR_BRANCA);
+      gl::Retangulo(raster_x, raster_y, raster_x + (lista[i].size() * largura_fonte), raster_y + altura_fonte);
+    }
+    MudaCor(COR_AZUL);
+    if (!parametros_desenho_.has_picking_x()) {
+      gl::DesenhaStringAlinhadoEsquerda(lista[i]);
+    }
+    raster_y -= (altura_fonte + 2);
+  }
+
+  // Paginacao final.
+  if (pagina_corrente < (num_paginas - 1)) {
+    gl::TipoEscopo tipo(tipo_objeto);
+    gl::CarregaNome(nome_baixo);
+    {
+      MudaCor(COR_BRANCA);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      MudaCor(COR_AZUL);
+      PosicionaRaster2d(raster_x, raster_y);
+      std::string page_down("vvv");
+      gl::DesenhaStringAlinhadoEsquerda(page_down);
+    }
+    raster_y -= (altura_fonte + 2);
+  }
+}
+
 void Tabuleiro::DesenhaListaJogadores() {
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
@@ -6012,8 +6105,8 @@ void Tabuleiro::DesenhaListaObjetos() {
   const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
   const int pagina_corrente = (pagina_lista_objetos_ >= num_paginas) ? num_paginas : pagina_lista_objetos_;
   const int objeto_inicial = pagina_corrente * objs_por_pagina;
-  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0)) ?
-      n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
+  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0))
+      ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
   if (pagina_lista_objetos_ > num_paginas - 1) {
     pagina_lista_objetos_ = std::max(num_paginas - 1, 0);
   }
@@ -6108,7 +6201,6 @@ void Tabuleiro::DesenhaLogEventos() {
   int largura_fonte, altura_fonte, escala;
   int kTamanhoMaximoCaracteres  = 100;
   int kNumLinhas = 8;  // uma de titulo e duas de paginacoes.
-  // TODO paginacao.
   gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
   largura_fonte *= escala;
   altura_fonte *= escala;

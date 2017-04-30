@@ -806,6 +806,13 @@ class Tabuleiro : public ntf::Receptor {
   /** Para debugar, desenha uma lista de objetos. */
   void DesenhaListaObjetos();
 
+  /** Desenha uma lista generica de strings de forma paginada. A funcao f_id recebe um indice da lista e retorna o id
+  * de callback para controle virtual.
+  */
+  void DesenhaListaGenerica(int raster_x, int raster_y, int pagina_corrente, const char* titulo,
+      int tipo_objeto, int nome_cima, int nome_baixo, int tipo_lista, const std::vector<std::string>& lista,
+      std::function<int(int)> f_id);
+
   /** Desenha as iniciativas ordenadas. */
   void DesenhaIniciativas();
 
@@ -1052,6 +1059,7 @@ class Tabuleiro : public ntf::Receptor {
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
 
   std::list<std::string> log_eventos_;
+  int log_eventos_pagina_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
