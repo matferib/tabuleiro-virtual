@@ -6091,108 +6091,29 @@ void Tabuleiro::DesenhaListaJogadores() {
 }
 
 void Tabuleiro::DesenhaListaObjetos() {
-  std::vector<const Entidade*> entidades_cenario;
+  std::vector<std::string> lista;
+  std::vector<int> mapa_indice_ids;
   for (const auto& it : entidades_) {
     const auto* e = it.second.get();
     if (e->IdCenario() != cenario_corrente_) {
       continue;
     }
-    entidades_cenario.push_back(e);
+    mapa_indice_ids.push_back(e->Id());
+    std::string rotulo = google::protobuf::StringPrintf(
+        "%d%s->%s:%s",
+        e->Id(),
+        google::protobuf::StringPrintf("%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str()).c_str(),
+        TipoEntidade_Name(e->Proto().tipo()).c_str(),
+        e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
+    lista.push_back(rotulo);
   }
+  auto Mapeia = [&mapa_indice_ids](int i) {
+    return mapa_indice_ids[i];
+  };
 
-  const int n_objetos = entidades_cenario.size();
-  const int objs_por_pagina = 10;
-  const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
-  const int pagina_corrente = (pagina_lista_objetos_ >= num_paginas) ? num_paginas : pagina_lista_objetos_;
-  const int objeto_inicial = pagina_corrente * objs_por_pagina;
-  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0))
-      ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
-  if (pagina_lista_objetos_ > num_paginas - 1) {
-    pagina_lista_objetos_ = std::max(num_paginas - 1, 0);
-  }
-
-  // Modo 2d: eixo com origem embaixo esquerda.
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int raster_x = 0, raster_y = 0;
-  int largura_fonte, altura_fonte, escala;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  largura_fonte *= escala;
-  altura_fonte *= escala;
-  raster_y = altura_ - (altura_fonte * escala);
-  raster_x = 0 + 2;
-  if (!parametros_desenho_.has_picking_x()) {
-    PosicionaRaster2d(raster_x, raster_y);
-  }
-  MudaCor(COR_BRANCA);
-  if (!parametros_desenho_.has_picking_x()) {
-    std::string titulo("Lista Objetos");
-    gl::DesenhaStringAlinhadoEsquerda(titulo);
-  }
-  raster_y -= (altura_fonte + 2);
-  // Paginacao inicial.
-  if (pagina_corrente > 0) {
-    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
-    gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA);
-    {
-      MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
-    }
-    if (!parametros_desenho_.has_picking_x()) {
-      MudaCor(COR_AZUL);
-      PosicionaRaster2d(raster_x, raster_y);
-      std::string page_up("^^^");
-      gl::DesenhaStringAlinhadoEsquerda(page_up);
-    }
-  }
-  // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
-  raster_y -= (altura_fonte + 2);
-
-  // Lista de objetos.
-  for (int i = objeto_inicial; i < objeto_final; ++i) {
-    const auto* e = entidades_cenario[i];
-    if (!parametros_desenho_.has_picking_x()) {
-      PosicionaRaster2d(raster_x, raster_y);
-    }
-    char rotulo[10];
-    snprintf(rotulo, 10, "%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str());
-    char str[100];
-    snprintf(str, 100, "%d%s->%s:%s",
-             e->Id(), rotulo,
-             TipoEntidade_Name(e->Proto().tipo()).c_str(),
-             e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
-    gl::TipoEscopo tipo(OBJ_ENTIDADE_LISTA);
-    try {
-      gl::CarregaNome(e->Id());
-    } catch (...) {
-      continue;
-    }
-    {
-      MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (strlen(str) * largura_fonte), raster_y + altura_fonte);
-    }
-    MudaCor(COR_AZUL);
-    if (!parametros_desenho_.has_picking_x()) {
-      gl::DesenhaStringAlinhadoEsquerda(str);
-    }
-    raster_y -= (altura_fonte + 2);
-  }
-
-  // Paginacao final.
-  if (pagina_corrente < (num_paginas - 1)) {
-    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
-    gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO);
-    {
-      MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
-    }
-    if (!parametros_desenho_.has_picking_x()) {
-      MudaCor(COR_AZUL);
-      PosicionaRaster2d(raster_x, raster_y);
-      std::string page_down("vvv");
-      gl::DesenhaStringAlinhadoEsquerda(page_down);
-    }
-    raster_y -= (altura_fonte + 2);
-  }
+  DesenhaListaGenerica(0, 0, pagina_lista_objetos_, "Lista de Objetos do cenário", OBJ_CONTROLE_VIRTUAL,
+                       CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA, CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO,
+                       OBJ_ENTIDADE_LISTA, lista, Mapeia);
 }
 
 void Tabuleiro::DesenhaLogEventos() {
