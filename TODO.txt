@@ -1,8 +1,4 @@
-Dispersao nao esta afetando origem. Mas cuidado com o cone.
-Paginar lista de eventos.
-
 Campo para automatico e sem critico nos dados de ataque.
-Alguns ataques continuam sem funcionar.
 Mapa de luz no shader simples.
 
 Entidades forma nao tem olho, tratar isso na questao de desenho de luz e oclusao.
