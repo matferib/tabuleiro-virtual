@@ -37,6 +37,20 @@ fixo {
     mestre_apenas: true
     dica: "Restaura um tabuleiro."
   }
+  # Iluminacao mestre.
+  dados_botoes {
+    tamanho: 1
+    linha: -3
+    coluna: -3
+    alinhamento_vertical: ALINHAMENTO_CIMA
+    alinhamento_horizontal: ALINHAMENTO_DIREITA
+    textura: "icon_dm_light.png"
+    rotulo: "L"
+    id: CONTROLE_ILUMINACAO_MESTRE
+    forma: FORMA_RETANGULO
+    mestre_apenas: true
+    dica: "Iluminação para o mestre."
+  }
   # Terreno.
   dados_botoes {
     tamanho: 1
@@ -249,6 +263,7 @@ pagina {
     textura: ""
     id: CONTROLE_ALTERNA_CURA
     forma: FORMA_RETANGULO
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     dica: "Alterna entre cura e dano."
   }
   dados_botoes {
@@ -272,6 +287,7 @@ pagina {
     textura: ""
     id: CONTROLE_ADICIONA_1
     forma: FORMA_RETANGULO
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     dica: "Adiciona 1 ao dano acumulado."
   }
   dados_botoes {
@@ -283,6 +299,7 @@ pagina {
     textura: ""
     id: CONTROLE_ADICIONA_5
     forma: FORMA_RETANGULO
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     dica: "Adiciona 5 ao dano acumulado."
   }
   dados_botoes {
@@ -293,6 +310,7 @@ pagina {
     cor_rotulo {}
     textura: ""
     id: CONTROLE_ADICIONA_10
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     forma: FORMA_RETANGULO
     dica: "Adiciona 10 ao dano acumulado."
   }
@@ -305,6 +323,7 @@ pagina {
     textura: ""
     id: CONTROLE_CONFIRMA_DANO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     dica: "Acumula um novo valor de dano."
   }
   dados_botoes {
@@ -316,113 +335,291 @@ pagina {
     textura: ""
     id: CONTROLE_APAGA_DANO
     forma: FORMA_RETANGULO
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO tipo: VIS_INVERSO_DE } }
     dica: "Remove o último valor acumulado."
   }
 
   # Botoes de dano automatico.
   dados_botoes {
     tamanho: 1
-    linha: 1
+    linha: 0
     coluna: 3
+    rotulo: "D:"
+    id: CONTROLE_BONUS_DANO_NEGATIVO
+    forma: FORMA_RETANGULO
+    dica: "Modificadores de dano"
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 0
+    coluna: 4
     rotulo: "+1"
     cor_rotulo { b: 1 }
     textura: ""
     id: CONTROLE_DANO_MAIS_1
     forma: FORMA_RETANGULO
     dica: "Modificador +1 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 4
+    linha: 0
+    coluna: 5
     rotulo: "+2"
     cor_rotulo { b: 1 }
     textura: ""
     id: CONTROLE_DANO_MAIS_2
     forma: FORMA_RETANGULO
     dica: "Modificador +2 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 5
+    linha: 0
+    coluna: 6
     rotulo: "+4"
     cor_rotulo { b: 1 }
     textura: ""
     id: CONTROLE_DANO_MAIS_4
     forma: FORMA_RETANGULO
     dica: "Modificador +4 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 6
+    linha: 0
+    coluna: 7
     rotulo: "+8"
     cor_rotulo { b: 1 }
     textura: ""
     id: CONTROLE_DANO_MAIS_8
     forma: FORMA_RETANGULO
     dica: "Modificador +8 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
   }
   dados_botoes {
     tamanho: 1
-    linha: 1
-    coluna: 7
+    linha: 0
+    coluna: 8
     rotulo: "16"
     cor_rotulo { b: 1 }
     textura: ""
     id: CONTROLE_DANO_MAIS_16
     forma: FORMA_RETANGULO
     dica: "Modificador +16 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
   }
-
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 3
+    coluna: 4
     rotulo: "-1"
     cor_rotulo { r: 1 }
     textura: ""
     id: CONTROLE_DANO_MENOS_1
     forma: FORMA_RETANGULO
     dica: "Modificador -1 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+    }
   }
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 4
+    coluna: 5
     rotulo: "-2"
     cor_rotulo { r: 1 }
     textura: ""
     id: CONTROLE_DANO_MENOS_2
     forma: FORMA_RETANGULO
     dica: "Modificador -2 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+    }
   }
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 5
+    coluna: 6
     rotulo: "-4"
     cor_rotulo { r: 1 }
     textura: ""
     id: CONTROLE_DANO_MENOS_4
     forma: FORMA_RETANGULO
     dica: "Modificador -4 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+    }
   }
   dados_botoes {
     tamanho: 1
     linha: 0
-    coluna: 6
+    coluna: 7
     rotulo: "-8"
     cor_rotulo { r: 1 }
     textura: ""
     id: CONTROLE_DANO_MENOS_8
     forma: FORMA_RETANGULO
     dica: "Modificador -8 dano"
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_DANO_NEGATIVO   }
+    }
+  }
+
+  # Botoes de ataque automatico.
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 3
+    rotulo: "A:"
+    id: CONTROLE_BONUS_ATAQUE_NEGATIVO
+    forma: FORMA_RETANGULO
+    dica: "Modificadores de ataque"
+    visibilidade { referencia { id: CONTROLE_DANO_AUTOMATICO } }
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 4
+    rotulo: "+1"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MAIS_1
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador +1 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 5
+    rotulo: "+2"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MAIS_2
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador +2 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "+4"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MAIS_4
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE  }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador +4 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 7
+    rotulo: "+8"
+    cor_rotulo { b: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MAIS_8
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO tipo: VIS_INVERSO_DE }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador +8 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 4
+    rotulo: "-1"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MENOS_1
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO   }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador -1 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 5
+    rotulo: "-2"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MENOS_2
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO   }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador -2 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 6
+    rotulo: "-4"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MENOS_4
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO   }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador -4 ataque"
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 1
+    coluna: 7
+    rotulo: "-8"
+    cor_rotulo { r: 1 }
+    textura: ""
+    id: CONTROLE_ATAQUE_MENOS_8
+    visibilidade {
+      referencia { id: CONTROLE_DANO_AUTOMATICO }
+      referencia { id: CONTROLE_BONUS_ATAQUE_NEGATIVO  }
+    }
+    forma: FORMA_RETANGULO
+    dica: "Modificador -8 ataque"
   }
 
   # Status.
-   dados_botoes {
+  dados_botoes {
     tamanho: 1
     linha: 0
     coluna: 11
@@ -458,8 +655,8 @@ pagina {
   }
   dados_botoes {
     tamanho: 1
-    linha: 2
-    coluna: 13
+    linha: 1
+    coluna: 12
     rotulo: "F"
     cor_rotulo {}
     textura: "icon_sneak.png"
@@ -480,100 +677,11 @@ pagina {
     mestre_apenas: false
     dica: "Surpreso."
   }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 9
-    rotulo: "-1"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MENOS_1
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "-1 ataque."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 10
-    rotulo: "-2"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MENOS_2
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "-2 ataque."
-  }
+
   dados_botoes {
     tamanho: 1
     linha: 1
     coluna: 11
-    rotulo: "-4"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MENOS_4
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "-4 ataque."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 1
-    coluna: 12
-    rotulo: "-8"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MENOS_8
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "-8 ataque."
-  }
-
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 9
-    rotulo: "+1"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MAIS_1
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "+1 ataque."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 10
-    rotulo: "+2"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MAIS_2
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "+2 ataque."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 11
-    rotulo: "+4"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MAIS_4
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "+4 ataque."
-  }
-  dados_botoes {
-    tamanho: 1
-    linha: 2
-    coluna: 12
-    rotulo: "+8"
-    cor_rotulo {}
-    id: CONTROLE_ATAQUE_MAIS_8
-    forma: FORMA_RETANGULO
-    mestre_apenas: false
-    dica: "+8 ataque."
-  }
-
-  dados_botoes {
-    tamanho: 1
-    linha: 0
-    coluna: 9
     rotulo: "Vo"
     cor_rotulo {}
     textura: "icon_feather.png"

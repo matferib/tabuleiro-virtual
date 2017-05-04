@@ -41,10 +41,6 @@ class Ui_DialogoEntidade
 {
 public:
     QDialogButtonBox *botoes;
-    QWidget *horizontalLayoutWidget;
-    QHBoxLayout *horizontalLayout;
-    QLabel *label;
-    QLineEdit *campo_id;
     QTabWidget *tab_tesouro;
     QWidget *tab_geral;
     QWidget *horizontalLayoutWidget_2;
@@ -53,6 +49,7 @@ public:
     QLabel *label_3;
     QCheckBox *checkbox_cor;
     QPushButton *botao_cor;
+    QSlider *slider_alfa;
     QWidget *horizontalLayoutWidget_7;
     QHBoxLayout *horizontalLayout_8;
     QCheckBox *checkbox_selecionavel;
@@ -134,12 +131,42 @@ public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
     QHBoxLayout *horizontalLayout_15;
-    QHBoxLayout *horizontalLayout_17;
+    QLabel *label;
+    QLineEdit *campo_id;
     QLabel *label_8;
     QLineEdit *campo_rotulo;
     QHBoxLayout *horizontalLayout_18;
     QLabel *label_10;
     QPlainTextEdit *lista_rotulos;
+    QWidget *tab_nivel;
+    QWidget *horizontalLayoutWidget_5;
+    QHBoxLayout *horizontalLayout_31;
+    QLabel *label_39;
+    QLineEdit *linha_nivel;
+    QPushButton *botao_adicionar_nivel;
+    QListWidget *lista_niveis;
+    QPushButton *botao_remover_nivel;
+    QWidget *horizontalLayoutWidget_12;
+    QHBoxLayout *horizontalLayout_33;
+    QLabel *label_46;
+    QLineEdit *linha_bba;
+    QGroupBox *groupBox_2;
+    QWidget *horizontalLayoutWidget;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label_40;
+    QLineEdit *linha_classe;
+    QSpacerItem *horizontalSpacer;
+    QLabel *label_41;
+    QSpinBox *spin_nivel_classe;
+    QSpacerItem *horizontalSpacer_4;
+    QLabel *label_43;
+    QSpinBox *spin_bba;
+    QSpacerItem *horizontalSpacer_7;
+    QLabel *label_42;
+    QSpinBox *spin_nivel_conjurador;
+    QSpacerItem *horizontalSpacer_8;
+    QLabel *label_44;
+    QSpinBox *spin_mod_conjuracao;
     QWidget *tab_estatisticas;
     QWidget *layoutWidget_3;
     QHBoxLayout *horizontalLayout_28;
@@ -201,26 +228,9 @@ public:
         botoes->setGeometry(QRect(560, 570, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
-        horizontalLayoutWidget = new QWidget(ifg__qt__DialogoEntidade);
-        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(100, 10, 181, 41));
-        horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        horizontalLayout->setContentsMargins(0, 0, 0, 0);
-        label = new QLabel(horizontalLayoutWidget);
-        label->setObjectName(QString::fromUtf8("label"));
-
-        horizontalLayout->addWidget(label, 0, Qt::AlignRight);
-
-        campo_id = new QLineEdit(horizontalLayoutWidget);
-        campo_id->setObjectName(QString::fromUtf8("campo_id"));
-        campo_id->setReadOnly(true);
-
-        horizontalLayout->addWidget(campo_id, 0, Qt::AlignLeft);
-
         tab_tesouro = new QTabWidget(ifg__qt__DialogoEntidade);
         tab_tesouro->setObjectName(QString::fromUtf8("tab_tesouro"));
-        tab_tesouro->setGeometry(QRect(10, 80, 931, 481));
+        tab_tesouro->setGeometry(QRect(10, 20, 931, 541));
         tab_geral = new QWidget();
         tab_geral->setObjectName(QString::fromUtf8("tab_geral"));
         horizontalLayoutWidget_2 = new QWidget(tab_geral);
@@ -259,6 +269,15 @@ public:
         botao_cor->setObjectName(QString::fromUtf8("botao_cor"));
 
         horizontalLayout_2->addWidget(botao_cor);
+
+        slider_alfa = new QSlider(horizontalLayoutWidget_2);
+        slider_alfa->setObjectName(QString::fromUtf8("slider_alfa"));
+        sizePolicy1.setHeightForWidth(slider_alfa->sizePolicy().hasHeightForWidth());
+        slider_alfa->setSizePolicy(sizePolicy1);
+        slider_alfa->setMaximum(100);
+        slider_alfa->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_2->addWidget(slider_alfa);
 
         horizontalLayoutWidget_7 = new QWidget(tab_geral);
         horizontalLayoutWidget_7->setObjectName(QString::fromUtf8("horizontalLayoutWidget_7"));
@@ -404,7 +423,7 @@ public:
 
         horizontalLayoutWidget_10 = new QWidget(tab_geral);
         horizontalLayoutWidget_10->setObjectName(QString::fromUtf8("horizontalLayoutWidget_10"));
-        horizontalLayoutWidget_10->setGeometry(QRect(10, 400, 361, 35));
+        horizontalLayoutWidget_10->setGeometry(QRect(10, 410, 361, 35));
         horizontalLayout_16 = new QHBoxLayout(horizontalLayoutWidget_10);
         horizontalLayout_16->setObjectName(QString::fromUtf8("horizontalLayout_16"));
         horizontalLayout_16->setContentsMargins(0, 0, 0, 0);
@@ -421,7 +440,7 @@ public:
 
         horizontalLayoutWidget_6 = new QWidget(tab_geral);
         horizontalLayoutWidget_6->setObjectName(QString::fromUtf8("horizontalLayoutWidget_6"));
-        horizontalLayoutWidget_6->setGeometry(QRect(10, 370, 361, 31));
+        horizontalLayoutWidget_6->setGeometry(QRect(10, 380, 361, 31));
         horizontalLayout_13 = new QHBoxLayout(horizontalLayoutWidget_6);
         horizontalLayout_13->setObjectName(QString::fromUtf8("horizontalLayout_13"));
         horizontalLayout_13->setContentsMargins(0, 0, 0, 0);
@@ -706,21 +725,36 @@ public:
         verticalLayout->setContentsMargins(0, 0, 0, 0);
         horizontalLayout_15 = new QHBoxLayout();
         horizontalLayout_15->setObjectName(QString::fromUtf8("horizontalLayout_15"));
-        horizontalLayout_17 = new QHBoxLayout();
-        horizontalLayout_17->setObjectName(QString::fromUtf8("horizontalLayout_17"));
+        label = new QLabel(verticalLayoutWidget);
+        label->setObjectName(QString::fromUtf8("label"));
 
-        horizontalLayout_15->addLayout(horizontalLayout_17);
+        horizontalLayout_15->addWidget(label);
+
+        campo_id = new QLineEdit(verticalLayoutWidget);
+        campo_id->setObjectName(QString::fromUtf8("campo_id"));
+        sizePolicy1.setHeightForWidth(campo_id->sizePolicy().hasHeightForWidth());
+        campo_id->setSizePolicy(sizePolicy1);
+        campo_id->setMinimumSize(QSize(0, 0));
+        campo_id->setMaximumSize(QSize(70, 16777215));
+        campo_id->setReadOnly(true);
+
+        horizontalLayout_15->addWidget(campo_id);
 
         label_8 = new QLabel(verticalLayoutWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
-        sizePolicy2.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
-        label_8->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy6(QSizePolicy::Minimum, QSizePolicy::Fixed);
+        sizePolicy6.setHorizontalStretch(0);
+        sizePolicy6.setVerticalStretch(0);
+        sizePolicy6.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy6);
         label_8->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_15->addWidget(label_8);
 
         campo_rotulo = new QLineEdit(verticalLayoutWidget);
         campo_rotulo->setObjectName(QString::fromUtf8("campo_rotulo"));
+        sizePolicy4.setHeightForWidth(campo_rotulo->sizePolicy().hasHeightForWidth());
+        campo_rotulo->setSizePolicy(sizePolicy4);
         campo_rotulo->setReadOnly(false);
 
         horizontalLayout_15->addWidget(campo_rotulo);
@@ -747,6 +781,141 @@ public:
         verticalLayout->addLayout(horizontalLayout_18);
 
         tab_tesouro->addTab(tab_geral, QString());
+        tab_nivel = new QWidget();
+        tab_nivel->setObjectName(QString::fromUtf8("tab_nivel"));
+        horizontalLayoutWidget_5 = new QWidget(tab_nivel);
+        horizontalLayoutWidget_5->setObjectName(QString::fromUtf8("horizontalLayoutWidget_5"));
+        horizontalLayoutWidget_5->setGeometry(QRect(10, 10, 181, 41));
+        horizontalLayout_31 = new QHBoxLayout(horizontalLayoutWidget_5);
+        horizontalLayout_31->setObjectName(QString::fromUtf8("horizontalLayout_31"));
+        horizontalLayout_31->setContentsMargins(0, 0, 0, 0);
+        label_39 = new QLabel(horizontalLayoutWidget_5);
+        label_39->setObjectName(QString::fromUtf8("label_39"));
+
+        horizontalLayout_31->addWidget(label_39, 0, Qt::AlignRight);
+
+        linha_nivel = new QLineEdit(horizontalLayoutWidget_5);
+        linha_nivel->setObjectName(QString::fromUtf8("linha_nivel"));
+        linha_nivel->setReadOnly(true);
+
+        horizontalLayout_31->addWidget(linha_nivel, 0, Qt::AlignLeft);
+
+        botao_adicionar_nivel = new QPushButton(tab_nivel);
+        botao_adicionar_nivel->setObjectName(QString::fromUtf8("botao_adicionar_nivel"));
+        botao_adicionar_nivel->setEnabled(true);
+        botao_adicionar_nivel->setGeometry(QRect(190, 350, 121, 27));
+        lista_niveis = new QListWidget(tab_nivel);
+        lista_niveis->setObjectName(QString::fromUtf8("lista_niveis"));
+        lista_niveis->setGeometry(QRect(10, 160, 451, 181));
+        botao_remover_nivel = new QPushButton(tab_nivel);
+        botao_remover_nivel->setObjectName(QString::fromUtf8("botao_remover_nivel"));
+        botao_remover_nivel->setEnabled(false);
+        botao_remover_nivel->setGeometry(QRect(340, 350, 121, 27));
+        horizontalLayoutWidget_12 = new QWidget(tab_nivel);
+        horizontalLayoutWidget_12->setObjectName(QString::fromUtf8("horizontalLayoutWidget_12"));
+        horizontalLayoutWidget_12->setGeometry(QRect(210, 10, 181, 41));
+        horizontalLayout_33 = new QHBoxLayout(horizontalLayoutWidget_12);
+        horizontalLayout_33->setObjectName(QString::fromUtf8("horizontalLayout_33"));
+        horizontalLayout_33->setContentsMargins(0, 0, 0, 0);
+        label_46 = new QLabel(horizontalLayoutWidget_12);
+        label_46->setObjectName(QString::fromUtf8("label_46"));
+
+        horizontalLayout_33->addWidget(label_46, 0, Qt::AlignRight);
+
+        linha_bba = new QLineEdit(horizontalLayoutWidget_12);
+        linha_bba->setObjectName(QString::fromUtf8("linha_bba"));
+        linha_bba->setReadOnly(true);
+
+        horizontalLayout_33->addWidget(linha_bba, 0, Qt::AlignLeft);
+
+        groupBox_2 = new QGroupBox(tab_nivel);
+        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        groupBox_2->setGeometry(QRect(10, 70, 661, 61));
+        horizontalLayoutWidget = new QWidget(groupBox_2);
+        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
+        horizontalLayoutWidget->setGeometry(QRect(9, 20, 631, 41));
+        horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        horizontalLayout->setContentsMargins(0, 0, 0, 0);
+        label_40 = new QLabel(horizontalLayoutWidget);
+        label_40->setObjectName(QString::fromUtf8("label_40"));
+        sizePolicy5.setHeightForWidth(label_40->sizePolicy().hasHeightForWidth());
+        label_40->setSizePolicy(sizePolicy5);
+
+        horizontalLayout->addWidget(label_40);
+
+        linha_classe = new QLineEdit(horizontalLayoutWidget);
+        linha_classe->setObjectName(QString::fromUtf8("linha_classe"));
+        sizePolicy1.setHeightForWidth(linha_classe->sizePolicy().hasHeightForWidth());
+        linha_classe->setSizePolicy(sizePolicy1);
+
+        horizontalLayout->addWidget(linha_classe);
+
+        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer);
+
+        label_41 = new QLabel(horizontalLayoutWidget);
+        label_41->setObjectName(QString::fromUtf8("label_41"));
+        label_41->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout->addWidget(label_41);
+
+        spin_nivel_classe = new QSpinBox(horizontalLayoutWidget);
+        spin_nivel_classe->setObjectName(QString::fromUtf8("spin_nivel_classe"));
+        spin_nivel_classe->setMinimum(-1);
+
+        horizontalLayout->addWidget(spin_nivel_classe);
+
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_4);
+
+        label_43 = new QLabel(horizontalLayoutWidget);
+        label_43->setObjectName(QString::fromUtf8("label_43"));
+        label_43->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout->addWidget(label_43);
+
+        spin_bba = new QSpinBox(horizontalLayoutWidget);
+        spin_bba->setObjectName(QString::fromUtf8("spin_bba"));
+        spin_bba->setMinimum(-1);
+
+        horizontalLayout->addWidget(spin_bba);
+
+        horizontalSpacer_7 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_7);
+
+        label_42 = new QLabel(horizontalLayoutWidget);
+        label_42->setObjectName(QString::fromUtf8("label_42"));
+        label_42->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout->addWidget(label_42);
+
+        spin_nivel_conjurador = new QSpinBox(horizontalLayoutWidget);
+        spin_nivel_conjurador->setObjectName(QString::fromUtf8("spin_nivel_conjurador"));
+        spin_nivel_conjurador->setMinimum(-1);
+
+        horizontalLayout->addWidget(spin_nivel_conjurador);
+
+        horizontalSpacer_8 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_8);
+
+        label_44 = new QLabel(horizontalLayoutWidget);
+        label_44->setObjectName(QString::fromUtf8("label_44"));
+        label_44->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout->addWidget(label_44);
+
+        spin_mod_conjuracao = new QSpinBox(horizontalLayoutWidget);
+        spin_mod_conjuracao->setObjectName(QString::fromUtf8("spin_mod_conjuracao"));
+        spin_mod_conjuracao->setMinimum(-1);
+
+        horizontalLayout->addWidget(spin_mod_conjuracao);
+
+        tab_tesouro->addTab(tab_nivel, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
         layoutWidget_3 = new QWidget(tab_estatisticas);
@@ -1000,7 +1169,8 @@ public:
         QWidget::setTabOrder(combo_salvacao, lista_eventos);
         QWidget::setTabOrder(lista_eventos, checkbox_cor);
         QWidget::setTabOrder(checkbox_cor, botao_cor);
-        QWidget::setTabOrder(botao_cor, spin_raio_quad);
+        QWidget::setTabOrder(botao_cor, slider_alfa);
+        QWidget::setTabOrder(slider_alfa, spin_raio_quad);
         QWidget::setTabOrder(spin_raio_quad, botao_luz);
         QWidget::setTabOrder(botao_luz, combo_textura);
         QWidget::setTabOrder(combo_textura, spin_tex_trans_x);
@@ -1008,11 +1178,20 @@ public:
         QWidget::setTabOrder(spin_tex_largura, spin_tex_trans_y);
         QWidget::setTabOrder(spin_tex_trans_y, spin_tex_altura);
         QWidget::setTabOrder(spin_tex_altura, combo_modelos_3d);
-        QWidget::setTabOrder(combo_modelos_3d, tab_tesouro);
-        QWidget::setTabOrder(tab_tesouro, checkbox_iniciativa);
+        QWidget::setTabOrder(combo_modelos_3d, linha_classe);
+        QWidget::setTabOrder(linha_classe, spin_nivel_classe);
+        QWidget::setTabOrder(spin_nivel_classe, spin_bba);
+        QWidget::setTabOrder(spin_bba, spin_nivel_conjurador);
+        QWidget::setTabOrder(spin_nivel_conjurador, spin_mod_conjuracao);
+        QWidget::setTabOrder(spin_mod_conjuracao, lista_niveis);
+        QWidget::setTabOrder(lista_niveis, botao_adicionar_nivel);
+        QWidget::setTabOrder(botao_adicionar_nivel, botao_remover_nivel);
+        QWidget::setTabOrder(botao_remover_nivel, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_modificador_iniciativa);
-        QWidget::setTabOrder(spin_modificador_iniciativa, spin_alcance_quad);
+        QWidget::setTabOrder(spin_modificador_iniciativa, linha_rotulo_ataque);
+        QWidget::setTabOrder(linha_rotulo_ataque, combo_tipo_ataque);
+        QWidget::setTabOrder(combo_tipo_ataque, spin_alcance_quad);
         QWidget::setTabOrder(spin_alcance_quad, spin_incrementos);
         QWidget::setTabOrder(spin_incrementos, spin_ataque);
         QWidget::setTabOrder(spin_ataque, linha_dano);
@@ -1025,8 +1204,13 @@ public:
         QWidget::setTabOrder(botao_ataque_baixo, botao_clonar_ataque);
         QWidget::setTabOrder(botao_clonar_ataque, botao_remover_ataque);
         QWidget::setTabOrder(botao_remover_ataque, checkbox_imune_critico);
-        QWidget::setTabOrder(checkbox_imune_critico, botoes);
-        QWidget::setTabOrder(botoes, campo_id);
+        QWidget::setTabOrder(checkbox_imune_critico, linha_furtivo);
+        QWidget::setTabOrder(linha_furtivo, lista_tesouro);
+        QWidget::setTabOrder(lista_tesouro, botoes);
+        QWidget::setTabOrder(botoes, tab_tesouro);
+        QWidget::setTabOrder(tab_tesouro, campo_id);
+        QWidget::setTabOrder(campo_id, linha_nivel);
+        QWidget::setTabOrder(linha_nivel, linha_bba);
 
         retranslateUi(ifg__qt__DialogoEntidade);
         QObject::connect(botoes, SIGNAL(accepted()), ifg__qt__DialogoEntidade, SLOT(accept()));
@@ -1044,7 +1228,6 @@ public:
 #ifndef QT_NO_TOOLTIP
         ifg__qt__DialogoEntidade->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
-        label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
         label_3->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Cor:", 0, QApplication::UnicodeUTF8));
         checkbox_cor->setText(QString());
 #ifndef QT_NO_TOOLTIP
@@ -1152,12 +1335,45 @@ public:
         spin_aura_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Aura da entidade.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_35->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quadrados", 0, QApplication::UnicodeUTF8));
+        label->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Id", 0, QApplication::UnicodeUTF8));
         label_8->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulo", 0, QApplication::UnicodeUTF8));
         label_10->setText(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos Especial", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         lista_rotulos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_geral), QApplication::translate("ifg::qt::DialogoEntidade", "Geral", 0, QApplication::UnicodeUTF8));
+        label_39->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel PC", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_nivel->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel do Personagem", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_adicionar_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Adicionar N\303\255vel", 0, QApplication::UnicodeUTF8));
+        botao_remover_nivel->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover", 0, QApplication::UnicodeUTF8));
+        label_46->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque Total", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        groupBox_2->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados N\303\255vel", 0, QApplication::UnicodeUTF8));
+        label_40->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Classe", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        linha_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Identificador da Classe", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_41->setText(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_classe->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel da Classe", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_43->setText(QApplication::translate("ifg::qt::DialogoEntidade", "BBA", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_bba->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque ", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_42->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Conjurador", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_nivel_conjurador->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel de Conjurador", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_44->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Mod", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_mod_conjuracao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador do atributo de conjura\303\247\303\243o (exemplo: sabedoria para cl\303\251rigos)", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade ter\303\241 iniciativa", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -1182,11 +1398,19 @@ public:
         label_21->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tipo", 0, QApplication::UnicodeUTF8));
         combo_tipo_ataque->clear();
         combo_tipo_ataque->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Corpo a Corpo", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "\303\201cido", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Corpo a Corpo", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Ataque a Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Bola de Fogo", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Cone de Gelo", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247o de Toque", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Fogo Alqu\303\255mico", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\243os Flamejantes", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "M\303\255ssil M\303\241gico", 0, QApplication::UnicodeUTF8)
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Toque", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Pedrada", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Raio", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Rel\303\242mpago", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Tempestade Glacial", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
         );
         label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));

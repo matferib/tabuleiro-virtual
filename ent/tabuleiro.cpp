@@ -1,11 +1,10 @@
 #if USAR_QT
 #include <QApplication>
 #include <QClipboard>
-#include <google/protobuf/repeated_field.h>
-#include <google/protobuf/text_format.h>
 #else
 #endif
 #include <algorithm>
+#include <memory>
 #include <boost/filesystem.hpp>
 #include <tuple>
 #include <cassert>
@@ -18,6 +17,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <google/protobuf/repeated_field.h>
+#include <google/protobuf/text_format.h>
 
 //#define VLOG_NIVEL 1
 #include "arq/arquivo.h"
@@ -32,6 +33,7 @@
 #include "ent/tabuleiro_terreno.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "matrix/vectors.h"
 #include "net/util.h"  // hack to_string
@@ -157,11 +159,11 @@ Tabuleiro::Tabuleiro(
   central_->RegistraReceptor(this);
 
   // Modelos.
-  auto* modelo_padrao = new EntidadeProto;  // padrao eh cone verde.
-  modelo_padrao->mutable_cor()->set_g(1.0f);
-  mapa_modelos_.insert(std::make_pair("Padrão", std::unique_ptr<EntidadeProto>(modelo_padrao)));
-  modelo_selecionado_.first = "Padrão";
-  modelo_selecionado_.second = modelo_padrao;
+  Modelo* modelo_padrao_com_parametros = new Modelo;
+  modelo_padrao_com_parametros->mutable_entidade()->mutable_cor()->set_g(1.0f);
+  mapa_modelos_com_parametros_.insert(std::make_pair("Padrão", std::unique_ptr<Modelo>(modelo_padrao_com_parametros)));
+  modelo_selecionado_com_parametros_.first = "Padrão";
+  modelo_selecionado_com_parametros_.second = modelo_padrao_com_parametros;
   Modelos modelos;
   const std::string arquivos_modelos[] = { ARQUIVO_MODELOS, ARQUIVO_MODELOS_NAO_SRD };
   for (const std::string& nome_arquivo_modelo : arquivos_modelos) {
@@ -173,6 +175,7 @@ Tabuleiro::Tabuleiro(
     for (const auto& m : modelos.modelo()) {
       mapa_modelos_.insert(std::make_pair(
             m.id(), std::unique_ptr<EntidadeProto>(new EntidadeProto(m.entidade()))));
+      mapa_modelos_com_parametros_.insert(std::make_pair(m.id(), std::unique_ptr<Modelo>(new Modelo(m))));
     }
   }
   // Acoes.
@@ -281,6 +284,10 @@ void Tabuleiro::EstadoInicial(bool reiniciar_grafico) {
   // Lista objetos.
   pagina_lista_objetos_ = 0;
   info_geral_.clear();
+
+  // LogEventos.
+  log_eventos_.clear();
+  pagina_log_eventos_ = 0;
 
   // iniciativa.
   indice_iniciativa_ = -1;
@@ -929,16 +936,97 @@ int Tabuleiro::Desenha() {
   return tempos_entre_cenas_.front();
 }
 
+void PreencheModeloComParametros(const Modelo::Parametros& parametros, const Entidade& referencia, EntidadeProto* modelo) {
+  const int nivel = referencia.NivelConjurador();
+  if (parametros.has_tipo_duracao()) {
+    int duracao_rodadas = -1;
+    switch (parametros.tipo_duracao()) {
+      case TD_RODADAS_NIVEL:
+        duracao_rodadas = nivel;
+        break;
+      case TD_MINUTOS_NIVEL:
+        duracao_rodadas = nivel * MINUTOS_PARA_RODADAS;
+        break;
+      case TD_HORAS_NIVEL:
+        duracao_rodadas = nivel * HORAS_PARA_RODADAS;
+        break;
+      default:
+        break;
+    }
+    if (duracao_rodadas > 0) {
+      // Procura a duracao no modelo, caso nao haja, coloca.
+      for (int i = 0; i < modelo->evento_size(); ++i) {
+        if (StringSemUtf8(modelo->evento(i).descricao()) == "duracao") {
+          modelo->mutable_evento()->DeleteSubrange(i, 1);
+          break;
+       }
+      }
+      auto* evento = modelo->add_evento();
+      evento->set_descricao("duração");
+      evento->set_rodadas(duracao_rodadas);
+    }
+  }
+  if (parametros.multiplicador_nivel_dano() > 0 && nivel > 0) {
+    std::string dano_str = parametros.dano_fixo();
+    int modificador = nivel * parametros.multiplicador_nivel_dano();
+    if (parametros.has_maximo_modificador_dano()) {
+      modificador = std::min(parametros.maximo_modificador_dano(), modificador);
+    }
+    google::protobuf::StringAppendF(&dano_str, "%+d", modificador);
+    for (auto& da : *modelo->mutable_dados_ataque()) {
+      da.set_dano(dano_str);
+    }
+  }
+  if (parametros.has_tipo_modificador_ataque()) {
+    int modificador_ataque = -100;
+    int ref_bba = referencia.BonusBaseAtaque();
+    int num_ataques = 1 + (ref_bba / 6);
+    switch (parametros.tipo_modificador_ataque()) {
+      case TMA_BBA_MAIS_ATRIBUTO_CONJURACAO:
+        modificador_ataque = ref_bba + referencia.ModificadorAtributoConjuracao();
+        break;
+      default:
+        break;
+    }
+    // Hack para quando o personagem nao tiver modificadores.
+    if (modificador_ataque > -50) {
+      // Salva o ataque como modelo para usar ao criar os demais.
+      auto da = modelo->dados_ataque().empty() ? EntidadeProto::DadosAtaque() : modelo->dados_ataque(0);
+      modelo->clear_dados_ataque();
+      while (num_ataques-- > 0) {
+        auto* nda = modelo->add_dados_ataque();
+        *nda = da;
+        nda->set_bonus_ataque(modificador_ataque);
+        modificador_ataque -= 5;
+      }
+    }
+  }
+  if (!parametros.rotulo_especial().empty()) {
+    *modelo->mutable_rotulo_especial() = parametros.rotulo_especial();
+  }
+}
+
 void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao) {
   try {
     if (notificacao.local()) {
-      EntidadeProto modelo(notificacao.has_entidade() ? notificacao.entidade() : *modelo_selecionado_.second);
+      EntidadeProto modelo(notificacao.has_entidade()
+          ? notificacao.entidade() : modelo_selecionado_com_parametros_.second->entidade());
 #if APENAS_MESTRE_CRIA_FORMAS
       if (modelo.tipo() == TE_FORMA && !EmModoMestreIncluindoSecundario()) {
         LOG(ERROR) << "Apenas o mestre pode adicionar formas.";
         return;
       }
 #endif
+      if (!notificacao.has_entidade() && modelo_selecionado_com_parametros_.second->has_parametros()) {
+        // Na pratica so funciona com camera presa porque o duplo clique tira a selecao.
+        const auto* referencia = EntidadeCameraPresaOuSelecionada();
+        if (referencia == nullptr && notificacao.has_id_referencia()) {
+          referencia = BuscaEntidade(notificacao.id_referencia());
+        }
+        if (referencia != nullptr) {
+          PreencheModeloComParametros(modelo_selecionado_com_parametros_.second->parametros(), *referencia, &modelo);
+        }
+      }
       if (!notificacao.has_entidade()) {
         if (estado_ != ETAB_QUAD_SELECIONADO) {
           return;
@@ -1690,7 +1778,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       AdicionaEntidadeNotificando(notificacao);
       return true;
     case ntf::TN_ADICIONAR_ACAO: {
-      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this));
+      std::unique_ptr<Acao> acao(NovaAcao(notificacao.acao(), this, texturas_));
       // A acao pode estar finalizada se o setup dela estiver incorreto. Eh possivel haver estes casos
       // porque durante a construcao nao ha verificacao. Por exemplo, uma acao de toque sem destino eh
       // contruida como Finalizada.
@@ -1782,6 +1870,9 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     case ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO: {
       if (TemNome()) {
         auto* n = ntf::NovaNotificacao(ntf::TN_SERIALIZAR_TABULEIRO);
+        if (notificacao.entidade().has_modelo_3d()) {
+          n->mutable_entidade()->mutable_modelo_3d();
+        }
         n->set_endereco("");  // Endereco vazio sinaliza para reusar o nome.
         central_->AdicionaNotificacao(n);
         break;
@@ -1809,16 +1900,18 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         try {
           boost::filesystem::path caminho(caminho_str);
           proto_.set_nome(caminho.filename().string());
-          arq::EscreveArquivoBinProto(arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
+          arq::EscreveArquivoBinProto(notificacao.entidade().has_modelo_3d()
+              ? arq::TIPO_MODELOS_3D_BAIXADOS : arq::TIPO_TABULEIRO, caminho.filename().string(), *nt_tabuleiro);
         } catch (const std::logic_error& erro) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
           ne->set_erro(erro.what());
           central_->AdicionaNotificacao(ne);
           return true;
         }
-        auto* notificacao = ntf::NovaNotificacao(ntf::TN_INFO);
-        notificacao->set_erro(std::string("Tabuleiro '") + caminho_str + "' salvo.");
-        central_->AdicionaNotificacao(notificacao);
+        auto* notificacao_info = ntf::NovaNotificacao(ntf::TN_INFO);
+        notificacao_info->set_erro(google::protobuf::StringPrintf(
+              "%s salvo em %s", notificacao.entidade().has_modelo_3d() ? "Modelo 3d" : "Tabuleiro", caminho_str.c_str()));
+        central_->AdicionaNotificacao(notificacao_info);
       } else {
         // Enviar remotamente.
         if (notificacao.clientes_pendentes()) {
@@ -1857,11 +1950,14 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
                 std::string(":// não encontrado no nome do arquivo: ") + notificacao.endereco());
           }
           std::string nome_arquivo = notificacao.endereco().substr(pos_separador + 3);
-          std::string tipo_arquivo = notificacao.endereco().substr(0, pos_separador);
-          arq::LeArquivoBinProto(tipo_arquivo == "estatico" ?
-              arq::TIPO_TABULEIRO_ESTATICO : arq::TIPO_TABULEIRO,
-              nome_arquivo,
-              &nt_tabuleiro);
+          std::string prefixo = notificacao.endereco().substr(0, pos_separador);
+          arq::tipo_e tipo;
+          if (prefixo == "estatico") {
+            tipo = notificacao.entidade().has_modelo_3d() ? arq::TIPO_MODELOS_3D : arq::TIPO_TABULEIRO_ESTATICO;
+          } else {
+            tipo = notificacao.entidade().has_modelo_3d() ? arq::TIPO_MODELOS_3D_BAIXADOS : arq::TIPO_TABULEIRO;
+          }
+          arq::LeArquivoBinProto(tipo, nome_arquivo, &nt_tabuleiro);
           nt_tabuleiro.mutable_tabuleiro()->set_nome(nome_arquivo);
         } catch (std::logic_error&) {
           auto* ne = ntf::NovaNotificacao(ntf::TN_ERRO);
@@ -2354,22 +2450,22 @@ void Tabuleiro::IniciaGL() {
 }
 
 void Tabuleiro::SelecionaModeloEntidade(const std::string& id_modelo) {
-  auto it = mapa_modelos_.find(id_modelo);
-  if (it == mapa_modelos_.end()) {
+  auto it = mapa_modelos_com_parametros_.find(id_modelo);
+  if (it == mapa_modelos_com_parametros_.end()) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return;
   }
-  modelo_selecionado_.first = id_modelo;
-  modelo_selecionado_.second = it->second.get();
+  modelo_selecionado_com_parametros_.first = id_modelo;
+  modelo_selecionado_com_parametros_.second = it->second.get();
 }
 
 const EntidadeProto* Tabuleiro::BuscaModelo(const std::string& id_modelo) const {
-  auto it = mapa_modelos_.find(id_modelo);
-  if (it == mapa_modelos_.end()) {
+  auto it = mapa_modelos_com_parametros_.find(id_modelo);
+  if (it == mapa_modelos_com_parametros_.end()) {
     LOG(ERROR) << "Id de modelo inválido: " << id_modelo;
     return nullptr;
   }
-  return it->second.get();
+  return &it->second->entidade();
 }
 
 void Tabuleiro::SelecionaSinalizacao() {
@@ -2460,13 +2556,13 @@ void Tabuleiro::ProximaAcao() {
       // entidade possui acao, usa as dela.
       continue;
     }
-    std::string acao(entidade->Acao(AcoesPadroes()));
-    if (acao.empty()) {
-      acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
+    std::string acao_str(entidade->Acao(mapa_acoes_).id());
+    if (acao_str.empty()) {
+      acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
-    auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao);
+    auto it = std::find(id_acoes_.begin(), id_acoes_.end(), acao_str);
     if (it == id_acoes_.end()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
+      LOG(ERROR) << "Id de acao inválido: " << acao_str;
       continue;
     }
     ++it;
@@ -2491,13 +2587,13 @@ void Tabuleiro::AcaoAnterior() {
       // entidade possui acao, usa as dela.
       continue;
     }
-    std::string acao(entidade->Acao(AcoesPadroes()));
-    if (acao.empty()) {
-      acao = ID_ACAO_ATAQUE_CORPO_A_CORPO;
+    std::string acao_str(entidade->Acao(mapa_acoes_).id());
+    if (acao_str.empty()) {
+      acao_str = ID_ACAO_ATAQUE_CORPO_A_CORPO;
     }
-    auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao);
+    auto it = std::find(id_acoes_.rbegin(), id_acoes_.rend(), acao_str);
     if (it == id_acoes_.rend()) {
-      LOG(ERROR) << "Id de acao inválido: " << entidade->Acao(AcoesPadroes());
+      LOG(ERROR) << "Id de acao inválido: " << acao_str;
       continue;
     }
     ++it;
@@ -2681,6 +2777,9 @@ void Tabuleiro::DesenhaCena() {
       DesenhaEntidadesTranslucidas();
       parametros_desenho_.clear_alfa_translucidos();
       DesenhaAuras();
+      if (parametros_desenho_.desenha_acoes()) {
+        DesenhaAcoesTranslucidas();
+      }
       gl::CorMistura(0.0f, 0.0f, 0.0f, 0.0f);
     } else {
       gl::TipoEscopo nomes(OBJ_ENTIDADE);
@@ -2688,6 +2787,7 @@ void Tabuleiro::DesenhaCena() {
       DesenhaEntidadesTranslucidas();
     }
   }
+
   V_ERRO("desenhando entidades alfa");
 
   if ((parametros_desenho_.desenha_mapa_sombras()) ||
@@ -3591,7 +3691,7 @@ void Tabuleiro::DesenhaQuadradoSelecionado() {
 }
 
 namespace {
-bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
+bool PulaEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   if (!proto.faz_sombra() && pd.desenha_mapa_sombras()) {
     return true;
   }
@@ -3606,6 +3706,9 @@ bool PularEntidade(const EntidadeProto& proto, const ParametrosDesenho& pd) {
   }
   if (proto.tipo() == TE_ENTIDADE && (pd.has_desenha_mapa_luzes() || pd.has_desenha_mapa_oclusao())) {
     // Para luzes pontuais e oclusao, entidades nao contam (performance).
+    return true;
+  }
+  if (proto.fixa() && proto.cor().a() < 1.0f && pd.nao_desenha_entidades_fixas_translucidas()) {
     return true;
   }
   return false;
@@ -3649,7 +3752,7 @@ void Tabuleiro::DesenhaEntidadesBase(const std::function<void (Entidade*, Parame
     if (entidade->Pos().id_cenario() != cenario_corrente_) {
       continue;
     }
-    if (PularEntidade(entidade->Proto(), parametros_desenho_)) {
+    if (PulaEntidade(entidade->Proto(), parametros_desenho_)) {
       continue;
     }
     // Nao desenha a propria entidade na primeira pessoa, apenas sua sombra.
@@ -3766,6 +3869,16 @@ void Tabuleiro::DesenhaAcoes() {
       continue;
     }
     a->Desenha(&parametros_desenho_);
+  }
+}
+
+void Tabuleiro::DesenhaAcoesTranslucidas() {
+  for (auto& a : acoes_) {
+    VLOG(4) << "Desenhando acao:" << a->Proto().ShortDebugString();
+    if (a->IdCenario() != cenario_corrente_) {
+      continue;
+    }
+    a->DesenhaTranslucido(&parametros_desenho_);
   }
 }
 
@@ -4250,6 +4363,8 @@ void Tabuleiro::SelecionaQuadrado(int id_quadrado) {
     //return;
   }
   quadrado_selecionado_ = id_quadrado;
+  auto* entidade = EntidadeSelecionada();
+  ultima_entidade_selecionada_ = entidade == nullptr ? Entidade::IdInvalido : entidade->Id();
   ids_entidades_selecionadas_.clear();
   estado_ = ETAB_QUAD_PRESSIONADO;
 }
@@ -4751,6 +4866,8 @@ void Tabuleiro::CarregaSubCenario(int id_cenario, const Posicao& camera) {
   olho_.mutable_alvo()->CopyFrom(camera);
   olho_.clear_destino();
   AtualizaOlho(0, true  /*forcar*/);
+  // Atualiza luzes e oclusao.
+  luzes_pontuais_.clear();
 }
 
 Entidade* Tabuleiro::BuscaEntidade(unsigned int id) {
@@ -4845,6 +4962,10 @@ void AjustaPosicoes(const Posicao& alvo, std::vector<EntidadeProto*>* entidades)
 
 void Tabuleiro::ColaEntidadesSelecionadas(bool ref_camera) {
   std::vector<EntidadeProto*> entidades_coladas;
+  if (!EmModoMestreIncluindoSecundario()) {
+    // Jogadores sempre referente a camera.
+    ref_camera = true;
+  }
 #if USAR_QT
   std::string str_entidades(QApplication::clipboard()->text().toUtf8().constData());
   if (str_entidades.empty()) {
@@ -5170,177 +5291,6 @@ void Tabuleiro::TrataEspiada(int espiada) {
     VLOG(1) << "Espiada ok";
   } else {
     VLOG(1) << "Espiada bloqueada";
-  }
-}
-
-void Tabuleiro::TrataMovimentoEntidadesSelecionadas(bool frente_atras, float valor) {
-  Posicao vetor_visao;
-  ComputaDiferencaVetor(olho_.alvo(), olho_.pos(), &vetor_visao);
-  // angulo da camera em relacao ao eixo X.
-  Vector2 vetor_movimento;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    // Ao andar na primeira pessoa, cancela espiada para evitar atravessar objetos ja que a deteccao de colisao eh feita
-    // so no inicio.
-    Entidade* entidade = BuscaEntidade(IdCameraPresa());
-    if (entidade->Proto().espiando() != 0) {
-      EntidadeProto proto;
-      proto.set_espiando(0);
-      entidade->AtualizaParcial(proto);
-    }
-  }
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA || !proto_corrente_->desenha_grade()) {
-    if (frente_atras) {
-      vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
-    } else {
-      RodaVetor2d(-90.0f, &vetor_visao);
-      vetor_movimento = Vector2(vetor_visao.x(), vetor_visao.y());
-    }
-    vetor_movimento = vetor_movimento.normalize() * TAMANHO_LADO_QUADRADO;
-    if (valor < 0.0f) {
-      vetor_movimento *= -1;
-    }
-  } else {
-    float rotacao_graus = VetorParaRotacaoGraus(vetor_visao.x(), vetor_visao.y());
-    if (rotacao_graus > -45.0f && rotacao_graus <= 45.0f) {
-      // Camera apontando para x positivo.
-      if (frente_atras) {
-        vetor_movimento.x = TAMANHO_LADO_QUADRADO * valor;
-      } else {
-        vetor_movimento.y = TAMANHO_LADO_QUADRADO * -valor;
-      }
-    } else if (rotacao_graus > 45.0f && rotacao_graus <= 135) {
-      // Camera apontando para y positivo.
-      if (frente_atras) {
-        vetor_movimento.y = TAMANHO_LADO_QUADRADO * valor;
-      } else {
-        vetor_movimento.x = TAMANHO_LADO_QUADRADO * valor;
-      }
-    } else if (rotacao_graus > 135 || rotacao_graus < -135) {
-      // Camera apontando para x negativo.
-      if (frente_atras) {
-        vetor_movimento.x = TAMANHO_LADO_QUADRADO * -valor;
-      } else {
-        vetor_movimento.y = TAMANHO_LADO_QUADRADO * valor;
-      }
-    } else {
-      // Camera apontando para y negativo.
-      if (frente_atras) {
-        vetor_movimento.y = TAMANHO_LADO_QUADRADO * -valor;
-      } else {
-        vetor_movimento.x = TAMANHO_LADO_QUADRADO * -valor;
-      }
-    }
-  }
-  // Colisao
-  float dx = 0.0f, dy = 0.0f, dz = 0.0f;
-  auto* entidade_referencia = EntidadeSelecionadaOuPrimeiraPessoa();
-  {
-    if (entidade_referencia != nullptr) {
-      auto res_colisao = DetectaColisao(*entidade_referencia, Vector3(vetor_movimento.x, vetor_movimento.y, 0.0f));
-      vetor_movimento.normalize();
-      vetor_movimento *= res_colisao.profundidade;
-    }
-    dx = vetor_movimento.x;
-    dy = vetor_movimento.y;
-  }
-
-  ntf::Notificacao grupo_notificacoes;
-  grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-  std::unordered_set<unsigned int> ids;
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    ids.insert(IdCameraPresa());
-  } else {
-    ids = ids_entidades_selecionadas_;
-  }
-  for (unsigned int id : ids) {
-    auto* entidade_selecionada = BuscaEntidade(id);
-    if (entidade_selecionada == nullptr) {
-      continue;
-    }
-    VLOG(2) << "Movendo entidade " << id << ", dx: " << dx << ", dy: " << dy << ", dz: " << dz;
-    auto* n = grupo_notificacoes.add_notificacao();
-    n->set_tipo(ntf::TN_MOVER_ENTIDADE);
-    auto* e = n->mutable_entidade();
-    auto* e_antes = n->mutable_entidade_antes();
-    e->set_id(id);
-    e_antes->set_id(id);
-    float nx = entidade_selecionada->X() + dx;
-    float ny = entidade_selecionada->Y() + dy;
-    float nz = entidade_selecionada->Z() + dz;
-    auto* p = e->mutable_destino();
-    p->set_x(nx);
-    p->set_y(ny);
-    p->set_z(nz);
-    if (entidade_selecionada->Tipo() == TE_ENTIDADE) {
-      float z_olho = entidade_selecionada->ZOlho();
-      float altura_olho = entidade_selecionada->AlturaOlho();
-      bool manter_chao = entidade_selecionada->Apoiada();
-      float z_chao_depois = ZChao(nx, ny);
-      ResultadoZApoio res = ZApoio(nx, ny, z_olho, altura_olho);
-      if (manter_chao) {
-        VLOG(1) << "mantendo apoio";
-        if (!res.apoiado) {
-          res.z_apoio = z_chao_depois;
-        }
-        p->set_z(res.z_apoio);
-      } else {
-        float z_apoio = std::max(res.z_apoio, z_chao_depois);
-        if (z_apoio > entidade_selecionada->Z()) {
-          VLOG(1) << "apoiando entidade nao apoiada";
-          p->set_z(z_apoio);
-          e->set_apoiada(true);
-          n->mutable_entidade_antes()->set_apoiada(false);
-        } else {
-          VLOG(1) << "nao mantendo apoio";
-          p->set_z(entidade_selecionada->Z());
-        }
-      }
-    }
-    // Para desfazer.
-    p = e_antes->mutable_pos();
-    p->set_x(entidade_selecionada->X());
-    p->set_y(entidade_selecionada->Y());
-    p->set_z(entidade_selecionada->Z());
-  }
-  TrataNotificacao(grupo_notificacoes);
-  // Para desfazer.
-  AdicionaNotificacaoListaEventos(grupo_notificacoes);
-  if (camera_ == CAMERA_PRIMEIRA_PESSOA) {
-    AtualizaOlho(0, true  /*forcar*/);
-  }
-}
-
-void Tabuleiro::TrataTranslacaoZ(float delta) {
-  if (ModoClique() == MODO_TERRENO) {
-    TrataDeltaTerreno(delta * TAMANHO_LADO_QUADRADO);
-  } else {
-    ntf::Notificacao grupo_notificacoes;
-    grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-    for (unsigned int id : IdsEntidadesSelecionadasOuPrimeiraPessoa()) {
-      auto* entidade_selecionada = BuscaEntidade(id);
-      if (entidade_selecionada == nullptr) {
-        continue;
-      }
-      // Salva para desfazer.
-      auto* n = grupo_notificacoes.add_notificacao();
-      n->set_tipo(ntf::TN_MOVER_ENTIDADE);
-      auto* e = n->mutable_entidade();
-      auto* e_antes = n->mutable_entidade_antes();
-      e->set_id(entidade_selecionada->Id());
-      e_antes->set_id(entidade_selecionada->Id());
-      e_antes->mutable_pos()->CopyFrom(entidade_selecionada->Pos());
-      // Altera a translacao em Z.
-      //entidade_selecionada->IncrementaZ(delta * TAMANHO_LADO_QUADRADO);
-      e->mutable_destino()->CopyFrom(entidade_selecionada->Pos());
-      e->mutable_destino()->set_z(e->destino().z() + delta * TAMANHO_LADO_QUADRADO);
-      const Posicao& pos = e->destino();
-      float altura_olho = entidade_selecionada->AlturaOlho();
-      e->set_apoiada(Apoiado(pos.x(), pos.y(), pos.z() + altura_olho, altura_olho));
-      n->mutable_entidade_antes()->set_apoiada(entidade_selecionada->Apoiada());
-    }
-    // Nop mas envia para os clientes.
-    TrataNotificacao(grupo_notificacoes);
-    AdicionaNotificacaoListaEventos(grupo_notificacoes);
   }
 }
 
@@ -5912,7 +5862,6 @@ void Tabuleiro::DesenhaLuzes() {
     gl::Habilita(GL_FOG);
     float pos[4] = { olho_.pos().x(), olho_.pos().y(), olho_.pos().z(), 1 };
     if (entidade_referencia != nullptr) {
-      // So funciona com shader.
       const Posicao& epos = entidade_referencia->Pos();
       pos[0] = epos.x();
       pos[1] = epos.y();
@@ -6005,6 +5954,109 @@ void Tabuleiro::DesenhaGrade() {
   vbos_grade_.Desenha();
 }
 
+void Tabuleiro::DesenhaListaGenerica(
+    int coluna, int linha, int pagina_corrente, const char* titulo, const float* cor_titulo,
+    int nome_cima, int nome_baixo, int tipo_lista,
+    const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
+    std::function<int(int)> f_id) {
+  const int n_objetos = lista.size();
+  const int objs_por_pagina = 10;
+  const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
+  pagina_corrente = (pagina_corrente >= num_paginas) ? num_paginas : pagina_corrente;
+  const int objeto_inicial = pagina_corrente * objs_por_pagina;
+  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0))
+      ? n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
+  if (pagina_corrente > num_paginas - 1) {
+    pagina_corrente = std::max(num_paginas - 1, 0);
+  }
+
+  // Modo 2d: eixo com origem embaixo esquerda.
+  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
+  int largura_fonte, altura_fonte, escala;
+  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
+  largura_fonte *= escala;
+  altura_fonte *= escala;
+  int altura_linha = altura_fonte + 2;
+  int raster_y;
+  if (linha < 0) {
+    // Linha eh negativo, entao descontara do limite.
+    raster_y = altura_ + linha * altura_linha;
+  } else {
+    raster_y = linha * altura_linha;
+  }
+  int raster_x;
+  if (coluna < 0) {
+    // ditto.
+    raster_x = largura_ + coluna * largura_fonte;
+  } else {
+    raster_x = coluna * largura_fonte;
+  }
+  if (!parametros_desenho_.has_picking_x()) {
+    PosicionaRaster2d(raster_x, raster_y);
+  }
+  MudaCor(cor_titulo);
+  if (!parametros_desenho_.has_picking_x()) {
+    gl::DesenhaStringAlinhadoEsquerda(titulo);
+  }
+  raster_y -= altura_linha;
+  // Paginacao inicial.
+  if (pagina_corrente > 0) {
+    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
+    gl::CarregaNome(nome_cima);
+    {
+      if (cor_lista_fundo != nullptr) MudaCor(cor_lista_fundo);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_linha);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      MudaCor(cor_lista);
+      PosicionaRaster2d(raster_x, raster_y);
+      std::string page_up("^^^");
+      gl::DesenhaStringAlinhadoEsquerda(page_up);
+    }
+  }
+  // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
+  raster_y -= altura_linha;
+
+  // Lista de objetos.
+  for (int i = objeto_inicial; i < objeto_final; ++i) {
+    if (!parametros_desenho_.has_picking_x()) {
+      PosicionaRaster2d(raster_x, raster_y);
+    }
+    gl::TipoEscopo tipo(tipo_lista);
+    try {
+      gl::CarregaNome(f_id(i));
+    } catch (...) {
+      continue;
+    }
+    {
+      if (cor_lista_fundo != nullptr) MudaCor(cor_lista_fundo);
+      gl::Retangulo(raster_x, raster_y, raster_x + (lista[i].size() * largura_fonte), raster_y + altura_linha);
+    }
+    MudaCor(cor_lista);
+    if (!parametros_desenho_.has_picking_x()) {
+      gl::DesenhaStringAlinhadoEsquerda(lista[i]);
+    }
+    raster_y -= altura_linha;
+  }
+
+  // Paginacao final.
+  if (pagina_corrente < (num_paginas - 1)) {
+    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
+    gl::CarregaNome(nome_baixo);
+    {
+      if (cor_lista_fundo != nullptr) MudaCor(cor_lista_fundo);
+      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_linha);
+    }
+    if (!parametros_desenho_.has_picking_x()) {
+      MudaCor(cor_lista);
+      PosicionaRaster2d(raster_x, raster_y);
+      std::string page_down("vvv");
+      gl::DesenhaStringAlinhadoEsquerda(page_down);
+    }
+    raster_y -= altura_linha;
+  }
+}
+
 void Tabuleiro::DesenhaListaJogadores() {
   // Modo 2d: eixo com origem embaixo esquerda.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
@@ -6053,139 +6105,44 @@ void Tabuleiro::DesenhaListaJogadores() {
 }
 
 void Tabuleiro::DesenhaListaObjetos() {
-  std::vector<const Entidade*> entidades_cenario;
+  std::vector<std::string> lista;
+  std::vector<int> mapa_indice_ids;
   for (const auto& it : entidades_) {
     const auto* e = it.second.get();
     if (e->IdCenario() != cenario_corrente_) {
       continue;
     }
-    entidades_cenario.push_back(e);
+    mapa_indice_ids.push_back(e->Id());
+    std::string rotulo = google::protobuf::StringPrintf(
+        "%d%s->%s:%s",
+        e->Id(),
+        google::protobuf::StringPrintf("%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str()).c_str(),
+        TipoEntidade_Name(e->Proto().tipo()).c_str(),
+        e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
+    lista.push_back(rotulo);
   }
+  auto Mapeia = [&mapa_indice_ids](int i) {
+    return mapa_indice_ids[i];
+  };
 
-  const int n_objetos = entidades_cenario.size();
-  const int objs_por_pagina = 10;
-  const int num_paginas = (n_objetos / objs_por_pagina) + ((n_objetos % objs_por_pagina > 0) ? 1 : 0);
-  const int pagina_corrente = (pagina_lista_objetos_ >= num_paginas) ? num_paginas : pagina_lista_objetos_;
-  const int objeto_inicial = pagina_corrente * objs_por_pagina;
-  const int objeto_final = ((pagina_corrente == num_paginas - 1) || (num_paginas == 0)) ?
-      n_objetos : objeto_inicial + objs_por_pagina;  // exclui do ultimo.
-  if (pagina_lista_objetos_ > num_paginas - 1) {
-    pagina_lista_objetos_ = std::max(num_paginas - 1, 0);
-  }
-
-  // Modo 2d: eixo com origem embaixo esquerda.
-  gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int raster_x = 0, raster_y = 0;
-  int largura_fonte, altura_fonte, escala;
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  largura_fonte *= escala;
-  altura_fonte *= escala;
-  raster_y = altura_ - (altura_fonte * escala);
-  raster_x = 0 + 2;
-  if (!parametros_desenho_.has_picking_x()) {
-    PosicionaRaster2d(raster_x, raster_y);
-  }
-  MudaCor(COR_BRANCA);
-  if (!parametros_desenho_.has_picking_x()) {
-    std::string titulo("Lista Objetos");
-    gl::DesenhaStringAlinhadoEsquerda(titulo);
-  }
-  raster_y -= (altura_fonte + 2);
-  // Paginacao inicial.
-  if (pagina_corrente > 0) {
-    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
-    gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA);
-    {
-      MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
-    }
-    if (!parametros_desenho_.has_picking_x()) {
-      MudaCor(COR_AZUL);
-      PosicionaRaster2d(raster_x, raster_y);
-      std::string page_up("^^^");
-      gl::DesenhaStringAlinhadoEsquerda(page_up);
-    }
-  }
-  // Pula independente de ter paginacao pra ficar fixa a posicao dos objetos.
-  raster_y -= (altura_fonte + 2);
-
-  // Lista de objetos.
-  for (int i = objeto_inicial; i < objeto_final; ++i) {
-    const auto* e = entidades_cenario[i];
-    if (!parametros_desenho_.has_picking_x()) {
-      PosicionaRaster2d(raster_x, raster_y);
-    }
-    char rotulo[10];
-    snprintf(rotulo, 10, "%s%s", e->Proto().has_rotulo() ? ":" : "", e->Proto().rotulo().c_str());
-    char str[100];
-    snprintf(str, 100, "%d%s->%s:%s",
-             e->Id(), rotulo,
-             TipoEntidade_Name(e->Proto().tipo()).c_str(),
-             e->Proto().tipo() == TE_FORMA ? TipoForma_Name(e->Proto().sub_tipo()).c_str() : "-");
-    gl::TipoEscopo tipo(OBJ_ENTIDADE_LISTA);
-    try {
-      gl::CarregaNome(e->Id());
-    } catch (...) {
-      continue;
-    }
-    {
-      MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (strlen(str) * largura_fonte), raster_y + altura_fonte);
-    }
-    MudaCor(COR_AZUL);
-    if (!parametros_desenho_.has_picking_x()) {
-      gl::DesenhaStringAlinhadoEsquerda(str);
-    }
-    raster_y -= (altura_fonte + 2);
-  }
-
-  // Paginacao final.
-  if (pagina_corrente < (num_paginas - 1)) {
-    gl::TipoEscopo tipo(OBJ_CONTROLE_VIRTUAL);
-    gl::CarregaNome(CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO);
-    {
-      MudaCor(COR_BRANCA);
-      gl::Retangulo(raster_x, raster_y, raster_x + (3 * largura_fonte), raster_y + altura_fonte);
-    }
-    if (!parametros_desenho_.has_picking_x()) {
-      MudaCor(COR_AZUL);
-      PosicionaRaster2d(raster_x, raster_y);
-      std::string page_down("vvv");
-      gl::DesenhaStringAlinhadoEsquerda(page_down);
-    }
-    raster_y -= (altura_fonte + 2);
-  }
+  DesenhaListaGenerica(0, -1, pagina_lista_objetos_, StringSemUtf8("Lista de Objetos do cenário").c_str(), COR_BRANCA,
+                       CONTROLE_PAGINACAO_LISTA_OBJETOS_CIMA, CONTROLE_PAGINACAO_LISTA_OBJETOS_BAIXO,
+                       OBJ_ENTIDADE_LISTA, lista, COR_PRETA, COR_BRANCA, Mapeia);
 }
 
 void Tabuleiro::DesenhaLogEventos() {
   // Quadrado preto de 8 linhas.
   gl::DesabilitaEscopo luz_escopo(GL_LIGHTING);
-  int largura_fonte, altura_fonte, escala;
-  int kTamanhoMaximoCaracteres  = 100;
-  int kNumLinhas = 8;  // uma de titulo e duas de paginacoes.
-  // TODO paginacao.
-  gl::TamanhoFonte(&largura_fonte, &altura_fonte, &escala);
-  largura_fonte *= escala;
-  altura_fonte *= escala;
-  int kTamanhoMaximoPixels = largura_fonte * kTamanhoMaximoCaracteres;
+  int kNumLinhas = 12;  // Abaixo do titulo tem 12 linhas (10 items e duas paginacoes).
 
-  MudaCor(COR_PRETA);
-  gl::Retangulo(0, 0, kTamanhoMaximoPixels, (altura_fonte * escala) * 8);
+  //MudaCor(COR_AMARELA);
+  std::vector<std::string> lista;
+  for (const auto& log : log_eventos_) lista.push_back(log);
 
-  MudaCor(COR_AMARELA);
-  int raster_x = kTamanhoMaximoPixels / 2, raster_y =  (altura_fonte * escala) * (kNumLinhas - 1);
-  PosicionaRaster2d(raster_x, raster_y);
-  gl::DesenhaString("Lista de Eventos");
-  raster_y = (altura_fonte * escala) * (kNumLinhas - 3);
-  auto it = log_eventos_.begin();
-  for (int i = 0; i < (kNumLinhas - 3) && it != log_eventos_.end(); ++it) {
-    PosicionaRaster2d(2, raster_y);
-    char s[100];
-    snprintf(s, 99, "%s", it->c_str());
-    gl::DesenhaStringAlinhadoEsquerda(s);
-    raster_y -= altura_fonte;
-    ++i;
-  }
+  DesenhaListaGenerica(0, kNumLinhas,
+                       pagina_log_eventos_, StringSemUtf8("Log de Eventos Locais").c_str(), COR_AMARELA,
+                       CONTROLE_PAGINACAO_LISTA_LOG_CIMA, CONTROLE_PAGINACAO_LISTA_LOG_BAIXO,
+                       OBJ_CONTROLE_VIRTUAL, lista, COR_PRETA, COR_BRANCA, [](int) { return CONTROLE_PAGINACAO_DUMMY; });
 }
 
 void Tabuleiro::DesenhaIdAcaoEntidade() {
@@ -6197,9 +6154,9 @@ void Tabuleiro::DesenhaIdAcaoEntidade() {
       continue;
     }
     if (!achou) {
-      id_acao.assign(entidade->Acao(AcoesPadroes()));
+      id_acao.assign(entidade->Acao(mapa_acoes_).id());
       achou = true;
-    } else if (id_acao != entidade->Acao(AcoesPadroes())) {
+    } else if (id_acao != entidade->Acao(mapa_acoes_).id()) {
       id_acao.assign("acoes diferem");
       break;
     }
@@ -6341,97 +6298,12 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
   for (const auto& id_entidade_destino : entidades_) {
     auto* entidade = id_entidade_destino.second.get();
     if (entidade->IdCenario() == cenario_origem) {
-      //entidades_cenario.push_back(entidade);
-      if (Acao::PontoAfetadoPorAcao(entidade->PosicaoAcao(), pos_origem, acao)) {
+      Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
+      if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao)) {
         ids_afetados.push_back(id_entidade_destino.first);
       }
     }
   }
-#if 0
-  if (acao.tipo() == ACAO_DISPERSAO) {
-    switch (acao.geometria()) {
-      case ACAO_GEO_ESFERA: {
-        for (const auto* entidade_destino : entidades_cenario) {
-          // Usa a posicao da acao para ver se pegou.
-          Posicao pos_entidade_destino(entidade_destino->PosicaoAcao());
-          float d2 = DistanciaQuadrado(pos_tabuleiro, pos_entidade_destino);
-          if (d2 <= powf(acao.raio_quadrados() * TAMANHO_LADO_QUADRADO, 2)) {
-            VLOG(1) << "Adicionando id: " << entidade_destino->Id();
-            ids_afetados.push_back(entidade_destino->Id());
-          }
-        }
-      }
-      break;
-      case ACAO_GEO_CONE: {
-        if (entidade_origem == nullptr) {
-          LOG(WARNING) << "Entidade de origem nao encontrada";
-          return ids_afetados;
-        }
-        // Vetor de direcao.
-        const Posicao& pos_o = entidade_origem->Pos();
-        Posicao vetor_direcao;
-        vetor_direcao.set_x(pos_tabuleiro.x() - pos_o.x());
-        vetor_direcao.set_y(pos_tabuleiro.y() - pos_o.y());
-        float rotacao = VetorParaRotacaoGraus(vetor_direcao);
-        // Ja temos a direcao, agora eh so rodar o triangulo.
-        float distancia = acao.distancia() * TAMANHO_LADO_QUADRADO;
-        float distancia_2 = distancia / 2.0f;
-        std::vector<Posicao> vertices(3);
-        vertices[1].set_x(distancia);
-        vertices[1].set_y(-distancia_2);
-        vertices[2].set_x(distancia);
-        vertices[2].set_y(distancia_2);
-        for (unsigned int i = 0; i < vertices.size(); ++i) {
-          RodaVetor2d(rotacao, &vertices[i]);
-          vertices[i].set_x(vertices[i].x() + pos_o.x());
-          vertices[i].set_y(vertices[i].y() + pos_o.y());
-        }
-        for (const auto* entidade_destino : entidades_cenario) {
-          if (entidade_destino != entidade_origem && PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
-            VLOG(1) << "Adicionando id: " << entidade_destino->Id();
-            ids_afetados.push_back(entidade_destino->Id());
-          }
-        }
-      }
-      break;
-      default:
-        LOG(WARNING) << "Geometria da acao nao implementada: " << acao.tipo();
-    }
-  } else if (acao.tipo() == ACAO_RAIO) {
-    if (entidade_origem == nullptr) {
-      LOG(WARNING) << "Entidade de origem nao encontrada";
-      return ids_afetados;
-    }
-    // Vetor de direcao.
-    const Posicao& pos_o = entidade_origem->Pos();
-    Posicao vetor_direcao;
-    vetor_direcao.set_x(pos_tabuleiro.x() - pos_o.x());
-    vetor_direcao.set_y(pos_tabuleiro.y() - pos_o.y());
-    float rotacao = VetorParaRotacaoGraus(vetor_direcao);
-    // Ja temos a direcao, agora eh so rodar o retangulo.
-    std::vector<Posicao> vertices(4);
-    vertices[0].set_y(-TAMANHO_LADO_QUADRADO_2);
-    vertices[1].set_y(TAMANHO_LADO_QUADRADO_2);
-    vertices[2].set_y(TAMANHO_LADO_QUADRADO_2);
-    vertices[2].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
-    vertices[3].set_y(-TAMANHO_LADO_QUADRADO_2);
-    vertices[3].set_x(acao.distancia() * TAMANHO_LADO_QUADRADO);
-    for (unsigned int i = 0; i < vertices.size(); ++i) {
-      RodaVetor2d(rotacao, &vertices[i]);
-      vertices[i].set_x(vertices[i].x() + pos_o.x());
-      vertices[i].set_y(vertices[i].y() + pos_o.y());
-    }
-    for (const auto* entidade_destino : entidades_cenario) {
-      if (entidade_destino != entidade_origem && PontoDentroDePoligono(entidade_destino->Pos(), vertices)) {
-        VLOG(1) << "Adicionando id: " << entidade_destino->Id();
-        ids_afetados.push_back(entidade_destino->Id());
-      }
-    }
-  } else {
-    LOG(WARNING) << "Tipo de acao nao reconhecido: " << acao.tipo();
-  }
-
-#endif
   return ids_afetados;
 }
 
@@ -6474,6 +6346,14 @@ const Entidade* Tabuleiro::EntidadePrimeiraPessoaOuSelecionada() const {
   } else {
     return EntidadeSelecionada();
   }
+}
+
+const Entidade* Tabuleiro::EntidadeCameraPresaOuSelecionada() const {
+  const auto* entidade = BuscaEntidade(IdCameraPresa());
+  if (entidade == nullptr) {
+    entidade = EntidadeSelecionada();
+  }
+  return entidade;
 }
 
 const Entidade* Tabuleiro::EntidadeSelecionadaOuPrimeiraPessoa() const {

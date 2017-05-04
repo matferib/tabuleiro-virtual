@@ -6,12 +6,13 @@ acao {
   raio_quadrados: 1.5  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
-  textura: "icon_acid.png"
+  icone: "icon_acid.png"
+  duracao_s: 0.350
 }
 acao {
   id: 'Ataque Corpo a Corpo'
   tipo: ACAO_CORPO_A_CORPO
-  textura: 'icon_sword.png'
+  icone: 'icon_sword.png'
   permite_defesa_armadura: true
 }
 acao {
@@ -24,18 +25,21 @@ acao {
     inicial_m_s: 50
     tipo_aceleracao: ACAO_ACEL_ZERO
   }
-  textura: 'icon_bow.png'
+  icone: 'icon_bow.png'
   permite_defesa_armadura: true
 }
 acao {
   id: 'Bola de Fogo'
   tipo: ACAO_DISPERSAO
-  cor { r: 1.0 g: 1.0 b: 0 }
+  cor { r: 1.0 g: 1.0 b: 1.0 a: 0.7 }
   raio_quadrados: 4  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
 	permite_salvacao: true
-  textura: 'icon_fireball.png'
+  icone: 'icon_fireball.png'
+  info_textura { id: 'fire.png' }
+  duracao_s: 0.350
+  ignora_luz: true
 }
 acao {
   id: 'Cone de Gelo'
@@ -45,7 +49,9 @@ acao {
   geometria: ACAO_GEO_CONE
   efeito_area: true
 	permite_salvacao: true
-  textura: 'icon_ice.png'
+  icone: 'icon_ice.png'
+  duracao_s: 0.350
+  dois_lados: true
 }
 acao {
   id: 'Feitiço de Toque'
@@ -55,16 +61,17 @@ acao {
   translacao { x: 0 y: -0.3 z: -0.3 }
   cor { r: 0.0 g: 0.0  b: 1.0 }
   permite_defesa_armadura: true
-  textura: 'icon_touch.png'
+  icone: 'icon_touch.png'
 }
 acao {
-  id: 'Fogo Grego'
+  id: 'Fogo Alquímico'
   tipo: ACAO_DISPERSAO
   cor { r: 1.0 g: 1.0 b: 0 }
   raio_quadrados: 1.5  # quadrados.
   geometria: ACAO_GEO_ESFERA
   efeito_area: true
-  textura: 'icon_alchemist_fire.png'
+  icone: 'icon_alchemist_fire.png'
+  duracao_s: 0.350
 }
 acao {
   id: 'Mãos Flamejantes'
@@ -74,7 +81,8 @@ acao {
   geometria: ACAO_GEO_CONE
   efeito_area: true
 	permite_salvacao: true
-  textura: 'icon_burning_hands.png'
+  icone: 'icon_burning_hands.png'
+  duracao_s: 0.350
 }
 acao {
   id: 'Míssil Mágico'
@@ -86,7 +94,8 @@ acao {
     tipo_aceleracao: ACAO_ACEL_CONSTANTE
     aceleracao_m_s_2: 0.04
   }
-  textura: 'icon_magic_missile.png'
+  icone: 'icon_magic_missile.png'
+  ignora_luz: true
 }
 acao {
   id: 'Pedrada (gigante)'
@@ -98,15 +107,16 @@ acao {
     tipo_aceleracao: ACAO_ACEL_ZERO
     inicial_m_s: 35.0
   }
-  textura: 'icon_stone.png'
+  icone: 'icon_stone.png'
 }
 acao {
   id: 'Raio'
   tipo: ACAO_RAIO
-  cor { r: 1.0 g: 0 b: 0 }
+  cor { r: 1.0 g: 1.0 b: 1.0 a: 0.8 }
   duracao_s: 0.5
-  textura: 'icon_ray.png'
+  icone: 'icon_ray.png'
   permite_defesa_armadura: true
+  info_textura { id: 'fire.png' }
 }
 acao {
   id: 'Relâmpago'
@@ -116,10 +126,24 @@ acao {
   efeito_area: true
 	distancia_quadrados: 14  # quadrados
 	permite_salvacao: true
-  textura: "icon_lightning.png"
+  icone: "icon_lightning.png"
+}
+acao {
+  id: 'Tempestade Glacial'
+  tipo: ACAO_DISPERSAO
+  cor { r: 1 g: 1 b: 1 a: 0.5 }
+  raio_quadrados: 4  # quadrados.
+  geometria: ACAO_GEO_CILINDRO
+  efeito_area: true
+	permite_salvacao: false
+  icone: 'icon_ice.png'
+  info_textura { id: 'ice.png' }
+  duracao_s: 0.350
+  dois_lados: true
 }
 acao {
   id: 'Sinalização'
   tipo: ACAO_SINALIZACAO
-  textura: 'icon_signal.png'
+  icone: 'icon_signal.png'
+  ignora_luz: true
 }

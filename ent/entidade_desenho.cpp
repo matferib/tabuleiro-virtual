@@ -102,6 +102,8 @@ void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, ParametrosDesenho*
 }
 
 void Entidade::DesenhaObjetoProto(const EntidadeProto& proto, const VariaveisDerivadas& vd, ParametrosDesenho* pd) {
+  std::unique_ptr<gl::DesabilitaEscopo> ignora_luz(proto.ignora_luz() ? new gl::DesabilitaEscopo(GL_LIGHTING) : nullptr);
+  std::unique_ptr<gl::DesabilitaEscopo> ignora_face_nula(proto.dois_lados() ? new gl::DesabilitaEscopo(GL_CULL_FACE) : nullptr);
   switch (proto.tipo()) {
     case TE_ENTIDADE:
       DesenhaObjetoEntidadeProto(proto, vd, pd);
@@ -135,8 +137,15 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
     if (proto.has_modelo_3d()) {
       const auto* modelo = vd.m3d->Modelo(proto.modelo_3d().id());
       if (modelo != nullptr) {
+        GLuint id_textura = pd->desenha_texturas() && !proto.info_textura().id().empty() ?
+          vd.texturas->Textura(proto.info_textura().id()) : GL_INVALID_VALUE;
+        if (id_textura != GL_INVALID_VALUE) {
+          gl::Habilita(GL_TEXTURE_2D);
+          gl::LigacaoComTextura(GL_TEXTURE_2D, id_textura);
+        }
         gl::MultiplicaMatriz(modelagem.get());
         modelo->vbos_gravados.Desenha();
+        gl::Desabilita(GL_TEXTURE_2D);
       }
     } else if (!proto.info_textura().id().empty()) {
       gl::MultiplicaMatriz(tijolo_tela.get());
@@ -148,19 +157,22 @@ void Entidade::DesenhaObjetoEntidadeProtoComMatrizes(
 #endif
   }
 
-  if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
-    return;
-  }
-
 #if !VBO_COM_MODELAGEM
   // No caso de VBO com modelagem, o tijolo da base ja esta no modelo.
   // tijolo da base (altura TAMANHO_LADO_QUADRADO_10).
-  if (!proto.morta()) {
+  if (DesenhaBase(proto)) {
+    if (proto.has_modelo_3d()) {
+      AjustaCor(proto, pd);
+    }
     gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
     gl::MultiplicaMatriz(tijolo_base.get());
     gl::DesenhaVbo(g_vbos[VBO_BASE_PECA]);
   }
 #endif
+
+  if (proto.has_modelo_3d() || proto.info_textura().id().empty()) {
+    return;
+  }
 
   // Tela da textura.
   gl::MatrizEscopo salva_matriz(GL_MODELVIEW);
@@ -222,7 +234,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
   }
 
   // Desenha a barra de vida.
-  if (pd->desenha_barra_vida()) {
+  if (pd->desenha_barra_vida() && proto_.max_pontos_vida() > 0) {
     gl::MatrizEscopo salva_matriz;
     MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
     gl::Translada(0.0f, 0.0f, ALTURA * (proto_.achatado() ? 0.5f : 1.5f));
@@ -267,7 +279,7 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       MudaCor(COR_AMARELA);
       gl::MatrizEscopo salva_matriz;
       MontaMatriz(false  /*queda*/, true  /*z*/, proto_, vd_, pd);
-      gl::Translada(pd->desenha_barra_vida() ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
+      gl::Translada(pd->desenha_barra_vida() && proto_.max_pontos_vida() > 0 ? 0.5f : 0.0f, 0.0f, ALTURA * 1.5f);
       gl::EsferaSolida(0.2f, 4, 2);
       gl::Translada(0.0f, 0.0f, 0.3f);
       gl::TroncoConeSolido(0, 0.2f, TAMANHO_BARRA_VIDA, 4, 1);

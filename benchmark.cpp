@@ -24,8 +24,8 @@
 using namespace std;
 
 DEFINE_string(tabuleiro, "castelo.binproto", "Tabuleiro de benchmark.");
-DEFINE_int32(num_desenhos, 500, "Numero de vezes que o tabuleiro sera renderizado.");
-DEFINE_int32(tam_janela, 600, "Altura e largura da janela quadrada");
+DEFINE_int32(num_desenhos, 1000, "Numero de vezes que o tabuleiro sera renderizado.");
+DEFINE_int32(tam_janela, 1000, "Altura e largura da janela quadrada");
 
 ent::Tabuleiro* g_tabuleiro = nullptr;
 int g_counter = 0;

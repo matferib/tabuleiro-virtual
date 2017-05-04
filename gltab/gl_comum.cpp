@@ -1228,26 +1228,26 @@ void AtualizaMatrizes() {
   const interno::VarShader& shader = interno::BuscaShader();
   GLuint mloc = IdMatrizCorrente(shader);
   Matriz4Uniforme(mloc, 1, false, c->pilha_corrente->top().get());
-  if (modo != MATRIZ_MODELAGEM_CAMERA || !interno::UsandoShaderLuz()) {
+  if (modo != MATRIZ_MODELAGEM_CAMERA) {
     return;
-  }
-
-  // Normal matrix, apenas para modelview.
-  const auto& m = c->pilha_corrente->top();
-  Matrix3 normal(m[0], m[1], m[2],
-                 m[4], m[5], m[6],
-                 m[8], m[9], m[10]);
-  normal.invert().transpose();
-  if (normal != c->matriz_normal) {
-    c->matriz_normal = normal;
-    Matriz3Uniforme(shader.uni_gltab_nm, 1, false, normal.get());
-  }
-
-  if (shader.uni_gltab_mvm_sombra != -1) {
-    Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
   }
   if (shader.uni_gltab_mvm_oclusao != -1) {
     Matriz4Uniforme(shader.uni_gltab_mvm_oclusao, 1, false, c->pilha_mvm_oclusao.top().get());
+  }
+  if (shader.uni_gltab_nm != -1) {
+    // Normal matrix, apenas para modelview.
+    const auto& m = c->pilha_corrente->top();
+    Matrix3 normal(m[0], m[1], m[2],
+        m[4], m[5], m[6],
+        m[8], m[9], m[10]);
+    normal.invert().transpose();
+    if (normal != c->matriz_normal) {
+      c->matriz_normal = normal;
+      Matriz3Uniforme(shader.uni_gltab_nm, 1, false, normal.get());
+    }
+  }
+  if (shader.uni_gltab_mvm_sombra != -1) {
+    Matriz4Uniforme(shader.uni_gltab_mvm_sombra, 1, false, c->pilha_mvm_sombra.top().get());
   }
   if (shader.uni_gltab_mvm_luz != -1) {
     Matriz4Uniforme(shader.uni_gltab_mvm_luz, 1, false, c->pilha_mvm_luz.top().get());
@@ -1572,6 +1572,10 @@ void FinalizaGl() {
 #endif
   interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_LUZ]);
   interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_SIMPLES]);
+  interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_PONTUAL]);
+  interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_PRETO_BRANCO]);
+  interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_PICKING]);
+  interno::FinalizaShaders(interno::BuscaContexto()->shaders[TSH_CAIXA_CEU]);
 }
 
 bool SelecaoPorCor() {

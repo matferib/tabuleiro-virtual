@@ -147,6 +147,12 @@ void VbosNaoGravados::Multiplica(const Matrix4& m) {
   }
 }
 
+void VbosNaoGravados::AtribuiCor(float r, float g, float b, float a) {
+  for (auto& vbo : vbos_) {
+    vbo.AtribuiCor(r, g, b, a);
+  }
+}
+
 void VbosNaoGravados::Concatena(const VboNaoGravado& rhs) {
   if (vbos_.empty()) {
     vbos_.emplace_back(rhs);
@@ -546,7 +552,9 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer.
-  gl::GeraBuffers(1, &nome_coordenadas_);
+  if (!gravado_) {
+    gl::GeraBuffers(1, &nome_coordenadas_);
+  }
   V_ERRO("ao gerar buffer coordenadas");
   // Associa coordenadas com ARRAY_BUFFER.
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, nome_coordenadas_);
@@ -565,7 +573,9 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
                      GL_STATIC_DRAW);
   V_ERRO("ao bufferizar");
   // Buffer de indices.
-  gl::GeraBuffers(1, &nome_indices_);
+  if (!gravado_) {
+    gl::GeraBuffers(1, &nome_indices_);
+  }
   V_ERRO("ao gerar buffer indices");
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indices_);
   V_ERRO("na ligacao com buffer 2");

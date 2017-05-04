@@ -39,39 +39,13 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QWidget" name="horizontalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>10</y>
-     <width>181</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item alignment="Qt::AlignRight">
-     <widget class="QLabel" name="label">
-      <property name="text">
-       <string>Id</string>
-      </property>
-     </widget>
-    </item>
-    <item alignment="Qt::AlignLeft">
-     <widget class="QLineEdit" name="campo_id">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QTabWidget" name="tab_tesouro">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>80</y>
+     <y>20</y>
      <width>931</width>
-     <height>481</height>
+     <height>541</height>
     </rect>
    </property>
    <property name="currentIndex">
@@ -131,6 +105,22 @@
         </property>
         <property name="text">
          <string>Escolher Cor</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSlider" name="slider_alfa">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -386,7 +376,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>400</y>
+       <y>410</y>
        <width>361</width>
        <height>35</height>
       </rect>
@@ -435,7 +425,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>370</y>
+       <y>380</y>
        <width>361</width>
        <height>31</height>
       </rect>
@@ -938,12 +928,41 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_15">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_17"/>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Id</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="campo_id">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>70</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_8">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -958,6 +977,12 @@
         </item>
         <item>
          <widget class="QLineEdit" name="campo_rotulo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="readOnly">
            <bool>false</bool>
           </property>
@@ -993,6 +1018,294 @@
        </layout>
       </item>
      </layout>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_nivel">
+    <attribute name="title">
+     <string>Nível</string>
+    </attribute>
+    <widget class="QWidget" name="horizontalLayoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>181</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_31">
+      <item alignment="Qt::AlignRight">
+       <widget class="QLabel" name="label_39">
+        <property name="text">
+         <string>Nível PC</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignLeft">
+       <widget class="QLineEdit" name="linha_nivel">
+        <property name="toolTip">
+         <string>Nível do Personagem</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QPushButton" name="botao_adicionar_nivel">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>190</x>
+       <y>350</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Adicionar Nível</string>
+     </property>
+    </widget>
+    <widget class="QListWidget" name="lista_niveis">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>451</width>
+       <height>181</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="botao_remover_nivel">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>350</y>
+       <width>121</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Remover</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="horizontalLayoutWidget_12">
+     <property name="geometry">
+      <rect>
+       <x>210</x>
+       <y>10</y>
+       <width>181</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_33">
+      <item alignment="Qt::AlignRight">
+       <widget class="QLabel" name="label_46">
+        <property name="text">
+         <string>BBA</string>
+        </property>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignLeft">
+       <widget class="QLineEdit" name="linha_bba">
+        <property name="toolTip">
+         <string>Bônus Base de Ataque Total</string>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>70</y>
+       <width>661</width>
+       <height>61</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Dados Nível</string>
+     </property>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>20</y>
+        <width>631</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_40">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Classe</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="linha_classe">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Identificador da Classe</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_41">
+         <property name="text">
+          <string>Nível</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_nivel_classe">
+         <property name="toolTip">
+          <string>Nível da Classe</string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_4">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_43">
+         <property name="text">
+          <string>BBA</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_bba">
+         <property name="toolTip">
+          <string>Bônus Base de Ataque </string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_7">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_42">
+         <property name="text">
+          <string>Conjurador</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_nivel_conjurador">
+         <property name="toolTip">
+          <string>Nível de Conjurador</string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer_8">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_44">
+         <property name="text">
+          <string>Mod</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_mod_conjuracao">
+         <property name="toolTip">
+          <string>Modificador do atributo de conjuração (exemplo: sabedoria para clérigos)</string>
+         </property>
+         <property name="minimum">
+          <number>-1</number>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tab_estatisticas">
@@ -1223,12 +1536,42 @@
            </property>
            <item>
             <property name="text">
-             <string>Corpo a Corpo</string>
+             <string>Ácido</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Distância</string>
+             <string>Ataque Corpo a Corpo</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Ataque a Distância</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Bola de Fogo</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Cone de Gelo</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Feitiço de Toque</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Fogo Alquímico</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Mãos Flamejantes</string>
             </property>
            </item>
            <item>
@@ -1238,12 +1581,22 @@
            </item>
            <item>
             <property name="text">
-             <string>Toque</string>
+             <string>Pedrada</string>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Raio</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Relâmpago</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Tempestade Glacial</string>
             </property>
            </item>
            <item>
@@ -1538,6 +1891,7 @@
   <tabstop>lista_eventos</tabstop>
   <tabstop>checkbox_cor</tabstop>
   <tabstop>botao_cor</tabstop>
+  <tabstop>slider_alfa</tabstop>
   <tabstop>spin_raio_quad</tabstop>
   <tabstop>botao_luz</tabstop>
   <tabstop>combo_textura</tabstop>
@@ -1546,10 +1900,19 @@
   <tabstop>spin_tex_trans_y</tabstop>
   <tabstop>spin_tex_altura</tabstop>
   <tabstop>combo_modelos_3d</tabstop>
-  <tabstop>tab_tesouro</tabstop>
+  <tabstop>linha_classe</tabstop>
+  <tabstop>spin_nivel_classe</tabstop>
+  <tabstop>spin_bba</tabstop>
+  <tabstop>spin_nivel_conjurador</tabstop>
+  <tabstop>spin_mod_conjuracao</tabstop>
+  <tabstop>lista_niveis</tabstop>
+  <tabstop>botao_adicionar_nivel</tabstop>
+  <tabstop>botao_remover_nivel</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>spin_modificador_iniciativa</tabstop>
+  <tabstop>linha_rotulo_ataque</tabstop>
+  <tabstop>combo_tipo_ataque</tabstop>
   <tabstop>spin_alcance_quad</tabstop>
   <tabstop>spin_incrementos</tabstop>
   <tabstop>spin_ataque</tabstop>
@@ -1563,8 +1926,13 @@
   <tabstop>botao_clonar_ataque</tabstop>
   <tabstop>botao_remover_ataque</tabstop>
   <tabstop>checkbox_imune_critico</tabstop>
+  <tabstop>linha_furtivo</tabstop>
+  <tabstop>lista_tesouro</tabstop>
   <tabstop>botoes</tabstop>
+  <tabstop>tab_tesouro</tabstop>
   <tabstop>campo_id</tabstop>
+  <tabstop>linha_nivel</tabstop>
+  <tabstop>linha_bba</tabstop>
  </tabstops>
  <resources/>
  <connections>

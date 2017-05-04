@@ -384,11 +384,11 @@ Entidade::MatrizesDesenho Entidade::GeraMatrizesDesenho(const EntidadeProto& pro
   MatrizesDesenho md;
   Matrix4 matriz_modelagem_geral = MontaMatrizModelagem(true, true, proto, vd, pd);
   md.modelagem = matriz_modelagem_geral * Matrix4().rotateZ(vd.angulo_rotacao_textura_graus);
-  if (proto.tipo() != TE_ENTIDADE || proto.has_modelo_3d()) {
+  if (proto.tipo() != TE_ENTIDADE || (proto.has_modelo_3d() && !proto.desenha_base())) {
     return md;
   }
   // tijolo base. Usada para disco de peao tambem.
-  if (!proto.morta()) {
+  if (DesenhaBase(proto) || (!proto.has_info_textura() && !proto.has_modelo_3d())) {
     Matrix4 m;
     if (pd->entidade_selecionada()) {
       m.rotateZ(vd.angulo_disco_selecao_graus);
@@ -717,6 +717,40 @@ int Entidade::PontosVidaTemporarios() const {
   return proto_.pontos_vida_temporarios();
 }
 
+int Entidade::NivelPersonagem() const {
+  int total = 0;
+  for (const auto& info_classe : proto_.info_classes()) {
+    total += info_classe.nivel();
+  }
+  return total;
+}
+
+int Entidade::NivelConjurador() const {
+  for (const auto& info_classe : proto_.info_classes()) {
+    if (info_classe.nivel_conjurador() > 0) {
+      return info_classe.nivel_conjurador();
+    }
+  }
+  return 0;
+}
+
+int Entidade::ModificadorAtributoConjuracao() const {
+  for (const auto& info_classe : proto_.info_classes()) {
+    if (info_classe.nivel_conjurador() > 0) {
+      return info_classe.modificador_atributo_conjuracao();
+    }
+  }
+  return 0;
+}
+
+int Entidade::BonusBaseAtaque() const {
+  int bba = 0;
+  for (const auto& info_classe : proto_.info_classes()) {
+    bba += info_classe.bba();
+  }
+  return bba;
+}
+
 float Entidade::X() const {
   return proto_.pos().x();
 }
@@ -873,19 +907,29 @@ bool Entidade::AcaoAnterior() {
   return true;
 }
 
-std::string Entidade::Acao(const std::vector<std::string>& acoes_padroes) const {
+AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
   const auto* da = DadoCorrente();
-  if (da == nullptr) {
-    // Comportamento legado.
-    if (!proto_.ultima_acao().empty()) {
-      return proto_.ultima_acao();
+  auto StringAcao = [this, da] () {
+    if (da == nullptr) {
+      // Entidade nao possui ataques.
+      if (!proto_.ultima_acao().empty()) {
+        return proto_.ultima_acao();
+      }
+      return AcaoExecutada(0, { "Ataque Corpo a Corpo", "Ataque a Distância", "Feitiço de Toque" });
     }
-    if (acoes_padroes.empty()) {
-      return "";
-    }
-    return AcaoExecutada(0, acoes_padroes);
+    return da->tipo_ataque();
+  };
+  std::string string_acao = StringAcao();
+  auto it = mapa_acoes.find(string_acao);
+  if (it == mapa_acoes.end()) {
+    return AcaoProto();
   }
-  return da->tipo_ataque();
+  AcaoProto acao = *it->second;
+  if (da != nullptr && da->has_acao()) {
+    // Merge das informacoes dos DadosAtaque.
+    acao.MergeFrom(da->acao());
+  }
+  return acao;
 }
 
 template<class T>
@@ -1057,6 +1101,15 @@ Matrix4 Entidade::MontaMatrizModelagem(
   }
 
   Matrix4 matrix;
+  if (proto.modelo_3d().has_translacao()) {
+    const auto& t = proto.modelo_3d().translacao();
+    matrix.translate(t.x(), t.y(), t.z());
+  }
+  if (proto.modelo_3d().has_escala()) {
+    const auto& e = proto.modelo_3d().escala();
+    matrix.scale(e.x(), e.y(), e.z());
+  }
+
   if (pd != nullptr && pd->has_translacao_efeito()) {
     const auto& te = pd->translacao_efeito();
     matrix.translate(te.x(), te.y(), te.z());
@@ -1305,6 +1358,17 @@ int Entidade::MultiplicadorCritico() const {
 bool Entidade::ImuneCritico() const {
   return proto_.dados_defesa().imune_critico();
 
+}
+
+// static
+bool Entidade::DesenhaBase(const EntidadeProto& proto) {
+  if (proto.morta()) {
+    return false;
+  }
+  if (proto.has_modelo_3d()) {
+    return proto.desenha_base();
+  }
+  return proto.has_info_textura();
 }
 
 // Nome dos buffers de VBO.

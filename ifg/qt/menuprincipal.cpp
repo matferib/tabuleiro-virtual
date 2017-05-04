@@ -63,6 +63,7 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar &Câmera"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Re&iniciar Câmera"), g_fim,
   // Entidades.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Selecionar modelo"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Selecionar modelo para &feitiço"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Propriedades"),
     nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Adicionar"),
@@ -71,6 +72,9 @@ const char* g_menuitem_strs[] = {
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar selecionáveis"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar selecionáveis"),
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar como não selecionáveis"),
+    nullptr,
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Salvar modelo 3D"),
+    QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Restaurar modelo 3D"),
     g_fim,
   // Acoes.
   g_fim,
@@ -149,6 +153,30 @@ MenuPrincipal::MenuPrincipal(ent::Tabuleiro* tabuleiro, ntf::CentralNotificacoes
         // Esse sub menu tem tratamento especial.
         const char* ARQUIVO_MENU_MODELOS = "menumodelos.asciiproto";
         const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelos_nao_srd.asciiproto";
+        auto* grupo = new QActionGroup(this);
+        grupo->setExclusive(true);
+        const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
+        auto* menu_modelos = menu->addMenu(tr(menuitem_str));
+        menu_modelos->setStyleSheet("* { menu-scrollable: 1 }");
+        std::vector<ent::EntidadeProto*> entidades;
+        MenuModelos menu_modelos_proto;
+        for (const std::string& nome_arquivo_menu_modelo : arquivos_menu_modelos) {
+          MenuModelos este_menu_modelos_proto;
+          try {
+            arq::LeArquivoAsciiProto(arq::TIPO_DADOS, nome_arquivo_menu_modelo, &este_menu_modelos_proto);
+            VLOG(2) << "Este modelo: " << este_menu_modelos_proto.DebugString();
+            MisturaProtosMenu(este_menu_modelos_proto, &menu_modelos_proto);
+          } catch (const std::logic_error& erro) {
+            LOG(ERROR) << erro.what();
+          }
+        }
+        VLOG(1) << "Modelos final: " << menu_modelos_proto.DebugString();
+        PreencheMenu(menu_modelos_proto, menu_modelos, grupo);
+        connect(menu_modelos, SIGNAL(triggered(QAction*)), this, SLOT(TrataAcaoModelo(QAction*)));
+      } else if (std::string(menuitem_str) == "Selecionar modelo para &feitiço") {
+        // Esse sub menu tem tratamento especial.
+        const char* ARQUIVO_MENU_MODELOS = "menumodelosfeiticos.asciiproto";
+        const char* ARQUIVO_MENU_MODELOS_NAO_SRD = "menumodelosfeiticos_nao_srd.asciiproto";
         auto* grupo = new QActionGroup(this);
         grupo->setExclusive(true);
         const std::string arquivos_menu_modelos[] = { ARQUIVO_MENU_MODELOS, ARQUIVO_MENU_MODELOS_NAO_SRD };
@@ -298,6 +326,7 @@ void MenuPrincipal::Modo(modomenu_e modo){
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
     EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
+    EstadoItemMenu(false, ME_ENTIDADES, { MI_SALVAR_MODELO_3D, MI_RESTAURAR_MODELO_3D, });
     EstadoMenu(false, ME_DESENHO);
     for (auto* acao : acoes_modelos_) {
       std::string id = acao->data().toString().toUtf8().constData();
@@ -407,6 +436,12 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     notificacao = ntf::NovaNotificacao(ntf::TN_DESERIALIZAR_ENTIDADES_SELECIONAVEIS);
     notificacao->set_endereco(file_str.toUtf8().constData());
     notificacao->mutable_entidade()->set_selecionavel_para_jogador(false);
+  } else if (acao == acoes_[ME_ENTIDADES][MI_SALVAR_MODELO_3D]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_SALVAR_TABULEIRO_SE_NECESSARIO_OU_SALVAR_DIRETO);
+    notificacao->mutable_entidade()->mutable_modelo_3d();
+  } else if (acao == acoes_[ME_ENTIDADES][MI_RESTAURAR_MODELO_3D]) {
+    notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ABRIR_TABULEIRO);
+    notificacao->mutable_entidade()->mutable_modelo_3d();
   }
   // Tabuleiro.
   else if (acao == acoes_[ME_TABULEIRO][MI_DESFAZER]) {
@@ -464,7 +499,7 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     QMessageBox::about(
         qobject_cast<QWidget*>(parent()),
         tr("Sobre o tabuleiro virtual"),
-        tr("Tabuleiro virtual versão 2.5.4\n"
+        tr("Tabuleiro virtual versão 2.7.0\n"
            "Bibliotecas: QT, OpenGL, Protobuf, Boost\n"
            "Ícones: origem http://www.flaticon.com/\n"
            "- Designed by Freepik\n"

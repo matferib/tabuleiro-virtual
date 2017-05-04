@@ -1,4 +1,4 @@
-# Este arquivo é uma representação texto do proto ent::Modelos.
+# Este arquivo é uma representação texto do proto ent::Modelos definido no controle_virtual.proto.
 # Para aparecer no jogo, deve ser adicionado em menu_modelos.asciiproto tb.
 modelo {
   id: 'Abocanhador Matraqueante'
@@ -64,6 +64,75 @@ modelo {
   }
 }
 modelo {
+  id: 'Arma Espiritual (20/x2)'
+  entidade {
+    cor { r: 1 g: 1 }
+    modelo_3d { id: 'flail' }
+    tamanho: TM_PEQUENO
+    dados_ataque {
+      rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    }
+    desenha_base: true
+    voadora: true
+    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
+    evento { rodadas: 3 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+    multiplicador_nivel_dano: 0.334
+    dano_fixo: '1d8'
+    maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
+  }
+}
+modelo {
+  id: 'Arma Espiritual (20/x3)'
+  entidade {
+    cor { r: 1 g: 1 }
+    modelo_3d { id: 'axe' }
+    tamanho: TM_PEQUENO
+    dados_ataque {
+    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' multiplicador_critico: 3 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    }
+    desenha_base: true
+    voadora: true
+    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
+    evento { rodadas: 3 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+    multiplicador_nivel_dano: 0.334
+    dano_fixo: '1d8'
+    maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
+  }
+}
+modelo {
+  id: 'Arma Espiritual (19-20/x2)'
+  entidade {
+    cor { r: 1 g: 1 }
+    modelo_3d { id: 'sword' }
+    tamanho: TM_PEQUENO
+    dados_ataque {
+    rotulo: 'Ataque Corpo a Corpo' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 2 dano: '1d8+1' margem_critico: 19 ca_toque: 12 ca_normal: 12 ca_surpreso: 12
+    }
+    rotulo_especial: 'Dados para arma de nível 3 genérica/nAjustar:\n- crítico (por arma)\n- ataque: bba + sab\n- dano: 1d8+1/3 niveis'
+    evento { rodadas: 3 descricao: 'duração' }
+    desenha_base: true
+    voadora: true
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+    multiplicador_nivel_dano: 0.334
+    dano_fixo: '1d8'
+    maximo_modificador_dano: 5
+    tipo_modificador_ataque: TMA_BBA_MAIS_ATRIBUTO_CONJURACAO
+    rotulo_especial: ''
+  }
+}
+modelo {
   id: 'Mantor'
   entidade {
     dados_vida: '6d8+18' tamanho: TM_GRANDE modelo_3d { id: 'cloaker' }
@@ -115,15 +184,6 @@ modelo {
     dados_vida: '4d10+4' tamanho: TM_GRANDE voadora: true info_textura { id: 'giantowl.png' }
     modificador_iniciativa: 3
     rotulo_especial: 'ini +3\nca 15/12/12 bicada/garrax2 +2/+7 dano 1d8+2/1d6+4\nvisao penumbra x5'
-  }
-}
-modelo {
-  id: 'Demônio Bebilith'
-  entidade {
-    dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
-    modificador_iniciativa: 5
-    rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
-    tamanho: TM_ENORME
   }
 }
 modelo {
@@ -192,6 +252,15 @@ modelo {
   }
 }
 modelo {
+  id: 'Demônio Bebilith'
+  entidade {
+    dados_vida: '12d8+96' info_textura { id: 'bebilith.png' } cor { r: 0 g: 0 b: 0.5 }
+    modificador_iniciativa: 5
+    rotulo_especial: 'ini: +5\nat: +19/+14/+14 ou teia: +11\ndano: 2d6+9+veneno/2d4+4\naca: 22'
+    tamanho: TM_ENORME
+  }
+}
+modelo {
   id: 'Demônio Babau'
   entidade {
     dados_vida: '7d8+35' info_textura { id: 'babau.png'} cor { r: 0.439 g: 0.455 b: 0.494 }
@@ -230,6 +299,39 @@ modelo {
     dados_vida: '6d8+6' cor { r: 0.3 g: 0.3 b: 0.3 } info_textura { id: 'drow.png' }
     rotulo_especial: 'ini: +2\nat: rapier +8/+3 dano: 1d6+2\nat: +7 besta mao: 1d4\nca: 20'
     modificador_iniciativa: 2
+  }
+}
+modelo {
+  id: 'Esfera Flamejante'
+  entidade {
+    modelo_3d { id: 'builtin:esfera' translacao { z: 0.75 } }
+    info_textura { id: 'fire.png' }
+    aura_m: 1.5  # 1 quadrado de raio
+    cor { r: 1 g: 1 b: 1 a: 1 }
+    luz { cor { r: 1 g: 0.5 b: 0 a: 1 } raio_m: 6 }
+    dados_ataque {
+      rotulo: 'Toque' tipo_ataque: 'Feitiço de Toque' dano: '2d6' acao { cor { r: 1.0 g: 1.0  b: 0.0 } permite_defesa_armadura: false permite_salvacao: true }
+    }
+    ignora_luz: true
+    evento { rodadas: 3 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
+  }
+}
+modelo {
+  id: 'Tentáculos Negros'
+  entidade {
+    modelo_3d { id: 'black_tentacles' }
+    cor { r: 0.1 g: 0.1 b: 0.1 a: 1 }
+    dados_ataque {
+      # TODO: refazer quando agarrar estiver pronto.
+      rotulo: 'Agarrar' tipo_ataque: 'Feitiço de Toque' dano: '1d6+4' acao { cor { r: 0.0 g: 0.0  b: 0.0 } permite_defesa_armadura: false }
+    }
+    evento { rodadas: 7 descricao: 'duração' }
+  }
+  parametros {
+    tipo_duracao: TD_RODADAS_NIVEL
   }
 }
 modelo {
@@ -846,6 +948,24 @@ modelo {
   entidade {
     dados_vida: '8d8+40' tamanho: TM_GRANDE info_textura { id: 'rhinoceros.png' } cor { r: 0.5 g: 0.5 b: 0.5 }
     rotulo_especial: 'ini: 0\nat: +13 2d6+12\nca: 16'
+  }
+}
+modelo {
+  id: 'Tempestade Glacial'
+  entidade {
+    modelo_3d { id: 'builtin:cilindro' escala { x: 8 y: 8 z: 3 } } # sao 4 quadrados de raio.
+    cor { r: 1 g: 1 b: 1 a: 0.5 }
+    dados_ataque {
+      rotulo: 'Individual' tipo_ataque: 'Pedrada (gigante)' dano: '2d6+3d6' acao { permite_defesa_armadura: false }
+    }
+    dados_ataque {
+      rotulo: 'Área' tipo_ataque: 'Tempestade Glacial' dano: '2d6+3d6'
+    }
+    info_textura { id: 'ice.png' }
+    faz_sombra: false
+    dois_lados: true
+    rotulo_especial: '2d6 dano de estouro, 3d6 de gelo, sem salvação.'
+    evento { rodadas: 1 descricao: 'duração' }
   }
 }
 modelo {

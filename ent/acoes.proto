@@ -1,5 +1,5 @@
 // Tudo relacionado as acoes que os jogadores podem realizar.
-import "ent/entidade.proto";
+import "ent/aux.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -18,6 +18,7 @@ enum GeometriaAcao {
   ACAO_GEO_ESFERA = 1;
   ACAO_GEO_CUBO = 2;
   ACAO_GEO_CONE = 3;
+  ACAO_GEO_CILINDRO = 4;
 }
 
 enum TipoAceleracao {
@@ -81,9 +82,15 @@ message AcaoProto {
   optional bool permite_salvacao = 23;
   optional bool permite_defesa_armadura = 27;
   // A textura que representa a acao (icone).
-  optional string textura = 25;
+  optional string icone = 25;
   // A acao deve ser feita apenas localmente.
   optional bool local_apenas = 26;
+  // Acoes com textura.
+  optional InfoTextura info_textura = 28;
+  // Se verdadeiro, desliga a luz para desenha a acao.
+  optional bool ignora_luz = 29;
+  // Se verdadeiro, desliga face nula (culling).
+  optional bool dois_lados = 30;
 }
 
 // O arquivo de acoes é serializado desta forma.

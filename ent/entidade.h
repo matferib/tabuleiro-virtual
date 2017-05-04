@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
+#include "ent/acoes.pb.h"
 #include "ent/entidade.pb.h"
 #include "ent/util.h"
 #include "gltab/gl_vbo.h"
@@ -108,6 +109,15 @@ class Entidade {
   int PontosVida() const;
   int MaximoPontosVida() const;
   int PontosVidaTemporarios() const;
+  
+  /** @return o total dos niveis das classes. */
+  int NivelPersonagem() const;
+  /** @return o nivel de conjurador do personagem. */
+  int NivelConjurador() const;
+  /** Bonus base de ataque total do personagem. */
+  int BonusBaseAtaque() const;
+  /** Modificador do atributo de conjuracao. Exemplo: sab para clérigos. */
+  int ModificadorAtributoConjuracao() const;
 
   /** Retorna o tipo de transicao do objeto. Considera codigo legado tambem. */
   EntidadeProto::TipoTransicao TipoTransicao() const;
@@ -152,13 +162,14 @@ class Entidade {
   /** Atualiza apenas os campos presentes no proto para a entidade. */
   void AtualizaParcial(const EntidadeProto& proto_parcial);
 
+  using MapaIdAcao = std::unordered_map<std::string, std::unique_ptr<AcaoProto>>;
   // Retorna true se entidade possui acao propria.
   bool AcaoAnterior();
   bool ProximaAcao();
   /** Atualiza a acao realizada pela entidade nos comandos de acao. */
   void AtualizaAcao(const std::string& id_acao);
   /** Retorna a acao mais recente da entidade. Caso nao haja, retorna a primeira acao padrao. */
-  std::string Acao(const std::vector<std::string>& acoes_padroes) const;
+  AcaoProto Acao(const MapaIdAcao& mapa_acoes) const;
 
   /** Atualiza a acao da entidade para o indice passado. */
   void AdicionaAcaoExecutada(const std::string& id_acao);
@@ -400,6 +411,9 @@ class Entidade {
   static bool Achatar(const EntidadeProto& proto, const ParametrosDesenho* pd) {
     return !proto.has_modelo_3d() && !proto.info_textura().id().empty() && (pd->desenha_texturas_para_cima() || proto.achatado()) && !proto.caida();
   }
+
+  /** Retorna se a peca de base deve ser desenhada. */
+  static bool DesenhaBase(const EntidadeProto& proto);
 
   /** Tipo de translacao em Z desejado ao montar a matriz. */
   enum translacao_z_e {

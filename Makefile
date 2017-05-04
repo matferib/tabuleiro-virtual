@@ -3,25 +3,25 @@ all_sem_testes:
 	scons -j 4
 
 all:
-	scons -j 4 testes=1 teste_ent_util
+	scons -j 4 testes=1 tabvirt teste_ent_util teste_ent_acoes
 
 release:
 	scons -j 4 debug=0
 
 opengles:
-	scons usar_opengl_es=1 gerar_profile=1
+	scons -j 4 usar_opengl_es=1 gerar_profile=1
 
 benchmark_es_debug:
-	scons debug=1 benchmark=1 gerar_profile=1 usar_opengl_es=1 benchmark
+	scons -j 4 debug=1 benchmark=1 gerar_profile=1 usar_opengl_es=1 benchmark
 
 benchmark_es:
-	scons debug=0 benchmark=1 usar_opengl_es=1 benchmark
+	scons -j 4 debug=0 benchmark=1 usar_opengl_es=1 benchmark
 
 benchmark_debug:
-	scons debug=1 benchmark=1 gerar_profile=1 benchmark
+	scons -j 4 debug=1 benchmark=1 gerar_profile=1 benchmark
 
 benchmark:
-	scons debug=0 benchmark=1 benchmark
+	scons -j 4 debug=0 benchmark=1 benchmark
 
 windows:
 	scons sistema=win32 debug=0 -j 4

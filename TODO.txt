@@ -1,13 +1,14 @@
+Campo para automatico e sem critico nos dados de ataque.
+Mapa de luz no shader simples.
+
 Entidades forma nao tem olho, tratar isso na questao de desenho de luz e oclusao.
 Terminar a oclusao de luz.
-Clicar na barra de vida igual clicar em personagem.
 
-Variavel de shader para oclusao ligada, evitar lookup.
 Algema no inicio.
 Minimizar state changes do opengl.
 Mais informacoes na primeira pessoa.
 unit test AtaqueVsDefesa.
-Colocar as features (baus, portas, grades etc)  em um menu separado e adicionar varias do features.binproto.
+Colocar as features (baus, portas, grades etc) em um menu separado e adicionar varias do features.binproto.
 Modelar esquiva (usar ultimo alvo).
 Colocar alcances das entidades.
 Movimento melhorado: o pessoal teve dificuldade de movimentar usando a camera.

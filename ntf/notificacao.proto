@@ -1,4 +1,5 @@
 import "ent/acoes.proto";
+import "ent/aux.proto";
 import "ent/entidade.proto";
 import "ent/tabuleiro.proto";
 
@@ -93,6 +94,8 @@ message Notificacao {
   optional ent.EntidadeProto entidade = 7;
   // Para atualizacoes de entidade, guardando o estado anterior a modificacao.
   optional ent.EntidadeProto entidade_antes = 3;
+  // Usado na criacao de entidades.
+  optional uint32 id_referencia = 19;
   // Acoes.
   optional ent.AcaoProto acao = 12;
   // Opcoes.

@@ -307,14 +307,6 @@ class Tabuleiro : public ntf::Receptor {
   /** Busca um dos modelos pelo id. */
   const EntidadeProto* BuscaModelo(const std::string& id_modelo) const;
 
-  /** Acesso ao modelo de entidade selecionado. */
-  const EntidadeProto* ModeloSelecionado() const { return modelo_selecionado_.second; }
-
-  /** Acesso ao mapa de modelos. */
-  const std::unordered_map<std::string, std::unique_ptr<EntidadeProto>>& MapaModelos() const {
-    return mapa_modelos_;
-  }
-
   /** Retorna true se o tabuleiro tiver nome e puder ser salvo. */
   bool TemNome() const { return !proto_.nome().empty(); }
 
@@ -581,6 +573,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Desenha as acoes do tabuleiro (como misseis magicos). */
   void DesenhaAcoes();
+  void DesenhaAcoesTranslucidas();
+
   void DesenhaAuras();
 
   /** Desenha a forma de desenho selecionada. */
@@ -656,6 +650,8 @@ class Tabuleiro : public ntf::Receptor {
   */
   Entidade* EntidadePrimeiraPessoaOuSelecionada();
   const Entidade* EntidadePrimeiraPessoaOuSelecionada() const;
+  /** Retorna a entidade camera presa ou selecionada, se houver apenas uma. */
+  const Entidade* EntidadeCameraPresaOuSelecionada() const;
   /** Retorna o vetor ou com o id da entidade primeira pessoa, ou das entidades selecionadas se nao for primeira pessoa. */
   std::vector<unsigned int> IdsPrimeiraPessoaOuEntidadesSelecionadas() const;
   /** Retorna o vetor com o id da entidade de primeira pessoa mais as selecionadas. */
@@ -810,6 +806,15 @@ class Tabuleiro : public ntf::Receptor {
   /** Para debugar, desenha uma lista de objetos. */
   void DesenhaListaObjetos();
 
+  /** Desenha uma lista generica de strings de forma paginada. A funcao f_id recebe um indice da lista e retorna o id
+  * de callback para controle virtual.
+  * Os valores coluna e linha sao usados para posicionar o raster inicialmente. A origem eh esquerda embaixo.
+  */
+  void DesenhaListaGenerica(int coluna, int linha, int pagina_corrente, const char* titulo, const float* cor_titulo,
+      int nome_cima, int nome_baixo, int tipo_lista,
+      const std::vector<std::string>& lista, const float* cor_lista, const float* cor_lista_fundo,
+      std::function<int(int)> f_id);
+
   /** Desenha as iniciativas ordenadas. */
   void DesenhaIniciativas();
 
@@ -829,9 +834,13 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Retorna true se o botao estiver pressionado. O segundo argumento eh um mapa que retorna a funcao de estado de cada botao,
   * para botoes com estado. */
-  bool AtualizaBotaoControleVirtual(DadosBotao* db, const std::map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
+  bool AtualizaBotaoControleVirtual(
+      DadosBotao* db,
+      const std::unordered_map<int, std::function<bool(const Entidade*)>>& mapa_botoes, const Entidade* entidade);
   /** Alguns botoes ficam invisiveis em algumas situacoes, por exemplo, ataque automatico. */
   bool BotaoVisivel(const DadosBotao& db) const;
+  /** Caso o botao tenha um estado associado (como uma variavel booleana), retorna. Caso contrario, retorna false. */
+  bool EstadoBotao(IdBotao id_botao) const;
 
   /** Retorna o rotulo de um botao do controle virtual. */
   std::string RotuloBotaoControleVirtual(const DadosBotao& db) const;
@@ -921,7 +930,7 @@ class Tabuleiro : public ntf::Receptor {
   void SerializaIniciativaParaEntidade(const DadosIniciativa& di, EntidadeProto* e) const;
 
   unsigned int IdCameraPresa() const { return ids_camera_presa_.empty() ? Entidade::IdInvalido : ids_camera_presa_.front(); }
-  bool IdPresoACamera(unsigned int id) const { 
+  bool IdPresoACamera(unsigned int id) const {
     return std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id) != ids_camera_presa_.end();
   }
 
@@ -962,6 +971,8 @@ class Tabuleiro : public ntf::Receptor {
 
   /** as entidades selecionada. */
   std::unordered_set<unsigned int> ids_entidades_selecionadas_;
+  /** No caso do duplo clique, a gente perde a selecao no primeiro clique. Essa variavel eh uma tentativa de reverter isso. */
+  unsigned int ultima_entidade_selecionada_ = Entidade::IdInvalido;
 
   /** Entidade detalhada: mouse parado sobre ela. */
   unsigned int id_entidade_detalhada_;
@@ -1015,8 +1026,9 @@ class Tabuleiro : public ntf::Receptor {
   camera_e camera_ = CAMERA_PERSPECTIVA;
 
   /** O modelo selecionado para inserção de entidades. */
-  std::pair<std::string, const ent::EntidadeProto*> modelo_selecionado_;
+  std::pair<std::string, const Modelo*> modelo_selecionado_com_parametros_;
   std::unordered_map<std::string, std::unique_ptr<EntidadeProto>> mapa_modelos_;
+  std::unordered_map<std::string, std::unique_ptr<Modelo>> mapa_modelos_com_parametros_;
 
   /** Ação selecionada (por id). */
   MapaIdAcao mapa_acoes_;
@@ -1049,6 +1061,7 @@ class Tabuleiro : public ntf::Receptor {
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
 
   std::list<std::string> log_eventos_;
+  int pagina_log_eventos_;
 
 #if !USAR_QT
   std::vector<EntidadeProto> entidades_copiadas_;
@@ -1116,7 +1129,10 @@ class Tabuleiro : public ntf::Receptor {
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
 
+  // Variaveis de estado de alguns botoes.
   bool modo_dano_automatico_ = false;
+  bool bonus_dano_negativo_ = false;
+  bool bonus_ataque_negativo_ = false;
 
   gl::VbosGravados vbos_tabuleiro_;
   gl::VbosGravados vbos_grade_;

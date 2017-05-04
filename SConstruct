@@ -59,7 +59,7 @@ else:
   # linux.
   env['CPPPATH'] += ['./', ]
   env['CPPDEFINES'] = {'USAR_GLOG': 0, 'USAR_GFLAGS': 0, 'USAR_WATCHDOG': 1}
-  env['CXXFLAGS'] = ['-Wall', '-std=c++11']
+  env['CXXFLAGS'] = ['-Wall', '-std=c++11', '-Wfatal-errors']
   env['LIBS'] += ['GLU', 'GL', 'protobuf', 'boost_system', 'boost_timer', 'boost_filesystem', 'pthread']
 
 if (debug == '1'):
@@ -129,6 +129,7 @@ cModelos3d = env.Object('m3d/m3d.cpp')
 # ent
 cTabuleiro = env.Object('ent/tabuleiro.cpp')
 cTabuleiroControleVirtual = env.Object('ent/tabuleiro_controle_virtual.cpp')
+cTabuleiroTratador = env.Object('ent/tabuleiro_tratador.cpp')
 cTabuleiroInterface = env.Object('ent/tabuleiro_interface.cpp')
 cTabuleiroPicking = env.Object('ent/tabuleiro_picking.cpp')
 cEntidade = env.Object('ent/entidade.cpp')
@@ -142,7 +143,7 @@ if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
 ent_proto = env.Protoc(
   target = [],
-  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto'],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto', 'ent/aux.proto'],
 )
 
 # arq
@@ -186,8 +187,8 @@ objetos = [
     # Modelos3d.
     cModelos3d,
     # ent. Os protos sao de 2 em 2 para nao incluir os cabecalhos.
-    ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6],
-    cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking, cTabuleiroInterface,
+    ent_proto[0], ent_proto[2], ent_proto[4], ent_proto[6], ent_proto[8],
+    cTabuleiro, cTabuleiroControleVirtual, cTabuleiroPicking, cTabuleiroInterface, cTabuleiroTratador,
     cEntidade, cEntidadeComposta, cEntidadeForma, cAcoes, cConstantes, cEntUtil, cEntDesenho,
     # gl.
     cGlComum, cGl, cGlChar, cGlVbo, cGlues,

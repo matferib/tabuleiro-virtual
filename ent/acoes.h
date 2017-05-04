@@ -7,6 +7,10 @@ namespace ntf {
 class CentralNotificacoes;
 }  // namespace ntf
 
+namespace tex {
+class Texturas;
+}  // namespace tex
+
 namespace ent {
 
 class Entidade;
@@ -14,8 +18,8 @@ class Tabuleiro;
 
 class Acao {
  public:
-  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro);
-  virtual ~Acao() {}
+  Acao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas = nullptr);
+  virtual ~Acao();
 
   void Atualiza(int intervalo_ms);
 
@@ -46,10 +50,15 @@ class Acao {
 
   /** Retorna se o ponto eh afetado pela acao. Apenas acoes de area retornam true. */
   static bool PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& proto);
+  /** Retorna um ponto auxiliar para ver se tb eh afetado. */
+  static Posicao AjustaPonto(
+      const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
 
  protected:
+  // Desenho comum. Retorna false se deve encerrar.
+  void DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDesenho*)> f_desenho) const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
-  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const {}
+  virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
   virtual void AtualizaAposAtraso(int intervalo_ms) = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
@@ -70,6 +79,7 @@ class Acao {
  protected:
   AcaoProto acao_proto_;
   Tabuleiro* tabuleiro_ = nullptr;
+  tex::Texturas* texturas_ = nullptr;
   float atraso_s_ = 0;
   // Por atualizacao.
   float velocidade_m_ms_ = 0;
@@ -84,7 +94,7 @@ class Acao {
 };
 
 // Cria uma nova acao no tabuleiro.
-Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro);
+Acao* NovaAcao(const AcaoProto& acao_proto, Tabuleiro* tabuleiro, tex::Texturas* texturas = nullptr);
 
 }  // namespace ent
 
