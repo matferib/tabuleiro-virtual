@@ -1237,6 +1237,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   if (entidade.has_tesouro()) {
     gerador.lista_tesouro->appendPlainText(QString::fromUtf8(entidade.tesouro().tesouro().c_str()));
   }
+  gerador.texto_notas->appendPlainText(QString::fromUtf8(entidade.notas().c_str()));
 
   // Proxima salvacao: para funcionar, o combo deve estar ordenado da mesma forma que a enum ResultadoSalvacao.
   gerador.combo_salvacao->setCurrentIndex((int)entidade.proxima_salvacao());
@@ -1346,6 +1347,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
       proto_retornado->set_alcance_visao(gerador.spin_raio_visao_escuro_quad->value() * QUADRADOS_PARA_METROS);
     }
     proto_retornado->mutable_tesouro()->set_tesouro(gerador.lista_tesouro->toPlainText().toUtf8().constData());
+    proto_retornado->set_notas(gerador.texto_notas->toPlainText().toUtf8().constData());
     if (gerador.checkbox_iniciativa->checkState() == Qt::Checked) {
       proto_retornado->set_iniciativa(gerador.spin_iniciativa->value());
     } else {

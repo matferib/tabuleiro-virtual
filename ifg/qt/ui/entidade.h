@@ -215,6 +215,11 @@ public:
     QHBoxLayout *horizontalLayout_30;
     QLabel *label_37;
     QPlainTextEdit *lista_tesouro;
+    QWidget *tab_2;
+    QWidget *layoutWidget_5;
+    QHBoxLayout *horizontalLayout_32;
+    QLabel *label_45;
+    QPlainTextEdit *texto_notas;
 
     void setupUi(QDialog *ifg__qt__DialogoEntidade)
     {
@@ -303,7 +308,7 @@ public:
 
         layoutWidget = new QWidget(tab_geral);
         layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
-        layoutWidget->setGeometry(QRect(420, 240, 141, 78));
+        layoutWidget->setGeometry(QRect(420, 240, 153, 78));
         horizontalLayout_24 = new QHBoxLayout(layoutWidget);
         horizontalLayout_24->setObjectName(QString::fromUtf8("horizontalLayout_24"));
         horizontalLayout_24->setContentsMargins(0, 0, 0, 0);
@@ -320,7 +325,7 @@ public:
 
         horizontalLayoutWidget_8 = new QWidget(tab_geral);
         horizontalLayoutWidget_8->setObjectName(QString::fromUtf8("horizontalLayoutWidget_8"));
-        horizontalLayoutWidget_8->setGeometry(QRect(10, 210, 361, 41));
+        horizontalLayoutWidget_8->setGeometry(QRect(10, 210, 365, 41));
         horizontalLayout_11 = new QHBoxLayout(horizontalLayoutWidget_8);
         horizontalLayout_11->setObjectName(QString::fromUtf8("horizontalLayout_11"));
         horizontalLayout_11->setContentsMargins(0, 0, 0, 0);
@@ -472,7 +477,7 @@ public:
 
         horizontalLayoutWidget_11 = new QWidget(tab_geral);
         horizontalLayoutWidget_11->setObjectName(QString::fromUtf8("horizontalLayoutWidget_11"));
-        horizontalLayoutWidget_11->setGeometry(QRect(10, 340, 361, 35));
+        horizontalLayoutWidget_11->setGeometry(QRect(10, 340, 387, 35));
         horizontalLayout_20 = new QHBoxLayout(horizontalLayoutWidget_11);
         horizontalLayout_20->setObjectName(QString::fromUtf8("horizontalLayout_20"));
         horizontalLayout_20->setContentsMargins(0, 0, 0, 0);
@@ -833,7 +838,7 @@ public:
         groupBox_2->setGeometry(QRect(10, 70, 661, 61));
         horizontalLayoutWidget = new QWidget(groupBox_2);
         horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(9, 20, 631, 41));
+        horizontalLayoutWidget->setGeometry(QRect(9, 20, 650, 41));
         horizontalLayout = new QHBoxLayout(horizontalLayoutWidget);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalLayout->setContentsMargins(0, 0, 0, 0);
@@ -920,7 +925,7 @@ public:
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
         layoutWidget_3 = new QWidget(tab_estatisticas);
         layoutWidget_3->setObjectName(QString::fromUtf8("layoutWidget_3"));
-        layoutWidget_3->setGeometry(QRect(10, 10, 421, 29));
+        layoutWidget_3->setGeometry(QRect(10, 10, 421, 31));
         horizontalLayout_28 = new QHBoxLayout(layoutWidget_3);
         horizontalLayout_28->setObjectName(QString::fromUtf8("horizontalLayout_28"));
         horizontalLayout_28->setContentsMargins(0, 0, 0, 0);
@@ -1151,6 +1156,28 @@ public:
         horizontalLayout_30->addWidget(lista_tesouro);
 
         tab_tesouro->addTab(tab, QString());
+        tab_2 = new QWidget();
+        tab_2->setObjectName(QString::fromUtf8("tab_2"));
+        layoutWidget_5 = new QWidget(tab_2);
+        layoutWidget_5->setObjectName(QString::fromUtf8("layoutWidget_5"));
+        layoutWidget_5->setGeometry(QRect(20, 20, 751, 481));
+        horizontalLayout_32 = new QHBoxLayout(layoutWidget_5);
+        horizontalLayout_32->setObjectName(QString::fromUtf8("horizontalLayout_32"));
+        horizontalLayout_32->setContentsMargins(0, 0, 0, 0);
+        label_45 = new QLabel(layoutWidget_5);
+        label_45->setObjectName(QString::fromUtf8("label_45"));
+        sizePolicy5.setHeightForWidth(label_45->sizePolicy().hasHeightForWidth());
+        label_45->setSizePolicy(sizePolicy5);
+        label_45->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_32->addWidget(label_45);
+
+        texto_notas = new QPlainTextEdit(layoutWidget_5);
+        texto_notas->setObjectName(QString::fromUtf8("texto_notas"));
+
+        horizontalLayout_32->addWidget(texto_notas);
+
+        tab_tesouro->addTab(tab_2, QString());
         QWidget::setTabOrder(campo_rotulo, lista_rotulos);
         QWidget::setTabOrder(lista_rotulos, slider_tamanho);
         QWidget::setTabOrder(slider_tamanho, spin_pontos_vida);
@@ -1447,6 +1474,11 @@ public:
         lista_tesouro->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab), QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
+        label_45->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Notas", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        texto_notas->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "R\303\263tulos para a entidade. Aparece sobre ela quando a entidade \303\251 detalhada.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        tab_tesouro->setTabText(tab_tesouro->indexOf(tab_2), QApplication::translate("ifg::qt::DialogoEntidade", "Notas", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

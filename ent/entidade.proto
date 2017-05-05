@@ -236,4 +236,6 @@ message EntidadeProto {
   repeated InfoClasse info_classes = 63;
   // Mesmo que haja um modelo 3d, desenha o tijolo de base da entidade.
   optional bool desenha_base = 65;
+  // Outras coisas de entidade, apenas para armazenamento.
+  optional string notas = 66;
 }
