@@ -680,7 +680,7 @@ void Tabuleiro::DesenhaMapaLuz() {
 #if VBO_COM_MODELAGEM
     DesenhaCenaVbos();
 #else
-    DesenhaCena();
+    DesenhaCena(true);
 #endif
   }
   V_ERRO("LigacaoComFramebufferOclusao");
@@ -2418,6 +2418,7 @@ void Tabuleiro::TrataRedimensionaJanela(int largura, int altura) {
   gl::Viewport(0, 0, (GLint)largura, (GLint)altura);
   largura_ = largura;
   altura_ = altura;
+  //LOG(INFO) << "Dimensões da janela: " << largura << "x" << altura_;
 }
 
 void Tabuleiro::IniciaGL() {
@@ -2606,7 +2607,7 @@ void Tabuleiro::AcaoAnterior() {
 }
 
 // privadas
-void Tabuleiro::DesenhaCena() {
+void Tabuleiro::DesenhaCena(bool debug) {
   //if (glGetError() == GL_NO_ERROR) LOG(ERROR) << "ok!";
   V_ERRO("ha algum erro no opengl, investigue");
 
@@ -2845,8 +2846,6 @@ void Tabuleiro::DesenhaCena() {
   }
 #endif
 
-
-
   gl::Desabilita(GL_FOG);
   gl::UsaShader(gl::TSH_SIMPLES);
 
@@ -2856,7 +2855,7 @@ void Tabuleiro::DesenhaCena() {
   // Configura modo 2d.
   GLint viewport[4];
   gl::Le(GL_VIEWPORT, viewport);
-  gl::MatrizEscopo salva_matriz_pr(GL_PROJECTION);
+  gl::MatrizEscopo salva_matriz_pr(gl::MATRIZ_PROJECAO);
   gl::CarregaIdentidade();
   if (parametros_desenho_.has_picking_x()) {
     gl::MatrizPicking(parametros_desenho_.picking_x(), parametros_desenho_.picking_y(), 1.0, 1.0, viewport);
@@ -5784,6 +5783,10 @@ void Tabuleiro::AtualizaLuzesPontuais() {
   GLint original;
   gl::Le(GL_FRAMEBUFFER_BINDING, &original);
   ParametrosDesenho salva_pd(parametros_desenho_);
+  // No android, as chamadas de atualizacao se misturam com as de picking, que dependem das matrizes para funcionar
+  // corretamente (MousePara3dParaleloZero);
+  gl::MatrizEscopo salva_proj(gl::MATRIZ_PROJECAO);
+  gl::MatrizEscopo salva_mv(gl::MATRIZ_MODELAGEM_CAMERA);
   DesenhaMapaLuz();
   parametros_desenho_.set_desenha_mapa_luzes(0);
   // TODO XXX desenhar apenas as entidades fixas.

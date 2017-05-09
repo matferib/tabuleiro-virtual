@@ -512,8 +512,10 @@ class Tabuleiro : public ntf::Receptor {
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
 
-  /** funcao que desenha a cena independente do modo. */
-  void DesenhaCena();
+  /** funcao que desenha a cena independente do modo.
+  * Parametro debug apenas para debugar e diferenciar as diferentes chamadas da funcao.
+  */
+  void DesenhaCena(bool debug = false);
   // Desenha a cena baseado em VBOs.
   void DesenhaCenaVbos();
   void GeraVbosCena();

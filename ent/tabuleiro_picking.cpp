@@ -205,6 +205,8 @@ bool Tabuleiro::MousePara3d(int x, int y, float* x3d, float* y3d, float* z3d) {
 }
 
 bool Tabuleiro::MousePara3dParaleloZero(int x, int y, float* x3d, float* y3d, float* z3d) {
+  // TODO: computar a matriz de modelagem e projecao aqui de acordo com a camera, para
+  // evitar que qualquer efeito colateral nelas cause problemas de arrastar.
   // Intersecao de reta com plano z=0.
   GLfloat modelview[16], projection[16];
   GLint viewport[4];
