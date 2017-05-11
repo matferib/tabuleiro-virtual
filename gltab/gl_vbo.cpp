@@ -548,10 +548,9 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
-  //Desgrava();  // TODO nao precisa desgravar.
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
-  // Gera o buffer.
+  // Gera o buffer se ja nao for gravado.
   if (!gravado_) {
     gl::GeraBuffers(1, &nome_coordenadas_);
   }
@@ -1394,20 +1393,22 @@ void DesenhaVbo(GLenum modo,
                 int num_vertices, int num_dimensoes, const void* indices, const void* dados,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
-                bool tem_cores, const void* cores, int d_cores, bool atualiza_matrizes) {
+                bool tem_cores, const void* cores, int d_cores, 
+                bool tem_matriz, const void* matriz, int d_matriz,
+                bool atualiza_matrizes) {
   V_ERRO("DesenhaVB0: antes");
-  gl::HabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::HabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
   if (tem_normais) {
-    gl::HabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    gl::HabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
     gl::PonteiroNormais(GL_FLOAT, static_cast<const char*>(normais) + d_normais);
   }
   if (tem_texturas) {
-    gl::HabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    gl::HabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
     gl::PonteiroVerticesTexturas(2, GL_FLOAT, 0, static_cast<const char*>(texturas) + d_texturas);
   }
   V_ERRO("DesenhaVBO: um quarto");
   if (tem_cores && !interno::BuscaContexto()->UsarSelecaoPorCor()) {
-    gl::HabilitaEstadoCliente(GL_COLOR_ARRAY);
+    gl::HabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY);
     gl::PonteiroCores(4, 0, static_cast<const char*>(cores) + d_cores);
   }
 
@@ -1415,22 +1416,25 @@ void DesenhaVbo(GLenum modo,
   gl::PonteiroVertices(num_dimensoes, GL_FLOAT, 0, (void*)dados);
   V_ERRO("DesenhaVBO: mei ponteiro vertices");
 
-  if (atualiza_matrizes) {
+  if (tem_matriz) {
+    gl::HabilitaVetorAtributosVerticePorTipo(ATR_MATRIX_ARRAY);
+    gl::PonteiroMatriz(static_cast<const char*>(matriz) + d_matriz);
+  } else if (atualiza_matrizes) {
     gl::AtualizaMatrizes();
   }
   gl::DesenhaElementos(modo, num_vertices, GL_UNSIGNED_SHORT, (void*)indices);
   V_ERRO("DesenhaVBO: mei elementos");
 
-  gl::DesabilitaEstadoCliente(GL_VERTEX_ARRAY);
+  gl::DesabilitaVetorAtributosVerticePorTipo(ATR_VERTEX_ARRAY);
   if (tem_normais) {
-    gl::DesabilitaEstadoCliente(GL_NORMAL_ARRAY);
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_NORMAL_ARRAY);
   }
   V_ERRO("DesenhaVBO: tres quartos");
   if (tem_cores) {
-    gl::DesabilitaEstadoCliente(GL_COLOR_ARRAY);
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_COLOR_ARRAY);
   }
   if (tem_texturas) {
-    gl::DesabilitaEstadoCliente(GL_TEXTURE_COORD_ARRAY);
+    gl::DesabilitaVetorAtributosVerticePorTipo(ATR_TEXTURE_COORD_ARRAY);
   }
   V_ERRO("DesenhaVBO: depois");
 }
@@ -1449,7 +1453,9 @@ void DesenhaVbo(const VboGravado& vbo, GLenum modo, bool atualiza_matrizes) {
   DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), nullptr, nullptr,
              vbo.tem_normais(), nullptr, vbo.DeslocamentoNormais(),
              vbo.tem_texturas(), nullptr, vbo.DeslocamentoTexturas(),
-             vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(), atualiza_matrizes);
+             vbo.tem_cores(), nullptr, vbo.DeslocamentoCores(),
+             vbo.tem_matriz(), nullptr, vbo.DeslocamentoMatriz(),
+             atualiza_matrizes);
 
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -1459,7 +1465,9 @@ void DesenhaVbo(const VboNaoGravado& vbo, GLenum modo, bool atualiza_matrizes) {
   DesenhaVbo(modo, vbo.NumVertices(), vbo.NumDimensoes(), vbo.indices().data(), vbo.coordenadas().data(),
              vbo.tem_normais(), vbo.normais().data(), 0,
              vbo.tem_texturas(), vbo.texturas().data(), 0,
-             vbo.tem_cores(), vbo.cores().data(), 0, atualiza_matrizes);
+             vbo.tem_cores(), vbo.cores().data(), 0,
+             vbo.tem_matriz(), vbo.matriz().data(), 0,
+             atualiza_matrizes);
 }
 
 }  // namespace gl

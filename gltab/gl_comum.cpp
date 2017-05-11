@@ -837,6 +837,12 @@ void PonteiroVerticesTexturas(GLint vertices_por_coordenada, GLenum tipo, GLsize
   }
 }
 
+void PonteiroMatriz(const GLvoid* matriz) {
+  if (interno::BuscaShader().atr_gltab_matriz != -1) {
+    PonteiroAtributosVertices(interno::BuscaShader().atr_gltab_matriz, 4  /**dimensoes*/, GL_FLOAT, GL_FALSE, 0, matriz);
+  }
+}
+
 bool EstaHabilitado(GLenum cap) {
   const auto& shader = interno::BuscaShader();
   if (cap == GL_LIGHTING) {
@@ -1135,6 +1141,31 @@ void Le(GLenum nome_parametro, GLfloat* valor) {
   } else {
     glGetFloatv(nome_parametro, valor);
   }
+}
+
+namespace {
+
+GLuint TipoAtribParaIndice(atributo_e tipo) {
+  switch (tipo) {
+    case ATR_VERTEX_ARRAY: return interno::BuscaShader().atr_gltab_vertice;
+    case ATR_NORMAL_ARRAY: return interno::BuscaShader().atr_gltab_normal;
+    case ATR_COLOR_ARRAY: return interno::BuscaShader().atr_gltab_cor;
+    case ATR_TEXTURE_COORD_ARRAY: return interno::BuscaShader().atr_gltab_texel;
+    case ATR_MATRIX_ARRAY: return interno::BuscaShader().atr_gltab_matriz;
+    default:
+      LOG(ERROR) << "tipo invalido: " << (int)tipo;
+      return 0;
+  }
+}
+
+}  // namespace
+
+void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
+  HabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
+}
+
+void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo) {
+  DesabilitaVetorAtributosVertice(TipoAtribParaIndice(tipo));
 }
 
 void HabilitaEstadoCliente(GLenum cap) {

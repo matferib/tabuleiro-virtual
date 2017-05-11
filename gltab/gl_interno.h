@@ -56,6 +56,7 @@ struct VarShader {
   GLint atr_gltab_normal;
   GLint atr_gltab_cor;
   GLint atr_gltab_texel;
+  GLint atr_gltab_matriz;
 
   // Alguns bits de estado para diminuir comunicacao com a placa.
   bool textura_ligada = false;

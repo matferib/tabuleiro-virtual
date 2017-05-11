@@ -71,6 +71,7 @@ class VboNaoGravado {
   bool tem_normais() const { return !normais_.empty(); }
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return !texturas_.empty(); }
+  bool tem_matriz() const { return false; }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
   std::vector<float>& coordenadas() { return coordenadas_; }
@@ -81,12 +82,14 @@ class VboNaoGravado {
   const std::vector<float>& normais() const { return normais_; }
   const std::vector<float>& texturas() const { return texturas_; }
   const std::vector<float>& cores() const { return cores_; }
+  const std::vector<float>& matriz() const { return matriz_; }
 
  private:
   std::vector<float> coordenadas_;
   std::vector<float> normais_;
   std::vector<float> cores_;
   std::vector<float> texturas_;
+  std::vector<float> matriz_;
   std::vector<unsigned short> indices_;  // Indices tem seu proprio buffer.
   std::string nome_;
   unsigned short num_dimensoes_ = 0;  // numero de dimensoes por vertice (2 para xy, 3 para xyz, 4 xyzw).
@@ -119,6 +122,8 @@ class VboGravado {
   unsigned int  DeslocamentoTexturas() const { return deslocamento_texturas_; }
   // Deslocamento em bytes para a primeira coordenada de cores.
   unsigned int DeslocamentoCores() const { return deslocamento_cores_; }
+  // Deslocamento em bytes para a primeira coordenada da matriz.
+  unsigned int DeslocamentoMatriz() const { return deslocamento_matriz_; }
 
   const std::vector<unsigned short>& indices() const { return indices_; }
 
@@ -129,6 +134,7 @@ class VboGravado {
   bool tem_cores() const { return tem_cores_; }
   bool tem_texturas() const { return tem_texturas_; }
   void forca_texturas(bool tem) { tem_texturas_ = tem; }
+  bool tem_matriz() const { return false; }
 
   std::string ParaString() const {
 #if WIN32 || ANDROID
@@ -158,6 +164,7 @@ class VboGravado {
   unsigned int deslocamento_normais_ = 0;
   unsigned int deslocamento_cores_ = 0;
   unsigned int deslocamento_texturas_ = 0;
+  unsigned int deslocamento_matriz_ = 0;
   unsigned short num_dimensoes_ = 0;
 
   bool tem_normais_ = false;

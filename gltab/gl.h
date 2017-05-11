@@ -364,6 +364,18 @@ inline void PonteiroNormais(GLenum tipo, const GLvoid* normais) { PonteiroNormai
 
 void PonteiroCores(GLint num_componentes, GLsizei passo, const GLvoid* cores);
 
+void PonteiroMatriz(const GLvoid* matriz);
+
+enum atributo_e {
+  ATR_VERTEX_ARRAY        = 0,
+  ATR_NORMAL_ARRAY        = 1,
+  ATR_COLOR_ARRAY         = 2,
+  ATR_TEXTURE_COORD_ARRAY = 3,
+  ATR_MATRIX_ARRAY        = 4,
+};
+void HabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
+void DesabilitaVetorAtributosVerticePorTipo(atributo_e tipo);
+
 /** Funcoes de nomes. */
 void CarregaNome(GLuint nome);
 void IniciaNomes();
