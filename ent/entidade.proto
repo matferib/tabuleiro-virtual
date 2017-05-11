@@ -1,5 +1,5 @@
 import "ent/acoes.proto";
-import "ent/aux.proto";
+import "ent/comum.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
