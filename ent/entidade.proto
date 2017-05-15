@@ -148,6 +148,7 @@ message EntidadeProto {
   // TODO implementar as coisas de surpresa.
   optional bool surpreso = 64;
   optional bool furtivo = 62;
+  optional bool fumegando = 67;
 
   // Ultima acao para display. O valor eh um id no mapa de acoes do tabuleiro.
   optional string ultima_acao = 26;
