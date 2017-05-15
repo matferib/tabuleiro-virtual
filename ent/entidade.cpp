@@ -392,7 +392,7 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
     nuvem.direcao.z = 1.0f;
     nuvem.pos = PosParaVector3(PosicaoAcao());
     nuvem.duracao_ms = f.duracao_nuvem_ms;
-    nuvem.velocidade_m_s = 1.0f;
+    nuvem.velocidade_m_s = 0.25f;
     nuvem.escala = 1.0f;
     f.nuvens.emplace_back(std::move(nuvem));
     f.proxima_emissao_ms = f.intervalo_emissao_ms;
@@ -411,6 +411,7 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
     }
     nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
     nuvem.escala += 1.5f * intervalo_s;
+    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / f.intervalo_emissao_ms;
   }
   // Remove as que tem que remover.
   unsigned int removidas = 0;
@@ -421,13 +422,26 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
   std::vector<gl::VboNaoGravado> vbos;
   for (const auto& nuvem : f.nuvens) {
     gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
-    vbo_ng.RodaX(90.0f);
+    Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
+    Vector3 dc = camera - nuvem.pos;
+    // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+    // mais a diferenca de angulo.
+    float inclinacao_graus = 0.0f;
+    float dc_len = dc.length();
+    if (dc_len < 0.001f) {
+      inclinacao_graus = 0.0f;
+    } else {
+      inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+    }
+    vbo_ng.RodaY(90.0f - inclinacao_graus);
+    // Agora roda no eixo z.
+    vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
     vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
     vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
+    vbo_ng.AtribuiCor(1.0f, 1.0f, 1.0f, nuvem.alfa);
     vbos.emplace_back(std::move(vbo_ng));
   }
   f.vbo = gl::VbosNaoGravados(std::move(vbos));
-  f.vbo.AtribuiCor(1.0f, 1.0f, 1.0f, 1.0f);
 }
 
 void Entidade::AtualizaMatrizes() {

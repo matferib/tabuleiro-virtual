@@ -127,7 +127,7 @@ void ComputaVetorNormalizado(Posicao* pos);
 */
 void MultiplicaMatrizVetor(const float* matriz, float* vetor);
 
-/** Retorna o vetor de rotacao dado um vetor x,y. O valor do vetor vai de (-180, 180]. */
+/** Retorna o valor de rotacao para se chegar a um vetor x,y. O valor vai de (-180, 180]. */
 float VetorParaRotacaoGraus(const Posicao& vetor, float* tamanho = nullptr);
 float VetorParaRotacaoGraus(float x, float y, float* tamanho = nullptr);
 

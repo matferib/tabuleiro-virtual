@@ -302,6 +302,7 @@ class Entidade {
     Vector3 pos;
     float escala;
     int duracao_ms = 0;
+    float alfa = 1.0f;
     float velocidade_m_s = 0.0f;
   };
 
