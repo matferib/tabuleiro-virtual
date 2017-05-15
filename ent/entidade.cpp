@@ -139,6 +139,15 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
+  // Hack de fumaca.
+  if (proto_.fumegando()) {
+    auto& f = vd_.fumaca;
+    f.duracao_ms = 10000;
+    f.intervalo_emissao_ms = 1000;
+    f.duracao_nuvem_ms = 3000;
+  }
+
+ 
   AtualizaVbo(parametros_desenho_);
 }
 
@@ -370,6 +379,57 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
   }
 }
 
+void Entidade::AtualizaFumaca(int intervalo_ms) {
+  auto& f = vd_.fumaca;
+  f.duracao_ms -= intervalo_ms;
+  if (f.duracao_ms < 0) {
+    f.duracao_ms = 0;
+  }
+  if (f.duracao_ms > 0 && intervalo_ms >= f.proxima_emissao_ms) {
+    f.proxima_emissao_ms = f.proxima_emissao_ms;
+    // Emite nova particula.
+    DadosUmaNuvem nuvem;
+    nuvem.direcao.z = 1.0f;
+    nuvem.pos = PosParaVector3(PosicaoAcao());
+    nuvem.duracao_ms = f.duracao_nuvem_ms;
+    nuvem.velocidade_m_s = 1.0f;
+    nuvem.escala = 1.0f;
+    f.nuvens.emplace_back(std::move(nuvem));
+    f.proxima_emissao_ms = f.intervalo_emissao_ms;
+  } else {
+    f.proxima_emissao_ms -= intervalo_ms;
+  }
+  // Atualiza as particulas existentes.
+  std::vector<unsigned int> a_remover;
+  float intervalo_s = intervalo_ms / 1000.0f;
+  for (unsigned int i = 0; i < f.nuvens.size(); ++i) {
+    auto& nuvem = f.nuvens[i];
+    nuvem.duracao_ms -= intervalo_ms;
+    if (nuvem.duracao_ms <= 0) {
+      a_remover.push_back(i);
+      continue;
+    }
+    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
+    nuvem.escala += 1.5f * intervalo_s;
+  }
+  // Remove as que tem que remover.
+  unsigned int removidas = 0;
+  for (int i : a_remover) {
+    f.nuvens.erase(f.nuvens.begin() + (i - removidas));
+  }
+  // Recria o VBO.
+  std::vector<gl::VboNaoGravado> vbos;
+  for (const auto& nuvem : f.nuvens) {
+    gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
+    vbo_ng.RodaX(90.0f);
+    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
+    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
+    vbos.emplace_back(std::move(vbo_ng));
+  }
+  f.vbo = gl::VbosNaoGravados(std::move(vbos));
+  f.vbo.AtribuiCor(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
 void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   vd_.matriz_modelagem = md.modelagem;
@@ -458,6 +518,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
   }
 
   AtualizaEfeitos();
+  AtualizaFumaca(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
     const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
@@ -1375,7 +1436,7 @@ bool Entidade::DesenhaBase(const EntidadeProto& proto) {
 std::vector<gl::VboGravado> Entidade::g_vbos;
 
 // static
-void Entidade::IniciaGl() {
+void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // Vbo peao.
   {
@@ -1541,6 +1602,13 @@ void Entidade::IniciaGl() {
   g_vbos.resize(NUM_VBOS);
   for (int i = 0; i < NUM_VBOS; ++i) {
     g_vbos[i].Grava(vbos_nao_gravados[i]);
+  }
+  // Texturas globais.
+  {
+    // TODO remover essa textura.
+    auto* n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    n_tex->add_info_textura()->set_id("smoke.png");
+    central->AdicionaNotificacao(n_tex);
   }
 }
 

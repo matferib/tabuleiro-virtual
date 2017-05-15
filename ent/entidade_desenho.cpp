@@ -358,6 +358,13 @@ void Entidade::DesenhaDecoracoes(ParametrosDesenho* pd) {
       }
     }
   }
+
+  if (!vd_.fumaca.nuvens.empty()) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("smoke.png"));
+    vd_.fumaca.vbo.Desenha();
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
 }
 
 void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {

@@ -1172,8 +1172,10 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_depois->set_selecionavel_para_jogador(valor);
     }
     if (bits & BIT_FIXA) {
-      proto_antes->set_fixa(proto_original.fixa());
-      proto_depois->set_fixa(valor);
+      if (entidade_selecionada->Tipo() != TE_ENTIDADE) {
+        proto_antes->set_fixa(proto_original.fixa());
+        proto_depois->set_fixa(valor);
+      }
     }
     if (bits & BIT_SURPRESO) {
       proto_antes->set_surpreso(proto_original.surpreso());
@@ -1344,8 +1346,10 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_depois->set_selecionavel_para_jogador(!proto_original.selecionavel_para_jogador());
     }
     if (bits & BIT_FIXA) {
-      proto_antes->set_fixa(proto_original.fixa());
-      proto_depois->set_fixa(!proto_original.fixa());
+      if (entidade_selecionada->Tipo() != TE_ENTIDADE) {
+        proto_antes->set_fixa(proto_original.fixa());
+        proto_depois->set_fixa(!proto_original.fixa());
+      }
     }
     if (bits & BIT_SURPRESO) {
       proto_antes->set_surpreso(proto_original.surpreso());
@@ -2442,7 +2446,7 @@ void Tabuleiro::IniciaGL() {
   RegeraVboTabuleiro();
   IniciaGlControleVirtual();
   GeraFramebuffer();
-  Entidade::IniciaGl();
+  Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
 
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
