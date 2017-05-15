@@ -143,7 +143,7 @@ if sistema == 'linux':
   cEntWatchdog = env.Object('ent/watchdog.cpp')
 ent_proto = env.Protoc(
   target = [],
-  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto', 'ent/aux.proto'],
+  source = ['ent/entidade.proto', 'ent/tabuleiro.proto', 'ent/acoes.proto', 'ent/controle_virtual.proto', 'ent/comum.proto'],
 )
 
 # arq
