@@ -139,14 +139,6 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
-  // Hack de fumaca.
-  if (proto_.fumegando()) {
-    auto& f = vd_.fumaca;
-    f.duracao_ms = 10000;
-    f.intervalo_emissao_ms = 1000;
-    f.duracao_nuvem_ms = 3000;
-  }
-
  
   AtualizaVbo(parametros_desenho_);
 }
@@ -882,6 +874,15 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
   if (proto_parcial.has_cor()) {
     atualizar_vbo = true;
     proto_.clear_cor();
+  }
+  if (proto_parcial.fumegando()) {
+    auto& f = vd_.fumaca;
+    f.duracao_ms = 10000;
+    f.intervalo_emissao_ms = 1000;
+    f.duracao_nuvem_ms = 3000;
+  } else if (proto_parcial.has_fumegando()) {
+    auto& f = vd_.fumaca;
+    f.duracao_ms = 0;
   }
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {

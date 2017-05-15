@@ -59,6 +59,7 @@ class Acao {
   void DesenhaComum(ParametrosDesenho* pd, std::function<void(ParametrosDesenho*)> f_desenho) const;
   virtual void DesenhaSeNaoFinalizada(ParametrosDesenho* pd) const {}
   virtual void DesenhaTranslucidoSeNaoFinalizada(ParametrosDesenho* pd) const { DesenhaSeNaoFinalizada(pd); }
+  // Funcao auxiliar para atualizar alvo. Deve ser chamada manualmente por cada subclasse.
   virtual void AtualizaAposAtraso(int intervalo_ms) = 0;
 
   // Pode ser chamada para atualizar a velocidade da acao de acordo com os parametros de velocidade.
