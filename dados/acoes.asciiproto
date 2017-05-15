@@ -14,6 +14,7 @@ acao {
   tipo: ACAO_CORPO_A_CORPO
   icone: 'icon_sword.png'
   permite_defesa_armadura: true
+  consequencia: TC_DESLOCA_ALVO
 }
 acao {
   id: 'Ataque a Distância'
@@ -27,6 +28,7 @@ acao {
   }
   icone: 'icon_bow.png'
   permite_defesa_armadura: true
+  consequencia: TC_DESLOCA_ALVO
 }
 acao {
   id: 'Bola de Fogo'
@@ -40,6 +42,7 @@ acao {
   info_textura { id: 'fire.png' }
   duracao_s: 0.350
   ignora_luz: true
+  consequencia: TC_INFLAMA_ALVO
 }
 acao {
   id: 'Cone de Gelo'
@@ -72,6 +75,7 @@ acao {
   efeito_area: true
   icone: 'icon_alchemist_fire.png'
   duracao_s: 0.350
+  consequencia: TC_INFLAMA_ALVO
 }
 acao {
   id: 'Mãos Flamejantes'
@@ -83,6 +87,7 @@ acao {
 	permite_salvacao: true
   icone: 'icon_burning_hands.png'
   duracao_s: 0.350
+  consequencia: TC_INFLAMA_ALVO
 }
 acao {
   id: 'Míssil Mágico'
