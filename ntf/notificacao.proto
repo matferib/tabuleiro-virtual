@@ -13,6 +13,7 @@ enum Tipo {
   TN_INICIAR = 3;  // Iniciar jogo modo mestre.
   TN_INICIADO = 4;
   TN_CONECTAR = 5;  // Conectar no jogo mestre.
+  TN_CONECTAR_PROXY = 60;  // Mestre conectando no proxy.
   TN_DESCONECTAR = 6;  // Comando para desconectar jogo.
   TN_RESPOSTA_CONEXAO = 7;
   TN_DESCONECTADO = 8;  // Cliente ou servidor desconectou.
