@@ -1677,7 +1677,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_PROXIMA_INICIATIVA: {
-      if (notificacao.entidade().id() == IniciativaCorrente()) {
+      if (notificacao.entidade().id() == IdIniciativaCorrente()) {
         ProximaIniciativa();
       }
       return true;
@@ -2347,16 +2347,26 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
   }
+
+  unsigned int iniciativa_corrente = IdIniciativaCorrente();
+  if (EmModoMestreIncluindoSecundario()) {
+    SelecionaEntidade(iniciativa_corrente);
+  } else if (IdPresoACamera(iniciativa_corrente)) {
+    SelecionaEntidade(iniciativa_corrente);
+    if (IdPresoACamera(iniciativa_corrente)) {
+      MudaEntidadeCameraPresa(iniciativa_corrente);
+    }
+  }
 }
 
 void Tabuleiro::ProximaIniciativa() {
   if (indice_iniciativa_ == -1) {
-    LOG(INFO) << "Nao eh mestre ou entidades_ordenadas_por_iniciativa_.empty";
+    LOG(INFO) << "Nao ha indice de iniativa";
     return;
   }
   if (!EmModoMestreIncluindoSecundario()) {
     // So permite ao jogador passar se for a vez dele.
-    unsigned int id_iniciativa = IniciativaCorrente();
+    unsigned int id_iniciativa = IdIniciativaCorrente();
     if (!IdPresoACamera(id_iniciativa)) {
       LOG(INFO) << "Jogador so pode passar sua propria iniciativa.";
       return;
@@ -6724,6 +6734,28 @@ void Tabuleiro::AlternaCameraPresa() {
   } else {
     LOG(INFO) << "Sem entidade selecionada, nada a fazer.";
   }
+}
+
+void Tabuleiro::MudaEntidadeCameraPresa(unsigned int id) {
+  const Entidade* entidade = BuscaEntidade(id);
+  if (!camera_presa_ || ids_camera_presa_.size() <= 1 || entidade == nullptr) {
+    LOG(INFO) << "Nao posso alternar camera, camera_presa_ " << camera_presa_
+              << ", ids_entidades_selecionadas_.size(): " << ids_entidades_selecionadas_.size()
+              << ", ou entidade == nullptr: " << (entidade == nullptr);
+    return;
+  }
+
+  auto it = std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id);
+  if (it == ids_camera_presa_.end()) {
+    LOG(INFO) << "Entidade nao esta presa a camera.";
+    return;
+  }
+  ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
+  if (entidade->Pos().id_cenario() != cenario_corrente_) {
+    CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
+  }
+  LOG(INFO) << "Camera presa em " << id;
+  SelecionaEntidade(id);
 }
 
 void Tabuleiro::MudaEntidadeCameraPresa() {

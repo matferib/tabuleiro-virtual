@@ -223,7 +223,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Realiza a atualizacao das iniciativas, notificando clientes. */
   void AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao);
   /** Retorna o id da iniciativa corrente, ou IdInvalido. */
-  unsigned int IniciativaCorrente() const {
+  unsigned int IdIniciativaCorrente() const {
     if (indice_iniciativa_ < 0 || indice_iniciativa_ >= (int)iniciativas_.size()) {
       return Entidade::IdInvalido;
     }
@@ -470,10 +470,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna entre visao do jogador e do mestre. */
   void AlternaVisaoJogador();
 
-  /** Alterna a camera presa a entidade. */
+  /** Alterna entre camera presa a entidade e nao presa. */
   void AlternaCameraPresa();
   /** Se houver mais de uma entidade de camera presa, muda para a proxima. */
   void MudaEntidadeCameraPresa();
+  /** Muda para uma entidade especifica da camera presa. */
+  void MudaEntidadeCameraPresa(unsigned int id);
 
   /** Alterna a visao no escuro. Ainda depende da entidade selecionada possuir a visao. */
   void AlternaVisaoEscuro() { visao_escuro_ = !visao_escuro_; }
