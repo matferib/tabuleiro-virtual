@@ -522,7 +522,7 @@ modelo {
   entidade {
     dados_vida: '1d8+2' info_textura { id: 'hobgoblin.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1 (19-20)' ca_normal: 15 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 1 dano: '1d8+1' margem_critico: 19 ca_normal: 15 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 2 dano: '1d6+1' ca_normal: 14 }
     modificador_iniciativa: 1
   }
@@ -531,9 +531,8 @@ modelo {
   id: 'Hobgoblin Sargento'
   entidade {
     dados_vida: '3d10+9' info_textura { id: 'hobgoblin_sargento.png' translacao_x: 0.2 largura: 0.6 } cor { r: 0.3 g: 0.3 b: 0.15 }
-    rotulo_especial: 'at: +7\ndano: 1d8+2(19-20)\nca: 21'
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2 (19-20)' ca_normal: 21 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 7 dano: '1d8+2' margem_critico: 19 ca_normal: 21 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+3' ca_normal: 20 }
     modificador_iniciativa: 2
   }
@@ -542,9 +541,8 @@ modelo {
   id: 'Hobgoblin Tenente 5'
   entidade {
     dados_vida: '5d10+15' info_textura { id: 'hobgoblin_tenente.png' } cor { r: 0.1 g: 0.1 b: 0.1 }
-    rotulo_especial: ''
     tipo_visao: VISAO_ESCURO alcance_visao: 18
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 10 dano: '1d10+6 (19-20)' ca_normal: 20 }
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 10 dano: '1d10+6' margem_critico: 19 ca_normal: 20 }
     dados_ataque { tipo_ataque: 'Ataque a Distância' bonus_ataque: 8 dano: '1d8+1' ca_normal: 20 }
     modificador_iniciativa: 1
   }
@@ -731,9 +729,9 @@ modelo {
     tesouro { tesouro: '1d100 PO' }
     modificador_iniciativa: 1
     dados_ataque {
-      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
+      rotulo: 'espada longa OP' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 6 dano: '1d6' margem_critico: 19 ca_normal: 15 ca_toque: 12 ca_surpreso: 16 }
     dados_ataque {
-      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6 (19-20)' ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
+      rotulo: 'besta leve OP' alcance_m: 24 incrementos: 10 tipo_ataque: 'Ataque a Distância' bonus_ataque: 6 dano: '1d6' margem_critico: 19 ca_normal: 17 ca_toque: 12 ca_surpreso: 16 }
   }
 }
 modelo {
