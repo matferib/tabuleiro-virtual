@@ -545,14 +545,17 @@ std::string VboNaoGravado::ParaString(bool completo) const {
 //-----------
 // VboGravado
 //-----------
+#define USAR_BUFFER_SUB_DATA 1
 
 void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   V_ERRO("antes tudo gravar");
   V_ERRO("depois desgravar");
   nome_ = vbo_nao_gravado.nome();
   // Gera o buffer se ja nao for gravado.
+  bool usar_buffer_sub_data = USAR_BUFFER_SUB_DATA;
   if (!gravado_) {
     gl::GeraBuffers(1, &nome_coordenadas_);
+    usar_buffer_sub_data = false;
   }
   V_ERRO("ao gerar buffer coordenadas");
   // Associa coordenadas com ARRAY_BUFFER.
@@ -561,15 +564,29 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   deslocamento_normais_ = -1;
   deslocamento_cores_ = -1;
   deslocamento_texturas_ = -1;
+  auto tam_antes = buffer_unico_.size();
   buffer_unico_ = vbo_nao_gravado.GeraBufferUnico(&deslocamento_normais_, &deslocamento_cores_, &deslocamento_texturas_);
+  if (tam_antes != buffer_unico_.size()) {
+    usar_buffer_sub_data = false;
+  }
   num_dimensoes_ = vbo_nao_gravado.NumDimensoes();
   tem_normais_ = (deslocamento_normais_ != static_cast<unsigned int>(-1));
   tem_cores_ = (deslocamento_cores_ != static_cast<unsigned int>(-1));
   tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
-  gl::BufferizaDados(GL_ARRAY_BUFFER,
-                     sizeof(GL_FLOAT) * buffer_unico_.size(),
-                     buffer_unico_.data(),
-                     GL_STATIC_DRAW);
+  if (usar_buffer_sub_data) {
+#if USAR_BUFFER_SUB_DATA
+    glBufferSubData(
+        GL_ARRAY_BUFFER, 0,
+        sizeof(GL_FLOAT) * buffer_unico_.size(),
+        buffer_unico_.data());
+#endif
+  } else {
+    gl::BufferizaDados(
+        GL_ARRAY_BUFFER,
+        sizeof(GL_FLOAT) * buffer_unico_.size(),
+        buffer_unico_.data(),
+        GL_STATIC_DRAW);
+  }
   V_ERRO("ao bufferizar");
   // Buffer de indices.
   if (!gravado_) {
@@ -579,7 +596,13 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, nome_indices_);
   V_ERRO("na ligacao com buffer 2");
   indices_ = vbo_nao_gravado.indices();
-  gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
+  if (usar_buffer_sub_data) {
+#if USAR_BUFFER_SUB_DATA
+    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
+#endif
+  } else {
+    gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);
+  }
   V_ERRO("ao bufferizar elementos");
   gl::LigacaoComBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
   gl::LigacaoComBuffer(GL_ARRAY_BUFFER, 0);
