@@ -1,5 +1,12 @@
+tab virtando asterisco no texto.
+ignorar iniciativa de entidades de outros cenarios.
+iniciativa de mortos: marcar com *.
+Shortcut pra tirar iniciativa.
+Ataque falhando, ver tabuleiro.
+
+Tirar o deslocamento do alvo da acao e passar para entidade (tipo fumegando) para que a acao nao tenha que ficar mantendo
+o estado e chamando atualiza alvo toda hora. Ao inves disso, vai faze-lo apenas uma vez.
 Transformar a matriz de modelagem em attribute e passar como um VBO com o modelo: http://stackoverflow.com/questions/24627445/how-to-include-model-matrix-to-a-vbo
-Campo para notas.
 Campo para automatico e sem critico nos dados de ataque.
 Mapa de luz no shader simples.
 

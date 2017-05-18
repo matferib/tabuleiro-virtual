@@ -1060,6 +1060,14 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
     }
   };
 
+  auto LimpaCampos = [&gerador] () {
+    gerador.linha_classe->clear();
+    gerador.spin_nivel_classe->clear();
+    gerador.spin_nivel_conjurador->clear();
+    gerador.spin_bba->clear();
+    gerador.spin_mod_conjuracao->clear();
+  };
+
   lambda_connect(gerador.lista_niveis, SIGNAL(currentRowChanged(int)), [&gerador, proto_retornado] () {
     std::vector<QObject*> objs = {
         gerador.spin_nivel_classe, gerador.spin_nivel_conjurador, gerador.linha_classe, gerador.spin_bba,
@@ -1080,7 +1088,7 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
       for (auto* obj : objs) obj->blockSignals(false);
     }
   });
-  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [RefrescaNiveis, &gerador, proto_retornado] () {
+  lambda_connect(gerador.botao_adicionar_nivel, SIGNAL(clicked()), [LimpaCampos, RefrescaNiveis, &gerador, proto_retornado] () {
     auto* info_classe = proto_retornado->mutable_info_classes()->Add();
     if (gerador.lista_niveis->currentRow() < 0 ||
         gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
@@ -1092,20 +1100,19 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
       info_classe->set_modificador_atributo_conjuracao(gerador.spin_mod_conjuracao->value());
     }
     RefrescaNiveis();
-    gerador.lista_niveis->setCurrentRow(proto_retornado->info_classes().size() - 1);
+    // Deixa deselecionado.
+    //gerador.lista_niveis->setCurrentRow(proto_retornado->info_classes().size() - 1);
+    gerador.lista_niveis->setCurrentRow(-1);
+    LimpaCampos();
   });
 
-  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [RefrescaNiveis, &gerador, proto_retornado] () {
+  lambda_connect(gerador.botao_remover_nivel, SIGNAL(clicked()), [LimpaCampos, RefrescaNiveis, &gerador, proto_retornado] () {
     if (gerador.lista_niveis->currentRow() == -1 ||
         gerador.lista_niveis->currentRow() >= proto_retornado->info_classes().size()) {
       return;
     }
     proto_retornado->mutable_info_classes()->DeleteSubrange(gerador.lista_niveis->currentRow(), 1);
-    gerador.linha_classe->clear();
-    gerador.spin_nivel_classe->clear();
-    gerador.spin_nivel_conjurador->clear();
-    gerador.spin_bba->clear();
-    gerador.spin_mod_conjuracao->clear();
+    LimpaCampos();
     RefrescaNiveis();
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals).
@@ -1359,7 +1366,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
         gerador.linha_dano->text().size() > 0) {
       AdicionaOuAtualizaAtaqueEntidade(gerador, proto_retornado);
     }
-    AdicionaOuEditaNivel(gerador, proto_retornado);
+    if (gerador.spin_nivel_classe->value() > 0) {
+      AdicionaOuEditaNivel(gerador, proto_retornado);
+    }
   });
   // TODO: Ao aplicar as mudanças refresca e nao fecha.
 
