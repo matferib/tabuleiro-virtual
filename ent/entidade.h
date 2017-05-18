@@ -154,6 +154,7 @@ class Entidade {
 
   /** Adiciona um evento para acontecer em rodadas. */
   void AdicionaEvento(int rodadas, const std::string& descricao) { proto_.add_evento()->set_rodadas(rodadas); }
+  std::string ResumoEventos() const;
 
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();

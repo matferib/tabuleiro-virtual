@@ -1645,4 +1645,17 @@ bool Entidade::Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* 
   return false;
 }
 
+std::string Entidade::ResumoEventos() const {
+  if (proto_.evento().empty()) {
+    return "";
+  }
+  std::string resumo_eventos;
+  for (const auto& evento : proto_.evento()) {
+    resumo_eventos += evento.descricao() + ", ";
+  }
+  resumo_eventos.pop_back();
+  resumo_eventos.pop_back();
+  return resumo_eventos;
+}
+
 }  // namespace ent

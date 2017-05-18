@@ -965,6 +965,10 @@ void Tabuleiro::DesenhaIniciativas() {
     } else if (!proto.info_textura().id().empty()) {
       rotulo = proto.info_textura().id().substr(0, proto.info_textura().id().find_last_of("."));
     }
+    std::string eventos = entidade->ResumoEventos();
+    if (!eventos.empty()) {
+      rotulo += ": " + eventos;
+    }
     if (entidade->Morta()) {
       rotulo += " (morta)";
     }
