@@ -372,7 +372,7 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
   }
   // Fumaca nao eh bem um efeito, mas eh chamado para translucido e nao translucido, sendo perfeito
   // para este caso. As decoracoes sao desenhadas junto com o objeto, e no caso solido, havera problema de ordem.
-  // Aqui a chamada eh feita apos os solidos. 
+  // Aqui a chamada eh feita apos os solidos.
   if (!vd_.fumaca.nuvens.empty() && pd->has_alfa_translucidos()) {
     gl::Habilita(GL_TEXTURE_2D);
     gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("smoke.png"));

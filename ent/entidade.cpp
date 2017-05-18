@@ -382,7 +382,7 @@ void Entidade::AtualizaFumaca(int intervalo_ms) {
     // Emite nova particula.
     DadosUmaNuvem nuvem;
     nuvem.direcao.z = 1.0f;
-    nuvem.pos = PosParaVector3(PosicaoAcao());
+    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
     nuvem.duracao_ms = f.duracao_nuvem_ms;
     nuvem.velocidade_m_s = 0.25f;
     nuvem.escala = 1.0f;
@@ -1072,7 +1072,7 @@ std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::stri
   return acoes[indice_acao];
 }
 
-const Posicao Entidade::PosicaoAcao() const {
+const Posicao Entidade::PosicaoAltura(float fator) const {
   Matrix4 matriz;
   matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * matriz;
   //GLfloat matriz[16];
@@ -1083,7 +1083,7 @@ const Posicao Entidade::PosicaoAcao() const {
   //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
-  Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA_ACAO, 1.0f);
+  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
   ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
@@ -1092,6 +1092,10 @@ const Posicao Entidade::PosicaoAcao() const {
   pos.set_y(ponto[1]);
   pos.set_z(ponto[2]);
   return pos;
+}
+
+const Posicao Entidade::PosicaoAcao() const {
+  return PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {

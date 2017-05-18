@@ -178,6 +178,8 @@ class Entidade {
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
+  /** @return a posicao de algo a uma altura que eh um fator da ALTURA. */
+  const Posicao PosicaoAltura(float fator) const;
 
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
   void DesenhaLuz(ParametrosDesenho* pd);
