@@ -949,7 +949,7 @@ void Tabuleiro::DesenhaIniciativas() {
 
   for (const auto& di : entidades_na_ordem_desenho) {
     Entidade* entidade = BuscaEntidade(di.id);
-    if (entidade == nullptr || entidade->IdCenario() != cenario_corrente_ ||
+    if (entidade == nullptr ||
         (!VisaoMestre() && !entidade->SelecionavelParaJogador() && !entidade->Proto().visivel())) {
       continue;
     }
@@ -964,6 +964,12 @@ void Tabuleiro::DesenhaIniciativas() {
       rotulo = proto.modelo_3d().id();
     } else if (!proto.info_textura().id().empty()) {
       rotulo = proto.info_textura().id().substr(0, proto.info_textura().id().find_last_of("."));
+    }
+    if (entidade->Morta()) {
+      rotulo += " (morta)";
+    }
+    if (entidade->IdCenario() != cenario_corrente_) {
+      rotulo += " (outro cenario)";
     }
     snprintf(str, 50, "%d-%s", entidade->Iniciativa(), StringSemUtf8(rotulo).c_str());
     gl::DesenhaStringAlinhadoEsquerda(str);

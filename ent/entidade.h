@@ -109,6 +109,8 @@ class Entidade {
   int PontosVida() const;
   int MaximoPontosVida() const;
   int PontosVidaTemporarios() const;
+
+  bool Morta() const { return proto_.morta(); }
   
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;

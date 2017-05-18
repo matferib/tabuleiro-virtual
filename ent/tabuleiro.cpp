@@ -2303,7 +2303,7 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   if (indice_iniciativa_ == -1) {
     for (auto& id_ent : entidades_) {
       auto* entidade = id_ent.second.get();
-      if (entidade->TemIniciativa() && !entidade->Proto().morta()) {
+      if (entidade->TemIniciativa()) {
         entidades_com_iniciativa.push_back(entidade);
       }
     }
@@ -4130,7 +4130,7 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
 }
 
 void Tabuleiro::AtualizaIniciativas() {
-  // Ha tres casos: adicao de nova entidade, atualizacao e remocao.
+  // Ha tres casos a se considerar: adicao de nova entidade, atualizacao e remocao.
   bool atualizar_remoto = false;
   std::unordered_map<unsigned int, DadosIniciativa*> mapa_iniciativas;
   for (DadosIniciativa& di : iniciativas_) {
