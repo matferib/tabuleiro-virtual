@@ -444,9 +444,9 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
   void AlternaModoMestreSecundario() { modo_mestre_secundario_ = !modo_mestre_secundario_; }
   // debug.
-  void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); }
-  void AlternaListaJogadores() { opcoes_.set_mostra_lista_jogadores(!opcoes_.mostra_lista_jogadores()); }
-  void AlternaMostraLogEventos() { opcoes_.set_mostra_log_eventos(!opcoes_.mostra_log_eventos()); }
+  void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); SalvaOpcoes(); }
+  void AlternaListaJogadores() { opcoes_.set_mostra_lista_jogadores(!opcoes_.mostra_lista_jogadores()); SalvaOpcoes(); }
+  void AlternaMostraLogEventos() { opcoes_.set_mostra_log_eventos(!opcoes_.mostra_log_eventos()); SalvaOpcoes(); }
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
@@ -511,6 +511,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
+
+  /** Salva o proto de opcoes em disco. */
+  void SalvaOpcoes() const;
 
   /** funcao que desenha a cena independente do modo.
   * Parametro debug apenas para debugar e diferenciar as diferentes chamadas da funcao.
@@ -748,7 +751,7 @@ class Tabuleiro : public ntf::Receptor {
   ntf::Notificacao* SerializaRelevoCenario() const;
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
-  ntf::Notificacao* SerializaOpcoes() const;
+  ntf::Notificacao* CriaNotificacaoAbrirOpcoes() const;
 
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO.
   * Se usar_id for true, muda o identificador de cliente caso ele seja zero.
@@ -762,8 +765,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Deserializa o relevo de um cenario. */
   void DeserializaRelevoCenario(const ent::TabuleiroProto& novo_proto);
 
-  /** Deserializa as opcoes. */
-  void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
+  /** Copia as opcoes de novo_proto e serializa as configuracoes, salvando-as. */
+  void AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto);
 
   /** Adiciona as entidades selecionaveis da notificacao ao tabuleiro. */
   void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);

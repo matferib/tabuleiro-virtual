@@ -2021,7 +2021,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ATUALIZAR_OPCOES: {
-      DeserializaOpcoes(notificacao.opcoes());
+      AtualizaSerializaOpcoes(notificacao.opcoes());
       return true;
     }
     case ntf::TN_MOVER_ENTIDADE: {
@@ -2050,7 +2050,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
         return false;
       }
-      central_->AdicionaNotificacao(SerializaOpcoes());
+      central_->AdicionaNotificacao(CriaNotificacaoAbrirOpcoes());
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
@@ -4468,7 +4468,7 @@ ntf::Notificacao* Tabuleiro::SerializaRelevoCenario() const {
   return notificacao;
 }
 
-ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
+ntf::Notificacao* Tabuleiro::CriaNotificacaoAbrirOpcoes() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
   notificacao->mutable_opcoes()->CopyFrom(opcoes_);
   return notificacao;
@@ -4837,7 +4837,7 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
+void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
@@ -6782,6 +6782,10 @@ float Tabuleiro::AlturaPonto(int x_quad, int y_quad) const {
   } catch (...) {
     return 0.0f;
   }
+}
+
+void Tabuleiro::SalvaOpcoes() const {
+  SalvaConfiguracoes(opcoes_);
 }
 
 }  // namespace ent
