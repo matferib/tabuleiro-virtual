@@ -224,7 +224,7 @@ void Cliente::RecebeDados() {
     if (erro) {
       std::string erro_str;
       if (erro.ConexaoFechada()) {
-        erro_str = "Erro recebendo dados: conexao fechada pela outra ponta";
+        erro_str = "Erro recebendo dados: conexao fechada pelo servidor";
       } else {
         erro_str = "Erro recebendo dados: " + erro.mensagem();
         LOG(ERROR) << erro_str;
@@ -258,7 +258,7 @@ void Cliente::RecebeDados() {
     if (erro || (bytes_recebidos < 4)) {
       std::string erro_str;
       if (erro.ConexaoFechada()) {
-        erro_str = "Erro recebendo mensagem do servidor: conexao fechada pela outra ponta.";
+        erro_str = "Erro recebendo mensagem do servidor: conexao fechada.";
       } else {
         erro_str = "Erro recebendo tamanho de dados do servidor msg menor que 4.";
         LOG(ERROR) << erro_str;

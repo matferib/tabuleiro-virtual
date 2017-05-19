@@ -139,9 +139,9 @@ void Servidor::AguardaClientesProxy() {
     if (erro || (bytes_recebidos < 4)) {
       std::string erro_str;
       if (erro.ConexaoFechada()) {
-        erro_str = "Erro recebendo mensagem do proxy: conexao fechada pela outra ponta.";
+        erro_str = "Erro recebendo mensagem do proxy: conexao fechada.";
       } else {
-        erro_str = "Erro recebendo tamanho de dados do proxy msg menor que 4.";
+        erro_str = "Erro recebendo tamanho de dados do proxy: msg menor que 4.";
         LOG(ERROR) << erro_str;
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
@@ -293,7 +293,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
       std::string erro_str(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
-        erro_str += "Conexao fechada pela outra ponta.";
+        erro_str += "Conexao fechada.";
       } else {
         erro_str += ": " + erro.mensagem() + ", esperava: " + to_string((int)cliente->buffer_recepcao.size()) +
                     ", recebi: " + to_string((int)bytes_recebidos);
@@ -360,11 +360,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
   std::function<void(const Erro& erro, std::size_t bytes_recebidos)> funcao_recebe_tamanho =
       [this, cliente, funcao_recebe_dados] (const Erro& erro, std::size_t bytes_recebidos) {
     if (erro || (bytes_recebidos < 4)) {
-      std::string erro_str;
+      std::string erro_str(std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
-        erro_str = std::string("Conexao fechada pela outra ponta");
+        erro_str += std::string("Conexao fechada.");
       } else {
-        erro_str = std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "', msg menor que 4.";
+        erro_str += std::string("msg menor que 4. msg: ") + erro.mensagem();
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
       auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
