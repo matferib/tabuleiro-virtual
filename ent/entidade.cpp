@@ -985,7 +985,7 @@ bool Entidade::AcaoAnterior() {
 
 AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
   const auto* da = DadoCorrente();
-  auto StringAcao = [this, da] () {
+  auto StringAcao = [this, da]() -> std::string {
     if (da == nullptr) {
       // Entidade nao possui ataques.
       if (!proto_.ultima_acao().empty()) {
