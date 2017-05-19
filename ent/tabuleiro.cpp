@@ -2349,13 +2349,17 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   }
 
   unsigned int iniciativa_corrente = IdIniciativaCorrente();
-  if (EmModoMestreIncluindoSecundario()) {
-    SelecionaEntidade(iniciativa_corrente);
-  } else if (IdPresoACamera(iniciativa_corrente)) {
-    SelecionaEntidade(iniciativa_corrente);
-    if (IdPresoACamera(iniciativa_corrente)) {
-      MudaEntidadeCameraPresa(iniciativa_corrente);
+  try {
+    if (EmModoMestreIncluindoSecundario()) {
+      SelecionaEntidade(iniciativa_corrente);
+    } else if (IdPresoACamera(iniciativa_corrente)) {
+      SelecionaEntidade(iniciativa_corrente);
+      if (IdPresoACamera(iniciativa_corrente)) {
+        MudaEntidadeCameraPresa(iniciativa_corrente);
+      }
     }
+  } catch (...) {
+    LOG(WARNING) << "nao consigo mudar camera: entidade invalida";
   }
 }
 
@@ -6733,6 +6737,7 @@ void Tabuleiro::AlternaCameraPresa() {
     LOG(INFO) << "Camera presa.";
   } else {
     LOG(INFO) << "Sem entidade selecionada, nada a fazer.";
+    camera_por_id_.clear();
   }
 }
 
@@ -6750,12 +6755,21 @@ void Tabuleiro::MudaEntidadeCameraPresa(unsigned int id) {
     LOG(INFO) << "Entidade nao esta presa a camera.";
     return;
   }
+  camera_por_id_[ids_camera_presa_.front()] = olho_;
+  LOG(INFO) << "Salvando camera para " << ids_camera_presa_.front();
+
   ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
   if (entidade->Pos().id_cenario() != cenario_corrente_) {
     CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
   }
   LOG(INFO) << "Camera presa em " << id;
   SelecionaEntidade(id);
+  auto it_camera = camera_por_id_.find(id);
+  if (it_camera != camera_por_id_.end()) {
+    olho_ = it_camera->second;
+    AtualizaOlho(0, true);
+    LOG(INFO) << "Restaurando camera para " << id;
+  }
 }
 
 void Tabuleiro::MudaEntidadeCameraPresa() {
@@ -6768,6 +6782,8 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   unsigned int primeiro = ids_camera_presa_.front();
   LOG(INFO) << "Alternando id camera presa de " << primeiro;
   ids_camera_presa_.pop_front();
+  LOG(INFO) << "Salvando camera pra " << primeiro;
+  camera_por_id_[primeiro] = olho_;
 
   const Entidade* entidade = BuscaEntidade(ids_camera_presa_.front());
   for (; entidade == nullptr && !ids_camera_presa_.empty(); entidade = BuscaEntidade(ids_camera_presa_.front())) {
@@ -6784,6 +6800,12 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   ids_camera_presa_.push_back(primeiro);
   LOG(INFO) << "Camera presa em " << ids_camera_presa_.front();
   SelecionaEntidade(ids_camera_presa_.front());
+  auto it = camera_por_id_.find(ids_camera_presa_.front());
+  if (it != camera_por_id_.end()) {
+    LOG(INFO) << "Restaurando camera para " << ids_camera_presa_.front();
+    olho_ = it->second;
+    AtualizaOlho(0, true);
+  }
 }
 
 void Tabuleiro::DesativaWatchdog() {

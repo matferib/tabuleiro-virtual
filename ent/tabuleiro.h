@@ -1066,6 +1066,7 @@ class Tabuleiro : public ntf::Receptor {
   // unsigned int id_camera_presa_ = Entidade::IdInvalido;
   // Lista de ids de camera presa. O corrente sempre é o front.
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
+  std::map<unsigned int, Olho> camera_por_id_;  // A camera de cada identificador.
 
   std::list<std::string> log_eventos_;
   int pagina_log_eventos_;
