@@ -318,10 +318,12 @@ void MenuPrincipal::Modo(modomenu_e modo){
   case MM_COMECO:
     for (menu_e menu : { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_ACOES, ME_SOBRE }) {
       EstadoMenu(true, menu);
+      EstadoItemMenu(false, ME_JOGO, { MI_CONECTAR_PROXY });
     }
     break;
   case MM_MESTRE:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
+    EstadoItemMenu(true, ME_JOGO, { MI_CONECTAR_PROXY });
     break;
   case MM_JOGADOR:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR_PROXY, MI_CONECTAR });
@@ -366,6 +368,10 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
     ip_le->setPlaceholderText(tr("IP:porta ou nome do proxy"));
     ql->addWidget(ip_rotulo);
     ql->addWidget(ip_le);
+    const auto& opcoes = tabuleiro_->Opcoes();
+    if (!opcoes.ultimo_endereco_proxy().empty()) {
+      ip_le->setText(QString::fromUtf8(opcoes.ultimo_endereco_proxy().c_str()));
+    }
     auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     // Botao OK.
     lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, ip_le] {

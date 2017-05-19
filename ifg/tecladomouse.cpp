@@ -337,6 +337,10 @@ void TratadorTecladoMouse::TrataTeclaPressionada(teclas_e tecla, modificadores_e
       //central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REMOVER_CENARIO));
       return;
     }
+    case Tecla_N: {
+      tabuleiro_->LimpaIniciativasNotificando();
+      return;
+    }
     case Tecla_O: {
       tabuleiro_->AlternaListaObjetos();
       return;
