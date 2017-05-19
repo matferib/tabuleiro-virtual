@@ -301,7 +301,7 @@ class AcaoDispersao : public Acao {
         v.x = pos.x() - entidade_origem->X();
         v.y = pos.y() - entidade_origem->Y();
         v.z = pos.z() - entidade_origem->Z();
-        if (fabs(v.length() > 0.001f)) {
+        if (fabs(v.length()) > 0.001f) {
           v.normalize() /= 10.0f;
           dx_ = v.x;
           dy_ = v.y;
