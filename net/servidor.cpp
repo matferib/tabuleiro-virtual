@@ -28,7 +28,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
-        VLOG(1) << "ANUNCIO ENVIADO";
+        VLOG(3) << "ANUNCIO ENVIADO";
         anunciante_->Envia(PortaAnuncio(), buffer_porta_,
                            [] (const Erro& erro, std::size_t bytes_transferred) {});
       }
@@ -115,6 +115,7 @@ void Servidor::ConectaProxy(const std::string& endereco_str) {
     endereco_proxy_ = endereco_porta[0];
     porta_proxy_ = endereco_porta[1];
     // Agora aguarda clientes no proxy.
+    buffer_proxy_.resize(4);
     AguardaClientesProxy();
     VLOG(1) << "Conexão no proxy bem sucedida";
   } catch (std::exception& e) {
@@ -131,7 +132,6 @@ void Servidor::ConectaProxy(const std::string& endereco_str) {
 void Servidor::AguardaClientesProxy() {
   VLOG(1) << "Servidor::AguardaClientesProxy";
   // Recebe o tamanho e chama recebe dados.
-  buffer_proxy_.resize(4);
   socket_proxy_->Recebe(
       &buffer_proxy_,
       [this] (const Erro& erro, std::size_t bytes_recebidos) {
@@ -150,11 +150,11 @@ void Servidor::AguardaClientesProxy() {
     }
     VLOG(1) << "Recebi do proxy: " << buffer_proxy_;
     // Nova conexao, conecta no proxy.
-    std::unique_ptr<Socket> socket_cliente(new Socket(sincronizador_));
+    std::unique_ptr<Socket> socket_mestre_cliente(new Socket(sincronizador_));
     try {
-      socket_cliente->Conecta(endereco_proxy_, to_string(atoi(porta_proxy_.c_str()) + 1));
+      socket_mestre_cliente->Conecta(endereco_proxy_, to_string(atoi(porta_proxy_.c_str()) + 1));
     } catch (const std::exception& e) {
-      socket_cliente.reset();
+      socket_mestre_cliente.reset();
       auto* notificacao = new ntf::Notificacao;
       notificacao->set_tipo(ntf::TN_ERRO);
       notificacao->set_erro(e.what());
@@ -163,9 +163,10 @@ void Servidor::AguardaClientesProxy() {
       return;
     }
     VLOG(1) << "Criando novo cliente de proxy";
-    Cliente* cliente_pendente = new Cliente(socket_cliente.release());
+    Cliente* cliente_pendente = new Cliente(socket_mestre_cliente.release());
     clientes_pendentes_.insert(cliente_pendente);
     RecebeDadosCliente(cliente_pendente);
+    AguardaClientesProxy();
   });
 }
 
