@@ -712,6 +712,10 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
   lambda_connect(gerador.botao_transicao_mapa, SIGNAL(clicked()), [this, dialogo, gerador, &entidade, &proto_retornado] {
     auto* notificacao = ntf::NovaNotificacao(ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO);
     notificacao->mutable_entidade()->set_id(entidade.id());
+    notificacao->mutable_entidade()->set_tipo_transicao(ent::EntidadeProto::TRANS_CENARIO);
+    if (entidade.has_transicao_cenario()) {
+      *notificacao->mutable_entidade()->mutable_transicao_cenario() = entidade.transicao_cenario();
+    }
     central_->AdicionaNotificacao(notificacao);
     delete proto_retornado;
     proto_retornado = nullptr;
