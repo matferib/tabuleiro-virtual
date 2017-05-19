@@ -1381,6 +1381,7 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
         }
         auto* n = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_ENTIDADE);
         *n->mutable_entidade() = entidade->Proto();
+        n->mutable_entidade()->set_tipo_transicao(EntidadeProto::TRANS_CENARIO);
         auto* trans = n->mutable_entidade()->mutable_transicao_cenario();
         trans->set_x(x3d);
         trans->set_y(y3d);

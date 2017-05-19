@@ -1688,11 +1688,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO: {
       const Entidade* e = BuscaEntidade(notificacao.entidade().id());
-      if (e == nullptr || e->TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
+      if (e == nullptr) {
         return true;
       }
-      int id_cenario = e->TransicaoCenario();
-      if (id_cenario != cenario_corrente_) {
+      int id_cenario = notificacao.entidade().transicao_cenario().id_cenario();
+      if (notificacao.entidade().transicao_cenario().has_id_cenario() && id_cenario != cenario_corrente_) {
         CarregaSubCenario(id_cenario, e->PosTransicao());
       }
       EntraModoClique(MODO_SELECAO_TRANSICAO);
@@ -1704,6 +1704,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       opcoes_.set_ultimo_endereco(notificacao.endereco());
       SalvaConfiguracoes(opcoes_);
       return true;
+    }
+    case ntf::TN_CONECTAR_PROXY: {
+      opcoes_.set_ultimo_endereco_proxy(notificacao.endereco());
+      SalvaConfiguracoes(opcoes_);
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
