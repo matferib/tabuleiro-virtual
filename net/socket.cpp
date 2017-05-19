@@ -558,7 +558,7 @@ Erro::Erro(bool erro) : interno_(new Interno), erro_(erro) {}
 
 bool Erro::ConexaoFechada() const {
   // O valor 2 esta sendo recebido quando a conexao eh fechada (eof).
-  return interno_->ec == boost::system::errc::connection_aborted || interno_->ec == boost::system::errc::connection_reset || interno_->ec.value() == 2;
+  return interno_->ec == boost::system::errc::connection_aborted || interno_->ec == boost::system::errc::connection_reset || interno_->ec.value() == boost::asio::error::eof;
 }
 
 //--------------
