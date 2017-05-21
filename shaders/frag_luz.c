@@ -69,7 +69,7 @@ uniform highp vec4 gltab_nevoa_referencia;       // Ponto de referencia para com
 //uniform mat4 gltab_modelview_camera;     // Matriz de modelagem ponto de vista da camera.
 //uniform bool gltab_stencil;              // Stencil ligado?
 
-lowp float Visivel(samplerCube sampler, vec3 pos) {
+lowp float Visivel(samplerCube sampler, highp vec3 pos) {
   highp float bias = 0.5;
   highp vec4 texprofcor = textureCube(sampler, pos, 0.0);
   highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
