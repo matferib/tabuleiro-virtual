@@ -1,3 +1,4 @@
+Ajuste de eventos no android para fazer resolucao menor.
 Ao limpar a iniciativa, nao esta atualizando a selecao.
 Salvar a camera de cada personagem.
 Multiplos ataques iguais de diversas criaturas, icone diferente (espada).
