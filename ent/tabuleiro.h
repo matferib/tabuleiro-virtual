@@ -1134,6 +1134,7 @@ class Tabuleiro : public ntf::Receptor {
   bool detalhar_todas_entidades_ = false;
 
   modo_clique_e modo_clique_ = MODO_NORMAL;
+  modo_clique_e modo_clique_anterior_ = MODO_NORMAL;
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
 
