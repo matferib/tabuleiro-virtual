@@ -7,8 +7,8 @@
           android:label="@string/app_name"
           android:icon="@mipmap/icone_tabuleiro"
           android:debuggable="false"
-          android:isGame="true"
-          android:resizeableActivity="true">
+          android:isGame="true">
+          <!--android:resizeableActivity="true"-->
         <activity android:name=".SelecaoActivity"
                   android:label="@string/app_name">
             <intent-filter>
