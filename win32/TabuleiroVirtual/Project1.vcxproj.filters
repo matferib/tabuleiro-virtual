@@ -170,6 +170,12 @@
     <ClCompile Include="..\..\ifg\tecladomouse.cpp">
       <Filter>ifg</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\ent\comum.pb.cc">
+      <Filter>ent</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\ent\tabuleiro_tratador.cpp">
+      <Filter>ent</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\gltab\gl.h">
