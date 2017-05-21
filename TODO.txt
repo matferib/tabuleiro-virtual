@@ -1,8 +1,8 @@
-tab virtando asterisco no texto.
-ignorar iniciativa de entidades de outros cenarios.
+Ao limpar a iniciativa, nao esta atualizando a selecao.
+Salvar a camera de cada personagem.
+Multiplos ataques iguais de diversas criaturas, icone diferente (espada).
+tab \t virando asterisco no texto.
 iniciativa de mortos: marcar com *.
-Shortcut pra tirar iniciativa.
-Ataque falhando, ver tabuleiro.
 
 Tirar o deslocamento do alvo da acao e passar para entidade (tipo fumegando) para que a acao nao tenha que ficar mantendo
 o estado e chamando atualiza alvo toda hora. Ao inves disso, vai faze-lo apenas uma vez.
