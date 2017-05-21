@@ -92,7 +92,7 @@ lowp vec4 CorLuzDirecional(in lowp vec3 normal, in InfoLuzDirecional luz_direcio
 lowp vec4 CorLuzPontual(in bool testa_visibilidade, in lowp vec3 normal, in InfoLuzPontual luz) {
   if (luz.cor.a == 0.0) return vec4(0.0);
   // Vetor objeto luz.
-  lowp float visibilidade = testa_visibilidade ? Visivel(gltab_unidade_textura_luz, v_Pos_luz) : 1.0f;
+  lowp float visibilidade = testa_visibilidade ? Visivel(gltab_unidade_textura_luz, v_Pos_luz) : 1.0;
   highp vec3 objeto_luz = vec3(luz.pos - v_Pos);
   highp float tam = length(objeto_luz);
   lowp float atenuacao = (0.5 * step(tam, luz.atributos.r) + 0.5 * step(tam, luz.atributos.r * 2.0));

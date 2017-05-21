@@ -28,7 +28,7 @@ uniform highp float gltab_plano_distante_oclusao;  // distancia do plano de cort
 varying highp vec3 v_Pos_oclusao;  // Posicao do fragmento com relacao a primeira pesssoa.
 uniform highp samplerCube gltab_unidade_textura_oclusao;   // handler da textura do mapa da oclusao.
 
-lowp float Visivel(samplerCube sampler, vec3 pos) {
+lowp float Visivel(samplerCube sampler, highp vec3 pos) {
   highp float bias = 0.5;
   highp vec4 texprofcor = textureCube(sampler, pos, 0.0);
   highp float mais_proximo = (texprofcor.r + (texprofcor.g / 256.0) + (texprofcor.b / 65536.0));
