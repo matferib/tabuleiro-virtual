@@ -14,6 +14,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Matrix;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -51,6 +53,33 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     view_ = new TabuleiroSurfaceView(this);
     view_.setOnSystemUiVisibilityChangeListener(this);
     setContentView(view_);
+    /*
+    view_.getHolder().setFixedSize(1024, 768);
+    class AutoFrameLayout extends FrameLayout {
+      AutoFrameLayout(TabuleiroActivity activity, View filha) {
+        super(activity);
+        addView(filha);
+        filha_ = filha;
+      }
+      @Override
+      public boolean onInterceptTouchEvent(MotionEvent event) {
+        return true;
+      }
+      @Override
+      public boolean onTouchEvent(MotionEvent event) {
+        Log.d("TabuleiroSurfaceView", "antes: " + event.toString());
+        Matrix m = new Matrix();
+        m.preScale(1024.0f / getWidth(), 768.0f / getHeight());
+        event.transform(m);
+        Log.d("TabuleiroSurfaceView", "depois: " + event.toString());
+        return filha_.onTouchEvent(event);
+      }
+
+      private View filha_;
+    };
+    AutoFrameLayout fl = new AutoFrameLayout(this, view_);
+    setContentView(fl);
+    */
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.SERVIDOR) != null,
