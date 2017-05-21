@@ -62,6 +62,8 @@ class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
   // Liga o aceitador para receber clientes de forma assincrona e renova automaticamente sempre que um cliente aparece.
   // Para cada cliente, chama RecebeDadosCliente e nao bloca.
   void Liga();
+  void ConectaProxy(const std::string& endereco);
+  void AguardaClientesProxy();
   // Desliga o servidor.
   void Desliga();
 
@@ -74,12 +76,19 @@ class Servidor : public ntf::Receptor, public ntf::EmissorRemoto {
   void EnviaDadosCliente(Cliente* cliente, const std::string& dados, bool sem_dados = false);
   // Desconecta um cliente do servidor, efetivamente destruindo sua estrutura e deletando o ponteiro.
   void DesconectaCliente(Cliente* cliente);
+  void DesconectaProxy();
 
   ntf::CentralNotificacoes* central_;
   Sincronizador* sincronizador_;
   std::unique_ptr<Aceitador> aceitador_;
   std::string buffer_porta_;  // usado para anunciar a porta do servidor.
   std::unique_ptr<SocketUdp> anunciante_;
+
+  std::string endereco_proxy_;
+  std::string porta_proxy_;
+  std::string buffer_proxy_;
+  std::unique_ptr<Socket> socket_proxy_;
+
   int timer_anuncio_ = 0;
   std::unique_ptr<Cliente> proximo_cliente_;
   std::set<Cliente*> clientes_pendentes_;

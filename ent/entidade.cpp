@@ -139,6 +139,7 @@ void Entidade::Inicializa(const EntidadeProto& novo_proto) {
   } else if (proto_.tipo() == TE_COMPOSTA) {
     InicializaComposta(proto_, &vd_);
   }
+ 
   AtualizaVbo(parametros_desenho_);
 }
 
@@ -370,6 +371,71 @@ void Entidade::AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complement
   }
 }
 
+void Entidade::AtualizaFumaca(int intervalo_ms) {
+  auto& f = vd_.fumaca;
+  f.duracao_ms -= intervalo_ms;
+  if (f.duracao_ms < 0) {
+    f.duracao_ms = 0;
+  }
+  if (f.duracao_ms > 0 && intervalo_ms >= f.proxima_emissao_ms) {
+    f.proxima_emissao_ms = f.proxima_emissao_ms;
+    // Emite nova particula.
+    DadosUmaNuvem nuvem;
+    nuvem.direcao.z = 1.0f;
+    nuvem.pos = PosParaVector3(PosicaoAltura(1.0f));
+    nuvem.duracao_ms = f.duracao_nuvem_ms;
+    nuvem.velocidade_m_s = 0.25f;
+    nuvem.escala = 1.0f;
+    f.nuvens.emplace_back(std::move(nuvem));
+    f.proxima_emissao_ms = f.intervalo_emissao_ms;
+  } else {
+    f.proxima_emissao_ms -= intervalo_ms;
+  }
+  // Atualiza as particulas existentes.
+  std::vector<unsigned int> a_remover;
+  float intervalo_s = intervalo_ms / 1000.0f;
+  for (unsigned int i = 0; i < f.nuvens.size(); ++i) {
+    auto& nuvem = f.nuvens[i];
+    nuvem.duracao_ms -= intervalo_ms;
+    if (nuvem.duracao_ms <= 0) {
+      a_remover.push_back(i);
+      continue;
+    }
+    nuvem.pos += nuvem.direcao * nuvem.velocidade_m_s * intervalo_s;
+    nuvem.escala += 1.5f * intervalo_s;
+    nuvem.alfa = static_cast<float>(nuvem.duracao_ms) / f.intervalo_emissao_ms;
+  }
+  // Remove as que tem que remover.
+  unsigned int removidas = 0;
+  for (int i : a_remover) {
+    f.nuvens.erase(f.nuvens.begin() + (i - removidas));
+  }
+  // Recria o VBO.
+  std::vector<gl::VboNaoGravado> vbos;
+  for (const auto& nuvem : f.nuvens) {
+    gl::VboNaoGravado vbo_ng = gl::VboRetangulo(0.2f * MultiplicadorTamanho());
+    Vector3 camera = PosParaVector3(parametros_desenho_->pos_olho());
+    Vector3 dc = camera - nuvem.pos;
+    // Primeiro inclina para a camera. O objeto eh deitado no plano Z, entao tem que rodar 90.0f de cara
+    // mais a diferenca de angulo.
+    float inclinacao_graus = 0.0f;
+    float dc_len = dc.length();
+    if (dc_len < 0.001f) {
+      inclinacao_graus = 0.0f;
+    } else {
+      inclinacao_graus = asinf(dc.z / dc_len) * RAD_PARA_GRAUS;
+    }
+    vbo_ng.RodaY(90.0f - inclinacao_graus);
+    // Agora roda no eixo z.
+    vbo_ng.RodaZ(VetorParaRotacaoGraus(dc.x, dc.y));
+    vbo_ng.Escala(nuvem.escala, nuvem.escala, nuvem.escala);
+    vbo_ng.Translada(nuvem.pos.x, nuvem.pos.y, nuvem.pos.z);
+    vbo_ng.AtribuiCor(1.0f, 1.0f, 1.0f, nuvem.alfa);
+    vbos.emplace_back(std::move(vbo_ng));
+  }
+  f.vbo = gl::VbosNaoGravados(std::move(vbos));
+}
+
 void Entidade::AtualizaMatrizes() {
   MatrizesDesenho md = GeraMatrizesDesenho(proto_, vd_, parametros_desenho_);
   vd_.matriz_modelagem = md.modelagem;
@@ -458,6 +524,7 @@ void Entidade::Atualiza(int intervalo_ms, boost::timer::cpu_timer* timer) {
   }
 
   AtualizaEfeitos();
+  AtualizaFumaca(intervalo_ms);
   if (parametros_desenho_->iniciativa_corrente()) {
     const float DURACAO_OSCILACAO_MS = 4000.0f;
     const float DELTA_ANGULO_INICIATIVA = 2.0f * M_PI * intervalo_ms / DURACAO_OSCILACAO_MS;
@@ -808,6 +875,15 @@ void Entidade::AtualizaParcial(const EntidadeProto& proto_parcial) {
     atualizar_vbo = true;
     proto_.clear_cor();
   }
+  if (proto_parcial.fumegando()) {
+    auto& f = vd_.fumaca;
+    f.duracao_ms = 10000;
+    f.intervalo_emissao_ms = 1000;
+    f.duracao_nuvem_ms = 3000;
+  } else if (proto_parcial.has_fumegando()) {
+    auto& f = vd_.fumaca;
+    f.duracao_ms = 0;
+  }
   // ATENCAO: todos os campos repeated devem ser verificados aqui para nao haver duplicacao apos merge.
   if (proto_parcial.evento_size() > 0) {
     // Evento eh repeated, merge nao serve.
@@ -909,7 +985,7 @@ bool Entidade::AcaoAnterior() {
 
 AcaoProto Entidade::Acao(const MapaIdAcao& mapa_acoes) const {
   const auto* da = DadoCorrente();
-  auto StringAcao = [this, da] () {
+  auto StringAcao = [this, da]() -> std::string {
     if (da == nullptr) {
       // Entidade nao possui ataques.
       if (!proto_.ultima_acao().empty()) {
@@ -996,7 +1072,7 @@ std::string Entidade::AcaoExecutada(int indice_acao, const std::vector<std::stri
   return acoes[indice_acao];
 }
 
-const Posicao Entidade::PosicaoAcao() const {
+const Posicao Entidade::PosicaoAltura(float fator) const {
   Matrix4 matriz;
   matriz = MontaMatrizModelagem(true  /*queda*/, true  /*z*/, proto_, vd_) * matriz;
   //GLfloat matriz[16];
@@ -1007,7 +1083,7 @@ const Posicao Entidade::PosicaoAcao() const {
   //VLOG(2) << "Matriz: " << matriz[12] << " " << matriz[13] << " " << matriz[14] << " " << matriz[15];
   //GLfloat ponto[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
   // A posicao da acao eh mais baixa que a altura.
-  Vector4 ponto(0.0f, 0.0f, proto_.achatado() ? TAMANHO_LADO_QUADRADO_10 : ALTURA_ACAO, 1.0f);
+  Vector4 ponto(0.0f, 0.0f, fator * ALTURA, 1.0f);
   ponto = matriz * ponto;
 
   //VLOG(2) << "Ponto: " << ponto[0] << " " << ponto[1] << " " << ponto[2] << " " << ponto[3];
@@ -1016,6 +1092,10 @@ const Posicao Entidade::PosicaoAcao() const {
   pos.set_y(ponto[1]);
   pos.set_z(ponto[2]);
   return pos;
+}
+
+const Posicao Entidade::PosicaoAcao() const {
+  return PosicaoAltura(proto_.achatado() ? 0.1f : FATOR_ALTURA);
 }
 
 float Entidade::DeltaVoo(const VariaveisDerivadas& vd) {
@@ -1375,7 +1455,7 @@ bool Entidade::DesenhaBase(const EntidadeProto& proto) {
 std::vector<gl::VboGravado> Entidade::g_vbos;
 
 // static
-void Entidade::IniciaGl() {
+void Entidade::IniciaGl(ntf::CentralNotificacoes* central) {
   std::vector<gl::VboNaoGravado> vbos_nao_gravados(NUM_VBOS);
   // Vbo peao.
   {
@@ -1542,6 +1622,13 @@ void Entidade::IniciaGl() {
   for (int i = 0; i < NUM_VBOS; ++i) {
     g_vbos[i].Grava(vbos_nao_gravados[i]);
   }
+  // Texturas globais.
+  {
+    // TODO remover essa textura.
+    auto* n_tex = ntf::NovaNotificacao(ntf::TN_CARREGAR_TEXTURA);
+    n_tex->add_info_textura()->set_id("smoke.png");
+    central->AdicionaNotificacao(n_tex);
+  }
 }
 
 // static
@@ -1556,6 +1643,19 @@ bool Entidade::Colisao(const EntidadeProto& proto, const Posicao& pos, Vector3* 
     return ColisaoComposta(proto, pos, direcao);
   }
   return false;
+}
+
+std::string Entidade::ResumoEventos() const {
+  if (proto_.evento().empty()) {
+    return "";
+  }
+  std::string resumo_eventos;
+  for (const auto& evento : proto_.evento()) {
+    resumo_eventos += evento.descricao() + ", ";
+  }
+  resumo_eventos.pop_back();
+  resumo_eventos.pop_back();
+  return resumo_eventos;
 }
 
 }  // namespace ent

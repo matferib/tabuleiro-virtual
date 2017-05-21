@@ -1172,8 +1172,10 @@ void Tabuleiro::AtualizaBitsEntidadeNotificando(int bits, bool valor) {
       proto_depois->set_selecionavel_para_jogador(valor);
     }
     if (bits & BIT_FIXA) {
-      proto_antes->set_fixa(proto_original.fixa());
-      proto_depois->set_fixa(valor);
+      if (entidade_selecionada->Tipo() != TE_ENTIDADE) {
+        proto_antes->set_fixa(proto_original.fixa());
+        proto_depois->set_fixa(valor);
+      }
     }
     if (bits & BIT_SURPRESO) {
       proto_antes->set_surpreso(proto_original.surpreso());
@@ -1344,8 +1346,10 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
       proto_depois->set_selecionavel_para_jogador(!proto_original.selecionavel_para_jogador());
     }
     if (bits & BIT_FIXA) {
-      proto_antes->set_fixa(proto_original.fixa());
-      proto_depois->set_fixa(!proto_original.fixa());
+      if (entidade_selecionada->Tipo() != TE_ENTIDADE) {
+        proto_antes->set_fixa(proto_original.fixa());
+        proto_depois->set_fixa(!proto_original.fixa());
+      }
     }
     if (bits & BIT_SURPRESO) {
       proto_antes->set_surpreso(proto_original.surpreso());
@@ -1673,7 +1677,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_PROXIMA_INICIATIVA: {
-      if (notificacao.entidade().id() == IniciativaCorrente()) {
+      if (notificacao.entidade().id() == IdIniciativaCorrente()) {
         ProximaIniciativa();
       }
       return true;
@@ -1684,11 +1688,11 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
     }
     case ntf::TN_ENTRAR_MODO_SELECAO_TRANSICAO: {
       const Entidade* e = BuscaEntidade(notificacao.entidade().id());
-      if (e == nullptr || e->TipoTransicao() != EntidadeProto::TRANS_CENARIO) {
+      if (e == nullptr) {
         return true;
       }
-      int id_cenario = e->TransicaoCenario();
-      if (id_cenario != cenario_corrente_) {
+      int id_cenario = notificacao.entidade().transicao_cenario().id_cenario();
+      if (notificacao.entidade().transicao_cenario().has_id_cenario() && id_cenario != cenario_corrente_) {
         CarregaSubCenario(id_cenario, e->PosTransicao());
       }
       EntraModoClique(MODO_SELECAO_TRANSICAO);
@@ -1700,6 +1704,10 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       opcoes_.set_ultimo_endereco(notificacao.endereco());
       SalvaConfiguracoes(opcoes_);
       return true;
+    }
+    case ntf::TN_CONECTAR_PROXY: {
+      opcoes_.set_ultimo_endereco_proxy(notificacao.endereco());
+      SalvaConfiguracoes(opcoes_);
     }
     case ntf::TN_ATUALIZAR_RODADAS: {
       proto_.set_contador_rodadas(notificacao.tabuleiro().contador_rodadas());
@@ -2017,7 +2025,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
       return true;
     }
     case ntf::TN_ATUALIZAR_OPCOES: {
-      DeserializaOpcoes(notificacao.opcoes());
+      AtualizaSerializaOpcoes(notificacao.opcoes());
       return true;
     }
     case ntf::TN_MOVER_ENTIDADE: {
@@ -2046,7 +2054,7 @@ bool Tabuleiro::TrataNotificacao(const ntf::Notificacao& notificacao) {
         // Notificacao ja foi criada, deixa pra ifg fazer o resto.
         return false;
       }
-      central_->AdicionaNotificacao(SerializaOpcoes());
+      central_->AdicionaNotificacao(CriaNotificacaoAbrirOpcoes());
       return true;
     }
     case ntf::TN_ABRIR_DIALOGO_ENTIDADE: {
@@ -2299,7 +2307,7 @@ void Tabuleiro::IniciaIniciativaParaCombate() {
   if (indice_iniciativa_ == -1) {
     for (auto& id_ent : entidades_) {
       auto* entidade = id_ent.second.get();
-      if (entidade->TemIniciativa() && !entidade->Proto().morta()) {
+      if (entidade->TemIniciativa()) {
         entidades_com_iniciativa.push_back(entidade);
       }
     }
@@ -2343,16 +2351,30 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
   }
+
+  unsigned int iniciativa_corrente = IdIniciativaCorrente();
+  try {
+    if (EmModoMestreIncluindoSecundario()) {
+      SelecionaEntidade(iniciativa_corrente);
+    } else if (IdPresoACamera(iniciativa_corrente)) {
+      SelecionaEntidade(iniciativa_corrente);
+      if (IdPresoACamera(iniciativa_corrente)) {
+        MudaEntidadeCameraPresa(iniciativa_corrente);
+      }
+    }
+  } catch (...) {
+    LOG(WARNING) << "nao consigo mudar camera: entidade invalida";
+  }
 }
 
 void Tabuleiro::ProximaIniciativa() {
   if (indice_iniciativa_ == -1) {
-    LOG(INFO) << "Nao eh mestre ou entidades_ordenadas_por_iniciativa_.empty";
+    LOG(INFO) << "Nao ha indice de iniativa";
     return;
   }
   if (!EmModoMestreIncluindoSecundario()) {
     // So permite ao jogador passar se for a vez dele.
-    unsigned int id_iniciativa = IniciativaCorrente();
+    unsigned int id_iniciativa = IdIniciativaCorrente();
     if (!IdPresoACamera(id_iniciativa)) {
       LOG(INFO) << "Jogador so pode passar sua propria iniciativa.";
       return;
@@ -2442,7 +2464,7 @@ void Tabuleiro::IniciaGL() {
   RegeraVboTabuleiro();
   IniciaGlControleVirtual();
   GeraFramebuffer();
-  Entidade::IniciaGl();
+  Entidade::IniciaGl(central_);
   regerar_vbos_entidades_ = true;
 
   //const GLubyte* ext = glGetString(GL_EXTENSIONS);
@@ -4126,7 +4148,7 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
 }
 
 void Tabuleiro::AtualizaIniciativas() {
-  // Ha tres casos: adicao de nova entidade, atualizacao e remocao.
+  // Ha tres casos a se considerar: adicao de nova entidade, atualizacao e remocao.
   bool atualizar_remoto = false;
   std::unordered_map<unsigned int, DadosIniciativa*> mapa_iniciativas;
   for (DadosIniciativa& di : iniciativas_) {
@@ -4464,7 +4486,7 @@ ntf::Notificacao* Tabuleiro::SerializaRelevoCenario() const {
   return notificacao;
 }
 
-ntf::Notificacao* Tabuleiro::SerializaOpcoes() const {
+ntf::Notificacao* Tabuleiro::CriaNotificacaoAbrirOpcoes() const {
   auto* notificacao = ntf::NovaNotificacao(ntf::TN_ABRIR_DIALOGO_OPCOES);
   notificacao->mutable_opcoes()->CopyFrom(opcoes_);
   return notificacao;
@@ -4833,7 +4855,7 @@ void Tabuleiro::RemoveSubCenarioNotificando(const ntf::Notificacao& notificacao)
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
 }
 
-void Tabuleiro::DeserializaOpcoes(const ent::OpcoesProto& novo_proto) {
+void Tabuleiro::AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto) {
   opcoes_.CopyFrom(novo_proto);
   SalvaConfiguracoes(opcoes_);
   V_ERRO("erro deserializando GL");
@@ -6591,9 +6613,15 @@ void Tabuleiro::AlternaModoTerreno() {
 
 void Tabuleiro::EntraModoClique(modo_clique_e modo) {
   central_->AdicionaNotificacao(ntf::NovaNotificacao(ntf::TN_REFRESCAR_MENU));
+  if (modo == MODO_ROTACAO) {
+    // Salva o modo anterior para nao perder por causa de rotacao.
+    modo_clique_anterior_ = modo;
+  }
   if (modo_clique_ == MODO_ROTACAO && modo != MODO_ROTACAO) {
     // A rotacao eh diferente pq eh sem clique.
     estado_ = estado_anterior_;
+    modo_clique_ = modo_clique_anterior_;
+    return;
   }
   // Muda para o cenario caso nao seja o corrente.
   modo_clique_ = modo;
@@ -6719,6 +6747,38 @@ void Tabuleiro::AlternaCameraPresa() {
     LOG(INFO) << "Camera presa.";
   } else {
     LOG(INFO) << "Sem entidade selecionada, nada a fazer.";
+    camera_por_id_.clear();
+  }
+}
+
+void Tabuleiro::MudaEntidadeCameraPresa(unsigned int id) {
+  const Entidade* entidade = BuscaEntidade(id);
+  if (!camera_presa_ || ids_camera_presa_.size() <= 1 || entidade == nullptr) {
+    LOG(INFO) << "Nao posso alternar camera, camera_presa_ " << camera_presa_
+              << ", ids_entidades_selecionadas_.size(): " << ids_entidades_selecionadas_.size()
+              << ", ou entidade == nullptr: " << (entidade == nullptr);
+    return;
+  }
+
+  auto it = std::find(ids_camera_presa_.begin(), ids_camera_presa_.end(), id);
+  if (it == ids_camera_presa_.end()) {
+    LOG(INFO) << "Entidade nao esta presa a camera.";
+    return;
+  }
+  camera_por_id_[ids_camera_presa_.front()] = olho_;
+  LOG(INFO) << "Salvando camera para " << ids_camera_presa_.front();
+
+  ids_camera_presa_.splice(ids_camera_presa_.begin(), ids_camera_presa_, it);
+  if (entidade->Pos().id_cenario() != cenario_corrente_) {
+    CarregaSubCenario(entidade->Pos().id_cenario(), entidade->Pos());
+  }
+  LOG(INFO) << "Camera presa em " << id;
+  SelecionaEntidade(id);
+  auto it_camera = camera_por_id_.find(id);
+  if (it_camera != camera_por_id_.end()) {
+    olho_ = it_camera->second;
+    AtualizaOlho(0, true);
+    LOG(INFO) << "Restaurando camera para " << id;
   }
 }
 
@@ -6732,6 +6792,8 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   unsigned int primeiro = ids_camera_presa_.front();
   LOG(INFO) << "Alternando id camera presa de " << primeiro;
   ids_camera_presa_.pop_front();
+  LOG(INFO) << "Salvando camera pra " << primeiro;
+  camera_por_id_[primeiro] = olho_;
 
   const Entidade* entidade = BuscaEntidade(ids_camera_presa_.front());
   for (; entidade == nullptr && !ids_camera_presa_.empty(); entidade = BuscaEntidade(ids_camera_presa_.front())) {
@@ -6748,6 +6810,12 @@ void Tabuleiro::MudaEntidadeCameraPresa() {
   ids_camera_presa_.push_back(primeiro);
   LOG(INFO) << "Camera presa em " << ids_camera_presa_.front();
   SelecionaEntidade(ids_camera_presa_.front());
+  auto it = camera_por_id_.find(ids_camera_presa_.front());
+  if (it != camera_por_id_.end()) {
+    LOG(INFO) << "Restaurando camera para " << ids_camera_presa_.front();
+    olho_ = it->second;
+    AtualizaOlho(0, true);
+  }
 }
 
 void Tabuleiro::DesativaWatchdog() {
@@ -6778,6 +6846,10 @@ float Tabuleiro::AlturaPonto(int x_quad, int y_quad) const {
   } catch (...) {
     return 0.0f;
   }
+}
+
+void Tabuleiro::SalvaOpcoes() const {
+  SalvaConfiguracoes(opcoes_);
 }
 
 }  // namespace ent

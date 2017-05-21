@@ -549,6 +549,7 @@ Erro::Erro(void* dependente_plataforma) : Erro() {
   interno_->ec = *((boost::system::error_code*)dependente_plataforma);
   erro_ = *interno_->ec;
   msg_ = interno_->ec.message();
+  msg_ += ", cod: " + to_string(interno_->ec.value());
 }
 Erro::Erro(const std::string& msg) : Erro(true) {
   msg_ = msg;
@@ -556,7 +557,8 @@ Erro::Erro(const std::string& msg) : Erro(true) {
 Erro::Erro(bool erro) : interno_(new Interno), erro_(erro) {}
 
 bool Erro::ConexaoFechada() const {
-  return false;
+  // O valor 2 esta sendo recebido quando a conexao eh fechada (eof).
+  return interno_->ec == boost::system::errc::connection_aborted || interno_->ec == boost::system::errc::connection_reset || interno_->ec.value() == boost::asio::error::eof;
 }
 
 //--------------

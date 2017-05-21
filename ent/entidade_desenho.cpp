@@ -370,6 +370,15 @@ void Entidade::DesenhaEfeitos(ParametrosDesenho* pd) {
     }
     DesenhaEfeito(pd, efeito, vd_.complementos_efeitos[efeito.id_efeito()]);
   }
+  // Fumaca nao eh bem um efeito, mas eh chamado para translucido e nao translucido, sendo perfeito
+  // para este caso. As decoracoes sao desenhadas junto com o objeto, e no caso solido, havera problema de ordem.
+  // Aqui a chamada eh feita apos os solidos.
+  if (!vd_.fumaca.nuvens.empty() && pd->has_alfa_translucidos()) {
+    gl::Habilita(GL_TEXTURE_2D);
+    gl::LigacaoComTextura(GL_TEXTURE_2D, vd_.texturas->Textura("smoke.png"));
+    vd_.fumaca.vbo.Desenha();
+    gl::Desabilita(GL_TEXTURE_2D);
+  }
 }
 
 void Entidade::DesenhaEfeito(ParametrosDesenho* pd, const EntidadeProto::Evento& efeito_proto, const ComplementoEfeito& complemento) {

@@ -51,7 +51,7 @@ const char* g_menu_strs[] = { QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Jogo
 // Strs dos items de cada menu, nullptr para separador e "FIM" para demarcar fim.
 const char* g_menuitem_strs[] = {
   // jogo
-  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Iniciar jogo mestre"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Conectar no jogo mestre"), nullptr,
+  QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Iniciar jogo mestre"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Proxy"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Conectar no jogo mestre"), nullptr,
     QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "&Sair"), g_fim,
   // Tabuleiro.
   QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Desfazer (Ctrl + Z)"), QT_TRANSLATE_NOOP("ifg::qt::MenuPrincipal", "Refazer (Ctrl + Y)"), nullptr,
@@ -318,13 +318,15 @@ void MenuPrincipal::Modo(modomenu_e modo){
   case MM_COMECO:
     for (menu_e menu : { ME_JOGO, ME_TABULEIRO, ME_ENTIDADES, ME_ACOES, ME_SOBRE }) {
       EstadoMenu(true, menu);
+      EstadoItemMenu(false, ME_JOGO, { MI_CONECTAR_PROXY });
     }
     break;
   case MM_MESTRE:
     EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
+    EstadoItemMenu(true, ME_JOGO, { MI_CONECTAR_PROXY });
     break;
   case MM_JOGADOR:
-    EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR });
+    EstadoItemMenu(false, ME_JOGO, { MI_INICIAR, MI_CONECTAR_PROXY, MI_CONECTAR });
     EstadoItemMenu(false, ME_TABULEIRO, { MI_PROPRIEDADES, MI_REINICIAR, MI_SALVAR, MI_SALVAR_COMO, MI_RESTAURAR, MI_RESTAURAR_MANTENDO_ENTIDADES, });
     EstadoItemMenu(false, ME_ENTIDADES, { MI_SALVAR_MODELO_3D, MI_RESTAURAR_MODELO_3D, });
     EstadoMenu(false, ME_DESENHO);
@@ -356,6 +358,34 @@ void MenuPrincipal::TrataAcaoItem(QAction* acao){
   if (acao == acoes_[ME_JOGO][MI_INICIAR]) {
     notificacao = new ntf::Notificacao;
     notificacao->set_tipo(ntf::TN_INICIAR);
+  } else if (acao == acoes_[ME_JOGO][MI_CONECTAR_PROXY]) {
+    // mostra a caixa de dialogo da conexao.
+    QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));
+    qd->setModal(true);
+    QLayout* ql = new QBoxLayout(QBoxLayout::TopToBottom, qd);
+    auto* ip_rotulo = new QLabel(tr("IP:"));
+    auto* ip_le = new QLineEdit();
+    ip_le->setPlaceholderText(tr("IP:porta ou nome do proxy"));
+    ql->addWidget(ip_rotulo);
+    ql->addWidget(ip_le);
+    const auto& opcoes = tabuleiro_->Opcoes();
+    if (!opcoes.ultimo_endereco_proxy().empty()) {
+      ip_le->setText(QString::fromUtf8(opcoes.ultimo_endereco_proxy().c_str()));
+    }
+    auto* bb = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+    // Botao OK.
+    lambda_connect(bb, SIGNAL(accepted()), [&notificacao, qd, ip_le] {
+      notificacao = new ntf::Notificacao;
+      notificacao->set_tipo(ntf::TN_CONECTAR_PROXY);
+      notificacao->set_endereco(ip_le->text().toUtf8().constData());
+      qd->accept();
+    });
+    // Botao Cancela.
+    connect(bb, SIGNAL(rejected()), qd, SLOT(reject()));
+    ql->addWidget(bb);
+    qd->setWindowTitle(tr("Endereço do Proxy"));
+    qd->exec();
+    delete qd;
   } else if (acao == acoes_[ME_JOGO][MI_CONECTAR]) {
     // mostra a caixa de dialogo da conexao.
     QDialog* qd = new QDialog(qobject_cast<QWidget*>(parent()));

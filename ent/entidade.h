@@ -109,6 +109,8 @@ class Entidade {
   int PontosVida() const;
   int MaximoPontosVida() const;
   int PontosVidaTemporarios() const;
+
+  bool Morta() const { return proto_.morta(); }
   
   /** @return o total dos niveis das classes. */
   int NivelPersonagem() const;
@@ -152,6 +154,7 @@ class Entidade {
 
   /** Adiciona um evento para acontecer em rodadas. */
   void AdicionaEvento(int rodadas, const std::string& descricao) { proto_.add_evento()->set_rodadas(rodadas); }
+  std::string ResumoEventos() const;
 
   /** Mata a entidade, ligando os bits de queda, morte e desligando voo e destino. */
   void MataEntidade();
@@ -178,6 +181,8 @@ class Entidade {
 
   /** @return a posicao das acoes da entidade. */
   const Posicao PosicaoAcao() const;
+  /** @return a posicao de algo a uma altura que eh um fator da ALTURA. */
+  const Posicao PosicaoAltura(float fator) const;
 
   /** As luzes devem ser desenhadas primeiro, portanto há uma função separada para elas. */
   void DesenhaLuz(ParametrosDesenho* pd);
@@ -267,7 +272,7 @@ class Entidade {
       const EntidadeProto& proto, ParametrosDesenho* pd);
 
   /** Carrega modelos usados pelas entidades. */
-  static void IniciaGl();
+  static void IniciaGl(ntf::CentralNotificacoes* central);
 
   Matrix4 MontaMatrizModelagem(const ParametrosDesenho* pd = nullptr) const;
 
@@ -296,6 +301,31 @@ class Entidade {
     std::vector<float> posicoes;
   };
 
+  struct DadosUmaNuvem {
+    // Vetor de direcao da fumaca. Unitario.
+    Vector3 direcao;
+    Vector3 pos;
+    float escala;
+    int duracao_ms = 0;
+    float alfa = 1.0f;
+    float velocidade_m_s = 0.0f;
+  };
+
+  struct DadosFumaca {
+    // Ao chegar a zero, para de emitir.
+    int duracao_ms = 0;
+    // Intervalo entre emissoes.
+    int intervalo_emissao_ms = 0;
+    // Ao chegar a zero, realizara nova emissao.
+    int proxima_emissao_ms = 0;
+    // Quanto tempo vive uma nuvem.
+    int duracao_nuvem_ms = 0;
+    // Dados de cada nuvem.
+    std::vector<DadosUmaNuvem> nuvens;
+    // O vbo da fumaca.
+    gl::VbosNaoGravados vbo;
+  };
+
   // Variaveis locais nao sao compartilhadas pela rede, pois sao computadas a partir de outras.
   struct VariaveisDerivadas {
     VariaveisDerivadas() { }
@@ -322,6 +352,7 @@ class Entidade {
     // Numero de ataques realizado na rodada.
     int ataques_na_rodada = 0;
     unsigned int ultimo_ataque_ms = 0;
+    DadosFumaca fumaca;
 
     // Alguns tipos de entidade possuem VBOs. (no caso de VBO_COM_MODELAGEM, todas).
     gl::VbosNaoGravados vbos_nao_gravados;  // se vazio, ainda nao foi carregado.
@@ -363,6 +394,8 @@ class Entidade {
   /** Atualiza os efeitos para o frame. */
   void AtualizaEfeitos();
   void AtualizaEfeito(efeitos_e id_efeito, ComplementoEfeito* complemento);
+  /** Atualiza a fumaca da entidade. Parametro intervalo_ms representa o tempo passado desde a ultima atualizacao. */
+  void AtualizaFumaca(int intervalo_ms);
 
   /** Realiza as chamadas de notificacao para as texturas. */
   void AtualizaTexturas(const EntidadeProto& novo_proto);
@@ -470,7 +503,7 @@ class Entidade {
   const ParametrosDesenho* parametros_desenho_ = nullptr;  // nao eh dono.
 
   // A central é usada apenas para enviar notificacoes de textura ja que as entidades nao sao receptoras.
-  ntf::CentralNotificacoes* central_;
+  ntf::CentralNotificacoes* central_ = nullptr;
 };
 
 }  // namespace ent

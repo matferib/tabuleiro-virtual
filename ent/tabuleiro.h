@@ -223,7 +223,7 @@ class Tabuleiro : public ntf::Receptor {
   /** Realiza a atualizacao das iniciativas, notificando clientes. */
   void AtualizaIniciativaNotificando(const ntf::Notificacao& notificacao);
   /** Retorna o id da iniciativa corrente, ou IdInvalido. */
-  unsigned int IniciativaCorrente() const {
+  unsigned int IdIniciativaCorrente() const {
     if (indice_iniciativa_ < 0 || indice_iniciativa_ >= (int)iniciativas_.size()) {
       return Entidade::IdInvalido;
     }
@@ -444,9 +444,9 @@ class Tabuleiro : public ntf::Receptor {
   void AlternaModoMestre() { modo_mestre_ = !modo_mestre_; }
   void AlternaModoMestreSecundario() { modo_mestre_secundario_ = !modo_mestre_secundario_; }
   // debug.
-  void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); }
-  void AlternaListaJogadores() { opcoes_.set_mostra_lista_jogadores(!opcoes_.mostra_lista_jogadores()); }
-  void AlternaMostraLogEventos() { opcoes_.set_mostra_log_eventos(!opcoes_.mostra_log_eventos()); }
+  void AlternaListaObjetos() { opcoes_.set_mostra_lista_objetos(!opcoes_.mostra_lista_objetos()); SalvaOpcoes(); }
+  void AlternaListaJogadores() { opcoes_.set_mostra_lista_jogadores(!opcoes_.mostra_lista_jogadores()); SalvaOpcoes(); }
+  void AlternaMostraLogEventos() { opcoes_.set_mostra_log_eventos(!opcoes_.mostra_log_eventos()); SalvaOpcoes(); }
 
   /** Permite ligar/desligar o detalhamento de todas as entidades. */
   void DetalharTodasEntidades(bool detalhar) { detalhar_todas_entidades_ = detalhar; }
@@ -470,10 +470,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Alterna entre visao do jogador e do mestre. */
   void AlternaVisaoJogador();
 
-  /** Alterna a camera presa a entidade. */
+  /** Alterna entre camera presa a entidade e nao presa. */
   void AlternaCameraPresa();
   /** Se houver mais de uma entidade de camera presa, muda para a proxima. */
   void MudaEntidadeCameraPresa();
+  /** Muda para uma entidade especifica da camera presa. */
+  void MudaEntidadeCameraPresa(unsigned int id);
 
   /** Alterna a visao no escuro. Ainda depende da entidade selecionada possuir a visao. */
   void AlternaVisaoEscuro() { visao_escuro_ = !visao_escuro_; }
@@ -511,6 +513,9 @@ class Tabuleiro : public ntf::Receptor {
 
   /** Libera a textura do tabuleiro, se houver. */
   void LiberaTextura();
+
+  /** Salva o proto de opcoes em disco. */
+  void SalvaOpcoes() const;
 
   /** funcao que desenha a cena independente do modo.
   * Parametro debug apenas para debugar e diferenciar as diferentes chamadas da funcao.
@@ -748,7 +753,7 @@ class Tabuleiro : public ntf::Receptor {
   ntf::Notificacao* SerializaRelevoCenario() const;
 
   /** @return uma notificacao do tipo TN_ABRIR_DIALOGO_OPCOES preenchida. */
-  ntf::Notificacao* SerializaOpcoes() const;
+  ntf::Notificacao* CriaNotificacaoAbrirOpcoes() const;
 
   /** Monta o tabuleiro de acordo com a notificacao TN_DESERIALIZAR_TABULEIRO.
   * Se usar_id for true, muda o identificador de cliente caso ele seja zero.
@@ -762,8 +767,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Deserializa o relevo de um cenario. */
   void DeserializaRelevoCenario(const ent::TabuleiroProto& novo_proto);
 
-  /** Deserializa as opcoes. */
-  void DeserializaOpcoes(const ent::OpcoesProto& novo_proto);
+  /** Copia as opcoes de novo_proto e serializa as configuracoes, salvando-as. */
+  void AtualizaSerializaOpcoes(const ent::OpcoesProto& novo_proto);
 
   /** Adiciona as entidades selecionaveis da notificacao ao tabuleiro. */
   void DeserializaEntidadesSelecionaveis(const ntf::Notificacao& notificacao);
@@ -1061,6 +1066,7 @@ class Tabuleiro : public ntf::Receptor {
   // unsigned int id_camera_presa_ = Entidade::IdInvalido;
   // Lista de ids de camera presa. O corrente sempre é o front.
   std::list<unsigned int> ids_camera_presa_;  // A quais entidade a camera esta presa.
+  std::map<unsigned int, Olho> camera_por_id_;  // A camera de cada identificador.
 
   std::list<std::string> log_eventos_;
   int pagina_log_eventos_;
@@ -1128,6 +1134,7 @@ class Tabuleiro : public ntf::Receptor {
   bool detalhar_todas_entidades_ = false;
 
   modo_clique_e modo_clique_ = MODO_NORMAL;
+  modo_clique_e modo_clique_anterior_ = MODO_NORMAL;
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
 

@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
 
 #include "ent/constantes.h"
 //#define VLOG_NIVEL 1
@@ -26,7 +28,7 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     if (timer_anuncio_ * INTERVALO_NOTIFICACAO_MS >= 1000) {
       timer_anuncio_ = 0;
       if (anunciante_.get() != nullptr) {
-        VLOG(1) << "ANUNCIO ENVIADO";
+        VLOG(3) << "ANUNCIO ENVIADO";
         anunciante_->Envia(PortaAnuncio(), buffer_porta_,
                            [] (const Erro& erro, std::size_t bytes_transferred) {});
       }
@@ -42,6 +44,9 @@ bool Servidor::TrataNotificacao(const ntf::Notificacao& notificacao) {
     return true;
   } else if (notificacao.tipo() == ntf::TN_INICIAR) {
     Liga();
+    return true;
+  } else if (notificacao.tipo() == ntf::TN_CONECTAR_PROXY) {
+    ConectaProxy(notificacao.endereco());
     return true;
   } else if (notificacao.tipo() == ntf::TN_SAIR) {
     Desliga();
@@ -88,6 +93,81 @@ bool Servidor::TrataNotificacaoRemota(const ntf::Notificacao& notificacao) {
 
 bool Servidor::Ligado() const {
   return aceitador_->Ligado();
+}
+
+void Servidor::ConectaProxy(const std::string& endereco_str) {
+  std::vector<std::string> endereco_porta;
+  boost::split(endereco_porta, endereco_str, boost::algorithm::is_any_of(":"));
+  if (endereco_porta.size() == 0) {
+    // Endereco padrao.
+    LOG(ERROR) << "Nunca deveria chegar aqui: conexao sem endereco nem porta";
+    endereco_porta.push_back("localhost");
+  } else if (endereco_porta[0].empty()) {
+    endereco_porta[0] = "localhost";
+  }
+  if (endereco_porta.size() == 1) {
+    // Porta padrao.
+    endereco_porta.push_back(to_string(11225));
+  }
+  try {
+    socket_proxy_.reset(new Socket(sincronizador_));
+    socket_proxy_->Conecta(endereco_porta[0], endereco_porta[1]);
+    endereco_proxy_ = endereco_porta[0];
+    porta_proxy_ = endereco_porta[1];
+    // Agora aguarda clientes no proxy.
+    buffer_proxy_.resize(4);
+    AguardaClientesProxy();
+    VLOG(1) << "Conexão no proxy bem sucedida";
+  } catch (std::exception& e) {
+    socket_proxy_.reset();
+    auto* notificacao = new ntf::Notificacao;
+    notificacao->set_tipo(ntf::TN_ERRO);
+    notificacao->set_erro(e.what());
+    central_->AdicionaNotificacao(notificacao);
+    VLOG(1) << "Falha de conexão com proxy " << endereco_porta[0] << ":" << endereco_porta[1];
+    return;
+  }
+}
+
+void Servidor::AguardaClientesProxy() {
+  VLOG(1) << "Servidor::AguardaClientesProxy";
+  // Recebe o tamanho e chama recebe dados.
+  socket_proxy_->Recebe(
+      &buffer_proxy_,
+      [this] (const Erro& erro, std::size_t bytes_recebidos) {
+    VLOG(1) << "lambda funcao_recebe_tamanho";
+    if (erro || (bytes_recebidos < 4)) {
+      std::string erro_str;
+      if (erro.ConexaoFechada()) {
+        erro_str = "Erro recebendo mensagem do proxy: conexao fechada.";
+      } else {
+        erro_str = "Erro recebendo tamanho de dados do proxy: msg menor que 4.";
+        LOG(ERROR) << erro_str;
+      }
+      LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
+      socket_proxy_->Fecha();
+      return;
+    }
+    VLOG(1) << "Recebi do proxy: " << buffer_proxy_;
+    // Nova conexao, conecta no proxy.
+    std::unique_ptr<Socket> socket_mestre_cliente(new Socket(sincronizador_));
+    try {
+      socket_mestre_cliente->Conecta(endereco_proxy_, to_string(atoi(porta_proxy_.c_str()) + 1));
+    } catch (const std::exception& e) {
+      socket_mestre_cliente.reset();
+      auto* notificacao = new ntf::Notificacao;
+      notificacao->set_tipo(ntf::TN_ERRO);
+      notificacao->set_erro(e.what());
+      central_->AdicionaNotificacao(notificacao);
+      VLOG(1) << "Falha de conexão com proxy para cliente " << endereco_proxy_ << ":" << porta_proxy_;
+      return;
+    }
+    VLOG(1) << "Criando novo cliente de proxy";
+    Cliente* cliente_pendente = new Cliente(socket_mestre_cliente.release());
+    clientes_pendentes_.insert(cliente_pendente);
+    RecebeDadosCliente(cliente_pendente);
+    AguardaClientesProxy();
+  });
 }
 
 void Servidor::Liga() {
@@ -213,7 +293,7 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
       auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);
       std::string erro_str(std::string("Erro recebendo dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
-        erro_str += "Conexao fechada pela outra ponta.";
+        erro_str += "Conexao fechada.";
       } else {
         erro_str += ": " + erro.mensagem() + ", esperava: " + to_string((int)cliente->buffer_recepcao.size()) +
                     ", recebi: " + to_string((int)bytes_recebidos);
@@ -280,11 +360,11 @@ void Servidor::RecebeDadosCliente(Cliente* cliente) {
   std::function<void(const Erro& erro, std::size_t bytes_recebidos)> funcao_recebe_tamanho =
       [this, cliente, funcao_recebe_dados] (const Erro& erro, std::size_t bytes_recebidos) {
     if (erro || (bytes_recebidos < 4)) {
-      std::string erro_str;
+      std::string erro_str(std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "': ");
       if (erro.ConexaoFechada()) {
-        erro_str = std::string("Conexao fechada pela outra ponta");
+        erro_str += std::string("Conexao fechada.");
       } else {
-        erro_str = std::string("Erro recebendo tamanho de dados do cliente '") + cliente->id + "', msg menor que 4.";
+        erro_str += std::string("msg menor que 4. msg: ") + erro.mensagem();
       }
       LOG(ERROR) << erro_str << ", bytes_recebidos: " << bytes_recebidos;
       auto* n = ntf::NovaNotificacao(ntf::TN_ERRO);

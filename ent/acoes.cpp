@@ -276,35 +276,44 @@ class AcaoDispersao : public Acao {
   void AtualizaAposAtraso(int intervalo_ms) override {
     if (efeito_ == 0.0f) {
       Entidade* entidade_origem = tabuleiro_->BuscaEntidade(acao_proto_.id_entidade_origem());
+      const auto& pos_origem = (entidade_origem != nullptr) && (acao_proto_.geometria() == ACAO_GEO_CONE)
+          ? entidade_origem->Pos() : acao_proto_.pos_tabuleiro();
       const Posicao& pos = acao_proto_.pos_tabuleiro();
-      if (entidade_origem != nullptr) {
-        for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
-          auto* ed = tabuleiro_->BuscaEntidade(id_destino);
-          if (ed == nullptr) {
-            continue;
-          }
-          Vector3 v;
-          v.x = ed->Pos().x() - entidade_origem->X();
-          v.y = ed->Pos().y() - entidade_origem->Y();
-          v.z = ed->Pos().z() - entidade_origem->Z();
+      for (const auto& id_destino : acao_proto_.id_entidade_destino()) {
+        auto* ed = tabuleiro_->BuscaEntidade(id_destino);
+        if (ed == nullptr) {
+          continue;
+        }
+        Vector3 v;
+        v.x = ed->Pos().x() - pos_origem.x();
+        v.y = ed->Pos().y() - pos_origem.y();
+        v.z = ed->Pos().z() - pos_origem.z();
+        if (fabs(v.length()) > 0.001f) {
           v.normalize() /= 10.0f;
           dx_ = v.x;
           dy_ = v.y;
           dz_ = v.z;
           AtualizaDirecaoQuedaAlvo(ed);
         }
+      }
+      if (entidade_origem != nullptr) {
         Vector3 v;
         v.x = pos.x() - entidade_origem->X();
         v.y = pos.y() - entidade_origem->Y();
         v.z = pos.z() - entidade_origem->Z();
-        v.normalize() /= 10.0f;
-        dx_ = v.x;
-        dy_ = v.y;
-        dz_ = v.z;
-        AtualizaRotacaoZFonte(entidade_origem);
+        if (fabs(v.length()) > 0.001f) {
+          v.normalize() /= 10.0f;
+          dx_ = v.x;
+          dy_ = v.y;
+          dz_ = v.z;
+          AtualizaRotacaoZFonte(entidade_origem);
+        }
       }
     }
     efeito_ += efeito_maximo_ * static_cast<float>(intervalo_ms) / (acao_proto_.duracao_s() * 1000);
+    if (Finalizada()) {
+      AtualizaAlvo(intervalo_ms);
+    }
   }
 
   bool Finalizada() const override {
@@ -353,8 +362,6 @@ class AcaoProjetil : public Acao {
         VLOG(1) << "Terminando acao projetil, alvo atualizado.";
         estagio_ = FIM;
       }
-    } else {
-      return;
     }
   }
 
@@ -517,6 +524,7 @@ class AcaoRaio : public Acao {
     }
     if (duracao_ <= 0.0f) {
       VLOG(1) << "Finalizando raio, duracao acabou";
+      AtualizaAlvo(intervalo_ms);
     }
   }
 
@@ -675,6 +683,7 @@ class AcaoFeiticoToque : public Acao {
       raio_ -= DELTA_RAIO;
       if (raio_ <= 0) {
         desenhando_origem_ = false;
+        AtualizaAlvo(intervalo_ms);
       }
     } else {
       raio_ += DELTA_RAIO;
@@ -859,46 +868,61 @@ bool Acao::AtualizaAlvo(int intervalo_ms) {
     VLOG(1) << "Finalizando alvo, destino não existe.";
     return false;
   }
-  if (entidade_destino->Proto().fixa()) {
-    VLOG(1) << "Finalizando alvo fixo.";
-    dx_total_ = dy_total_ = dz_total_ = 0;
-    return false;
-  }
+  if (acao_proto_.consequencia() == TC_DESLOCA_ALVO) {
+    if (entidade_destino->Proto().fixa()) {
+      VLOG(1) << "Finalizando alvo fixo.";
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
 
-  // Move o alvo na direcao do impacto e volta se nao estiver caido.
-  if (disco_alvo_rad_ >= (M_PI / 2.0f) && entidade_destino->Proto().morta()) {
-    VLOG(1) << "Finalizando alvo, entidade morta nao precisa voltar.";
-    dx_total_ = dy_total_ = dz_total_ = 0;
+    // Move o alvo na direcao do impacto e volta se nao estiver caido.
+    if (disco_alvo_rad_ >= (M_PI / 2.0f) && entidade_destino->Proto().morta()) {
+      VLOG(1) << "Finalizando alvo, entidade morta nao precisa voltar.";
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
+    if (disco_alvo_rad_ >= M_PI) {
+      VLOG(1) << "Finalizando alvo, arco terminou.";
+      MoveDeltaRespeitandoChao(-dx_total_, -dy_total_, -dz_total_, *tabuleiro_, entidade_destino);
+      dx_total_ = dy_total_ = dz_total_ = 0;
+      return false;
+    }
+    const int DURACAO_ATUALIZACAO_ALVO_MS = 100;
+    // dt representa a fracao do arco ate 90 graus que o alvo andou. Os outros 90 sao da volta.
+    const float dt = std::min((static_cast<float>(intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS), 1.0f);
+    float cos_delta_alvo = cosf(disco_alvo_rad_) * dt;
+    float dx_alvo = dx_ * cos_delta_alvo;
+    float dy_alvo = dy_ * cos_delta_alvo;
+    float dz_alvo = dz_ * cos_delta_alvo;
+    float x_antes = entidade_destino->X();
+    float y_antes = entidade_destino->Y();
+    float z_antes = entidade_destino->Z();
+    MoveDeltaRespeitandoChao(dx_alvo, dy_alvo, dz_alvo, *tabuleiro_, entidade_destino);
+    dx_total_ += entidade_destino->X() - x_antes;
+    dy_total_ += entidade_destino->Y() - y_antes;
+    dz_total_ += entidade_destino->Z() - z_antes;
+    VLOG(1) << "Atualizando alvo: intervalo_ms: " << intervalo_ms << ", dt; " << dt
+      << ", dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
+    if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
+      AtualizaDirecaoQuedaAlvo(entidade_destino);
+      estado_alvo_ = ALVO_A_SER_ATINGIDO;
+    }
+    disco_alvo_rad_ += dt * M_PI / 2.0f;
+    // Nao terminou de atualizar.
+    return true;
+  } else if (acao_proto_.consequencia() == TC_INFLAMA_ALVO) {
+    for (auto id : acao_proto_.id_entidade_destino()) {
+      entidade_destino = tabuleiro_->BuscaEntidade(id);
+      if (entidade_destino == nullptr) {
+        continue;
+      }
+      EntidadeProto parcial;
+      parcial.set_fumegando(true);
+      entidade_destino->AtualizaParcial(parcial);
+    }
     return false;
   }
-  if (disco_alvo_rad_ >= M_PI) {
-    VLOG(1) << "Finalizando alvo, arco terminou.";
-    MoveDeltaRespeitandoChao(-dx_total_, -dy_total_, -dz_total_, *tabuleiro_, entidade_destino);
-    dx_total_ = dy_total_ = dz_total_ = 0;
-    return false;
-  }
-  const int DURACAO_ATUALIZACAO_ALVO_MS = 100;
-  // dt representa a fracao do arco ate 90 graus que o alvo andou. Os outros 90 sao da volta.
-  const float dt = std::min((static_cast<float>(intervalo_ms * 2.0f) / DURACAO_ATUALIZACAO_ALVO_MS), 1.0f);
-  float cos_delta_alvo = cosf(disco_alvo_rad_) * dt;
-  float dx_alvo = dx_ * cos_delta_alvo;
-  float dy_alvo = dy_ * cos_delta_alvo;
-  float dz_alvo = dz_ * cos_delta_alvo;
-  float x_antes = entidade_destino->X();
-  float y_antes = entidade_destino->Y();
-  float z_antes = entidade_destino->Z();
-  MoveDeltaRespeitandoChao(dx_alvo, dy_alvo, dz_alvo, *tabuleiro_, entidade_destino);
-  dx_total_ += entidade_destino->X() - x_antes;
-  dy_total_ += entidade_destino->Y() - y_antes;
-  dz_total_ += entidade_destino->Z() - z_antes;
-  VLOG(1) << "Atualizando alvo: intervalo_ms: " << intervalo_ms << ", dt; " << dt
-          << ", dx_total: " << dx_total_ << ", dy_total: " << dy_total_ << ", dz_total: " << dz_total_;
-  if (disco_alvo_rad_ == 0.0f && estado_alvo_ == ALVO_NAO_ATINGIDO) {
-    AtualizaDirecaoQuedaAlvo(entidade_destino);
-    estado_alvo_ = ALVO_A_SER_ATINGIDO;
-  }
-  disco_alvo_rad_ += dt * M_PI / 2.0f;
-  return true;
+  return false;
 }
 
 // static

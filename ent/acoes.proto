@@ -14,6 +14,13 @@ enum TipoAcao {
   ACAO_FEITICO_TOQUE = 7;
 }
 
+// Algumas acoes causam consequencias, como deslocamento do alvo.
+enum TipoConsequencia {
+  TC_NENHUMA           = 0;
+  TC_DESLOCA_ALVO      = 1;
+  TC_INFLAMA_ALVO      = 2;
+}
+
 enum GeometriaAcao {
   ACAO_GEO_ESFERA = 1;
   ACAO_GEO_CUBO = 2;
@@ -91,6 +98,8 @@ message AcaoProto {
   optional bool ignora_luz = 29;
   // Se verdadeiro, desliga face nula (culling).
   optional bool dois_lados = 30;
+  // Consequencia da acao.
+  optional TipoConsequencia consequencia = 31 [default=TC_NENHUMA];
 }
 
 // O arquivo de acoes é serializado desta forma.
