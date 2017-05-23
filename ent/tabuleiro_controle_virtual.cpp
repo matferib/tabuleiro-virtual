@@ -921,6 +921,7 @@ void Tabuleiro::DesenhaRotuloBotaoControleVirtual(
 
 void Tabuleiro::DesenhaIniciativas() {
   if (indice_iniciativa_ == -1 || iniciativas_.empty() || indice_iniciativa_ >= (int)iniciativas_.size()) {
+    //LOG(INFO) << "Nao " << indice_iniciativa_ << ", iniciativas_.size " << iniciativas_.size();
     return;
   }
   int largura_fonte, altura_fonte, escala;

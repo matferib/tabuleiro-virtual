@@ -115,8 +115,12 @@ class Tabuleiro : public ntf::Receptor {
   /** Atualiza uma entidade, notificando clientes. */
   void AtualizaEntidadeNotificando(const ntf::Notificacao& notificacao);
 
-  /** Atualiza a lista de iniciativas, caso alguma entidade nova tenha aparecido ou saido da lista. */
-  void AtualizaIniciativas();
+  /** Atualiza a lista de iniciativas, caso alguma entidade nova tenha aparecido ou saido da lista.
+  * Caso notificacao nao seja nula, assume-se que seja de grupo e ira adicionar a notificacao de passagem
+  * de rodada a ela. Deve ser chamada apenas pelo mestre verdadeiro durante o loop de atualizacao ou pelos
+  * mestres caso notificacao nao seja nullptr.
+  */
+  void AtualizaIniciativas(ntf::Notificacao* notificacao = nullptr);
 
   /** Inverte o bit da entidade. */
   enum bit_e {

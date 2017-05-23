@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <memory>
 #include <boost/filesystem.hpp>
+#include <boost/range/adaptor/reversed.hpp>
 #include <tuple>
 #include <cassert>
 #include <climits>
@@ -2203,9 +2204,7 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     }
   }
 
-  // desfazer.
-  ntf::Notificacao grupo_rotulo;
-  grupo_rotulo.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
+  // Processar e desfazer.
   ntf::Notificacao grupo_notificacoes;
   grupo_notificacoes.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
   for (const auto* entidade : entidades) {
@@ -2221,14 +2220,14 @@ void Tabuleiro::LimpaIniciativasNotificando() {
     } else {
       e_antes->set_iniciativa(INICIATIVA_INVALIDA);
     }
-    // TODO notificar e desfazer.
     auto* e_depois = n->mutable_entidade();
     e_depois->set_id(entidade->Id());
     e_depois->set_iniciativa(INICIATIVA_INVALIDA);
-    TrataNotificacao(*n);
+    //TrataNotificacao(*n);
   }
+  TrataNotificacao(grupo_notificacoes);
+  AtualizaIniciativas(&grupo_notificacoes);
   AdicionaNotificacaoListaEventos(grupo_notificacoes);
-  TrataNotificacao(grupo_rotulo);
 }
 
 void Tabuleiro::RolaIniciativasNotificando() {
@@ -2347,19 +2346,20 @@ void Tabuleiro::AtualizaIniciativaNotificando(const ntf::Notificacao& notificaca
     iniciativas_.push_back(dados);
   }
   indice_iniciativa_ = notificacao.tabuleiro().indice_iniciativa();
+  VLOG(1) << "Indice iniciativa: " << indice_iniciativa_;
   // Repassa aos outros.
   if (notificacao.local()) {
     central_->AdicionaNotificacaoRemota(new ntf::Notificacao(notificacao));
   }
 
-  unsigned int iniciativa_corrente = IdIniciativaCorrente();
+  unsigned int id_corrente = IdIniciativaCorrente();
   try {
     if (EmModoMestreIncluindoSecundario()) {
-      SelecionaEntidade(iniciativa_corrente);
-    } else if (IdPresoACamera(iniciativa_corrente)) {
-      SelecionaEntidade(iniciativa_corrente);
-      if (IdPresoACamera(iniciativa_corrente)) {
-        MudaEntidadeCameraPresa(iniciativa_corrente);
+      SelecionaEntidade(id_corrente);
+    } else if (IdPresoACamera(id_corrente)) {
+      SelecionaEntidade(id_corrente);
+      if (IdPresoACamera(id_corrente)) {
+        MudaEntidadeCameraPresa(id_corrente);
       }
     }
   } catch (...) {
@@ -4147,7 +4147,13 @@ void Tabuleiro::AtualizaEntidades(int intervalo_ms) {
   EnfileiraTempo(timer, &tempos_atualiza_parcial_);
 }
 
-void Tabuleiro::AtualizaIniciativas() {
+void Tabuleiro::AtualizaIniciativas(ntf::Notificacao* notificacao) {
+  // Apenas o mestre roda pois ele atualiza as iniciativas de forma geral.
+  if ((notificacao == nullptr && !EmModoMestre()) ||
+      (notificacao != nullptr && !EmModoMestreIncluindoSecundario())) {
+    return;
+  }
+  int indice_antes = indice_iniciativa_;
   // Ha tres casos a se considerar: adicao de nova entidade, atualizacao e remocao.
   bool atualizar_remoto = false;
   std::unordered_map<unsigned int, DadosIniciativa*> mapa_iniciativas;
@@ -4156,8 +4162,7 @@ void Tabuleiro::AtualizaIniciativas() {
     di.presente = false;
   }
 
-  std::unique_ptr<ntf::Notificacao> n(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
-
+  // Adicao e modificacao.
   std::vector<const Entidade*> entidades_adicionar;
   for (auto& id_ent : entidades_) {
     const auto* entidade = id_ent.second.get();
@@ -4166,11 +4171,14 @@ void Tabuleiro::AtualizaIniciativas() {
     }
     auto it = mapa_iniciativas.find(entidade->Id());
     if (it == mapa_iniciativas.end()) {
+      VLOG(1) << "Adicionando entidade a iniciativa";
       atualizar_remoto = true;  // adicao.
       entidades_adicionar.push_back(entidade);
     } else {
-      if (entidade->Iniciativa() != it->second->iniciativa || entidade->ModificadorIniciativa() != it->second->modificador) {
+      if (entidade->Iniciativa() != it->second->iniciativa ||
+          entidade->ModificadorIniciativa() != it->second->modificador) {
         // Como nao esta marcada como presente, sera removida. E depois, adicionada.
+        VLOG(1) << "Atualizando entidade na iniciativa";
         atualizar_remoto = true;  // atualizacao.
         entidades_adicionar.push_back(entidade);
       } else {
@@ -4179,15 +4187,19 @@ void Tabuleiro::AtualizaIniciativas() {
     }
   }
   // Remove nao presentes.
+  bool passa_uma_rodada = false;
   for (int i = 0; i < (int)iniciativas_.size();) {
     DadosIniciativa& di = iniciativas_[i];
     if (!di.presente) {
+      // Iniciativa nao esta mais presente.
+      VLOG(1) << "Removendo entidade da iniciativa";
       atualizar_remoto = true;  // remocao.
       if (indice_iniciativa_ > i) {
         --indice_iniciativa_;
       } else if (indice_iniciativa_ == i && i == (int)(iniciativas_.size() - 1)) {
+        VLOG(1) << "Era ultimo, passar uma rodada se sobrar algo";
         indice_iniciativa_ = 0;
-        PassaUmaRodadaNotificando();
+        passa_uma_rodada = true;
       }
       // Senao, ignora pq nao faz diferennca, mesmo que i == indice.
       // Agora pode remover.
@@ -4196,6 +4208,13 @@ void Tabuleiro::AtualizaIniciativas() {
       ++i;
     }
   }
+  // Nao passa para o caso em que as iniciativas ficaram vazias.
+  if (!iniciativas_.empty() && passa_uma_rodada) {
+     VLOG(1) << "Passando uma rodada";
+    // se notificacao for nullptr, vai fazer imediatamente.
+    PassaUmaRodadaNotificando(notificacao);
+  }
+
   // Adiciona novas entidades (ou atualizadas).
   for (const auto* entidade : entidades_adicionar) {
     // Acha ponto de insercao.
@@ -4210,7 +4229,7 @@ void Tabuleiro::AtualizaIniciativas() {
     di.iniciativa = entidade->Iniciativa();
     di.modificador = entidade->ModificadorIniciativa();
     iniciativas_.insert(iniciativas_.begin() + posicao, di);
-    if (indice_iniciativa_ >= posicao) {
+    if (indice_iniciativa_ > posicao) {
       ++indice_iniciativa_;
     }
   }
@@ -4218,9 +4237,17 @@ void Tabuleiro::AtualizaIniciativas() {
   if (iniciativas_.empty()) {
     indice_iniciativa_ = -1;
   }
+  // Atualiza a iniciativa dos clientes remotos.
   if (atualizar_remoto) {
-    SerializaIniciativas(n->mutable_tabuleiro());
-    central_->AdicionaNotificacaoRemota(n.release());
+    std::unique_ptr<ntf::Notificacao> n_local(ntf::NovaNotificacao(ntf::TN_ATUALIZAR_LISTA_INICIATIVA));
+    SerializaIniciativas(n_local->mutable_tabuleiro());
+    if (notificacao != nullptr) {
+      auto* n = notificacao->add_notificacao();
+      *n = *n_local;
+      // Importante para desfazer.
+      n->mutable_tabuleiro_antes()->set_indice_iniciativa(indice_antes);
+    }
+    central_->AdicionaNotificacaoRemota(n_local.release());
   }
 }
 
@@ -5369,9 +5396,8 @@ const ntf::Notificacao InverteNotificacao(const ntf::Notificacao& n_original) {
     // Tipos de notificacao que podem ser desfeitas.
     case ntf::TN_GRUPO_NOTIFICACOES:
       n_inversa.set_tipo(ntf::TN_GRUPO_NOTIFICACOES);
-      // TODO inverter a ordem das notificacoes.
-      for (const auto& n : n_original.notificacao()) {
-        n_inversa.add_notificacao()->CopyFrom(InverteNotificacao(n));
+      for (const auto& n : boost::adaptors::reverse(n_original.notificacao())) {
+        *n_inversa.add_notificacao() = InverteNotificacao(n);
       }
       break;
     case ntf::TN_ATUALIZAR_LISTA_INICIATIVA:
