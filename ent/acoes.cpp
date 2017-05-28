@@ -484,19 +484,28 @@ class AcaoRaio : public Acao {
       //pos_d.set_z(pos_o.z());
     }
     MudaCorProto(acao_proto_.cor());
+    Vector3 vo = PosParaVector3(pos_o);
+    Vector3 vd = PosParaVector3(pos_d);
+    Vector3 vovd = vd - vo;
+
     float dx = pos_d.x() - pos_o.x();
     float dy = pos_d.y() - pos_o.y();
     float dz = pos_d.z() - pos_o.z();
-    float tam;
+    // Roda para a direcao do alvo, deixando alinhado com o eixo X.
     gl::Translada(pos_o.x(), pos_o.y(), pos_o.z());
-    gl::Roda(VetorParaRotacaoGraus(dx, dy, &tam), 0.0f,  0.0f, 1.0f);
-    if (acao_proto_.has_distancia_quadrados()) {
-      tam = acao_proto_.distancia_quadrados() * TAMANHO_LADO_QUADRADO;
+    float dxy;
+    gl::Roda(VetorParaRotacaoGraus(dx, dy, &dxy), 0.0f,  0.0f, 1.0f);
+    gl::Roda(VetorParaRotacaoGraus(dxy, dz), 0.0f, -1.0f, 0.0f);
+    float tam = acao_proto_.has_distancia_quadrados() ? acao_proto_.distancia_quadrados() * TAMANHO_LADO_QUADRADO : vovd.length();
+    if (!acao_proto_.has_info_textura() || !acao_proto_.efeito_area()) {
+      //LOG(INFO) << "ang: " << VetorParaRotacaoGraus(dz, tam, &tam2) << ", tam2: " << tam2 << ", pos_d.z(): " << pos_d.z();
+      gl::Roda(90.0f, 0.0f, 1.0f, 0.0f);
+      gl::ConeSolido(0.2f, tam, 6  /*fatias*/, 1  /*tocos*/);
+    } else {
+      gl::Translada(tam / 2.0f, 0.0f, 0.0f);
+      gl::Escala(tam, TAMANHO_LADO_QUADRADO, 0.1);
+      gl::CuboUnitario();
     }
-    float tam2 = 0;
-    //LOG(INFO) << "ang: " << VetorParaRotacaoGraus(dz, tam, &tam2) << ", tam2: " << tam2 << ", pos_d.z(): " << pos_d.z();
-    gl::Roda(VetorParaRotacaoGraus(dz, tam, &tam2), 0.0f, 1.0f, 0.0f);
-    gl::ConeSolido(0.2f, tam2, 6  /*fatias*/, 1  /*tocos*/);
   }
 
   void AtualizaAposAtraso(int intervalo_ms) override {

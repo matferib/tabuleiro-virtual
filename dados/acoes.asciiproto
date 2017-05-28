@@ -126,12 +126,14 @@ acao {
 acao {
   id: 'Relâmpago'
   tipo: ACAO_RAIO
-  cor { r: 0.0 g: 0 b: 1.0 }
+  cor { r: 0.8 g: 0.8 b: 1.0 a: 0.9 }
   duracao_s: 0.5
   efeito_area: true
 	distancia_quadrados: 14  # quadrados
 	permite_salvacao: true
   icone: "icon_lightning.png"
+  info_textura { id: 'lightning.png' }
+  ignora_luz: true
 }
 acao {
   id: 'Tempestade Glacial'
