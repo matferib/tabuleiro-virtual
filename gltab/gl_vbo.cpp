@@ -637,10 +637,12 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   const int num_indices_por_fatia = 6;
   const int num_indices_por_toco = num_indices_por_fatia * num_fatias;
   const int num_indices_total = num_indices_por_toco * num_tocos;
+  const int num_coordenadas_textura_total = num_vertices_por_toco * num_tocos * 2;
 
   std::vector<float> coordenadas(num_coordenadas_total);
   std::vector<float> normais(num_coordenadas_total);
   std::vector<unsigned short> indices(num_indices_total);
+  std::vector<float> coordenadas_textura(num_coordenadas_textura_total);
 
   float h_delta = altura / num_tocos;
   float h_topo = 0;
@@ -653,13 +655,19 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
 
   int i_coordenadas = 0;
   int i_indices = 0;
+  int i_coordenadas_textura = 0;
   int coordenada_inicial = 0;
+  float inc_textura_h = 1.0f / num_fatias;
+  float inc_textura_v = 1.0f / num_tocos;
+
   float v_base[2];
   float v_topo[2] = { 0.0f, raio_base };
+  // Inclinacao do tronco.
   float beta_rad = atanf(altura / (raio_base - raio_topo_original));
-  float alfa_rad = (M_PI / 2.0f) - beta_rad;
+  float alfa_rad = (M_PI / 2.0f) - beta_rad;  // A normal esta a 90 graus da inclinacao.
   float sen_alfa = sinf(alfa_rad);
   float cos_alfa = cosf(alfa_rad);
+  // Desenha-se cada fatia de um toco, e passa-se para o proximo toco na vertical, subindo.
   for (int t = 1; t <= num_tocos; ++t) {
     float h_base = h_topo;
     h_topo += h_delta;
@@ -669,11 +677,13 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
     raio_topo -= delta_raio;
     v_topo[0] = 0.0f;
     v_topo[1] = raio_topo;
-    // Normal: TODO fazer direito.
     float v_normal[3];
     v_normal[0] = 0.0f;
     v_normal[1] = cos_alfa;
     v_normal[2] = sen_alfa;
+    // texturas: comeca x do zero e y do inicio do toco.
+    float tex_x = 0.0f;
+    float tex_y = 1.0f - ((t - 1) * inc_textura_v);
 
     for (int f = 0; f < num_fatias; ++f) {
       // Cada faceta possui 4 vertices (anti horario).
@@ -701,6 +711,19 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
       coordenadas[i_coordenadas + 6] = v_topo[0];
       coordenadas[i_coordenadas + 7] = v_topo[1];
       coordenadas[i_coordenadas + 8] = h_topo;
+
+      // Textura: base, base + 1, topo + 1, topo.
+      // Observe que eh a mesma sequencia que acima, mas na ordem das texturas.
+      coordenadas_textura[i_coordenadas_textura] = tex_x;
+      coordenadas_textura[i_coordenadas_textura + 1] = tex_y;
+      coordenadas_textura[i_coordenadas_textura + 2] = tex_x + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 3] = tex_y;
+      coordenadas_textura[i_coordenadas_textura + 4] = tex_x + inc_textura_h;
+      coordenadas_textura[i_coordenadas_textura + 5] = tex_y - inc_textura_v;
+      coordenadas_textura[i_coordenadas_textura + 6] = tex_x;
+      coordenadas_textura[i_coordenadas_textura + 7] = tex_y - inc_textura_v;
+      i_coordenadas_textura += 8;
+      tex_x += inc_textura_h;
 
       // As normais.
       // Vn0.
@@ -754,6 +777,7 @@ VboNaoGravado VboTroncoConeSolido(GLfloat raio_base, GLfloat raio_topo_original,
   vbo.AtribuiCoordenadas(3, coordenadas.data(), num_coordenadas_total);
   vbo.AtribuiNormais(normais.data());
   vbo.AtribuiIndices(indices.data(), num_indices_total);
+  vbo.AtribuiTexturas(coordenadas_textura.data());
   vbo.Nomeia("troncocone");
   return vbo;
 }
@@ -1416,7 +1440,7 @@ void DesenhaVbo(GLenum modo,
                 int num_vertices, int num_dimensoes, const void* indices, const void* dados,
                 bool tem_normais, const void* normais, int d_normais,
                 bool tem_texturas, const void* texturas, int d_texturas,
-                bool tem_cores, const void* cores, int d_cores, 
+                bool tem_cores, const void* cores, int d_cores,
                 bool tem_matriz, const void* matriz, int d_matriz,
                 bool atualiza_matrizes) {
   V_ERRO("DesenhaVB0: antes");
