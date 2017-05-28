@@ -304,6 +304,7 @@ inline void RenderbufferDeFramebuffer(GLenum target, GLenum attachment, GLenum r
 }
 inline void ApagaBuffers(GLsizei n, const GLuint* buffers) { glDeleteBuffers(n, buffers); }
 inline void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) { glBufferData(target, size, data, usage); }
+inline void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data) { glBufferSubData(target, offset, size, data); }
 inline void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) { glGetShaderInfoLog(shader, maxLength, length, infoLog); }
 inline void ShaderLeParam(GLuint shader, GLenum pname, GLint *params) { glGetShaderiv(shader, pname, params); }
 inline void ProgramaLeParam(GLuint program, GLenum pname, GLint *params) { glGetProgramiv(program, pname, params); }
