@@ -1604,7 +1604,7 @@ void Tabuleiro::TrataDuploCliqueEsquerdo(int x, int y) {
   float profundidade;
   BuscaHitMaisProximo(x, y, &id, &pos_pilha, &profundidade);
   if (pos_pilha == OBJ_TABULEIRO) {
-    unsigned int id = ultima_entidade_selecionada_;
+    id = ultima_entidade_selecionada_;
     float x3d, y3d, z3d;
     MousePara3dComProfundidade(x, y, profundidade, &x3d, &y3d, &z3d);
     // Tabuleiro: cria uma entidade nova.

@@ -1050,9 +1050,13 @@ void Tabuleiro::AdicionaEntidadeNotificando(const ntf::Notificacao& notificacao)
       // Visibilidade e selecionabilidade: se nao estiver desfazendo, usa o modo mestre para determinar
       // se a entidade eh visivel e selecionavel para os jogadores.
       if (!Desfazendo()) {
-        modelo.set_visivel(!EmModoMestreIncluindoSecundario());
-        modelo.set_selecionavel_para_jogador(!EmModoMestreIncluindoSecundario());
+        bool modo_mestre = EmModoMestreIncluindoSecundario();
+        modelo.set_visivel(!modo_mestre);
+        modelo.set_selecionavel_para_jogador(!modo_mestre);
         modelo.set_id(id_entidade);
+        if (camera_presa_) {
+          ids_camera_presa_.push_back(id_entidade);
+        }
       } else {
         if (BuscaEntidade(modelo.id()) != nullptr) {
           // Este caso eh raro, mas talvez possa acontecer quando estiver perto do limite de entidades.
