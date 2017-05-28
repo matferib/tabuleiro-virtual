@@ -122,6 +122,7 @@ acao {
   icone: 'icon_ray.png'
   permite_defesa_armadura: true
   info_textura { id: 'fire.png' }
+  consequencia: TC_INFLAMA_ALVO
 }
 acao {
   id: 'Relâmpago'
