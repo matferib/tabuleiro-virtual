@@ -1,6 +1,7 @@
 #ifndef ENT_ACOES_H
 #define ENT_ACOES_H
 
+#include <functional>
 #include "ent/acoes.pb.h"
 
 namespace ntf {

@@ -575,7 +575,7 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   tem_texturas_ = (deslocamento_texturas_ != static_cast<unsigned int>(-1));
   if (usar_buffer_sub_data) {
 #if USAR_BUFFER_SUB_DATA
-    glBufferSubData(
+    gl::BufferizaSubDados(
         GL_ARRAY_BUFFER, 0,
         sizeof(GL_FLOAT) * buffer_unico_.size(),
         buffer_unico_.data());
@@ -598,7 +598,7 @@ void VboGravado::Grava(const VboNaoGravado& vbo_nao_gravado) {
   indices_ = vbo_nao_gravado.indices();
   if (usar_buffer_sub_data) {
 #if USAR_BUFFER_SUB_DATA
-    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
+    gl::BufferizaSubDados(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(unsigned short) * indices_.size(), indices_.data());
 #endif
   } else {
     gl::BufferizaDados(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * indices_.size(), indices_.data(), GL_STATIC_DRAW);

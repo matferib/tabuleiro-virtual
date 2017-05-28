@@ -251,6 +251,7 @@ void GeraBuffers(GLsizei n, GLuint* buffers);
 void LigacaoComBuffer(GLenum target, GLuint buffer);
 void ApagaBuffers(GLsizei n, const GLuint* buffers);
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage);
+void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data);
 void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog);
 void ShaderLeParam(GLuint shader, GLenum pname, GLint *params);
 void ProgramaLeParam(GLuint program, GLenum pname, GLint *params);

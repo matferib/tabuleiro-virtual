@@ -40,6 +40,7 @@ struct ContextoDesktop : public ContextoDependente {
   PROC pglBindAttribLocation;
   PROC pglDeleteBuffers;
   PROC pglBufferData;
+  PROC pglBufferSubData;
   PROC pglGetShaderiv;
   PROC pglGetShaderInfoLog;
   PROC pglGetProgramiv;
@@ -108,6 +109,7 @@ void IniciaGl(bool luz_por_pixel) {
   PGL(glGenBuffers);
   PGL(glDeleteBuffers);
   PGL(glBufferData);
+  PGL(glBufferSubData);
   PGL(glBindBuffer);
   PGL(glBindAttribLocation);
   PGL(glGetAttribLocation);
@@ -276,6 +278,10 @@ void ApagaBuffers(GLsizei n, const GLuint* buffers) {
 
 void BufferizaDados(GLenum target, GLsizeiptr size, const GLvoid* data, GLenum usage) {
   ((PFNGLBUFFERDATAPROC)INTERNO->pglBufferData)(target, size, data, usage);
+}
+
+void BufferizaSubDados(GLenum target, GLintptr offset, GLsizeiptr size, const GLvoid* data) {
+  ((PFNGLBUFFERSUBDATAPROC)INTERNO->pglBufferSubData)(target, offset, size, data);
 }
 
 void ShaderInfoLog(GLuint shader, GLsizei maxLength, GLsizei* length, GLchar* infoLog) {

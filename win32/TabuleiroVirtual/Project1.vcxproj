@@ -37,6 +37,7 @@
     </ClCompile>
     <ClCompile Include="..\..\ent\acoes.cpp" />
     <ClCompile Include="..\..\ent\acoes.pb.cc" />
+    <ClCompile Include="..\..\ent\comum.pb.cc" />
     <ClCompile Include="..\..\ent\constantes.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ent_constantes.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ent_constantes.obj</ObjectFileName>
@@ -57,6 +58,7 @@
     <ClCompile Include="..\..\ent\tabuleiro_controle_virtual.cpp" />
     <ClCompile Include="..\..\ent\tabuleiro_interface.cpp" />
     <ClCompile Include="..\..\ent\tabuleiro_picking.cpp" />
+    <ClCompile Include="..\..\ent\tabuleiro_tratador.cpp" />
     <ClCompile Include="..\..\ent\util.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)\ent_util.obj</ObjectFileName>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release32|x64'">$(IntDir)\ent_util.obj</ObjectFileName>
