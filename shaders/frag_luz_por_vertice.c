@@ -100,7 +100,7 @@ void main() {
   if (gltab_nevoa_cor.a > 0.0) {
     mediump float distancia_nevoa = length(v_Pos - gltab_nevoa_referencia);
     lowp float peso_nevoa = smoothstep(gltab_nevoa_dados.x, gltab_nevoa_dados.y, distancia_nevoa);
-    cor_final = mix(cor_final, gltab_nevoa_cor, peso_nevoa);
+    cor_final.rgb = mix(cor_final.rgb, gltab_nevoa_cor.rgb, peso_nevoa);
   }
   gl_FragColor = cor_final;
 }
