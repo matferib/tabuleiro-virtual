@@ -6350,7 +6350,7 @@ const std::vector<unsigned int> Tabuleiro::EntidadesAfetadasPorAcao(const AcaoPr
     auto* entidade = id_entidade_destino.second.get();
     if (entidade->IdCenario() == cenario_origem) {
       Posicao epos = Acao::AjustaPonto(entidade->PosicaoAcao(), entidade->MultiplicadorTamanho(), pos_origem, acao);
-      if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao)) {
+      if (Acao::PontoAfetadoPorAcao(epos, pos_origem, acao, entidade_origem != nullptr && id_entidade_destino.first == entidade_origem->Id())) {
         ids_afetados.push_back(id_entidade_destino.first);
       }
     }

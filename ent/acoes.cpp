@@ -1052,7 +1052,7 @@ Posicao Acao::AjustaPonto(
 
 
 // static
-bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto) {
+bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& acao_proto, bool ponto_eh_origem) {
   switch (acao_proto.tipo()) {
     case ACAO_DISPERSAO:
       switch (acao_proto.geometria()) {
@@ -1083,6 +1083,9 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
           return distancia_quadrado <= raio * raio;
         }
         case ACAO_GEO_CONE: {
+          if (ponto_eh_origem) {
+            return false;
+          }
           // Vetor do ponto com relacao a origem.
           Vector3 v_origem(pos_origem.x(), pos_origem.y(), pos_origem.z());
           Vector3 v_destino(Vector3(pos_ponto.x(), pos_ponto.y(), pos_ponto.z()) - v_origem);
@@ -1108,7 +1111,7 @@ bool Acao::PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_orig
       }
       break;
     case ACAO_RAIO: {
-      if (!acao_proto.efeito_area()) {
+      if (!acao_proto.efeito_area() || ponto_eh_origem) {
         return false;
       }
       Vector3 v_origem(PosParaVector3(pos_origem));

@@ -18,22 +18,22 @@ TEST(TesteAcoes, TesteAreaAfetadaCone) {
   acao_proto.set_geometria(ACAO_GEO_CONE);
   acao_proto.set_distancia_quadrados(4);
   acao_proto.mutable_pos_tabuleiro()->set_x(10.0f);
-  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   acao_proto.mutable_pos_tabuleiro()->set_x(-10.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   acao_proto.mutable_pos_tabuleiro()->set_x(10.0f);
   acao_proto.set_distancia_quadrados(3);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   acao_proto.set_distancia_quadrados(4);
   ponto.set_y(1.0f);
-  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   // Dentro do alcance, fora do angulo do cone.
   ponto.set_y(3.1f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 }
 
 TEST(TesteAcoes, TesteAreaAfetadaRaio) {
@@ -52,12 +52,12 @@ TEST(TesteAcoes, TesteAreaAfetadaRaio) {
   Posicao ponto;
   ponto.set_x(1.0f);
   ponto.set_y(2.0f);
-  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   // Ponto a frente, menos de meio quadrado ao lado.
   ponto.set_x(1.5f);
   ponto.set_y(2.0f);
-  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   {
     // Dados de verdade.
@@ -72,31 +72,37 @@ TEST(TesteAcoes, TesteAreaAfetadaRaio) {
     Posicao origem;
     origem.set_x(-5.25f);
     origem.set_y(-6.75f);
-    EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao));
+    EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao, false));
   }
 
   // Mais de meio quadrado com tolerancia de 10%.
   ponto.set_x(1.9f);
   ponto.set_y(2.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   // Ponto fora do alcance do raio.
   ponto.set_x(1.0f);
   ponto.set_y(16.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   // Ponto atras do raio.
   ponto.set_x(1.0f);
   ponto.set_y(-1.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   // Ponto fora da linha do raio.
   ponto.set_x(5.0f);
   ponto.set_y(5.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
   ponto.set_x(-5.0f);
   ponto.set_y(5.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
+
+  // Ponto na origem.
+  ponto.set_x(1.0f);
+  ponto.set_y(0.0f);
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, true));
 }
 
 TEST(TesteAcoes, TesteAreaAfetadaEsfera) {
@@ -109,10 +115,10 @@ TEST(TesteAcoes, TesteAreaAfetadaEsfera) {
   acao_proto.set_efeito_area(true);
   acao_proto.set_raio_quadrados(3);  // 4.5m
   acao_proto.mutable_pos_tabuleiro()->set_x(1.0f);
-  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_FALSE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 
   ponto.set_x(5.4f);
-  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto));
+  EXPECT_TRUE(Acao::PontoAfetadoPorAcao(ponto, origem, acao_proto, false));
 }
 
 TEST(TesteAcoes, TesteAjustePontoDispersao) {

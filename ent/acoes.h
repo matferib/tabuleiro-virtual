@@ -48,8 +48,10 @@ class Acao {
 
   const AcaoProto& Proto() const { return acao_proto_; }
 
-  /** Retorna se o ponto eh afetado pela acao. Apenas acoes de area retornam true. */
-  static bool PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& proto);
+  /** Retorna se o ponto eh afetado pela acao. Apenas acoes de area retornam true.
+  * O ultimo parametro indica que o ponto testado e a origem da acao, pois algumas acoes nao afetam o proprio lancador.
+  */
+  static bool PontoAfetadoPorAcao(const Posicao& pos_ponto, const Posicao& pos_origem, const AcaoProto& proto, bool ponto_eh_origem);
   /** Retorna um ponto auxiliar para ver se tb eh afetado. */
   static Posicao AjustaPonto(
       const Posicao& pos_ponto, float multiplicador_tamanho, const Posicao& pos_origem, const AcaoProto& proto);
