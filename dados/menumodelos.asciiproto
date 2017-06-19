@@ -130,6 +130,12 @@ sub_menu {
   modelo { id: 'Goblin Sargento' }
 }
 sub_menu {
+  id: 'Gnolls'
+  modelo { id: 'Gnoll' }
+  modelo { id: 'Gnoll Sargento Bárbaro 3' }
+  modelo { id: 'Gnoll Lider Ranger 6' }
+}
+sub_menu {
   id: 'Hobgoblins'
   modelo { id: 'Hobgoblin' }
   modelo { id: 'Hobgoblin Sargento' }

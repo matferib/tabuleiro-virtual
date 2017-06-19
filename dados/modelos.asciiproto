@@ -172,10 +172,13 @@ modelo {
 modelo {
   id: 'Cão Teleportador'
   entidade {
-    dados_vida: '4d10' info_textura { id: 'blinkdog.png' } cor { r: 0.4 g: 0.2 b: 0.1 }
+    dados_vida: '4d10' modelo_3d { id: 'blinkdog' }
     modificador_iniciativa: 3
-    rotulo_especial: 'ini: +3\nat: mordida: +4 dano: 1d6\nPiscar a vontade, porta dimensional uma vez por rodada como acao livre\nca 16/13/13'
-    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6' ca_normal: 16 }
+    rotulo_especial: 'Piscar a vontade\nporta dimensional uma vez por rodada como acao livre\nsalv: 4/7/4'
+    evento { id_efeito: 2 rodadas: 8 }
+    dados_ataque {
+      tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6' ca_normal: 16 ca_toque: 13 ca_surpreso: 13
+    }
   }
 }
 modelo {
@@ -491,6 +494,54 @@ modelo {
   }
 }
 modelo {
+  id: 'Gnoll'
+  entidade {
+    dados_vida: '2d8+2'
+    modificador_iniciativa: 0
+    rotulo_especial: "salv: for 3 ref 0 von 0"
+    info_textura { id: 'gnoll.png' largura: 0.5 translacao_x: 0.25 }
+    dados_ataque { rotulo: 'Machado de Guerra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d8+2' multiplicador_critico: 3 ca_normal: 15 ca_toque: 10 ca_surpreso: 15 }
+    dados_ataque { rotulo: 'Arco Curto' tipo_ataque: 'Ataque a Distância' bonus_ataque: 1 dano: '1d6' multiplicador_critico: 3 ca_normal: 15 ca_toque: 10 ca_surpreso: 15 }
+  }
+}
+modelo {
+  id: 'Gnoll Sargento Bárbaro 3'
+  entidade {
+    dados_vida: '2d8+3d12+10'
+    tesouro { tesouro: '50 PO\npocao forca touro' }
+    rotulo_especial: "salv: for 8 ref 1 von 1"
+    modificador_iniciativa: 0
+    info_textura { id: 'gnoll_barbarian.png' largura: 0.5 translacao_x: 0.25 }
+    dados_ataque { rotulo: 'Machado de Guerra' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d8+6' multiplicador_critico: 3 ca_normal: 16 ca_toque: 10 ca_surpreso: 16 }
+    dados_ataque { rotulo: 'Arco Curto' tipo_ataque: 'Ataque a Distância' bonus_ataque: 4 dano: '1d6' multiplicador_critico: 3 ca_normal: 16 ca_toque: 10 ca_surpreso: 16 }
+  }
+}
+modelo {
+  id: 'Gnoll Lider Ranger 6'
+  entidade {
+    dados_vida: '2d8+6d8+16'
+    modificador_iniciativa: 7
+    rotulo_especial: "salv: for 11 ref 9 von 4"
+    info_textura { id: 'gnoll_ranger.png' largura: 0.5 translacao_x: 0.25 }
+    tesouro { tesouro: '140 PO\npocao forca touro\npocao escudo da fe 2\npocao pele de arvore 2' }
+    dados_ataque {
+      rotulo: 'Espada Longa +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 10 dano: '1d8+5' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
+    }
+    dados_ataque {
+      rotulo: 'Espada Longa +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 5 dano: '1d8+5' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
+    }
+    dados_ataque {
+      rotulo: 'Espada Curta +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 9 dano: '1d6+3' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
+    }
+    dados_ataque {
+      rotulo: 'Espada Curta +1' tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 4 dano: '1d6+3' margem_critico: 19 ca_normal: 17 ca_toque: 13 ca_surpreso: 17
+    }
+    dados_ataque { rotulo: 'Arco Curto Composto 4' tipo_ataque: 'Ataque a Distância' bonus_ataque: 10 dano: '1d6+4' multiplicador_critico: 17 ca_normal: 13 ca_toque: 0 ca_surpreso: 17 }
+    dados_ataque { rotulo: 'Arco Curto Composto 4' tipo_ataque: 'Ataque a Distância' bonus_ataque: 5 dano: '1d6+4' multiplicador_critico: 3 ca_normal: 17 ca_toque: 13 ca_surpreso: 17 }
+  }
+}
+
+modelo {
   id: 'Grifo'
   entidade {
     dados_vida: '7d10+21' tamanho: TM_GRANDE info_textura { id: 'griffon.png' } cor { r: 0.6 g: 0.45 b: 0.2 }
@@ -502,7 +553,8 @@ modelo {
   id: 'Hiena'
   entidade {
     dados_vida: '2d8+4' info_textura { id: 'hyena.png' } cor { r: 0.4 g: 0.2 b: 0.2 }
-    rotulo_especial: 'ini +2\nat: +3 1d6+3\nca: 14'
+    rotulo_especial: ''
+    dados_ataque { tipo_ataque: 'Ataque Corpo a Corpo' bonus_ataque: 3 dano: '1d6+3' ca_normal: 14 }
     modificador_iniciativa: 2
   }
 }
@@ -627,7 +679,10 @@ modelo {
 }
 modelo {
   id: 'Humano Clérigo'
-  entidade { dados_vida: '1d8' info_textura { id: 'cleric.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+  entidade {
+    dados_vida: '1d8' info_textura { id: 'cleric.png' translacao_x: 0.25 largura: 0.5 }
+    cor { r: 0.898 g: 0.663 b: 0.475 }
+  }
 }
 modelo {
   id: 'Humano Druida'
@@ -635,7 +690,7 @@ modelo {
 }
 modelo {
   id: 'Humano Guerreiro'
-  entidade { dados_vida: '1d10' info_textura { id: 'fighter.png'} cor { r: 0.898 g: 0.663 b: 0.475 } }
+  entidade { dados_vida: '1d10' info_textura { id: 'fighter.png' translacao_x: 0.25 largura: 0.5 } cor { r: 0.898 g: 0.663 b: 0.475 } }
 }
 modelo {
   id: 'Humana Guerreira'
