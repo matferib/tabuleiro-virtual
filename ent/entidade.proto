@@ -53,6 +53,53 @@ message InfoClasse {
   optional int32 modificador_atributo_conjuracao = 5;
 }
 
+enum TipoBonus {
+  TB_ALQUIMICO = 1;
+  TB_ARMADURA = 2;
+  TB_ARMADURA_MELHORIA = 3;
+  TB_ARMADURA_NATURAL = 4;
+  TB_ATRIBUTO = 5;
+  TB_BASE = 6;
+  TB_CIRCUNSTANCIA = 7;
+  TB_CLASSE = 8;
+  TB_COMPETENCIA = 9;
+  TB_DEFLEXAO = 10;
+  TB_ESCUDO = 11;
+  TB_ESCUDO_MELHORIA = 12;
+  TB_ESQUIVA = 13;
+  TB_FAMILIAR = 14;
+  TB_INERENTE = 15;
+  TB_INTUICAO = 16;
+  TB_MELHORIA = 17;
+  TB_MORAL = 18;
+  // cumulativo para poder ter valores negativos.
+  TB_NIVEIS_NEGATIVOS = 19;
+  // Bonus de atributos ganhados a cada 4 niveis.
+  TB_NIVEL = 20;
+  TB_PROFANO = 21;
+  // cumulativo para aceitar valores negativos.
+  TB_RACIAL = 22;
+  TB_TEMPLATE = 23;
+  TB_RESISTENCIA = 24;
+  TB_SAGRADO = 25;
+  TB_SINERGIA = 26;
+  TB_SORTE = 27;
+  TB_TALENTO = 28;
+  TB_TAMANHO = 29;
+}
+
+// Um tipo de bonus.
+message BonusIndividual {
+  optional TipoBonus tipo = 1;
+  optional bool cumulativo = 2;
+  optional int32 valor = 3;
+}
+
+// Diferentes tipos de bonus.
+message Bonus {
+  repeated BonusIndividual bonus = 1;
+}
+
 message EntidadeProto {
   // Tipo da entidade, determinada pela classe folha. Nao deve ser alterado.
   optional TipoEntidade tipo = 1;
@@ -179,12 +226,14 @@ message EntidadeProto {
     optional string dano = 3;
     optional int32 margem_critico = 6 [default=20];
     optional int32 multiplicador_critico = 7 [default=2];
+    // Devem ser derivados do dado de defesa.
     optional int32 ca_normal = 4;
     optional int32 ca_surpreso = 5;
     optional int32 ca_toque = 8;
     optional float alcance_m = 10;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
+    optional bool permite_escudo = 13;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
@@ -211,14 +260,34 @@ message EntidadeProto {
     optional bool dano_mais_8 = 16;
     optional bool dano_mais_16 = 17;
     optional bool dano_mais_32 = 18;
+
+    // A chance de falha no ataque, de 0-100.
+    optional int32 chance_falha = 25;
   }
   optional DadosAtaqueGlobal dados_ataque_globais = 73;
 
   // Dados de defesa global (independe de ataque).
   message DadosDefesa {
     optional string tipo_defesa = 1 [deprecated=true];
-    optional int32 classe_armadura = 2 [deprecated=true];
     optional bool imune_critico = 3;
+    optional int32 ca_deprecated = 2 [deprecated=true];
+    optional Bonus ca = 4;
+    message Resistencia {
+      optional string rotulo = 1;
+      optional Bonus bonus = 2;
+    }
+    repeated Resistencia resistencias = 5;
+
+    optional bool defesa_menos_1 = 20;
+    optional bool defesa_menos_2 = 21;
+    optional bool defesa_menos_4 = 22;
+    optional bool defesa_menos_8 = 23;
+    optional bool defesa_menos_16 = 24;
+    optional bool defesa_mais_1 = 25;
+    optional bool defesa_mais_2 = 26;
+    optional bool defesa_mais_4 = 27;
+    optional bool defesa_mais_8 = 28;
+    optional bool defesa_mais_16 = 29;
   }
   optional DadosDefesa dados_defesa = 45;
 

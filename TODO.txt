@@ -1,3 +1,13 @@
+Chances de falha.
+Outros dados: d100 principalmente.
+CA separado dos ataques na UI (calcular nos ataques dinamicamente).
+Adicionar flame strike (coluna de chamas).
+Salvações.
+Modificadores de CA.
+Modificador de ataque para higher ground.
+Ranges automaticos de flechas.
+Resistencia a magia.
+
 Ao adicionar entidade, incluir nos algemados.
 Lista de cenarios na UI de transicao.
 Falha automatica de piscar.
