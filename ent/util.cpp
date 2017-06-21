@@ -1042,7 +1042,7 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
   // Chance de falha.
   if (ea.ChanceFalha() > 0) {
     int d100 = RolaDado(100);
-    VLOG(1) << "Chance de falha: " << ea.ChanceFalha( << ", tirou: " << d100;
+    VLOG(1) << "Chance de falha: " << ea.ChanceFalha() << ", tirou: " << d100;
     if (d100 < ea.ChanceFalha()) {
       return std::make_tuple(0, google::protobuf::StringPrintf("Falhou, chance %d, tirou %d", ea.ChanceFalha(), d100), true);
     }
