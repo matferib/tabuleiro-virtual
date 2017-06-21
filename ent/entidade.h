@@ -232,6 +232,9 @@ class Entidade {
   int CA(TipoCA tipo = CA_NORMAL) const;
   bool ImuneCritico() const;
   void ProximoAtaque() { vd_.ataques_na_rodada++; vd_.ultimo_ataque_ms = 0; }
+  int ChanceFalha() const {
+    return proto_.dados_ataque_globais().chance_falha();
+  }
 
   /** Verifica se o ponto em pos, ao se mover na direcao, ira colidir com o objeto.
   * Caso haja colisao, retorna true e altera a direcao para o que sobrou apos a colisao.
