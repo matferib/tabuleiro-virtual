@@ -1,5 +1,6 @@
-Ao adicionar entidade, incluir nos algemados.
+Glitch de icone de rotacao.
 Lista de cenarios na UI de transicao.
+Objetos inflamaveis (sem ser entidade) e permitir duracao infinita.
 Falha automatica de piscar.
 Ajuste de eventos no android para fazer resolucao menor.
 
