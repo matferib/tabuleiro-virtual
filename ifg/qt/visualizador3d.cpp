@@ -838,9 +838,6 @@ void AdicionaOuAtualizaAtaqueEntidade(ifg::qt::Ui::DialogoEntidade& gerador, ent
   da.set_dano(dano_arma.dano);
   da.set_multiplicador_critico(dano_arma.multiplicador);
   da.set_margem_critico(dano_arma.margem_critico);
-  da.set_ca_normal(gerador.spin_ca->value());
-  da.set_ca_toque(gerador.spin_ca_toque->value());
-  da.set_ca_surpreso(gerador.spin_ca_surpreso->value());
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
   da.set_incrementos(gerador.spin_incrementos->value());
   if (gerador.spin_alcance_quad->value() > 0) {
@@ -855,7 +852,64 @@ void AdicionaOuAtualizaAtaqueEntidade(ifg::qt::Ui::DialogoEntidade& gerador, ent
   }
 };
 
-void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
+void PreencheConfiguraAtributos(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
+  const auto& a = ent.atributos();
+  gerador.spin_for->setValue(ent::BonusTotal(a.forca()));
+  gerador.spin_des->setValue(ent::BonusTotal(a.destreza()));
+  gerador.spin_con->setValue(ent::BonusTotal(a.constituicao()));
+  gerador.spin_int->setValue(ent::BonusTotal(a.inteligencia()));
+  gerador.spin_sab->setValue(ent::BonusTotal(a.sabedoria()));
+  gerador.spin_car->setValue(ent::BonusTotal(a.carisma()));
+  // Atualiza os campos.
+  lambda_connect(gerador.spin_for, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    AtribuiBonus(gerador.spin_for->value(), ent::TB_BASE, proto_retornado->mutable_atributos()->mutable_forca());
+  });
+  lambda_connect(gerador.spin_des, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    AtribuiBonus(gerador.spin_des->value(), ent::TB_BASE, proto_retornado->mutable_atributos()->mutable_destreza());
+  });
+  lambda_connect(gerador.spin_con, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    AtribuiBonus(gerador.spin_con->value(), ent::TB_BASE, proto_retornado->mutable_atributos()->mutable_constituicao());
+  });
+  lambda_connect(gerador.spin_int, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    AtribuiBonus(gerador.spin_int->value(), ent::TB_BASE, proto_retornado->mutable_atributos()->mutable_inteligencia());
+  });
+  lambda_connect(gerador.spin_sab, SIGNAL(valueChanged(int)), [gerador, proto_retornado] () {
+    AtribuiBonus(gerador.spin_sab->value(), ent::TB_BASE, proto_retornado->mutable_atributos()->mutable_sabedoria());
+  });
+  lambda_connect(gerador.spin_car, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    AtribuiBonus(gerador.spin_car->value(), ent::TB_BASE, proto_retornado->mutable_atributos()->mutable_carisma());
+  });
+}
+
+void PreencheConfiguraDadosDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
+  const auto& ca = ent.dados_defesa().ca();
+  gerador.spin_ca_armadura->setValue(BonusIndividual(ent::TB_ARMADURA, ca));
+  gerador.spin_ca_escudo->setValue(BonusIndividual(ent::TB_ESCUDO, ca));
+  gerador.spin_ca_tamanho->setValue(ent::ModificadorTamanho(ent.tamanho()));
+  gerador.spin_ca_destreza->setValue(ent::ModificadorAtributo(BonusTotal(ent.atributos().destreza())));
+  // Imune critico.
+  gerador.checkbox_imune_critico->setCheckState(ent.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
+
+  auto* mca = proto_retornado->mutable_dados_defesa()->mutable_ca();
+  lambda_connect(gerador.spin_ca_armadura, SIGNAL(valueChanged(int)), [&gerador, mca] () {
+    AtribuiBonus(gerador.spin_ca_armadura->value(), ent::TB_ARMADURA, mca);
+  });
+  lambda_connect(gerador.spin_ca_escudo, SIGNAL(valueChanged(int)), [&gerador, mca] () {
+    AtribuiBonus(gerador.spin_ca_escudo->value(), ent::TB_ESCUDO, mca);
+  });
+  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador, mca, proto_retornado, &ent] () {
+    int modificador = ent::ModificadorTamanho(proto_retornado->tamanho());
+    AtribuiBonus(modificador, ent::TB_TAMANHO, mca);
+    gerador.spin_ca_tamanho->setValue(modificador);
+  });
+  lambda_connect(gerador.spin_des, SIGNAL(valueChanged(int)), [&gerador, mca, &ent, proto_retornado] () {
+    int modificador = ent::ModificadorAtributo(ent::BonusTotal(proto_retornado->atributos().destreza()));
+    gerador.spin_ca_destreza->setValue(modificador);
+    AtribuiBonus(ent::ModificadorAtributo(modificador), ent::TB_ATRIBUTO, mca);
+  });
+}
+
+void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
   auto AdicionaOuAtualizaAtaque = [&gerador, proto_retornado] () {
     AdicionaOuAtualizaAtaqueEntidade(gerador, proto_retornado);
   };
@@ -920,7 +974,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, ent::En
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [StringDano, &gerador, proto_retornado] () {
     std::vector<QObject*> objs =
-        {gerador.spin_ataque, gerador.spin_ca, gerador.spin_ca_toque, gerador.spin_ca_surpreso, gerador.spin_alcance_quad, gerador.spin_incrementos,
+        {gerador.spin_ataque, gerador.spin_alcance_quad, gerador.spin_incrementos,
          gerador.combo_tipo_ataque, gerador.linha_dano };
     for (auto* obj : objs) obj->blockSignals(true);
     if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
@@ -935,9 +989,6 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, ent::En
       gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
       gerador.spin_ataque->setValue(da.bonus_ataque());
       gerador.linha_dano->setText(StringDano(da).c_str());
-      gerador.spin_ca->setValue(da.ca_normal());
-      gerador.spin_ca_toque->setValue(da.ca_toque());
-      gerador.spin_ca_surpreso->setValue(da.ca_surpreso());
       gerador.spin_incrementos->setValue(da.incrementos());
       gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
       gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
@@ -986,9 +1037,6 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, ent::En
     }
     proto_retornado->mutable_dados_ataque()->DeleteSubrange(gerador.lista_ataques->currentRow(), 1);
     gerador.spin_ataque->clear();
-    gerador.spin_ca->clear();
-    gerador.spin_ca_toque->clear();
-    gerador.spin_ca_surpreso->clear();
     gerador.spin_incrementos->clear();
     gerador.spin_alcance_quad->clear();
     gerador.linha_dano->clear();
@@ -1004,10 +1052,9 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, ent::En
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_ataque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_ca, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_ca_toque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_ca_surpreso, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  // Furtivo
+  gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_globais().dano_furtivo().c_str()));
 }
 
 // Chamado tb durante a finalizacao, por causa do problema de apertar enter e fechar a janela.
@@ -1175,7 +1222,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Tamanho.
   gerador.slider_tamanho->setSliderPosition(entidade.tamanho());
   gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
-  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador] () {
+  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
+    proto_retornado->set_tamanho(ent::TamanhoEntidade(gerador.slider_tamanho->sliderPosition()));
     gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
   });
   // Cor da entidade.
@@ -1261,6 +1309,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   gerador.spin_raio_visao_escuro_quad->setValue(METROS_PARA_QUADRADOS * (entidade.has_alcance_visao() ? entidade.alcance_visao() : 18));
   gerador.spin_raio_visao_escuro_quad->setEnabled(entidade.tipo_visao() == ent::VISAO_ESCURO);
 
+  // Preenche os atributos.
+  PreencheConfiguraAtributos(gerador, entidade, proto_retornado);
+
   // Iniciativa.
   gerador.checkbox_iniciativa->setCheckState(entidade.has_iniciativa() ? Qt::Checked : Qt::Unchecked);
   gerador.spin_iniciativa->setValue(entidade.iniciativa());
@@ -1272,13 +1323,11 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
   });
 
-  // Imune critico.
-  gerador.checkbox_imune_critico->setCheckState(entidade.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
-  // Furtivo
-  gerador.linha_furtivo->setText(QString::fromUtf8(entidade.dados_ataque_globais().dano_furtivo().c_str()));
+  // Dados de defesa.
+  PreencheConfiguraDadosDefesa(gerador, entidade, proto_retornado);
 
   // Dados de ataque.
-  PreencheConfiguraDadosAtaque(gerador, proto_retornado);
+  PreencheConfiguraDadosAtaque(gerador, entidade, proto_retornado);
 
   // Preenche configura niveis.
   PreencheConfiguraNiveis(gerador, proto_retornado);

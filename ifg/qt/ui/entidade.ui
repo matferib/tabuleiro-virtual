@@ -1388,8 +1388,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>760</x>
-       <y>370</y>
+       <x>759</x>
+       <y>430</y>
        <width>121</width>
        <height>27</height>
       </rect>
@@ -1401,8 +1401,8 @@
     <widget class="QListWidget" name="lista_ataques">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>180</y>
+       <x>9</x>
+       <y>240</y>
        <width>861</width>
        <height>181</height>
       </rect>
@@ -1411,8 +1411,8 @@
     <widget class="QCheckBox" name="checkbox_imune_critico">
      <property name="geometry">
       <rect>
-       <x>30</x>
-       <y>410</y>
+       <x>20</x>
+       <y>460</y>
        <width>121</width>
        <height>22</height>
       </rect>
@@ -1425,7 +1425,7 @@
      <property name="geometry">
       <rect>
        <x>880</x>
-       <y>230</y>
+       <y>290</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -1438,7 +1438,7 @@
      <property name="geometry">
       <rect>
        <x>880</x>
-       <y>270</y>
+       <y>330</y>
        <width>31</width>
        <height>27</height>
       </rect>
@@ -1453,8 +1453,8 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>630</x>
-       <y>370</y>
+       <x>629</x>
+       <y>430</y>
        <width>121</width>
        <height>27</height>
       </rect>
@@ -1467,7 +1467,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>50</y>
+       <y>130</y>
        <width>891</width>
        <height>101</height>
       </rect>
@@ -1741,53 +1741,9 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_25">
+          <widget class="QRadioButton" name="radio_escudo">
            <property name="text">
-            <string>CA</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spin_ca">
-           <property name="toolTip">
-            <string>Normal</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_27">
-           <property name="text">
-            <string>T</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spin_ca_toque">
-           <property name="toolTip">
-            <string>Toque</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_28">
-           <property name="text">
-            <string>S</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spin_ca_surpreso">
-           <property name="toolTip">
-            <string>Surpresa</string>
+            <string>Escudo?</string>
            </property>
           </widget>
          </item>
@@ -1799,8 +1755,8 @@
     <widget class="QLabel" name="label_38">
      <property name="geometry">
       <rect>
-       <x>171</x>
-       <y>400</y>
+       <x>170</x>
+       <y>460</y>
        <width>41</width>
        <height>34</height>
       </rect>
@@ -1815,8 +1771,8 @@
     <widget class="QLineEdit" name="linha_furtivo">
      <property name="geometry">
       <rect>
-       <x>218</x>
-       <y>403</y>
+       <x>217</x>
+       <y>463</y>
        <width>129</width>
        <height>27</height>
       </rect>
@@ -1827,6 +1783,286 @@
      <property name="text">
       <string/>
      </property>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="geometry">
+      <rect>
+       <x>340</x>
+       <y>50</y>
+       <width>341</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Dados de CA</string>
+     </property>
+     <widget class="QLabel" name="label_25">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>31</width>
+        <height>34</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QWidget" name="gridLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>321</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="1">
+        <widget class="QLabel" name="spin_bonus_escudo">
+         <property name="text">
+          <string>Escudo</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="spin_ca_escudo">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QSpinBox" name="spin_ca_armadura">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QSpinBox" name="spin_ca_destreza">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_52">
+         <property name="text">
+          <string>Armadura</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_55">
+         <property name="text">
+          <string>Tamanho</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QSpinBox" name="spin_ca_tamanho">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_54">
+         <property name="text">
+          <string>Des</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QSpinBox" name="spin_ca_outros">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="label_56">
+         <property name="text">
+          <string>Outros</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>50</y>
+       <width>331</width>
+       <height>81</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Atributos</string>
+     </property>
+     <widget class="QWidget" name="gridLayoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>9</x>
+        <y>10</y>
+        <width>311</width>
+        <height>61</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_47">
+         <property name="text">
+          <string>Int</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_27">
+         <property name="text">
+          <string>For</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QSpinBox" name="spin_sab">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_48">
+         <property name="text">
+          <string>Des</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QSpinBox" name="spin_for">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QSpinBox" name="spin_des">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="5">
+        <widget class="QSpinBox" name="spin_con">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_49">
+         <property name="text">
+          <string>Sab</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="spin_int">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="5">
+        <widget class="QSpinBox" name="spin_car">
+         <property name="toolTip">
+          <string>Toque</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="label_50">
+         <property name="text">
+          <string>Con</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="4">
+        <widget class="QLabel" name="label_51">
+         <property name="text">
+          <string>Car</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </widget>
    <widget class="QWidget" name="tab">
@@ -1957,9 +2193,6 @@
   <tabstop>spin_incrementos</tabstop>
   <tabstop>spin_ataque</tabstop>
   <tabstop>linha_dano</tabstop>
-  <tabstop>spin_ca</tabstop>
-  <tabstop>spin_ca_toque</tabstop>
-  <tabstop>spin_ca_surpreso</tabstop>
   <tabstop>lista_ataques</tabstop>
   <tabstop>botao_ataque_cima</tabstop>
   <tabstop>botao_ataque_baixo</tabstop>

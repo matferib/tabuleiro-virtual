@@ -402,6 +402,11 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
     case CONTROLE_VOO:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VOO);
       break;
+    case CONTROLE_FALHA_20:
+    case CONTROLE_FALHA_50:
+      AlternaBitsEntidadeNotificando(
+          id == CONTROLE_FALHA_20 ? ent::Tabuleiro::BIT_FALHA_20 : ent::Tabuleiro::BIT_FALHA_50);
+      break;
     case CONTROLE_VISIBILIDADE:
       AlternaBitsEntidadeNotificando(ent::Tabuleiro::BIT_VISIBILIDADE);
       break;
@@ -1145,6 +1150,12 @@ void Tabuleiro::DesenhaControleVirtual() {
 
     { CONTROLE_VOO,          [this] (const Entidade* entidade) {
       return entidade != nullptr && entidade->Proto().voadora();
+    } },
+    { CONTROLE_FALHA_20,     [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() == 20;
+    } },
+    { CONTROLE_FALHA_50,     [this] (const Entidade* entidade) {
+      return entidade != nullptr && entidade->Proto().dados_ataque_globais().chance_falha() == 50;
     } },
     { CONTROLE_VISIBILIDADE, [this] (const Entidade* entidade) {
       return entidade != nullptr && !entidade->Proto().visivel();

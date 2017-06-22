@@ -1,24 +1,25 @@
+#include "ent/util.h"
+#include <google/protobuf/repeated_field.h>
 #include <algorithm>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/tokenizer.hpp>
+#include <cctype>
 #include <chrono>
 #include <cmath>
-#include <cctype>
 #include <cstdlib>
-#include <google/protobuf/repeated_field.h>
 #include <limits>
+#include <random>
 #include <sstream>
 #include <stdexcept>
 #include <string>
-#include <random>
 #include <unordered_map>
 #include "ent/constantes.h"
 #include "ent/entidade.h"
 #include "ent/entidade.pb.h"
 #include "ent/tabuleiro.h"
-#include "ent/util.h"
-#include "gltab/gl.h"  // TODO remover e passar desenhos para para gl
+#include "gltab/gl.h"      // TODO remover e passar desenhos para para gl
 #include "gltab/gl_vbo.h"  // TODO remover e passar desenhos para para gl
+#include "goog/stringprintf.h"
 #include "log/log.h"
 #include "net/util.h"
 
@@ -1038,6 +1039,14 @@ std::tuple<int, std::string, bool> AtaqueVsDefesa(const Entidade& ea, const Enti
     snprintf(texto, 49, "falhou: %d+%d%s%s= %d", d20, ataque_origem, texto_incremento, texto_outros_modificadores, total);
     return std::make_tuple(0, texto, true);
   }
+  // Chance de falha.
+  if (ea.ChanceFalha() > 0) {
+    int d100 = RolaDado(100);
+    VLOG(1) << "Chance de falha: " << ea.ChanceFalha() << ", tirou: " << d100;
+    if (d100 < ea.ChanceFalha()) {
+      return std::make_tuple(0, google::protobuf::StringPrintf("Falhou, chance %d, tirou %d", ea.ChanceFalha(), d100), true);
+    }
+  }
 
   // Se chegou aqui acertou.
   int vezes = 1;
@@ -1127,5 +1136,69 @@ void PreencheNotificacaoAtualizaoPontosVida(
     entidade_antes->mutable_direcao_queda()->CopyFrom(entidade.Proto().direcao_queda());
   }
 }
+
+int BonusTotal(const Bonus& bonus) {
+  int total = 0;
+  for (const auto& bi : bonus.bonus()) {
+    total += bi.valor();
+  }
+  return total;
+}
+
+int BonusIndividual(TipoBonus tipo, const Bonus& bonus) {
+  for (const auto& bi : bonus.bonus()) {
+    if (bi.tipo() == tipo) {
+      return bi.valor();
+    }
+  }
+  return 0;
+}
+
+void AtribuiBonus(int valor, TipoBonus tipo, Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus()) {
+    if (bi.tipo() == tipo) {
+      bi.set_valor(valor);
+      return;
+    }
+  }
+  auto* bi = bonus->add_bonus();
+  bi->set_tipo(tipo);
+  bi->set_valor(valor);
+}
+
+int ModificadorAtributo(int atributo) {
+  return (atributo / 2) - 5;
+}
+
+int ModificadorTamanho(TamanhoEntidade tamanho) {
+  switch (tamanho) {
+    case TM_MINUSCULO: return -8;
+    case TM_DIMINUTO: return -4;
+    case TM_MIUDO: return -2;
+    case TM_PEQUENO: return -1;
+    case TM_MEDIO: return 0;
+    case TM_GRANDE: return 1;
+    case TM_ENORME: return 2;
+    case TM_IMENSO: return 4;
+    case TM_COLOSSAL: return 8;
+  }
+  return 0;
+}
+
+int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
+  switch (tamanho) {
+    case TM_MINUSCULO: return 16;
+    case TM_DIMINUTO: return 12;
+    case TM_MIUDO: return 8;
+    case TM_PEQUENO: return 4;
+    case TM_MEDIO: return 0;
+    case TM_GRANDE: return -4;
+    case TM_ENORME: return -8;
+    case TM_IMENSO: return -12;
+    case TM_COLOSSAL: return -16;
+  }
+  return 0;
+}
+
 
 }  // namespace ent

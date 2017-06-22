@@ -680,6 +680,29 @@ pagina {
 
   dados_botoes {
     tamanho: 1
+    linha: 2
+    coluna: 11
+    rotulo: "20"
+    cor_rotulo {}
+    textura: "icon_20_miss.png"
+    id: CONTROLE_FALHA_20
+    forma: FORMA_RETANGULO
+    dica: "Chance de falha de 20%."
+  }
+  dados_botoes {
+    tamanho: 1
+    linha: 2
+    coluna: 12
+    rotulo: "50"
+    cor_rotulo {}
+    textura: "icon_50_miss.png"
+    id: CONTROLE_FALHA_50
+    forma: FORMA_RETANGULO
+    dica: "Chance de falha de 50%."
+  }
+
+  dados_botoes {
+    tamanho: 1
     linha: 1
     coluna: 11
     rotulo: "Vo"

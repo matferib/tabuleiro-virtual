@@ -1,20 +1,17 @@
 /** Baseado no SanAngeles demo application. So uma casca Java para chamar o codigo nativo. */
 package com.matferib.Tabuleiro;
 
-import java.util.Vector;
-import javax.microedition.khronos.egl.EGLConfig;
-import javax.microedition.khronos.opengles.GL10;
-
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
-import android.os.Message;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.Matrix;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,26 +20,28 @@ import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.ScaleGestureDetector;
 import android.view.Surface;
-import android.view.Window;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
 import android.widget.Spinner;
-import android.widget.TextView;
-import com.squareup.wire.Wire;
+
 import com.matferib.Tabuleiro.ent.EntidadeProto;
-import com.matferib.Tabuleiro.ent.TipoVisao;
 import com.matferib.Tabuleiro.ent.IluminacaoPontual;
+import com.matferib.Tabuleiro.ent.TipoVisao;
+import com.squareup.wire.Wire;
+
+import java.util.Vector;
+
+import javax.microedition.khronos.egl.EGL10;
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.egl.EGLDisplay;
+import javax.microedition.khronos.opengles.GL10;
 
 // Atividade do tabuleiro que possui o view do OpenGL.
 public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
@@ -52,34 +51,35 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     Log.d("TabuleiroActivity", "onCreate");
     view_ = new TabuleiroSurfaceView(this);
     view_.setOnSystemUiVisibilityChangeListener(this);
-    setContentView(view_);
-    /*
-    view_.getHolder().setFixedSize(1024, 768);
-    class AutoFrameLayout extends FrameLayout {
-      AutoFrameLayout(TabuleiroActivity activity, View filha) {
-        super(activity);
-        addView(filha);
-        filha_ = filha;
-      }
-      @Override
-      public boolean onInterceptTouchEvent(MotionEvent event) {
-        return true;
-      }
-      @Override
-      public boolean onTouchEvent(MotionEvent event) {
-        Log.d("TabuleiroSurfaceView", "antes: " + event.toString());
-        Matrix m = new Matrix();
-        m.preScale(1024.0f / getWidth(), 768.0f / getHeight());
-        event.transform(m);
-        Log.d("TabuleiroSurfaceView", "depois: " + event.toString());
-        return filha_.onTouchEvent(event);
-      }
+    if (!fixed_size_) {
+      setContentView(view_);
+    } else {
+      view_.getHolder().setFixedSize(1024, 768);
+      class AutoFrameLayout extends FrameLayout {
+        AutoFrameLayout(TabuleiroActivity activity, View filha) {
+          super(activity);
+          addView(filha);
+          filha_ = filha;
+        }
+        @Override
+        public boolean onInterceptTouchEvent(MotionEvent event) {
+          return true;
+        }
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+          Log.d("TabuleiroSurfaceView", "antes: " + event.toString());
+          Matrix m = new Matrix();
+          m.preScale(1024.0f / getWidth(), 768.0f / getHeight());
+          event.transform(m);
+          Log.d("TabuleiroSurfaceView", "depois: " + event.toString());
+          return filha_.onTouchEvent(event);
+        }
 
-      private View filha_;
-    };
-    AutoFrameLayout fl = new AutoFrameLayout(this, view_);
-    setContentView(fl);
-    */
+        private View filha_;
+      };
+      AutoFrameLayout fl = new AutoFrameLayout(this, view_);
+      setContentView(fl);
+    }
     getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     nativeCreate(
         getIntent().getStringExtra(SelecaoActivity.SERVIDOR) != null,
@@ -160,11 +160,42 @@ public class TabuleiroActivity extends Activity implements View.OnSystemUiVisibi
     nativeDestroy();
   }
 
+  public boolean fixed_size_ = false;
   private native void nativeCreate(boolean servidor, String nome, String endereco,
                                    boolean mapeamento_sombras, boolean luz_por_pixel, Object assets, String dir);
   private static native void nativeDestroy();
 
   private GLSurfaceView view_;
+}
+
+class TabvirtConfigChooser implements GLSurfaceView.EGLConfigChooser {
+  @Override
+  public EGLConfig chooseConfig(EGL10 egl, EGLDisplay display) {
+    int attribs[] = {
+      EGL10.EGL_LEVEL, 0,
+      EGL10.EGL_RENDERABLE_TYPE, 4,  //EGL10.EGL_OPENGL_ES2_BIT,
+      EGL10.EGL_COLOR_BUFFER_TYPE, EGL10.EGL_RGB_BUFFER,
+      EGL10.EGL_RED_SIZE, 8,
+      EGL10.EGL_GREEN_SIZE, 8,
+      EGL10.EGL_BLUE_SIZE, 8,
+      EGL10.EGL_ALPHA_SIZE, 8,
+      EGL10.EGL_DEPTH_SIZE, 24,
+      // multisampling.
+      //EGL10.EGL_SAMPLE_BUFFERS, 1,
+      //EGL10.EGL_SAMPLES, 4,  // This is for 4x MSAA.
+      EGL10.EGL_NONE
+    };
+    EGLConfig[] configs = new EGLConfig[1];
+    int[] configCounts = new int[1];
+    egl.eglChooseConfig(display, attribs, configs, 1, configCounts);
+
+    if (configCounts[0] == 0) {
+      // Failed! Error handling.
+      return null;
+    } else {
+      return configs[0];
+    }
+  }
 }
 
 // View do OpenGL.
@@ -187,7 +218,8 @@ class TabuleiroSurfaceView extends GLSurfaceView {
     }
     detectorRotacao_ = new RotationGestureDetector(renderer_);
     detectorTranslacao_ = new TranslationGestureDetector(renderer_);
-    setEGLConfigChooser(8, 8, 8, 8, 16, 1);
+    //setEGLConfigChooser(8, 8, 8, 8, 16, 1);
+    setEGLConfigChooser(new TabvirtConfigChooser());
     setRenderer(renderer_);
     setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     setFocusableInTouchMode(true);
@@ -648,6 +680,7 @@ class TabuleiroRenderer
 
   @Override
   public void onSurfaceChanged(GL10 unused, int w, int h) {
+    Log.d(TAG, "===============onSurfaceChanged " + w + ", " + h);
     nativeResize(w, h);
   }
 
@@ -786,27 +819,31 @@ class TabuleiroRenderer
     return true;
   }
 
+  private int getParentHeight() {
+    return ((TabuleiroActivity)activity_).fixed_size_ ? 768 : (int)parent_.getHeight();
+  }
+
   @Override
   public void onLongPress(MotionEvent event) {
     //Log.d(TAG, "LongPress");
-    eventos_.add(Evento.Detalhamento((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
+    eventos_.add(Evento.Detalhamento((int)event.getX(), (int)(getParentHeight() - event.getY())));
   }
 
   @Override
   public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
     //Log.d(TAG, "Scroll");
     if (!carregando_) {
-      eventos_.add(Evento.Pressionado((int)e1.getX(), (int)(parent_.getHeight() - e1.getY())));
+      eventos_.add(Evento.Pressionado((int)e1.getX(), (int)(getParentHeight() - e1.getY())));
       carregando_ = true;
     }
-    eventos_.add(Evento.Movimento((int)e2.getX(), (int)(parent_.getHeight() - e2.getY())));
+    eventos_.add(Evento.Movimento((int)e2.getX(), (int)(getParentHeight() - e2.getY())));
     return true;
   }
 
   @Override
   public void onShowPress(MotionEvent event) {
     //Log.d(TAG, "ShowPress");
-    eventos_.add(Evento.Toque((int)event.getX(), (int)(parent_.getHeight() - event.getY())));
+    eventos_.add(Evento.Toque((int)event.getX(), (int)(getParentHeight() - event.getY())));
   }
 
   @Override
@@ -819,7 +856,7 @@ class TabuleiroRenderer
   public boolean onDoubleTap(MotionEvent event) {
     //Log.d(TAG, "DoubleTap");
     int x = (int)event.getX();
-    int y = (int)(parent_.getHeight() - event.getY());
+    int y = (int)(getParentHeight() - event.getY());
     if (((metaTeclas_ & META_SHIFT_ESQUERDO) != 0) || ((metaTeclas_ & META_SHIFT_DIREITO) != 0)) {
       eventos_.add(Evento.Detalhamento(x, y));
     } else {
@@ -836,9 +873,9 @@ class TabuleiroRenderer
 
   @Override
   public boolean onSingleTapConfirmed(MotionEvent event) {
-    //Log.d(TAG, "SingleTapConfirmed: " + event.toString());
+    Log.d(TAG, "SingleTapConfirmed: " + event.toString());
     int x = (int)event.getX();
-    int y = (int)(parent_.getHeight() - event.getY());
+    int y = (int)(getParentHeight() - event.getY());
     if (metaTeclas_ == 0) {
       eventos_.add(Evento.Clique(x, y));
     } else if (((metaTeclas_ & META_CTRL_ESQUERDO) != 0) || ((metaTeclas_ & META_CTRL_DIREITO) != 0)) {
@@ -888,20 +925,20 @@ class TabuleiroRenderer
   // Inicio da pinca.
   @Override
   public void onDoubleTouchPressed(int x1, int y1, int x2, int y2) {
-    eventos_.add(Evento.ToqueDuplo(x1, (int)(parent_.getHeight() - y1), x2, (int)(parent_.getHeight() - y2)));
+    eventos_.add(Evento.ToqueDuplo(x1, (int)(getParentHeight() - y1), x2, (int)(getParentHeight() - y2)));
   }
 
   // Detector de translacao.
   @Override
   public void onTranslateBegin(int x, int y) {
     //Log.d(TAG, "TranslationBegin");
-    eventos_.add(Evento.Translacao(x, (int)(parent_.getHeight() - y)));
+    eventos_.add(Evento.Translacao(x, (int)(getParentHeight() - y)));
   }
 
   @Override
   public void onTranslate(int x, int y) {
     //Log.d(TAG, "Translation");
-    eventos_.add(Evento.Movimento(x, (int)(parent_.getHeight() - y)));
+    eventos_.add(Evento.Movimento(x, (int)(getParentHeight() - y)));
   }
 
   @Override
@@ -944,7 +981,7 @@ class TabuleiroRenderer
   @Override
   public void onPressure(int x, int y) {
     //Log.d(TAG, "onPressure");
-    eventos_.add(Evento.Detalhamento(x, (int)(parent_.getHeight() - y)));
+    eventos_.add(Evento.Detalhamento(x, (int)(getParentHeight() - y)));
   }
 
   // Tres toques: acao.
@@ -957,7 +994,7 @@ class TabuleiroRenderer
     somaX = somaX / e.getPointerCount();
     somaY = somaY / e.getPointerCount();
 
-    eventos_.add(Evento.Acao(somaX, (int)(parent_.getHeight() - somaY)));
+    eventos_.add(Evento.Acao(somaX, (int)(getParentHeight() - somaY)));
   }
 
   // Meta teclas.

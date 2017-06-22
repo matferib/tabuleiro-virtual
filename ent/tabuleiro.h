@@ -151,6 +151,8 @@ class Tabuleiro : public ntf::Receptor {
     BIT_DANO_MENOS_2         = 0x2000000,
     BIT_DANO_MENOS_4         = 0x4000000,
     BIT_DANO_MENOS_8         = 0x8000000,
+    BIT_FALHA_20             = 0x10000000,
+    BIT_FALHA_50             = 0x20000000,
   };
   /** Atualiza algum campo booleano da entidade selecionada, invertendo-o.
   * O valor eh uma mascara de OUs de bit_e. Notifica clientes.

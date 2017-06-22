@@ -128,6 +128,7 @@ void Java_com_matferib_Tabuleiro_SelecaoActivity_nativeInitArqOpcoes(JNIEnv* env
   } catch (const std::exception& e) {
     __android_log_print(ANDROID_LOG_INFO, "Tabuleiro", "Erro lendo opcoes iniciais, usando padrao: %s", e.what());
   }
+  //proto.set_anti_aliasing(true);
   g_opcoes.reset(new ent::OpcoesProto(proto));
 }
 

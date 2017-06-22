@@ -42,11 +42,11 @@ LOCAL_SRC_FILES := jni-impl.cpp \
 
 # Flags de performance.
 LOCAL_ARM_MODE := arm
-ifneq ($(XOOM),)
-	LOCAL_ARM_NEON := false
-else
-	LOCAL_ARM_NEON := true
-endif
+#ifneq ($(XOOM),)
+#	LOCAL_ARM_NEON := false
+#else
+#	LOCAL_ARM_NEON := true
+#endif
 
 LOCAL_CPPFLAGS += -DUSAR_OPENGL_ES -DDEBUG=$(DEBUG)
 ifneq ($(NEXUS7),)

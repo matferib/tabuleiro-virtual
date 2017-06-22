@@ -230,6 +230,20 @@ inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.
 
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
+
+// Retorna o total de um tipo de bonus.
+int BonusTotal(const Bonus& bonus);
+void AtribuiBonus(int valor, TipoBonus tipo, Bonus* bonus);
+// Retorna um bonus individual.
+int BonusIndividual(TipoBonus tipo, const Bonus& bonus);
+
+// Retorna o modificador do atributo.
+int ModificadorAtributo(int atributo);
+
+// Modificador geral de tamanho.
+int ModificadorTamanho(TamanhoEntidade tamanho);
+int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

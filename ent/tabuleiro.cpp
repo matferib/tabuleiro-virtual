@@ -1295,6 +1295,21 @@ void Tabuleiro::AlternaBitsEntidadeNotificando(int bits) {
         atualizar_mapa_luzes = true;
       }
     }
+    if ((bits & BIT_FALHA_20) > 0) {
+      int chance_antes = proto_original.dados_ataque_globais().chance_falha();
+      proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
+          chance_antes);
+      proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
+          chance_antes == 20 ? 0 : 20);
+    }
+    if ((bits & BIT_FALHA_50) > 0) {
+      int chance_antes = proto_original.dados_ataque_globais().chance_falha();
+      proto_antes->mutable_dados_ataque_globais()->set_chance_falha(
+          chance_antes);
+      proto_depois->mutable_dados_ataque_globais()->set_chance_falha(
+          chance_antes == 50 ? 0 : 50);
+    }
+
     if ((bits & BIT_ILUMINACAO) > 0) {
       // Luz eh tricky pq nao eh um bit.
       if (proto_original.has_luz()) {
