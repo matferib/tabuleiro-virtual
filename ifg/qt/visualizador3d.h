@@ -58,11 +58,13 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
 
  private:
   // Dialogos.
+  // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
   ent::EntidadeProto* AbreDialogoEntidade(const ntf::Notificacao& notificacao);
   ent::EntidadeProto* AbreDialogoTipoEntidade(const ntf::Notificacao& notificacao);
   ent::EntidadeProto* AbreDialogoTipoForma(const ntf::Notificacao& notificacao);
   ent::TabuleiroProto* AbreDialogoCenario(const ntf::Notificacao& notificacao);
   ent::OpcoesProto* AbreDialogoOpcoes(const ntf::Notificacao& notificacao);
+  ent::Bonus AbreDialogoBonus(const ent::Bonus& bonus);
 
  private:
   bool luz_por_pixel_;
