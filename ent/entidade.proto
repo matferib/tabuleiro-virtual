@@ -91,13 +91,16 @@ enum TipoBonus {
 // Um tipo de bonus.
 message BonusIndividual {
   optional TipoBonus tipo = 1;
-  optional bool cumulativo = 2;
-  optional int32 valor = 3;
+  message PorOrigem {
+    optional int32 valor = 1;
+    optional string origem = 2;
+  }
+  repeated PorOrigem por_origem = 2;
 }
 
 // Diferentes tipos de bonus.
 message Bonus {
-  repeated BonusIndividual bonus = 1;
+  repeated BonusIndividual bonus_individual = 1;
 }
 
 message EntidadeProto {

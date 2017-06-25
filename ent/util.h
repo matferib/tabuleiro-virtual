@@ -231,11 +231,16 @@ inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
 
+// Atualiza as CAs dos dados de ataque baseado nos dados de defesa.
+void AtualizaCADadosAtaque(EntidadeProto* proto);
+
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);
-void AtribuiBonus(int valor, TipoBonus tipo, Bonus* bonus);
+int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
+void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
 // Retorna um bonus individual.
-int BonusIndividual(TipoBonus tipo, const Bonus& bonus);
+int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
+int BonusIndividualTotal(const BonusIndividual& bonus_individual);
 
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);

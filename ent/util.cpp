@@ -1137,33 +1137,137 @@ void PreencheNotificacaoAtualizaoPontosVida(
   }
 }
 
-int BonusTotal(const Bonus& bonus) {
-  int total = 0;
-  for (const auto& bi : bonus.bonus()) {
-    total += bi.valor();
+// Retorna se os bonus sao cumulativos.
+bool BonusCumulativo(TipoBonus tipo) {
+  switch (tipo) {
+    case TB_CIRCUNSTANCIA:
+    case TB_CLASSE:
+    case TB_ESQUIVA:
+    case TB_FAMILIAR:
+    case TB_NIVEIS_NEGATIVOS:
+    case TB_NIVEL:
+    case TB_RACIAL:
+    case TB_TEMPLATE:
+    case TB_TALENTO:
+      return true;
+    default: return false;
   }
-  return total;
 }
 
-int BonusIndividual(TipoBonus tipo, const Bonus& bonus) {
-  for (const auto& bi : bonus.bonus()) {
+std::vector<TipoBonus> ExclusaoEscudo(bool permite_escudo) {
+  std::vector<TipoBonus> exclusao;
+  if (!permite_escudo) {
+    exclusao.push_back(TB_ESCUDO);
+    exclusao.push_back(TB_ESCUDO_MELHORIA);
+  }
+  return exclusao;
+}
+
+int BonusCATotal(const EntidadeProto& proto, bool permite_escudo) {
+  return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo));
+}
+
+int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo) {
+  const int modificador_destreza = ModificadorAtributo(BonusTotal(proto.atributos().destreza()));
+  return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo)) - std::max(modificador_destreza, 0);
+}
+
+int BonusCAToque(const EntidadeProto& proto) {
+  return BonusTotalExcluindo(proto.dados_defesa().ca(),
+         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA });
+}
+
+// Retorna o total de um bonus individual, contabilizando acumulo caso as origens sejam diferentes.
+int BonusIndividualTotal(const BonusIndividual& bonus_individual) {
+  if (BonusCumulativo(bonus_individual.tipo())) {
+    int total = 0;
+    std::unordered_map<std::string, int> mapa_por_origem;
+    for (const auto& por_origem : bonus_individual.por_origem()) {
+      auto it = mapa_por_origem.find(por_origem.origem());
+      if (it == mapa_por_origem.end() || por_origem.valor() > it->second) {
+        total += por_origem.valor();
+        it->second = por_origem.valor();
+      }
+    }
+    return total;
+  } else {
+    // TODO pensar no caso de origens dando penalidade e bonus. Acontece?
+    int maior = 0;
+    for (const auto& por_origem : bonus_individual.por_origem()) {
+      maior = std::max(maior, por_origem.valor());
+    }
+    return maior;
+  }
+}
+
+// Retorna o total para um tipo de bonus.
+int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
+  for (const auto& bi : bonus.bonus_individual()) {
     if (bi.tipo() == tipo) {
-      return bi.valor();
+      return BonusIndividualTotal(bi);
     }
   }
   return 0;
 }
 
-void AtribuiBonus(int valor, TipoBonus tipo, Bonus* bonus) {
-  for (auto& bi : *bonus->mutable_bonus()) {
-    if (bi.tipo() == tipo) {
-      bi.set_valor(valor);
+
+void AtualizaCADadosAtaque(EntidadeProto* proto) {
+  if (!proto->dados_defesa().has_ca()) {
+    LOG(INFO) << "Proto nao possui CA para atualizar ataques.";
+    return;
+  }
+  const auto& ca = proto->dados_defesa().ca();
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    da.set_ca_normal(BonusCATotal(*proto, da.permite_escudo()));
+    da.set_ca_surpreso(BonusCASurpreso(*proto, da.permite_escudo()));
+    da.set_ca_toque(BonusCAToque(*proto));
+  }
+}
+
+int BonusTotal(const Bonus& bonus) {
+  int total = 0;
+  for (const auto& bi : bonus.bonus_individual()) {
+    total += BonusIndividualTotal(bi);
+  }
+  return total;
+}
+
+// Computa o total de bonus, excluindo alguns tipos.
+int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos) {
+  int total = 0;
+  for (const auto& bi : bonus.bonus_individual()) {
+    if (std::any_of(bonus_excluidos.begin(), bonus_excluidos.end(), [&bi](ent::TipoBonus tipo) { return tipo == bi.tipo(); })) {
+      continue;
+    }
+    total += BonusIndividualTotal(bi);
+  }
+  return total;
+}
+
+// Se origem existir, ira sobrescrever.
+void AtribuiBonusIndividual(int valor, const std::string& origem, BonusIndividual* bonus_individual) {
+  for (auto& por_origem : *bonus_individual->mutable_por_origem()) {
+    if (por_origem.origem() == origem) {
+      por_origem.set_valor(valor);
       return;
     }
   }
-  auto* bi = bonus->add_bonus();
+  auto* po = bonus_individual->add_por_origem();
+  po->set_valor(valor);
+  po->set_origem(origem);
+}
+
+// Atribui um tipo de bonus individual a bonus.
+void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  for (auto& bi : *bonus->mutable_bonus_individual()) {
+    if (bi.tipo() == tipo) {
+      AtribuiBonusIndividual(valor, origem, &bi);
+      return;
+    }
+  }
+  auto* bi = bonus->add_bonus_individual();
   bi->set_tipo(tipo);
-  bi->set_valor(valor);
+  AtribuiBonusIndividual(valor, origem, bi);
 }
 
 int ModificadorAtributo(int atributo) {
