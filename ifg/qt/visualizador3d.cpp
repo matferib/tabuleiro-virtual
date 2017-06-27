@@ -808,10 +808,16 @@ ent::Bonus AbreDialogoBonus(QWidget* pai, const ent::Bonus& bonus) {
     modelo->insertRows(0, 1, QModelIndex());
   });
   lambda_connect(gerador.botao_remover_bonus, SIGNAL(clicked()), [&modelo, &gerador] () {
-    //auto selecionados = gerador.tabela_bonus->selectedIndexes();
-    //for (const QModelIndex index : selecionados) {
-    //  modelo->RemoveRows(index.row(), 1, QModelIndex());
-    //}
+#if 0
+    auto selecionados = gerador.tabela_bonus->selectedIndexes();
+    std::set<int, std::greater> linhas;
+    for (const QModelIndex index : selecionados) {
+      linhas.insert(index.row());
+    }
+    for (int linha : linhas) {
+      modelo->RemoveRows(index.row(), 1, QModelIndex());
+    }
+#endif
   });
   std::unique_ptr<QAbstractItemDelegate> delegado(
       new TipoBonusDelegate(gerador.tabela_bonus, modelo.get(), gerador.tabela_bonus));
@@ -820,7 +826,6 @@ ent::Bonus AbreDialogoBonus(QWidget* pai, const ent::Bonus& bonus) {
 
   dialogo->exec();
   ent::Bonus ret = modelo->Bonus();
-  LOG(INFO) << "Retornando " << ret.DebugString();
   delete dialogo;
   return ret;
 }
@@ -1154,10 +1159,16 @@ void AtualizaAtaquesCA(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto
   ent::AtualizaCADadosAtaque(proto_retornado);
   RefrescaListaAtaque(gerador, *proto_retornado);
 
+
   gerador.spin_ca_tamanho->setValue(ent::ModificadorTamanho(proto_retornado->tamanho()));
   const int modificador_destreza = ent::ModificadorAtributo(ent::BonusTotal(proto_retornado->atributos().destreza()));
   gerador.spin_ca_destreza->setValue(modificador_destreza);
   const auto& ca = proto_retornado->dados_defesa().ca();
+  std::vector<QWidget*> objs = { gerador.spin_ca_armadura, gerador.spin_ca_escudo };
+  for (auto* obj : objs) obj->blockSignals(true);
+  gerador.spin_ca_armadura->setValue(ent::BonusIndividualTotal(ent::TB_ARMADURA, ca));
+  gerador.spin_ca_escudo->setValue(ent::BonusIndividualTotal(ent::TB_ESCUDO, ca));
+  for (auto* obj : objs) obj->blockSignals(false);
   const int bonus_ca_total = ent::BonusTotal(ca);
   gerador.spin_ca_total->setValue(bonus_ca_total);
   gerador.spin_ca_toque->setValue(
@@ -1217,6 +1228,7 @@ void PreencheConfiguraAtributos(Visualizador3d* this_, ifg::qt::Ui::DialogoEntid
   lambda_connect(gerador.botao_bonus_des, SIGNAL(clicked()), [&gerador, proto_retornado, this_] () {
     *proto_retornado->mutable_atributos()->mutable_destreza() =
         AbreDialogoBonus(this_, proto_retornado->atributos().destreza());
+    gerador.spin_des->setValue(ent::BonusTotal(proto_retornado->atributos().destreza()));
     AtualizaAtaquesCA(gerador, proto_retornado);
   });
   lambda_connect(gerador.spin_con, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
