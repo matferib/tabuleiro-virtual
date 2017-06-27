@@ -31,7 +31,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="comboBox">
+     <widget class="QComboBox" name="combo_tipo">
       <item>
        <property name="text">
         <string>Alquímico</string>
@@ -175,7 +175,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QListWidget" name="listWidget">
+     <widget class="QListWidget" name="list_por_origem">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
         <horstretch>0</horstretch>

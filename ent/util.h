@@ -238,6 +238,7 @@ void AtualizaCADadosAtaque(EntidadeProto* proto);
 int BonusTotal(const Bonus& bonus);
 int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& bonus_excluidos);
 void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* bonus);
+void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 // Retorna um bonus individual.
 int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
 int BonusIndividualTotal(const BonusIndividual& bonus_individual);

@@ -243,7 +243,7 @@ public:
     QPushButton *botao_bonus_sab;
     QPushButton *botao_bonus_for;
     QSpinBox *spin_des;
-    QPushButton *botao_bonus_des_2;
+    QPushButton *botao_bonus_des;
     QLabel *label_48;
     QLabel *label_49;
     QLabel *label_50;
@@ -1364,10 +1364,10 @@ public:
 
         gridLayout_2->addWidget(spin_des, 2, 1, 1, 1);
 
-        botao_bonus_des_2 = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_des_2->setObjectName(QString::fromUtf8("botao_bonus_des_2"));
+        botao_bonus_des = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_des->setObjectName(QString::fromUtf8("botao_bonus_des"));
 
-        gridLayout_2->addWidget(botao_bonus_des_2, 2, 2, 1, 1);
+        gridLayout_2->addWidget(botao_bonus_des, 2, 2, 1, 1);
 
         label_48 = new QLabel(gridLayoutWidget_2);
         label_48->setObjectName(QString::fromUtf8("label_48"));
@@ -1822,7 +1822,7 @@ public:
 #ifndef QT_NO_TOOLTIP
         spin_des->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        botao_bonus_des_2->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+        botao_bonus_des->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         label_48->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Des", 0, QApplication::UnicodeUTF8));
         label_49->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Sab", 0, QApplication::UnicodeUTF8));
         label_50->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Con", 0, QApplication::UnicodeUTF8));

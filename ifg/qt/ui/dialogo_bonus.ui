@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox">
+  <widget class="QDialogButtonBox" name="botoes_ok_cancela">
    <property name="geometry">
     <rect>
      <x>270</x>
@@ -27,16 +27,6 @@
    </property>
    <property name="standardButtons">
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-   </property>
-  </widget>
-  <widget class="QListWidget" name="listWidget">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>30</y>
-     <width>471</width>
-     <height>281</height>
-    </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="botao_adicionar_bonus">
@@ -73,14 +63,24 @@ font: bold;</string>
     <string>-</string>
    </property>
   </widget>
+  <widget class="QTableView" name="tabela_bonus">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>20</y>
+     <width>481</width>
+     <height>291</height>
+    </rect>
+   </property>
+  </widget>
  </widget>
  <tabstops>
-  <tabstop>buttonBox</tabstop>
+  <tabstop>botoes_ok_cancela</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>botoes_ok_cancela</sender>
    <signal>accepted()</signal>
    <receiver>ifg::qt::DialogoBonus</receiver>
    <slot>accept()</slot>
@@ -96,7 +96,7 @@ font: bold;</string>
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>botoes_ok_cancela</sender>
    <signal>rejected()</signal>
    <receiver>ifg::qt::DialogoBonus</receiver>
    <slot>reject()</slot>

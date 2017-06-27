@@ -1216,7 +1216,6 @@ void AtualizaCADadosAtaque(EntidadeProto* proto) {
     LOG(INFO) << "Proto nao possui CA para atualizar ataques.";
     return;
   }
-  const auto& ca = proto->dados_defesa().ca();
   for (auto& da : *proto->mutable_dados_ataque()) {
     da.set_ca_normal(BonusCATotal(*proto, da.permite_escudo()));
     da.set_ca_surpreso(BonusCASurpreso(*proto, da.permite_escudo()));
@@ -1242,6 +1241,23 @@ int BonusTotalExcluindo(const Bonus& bonus, const std::vector<ent::TipoBonus>& b
     total += BonusIndividualTotal(bi);
   }
   return total;
+}
+
+void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus) {
+  for (int ib = 0; ib < bonus->bonus_individual_size(); ++ib) {
+    auto* bi = bonus->mutable_bonus_individual(ib);
+    if (bi->tipo() != tipo) continue;
+    for (int ipo = 0; ipo < bi->por_origem_size(); ++ipo) {
+      const auto& po = bi->por_origem(ipo);
+      if (po.origem() != origem) continue;
+      bi->mutable_por_origem()->DeleteSubrange(ipo, 1);
+      break;
+    }
+    if (bi->por_origem().empty()) {
+      bonus->mutable_bonus_individual()->DeleteSubrange(ib, 1);
+    }
+    break;
+  }
 }
 
 // Se origem existir, ira sobrescrever.

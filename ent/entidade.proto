@@ -53,39 +53,40 @@ message InfoClasse {
   optional int32 modificador_atributo_conjuracao = 5;
 }
 
+// Se mudar aqui, mudar na UI tb que converte o tipo para indice (TipoParaIndice).
 enum TipoBonus {
-  TB_ALQUIMICO = 1;
-  TB_ARMADURA = 2;
-  TB_ARMADURA_MELHORIA = 3;
-  TB_ARMADURA_NATURAL = 4;
-  TB_ATRIBUTO = 5;
-  TB_BASE = 6;
-  TB_CIRCUNSTANCIA = 7;
-  TB_CLASSE = 8;
-  TB_COMPETENCIA = 9;
-  TB_DEFLEXAO = 10;
-  TB_ESCUDO = 11;
-  TB_ESCUDO_MELHORIA = 12;
-  TB_ESQUIVA = 13;
-  TB_FAMILIAR = 14;
-  TB_INERENTE = 15;
-  TB_INTUICAO = 16;
-  TB_MELHORIA = 17;
-  TB_MORAL = 18;
+  TB_ALQUIMICO = 0;
+  TB_ARMADURA = 1;
+  TB_ARMADURA_MELHORIA = 2;
+  TB_ARMADURA_NATURAL = 3;
+  TB_ATRIBUTO = 4;
+  TB_BASE = 5;
+  TB_CIRCUNSTANCIA = 6;
+  TB_CLASSE = 7;
+  TB_COMPETENCIA = 8;
+  TB_DEFLEXAO = 9;
+  TB_ESCUDO = 10;
+  TB_ESCUDO_MELHORIA = 11;
+  TB_ESQUIVA = 12;
+  TB_FAMILIAR = 13;
+  TB_INERENTE = 14;
+  TB_INTUICAO = 15;
+  TB_MELHORIA = 16;
+  TB_MORAL = 17;
   // cumulativo para poder ter valores negativos.
-  TB_NIVEIS_NEGATIVOS = 19;
+  TB_NIVEIS_NEGATIVOS = 18;
   // Bonus de atributos ganhados a cada 4 niveis.
-  TB_NIVEL = 20;
-  TB_PROFANO = 21;
+  TB_NIVEL = 19;
+  TB_PROFANO = 20;
   // cumulativo para aceitar valores negativos.
-  TB_RACIAL = 22;
-  TB_TEMPLATE = 23;
-  TB_RESISTENCIA = 24;
-  TB_SAGRADO = 25;
-  TB_SINERGIA = 26;
-  TB_SORTE = 27;
-  TB_TALENTO = 28;
-  TB_TAMANHO = 29;
+  TB_RACIAL = 21;
+  TB_TEMPLATE = 22;
+  TB_RESISTENCIA = 23;
+  TB_SAGRADO = 24;
+  TB_SINERGIA = 25;
+  TB_SORTE = 26;
+  TB_TALENTO = 27;
+  TB_TAMANHO = 28;
 }
 
 // Um tipo de bonus.

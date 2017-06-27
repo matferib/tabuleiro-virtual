@@ -30,8 +30,8 @@ public:
     QWidget *horizontalLayoutWidget;
     QHBoxLayout *horizontalLayout;
     QLabel *label;
-    QComboBox *comboBox;
-    QListWidget *listWidget;
+    QComboBox *combo_tipo;
+    QListWidget *list_por_origem;
     QPushButton *botao_adiciona_origem;
     QPushButton *botao_remover_origem;
 
@@ -51,21 +51,21 @@ public:
 
         horizontalLayout->addWidget(label);
 
-        comboBox = new QComboBox(horizontalLayoutWidget);
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        combo_tipo = new QComboBox(horizontalLayoutWidget);
+        combo_tipo->setObjectName(QString::fromUtf8("combo_tipo"));
 
-        horizontalLayout->addWidget(comboBox);
+        horizontalLayout->addWidget(combo_tipo);
 
-        listWidget = new QListWidget(horizontalLayoutWidget);
-        listWidget->setObjectName(QString::fromUtf8("listWidget"));
+        list_por_origem = new QListWidget(horizontalLayoutWidget);
+        list_por_origem->setObjectName(QString::fromUtf8("list_por_origem"));
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(listWidget->sizePolicy().hasHeightForWidth());
-        listWidget->setSizePolicy(sizePolicy);
-        listWidget->setFlow(QListView::LeftToRight);
+        sizePolicy.setHeightForWidth(list_por_origem->sizePolicy().hasHeightForWidth());
+        list_por_origem->setSizePolicy(sizePolicy);
+        list_por_origem->setFlow(QListView::LeftToRight);
 
-        horizontalLayout->addWidget(listWidget);
+        horizontalLayout->addWidget(list_por_origem);
 
         botao_adiciona_origem = new QPushButton(horizontalLayoutWidget);
         botao_adiciona_origem->setObjectName(QString::fromUtf8("botao_adiciona_origem"));
@@ -104,8 +104,8 @@ public:
     {
         ifg__qt__BonusIndividual->setWindowTitle(QApplication::translate("ifg::qt::BonusIndividual", "Form", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("ifg::qt::BonusIndividual", "Tipo", 0, QApplication::UnicodeUTF8));
-        comboBox->clear();
-        comboBox->insertItems(0, QStringList()
+        combo_tipo->clear();
+        combo_tipo->insertItems(0, QStringList()
          << QApplication::translate("ifg::qt::BonusIndividual", "Alqu\303\255mico", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::BonusIndividual", "Armadura", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::BonusIndividual", "Armadura (melhoria)", 0, QApplication::UnicodeUTF8)
