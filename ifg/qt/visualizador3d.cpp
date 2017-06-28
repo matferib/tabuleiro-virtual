@@ -72,26 +72,28 @@ int TipoParaIndice(const std::string& tipo_str) {
     return 2;
   } else if (tipo_str == "Bola de Fogo") {
     return 3;
-  } else if (tipo_str == "Cone de Gelo") {
+  } else if (tipo_str == "Coluna de Chamas") {
     return 4;
-  } else if (tipo_str == "Feitiço de Toque") {
+  } else if (tipo_str == "Cone de Gelo") {
     return 5;
-  } else if (tipo_str == "Fogo Alquímico") {
+  } else if (tipo_str == "Feitiço de Toque") {
     return 6;
-  } else if (tipo_str == "Mãos Flamejantes") {
+  } else if (tipo_str == "Fogo Alquímico") {
     return 7;
-  } else if (tipo_str == "Míssil Mágico") {
+  } else if (tipo_str == "Mãos Flamejantes") {
     return 8;
-  } else if (tipo_str == "Pedrada (gigante)") {
+  } else if (tipo_str == "Míssil Mágico") {
     return 9;
-  } else if (tipo_str == "Raio") {
+  } else if (tipo_str == "Pedrada (gigante)") {
     return 10;
-  } else if (tipo_str == "Relâmpago") {
+  } else if (tipo_str == "Raio") {
     return 11;
-  } else if (tipo_str == "Tempestade Glacial") {
+  } else if (tipo_str == "Relâmpago") {
     return 12;
-  } else {
+  } else if (tipo_str == "Tempestade Glacial") {
     return 13;
+  } else {
+    return 14;
   }
 }
 
@@ -103,15 +105,16 @@ std::string IndiceParaTipo(int indice) {
     case 1: return "Ataque Corpo a Corpo";
     case 2: return "Ataque a Distância";
     case 3: return "Bola de Fogo";
-    case 4: return "Cone de Gelo";
-    case 5: return "Feitiço de Toque";
-    case 6: return "Fogo Alquímico";
-    case 7: return "Mãos Flamejantes";
-    case 8: return "Míssil Mágico";
-    case 9: return "Pedrada (gigante)";
-    case 10: return "Raio";
-    case 11: return "Relâmpago";
-    case 12: return "Tempestade Glacial";
+    case 4: return "Coluna de Chamas";
+    case 5: return "Cone de Gelo";
+    case 6: return "Feitiço de Toque";
+    case 7: return "Fogo Alquímico";
+    case 8: return "Mãos Flamejantes";
+    case 9: return "Míssil Mágico";
+    case 10: return "Pedrada (gigante)";
+    case 11: return "Raio";
+    case 12: return "Relâmpago";
+    case 13: return "Tempestade Glacial";
     default: return "Ataque Corpo a Corpo";
   }
 };

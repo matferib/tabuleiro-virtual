@@ -1556,6 +1556,11 @@
            </item>
            <item>
             <property name="text">
+             <string>Coluna de Chamas</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
              <string>Cone de Gelo</string>
             </property>
            </item>

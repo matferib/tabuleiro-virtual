@@ -229,30 +229,30 @@ public:
     QGroupBox *groupBox_4;
     QWidget *gridLayoutWidget_2;
     QGridLayout *gridLayout_2;
-    QLabel *label_51;
-    QPushButton *botao_bonus_car;
-    QSpinBox *spin_sab;
     QLabel *label_47;
-    QLabel *label_27;
-    QLabel *label_mod_int;
-    QSpinBox *spin_for;
-    QSpinBox *spin_int;
-    QLabel *label_mod_for;
-    QPushButton *botao_bonus_con;
-    QSpinBox *spin_con;
-    QPushButton *botao_bonus_sab;
-    QPushButton *botao_bonus_for;
     QSpinBox *spin_des;
-    QPushButton *botao_bonus_des;
-    QLabel *label_48;
     QLabel *label_49;
+    QLabel *label_51;
+    QPushButton *botao_bonus_con;
     QLabel *label_50;
+    QLabel *label_mod_des;
+    QPushButton *botao_bonus_des;
+    QSpinBox *spin_car;
+    QSpinBox *spin_sab;
+    QSpinBox *spin_int;
+    QPushButton *botao_bonus_for;
+    QLabel *label_27;
+    QSpinBox *spin_for;
+    QLabel *label_mod_for;
+    QSpinBox *spin_con;
+    QLabel *label_mod_sab;
+    QLabel *label_48;
+    QLabel *label_mod_int;
+    QPushButton *botao_bonus_sab;
     QPushButton *botao_bonus_int;
     QLabel *label_mod_con;
-    QSpinBox *spin_car;
     QLabel *label_mod_car;
-    QLabel *label_mod_des;
-    QLabel *label_mod_sab;
+    QPushButton *botao_bonus_car;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -1023,10 +1023,10 @@ public:
         botao_clonar_ataque->setGeometry(QRect(619, 460, 121, 27));
         groupBox = new QGroupBox(tab_estatisticas);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(350, 160, 511, 101));
+        groupBox->setGeometry(QRect(350, 160, 541, 101));
         verticalLayoutWidget_2 = new QWidget(groupBox);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(0, 20, 501, 80));
+        verticalLayoutWidget_2->setGeometry(QRect(0, 20, 509, 80));
         verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -1289,27 +1289,70 @@ public:
         gridLayout_2 = new QGridLayout(gridLayoutWidget_2);
         gridLayout_2->setObjectName(QString::fromUtf8("gridLayout_2"));
         gridLayout_2->setContentsMargins(0, 0, 0, 0);
-        label_51 = new QLabel(gridLayoutWidget_2);
-        label_51->setObjectName(QString::fromUtf8("label_51"));
-        label_51->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_51, 7, 0, 1, 1);
-
-        botao_bonus_car = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_car->setObjectName(QString::fromUtf8("botao_bonus_car"));
-
-        gridLayout_2->addWidget(botao_bonus_car, 7, 2, 1, 1);
-
-        spin_sab = new QSpinBox(gridLayoutWidget_2);
-        spin_sab->setObjectName(QString::fromUtf8("spin_sab"));
-
-        gridLayout_2->addWidget(spin_sab, 6, 1, 1, 1);
-
         label_47 = new QLabel(gridLayoutWidget_2);
         label_47->setObjectName(QString::fromUtf8("label_47"));
         label_47->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        gridLayout_2->addWidget(label_47, 4, 0, 1, 1);
+        gridLayout_2->addWidget(label_47, 3, 0, 1, 1);
+
+        spin_des = new QSpinBox(gridLayoutWidget_2);
+        spin_des->setObjectName(QString::fromUtf8("spin_des"));
+
+        gridLayout_2->addWidget(spin_des, 1, 1, 1, 1);
+
+        label_49 = new QLabel(gridLayoutWidget_2);
+        label_49->setObjectName(QString::fromUtf8("label_49"));
+        label_49->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_49, 4, 0, 1, 1);
+
+        label_51 = new QLabel(gridLayoutWidget_2);
+        label_51->setObjectName(QString::fromUtf8("label_51"));
+        label_51->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_51, 5, 0, 1, 1);
+
+        botao_bonus_con = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_con->setObjectName(QString::fromUtf8("botao_bonus_con"));
+
+        gridLayout_2->addWidget(botao_bonus_con, 2, 2, 1, 1);
+
+        label_50 = new QLabel(gridLayoutWidget_2);
+        label_50->setObjectName(QString::fromUtf8("label_50"));
+        label_50->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_50, 2, 0, 1, 1);
+
+        label_mod_des = new QLabel(gridLayoutWidget_2);
+        label_mod_des->setObjectName(QString::fromUtf8("label_mod_des"));
+        label_mod_des->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_mod_des, 1, 3, 1, 1);
+
+        botao_bonus_des = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_des->setObjectName(QString::fromUtf8("botao_bonus_des"));
+
+        gridLayout_2->addWidget(botao_bonus_des, 1, 2, 1, 1);
+
+        spin_car = new QSpinBox(gridLayoutWidget_2);
+        spin_car->setObjectName(QString::fromUtf8("spin_car"));
+
+        gridLayout_2->addWidget(spin_car, 5, 1, 1, 1);
+
+        spin_sab = new QSpinBox(gridLayoutWidget_2);
+        spin_sab->setObjectName(QString::fromUtf8("spin_sab"));
+
+        gridLayout_2->addWidget(spin_sab, 4, 1, 1, 1);
+
+        spin_int = new QSpinBox(gridLayoutWidget_2);
+        spin_int->setObjectName(QString::fromUtf8("spin_int"));
+
+        gridLayout_2->addWidget(spin_int, 3, 1, 1, 1);
+
+        botao_bonus_for = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_for->setObjectName(QString::fromUtf8("botao_bonus_for"));
+
+        gridLayout_2->addWidget(botao_bonus_for, 0, 2, 1, 1);
 
         label_27 = new QLabel(gridLayoutWidget_2);
         label_27->setObjectName(QString::fromUtf8("label_27"));
@@ -1317,21 +1360,10 @@ public:
 
         gridLayout_2->addWidget(label_27, 0, 0, 1, 1);
 
-        label_mod_int = new QLabel(gridLayoutWidget_2);
-        label_mod_int->setObjectName(QString::fromUtf8("label_mod_int"));
-        label_mod_int->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_mod_int, 4, 3, 1, 1);
-
         spin_for = new QSpinBox(gridLayoutWidget_2);
         spin_for->setObjectName(QString::fromUtf8("spin_for"));
 
         gridLayout_2->addWidget(spin_for, 0, 1, 1, 1);
-
-        spin_int = new QSpinBox(gridLayoutWidget_2);
-        spin_int->setObjectName(QString::fromUtf8("spin_int"));
-
-        gridLayout_2->addWidget(spin_int, 4, 1, 1, 1);
 
         label_mod_for = new QLabel(gridLayoutWidget_2);
         label_mod_for->setObjectName(QString::fromUtf8("label_mod_for"));
@@ -1339,87 +1371,55 @@ public:
 
         gridLayout_2->addWidget(label_mod_for, 0, 3, 1, 1);
 
-        botao_bonus_con = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_con->setObjectName(QString::fromUtf8("botao_bonus_con"));
-
-        gridLayout_2->addWidget(botao_bonus_con, 3, 2, 1, 1);
-
         spin_con = new QSpinBox(gridLayoutWidget_2);
         spin_con->setObjectName(QString::fromUtf8("spin_con"));
 
-        gridLayout_2->addWidget(spin_con, 3, 1, 1, 1);
-
-        botao_bonus_sab = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_sab->setObjectName(QString::fromUtf8("botao_bonus_sab"));
-
-        gridLayout_2->addWidget(botao_bonus_sab, 6, 2, 1, 1);
-
-        botao_bonus_for = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_for->setObjectName(QString::fromUtf8("botao_bonus_for"));
-
-        gridLayout_2->addWidget(botao_bonus_for, 0, 2, 1, 1);
-
-        spin_des = new QSpinBox(gridLayoutWidget_2);
-        spin_des->setObjectName(QString::fromUtf8("spin_des"));
-
-        gridLayout_2->addWidget(spin_des, 2, 1, 1, 1);
-
-        botao_bonus_des = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_des->setObjectName(QString::fromUtf8("botao_bonus_des"));
-
-        gridLayout_2->addWidget(botao_bonus_des, 2, 2, 1, 1);
-
-        label_48 = new QLabel(gridLayoutWidget_2);
-        label_48->setObjectName(QString::fromUtf8("label_48"));
-        label_48->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_48, 2, 0, 1, 1);
-
-        label_49 = new QLabel(gridLayoutWidget_2);
-        label_49->setObjectName(QString::fromUtf8("label_49"));
-        label_49->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_49, 6, 0, 1, 1);
-
-        label_50 = new QLabel(gridLayoutWidget_2);
-        label_50->setObjectName(QString::fromUtf8("label_50"));
-        label_50->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_50, 3, 0, 1, 1);
-
-        botao_bonus_int = new QPushButton(gridLayoutWidget_2);
-        botao_bonus_int->setObjectName(QString::fromUtf8("botao_bonus_int"));
-
-        gridLayout_2->addWidget(botao_bonus_int, 4, 2, 1, 1);
-
-        label_mod_con = new QLabel(gridLayoutWidget_2);
-        label_mod_con->setObjectName(QString::fromUtf8("label_mod_con"));
-        label_mod_con->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_mod_con, 3, 3, 1, 1);
-
-        spin_car = new QSpinBox(gridLayoutWidget_2);
-        spin_car->setObjectName(QString::fromUtf8("spin_car"));
-
-        gridLayout_2->addWidget(spin_car, 7, 1, 1, 1);
-
-        label_mod_car = new QLabel(gridLayoutWidget_2);
-        label_mod_car->setObjectName(QString::fromUtf8("label_mod_car"));
-        label_mod_car->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_mod_car, 7, 3, 1, 1);
-
-        label_mod_des = new QLabel(gridLayoutWidget_2);
-        label_mod_des->setObjectName(QString::fromUtf8("label_mod_des"));
-        label_mod_des->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-
-        gridLayout_2->addWidget(label_mod_des, 2, 3, 1, 1);
+        gridLayout_2->addWidget(spin_con, 2, 1, 1, 1);
 
         label_mod_sab = new QLabel(gridLayoutWidget_2);
         label_mod_sab->setObjectName(QString::fromUtf8("label_mod_sab"));
         label_mod_sab->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
 
-        gridLayout_2->addWidget(label_mod_sab, 6, 3, 1, 1);
+        gridLayout_2->addWidget(label_mod_sab, 4, 3, 1, 1);
+
+        label_48 = new QLabel(gridLayoutWidget_2);
+        label_48->setObjectName(QString::fromUtf8("label_48"));
+        label_48->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_48, 1, 0, 1, 1);
+
+        label_mod_int = new QLabel(gridLayoutWidget_2);
+        label_mod_int->setObjectName(QString::fromUtf8("label_mod_int"));
+        label_mod_int->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_mod_int, 3, 3, 1, 1);
+
+        botao_bonus_sab = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_sab->setObjectName(QString::fromUtf8("botao_bonus_sab"));
+
+        gridLayout_2->addWidget(botao_bonus_sab, 4, 2, 1, 1);
+
+        botao_bonus_int = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_int->setObjectName(QString::fromUtf8("botao_bonus_int"));
+
+        gridLayout_2->addWidget(botao_bonus_int, 3, 2, 1, 1);
+
+        label_mod_con = new QLabel(gridLayoutWidget_2);
+        label_mod_con->setObjectName(QString::fromUtf8("label_mod_con"));
+        label_mod_con->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_mod_con, 2, 3, 1, 1);
+
+        label_mod_car = new QLabel(gridLayoutWidget_2);
+        label_mod_car->setObjectName(QString::fromUtf8("label_mod_car"));
+        label_mod_car->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        gridLayout_2->addWidget(label_mod_car, 5, 3, 1, 1);
+
+        botao_bonus_car = new QPushButton(gridLayoutWidget_2);
+        botao_bonus_car->setObjectName(QString::fromUtf8("botao_bonus_car"));
+
+        gridLayout_2->addWidget(botao_bonus_car, 5, 2, 1, 1);
 
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
@@ -1505,8 +1505,7 @@ public:
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_modificador_iniciativa);
         QWidget::setTabOrder(spin_modificador_iniciativa, spin_for);
-        QWidget::setTabOrder(spin_for, spin_int);
-        QWidget::setTabOrder(spin_int, spin_ca_armadura);
+        QWidget::setTabOrder(spin_for, spin_ca_armadura);
         QWidget::setTabOrder(spin_ca_armadura, spin_ca_escudo);
         QWidget::setTabOrder(spin_ca_escudo, linha_rotulo_ataque);
         QWidget::setTabOrder(linha_rotulo_ataque, combo_tipo_ataque);
@@ -1725,6 +1724,7 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Ataque Corpo a Corpo", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Ataque a Dist\303\242ncia", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Bola de Fogo", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Coluna de Chamas", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Cone de Gelo", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Feiti\303\247o de Toque", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Fogo Alqu\303\255mico", 0, QApplication::UnicodeUTF8)
@@ -1792,60 +1792,60 @@ public:
         label_61->setText(QApplication::translate("ifg::qt::DialogoEntidade", "=", 0, QApplication::UnicodeUTF8));
         botao_bonus_ca->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         groupBox_4->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Atributos", 0, QApplication::UnicodeUTF8));
+        label_47->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Int", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_des->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_49->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Sab", 0, QApplication::UnicodeUTF8));
         label_51->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Car", 0, QApplication::UnicodeUTF8));
-        botao_bonus_car->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+        botao_bonus_con->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+        label_50->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Con", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        label_mod_des->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_mod_des->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
+        botao_bonus_des->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_car->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         spin_sab->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Sabedoria", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        label_47->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Int", 0, QApplication::UnicodeUTF8));
-        label_27->setText(QApplication::translate("ifg::qt::DialogoEntidade", "For", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        label_mod_int->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_mod_int->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_for->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         spin_int->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Intelig\303\252ncia", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_for->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+        label_27->setText(QApplication::translate("ifg::qt::DialogoEntidade", "For", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_for->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "For\303\247a", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         label_mod_for->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_mod_for->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
-        botao_bonus_con->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_con->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Constitui\303\247\303\243o", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        botao_bonus_sab->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
-        botao_bonus_for->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_des->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Destreza", 0, QApplication::UnicodeUTF8));
+        label_mod_sab->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        botao_bonus_des->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+        label_mod_sab->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
         label_48->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Des", 0, QApplication::UnicodeUTF8));
-        label_49->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Sab", 0, QApplication::UnicodeUTF8));
-        label_50->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Con", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        label_mod_int->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_mod_int->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
+        botao_bonus_sab->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         botao_bonus_int->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         label_mod_con->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_mod_con->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_car->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Carisma", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
         label_mod_car->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_mod_car->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        label_mod_des->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_mod_des->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        label_mod_sab->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_mod_sab->setText(QApplication::translate("ifg::qt::DialogoEntidade", "+0", 0, QApplication::UnicodeUTF8));
+        botao_bonus_car->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
