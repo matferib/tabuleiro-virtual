@@ -45,6 +45,19 @@ acao {
   consequencia: TC_INFLAMA_ALVO
 }
 acao {
+  id: 'Coluna de Chamas'
+  tipo: ACAO_DISPERSAO
+  cor { r: 1 g: 1 b: 1 a: 0.5 }
+  raio_quadrados: 4  # quadrados.
+  geometria: ACAO_GEO_CILINDRO
+  efeito_area: true
+	permite_salvacao: true
+  icone: 'icon_flame_strike.png'
+  info_textura { id: 'fire.png' }
+  duracao_s: 0.350
+  dois_lados: true
+}
+acao {
   id: 'Cone de Gelo'
   tipo: ACAO_DISPERSAO
   cor: { r: 0.3 b: 1.0 g: 0.3 }
