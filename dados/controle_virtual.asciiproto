@@ -135,7 +135,7 @@ fixo {
   dados_botoes {
     tamanho: 1
     linha: -6
-    coluna: -2
+    coluna: -1
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "Re"
@@ -148,7 +148,7 @@ fixo {
   dados_botoes {
     tamanho: 1
     linha: -6
-    coluna: -3
+    coluna: -2
     alinhamento_vertical: ALINHAMENTO_CIMA
     alinhamento_horizontal: ALINHAMENTO_DIREITA
     rotulo: "T"
