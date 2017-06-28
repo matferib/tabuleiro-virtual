@@ -176,7 +176,8 @@ void Tabuleiro::PickingControleVirtual(int x, int y, bool alterna_selecao, bool 
   contador_pressao_por_controle_[IdBotao(id)]++;
   switch (id) {
     case CONTROLE_ROLAR_D20:
-      AlternaModoD20();
+    case CONTROLE_ROLAR_D100:
+      AlternaModoDado(id == CONTROLE_ROLAR_D20 ? 20 : 100);
       break;
     case CONTROLE_APAGAR_INICIATIVAS:
       LimpaIniciativasNotificando();
@@ -651,9 +652,8 @@ bool Tabuleiro::AtualizaBotaoControleVirtual(
   return true;
 }
 
-namespace {
 // Funcao para retornar o id de botao que melhor representa o estado do clique com a forma selecionada.
-IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
+IdBotao Tabuleiro::ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) const {
   switch (mc) {
     case Tabuleiro::MODO_DESENHO: {
       switch (tf) {
@@ -673,13 +673,12 @@ IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) {
     case Tabuleiro::MODO_SINALIZACAO: return CONTROLE_ACAO_SINALIZACAO;
     case Tabuleiro::MODO_TRANSICAO:   return CONTROLE_TRANSICAO;
     case Tabuleiro::MODO_REGUA:       return CONTROLE_REGUA;
-    case Tabuleiro::MODO_D20:         return CONTROLE_ROLAR_D20;
+    case Tabuleiro::MODO_ROLA_DADO:   return faces_dado_ == 20 ? CONTROLE_ROLAR_D20 : CONTROLE_ROLAR_D100;
     case Tabuleiro::MODO_ROTACAO:     return CONTROLE_MODO_ROTACAO;
     case Tabuleiro::MODO_TERRENO:     return CONTROLE_MODO_TERRENO;
     default:                          return CONTROLE_AJUDA;
   }
 }
-}  // namespace
 
 // Retorna o id da textura para uma determinada acao.
 unsigned int Tabuleiro::TexturaBotao(const DadosBotao& db, const Entidade* entidade) const {
@@ -1058,7 +1057,8 @@ void Tabuleiro::DesenhaControleVirtual() {
     { CONTROLE_AJUDA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_AJUDA; } },
     { CONTROLE_TRANSICAO,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_TRANSICAO; } },
     { CONTROLE_REGUA,             [this] (const Entidade* entidade) { return modo_clique_ == MODO_REGUA; } },
-    { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_D20; } },
+    { CONTROLE_ROLAR_D20,         [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 20; } },
+    { CONTROLE_ROLAR_D100,        [this] (const Entidade* entidade) { return modo_clique_ == MODO_ROLA_DADO && faces_dado_ == 100; } },
     { CONTROLE_MODO_TERRENO,      [this] (const Entidade* entidade) { return modo_clique_ == MODO_TERRENO; } },
     { CONTROLE_CAMERA_ISOMETRICA, [this] (const Entidade* entidade) { return camera_ == CAMERA_ISOMETRICA; } },
     { CONTROLE_INICIAR_INICIATIVA_PARA_COMBATE, [this] (const Entidade* entidade) { return indice_iniciativa_ != -1; } },

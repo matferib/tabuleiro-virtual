@@ -106,9 +106,13 @@ void Tabuleiro::TrataTeclaPressionada(int tecla) {
 #endif
 }
 
-void Tabuleiro::TrataBotaoD20PressionadoPosPicking(float x3d, float y3d, float z3d) {
+void Tabuleiro::TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d) {
+  if (faces_dado_ <= 0) {
+    LOG(ERROR) << "Erro rolando dado: faces <= 0, " << faces_dado_ ;
+    return;
+  }
   char texto[31];
-  snprintf(texto, 30, "d20 = %d", RolaDado(20));
+  snprintf(texto, 30, "d%d = %d", faces_dado_, RolaDado(faces_dado_));
   auto* n = NovaNotificacao(ntf::TN_ADICIONAR_ACAO);
   auto* a = n->mutable_acao();
   a->set_tipo(ACAO_DELTA_PONTOS_VIDA);
@@ -1336,7 +1340,7 @@ void ConfiguraParametrosDesenho(Tabuleiro::modo_clique_e modo_clique, Parametros
       break;
     case Tabuleiro::MODO_REGUA:
       break;
-    case Tabuleiro::MODO_D20:
+    case Tabuleiro::MODO_ROLA_DADO:
       break;
     case Tabuleiro::MODO_DESENHO:
       break;
@@ -1409,8 +1413,8 @@ void Tabuleiro::TrataBotaoEsquerdoPressionado(int x, int y, bool alterna_selecao
       case MODO_REGUA:
         TrataBotaoReguaPressionadoPosPicking(x3d, y3d, z3d);
         break;
-      case MODO_D20:
-        TrataBotaoD20PressionadoPosPicking(x3d, y3d, z3d);
+      case MODO_ROLA_DADO:
+        TrataBotaoRolaDadoPressionadoPosPicking(x3d, y3d, z3d);
         break;
       case MODO_DESENHO:
         TrataBotaoDesenhoPressionado(x, y);

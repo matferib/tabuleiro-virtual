@@ -6629,11 +6629,12 @@ void Tabuleiro::AlternaModoTransicao() {
   }
 }
 
-void Tabuleiro::AlternaModoD20() {
-  if (modo_clique_ == MODO_D20) {
+void Tabuleiro::AlternaModoDado(int faces) {
+  if (modo_clique_ == MODO_ROLA_DADO && faces == faces_dado_) {
     modo_clique_ = MODO_NORMAL;
   } else {
-    modo_clique_ = MODO_D20;
+    modo_clique_ = MODO_ROLA_DADO;
+    faces_dado_ = faces;
   }
 }
 

@@ -410,8 +410,8 @@ class Tabuleiro : public ntf::Receptor {
   /** No modo regua, cada clique mede a distancia para a entidade selecionada. */
   void AlternaModoRegua();
 
-  /** Modo d20, o clique rola um dado. */
-  void AlternaModoD20();
+  /** Modo dado, o clique rola um dado. */
+  void AlternaModoDado(int faces);
 
   /** No modo terreno, cada clique seleciona um quadrado e a escala altera o relevo. */
   void AlternaModoTerreno();
@@ -429,7 +429,7 @@ class Tabuleiro : public ntf::Receptor {
     MODO_TRANSICAO,    // executa transicao no clique.
     MODO_SELECAO_TRANSICAO,    // escolhe o local de transicao durante clique.
     MODO_REGUA,        // o clique executara uma medicao.
-    MODO_D20,          // o clique rolara um d20.
+    MODO_ROLA_DADO,         // o clique rolara um dado.
     MODO_AJUDA,        // o clique atuara como hover.
     MODO_ROTACAO,      // modo de rotacao da camera.
     MODO_TERRENO,      // modo de edicao de relevo do terreno.
@@ -628,8 +628,8 @@ class Tabuleiro : public ntf::Receptor {
   /** Trata o botao pressionado no modo de regua, recebendo o destino do clique em coordenadas de mundo. */
   void TrataBotaoReguaPressionadoPosPicking(float x3d, float y3d, float z3d);
 
-  /** Rola um d20 para as entidades selecionadas e notifica. */
-  void TrataBotaoD20PressionadoPosPicking(float x3d, float y3d, float z3d);
+  /** Rola um dado de faces_dado_ para as entidades selecionadas e notifica. */
+  void TrataBotaoRolaDadoPressionadoPosPicking(float x3d, float y3d, float z3d);
 
   /** Encontra os hits de um clique em objetos. Desabilita iluminacao, texturas, grades, deixando apenas
   * as entidades e tabuleiros a serem pegos. Para desabilitar entidades, basta desliga-la antes da chamada
@@ -867,6 +867,9 @@ class Tabuleiro : public ntf::Receptor {
       const DadosBotao& db, const GLint* viewport, float fonte_x, float fonte_y, float padding, float largura_botao, float altura_botao);
   /** Retorna a textura correspondente a um botao (para botoes com texturas variaveis). */
   unsigned int TexturaBotao(const DadosBotao& db, const Entidade* entidade) const;
+  /** Funcao para retornar o id de botao que melhor representa o estado do clique com a forma selecionada. */
+  IdBotao ModoCliqueParaId(Tabuleiro::modo_clique_e mc, TipoForma tf) const;
+
 
   /** Retorna a razao de aspecto do viewport. */
   double Aspecto() const;
@@ -1143,6 +1146,8 @@ class Tabuleiro : public ntf::Receptor {
   modo_clique_e modo_clique_anterior_ = MODO_NORMAL;
   // Cada botao fica apertado por um numero de frames apos pressionado. Este mapa mantem o contador.
   std::map<IdBotao, int> contador_pressao_por_controle_;
+  // Para o modo dado, indica qual rolar.
+  int faces_dado_ = 0;
 
   // Variaveis de estado de alguns botoes.
   bool modo_dano_automatico_ = false;
