@@ -1341,7 +1341,7 @@
       <item>
        <widget class="QSpinBox" name="spin_iniciativa">
         <property name="toolTip">
-         <string>Valor da iniciativa</string>
+         <string>Valor da iniciativa para o combate corrente</string>
         </property>
         <property name="minimum">
          <number>-100</number>
@@ -1368,15 +1368,12 @@
        </widget>
       </item>
       <item>
-       <widget class="QSpinBox" name="spin_modificador_iniciativa">
+       <widget class="QPushButton" name="botao_bonus_iniciativa">
         <property name="toolTip">
-         <string>Modificador de iniciativa</string>
+         <string>Modificadores de iniciativa.</string>
         </property>
-        <property name="minimum">
-         <number>-100</number>
-        </property>
-        <property name="maximum">
-         <number>999</number>
+        <property name="text">
+         <string>Bonus</string>
         </property>
        </widget>
       </item>
@@ -1804,10 +1801,10 @@
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="2">
-        <widget class="QLabel" name="spin_bonus_escudo">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_52">
          <property name="text">
-          <string>Escudo</string>
+          <string>Armadura</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -1831,7 +1828,7 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="2">
+       <item row="1" column="4">
         <widget class="QSpinBox" name="spin_ca_escudo">
          <property name="toolTip">
           <string>Bônus de Escudo</string>
@@ -1841,52 +1838,13 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="1" column="2">
         <widget class="QSpinBox" name="spin_ca_armadura">
          <property name="toolTip">
           <string>Bônus de Armadura</string>
          </property>
          <property name="minimum">
           <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="8">
-        <widget class="QSpinBox" name="spin_ca_toque">
-         <property name="toolTip">
-          <string>CA Toque</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="3">
-        <widget class="QSpinBox" name="spin_ca_destreza">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="toolTip">
-          <string>Modificador de Destreza</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLabel" name="label_52">
-         <property name="text">
-          <string>Armadura</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -1904,78 +1862,6 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="7">
-        <widget class="QSpinBox" name="spin_ca_total">
-         <property name="toolTip">
-          <string>CA Total</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="5">
-        <widget class="QLabel" name="label_56">
-         <property name="text">
-          <string>Outros</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="4">
-        <widget class="QLabel" name="label_55">
-         <property name="text">
-          <string>Tamanho</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="4">
-        <widget class="QSpinBox" name="spin_ca_tamanho">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="toolTip">
-          <string>Modificador de Tamanho</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_54">
-         <property name="text">
-          <string>Des</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="9">
-        <widget class="QSpinBox" name="spin_ca_surpreso">
-         <property name="toolTip">
-          <string>CA Surpreso</string>
-         </property>
-         <property name="readOnly">
-          <bool>true</bool>
-         </property>
-         <property name="minimum">
-          <number>-99</number>
          </property>
         </widget>
        </item>
@@ -2026,10 +1912,56 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="5">
+       <item row="1" column="9">
+        <widget class="QLabel" name="label_ca_surpreso">
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="7">
         <widget class="QPushButton" name="botao_bonus_ca">
          <property name="text">
           <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="8">
+        <widget class="QLabel" name="label_ca_toque">
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QComboBox" name="comboBox"/>
+       </item>
+       <item row="1" column="3">
+        <widget class="QComboBox" name="comboBox_2"/>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="spin_bonus_escudo">
+         <property name="text">
+          <string>Escudo</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="4">
+        <widget class="QLabel" name="spin_bonus_escudo_2">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -2041,9 +1973,12 @@
       <rect>
        <x>10</x>
        <y>50</y>
-       <width>221</width>
+       <width>271</width>
        <height>261</height>
       </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
      </property>
      <property name="title">
       <string>Atributos</string>
@@ -2053,12 +1988,19 @@
        <rect>
         <x>9</x>
         <y>10</y>
-        <width>211</width>
+        <width>235</width>
         <height>241</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0">
-       <item row="3" column="0">
+      <layout class="QGridLayout" name="gridLayout_2" rowstretch="0,0,0,0,0,0,0">
+       <item row="3" column="2">
+        <widget class="QPushButton" name="botao_bonus_constituicao">
+         <property name="text">
+          <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
         <widget class="QLabel" name="label_47">
          <property name="text">
           <string>Int</string>
@@ -2068,14 +2010,14 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QSpinBox" name="spin_des">
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="spin_destreza">
          <property name="toolTip">
           <string>Destreza</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="5" column="0">
         <widget class="QLabel" name="label_49">
          <property name="text">
           <string>Sab</string>
@@ -2085,7 +2027,7 @@
          </property>
         </widget>
        </item>
-       <item row="5" column="0">
+       <item row="6" column="0">
         <widget class="QLabel" name="label_51">
          <property name="text">
           <string>Car</string>
@@ -2096,13 +2038,13 @@
         </widget>
        </item>
        <item row="2" column="2">
-        <widget class="QPushButton" name="botao_bonus_con">
+        <widget class="QPushButton" name="botao_bonus_destreza">
          <property name="text">
           <string>Bonus</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="0">
+       <item row="3" column="0">
         <widget class="QLabel" name="label_50">
          <property name="text">
           <string>Con</string>
@@ -2112,8 +2054,8 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="3">
-        <widget class="QLabel" name="label_mod_des">
+       <item row="2" column="3">
+        <widget class="QLabel" name="label_mod_destreza">
          <property name="toolTip">
           <string>Modificador</string>
          </property>
@@ -2121,46 +2063,46 @@
           <string>+0</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="1">
+        <widget class="QSpinBox" name="spin_carisma">
+         <property name="toolTip">
+          <string>Carisma</string>
          </property>
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QPushButton" name="botao_bonus_des">
+        <widget class="QPushButton" name="botao_bonus_forca">
          <property name="text">
           <string>Bonus</string>
          </property>
         </widget>
        </item>
        <item row="5" column="1">
-        <widget class="QSpinBox" name="spin_car">
-         <property name="toolTip">
-          <string>Carisma</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="1">
-        <widget class="QSpinBox" name="spin_sab">
+        <widget class="QSpinBox" name="spin_sabedoria">
          <property name="toolTip">
           <string>Sabedoria</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="1">
-        <widget class="QSpinBox" name="spin_int">
+       <item row="4" column="1">
+        <widget class="QSpinBox" name="spin_inteligencia">
          <property name="toolTip">
           <string>Inteligência</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="2">
-        <widget class="QPushButton" name="botao_bonus_for">
-         <property name="text">
-          <string>Bonus</string>
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="spin_forca">
+         <property name="toolTip">
+          <string>Força</string>
          </property>
         </widget>
        </item>
-       <item row="0" column="0">
+       <item row="1" column="0">
         <widget class="QLabel" name="label_27">
          <property name="text">
           <string>For</string>
@@ -2170,35 +2112,15 @@
          </property>
         </widget>
        </item>
-       <item row="0" column="1">
-        <widget class="QSpinBox" name="spin_for">
-         <property name="toolTip">
-          <string>Força</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="3">
-        <widget class="QLabel" name="label_mod_for">
-         <property name="toolTip">
-          <string>Modificador</string>
-         </property>
-         <property name="text">
-          <string>+0</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QSpinBox" name="spin_con">
+       <item row="3" column="1">
+        <widget class="QSpinBox" name="spin_constituicao">
          <property name="toolTip">
           <string>Constituição</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
-        <widget class="QLabel" name="label_mod_sab">
+       <item row="1" column="3">
+        <widget class="QLabel" name="label_mod_forca">
          <property name="toolTip">
           <string>Modificador</string>
          </property>
@@ -2206,11 +2128,31 @@
           <string>+0</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="5" column="3">
+        <widget class="QLabel" name="label_mod_sabedoria">
+         <property name="toolTip">
+          <string>Modificador</string>
+         </property>
+         <property name="text">
+          <string>+0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="5" column="2">
+        <widget class="QPushButton" name="botao_bonus_sabedoria">
+         <property name="text">
+          <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
         <widget class="QLabel" name="label_48">
          <property name="text">
           <string>Des</string>
@@ -2220,8 +2162,15 @@
          </property>
         </widget>
        </item>
-       <item row="3" column="3">
-        <widget class="QLabel" name="label_mod_int">
+       <item row="4" column="2">
+        <widget class="QPushButton" name="botao_bonus_inteligencia">
+         <property name="text">
+          <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="3">
+        <widget class="QLabel" name="label_mod_inteligencia">
          <property name="toolTip">
           <string>Modificador</string>
          </property>
@@ -2229,54 +2178,234 @@
           <string>+0</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
-       <item row="4" column="2">
-        <widget class="QPushButton" name="botao_bonus_sab">
+       <item row="6" column="2">
+        <widget class="QPushButton" name="botao_bonus_carisma">
+         <property name="text">
+          <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="3">
+        <widget class="QLabel" name="label_mod_constituicao">
+         <property name="toolTip">
+          <string>Modificador</string>
+         </property>
+         <property name="text">
+          <string>+0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="6" column="3">
+        <widget class="QLabel" name="label_mod_carisma">
+         <property name="toolTip">
+          <string>Modificador</string>
+         </property>
+         <property name="text">
+          <string>+0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_28">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Mod</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_63">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Noto Sans [unknown]</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Total</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_62">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Base</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_5">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>310</y>
+       <width>251</width>
+       <height>141</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Salvações</string>
+     </property>
+     <widget class="QWidget" name="gridLayoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>-1</x>
+        <y>19</y>
+        <width>231</width>
+        <height>118</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_4">
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_65">
+         <property name="text">
+          <string>Reflexos</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_66">
+         <property name="text">
+          <string>Vontade</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="botao_bonus_salvacao_fortitude">
          <property name="text">
           <string>Bonus</string>
          </property>
         </widget>
        </item>
        <item row="3" column="2">
-        <widget class="QPushButton" name="botao_bonus_int">
+        <widget class="QPushButton" name="botao_bonus_salvacao_vontade">
          <property name="text">
           <string>Bonus</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
-        <widget class="QLabel" name="label_mod_con">
-         <property name="toolTip">
-          <string>Modificador</string>
-         </property>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_67">
          <property name="text">
-          <string>+0</string>
+          <string>Fortitude</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
          </property>
         </widget>
        </item>
-       <item row="5" column="3">
-        <widget class="QLabel" name="label_mod_car">
+       <item row="1" column="1">
+        <widget class="QSpinBox" name="spin_salvacao_fortitude">
          <property name="toolTip">
-          <string>Modificador</string>
+          <string>Base fortitude</string>
          </property>
-         <property name="text">
-          <string>+0</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         <property name="minimum">
+          <number>-99</number>
          </property>
         </widget>
        </item>
-       <item row="5" column="2">
-        <widget class="QPushButton" name="botao_bonus_car">
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_68">
+         <property name="text">
+          <string>Base</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QSpinBox" name="spin_salvacao_reflexo">
+         <property name="toolTip">
+          <string>Base reflexo</string>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QSpinBox" name="spin_salvacao_vontade">
+         <property name="toolTip">
+          <string>Base vontade</string>
+         </property>
+         <property name="minimum">
+          <number>-99</number>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="2">
+        <widget class="QPushButton" name="botao_bonus_salvacao_reflexo">
          <property name="text">
           <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_70">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="font">
+          <font>
+           <family>Noto Sans [unknown]</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Total</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -2405,8 +2534,7 @@
   <tabstop>botao_remover_nivel</tabstop>
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
-  <tabstop>spin_modificador_iniciativa</tabstop>
-  <tabstop>spin_for</tabstop>
+  <tabstop>spin_forca</tabstop>
   <tabstop>spin_ca_armadura</tabstop>
   <tabstop>spin_ca_escudo</tabstop>
   <tabstop>linha_rotulo_ataque</tabstop>
@@ -2425,11 +2553,6 @@
   <tabstop>botao_remover_ataque</tabstop>
   <tabstop>lista_tesouro</tabstop>
   <tabstop>texto_notas</tabstop>
-  <tabstop>spin_ca_destreza</tabstop>
-  <tabstop>spin_ca_tamanho</tabstop>
-  <tabstop>spin_ca_total</tabstop>
-  <tabstop>spin_ca_toque</tabstop>
-  <tabstop>spin_ca_surpreso</tabstop>
   <tabstop>lista_ataques</tabstop>
   <tabstop>botoes</tabstop>
   <tabstop>tab_tesouro</tabstop>

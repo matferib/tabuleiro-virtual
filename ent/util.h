@@ -231,8 +231,8 @@ inline Vector3 PosParaVector3(const Posicao& pos) { return Vector3(pos.x(), pos.
 void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
 
-// Atualiza as CAs dos dados de ataque baseado nos dados de defesa.
-void AtualizaCADadosAtaque(EntidadeProto* proto);
+// Recomputa as dependencias do proto.
+void RecomputaDependencias(EntidadeProto* proto);
 
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);

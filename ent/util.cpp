@@ -1192,7 +1192,7 @@ int BonusIndividualTotal(const BonusIndividual& bonus_individual) {
     return total;
   } else {
     // TODO pensar no caso de origens dando penalidade e bonus. Acontece?
-    int maior = 0;
+    int maior = bonus_individual.por_origem().empty() ? 0 : std::numeric_limits<int>::min();
     for (const auto& por_origem : bonus_individual.por_origem()) {
       maior = std::max(maior, por_origem.valor());
     }
@@ -1210,12 +1210,30 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
   return 0;
 }
 
+void RecomputaDependencias(EntidadeProto* proto) {
+  const int modificador_forca        = ModificadorAtributo(ent::BonusTotal(proto->atributos().forca()));
+  const int modificador_destreza     = ModificadorAtributo(ent::BonusTotal(proto->atributos().destreza()));
+  const int modificador_constituicao = ModificadorAtributo(ent::BonusTotal(proto->atributos().constituicao()));
+  const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
+  const int modificador_sabedoria    = ModificadorAtributo(ent::BonusTotal(proto->atributos().sabedoria()));
+  const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
 
-void AtualizaCADadosAtaque(EntidadeProto* proto) {
-  if (!proto->dados_defesa().has_ca()) {
-    LOG(INFO) << "Proto nao possui CA para atualizar ataques.";
-    return;
-  }
+  const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
+
+  // Iniciativa.
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_bonus_iniciativa());
+  proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
+
+  // Testes de resistencia.
+  AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
+  AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", proto->mutable_dados_defesa()->mutable_salvacao_vontade());
+
+  // CA.
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_dados_defesa()->mutable_ca());
+  AtribuiBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", proto->mutable_dados_defesa()->mutable_ca());
+
+  // CA dos ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
     da.set_ca_normal(BonusCATotal(*proto, da.permite_escudo()));
     da.set_ca_surpreso(BonusCASurpreso(*proto, da.permite_escudo()));
@@ -1292,30 +1310,30 @@ int ModificadorAtributo(int atributo) {
 
 int ModificadorTamanho(TamanhoEntidade tamanho) {
   switch (tamanho) {
-    case TM_MINUSCULO: return -8;
-    case TM_DIMINUTO: return -4;
-    case TM_MIUDO: return -2;
-    case TM_PEQUENO: return -1;
+    case TM_MINUSCULO: return 8;
+    case TM_DIMINUTO: return 4;
+    case TM_MIUDO: return 2;
+    case TM_PEQUENO: return 1;
     case TM_MEDIO: return 0;
-    case TM_GRANDE: return 1;
-    case TM_ENORME: return 2;
-    case TM_IMENSO: return 4;
-    case TM_COLOSSAL: return 8;
+    case TM_GRANDE: return -1;
+    case TM_ENORME: return -2;
+    case TM_IMENSO: return -4;
+    case TM_COLOSSAL: return -8;
   }
   return 0;
 }
 
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho) {
   switch (tamanho) {
-    case TM_MINUSCULO: return 16;
-    case TM_DIMINUTO: return 12;
-    case TM_MIUDO: return 8;
-    case TM_PEQUENO: return 4;
+    case TM_MINUSCULO: return -16;
+    case TM_DIMINUTO: return -12;
+    case TM_MIUDO: return -8;
+    case TM_PEQUENO: return -4;
     case TM_MEDIO: return 0;
-    case TM_GRANDE: return -4;
-    case TM_ENORME: return -8;
-    case TM_IMENSO: return -12;
-    case TM_COLOSSAL: return -16;
+    case TM_GRANDE: return 4;
+    case TM_ENORME: return 8;
+    case TM_IMENSO: return 12;
+    case TM_COLOSSAL: return 16;
   }
   return 0;
 }

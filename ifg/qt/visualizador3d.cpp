@@ -597,7 +597,7 @@ class ModeloBonus : public QAbstractTableModel {
   bool insertRows(int row, int count, const QModelIndex& parent) override {
     if (count != 1) return false;
     beginInsertRows(parent, 0, 0);
-    AtribuiBonus(0, ent::TB_BASE, "origem", &bonus_);
+    ent::AtribuiBonus(0, ent::TB_BASE, "origem", &bonus_);
     endInsertRows();
     return true;
   }
@@ -680,7 +680,7 @@ class ModeloBonus : public QAbstractTableModel {
           return false;
         }
         // Adiciona nova origem.
-        AtribuiBonus(po->valor(), ent::TipoBonus(tipo), po->origem(), &bonus_);
+        ent::AtribuiBonus(po->valor(), ent::TipoBonus(tipo), po->origem(), &bonus_);
         // Remove a origem do tipo corrente.
         RemoveBonus(bi->tipo(), po->origem(), &bonus_);
         LOG(INFO) << "novo proto: " << bonus_.DebugString();
@@ -800,12 +800,12 @@ class TipoBonusDelegate : public QItemDelegate {
   ent::TipoBonus tipo_;
 };
 
-ent::Bonus AbreDialogoBonus(QWidget* pai, const ent::Bonus& bonus) {
+void AbreDialogoBonus(QWidget* pai, ent::Bonus* bonus) {
   ifg::qt::Ui::DialogoBonus gerador;
-  auto* dialogo = new QDialog(pai);
-  gerador.setupUi(dialogo);
+  std::unique_ptr<QDialog> dialogo(new QDialog(pai));
+  gerador.setupUi(dialogo.get());
   std::unique_ptr<QItemSelectionModel> delete_model(gerador.tabela_bonus->selectionModel());
-  std::unique_ptr<ModeloBonus> modelo(new ModeloBonus(bonus, gerador.tabela_bonus));
+  std::unique_ptr<ModeloBonus> modelo(new ModeloBonus(*bonus, gerador.tabela_bonus));
   gerador.tabela_bonus->setModel(modelo.get());
   lambda_connect(gerador.botao_adicionar_bonus, SIGNAL(clicked()), [&modelo] () {
     modelo->insertRows(0, 1, QModelIndex());
@@ -827,10 +827,11 @@ ent::Bonus AbreDialogoBonus(QWidget* pai, const ent::Bonus& bonus) {
   std::unique_ptr<QAbstractItemDelegate> delete_previous(gerador.tabela_bonus->itemDelegateForColumn(0));
   gerador.tabela_bonus->setItemDelegateForColumn(0, delegado.get());
 
-  dialogo->exec();
-  ent::Bonus ret = modelo->Bonus();
-  delete dialogo;
-  return ret;
+  auto res = dialogo->exec();
+  if (res == QDialog::Rejected) {
+    return;
+  }
+  *bonus = modelo->Bonus();
 }
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoForma(
@@ -1105,6 +1106,12 @@ namespace {
 // Funcoes para Visualizador3d::AbreDialogoTipoEntidade
 //-----------------------------------------------------
 
+QString NumeroSinalizado(int valor) {
+  QString ret = QString::number(valor);
+  if (valor > 0) ret.prepend("+");
+  return ret;
+}
+
 // Monta a string de dano de um ataque, como 1d6 (x3).
 std::string StringDano(const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
@@ -1147,8 +1154,39 @@ std::string ResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }
 
+//--------------------------------------------------------------------------------------------------
+// As funcoes AtualizaUI* atualizam uma parte especifica da UI. Elas nao chamam dependencias
+// pois sabem apenas o que fazer em uma parte. Normalmente, apos se atualizar algum campo, chama-se
+// ent::RecomputaDependencias e as AtualizaUI apropriadas.
+//--------------------------------------------------------------------------------------------------
+// Atualiza a UI de atributos.
+void AtualizaUIAtributos(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  const auto& a = proto.atributos();
+  std::vector<std::tuple<const ent::Bonus*, QSpinBox*, QPushButton*, QLabel*>> tuplas = {
+    std::make_tuple(&a.forca(),        gerador.spin_forca,        gerador.botao_bonus_forca,        gerador.label_mod_forca),
+    std::make_tuple(&a.destreza(),     gerador.spin_destreza,     gerador.botao_bonus_destreza,     gerador.label_mod_destreza),
+    std::make_tuple(&a.constituicao(), gerador.spin_constituicao, gerador.botao_bonus_constituicao, gerador.label_mod_constituicao),
+    std::make_tuple(&a.inteligencia(), gerador.spin_inteligencia, gerador.botao_bonus_inteligencia, gerador.label_mod_inteligencia),
+    std::make_tuple(&a.sabedoria(),    gerador.spin_sabedoria,    gerador.botao_bonus_sabedoria,    gerador.label_mod_sabedoria),
+    std::make_tuple(&a.carisma(),      gerador.spin_carisma,      gerador.botao_bonus_carisma,      gerador.label_mod_carisma),
+  };
+  for (const auto& t : tuplas) {
+    const ent::Bonus* bonus;
+    QSpinBox* spin;
+    QPushButton* botao;
+    QLabel* label;
+    std::tie(bonus, spin, botao, label) = t;
+    spin->blockSignals(true);
+    spin->setValue(ent::BonusIndividualTotal(ent::TB_BASE, *bonus));
+    spin->blockSignals(false);
+    const int bonus_total = ent::BonusTotal(*bonus);
+    botao->setText(QString::number(bonus_total));
+    label->setText(NumeroSinalizado(ent::ModificadorAtributo(bonus_total)));
+  }
+}
+
 // Refresca a lista de ataques toda.
-void RefrescaListaAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto_retornado) {
+void AtualizaUIAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto_retornado) {
   int linha = gerador.lista_ataques->currentRow();
   gerador.lista_ataques->clear();
   for (const auto& da : proto_retornado.dados_ataque()) {
@@ -1157,29 +1195,51 @@ void RefrescaListaAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entid
   gerador.lista_ataques->setCurrentRow(linha);
 }
 
-// Atualiza os ataques e a CA e os campos relacionados.
-void AtualizaAtaquesCA(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
-  ent::AtualizaCADadosAtaque(proto_retornado);
-  RefrescaListaAtaque(gerador, *proto_retornado);
+// Atualiza a UI de ataque e defesa baseada no proto.
+void AtualizaUIAtaquesDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  AtualizaUIAtaque(gerador, proto);
 
+  const int modificador_destreza = ent::ModificadorAtributo(ent::BonusTotal(proto.atributos().destreza()));
+  const auto& ca = proto.dados_defesa().ca();
+  gerador.botao_bonus_ca->setText(QString::number(BonusTotal(ca)));
 
-  gerador.spin_ca_tamanho->setValue(ent::ModificadorTamanho(proto_retornado->tamanho()));
-  const int modificador_destreza = ent::ModificadorAtributo(ent::BonusTotal(proto_retornado->atributos().destreza()));
-  gerador.spin_ca_destreza->setValue(modificador_destreza);
-  const auto& ca = proto_retornado->dados_defesa().ca();
   std::vector<QWidget*> objs = { gerador.spin_ca_armadura, gerador.spin_ca_escudo };
   for (auto* obj : objs) obj->blockSignals(true);
   gerador.spin_ca_armadura->setValue(ent::BonusIndividualTotal(ent::TB_ARMADURA, ca));
   gerador.spin_ca_escudo->setValue(ent::BonusIndividualTotal(ent::TB_ESCUDO, ca));
   for (auto* obj : objs) obj->blockSignals(false);
   const int bonus_ca_total = ent::BonusTotal(ca);
-  gerador.spin_ca_total->setValue(bonus_ca_total);
-  gerador.spin_ca_toque->setValue(
+  gerador.botao_bonus_ca->setText(QString::number(bonus_ca_total));
+  gerador.label_ca_toque->setText(QString::number(
       ent::BonusTotalExcluindo(
         ca,
-        { ent::TB_ARMADURA, ent::TB_ESCUDO, ent::TB_ARMADURA_NATURAL, ent::TB_ARMADURA_MELHORIA, ent::TB_ESCUDO_MELHORIA }));
-  gerador.spin_ca_surpreso->setValue(bonus_ca_total - std::max(modificador_destreza, 0));
+        { ent::TB_ARMADURA, ent::TB_ESCUDO, ent::TB_ARMADURA_NATURAL, ent::TB_ARMADURA_MELHORIA, ent::TB_ESCUDO_MELHORIA })));
+  gerador.label_ca_surpreso->setText(QString::number(bonus_ca_total - std::max(modificador_destreza, 0)));
 }
+
+// Atualiza UI de iniciativa.
+void AtualizaUIIniciativa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  gerador.checkbox_iniciativa->setCheckState(proto.has_iniciativa() ? Qt::Checked : Qt::Unchecked);
+  gerador.spin_iniciativa->setValue(proto.iniciativa());
+  gerador.botao_bonus_iniciativa->setText(NumeroSinalizado(ent::BonusTotal(proto.bonus_iniciativa())));
+}
+
+void AtualizaUISalvacoes(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  std::vector<std::tuple<QSpinBox*, QPushButton*, const ent::Bonus*>> tuplas = {
+    std::make_tuple(gerador.spin_salvacao_fortitude, gerador.botao_bonus_salvacao_fortitude, &dd.salvacao_fortitude()),
+    std::make_tuple(gerador.spin_salvacao_reflexo, gerador.botao_bonus_salvacao_reflexo, &dd.salvacao_reflexo()),
+    std::make_tuple(gerador.spin_salvacao_vontade, gerador.botao_bonus_salvacao_vontade, &dd.salvacao_vontade()),
+  };
+  for (const auto& t : tuplas) {
+    QSpinBox* spin; QPushButton* botao; const ent::Bonus* bonus;
+    std::tie(spin, botao, bonus) = t;
+    spin->setValue(ent::BonusIndividualTotal(ent::TB_BASE, *bonus));
+    botao->setText(NumeroSinalizado(ent::BonusTotal(*bonus)));
+  }
+}
+// Fim AtualizaUI*.
+//---------------------------------------------------------------------
 
 // Usada fora do PreencheConfiguraDadosAtaque.
 void AdicionaOuAtualizaAtaqueEntidade(ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
@@ -1209,79 +1269,71 @@ void AdicionaOuAtualizaAtaqueEntidade(ifg::qt::Ui::DialogoEntidade& gerador, ent
   } else {
     proto_retornado->add_dados_ataque()->Swap(&da);
   }
-  AtualizaAtaquesCA(gerador, proto_retornado);
+  AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
 }
 
-void PreencheConfiguraAtributos(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
-  const auto& a = ent.atributos();
-  gerador.spin_for->setValue(ent::BonusTotal(a.forca()));
-  gerador.spin_des->setValue(ent::BonusTotal(a.destreza()));
-  gerador.spin_con->setValue(ent::BonusTotal(a.constituicao()));
-  gerador.spin_int->setValue(ent::BonusTotal(a.inteligencia()));
-  gerador.spin_sab->setValue(ent::BonusTotal(a.sabedoria()));
-  gerador.spin_car->setValue(ent::BonusTotal(a.carisma()));
+void PreencheConfiguraAtributos(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  AtualizaUIAtributos(gerador, proto);
   // Atualiza os campos.
-  lambda_connect(gerador.spin_for, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
-    AtribuiBonus(gerador.spin_for->value(), ent::TB_BASE, "base", proto_retornado->mutable_atributos()->mutable_forca());
+  auto* atrib = proto_retornado->mutable_atributos();
+  lambda_connect(gerador.spin_forca, SIGNAL(valueChanged(int)), [&gerador, atrib, proto_retornado] () {
+    ent::AtribuiBonus(gerador.spin_forca->value(), ent::TB_BASE, "base", atrib->mutable_forca());
+    AtualizaUIAtributos(gerador, *proto_retornado);
   });
-  lambda_connect(gerador.spin_des, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
-    AtribuiBonus(gerador.spin_des->value(), ent::TB_BASE, "base", proto_retornado->mutable_atributos()->mutable_destreza());
-    AtualizaAtaquesCA(gerador, proto_retornado);
-  });
-  lambda_connect(gerador.botao_bonus_des, SIGNAL(clicked()), [&gerador, proto_retornado, this_] () {
-    *proto_retornado->mutable_atributos()->mutable_destreza() =
-        AbreDialogoBonus(this_, proto_retornado->atributos().destreza());
-    gerador.spin_des->setValue(ent::BonusTotal(proto_retornado->atributos().destreza()));
-    AtualizaAtaquesCA(gerador, proto_retornado);
-  });
-  lambda_connect(gerador.spin_con, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
-    AtribuiBonus(gerador.spin_con->value(), ent::TB_BASE, "base", proto_retornado->mutable_atributos()->mutable_constituicao());
-  });
-  lambda_connect(gerador.spin_int, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
-    AtribuiBonus(gerador.spin_int->value(), ent::TB_BASE, "base", proto_retornado->mutable_atributos()->mutable_inteligencia());
-  });
-  lambda_connect(gerador.spin_sab, SIGNAL(valueChanged(int)), [gerador, proto_retornado] () {
-    AtribuiBonus(gerador.spin_sab->value(), ent::TB_BASE, "base", proto_retornado->mutable_atributos()->mutable_sabedoria());
-  });
-  lambda_connect(gerador.spin_car, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
-    AtribuiBonus(gerador.spin_car->value(), ent::TB_BASE, "base", proto_retornado->mutable_atributos()->mutable_carisma());
-  });
+  std::vector<std::tuple<QPushButton*, QSpinBox*, ent::Bonus*>> tuplas = {
+    std::make_tuple(gerador.botao_bonus_forca,        gerador.spin_forca,        atrib->mutable_forca()),
+    std::make_tuple(gerador.botao_bonus_destreza,     gerador.spin_destreza,     atrib->mutable_destreza()),
+    std::make_tuple(gerador.botao_bonus_constituicao, gerador.spin_constituicao, atrib->mutable_constituicao()),
+    std::make_tuple(gerador.botao_bonus_inteligencia, gerador.spin_inteligencia, atrib->mutable_inteligencia()),
+    std::make_tuple(gerador.botao_bonus_sabedoria,    gerador.spin_sabedoria,    atrib->mutable_sabedoria()),
+    std::make_tuple(gerador.botao_bonus_carisma,      gerador.spin_carisma,      atrib->mutable_carisma()),
+  };
+  for (auto& t : tuplas) {
+    QPushButton* botao; QSpinBox* spin; ent::Bonus* bonus;
+    std::tie(botao, spin, bonus) = t;
+    // bb tem que ser capturado por valor, porque a variavel sai de escopo no loop.
+    lambda_connect(botao, SIGNAL(clicked()), [this_, bonus, proto_retornado, &gerador] () {
+      AbreDialogoBonus(this_, bonus);
+      ent::RecomputaDependencias(proto_retornado);
+      AtualizaUIAtributos(gerador, *proto_retornado);
+      AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
+      AtualizaUIIniciativa(gerador, *proto_retornado);
+      AtualizaUISalvacoes(gerador, *proto_retornado);
+    });
+    lambda_connect(spin, SIGNAL(valueChanged(int)), [&gerador, spin, bonus, proto_retornado] () {
+      ent::AtribuiBonus(spin->value(), ent::TB_BASE, "base", bonus);
+      ent::RecomputaDependencias(proto_retornado);
+      AtualizaUIAtributos(gerador, *proto_retornado);
+      AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
+      AtualizaUIIniciativa(gerador, *proto_retornado);
+      AtualizaUISalvacoes(gerador, *proto_retornado);
+    });
+  }
 }
 
-void PreencheConfiguraDadosDefesa(Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& ent, ent::EntidadeProto* proto_retornado) {
-  const auto& ca = ent.dados_defesa().ca();
-  gerador.spin_ca_armadura->setValue(BonusIndividualTotal(ent::TB_ARMADURA, ca));
-  gerador.spin_ca_escudo->setValue(BonusIndividualTotal(ent::TB_ESCUDO, ca));
-  gerador.spin_ca_tamanho->setValue(ent::ModificadorTamanho(ent.tamanho()));
-  gerador.spin_ca_destreza->setValue(ent::ModificadorAtributo(BonusTotal(ent.atributos().destreza())));
+void PreencheConfiguraDadosDefesa(
+    Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  AtualizaUIAtaquesDefesa(gerador, proto);
   // Imune critico.
-  gerador.checkbox_imune_critico->setCheckState(ent.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
 
   auto* mca = proto_retornado->mutable_dados_defesa()->mutable_ca();
-  AtribuiBonus(10, ent::TB_BASE, "base",  mca);
+  ent::AtribuiBonus(10, ent::TB_BASE, "base",  mca);
   lambda_connect(gerador.spin_ca_armadura, SIGNAL(valueChanged(int)), [&gerador, proto_retornado, mca] () {
-    AtribuiBonus(gerador.spin_ca_armadura->value(), ent::TB_ARMADURA, "armadura", mca);
-    AtualizaAtaquesCA(gerador, proto_retornado);
+    ent::AtribuiBonus(gerador.spin_ca_armadura->value(), ent::TB_ARMADURA, "armadura", mca);
+    ent::RecomputaDependencias(proto_retornado);
+    AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
   });
   lambda_connect(gerador.spin_ca_escudo, SIGNAL(valueChanged(int)), [&gerador, proto_retornado, mca] () {
-    AtribuiBonus(gerador.spin_ca_escudo->value(), ent::TB_ESCUDO, "escudo", mca);
-    AtualizaAtaquesCA(gerador, proto_retornado);
+    ent::AtribuiBonus(gerador.spin_ca_escudo->value(), ent::TB_ESCUDO, "escudo", mca);
+    ent::RecomputaDependencias(proto_retornado);
+    AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
   });
   lambda_connect(gerador.botao_bonus_ca, SIGNAL(clicked()), [this_, &gerador, proto_retornado, mca] () {
-    *proto_retornado->mutable_dados_defesa()->mutable_ca() =
-        AbreDialogoBonus(this_, proto_retornado->dados_defesa().ca());
-    AtualizaAtaquesCA(gerador, proto_retornado);
-  });
-
-  lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador, mca, proto_retornado, &ent] () {
-    int modificador = ent::ModificadorTamanho(proto_retornado->tamanho());
-    AtribuiBonus(modificador, ent::TB_TAMANHO, "tamanho", mca);
-    AtualizaAtaquesCA(gerador, proto_retornado);
-  });
-  lambda_connect(gerador.spin_des, SIGNAL(valueChanged(int)), [&gerador, mca, &ent, proto_retornado] () {
-    int modificador = ent::ModificadorAtributo(ent::BonusTotal(proto_retornado->atributos().destreza()));
-    AtribuiBonus(modificador, ent::TB_ATRIBUTO, "destreza", mca);
-    AtualizaAtaquesCA(gerador, proto_retornado);
+    AbreDialogoBonus(this_, mca);
+    ent::RecomputaDependencias(proto_retornado);
+    AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
   });
 }
 
@@ -1291,7 +1343,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const e
   };
 
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
-  RefrescaListaAtaque(gerador, *proto_retornado);
+  AtualizaUIAtaque(gerador, *proto_retornado);
 
   auto EditaRefrescaLista = [&gerador, proto_retornado, AdicionaOuAtualizaAtaque] () {
     int indice_antes = gerador.lista_ataques->currentRow();
@@ -1300,7 +1352,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const e
       return;
     }
     AdicionaOuAtualizaAtaque();
-    RefrescaListaAtaque(gerador, *proto_retornado);
+    AtualizaUIAtaque(gerador, *proto_retornado);
     if (indice_antes < proto_retornado->dados_ataque().size()) {
       gerador.lista_ataques->setCurrentRow(indice_antes);
     } else {
@@ -1343,7 +1395,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const e
     } else {
       *proto_retornado->mutable_dados_ataque()->Add() = proto_retornado->dados_ataque(indice);
     }
-    RefrescaListaAtaque(gerador, *proto_retornado);
+    AtualizaUIAtaque(gerador, *proto_retornado);
     gerador.lista_ataques->setCurrentRow(proto_retornado->dados_ataque().size() - 1);
   });
 
@@ -1354,7 +1406,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const e
       return;
     }
     proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice - 1));
-    RefrescaListaAtaque(gerador, *proto_retornado);
+    AtualizaUIAtaque(gerador, *proto_retornado);
     gerador.lista_ataques->setCurrentRow(indice - 1);
   });
   lambda_connect(gerador.botao_ataque_baixo, SIGNAL(clicked()), [&gerador, proto_retornado] () {
@@ -1364,7 +1416,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const e
       return;
     }
     proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice + 1));
-    RefrescaListaAtaque(gerador, *proto_retornado);
+    AtualizaUIAtaque(gerador, *proto_retornado);
     gerador.lista_ataques->setCurrentRow(indice + 1);
   });
 
@@ -1382,7 +1434,7 @@ void PreencheConfiguraDadosAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const e
     gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
     gerador.botao_ataque_cima->setEnabled(false);
     gerador.botao_ataque_baixo->setEnabled(false);
-    RefrescaListaAtaque(gerador, *proto_retornado);
+    AtualizaUIAtaque(gerador, *proto_retornado);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
   lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
@@ -1513,6 +1565,44 @@ void PreencheConfiguraNiveis(ifg::qt::Ui::DialogoEntidade& gerador, ent::Entidad
   lambda_connect(gerador.spin_mod_conjuracao, SIGNAL(valueChanged(int)), [EditaRefrescaNiveis]() { EditaRefrescaNiveis(); } );
 }
 
+void PreencheConfiguraSalvacoes(ifg::qt::Visualizador3d* pai, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto) {
+  auto* dd = proto->mutable_dados_defesa();
+  AtualizaUISalvacoes(gerador, *proto);
+  std::vector<std::tuple<QSpinBox*, QPushButton*, ent::Bonus*>> tuplas = {
+    std::make_tuple(gerador.spin_salvacao_fortitude, gerador.botao_bonus_salvacao_fortitude, dd->mutable_salvacao_fortitude()),
+    std::make_tuple(gerador.spin_salvacao_reflexo, gerador.botao_bonus_salvacao_reflexo, dd->mutable_salvacao_reflexo()),
+    std::make_tuple(gerador.spin_salvacao_vontade, gerador.botao_bonus_salvacao_vontade, dd->mutable_salvacao_vontade()),
+  };
+  for (const auto& t : tuplas) {
+    QSpinBox* spin; QPushButton* botao; ent::Bonus* bonus;
+    std::tie(spin, botao, bonus) = t;
+    lambda_connect(spin, SIGNAL(valueChanged(int)), [spin, bonus, &gerador, proto] {
+      ent::AtribuiBonus(spin->value(), ent::TB_BASE, "base", bonus);
+      AtualizaUISalvacoes(gerador, *proto);
+    });
+    lambda_connect(botao, SIGNAL(clicked()), [pai, bonus, &gerador, proto] () {
+      AbreDialogoBonus(pai, bonus);
+      AtualizaUISalvacoes(gerador, *proto);
+    });
+  }
+}
+
+void PreencheConfiguraDadosIniciativa(
+    ifg::qt::Visualizador3d* pai, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  AtualizaUIIniciativa(gerador, proto);
+  lambda_connect(gerador.checkbox_iniciativa, SIGNAL(stateChanged(int)), [&gerador] () {
+    gerador.spin_iniciativa->setEnabled(gerador.checkbox_iniciativa->checkState() == Qt::Checked);
+  });
+  lambda_connect(gerador.spin_iniciativa, SIGNAL(valueChanged(int)), [&gerador] () {
+    gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
+  });
+  lambda_connect(gerador.botao_bonus_iniciativa, SIGNAL(clicked()), [pai, &gerador, proto_retornado] () {
+    auto* bonus_iniciativa = proto_retornado->mutable_bonus_iniciativa();
+    AbreDialogoBonus(pai, bonus_iniciativa);
+    gerador.botao_bonus_iniciativa->setText(NumeroSinalizado(ent::BonusTotal(*bonus_iniciativa)));
+  });
+}
+
 }  // namespace
 
 ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
@@ -1564,6 +1654,8 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   lambda_connect(gerador.slider_tamanho, SIGNAL(valueChanged(int)), [&gerador, proto_retornado] () {
     proto_retornado->set_tamanho(ent::TamanhoEntidade(gerador.slider_tamanho->sliderPosition()));
     gerador.label_tamanho->setText(TamanhoParaTexto(gerador.slider_tamanho->sliderPosition()));
+    ent::RecomputaDependencias(proto_retornado);
+    AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
   });
   // Cor da entidade.
   ent::EntidadeProto ent_cor;
@@ -1652,15 +1744,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   PreencheConfiguraAtributos(this, gerador, entidade, proto_retornado);
 
   // Iniciativa.
-  gerador.checkbox_iniciativa->setCheckState(entidade.has_iniciativa() ? Qt::Checked : Qt::Unchecked);
-  gerador.spin_iniciativa->setValue(entidade.iniciativa());
-  gerador.spin_modificador_iniciativa->setValue(entidade.modificador_iniciativa());
-  lambda_connect(gerador.checkbox_iniciativa, SIGNAL(stateChanged(int)), [this, &gerador] () {
-    gerador.spin_iniciativa->setEnabled(gerador.checkbox_iniciativa->checkState() == Qt::Checked);
-  });
-  lambda_connect(gerador.spin_iniciativa, SIGNAL(valueChanged(int)), [this, &gerador] () {
-    gerador.checkbox_iniciativa->setCheckState(Qt::Checked);
-  });
+  PreencheConfiguraDadosIniciativa(this, gerador, entidade, proto_retornado);
 
   // Dados de defesa.
   PreencheConfiguraDadosDefesa(this, gerador, entidade, proto_retornado);
@@ -1670,6 +1754,9 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
 
   // Preenche configura niveis.
   PreencheConfiguraNiveis(gerador, proto_retornado);
+
+  // Preenche a parte de resistencias.
+  PreencheConfiguraSalvacoes(this, gerador, proto_retornado);
 
   // Coisas que nao estao na UI.
   if (entidade.has_direcao_queda()) {
@@ -1682,6 +1769,7 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
   // Ao aceitar o diálogo, aplica as mudancas.
   lambda_connect(dialogo, SIGNAL(accepted()),
                  [this, notificacao, entidade, dialogo, &gerador, &proto_retornado, &ent_cor, &luz_cor] () {
+    ent::RecomputaDependencias(proto_retornado);
     if (gerador.campo_rotulo->text().isEmpty()) {
       proto_retornado->clear_rotulo();
     } else {
@@ -1752,7 +1840,6 @@ ent::EntidadeProto* Visualizador3d::AbreDialogoTipoEntidade(
     } else {
       proto_retornado->clear_iniciativa();
     }
-    proto_retornado->set_modificador_iniciativa(gerador.spin_modificador_iniciativa->value());
 
     if ((gerador.lista_ataques->currentRow() >= 0 && gerador.lista_ataques->currentRow() < proto_retornado->dados_ataque().size()) ||
         gerador.linha_dano->text().size() > 0) {

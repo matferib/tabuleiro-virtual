@@ -286,11 +286,10 @@ message EntidadeProto {
     optional bool imune_critico = 3;
     optional int32 ca_deprecated = 2 [deprecated=true];
     optional Bonus ca = 4;
-    message Resistencia {
-      optional string rotulo = 1;
-      optional Bonus bonus = 2;
-    }
-    repeated Resistencia resistencias = 5;
+    optional Bonus salvacao_fortitude = 5;
+    optional Bonus salvacao_reflexo = 6;
+    optional Bonus salvacao_vontade = 7;
+    // TODO outras salvacoes.
   }
   optional DadosDefesa dados_defesa = 45;
 
@@ -302,6 +301,7 @@ message EntidadeProto {
   // Dados de iniciativa da entidade.
   optional int32 iniciativa = 55;
   optional int32 modificador_iniciativa = 56;
+  optional Bonus bonus_iniciativa = 69;
   // Algumas entidades tem varias formas.
   repeated EntidadeProto outras_formas = 60;
 
