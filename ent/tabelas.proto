@@ -25,13 +25,22 @@ message ArmaduraOuEscudo {
   optional string id = 10;
 }
 
+message Arma {
+  optional string id = 1;
+}
+
 message TabelaArmaduraOuEscudo {
   repeated ArmaduraOuEscudo armaduras = 1;
   repeated ArmaduraOuEscudo escudos = 2;
 }
 
+message TabelaArmas {
+  repeated Arma armas = 1;
+}
+
 // O arquivo tabelas.asciiproto eh desse tipo.
-message Tabelas {
+message TodasTabelas {
   optional TabelaArmaduraOuEscudo tabela_armaduras = 1;
   optional TabelaArmaduraOuEscudo tabela_escudos = 2;
+  optional TabelaArmas tabela_armas = 3;
 }
