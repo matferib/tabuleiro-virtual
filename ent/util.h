@@ -250,6 +250,12 @@ int ModificadorAtributo(int atributo);
 int ModificadorTamanho(TamanhoEntidade tamanho);
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
 
+// Funcoes auxiliares de CA.
+int BonusCATotal(const EntidadeProto& proto, bool permite_escudo);
+int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo);
+int BonusCAToque(const EntidadeProto& proto);
+int BonusCAToqueSurpreso(const EntidadeProto& proto);
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

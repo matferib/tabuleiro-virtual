@@ -1409,6 +1409,14 @@ int Entidade::BonusAtaque() const {
 
 int Entidade::CA(TipoCA tipo_ca) const {
   const auto* da = DadoCorrente();
+  if (proto_.dados_defesa().has_ca()) {
+    bool permite_escudo = da == nullptr || da->permite_escudo();
+    if (tipo_ca == CA_NORMAL) {
+      return proto_.surpreso() ? BonusCASurpreso(proto_, permite_escudo) : BonusCATotal(proto_, permite_escudo);
+    } else {
+      return proto_.surpreso() ? BonusCAToqueSurpreso(proto_) : BonusCAToque(proto_);
+    }
+  }
   if (da == nullptr) {
     return AtaqueCaInvalido;
   }

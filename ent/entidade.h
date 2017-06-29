@@ -227,7 +227,7 @@ class Entidade {
   enum TipoCA {
     CA_NORMAL,
     CA_TOQUE,
-    CA_SURPRESO
+    CA_SURPRESO  // Nao faz sentido, coisa do defensor.
   };
   int CA(TipoCA tipo = CA_NORMAL) const;
   bool ImuneCritico() const;

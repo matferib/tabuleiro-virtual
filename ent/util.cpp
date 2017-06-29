@@ -1168,13 +1168,19 @@ int BonusCATotal(const EntidadeProto& proto, bool permite_escudo) {
 }
 
 int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo) {
-  const int modificador_destreza = ModificadorAtributo(BonusTotal(proto.atributos().destreza()));
+  const int modificador_destreza = proto.atributos().has_destreza() ? ModificadorAtributo(BonusTotal(proto.atributos().destreza())) : 0;
   return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo)) - std::max(modificador_destreza, 0);
 }
 
 int BonusCAToque(const EntidadeProto& proto) {
   return BonusTotalExcluindo(proto.dados_defesa().ca(),
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA });
+}
+
+int BonusCAToqueSurpreso(const EntidadeProto& proto) {
+  const int modificador_destreza = proto.atributos().has_destreza() ? ModificadorAtributo(BonusTotal(proto.atributos().destreza())) : 0;
+  return BonusTotalExcluindo(proto.dados_defesa().ca(),
+         { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA }) - std::max(modificador_destreza, 0);
 }
 
 // Retorna o total de um bonus individual, contabilizando acumulo caso as origens sejam diferentes.
@@ -1212,7 +1218,8 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
 
 void RecomputaDependencias(EntidadeProto* proto) {
   //const int modificador_forca        = ModificadorAtributo(ent::BonusTotal(proto->atributos().forca()));
-  const int modificador_destreza     = ModificadorAtributo(ent::BonusTotal(proto->atributos().destreza()));
+  const int destreza = ent::BonusTotal(proto->atributos().destreza());
+  const int modificador_destreza     = destreza > 0 ? ModificadorAtributo(destreza) : 0;
   const int modificador_constituicao = ModificadorAtributo(ent::BonusTotal(proto->atributos().constituicao()));
   //const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
   const int modificador_sabedoria    = ModificadorAtributo(ent::BonusTotal(proto->atributos().sabedoria()));
@@ -1225,13 +1232,14 @@ void RecomputaDependencias(EntidadeProto* proto) {
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
 
   // Testes de resistencia.
-  AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", proto->mutable_dados_defesa()->mutable_salvacao_fortitude());
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_dados_defesa()->mutable_salvacao_reflexo());
-  AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", proto->mutable_dados_defesa()->mutable_salvacao_vontade());
+  auto* dd = proto->mutable_dados_defesa();
+  AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
+  AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
 
   // CA.
-  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", proto->mutable_dados_defesa()->mutable_ca());
-  AtribuiBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", proto->mutable_dados_defesa()->mutable_ca());
+  AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_ca());
+  AtribuiBonus(modificador_tamanho, ent::TB_TAMANHO, "tamanho", dd->mutable_ca());
 
   // CA dos ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {

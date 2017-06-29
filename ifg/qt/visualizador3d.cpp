@@ -1238,7 +1238,8 @@ void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
       break;
     }
   }
-  const int modificador_destreza = ent::ModificadorAtributo(ent::BonusTotal(proto.atributos().destreza()));
+  const int modificador_destreza = proto.atributos().has_destreza() ?
+      ent::ModificadorAtributo(ent::BonusTotal(proto.atributos().destreza())) : 0;
   const auto& ca = dd.ca();
   gerador.botao_bonus_ca->setText(QString::number(BonusTotal(ca)));
 
