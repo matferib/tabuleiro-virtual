@@ -265,6 +265,8 @@ class Entidade {
   std::tuple<int, std::string> ValorParaAcao(const std::string& id_acao) const;
   /** Retorna a string de dano para a acao corrente: '1d8+3'. */
   std::string StringDanoParaAcao() const;
+  /** Retorna a string de CA para a acao corrente (normal, toque): '(esc+surp) 15, tq: 12. */ 
+  std::string StringCAParaAcao() const;
   /** Retorna alguns detalhes da acao: rotulo, string dano. */
   std::string DetalhesAcao() const;
 

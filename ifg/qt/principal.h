@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QWidget>
+#include "ent/tabelas.h"
 #include "ent/tabuleiro.h"
 #include "ifg/qt/texturas.h"
 #include "ntf/notificacao.h"
@@ -16,7 +17,7 @@ class Texturas;
 namespace ifg {
 
 class TratadorTecladoMouse;
- 
+
 namespace qt {
 
 // fwd
@@ -32,6 +33,7 @@ class Principal : public QWidget, ntf::Receptor {
   * instanciar o objeto.
   */
   static Principal* Cria(int& argc, char** argv,
+                         const ent::Tabelas& tabelas,
                          ent::Tabuleiro* tabuleiro,
                          ent::Texturas* texturas,
                          ifg::TratadorTecladoMouse* teclado_mouse,
@@ -55,7 +57,7 @@ class Principal : public QWidget, ntf::Receptor {
   void Temporizador();
 
  private:
-  Principal(ent::Tabuleiro* tabuleiro, ent::Texturas* texturas,
+  Principal(const ent::Tabelas& tabelas, ent::Tabuleiro* tabuleiro, ent::Texturas* texturas,
             ifg::TratadorTecladoMouse* teclado_mouse, ntf::CentralNotificacoes* central, QApplication* q_app);
 
   /** central de notificacoes da interface. */

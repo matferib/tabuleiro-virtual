@@ -8,6 +8,7 @@
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
 #include "gltab/gl.h"
+#include "goog/stringprintf.h"
 #include "net/util.h"
 
 #include "log/log.h"
@@ -1307,7 +1308,7 @@ std::tuple<int, std::string> Entidade::ValorParaAcao(const std::string& id_acao)
 std::string Entidade::DetalhesAcao() const {
   const auto* dado_ataque = DadoCorrente();
   if (dado_ataque == nullptr) {
-    return "";
+    return google::protobuf::StringPrintf("CA: %s", StringCAParaAcao().c_str());
   }
 
   int modificador = ModificadorAtaque(dado_ataque->tipo_ataque() != "Ataque Corpo a Corpo", proto_, EntidadeProto());
@@ -1320,9 +1321,9 @@ std::string Entidade::DetalhesAcao() const {
   }
 
   char texto[100] = { '\0' };
-  snprintf(texto, 99, "%s: %+d%s, %s%s", dado_ataque->rotulo().c_str(), dado_ataque->bonus_ataque(),
+  snprintf(texto, 99, "%s: %+d%s, %s%s, CA: %s", dado_ataque->rotulo().c_str(), dado_ataque->bonus_ataque(),
                                         texto_modificador,
-                                        StringDanoParaAcao().c_str(), texto_furtivo);
+                                        StringDanoParaAcao().c_str(), texto_furtivo, StringCAParaAcao().c_str());
   return texto;
 }
 
@@ -1339,6 +1340,23 @@ std::string Entidade::StringDanoParaAcao() const {
   }
   snprintf(texto_dano, 99, "%s%s", dado_ataque->dano().c_str(), texto_modificador_dano);
   return texto_dano;
+}
+
+std::string Entidade::StringCAParaAcao() const {
+  const auto* da = DadoCorrente();
+  const bool permite_escudo = da == nullptr || da->permite_escudo();
+  int normal, toque;
+  std::string info = !permite_escudo && !proto_.surpreso()
+      ? "" : permite_escudo && proto_.surpreso() ? "(esc+surp) " : permite_escudo ? "(escudo) " : "(surpreso) ";
+  if (proto_.dados_defesa().has_ca()) {
+    normal = proto_.surpreso() ? BonusCASurpreso(proto_, permite_escudo) : BonusCATotal(proto_, permite_escudo);
+    toque = proto_.surpreso() ? BonusCAToqueSurpreso(proto_) : BonusCAToque(proto_);
+  } else {
+    normal = proto_.surpreso() ? da->ca_surpreso() : da->ca_normal();
+    // TODO nao tem toque surpreso.
+    toque = da->ca_toque();
+  }
+  return google::protobuf::StringPrintf("%s%d, tq: %d", info.c_str(), normal, toque);
 }
 
 Matrix4 Entidade::MontaMatrizModelagem(const ParametrosDesenho* pd) const {

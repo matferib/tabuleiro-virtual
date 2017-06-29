@@ -8,6 +8,7 @@
 #include <tuple>
 #include <vector>
 #include <google/protobuf/repeated_field.h>
+#include "ent/tabelas.h"
 #include "matrix/matrices.h"
 #include "ntf/notificacao.pb.h"
 
@@ -232,7 +233,7 @@ void PreencheNotificacaoAtualizaoPontosVida(
     const Entidade& entidade, int delta_pontos_vida, ntf::Notificacao* n, ntf::Notificacao* n_desfazer = nullptr);
 
 // Recomputa as dependencias do proto.
-void RecomputaDependencias(EntidadeProto* proto);
+void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto);
 
 // Retorna o total de um tipo de bonus.
 int BonusTotal(const Bonus& bonus);

@@ -3,7 +3,7 @@
 
 #include <QGLWidget>
 #include <list>
-#include "ent/tabelas.pb.h"
+#include "ent/tabelas.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -31,6 +31,7 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   * Nao se torna dono de nada.
   */
   Visualizador3d(
+      const ent::Tabelas& tabelas,
       ifg::TratadorTecladoMouse* teclado_mouse,
       ntf::CentralNotificacoes* central, ent::Tabuleiro* tabuleiro, QWidget* pai);
 
@@ -70,6 +71,7 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   ent::Bonus AbreDialogoBonus(const ent::Bonus& bonus);
 
  private:
+  const ent::Tabelas& tabelas_;
   bool luz_por_pixel_;
   ifg::TratadorTecladoMouse* teclado_mouse_;
   ntf::CentralNotificacoes* central_;
@@ -77,7 +79,6 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   // Para prender mouse no lugar.
   int x_antes_ = 0;
   int y_antes_ = 0;
-  ent::Tabelas tabelas_;
 };
 
 }  // namespace qt

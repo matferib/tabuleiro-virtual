@@ -1216,10 +1216,15 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
   return 0;
 }
 
-void RecomputaDependencias(EntidadeProto* proto) {
+void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   //const int modificador_forca        = ModificadorAtributo(ent::BonusTotal(proto->atributos().forca()));
   const int destreza = ent::BonusTotal(proto->atributos().destreza());
-  const int modificador_destreza     = destreza > 0 ? ModificadorAtributo(destreza) : 0;
+  int modificador_destreza     = destreza > 0 ? ModificadorAtributo(destreza) : 0;
+  auto* dd = proto->mutable_dados_defesa();
+  if (dd->has_id_armadura()) {
+    int bonus_maximo = tabelas.Armadura(dd->id_armadura()).max_bonus_destreza();
+    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+  }
   const int modificador_constituicao = ModificadorAtributo(ent::BonusTotal(proto->atributos().constituicao()));
   //const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
   const int modificador_sabedoria    = ModificadorAtributo(ent::BonusTotal(proto->atributos().sabedoria()));
@@ -1232,7 +1237,6 @@ void RecomputaDependencias(EntidadeProto* proto) {
   proto->set_modificador_iniciativa(BonusTotal(proto->bonus_iniciativa()));
 
   // Testes de resistencia.
-  auto* dd = proto->mutable_dados_defesa();
   AtribuiBonus(modificador_constituicao, ent::TB_ATRIBUTO, "constituicao", dd->mutable_salvacao_fortitude());
   AtribuiBonus(modificador_destreza, ent::TB_ATRIBUTO, "destreza", dd->mutable_salvacao_reflexo());
   AtribuiBonus(modificador_sabedoria, ent::TB_ATRIBUTO, "sabedoria", dd->mutable_salvacao_vontade());
