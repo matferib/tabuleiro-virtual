@@ -209,8 +209,8 @@ public:
     QGridLayout *gridLayout_3;
     QLabel *label_52;
     QLabel *label_57;
-    QSpinBox *spin_ca_escudo;
-    QSpinBox *spin_ca_armadura;
+    QSpinBox *spin_ca_escudo_melhoria;
+    QSpinBox *spin_ca_armadura_melhoria;
     QLabel *label_58;
     QLabel *label_59;
     QLabel *label_53;
@@ -219,8 +219,8 @@ public:
     QLabel *label_ca_surpreso;
     QPushButton *botao_bonus_ca;
     QLabel *label_ca_toque;
-    QComboBox *comboBox;
-    QComboBox *comboBox_2;
+    QComboBox *combo_armadura;
+    QComboBox *combo_escudo;
     QLabel *spin_bonus_escudo;
     QLabel *spin_bonus_escudo_2;
     QGroupBox *groupBox_4;
@@ -1182,17 +1182,17 @@ public:
 
         gridLayout_3->addWidget(label_57, 0, 7, 1, 1);
 
-        spin_ca_escudo = new QSpinBox(gridLayoutWidget_3);
-        spin_ca_escudo->setObjectName(QString::fromUtf8("spin_ca_escudo"));
-        spin_ca_escudo->setMinimum(-99);
+        spin_ca_escudo_melhoria = new QSpinBox(gridLayoutWidget_3);
+        spin_ca_escudo_melhoria->setObjectName(QString::fromUtf8("spin_ca_escudo_melhoria"));
+        spin_ca_escudo_melhoria->setMinimum(-99);
 
-        gridLayout_3->addWidget(spin_ca_escudo, 1, 4, 1, 1);
+        gridLayout_3->addWidget(spin_ca_escudo_melhoria, 1, 4, 1, 1);
 
-        spin_ca_armadura = new QSpinBox(gridLayoutWidget_3);
-        spin_ca_armadura->setObjectName(QString::fromUtf8("spin_ca_armadura"));
-        spin_ca_armadura->setMinimum(-99);
+        spin_ca_armadura_melhoria = new QSpinBox(gridLayoutWidget_3);
+        spin_ca_armadura_melhoria->setObjectName(QString::fromUtf8("spin_ca_armadura_melhoria"));
+        spin_ca_armadura_melhoria->setMinimum(-99);
 
-        gridLayout_3->addWidget(spin_ca_armadura, 1, 2, 1, 1);
+        gridLayout_3->addWidget(spin_ca_armadura_melhoria, 1, 2, 1, 1);
 
         label_58 = new QLabel(gridLayoutWidget_3);
         label_58->setObjectName(QString::fromUtf8("label_58"));
@@ -1243,15 +1243,15 @@ public:
 
         gridLayout_3->addWidget(label_ca_toque, 1, 8, 1, 1);
 
-        comboBox = new QComboBox(gridLayoutWidget_3);
-        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        combo_armadura = new QComboBox(gridLayoutWidget_3);
+        combo_armadura->setObjectName(QString::fromUtf8("combo_armadura"));
 
-        gridLayout_3->addWidget(comboBox, 1, 1, 1, 1);
+        gridLayout_3->addWidget(combo_armadura, 1, 1, 1, 1);
 
-        comboBox_2 = new QComboBox(gridLayoutWidget_3);
-        comboBox_2->setObjectName(QString::fromUtf8("comboBox_2"));
+        combo_escudo = new QComboBox(gridLayoutWidget_3);
+        combo_escudo->setObjectName(QString::fromUtf8("combo_escudo"));
 
-        gridLayout_3->addWidget(comboBox_2, 1, 3, 1, 1);
+        gridLayout_3->addWidget(combo_escudo, 1, 3, 1, 1);
 
         spin_bonus_escudo = new QLabel(gridLayoutWidget_3);
         spin_bonus_escudo->setObjectName(QString::fromUtf8("spin_bonus_escudo"));
@@ -1593,9 +1593,9 @@ public:
         QWidget::setTabOrder(botao_remover_nivel, checkbox_iniciativa);
         QWidget::setTabOrder(checkbox_iniciativa, spin_iniciativa);
         QWidget::setTabOrder(spin_iniciativa, spin_forca);
-        QWidget::setTabOrder(spin_forca, spin_ca_armadura);
-        QWidget::setTabOrder(spin_ca_armadura, spin_ca_escudo);
-        QWidget::setTabOrder(spin_ca_escudo, linha_rotulo_ataque);
+        QWidget::setTabOrder(spin_forca, spin_ca_armadura_melhoria);
+        QWidget::setTabOrder(spin_ca_armadura_melhoria, spin_ca_escudo_melhoria);
+        QWidget::setTabOrder(spin_ca_escudo_melhoria, linha_rotulo_ataque);
         QWidget::setTabOrder(linha_rotulo_ataque, combo_tipo_ataque);
         QWidget::setTabOrder(combo_tipo_ataque, checkbox_permite_escudo);
         QWidget::setTabOrder(checkbox_permite_escudo, spin_alcance_quad);
@@ -1845,10 +1845,10 @@ public:
         label_52->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Armadura", 0, QApplication::UnicodeUTF8));
         label_57->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_ca_escudo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus de Escudo", 0, QApplication::UnicodeUTF8));
+        spin_ca_escudo_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus de Escudo", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        spin_ca_armadura->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus de Armadura", 0, QApplication::UnicodeUTF8));
+        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus de Armadura", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_58->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", 0, QApplication::UnicodeUTF8));
         label_59->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Surp", 0, QApplication::UnicodeUTF8));

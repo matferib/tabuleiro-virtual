@@ -3,6 +3,7 @@
 
 #include <QGLWidget>
 #include <list>
+#include "ent/tabelas.pb.h"
 #include "ntf/notificacao.h"
 
 namespace ntf {
@@ -56,6 +57,8 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   // Interface ntf::Receptor.
   virtual bool TrataNotificacao(const ntf::Notificacao& notificacao) override;
 
+  const ent::Tabelas& tabelas() const { return tabelas_; }
+
  private:
   // Dialogos.
   // TODO fazer todos unique ou do tipo mesmo sem ser pointer.
@@ -74,6 +77,7 @@ class Visualizador3d : public QGLWidget, ntf::Receptor {
   // Para prender mouse no lugar.
   int x_antes_ = 0;
   int y_antes_ = 0;
+  ent::Tabelas tabelas_;
 };
 
 }  // namespace qt

@@ -1211,12 +1211,12 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
 }
 
 void RecomputaDependencias(EntidadeProto* proto) {
-  const int modificador_forca        = ModificadorAtributo(ent::BonusTotal(proto->atributos().forca()));
+  //const int modificador_forca        = ModificadorAtributo(ent::BonusTotal(proto->atributos().forca()));
   const int modificador_destreza     = ModificadorAtributo(ent::BonusTotal(proto->atributos().destreza()));
   const int modificador_constituicao = ModificadorAtributo(ent::BonusTotal(proto->atributos().constituicao()));
-  const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
+  //const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
   const int modificador_sabedoria    = ModificadorAtributo(ent::BonusTotal(proto->atributos().sabedoria()));
-  const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
+  //const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
 
   const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
 

@@ -1829,7 +1829,7 @@
         </widget>
        </item>
        <item row="1" column="4">
-        <widget class="QSpinBox" name="spin_ca_escudo">
+        <widget class="QSpinBox" name="spin_ca_escudo_melhoria">
          <property name="toolTip">
           <string>Bônus de Escudo</string>
          </property>
@@ -1839,7 +1839,7 @@
         </widget>
        </item>
        <item row="1" column="2">
-        <widget class="QSpinBox" name="spin_ca_armadura">
+        <widget class="QSpinBox" name="spin_ca_armadura_melhoria">
          <property name="toolTip">
           <string>Bônus de Armadura</string>
          </property>
@@ -1940,10 +1940,10 @@
         </widget>
        </item>
        <item row="1" column="1">
-        <widget class="QComboBox" name="comboBox"/>
+        <widget class="QComboBox" name="combo_armadura"/>
        </item>
        <item row="1" column="3">
-        <widget class="QComboBox" name="comboBox_2"/>
+        <widget class="QComboBox" name="combo_escudo"/>
        </item>
        <item row="0" column="3">
         <widget class="QLabel" name="spin_bonus_escudo">
@@ -2535,8 +2535,8 @@
   <tabstop>checkbox_iniciativa</tabstop>
   <tabstop>spin_iniciativa</tabstop>
   <tabstop>spin_forca</tabstop>
-  <tabstop>spin_ca_armadura</tabstop>
-  <tabstop>spin_ca_escudo</tabstop>
+  <tabstop>spin_ca_armadura_melhoria</tabstop>
+  <tabstop>spin_ca_escudo_melhoria</tabstop>
   <tabstop>linha_rotulo_ataque</tabstop>
   <tabstop>combo_tipo_ataque</tabstop>
   <tabstop>checkbox_permite_escudo</tabstop>

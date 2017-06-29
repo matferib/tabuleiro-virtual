@@ -1,5 +1,6 @@
 import "ent/acoes.proto";
 import "ent/comum.proto";
+import "ent/tabelas.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -290,6 +291,8 @@ message EntidadeProto {
     optional Bonus salvacao_reflexo = 6;
     optional Bonus salvacao_vontade = 7;
     // TODO outras salvacoes.
+    optional string id_armadura = 8;
+    optional string id_escudo = 9;
   }
   optional DadosDefesa dados_defesa = 45;
 

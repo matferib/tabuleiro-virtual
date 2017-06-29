@@ -18,6 +18,7 @@
 
 #include "arq/arquivo.h"
 #include "ent/constantes.h"
+#include "ent/tabelas.pb.h"
 #include "ent/tabuleiro.h"
 #include "ent/tabuleiro.pb.h"
 #include "ent/util.h"
@@ -314,6 +315,25 @@ void PreencheComboModelo3d(const std::string& id_corrente, QComboBox* combo_mode
   }
 }
 
+void PreencheConfiguraComboArmaduraEscudo(
+    Visualizador3d* this_, QComboBox* combo_armadura, QComboBox* combo_escudo, ent::EntidadeProto* proto_retornado) {
+  const ent::Tabelas& tabelas = this_->tabelas();
+  for (const auto& armadura : tabelas.tabela_armaduras().armaduras()) {
+    combo_armadura->addItem(QString::fromUtf8(armadura.nome().c_str()), QVariant(armadura.id().c_str()));
+  }
+  for (const auto& escudo : tabelas.tabela_escudos().escudos()) {
+    combo_escudo->addItem(QString::fromUtf8(escudo.nome().c_str()), QVariant(escudo.id().c_str()));
+  }
+  lambda_connect(combo_armadura, SIGNAL(currentIndexChanged(int)), [proto_retornado, combo_armadura] () {
+    QVariant id = combo_armadura->itemData(combo_armadura->currentIndex());
+    proto_retornado->mutable_dados_defesa()->set_id_armadura(id.toString().toStdString());
+  });
+  lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [proto_retornado, combo_escudo] () {
+    QVariant id = combo_escudo->itemData(combo_escudo->currentIndex());
+    proto_retornado->mutable_dados_defesa()->set_id_escudo(id.toString().toStdString());
+  });
+}
+
 // Preenche proto_retornado usando entidade e o combo como base.
 void PreencheTexturaProtoRetornado(const ent::InfoTextura& info_antes, const QComboBox* combo_textura,
                                    ent::InfoTextura* info_textura) {
@@ -354,6 +374,11 @@ Visualizador3d::Visualizador3d(
   central_->RegistraReceptor(this);
   setFocusPolicy(Qt::StrongFocus);
   setMouseTracking(true);
+  try {
+    arq::LeArquivoAsciiProto(arq::TIPO_DADOS, "tabelas.asciiproto", &tabelas_);
+  } catch (...) {
+    LOG(WARNING) << "Erro lendo tabela: tabelas.asciiproto";
+  }
 }
 
 Visualizador3d::~Visualizador3d() {
@@ -1195,18 +1220,32 @@ void AtualizaUIAtaque(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entidade
   gerador.lista_ataques->setCurrentRow(linha);
 }
 
-// Atualiza a UI de ataque e defesa baseada no proto.
-void AtualizaUIAtaquesDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  AtualizaUIAtaque(gerador, proto);
-
+void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  const auto& dd = proto.dados_defesa();
+  // combo armadura.
+  for (int i = 0; dd.has_id_armadura() && i < gerador.combo_armadura->count(); ++i) {
+    QVariant dados_armadura = gerador.combo_armadura->itemData(i);
+    if (dados_armadura.toString().toStdString() == dd.id_armadura()) {
+      gerador.combo_armadura->setCurrentIndex(i);
+      break;
+    }
+  }
+  // combo escudo.
+  for (int i = 0; dd.has_id_escudo() && i < gerador.combo_escudo->count(); ++i) {
+    QVariant dados_escudo = gerador.combo_escudo->itemData(i);
+    if (dados_escudo.toString().toStdString() == dd.id_escudo()) {
+      gerador.combo_escudo->setCurrentIndex(i);
+      break;
+    }
+  }
   const int modificador_destreza = ent::ModificadorAtributo(ent::BonusTotal(proto.atributos().destreza()));
-  const auto& ca = proto.dados_defesa().ca();
+  const auto& ca = dd.ca();
   gerador.botao_bonus_ca->setText(QString::number(BonusTotal(ca)));
 
-  std::vector<QWidget*> objs = { gerador.spin_ca_armadura, gerador.spin_ca_escudo };
+  std::vector<QWidget*> objs = { gerador.spin_ca_armadura_melhoria, gerador.spin_ca_escudo_melhoria };
   for (auto* obj : objs) obj->blockSignals(true);
-  gerador.spin_ca_armadura->setValue(ent::BonusIndividualTotal(ent::TB_ARMADURA, ca));
-  gerador.spin_ca_escudo->setValue(ent::BonusIndividualTotal(ent::TB_ESCUDO, ca));
+  gerador.spin_ca_armadura_melhoria->setValue(ent::BonusIndividualTotal(ent::TB_ARMADURA_MELHORIA, ca));
+  gerador.spin_ca_escudo_melhoria->setValue(ent::BonusIndividualTotal(ent::TB_ESCUDO_MELHORIA, ca));
   for (auto* obj : objs) obj->blockSignals(false);
   const int bonus_ca_total = ent::BonusTotal(ca);
   gerador.botao_bonus_ca->setText(QString::number(bonus_ca_total));
@@ -1215,6 +1254,12 @@ void AtualizaUIAtaquesDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::E
         ca,
         { ent::TB_ARMADURA, ent::TB_ESCUDO, ent::TB_ARMADURA_NATURAL, ent::TB_ARMADURA_MELHORIA, ent::TB_ESCUDO_MELHORIA })));
   gerador.label_ca_surpreso->setText(QString::number(bonus_ca_total - std::max(modificador_destreza, 0)));
+}
+
+// Atualiza a UI de ataque e defesa baseada no proto.
+void AtualizaUIAtaquesDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
+  AtualizaUIAtaque(gerador, proto);
+  AtualizaUIDefesa(gerador, proto);
 }
 
 // Atualiza UI de iniciativa.
@@ -1312,21 +1357,50 @@ void PreencheConfiguraAtributos(
   }
 }
 
+// Retorna o bonus de armadura de uma chave da tabela.
+int BonusArmadura(const std::string& id, const ent::Tabelas& tabelas) {
+  for (const auto& armadura : tabelas.tabela_armaduras().armaduras()) {
+    if (armadura.id() == id) return armadura.bonus();
+  }
+  return 0;
+}
+
+// retorna o bonus de escudo de uma chave da tabela.
+int BonusEscudo(const std::string& id, const ent::Tabelas& tabelas) {
+  for (const auto& escudo : tabelas.tabela_escudos().escudos()) {
+    if (escudo.id() == id) return escudo.bonus();
+  }
+  return 0;
+}
+
 void PreencheConfiguraDadosDefesa(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto, ent::EntidadeProto* proto_retornado) {
+  PreencheConfiguraComboArmaduraEscudo(this_, gerador.combo_armadura, gerador.combo_escudo, proto_retornado);
   AtualizaUIAtaquesDefesa(gerador, proto);
   // Imune critico.
   gerador.checkbox_imune_critico->setCheckState(proto.dados_defesa().imune_critico() ? Qt::Checked : Qt::Unchecked);
 
   auto* mca = proto_retornado->mutable_dados_defesa()->mutable_ca();
   ent::AtribuiBonus(10, ent::TB_BASE, "base",  mca);
-  lambda_connect(gerador.spin_ca_armadura, SIGNAL(valueChanged(int)), [&gerador, proto_retornado, mca] () {
-    ent::AtribuiBonus(gerador.spin_ca_armadura->value(), ent::TB_ARMADURA, "armadura", mca);
+  lambda_connect(gerador.combo_armadura, SIGNAL(currentIndexChanged(int)), [this_, &gerador, proto_retornado, mca] () {
+    QComboBox* combo = gerador.combo_armadura;
+    std::string armadura_tabela = combo->itemData(combo->currentIndex()).toString().toStdString();
+    ent::AtribuiBonus(BonusArmadura(armadura_tabela, this_->tabelas()), ent::TB_ARMADURA, "armadura", mca);
+    AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.combo_escudo, SIGNAL(currentIndexChanged(int)), [this_, &gerador, proto_retornado, mca] () {
+    QComboBox* combo = gerador.combo_escudo;
+    std::string escudo_tabela = combo->itemData(combo->currentIndex()).toString().toStdString();
+    ent::AtribuiBonus(BonusEscudo(escudo_tabela, this_->tabelas()), ent::TB_ESCUDO, "escudo", mca);
+    AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
+  });
+  lambda_connect(gerador.spin_ca_armadura_melhoria, SIGNAL(valueChanged(int)), [&gerador, proto_retornado, mca] () {
+    ent::AtribuiBonus(gerador.spin_ca_armadura_melhoria->value(), ent::TB_ARMADURA_MELHORIA, "armadura", mca);
     ent::RecomputaDependencias(proto_retornado);
     AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
   });
-  lambda_connect(gerador.spin_ca_escudo, SIGNAL(valueChanged(int)), [&gerador, proto_retornado, mca] () {
-    ent::AtribuiBonus(gerador.spin_ca_escudo->value(), ent::TB_ESCUDO, "escudo", mca);
+  lambda_connect(gerador.spin_ca_escudo_melhoria, SIGNAL(valueChanged(int)), [&gerador, proto_retornado, mca] () {
+    ent::AtribuiBonus(gerador.spin_ca_escudo_melhoria->value(), ent::TB_ESCUDO_MELHORIA, "escudo", mca);
     ent::RecomputaDependencias(proto_retornado);
     AtualizaUIAtaquesDefesa(gerador, *proto_retornado);
   });
