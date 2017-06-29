@@ -1,0 +1,28 @@
+tabela_armaduras {
+  armaduras { id: 'nenhuma'          nome: 'Nenhuma' bonus: 0 preco { po:  0  } tipo: TA_LEVE }
+  armaduras { id: 'acolchoada'       nome: 'Acolchoada'  bonus: 1  max_bonus_destreza: 8  preco { po:  5  } tipo: TA_LEVE }
+  armaduras { id: 'armadura_arcana'  nome: 'Armadura Arcana'  bonus: 4  preco { po:  0  } tipo: TA_LEVE }
+  armaduras { id: 'couro'            nome: 'Couro'  bonus: 2   max_bonus_destreza: 6  preco { po:  10  } tipo: TA_LEVE }
+  armaduras { id: 'couro_batido'     nome: 'Couro Batido'  bonus: 3  max_bonus_destreza: 5  preco { po:  25  } tipo: TA_LEVE }
+  armaduras { id: 'camisao'          nome: 'Camisão de Cota de Malha'  bonus: 4  max_bonus_destreza: 4  preco { po:  100  } tipo: TA_LEVE }
+
+  armaduras { id: 'gibao_peles'      nome: 'Gibão de Peles'  bonus: 3  max_bonus_destreza: 4  preco { po:  15  } tipo: TA_MEDIO }
+  armaduras { id: 'brunea'           nome: 'Brunea'  bonus: 4  max_bonus_destreza: 3  preco { po:  50  } tipo: TA_MEDIO }
+  armaduras { id: 'cota_malha'       nome: 'Cota de Malha'  bonus: 5  max_bonus_destreza: 2  preco { po:  150  } tipo: TA_MEDIO }
+  armaduras { id: 'peitorial_aco'    nome: 'Peitoral de Aço'  bonus: 5  max_bonus_destreza: 3  preco { po:  200  } tipo: TA_MEDIO }
+
+  armaduras { id: 'cota_talas'       nome: 'Cota de Talas'  bonus: 6  max_bonus_destreza: 0  preco { po:  200  } tipo: TA_PESADO }
+  armaduras { id: 'loriga'           nome: 'Loriga Segmentada'  bonus: 6  max_bonus_destreza: 1  preco { po:  250  } tipo: TA_PESADO }
+  armaduras { id: 'meia_armadura'    nome: 'Meia Armadura'  bonus: 7  max_bonus_destreza: 0  preco { po:  600  } tipo: TA_PESADO }
+  armaduras { id: 'armadura_batalha' nome: 'Armadura de Batalha'  bonus: 8  max_bonus_destreza: 1  preco { po:  1500  } tipo: TA_PESADO }
+}
+
+tabela_escudos {
+  escudos { id: 'nenhum'         nome: 'Nenhum' bonus: 0 preco { po: 0 } }
+  escudos { id: 'broquel'        nome: 'Broquel' bonus: 1 preco { po: 15 } }
+  escudos { id: 'leve_madeira'   nome: 'Escudo Leve de Madeira' bonus: 1 preco { po: 3 } }
+  escudos { id: 'leve_aco'       nome: 'Escudo Leve de Aço' bonus: 1 preco { po: 9 } }
+  escudos { id: 'pesado_madeira' nome: 'Escudo Pesado de Madeira' bonus: 2 preco { po: 7 } }
+  escudos { id: 'pesado_aco'     nome: 'Escudo Pesado de Aço' bonus: 2 preco { po: 20 } }
+  escudos { id: 'corpo'          nome: 'Escudo de Corpo' bonus: 4 max_bonus_destreza: 2 preco { po: 30 } }
+}
