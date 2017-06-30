@@ -246,6 +246,8 @@ int BonusIndividualTotal(const BonusIndividual& bonus_individual);
 
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);
+// Retorna o modificador de destreza, limitado por armadura.
+int ModificadorDestreza(const ent::EntidadeProto& proto, const ent::Tabelas& tabelas);
 
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);

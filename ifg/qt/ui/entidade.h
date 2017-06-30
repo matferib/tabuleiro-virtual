@@ -267,6 +267,17 @@ public:
     QSpinBox *spin_salvacao_vontade;
     QPushButton *botao_bonus_salvacao_reflexo;
     QLabel *label_70;
+    QGroupBox *groupBox_6;
+    QWidget *gridLayoutWidget_5;
+    QGridLayout *gridLayout_5;
+    QLabel *label_bba_agarrar;
+    QLabel *label_69;
+    QLabel *label_54;
+    QLabel *label_bba_base;
+    QLabel *label_56;
+    QLabel *label_71;
+    QLabel *label_bba_cac;
+    QLabel *label_bba_distancia;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -1154,14 +1165,14 @@ public:
         linha_furtivo->setGeometry(QRect(400, 460, 129, 27));
         groupBox_3 = new QGroupBox(tab_estatisticas);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(340, 50, 551, 71));
+        groupBox_3->setGeometry(QRect(450, 10, 441, 71));
         label_25 = new QLabel(groupBox_3);
         label_25->setObjectName(QString::fromUtf8("label_25"));
         label_25->setGeometry(QRect(10, 10, 31, 34));
         label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         gridLayoutWidget_3 = new QWidget(groupBox_3);
         gridLayoutWidget_3->setObjectName(QString::fromUtf8("gridLayoutWidget_3"));
-        gridLayoutWidget_3->setGeometry(QRect(10, 10, 533, 61));
+        gridLayoutWidget_3->setGeometry(QRect(0, 10, 431, 61));
         gridLayout_3 = new QGridLayout(gridLayoutWidget_3);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         gridLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -1510,6 +1521,67 @@ public:
 
         gridLayout_4->addWidget(label_70, 0, 2, 1, 1);
 
+        groupBox_6 = new QGroupBox(tab_estatisticas);
+        groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
+        groupBox_6->setGeometry(QRect(350, 90, 291, 71));
+        groupBox_6->setStyleSheet(QString::fromUtf8(""));
+        gridLayoutWidget_5 = new QWidget(groupBox_6);
+        gridLayoutWidget_5->setObjectName(QString::fromUtf8("gridLayoutWidget_5"));
+        gridLayoutWidget_5->setGeometry(QRect(0, 20, 281, 42));
+        gridLayout_5 = new QGridLayout(gridLayoutWidget_5);
+        gridLayout_5->setObjectName(QString::fromUtf8("gridLayout_5"));
+        gridLayout_5->setContentsMargins(0, 0, 0, 0);
+        label_bba_agarrar = new QLabel(gridLayoutWidget_5);
+        label_bba_agarrar->setObjectName(QString::fromUtf8("label_bba_agarrar"));
+        label_bba_agarrar->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_agarrar, 1, 1, 1, 1);
+
+        label_69 = new QLabel(gridLayoutWidget_5);
+        label_69->setObjectName(QString::fromUtf8("label_69"));
+        label_69->setFont(font);
+        label_69->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_69, 0, 2, 1, 1);
+
+        label_54 = new QLabel(gridLayoutWidget_5);
+        label_54->setObjectName(QString::fromUtf8("label_54"));
+        label_54->setFont(font);
+        label_54->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_54, 0, 0, 1, 1);
+
+        label_bba_base = new QLabel(gridLayoutWidget_5);
+        label_bba_base->setObjectName(QString::fromUtf8("label_bba_base"));
+        label_bba_base->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_base, 1, 0, 1, 1);
+
+        label_56 = new QLabel(gridLayoutWidget_5);
+        label_56->setObjectName(QString::fromUtf8("label_56"));
+        label_56->setFont(font);
+        label_56->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_56, 0, 1, 1, 1);
+
+        label_71 = new QLabel(gridLayoutWidget_5);
+        label_71->setObjectName(QString::fromUtf8("label_71"));
+        label_71->setFont(font);
+
+        gridLayout_5->addWidget(label_71, 0, 3, 1, 1);
+
+        label_bba_cac = new QLabel(gridLayoutWidget_5);
+        label_bba_cac->setObjectName(QString::fromUtf8("label_bba_cac"));
+        label_bba_cac->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_cac, 1, 2, 1, 1);
+
+        label_bba_distancia = new QLabel(gridLayoutWidget_5);
+        label_bba_distancia->setObjectName(QString::fromUtf8("label_bba_distancia"));
+        label_bba_distancia->setAlignment(Qt::AlignCenter);
+
+        gridLayout_5->addWidget(label_bba_distancia, 1, 3, 1, 1);
+
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
         tab->setObjectName(QString::fromUtf8("tab"));
@@ -1845,10 +1917,10 @@ public:
         label_52->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Armadura", 0, QApplication::UnicodeUTF8));
         label_57->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        spin_ca_escudo_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus de Escudo", 0, QApplication::UnicodeUTF8));
+        spin_ca_escudo_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria Escudo", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
-        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus de Armadura", 0, QApplication::UnicodeUTF8));
+        spin_ca_armadura_melhoria->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Melhoria armadura", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_58->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Toque", 0, QApplication::UnicodeUTF8));
         label_59->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Surp", 0, QApplication::UnicodeUTF8));
@@ -1936,6 +2008,15 @@ public:
 #endif // QT_NO_TOOLTIP
         botao_bonus_salvacao_reflexo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         label_70->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Total", 0, QApplication::UnicodeUTF8));
+        groupBox_6->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus Base de Ataque", 0, QApplication::UnicodeUTF8));
+        label_bba_agarrar->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
+        label_69->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Corpo a Corpo", 0, QApplication::UnicodeUTF8));
+        label_54->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Base", 0, QApplication::UnicodeUTF8));
+        label_bba_base->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
+        label_56->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Agarrar", 0, QApplication::UnicodeUTF8));
+        label_71->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dist\303\242ncia", 0, QApplication::UnicodeUTF8));
+        label_bba_cac->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
+        label_bba_distancia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

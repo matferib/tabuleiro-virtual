@@ -1766,9 +1766,9 @@
     <widget class="QGroupBox" name="groupBox_3">
      <property name="geometry">
       <rect>
-       <x>340</x>
-       <y>50</y>
-       <width>551</width>
+       <x>450</x>
+       <y>10</y>
+       <width>441</width>
        <height>71</height>
       </rect>
      </property>
@@ -1794,9 +1794,9 @@
      <widget class="QWidget" name="gridLayoutWidget_3">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>10</y>
-        <width>533</width>
+        <width>431</width>
         <height>61</height>
        </rect>
       </property>
@@ -1831,7 +1831,7 @@
        <item row="1" column="4">
         <widget class="QSpinBox" name="spin_ca_escudo_melhoria">
          <property name="toolTip">
-          <string>Bônus de Escudo</string>
+          <string>Melhoria Escudo</string>
          </property>
          <property name="minimum">
           <number>-99</number>
@@ -1841,7 +1841,7 @@
        <item row="1" column="2">
         <widget class="QSpinBox" name="spin_ca_armadura_melhoria">
          <property name="toolTip">
-          <string>Bônus de Armadura</string>
+          <string>Melhoria armadura</string>
          </property>
          <property name="minimum">
           <number>-99</number>
@@ -2403,6 +2403,139 @@
          </property>
          <property name="text">
           <string>Total</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_6">
+     <property name="geometry">
+      <rect>
+       <x>350</x>
+       <y>90</y>
+       <width>291</width>
+       <height>71</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="title">
+      <string>Bônus Base de Ataque</string>
+     </property>
+     <widget class="QWidget" name="gridLayoutWidget_5">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>20</y>
+        <width>281</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="1" column="1">
+        <widget class="QLabel" name="label_bba_agarrar">
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="2">
+        <widget class="QLabel" name="label_69">
+         <property name="font">
+          <font>
+           <family>Noto Sans [unknown]</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Corpo a Corpo</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_54">
+         <property name="font">
+          <font>
+           <family>Noto Sans [unknown]</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Base</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_bba_base">
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="label_56">
+         <property name="font">
+          <font>
+           <family>Noto Sans [unknown]</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Agarrar</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="3">
+        <widget class="QLabel" name="label_71">
+         <property name="font">
+          <font>
+           <family>Noto Sans [unknown]</family>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Distância</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QLabel" name="label_bba_cac">
+         <property name="text">
+          <string>0</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <widget class="QLabel" name="label_bba_distancia">
+         <property name="text">
+          <string>0</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>

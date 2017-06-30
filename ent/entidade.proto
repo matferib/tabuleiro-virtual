@@ -310,6 +310,14 @@ message EntidadeProto {
 
   // Informacoes sobre a classe do personagem.
   repeated InfoClasse info_classes = 63;
+  // TODO usar ou nao isso?
+  message InfoBBA {
+    optional int32 base = 1;
+    optional int32 agarrar = 2;
+    optional int32 cac = 3;
+    optional int32 distancia = 4;
+  }
+  optional InfoBBA bba = 70;
   // Mesmo que haja um modelo 3d, desenha o tijolo de base da entidade.
   optional bool desenha_base = 65;
   // Outras coisas de entidade, apenas para armazenamento.

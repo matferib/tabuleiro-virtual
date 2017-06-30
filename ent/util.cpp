@@ -1168,7 +1168,8 @@ int BonusCATotal(const EntidadeProto& proto, bool permite_escudo) {
 }
 
 int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo) {
-  const int modificador_destreza = proto.atributos().has_destreza() ? ModificadorAtributo(BonusTotal(proto.atributos().destreza())) : 0;
+  const int destreza = BonusTotal(proto.atributos().destreza());
+  const int modificador_destreza = destreza > 0 ? ModificadorAtributo(destreza) : 0;
   return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo)) - std::max(modificador_destreza, 0);
 }
 
@@ -1222,7 +1223,11 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   int modificador_destreza     = destreza > 0 ? ModificadorAtributo(destreza) : 0;
   auto* dd = proto->mutable_dados_defesa();
   if (dd->has_id_armadura()) {
-    int bonus_maximo = tabelas.Armadura(dd->id_armadura()).max_bonus_destreza();
+    const int bonus_maximo = tabelas.Armadura(dd->id_armadura()).max_bonus_destreza();
+    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+  }
+  if (dd->has_id_escudo()) {
+    const int bonus_maximo = tabelas.Escudo(dd->id_escudo()).max_bonus_destreza();
     modificador_destreza = std::min(bonus_maximo, modificador_destreza);
   }
   const int modificador_constituicao = ModificadorAtributo(ent::BonusTotal(proto->atributos().constituicao()));
@@ -1318,6 +1323,21 @@ void AtribuiBonus(int valor, TipoBonus tipo, const std::string& origem, Bonus* b
 
 int ModificadorAtributo(int atributo) {
   return (atributo / 2) - 5;
+}
+
+int ModificadorDestreza(const ent::EntidadeProto& proto, const ent::Tabelas& tabelas) {
+  const int destreza = ent::BonusTotal(proto.atributos().destreza());
+  int modificador_destreza = destreza > 0 ? ModificadorAtributo(destreza) : 0;
+  const auto& dd = proto.dados_defesa();
+  if (dd.has_id_armadura()) {
+    int bonus_maximo = tabelas.Armadura(dd.id_armadura()).max_bonus_destreza();
+    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+  }
+  if (dd.has_id_escudo()) {
+    int bonus_maximo = tabelas.Escudo(dd.id_escudo()).max_bonus_destreza();
+    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+  }
+  return modificador_destreza;
 }
 
 int ModificadorTamanho(TamanhoEntidade tamanho) {
