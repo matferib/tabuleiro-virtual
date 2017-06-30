@@ -1336,6 +1336,7 @@ void PreencheConfiguraComboArmaduraEscudo(
     proto_retornado->mutable_dados_defesa()->set_id_armadura(id.toString().toStdString());
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
   lambda_connect(combo_escudo, SIGNAL(currentIndexChanged(int)), [&tabelas, &gerador, proto_retornado, combo_escudo] () {
@@ -1343,6 +1344,7 @@ void PreencheConfiguraComboArmaduraEscudo(
     proto_retornado->mutable_dados_defesa()->set_id_escudo(id.toString().toStdString());
     ent::RecomputaDependencias(tabelas, proto_retornado);
     AtualizaUIAtaquesDefesa(tabelas, gerador, *proto_retornado);
+    AtualizaUIIniciativa(tabelas, gerador, *proto_retornado);
     AtualizaUIAtributos(tabelas, gerador, *proto_retornado);
   });
 }
