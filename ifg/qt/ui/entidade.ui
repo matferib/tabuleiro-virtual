@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>962</width>
+    <width>1070</width>
     <height>632</height>
    </rect>
   </property>
@@ -18,7 +18,18 @@
    <string/>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QGroupBox {
+  border: 1px solid gray;
+  border-radius: 9px;
+  margin-top: 0.5em;
+}
+
+QGroupBox::title {
+  subcontrol-origin: margin;
+  left: 10px;
+  padding: 0 3px 0 3px;
+  font-weight: bold;
+}</string>
   </property>
   <property name="modal">
    <bool>true</bool>
@@ -26,7 +37,7 @@
   <widget class="QDialogButtonBox" name="botoes">
    <property name="geometry">
     <rect>
-     <x>560</x>
+     <x>720</x>
      <y>570</y>
      <width>341</width>
      <height>32</height>
@@ -44,9 +55,12 @@
     <rect>
      <x>10</x>
      <y>20</y>
-     <width>931</width>
+     <width>1051</width>
      <height>541</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
    </property>
    <property name="currentIndex">
     <number>0</number>
@@ -1312,80 +1326,13 @@
     <attribute name="title">
      <string>Estatísticas</string>
     </attribute>
-    <widget class="QWidget" name="layoutWidget_3">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>421</width>
-       <height>31</height>
-      </rect>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_28">
-      <item>
-       <widget class="QCheckBox" name="checkbox_iniciativa">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="toolTip">
-         <string>Se marcado, entidade terá iniciativa</string>
-        </property>
-        <property name="text">
-         <string>Iniciativa</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QSpinBox" name="spin_iniciativa">
-        <property name="toolTip">
-         <string>Valor da iniciativa para o combate corrente</string>
-        </property>
-        <property name="minimum">
-         <number>-100</number>
-        </property>
-        <property name="maximum">
-         <number>999</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_22">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Modificador</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="botao_bonus_iniciativa">
-        <property name="toolTip">
-         <string>Modificadores de iniciativa.</string>
-        </property>
-        <property name="text">
-         <string>Bonus</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
     <widget class="QPushButton" name="botao_remover_ataque">
      <property name="enabled">
       <bool>false</bool>
      </property>
      <property name="geometry">
       <rect>
-       <x>749</x>
+       <x>870</x>
        <y>460</y>
        <width>121</width>
        <height>27</height>
@@ -1398,10 +1345,10 @@
     <widget class="QListWidget" name="lista_ataques">
      <property name="geometry">
       <rect>
-       <x>349</x>
-       <y>270</y>
-       <width>511</width>
-       <height>181</height>
+       <x>279</x>
+       <y>320</y>
+       <width>711</width>
+       <height>131</height>
       </rect>
      </property>
     </widget>
@@ -1421,27 +1368,27 @@
     <widget class="QPushButton" name="botao_ataque_cima">
      <property name="geometry">
       <rect>
-       <x>870</x>
+       <x>1000</x>
        <y>320</y>
        <width>31</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>^</string>
+      <string>↑</string>
      </property>
     </widget>
     <widget class="QPushButton" name="botao_ataque_baixo">
      <property name="geometry">
       <rect>
-       <x>870</x>
+       <x>1000</x>
        <y>360</y>
        <width>31</width>
        <height>27</height>
       </rect>
      </property>
      <property name="text">
-      <string>v</string>
+      <string>↓</string>
      </property>
     </widget>
     <widget class="QPushButton" name="botao_clonar_ataque">
@@ -1450,7 +1397,7 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>619</x>
+       <x>740</x>
        <y>460</y>
        <width>121</width>
        <height>27</height>
@@ -1463,10 +1410,10 @@
     <widget class="QGroupBox" name="groupBox">
      <property name="geometry">
       <rect>
-       <x>350</x>
+       <x>280</x>
        <y>160</y>
-       <width>541</width>
-       <height>101</height>
+       <width>761</width>
+       <height>151</height>
       </rect>
      </property>
      <property name="title">
@@ -1476,9 +1423,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>20</y>
-        <width>509</width>
-        <height>80</height>
+        <y>10</y>
+        <width>761</width>
+        <height>134</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -1609,12 +1556,69 @@
           </widget>
          </item>
          <item>
+          <widget class="QLabel" name="label_64">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Composto</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spin_composto">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Arco composto</string>
+           </property>
+           <property name="minimum">
+            <number>-50</number>
+           </property>
+           <property name="maximum">
+            <number>50</number>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkbox_acuidade">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Arma permite acuidade?</string>
+           </property>
+           <property name="text">
+            <string>Acuidade?</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <widget class="QCheckBox" name="checkbox_permite_escudo">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Ataque permite escudo?</string>
            </property>
            <property name="text">
-            <string>Permite Escudo?</string>
+            <string>Escudo?</string>
            </property>
           </widget>
          </item>
@@ -1624,6 +1628,12 @@
         <layout class="QHBoxLayout" name="horizontalLayout_6">
          <item>
           <widget class="QLabel" name="label_29">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Alcance</string>
            </property>
@@ -1634,6 +1644,15 @@
          </item>
          <item>
           <widget class="QSpinBox" name="spin_alcance_quad">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Alcance em quadrados</string>
+           </property>
            <property name="minimum">
             <number>-1</number>
            </property>
@@ -1641,28 +1660,30 @@
          </item>
          <item>
           <widget class="QLabel" name="label_30">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>quads</string>
+            <string>quads, incrementos</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_5">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
           <widget class="QLabel" name="label_32">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>Inc</string>
+            <string/>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1671,8 +1692,68 @@
          </item>
          <item>
           <widget class="QSpinBox" name="spin_incrementos">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
             <string>Máximo de incrementos permitido pelo ataque</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkbox_op">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Arma obra prima?</string>
+           </property>
+           <property name="text">
+            <string>OP</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_23">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Bônus Mágico</string>
+           </property>
+           <property name="text">
+            <string>Bônus Mágico</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QSpinBox" name="spin_bonus_magico">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Bônus mágico da arma</string>
+           </property>
+           <property name="minimum">
+            <number>-50</number>
+           </property>
+           <property name="maximum">
+            <number>50</number>
            </property>
           </widget>
          </item>
@@ -1690,9 +1771,15 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="label_23">
+          <widget class="QLabel" name="label_55">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
-            <string>Bonus </string>
+            <string>Outros (ataque)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -1700,29 +1787,154 @@
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spin_ataque">
-           <property name="minimum">
-            <number>-50</number>
+          <widget class="QPushButton" name="botao_bonus_ataque">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
-           <property name="maximum">
-            <number>50</number>
+           <property name="toolTip">
+            <string>Outros bônus de ataque.</string>
+           </property>
+           <property name="text">
+            <string>Bonus</string>
            </property>
           </widget>
          </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_34">
          <item>
           <widget class="QLabel" name="label_24">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="text">
             <string>Dano</string>
            </property>
            <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QLineEdit" name="linha_dano">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="toolTip">
-            <string>Exemplo: 1d8+2 (19-20/x2)</string>
+            <string>Dano base da arma. Exemplo: 1d8 (19-20/x2)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radio_normal">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Arma usada em mão normal</string>
+           </property>
+           <property name="text">
+            <string>Normal</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radio_2_armas_mao_boa">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Duas armas, mão boa</string>
+           </property>
+           <property name="text">
+            <string>2 armas, mão boa</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radio_2_armas_mao_ruim">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Duas armas, mão ruim</string>
+           </property>
+           <property name="text">
+            <string>2 armas, mão ruim</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radio_2_maos">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="toolTip">
+            <string>Arma usada com duas mãos</string>
+           </property>
+           <property name="text">
+            <string>2 mãos</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_72">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>Outros</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="botao_bonus_dano">
+           <property name="toolTip">
+            <string>Outros bônus de dano.</string>
+           </property>
+           <property name="text">
+            <string>Bonus</string>
            </property>
           </widget>
          </item>
@@ -1766,9 +1978,9 @@
     <widget class="QGroupBox" name="groupBox_3">
      <property name="geometry">
       <rect>
-       <x>450</x>
-       <y>10</y>
-       <width>441</width>
+       <x>280</x>
+       <y>90</y>
+       <width>511</width>
        <height>71</height>
       </rect>
      </property>
@@ -1796,7 +2008,7 @@
        <rect>
         <x>0</x>
         <y>10</y>
-        <width>431</width>
+        <width>497</width>
         <height>61</height>
        </rect>
       </property>
@@ -1971,8 +2183,8 @@
     <widget class="QGroupBox" name="groupBox_4">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>50</y>
+       <x>0</x>
+       <y>0</y>
        <width>271</width>
        <height>261</height>
       </rect>
@@ -2276,8 +2488,8 @@
     <widget class="QGroupBox" name="groupBox_5">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>310</y>
+       <x>0</x>
+       <y>270</y>
        <width>251</width>
        <height>141</height>
       </rect>
@@ -2415,9 +2627,9 @@
     <widget class="QGroupBox" name="groupBox_6">
      <property name="geometry">
       <rect>
-       <x>350</x>
-       <y>90</y>
-       <width>291</width>
+       <x>670</x>
+       <y>10</y>
+       <width>281</width>
        <height>71</height>
       </rect>
      </property>
@@ -2539,6 +2751,95 @@
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QGroupBox" name="groupBox_7">
+     <property name="geometry">
+      <rect>
+       <x>290</x>
+       <y>10</y>
+       <width>341</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="title">
+      <string>Iniciativa</string>
+     </property>
+     <widget class="QWidget" name="layoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>341</width>
+        <height>33</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_28">
+       <item>
+        <widget class="QLabel" name="label_22">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="text">
+          <string>Modificador</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="botao_bonus_iniciativa">
+         <property name="toolTip">
+          <string>Modificadores de iniciativa.</string>
+         </property>
+         <property name="text">
+          <string>Bonus</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="checkbox_iniciativa">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Se marcado, entidade terá iniciativa</string>
+         </property>
+         <property name="text">
+          <string>Ligado?   Valor</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QSpinBox" name="spin_iniciativa">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="toolTip">
+          <string>Valor da iniciativa para o combate corrente</string>
+         </property>
+         <property name="minimum">
+          <number>-100</number>
+         </property>
+         <property name="maximum">
+          <number>999</number>
          </property>
         </widget>
        </item>
@@ -2675,8 +2976,6 @@
   <tabstop>checkbox_permite_escudo</tabstop>
   <tabstop>spin_alcance_quad</tabstop>
   <tabstop>spin_incrementos</tabstop>
-  <tabstop>spin_ataque</tabstop>
-  <tabstop>linha_dano</tabstop>
   <tabstop>campo_id</tabstop>
   <tabstop>checkbox_imune_critico</tabstop>
   <tabstop>linha_furtivo</tabstop>

@@ -243,6 +243,8 @@ void RemoveBonus(TipoBonus tipo, const std::string& origem, Bonus* bonus);
 // Retorna um bonus individual.
 int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
 int BonusIndividualTotal(const BonusIndividual& bonus_individual);
+int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus);
+int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& bonus_individual);
 
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);

@@ -27,6 +27,7 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
+#include <QtGui/QRadioButton>
 #include <QtGui/QSlider>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSpinBox>
@@ -168,12 +169,6 @@ public:
     QLabel *label_44;
     QSpinBox *spin_mod_conjuracao;
     QWidget *tab_estatisticas;
-    QWidget *layoutWidget_3;
-    QHBoxLayout *horizontalLayout_28;
-    QCheckBox *checkbox_iniciativa;
-    QSpinBox *spin_iniciativa;
-    QLabel *label_22;
-    QPushButton *botao_bonus_iniciativa;
     QPushButton *botao_remover_ataque;
     QListWidget *lista_ataques;
     QCheckBox *checkbox_imune_critico;
@@ -188,19 +183,32 @@ public:
     QLineEdit *linha_rotulo_ataque;
     QLabel *label_21;
     QComboBox *combo_tipo_ataque;
+    QLabel *label_64;
+    QSpinBox *spin_composto;
+    QCheckBox *checkbox_acuidade;
     QCheckBox *checkbox_permite_escudo;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_29;
     QSpinBox *spin_alcance_quad;
     QLabel *label_30;
-    QSpacerItem *horizontalSpacer_5;
     QLabel *label_32;
     QSpinBox *spin_incrementos;
-    QSpacerItem *horizontalSpacer_2;
+    QCheckBox *checkbox_op;
     QLabel *label_23;
-    QSpinBox *spin_ataque;
+    QSpinBox *spin_bonus_magico;
+    QSpacerItem *horizontalSpacer_2;
+    QLabel *label_55;
+    QPushButton *botao_bonus_ataque;
+    QHBoxLayout *horizontalLayout_34;
     QLabel *label_24;
     QLineEdit *linha_dano;
+    QRadioButton *radio_normal;
+    QRadioButton *radio_2_armas_mao_boa;
+    QRadioButton *radio_2_armas_mao_ruim;
+    QRadioButton *radio_2_maos;
+    QSpacerItem *horizontalSpacer_3;
+    QLabel *label_72;
+    QPushButton *botao_bonus_dano;
     QLabel *label_38;
     QLineEdit *linha_furtivo;
     QGroupBox *groupBox_3;
@@ -278,6 +286,13 @@ public:
     QLabel *label_71;
     QLabel *label_bba_cac;
     QLabel *label_bba_distancia;
+    QGroupBox *groupBox_7;
+    QWidget *layoutWidget_3;
+    QHBoxLayout *horizontalLayout_28;
+    QLabel *label_22;
+    QPushButton *botao_bonus_iniciativa;
+    QCheckBox *checkbox_iniciativa;
+    QSpinBox *spin_iniciativa;
     QWidget *tab;
     QWidget *layoutWidget_4;
     QHBoxLayout *horizontalLayout_30;
@@ -293,17 +308,29 @@ public:
     {
         if (ifg__qt__DialogoEntidade->objectName().isEmpty())
             ifg__qt__DialogoEntidade->setObjectName(QString::fromUtf8("ifg__qt__DialogoEntidade"));
-        ifg__qt__DialogoEntidade->resize(962, 632);
-        ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8(""));
+        ifg__qt__DialogoEntidade->resize(1070, 632);
+        ifg__qt__DialogoEntidade->setStyleSheet(QString::fromUtf8("QGroupBox {\n"
+"  border: 1px solid gray;\n"
+"  border-radius: 9px;\n"
+"  margin-top: 0.5em;\n"
+"}\n"
+"\n"
+"QGroupBox::title {\n"
+"  subcontrol-origin: margin;\n"
+"  left: 10px;\n"
+"  padding: 0 3px 0 3px;\n"
+"  font-weight: bold;\n"
+"}"));
         ifg__qt__DialogoEntidade->setModal(true);
         botoes = new QDialogButtonBox(ifg__qt__DialogoEntidade);
         botoes->setObjectName(QString::fromUtf8("botoes"));
-        botoes->setGeometry(QRect(560, 570, 341, 32));
+        botoes->setGeometry(QRect(720, 570, 341, 32));
         botoes->setOrientation(Qt::Horizontal);
         botoes->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Ok);
         tab_tesouro = new QTabWidget(ifg__qt__DialogoEntidade);
         tab_tesouro->setObjectName(QString::fromUtf8("tab_tesouro"));
-        tab_tesouro->setGeometry(QRect(10, 20, 931, 541));
+        tab_tesouro->setGeometry(QRect(10, 20, 1051, 541));
+        tab_tesouro->setStyleSheet(QString::fromUtf8(""));
         tab_geral = new QWidget();
         tab_geral->setObjectName(QString::fromUtf8("tab_geral"));
         horizontalLayoutWidget_2 = new QWidget(tab_geral);
@@ -991,65 +1018,32 @@ public:
         tab_tesouro->addTab(tab_nivel, QString());
         tab_estatisticas = new QWidget();
         tab_estatisticas->setObjectName(QString::fromUtf8("tab_estatisticas"));
-        layoutWidget_3 = new QWidget(tab_estatisticas);
-        layoutWidget_3->setObjectName(QString::fromUtf8("layoutWidget_3"));
-        layoutWidget_3->setGeometry(QRect(10, 10, 421, 31));
-        horizontalLayout_28 = new QHBoxLayout(layoutWidget_3);
-        horizontalLayout_28->setObjectName(QString::fromUtf8("horizontalLayout_28"));
-        horizontalLayout_28->setContentsMargins(0, 0, 0, 0);
-        checkbox_iniciativa = new QCheckBox(layoutWidget_3);
-        checkbox_iniciativa->setObjectName(QString::fromUtf8("checkbox_iniciativa"));
-        sizePolicy1.setHeightForWidth(checkbox_iniciativa->sizePolicy().hasHeightForWidth());
-        checkbox_iniciativa->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_28->addWidget(checkbox_iniciativa);
-
-        spin_iniciativa = new QSpinBox(layoutWidget_3);
-        spin_iniciativa->setObjectName(QString::fromUtf8("spin_iniciativa"));
-        spin_iniciativa->setMinimum(-100);
-        spin_iniciativa->setMaximum(999);
-
-        horizontalLayout_28->addWidget(spin_iniciativa);
-
-        label_22 = new QLabel(layoutWidget_3);
-        label_22->setObjectName(QString::fromUtf8("label_22"));
-        sizePolicy.setHeightForWidth(label_22->sizePolicy().hasHeightForWidth());
-        label_22->setSizePolicy(sizePolicy);
-        label_22->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_28->addWidget(label_22);
-
-        botao_bonus_iniciativa = new QPushButton(layoutWidget_3);
-        botao_bonus_iniciativa->setObjectName(QString::fromUtf8("botao_bonus_iniciativa"));
-
-        horizontalLayout_28->addWidget(botao_bonus_iniciativa);
-
         botao_remover_ataque = new QPushButton(tab_estatisticas);
         botao_remover_ataque->setObjectName(QString::fromUtf8("botao_remover_ataque"));
         botao_remover_ataque->setEnabled(false);
-        botao_remover_ataque->setGeometry(QRect(749, 460, 121, 27));
+        botao_remover_ataque->setGeometry(QRect(870, 460, 121, 27));
         lista_ataques = new QListWidget(tab_estatisticas);
         lista_ataques->setObjectName(QString::fromUtf8("lista_ataques"));
-        lista_ataques->setGeometry(QRect(349, 270, 511, 181));
+        lista_ataques->setGeometry(QRect(279, 320, 711, 131));
         checkbox_imune_critico = new QCheckBox(tab_estatisticas);
         checkbox_imune_critico->setObjectName(QString::fromUtf8("checkbox_imune_critico"));
         checkbox_imune_critico->setGeometry(QRect(20, 460, 121, 22));
         botao_ataque_cima = new QPushButton(tab_estatisticas);
         botao_ataque_cima->setObjectName(QString::fromUtf8("botao_ataque_cima"));
-        botao_ataque_cima->setGeometry(QRect(870, 320, 31, 27));
+        botao_ataque_cima->setGeometry(QRect(1000, 320, 31, 27));
         botao_ataque_baixo = new QPushButton(tab_estatisticas);
         botao_ataque_baixo->setObjectName(QString::fromUtf8("botao_ataque_baixo"));
-        botao_ataque_baixo->setGeometry(QRect(870, 360, 31, 27));
+        botao_ataque_baixo->setGeometry(QRect(1000, 360, 31, 27));
         botao_clonar_ataque = new QPushButton(tab_estatisticas);
         botao_clonar_ataque->setObjectName(QString::fromUtf8("botao_clonar_ataque"));
         botao_clonar_ataque->setEnabled(true);
-        botao_clonar_ataque->setGeometry(QRect(619, 460, 121, 27));
+        botao_clonar_ataque->setGeometry(QRect(740, 460, 121, 27));
         groupBox = new QGroupBox(tab_estatisticas);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        groupBox->setGeometry(QRect(350, 160, 541, 101));
+        groupBox->setGeometry(QRect(280, 160, 761, 151));
         verticalLayoutWidget_2 = new QWidget(groupBox);
         verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(0, 20, 509, 80));
+        verticalLayoutWidget_2->setGeometry(QRect(0, 10, 761, 134));
         verticalLayout_2 = new QVBoxLayout(verticalLayoutWidget_2);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         verticalLayout_2->setContentsMargins(0, 0, 0, 0);
@@ -1083,8 +1077,34 @@ public:
 
         horizontalLayout_29->addWidget(combo_tipo_ataque);
 
+        label_64 = new QLabel(verticalLayoutWidget_2);
+        label_64->setObjectName(QString::fromUtf8("label_64"));
+        sizePolicy5.setHeightForWidth(label_64->sizePolicy().hasHeightForWidth());
+        label_64->setSizePolicy(sizePolicy5);
+        label_64->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        horizontalLayout_29->addWidget(label_64);
+
+        spin_composto = new QSpinBox(verticalLayoutWidget_2);
+        spin_composto->setObjectName(QString::fromUtf8("spin_composto"));
+        sizePolicy1.setHeightForWidth(spin_composto->sizePolicy().hasHeightForWidth());
+        spin_composto->setSizePolicy(sizePolicy1);
+        spin_composto->setMinimum(-50);
+        spin_composto->setMaximum(50);
+
+        horizontalLayout_29->addWidget(spin_composto);
+
+        checkbox_acuidade = new QCheckBox(verticalLayoutWidget_2);
+        checkbox_acuidade->setObjectName(QString::fromUtf8("checkbox_acuidade"));
+        sizePolicy1.setHeightForWidth(checkbox_acuidade->sizePolicy().hasHeightForWidth());
+        checkbox_acuidade->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_29->addWidget(checkbox_acuidade);
+
         checkbox_permite_escudo = new QCheckBox(verticalLayoutWidget_2);
         checkbox_permite_escudo->setObjectName(QString::fromUtf8("checkbox_permite_escudo"));
+        sizePolicy1.setHeightForWidth(checkbox_permite_escudo->sizePolicy().hasHeightForWidth());
+        checkbox_permite_escudo->setSizePolicy(sizePolicy1);
 
         horizontalLayout_29->addWidget(checkbox_permite_escudo);
 
@@ -1095,66 +1115,153 @@ public:
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
         label_29 = new QLabel(verticalLayoutWidget_2);
         label_29->setObjectName(QString::fromUtf8("label_29"));
+        sizePolicy5.setHeightForWidth(label_29->sizePolicy().hasHeightForWidth());
+        label_29->setSizePolicy(sizePolicy5);
         label_29->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_29);
 
         spin_alcance_quad = new QSpinBox(verticalLayoutWidget_2);
         spin_alcance_quad->setObjectName(QString::fromUtf8("spin_alcance_quad"));
+        sizePolicy1.setHeightForWidth(spin_alcance_quad->sizePolicy().hasHeightForWidth());
+        spin_alcance_quad->setSizePolicy(sizePolicy1);
         spin_alcance_quad->setMinimum(-1);
 
         horizontalLayout_6->addWidget(spin_alcance_quad);
 
         label_30 = new QLabel(verticalLayoutWidget_2);
         label_30->setObjectName(QString::fromUtf8("label_30"));
+        sizePolicy5.setHeightForWidth(label_30->sizePolicy().hasHeightForWidth());
+        label_30->setSizePolicy(sizePolicy5);
+        label_30->setAlignment(Qt::AlignCenter);
 
         horizontalLayout_6->addWidget(label_30);
 
-        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout_6->addItem(horizontalSpacer_5);
-
         label_32 = new QLabel(verticalLayoutWidget_2);
         label_32->setObjectName(QString::fromUtf8("label_32"));
+        sizePolicy5.setHeightForWidth(label_32->sizePolicy().hasHeightForWidth());
+        label_32->setSizePolicy(sizePolicy5);
         label_32->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
         horizontalLayout_6->addWidget(label_32);
 
         spin_incrementos = new QSpinBox(verticalLayoutWidget_2);
         spin_incrementos->setObjectName(QString::fromUtf8("spin_incrementos"));
+        sizePolicy1.setHeightForWidth(spin_incrementos->sizePolicy().hasHeightForWidth());
+        spin_incrementos->setSizePolicy(sizePolicy1);
 
         horizontalLayout_6->addWidget(spin_incrementos);
+
+        checkbox_op = new QCheckBox(verticalLayoutWidget_2);
+        checkbox_op->setObjectName(QString::fromUtf8("checkbox_op"));
+        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
+        checkbox_op->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_6->addWidget(checkbox_op);
+
+        label_23 = new QLabel(verticalLayoutWidget_2);
+        label_23->setObjectName(QString::fromUtf8("label_23"));
+        sizePolicy5.setHeightForWidth(label_23->sizePolicy().hasHeightForWidth());
+        label_23->setSizePolicy(sizePolicy5);
+        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_6->addWidget(label_23);
+
+        spin_bonus_magico = new QSpinBox(verticalLayoutWidget_2);
+        spin_bonus_magico->setObjectName(QString::fromUtf8("spin_bonus_magico"));
+        sizePolicy1.setHeightForWidth(spin_bonus_magico->sizePolicy().hasHeightForWidth());
+        spin_bonus_magico->setSizePolicy(sizePolicy1);
+        spin_bonus_magico->setMinimum(-50);
+        spin_bonus_magico->setMaximum(50);
+
+        horizontalLayout_6->addWidget(spin_bonus_magico);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
         horizontalLayout_6->addItem(horizontalSpacer_2);
 
-        label_23 = new QLabel(verticalLayoutWidget_2);
-        label_23->setObjectName(QString::fromUtf8("label_23"));
-        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        label_55 = new QLabel(verticalLayoutWidget_2);
+        label_55->setObjectName(QString::fromUtf8("label_55"));
+        sizePolicy5.setHeightForWidth(label_55->sizePolicy().hasHeightForWidth());
+        label_55->setSizePolicy(sizePolicy5);
+        label_55->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_6->addWidget(label_23);
+        horizontalLayout_6->addWidget(label_55);
 
-        spin_ataque = new QSpinBox(verticalLayoutWidget_2);
-        spin_ataque->setObjectName(QString::fromUtf8("spin_ataque"));
-        spin_ataque->setMinimum(-50);
-        spin_ataque->setMaximum(50);
+        botao_bonus_ataque = new QPushButton(verticalLayoutWidget_2);
+        botao_bonus_ataque->setObjectName(QString::fromUtf8("botao_bonus_ataque"));
+        sizePolicy1.setHeightForWidth(botao_bonus_ataque->sizePolicy().hasHeightForWidth());
+        botao_bonus_ataque->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_6->addWidget(spin_ataque);
-
-        label_24 = new QLabel(verticalLayoutWidget_2);
-        label_24->setObjectName(QString::fromUtf8("label_24"));
-        label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_6->addWidget(label_24);
-
-        linha_dano = new QLineEdit(verticalLayoutWidget_2);
-        linha_dano->setObjectName(QString::fromUtf8("linha_dano"));
-
-        horizontalLayout_6->addWidget(linha_dano);
+        horizontalLayout_6->addWidget(botao_bonus_ataque);
 
 
         verticalLayout_2->addLayout(horizontalLayout_6);
+
+        horizontalLayout_34 = new QHBoxLayout();
+        horizontalLayout_34->setObjectName(QString::fromUtf8("horizontalLayout_34"));
+        label_24 = new QLabel(verticalLayoutWidget_2);
+        label_24->setObjectName(QString::fromUtf8("label_24"));
+        sizePolicy5.setHeightForWidth(label_24->sizePolicy().hasHeightForWidth());
+        label_24->setSizePolicy(sizePolicy5);
+        label_24->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        horizontalLayout_34->addWidget(label_24);
+
+        linha_dano = new QLineEdit(verticalLayoutWidget_2);
+        linha_dano->setObjectName(QString::fromUtf8("linha_dano"));
+        sizePolicy1.setHeightForWidth(linha_dano->sizePolicy().hasHeightForWidth());
+        linha_dano->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_34->addWidget(linha_dano);
+
+        radio_normal = new QRadioButton(verticalLayoutWidget_2);
+        radio_normal->setObjectName(QString::fromUtf8("radio_normal"));
+        sizePolicy1.setHeightForWidth(radio_normal->sizePolicy().hasHeightForWidth());
+        radio_normal->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_34->addWidget(radio_normal);
+
+        radio_2_armas_mao_boa = new QRadioButton(verticalLayoutWidget_2);
+        radio_2_armas_mao_boa->setObjectName(QString::fromUtf8("radio_2_armas_mao_boa"));
+        sizePolicy1.setHeightForWidth(radio_2_armas_mao_boa->sizePolicy().hasHeightForWidth());
+        radio_2_armas_mao_boa->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_34->addWidget(radio_2_armas_mao_boa);
+
+        radio_2_armas_mao_ruim = new QRadioButton(verticalLayoutWidget_2);
+        radio_2_armas_mao_ruim->setObjectName(QString::fromUtf8("radio_2_armas_mao_ruim"));
+        sizePolicy1.setHeightForWidth(radio_2_armas_mao_ruim->sizePolicy().hasHeightForWidth());
+        radio_2_armas_mao_ruim->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_34->addWidget(radio_2_armas_mao_ruim);
+
+        radio_2_maos = new QRadioButton(verticalLayoutWidget_2);
+        radio_2_maos->setObjectName(QString::fromUtf8("radio_2_maos"));
+        sizePolicy1.setHeightForWidth(radio_2_maos->sizePolicy().hasHeightForWidth());
+        radio_2_maos->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_34->addWidget(radio_2_maos);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_34->addItem(horizontalSpacer_3);
+
+        label_72 = new QLabel(verticalLayoutWidget_2);
+        label_72->setObjectName(QString::fromUtf8("label_72"));
+        sizePolicy5.setHeightForWidth(label_72->sizePolicy().hasHeightForWidth());
+        label_72->setSizePolicy(sizePolicy5);
+        label_72->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_34->addWidget(label_72);
+
+        botao_bonus_dano = new QPushButton(verticalLayoutWidget_2);
+        botao_bonus_dano->setObjectName(QString::fromUtf8("botao_bonus_dano"));
+
+        horizontalLayout_34->addWidget(botao_bonus_dano);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_34);
 
         label_38 = new QLabel(tab_estatisticas);
         label_38->setObjectName(QString::fromUtf8("label_38"));
@@ -1165,14 +1272,14 @@ public:
         linha_furtivo->setGeometry(QRect(400, 460, 129, 27));
         groupBox_3 = new QGroupBox(tab_estatisticas);
         groupBox_3->setObjectName(QString::fromUtf8("groupBox_3"));
-        groupBox_3->setGeometry(QRect(450, 10, 441, 71));
+        groupBox_3->setGeometry(QRect(280, 90, 511, 71));
         label_25 = new QLabel(groupBox_3);
         label_25->setObjectName(QString::fromUtf8("label_25"));
         label_25->setGeometry(QRect(10, 10, 31, 34));
         label_25->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         gridLayoutWidget_3 = new QWidget(groupBox_3);
         gridLayoutWidget_3->setObjectName(QString::fromUtf8("gridLayoutWidget_3"));
-        gridLayoutWidget_3->setGeometry(QRect(0, 10, 431, 61));
+        gridLayoutWidget_3->setGeometry(QRect(0, 10, 497, 61));
         gridLayout_3 = new QGridLayout(gridLayoutWidget_3);
         gridLayout_3->setObjectName(QString::fromUtf8("gridLayout_3"));
         gridLayout_3->setContentsMargins(0, 0, 0, 0);
@@ -1278,7 +1385,7 @@ public:
 
         groupBox_4 = new QGroupBox(tab_estatisticas);
         groupBox_4->setObjectName(QString::fromUtf8("groupBox_4"));
-        groupBox_4->setGeometry(QRect(10, 50, 271, 261));
+        groupBox_4->setGeometry(QRect(0, 0, 271, 261));
         groupBox_4->setStyleSheet(QString::fromUtf8(""));
         gridLayoutWidget_2 = new QWidget(groupBox_4);
         gridLayoutWidget_2->setObjectName(QString::fromUtf8("gridLayoutWidget_2"));
@@ -1448,7 +1555,7 @@ public:
 
         groupBox_5 = new QGroupBox(tab_estatisticas);
         groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        groupBox_5->setGeometry(QRect(20, 310, 251, 141));
+        groupBox_5->setGeometry(QRect(0, 270, 251, 141));
         gridLayoutWidget_4 = new QWidget(groupBox_5);
         gridLayoutWidget_4->setObjectName(QString::fromUtf8("gridLayoutWidget_4"));
         gridLayoutWidget_4->setGeometry(QRect(-1, 19, 231, 118));
@@ -1523,7 +1630,7 @@ public:
 
         groupBox_6 = new QGroupBox(tab_estatisticas);
         groupBox_6->setObjectName(QString::fromUtf8("groupBox_6"));
-        groupBox_6->setGeometry(QRect(350, 90, 291, 71));
+        groupBox_6->setGeometry(QRect(670, 10, 281, 71));
         groupBox_6->setStyleSheet(QString::fromUtf8(""));
         gridLayoutWidget_5 = new QWidget(groupBox_6);
         gridLayoutWidget_5->setObjectName(QString::fromUtf8("gridLayoutWidget_5"));
@@ -1581,6 +1688,45 @@ public:
         label_bba_distancia->setAlignment(Qt::AlignCenter);
 
         gridLayout_5->addWidget(label_bba_distancia, 1, 3, 1, 1);
+
+        groupBox_7 = new QGroupBox(tab_estatisticas);
+        groupBox_7->setObjectName(QString::fromUtf8("groupBox_7"));
+        groupBox_7->setGeometry(QRect(290, 10, 341, 41));
+        groupBox_7->setStyleSheet(QString::fromUtf8(""));
+        layoutWidget_3 = new QWidget(groupBox_7);
+        layoutWidget_3->setObjectName(QString::fromUtf8("layoutWidget_3"));
+        layoutWidget_3->setGeometry(QRect(0, 10, 341, 33));
+        horizontalLayout_28 = new QHBoxLayout(layoutWidget_3);
+        horizontalLayout_28->setObjectName(QString::fromUtf8("horizontalLayout_28"));
+        horizontalLayout_28->setContentsMargins(0, 0, 0, 0);
+        label_22 = new QLabel(layoutWidget_3);
+        label_22->setObjectName(QString::fromUtf8("label_22"));
+        sizePolicy.setHeightForWidth(label_22->sizePolicy().hasHeightForWidth());
+        label_22->setSizePolicy(sizePolicy);
+        label_22->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_28->addWidget(label_22);
+
+        botao_bonus_iniciativa = new QPushButton(layoutWidget_3);
+        botao_bonus_iniciativa->setObjectName(QString::fromUtf8("botao_bonus_iniciativa"));
+
+        horizontalLayout_28->addWidget(botao_bonus_iniciativa);
+
+        checkbox_iniciativa = new QCheckBox(layoutWidget_3);
+        checkbox_iniciativa->setObjectName(QString::fromUtf8("checkbox_iniciativa"));
+        sizePolicy1.setHeightForWidth(checkbox_iniciativa->sizePolicy().hasHeightForWidth());
+        checkbox_iniciativa->setSizePolicy(sizePolicy1);
+
+        horizontalLayout_28->addWidget(checkbox_iniciativa);
+
+        spin_iniciativa = new QSpinBox(layoutWidget_3);
+        spin_iniciativa->setObjectName(QString::fromUtf8("spin_iniciativa"));
+        sizePolicy1.setHeightForWidth(spin_iniciativa->sizePolicy().hasHeightForWidth());
+        spin_iniciativa->setSizePolicy(sizePolicy1);
+        spin_iniciativa->setMinimum(-100);
+        spin_iniciativa->setMaximum(999);
+
+        horizontalLayout_28->addWidget(spin_iniciativa);
 
         tab_tesouro->addTab(tab_estatisticas, QString());
         tab = new QWidget();
@@ -1672,9 +1818,7 @@ public:
         QWidget::setTabOrder(combo_tipo_ataque, checkbox_permite_escudo);
         QWidget::setTabOrder(checkbox_permite_escudo, spin_alcance_quad);
         QWidget::setTabOrder(spin_alcance_quad, spin_incrementos);
-        QWidget::setTabOrder(spin_incrementos, spin_ataque);
-        QWidget::setTabOrder(spin_ataque, linha_dano);
-        QWidget::setTabOrder(linha_dano, campo_id);
+        QWidget::setTabOrder(spin_incrementos, campo_id);
         QWidget::setTabOrder(campo_id, checkbox_imune_critico);
         QWidget::setTabOrder(checkbox_imune_critico, linha_furtivo);
         QWidget::setTabOrder(linha_furtivo, botao_ataque_cima);
@@ -1851,22 +1995,10 @@ public:
         spin_mod_conjuracao->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador do atributo de conjura\303\247\303\243o (exemplo: sabedoria para cl\303\251rigos)", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_nivel), QApplication::translate("ifg::qt::DialogoEntidade", "N\303\255vel", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade ter\303\241 iniciativa", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Iniciativa", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_22->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        botao_bonus_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificadores de iniciativa.", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        botao_bonus_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         botao_remover_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Remover ataque", 0, QApplication::UnicodeUTF8));
         checkbox_imune_critico->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Imune a Cr\303\255tico", 0, QApplication::UnicodeUTF8));
-        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "^", 0, QApplication::UnicodeUTF8));
-        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "v", 0, QApplication::UnicodeUTF8));
+        botao_ataque_cima->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\221", 0, QApplication::UnicodeUTF8));
+        botao_ataque_baixo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "\342\206\223", 0, QApplication::UnicodeUTF8));
         botao_clonar_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Clonar ataque", 0, QApplication::UnicodeUTF8));
         groupBox->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Dados Ataque", 0, QApplication::UnicodeUTF8));
         label_36->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Nome", 0, QApplication::UnicodeUTF8));
@@ -1892,21 +2024,68 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Tempestade Glacial", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
         );
+        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Composto", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_composto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arco composto", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma permite acuidade?", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         checkbox_permite_escudo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque permite escudo?", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        checkbox_permite_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Permite Escudo?", 0, QApplication::UnicodeUTF8));
+        checkbox_permite_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escudo?", 0, QApplication::UnicodeUTF8));
         label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
-        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quads", 0, QApplication::UnicodeUTF8));
-        label_32->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Inc", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quads, incrementos", 0, QApplication::UnicodeUTF8));
+        label_32->setText(QString());
 #ifndef QT_NO_TOOLTIP
         spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-        label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus ", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_op->setText(QApplication::translate("ifg::qt::DialogoEntidade", "OP", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        label_23->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (ataque)", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_ataque->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de ataque.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_ataque->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         label_24->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dano", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
-        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 1d8+2 (19-20/x2)", 0, QApplication::UnicodeUTF8));
+        linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano base da arma. Exemplo: 1d8 (19-20/x2)", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        radio_normal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma usada em m\303\243o normal", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        radio_normal->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Normal", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        radio_2_armas_mao_boa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Duas armas, m\303\243o boa", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        radio_2_armas_mao_boa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "2 armas, m\303\243o boa", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        radio_2_armas_mao_ruim->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Duas armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        radio_2_armas_mao_ruim->setText(QApplication::translate("ifg::qt::DialogoEntidade", "2 armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        radio_2_maos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma usada com duas m\303\243os", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        radio_2_maos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "2 m\303\243os", 0, QApplication::UnicodeUTF8));
+        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_dano->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
         label_38->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Furtivo", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         linha_furtivo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Exemplo: 3d6", 0, QApplication::UnicodeUTF8));
@@ -2017,6 +2196,19 @@ public:
         label_71->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Dist\303\242ncia", 0, QApplication::UnicodeUTF8));
         label_bba_cac->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
         label_bba_distancia->setText(QApplication::translate("ifg::qt::DialogoEntidade", "0", 0, QApplication::UnicodeUTF8));
+        groupBox_7->setTitle(QApplication::translate("ifg::qt::DialogoEntidade", "Iniciativa", 0, QApplication::UnicodeUTF8));
+        label_22->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Modificador", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        botao_bonus_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Modificadores de iniciativa.", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        botao_bonus_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Bonus", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        checkbox_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Se marcado, entidade ter\303\241 iniciativa", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_iniciativa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Ligado?   Valor", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_iniciativa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Valor da iniciativa para o combate corrente", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
         tab_tesouro->setTabText(tab_tesouro->indexOf(tab_estatisticas), QApplication::translate("ifg::qt::DialogoEntidade", "Estat\303\255sticas", 0, QApplication::UnicodeUTF8));
         label_37->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Tesouro", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

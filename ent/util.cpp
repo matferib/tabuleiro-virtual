@@ -1193,7 +1193,7 @@ int BonusIndividualTotal(const BonusIndividual& bonus_individual) {
       auto it = mapa_por_origem.find(por_origem.origem());
       if (it == mapa_por_origem.end() || por_origem.valor() > it->second) {
         total += por_origem.valor();
-        it->second = por_origem.valor();
+        mapa_por_origem[por_origem.origem()] = por_origem.valor();
       }
     }
     return total;
@@ -1217,8 +1217,78 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus) {
   return 0;
 }
 
+int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus) {
+  for (const auto& bi : bonus.bonus_individual()) {
+    if (bi.tipo() == tipo) {
+      return BonusIndividualPorOrigem(origem, bi);
+    }
+  }
+  return 0;
+}
+
+int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& bonus_individual) {
+  for (const auto& por_origem : bonus_individual.por_origem()) {
+    if (por_origem.origem() == origem) {
+      return por_origem.valor();
+    }
+  }
+  return 0;
+}
+
+namespace {
+int CalculaBonusBaseAtaque(const EntidadeProto& proto) {
+  int bba = 0;
+  for (const auto& info_classe : proto.info_classes()) {
+    bba += info_classe.bba();
+  }
+  return bba;
+}
+
+// Retorna o bonus de ataque para uma determinada arma.
+int CalculaBonusBaseAtaqueArma(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  return BonusTotal(da.outros_bonus_ataque());
+}
+
+// Retorna a string de dano para uma arma.
+std::string CalculaDanoArma(const EntidadeProto::DadosAtaque& da, const EntidadeProto& proto) {
+  const int forca = BonusTotal(proto.atributos().forca());
+  const int modificador_forca = forca > 0 ? ModificadorAtributo(forca) : 0;
+  int mod_dano = 0;
+  const std::string& tipo_str = da.tipo_ataque();
+  if (tipo_str == "Ataque Corpo a Corpo") {
+    if (modificador_forca < 0) {
+      mod_dano = modificador_forca;
+    } else if (da.duas_maos()) {
+      mod_dano = modificador_forca * 2;
+    } else if (da.mao_ruim()) {
+      mod_dano = modificador_forca / 2;
+    } else {
+      mod_dano = modificador_forca;
+    }
+  } else if (tipo_str == "Ataque a Distância") {
+    // TODO arcos recebem a penalidade de forca e compostos recebem o bonus tb.
+  }
+  const int mod_final = mod_dano + BonusTotal(da.outros_bonus_dano());
+  return da.dano_basico_arma().c_str() + (mod_final != 0 ? google::protobuf::StringPrintf("%+d", mod_final) : "");
+}
+
+void RecomputaDependenciasArma(EntidadeProto::DadosAtaque* da, const EntidadeProto& proto) {
+  int bba = 0;
+  const int bba_cac = proto.bba().cac();
+  const int bba_distancia = proto.bba().distancia();
+  const std::string& tipo_str = da->tipo_ataque();
+  if (tipo_str == "Ácido" || tipo_str == "Ataque a Distância" || tipo_str == "Fogo Alquímico" || 
+      tipo_str == "Pedrada (gigante)" || tipo_str == "Raio") {
+    bba = bba_distancia;
+  } else if (tipo_str == "Ataque Corpo a Corpo") {
+    bba = da->acuidade() && bba_distancia > bba_cac ? bba_distancia : bba_cac;
+  }
+  AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
+}
+
+}  // namespace
+
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
-  //const int modificador_forca        = ModificadorAtributo(ent::BonusTotal(proto->atributos().forca()));
   const int destreza = ent::BonusTotal(proto->atributos().destreza());
   int modificador_destreza     = destreza > 0 ? ModificadorAtributo(destreza) : 0;
   auto* dd = proto->mutable_dados_defesa();
@@ -1255,6 +1325,25 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
     da.set_ca_normal(BonusCATotal(*proto, da.permite_escudo()));
     da.set_ca_surpreso(BonusCASurpreso(*proto, da.permite_escudo()));
     da.set_ca_toque(BonusCAToque(*proto));
+  }
+
+  // BBA.
+  const int forca = ent::BonusTotal(proto->atributos().forca());
+  const int modificador_forca = forca > 0 ? ModificadorAtributo(ent::BonusTotal(proto->atributos().forca())) : 0;
+  const int bba = CalculaBonusBaseAtaque(*proto);
+  proto->mutable_bba()->set_base(bba);
+  proto->mutable_bba()->set_cac(modificador_forca + bba);
+  proto->mutable_bba()->set_distancia(modificador_destreza + bba);
+  proto->mutable_bba()->set_agarrar(modificador_forca + ModificadorTamanhoAgarrar(proto->tamanho()) + bba);
+
+  // Atualiza os bonus de ataques.
+  for (auto& da : *proto->mutable_dados_ataque()) {
+    if (da.duas_maos()) {
+      da.set_permite_escudo(false);
+    }
+    RecomputaDependenciasArma(&da, *proto);
+    da.set_bonus_ataque(CalculaBonusBaseAtaqueArma(da, *proto));
+    da.set_dano(CalculaDanoArma(da, *proto));
   }
 }
 

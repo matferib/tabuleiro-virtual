@@ -1,6 +1,6 @@
 import "ent/acoes.proto";
 import "ent/comum.proto";
-import "ent/tabelas.proto";
+//import "ent/tabelas.proto";
 
 package ent;
 option java_package = "com.matferib.Tabuleiro.ent";
@@ -233,11 +233,12 @@ message EntidadeProto {
 
   // Dados para ataque automatico.
   message DadosAtaque {
-    // Deve casar com as strings do arquivo de dados das acoes.
     optional string rotulo = 9;
+    // Deve casar com as strings de id do arquivo de dados das acoes.
     optional string tipo_ataque = 1;
+    // Bonus final para ataque.
     optional int32 bonus_ataque = 2;
-    // TODO string de critico. Parseavel.
+    // O dano final da arma: 1d8+5.
     optional string dano = 3;
     optional int32 margem_critico = 6 [default=20];
     optional int32 multiplicador_critico = 7 [default=2];
@@ -249,6 +250,22 @@ message EntidadeProto {
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
     optional bool permite_escudo = 13;
+    // Indica arma obra prima.
+    optional bool obra_prima = 14;
+    // Arma usada com duas mãos.
+    optional bool duas_maos = 16;
+    // Arma permite acuidade.
+    optional bool acuidade = 17;
+    // Para duas armas.
+    optional bool mao_ruim = 18;
+    optional bool mao_boa = 19;
+    // Para arcos compostos.
+    optional int32 bonus_composto = 20;
+    // Os bonus de ataque e dano. Inclui magicos e outras coisas.
+    optional Bonus outros_bonus_ataque = 21;
+    optional Bonus outros_bonus_dano = 22;
+    // Apenas o dano basico da arma, parseavel (exemplo: '1d8 (19-20/x3)').
+    optional string dano_basico_arma = 23;
   }
   repeated DadosAtaque dados_ataque = 44;
   // Independe de ataque especifico.
@@ -310,7 +327,8 @@ message EntidadeProto {
 
   // Informacoes sobre a classe do personagem.
   repeated InfoClasse info_classes = 63;
-  // TODO usar ou nao isso?
+
+  // Bonus base de ataque.
   message InfoBBA {
     optional int32 base = 1;
     optional int32 agarrar = 2;
@@ -318,6 +336,7 @@ message EntidadeProto {
     optional int32 distancia = 4;
   }
   optional InfoBBA bba = 70;
+
   // Mesmo que haja um modelo 3d, desenha o tijolo de base da entidade.
   optional bool desenha_base = 65;
   // Outras coisas de entidade, apenas para armazenamento.

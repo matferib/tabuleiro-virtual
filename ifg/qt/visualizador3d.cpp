@@ -1114,8 +1114,27 @@ QString NumeroSinalizado(int valor) {
   return ret;
 }
 
-// Monta a string de dano de um ataque, como 1d6 (x3).
+// Monta a string de dano de uma arma de um ataque, como 1d6 (x3). Nao inclui modificadores.
 std::string StringDano(const ent::EntidadeProto::DadosAtaque& da) {
+  std::string critico;
+  if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
+    critico += "(";
+    if (da.margem_critico() < 20) {
+      critico += net::to_string(da.margem_critico()) + "-20";
+      if (da.multiplicador_critico() > 2) {
+        critico += "/";
+      }
+    }
+    if (da.multiplicador_critico() > 2) {
+      critico += "x" + net::to_string(da.multiplicador_critico());
+    }
+    critico += ")";
+  }
+  return da.dano_basico_arma() + critico;
+}
+
+// Monta a string de dano de um ataque incluindo modificadores, como 1d6+3 (x3), CA: 12/12/10.
+std::string StringFinalDanoComCA(const ent::EntidadeProto::DadosAtaque& da) {
   // Monta a string.
   std::string critico;
   if (da.multiplicador_critico() > 2 || da.margem_critico() < 20) {
@@ -1152,7 +1171,7 @@ std::string ResumoArma(const ent::EntidadeProto::DadosAtaque& da) {
   std::string string_escudo = da.permite_escudo() ? "(escudo)" : "";
   return google::protobuf::StringPrintf(
       "id: %s%s, %sbonus: %d, dano: %s, ca%s: %d toque: %d surpresa%s: %d",
-      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringDano(da).c_str(), string_escudo.c_str(), da.ca_normal(),
+      string_rotulo, da.tipo_ataque().c_str(), string_alcance, da.bonus_ataque(), StringFinalDanoComCA(da).c_str(), string_escudo.c_str(), da.ca_normal(),
       da.ca_toque(), string_escudo.c_str(), da.ca_surpreso());
 }
 
@@ -1198,27 +1217,72 @@ void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
   }
 }
 
-// Refresca a lista de ataques toda.
+void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
+  gerador.botao_remover_ataque->setEnabled(false);
+  gerador.botao_ataque_cima->setEnabled(false);
+  gerador.botao_ataque_baixo->setEnabled(false);
+  gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
+
+  gerador.checkbox_op->setCheckState(Qt::Unchecked);
+  gerador.checkbox_acuidade->setCheckState(Qt::Unchecked);
+  gerador.checkbox_permite_escudo->setCheckState(Qt::Unchecked);
+  gerador.botao_bonus_ataque->setText("0");
+  gerador.botao_bonus_dano->setText("0");
+  gerador.spin_bonus_magico->setValue(0);
+  gerador.linha_dano->clear();
+  gerador.spin_alcance_quad->setValue(0);
+}
+
+// Refresca a lista de ataques toda e atualiza os controles de acordo com a linha selecionada.
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
-  int linha = gerador.lista_ataques->currentRow();
+  std::vector<QObject*> objs =
+      {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_acuidade, gerador.checkbox_permite_escudo,
+       gerador.spin_alcance_quad, gerador.spin_incrementos,
+       gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques };
+  for (auto* obj : objs) obj->blockSignals(true);
+
+  // Tem que vir antes do clear.
+  const int linha = gerador.lista_ataques->currentRow();
   gerador.lista_ataques->clear();
   for (const auto& da : proto.dados_ataque()) {
     gerador.lista_ataques->addItem(QString::fromUtf8(ResumoArma(da).c_str()));
   }
+  // Restaura a linha.
   gerador.lista_ataques->setCurrentRow(linha);
   // BBA.
   int bba = 0;
   for (const auto& info_classe : proto.info_classes()) {
     bba += info_classe.bba();
   }
-  const int forca = ent::BonusTotal(proto.atributos().forca());
-  const int modificador_forca = forca > 0 ? ent::ModificadorAtributo(forca) : 0;
-  gerador.label_bba_base->setText(QString::number(bba));
-  const int modificador_destreza = ent::ModificadorDestreza(proto, tabelas);
-  const int modificador_tamanho_agarrar = ent::ModificadorTamanhoAgarrar(proto.tamanho());
-  gerador.label_bba_agarrar->setText(QString::number(bba + modificador_forca + modificador_tamanho_agarrar));
-  gerador.label_bba_cac->setText(QString::number(bba + modificador_forca));
-  gerador.label_bba_distancia->setText(QString::number(bba + modificador_destreza));
+  gerador.label_bba_base->setText(QString::number(proto.bba().base()));
+  gerador.label_bba_agarrar->setText(QString::number(proto.bba().agarrar()));
+  gerador.label_bba_cac->setText(QString::number(proto.bba().cac()));
+  gerador.label_bba_distancia->setText(QString::number(proto.bba().distancia()));
+
+  if (linha < 0 || linha >= proto.dados_ataque_size()) {
+    LimpaCamposAtaque(gerador);
+    for (auto* obj : objs) obj->blockSignals(false);
+    return;
+  }
+  gerador.botao_remover_ataque->setEnabled(true);
+  const auto& da = proto.dados_ataque(linha);
+  gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
+  gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
+  gerador.checkbox_permite_escudo->setCheckState(da.permite_escudo() ? Qt::Checked : Qt::Unchecked);
+  gerador.linha_dano->setText(QString::fromUtf8(StringDano(da).c_str()));
+  gerador.spin_incrementos->setValue(da.incrementos());
+  gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
+  gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
+  gerador.checkbox_acuidade->setCheckState(da.acuidade() ? Qt::Checked : Qt::Unchecked);
+  gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.outros_bonus_ataque()));
+  gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.outros_bonus_ataque())));
+  gerador.botao_bonus_dano->setText(QString::number(ent::BonusTotal(da.outros_bonus_dano())));
+  gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
+  if (proto.dados_ataque().size() > 1) {
+    gerador.botao_ataque_cima->setEnabled(true);
+    gerador.botao_ataque_baixo->setEnabled(true);
+  }
+  for (auto* obj : objs) obj->blockSignals(false);
 }
 
 void AtualizaUIDefesa(ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
@@ -1291,18 +1355,22 @@ void AtualizaUISalvacoes(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entid
 // Usada fora do PreencheConfiguraDadosAtaque.
 void AdicionaOuAtualizaAtaqueEntidade(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
-  ent::EntidadeProto::DadosAtaque da;
   int indice = gerador.lista_ataques->currentRow();
   bool indice_valido = (indice >= 0 && indice < proto_retornado->dados_ataque().size());
+  ent::EntidadeProto::DadosAtaque da = indice_valido ? proto_retornado->dados_ataque(indice) : ent::EntidadeProto::DadosAtaque::default_instance();
   if (gerador.combo_tipo_ataque->currentIndex() > ULTIMO_TIPO_VALIDO && indice_valido) {
     da.set_tipo_ataque(proto_retornado->dados_ataque(indice).tipo_ataque());
   } else {
     da.set_tipo_ataque(IndiceParaTipo(gerador.combo_tipo_ataque->currentIndex()));
   }
-  da.set_bonus_ataque(gerador.spin_ataque->value());
+  ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_ataque());
+  ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_dano());
+  da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
+  ent::AtribuiBonus(da.obra_prima() ? 1 : 0, ent::TB_MELHORIA, "arma_obra_prima", da.mutable_outros_bonus_ataque());
   da.set_permite_escudo(gerador.checkbox_permite_escudo->checkState() == Qt::Checked);
+  da.set_acuidade(gerador.checkbox_acuidade->checkState() == Qt::Checked);
   ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
-  da.set_dano(dano_arma.dano);
+  da.set_dano_basico_arma(dano_arma.dano);
   da.set_multiplicador_critico(dano_arma.multiplicador);
   da.set_margem_critico(dano_arma.margem_critico);
   da.set_rotulo(gerador.linha_rotulo_ataque->text().toUtf8().constData());
@@ -1313,10 +1381,11 @@ void AdicionaOuAtualizaAtaqueEntidade(
     da.clear_alcance_m();
   }
   if (indice_valido) {
-    proto_retornado->mutable_dados_ataque(indice)->MergeFrom(da);
+    proto_retornado->mutable_dados_ataque(indice)->Swap(&da);
   } else {
     proto_retornado->add_dados_ataque()->Swap(&da);
   }
+  RecomputaDependencias(this_->tabelas(), proto_retornado);
   AtualizaUIAtaquesDefesa(this_->tabelas(), gerador, *proto_retornado);
 }
 
@@ -1445,7 +1514,6 @@ void PreencheConfiguraDadosAtaque(
       return;
     }
     AdicionaOuAtualizaAtaqueEntidade(this_, gerador, proto_retornado);
-    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
     if (indice_antes < proto_retornado->dados_ataque().size()) {
       gerador.lista_ataques->setCurrentRow(indice_antes);
     } else {
@@ -1454,32 +1522,7 @@ void PreencheConfiguraDadosAtaque(
   };
 
   lambda_connect(gerador.lista_ataques, SIGNAL(currentRowChanged(int)), [&tabelas, &gerador, proto_retornado] () {
-    std::vector<QObject*> objs =
-        {gerador.spin_ataque, gerador.spin_alcance_quad, gerador.spin_incrementos,
-         gerador.combo_tipo_ataque, gerador.linha_dano };
-    for (auto* obj : objs) obj->blockSignals(true);
-    if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
-      gerador.botao_remover_ataque->setEnabled(false);
-      gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
-      gerador.botao_ataque_cima->setEnabled(false);
-      gerador.botao_ataque_baixo->setEnabled(false);
-    } else {
-      gerador.botao_remover_ataque->setEnabled(true);
-      const auto& da = proto_retornado->dados_ataque(gerador.lista_ataques->currentRow());
-      gerador.linha_rotulo_ataque->setText(QString::fromUtf8(da.rotulo().c_str()));
-      gerador.combo_tipo_ataque->setCurrentIndex(TipoParaIndice(da.tipo_ataque()));
-      gerador.spin_ataque->setValue(da.bonus_ataque());
-      gerador.checkbox_permite_escudo->setCheckState(da.permite_escudo() ? Qt::Checked : Qt::Unchecked);
-      gerador.linha_dano->setText(StringDano(da).c_str());
-      gerador.spin_incrementos->setValue(da.incrementos());
-      gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
-      gerador.botao_clonar_ataque->setText(QObject::tr("Clonar"));
-      if (proto_retornado->dados_ataque().size() > 1) {
-        gerador.botao_ataque_cima->setEnabled(true);
-        gerador.botao_ataque_baixo->setEnabled(true);
-      }
-      for (auto* obj : objs) obj->blockSignals(false);
-    }
+    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
   });
   lambda_connect(gerador.botao_clonar_ataque, SIGNAL(clicked()), [this_, &tabelas, &gerador, proto_retornado] () {
     int indice = gerador.lista_ataques->currentRow();
@@ -1499,7 +1542,6 @@ void PreencheConfiguraDadosAtaque(
       return;
     }
     proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice - 1));
-    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
     gerador.lista_ataques->setCurrentRow(indice - 1);
   });
   lambda_connect(gerador.botao_ataque_baixo, SIGNAL(clicked()), [&tabelas, &gerador, proto_retornado] () {
@@ -1509,7 +1551,6 @@ void PreencheConfiguraDadosAtaque(
       return;
     }
     proto_retornado->mutable_dados_ataque(indice)->Swap(proto_retornado->mutable_dados_ataque(indice + 1));
-    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
     gerador.lista_ataques->setCurrentRow(indice + 1);
   });
 
@@ -1518,25 +1559,32 @@ void PreencheConfiguraDadosAtaque(
       return;
     }
     proto_retornado->mutable_dados_ataque()->DeleteSubrange(gerador.lista_ataques->currentRow(), 1);
-    gerador.spin_ataque->clear();
-    gerador.checkbox_permite_escudo->setCheckState(Qt::Unchecked);
-    gerador.spin_incrementos->clear();
-    gerador.spin_alcance_quad->clear();
-    gerador.linha_dano->clear();
-    gerador.linha_rotulo_ataque->clear();
-    gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
-    gerador.botao_ataque_cima->setEnabled(false);
-    gerador.botao_ataque_baixo->setEnabled(false);
-    AtualizaUIAtaque(tabelas, gerador, *proto_retornado);
+    gerador.lista_ataques->setCurrentRow(-1);
   });
   // Ao adicionar aqui, adicione nos sinais bloqueados tb (blockSignals). Exceto para textEdited, que nao dispara sinal programaticamente.
   lambda_connect(gerador.linha_rotulo_ataque, SIGNAL(textEdited(const QString&)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.linha_dano, SIGNAL(editingFinished()), [EditaRefrescaLista]() { EditaRefrescaLista(); } );  // nao pode refrescar no meio pois tem processamento da string.
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
-  lambda_connect(gerador.spin_ataque, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.checkbox_acuidade, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.checkbox_permite_escudo, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_alcance_quad, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.botao_bonus_ataque, SIGNAL(clicked()), [this_, EditaRefrescaLista, &gerador, proto_retornado] {
+    if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
+      return;
+    }
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_ataque());
+    EditaRefrescaLista();
+  });
+  lambda_connect(gerador.botao_bonus_dano, SIGNAL(clicked()), [this_, EditaRefrescaLista, &gerador, proto_retornado] {
+    if (gerador.lista_ataques->currentRow() == -1 || gerador.lista_ataques->currentRow() >= proto_retornado->dados_ataque().size()) {
+      return;
+    }
+    AbreDialogoBonus(this_, proto_retornado->mutable_dados_ataque(gerador.lista_ataques->currentRow())->mutable_outros_bonus_dano());
+    EditaRefrescaLista();
+  });
   // Furtivo
   gerador.linha_furtivo->setText(QString::fromUtf8(ent.dados_ataque_globais().dano_furtivo().c_str()));
 }
