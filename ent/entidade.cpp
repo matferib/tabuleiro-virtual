@@ -1344,7 +1344,7 @@ std::string Entidade::StringDanoParaAcao() const {
 
 std::string Entidade::StringCAParaAcao() const {
   const auto* da = DadoCorrente();
-  const bool permite_escudo = da == nullptr || da->permite_escudo();
+  const bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
   int normal, toque;
   std::string info = !permite_escudo && !proto_.surpreso()
       ? "" : permite_escudo && proto_.surpreso() ? "(esc+surp) " : permite_escudo ? "(escudo) " : "(surpreso) ";
@@ -1428,7 +1428,7 @@ int Entidade::BonusAtaque() const {
 int Entidade::CA(TipoCA tipo_ca) const {
   const auto* da = DadoCorrente();
   if (proto_.dados_defesa().has_ca()) {
-    bool permite_escudo = da == nullptr || da->permite_escudo();
+    bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
     if (tipo_ca == CA_NORMAL) {
       return proto_.surpreso() ? BonusCASurpreso(proto_, permite_escudo) : BonusCATotal(proto_, permite_escudo);
     } else {

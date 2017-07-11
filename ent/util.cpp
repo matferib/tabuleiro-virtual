@@ -1325,8 +1325,9 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   // CA dos ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
-    da.set_ca_normal(BonusCATotal(*proto, da.permite_escudo()));
-    da.set_ca_surpreso(BonusCASurpreso(*proto, da.permite_escudo()));
+    bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
+    da.set_ca_normal(BonusCATotal(*proto, permite_escudo));
+    da.set_ca_surpreso(BonusCASurpreso(*proto, permite_escudo));
     da.set_ca_toque(BonusCAToque(*proto));
   }
 
@@ -1341,9 +1342,6 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
 
   // Atualiza os bonus de ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
-    if (da.empunhadura() != EA_NORMAL) {
-      da.set_permite_escudo(false);
-    }
     RecomputaDependenciasArma(&da, *proto);
     da.set_bonus_ataque(CalculaBonusBaseAtaqueArma(da, *proto));
     da.set_dano(CalculaDanoArma(da, *proto));

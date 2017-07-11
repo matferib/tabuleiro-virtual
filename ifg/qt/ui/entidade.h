@@ -185,7 +185,6 @@ public:
     QLabel *label_64;
     QSpinBox *spin_composto;
     QCheckBox *checkbox_acuidade;
-    QCheckBox *checkbox_permite_escudo;
     QHBoxLayout *horizontalLayout_6;
     QLabel *label_29;
     QSpinBox *spin_alcance_quad;
@@ -1098,13 +1097,6 @@ public:
 
         horizontalLayout_29->addWidget(checkbox_acuidade);
 
-        checkbox_permite_escudo = new QCheckBox(verticalLayoutWidget_2);
-        checkbox_permite_escudo->setObjectName(QString::fromUtf8("checkbox_permite_escudo"));
-        sizePolicy1.setHeightForWidth(checkbox_permite_escudo->sizePolicy().hasHeightForWidth());
-        checkbox_permite_escudo->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_29->addWidget(checkbox_permite_escudo);
-
 
         verticalLayout_2->addLayout(horizontalLayout_29);
 
@@ -1797,8 +1789,7 @@ public:
         QWidget::setTabOrder(spin_ca_armadura_melhoria, spin_ca_escudo_melhoria);
         QWidget::setTabOrder(spin_ca_escudo_melhoria, linha_rotulo_ataque);
         QWidget::setTabOrder(linha_rotulo_ataque, combo_tipo_ataque);
-        QWidget::setTabOrder(combo_tipo_ataque, checkbox_permite_escudo);
-        QWidget::setTabOrder(checkbox_permite_escudo, spin_alcance_quad);
+        QWidget::setTabOrder(combo_tipo_ataque, spin_alcance_quad);
         QWidget::setTabOrder(spin_alcance_quad, spin_incrementos);
         QWidget::setTabOrder(spin_incrementos, campo_id);
         QWidget::setTabOrder(campo_id, checkbox_imune_critico);
@@ -2014,10 +2005,6 @@ public:
         checkbox_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma permite acuidade?", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         checkbox_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        checkbox_permite_escudo->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Ataque permite escudo?", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_permite_escudo->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Escudo?", 0, QApplication::UnicodeUTF8));
         label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", 0, QApplication::UnicodeUTF8));
@@ -2050,10 +2037,11 @@ public:
         label_73->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Empunhadura", 0, QApplication::UnicodeUTF8));
         combo_empunhadura->clear();
         combo_empunhadura->insertItems(0, QStringList()
-         << QApplication::translate("ifg::qt::DialogoEntidade", "Normal", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Arma apenas", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", 0, QApplication::UnicodeUTF8)
         );
         label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP

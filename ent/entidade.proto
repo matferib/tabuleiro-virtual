@@ -91,15 +91,18 @@ enum TipoBonus {
 }
 
 // Como uma arma esta empunhada.
+// Na UI, deve ter a mesma ordem no combo.
 enum EmpunhaduraArma {
-  // Normal.
-  EA_NORMAL = 0;
+  // Apenas arma e mais nada.
+  EA_ARMA_APENAS = 0;
   // Emphada em duas maos.
   EA_2_MAOS = 1;
   // 2 armas: empunhada na mao boa.
   EA_MAO_BOA = 2;
   // 2 armas: empunhada na mao ruim.
   EA_MAO_RUIM = 3;
+  // Arma e escudo.
+  EA_ARMA_ESCUDO = 4;
 }
 
 // Um tipo de bonus.
@@ -261,7 +264,6 @@ message EntidadeProto {
     optional float alcance_m = 10;
     optional int32 incrementos = 11;  // Quantos incrementos de distancia sao permitidos.
     optional AcaoProto acao = 12;     // Para fazer merge com a acao do tipo_ataque.
-    optional bool permite_escudo = 13;
     // Indica arma obra prima.
     optional bool obra_prima = 14;
     optional EmpunhaduraArma empunhadura = 15;
