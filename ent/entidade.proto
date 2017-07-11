@@ -90,6 +90,18 @@ enum TipoBonus {
   TB_TAMANHO = 28;
 }
 
+// Como uma arma esta empunhada.
+enum EmpunhaduraArma {
+  // Normal.
+  EA_NORMAL = 0;
+  // Emphada em duas maos.
+  EA_2_MAOS = 1;
+  // 2 armas: empunhada na mao boa.
+  EA_MAO_BOA = 2;
+  // 2 armas: empunhada na mao ruim.
+  EA_MAO_RUIM = 3;
+}
+
 // Um tipo de bonus.
 message BonusIndividual {
   optional TipoBonus tipo = 1;
@@ -252,13 +264,9 @@ message EntidadeProto {
     optional bool permite_escudo = 13;
     // Indica arma obra prima.
     optional bool obra_prima = 14;
-    // Arma usada com duas mãos.
-    optional bool duas_maos = 16;
+    optional EmpunhaduraArma empunhadura = 15;
     // Arma permite acuidade.
     optional bool acuidade = 17;
-    // Para duas armas.
-    optional bool mao_ruim = 18;
-    optional bool mao_boa = 19;
     // Para arcos compostos.
     optional int32 bonus_composto = 20;
     // Os bonus de ataque e dano. Inclui magicos e outras coisas.

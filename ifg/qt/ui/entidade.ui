@@ -1836,67 +1836,43 @@ QGroupBox::title {
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radio_normal">
+          <widget class="QLabel" name="label_73">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
-           <property name="toolTip">
-            <string>Arma usada em mão normal</string>
-           </property>
            <property name="text">
-            <string>Normal</string>
+            <string>Empunhadura</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radio_2_armas_mao_boa">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Duas armas, mão boa</string>
-           </property>
-           <property name="text">
-            <string>2 armas, mão boa</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="radio_2_armas_mao_ruim">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Duas armas, mão ruim</string>
-           </property>
-           <property name="text">
-            <string>2 armas, mão ruim</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QRadioButton" name="radio_2_maos">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="toolTip">
-            <string>Arma usada com duas mãos</string>
-           </property>
-           <property name="text">
-            <string>2 mãos</string>
-           </property>
+          <widget class="QComboBox" name="combo_empunhadura">
+           <item>
+            <property name="text">
+             <string>Normal</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Duas mãos</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2 Armas, mão boa</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>2 Armas, mão ruim</string>
+            </property>
+           </item>
           </widget>
          </item>
          <item>

@@ -27,7 +27,6 @@
 #include <QtGui/QListWidget>
 #include <QtGui/QPlainTextEdit>
 #include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
 #include <QtGui/QSlider>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSpinBox>
@@ -202,10 +201,8 @@ public:
     QHBoxLayout *horizontalLayout_34;
     QLabel *label_24;
     QLineEdit *linha_dano;
-    QRadioButton *radio_normal;
-    QRadioButton *radio_2_armas_mao_boa;
-    QRadioButton *radio_2_armas_mao_ruim;
-    QRadioButton *radio_2_maos;
+    QLabel *label_73;
+    QComboBox *combo_empunhadura;
     QSpacerItem *horizontalSpacer_3;
     QLabel *label_72;
     QPushButton *botao_bonus_dano;
@@ -1215,33 +1212,18 @@ public:
 
         horizontalLayout_34->addWidget(linha_dano);
 
-        radio_normal = new QRadioButton(verticalLayoutWidget_2);
-        radio_normal->setObjectName(QString::fromUtf8("radio_normal"));
-        sizePolicy1.setHeightForWidth(radio_normal->sizePolicy().hasHeightForWidth());
-        radio_normal->setSizePolicy(sizePolicy1);
+        label_73 = new QLabel(verticalLayoutWidget_2);
+        label_73->setObjectName(QString::fromUtf8("label_73"));
+        sizePolicy5.setHeightForWidth(label_73->sizePolicy().hasHeightForWidth());
+        label_73->setSizePolicy(sizePolicy5);
+        label_73->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_34->addWidget(radio_normal);
+        horizontalLayout_34->addWidget(label_73);
 
-        radio_2_armas_mao_boa = new QRadioButton(verticalLayoutWidget_2);
-        radio_2_armas_mao_boa->setObjectName(QString::fromUtf8("radio_2_armas_mao_boa"));
-        sizePolicy1.setHeightForWidth(radio_2_armas_mao_boa->sizePolicy().hasHeightForWidth());
-        radio_2_armas_mao_boa->setSizePolicy(sizePolicy1);
+        combo_empunhadura = new QComboBox(verticalLayoutWidget_2);
+        combo_empunhadura->setObjectName(QString::fromUtf8("combo_empunhadura"));
 
-        horizontalLayout_34->addWidget(radio_2_armas_mao_boa);
-
-        radio_2_armas_mao_ruim = new QRadioButton(verticalLayoutWidget_2);
-        radio_2_armas_mao_ruim->setObjectName(QString::fromUtf8("radio_2_armas_mao_ruim"));
-        sizePolicy1.setHeightForWidth(radio_2_armas_mao_ruim->sizePolicy().hasHeightForWidth());
-        radio_2_armas_mao_ruim->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_34->addWidget(radio_2_armas_mao_ruim);
-
-        radio_2_maos = new QRadioButton(verticalLayoutWidget_2);
-        radio_2_maos->setObjectName(QString::fromUtf8("radio_2_maos"));
-        sizePolicy1.setHeightForWidth(radio_2_maos->sizePolicy().hasHeightForWidth());
-        radio_2_maos->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_34->addWidget(radio_2_maos);
+        horizontalLayout_34->addWidget(combo_empunhadura);
 
         horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -2065,22 +2047,14 @@ public:
 #ifndef QT_NO_TOOLTIP
         linha_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Dano base da arma. Exemplo: 1d8 (19-20/x2)", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        radio_normal->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma usada em m\303\243o normal", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        radio_normal->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Normal", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        radio_2_armas_mao_boa->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Duas armas, m\303\243o boa", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        radio_2_armas_mao_boa->setText(QApplication::translate("ifg::qt::DialogoEntidade", "2 armas, m\303\243o boa", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        radio_2_armas_mao_ruim->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Duas armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        radio_2_armas_mao_ruim->setText(QApplication::translate("ifg::qt::DialogoEntidade", "2 armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        radio_2_maos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma usada com duas m\303\243os", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        radio_2_maos->setText(QApplication::translate("ifg::qt::DialogoEntidade", "2 m\303\243os", 0, QApplication::UnicodeUTF8));
+        label_73->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Empunhadura", 0, QApplication::UnicodeUTF8));
+        combo_empunhadura->clear();
+        combo_empunhadura->insertItems(0, QStringList()
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Normal", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "Duas m\303\243os", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o boa", 0, QApplication::UnicodeUTF8)
+         << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8)
+        );
         label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", 0, QApplication::UnicodeUTF8));

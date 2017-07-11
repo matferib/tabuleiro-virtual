@@ -1223,6 +1223,7 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
   gerador.botao_ataque_baixo->setEnabled(false);
   gerador.botao_clonar_ataque->setText(QObject::tr("Adicionar"));
 
+  gerador.combo_empunhadura->setCurrentIndex(0);
   gerador.checkbox_op->setCheckState(Qt::Unchecked);
   gerador.checkbox_acuidade->setCheckState(Qt::Unchecked);
   gerador.checkbox_permite_escudo->setCheckState(Qt::Unchecked);
@@ -1237,7 +1238,7 @@ void LimpaCamposAtaque(ifg::qt::Ui::DialogoEntidade& gerador) {
 void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade& gerador, const ent::EntidadeProto& proto) {
   std::vector<QObject*> objs =
       {gerador.spin_bonus_magico, gerador.checkbox_op, gerador.checkbox_acuidade, gerador.checkbox_permite_escudo,
-       gerador.spin_alcance_quad, gerador.spin_incrementos,
+       gerador.spin_alcance_quad, gerador.spin_incrementos, gerador.combo_empunhadura,
        gerador.combo_tipo_ataque, gerador.linha_dano, gerador.linha_rotulo_ataque, gerador.lista_ataques };
   for (auto* obj : objs) obj->blockSignals(true);
 
@@ -1273,6 +1274,7 @@ void AtualizaUIAtaque(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntidade&
   gerador.spin_incrementos->setValue(da.incrementos());
   gerador.spin_alcance_quad->setValue(METROS_PARA_QUADRADOS * (da.has_alcance_m() ? da.alcance_m() : -1.5f));
   gerador.checkbox_op->setCheckState(da.obra_prima() ? Qt::Checked : Qt::Unchecked);
+  gerador.combo_empunhadura->setCurrentIndex(da.empunhadura());
   gerador.checkbox_acuidade->setCheckState(da.acuidade() ? Qt::Checked : Qt::Unchecked);
   gerador.spin_bonus_magico->setValue(ent::BonusIndividualPorOrigem(ent::TB_MELHORIA, "arma_magica", da.outros_bonus_ataque()));
   gerador.botao_bonus_ataque->setText(QString::number(ent::BonusTotal(da.outros_bonus_ataque())));
@@ -1352,7 +1354,15 @@ void AtualizaUISalvacoes(ifg::qt::Ui::DialogoEntidade& gerador, const ent::Entid
 // Fim AtualizaUI*.
 //---------------------------------------------------------------------
 
-// Usada fora do PreencheConfiguraDadosAtaque.
+ent::EmpunhaduraArma ComboParaEmpunhadura(QComboBox* combo) {
+  if (!ent::EmpunhaduraArma_IsValid(combo->currentIndex())) {
+    return ent::EA_NORMAL;
+  }
+  return static_cast<ent::EmpunhaduraArma>(combo->currentIndex());
+}
+
+// Se houver selecionada, ira atualizar o dado de ataque. Caso contrario, criara um novo dado de ataque com os dados
+// lidos dos controles da UI. No final, recomputara dependencias e atualizara a UI.
 void AdicionaOuAtualizaAtaqueEntidade(
     Visualizador3d* this_, ifg::qt::Ui::DialogoEntidade& gerador, ent::EntidadeProto* proto_retornado) {
   int indice = gerador.lista_ataques->currentRow();
@@ -1367,6 +1377,7 @@ void AdicionaOuAtualizaAtaqueEntidade(
   ent::AtribuiBonus(gerador.spin_bonus_magico->value(), ent::TB_MELHORIA, "arma_magica", da.mutable_outros_bonus_dano());
   da.set_obra_prima(gerador.checkbox_op->checkState() == Qt::Checked);
   ent::AtribuiBonus(da.obra_prima() ? 1 : 0, ent::TB_MELHORIA, "arma_obra_prima", da.mutable_outros_bonus_ataque());
+  da.set_empunhadura(ComboParaEmpunhadura(gerador.combo_empunhadura));
   da.set_permite_escudo(gerador.checkbox_permite_escudo->checkState() == Qt::Checked);
   da.set_acuidade(gerador.checkbox_acuidade->checkState() == Qt::Checked);
   ent::DanoArma dano_arma = ent::LeDanoArma(gerador.linha_dano->text().toUtf8().constData());
@@ -1567,6 +1578,7 @@ void PreencheConfiguraDadosAtaque(
   lambda_connect(gerador.combo_tipo_ataque, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_bonus_magico, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.checkbox_op, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
+  lambda_connect(gerador.combo_empunhadura, SIGNAL(currentIndexChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.checkbox_acuidade, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.checkbox_permite_escudo, SIGNAL(stateChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
   lambda_connect(gerador.spin_incrementos, SIGNAL(valueChanged(int)), [EditaRefrescaLista]() { EditaRefrescaLista(); } );
