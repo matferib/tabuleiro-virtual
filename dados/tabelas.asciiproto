@@ -54,7 +54,7 @@ tabela_armas {
     dano { medio: '1d4' }
     incremento_quadrados: 2
     critico: '19-20/×2'
-    peso { medio: '05kg' }
+    peso { medio: '0.5kg' }
     tipo_dano: TD_CORTANTE
     tipo_dano: TD_PERFURANTE
   }
@@ -65,7 +65,7 @@ tabela_armas {
     preco: '2 PO'
     dano { medio: '1d4' }
     critico: '×3'
-    peso { medio: '5kg' }
+    peso { medio: '0.5kg' }
     tipo_dano: TD_PERFURANTE
   }
   armas {

@@ -14,15 +14,16 @@ class Tabelas {
 
   const TodasTabelas& todas() const { return tabelas_; }
 
-  const ArmaduraOuEscudo& Armadura(const std::string& id) const;
-  const ArmaduraOuEscudo& Escudo(const std::string& id) const;
-  //const Arma& Arma(const std::string& id) const;
+  // As funcoes retornam a instancia padrao caso nao encontrem a chave.
+  const ArmaduraOuEscudoProto& Armadura(const std::string& id) const;
+  const ArmaduraOuEscudoProto& Escudo(const std::string& id) const;
+  const ArmaProto& Arma(const std::string& id) const;
 
  private:
   TodasTabelas tabelas_;
-  std::unordered_map<std::string, const ArmaduraOuEscudo*> armaduras_;
-  std::unordered_map<std::string, const ArmaduraOuEscudo*> escudos_;
-  std::unordered_map<std::string, const Arma*> armas_;
+  std::unordered_map<std::string, const ArmaduraOuEscudoProto*> armaduras_;
+  std::unordered_map<std::string, const ArmaduraOuEscudoProto*> escudos_;
+  std::unordered_map<std::string, const ArmaProto*> armas_;
 };
 
 }  // namespace ent

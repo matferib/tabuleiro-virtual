@@ -261,6 +261,9 @@ int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo);
 int BonusCAToque(const EntidadeProto& proto);
 int BonusCAToqueSurpreso(const EntidadeProto& proto);
 
+inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
+inline bool ArmaDistancia(const ArmaProto& arma) { return arma.incremento_quadrados() > 0; }
+
 }  // namespace ent
 
 #endif  // ENT_UTIL_H

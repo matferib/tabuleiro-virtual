@@ -11,7 +11,7 @@ enum TipoArmadura {
   TA_PESADO = 2;
 }
 
-message ArmaduraOuEscudo {
+message ArmaduraOuEscudoProto {
   optional string nome = 1;
   optional Preco preco = 2;
   optional int32 bonus = 3;
@@ -25,17 +25,44 @@ message ArmaduraOuEscudo {
   optional string id = 10;
 }
 
-message Arma {
+enum CategoriaArma {
+  CAT_CAC_LEVE = 0;
+}
+
+enum TipoDano {
+  TD_CORTANTE = 0;
+  TD_CONCUSSAO = 1;
+  TD_PERFURANTE = 2;
+}
+
+// O medio vem de tabela e os outros gerados automaticamente.
+message StringPorTamanho {
+  optional string medio = 1;
+  optional string pequeno = 2;
+  optional string grande = 3;
+}
+
+message ArmaProto {
   optional string id = 1;
+  optional string nome = 2;
+  repeated CategoriaArma categoria = 3;
+  optional string preco = 4;
+  optional StringPorTamanho dano = 5;
+  // Presente em armas duplas.
+  optional StringPorTamanho dano_secundario = 6;
+  optional string critico = 7;
+  optional StringPorTamanho peso = 8;
+  repeated TipoDano tipo_dano = 9;
+  optional int32 incremento_quadrados = 10;
 }
 
 message TabelaArmaduraOuEscudo {
-  repeated ArmaduraOuEscudo armaduras = 1;
-  repeated ArmaduraOuEscudo escudos = 2;
+  repeated ArmaduraOuEscudoProto armaduras = 1;
+  repeated ArmaduraOuEscudoProto escudos = 2;
 }
 
 message TabelaArmas {
-  repeated Arma armas = 1;
+  repeated ArmaProto armas = 1;
 }
 
 // O arquivo tabelas.asciiproto eh desse tipo.
