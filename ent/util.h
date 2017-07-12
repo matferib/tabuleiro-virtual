@@ -245,21 +245,23 @@ int BonusIndividualTotal(TipoBonus tipo, const Bonus& bonus);
 int BonusIndividualTotal(const BonusIndividual& bonus_individual);
 int BonusIndividualPorOrigem(TipoBonus tipo, const std::string& origem, const Bonus& bonus);
 int BonusIndividualPorOrigem(const std::string& origem, const BonusIndividual& bonus_individual);
+// Retorna true se tipo estiver presente em bonus.
+bool TemBonus(TipoBonus tipo, const Bonus& bonus);
 
 // Retorna o modificador do atributo.
 int ModificadorAtributo(int atributo);
-// Retorna o modificador de destreza, limitado por armadura.
-int ModificadorDestreza(const ent::EntidadeProto& proto, const ent::Tabelas& tabelas);
+// Leva em consideracao a ausencia de bonus BASE, assumindo ser 10.
+int ModificadorAtributo(const Bonus& atributo);
 
 // Modificador geral de tamanho.
 int ModificadorTamanho(TamanhoEntidade tamanho);
 int ModificadorTamanhoAgarrar(TamanhoEntidade tamanho);
 
 // Funcoes auxiliares de CA.
-int BonusCATotal(const EntidadeProto& proto, bool permite_escudo);
-int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo);
-int BonusCAToque(const EntidadeProto& proto);
-int BonusCAToqueSurpreso(const EntidadeProto& proto);
+int CATotal(const EntidadeProto& proto, bool permite_escudo);
+int CASurpreso(const EntidadeProto& proto, bool permite_escudo);
+int CAToque(const EntidadeProto& proto);
+int CAToqueSurpreso(const EntidadeProto& proto);
 
 inline bool ArmaDupla(const ArmaProto& arma) { return arma.has_dano_secundario(); }
 inline bool ArmaDistancia(const ArmaProto& arma) { return arma.incremento_quadrados() > 0; }

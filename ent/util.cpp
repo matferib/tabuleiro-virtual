@@ -1163,25 +1163,34 @@ std::vector<TipoBonus> ExclusaoEscudo(bool permite_escudo) {
   return exclusao;
 }
 
-int BonusCATotal(const EntidadeProto& proto, bool permite_escudo) {
+int CATotal(const EntidadeProto& proto, bool permite_escudo) {
   return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo));
 }
 
-int BonusCASurpreso(const EntidadeProto& proto, bool permite_escudo) {
+int CASurpreso(const EntidadeProto& proto, bool permite_escudo) {
   const int destreza = BonusTotal(proto.atributos().destreza());
   const int modificador_destreza = destreza > 0 ? ModificadorAtributo(destreza) : 0;
   return BonusTotalExcluindo(proto.dados_defesa().ca(), ExclusaoEscudo(permite_escudo)) - std::max(modificador_destreza, 0);
 }
 
-int BonusCAToque(const EntidadeProto& proto) {
+int CAToque(const EntidadeProto& proto) {
   return BonusTotalExcluindo(proto.dados_defesa().ca(),
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA });
 }
 
-int BonusCAToqueSurpreso(const EntidadeProto& proto) {
+int CAToqueSurpreso(const EntidadeProto& proto) {
   const int modificador_destreza = proto.atributos().has_destreza() ? ModificadorAtributo(BonusTotal(proto.atributos().destreza())) : 0;
   return BonusTotalExcluindo(proto.dados_defesa().ca(),
          { TB_ARMADURA, TB_ESCUDO, TB_ARMADURA_NATURAL, TB_ARMADURA_MELHORIA, TB_ESCUDO_MELHORIA }) - std::max(modificador_destreza, 0);
+}
+
+bool TemBonus(TipoBonus tipo, const Bonus& bonus) {
+  for (const auto& bi : bonus.bonus_individual()) {
+    if (bi.tipo() == tipo) {
+      return true;
+    }
+  }
+  return false;
 }
 
 // Retorna o total de um bonus individual, contabilizando acumulo caso as origens sejam diferentes.
@@ -1270,8 +1279,7 @@ void RecomputaDependenciasArma(EntidadeProto::DadosAtaque* da, const EntidadePro
   }
   AtribuiBonus(bba, TB_BASE, "base", da->mutable_outros_bonus_ataque());
   if (usar_forca_dano) {
-    const int forca = ent::BonusTotal(proto.atributos().forca());
-    const int modificador_forca = forca > 0 ? ModificadorAtributo(ent::BonusTotal(proto.atributos().forca())) : 0;
+    const int modificador_forca = ModificadorAtributo(proto.atributos().forca());
     int dano_forca = 0;
     EmpunhaduraArma ea = da->empunhadura();
     if (modificador_forca < 0) {
@@ -1292,20 +1300,24 @@ void RecomputaDependenciasArma(EntidadeProto::DadosAtaque* da, const EntidadePro
 }  // namespace
 
 void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
-  const int destreza = ent::BonusTotal(proto->atributos().destreza());
-  int modificador_destreza     = destreza > 0 ? ModificadorAtributo(destreza) : 0;
   auto* dd = proto->mutable_dados_defesa();
+  // Ajusta a destreza de acordo com a armadura. Primeiro limpa para calcular a penalidade de armadura ou escudo.
+  AtribuiBonus(0, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
+  const int mod_antes = ModificadorAtributo(proto->atributos().destreza());
+  int bonus_maximo = 100;
   if (dd->has_id_armadura()) {
-    const int bonus_maximo = tabelas.Armadura(dd->id_armadura()).max_bonus_destreza();
-    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+    bonus_maximo = std::min(tabelas.Armadura(dd->id_armadura()).max_bonus_destreza(), bonus_maximo);
   }
   if (dd->has_id_escudo()) {
-    const int bonus_maximo = tabelas.Escudo(dd->id_escudo()).max_bonus_destreza();
-    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+    bonus_maximo = std::min(tabelas.Escudo(dd->id_escudo()).max_bonus_destreza(), bonus_maximo);
   }
-  const int modificador_constituicao = ModificadorAtributo(ent::BonusTotal(proto->atributos().constituicao()));
+  int penalidade = mod_antes > bonus_maximo ? bonus_maximo - mod_antes : 0;
+  AtribuiBonus(penalidade, TB_ARMADURA, "armadura_escudo", proto->mutable_atributos()->mutable_destreza());
+
+  int modificador_destreza           = ModificadorAtributo(proto->atributos().destreza());
+  const int modificador_constituicao = ModificadorAtributo(proto->atributos().constituicao());
   //const int modificador_inteligencia = ModificadorAtributo(ent::BonusTotal(proto->atributos().inteligencia()));
-  const int modificador_sabedoria    = ModificadorAtributo(ent::BonusTotal(proto->atributos().sabedoria()));
+  const int modificador_sabedoria    = ModificadorAtributo(proto->atributos().sabedoria());
   //const int modificador_carisma      = ModificadorAtributo(ent::BonusTotal(proto->atributos().carisma()));
 
   const int modificador_tamanho = ModificadorTamanho(proto->tamanho());
@@ -1326,14 +1338,13 @@ void RecomputaDependencias(const Tabelas& tabelas, EntidadeProto* proto) {
   // CA dos ataques.
   for (auto& da : *proto->mutable_dados_ataque()) {
     bool permite_escudo = da.empunhadura() == EA_ARMA_ESCUDO;
-    da.set_ca_normal(BonusCATotal(*proto, permite_escudo));
-    da.set_ca_surpreso(BonusCASurpreso(*proto, permite_escudo));
-    da.set_ca_toque(BonusCAToque(*proto));
+    da.set_ca_normal(CATotal(*proto, permite_escudo));
+    da.set_ca_surpreso(CASurpreso(*proto, permite_escudo));
+    da.set_ca_toque(CAToque(*proto));
   }
 
   // BBA.
-  const int forca = ent::BonusTotal(proto->atributos().forca());
-  const int modificador_forca = forca > 0 ? ModificadorAtributo(ent::BonusTotal(proto->atributos().forca())) : 0;
+  const int modificador_forca = ModificadorAtributo(proto->atributos().forca());
   const int bba = CalculaBonusBaseAtaque(*proto);
   proto->mutable_bba()->set_base(bba);
   proto->mutable_bba()->set_cac(modificador_forca + bba);
@@ -1415,19 +1426,12 @@ int ModificadorAtributo(int atributo) {
   return (atributo / 2) - 5;
 }
 
-int ModificadorDestreza(const ent::EntidadeProto& proto, const ent::Tabelas& tabelas) {
-  const int destreza = ent::BonusTotal(proto.atributos().destreza());
-  int modificador_destreza = destreza > 0 ? ModificadorAtributo(destreza) : 0;
-  const auto& dd = proto.dados_defesa();
-  if (dd.has_id_armadura()) {
-    int bonus_maximo = tabelas.Armadura(dd.id_armadura()).max_bonus_destreza();
-    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
+int ModificadorAtributo(const Bonus& atributo) {
+  int total_atributo = BonusTotal(atributo);
+  if (!TemBonus(TB_BASE, atributo)) {
+    total_atributo += 10;
   }
-  if (dd.has_id_escudo()) {
-    int bonus_maximo = tabelas.Escudo(dd.id_escudo()).max_bonus_destreza();
-    modificador_destreza = std::min(bonus_maximo, modificador_destreza);
-  }
-  return modificador_destreza;
+  return ModificadorAtributo(total_atributo);
 }
 
 int ModificadorTamanho(TamanhoEntidade tamanho) {

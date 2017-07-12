@@ -1349,8 +1349,8 @@ std::string Entidade::StringCAParaAcao() const {
   std::string info = !permite_escudo && !proto_.surpreso()
       ? "" : permite_escudo && proto_.surpreso() ? "(esc+surp) " : permite_escudo ? "(escudo) " : "(surpreso) ";
   if (proto_.dados_defesa().has_ca()) {
-    normal = proto_.surpreso() ? BonusCASurpreso(proto_, permite_escudo) : BonusCATotal(proto_, permite_escudo);
-    toque = proto_.surpreso() ? BonusCAToqueSurpreso(proto_) : BonusCAToque(proto_);
+    normal = proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo);
+    toque = proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_);
   } else {
     normal = proto_.surpreso() ? da->ca_surpreso() : da->ca_normal();
     // TODO nao tem toque surpreso.
@@ -1430,9 +1430,9 @@ int Entidade::CA(TipoCA tipo_ca) const {
   if (proto_.dados_defesa().has_ca()) {
     bool permite_escudo = da == nullptr || da->empunhadura() == EA_ARMA_ESCUDO;
     if (tipo_ca == CA_NORMAL) {
-      return proto_.surpreso() ? BonusCASurpreso(proto_, permite_escudo) : BonusCATotal(proto_, permite_escudo);
+      return proto_.surpreso() ? CASurpreso(proto_, permite_escudo) : CATotal(proto_, permite_escudo);
     } else {
-      return proto_.surpreso() ? BonusCAToqueSurpreso(proto_) : BonusCAToque(proto_);
+      return proto_.surpreso() ? CAToqueSurpreso(proto_) : CAToque(proto_);
     }
   }
   if (da == nullptr) {
