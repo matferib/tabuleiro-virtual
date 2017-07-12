@@ -26,13 +26,27 @@ message ArmaduraOuEscudoProto {
 }
 
 enum CategoriaArma {
-  CAT_CAC_LEVE = 0;
+  // arma corpo a corpo.
+  CAT_CAC        = 0;
+  // Ataque a distancia.
+  CAT_DISTANCIA  = 1;
+  // Arma leve.
+  CAT_LEVE       = 2;
+  // Arma de arremesso (implica distancia).
+  CAT_ARREMESSO = 5;
+  // Arma requer duas maos.
+  CAT_DUAS_MAOS = 6;
+  // Arcos tem tratamento especial (implica distancia).
+  CAT_ARCO      = 7;
+  // Arma é dupla. Implica duas maos.
+  CAT_ARMA_DUPLA = 8;
 }
 
 enum TipoDano {
   TD_CORTANTE = 0;
   TD_CONCUSSAO = 1;
   TD_PERFURANTE = 2;
+  TD_OUTRO = 3;
 }
 
 // O medio vem de tabela e os outros gerados automaticamente.

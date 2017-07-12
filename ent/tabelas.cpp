@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <unordered_map>
 #include "arq/arquivo.h"
 #include "ent/entidade.pb.h"
@@ -55,12 +56,29 @@ void ConverteDano(ArmaProto* arma) {
       { TM_GRANDE, "4d8" }, { TM_ENORME, "6d8" }, { TM_IMENSO, "8d8" }, { TM_COLOSSAL, "12d8" }
     } }
   };
-  auto it = mapa_danos.find(arma->dano().medio());
-  if (it == mapa_danos.end()) {
-    throw std::logic_error(google::protobuf::StringPrintf("Dano nao encontrado: %s", arma->dano().medio().c_str()));
+  {
+    auto it = mapa_danos.find(arma->dano().medio());
+    if (it == mapa_danos.end()) {
+      if (!arma->dano().medio().empty()) {
+        LOG(ERROR) << google::protobuf::StringPrintf("Dano nao encontrado: %s", arma->dano().medio().c_str());
+      }
+      return;
+    }
+    if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano()->set_pequeno(it->second.find(TM_PEQUENO)->second);
+    if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano()->set_grande(it->second.find(TM_GRANDE)->second);
   }
-  if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano()->set_pequeno(it->second.find(TM_PEQUENO)->second);
-  if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano()->set_grande(it->second.find(TM_GRANDE)->second);
+  {
+    // dano secundario.
+    auto it = mapa_danos.find(arma->dano_secundario().medio());
+    if (it == mapa_danos.end()) {
+      if (!arma->dano_secundario().medio().empty()) {
+        LOG(ERROR) << google::protobuf::StringPrintf("Dano nao encontrado: %s", arma->dano_secundario().medio().c_str());
+      }
+      return;
+    }
+    if (it->second.find(TM_PEQUENO) != it->second.end()) arma->mutable_dano_secundario()->set_pequeno(it->second.find(TM_PEQUENO)->second);
+    if (it->second.find(TM_GRANDE) != it->second.end()) arma->mutable_dano_secundario()->set_grande(it->second.find(TM_GRANDE)->second);
+  }
 }
 
 }  // namespace
@@ -81,8 +99,36 @@ Tabelas::Tabelas() {
     if (arma.nome().empty()) {
       arma.set_nome(arma.id());
     }
+    if (std::any_of(arma.categoria().begin(), arma.categoria().end(),
+          [] (int c) { return c == CAT_ARCO || c == CAT_ARREMESSO; })) {
+      arma.add_categoria(CAT_DISTANCIA);
+    }
+    if (std::any_of(arma.categoria().begin(), arma.categoria().end(),
+          [] (int c) { return c == CAT_ARMA_DUPLA; })) {
+      arma.add_categoria(CAT_DUAS_MAOS);
+    }
     ConverteDano(&arma);
     armas_[arma.id()] = &arma;
+  }
+  {
+    const ArmaProto& arco_curto_composto = Arma("arco_curto_composto");
+    for (int i = 1; i < 10; ++i) {
+      auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
+      *novo_arco = arco_curto_composto;
+      novo_arco->set_id(google::protobuf::StringPrintf("%s_%d", arco_curto_composto.id().c_str(), i));
+      novo_arco->set_preco(google::protobuf::StringPrintf("%d PO", (i * 75) + 75));
+      armas_[novo_arco->id()] = novo_arco;
+    }
+  }
+  {
+    const ArmaProto& arco_longo_composto = Arma("arco_longo_composto");
+    for (int i = 1; i < 10; ++i) {
+      auto* novo_arco = tabelas_.mutable_tabela_armas()->add_armas();
+      *novo_arco = arco_longo_composto;
+      novo_arco->set_id(google::protobuf::StringPrintf("%s_%d", arco_longo_composto.id().c_str(), i));
+      novo_arco->set_preco(google::protobuf::StringPrintf("%d PO", (i * 100) + 100));
+      armas_[novo_arco->id()] = novo_arco;
+    }
   }
 }
 

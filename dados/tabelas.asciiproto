@@ -28,9 +28,11 @@ tabela_escudos {
 }
 
 tabela_armas {
+  # Armas simples.
   armas {
     id: 'desarmado'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
     preco: '0 PO'
     dano { medio: '1d3' }
     critico: '×2'
@@ -40,7 +42,8 @@ tabela_armas {
   }
   armas {
     id: 'manopla'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
     preco: '2 PO'
     dano { medio: '1d3' }
     critico: '×2'
@@ -49,7 +52,9 @@ tabela_armas {
   }
   armas {
     id: 'adaga'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    categoria: CAT_ARREMESSO
     preco: '2 PO'
     dano { medio: '1d4' }
     incremento_quadrados: 2
@@ -61,7 +66,8 @@ tabela_armas {
   armas {
     id: 'adaga_de_soco'
     nome: 'adaga de soco'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
     preco: '2 PO'
     dano { medio: '1d4' }
     critico: '×3'
@@ -70,7 +76,8 @@ tabela_armas {
   }
   armas {
     id: 'manopla_com_cravos'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
     nome: 'manopla com cravos'
     preco: '5 PO'
     dano { medio: '1d4' }
@@ -80,7 +87,8 @@ tabela_armas {
   }
   armas {
     id: 'maca_leve'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
     nome: 'maça leve'
     preco: '5 PO'
     dano { medio: '1d6' }
@@ -90,7 +98,8 @@ tabela_armas {
   }
   armas {
     id: 'foice_curta'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
     nome: 'foice curta'
     preco: '6 PO'
     dano { medio: '1d6' }
@@ -101,7 +110,7 @@ tabela_armas {
   # One-Handed Melee Weapons
   armas {
     id: 'clava'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
     preco: '0 PO'
     dano { medio: '1d6'  }
     critico: '×2'
@@ -111,7 +120,7 @@ tabela_armas {
   }
   armas {
     id: 'maca_pesada'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
     nome: 'maça pesada'
     preco: '12 PO'
     dano { medio: '1d8' }
@@ -121,7 +130,7 @@ tabela_armas {
   }
   armas {
     id: 'maca_estrela'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
     nome: 'maça estrela'
     preco: '8 PO'
     dano { medio: '1d8' }
@@ -132,7 +141,8 @@ tabela_armas {
   }
   armas {
     id: 'lanca_curta'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
+    categoria: CAT_ARREMESSO
     nome: 'lança curta'
     preco: '1 PO'
     dano { medio: '1d6' }
@@ -144,7 +154,9 @@ tabela_armas {
   # Two-Handed Melee Weapons
   armas {
     id: 'lanca'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
+    categoria: CAT_ARREMESSO
+    categoria: CAT_DUAS_MAOS
     nome: 'lança'
     preco: '2 PO'
     dano { medio: '1d8'  }
@@ -155,7 +167,8 @@ tabela_armas {
   }
   armas {
     id: 'lanca_longa'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
     nome: 'lança longa'
     preco: '5 PO'
     dano { medio: '1d8' }
@@ -165,11 +178,11 @@ tabela_armas {
   }
   armas {
     id: 'bordao'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_CAC
     nome: 'bordão'
     preco: '0 PO'
     dano { medio: '1d6' }
-    dano_secundario: { medio: '1d6' }
+    dano_secundario { medio: '1d6' }
     critico: '×2'
     peso { medio: '2kg' }
     tipo_dano: TD_CONCUSSAO
@@ -177,7 +190,7 @@ tabela_armas {
   # Ranged Weapons
   armas {
     id: 'besta_pesada'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_DISTANCIA
     nome: 'besta pesada'
     preco: '50 PO'
     dano { medio: '1d10'  }
@@ -188,7 +201,7 @@ tabela_armas {
   }
   armas {
     id: 'besta_leve'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_DISTANCIA
     nome: 'besta leve'
     preco: '35 PO'
     dano { medio: '1d8'  }
@@ -199,7 +212,7 @@ tabela_armas {
   }
   armas {
     id: 'dardo'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_ARREMESSO
     nome: 'dardo'
     preco: '5 PP'
     dano { medio: '1d4' }
@@ -210,7 +223,7 @@ tabela_armas {
   }
   armas {
     id: 'azagaia'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_ARREMESSO
     preco: '1 PO'
     dano { medio: '1d6' }
     critico: '×2'
@@ -220,7 +233,7 @@ tabela_armas {
   }
   armas {
     id: 'funda'
-    categoria: CAT_CAC_LEVE
+    categoria: CAT_ARREMESSO
     nome: 'funda'
     preco: '0 PO'
     dano { medio: '1d4' }
@@ -228,5 +241,617 @@ tabela_armas {
     incremento_quadrados: 10
     peso { medio: '0Kg' }
     tipo_dano: TD_CONCUSSAO
+  }
+  # Fim armas leves.
+
+  # Armas comuns.
+  armas {
+    id: 'armadura_com_cravos'
+    nome: 'armadura com cravos'
+    preco: 'especial'
+    dano { medio: '1d6'  }
+    critico: '×2'
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    peso { medio: 'especial' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'escudo_pequeno'
+    nome: 'escudo pequeno'
+    preco: 'especial'
+    dano { medio: '1d3' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: 'especial' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'escudo_pequeno_com_cavos'
+    nome: 'escudo pequeno com cravos'
+    preco: 'especial'
+    dano { medio: '1d4'}
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: 'especial' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'espada_curta'
+    nome: 'espada curta'
+    preco: '10 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '19-20/×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'kukri'
+    preco: '8 PO'
+    dano { medio: '1d4' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '18-20/×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'machadinha'
+    preco: '6 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '×3'
+    peso { medio: '15kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'machado_de_arremesso'
+    nome: 'machado de arremesso'
+    preco: '8 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_LEVE
+    categoria: CAT_ARREMESSO
+    categoria: CAT_CAC
+    incremento_quadrados: 2
+    critico: '×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'martelo_leve'
+    nome: 'martelo leve'
+    preco: '1 PO'
+    dano { medio: '1d4' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    categoria: CAT_ARREMESSO
+    incremento_quadrados: 4
+    critico: '×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'picareta_leve'
+    nome: 'picareta leve'
+    preco: '4 PO'
+    dano { medio: '1d4' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '×4'
+    peso { medio: '15kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'porrete'
+    nome: 'porrete'
+    preco: '1 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  # One-Handed Melee Weapons
+  armas {
+    id: 'cimitarra'
+    nome: 'cimitarra'
+    preco: '15 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_CAC
+    critico: '18-20/×2'
+    peso { medio: '2kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'escudo_grande'
+    nome: 'escudo grande'
+    preco: 'especial'
+    dano { medio: '1d4' }
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: 'especial' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'escudo_grande_com_cravos'
+    nome: 'escudo grande com cravos'
+    preco: 'especial'
+    dano { medio: '1d6' }
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: 'especial' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'espada_longa'
+    nome: 'espada longa'
+    preco: '15 PO'
+    dano { medio: '1d8' }
+    categoria: CAT_CAC
+    critico: '19-20/×2'
+    peso { medio: '2kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'machado_de_batalha'
+    nome: 'machado de batalha'
+    preco: '10 PO'
+    dano { medio: '1d8' }
+    categoria: CAT_CAC
+    critico: '×3'
+    peso { medio: '3kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'mangual'
+    nome: 'mangual'
+    preco: '8 PO'
+    dano { medio: '1d8' }
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: '25kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'martelo_de_guerra'
+    nome: 'martelo de guerra'
+    preco: '12 PO'
+    dano { medio: '1d8' }
+    categoria: CAT_CAC
+    critico: '×3'
+    peso { medio: '25kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'picareta_pesada'
+    nome: 'picareta pesada'
+    preco: '8 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_CAC
+    critico: '×4'
+    peso { medio: '3kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'sabre'
+    nome: 'sabre'
+    preco: '20 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_CAC
+    critico: '18-20/×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'tridente'
+    nome: 'tridente'
+    preco: '15 PO'
+    dano { medio: '1d8' }
+    categoria: CAT_CAC
+    categoria: CAT_ARREMESSO
+    incremento_quadrados: 2
+    critico: '×2'
+    peso { medio: '2kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  # Two-Handed Melee Weapons
+  armas {
+    id: 'alabarda'
+    nome: 'alabarda'
+    preco: '10 PO'
+    dano { medio: '1d10' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×3'
+    peso { medio: '11kg' }
+    tipo_dano: TD_CORTANTE
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'clava_grande'
+    nome: 'clava grande'
+    preco: '5 PO'
+    dano { medio: '1d10' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×2'
+    peso { medio: '4Kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'espada_larga'
+    nome: 'espada larga'
+    preco: '50 PO'
+    dano { medio: '2d6' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '19-20/×2'
+    peso { medio: '4Kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'falcione'
+    nome: 'falcione'
+    preco: '75 PO'
+    dano { medio: '2d4' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '18-20/×2'
+    peso { medio: '4kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'foice_longa'
+    nome: 'foice longa'
+    preco: '18 PO'
+    dano { medio: '2d4' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×4'
+    peso { medio: '10kg' }
+    tipo_dano: TD_CORTANTE
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'glaive'
+    nome: 'glaive'
+    preco: '8 PO'
+    dano { medio: '1d10' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×3'
+    peso { medio: '10Kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'guisarme'
+    nome: 'guisarme'
+    preco: '9 PO'
+    dano { medio: '2d4' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×3'
+    peso { medio: '11kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'lanca_montada'
+    nome: 'lança montada'
+    preco: '10 PO'
+    dano { medio: '1d8' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×3'
+    peso { medio: '10kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'machado_grande'
+    nome: 'machado grande'
+    preco: '20 PO'
+    dano { medio: '1d12' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×3'
+    peso { medio: '11kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'mangual_pesado'
+    nome: 'mangual pesado'
+    preco: '15 PO'
+    dano { medio: '1d10' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '19-20/×2'
+    peso { medio: '10kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'ranseur'
+    nome: 'ranseur'
+    preco: '10 PO'
+    dano { medio: '2d4' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×3'
+    peso { medio: '11kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  # Ranged Weapons
+  armas {
+    id: 'arco_curto'
+    nome: 'arco curto'
+    preco: '30 PO'
+    dano { medio: '1d6'  }
+    critico: '×3'
+    categoria: CAT_ARCO
+    incremento_quadrados: 12
+    peso { medio: '1Kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'arco_curto_composto'
+    nome: 'arco curto composto'
+    preco: '75 PO'
+    dano { medio: '1d6'  }
+    critico: '×3'
+    categoria: CAT_ARCO
+    incremento_quadrados: 14
+    peso { medio: '1kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'arco_longo'
+    nome: 'arco longo'
+    preco: '75 PO'
+    dano { medio: '1d8'  }
+    critico: '×3'
+    incremento_quadrados: 20
+    categoria: CAT_ARCO
+    peso { medio: '15kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'arco_longo_composto'
+    nome: 'arco longo composto'
+    preco: '100 PO'
+    dano { medio: '1d8'  }
+    critico: '×3'
+    categoria: CAT_ARCO
+    incremento_quadrados: 22
+    peso { medio: '15kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  # Fim armas comuns
+
+  # Armas exoticas.
+  # Leves
+  armas {
+    id: 'kama'
+    nome: 'kama'
+    preco: '2 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_CAC
+    categoria: CAT_LEVE
+    critico: '×2'
+    peso { medio: '1Kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'nunchaku'
+    nome: 'nunchaku'
+    preco: '2 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_CAC
+    categoria: CAT_LEVE
+    critico: '×2'
+    peso { medio: '1Kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'sai'
+    nome: 'sai'
+    preco: '1 PO'
+    dano { medio: '1d4' }
+    categoria: CAT_CAC
+    categoria: CAT_LEVE
+    categoria: CAT_ARREMESSO
+    incremento_quadrados: 2
+    critico: '×2'
+    peso { medio: '0,5kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'siangham'
+    preco: '3 PO'
+    dano { medio: '1d6' }
+    categoria: CAT_LEVE
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: '0,5kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+
+  # One-Handed Melee Weapons
+  armas {
+    id: 'chicote'
+    nome: 'chicote'
+    preco: '1 PO'
+    dano { medio: '1d3' }
+    categoria: CAT_CAC
+    critico: '×2'
+    peso { medio: '1kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'espada_bastarda'
+    nome: 'espada bastarda'
+    preco: '35 PO'
+    dano { medio: '1d10' }
+    categoria: CAT_CAC
+    critico: '19-20/×2'
+    peso { medio: '3Kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'machado_de_guerra_anao'
+    nome: 'machado de guerra anão'
+    preco: '30 PO'
+    dano { medio: '1d10'}
+    categoria: CAT_CAC
+    critico: '×3'
+    peso { medio: '4Kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  # Two-Handed Melee Weapons
+  armas {
+    id: 'corrente_com_cravos'
+    nome: 'corrente com cravos'
+    preco: '25 PO'
+    dano { medio: '2d4' }
+    categoria: CAT_CAC
+    categoria: CAT_DUAS_MAOS
+    critico: '×2'
+    peso { medio: '10kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'espada_de_duas_laminas'
+    nome: 'espada de duas lâminas'
+    preco: '100 PO'
+    dano { medio: '1d8'  }
+    dano_secundario { medio: '1d8' }
+    categoria: CAT_CAC
+    categoria: CAT_ARMA_DUPLA
+    critico: '19-20/×2'
+    peso { medio: '10Kg' }
+    tipo_dano: TD_CORTANTE
+  }
+
+  armas {
+    id: 'machado_orc_duplo'
+    nome: 'machado orc duplo'
+    preco: '60 PO'
+    dano { medio: '1d8'  }
+    dano_secundario { medio: '1d8' }
+    categoria: CAT_ARMA_DUPLA
+    categoria: CAT_CAC
+    critico: '×3'
+    peso { medio: '12,5kg' }
+    tipo_dano: TD_CORTANTE
+  }
+  armas {
+    id: 'mangual_atroz'
+    nome: 'mangual atroz'
+    preco: '90 PO'
+    dano { medio: '1d8' }
+    dano_secundario { medio: '1d8'}
+    categoria: CAT_CAC
+    categoria: CAT_ARMA_DUPLA
+    critico: '×2'
+    peso { medio: '10kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+
+  armas {
+    id: 'martelo_gnomo_com_gancho'
+    nome: 'martelo gnomo com gancho'
+    preco: '20 PO'
+    dano { medio: '1d8' }
+    dano_secundario { medio: '1d6'}
+    categoria: CAT_CAC
+    categoria: CAT_ARMA_DUPLA
+    critico: '×3/×4'
+    peso { medio: '3kg' }
+    tipo_dano: TD_CONCUSSAO
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'urgrosh_anao'
+    nome: 'urgrosh anão'
+    preco: '50 PO'
+    dano { medio: '1d8' }
+    dano_secundario { medio: '1d6'}
+    categoria: CAT_CAC 
+    categoria: CAT_ARMA_DUPLA
+    critico: '×3'
+    peso { medio: '11kg' }
+    tipo_dano: TD_PERFURANTE
+    tipo_dano: TD_CORTANTE
+  }
+
+  # Ranged Weapons
+  armas {
+    id: 'besta_leve_de_repeticao'
+    nome: 'besta leve de repetição'
+    preco: '250 PO'
+    dano { medio: '1d8'  }
+    critico: '19-20/×2'
+    categoria: CAT_DISTANCIA
+    incremento_quadrados: 16
+    peso { medio: '3Kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'besta_pesada_de_repeticao'
+    nome: 'besta pesada de repetição'
+    preco: '400 PO'
+    dano { medio: '1d10'  }
+    critico: '19-20/×2'
+    categoria: CAT_DISTANCIA
+    incremento_quadrados: 24
+    peso { medio: '11kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'besta_de_mao'
+    nome: 'besta de mão'
+    preco: '100 PO'
+    dano { medio: '1d4' }
+    critico: '19-20/×2'
+    categoria: CAT_DISTANCIA
+    incremento_quadrados: 6
+    peso { medio: '1kg' }
+    tipo_dano: TD_PERFURANTE
+  }
+  armas {
+    id: 'boleadeira'
+    nome: 'boleadeira'
+    preco: '5 PO'
+    dano { medio: '1d4' }
+    critico: '×2'
+    categoria: CAT_DISTANCIA
+    incremento_quadrados: 2
+    peso { medio: '1kg' }
+    tipo_dano: TD_CONCUSSAO
+  }
+  armas {
+    id: 'rede'
+    nome: 'rede'
+    preco: '20 PO'
+    dano { medio: '' }
+    critico: '-'
+    categoria: CAT_DISTANCIA
+    incremento_quadrados: 2
+    peso { medio: '3kg' }
+    tipo_dano: TD_OUTRO
+  }
+  armas {
+    id: 'shuriken'
+    nome: 'shuriken (5)'
+    preco: '1 PO'
+    dano { medio: '1d2'  }
+    critico: '×2'
+    categoria: CAT_ARREMESSO
+    incremento_quadrados: 2
+    peso { medio: '0,25kg' }
+    tipo_dano: TD_PERFURANTE
   }
 }
