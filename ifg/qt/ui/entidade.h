@@ -182,18 +182,19 @@ public:
     QLineEdit *linha_rotulo_ataque;
     QLabel *label_21;
     QComboBox *combo_tipo_ataque;
-    QLabel *label_64;
-    QSpinBox *spin_composto;
+    QSpacerItem *horizontalSpacer_5;
+    QCheckBox *checkbox_op;
+    QLabel *label_23;
+    QSpinBox *spin_bonus_magico;
     QCheckBox *checkbox_acuidade;
     QHBoxLayout *horizontalLayout_6;
+    QLabel *label_64;
+    QSpinBox *spin_composto;
     QLabel *label_29;
     QSpinBox *spin_alcance_quad;
     QLabel *label_30;
     QLabel *label_32;
     QSpinBox *spin_incrementos;
-    QCheckBox *checkbox_op;
-    QLabel *label_23;
-    QSpinBox *spin_bonus_magico;
     QSpacerItem *horizontalSpacer_2;
     QLabel *label_55;
     QPushButton *botao_bonus_ataque;
@@ -1073,22 +1074,33 @@ public:
 
         horizontalLayout_29->addWidget(combo_tipo_ataque);
 
-        label_64 = new QLabel(verticalLayoutWidget_2);
-        label_64->setObjectName(QString::fromUtf8("label_64"));
-        sizePolicy5.setHeightForWidth(label_64->sizePolicy().hasHeightForWidth());
-        label_64->setSizePolicy(sizePolicy5);
-        label_64->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_29->addWidget(label_64);
+        horizontalLayout_29->addItem(horizontalSpacer_5);
 
-        spin_composto = new QSpinBox(verticalLayoutWidget_2);
-        spin_composto->setObjectName(QString::fromUtf8("spin_composto"));
-        sizePolicy1.setHeightForWidth(spin_composto->sizePolicy().hasHeightForWidth());
-        spin_composto->setSizePolicy(sizePolicy1);
-        spin_composto->setMinimum(-50);
-        spin_composto->setMaximum(50);
+        checkbox_op = new QCheckBox(verticalLayoutWidget_2);
+        checkbox_op->setObjectName(QString::fromUtf8("checkbox_op"));
+        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
+        checkbox_op->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_29->addWidget(spin_composto);
+        horizontalLayout_29->addWidget(checkbox_op);
+
+        label_23 = new QLabel(verticalLayoutWidget_2);
+        label_23->setObjectName(QString::fromUtf8("label_23"));
+        sizePolicy5.setHeightForWidth(label_23->sizePolicy().hasHeightForWidth());
+        label_23->setSizePolicy(sizePolicy5);
+        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+
+        horizontalLayout_29->addWidget(label_23);
+
+        spin_bonus_magico = new QSpinBox(verticalLayoutWidget_2);
+        spin_bonus_magico->setObjectName(QString::fromUtf8("spin_bonus_magico"));
+        sizePolicy1.setHeightForWidth(spin_bonus_magico->sizePolicy().hasHeightForWidth());
+        spin_bonus_magico->setSizePolicy(sizePolicy1);
+        spin_bonus_magico->setMinimum(-50);
+        spin_bonus_magico->setMaximum(50);
+
+        horizontalLayout_29->addWidget(spin_bonus_magico);
 
         checkbox_acuidade = new QCheckBox(verticalLayoutWidget_2);
         checkbox_acuidade->setObjectName(QString::fromUtf8("checkbox_acuidade"));
@@ -1102,6 +1114,23 @@ public:
 
         horizontalLayout_6 = new QHBoxLayout();
         horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        label_64 = new QLabel(verticalLayoutWidget_2);
+        label_64->setObjectName(QString::fromUtf8("label_64"));
+        sizePolicy5.setHeightForWidth(label_64->sizePolicy().hasHeightForWidth());
+        label_64->setSizePolicy(sizePolicy5);
+        label_64->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
+
+        horizontalLayout_6->addWidget(label_64);
+
+        spin_composto = new QSpinBox(verticalLayoutWidget_2);
+        spin_composto->setObjectName(QString::fromUtf8("spin_composto"));
+        sizePolicy1.setHeightForWidth(spin_composto->sizePolicy().hasHeightForWidth());
+        spin_composto->setSizePolicy(sizePolicy1);
+        spin_composto->setMinimum(-50);
+        spin_composto->setMaximum(50);
+
+        horizontalLayout_6->addWidget(spin_composto);
+
         label_29 = new QLabel(verticalLayoutWidget_2);
         label_29->setObjectName(QString::fromUtf8("label_29"));
         sizePolicy5.setHeightForWidth(label_29->sizePolicy().hasHeightForWidth());
@@ -1140,30 +1169,6 @@ public:
         spin_incrementos->setSizePolicy(sizePolicy1);
 
         horizontalLayout_6->addWidget(spin_incrementos);
-
-        checkbox_op = new QCheckBox(verticalLayoutWidget_2);
-        checkbox_op->setObjectName(QString::fromUtf8("checkbox_op"));
-        sizePolicy1.setHeightForWidth(checkbox_op->sizePolicy().hasHeightForWidth());
-        checkbox_op->setSizePolicy(sizePolicy1);
-
-        horizontalLayout_6->addWidget(checkbox_op);
-
-        label_23 = new QLabel(verticalLayoutWidget_2);
-        label_23->setObjectName(QString::fromUtf8("label_23"));
-        sizePolicy5.setHeightForWidth(label_23->sizePolicy().hasHeightForWidth());
-        label_23->setSizePolicy(sizePolicy5);
-        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_6->addWidget(label_23);
-
-        spin_bonus_magico = new QSpinBox(verticalLayoutWidget_2);
-        spin_bonus_magico->setObjectName(QString::fromUtf8("spin_bonus_magico"));
-        sizePolicy1.setHeightForWidth(spin_bonus_magico->sizePolicy().hasHeightForWidth());
-        spin_bonus_magico->setSizePolicy(sizePolicy1);
-        spin_bonus_magico->setMinimum(-50);
-        spin_bonus_magico->setMaximum(50);
-
-        horizontalLayout_6->addWidget(spin_bonus_magico);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -1997,23 +2002,6 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "Tempestade Glacial", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Outro", 0, QApplication::UnicodeUTF8)
         );
-        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Composto", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_composto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arco composto", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-#ifndef QT_NO_TOOLTIP
-        checkbox_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma permite acuidade?", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        checkbox_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
-        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
-#ifndef QT_NO_TOOLTIP
-        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
-        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quads, incrementos", 0, QApplication::UnicodeUTF8));
-        label_32->setText(QString());
-#ifndef QT_NO_TOOLTIP
-        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
-#endif // QT_NO_TOOLTIP
 #ifndef QT_NO_TOOLTIP
         checkbox_op->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma obra prima?", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
@@ -2024,6 +2012,23 @@ public:
         label_23->setText(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus M\303\241gico", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         spin_bonus_magico->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "B\303\264nus m\303\241gico da arma", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_TOOLTIP
+        checkbox_acuidade->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arma permite acuidade?", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        checkbox_acuidade->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Acuidade?", 0, QApplication::UnicodeUTF8));
+        label_64->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Composto", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_composto->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Arco composto", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_29->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance", 0, QApplication::UnicodeUTF8));
+#ifndef QT_NO_TOOLTIP
+        spin_alcance_quad->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Alcance em quadrados", 0, QApplication::UnicodeUTF8));
+#endif // QT_NO_TOOLTIP
+        label_30->setText(QApplication::translate("ifg::qt::DialogoEntidade", "quads, incrementos", 0, QApplication::UnicodeUTF8));
+        label_32->setText(QString());
+#ifndef QT_NO_TOOLTIP
+        spin_incrementos->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "M\303\241ximo de incrementos permitido pelo ataque", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_55->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (ataque)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
@@ -2043,7 +2048,7 @@ public:
          << QApplication::translate("ifg::qt::DialogoEntidade", "2 Armas, m\303\243o ruim", 0, QApplication::UnicodeUTF8)
          << QApplication::translate("ifg::qt::DialogoEntidade", "Arma e Escudo", 0, QApplication::UnicodeUTF8)
         );
-        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros", 0, QApplication::UnicodeUTF8));
+        label_72->setText(QApplication::translate("ifg::qt::DialogoEntidade", "Outros (dano)", 0, QApplication::UnicodeUTF8));
 #ifndef QT_NO_TOOLTIP
         botao_bonus_dano->setToolTip(QApplication::translate("ifg::qt::DialogoEntidade", "Outros b\303\264nus de dano.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP

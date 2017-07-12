@@ -1205,10 +1205,9 @@ void AtualizaUIAtributos(const ent::Tabelas& tabelas, ifg::qt::Ui::DialogoEntida
     if (label != gerador.label_mod_destreza) {
       label->setText(NumeroSinalizado(ent::ModificadorAtributo(bonus_total)));
     } else {
-      const int mod_original = ent::ModificadorAtributo(bonus_total);
-      const int mod_real = ent::ModificadorDestreza(proto, tabelas);
-      label->setText(NumeroSinalizado(ent::ModificadorDestreza(proto, tabelas)));
-      if (mod_original > mod_real) {
+      const int mod_destreza = ent::ModificadorAtributo(proto.atributos().destreza());
+      label->setText(NumeroSinalizado(mod_destreza));
+      if (ent::BonusIndividualTotal(ent::TB_ARMADURA, proto.atributos().destreza()) < 0) {
         label->setStyleSheet("color: red;");
       } else {
         label->setStyleSheet("");
